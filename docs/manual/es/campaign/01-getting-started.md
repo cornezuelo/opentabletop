@@ -55,6 +55,8 @@ El reloj del mundo, el mismo que muestra el panel **Mundo** del Hexmapper para u
 
 Aquí no hay grupo, así que avanzar el tiempo solo mueve el mundo: llegan sus eventos, su clima se tira día a día, sus relojes hacen lo que dice el sistema al llenarse, y se juegan los turnos de las facciones que tocan, cambiando su tierra en el mapa elegido en [Facciones](02-factions.md). Un viaje en marcha en la campaña (en un mapa, o en Travel) espera hasta la nueva fecha cuando da su siguiente paso, viviendo el tiempo que pasó; un reloj que se llenó aquí entretanto (a mano, o con los turnos de las facciones) también lo oye entonces, si su sistema lo nombra ([Momentos del mundo](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)). Mientras hay un viaje en marcha, el reloj no puede volver atrás, y el clima del mundo es el del viaje (aquí no se muestra).
 
+Cuando el mundo te espera (la pausa o la pregunta de una reacción, [Mundo](../systems/11-world.md)), **El mundo espera: …** aparece en todas las pestañas, con **Seguir** o las opciones de la pregunta; nada mueve el mundo (aquí, en un mapa o en un viaje) hasta que respondes, y luego sigue el resto.
+
 ### Facciones
 
 Los poderes del mundo de la campaña, sus hojas y su tierra en cada uno de sus mapas, y los turnos del mundo: [Facciones](02-factions.md).

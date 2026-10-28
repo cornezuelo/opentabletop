@@ -17,6 +17,8 @@ export interface WorldControls {
   setDate(time: number): Promise<void>
   /** Adds the clocks the system declares that the world doesn't have yet. */
   bringClocks(): void
+  /** Goes on with what the world waits for: a question's choice, or nothing after a pause. */
+  answer(choice?: string): void
 }
 
 /** A trip going on where the world is played: whether it travels on, and where to (or waits). */

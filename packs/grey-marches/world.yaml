@@ -9,7 +9,7 @@ name: How the Marches move
 description: |-
   The Marches go on without the Company: the Wyrm wakes, the Clans march, Fort Keld's garrison mutinies and the fort falls, news spreads after every world turn, and market day in Ashford puts heart in a weakened Vale.
 
-  **Shows:** the world's reactions (`kind: world`): to a clock filling (`on: world.clocks.<id>.full`, what the three threats do once full), to a world turn (`on: world.turn`, a rumour on the timeline), to a condition turning true, once until it stops holding (`on: { when: … }`: Fort Keld's strength reaching 0, an event's day, `world.events: market-day`); a reaction's own condition (`when:`, only a weakened Vale), a step's (`when:` per step); its steps: `say` (with variables), `roll` a table or generator, `effects` on factions and clocks, `do:` another reaction (`world.reactions.rumours`) and a world turn (`do: world.turn`); chains (the mutiny's effects make Fort Keld fall). A trip brings world turns too (the travel rules' _Carry the news_) and hears them (_Word on the road_).
+  **Shows:** the world's reactions (`kind: world`): to a clock filling (`on: world.clocks.<id>.full`, what the three threats do once full), to a world turn (`on: world.turn`, a rumour on the timeline), to a condition turning true, once until it stops holding (`on: { when: … }`: Fort Keld's strength reaching 0, an event's day, `world.events: market-day`); a reaction's own condition (`when:`, only a weakened Vale), a step's (`when:` per step); its steps: `say` (with variables), `roll` a table or generator, `effects` on factions and clocks, `do:` another reaction (`world.reactions.rumours`) and a world turn (`do: world.turn`); the world waiting for the player, a `pause:` (the mutiny) and a question (`ask:` one of its `params`: who takes the bridge road, read by the steps after it as `params.bridge`); chains (the mutiny's effects make Fort Keld fall). A trip brings world turns too (the travel rules' _Carry the news_) and hears them (_Word on the road_).
 reactions:
   # Once awake, the Wyrm leaves its lair: the table says on whom it falls first.
   wyrm-wakes:
@@ -29,22 +29,37 @@ reactions:
           factions.fort-keld.values.strength: -1
           world.clocks.fort-keld-mutinies: 2
   # The mutiny: the garrison loses its fort and its strength, which makes Fort Keld fall
-  # (below).
+  # (below). The world waits for the player first (a pause): nothing moves it, not time, not
+  # a trip, until Go on.
   garrison-mutinies:
     name: The garrison mutinies
     on: world.clocks.fort-keld-mutinies.full
     do:
       - id: scatter
         say: The garrison mutinies and scatters; the bridge road is left to whoever takes it.
+      - { id: gates, pause: 'Fort Keld’s gates stand open, and nobody keeps the walls.' }
       - effects: { factions.fort-keld.territory: -1, factions.fort-keld.values.strength: '=0' }
   # A condition turning true: once, and again only after Fort Keld has risen and fallen again.
+  # It asks the player who takes the bridge road (`ask:` one of its `params`), and the steps
+  # after it read the answer (`params.bridge`).
   fort-falls:
     name: Fort Keld falls
     on: { when: { factions.fort-keld.values.strength: { lte: 0 } } }
+    params:
+      bridge:
+        name: Who takes the bridge road?
+        description: With Fort Keld fallen, the road over the bridge belongs to whoever takes it first.
+        choices:
+          - { id: iron-clans, name: The Iron Clans }
+          - { id: the-vale, name: The Vale of Ashford }
     do:
       - id: falls
         say: 'Fort Keld falls (the Clans’ strength {{factions.iron-clans.values.strength}}): every power of the Marches moves at once.'
-      - effects: { factions.iron-clans.values.strength: 1 }
+      - { ask: params.bridge }
+      - when: { params.bridge: iron-clans }
+        effects: { factions.iron-clans.values.strength: 1, factions.iron-clans.territory: 1 }
+      - when: { params.bridge: the-vale }
+        effects: { factions.the-vale.values.strength: 1, factions.the-vale.territory: 1 }
       # The Clans at war take the bridge road: a world turn at once.
       - { do: world.turn, when: { factions.iron-clans.conditions: at-war } }
   # After every world turn: what the roads say about it.

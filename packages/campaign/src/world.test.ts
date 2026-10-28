@@ -3,10 +3,15 @@ import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import { calendarOf, travelSystems, type ReactionLine } from '@open-tabletop/session'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
+import { parseWorldRules } from '@open-tabletop/world-engine'
 import { describe, expect, it } from 'vitest'
 import {
   bringFactions,
   createCampaign,
+  deserializeCampaign,
+  serializeCampaign,
+  waitingSaid,
+  worldAnswer,
   followTrip,
   missingClocks,
   playTrip,
@@ -126,6 +131,7 @@ function host(over: Partial<WorldHost> = {}): WorldHost {
       reaction,
       reactionsStopped: () => 'Stopped.',
       factionLine: (_, line) => `${line.faction}: ${line.text}`,
+      answered: (question, choice) => `${question} ${choice}`,
     },
     ...over,
   }
@@ -420,5 +426,146 @@ reactions:
       host({ world: ping.world, clocks: undefined }),
     )
     expect(done.campaign.world!.timeline.filter((e) => e.text === 'Stopped.')).toHaveLength(1)
+  })
+})
+
+describe('the world waits for the player', () => {
+  /** World rules of their own, in the marks pack (its tables, its clocks and factions). */
+  const waits = (reactions: Record<string, unknown>) => {
+    const parsed = parseWorldRules({ kind: 'world', id: 'waits', reactions })
+    expect(parsed.errors).toEqual([])
+    return { id: 'marks/waits', pack: 'marks', def: parsed.rules! }
+  }
+  const texts = (d: { campaign: Campaign }) => d.campaign.world!.timeline.map((e) => e.text)
+  const bridge = waits({
+    bridge: {
+      name: 'The bridge',
+      on: 'world.turn',
+      params: {
+        who: {
+          name: 'Who takes the bridge?',
+          choices: [
+            { id: 'clans', name: 'The Clans' },
+            { id: 'vale', name: 'The Vale' },
+          ],
+        },
+      },
+      do: [
+        { say: 'The bridge stands empty.' },
+        { ask: 'params.who' },
+        { when: { 'params.who': 'clans' }, effects: { 'factions.clans.values.strength': 1 } },
+        { say: 'Taken: {{params.who}}' },
+      ],
+    },
+    after: { on: 'world.turn', do: [{ say: 'After the bridge.' }] },
+  })
+
+  it('asks in the middle of a turn: nothing moves until answered, then the rest goes on', () => {
+    const h = host({ world: bridge })
+    const turned = worldTurnNow(started(), h)
+    expect(turned.campaign.waiting).toEqual({
+      reaction: 'bridge',
+      ask: 'who',
+      rest: [
+        { kind: 'steps', reaction: 'bridge', next: 2 },
+        { kind: 'reactions', ids: ['after'] },
+      ],
+    })
+    expect(texts(turned)).toContain('clans: Pushes on')
+    expect(texts(turned).at(-1)).toBe('The bridge stands empty. Who takes the bridge?')
+    expect(waitingSaid(turned.campaign, h)).toEqual({
+      reaction: 'The bridge',
+      question: {
+        question: 'Who takes the bridge?',
+        choices: [
+          { id: 'clans', name: 'The Clans' },
+          { id: 'vale', name: 'The Vale' },
+        ],
+      },
+    })
+    // Kept when saved.
+    expect(deserializeCampaign(serializeCampaign(turned.campaign)).waiting).toEqual(
+      turned.campaign.waiting,
+    )
+    // While it waits, the world doesn't move, and a choice it doesn't offer answers nothing.
+    const time = turned.campaign.world!.time
+    const moved = worldAct(turned, { type: 'advance', minutes: 1440 }, h)
+    expect(moved.campaign.world!.time).toBe(time)
+    expect(worldAnswer(turned, h, 'nobody').campaign).toBe(turned.campaign)
+    expect(worldAnswer(turned, h).campaign).toBe(turned.campaign)
+    // Answered: its line, the rest of the reaction reading it, then the turn's other reactions.
+    const answered = worldAnswer(turned, h, 'clans')
+    expect(answered.campaign.waiting).toBeUndefined()
+    expect(texts(answered).slice(-3)).toEqual([
+      'Who takes the bridge? The Clans',
+      'Taken: clans',
+      'After the bridge.',
+    ])
+    expect(answered.campaign.factions!.factions[0].values.strength).toBe(3)
+    expect(worldAnswer(turned, h, 'vale').campaign.factions!.factions[0].values.strength).toBe(2)
+  })
+
+  it('a pause in a long jump: the days still to move come once it goes on, a trip’s too', () => {
+    const h = host({
+      world: waits({
+        fair: {
+          on: { when: { 'world.events': 'fair' } },
+          do: [{ pause: 'The fair is on: stop and look.' }, { say: 'The fair is over.' }],
+        },
+      }),
+    })
+    const place = started()
+    const day = 1440
+    const start = place.campaign.world!.time
+    const at = start + 2 * day
+    const scheduled = worldAct(place, { type: 'schedule', event: { name: 'Fair', at } }, h)
+    const jumped = worldAct(scheduled, { type: 'advance', minutes: 7 * day }, h)
+    // Stopped at the fair's day, as it began.
+    expect(jumped.campaign.world!.time).toBe(Math.floor(at / day) * day)
+    expect(jumped.campaign.waiting).toMatchObject({
+      reaction: 'fair',
+      text: 'The fair is on: stop and look.',
+      until: start + 7 * day,
+    })
+    // A trip moving on meanwhile: the world follows it once it goes on.
+    const followed = followTrip(jumped, start + 8 * day, h)
+    expect(followed.campaign.waiting!.until).toBe(start + 8 * day)
+    const gone = worldAnswer(followed, h)
+    expect(gone.campaign.world!.time).toBe(start + 8 * day)
+    expect(texts(gone)).toContain('The fair is over.')
+    // The turns due on the way came too (every two days).
+    expect(texts(gone).filter((l) => l === 'clans: Pushes on').length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('a full clock waits to start over until its reactions are done; pauses can be skipped', () => {
+    const rules = waits({
+      river: {
+        on: 'world.clocks.march.full',
+        do: [{ pause: true }, { say: 'The clans reach the river.' }],
+      },
+    })
+    const place = started()
+    const march = place.campaign.world!.clocks[0]
+    const h = host({ world: rules })
+    const full = worldAct(place, { type: 'tick', id: march.id, segments: 2 }, h)
+    expect(full.campaign.world!.clocks[0].filled).toBe(2)
+    expect(full.campaign.waiting).toEqual({
+      reaction: 'river',
+      rest: [
+        { kind: 'steps', reaction: 'river', next: 1 },
+        { kind: 'clockThen', id: march.id, then: 'reset' },
+      ],
+    })
+    const done = worldAnswer(full, h)
+    expect(done.campaign.world!.clocks[0].filled).toBe(0)
+    expect(texts(done)).toContain('The clans reach the river.')
+    // A trip going on that skips pauses: the world doesn't stop either.
+    const skipped = worldAct(
+      place,
+      { type: 'tick', id: march.id, segments: 2 },
+      host({ world: rules, skipPauses: true }),
+    )
+    expect(skipped.campaign.waiting).toBeUndefined()
+    expect(skipped.campaign.world!.clocks[0].filled).toBe(0)
   })
 })

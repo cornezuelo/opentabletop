@@ -1,6 +1,6 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
 import type { HistoryItem, OracleState } from '@open-tabletop/oracle-engine'
-import type { WorldState } from '@open-tabletop/world-engine'
+import type { ClockThen, WorldState } from '@open-tabletop/world-engine'
 
 /**
  * The factions of a campaign: those of the system they were brought from (`system`), each
@@ -98,6 +98,38 @@ export interface Campaign {
    * what holds when next seen is taken as seen.
    */
   reactions?: string[]
+  /**
+   * What the world waits for the player to answer (a reaction's pause or question), and
+   * what's left to play then. Nothing else moves the world until it's answered.
+   */
+  waiting?: WorldWaiting
+}
+
+/**
+ * What the world has left to play once the player answers, in order: a reaction's steps
+ * from one on (with what the player answered it), the other reactions of a moment, clocks
+ * that filled still to react to, what becomes of a full clock, changes still to apply, the
+ * world turns that came due.
+ */
+export type WorldRest =
+  | { kind: 'steps'; reaction: string; next: number; params?: Record<string, string> }
+  | { kind: 'reactions'; ids: string[] }
+  | { kind: 'clocks'; ids: string[] }
+  | { kind: 'clockThen'; id: string; then: ClockThen }
+  | { kind: 'effects'; changes: Record<string, number | string | boolean> }
+  | { kind: 'turns' }
+
+/**
+ * A reaction of the world waiting for the player: a pause (its words, if any) or a question
+ * on one of its parameters (`ask`); what's left to play once answered, and the time the
+ * world was moving to (a trip moving on while it waits moves it later).
+ */
+export interface WorldWaiting {
+  reaction: string
+  text?: string
+  ask?: string
+  rest: WorldRest[]
+  until?: number
 }
 
 /**

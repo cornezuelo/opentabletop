@@ -49,6 +49,7 @@ export const vocabulary = {
       gained: 'land +{n}',
       lost: 'land −{n}',
       turnFailed: '{name}: the turn table failed ({error})',
+      answered: '{question} → {choice}',
     },
     terms: {
       terrain: 'Terrain',
@@ -168,6 +169,7 @@ export const vocabulary = {
       gained: 'tierras +{n}',
       lost: 'tierras −{n}',
       turnFailed: '{name}: la tabla de turno falló ({error})',
+      answered: '{question} → {choice}',
     },
     terms: {
       terrain: 'Terreno',

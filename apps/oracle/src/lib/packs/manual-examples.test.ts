@@ -327,6 +327,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
       clockFull: (full) => full.lines.map((l) => ('say' in l ? l.say : l.text)).join(' '),
       reaction: () => '',
       reactionsStopped: () => '',
+      answered: () => '',
       factionLine: (_, line) => line.text ?? '',
     },
   })
@@ -498,6 +499,7 @@ describe('Systems → World: market day in the Fever Marshes plays as the page s
       clockFull: (full) => full.lines.map((l) => ('say' in l ? l.say : l.text)).join(' '),
       reaction: (lines) => lines.map((l) => ('say' in l ? l.say : l.text)).join(' '),
       reactionsStopped: () => 'Stopped',
+      answered: () => '',
       factionLine: () => '',
     },
   }
@@ -1145,6 +1147,7 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
       clockFull: () => '',
       reaction: () => '',
       reactionsStopped: () => '',
+      answered: () => '',
       factionLine: (_, line) => `${line.faction}: ${line.text}`,
     },
   })

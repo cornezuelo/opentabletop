@@ -1,10 +1,12 @@
 world/threat:
   name: La amenaza golpea
   description: |-
-    La reacción del mundo a la amenaza que crece de Core (`core/clocks.threat`): cuando se llena, una línea en la cronología y uno de los _Giros_ de Core; el reloj vuelve a empezar por sí solo. Un sistema trae ambos: `clocks: core/clocks.threat` y `world: core/world.threat`.
+    La reacción del mundo a la amenaza que crece de Core (`core/clocks.threat`): cuando se llena, una línea en la cronología y uno de los _Giros_ de Core, y luego el mundo espera a que pienses qué significa (una `pause:`); el reloj vuelve a empezar cuando sigues. Un sistema trae ambos: `clocks: core/clocks.threat` y `world: core/world.threat`.
   reactions:
     strikes:
       name: La amenaza golpea
       do:
         strikes:
           say: La amenaza golpea.
+        heed:
+          pause: 'Piensa qué significa aquí el giro, y luego sigue.'

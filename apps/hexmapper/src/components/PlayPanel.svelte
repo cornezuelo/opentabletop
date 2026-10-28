@@ -19,7 +19,7 @@
   import { oracleUi } from '../lib/play/oracle'
   import { mapPlace } from '../lib/play/roster'
   import { mapWorld } from '../lib/play/world'
-  import { worldFactsNow } from '../lib/play/world.svelte'
+  import { answerWorld, worldFactsNow, worldWaiting as waitingNow } from '../lib/play/world.svelte'
   import {
     activeSystem,
     getSystem,
@@ -36,6 +36,11 @@
 
   const play = $derived(editor.play)
   const session = $derived(play ? sessionOf(play) : null)
+  /** What the campaign's world waits for: the trip doesn't move until it's answered. */
+  const worldWaiting = $derived.by(() => {
+    void editor.waiting
+    return editor.waiting ? waitingNow() : undefined
+  })
   // The trip plays the system it was started with; new trips, the map's.
   const system = $derived(activeSystem())
   const mapSystem = $derived(mapSystemId())
@@ -182,6 +187,8 @@
       uses={systemUsesOf(system)}
       onedit={editSession}
       onshare={shareSession}
+      {worldWaiting}
+      onworld={answerWorld}
     />
   {/if}
 {/if}

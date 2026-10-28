@@ -55,6 +55,8 @@ The world clock, the same one the Hexmapper's **World** panel shows for a map of
 
 Here there is no party, so moving time on only moves the world: its events come due, its weather is rolled day by day, its clocks do what the system says when they fill, and the factions' turns that come due are played, their land changing on the map chosen in [Factions](02-factions.md). A trip going on in the campaign (on a map, or in Travel) waits until the new date when it next steps, living the time that passed; a clock that filled here meanwhile (by hand, or with the factions' turns) is heard then too, if its system names it ([Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system)). While a trip goes on, the clock can't go back, and the world's weather is the trip's (it isn't shown here).
 
+When the world waits for you (a reaction's pause or question, [World](../systems/11-world.md)), **The world waits: …** shows on every tab, with **Go on** or the question's choices; nothing moves the world (here, on a map or in a trip) until you answer, and then the rest goes on.
+
 ### Factions
 
 The powers of the campaign's world, their sheets and their land on each of its maps, and world turns: [Factions](02-factions.md).

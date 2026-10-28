@@ -200,6 +200,8 @@
           {uses}
           onedit={(update) => trip.edit(update)}
           onshare={(moved) => trip.share(moved)}
+          worldWaiting={trip.worldWaiting()}
+          onworld={(choice) => trip.answerWorld(choice)}
         />
       {:else if !session}
         <button class="primary" onclick={() => start(system.id, season)}

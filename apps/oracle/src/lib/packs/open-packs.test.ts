@@ -15,7 +15,13 @@ import {
 } from '@open-tabletop/session'
 import { calendarFacts, qualify, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
-import { createCampaign, startWorld, worldAct, type WorldHost } from '@open-tabletop/campaign'
+import {
+  createCampaign,
+  startWorld,
+  worldAct,
+  worldAnswer,
+  type WorldHost,
+} from '@open-tabletop/campaign'
 import { describe, expect, it } from 'vitest'
 import { parseAllDocuments } from 'yaml'
 import { bundledPacks } from './bundled'
@@ -1507,13 +1513,20 @@ describe('bundled open packs', () => {
         reaction: () => '',
         reactionsStopped: () => '',
         factionLine: () => '',
+        answered: () => '',
       },
     }
     const started = startWorld({ campaign: createCampaign('c') }, 0, host)
     const threat = started.campaign.world!.clocks[0]
     expect(threat).toMatchObject({ ref: 'the-threat-grows', name: 'La amenaza crece', filled: 0 })
     const done = worldAct(started, { type: 'tick', id: threat.id, segments: 6 }, host)
-    expect(done.filled[0].text).toMatch(/^La amenaza golpea\. .+ reset$/)
-    expect(done.campaign.world!.clocks[0].filled).toBe(0)
+    expect(done.filled[0].text).toMatch(/^La amenaza golpea\. .+ Piensa qué significa .+ reset$/)
+    // The world waits for the player to take it in; it starts over once they go on.
+    expect(done.campaign.waiting).toMatchObject({
+      reaction: 'strikes',
+      text: 'Piensa qué significa aquí el giro, y luego sigue.',
+    })
+    expect(done.campaign.world!.clocks[0].filled).toBe(6)
+    expect(worldAnswer(done, host).campaign.world!.clocks[0].filled).toBe(0)
   })
 })

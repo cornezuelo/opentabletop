@@ -532,13 +532,25 @@ reactions:
       - do: world.turn # a world turn at once
         when: { factions.the-rebels.conditions: at-war } # this step only while this holds
       - do: world.reactions.news # another reaction (with its own conditions)
+  the-bridge:
+    on: { when: { factions.the-crown.values.strength: { lte: 0 } } }
+    params: # what it may ask the player
+      who:
+        name: Who takes the bridge?
+        choices: [{ id: rebels, name: The Rebels }, { id: nobody, name: Nobody }]
+    do:
+      - pause: The bridge stands empty. # the world waits for Go on (or `pause: true`)
+      - ask: params.who # the world waits for a choice
+      - when: { params.who: rebels } # later steps read the answer
+        effects: { factions.the-rebels.territory: 1 }
 ```
 
 - **Moments** (`on:`, one or a list): `world.turn` (after every world turn), `world.clocks.<id>.full` (a clock filling, by its declared id or its name as an id), or a condition `{ when, unless }` on what the world shows (`world.clocks.*`, `world.events`, `factions.<id>.*`, `time.*`), coming once as it turns true and again only after it stopped holding.
-- **Steps** (`do:`, in order, each one thing, each with its own `when` / `unless`): `say` (with `{{…}}`), `roll`, `effects` (clocks and factions; a faction's `territory` changes land on the map being played), `do` (`world.reactions.<id>` or `world.turn`). A trip's steps (`time`, `travel.*`, `set`, `wait`, `pause`, `ask`) are refused: the world has no party.
+- **Steps** (`do:`, in order, each one thing, each with its own `when` / `unless`): `say` (with `{{…}}`), `roll`, `effects` (clocks and factions; a faction's `territory` changes land on the map being played), `do` (`world.reactions.<id>` or `world.turn`), `pause` (`true` or a text: the world waits for **Go on**) and `ask` (`params.<id>`, one of the reaction's `params`, each with `name`, `description` and `choices` as an action's, without a `default`: the world waits for a choice, and later steps read it as `params.<id>`). A trip's steps (`time`, `travel.*`, `set`, `wait`, `with`) are refused: the world has no party.
+- **Waiting**: a `pause` or an `ask` stops the world; the campaign keeps what waits and what was left (`waiting`), and nothing moves the world until the player answers; then what was left goes on, in order (the reaction's other steps, the moment's other reactions, a full clock's `then`, the turns that came due, the days still to move). A trip that skips pauses passes the world's too.
 - **Order**: after anything that changes the world, its moments in the order they happened (each one's reactions in the order declared), then the conditions, checked again until nothing new turns true; moving time over several days looks at each day's start. The campaign keeps which conditions held (a campaign that kept nothing takes what holds as seen).
 - **Loops**: reactions bringing each other through named moments or `do:` (a reaction on `world.turn` doing `world.turn`, two clocks' reactions filling each other) are refused when the pack loads; those that conditions make stop after 10 in a row, with a line on the timeline.
-- Translated keyed `world/<id>`, by reaction, its steps by their `id` (`reactions: { the-capital-falls: { name: Cae la capital, do: { falls: { say: Cae la capital. } } } }`, with `id: falls` on the step).
+- Translated keyed `world/<id>`, by reaction, its steps by their `id` (`reactions: { the-capital-falls: { name: Cae la capital, do: { falls: { say: Cae la capital. } } } }`, with `id: falls` on the step: `say` and `pause`), its questions by theirs (`params: { who: { name: ¿Quién toma el puente?, choices: { rebels: Los rebeldes } } }`).
 
 ## Systems
 

@@ -6,8 +6,9 @@
 
   /**
    * The steps of one of the world's reactions, in order: each does one thing (says a line,
-   * rolls a table, changes the world, or brings another reaction or a world turn), with its
-   * own **Only when** as rows. Changes write the whole list.
+   * rolls a table, changes the world, brings another reaction or a world turn, or waits for
+   * the player: a pause, a question), with its own **Only when** as rows. Changes write the
+   * whole list.
    */
   let {
     value,
@@ -16,6 +17,7 @@
     brings,
     effects,
     hints,
+    params = [],
     onchange,
   }: {
     value: unknown
@@ -28,6 +30,8 @@
     effects: Record<string, readonly string[]>
     /** What conditions read. */
     hints: Record<string, readonly string[]>
+    /** The reaction's questions, an `ask:` names one (`params.<id>`). */
+    params?: { id: string; name: string }[]
     onchange: (steps: WorldStep[] | undefined) => void
   } = $props()
 
@@ -43,7 +47,11 @@
         ? (rollable[0] ?? 'table.x')
         : kind === 'effects'
           ? {}
-          : (brings[0]?.id ?? 'world.turn')
+          : kind === 'pause'
+            ? true
+            : kind === 'ask'
+              ? `params.${params[0]?.id ?? 'choice'}`
+              : (brings[0]?.id ?? 'world.turn')
 
   const write = (next: WorldStep[]) => onchange(next.length ? next : undefined)
   function put(index: number, step: WorldStep) {
@@ -107,6 +115,31 @@
               onchange={(v) => set(i, 'roll', v.trim() || fresh('roll'))}
             />
           </span>
+        {:else if kind === 'pause'}
+          <input
+            type="text"
+            class="grow"
+            aria-label={t('worldForm.kinds.pause')}
+            placeholder={t('worldForm.pauseEmpty')}
+            value={typeof step.pause === 'string' ? step.pause : ''}
+            {disabled}
+            onchange={(e) => set(i, 'pause', e.currentTarget.value.trim() || true)}
+          />
+        {:else if kind === 'ask'}
+          {#if params.length}
+            <select
+              class="grow"
+              aria-label={t('worldForm.kinds.ask')}
+              value={step.ask}
+              {disabled}
+              onchange={(e) => set(i, 'ask', e.currentTarget.value)}
+            >
+              {#if !params.some((p) => `params.${p.id}` === step.ask)}<option value={step.ask}
+                  >{step.ask}</option
+                >{/if}
+              {#each params as p (p.id)}<option value="params.{p.id}">{p.name}</option>{/each}
+            </select>
+          {:else}<small class="grow muted">{t('worldForm.askNone')}</small>{/if}
         {:else if kind === 'do'}
           <select
             class="grow"
@@ -208,6 +241,10 @@
   .tools {
     display: flex;
     gap: 2px;
+  }
+
+  .muted {
+    color: var(--text-muted);
   }
 
   .icon {

@@ -1,10 +1,11 @@
 # What the world does when Core's growing threat fills (clocks.yaml): it strikes with one of
-# Core's twists. A system brings both: `clocks: core/clocks.threat`, `world: core/world.threat`.
+# Core's twists, and waits for the player to take it in (a pause: nothing moves the world
+# until Go on). A system brings both: `clocks: core/clocks.threat`, `world: core/world.threat`.
 kind: world
 id: threat
 name: The threat strikes
 description: |-
-  The world's reaction to Core's growing threat (`core/clocks.threat`): when it fills, a line on the timeline and one of Core's _Twists_; the clock starts over by itself. A system brings both: `clocks: core/clocks.threat` and `world: core/world.threat`.
+  The world's reaction to Core's growing threat (`core/clocks.threat`): when it fills, a line on the timeline and one of Core's _Twists_, then the world waits for you to think about what it means (a `pause:`); the clock starts over once you go on. A system brings both: `clocks: core/clocks.threat` and `world: core/world.threat`.
 reactions:
   strikes:
     name: The threat strikes
@@ -12,3 +13,4 @@ reactions:
     do:
       - { id: strikes, say: The threat strikes. }
       - roll: table.twists
+      - { id: heed, pause: 'Think about what the twist means here, then go on.' }

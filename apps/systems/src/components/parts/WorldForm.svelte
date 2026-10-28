@@ -18,6 +18,8 @@
   import RecordRows, { type CustomField } from '../forms/RecordRows.svelte'
   import ReactionEditor from '../forms/ReactionEditor.svelte'
   import WorldSteps from './WorldSteps.svelte'
+  import ParamsEditor from '../forms/ParamsEditor.svelte'
+  import { choiceIds, type WorldParam } from '@open-tabletop/world-engine'
 
   /**
    * The world's rules of a system (`kind: world`) as forms: each reaction a folded card,
@@ -61,6 +63,18 @@
       .map((d) => writeRef(d.kind, d.localId, d.pack === pack ? undefined : d.pack)),
   )
   const nameOf = (id: string) => doc.text('', reactions[id]?.name, ['reactions', id, 'name']) || id
+  /** A reaction's questions (`params`), by id and name. */
+  const paramsOf = (id: string) =>
+    Object.entries((reactions[id]?.params ?? {}) as Record<string, WorldParam>).map(([p, d]) => ({
+      id: p,
+      name: doc.text('', d.name, ['reactions', id, 'params', p, 'name']) || p,
+      choices: choiceIds(d),
+    }))
+  /** What a reaction's steps' conditions read: the world, and its answers (`params.<id>`). */
+  const hintsOf = (id: string) => ({
+    ...hints,
+    ...Object.fromEntries(paramsOf(id).map((p) => [`params.${p.id}`, p.choices])),
+  })
   /** What a `do:` may bring: a world turn, another reaction. */
   const brings = (self: string) => [
     { id: WORLD_TURN, name: t('worldForm.worldTurn') },
@@ -93,7 +107,11 @@
             ? `${t('worldForm.kinds.do')} ${s.do === WORLD_TURN ? t('worldForm.worldTurn') : reactionOf(s.do) ? nameOf(reactionOf(s.do)!) : s.do}`
             : s.effects
               ? t('worldForm.kinds.effects')
-              : t('worldForm.kinds.say'),
+              : s.pause !== undefined
+                ? t('worldForm.kinds.pause')
+                : s.ask
+                  ? `${t('worldForm.kinds.ask')} ${s.ask}`
+                  : t('worldForm.kinds.say'),
       )
       .join(' · ')
   const clockName = (moment: string) => clockOfMoment(system, moment, locale)
@@ -130,8 +148,19 @@
     {rollable}
     brings={brings(field.id)}
     {effects}
-    {hints}
+    hints={hintsOf(field.id)}
+    params={paramsOf(field.id)}
     onchange={(v) => field.set(v ?? [{ say: '…' }])}
+  />
+{/snippet}
+
+{#snippet questions(field: CustomField)}
+  <ParamsEditor
+    {doc}
+    kind=""
+    at={['reactions', field.id, 'params']}
+    defaults={false}
+    disabled={field.disabled}
   />
 {/snippet}
 
@@ -188,6 +217,14 @@
           help: t('worldForm.unlessHelp'),
           type: 'condition',
           hints,
+        },
+        {
+          field: 'params',
+          label: t('worldForm.params'),
+          help: t('worldForm.paramsHelp'),
+          type: 'custom',
+          render: questions,
+          said: (v: unknown) => Object.keys((v ?? {}) as object).join(', '),
         },
         {
           field: 'do',

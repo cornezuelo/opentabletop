@@ -67,6 +67,8 @@
   import { journalFilter } from './journalFilter.svelte'
   import PartyMembers from './PartyMembers.svelte'
   import { CharacterCard, SheetOrigin } from '@open-tabletop/character-ui'
+  import type { WaitingSaid } from '@open-tabletop/campaign'
+  import { WorldWaiting } from '@open-tabletop/campaign-ui'
 
   /**
    * A trip in progress: day and time, where the party is and where it's heading, travel
@@ -93,6 +95,8 @@
     onstep,
     onedit,
     onshare,
+    worldWaiting,
+    onworld,
   }: {
     system: TravelSystem
     session: SessionState
@@ -132,6 +136,12 @@
      * or takes, or nothing to keep the rule's (session's `shareTrip`).
      */
     onshare?: (moved?: Record<string, number>) => void
+    /**
+     * What the campaign's world waits for the player to answer (a reaction's pause or
+     * question), if anything: the trip doesn't move until it's answered (`onworld`).
+     */
+    worldWaiting?: WaitingSaid
+    onworld?: (choice?: string) => void
   } = $props()
 
   const t = translator(() => locale)
@@ -349,7 +359,9 @@
   /** Who has items waiting for room to be made for them (`full: ask`): the trip waits. */
   const roomless = $derived(waitingForRoom(session))
   /** Nothing goes on while a share waits for who gives it, or an item for room. */
-  const held = $derived((!!sharing && !!onshare) || roomless.length > 0)
+  const held = $derived(
+    (!!sharing && !!onshare) || roomless.length > 0 || (!!worldWaiting && !!onworld),
+  )
   /** What a condition blocks, in words: moving on, an action or a way of travelling. */
   const blockName = (what: string) => {
     const mode = refId('modes', what)
@@ -653,6 +665,11 @@
         })}<InfoTip text={t('room.help')} /></span
       >
     </div>
+  {/if}
+
+  <!-- The campaign's world waits for the player: the trip goes on once it's answered. -->
+  {#if worldWaiting && onworld}
+    <WorldWaiting {locale} waiting={worldWaiting} onanswer={onworld} />
   {/if}
 
   <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->

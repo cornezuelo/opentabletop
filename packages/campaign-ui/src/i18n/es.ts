@@ -4,6 +4,12 @@ import type { Messages } from './types'
 export const es: Messages = {
   whatItDoes: 'Qué hace',
   world: {
+    waiting: {
+      title: 'El mundo espera: {reaction}',
+      help: 'Una reacción del mundo de la campaña se detiene por ti (las reglas del mundo de su sistema: un paso `pause:` o `ask:`). Nada más mueve el mundo hasta que respondas: ni el tiempo, ni los turnos del mundo, ni un viaje.\n• **Seguir** — tras una pausa, se juega el resto de la reacción y luego lo que quedaba (otras reacciones, turnos que tocaban, los días que faltaban)\n• una opción — tras una pregunta, el resto lee tu respuesta como `params.<id>`\nUn viaje que salta las pausas salta también las del mundo; las preguntas siguen esperando.',
+      goOn: 'Seguir',
+      blocked: 'Responde antes al mundo: te está esperando.',
+    },
     clockIdTip:
       'Cómo leen este reloj las tablas y las condiciones: world.clocks.{id} (su nombre en minúsculas con guiones)',
     weatherLine: 'Clima: {weather}',

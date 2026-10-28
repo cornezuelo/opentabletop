@@ -10,16 +10,19 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Characters, Travel, Hexmapper, Systems: **what doesn't fit**, the sheet's **When it doesn't fit**: what an effect gives goes in as far as it fits, place after place, and the rest is left behind (`leave`, the default, said in the journal) or waits on the card, marked, while the trip waits for the player to drop something or move it to a place (`ask`). A card adds nothing by hand that has no room; what the party gains goes first to whoever has room.
 - Systems: **Max** and **Made of** say that a cap on a load hides what's carried, and point to **Shown against** and **Over its room**; Items' page shows the four ways to limit carrying.
 - Travel, Hexmapper, Systems: **a trip brings a world turn, and hears one**: an action's step `do: world.turn` (**Take another action, or a world turn** → **A world turn**) has the campaign's factions take their turn now, and the world react to it; an action's **By itself at** and a check's **When** take `world.turn`, after every world turn, whatever brought it. The trip's journal tells each world turn played while it goes on (**World turn:** and what each faction did), and says **nothing happens** without a campaign with factions.
+- Campaign, Hexmapper, Travel, Systems: **the world waits for you**: a reaction of the world may pause (`pause:`) or ask (`ask: params.<id>`, a **Question** of the reaction's, its steps reading the answer). **The world waits: …** shows in the World panel, the Campaign app (every tab) and the trip, with **Go on** or the choices; nothing moves the world or the trip until it's answered, then the rest goes on (the reaction's other steps, the moment's other reactions, a full clock's end, the turns due, the days still to move). **Skip pauses** skips the world's pauses too. Systems' World tab has **Pause**, **Ask** and **Questions**.
 
 ### Packs
 
 - The Grey Marches: a companion carries at most twice their capacity in all, and what's found with no room left waits on their card (the Sword of Keld with full hands). Core: a character carries ten things in all.
 - The Grey Marches: **Carry the news**, in a market town once a trip, brings a world turn; **Word on the road** hears every one (morale −1 while the Iron Clans are at war).
+- The Grey Marches: the garrison's mutiny pauses the world, and Fort Keld falling asks who takes the bridge road (the Iron Clans or the Vale, who gain strength and land). Core: the threat striking waits for you to take in its twist.
 
 ### Formats
 
 - **Pack format 10**: where a sheet refuses more, what an effect gives with no room left is left behind or waits for room (`items.full`); in format 9 it was kept in no place. New keys `items.room` and `items.full`. Core, the Grey Marches and Kal-Arath moved to it.
-- Campaigns (format 6): a moment waiting for the trip going on names what it's heard by (`at`), so world turns wait for it too; older campaigns are migrated.
+- Campaigns (format 6): a moment waiting for the trip going on names what it's heard by (`at`), so world turns wait for it too; older campaigns are migrated. What the world waits for is kept in the campaign (`waiting`).
+- Packs: `pause:` and `ask:` steps and `params:` in world reactions (`kind: world`); they were refused before, so nothing old changes meaning.
 
 ## [0.16.0] - 2026-10-24
 

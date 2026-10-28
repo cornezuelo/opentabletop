@@ -3,6 +3,12 @@ import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   whatItDoes: 'What it does',
   world: {
+    waiting: {
+      title: 'The world waits: {reaction}',
+      help: "A reaction of the campaign's world stops for you (its system's world rules: a `pause:` or an `ask:` step). Nothing else moves the world until you answer: not time, not world turns, not a trip.\n• **Go on** — after a pause, the rest of the reaction plays, then what was left (other reactions, turns that came due, the days still to move)\n• a choice — after a question, the rest reads your answer as `params.<id>`\nA trip that skips pauses passes the world's too; questions still wait.",
+      goOn: 'Go on',
+      blocked: 'Answer the world first: it waits for you.',
+    },
     clockIdTip:
       'How tables and conditions read this clock: world.clocks.{id} (its name in lowercase with dashes)',
     weatherLine: 'Weather: {weather}',

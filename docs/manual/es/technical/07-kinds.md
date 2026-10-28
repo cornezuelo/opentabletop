@@ -528,13 +528,25 @@ reactions:
       - do: world.turn # un turno del mundo al momento
         when: { factions.the-rebels.conditions: at-war } # este paso, solo mientras esto se cumpla
       - do: world.reactions.news # otra reacción (con sus propias condiciones)
+  the-bridge:
+    on: { when: { factions.the-crown.values.strength: { lte: 0 } } }
+    params: # lo que puede preguntar al jugador
+      who:
+        name: Who takes the bridge?
+        choices: [{ id: rebels, name: The Rebels }, { id: nobody, name: Nobody }]
+    do:
+      - pause: The bridge stands empty. # el mundo espera a Seguir (o `pause: true`)
+      - ask: params.who # el mundo espera una opción
+      - when: { params.who: rebels } # los pasos siguientes leen la respuesta
+        effects: { factions.the-rebels.territory: 1 }
 ```
 
 - **Momentos** (`on:`, uno o una lista): `world.turn` (tras cada turno del mundo), `world.clocks.<id>.full` (un reloj que se llena, por su id declarado o por su nombre como id), o una condición `{ when, unless }` sobre lo que muestra el mundo (`world.clocks.*`, `world.events`, `factions.<id>.*`, `time.*`), que llega una vez al pasar a cumplirse y otra solo después de haber dejado de cumplirse.
-- **Pasos** (`do:`, en orden, cada uno una cosa, cada uno con su propio `when` / `unless`): `say` (con `{{…}}`), `roll`, `effects` (relojes y facciones; el `territory` de una facción cambia tierra en el mapa que se está jugando), `do` (`world.reactions.<id>` o `world.turn`). Los pasos de un viaje (`time`, `travel.*`, `set`, `wait`, `pause`, `ask`) se rechazan: el mundo no tiene grupo.
+- **Pasos** (`do:`, en orden, cada uno una cosa, cada uno con su propio `when` / `unless`): `say` (con `{{…}}`), `roll`, `effects` (relojes y facciones; el `territory` de una facción cambia tierra en el mapa que se está jugando), `do` (`world.reactions.<id>` o `world.turn`), `pause` (`true` o un texto: el mundo espera a **Seguir**) y `ask` (`params.<id>`, uno de los `params` de la reacción, cada uno con `name`, `description` y `choices` como los de una acción, sin `default`: el mundo espera una opción, y los pasos siguientes la leen como `params.<id>`). Los pasos de un viaje (`time`, `travel.*`, `set`, `wait`, `with`) se rechazan: el mundo no tiene grupo.
+- **Esperar**: una `pause` o un `ask` detiene el mundo; la campaña guarda lo que espera y lo que quedaba (`waiting`), y nada mueve el mundo hasta que el jugador responde; luego sigue lo que quedaba, en orden (los demás pasos de la reacción, las demás reacciones del momento, el `then` de un reloj lleno, los turnos que tocaban, los días que faltaban). Un viaje que salta las pausas salta también las del mundo.
 - **Orden**: tras cualquier cosa que cambie el mundo, sus momentos en el orden en que pasaron (las reacciones de cada uno en el orden declarado), luego las condiciones, mirándolas otra vez hasta que no pase a cumplirse nada nuevo; avanzar el tiempo varios días mira el comienzo de cada día. La campaña guarda qué condiciones se cumplían (una campaña que no guardó nada da por visto lo que se cumple).
 - **Bucles**: las reacciones que se traen unas a otras por momentos con nombre o por `do:` (una reacción en `world.turn` que hace `world.turn`, las reacciones de dos relojes que se llenan uno a otro) se rechazan al cargar el pack; las que hacen bucle por condiciones se paran tras 10 seguidas, con una línea en la cronología.
-- Se traduce con la clave `world/<id>`, por reacción, sus pasos por su `id` (`reactions: { the-capital-falls: { name: Cae la capital, do: { falls: { say: Cae la capital. } } } }`, con `id: falls` en el paso).
+- Se traduce con la clave `world/<id>`, por reacción, sus pasos por su `id` (`reactions: { the-capital-falls: { name: Cae la capital, do: { falls: { say: Cae la capital. } } } }`, con `id: falls` en el paso: `say` y `pause`), sus preguntas por las suyas (`params: { who: { name: ¿Quién toma el puente?, choices: { rebels: Los rebeldes } } }`).
 
 ## Sistemas
 

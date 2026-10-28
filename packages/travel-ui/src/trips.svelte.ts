@@ -36,9 +36,12 @@ import {
   takeMoments,
   tripHighlights,
   tripStepped,
+  waitingSaid,
+  worldAnswer,
   worldFactsOf,
   type Campaign,
   type CampaignTrip,
+  type WaitingSaid,
   type WorldHost,
 } from '@open-tabletop/campaign'
 import { roster } from '@open-tabletop/character-ui'
@@ -51,7 +54,7 @@ import { translator } from './i18n'
 import { wayWorld, type WayHex } from './way'
 import { highlightText } from './journal'
 import { terrainName } from './terrains'
-import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
+import { campaignTexts, clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 
 /**
  * v2: the party's fatigue is one of the system's stats; v3: being lost is a value the
@@ -486,8 +489,38 @@ export class TripStore {
   private async stepInCampaign(action: TravelAction): Promise<void> {
     const trip = this.saved.id
     await this.openCampaign()
+    // The campaign's world waits for the player: the trip doesn't move until it's answered.
+    if (this.campaign?.waiting) {
+      const texts =
+        campaignTexts[this.options.locale() as keyof typeof campaignTexts] ?? campaignTexts.en
+      return void showToast(texts.world.waiting.blocked, 'info')
+    }
     if (trip !== this.saved.id || !(await this.claim())) return
     this.stepNow(action)
+  }
+
+  /** What the campaign's world waits for the player to answer, in words, if anything. */
+  worldWaiting(): WaitingSaid | undefined {
+    const campaign = this.campaign
+    const session = this.saved.session
+    const host = campaign?.waiting && session && this.worldHost(session)
+    return host ? waitingSaid(campaign, host) : undefined
+  }
+
+  /**
+   * Goes on with what the world waits for (a question's `choice`): the rest is played, the
+   * world following the trip's time; the trip hears what came on the way.
+   */
+  answerWorld(choice?: string): void {
+    const campaign = this.campaign
+    const session = this.saved.session
+    const host = campaign && session && this.worldHost(session)
+    if (!campaign || !host) return
+    const done = worldAnswer({ campaign }, host, choice)
+    this.keeper!.set(done.campaign)
+    for (const { clock, text } of done.filled)
+      showToast(clockFilledText(this.options.locale(), clock, text), 'info', 8000)
+    this.hearWorld()
   }
 
   /**
@@ -532,6 +565,7 @@ export class TripStore {
       random: mathRandom(),
       locale: this.options.locale(),
       trip: { weather: session.travel.weather },
+      ...(session.skipPauses && { skipPauses: true }),
       words: worldWords(this.options.locale),
     }
   }

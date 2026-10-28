@@ -6,10 +6,13 @@ import {
   missingClocks,
   splitFactions,
   startWorld,
+  waitingSaid,
   worldAct,
+  worldAnswer,
   worldTurnNow,
   type Campaign,
   type CampaignFactions,
+  type WaitingSaid,
   type WorldDone,
   type WorldHost,
 } from '@open-tabletop/campaign'
@@ -267,7 +270,21 @@ class OpenCampaign {
   private act(action: Parameters<typeof worldAct>[1]): void {
     const place = this.place()
     const host = this.host()
-    if (place && host) this.take(worldAct(place, action, host), place.map)
+    if (place && host && !this.blocked()) this.take(worldAct(place, action, host), place.map)
+  }
+
+  /** Whether the world waits for the player: nothing moves it until answered (it says so). */
+  private blocked(): boolean {
+    if (!this.campaign?.waiting) return false
+    showToast((campaignTexts[getLocale()] ?? campaignTexts.en).world.waiting.blocked, 'info')
+    return true
+  }
+
+  /** What the world waits for, in words, if anything. */
+  waiting(): WaitingSaid | undefined {
+    const campaign = this.campaign
+    const host = this.host()
+    return campaign && host ? waitingSaid(campaign, host) : undefined
   }
 
   /** What the world clock's UI does here: the campaign alone, without a map or a trip. */
@@ -302,7 +319,12 @@ class OpenCampaign {
     bringClocks: () => {
       const place = this.place()
       const host = this.host()
-      if (place && host) this.take(bringClocks(place, host), place.map)
+      if (place && host && !this.blocked()) this.take(bringClocks(place, host), place.map)
+    },
+    answer: (choice) => {
+      const place = this.place()
+      const host = this.host()
+      if (place && host) this.take(worldAnswer(place, host, choice), place.map)
     },
   }
 
@@ -345,7 +367,7 @@ class OpenCampaign {
   worldTurn(): void {
     const place = this.place()
     const host = this.host()
-    if (place && host) this.take(worldTurnNow(place, host), place.map)
+    if (place && host && !this.blocked()) this.take(worldTurnNow(place, host), place.map)
   }
 
   /**

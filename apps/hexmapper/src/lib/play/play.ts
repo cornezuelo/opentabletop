@@ -28,7 +28,7 @@ import {
 import { chooseSystem } from '../io/actions.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld } from './world'
-import { tripHighlights, tripStepped, worldFactsNow } from './world.svelte'
+import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
 
@@ -227,6 +227,8 @@ export function step(action: TravelAction, heard = 0): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
+  // The campaign's world waits for the player: the trip doesn't move until it's answered.
+  if (heard === 0 && worldBlocked()) return
   // One trip at a time in a campaign: another one that played there last is paused first.
   const other = otherTrip(editor.campaign, mapTrip())
   if (other) return void claimThen(other, action)

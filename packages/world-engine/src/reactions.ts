@@ -5,9 +5,10 @@ import { z } from 'zod'
  * The world's rules as data (`kind: world`, named by `world:` in `kind: system`): what the
  * world does by itself, without a trip, when something happens in it. Each reaction is
  * written as a trip's action is: the moments it comes at (`on:`), conditions on it, and
- * steps that say a line on the timeline, roll a table, change clocks and factions, or bring
- * another reaction or a world turn. This engine reads and checks them; playing them (facts,
- * the Oracle, the campaign) is the integration layer's.
+ * steps that say a line on the timeline, roll a table, change clocks and factions, bring
+ * another reaction or a world turn, or wait for the player (a pause, a question). This
+ * engine reads and checks them; playing them (facts, the Oracle, the campaign) is the
+ * integration layer's.
  */
 
 const text = z.union([z.string(), z.record(z.string(), z.string())])
@@ -43,7 +44,7 @@ export type WorldMoment = z.infer<typeof moment>
 export type WorldMoments = z.infer<typeof moments>
 
 /** What a step of the world can do: one of these, and only one. */
-export const WORLD_STEP_KINDS = ['say', 'roll', 'effects', 'do'] as const
+export const WORLD_STEP_KINDS = ['say', 'roll', 'effects', 'do', 'pause', 'ask'] as const
 export type WorldStepKind = (typeof WORLD_STEP_KINDS)[number]
 /** Steps of a trip's actions that need a party or a trip: never the world's. */
 const TRIP_STEPS = [
@@ -56,9 +57,13 @@ const TRIP_STEPS = [
   'wait',
   'limit',
   'with',
-  'pause',
-  'ask',
 ]
+
+/** How a step names one of its reaction's parameters: `params.<id>`. */
+const PARAM_REF = /^params\.(.+)$/
+/** The parameter an `ask:` names (`params.<id>` → `<id>`), if it names one. */
+export const paramOf = (value: unknown): string | undefined =>
+  typeof value === 'string' ? PARAM_REF.exec(value)?.[1] : undefined
 
 const step = z
   .object({
@@ -74,6 +79,10 @@ const step = z
     effects: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])).optional(),
     /** Another reaction of the world (`world.reactions.<id>`), or a world turn (`world.turn`). */
     do: z.string().min(1).optional(),
+    /** The world waits for the player to go on, saying this (or nothing: `true`). */
+    pause: z.union([z.literal(true), text]).optional(),
+    /** The world waits for the player to choose one of a parameter's choices (`params.<id>`). */
+    ask: z.string().min(1).optional(),
   })
   .strict()
   .refine((s) => WORLD_STEP_KINDS.filter((k) => s[k] !== undefined).length === 1, {
@@ -81,10 +90,38 @@ const step = z
   })
 export type WorldStep = z.infer<typeof step>
 
+/** A choice of a parameter: a value, or one with a name and a description. */
+const choice = z.union([
+  z.string().min(1),
+  z.number(),
+  z
+    .object({
+      id: z.union([z.string().min(1), z.number()]),
+      name: text.optional(),
+      description: text.optional(),
+    })
+    .strict(),
+])
+/** A parameter of a reaction, asked of the player (`ask: params.<id>`), read as `params.<id>`. */
+const param = z
+  .object({
+    name: text.optional(),
+    description: text.optional(),
+    choices: z.array(choice).min(1),
+  })
+  .strict()
+export type WorldParam = z.infer<typeof param>
+
+/** A parameter's choices by their values, as text (`['clans', 'vale']`). */
+export const choiceIds = (p: WorldParam): string[] =>
+  p.choices.map((c) => String(typeof c === 'object' ? c.id : c))
+
 const reaction = z
   .object({
     name: text.optional(),
     description: text.optional(),
+    /** What it may ask the player (`ask: params.<id>`), its steps reading the answer. */
+    params: z.record(z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/), param).optional(),
     /** When it comes: `world.turn`, `world.clocks.<id>.full`, or a condition (`{ when: … }`). */
     on: moments,
     /** Only while this holds (and `unless` doesn't), seen as it comes. */
@@ -185,6 +222,13 @@ export function parseWorldRules(raw: unknown): { rules?: WorldRules; errors: str
         if (s[key] !== undefined)
           for (const problem of validateCondition(s[key], key))
             errors.push(`${at}.do.${i}: ${problem}`)
+      if (s.ask !== undefined) {
+        const declared = Object.keys(r.params ?? {})
+        if (!declared.includes(paramOf(s.ask) ?? ''))
+          errors.push(
+            `${at}.do.${i}.ask: expected ${declared.length ? declared.map((p) => `params.${p}`).join(', ') : 'params.<id>, a parameter the reaction declares (params:)'}`,
+          )
+      }
       if (s.do === undefined || s.do === WORLD_TURN) return
       const other = reactionOf(s.do)
       if (!other || !ids.includes(other))

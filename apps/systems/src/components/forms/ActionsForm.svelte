@@ -415,7 +415,7 @@
             <span class="label"
               >{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span
             >
-            <ParamsEditor {doc} action={id} {disabled} />
+            <ParamsEditor {doc} at={['actions', id, 'params']} {disabled} />
           </div>
           <label>
             <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>

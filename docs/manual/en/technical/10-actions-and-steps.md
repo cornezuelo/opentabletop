@@ -4,7 +4,7 @@ Everything the party does on a trip is an **action** of its system: marching, ca
 
 In the Systems app each action is a card in **Rules → Actions**, and each step a card of its own in **What it does**: a choice of what it does (_Pass time_, _Move_, _Take another action_…) and that kind's fields, its own **Only when** / **Not when** as rows, and **YAML** to write it as here (`time: 180`). See [Rules](../systems/05-rules.md#actions).
 
-The world has reactions of its own, written the same way but without a party: their steps are `say`, `roll`, `effects` (clocks and factions) and `do` (another reaction, `world.reactions.<id>`, or a world turn, `world.turn`). See [The world's rules](07-kinds.md#the-world-s-rules).
+The world has reactions of its own, written the same way but without a party: their steps are `say`, `roll`, `effects` (clocks and factions), `do` (another reaction, `world.reactions.<id>`, or a world turn, `world.turn`), `pause` and `ask` (the world waits for the player, nothing moving it until answered). See [The world's rules](07-kinds.md#the-world-s-rules).
 
 ## Every step at a glance
 

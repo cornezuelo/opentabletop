@@ -15,8 +15,10 @@
     stopWorld,
     systemClocks,
     systemWorld,
+    answerWorld,
     worldAct,
     worldCalendar,
+    worldWaiting,
     worldWeatherNow,
   } from '../lib/play/world.svelte'
   import { worldTab, type WorldTab } from '../lib/play/worldTab.svelte'
@@ -71,7 +73,13 @@
     advance: advanceWorld,
     setDate: setWorldDate,
     bringClocks,
+    answer: answerWorld,
   }
+  const waiting = $derived.by(() => {
+    void editor.waiting
+    void editor.play
+    return worldWaiting()
+  })
 
   /** Before the clock starts, only starting it and the factions. */
   const tabs = $derived<WorldTab[]>(
@@ -112,6 +120,7 @@
       {missing}
       defaultStart={start}
       part={tab}
+      {waiting}
     />
   {/if}
 </div>

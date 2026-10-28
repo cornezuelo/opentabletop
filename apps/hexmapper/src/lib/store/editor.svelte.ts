@@ -94,6 +94,8 @@ class Editor {
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state.raw<HexMap['play']>(undefined)
   world = $state.raw<Campaign['world']>(undefined)
+  /** What the campaign's world waits for the player to answer, if anything. */
+  waiting = $state.raw<Campaign['waiting']>(undefined)
   /** The campaign's name, note, system and packs. */
   setup = $state.raw<CampaignSetup>(setupOf(this.campaign))
   /** The campaign's factions as this map sees them (with the land each holds on it). */
@@ -448,7 +450,8 @@ class Editor {
     if (
       campaign.world !== before.world ||
       campaign.worldWeather !== before.worldWeather ||
-      campaign.moments !== before.moments
+      campaign.moments !== before.moments ||
+      campaign.waiting !== before.waiting
     )
       this.notify({ kind: 'world' })
     if (campaign.oracle !== before.oracle) this.notify({ kind: 'oracle' })
@@ -519,7 +522,10 @@ class Editor {
       this.scale = { ...this.map.scale }
     }
     if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
-    if (change.kind === 'world' || change.kind === 'all') this.world = this.campaign.world
+    if (change.kind === 'world' || change.kind === 'all') {
+      this.world = this.campaign.world
+      this.waiting = this.campaign.waiting
+    }
     if (change.kind === 'campaign' || change.kind === 'all') this.setup = setupOf(this.campaign)
     if (change.kind === 'factions' || change.kind === 'all') this.factions = this.factionsOnMap
     if (change.kind === 'play' || change.kind === 'all')

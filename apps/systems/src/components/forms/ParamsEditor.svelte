@@ -3,28 +3,38 @@
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { t } from '../../lib/i18n'
-  import type { SystemDoc } from '../../lib/systemDoc.svelte'
+  import type { RowsDoc } from '../../lib/partDoc.svelte'
 
   /**
-   * An action's parameters as rows: each one's id, its name, its choices as pills (the first
-   * is the default unless `default` says another, so they can be dragged into order) and its
-   * default; the whole as YAML one click away, for what rows don't show (a choice's name).
+   * Parameters as rows (an action's, a world reaction's): each one's id, its name, its
+   * choices as pills (the first is the default unless `default` says another, so they can be
+   * dragged into order) and, where they have one, its default; the whole as YAML one click
+   * away, for what rows don't show (a choice's name).
    */
   let {
     doc,
-    action,
+    kind = 'travel-rules',
+    at,
+    defaults = true,
     disabled = false,
-  }: { doc: SystemDoc; action: string; disabled?: boolean } = $props()
+  }: {
+    doc: RowsDoc
+    /** The document's part they're in (`travel-rules`; `''` for a definition's own). */
+    kind?: string
+    /** Where they are: `['actions', 'ferry', 'params']`. */
+    at: string[]
+    /** Whether a parameter has a default (an action's; a question of the world's has none). */
+    defaults?: boolean
+    disabled?: boolean
+  } = $props()
 
   type Raw = Record<string, unknown>
   type Choice = string | number | { id: string | number; name?: unknown }
-  const at = $derived(['actions', action, 'params'])
-  const params = $derived(
-    (((doc.rules.actions ?? {}) as Record<string, Raw>)[action]?.params ?? {}) as Record<
-      string,
-      Raw
-    >,
-  )
+  const params = $derived.by(() => {
+    let node: unknown = doc.data(kind)
+    for (const key of at) node = (node as Raw | undefined)?.[key]
+    return (node ?? {}) as Record<string, Raw>
+  })
   const ids = $derived(Object.keys(params))
   let yaml = $state(false)
 
@@ -39,40 +49,40 @@
     // Choices written with a name keep it.
     const old = new Map(choicesOf(p).map((c) => [idOf(c), c]))
     doc.edit(
-      'travel-rules',
+      kind,
       [...at, p, 'choices'],
       items.map((i) => old.get(i) ?? typed(i)),
     )
     const fallback = params[p]?.default
     if (fallback !== undefined && !items.includes(String(fallback)))
-      doc.edit('travel-rules', [...at, p, 'default'], undefined)
+      doc.edit(kind, [...at, p, 'default'], undefined)
   }
 
   function rename(p: string, next: string) {
     const to = next.trim()
     if (!to || to === p) return
     if (to in params) return showToast(t('forms.idExists', { id: to }), 'error')
-    doc.rename('travel-rules', at, p, to)
+    doc.rename(kind, at, p, to)
   }
 
   function add() {
     const id = freeId('choice', ids)
-    doc.edit('travel-rules', [...at, id], { choices: ['yes', 'no'] })
+    doc.edit(kind, [...at, id], { choices: ['yes', 'no'] })
   }
 
   function remove(p: string) {
-    doc.edit('travel-rules', ids.length > 1 ? [...at, p] : at, undefined)
+    doc.edit(kind, ids.length > 1 ? [...at, p] : at, undefined)
   }
 
   function setYaml(value: string) {
     const parsed = parseFlow(value)
     if (parsed === null) return showToast(t('forms.badFlow'), 'error')
-    doc.edit('travel-rules', at, Object.keys(parsed ?? {}).length ? parsed : undefined)
+    doc.edit(kind, at, Object.keys(parsed ?? {}).length ? parsed : undefined)
   }
   const bare = (v: unknown) => flowText(v).replace(/^\{\s*|\s*\}$/g, '')
 </script>
 
-<div class="params">
+<div class="params" class:bare={!defaults}>
   {#if yaml}
     <SuggestInput
       label={t('actions.params')}
@@ -96,12 +106,12 @@
         <input
           type="text"
           placeholder={doc.translating ? doc.baseText(params[p]?.name) : t('actions.paramName')}
-          value={doc.text('travel-rules', params[p]?.name, [...at, p, 'name'])}
+          value={doc.text(kind, params[p]?.name, [...at, p, 'name'])}
           {disabled}
           aria-label={t('actions.paramName')}
           onchange={(e) =>
             doc.setText(
-              'travel-rules',
+              kind,
               [...at, p, 'name'],
               params[p]?.name,
               [...at, p, 'name'],
@@ -116,20 +126,20 @@
           {disabled}
           onchange={(items) => setChoices(p, items)}
         />
-        <select
-          aria-label={t('actions.paramDefault')}
-          value={params[p]?.default === undefined ? '' : String(params[p].default)}
-          {disabled}
-          onchange={(e) =>
-            doc.edit(
-              'travel-rules',
-              [...at, p, 'default'],
-              e.currentTarget.value === '' ? undefined : typed(e.currentTarget.value),
-            )}
-        >
-          <option value="">{t('actions.paramFirst')}</option>
-          {#each choices as c (idOf(c))}<option value={idOf(c)}>{idOf(c)}</option>{/each}
-        </select>
+        {#if defaults}<select
+            aria-label={t('actions.paramDefault')}
+            value={params[p]?.default === undefined ? '' : String(params[p].default)}
+            {disabled}
+            onchange={(e) =>
+              doc.edit(
+                kind,
+                [...at, p, 'default'],
+                e.currentTarget.value === '' ? undefined : typed(e.currentTarget.value),
+              )}
+          >
+            <option value="">{t('actions.paramFirst')}</option>
+            {#each choices as c (idOf(c))}<option value={idOf(c)}>{idOf(c)}</option>{/each}
+          </select>{/if}
         {#if !disabled}
           <button
             class="icon"
@@ -164,6 +174,10 @@
     grid-template-columns: minmax(4em, 7em) minmax(6em, 1fr) minmax(8em, 2fr) minmax(5em, 8em) auto;
     gap: 4px;
     align-items: start;
+  }
+
+  .bare .param {
+    grid-template-columns: minmax(4em, 7em) minmax(6em, 1fr) minmax(8em, 2fr) auto;
   }
 
   .id {

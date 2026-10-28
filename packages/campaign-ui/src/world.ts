@@ -30,6 +30,7 @@ export function worldWords(locale: () => string): WorldWords {
         .join(' '),
     reaction: (said) => lines(said),
     reactionsStopped: (max) => say('reactionsStopped', { max }),
+    answered: (question, choice) => say('answered', { question, choice }),
     factionLine: (system, line) => {
       const name = factionName(system, line.faction, locale())
       if (line.error) return say('turnFailed', { name, error: line.error })

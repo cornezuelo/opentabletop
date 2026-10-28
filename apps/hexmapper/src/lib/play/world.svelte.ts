@@ -4,11 +4,14 @@ import {
   tripHighlights as tripHighlightsOn,
   tripStepped as tripSteppedOn,
   missingClocks as missingClocksOf,
+  waitingSaid,
+  worldAnswer as worldAnswerOn,
   startWorld as startWorldOn,
   worldAct as worldActOn,
   worldEffects,
   worldFactsOf,
   worldTurnNow as worldTurnOn,
+  type WaitingSaid,
   type WorldDone,
   type WorldHost,
   type WorldLine,
@@ -20,7 +23,7 @@ import {
   type SystemClocks,
   type SystemWorld,
 } from '@open-tabletop/session'
-import { clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
+import { campaignTexts, clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 import { memberNamer, translator } from '@open-tabletop/travel-ui'
 import { availableActions, refId } from '@open-tabletop/travel-engine'
 import { type Calendar } from '@open-tabletop/time'
@@ -76,6 +79,7 @@ function host(): WorldHost {
     random: mathRandom(),
     locale: getLocale(),
     ...(trip && { trip: { weather: trip.travel.weather } }),
+    ...(trip?.skipPauses && { skipPauses: true }),
     words: worldWords(getLocale),
   }
 }
@@ -164,10 +168,35 @@ export function stopWorld(): void {
 }
 
 /**
+ * Whether the campaign's world waits for the player: nothing moves it (nor the trip) until
+ * it's answered, and this says so.
+ */
+export function worldBlocked(): boolean {
+  if (!editor.campaign.waiting) return false
+  showToast((campaignTexts[getLocale()] ?? campaignTexts.en).world.waiting.blocked, 'info')
+  return true
+}
+
+/** What the campaign's world waits for, in words, if anything. */
+export function worldWaiting(): WaitingSaid | undefined {
+  return waitingSaid(editor.campaign, host())
+}
+
+/**
+ * Goes on with what the world waits for (a question's `choice`): the rest is played, and
+ * the world follows the trip's time; the trip hears what came on the way.
+ */
+export function answerWorld(choice?: string): void {
+  take(worldAnswerOn(place(), host(), choice))
+  hearWorld()
+}
+
+/**
  * Applies an action to the world clock (from the World panel, by hand); returns what
  * happened. The map's trip, if it's the one going on, hears the clocks that filled.
  */
 export function worldAct(action: WorldAction): WorldEvent[] {
+  if (action.type !== 'log' && worldBlocked()) return []
   const events = take(worldActOn(place(), action, host())).events
   hearWorld()
   return events
@@ -178,6 +207,7 @@ export function worldAct(action: WorldAction): WorldEvent[] {
  * by name as an id or by the id its system declares it with; `'=N'` fills it up to N) and the factions they change (`factions.<id>.…`).
  */
 export function applyWorldEffects(effects: Record<string, unknown>): void {
+  if (worldBlocked()) return
   take(worldEffects(place(), effects, host()))
   hearWorld()
 }
@@ -187,6 +217,7 @@ export function applyWorldEffects(effects: Record<string, unknown>): void {
  * default); what they did goes to the timeline, and the progress clocks they tick move.
  */
 export function worldTurnNow(time = editor.campaign.world?.time): void {
+  if (worldBlocked()) return
   take(worldTurnOn(place(), host(), time))
   hearWorld()
 }
@@ -202,7 +233,7 @@ export function worldTurnNow(time = editor.campaign.world?.time): void {
  */
 export async function advanceWorld(how: { minutes: number } | { until: Until }): Promise<void> {
   const state = editor.campaign.world
-  if (!state) return
+  if (!state || worldBlocked()) return
   const play = editor.map.play
   const trip = play ? sessionOf(play) : null
   if (!trip)

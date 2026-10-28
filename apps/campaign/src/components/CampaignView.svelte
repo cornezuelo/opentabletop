@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { WorldClock, WorldTimeline } from '@open-tabletop/campaign-ui'
+  import { WorldClock, WorldTimeline, WorldWaiting } from '@open-tabletop/campaign-ui'
   import { placeUrl } from '@open-tabletop/character-ui'
   import { calendarOf, systemName } from '@open-tabletop/session'
   import { APPS, appUrl, InfoTip, Markdown, NoteRefInput, Tabs } from '@open-tabletop/ui-kit'
@@ -90,6 +90,15 @@
       </p>
     {/if}
 
+    <!-- What the world waits for shows on every tab (the World tab's clock shows it itself). -->
+    {#if open.waiting() && tab !== 'world'}
+      <WorldWaiting
+        locale={getLocale()}
+        waiting={open.waiting()!}
+        onanswer={(choice) => open.controls.answer(choice)}
+      />
+    {/if}
+
     <Tabs
       tabs={TABS.map((each) => ({ id: each, label: tabName(each) }))}
       value={tab}
@@ -112,6 +121,7 @@
           missing={open.missing()}
           defaultStart={calendar.at(1, '06:00')}
           timeline={false}
+          waiting={open.waiting()}
         />
       {:else if tab === 'factions'}
         <Factions {campaign} {faction} />

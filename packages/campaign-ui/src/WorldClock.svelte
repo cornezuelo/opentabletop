@@ -19,7 +19,9 @@
     type WorldState,
   } from '@open-tabletop/world-engine'
   import { ClockDial, confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import type { WaitingSaid } from '@open-tabletop/campaign'
   import DateInput from './DateInput.svelte'
+  import WorldWaiting from './WorldWaiting.svelte'
   import WorldTimeline from './WorldTimeline.svelte'
   import { translator, type CampaignUiKey } from './i18n'
   import { en } from './i18n/en'
@@ -44,6 +46,7 @@
     defaultStart,
     timeline = true,
     part = 'all',
+    waiting,
   }: {
     locale: string
     /** The campaign's world clock, if running. */
@@ -71,6 +74,8 @@
      * another. Before the clock starts, every part but `now` shows nothing.
      */
     part?: WorldPart
+    /** What the world waits for the player to answer, if anything: nothing else moves it. */
+    waiting?: WaitingSaid
   } = $props()
   const shows = (which: WorldPart) => part === 'all' || part === which
 
@@ -250,281 +255,291 @@
     <button class="primary" onclick={() => controls.start(startAt)}>{t('world.start')}</button>
   {/if}
 {:else}
-  {#if shows('now')}
-    <div class="now">
-      <strong>{now?.head}</strong>
-      {#if now?.parts}<span>{now.parts}</span>{/if}
-      {#if now?.date}<span>{now.date}{now.holidays ? ` · ${now.holidays}` : ''}</span>{/if}
-      {#if now?.moons}<span class="muted">{now.moons}</span>{/if}
-      {#if weather}<span
-          >{t('world.weatherLine', { weather: weather.name })}<InfoTip
-            text={t('world.weatherHelp')}
-          /></span
-        >{/if}
-      {#if !settingDate}
-        <button
-          class="link"
-          onclick={() => {
-            dateTo = world.time
-            settingDate = true
-          }}>{t('world.setDate')}</button
-        >
-      {:else}
-        <div class="field">
-          <span>{t('world.setDate')}<InfoTip text={t('world.setDateHelp')} /></span>
-          <DateInput {calendar} {locale} bind:value={dateTo} />
-          <div class="row">
-            <button
-              onclick={async () => {
-                await controls.setDate(dateTo)
-                settingDate = false
-              }}
-              disabled={dateTo === world.time}>{t('world.setDateGo')}</button
-            >
-            <button onclick={() => (settingDate = false)}>{t('world.setDateCancel')}</button>
-          </div>
-        </div>
-      {/if}
-    </div>
-
-    <div class="field">
-      <span
-        >{trip
-          ? t(travelling ? 'world.tripAdvanceTravel' : 'world.tripAdvance')
-          : t('world.advance')}<InfoTip text={advanceHelp} /></span
-      >
-      <div class="buttons">
-        <button onclick={() => controls.advance({ minutes: 60 })}>{t('world.hour')}</button>
-        {#each divisions as d (d.id)}
-          <button onclick={() => controls.advance({ until: { part: d.id } })}
-            >{t('world.nextPart', { division: divisionName(d) })}</button
-          >
-        {/each}
-        <button onclick={() => controls.advance({ until: 'next-day' })}>{t('world.nextDay')}</button
-        >
-        <button
-          disabled={!upcoming(world).length}
-          onclick={() => controls.advance({ until: 'next-event' })}>{t('world.nextEvent')}</button
-        >
-      </div>
-      {#if divisions.length}
-        <div class="row">
-          <select aria-label={t('world.untilPart')} bind:value={untilPart}>
-            <option value="">{t('world.untilPart')}</option>
-            {#each divisions as d (d.id)}
-              <optgroup label={divisionName(d)}>
-                {#each d.parts as p (p.id)}
-                  <option value="{d.id}.{p.id}">{partName(d, p)}</option>
-                {/each}
-              </optgroup>
-            {/each}
-          </select>
+  {#if waiting}<WorldWaiting {locale} {waiting} onanswer={(c) => controls.answer(c)} />{/if}
+  <fieldset class="plain" disabled={!!waiting}>
+    {#if shows('now')}
+      <div class="now">
+        <strong>{now?.head}</strong>
+        {#if now?.parts}<span>{now.parts}</span>{/if}
+        {#if now?.date}<span>{now.date}{now.holidays ? ` · ${now.holidays}` : ''}</span>{/if}
+        {#if now?.moons}<span class="muted">{now.moons}</span>{/if}
+        {#if weather}<span
+            >{t('world.weatherLine', { weather: weather.name })}<InfoTip
+              text={t('world.weatherHelp')}
+            /></span
+          >{/if}
+        {#if !settingDate}
           <button
-            disabled={!untilPart}
-            onclick={async () => {
-              await controls.advance({ until: { part: untilPart } })
-              untilPart = ''
-            }}>{t('world.untilPartGo')}</button
+            class="link"
+            onclick={() => {
+              dateTo = world.time
+              settingDate = true
+            }}>{t('world.setDate')}</button
           >
-        </div>
-      {/if}
-      {#if trip}<p class="trip">
-          {t(travelling ? 'world.tripNoticeTravel' : 'world.tripNotice', { hex: tripHex })}
-        </p>{/if}
-    </div>
-  {/if}
-
-  {#if shows('events')}
-    <div class="field">
-      <span>{t('world.events')}<InfoTip text={t('world.eventsHelp')} /></span>
-      <ul class="list">
-        {#each upcoming(world) as event (event.id)}
-          <li>
-            <span class="when">{short(event.at)}</span>
-            <span class="what"
-              >{event.name}{#if event.repeat}<small> · {repeatText(event)}</small>{/if}
-              <small class="muted desc"
-                ><code>{event.id}</code>{#if event.description}
-                  — {event.description}{/if}</small
-              ></span
-            >
-            <button
-              class="icon"
-              aria-label={t('world.cancel')}
-              use:tooltip={t('world.cancel')}
-              onclick={async () =>
-                (await confirmAction(t('world.confirmCancel', { name: event.name }))) &&
-                controls.act({ type: 'cancel', id: event.id })}>✕</button
-            >
-          </li>
         {:else}
-          <li class="muted">{t('world.noEvents')}</li>
-        {/each}
-      </ul>
-      <form
-        class="add"
-        onsubmit={(e) => {
-          e.preventDefault()
-          schedule()
-        }}
-      >
-        <input type="text" bind:value={eventName} placeholder={t('world.eventName')} />
-        <label class="row"
-          ><span class="small">{t('world.eventId')}<InfoTip text={t('world.eventIdHelp')} /></span>
-          <input type="text" bind:value={eventId} placeholder={madeId} />
-        </label>
-        {#if badId}<p class="bad">{t('world.eventIdBad')}</p>
-        {:else if takenId}<p class="muted small">{t('world.eventIdTaken')}</p>{/if}
-        <input
-          type="text"
-          bind:value={eventDescription}
-          placeholder={t('world.eventDescription')}
-        />
-        <div class="row">
-          <select bind:value={when_} aria-label={t('world.when')}>
-            <option value="in">{t('world.inDays')}</option>
-            <option value="on">{t('world.onDate')}</option>
-          </select>
-          {#if when_ === 'in'}
-            <input type="number" min="0" bind:value={inDays} aria-label={t('world.inDays')} />
-            <label
-              >{t('world.at')}
-              <input type="text" class="clock" bind:value={atClock} placeholder="12:00" />
-            </label>
-          {/if}
-        </div>
-        {#if when_ === 'on'}
-          <DateInput {calendar} {locale} bind:value={onDate} />
-          {#if onDate <= world.time}<p class="bad">{t('world.onDatePast')}</p>{/if}
-        {/if}
-        <div class="row">
-          <select bind:value={repeat} aria-label={t('world.repeat')}>
-            <option value="none">{t('world.once')}</option>
-            <option value="days">{t('world.everyN')}</option>
-            <option value="yearly">{t('world.yearly')}</option>
-          </select>
-          {#if repeat === 'days'}
-            <input type="number" min="1" bind:value={every} aria-label={t('world.everyN')} />
-          {/if}
-          <button
-            type="submit"
-            disabled={!eventName.trim() || badId || (when_ === 'on' && onDate <= world.time)}
-            >{t('world.schedule')}</button
-          >
-        </div>
-      </form>
-    </div>
-  {/if}
-
-  {#if shows('clocks')}
-    <div class="field">
-      <span>{t('world.clocks')}<InfoTip text={t('world.clocksHelp')} /></span>
-      {#each world.clocks as clock (clock.id)}
-        <div class="progress">
-          <div class="progress-row">
-            <input
-              type="text"
-              class="progress-name"
-              value={clock.name}
-              aria-label={t('world.clockName')}
-              onchange={(e) =>
-                controls.act({
-                  type: 'updateClock',
-                  id: clock.id,
-                  patch: { name: e.currentTarget.value },
-                })}
-            />
-            <button
-              class="icon"
-              aria-label={t('world.removeClock')}
-              use:tooltip={t('world.removeClock')}
-              onclick={async () =>
-                (await confirmAction(t('world.confirmRemoveClock', { name: clock.name }))) &&
-                controls.act({ type: 'removeClock', id: clock.id })}>✕</button
-            >
-          </div>
-          <div class="progress-row">
-            <ClockDial
-              segments={clock.segments}
-              filled={clock.filled}
-              size={56}
-              label={clock.name}
-              onfill={(n) =>
-                controls.act({ type: 'tick', id: clock.id, segments: n - clock.filled })}
-            />
-            <div class="progress-body">
-              <span class="count" class:full={clock.filled === clock.segments}
-                >{clock.filled} /
-                <input
-                  type="number"
-                  class="size"
-                  min="1"
-                  value={clock.segments}
-                  aria-label={t('world.segments')}
-                  use:tooltip={t('world.segments')}
-                  onchange={(e) => {
-                    const n = Math.round(Number(e.currentTarget.value))
-                    if (n >= 1)
-                      controls.act({ type: 'updateClock', id: clock.id, patch: { segments: n } })
-                    else e.currentTarget.value = String(clock.segments)
-                  }}
-                /></span
+          <div class="field">
+            <span>{t('world.setDate')}<InfoTip text={t('world.setDateHelp')} /></span>
+            <DateInput {calendar} {locale} bind:value={dateTo} />
+            <div class="row">
+              <button
+                onclick={async () => {
+                  await controls.setDate(dateTo)
+                  settingDate = false
+                }}
+                disabled={dateTo === world.time}>{t('world.setDateGo')}</button
               >
-              <code class="id"
-                >{clock.ref ?? factId(clock.name)}<InfoTip
-                  text={declaredHelp(clock) ||
-                    t('world.clockIdTip', { id: clock.ref ?? factId(clock.name) })}
-                /></code
-              >
+              <button onclick={() => (settingDate = false)}>{t('world.setDateCancel')}</button>
             </div>
           </div>
-        </div>
-      {/each}
-      {#if missing}
-        <div class="row">
-          <button onclick={() => controls.bringClocks()}
-            >{t('world.systemClocks', { count: missing })}</button
-          >
-          <!-- The help beside the button, not on it: pressing it adds them. -->
-          <span class="button-help"
-            >{t('whatItDoes')}<InfoTip text={t('world.systemClocksHelp')} /></span
-          >
-        </div>
-      {/if}
-      <form
-        class="row"
-        onsubmit={(e) => {
-          e.preventDefault()
-          addClock()
-        }}
-      >
-        <input type="text" bind:value={clockName} placeholder={t('world.clockName')} />
-        <input
-          type="number"
-          class="size"
-          min="1"
-          bind:value={segments}
-          aria-label={t('world.segments')}
-        />
-        <button type="submit" disabled={!clockName.trim() || !(segments >= 1)}
-          >{t('world.addClock')}</button
+        {/if}
+      </div>
+
+      <div class="field">
+        <span
+          >{trip
+            ? t(travelling ? 'world.tripAdvanceTravel' : 'world.tripAdvance')
+            : t('world.advance')}<InfoTip text={advanceHelp} /></span
         >
-      </form>
-    </div>
-  {/if}
+        <div class="buttons">
+          <button onclick={() => controls.advance({ minutes: 60 })}>{t('world.hour')}</button>
+          {#each divisions as d (d.id)}
+            <button onclick={() => controls.advance({ until: { part: d.id } })}
+              >{t('world.nextPart', { division: divisionName(d) })}</button
+            >
+          {/each}
+          <button onclick={() => controls.advance({ until: 'next-day' })}
+            >{t('world.nextDay')}</button
+          >
+          <button
+            disabled={!upcoming(world).length}
+            onclick={() => controls.advance({ until: 'next-event' })}>{t('world.nextEvent')}</button
+          >
+        </div>
+        {#if divisions.length}
+          <div class="row">
+            <select aria-label={t('world.untilPart')} bind:value={untilPart}>
+              <option value="">{t('world.untilPart')}</option>
+              {#each divisions as d (d.id)}
+                <optgroup label={divisionName(d)}>
+                  {#each d.parts as p (p.id)}
+                    <option value="{d.id}.{p.id}">{partName(d, p)}</option>
+                  {/each}
+                </optgroup>
+              {/each}
+            </select>
+            <button
+              disabled={!untilPart}
+              onclick={async () => {
+                await controls.advance({ until: { part: untilPart } })
+                untilPart = ''
+              }}>{t('world.untilPartGo')}</button
+            >
+          </div>
+        {/if}
+        {#if trip}<p class="trip">
+            {t(travelling ? 'world.tripNoticeTravel' : 'world.tripNotice', { hex: tripHex })}
+          </p>{/if}
+      </div>
+    {/if}
 
-  {#if timeline && part === 'all'}<WorldTimeline {locale} {world} {calendar} {controls} />{/if}
+    {#if shows('events')}
+      <div class="field">
+        <span>{t('world.events')}<InfoTip text={t('world.eventsHelp')} /></span>
+        <ul class="list">
+          {#each upcoming(world) as event (event.id)}
+            <li>
+              <span class="when">{short(event.at)}</span>
+              <span class="what"
+                >{event.name}{#if event.repeat}<small> · {repeatText(event)}</small>{/if}
+                <small class="muted desc"
+                  ><code>{event.id}</code>{#if event.description}
+                    — {event.description}{/if}</small
+                ></span
+              >
+              <button
+                class="icon"
+                aria-label={t('world.cancel')}
+                use:tooltip={t('world.cancel')}
+                onclick={async () =>
+                  (await confirmAction(t('world.confirmCancel', { name: event.name }))) &&
+                  controls.act({ type: 'cancel', id: event.id })}>✕</button
+              >
+            </li>
+          {:else}
+            <li class="muted">{t('world.noEvents')}</li>
+          {/each}
+        </ul>
+        <form
+          class="add"
+          onsubmit={(e) => {
+            e.preventDefault()
+            schedule()
+          }}
+        >
+          <input type="text" bind:value={eventName} placeholder={t('world.eventName')} />
+          <label class="row"
+            ><span class="small">{t('world.eventId')}<InfoTip text={t('world.eventIdHelp')} /></span
+            >
+            <input type="text" bind:value={eventId} placeholder={madeId} />
+          </label>
+          {#if badId}<p class="bad">{t('world.eventIdBad')}</p>
+          {:else if takenId}<p class="muted small">{t('world.eventIdTaken')}</p>{/if}
+          <input
+            type="text"
+            bind:value={eventDescription}
+            placeholder={t('world.eventDescription')}
+          />
+          <div class="row">
+            <select bind:value={when_} aria-label={t('world.when')}>
+              <option value="in">{t('world.inDays')}</option>
+              <option value="on">{t('world.onDate')}</option>
+            </select>
+            {#if when_ === 'in'}
+              <input type="number" min="0" bind:value={inDays} aria-label={t('world.inDays')} />
+              <label
+                >{t('world.at')}
+                <input type="text" class="clock" bind:value={atClock} placeholder="12:00" />
+              </label>
+            {/if}
+          </div>
+          {#if when_ === 'on'}
+            <DateInput {calendar} {locale} bind:value={onDate} />
+            {#if onDate <= world.time}<p class="bad">{t('world.onDatePast')}</p>{/if}
+          {/if}
+          <div class="row">
+            <select bind:value={repeat} aria-label={t('world.repeat')}>
+              <option value="none">{t('world.once')}</option>
+              <option value="days">{t('world.everyN')}</option>
+              <option value="yearly">{t('world.yearly')}</option>
+            </select>
+            {#if repeat === 'days'}
+              <input type="number" min="1" bind:value={every} aria-label={t('world.everyN')} />
+            {/if}
+            <button
+              type="submit"
+              disabled={!eventName.trim() || badId || (when_ === 'on' && onDate <= world.time)}
+              >{t('world.schedule')}</button
+            >
+          </div>
+        </form>
+      </div>
+    {/if}
 
-  {#if shows('now')}
-    <button
-      class="danger"
-      onclick={async () => (await confirmAction(t('world.confirmStop'))) && controls.stop()}
-      >{t('world.stop')}</button
-    >
-  {/if}
+    {#if shows('clocks')}
+      <div class="field">
+        <span>{t('world.clocks')}<InfoTip text={t('world.clocksHelp')} /></span>
+        {#each world.clocks as clock (clock.id)}
+          <div class="progress">
+            <div class="progress-row">
+              <input
+                type="text"
+                class="progress-name"
+                value={clock.name}
+                aria-label={t('world.clockName')}
+                onchange={(e) =>
+                  controls.act({
+                    type: 'updateClock',
+                    id: clock.id,
+                    patch: { name: e.currentTarget.value },
+                  })}
+              />
+              <button
+                class="icon"
+                aria-label={t('world.removeClock')}
+                use:tooltip={t('world.removeClock')}
+                onclick={async () =>
+                  (await confirmAction(t('world.confirmRemoveClock', { name: clock.name }))) &&
+                  controls.act({ type: 'removeClock', id: clock.id })}>✕</button
+              >
+            </div>
+            <div class="progress-row">
+              <ClockDial
+                segments={clock.segments}
+                filled={clock.filled}
+                size={56}
+                label={clock.name}
+                onfill={(n) =>
+                  controls.act({ type: 'tick', id: clock.id, segments: n - clock.filled })}
+              />
+              <div class="progress-body">
+                <span class="count" class:full={clock.filled === clock.segments}
+                  >{clock.filled} /
+                  <input
+                    type="number"
+                    class="size"
+                    min="1"
+                    value={clock.segments}
+                    aria-label={t('world.segments')}
+                    use:tooltip={t('world.segments')}
+                    onchange={(e) => {
+                      const n = Math.round(Number(e.currentTarget.value))
+                      if (n >= 1)
+                        controls.act({ type: 'updateClock', id: clock.id, patch: { segments: n } })
+                      else e.currentTarget.value = String(clock.segments)
+                    }}
+                  /></span
+                >
+                <code class="id"
+                  >{clock.ref ?? factId(clock.name)}<InfoTip
+                    text={declaredHelp(clock) ||
+                      t('world.clockIdTip', { id: clock.ref ?? factId(clock.name) })}
+                  /></code
+                >
+              </div>
+            </div>
+          </div>
+        {/each}
+        {#if missing}
+          <div class="row">
+            <button onclick={() => controls.bringClocks()}
+              >{t('world.systemClocks', { count: missing })}</button
+            >
+            <!-- The help beside the button, not on it: pressing it adds them. -->
+            <span class="button-help"
+              >{t('whatItDoes')}<InfoTip text={t('world.systemClocksHelp')} /></span
+            >
+          </div>
+        {/if}
+        <form
+          class="row"
+          onsubmit={(e) => {
+            e.preventDefault()
+            addClock()
+          }}
+        >
+          <input type="text" bind:value={clockName} placeholder={t('world.clockName')} />
+          <input
+            type="number"
+            class="size"
+            min="1"
+            bind:value={segments}
+            aria-label={t('world.segments')}
+          />
+          <button type="submit" disabled={!clockName.trim() || !(segments >= 1)}
+            >{t('world.addClock')}</button
+          >
+        </form>
+      </div>
+    {/if}
+
+    {#if timeline && part === 'all'}<WorldTimeline {locale} {world} {calendar} {controls} />{/if}
+
+    {#if shows('now')}
+      <button
+        class="danger"
+        onclick={async () => (await confirmAction(t('world.confirmStop'))) && controls.stop()}
+        >{t('world.stop')}</button
+      >
+    {/if}
+  </fieldset>
 {/if}
 
 <style>
+  /* Only to turn every control off while the world waits: no box of its own. */
+  fieldset.plain {
+    display: contents;
+  }
+
   .now {
     display: flex;
     flex-direction: column;

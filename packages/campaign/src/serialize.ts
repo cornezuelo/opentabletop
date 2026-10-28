@@ -10,6 +10,7 @@ import type {
   CampaignTrip,
   FactionNotes,
   WorldMoment,
+  WorldWaiting,
   WorldWeather,
 } from './types'
 
@@ -21,7 +22,8 @@ import type {
  * moments of the world waiting for the trip going on (`moments`), none in older campaigns;
  * v5: the world's conditions that held (`reactions`), none in older campaigns (what holds
  * when next seen is taken as seen); v6: a moment waiting names what it's heard by (`at`),
- * world turns too, not only clocks (`{ clock, ids }` before).
+ * world turns too, not only clocks (`{ clock, ids }` before), and what the world waits for
+ * the player to answer (`waiting`), none in older campaigns.
  */
 export const CAMPAIGN_VERSION = 6
 
@@ -104,7 +106,17 @@ export function deserializeCampaign(json: string): Campaign {
     ...readParts(data),
     ...(isTrip(data.playing) && { playing: data.playing }),
     ...readMoments(data.moments),
+    ...readWaiting(data.waiting),
   }
+}
+
+const REST_KINDS = ['steps', 'reactions', 'clocks', 'clockThen', 'effects', 'turns']
+
+/** What the world waits for, if it's one (what's left with it: each of a kind it knows). */
+function readWaiting(raw: unknown): Pick<Campaign, 'waiting'> {
+  if (!isRecord(raw) || typeof raw.reaction !== 'string' || !Array.isArray(raw.rest)) return {}
+  if (!raw.rest.every((r) => isRecord(r) && REST_KINDS.includes(String(r.kind)))) return {}
+  return { waiting: raw as unknown as WorldWaiting }
 }
 
 /** The moments waiting for the trip going on, with broken ones dropped. */

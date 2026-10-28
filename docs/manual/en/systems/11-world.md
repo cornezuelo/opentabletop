@@ -16,15 +16,19 @@ A **reaction** is like an action a trip takes by itself, but the world's: it com
   - **Roll** — a table, oracle, generator or deck, with what the world shows: what comes up goes to the timeline, its effects apply.
   - **Change** — clocks (`world.clocks.the-siege` · `1`, `'=0'` empties it) and factions (`factions.the-crown.values.strength` · `-1`, `factions.the-rebels.territory` · `1`, land on the map being played). Never a trip's party: the world has none (for that, let the trip hear the moment).
   - **Bring** — another reaction (`world.reactions.<id>`, whatever its moments, if its conditions hold) or a world turn (`world.turn`).
+  - **Pause** — the world waits for the player to **Go on**, saying this (or nothing): `The bridge stands empty.`
+  - **Ask** — the world waits for the player to choose one of a **Question**'s choices; the steps after it read the answer as `params.<id>` (a step **Only when** `params.who` is `clans`).
+- **Its questions** (**Questions**): what it may ask, each by an id (`who`), with its question (**Name**: _Who takes the bridge?_) and its choices (`clans`, `vale`; a choice's own name, `{ id: clans, name: The Clans }`, in YAML).
 - **When they're looked at.** After anything that changes the world (time moving on, a world turn, a clock ticked, a trip's effects, a change by hand), the moments that came are played in the order they happened, each one's reactions in the order the tab lists them; then the conditions, again until nothing new turns true. Moving several days at once looks at each day's start on the way, so a market day in the middle of a week isn't skipped.
 - **The memory.** The campaign keeps which conditions held, so each comes once. A campaign that never looked (one started before the system had these rules) takes what holds as seen: nothing comes at once.
 - **Chains.** A reaction may bring others: its change fills a clock that reacts, its turn brings `world.turn`, its condition turns another true. Reactions bringing each other in a loop the pack shows (`world.turn` bringing `world.turn`, two clocks filling each other) are refused when the pack loads; a loop only the numbers make stops after 10 in a row, with a line on the timeline.
+- **Waiting for the player.** A **Pause** or an **Ask** stops the world where it is: the timeline says what the reaction said so far, and the World panel, the Campaign app and the trip going on show what it waits for, with **Go on** or the question's choices. Nothing else moves the world until it's answered: not time, not world turns, not a trip (the trip shows it too, and doesn't step until it's answered). Then the rest goes on, in order: the reaction's other steps, the moment's other reactions, what becomes of a full clock, the turns that came due and the days still to move (a trip that moved on meanwhile is caught up with). A trip that skips pauses (**Skip pauses**) skips the world's too, their words on the timeline; questions still wait.
 - **With a trip going on** the world's reactions play too (the world is one), and what they change the trip reads from its next step. A trip's own rules still react in the trip ([Rules](05-rules.md)).
 
 ## The tab
 
 - Their **Name**: what these rules are called.
-- Each **reaction** a folded card: its name, its id (how another reaction brings it: `world.reactions.<id>`) and what it does in one line. Unfolded: its **Name**, **Description**, **At** (its named moments as pills, and **As this turns true** as rows), **Only when**, **Not when** and its **Steps**: each a row with **What it does**, its value and its **Only when**, moved with ↑ ↓ and removed with ×; **Add a step** adds one.
+- Each **reaction** a folded card: its name, its id (how another reaction brings it: `world.reactions.<id>`) and what it does in one line. Unfolded: its **Name**, **Description**, **At** (its named moments as pills, and **As this turns true** as rows), **Only when**, **Not when**, its **Questions** (a row each: id, question, choices as pills; **YAML** for a choice's own name) and its **Steps**: each a row with **What it does**, its value and its **Only when**, moved with ↑ ↓ and removed with ×; **Add a step** adds one.
 
 ## Step by step: market day in the Fever Marshes
 
@@ -80,5 +84,7 @@ The Grey Marches' world (_How the Marches move_) plays with all of this: the thr
 - **It didn't come in a campaign under way.** What already holds when a campaign first looks at the rules is taken as seen. Make it stop holding and turn true again, or do it by hand.
 - **A reaction doing nothing when brought.** A reaction brought by another (`world.reactions.<id>`) still has its conditions: if its **Only when** doesn't hold, it does nothing.
 - **A loop refused.** A reaction can't bring its own moment, directly or through others: `world.turn` bringing a world turn, a clock's reaction filling that clock. Bring it by a condition instead, or empty the clock first (`'=0'` fills nothing).
+- **The world doesn't move.** It waits for you: a reaction paused or asked (**The world waits: …**, in the World panel, the Campaign app and the trip). Answer it, and the rest goes on.
+- **Ask with no question.** An **Ask** names one of the reaction's **Questions** (`params.<id>`): add the question first.
 - **Party changes.** The world has no party: `party.…` in a world reaction changes nothing. Let the trip hear the moment instead: an action **By itself at** `world.clocks.<id>.full`.
 - **An event's id.** Conditions read today's events by their id (`world.events: market-day`), made from the name when the event is scheduled; renaming the event later keeps its id.

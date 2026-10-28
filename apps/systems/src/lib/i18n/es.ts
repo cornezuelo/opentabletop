@@ -185,9 +185,21 @@ export const es: Messages<typeof en> = {
     unlessHelp: 'No pasa mientras esto se cumple.\n• `factions.the-crown.conditions` es `at-war`',
     do: 'Pasos',
     doHelp:
-      'Lo que hace, en orden, cada paso viendo lo que cambiaron los anteriores:\n• **Decir** — una línea en la cronología; `{{…}}` leen el mundo: `El asedio: {{world.clocks.the-siege}}`\n• **Tirar** — una tabla, oráculo, generador o mazo: lo que sale va a la cronología y se aplican sus efectos\n• **Cambiar** — relojes y facciones: `world.clocks.the-siege` · `1`, `factions.the-crown.values.strength` · `-1`, `factions.the-rebels.territory` · `1`\n• **Traer** — otra reacción (`world.reactions.<id>`) o un turno del mundo (`world.turn`)\nCada uno puede tener su propio **Solo si**. Las reacciones que se traen unas a otras en bucle se rechazan al cargar el pack; las que hacen bucle por condiciones se paran tras 10 seguidas, con una línea en la cronología.',
+      'Lo que hace, en orden, cada paso viendo lo que cambiaron los anteriores:\n• **Decir** — una línea en la cronología; `{{…}}` leen el mundo: `El asedio: {{world.clocks.the-siege}}`\n• **Tirar** — una tabla, oráculo, generador o mazo: lo que sale va a la cronología y se aplican sus efectos\n• **Cambiar** — relojes y facciones: `world.clocks.the-siege` · `1`, `factions.the-crown.values.strength` · `-1`, `factions.the-rebels.territory` · `1`\n• **Traer** — otra reacción (`world.reactions.<id>`) o un turno del mundo (`world.turn`)\n• **Pausar** — el mundo espera a que el jugador pulse **Seguir**, diciendo esto (o nada): `El puente queda vacío.`\n• **Preguntar** — el mundo espera a que el jugador elija una de las opciones de una **Pregunta**; los pasos siguientes leen la respuesta como `params.<id>` (`params.who` es `clans`)\nMientras el mundo espera nada lo mueve (el tiempo, los turnos, un viaje); luego sigue el resto. Un viaje que salta las pausas salta también las del mundo; las preguntas siguen esperando.\nCada uno puede tener su propio **Solo si**. Las reacciones que se traen unas a otras en bucle se rechazan al cargar el pack; las que hacen bucle por condiciones se paran tras 10 seguidas, con una línea en la cronología.',
     stepKind: 'Qué hace',
-    kinds: { say: 'Decir', roll: 'Tirar', effects: 'Cambiar', do: 'Traer' },
+    kinds: {
+      say: 'Decir',
+      roll: 'Tirar',
+      effects: 'Cambiar',
+      do: 'Traer',
+      pause: 'Pausar',
+      ask: 'Preguntar',
+    },
+    pauseEmpty: 'nada que decir: solo Seguir',
+    askNone: 'Añade antes una pregunta arriba (Preguntas).',
+    params: 'Preguntas',
+    paramsHelp:
+      'Lo que la reacción puede preguntar al jugador (un paso **Preguntar**), cada una con un id con el que sus pasos leen la respuesta (`params.<id>`): su pregunta (**Nombre**) y sus opciones.\n• `who` · **¿Quién toma el puente?** · `clans`, `vale` — y luego un paso **Solo si** `params.who` es `clans`\nEl nombre propio de una opción (`{ id: clans, name: Los Clanes }`) se escribe en YAML.',
     stepWhen: 'Solo si',
     stepWhenHelp:
       'Solo este paso, mientras esto se cumple (vacío: siempre), mirado cuando le llega el turno.\n• `factions.iron-clans.conditions` es `at-war`',

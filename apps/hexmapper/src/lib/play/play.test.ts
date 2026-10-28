@@ -40,8 +40,10 @@ import {
   worldAct,
   worldCalendar,
   worldTurnNow,
+  answerWorld,
   applyWorldEffects,
   bringClocks,
+  worldWaiting,
   missingClocks,
   stopWorld,
 } from './world.svelte'
@@ -1622,6 +1624,37 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     grey()
     applyWorldEffects({ 'world.clocks.fort-keld-mutinies': 4 })
     applyWorldEffects({ 'world.clocks.the-iron-clans-march': 5 })
+    // The mutiny waits for the player (a pause): nothing moves the world until Go on.
+    expect(worldWaiting()).toEqual({
+      reaction: 'The garrison mutinies',
+      text: 'Fort Keld’s gates stand open, and nobody keeps the walls.',
+    })
+    const time = editor.campaign.world!.time
+    worldAct({ type: 'advance', minutes: 1440 })
+    expect(editor.campaign.world!.time).toBe(time)
+    expect(faction('fort-keld').values.strength).toBeGreaterThan(0)
+    answerWorld()
+    // Fort Keld falls, and asks who takes the bridge road.
+    expect(worldWaiting()).toMatchObject({
+      reaction: 'Fort Keld falls',
+      question: {
+        question: 'Who takes the bridge road?',
+        choices: [
+          { id: 'iron-clans', name: 'The Iron Clans' },
+          { id: 'the-vale', name: 'The Vale of Ashford' },
+        ],
+      },
+    })
+    const clans = faction('iron-clans').values.strength
+    const land = editor.factionsOnMap!.territories['iron-clans'].length
+    answerWorld('iron-clans')
+    expect(editor.campaign.waiting).toBeUndefined()
+    expect(editor.factionsOnMap!.territories['iron-clans'].length).toBeGreaterThan(land)
+    expect(
+      editor.campaign.world!.timeline.some(
+        (e) => e.text === 'Who takes the bridge road? → The Iron Clans',
+      ),
+    ).toBe(true)
     // Both filled: the march started over, the mutiny went away with the garrison's fort.
     expect(clock('the-iron-clans-march')!.filled).toBe(0)
     expect(clock('fort-keld-mutinies')).toBeUndefined()
@@ -1640,7 +1673,10 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     expect(said().slice(fell)).toContain('rumours')
     expect(
       editor.campaign.world!.timeline.find((e) => e.data?.reaction === 'fort-falls')!.text,
-    ).toMatch(/^Fort Keld falls \(the Clans’ strength \d\): every power/)
+    ).toMatch(
+      /^Fort Keld falls \(the Clans’ strength \d\): every power.+ Who takes the bridge road\?$/,
+    )
+    expect(faction('iron-clans').values.strength).toBeGreaterThan(clans)
     applyWorldEffects({ 'factions.fort-keld.values.strength': '=0' })
     expect(said().filter((r) => r === 'fort-falls')).toHaveLength(1)
     // Brought back by hand, as it starts.

@@ -183,9 +183,14 @@ export const en = {
       "It doesn't happen while this holds.\n• `factions.the-crown.conditions` is `at-war`",
     do: 'Steps',
     doHelp:
-      'What it does, in order, each step seeing what the ones before changed:\n• **Say** — a line on the timeline; `{{…}}` read the world: `The siege: {{world.clocks.the-siege}}`\n• **Roll** — a table, oracle, generator or deck: what comes up goes to the timeline, its effects apply\n• **Change** — clocks and factions: `world.clocks.the-siege` · `1`, `factions.the-crown.values.strength` · `-1`, `factions.the-rebels.territory` · `1`\n• **Bring** — another reaction (`world.reactions.<id>`) or a world turn (`world.turn`)\nEach may have its own **Only when**. Reactions bringing each other in a loop are refused when the pack loads; ones that conditions make loop stop after 10 in a row, with a line on the timeline.',
+      'What it does, in order, each step seeing what the ones before changed:\n• **Say** — a line on the timeline; `{{…}}` read the world: `The siege: {{world.clocks.the-siege}}`\n• **Roll** — a table, oracle, generator or deck: what comes up goes to the timeline, its effects apply\n• **Change** — clocks and factions: `world.clocks.the-siege` · `1`, `factions.the-crown.values.strength` · `-1`, `factions.the-rebels.territory` · `1`\n• **Bring** — another reaction (`world.reactions.<id>`) or a world turn (`world.turn`)\n• **Pause** — the world waits for the player to **Go on**, saying this (or nothing): `The bridge stands empty.`\n• **Ask** — the world waits for the player to choose one of a **Question**’s choices; the steps after it read the answer as `params.<id>` (`params.who` is `clans`)\nWhile the world waits nothing moves it (time, turns, a trip); then the rest goes on. A trip that skips pauses skips the world’s too; questions still wait.\nEach may have its own **Only when**. Reactions bringing each other in a loop are refused when the pack loads; ones that conditions make loop stop after 10 in a row, with a line on the timeline.',
     stepKind: 'What it does',
-    kinds: { say: 'Say', roll: 'Roll', effects: 'Change', do: 'Bring' },
+    kinds: { say: 'Say', roll: 'Roll', effects: 'Change', do: 'Bring', pause: 'Pause', ask: 'Ask' },
+    pauseEmpty: 'nothing to say: only Go on',
+    askNone: 'Add a question above first (Questions).',
+    params: 'Questions',
+    paramsHelp:
+      "What the reaction may ask the player (an **Ask** step), each by an id its steps read the answer with (`params.<id>`): its question (**Name**) and its choices.\n• `who` · **Who takes the bridge?** · `clans`, `vale` — then a step **Only when** `params.who` is `clans`\nA choice's own name (`{ id: clans, name: The Clans }`) is written in YAML.",
     stepWhen: 'Only when',
     stepWhenHelp:
       'This step only, while this holds (empty: always), seen when its turn comes.\n• `factions.iron-clans.conditions` is `at-war`',

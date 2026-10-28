@@ -9,7 +9,10 @@ import {
   localize,
   startClocks,
   worldHolds,
+  worldQuestion,
   worldStep,
+  type WorldHold,
+  type WorldQuestion,
   type FactionLine,
   type ReactionLine,
   type StartingClock,
@@ -37,7 +40,7 @@ import {
   type WorldEvent,
 } from '@open-tabletop/world-engine'
 import { factionsHere, splitFactions, territoryWorld, worldTurnOn } from './factions'
-import type { Campaign, WorldMoment } from './types'
+import type { Campaign, WorldMoment, WorldRest, WorldWaiting } from './types'
 
 /**
  * The world clock of a campaign, played the same way by every app: actions on the clock
@@ -69,6 +72,8 @@ export interface WorldWords {
   reactionsStopped: (max: number) => string
   /** A faction's turn: "The Iron Clans: raid the Vale (+1 hex)". */
   factionLine: (system: SystemFactions, line: FactionLine) => string
+  /** What the player answered a reaction's question: "Who takes the bridge? The Clans". */
+  answered: (question: string, choice: string) => string
 }
 
 /** What the world plays with: the campaign's system, its Oracle, randomness, language. */
@@ -91,6 +96,11 @@ export interface WorldHost {
    * own isn't rolled).
    */
   trip?: { weather?: string }
+  /**
+   * Whether the trip going on skips pauses: the world's pauses are written on the timeline
+   * and passed too (its questions still wait for the player).
+   */
+  skipPauses?: boolean
   words: WorldWords
 }
 
@@ -219,9 +229,29 @@ export function rollWorldWeather(
 }
 
 /**
+ * The world waiting for the player stops where it is: each level of what was being played
+ * (a reaction's steps, a moment's other reactions, a full clock's end, changes left, turns
+ * and days still due) adds what it had left as this goes up, so everything goes on, in
+ * order, once the player answers.
+ */
+class Held {
+  /** What was left, in the order it goes on (the innermost first). */
+  rest: WorldRest[] = []
+  /** What the reactions under way said before it stopped, for their line on the timeline. */
+  lines: ReactionLine[] = []
+  /** The time the world was moving to, if it was. */
+  until?: number
+  constructor(
+    readonly reaction: string,
+    readonly hold: WorldHold,
+  ) {}
+}
+
+/**
  * Plays on the world of a campaign. The functions share one place as it changes, since
  * one action can bring others (a full clock ticking another, a turn logging its lines, a
- * reaction of the world changing what its conditions see).
+ * reaction of the world changing what its conditions see). A step that waits for the
+ * player stops it all (`Held`); `run` keeps what was left in the campaign (`waiting`).
  */
 function playWorld(start: WorldPlace, host: WorldHost) {
   let { campaign, map } = start
@@ -233,8 +263,11 @@ function playWorld(start: WorldPlace, host: WorldHost) {
   let depth = 0
   let stopped = false
   const facts = () => worldFactsOf({ campaign, map }, host)
-  /** What the world's reactions read: the world's facts and its moment (`time.*`). */
-  const reactionFacts = (): Record<string, unknown> => {
+  /**
+   * What the world's reactions read: the world's facts, its moment (`time.*`) and what the
+   * player answered the reaction (`params.*`).
+   */
+  const reactionFacts = (params?: Record<string, string>): Record<string, unknown> => {
     const parts = host.calendar.describe(campaign.world?.time ?? 0)
     return {
       ...facts(),
@@ -242,6 +275,16 @@ function playWorld(start: WorldPlace, host: WorldHost) {
       hour: parts.hour,
       ...(parts.season && { season: parts.season }),
       ...calendarFacts(parts),
+      ...(params && Object.keys(params).length && { params }),
+    }
+  }
+  /** Runs `fn` on a Held going up: adds what this level had left, then lets it go on up. */
+  const leaving = <T>(fn: () => T, left: (held: Held) => void): T => {
+    try {
+      return fn()
+    } catch (error) {
+      if (error instanceof Held) left(error)
+      throw error
     }
   }
 
@@ -264,13 +307,18 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     const events: WorldEvent[] = []
     const calendar = host.calendar
     const last = calendar.describe(to).day
-    for (let d = calendar.describe(state.time).day + 1; d <= last; d++) {
-      const dawn = calendar.at(d, 0)
-      if (dawn >= to) break
-      events.push(...once({ type: 'setTime', time: dawn }))
-      settle()
-    }
-    events.push(...once({ type: 'setTime', time: to }))
+    leaving(
+      () => {
+        for (let d = calendar.describe(state.time).day + 1; d <= last; d++) {
+          const dawn = calendar.at(d, 0)
+          if (dawn >= to) break
+          events.push(...once({ type: 'setTime', time: dawn }))
+          settle()
+        }
+        events.push(...once({ type: 'setTime', time: to }))
+      },
+      (held) => (held.until = Math.max(held.until ?? to, to)),
+    )
     return events
   }
 
@@ -279,18 +327,32 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     if (!state) return []
     const { state: next, events } = world.apply(state, action)
     campaign = { ...campaign, world: next }
+    const full = events.flatMap((e) => (e.type === 'CLOCK_FILLED' ? [e.clock.id] : []))
     if (next.time > state.time) {
       // The world's own weather, day by day, while no trip has a weather of its own.
       campaign = rollWorldWeather(campaign, host)
       // The factions take the turns that came due on the way (every so many days).
-      for (const at of dueTurns()) turn(at)
+      leaving(dueTurns, (held) => held.rest.push({ kind: 'turns' }, { kind: 'clocks', ids: full }))
     }
-    for (const e of events) {
-      if (e.type !== 'CLOCK_FILLED') continue
-      heard({ clock: e.clock.name, at: clockIds(e.clock).map(clockFullMoment) })
-      clockFilled(e.clock)
-    }
+    clocksFilled(full)
     return events
+  }
+
+  /** Clocks that filled (by their ids): each heard by the trip going on, each reacted to. */
+  function clocksFilled(ids: string[]): void {
+    ids.forEach((id, i) =>
+      leaving(
+        () => {
+          const clock = campaign.world?.clocks.find((c) => c.id === id)
+          if (!clock) return
+          heard({ clock: clock.name, at: clockIds(clock).map(clockFullMoment) })
+          clockFilled(clock)
+        },
+        (held) => {
+          if (i + 1 < ids.length) held.rest.push({ kind: 'clocks', ids: ids.slice(i + 1) })
+        },
+      ),
+    )
   }
 
   /** A moment of the world: the trip going on, if any, hears it on its next step. */
@@ -299,15 +361,18 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     campaign = { ...campaign, moments: [...(campaign.moments ?? []), moment] }
   }
 
-  function dueTurns(): number[] {
+  /** The world turns that came due (every so many days), each played at its time. */
+  function dueTurns(): void {
     const own = campaign.factions
-    if (!own || !host.factions || own.auto === false || !campaign.world) return []
-    return turnsDue(
+    if (!own || !host.factions || own.auto === false || !campaign.world) return
+    const due = turnsDue(
       own.lastTurn,
       campaign.world.time,
       host.factions.def.every,
       host.calendar.minutesPerDay,
     )
+    // A turn played moves the last turn on: those after it are due again when it's answered.
+    for (const at of due) turn(at)
   }
 
   /** A world turn: each faction's, then the world's reactions to it (`world.turn`). */
@@ -330,13 +395,31 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     const texts = done.lines.map((line) => host.words.factionLine(system, line))
     turns.push({ time, lines: texts })
     done.lines.forEach((line, i) => act({ type: 'log', text: texts[i], data: { ...line }, time }))
-    for (const [ref, n] of Object.entries(done.ticks)) {
-      const found = n && campaign.world && findClock(campaign.world, ref)
-      if (found) act({ type: 'tick', id: found.id, segments: n })
-    }
-    for (const id of reactionsAt(rules, WORLD_TURN)) logged(id)
     heard({ at: [WORLD_TURN] })
+    const after = reactionsAt(rules, WORLD_TURN)
+    const ticks = Object.entries(done.ticks).flatMap(([ref, n]) =>
+      n ? [[`world.clocks.${ref}`, n] as const] : [],
+    )
+    leaving(
+      () => effects(Object.fromEntries(ticks)),
+      (held) => {
+        if (after.length) held.rest.push({ kind: 'reactions', ids: after })
+      },
+    )
+    reactionsIn(after)
     return done.lines
+  }
+
+  /** Reactions of one moment, in order, each its own line on the timeline. */
+  function reactionsIn(ids: string[]): void {
+    ids.forEach((id, i) =>
+      leaving(
+        () => logged(id),
+        (held) => {
+          if (i + 1 < ids.length) held.rest.push({ kind: 'reactions', ids: ids.slice(i + 1) })
+        },
+      ),
+    )
   }
 
   /**
@@ -345,24 +428,60 @@ function playWorld(start: WorldPlace, host: WorldHost) {
    */
   function clockFilled(clock: ProgressClock): void {
     const mark = campaign.world?.timeline.length ?? 0
-    const lines = reactionsAt(rules, ...clockIds(clock).map(clockFullMoment)).flatMap(react)
+    const ids = reactionsAt(rules, ...clockIds(clock).map(clockFullMoment))
     const then = clockThen(host.clocks, clock.ref)
-    if (!clock.ref && !lines.length) return
-    const said = host.words.clockFull({ lines, then })
-    if (said) logAt(mark, `${clock.name}: ${said}`, { clock: clock.id })
-    filled.push({ clock: clock.name, text: said })
-    const now = campaign.world && findClock(campaign.world, clock.ref ?? clock.id)
-    if (!now || now.id !== clock.id) return
-    if (then === 'reset') act({ type: 'updateClock', id: clock.id, patch: { filled: 0 } })
-    if (then === 'remove') act({ type: 'removeClock', id: clock.id })
+    const lines: ReactionLine[] = []
+    let held: Held | undefined
+    for (let i = 0; i < ids.length && !held; i++)
+      try {
+        lines.push(...react(ids[i]))
+      } catch (error) {
+        if (!(error instanceof Held)) throw error
+        held = error
+        lines.push(...held.lines)
+        held.lines = []
+        if (i + 1 < ids.length) held.rest.push({ kind: 'reactions', ids: ids.slice(i + 1) })
+      }
+    if (clock.ref || lines.length) {
+      const said = host.words.clockFull({ lines, then })
+      if (said) logAt(mark, `${clock.name}: ${said}`, { clock: clock.id })
+      filled.push({ clock: clock.name, text: said })
+    }
+    if (held) {
+      // What becomes of it once full waits for the rest of its reactions.
+      held.rest.push({ kind: 'clockThen', id: clock.id, then })
+      throw held
+    }
+    clockDone(clock.id, then)
   }
 
-  /** A reaction played, its line on the timeline where it began. */
-  function logged(id: string): void {
+  /** What becomes of a full clock: kept, emptied to start over, or removed. */
+  function clockDone(id: string, then: ClockThen): void {
+    if (!campaign.world?.clocks.some((c) => c.id === id)) return
+    if (then === 'reset') act({ type: 'updateClock', id, patch: { filled: 0 } })
+    if (then === 'remove') act({ type: 'removeClock', id })
+  }
+
+  /**
+   * A reaction played (from step `from`, with what the player answered it), its line on the
+   * timeline where it began; what it said before waiting for the player, too.
+   */
+  function logged(id: string, from = 0, params: Record<string, string> = {}): void {
     const mark = campaign.world?.timeline.length ?? 0
-    const lines = react(id)
-    const said = lines.length ? host.words.reaction(lines) : ''
-    if (said) logAt(mark, said, { reaction: id })
+    const lines = leaving(
+      () => react(id, from, params),
+      (held) => {
+        said(mark, held.lines, id)
+        held.lines = []
+      },
+    )
+    said(mark, lines, id)
+  }
+
+  /** A reaction's line on the timeline, before what came after `mark`. */
+  function said(mark: number, lines: ReactionLine[], id: string): void {
+    const text = lines.length ? host.words.reaction(lines) : ''
+    if (text) logAt(mark, text, { reaction: id })
   }
 
   /** A line of the timeline put before what came after `mark` (what its steps brought). */
@@ -376,21 +495,24 @@ function playWorld(start: WorldPlace, host: WorldHost) {
   }
 
   /**
-   * One of the world's reactions, if its conditions hold: its steps in order, each seeing
-   * what the ones before changed. What its lines said (a reaction it does says its own).
+   * One of the world's reactions, if its conditions hold: its steps in order (from `from`,
+   * going on after the player answered it: its conditions were seen as it came), each seeing
+   * what the ones before changed. What its lines said (a reaction it does says its own). A
+   * step that waits for the player stops the world (`Held`), unless it's a pause and the
+   * trip going on skips them: its words go on the timeline then.
    */
-  function react(id: string): ReactionLine[] {
+  function react(id: string, from = 0, params: Record<string, string> = {}): ReactionLine[] {
     const reaction = rules?.reactions[id]
     if (!reaction || !host.world || !campaign.world) return []
     if (depth >= MAX_CHAIN) {
       stop()
       return []
     }
-    if (!worldHolds(reactionFacts(), reaction)) return []
+    if (from === 0 && !worldHolds(reactionFacts(), reaction)) return []
     depth++
     try {
       const lines: ReactionLine[] = []
-      for (const step of reaction.do) {
+      for (let i = from; i < reaction.do.length; i++) {
         const shared = campaign.oracle
         const done = worldStep(
           {
@@ -401,16 +523,44 @@ function playWorld(start: WorldPlace, host: WorldHost) {
             fallback: host.fallback,
           },
           shared?.state ?? emptyState(),
-          step,
-          reactionFacts(),
+          reaction.do[i],
+          reactionFacts(params),
         )
         if (!done) continue
         campaign = { ...campaign, oracle: { state: done.oracle, history: shared?.history ?? [] } }
         if (done.line) lines.push(done.line)
-        effects(done.effects)
-        if (done.do === WORLD_TURN) turn()
-        const other = reactionOf(done.do)
-        if (other) lines.push(...react(other))
+        const rest: WorldRest = {
+          kind: 'steps',
+          reaction: id,
+          next: i + 1,
+          ...(Object.keys(params).length && { params }),
+        }
+        const hold = done.hold
+        if (hold) {
+          const words =
+            'ask' in hold
+              ? host.world &&
+                worldQuestion(host.world, id, hold.ask, host.locale, host.fallback)?.question
+              : hold.text
+          if (words) lines.push({ say: words })
+          if ('pause' in hold && host.skipPauses) continue
+          const held = new Held(id, hold)
+          held.lines = lines
+          held.rest.push(rest)
+          throw held
+        }
+        leaving(
+          () => {
+            effects(done.effects)
+            if (done.do === WORLD_TURN) turn()
+            const other = reactionOf(done.do)
+            if (other) lines.push(...react(other))
+          },
+          (held) => {
+            held.lines = [...lines, ...held.lines]
+            held.rest.push(rest)
+          },
+        )
       }
       return lines
     } finally {
@@ -429,11 +579,13 @@ function playWorld(start: WorldPlace, host: WorldHost) {
    * The world's moments written as conditions: each that turned true since last time comes
    * once (its reaction played), in declared order, checked again until nothing new holds
    * (ten rounds at most). What held is kept in the campaign; a campaign that kept nothing
-   * takes what holds now as seen, so nothing comes at once in a campaign under way.
+   * takes what holds now as seen, so nothing comes at once in a campaign under way. One
+   * that turned true is seen as its reaction comes: those after one that waits for the
+   * player come once it's answered.
    */
   function settle(): void {
     const conditions = worldConditions(rules)
-    if (!conditions.length || !campaign.world) return
+    if (!conditions.length || !campaign.world || campaign.waiting) return
     const holding = () => conditions.filter((c) => worldHolds(reactionFacts(), c))
     if (!campaign.reactions) {
       campaign = { ...campaign, reactions: holding().map((c) => c.key) }
@@ -443,25 +595,47 @@ function playWorld(start: WorldPlace, host: WorldHost) {
       const held = new Set(campaign.reactions ?? [])
       const now = holding()
       const fresh = [...new Set(now.filter((c) => !held.has(c.key)).map((c) => c.reaction))]
-      campaign = { ...campaign, reactions: now.map((c) => c.key) }
-      if (!fresh.length) return
-      if (round >= MAX_CHAIN) return stop()
-      for (const id of fresh) logged(id)
+      const seen = (played: Set<string>) =>
+        now.filter((c) => held.has(c.key) || played.has(c.reaction)).map((c) => c.key)
+      if (!fresh.length || round >= MAX_CHAIN) {
+        campaign = { ...campaign, reactions: now.map((c) => c.key) }
+        if (fresh.length) stop()
+        return
+      }
+      const played = new Set<string>()
+      for (const id of fresh) {
+        played.add(id)
+        campaign = { ...campaign, reactions: seen(played) }
+        logged(id)
+      }
     }
   }
 
   function effects(changes: Record<string, unknown>): void {
-    for (const [path, change] of Object.entries(changes)) {
+    const entries = Object.entries(changes)
+    entries.forEach(([path, change], i) => {
       const [, ref] = /^world\.clocks\.(.+)$/.exec(path) ?? []
       const found = ref && campaign.world && findClock(campaign.world, ref)
-      if (!found) continue
+      if (!found) return
       // A number fills (or empties) segments; `'=N'` fills it up to N.
       const set = typeof change === 'string' && /^\s*=/.test(change)
       const n = Number(set ? (change as string).replace('=', '') : change)
-      if (!Number.isFinite(n)) continue
+      if (!Number.isFinite(n)) return
       const by = set ? n - found.filled : n
-      if (by) act({ type: 'tick', id: found.id, segments: by })
-    }
+      if (!by) return
+      leaving(
+        () => act({ type: 'tick', id: found.id, segments: by }),
+        (held) => {
+          // The clocks after it, and every faction's change (applied after the clocks).
+          const left = entries.filter(([p], j) => j > i || !/^world\.clocks\./.test(p))
+          if (left.length)
+            held.rest.push({
+              kind: 'effects',
+              changes: Object.fromEntries(left) as Record<string, number | string | boolean>,
+            })
+        },
+      )
+    })
     factionEffects(changes)
   }
 
@@ -497,12 +671,105 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     if (map) map = { ...map, territories: split.territories }
   }
 
+  /** What was left once the player answered, in order. */
+  function goOn(rest: WorldRest[]): void {
+    rest.forEach((item, i) =>
+      leaving(
+        () => {
+          if (item.kind === 'steps') logged(item.reaction, item.next, item.params)
+          else if (item.kind === 'reactions') reactionsIn(item.ids)
+          else if (item.kind === 'clocks') clocksFilled(item.ids)
+          else if (item.kind === 'clockThen') clockDone(item.id, item.then)
+          else if (item.kind === 'effects') effects(item.changes)
+          else dueTurns()
+        },
+        (held) => held.rest.push(...rest.slice(i + 1)),
+      ),
+    )
+  }
+
+  /**
+   * The player answered what the world waited for (`choice`, a question's): its line on
+   * the timeline, then what was left, the turns that came due and the days still to move.
+   */
+  function resume(waiting: WorldWaiting, choice?: string): void {
+    const params: Record<string, string> = {}
+    if (waiting.ask !== undefined && choice !== undefined) {
+      params[waiting.ask] = choice
+      const asked =
+        host.world &&
+        worldQuestion(host.world, waiting.reaction, waiting.ask, host.locale, host.fallback)
+      const name = asked?.choices.find((c) => c.id === choice)?.name ?? choice
+      act({
+        type: 'log',
+        text: host.words.answered(asked?.question ?? waiting.ask, name),
+        data: { answered: waiting.reaction, choice },
+      })
+    }
+    // The reaction that asked reads the answer from then on.
+    let given = false
+    const rest = waiting.rest.map((item): WorldRest => {
+      if (given || item.kind !== 'steps' || item.reaction !== waiting.reaction) return item
+      given = true
+      return { ...item, params: { ...item.params, ...params } }
+    })
+    const until = waiting.until
+    leaving(
+      () => {
+        goOn(rest)
+        dueTurns()
+      },
+      (held) => {
+        if (until !== undefined) held.until = Math.max(held.until ?? until, until)
+      },
+    )
+    if (until !== undefined) act({ type: 'setTime', time: until })
+  }
+
+  /**
+   * Plays `fn`, unless the world waits for the player; if a step waits for one, what was
+   * left is kept in the campaign (`waiting`) and `otherwise` is returned.
+   */
+  function run<T>(fn: () => T, otherwise: T): T {
+    if (campaign.waiting) return otherwise
+    try {
+      return fn()
+    } catch (error) {
+      if (!(error instanceof Held)) throw error
+      const now = campaign.world?.time ?? 0
+      const hold = error.hold
+      campaign = {
+        ...campaign,
+        waiting: {
+          reaction: error.reaction,
+          ...('ask' in hold ? { ask: hold.ask } : hold.text !== undefined && { text: hold.text }),
+          rest: error.rest,
+          ...(error.until !== undefined && error.until > now && { until: error.until }),
+        },
+      }
+      return otherwise
+    }
+  }
+
   /** What was done, once the world's conditions have been seen. */
   const done = (events: WorldEvent[] = []): WorldDone => {
-    settle()
+    run(settle, undefined)
     return { campaign, map, events, filled, turns }
   }
-  return { act, turn, effects, done }
+  /** Goes on with the campaign's world, as `resume` does (it waits no more). */
+  const answer = (waiting: WorldWaiting, choice?: string) => {
+    const left = { ...campaign }
+    delete left.waiting
+    campaign = left
+    run(() => resume(waiting, choice), undefined)
+  }
+  return {
+    act: (action: WorldAction) => run(() => act(action), []),
+    turn: (time?: number) => run(() => turn(time), []),
+    effects: (changes: Record<string, unknown>) => run(() => effects(changes), undefined),
+    answer,
+    done,
+  }
 }
 
 /** The ids rules may name a clock by: the one its system declares, its name as an id. */
@@ -550,6 +817,52 @@ export function worldTurnNow(
 }
 
 /**
+ * The player answers what the world waits for (`campaign.waiting`): goes on after a pause,
+ * or with a question's `choice` (one of its parameter's choices). What was left is played,
+ * then the turns that came due and the days still to move; it may wait again. Nothing
+ * changes when nothing waits, or when a question gets no choice of its own.
+ */
+export function worldAnswer(place: WorldPlace, host: WorldHost, choice?: string): WorldDone {
+  const waiting = place.campaign.waiting
+  const asked = waiting?.ask !== undefined && host.world
+  const choices = asked
+    ? (worldQuestion(host.world!, waiting!.reaction, waiting!.ask!, host.locale)?.choices ?? [])
+    : []
+  if (!waiting || (asked && !choices.some((c) => c.id === choice)))
+    return { ...place, events: [], filled: [], turns: [] }
+  const play = playWorld(place, host)
+  play.answer(waiting, asked ? choice : undefined)
+  return play.done()
+}
+
+/** What the world waits for, in words: a pause's, or a question and its choices. */
+export interface WaitingSaid {
+  /** The reaction's name (its id if it has none). */
+  reaction: string
+  text?: string
+  question?: WorldQuestion
+}
+
+/** What the campaign's world waits for, if anything, in the host's language. */
+export function waitingSaid(
+  campaign: Campaign,
+  host: Pick<WorldHost, 'world' | 'locale' | 'fallback'>,
+): WaitingSaid | undefined {
+  const waiting = campaign.waiting
+  if (!waiting) return undefined
+  const def = host.world?.def.reactions[waiting.reaction]
+  const question =
+    waiting.ask !== undefined && host.world
+      ? worldQuestion(host.world, waiting.reaction, waiting.ask, host.locale, host.fallback)
+      : undefined
+  return {
+    reaction: localize(def?.name, host.locale, host.fallback) ?? waiting.reaction,
+    ...(waiting.text !== undefined && { text: waiting.text }),
+    ...(question && { question }),
+  }
+}
+
+/**
  * What a trip's results do to the world: progress clocks they tick (`world.clocks.<name>: 1`,
  * by name as an id or by the id its system declares it with; `'=N'` fills it up to N) and the
  * factions they change (`factions.<id>.…`; land only on the map being played).
@@ -592,6 +905,13 @@ export function followTrip(
   host: WorldHost,
 ): WorldDone & { lines: WorldLine[] } {
   const world = place.campaign.world
+  const waiting = place.campaign.waiting
+  // The world waits for the player: it follows the trip's time once answered.
+  if (waiting && world && time > world.time) {
+    const until = Math.max(waiting.until ?? time, time)
+    const campaign = { ...place.campaign, waiting: { ...waiting, until } }
+    return { ...place, campaign, events: [], filled: [], turns: [], lines: [] }
+  }
   if (!world || time <= world.time)
     return { ...place, events: [], filled: [], turns: [], lines: [] }
   const calendar = host.calendar as Partial<DataCalendar>

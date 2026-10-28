@@ -1,7 +1,9 @@
 import { calendarFrom, defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import {
+  choiceIds,
   clockFullMoment,
+  paramOf,
   isEventId,
   createWorld,
   factId,
@@ -341,6 +343,38 @@ describe('the world’s rules (`kind: world`)', () => {
         when: { 'factions.keld.values.strength': { lte: 0 } },
       },
     ])
+  })
+
+  it('reads steps that wait for the player: a pause, a question on a parameter', () => {
+    const ok = rules({
+      bridge: {
+        on: 'world.turn',
+        params: {
+          who: {
+            name: 'Who takes the bridge?',
+            choices: [{ id: 'clans', name: 'The Clans' }, 'vale', 3],
+          },
+        },
+        do: [
+          { pause: 'The bridge stands empty.' },
+          { pause: true },
+          { ask: 'params.who' },
+          { when: { 'params.who': 'clans' }, say: 'The Clans take it.' },
+        ],
+      },
+    })
+    expect(ok.errors).toEqual([])
+    expect(choiceIds(ok.rules!.reactions.bridge.params!.who)).toEqual(['clans', 'vale', '3'])
+    expect(paramOf('params.who')).toBe('who')
+    // A question on a parameter the reaction doesn't declare.
+    expect(rules({ a: { on: 'world.turn', do: [{ ask: 'params.who' }] } }).errors).toEqual([
+      'reactions.a.do.0.ask: expected params.<id>, a parameter the reaction declares (params:)',
+    ])
+    expect(
+      rules({
+        a: { on: 'world.turn', params: { how: { choices: ['x'] } }, do: [{ ask: 'how' }] },
+      }).errors,
+    ).toEqual(['reactions.a.do.0.ask: expected params.how'])
   })
 
   it('says what is wrong: moments, steps a trip has, what a step does, loops', () => {
