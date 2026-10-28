@@ -258,8 +258,8 @@ describe('the world of a campaign', () => {
     const wyrm = done.campaign.world!.clocks.find((c) => c.name === 'The Wyrm wakes!')!
     done = worldAct(done, { type: 'tick', id: wyrm.id, segments: 2 }, host())
     expect(done.campaign.moments).toEqual([
-      { clock: 'march', ids: ['march'] },
-      { clock: 'The Wyrm wakes!', ids: ['the-wyrm-wakes'] },
+      { clock: 'march', at: ['world.clocks.march.full'] },
+      { clock: 'The Wyrm wakes!', at: ['world.clocks.the-wyrm-wakes.full'] },
     ])
     // A trip hears those its rules name, by the clock's declared id or its name as an id.
     const rules = (...on: string[]) =>
@@ -278,6 +278,48 @@ describe('the world of a campaign', () => {
     expect(taken.campaign.moments).toBeUndefined()
     // Moments its rules don't name are dropped.
     expect(takeMoments(done.campaign, rules('world.clocks.other.full')).heard).toEqual([])
+  })
+
+  it('a trip brings a world turn (`do: world.turn`), its journal told, the trip hearing it', () => {
+    const place = started()
+    const trip = { app: 'travel', id: 't1', name: 'Trip' }
+    const playing = { ...place, campaign: playTrip(place.campaign, trip) }
+    const now = playing.campaign.world!.time
+    const step = (p: { campaign: Campaign; map?: HexMap }, at = now + 60) =>
+      tripStepped(
+        p,
+        {
+          oracle: { decks: {}, occurrences: {}, vars: {} } as never,
+          entries: [{ code: 'WORLD_DO', time: at, data: { action: 'news', do: 'world.turn' } }],
+          time: now + 120,
+        },
+        host({ trip: {} }),
+      )
+    const done = step(playing)
+    // The clans' turn, at the step's time, then the world's reaction to it.
+    const timeline = done.campaign.world!.timeline
+    expect(timeline.find((e) => e.text === 'clans: Pushes on')?.time).toBe(now + 60)
+    expect(timeline.at(-1)!.data).toEqual({ reaction: 'rumour' })
+    expect(done.map!.territories!.clans).toHaveLength(2)
+    // The trip's journal is told what the factions did.
+    expect(done.lines).toEqual([{ code: 'WORLD_TURN', text: 'clans: Pushes on', time: now + 60 }])
+    // The trip hears it on its next step, if its rules name it.
+    expect(done.campaign.moments).toEqual([{ at: ['world.turn'] }])
+    const rules = { actions: { rumour: { on: 'world.turn', do: [] } }, checks: [] } as never
+    expect(takeMoments(done.campaign, rules).heard).toEqual([{ at: 'world.turn' }])
+    // Without factions the world has no turn to play: an empty line, nothing else.
+    const none = step({ campaign: { ...playing.campaign, factions: undefined } })
+    expect(none.lines).toEqual([{ code: 'WORLD_TURN', text: '', time: now + 60 }])
+    expect(none.campaign.moments).toBeUndefined()
+  })
+
+  it('tells a trip the world turns that came due on its way', () => {
+    const place = started()
+    const now = place.campaign.world!.time
+    const followed = followTrip(place, now + 3 * 1440, host({ trip: {} }))
+    expect(followed.lines.filter((l) => l.code === 'WORLD_TURN')).toEqual([
+      { code: 'WORLD_TURN', text: 'clans: Pushes on', time: now + 2 * 1440 },
+    ])
   })
 
   it('reacts by itself: after a world turn, a condition turning true once, an event’s day', () => {

@@ -4,6 +4,7 @@ import {
   isPartRef,
   refId,
   STEP_KINDS,
+  WORLD_DO_TURN,
   type ActionDefinition,
   type ActionStep,
 } from '@open-tabletop/travel-engine'
@@ -126,6 +127,7 @@ export function stepSummary(step: ActionStep, names: StepNames): string {
     case 'set':
       return t('steps.say.set', { values: bare(v) || '—' })
     case 'do': {
+      if (v === WORLD_DO_TURN) return t('steps.say.doWorldTurn')
       const action = refId('actions', v) ? names.action(refId('actions', v)!) : String(v)
       return s.with
         ? t('steps.say.doWith', { action, with: bare(s.with) })

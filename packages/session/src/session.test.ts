@@ -35,6 +35,8 @@ import {
   tripChanges,
   tripContext,
   tripAvailability,
+  entryLevel,
+  entryTopic,
 } from './index'
 
 const shape: GridShape = { orientation: 'flat', width: 6, height: 6 }
@@ -138,6 +140,21 @@ describe('session', () => {
       action: 'eat',
       text: { en: 'There is nothing left to eat.', es: 'No queda nada que comer.' },
     })
+  })
+
+  it('journals a step asking the world to turn, for the host to play (a detail of the world)', () => {
+    const turning: TravelRules = {
+      ...rules,
+      checks: [],
+      actions: { ...rules.actions, news: { do: [{ do: 'world.turn' }] } },
+    }
+    const session = createSession({ travel: createTravelEngine({ world, rules: turning }) })
+    const { state, entries } = session.step(start(), { type: 'action', id: 'news' })
+    const asked = entries.find((e) => e.code === 'WORLD_DO')!
+    expect(asked.data).toMatchObject({ action: 'news', do: 'world.turn' })
+    expect(asked.time).toBe(state.travel.time)
+    expect([entryLevel(asked), entryTopic(asked)]).toEqual(['detail', 'world'])
+    expect(entryLevel({ source: 'travel', code: 'WORLD_TURN' })).toBe('story')
   })
 
   it('parses bindings and resolves local ids in their pack', () => {

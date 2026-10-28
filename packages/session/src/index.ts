@@ -406,6 +406,7 @@ const JOURNALED: TravelEvent['type'][] = [
   'NO_ROUTE',
   'TRAVEL_STOPPED',
   'SAID',
+  'WORLD_DO',
   'HELD',
   'RESUMED',
   'MODE_CHANGED',

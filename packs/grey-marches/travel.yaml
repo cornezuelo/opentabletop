@@ -468,6 +468,31 @@ actions:
     do:
       - { effects: { party.stats.morale: 1 } }
       - { id: thin, say: 'The trees thin out, and spirits rise.' }
+  # The trip brings a world turn (a step `do: world.turn`): the travel engine doesn't know the
+  # world, so it tells the host, which plays the turn on the campaign's world as one due with
+  # time (each faction's turn, then the world's reactions to it, world.yaml's _News on the
+  # roads_); the journal says what the factions did. In a market town, by day, once a trip.
+  carry-news:
+    name: Carry the news
+    description: 'In a market town, by day, once a trip: an hour telling the townsfolk what you saw on the roads. The news spreads, and the powers of the Marches move (a world turn).'
+    when: { hex.tags: market, time.tags: { not: dark }, trip.taken.carry-news: { lt: 1 } }
+    hideWhenUnavailable: true
+    do:
+      - { time: 60 }
+      - { id: told, say: 'The news spreads from the market square faster than the Company could.' }
+      - { do: world.turn }
+  # A moment of the world (`on: world.turn`): after every world turn of the campaign, whatever
+  # brought it (time moving on, a hand on the World panel, Carry the news), heard on the trip's
+  # next step. What the powers did reaches the Company: with the Clans at war (a faction's
+  # condition, `factions.iron-clans.conditions`), the news is bad and morale drops.
+  word-on-the-road:
+    name: Word on the road
+    description: 'After every world turn, news of the powers reaches the Company; with the Iron Clans at war, morale -1.'
+    on: world.turn
+    do:
+      - { id: word, say: 'Travellers bring word of what the powers of the Marches are doing.' }
+      - when: { factions.iron-clans.conditions: at-war }
+        effects: { party.stats.morale: -1 }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED

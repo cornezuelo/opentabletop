@@ -7,7 +7,7 @@ The **World** tab edits what the system's world does by itself (`kind: world`, o
 A **reaction** is like an action a trip takes by itself, but the world's: it comes at its moments, if its conditions hold, and does its steps in order.
 
 - **Its moments** (**At**):
-  - `world.turn` — after every world turn, once every faction has taken its turn (every few days, or by hand).
+  - `world.turn` — after every world turn, once every faction has taken its turn (every few days, by hand, or brought by a trip's step `do: world.turn`).
   - `world.clocks.<id>.full` — as a progress clock fills, whatever fills it: a trip, a table, a faction's turn, another reaction, a click on the World panel. A clock made by hand is named by its name in lowercase with dashes.
   - **As this turns true** — a condition on what the world shows: its clocks (`world.clocks.the-siege`), today's events (`world.events: market-day`), the factions (`factions.the-crown.values.strength`), the moment (`time.season`). It comes **once**, as it turns true, and again only after it has stopped holding.
 - **Its conditions**: **Only when** and **Not when**, seen as its moment comes. A reaction whose conditions don't hold does nothing that time.

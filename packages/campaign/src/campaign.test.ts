@@ -97,7 +97,7 @@ describe('campaigns', () => {
     expect(leaveTrip(playing, trip)).toBe(playing)
     expect(leaveTrip(playing, map)).not.toHaveProperty('playing')
     // What the world had waiting for the trip leaves with it.
-    const waiting = { ...playing, moments: [{ clock: 'Doom', ids: ['doom'] }] }
+    const waiting = { ...playing, moments: [{ clock: 'Doom', at: ['world.clocks.doom.full'] }] }
     expect(leaveTrip(waiting, map)).not.toHaveProperty('moments')
   })
 
@@ -112,12 +112,25 @@ describe('campaigns', () => {
       factions: { system: 'marks', factions: [], lastTurn: 0, auto: false },
       oracle: { state: { decks: {}, occurrences: { 'a/b#c': 1 }, vars: {} }, history: [] },
       playing: { app: 'travel', id: 't1', name: 'To Keld' },
-      moments: [{ clock: 'The Wyrm wakes', ids: ['wyrm', 'the-wyrm-wakes'] }],
+      moments: [
+        {
+          clock: 'The Wyrm wakes',
+          at: ['world.clocks.wyrm.full', 'world.clocks.the-wyrm-wakes.full'],
+        },
+        { at: ['world.turn'] },
+      ],
     }
     expect(deserializeCampaign(serializeCampaign(campaign))).toEqual(campaign)
     // Broken moments are dropped.
-    const broken = JSON.stringify({ ...campaign, moments: [{ clock: 1 }] })
+    const broken = JSON.stringify({ ...campaign, moments: [{ clock: 1 }, { at: [] }] })
     expect(deserializeCampaign(broken)).not.toHaveProperty('moments')
+    // A v5 campaign's clocks waiting name what they're heard by.
+    const v5 = JSON.stringify({
+      ...campaign,
+      version: 5,
+      moments: [{ clock: 'The Wyrm wakes', ids: ['wyrm', 'the-wyrm-wakes'] }],
+    })
+    expect(deserializeCampaign(v5).moments).toEqual([campaign.moments![0]])
     expect(campaign.version).toBe(CAMPAIGN_VERSION)
     expect(() => deserializeCampaign('{oops')).toThrow(CampaignFormatError)
     expect(() => deserializeCampaign('{"version":1}')).toThrow(CampaignFormatError)

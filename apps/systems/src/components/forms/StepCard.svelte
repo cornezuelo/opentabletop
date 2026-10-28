@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { STEP_KINDS, type ActionStep } from '@open-tabletop/travel-engine'
+  import { STEP_KINDS, WORLD_DO_TURN, type ActionStep } from '@open-tabletop/travel-engine'
   import { InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import {
     ConditionEditor,
@@ -252,7 +252,10 @@
           {:else if kind === 'do' || kind === 'roll' || kind === 'ask'}
             {@const options =
               kind === 'do'
-                ? ctx.actions.map((a) => ({ id: `actions.${a.id}`, name: a.name }))
+                ? [
+                    ...ctx.actions.map((a) => ({ id: `actions.${a.id}`, name: a.name })),
+                    { id: WORLD_DO_TURN, name: t('worldForm.worldTurn') },
+                  ]
                 : kind === 'roll'
                   ? [
                       ...ctx.checks.map((c) => ({ id: `checks.${c.event}`, name: c.name })),

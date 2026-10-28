@@ -251,12 +251,11 @@ export function hearWorld(heard = 0): void {
     const now = current()
     const trip = sessionOf(now)
     if (!trip || !now.rules) return
-    const session = addEntry(trip, {
-      source: 'travel',
-      code: 'CLOCK_FILLED',
-      text: clock,
-    })
-    save({ ...now, rules: { ...now.rules, session } })
+    // A full clock is told; a world turn was, as it was played (its own journal line).
+    if (clock !== undefined) {
+      const session = addEntry(trip, { source: 'travel', code: 'CLOCK_FILLED', text: clock })
+      save({ ...now, rules: { ...now.rules, session } })
+    }
     step({ type: 'moment', at }, heard + 1)
   }
 }

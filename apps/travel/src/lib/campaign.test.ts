@@ -280,7 +280,9 @@ describe('trips in campaigns', () => {
     const waiting = {
       ...now,
       modified: 'later',
-      moments: [{ clock: 'The Greywood Wyrm wakes', ids: ['the-greywood-wyrm-wakes'] }],
+      moments: [
+        { clock: 'The Greywood Wyrm wakes', at: ['world.clocks.the-greywood-wyrm-wakes.full'] },
+      ],
     }
     kept.set('grey-marches', {
       id: 'grey-marches',

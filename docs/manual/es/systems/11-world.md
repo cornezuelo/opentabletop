@@ -7,7 +7,7 @@ La pestaña **Mundo** edita lo que el mundo del sistema hace por sí solo (`kind
 Una **reacción** es como una acción que un viaje hace por sí solo, pero del mundo: llega en sus momentos, si se cumplen sus condiciones, y hace sus pasos en orden.
 
 - **Sus momentos** (**En**):
-  - `world.turn` — tras cada turno del mundo, cuando todas las facciones han jugado el suyo (cada pocos días, o a mano).
+  - `world.turn` — tras cada turno del mundo, cuando todas las facciones han jugado el suyo (cada pocos días, a mano, o traído por un paso de un viaje, `do: world.turn`).
   - `world.clocks.<id>.full` — al llenarse un reloj de progreso, lo llene lo que lo llene: un viaje, una tabla, el turno de una facción, otra reacción, un clic en el panel Mundo. Un reloj creado a mano se nombra por su nombre en minúsculas y con guiones.
   - **Al cumplirse esto** — una condición sobre lo que muestra el mundo: sus relojes (`world.clocks.the-siege`), los eventos de hoy (`world.events: market-day`), las facciones (`factions.the-crown.values.strength`), el momento (`time.season`). Llega **una vez**, al pasar a cumplirse, y otra solo después de haber dejado de cumplirse.
 - **Sus condiciones**: **Solo si** y **Salvo si**, miradas al llegar su momento. Una reacción cuyas condiciones no se cumplen no hace nada esa vez.

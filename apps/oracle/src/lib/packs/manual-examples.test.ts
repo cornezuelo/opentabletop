@@ -377,7 +377,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
       const taken = takeMoments(place.campaign, system.rules)
       place = { ...place, campaign: taken.campaign }
       for (const { at, clock } of taken.heard) {
-        heard.push(clock)
+        if (clock) heard.push(clock)
         if (depth < 10) step({ type: 'moment', at }, depth + 1)
       }
     }

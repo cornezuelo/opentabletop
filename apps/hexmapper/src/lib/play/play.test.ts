@@ -278,7 +278,9 @@ describe('playing on the map', () => {
     const before = session().journal.length
     editor.takeCampaign({
       ...editor.campaign,
-      moments: [{ clock: 'The Greywood Wyrm wakes', ids: ['the-greywood-wyrm-wakes'] }],
+      moments: [
+        { clock: 'The Greywood Wyrm wakes', at: ['world.clocks.the-greywood-wyrm-wakes.full'] },
+      ],
     })
     step({ type: 'resume' })
     const next = said(before)
@@ -290,7 +292,7 @@ describe('playing on the map', () => {
     worldAct({ type: 'updateClock', id: wyrm().id, patch: { filled: 0 } })
     worldAct({ type: 'tick', id: wyrm().id, segments: 6 })
     expect(editor.campaign.moments).toEqual([
-      { clock: 'The Greywood Wyrm wakes', ids: ['the-greywood-wyrm-wakes'] },
+      { clock: 'The Greywood Wyrm wakes', at: ['world.clocks.the-greywood-wyrm-wakes.full'] },
     ])
   })
 
@@ -1433,6 +1435,41 @@ describe('the powers of the Marches: factions on the map', () => {
     editor.setFactions({ ...editor.factionsOnMap!, auto: false })
     worldAct({ type: 'advance', minutes: 15 * 1440 })
     expect(turns()).toBe(2)
+  })
+
+  it('a trip carries the news: a world turn played, its journal told, the trip hearing it', () => {
+    grey()
+    // The Company starts in Ashford, a market town: Carry the news is there, by day.
+    clickHex('7,7')
+    const trip = () => sessionOf(editor.map.play!)!
+    expect(partyLocation()).toBe('5,7')
+    const turnsBefore = editor.campaign.world!.timeline.filter((e) => e.data?.faction).length
+    const from = trip().journal.length
+    step({ type: 'action', id: 'carry-news' })
+    const lines = trip().journal.slice(from)
+    const codes = lines.map((e) => `${e.code} ${e.data?.action ?? ''}`.trim())
+    // Asked, played on the campaign's world (every faction's turn), told, then heard.
+    expect(codes).toEqual(
+      expect.arrayContaining(['WORLD_DO carry-news', 'WORLD_TURN', 'SAID word-on-the-road']),
+    )
+    expect(codes.indexOf('WORLD_TURN')).toBeLessThan(codes.indexOf('SAID word-on-the-road'))
+    const timeline = editor.campaign.world!.timeline
+    expect(timeline.filter((e) => e.data?.faction).length).toBe(turnsBefore + 3)
+    // The world's own reaction to the turn: news on the roads.
+    expect(timeline.at(-1)!.data).toEqual({ reaction: 'rumours' })
+    expect(editor.campaign.moments).toBeUndefined()
+    // The journal says what each power did, in words.
+    const t = translator(() => 'en')
+    const context = { t, startDay: 1, hexLabel: (h: string) => h, nameOf: (id: string) => id }
+    const turn = lines.find((e) => e.code === 'WORLD_TURN')!
+    expect(entryText(turn, context)).toMatch(
+      /^World turn: The Iron Clans: .+; The Vale of Ashford: .+; The Garrison of Fort Keld: /,
+    )
+    const asked = lines.find((e) => e.code === 'WORLD_DO')!
+    expect(entryText(asked, context)).toMatch(/brings a world turn$/)
+    // Once a trip: no second time.
+    const why = tripAvailability({ system: activeSystem(), world: mapWorld(editor.map) }, trip())
+    expect(why['carry-news']).toBeDefined()
   })
 
   it('a trip’s results reach the world: a clock ticks, a faction thinks better of you', () => {

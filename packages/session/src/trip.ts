@@ -25,6 +25,7 @@ import {
   actionSteps,
   createTravelEngine,
   isHostMoment,
+  WORLD_DO_TURN,
   momentsOf,
   type Moments,
   refId,
@@ -608,16 +609,23 @@ export function travelSystems(registry: Registry): {
           const message = rollableProblem(owner, st.roll)
           if (message) report(`actions.${id}.do.${i}.roll`, message)
         })
-      // The moments of the world a trip hears: a clock filling. One the system doesn't
-      // declare may be made by hand (named by its name as an id): only a warning.
+      // The moments of the world a trip hears: a world turn, a clock filling. One the system
+      // doesn't declare may be made by hand (named by its name as an id): only a warning; so
+      // is a world turn in a system without factions to take one.
       const declared = Object.keys(clocks?.def.clocks ?? {})
       const worldMoments = (value: Moments | undefined, path: string) =>
         momentsOf(value).forEach((m, j) => {
           if (!isHostMoment(m)) return
           const at = Array.isArray(value) ? `${path}.${j}` : path
           const id = /^world\.clocks\.(.+)\.full$/.exec(m)?.[1]
-          if (!id)
-            report(at, `expected world.clocks.<id>.full (the moments of the world a trip hears)`)
+          if (m === WORLD_DO_TURN) {
+            if (!factions)
+              report(at, 'the system declares no factions: no world turn comes', 'warning')
+          } else if (!id)
+            report(
+              at,
+              `expected ${WORLD_DO_TURN} or world.clocks.<id>.full (the moments of the world a trip hears)`,
+            )
           else if (!declared.includes(id))
             report(
               at,

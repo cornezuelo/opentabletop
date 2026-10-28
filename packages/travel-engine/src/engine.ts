@@ -383,6 +383,11 @@ export type TravelEvent =
   | { type: 'ACTION_UNAVAILABLE'; action: string; because?: Unavailable }
   /** A `say:` step: a line of the system's own, its `{{…}}` read (in every language written). */
   | { type: 'SAID'; action: string; text: string | Record<string, string>; time: GameTime }
+  /**
+   * A `do:` step naming something of the world (`do: world.turn`): the host's to do, as it
+   * applies `world.…` effects (the engine doesn't know the world).
+   */
+  | { type: 'WORLD_DO'; action: string; do: string; time: GameTime }
   /** A step stopped the trip for the player (`pause:`, `ask:`). */
   | { type: 'HELD'; waiting: Waiting; time: GameTime }
   /** The player went on from a step that stopped the trip (`choice`: what an `ask:` got). */
@@ -1961,6 +1966,8 @@ export function createTravelEngine(options: {
         advance(state, typeof legs === 'number' ? Math.floor(legs) : 0, events)
       } else if (step.effects)
         applyEffects(state, id, step.effects, events, rollsOf(state, context, id))
+      else if (step.do !== undefined && isHostMoment(step.do))
+        events.push({ type: 'WORLD_DO', action: id, do: step.do, time: state.time })
       else if (step.do !== undefined) {
         const given =
           step.with && Object.fromEntries(Object.entries(step.with).map(([k, v]) => [k, read(v)]))

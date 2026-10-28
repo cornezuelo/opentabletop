@@ -137,6 +137,18 @@ travel-rules/default:
       do:
         thin:
           say: 'Los árboles se abren, y se levantan los ánimos.'
+    carry-news:
+      name: Llevar las noticias
+      description: 'En un pueblo con mercado, de día, una vez por viaje: una hora contando a la gente lo que visteis en los caminos. Las noticias corren, y los poderes de las Marcas se mueven (un turno del mundo).'
+      do:
+        told:
+          say: 'Las noticias corren desde la plaza del mercado más deprisa de lo que la Compañía podría.'
+    word-on-the-road:
+      name: Noticias del camino
+      description: 'Tras cada turno del mundo, llegan a la Compañía noticias de los poderes; con los Clanes de Hierro en guerra, moral -1.'
+      do:
+        word:
+          say: 'Los viajeros traen noticias de lo que hacen los poderes de las Marcas.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima

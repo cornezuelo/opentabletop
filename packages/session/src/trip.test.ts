@@ -772,6 +772,7 @@ checks: [{ event: OMEN, at: world.clocks.gone.full }]
 actions:
   search: { do: [{ roll: table.ruins }, { roll: table.nowhere }] }
   flee: { on: world.clocks.doom.full, do: [{ time: 60 }] }
+  news: { on: world.turn, do: [{ time: 60 }] }
 ---
 kind: clocks
 id: world
@@ -791,6 +792,12 @@ entries: [{ result: Bones }]
     expect(systems.map((s) => s.id)).toEqual(['w'])
     expect(problems.map((p) => [p.severity, p.at, p.message])).toEqual([
       ['error', '@travel-rules/default.actions.search.do.1.roll', 'Unknown table "table.nowhere"'],
+      // No factions to take a world turn: heard never.
+      [
+        'warning',
+        '@travel-rules/default.actions.news.on',
+        'the system declares no factions: no world turn comes',
+      ],
       [
         'warning',
         '@travel-rules/default.checks.0.at',

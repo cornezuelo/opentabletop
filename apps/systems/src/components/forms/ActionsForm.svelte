@@ -10,6 +10,7 @@
     refId,
     isClock,
     isPartRef,
+    WORLD_DO_TURN,
     type ActionDefinition,
     type ActionStep,
   } from '@open-tabletop/travel-engine'
@@ -31,7 +32,7 @@
   import CardTools from './CardTools.svelte'
   import { getLocale, t } from '../../lib/i18n'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
-  import { clockMoments, clockOfMoment } from '../../lib/worldMoments'
+  import { clockOfMoment, tripWorldMoments } from '../../lib/worldMoments'
   import { library } from '../../lib/packs.svelte'
   import {
     momentsList,
@@ -75,9 +76,11 @@
                     ? t('checks.atCheck', { check: checkLabel(refId('checks', m)!) })
                     : refId('actions', m)
                       ? t('actions.onAfter', { action: label(refId('actions', m)!) })
-                      : clockOfMoment(system, m, getLocale())
-                        ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
-                        : m,
+                      : m === WORLD_DO_TURN
+                        ? t('worldForm.afterTurn')
+                        : clockOfMoment(system, m, getLocale())
+                          ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
+                          : m,
       )
       .filter(Boolean)
       .concat(reactionWords(on))
@@ -352,7 +355,7 @@
                 ...ids.filter((a) => a !== id).map((a) => ref('actions', a)),
                 ...ids.filter((a) => a !== id).map(doneOf),
                 ...events.map((e) => ref('checks', e)),
-                ...clockMoments(system),
+                ...tripWorldMoments(system),
               ]}
               removeLabel={t('forms.removeItem')}
               {disabled}

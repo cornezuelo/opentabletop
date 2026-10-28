@@ -87,8 +87,9 @@ export interface Campaign {
   /** The trip that played in it last, which another asks to pause. */
   playing?: CampaignTrip
   /**
-   * The moments of the world waiting for the trip going on (`playing`): clocks that filled
-   * by any means (by hand, a faction's turn, a trip's effects), heard on its next step.
+   * The moments of the world waiting for the trip going on (`playing`), heard on its next
+   * step: clocks that filled by any means (by hand, a faction's turn, a trip's effects) and
+   * world turns (due on the way, by hand, brought by a trip's `do: world.turn`).
    */
   moments?: WorldMoment[]
   /**
@@ -100,11 +101,12 @@ export interface Campaign {
 }
 
 /**
- * A clock that filled while a trip was going on: its name, and the ids a trip's rules may
- * name it by (`world.clocks.<id>.full`): the id its system declares it with, if any, and
- * its name written as one (`the-wyrm-wakes`, as conditions read it).
+ * A moment of the world that came while a trip was going on: the names a trip's rules may
+ * hear it by, the first they name heard (`world.turn`; a clock's `world.clocks.<id>.full`,
+ * by the id its system declares it with and by its name written as one, `the-wyrm-wakes`,
+ * as conditions read it), and a full clock's name.
  */
 export interface WorldMoment {
-  clock: string
-  ids: string[]
+  at: string[]
+  clock?: string
 }

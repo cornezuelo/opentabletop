@@ -46,16 +46,21 @@ const STORY = new Set([
   'WORLD_EVENT',
   'HOLIDAY',
   'CLOCK_FILLED',
+  'WORLD_TURN',
 ])
 
 const DETAIL = new Set([
   'ROLLED',
+  'WORLD_DO',
   'WEATHER_ROLLED',
   'CHANGED',
   'CHECK_SKIPPED',
   'MOMENT_REACHED',
   'ROUTE_PLANNED',
 ])
+
+/** Lines about the world: what came due in it, a clock that filled, a world turn. */
+const WORLD_CODES = new Set(['WORLD_EVENT', 'HOLIDAY', 'CLOCK_FILLED', 'WORLD_TURN', 'WORLD_DO'])
 
 /** A journal line's level (older journals' lines have theirs too: it's read from the code). */
 export function entryLevel(e: Line): JournalLevel {
@@ -66,7 +71,7 @@ export function entryLevel(e: Line): JournalLevel {
 export function entryTopic(e: Line): JournalTopic {
   if (e.source === 'user' && e.code === 'NOTE') return 'notes'
   if (e.source === 'oracle' || e.code === 'ORACLE_ROLL') return 'oracle'
-  if (e.code === 'WORLD_EVENT' || e.code === 'HOLIDAY' || e.code === 'CLOCK_FILLED') return 'world'
+  if (WORLD_CODES.has(e.code)) return 'world'
   if (
     e.code === 'ROSTER_UPDATED' ||
     e.code === 'NOBODY_ACTING' ||

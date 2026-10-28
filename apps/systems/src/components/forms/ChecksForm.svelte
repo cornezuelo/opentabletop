@@ -43,9 +43,10 @@
     isPartRef,
     ref,
     refId,
+    WORLD_DO_TURN,
   } from '@open-tabletop/travel-engine'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
-  import { clockMoments, clockOfMoment } from '../../lib/worldMoments'
+  import { clockOfMoment, tripWorldMoments } from '../../lib/worldMoments'
 
   /**
    * The checks of the rules, each with the table that resolves it (from the bindings):
@@ -98,9 +99,11 @@
                     ? t('checks.atCheck', { check: checkLabel(refId('checks', m)!) })
                     : refId('actions', m)
                       ? t('checks.atAction', { action: actionLabel(refId('actions', m)!) })
-                      : clockOfMoment(system, m, getLocale())
-                        ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
-                        : m,
+                      : m === WORLD_DO_TURN
+                        ? t('worldForm.afterTurn')
+                        : clockOfMoment(system, m, getLocale())
+                          ? t('checks.atFull', { clock: clockOfMoment(system, m, getLocale())! })
+                          : m,
       )
       .filter(Boolean)
       .concat(reactionWords(at))
@@ -351,7 +354,7 @@
                       ...ownActions.map((a) => ref('actions', a)),
                       ...ownActions.map(doneOf),
                       ...checkEvents.filter((e) => e !== check.event).map((e) => ref('checks', e)),
-                      ...clockMoments(system),
+                      ...tripWorldMoments(system),
                     ]}
                     removeLabel={t('forms.removeItem')}
                     {disabled}

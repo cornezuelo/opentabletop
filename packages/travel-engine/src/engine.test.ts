@@ -737,7 +737,7 @@ describe('the system’s own actions', () => {
     ])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'actions.fish' }] })
     expect(bad.errors).toEqual([
-      'checks.0.at: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, checks.X, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'checks.0.at: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, checks.X, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
     ])
   })
 
@@ -1331,7 +1331,7 @@ describe('actions the system triggers, and bounded values', () => {
     }
     const bad = { event: 'BAD', at: ['06:00', 'actions.nowhere'] }
     expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
-      'checks.1.at.1: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, checks.SIGHT, checks.BAD, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'checks.1.at.1: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, checks.SIGHT, checks.BAD, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
     )
     const { rules: several, errors } = parseTravelRules({
       ...triggered!,
@@ -1389,8 +1389,8 @@ describe('actions the system triggers, and bounded values', () => {
     })
     expect(bad.errors).toEqual([
       // (pray is gone, so is the moment of its check)
-      'checks.1.at: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
-      'actions.a.on: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)',
+      'checks.1.at: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'actions.a.on: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
       'actions.a.do.1.roll: expected checks.HUNGER, checks.OMEN, checks.AMBUSH, table.<id>',
       'actions.a.do.2.set.nope: expected lost, weary',
       // (camp is gone too, and the halt named it)
@@ -2914,6 +2914,73 @@ describe('rolling what the host rolls, and moments of the world', () => {
       expect.stringMatching(/^actions\.x\.on: expected .*world\.clocks\.<id>\.full/),
       expect.stringMatching(/^actions\.x\.do\.0\.roll: expected checks\.OMEN, table\.<id>/),
     ])
+  })
+})
+
+describe('a world turn: a step brings one, a trip hears one', () => {
+  const { rules: turning, errors } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: DAY,
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    resources: { food: { min: 0 } },
+    actions: {
+      ...DAY_ACTIONS,
+      // The host plays the turn on its world: the engine only says it was asked.
+      news: { do: [{ time: 60 }, { do: 'world.turn' }, { effects: { 'party.values.food': -1 } }] },
+      // Heard when the host says the world turned.
+      rumour: { on: 'world.turn', do: [{ say: 'A rumour reaches the party' }] },
+    },
+  })
+  const eng = createTravelEngine({ world, rules: turning! })
+  const begin = () =>
+    initialTravelState({
+      location: '0,0',
+      mode: 'foot',
+      time: defaultCalendar.at(1, '08:00'),
+      resources: { food: 3 },
+    })
+
+  it('are valid', () => {
+    expect(errors).toEqual([])
+  })
+
+  it("a step's do: world.turn is told to the host, at its time, and the action goes on", () => {
+    const { state, events } = eng.apply(begin(), { type: 'action', id: 'news' })
+    expect(events.filter((e) => e.type === 'WORLD_DO')).toEqual([
+      { type: 'WORLD_DO', action: 'news', do: 'world.turn', time: defaultCalendar.at(1, '09:00') },
+    ])
+    expect(state.resources.food).toBe(2)
+    // The trip doesn't hear it until the host says the world turned.
+    expect(events.some((e) => e.type === 'SAID')).toBe(false)
+  })
+
+  it('the moment world.turn, once the host says it came', () => {
+    const { events } = eng.apply(begin(), { type: 'moment', at: 'world.turn' })
+    expect(events.find((e) => e.type === 'SAID')).toMatchObject({
+      action: 'rumour',
+      text: 'A rumour reaches the party',
+    })
+  })
+
+  it('reject other things of the world, parameters, and a turn heard bringing another', () => {
+    const bad = parseTravelRules({
+      ...turning!,
+      actions: {
+        ...turning!.actions,
+        fill: { do: [{ do: 'world.clocks.doom.full' }] },
+        given: { do: [{ do: 'world.turn', with: { how: 1 } }] },
+      },
+    })
+    expect(bad.errors).toEqual([
+      'actions.fill.do.0.do: expected world.turn, the one thing of the world a step can do',
+      'actions.given.do.0.with: world.turn takes no parameters',
+    ])
+    const loop = parseTravelRules({
+      ...turning!,
+      actions: { ...turning!.actions, echo: { on: 'world.turn', do: [{ do: 'world.turn' }] } },
+    })
+    expect(loop.errors).toEqual([expect.stringMatching(/world\.turn/)])
   })
 })
 

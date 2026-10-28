@@ -160,17 +160,18 @@ Un cambio se detiene en el `min` / `max` del valor; lo que llegó a uno ese día
 
 Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (`on:`). Un momento, o varios como lista (`[trip.hex-enter, actions.rest]`); las condiciones y las tablas ven cuál es como `trip.moment`.
 
-| Momento                                                                      | Cuándo                                                                                                           |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| una hora (`'06:00'`)                                                         | al dar esa hora, marchando, esperando o dormidos en el campamento                                                |
-| una parte del día (`time.part.morning`)                                      | al empezar esa parte del calendario, igual                                                                       |
-| `trip.hex-enter`                                                             | al entrar en cada hex                                                                                            |
-| `time.day-end`                                                               | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones)                                      |
-| una acción (`actions.camp`)                                                  | cuando el grupo hace esa acción, antes de sus pasos (una comprobación que espera los deja en espera)             |
-| el final de una acción (`actions.forage.done`)                               | cuando acaban sus pasos                                                                                          |
-| una comprobación (`checks.WEATHER_CHECK_REQUIRED`)                           | justo después de resolverse (tras **Continuar**, si pausó), antes de las siguientes comprobaciones de su momento |
-| un reloj del mundo al llenarse (`world.clocks.<id>.full`)                    | al llenarse uno de los relojes de progreso de la campaña, lo llene lo que lo llene                               |
-| una condición al cumplirse (`{ when: { party.values.morale: { lte: 0 } } }`) | una vez, al cumplirse, sea lo que sea lo que la cambió; otra solo después de dejar de cumplirse                  |
+| Momento                                                                      | Cuándo                                                                                                            |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| una hora (`'06:00'`)                                                         | al dar esa hora, marchando, esperando o dormidos en el campamento                                                 |
+| una parte del día (`time.part.morning`)                                      | al empezar esa parte del calendario, igual                                                                        |
+| `trip.hex-enter`                                                             | al entrar en cada hex                                                                                             |
+| `time.day-end`                                                               | al acabar cada día, se acampe o no (primero acciones, luego comprobaciones)                                       |
+| una acción (`actions.camp`)                                                  | cuando el grupo hace esa acción, antes de sus pasos (una comprobación que espera los deja en espera)              |
+| el final de una acción (`actions.forage.done`)                               | cuando acaban sus pasos                                                                                           |
+| una comprobación (`checks.WEATHER_CHECK_REQUIRED`)                           | justo después de resolverse (tras **Continuar**, si pausó), antes de las siguientes comprobaciones de su momento  |
+| un reloj del mundo al llenarse (`world.clocks.<id>.full`)                    | al llenarse uno de los relojes de progreso de la campaña, lo llene lo que lo llene                                |
+| un turno del mundo (`world.turn`)                                            | tras un turno del mundo de la campaña, lo traiga lo que lo traiga (el tiempo, una mano, un paso `do: world.turn`) |
+| una condición al cumplirse (`{ when: { party.values.morale: { lte: 0 } } }`) | una vez, al cumplirse, sea lo que sea lo que la cambió; otra solo después de dejar de cumplirse                   |
 
 Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón.
 

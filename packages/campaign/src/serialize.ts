@@ -20,11 +20,24 @@ import type {
  * `packs`), which were its maps' (a map saved before brings them on opening); v4: the
  * moments of the world waiting for the trip going on (`moments`), none in older campaigns;
  * v5: the world's conditions that held (`reactions`), none in older campaigns (what holds
- * when next seen is taken as seen).
+ * when next seen is taken as seen); v6: a moment waiting names what it's heard by (`at`),
+ * world turns too, not only clocks (`{ clock, ids }` before).
  */
-export const CAMPAIGN_VERSION = 5
+export const CAMPAIGN_VERSION = 6
 
-const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {}
+const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {
+  5: (data) =>
+    Array.isArray(data.moments)
+      ? {
+          ...data,
+          moments: data.moments.map((m: unknown) =>
+            isRecord(m) && Array.isArray(m.ids)
+              ? { clock: m.clock, at: m.ids.map((id) => `world.clocks.${String(id)}.full`) }
+              : m,
+          ),
+        }
+      : data,
+}
 
 export type CampaignFormatErrorCode = 'invalid' | 'newerVersion'
 
@@ -100,9 +113,10 @@ function readMoments(raw: unknown): Pick<Campaign, 'moments'> {
   const moments = raw.filter(
     (m): m is WorldMoment =>
       isRecord(m) &&
-      typeof m.clock === 'string' &&
-      Array.isArray(m.ids) &&
-      m.ids.every((id) => typeof id === 'string'),
+      (m.clock === undefined || typeof m.clock === 'string') &&
+      Array.isArray(m.at) &&
+      m.at.length > 0 &&
+      m.at.every((at) => typeof at === 'string'),
   )
   return moments.length ? { moments } : {}
 }

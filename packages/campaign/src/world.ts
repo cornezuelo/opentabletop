@@ -37,7 +37,7 @@ import {
   type WorldEvent,
 } from '@open-tabletop/world-engine'
 import { factionsHere, splitFactions, territoryWorld, worldTurnOn } from './factions'
-import type { Campaign } from './types'
+import type { Campaign, WorldMoment } from './types'
 
 /**
  * The world clock of a campaign, played the same way by every app: actions on the clock
@@ -103,16 +103,20 @@ export interface ClockNotice {
 /** How many times one trip's step may hear the world in a row (a moment filling a clock…). */
 export const MAX_HEARD = 10
 
-/** A moment of the world a trip hears (`world.clocks.<id>.full`), and the clock's name. */
+/**
+ * A moment of the world a trip hears (`world.turn`, `world.clocks.<id>.full`), and a full
+ * clock's name.
+ */
 export interface HeardMoment {
   at: string
-  clock: string
+  clock?: string
 }
 
 /**
  * The moments the world had waiting for the trip going on, taken: those its rules name
- * (an action's `on:`, a check's `at:`), each by the first id of its clock they name. The
- * others are dropped (no trip of the campaign hears them).
+ * (an action's `on:`, a check's `at:`), each by the first of its names they name (a clock
+ * by its declared id or its name as an id). The others are dropped (no trip of the
+ * campaign hears them).
  */
 export function takeMoments(
   campaign: Campaign,
@@ -124,18 +128,28 @@ export function takeMoments(
     ...(rules.checks ?? []).flatMap((c) => momentsOf(c.at)),
   ])
   const heard = campaign.moments.flatMap((m): HeardMoment[] => {
-    const at = m.ids.map((id) => `world.clocks.${id}.full`).find((x) => named.has(x))
-    return at ? [{ at, clock: m.clock }] : []
+    const at = m.at.find((x) => named.has(x))
+    return at ? [{ at, ...(m.clock !== undefined && { clock: m.clock }) }] : []
   })
   const rest = { ...campaign }
   delete rest.moments
   return { campaign: rest, heard }
 }
 
-/** What an action on the world did: the place changed, the clock's events, full clocks. */
+/** A world turn that was played: when, and what each faction did, in the host's words. */
+export interface TurnDone {
+  time: number
+  lines: string[]
+}
+
+/**
+ * What an action on the world did: the place changed, the clock's events, full clocks,
+ * world turns played.
+ */
 export interface WorldDone extends WorldPlace {
   events: WorldEvent[]
   filled: ClockNotice[]
+  turns: TurnDone[]
 }
 
 /**
@@ -212,6 +226,7 @@ export function rollWorldWeather(
 function playWorld(start: WorldPlace, host: WorldHost) {
   let { campaign, map } = start
   const filled: ClockNotice[] = []
+  const turns: TurnDone[] = []
   const world = createWorld({ calendar: host.calendar })
   const rules = host.world?.def
   /** How deep reactions are bringing each other now, and whether a chain was stopped. */
@@ -272,19 +287,16 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     }
     for (const e of events) {
       if (e.type !== 'CLOCK_FILLED') continue
-      heard(e.clock)
+      heard({ clock: e.clock.name, at: clockIds(e.clock).map(clockFullMoment) })
       clockFilled(e.clock)
     }
     return events
   }
 
-  /** A clock filled: the trip going on, if any, hears it on its next step. */
-  function heard(clock: ProgressClock): void {
+  /** A moment of the world: the trip going on, if any, hears it on its next step. */
+  function heard(moment: WorldMoment): void {
     if (!campaign.playing) return
-    campaign = {
-      ...campaign,
-      moments: [...(campaign.moments ?? []), { clock: clock.name, ids: clockIds(clock) }],
-    }
+    campaign = { ...campaign, moments: [...(campaign.moments ?? []), moment] }
   }
 
   function dueTurns(): number[] {
@@ -315,18 +327,15 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     )
     campaign = done.campaign
     map = done.map
-    for (const line of done.lines)
-      act({
-        type: 'log',
-        text: host.words.factionLine(system, line),
-        data: { ...line },
-        time,
-      })
+    const texts = done.lines.map((line) => host.words.factionLine(system, line))
+    turns.push({ time, lines: texts })
+    done.lines.forEach((line, i) => act({ type: 'log', text: texts[i], data: { ...line }, time }))
     for (const [ref, n] of Object.entries(done.ticks)) {
       const found = n && campaign.world && findClock(campaign.world, ref)
       if (found) act({ type: 'tick', id: found.id, segments: n })
     }
     for (const id of reactionsAt(rules, WORLD_TURN)) logged(id)
+    heard({ at: [WORLD_TURN] })
     return done.lines
   }
 
@@ -491,7 +500,7 @@ function playWorld(start: WorldPlace, host: WorldHost) {
   /** What was done, once the world's conditions have been seen. */
   const done = (events: WorldEvent[] = []): WorldDone => {
     settle()
-    return { campaign, map, events, filled }
+    return { campaign, map, events, filled, turns }
   }
   return { act, turn, effects, done }
 }
@@ -555,16 +564,27 @@ export function worldEffects(
   return play.done()
 }
 
-/** A line a trip's journal gets from the world: an event or holiday that came due. */
+/**
+ * A line a trip's journal gets from the world: an event or holiday that came due, a world
+ * turn played (what the factions did, in the host's words; empty when the world had no turn
+ * to play, without factions).
+ */
 export interface WorldLine {
-  code: 'WORLD_EVENT' | 'HOLIDAY'
+  code: 'WORLD_EVENT' | 'HOLIDAY' | 'WORLD_TURN'
   text: string
   time: number
 }
 
+/** A world turn's journal line. */
+const turnLine = (turn: TurnDone): WorldLine => ({
+  code: 'WORLD_TURN',
+  text: turn.lines.join('; '),
+  time: turn.time,
+})
+
 /**
- * A trip moved time on: the world follows, and what came due on the way is told (events
- * and holidays), as journal lines.
+ * A trip moved time on: the world follows, and what came due on the way is told (events,
+ * holidays, world turns), as journal lines in the order they came.
  */
 export function followTrip(
   place: WorldPlace,
@@ -572,7 +592,8 @@ export function followTrip(
   host: WorldHost,
 ): WorldDone & { lines: WorldLine[] } {
   const world = place.campaign.world
-  if (!world || time <= world.time) return { ...place, events: [], filled: [], lines: [] }
+  if (!world || time <= world.time)
+    return { ...place, events: [], filled: [], turns: [], lines: [] }
   const calendar = host.calendar as Partial<DataCalendar>
   const holidayName = (id: string) => {
     const h = calendar.def?.holidays?.find((x) => x.id === id)
@@ -586,7 +607,9 @@ export function followTrip(
         ? [{ code: 'HOLIDAY', text: holidayName(e.id), time: e.time }]
         : [],
   )
-  return { ...done, lines }
+  // Sorted, a turn among the day's events where it came (the sort keeps the order of ties).
+  const all = [...lines, ...done.turns.map(turnLine)].sort((a, b) => a.time - b.time)
+  return { ...done, lines: all }
 }
 
 /** What a journal line of a trip's step changes in the world: its effects, or its result's. */
@@ -607,7 +630,7 @@ export function tripHighlights(
   highlights: { time: number; text: string }[],
   host: WorldHost,
 ): WorldDone {
-  let done: WorldDone = { ...place, events: [], filled: [] }
+  let done: WorldDone = { ...place, events: [], filled: [], turns: [] }
   if (!place.campaign.world) return done
   for (const { time, text } of highlights) {
     const next = worldAct(done, { type: 'log', text, data: { trip: true }, time }, host)
@@ -619,15 +642,16 @@ export function tripHighlights(
 /**
  * A trip of the campaign stepped: its checks rolled on the campaign's Oracle (`oracle`, the
  * state the step left), what its results, checks and actions did changes the world (its
- * clocks, its factions), its highlights (arrivals, places found, encounters that paused, in
- * the host's words) go to the timeline, a line each, and the world follows its time; the
- * lines for its journal are what came due on the way.
+ * clocks, its factions), the world turns its steps brought are played (`WORLD_DO`, `do:
+ * world.turn`), its highlights (arrivals, places found, encounters that paused, in the host's
+ * words) go to the timeline, a line each, and the world follows its time; the lines for its
+ * journal are the turns played and what came due on the way.
  */
 export function tripStepped(
   place: WorldPlace,
   step: {
     oracle: OracleState
-    entries: { data?: Record<string, unknown> }[]
+    entries: { code?: string; time?: number; data?: Record<string, unknown> }[]
     time: number
     highlights?: { time: number; text: string }[]
   },
@@ -642,17 +666,39 @@ export function tripStepped(
     },
     events: [],
     filled: [],
+    turns: [],
   }
+  const turned: WorldLine[] = []
   for (const entry of step.entries) {
+    if (entry.code === 'WORLD_DO' && entry.data?.do === WORLD_TURN) {
+      const time = entry.time ?? step.time
+      const next = worldTurnNow(done, host, time)
+      // Without factions the world has no turn to play: the journal says nothing happened.
+      turned.push(...(next.turns.length ? next.turns.map(turnLine) : [noTurn(time)]))
+      done = { ...next, filled: [...done.filled, ...next.filled], turns: [] }
+      continue
+    }
     const effects = entryEffects(entry)
     if (!effects) continue
     const next = worldEffects(done, effects, host)
-    done = { ...next, filled: [...done.filled, ...next.filled] }
+    // A clock its effects fill may bring a turn too (a reaction's `do: world.turn`).
+    turned.push(...next.turns.map(turnLine))
+    done = { ...next, filled: [...done.filled, ...next.filled], turns: [] }
   }
   if (step.highlights?.length) {
     const logged = tripHighlights(done, step.highlights, host)
     done = { ...logged, filled: done.filled }
   }
   const followed = followTrip(done, step.time, host)
-  return { ...followed, filled: [...done.filled, ...followed.filled] }
+  return {
+    ...followed,
+    filled: [...done.filled, ...followed.filled],
+    lines: [...turned, ...followed.lines],
+  }
 }
+
+/**
+ * The journal line of a world turn a trip brought that had none to play (no campaign, or
+ * one without factions): an empty one, the host saying nothing happened.
+ */
+export const noTurn = (time: number): WorldLine => ({ code: 'WORLD_TURN', text: '', time })

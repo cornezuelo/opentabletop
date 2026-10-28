@@ -560,10 +560,12 @@ export class TripStore {
     for (const { at, clock } of taken.heard) {
       const session = this.saved.session
       if (!session) return
-      this.saved = {
-        ...this.saved,
-        session: addEntry(session, { source: 'travel', code: 'CLOCK_FILLED', text: clock }),
-      }
+      // A full clock is told; a world turn was, as it was played (its own journal line).
+      if (clock !== undefined)
+        this.saved = {
+          ...this.saved,
+          session: addEntry(session, { source: 'travel', code: 'CLOCK_FILLED', text: clock }),
+        }
       this.stepNow({ type: 'moment', at }, heard + 1)
     }
     this.save()
@@ -617,7 +619,11 @@ export class TripStore {
         this.keeper!.set(done.campaign)
         for (const { clock, text } of done.filled)
           showToast(clockFilledText(this.options.locale(), clock, text), 'info', 8000)
-      }
+      } else
+        // Without a campaign there's no world to turn: the journal says nothing happened.
+        for (const e of entries)
+          if (e.code === 'WORLD_DO')
+            next = addEntry(next, { source: 'travel', code: 'WORLD_TURN', text: '' })
       this.saved = { ...this.saved, session: next }
     } catch (error) {
       // A broken pack shouldn't silently stop play: say what failed.

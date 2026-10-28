@@ -546,6 +546,12 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.holiday', { name: e.text ?? '' })
     case 'CLOCK_FILLED':
       return t('journal.clockFilled', { name: e.text ?? '' })
+    // A world turn the host played (what the factions did), or none to play.
+    case 'WORLD_TURN':
+      return e.text ? t('journal.worldTurn', { what: e.text }) : t('journal.worldTurnNone')
+    // A step that asked the world to turn (`do: world.turn`).
+    case 'WORLD_DO':
+      return t('journal.worldDo', { action: actionText(String(d.action)) })
     // The journal's detail: what happened behind.
     case 'ROLLED': {
       const rolls = Array.isArray(d.rolls) ? (d.rolls as RolledNode[]) : []

@@ -170,6 +170,7 @@ When a check is rolled (`at:`) or an action is taken by the system itself (`on:`
 | an action's end (`actions.forage.done`)                                    | once its steps are done                                                                            |
 | a check (`checks.WEATHER_CHECK_REQUIRED`)                                  | right after it's resolved (after **Continue**, if it paused), before the next checks of its moment |
 | a clock of the world filling (`world.clocks.<id>.full`)                    | as one of the campaign's progress clocks fills, whatever fills it                                  |
+| a world turn (`world.turn`)                                                | after a world turn of the campaign, whatever brought it (time, a hand, a step's `do: world.turn`)  |
 | a condition turning true (`{ when: { party.values.morale: { lte: 0 } } }`) | once, as it turns true, whatever changed it; again only after it stopped holding                   |
 
 A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.

@@ -27,10 +27,13 @@ export const HEX_ENTER = 'trip.hex-enter'
 /** The moment each day ends. */
 export const DAY_END = 'time.day-end'
 /**
- * A moment of the world the host says came (`world.clocks.<id>.full`), not one the trip
- * keeps: the engine only knows it by name, and happens it when told (`{ type: 'moment' }`).
+ * A moment of the world the host says came (`world.turn`, `world.clocks.<id>.full`), not one
+ * the trip keeps: the engine only knows it by name, and happens it when told (`{ type:
+ * 'moment' }`). A `do:` naming one (`do: world.turn`) is the host's to do too (`WORLD_DO`).
  */
-export const HOST_MOMENT = /^world\.[A-Za-z0-9][\w-]*(\.[\w-]+)+$/
+export const HOST_MOMENT = /^world\.[A-Za-z0-9][\w-]*(\.[\w-]+)*$/
+/** What a step can ask the world to do (`do: world.turn`), and the moment it brings. */
+export const WORLD_DO_TURN = 'world.turn'
 /** Whether a moment is one the host says (`world.…`). */
 export const isHostMoment = (value: unknown): value is string =>
   typeof value === 'string' && HOST_MOMENT.test(value)
@@ -170,7 +173,8 @@ const until = z.union([z.number().nonnegative(), z.string()]).superRefine(checkD
  * 0.5`), move at once (`travel.advance: 1`), change the way of travelling (`travel.mode:
  * modes.boat`), apply effects (`effects: { party.stats.fatigue: -1 }`; a change past a value's
  * `min` / `max` stops there, and later steps see `below` / `above`), take another action
- * (`do: actions.forage`, with its conditions, and `with:` its parameters), roll a check now
+ * (`do: actions.forage`, with its conditions, and `with:` its parameters) or have the host do
+ * something in the world (`do: world.turn`, told as `WORLD_DO`), roll a check now
  * (`roll: checks.<its event>`), set values of the day (`set: { lost: true }`), write a line in
  * the journal (`say: The porters sing`), stop the trip until the player goes on (`pause:
  * true`, or what it says), ask the player to choose a parameter (`ask: params.how`), or let
@@ -526,7 +530,7 @@ export const travelRulesSchema = z
           ctx.addIssue({
             code: 'custom',
             path: Array.isArray(value) ? [...path, j] : path,
-            message: `expected ${[...CHECK_MOMENTS, ...taken, ...checked].join(', ')}, the end of an action (${taken[0] ?? 'actions.<id>'}.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.clocks.<id>.full)${meant(moment, moments)}`,
+            message: `expected ${[...CHECK_MOMENTS, ...taken, ...checked].join(', ')}, the end of an action (${taken[0] ?? 'actions.<id>'}.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)${meant(moment, moments)}`,
           })
       })
     rules.checks?.forEach((check, i) => badMoments(check.at, ['checks', i, 'at']))
@@ -556,11 +560,25 @@ export const travelRulesSchema = z
             message: `expected ${choiceIds(p).join(', ')}`,
           })
       a.do?.forEach((st, i) => {
-        if (st.do !== undefined && !taken.includes(st.do))
+        if (st.do !== undefined && isHostMoment(st.do)) {
+          // The world does one thing when asked: a turn (`world.turn`).
+          if (st.do !== WORLD_DO_TURN)
+            ctx.addIssue({
+              code: 'custom',
+              path: ['actions', id, 'do', i, 'do'],
+              message: `expected ${WORLD_DO_TURN}, the one thing of the world a step can do`,
+            })
+          else if (st.with !== undefined)
+            ctx.addIssue({
+              code: 'custom',
+              path: ['actions', id, 'do', i, 'with'],
+              message: `${st.do} takes no parameters`,
+            })
+        } else if (st.do !== undefined && !taken.includes(st.do))
           ctx.addIssue({
             code: 'custom',
             path: ['actions', id, 'do', i, 'do'],
-            message: `expected ${taken.join(', ')}${meant(st.do, taken)}`,
+            message: `expected ${[...taken, WORLD_DO_TURN].join(', ')}${meant(st.do, taken)}`,
           })
         else if (st.do !== undefined)
           badWith(refId('actions', st.do)!, st.with, ['actions', id, 'do', i, 'with'])
@@ -751,8 +769,9 @@ export { changeValue, resolveChange } from '@open-tabletop/variables'
 
 /**
  * A loop of actions and checks bringing each other (an action's `do:` or `roll:` steps, an
- * `on:` or `at:` naming an action or its end, an `on:` or `at:` naming a check), as the full
- * names along it (`actions.camp`, `checks.WEATHER`); undefined when there is none.
+ * `on:` or `at:` naming an action or its end, an `on:` or `at:` naming a check, a `do:` of
+ * the world heard again: `do: world.turn` and `on: world.turn`), as the full names along it
+ * (`actions.camp`, `checks.WEATHER`); undefined when there is none.
  */
 export function actionLoop(rules: TravelRules): string[] | undefined {
   const all = availableActions(rules).all
@@ -768,7 +787,7 @@ export function actionLoop(rules: TravelRules): string[] | undefined {
   ]
   const next = (node: string): string[] => {
     const check = refId('checks', node)
-    if (check !== undefined) return at([node])
+    if (check !== undefined || isHostMoment(node)) return at([node])
     const id = refId('actions', node)!
     const steps = all[id]?.do ?? []
     return [
