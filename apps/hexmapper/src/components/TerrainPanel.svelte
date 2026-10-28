@@ -6,6 +6,7 @@
   import { editor, MAX_BRUSH_RADIUS, type TerrainMode } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
   import TerrainEditor from './TerrainEditor.svelte'
+  import GenerateLand from './GenerateLand.svelte'
   import { SetGlyphOpacityCommand } from '../lib/commands/settings'
 
   /** Glyph opacity while dragging the slider; recorded as one step on release. */
@@ -112,6 +113,8 @@
     {/each}
   </div>
 {/if}
+
+<GenerateLand />
 
 <style>
   .modes {

@@ -9,7 +9,9 @@ next-terrain:
     - Lo que ven las tablas de la tierra alrededor del hex: `around.lake`, `common`, `commonCount`, `aroundCount`
     - `set: { terrain: '{{common}}' }`: un valor desde una plantilla
     - Cascadas a una tabla por tipo de tierra (4–5 en el dado)
+    - Pasa la decisión a un modelo de tierra más allá de las Hollow Hills: `set: { land: land.default }` (_La tierra de las Marcas_)
   entries:
+    hills-unmapped: Las colinas siguen hacia lo desconocido
     lake: El lago sigue
     sea: El mar sigue
     same: 'La tierra de alrededor sigue ({{commonCount}} de {{aroundCount}} hexes)'

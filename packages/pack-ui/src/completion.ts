@@ -91,6 +91,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'bindings',
     'calendar',
     'weather',
+    'land',
     'system',
     'sheet',
     'factions',
@@ -126,6 +127,7 @@ const NAMED_KEYS: Record<string, string> = {
   factions: 'factions',
   clocks: 'clocks',
   world: 'world',
+  land: 'land',
   cancels: 'roll-modes',
 }
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
@@ -262,6 +264,10 @@ const KEYS = [
   // The world's rules.
   'world',
   'reactions',
+  // Land models.
+  'land',
+  'next',
+  'weights',
 ]
 
 export interface Completion {

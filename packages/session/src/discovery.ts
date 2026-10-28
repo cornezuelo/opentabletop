@@ -1,16 +1,24 @@
+import { nextTerrain, type LandModel } from '@open-tabletop/land-engine'
 import type { OracleEngine, OracleState } from '@open-tabletop/oracle-engine'
+import type { RandomSource } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { definitionId } from './refs'
 
-/** A check-like binding: which definition to resolve, with extra context. */
+/**
+ * A check-like binding: which definition to resolve, with extra context; or, for the
+ * terrain, a land model (`land: land.<id>`) that decides it from the land around.
+ */
 export interface DiscoverBinding {
-  resolve: string
+  resolve?: string
+  /** A land model, by `pack/id` (`terrain` only). */
+  land?: string
   context?: Record<string, unknown>
 }
 
 /**
  * `discover` in a pack's bindings: tables that decide what empty hexes hold as the party
- * travels. `terrain` gives a hex its terrain (`set: { terrain: … }`); `contents` is rolled
+ * travels. `terrain` gives a hex its terrain (a table's `set: { terrain: … }`, or a land
+ * model, `land: land.<id>`; a table may hand over to one, `set: { land: land.<id> }`); `contents` is rolled
  * the first time the party enters a discovered hex (its text becomes a point of interest).
  */
 export interface DiscoverBindings {
@@ -49,10 +57,18 @@ export function parseDiscover(
   }
   const r = raw as Record<string, unknown>
   const binding = (key: 'terrain' | 'contents'): DiscoverBinding | undefined => {
-    const value = r[key] as { resolve?: unknown; context?: unknown } | undefined
+    const value = r[key] as { resolve?: unknown; land?: unknown; context?: unknown } | undefined
     if (value === undefined) return undefined
-    if (typeof value?.resolve !== 'string' || !value.resolve) {
-      errors.push(`bindings.discover.${key}: needs "resolve"`)
+    const ok = (v: unknown): v is string => typeof v === 'string' && !!v
+    // The terrain may come from a land model instead of a table.
+    if (key === 'terrain' && ok(value?.land) && value.resolve === undefined)
+      return { land: definitionId(value.land, pack) }
+    if (!ok(value?.resolve) || value.land !== undefined) {
+      errors.push(
+        key === 'terrain'
+          ? 'bindings.discover.terrain: needs "resolve" (a table: table.<id>) or "land" (a model: land.<id>)'
+          : `bindings.discover.${key}: needs "resolve"`,
+      )
       return undefined
     }
     return {
@@ -96,8 +112,12 @@ export function createDiscovery(options: {
   discover: DiscoverBindings
   reveal: RevealMode
   locale?: string
+  /** The land models the system brings, by `pack/id`. */
+  land?: Record<string, LandModel>
+  /** For land models (tables roll with the Oracle's own). */
+  random: RandomSource
 }) {
-  const { world: base, oracle, discover, reveal, locale } = options
+  const { world: base, oracle, discover, reveal, locale, random } = options
   /** Found during this step, by hex. */
   const found = new Map<string, DiscoveredHex>()
 
@@ -147,19 +167,48 @@ export function createDiscovery(options: {
     context: Context,
   ) => { text?: string; value: Record<string, unknown> }
 
+  /**
+   * A land model's terrain for a hex, from its known neighbours (the one it's seen from
+   * counting as the model says). `ref` is `pack/id`, or as written in `pack`'s tables.
+   */
+  function fromLand(ref: string, hex: string, from: string, pack?: string): string | undefined {
+    const model = options.land?.[definitionId(ref, pack)]
+    if (!model) return undefined
+    const known = base.neighbors(hex).flatMap((next) => {
+      const t = world.cell(next)?.terrain
+      return typeof t === 'string' && t ? [t] : []
+    })
+    const seen = world.cell(from)?.terrain
+    return nextTerrain(model, known, random, typeof seen === 'string' ? seen : undefined).terrain
+  }
+
   /** Decides the terrain of an empty hex, seen from `from`. True if it got one. */
   function terrain(roll: Roll, hex: string, from: string): boolean {
-    if (!discover.terrain || !isEmpty(world, hex)) return false
+    const binding = discover.terrain
+    if (!binding || !isEmpty(world, hex)) return false
+    if (binding.land) {
+      const chosen = fromLand(binding.land, hex, from)
+      if (!chosen) return false
+      record(hex, { terrain: chosen })
+      return true
+    }
     const here = world.cell(from) ?? {}
-    const { value } = roll(discover.terrain, {
+    const { value } = roll(binding, {
       ...here,
       from: { ...here, id: from },
       hex: { id: hex },
       ...surroundings(hex, here),
     })
-    if (typeof value.terrain !== 'string' || !value.terrain) return false
+    // A table may hand the decision over to a land model (`set: { land: land.<id> }`).
+    const chosen =
+      typeof value.terrain === 'string' && value.terrain
+        ? value.terrain
+        : typeof value.land === 'string'
+          ? fromLand(value.land, hex, from, binding.resolve?.split('/')[0])
+          : undefined
+    if (!chosen) return false
     record(hex, {
-      terrain: value.terrain,
+      terrain: chosen,
       ...(tagsOf(value.tags) && { tags: tagsOf(value.tags) }),
     })
     return true
@@ -182,7 +231,7 @@ export function createDiscovery(options: {
       const { party, ...known } = context
       const roll: Roll = (binding, extra) => {
         const out = oracle.resolve(
-          binding.resolve,
+          binding.resolve!,
           { ...known, ...extra, ...(party !== undefined && { party }), ...binding.context },
           state.oracle,
           { locale },

@@ -115,6 +115,48 @@ describe('example maps', () => {
     expect(events).toContain('TOLL_CHECK_REQUIRED')
   })
 
+  it('the Grey Marches discover their unmapped east with the lie of the Marches', () => {
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const model = system.land?.['grey-marches/default']
+    expect(model?.weights).toEqual({ from: 2 })
+    const options = {
+      system,
+      world: mapWorld(map),
+      oracle: createOracleEngine({ registry, random: seeded('the-east') }),
+      random: seeded('the-east-land'),
+      locale: 'en',
+      discover: 'neighbors' as const,
+    }
+    // On the Hollow Hills' eastern edge, where nobody has drawn the map.
+    expect(map.hexes['18,9']).toMatchObject({ terrain: 'hills' })
+    expect(map.hexes['19,9']?.terrain).toBeUndefined()
+    const { session } = startTrip({ system, location: '18,9', season: 'summer' })
+    const planned = stepTrip(options, session, { type: 'setDestination', hex: '19,9' })
+    // Seen from the Hills, the land ahead hands over to the model: every hex east of the
+    // edge gets one of its terrains, from the land around it.
+    const east = Object.entries(planned.discovered).filter(([hex]) => hex.startsWith('19,'))
+    expect(east.length).toBeGreaterThan(0)
+    for (const [hex, found] of east) expect(Object.keys(model!.next), hex).toContain(found.terrain)
+    // The same seeds discover the same land.
+    const again = stepTrip(
+      {
+        ...options,
+        oracle: createOracleEngine({ registry, random: seeded('the-east') }),
+        random: seeded('the-east-land'),
+      },
+      startTrip({ system, location: '18,9', season: 'summer' }).session,
+      { type: 'setDestination', hex: '19,9' },
+    )
+    expect(again.discovered).toEqual(planned.discovered)
+  })
+
   it('the Hollow Hills play at their own scale: the trail fords the Stonewater', () => {
     const { map, campaign } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'hollowhills1')!.json)
     // The same campaign as the Marches' map, its clock and factions; drawn at 3 km a hex.

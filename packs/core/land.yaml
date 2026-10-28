@@ -1,0 +1,21 @@
+# The Generic rules' land (system.yaml): how likely a hex next to each terrain is to be each
+# terrain, so land generated with it (the Hexmapper's Generate) grows coherent: forests stay
+# forests, hills gather into mountains, water into lakes. A few terrains of the natural
+# palette; discovery doesn't use it (it's off in the Generic rules' bindings).
+kind: land
+id: default
+name: The plain land
+description: |-
+  A small, universal land: plains and forests, hills rising into mountains, lakes and the marshes around them.
+
+  An empty hex adds up the rows of the terrains around it, so each terrain tends to go on as itself.
+next:
+  plains: { plains: 6, forest: 2, hills: 1, farmland: 1, lake: 1 }
+  farmland: { farmland: 4, plains: 3 }
+  forest: { forest: 6, plains: 2, hills: 1 }
+  hills: { hills: 4, mountains: 2, forest: 1, plains: 1 }
+  mountains: { mountains: 5, hills: 3 }
+  lake: { lake: 5, marsh: 1, plains: 1 }
+  marsh: { marsh: 3, lake: 2, plains: 1 }
+# With nothing known around: mostly open land.
+start: { plains: 3, forest: 2, hills: 1 }

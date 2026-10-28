@@ -15,6 +15,7 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 | `bindings`     | Qué tabla responde a cada comprobación del viaje, las características                 | Jugar del Hexmapper, la aplicación Travel                                                                     | Uno por sistema  |
 | `calendar`     | Meses, estaciones, días de la semana, lunas y fiestas                                 | Los viajes, el reloj del mundo (el panel Mundo del Hexmapper, la aplicación Campaign)                         | Uno por sistema  |
 | `weather`      | Clima con memoria: el de hoy sigue al de ayer, por estación                           | Los viajes (un binding con `weather:`)                                                                        | Los que quieras  |
+| `land`         | Terreno con memoria: el de un hex vacío sigue a la tierra que lo rodea                | El descubrimiento (un binding con `land:`), el **Generar** del Hexmapper                                      | Los que quieras  |
 | `sheet`        | Lo que tiene cada personaje del grupo: valores, estados                               | Los viajes (los personajes del grupo), la aplicación Systems                                                  | Uno por sistema  |
 | `factions`     | Los poderes de su mundo: sus tierras y sus turnos del mundo                           | El reloj del mundo (el panel Mundo del Hexmapper, la aplicación Campaign), la aplicación Systems              | Uno por sistema  |
 | `clocks`       | Los relojes de progreso con los que empieza su mundo, y qué hace cada uno al llenarse | El reloj del mundo (el panel Mundo del Hexmapper, la aplicación Campaign), la aplicación Systems              | Uno por sistema  |
@@ -249,7 +250,7 @@ reads: # nombres para otros valores que leen sus tablas (en el panel de tirada y
   danger: { name: Peligro, description: Lo peligroso que es el hex. }
   icon.guards: { name: Guardias }
 discover: # tablas que deciden los hexes vacíos según viaja el grupo
-  terrain: { resolve: table.next-terrain }
+  terrain: { resolve: table.next-terrain } # o un modelo de tierra: { land: land.default }
   contents: { resolve: table.hex-contents }
   reveal: neighbors # o entered
 on: # por evento de comprobación: qué la responde
@@ -363,6 +364,32 @@ El reloj del mundo de una campaña también tira su propio clima cada día con e
 **Qué ven las tablas:** `{{trip.weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{today.fordModifier}}`, `when: { today.fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{trip.weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
 
 Las Marcas Grises usan todos los tipos: mira [Las Marcas Grises](../packs/02-grey-marches.md#donde-esta-cada-cosa).
+
+## Modelos de tierra
+
+Terreno con memoria: para cada terreno, lo probable que es que un hex **junto a él** sea cada terreno, así la tierra que se decide o se genera sale coherente (los bosques siguen siendo bosques, las colinas se juntan en cordilleras, el agua en lagos) en vez de un mosaico. Son las tablas de probabilidades de los modelos de clima, puestas en el espacio en vez de en el tiempo.
+
+```yaml
+kind: land
+id: default
+name: La forma de la tierra
+next: # para cada terreno, los pesos del terreno de un hex vecino
+  forest: { forest: 6, hills: 2, plains: 2 }
+  hills: { hills: 4, mountains: 2, forest: 1 }
+  mountains: { mountains: 5, hills: 3 }
+  plains: { plains: 5, forest: 1, hills: 1 }
+  lake: { lake: 5, plains: 1 }
+start: { plains: 3, forest: 2 } # sin ningún vecino conocido
+weights: { from: 2 } # el hex desde el que se ve cuenta doble (sin esto: como cualquier otro)
+```
+
+- **Cómo se decide un hex:** se suman las filas de todos sus **vecinos conocidos** (pintados, o ya decididos) y se elige un terreno con esos pesos. Dos vecinos de bosque cuentan la fila del bosque dos veces; un hex entre bosque y colinas tira hacia los dos. Un terreno sin fila en el modelo no suma nada. Sin ningún vecino conocido con fila, `start`; si todos los pesos son 0, el hex se queda vacío.
+- **`weights: { from: N }`**: el hex desde el que se ve (la tierra que pisa el grupo, al descubrir) cuenta `N` veces en vez de una, así un viaje hacia lo desconocido tiende a seguir su propia tierra. Sin esto, todos los vecinos cuentan igual. Al generar tierra no hay tal hex.
+- Los ids son los terrenos del sistema (`hex.terrain`); un modelo que nombra un terreno que las reglas de viaje de su sistema no tienen es un aviso.
+- **Dónde se usa**, una vez que su sistema lo lista (`land: [land.default]`): en el **descubrimiento**, cuando los bindings dicen `discover: { terrain: { land: land.default } }` en vez de una tabla, o cuando la tabla del terreno le **pasa la decisión** (una entrada con `set: { land: land.default }`: la tabla decide primero, y el modelo el resto, mira [Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa)); y en el **Generar** del Hexmapper, que rellena hexes vacíos con él.
+- Solo decide el terreno: lo que hay en un hex sigue siendo cosa de la tabla de contenido.
+
+Traducciones: `name` y `description` en `locales/<idioma>/`, con la clave `land/<id>`. _La tierra sencilla_ de Core es el más pequeño; _La tierra de las Marcas_ de las Marcas Grises cuenta doble la tierra de la que vienes.
 
 ## Hojas
 
@@ -550,7 +577,7 @@ reactions:
 
 ## Sistemas
 
-Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario, modelos de clima, hojas, facciones, relojes de progreso y reglas del mundo, y los packs cuyas tablas, oráculos y mazos trae consigo. Una campaña se juega con un sistema, compartido por sus mapas y viajes: lo elige la campaña de un mapa del Hexmapper en **Ajustes del mapa → Campaña → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), y un viaje de la aplicación Travel en la página del sistema (un viaje mantiene el sistema con el que empezó); ambos los muestran por su nombre.
+Un sistema nombra, en un solo sitio, lo que usa una partida jugada con él: sus reglas de viaje, bindings, calendario, modelos de clima y de tierra, hojas, facciones, relojes de progreso y reglas del mundo, y los packs cuyas tablas, oráculos y mazos trae consigo. Una campaña se juega con un sistema, compartido por sus mapas y viajes: lo elige la campaña de un mapa del Hexmapper en **Ajustes del mapa → Campaña → Sistema** (sus viajes, el calendario de su panel Mundo y su panel Oracle usan lo que trae el sistema), y un viaje de la aplicación Travel en la página del sistema (un viaje mantiene el sistema con el que empezó); ambos los muestran por su nombre.
 
 ```yaml
 kind: system
@@ -567,16 +594,17 @@ clocks: clocks.default # los relojes de progreso con los que empieza su mundo
 world: world.default # lo que su mundo hace por sí solo
 items: [items.gear] # lo que pueden llevar sus personajes (catálogos de objetos)
 weather: [weather.sky] # los modelos de clima que pueden usar sus bindings
+land: [land.default] # sus modelos de tierra: los del descubrimiento y Generar
 packs: [core] # packs cuyas tablas trae
 maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 ```
 
-- Todas las partes son opcionales. Sin `travel`, el sistema no viaja (Jugar y Travel lo dicen; su mundo, su oráculo y sus facciones se siguen jugando), y cualquier sistema puede nombrar las de Core, `travel: core/travel-rules.default`, las **reglas genéricas** (con `calendar: core/calendar.default`, cuyas partes del día nombran, y `bindings: core/bindings.default` con `weather: [core/weather.default]`, que tiran su comprobación de clima); sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `partySheet`, el grupo no tiene hoja propia; sin `sheet`, su grupo se juega como un todo. El propio sistema de Core, `core`, es el que juega un mapa que no elige ninguno: [las reglas genéricas](../packs/01-core.md#las-reglas-genericas).
+- Todas las partes son opcionales. Sin `travel`, el sistema no viaja (Jugar y Travel lo dicen; su mundo, su oráculo y sus facciones se siguen jugando), y cualquier sistema puede nombrar las de Core, `travel: core/travel-rules.default`, las **reglas genéricas** (con `calendar: core/calendar.default`, cuyas partes del día nombran, y `bindings: core/bindings.default` con `weather: [core/weather.default]`, que tiran su comprobación de clima); sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `land`, no tiene modelo de tierra con el que descubrir o generar; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `partySheet`, el grupo no tiene hoja propia; sin `sheet`, su grupo se juega como un todo. El propio sistema de Core, `core`, es el que juega un mapa que no elige ninguno: [las reglas genéricas](../packs/01-core.md#las-reglas-genericas).
 - Cada parte es una definición de este pack, por su kind y su id (`travel: travel-rules.default`), o de un pack del que depende (`travel: core/travel-rules.slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
 - **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.
 - `maps` lista **mapas de ejemplo** en los que jugar el sistema: ficheros de mapa (`.otd.json`, lo que escribe **Guardar** en el Hexmapper) guardados en este pack, por su ruta en él (normalmente una carpeta `maps/`). El Hexmapper los ofrece en **Mapas → Mapas de ejemplo**, y el **Resumen** del sistema en la aplicación Systems los añade y los quita. Los mapas de ejemplo cuyos ficheros nombran la misma campaña (`campaign` en el fichero) se abren en una sola campaña y comparten su reloj del mundo y sus facciones: los dos mapas de las Marcas Grises. Los ficheros de mapa de un pack no son definiciones: nada más los lee.
-- **Los packs antiguos** que tienen reglas de viaje pero no `kind: system` siguen funcionando: son un sistema con el nombre del pack, con sus reglas de viaje, bindings y calendario, y los modelos de clima de todos los packs. En cuanto un pack declara un sistema, solo cuenta lo que declara.
+- **Los packs antiguos** que tienen reglas de viaje pero no `kind: system` siguen funcionando: son un sistema con el nombre del pack, con sus reglas de viaje, bindings y calendario, y los modelos de clima y de tierra de todos los packs. En cuanto un pack declara un sistema, solo cuenta lo que declara.
 - Un sistema viaja entero: el **Resumen → Exportar como .zip** de la aplicación Systems escribe su pack con todos los packs que necesita (los de `packs`, de los que vienen sus partes y sus dependencias), e **Importar un sistema (.zip)…** lo vuelve a leer ([Llevarlo a otra parte](../systems/04-overview.md#llevarlo-a-otra-parte)).
 
 La aplicación Systems escribe uno en cada sistema nuevo, lo edita en el **Resumen** del sistema y declara el de un pack antiguo (**Declararlo**). Las Marcas Grises declaran el suyo en `system.yaml`.

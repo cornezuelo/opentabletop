@@ -15,6 +15,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `bindings`     | Which table answers each check of a trip, the party's stats             | Hexmapper Play, the Travel app                                                       | One per system    |
 | `calendar`     | Months, seasons, weekdays, moons and holidays                           | Trips, the world clock (the Hexmapper's World panel, the Campaign app)               | One per system    |
 | `weather`      | Weather with memory: today's follows from yesterday's, per season       | Trips (a binding with `weather:`)                                                    | Any               |
+| `land`         | Terrain with memory: an empty hex's follows from the land around it     | Discovery (a binding with `land:`), the Hexmapper's **Generate**                     | Any               |
 | `sheet`        | What each of the party's characters has: values, conditions             | Trips (the party's characters), the Systems app                                      | One per system    |
 | `factions`     | The powers of its world: their land and their world turns               | The world clock (the Hexmapper's World panel, the Campaign app), the Systems app     | One per system    |
 | `clocks`       | The progress clocks its world starts with, and what each does when full | The world clock (the Hexmapper's World panel, the Campaign app), the Systems app     | One per system    |
@@ -255,7 +256,7 @@ reads: # names for other values its tables read (shown in the roll panel and on 
   danger: { name: Danger, description: How dangerous the hex is. }
   icon.guards: { name: Guards }
 discover: # tables that decide empty hexes as the party travels
-  terrain: { resolve: table.next-terrain }
+  terrain: { resolve: table.next-terrain } # or a land model: { land: land.default }
   contents: { resolve: table.hex-contents }
   reveal: neighbors # or entered
 on: # per check event: what answers it
@@ -367,6 +368,32 @@ A campaign's world clock also rolls its own weather each day on its system's mod
 **What tables see:** `{{trip.weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{today.fordModifier}}`, `when: { today.fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{trip.weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
 
 The Grey Marches use every kind: see [The Grey Marches](../packs/02-grey-marches.md#where-each-feature-is).
+
+## Land models
+
+Terrain with memory: for each terrain, how likely a hex **next to it** is to be each terrain, so land that's decided or generated grows coherent (forests stay forests, hills gather into ranges, water into lakes) instead of a patchwork. They're the weather models' chance tables, laid in space instead of time.
+
+```yaml
+kind: land
+id: default
+name: The lie of the land
+next: # for each terrain, the weights of a neighbouring hex's terrain
+  forest: { forest: 6, hills: 2, plains: 2 }
+  hills: { hills: 4, mountains: 2, forest: 1 }
+  mountains: { mountains: 5, hills: 3 }
+  plains: { plains: 5, forest: 1, hills: 1 }
+  lake: { lake: 5, plains: 1 }
+start: { plains: 3, forest: 2 } # with no known neighbour
+weights: { from: 2 } # the hex it's seen from counts twice (absent: as any other)
+```
+
+- **How a hex is decided:** the rows of all its **known neighbours** (painted, or decided already) are added up, and one terrain is picked by those weights. Two forest neighbours count the forest row twice; a hex between forest and hills leans to both. A terrain the model has no row for adds nothing. With no known neighbour it has a row for, `start`; if every weight is 0, the hex stays empty.
+- **`weights: { from: N }`**: the hex it's seen from (the land the party stands on, in discovery) counts `N` times instead of once, so a trip into the unknown tends to follow its own land. Absent, every neighbour counts the same. Generating land has no such hex.
+- Ids are the system's terrains (`hex.terrain`); a model naming a terrain its system's travel rules don't list is a warning.
+- **Where it's used**, once its system lists it (`land: [land.default]`): by **discovery**, when the bindings say `discover: { terrain: { land: land.default } }` instead of a table, or when the terrain table **hands over** to it (an entry with `set: { land: land.default }`: the table decides first, and the model the rest, see [Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)); and by the Hexmapper's **Generate**, which fills empty hexes with it.
+- It decides only the terrain: what a hex holds is still the contents table's job.
+
+Translations: `name` and `description` in `locales/<language>/`, keyed `land/<id>`. Core's _The plain land_ is the smallest; the Grey Marches' _The lie of the Marches_ counts the land you come from twice.
 
 ## Sheets
 
@@ -554,7 +581,7 @@ reactions:
 
 ## Systems
 
-A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar, weather models, sheets, factions, progress clocks and world rules, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
+A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar, weather models, land models, sheets, factions, progress clocks and world rules, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
 
 ```yaml
 kind: system
@@ -571,16 +598,17 @@ clocks: clocks.default # the progress clocks its world starts with
 world: world.default # what its world does by itself
 items: [items.gear] # what its characters may carry (item catalogues)
 weather: [weather.sky] # the weather models its bindings may use
+land: [land.default] # its land models: discovery's and Generate's
 packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 ```
 
-- Every part is optional. Without `travel`, the system doesn't travel (Play and Travel say so; its world, oracle and factions still play), and any system can name Core's, `travel: core/travel-rules.default`, the **Generic rules** (with `calendar: core/calendar.default`, whose parts of the day they name, and `bindings: core/bindings.default` with `weather: [core/weather.default]`, which roll their weather check); without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `sheet`, its party is played as a whole. Core's own system, `core`, is the one a map plays when it chooses none: [the Generic rules](../packs/01-core.md#the-generic-rules).
+- Every part is optional. Without `travel`, the system doesn't travel (Play and Travel say so; its world, oracle and factions still play), and any system can name Core's, `travel: core/travel-rules.default`, the **Generic rules** (with `calendar: core/calendar.default`, whose parts of the day they name, and `bindings: core/bindings.default` with `weather: [core/weather.default]`, which roll their weather check); without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `land`, it has no land model to discover or generate with; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `sheet`, its party is played as a whole. Core's own system, `core`, is the one a map plays when it chooses none: [the Generic rules](../packs/01-core.md#the-generic-rules).
 - Each part is a definition of this pack, by its kind and id (`travel: travel-rules.default`), or of a pack it depends on (`travel: core/travel-rules.slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.
 - `maps` lists **example maps** to play the system on: map files (`.otd.json`, what the Hexmapper's **Save** writes) kept in this pack, by their path in it (usually a `maps/` folder). The Hexmapper offers them under **Maps → Example maps**, and the system's **Overview** in the Systems app adds and removes them. Example maps whose files name the same campaign (`campaign` in the file) open in one campaign, sharing its world clock and factions: the Grey Marches' two maps. Map files in a pack aren't definitions: nothing else reads them.
-- **Older packs** that have travel rules but no `kind: system` keep working: they're a system named after the pack, with its travel rules, bindings and calendar, and every pack's weather models. Once a pack declares a system, only what it declares counts.
+- **Older packs** that have travel rules but no `kind: system` keep working: they're a system named after the pack, with its travel rules, bindings and calendar, and every pack's weather and land models. Once a pack declares a system, only what it declares counts.
 - A system travels as a whole: the Systems app's **Overview → Export as .zip** writes its pack with every pack it needs (the ones in `packs`, those its parts come from and their dependencies), and **Import a system (.zip)…** reads it back ([Taking it elsewhere](../systems/04-overview.md#taking-it-elsewhere)).
 
 The Systems app writes one for every new system, edits it in the system's **Overview**, and declares an older pack's (**Declare it**). The Grey Marches declare theirs in `system.yaml`.

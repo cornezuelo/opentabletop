@@ -559,10 +559,12 @@ on: { … }
 ```
 
 - La tabla de **terreno** ve el hex que pisas: `terrain`, sus etiquetas, campos y región, más `hex` (el hex que se decide) y la tierra que lo rodea: `around.<terreno>` (cuántos de sus vecinos conocidos lo tienen), `common` (el más frecuente). Responde con `set: { terrain: hills }`; `set: { terrain: '{{common}}' }` hace crecer la tierra de alrededor, así lagos, bosques y cordilleras salen enteros en lugar de un mosaico; `when: { around.lake: { gte: 2 } }` junta el agua.
+- **Un modelo de tierra en su lugar** (`kind: land`, [Modelos de tierra](../technical/07-kinds.md#modelos-de-tierra)): `terrain: { land: land.default }` decide cada hex vacío con las filas de todos sus vecinos conocidos sumadas, sin tabla. El sistema tiene que listarlo (`land: [land.default]` en su `kind: system`).
+- **Una tabla que pasa la decisión a un modelo:** una entrada con `set: { land: land.<id> }` (y sin `terrain`) deja que el modelo decida ese hex. La tabla se queda con los casos especiales y el modelo con el resto; una entrada cuyo `when` lee la región le da a una región su propia tierra: `{ id: north, range: 1-6, when: { from.region: El Norte }, set: { land: land.north } }`. Un modelo que el sistema no lista no decide nada.
 - La tabla de **contenido** ve el hex al que entras. Su texto se convierte en un punto de interés; `set: { poi: false }` significa que no hay nada que apuntar, `set: { poi: 'Un nombre' }` lo nombra de otra forma. `tags` (una o una lista) y `name` se escriben también en el hex.
 - Las características del grupo y los valores del día están en el contexto de ambas, como en las comprobaciones.
 
-El `discovery.yaml` de las Marcas Grises es un ejemplo completo: un terreno que tiende a seguir, familias de tierras, un lugar señalado que solo se encuentra una vez.
+El `discovery.yaml` de las Marcas Grises es un ejemplo completo: un terreno que tiende a seguir, familias de tierras, un lugar señalado que solo se encuentra una vez, y al este de las Hollow Hills una entrada que pasa la decisión a su modelo de tierra (`land.yaml`).
 
 ## 8. Probarlo
 

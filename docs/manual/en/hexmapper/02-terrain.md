@@ -46,3 +46,15 @@ Terrain ids (`forest`, `hills`…) are what travel rules and tables read, so a t
 ## Terrain symbols
 
 Each terrain can draw a subtle symbol on its hexes (a tree, a mountain, waves…) in a lighter or darker shade of its color. Pick it in **Edit palette** with the button next to the color: the Terrain set, any image of the map, or **Import an image…** for your own. The **Terrain symbols** slider fades them; at 0 they're hidden. Hexes with an icon show the icon instead.
+
+## Generating land
+
+**Generate land**, at the bottom of the Terrain tool, fills the map's **empty** hexes with a **land model** of the map's system (its `land:`, see [Land models](../technical/07-kinds.md#land-models)): for each terrain, how likely a hex next to it is to be each terrain. Each empty hex adds up the land of all its known neighbours, so forests, ranges and lakes grow together instead of a patchwork.
+
+- Paint the land you care about first (a coast, a range, a lake): the land grows outwards from it, the hexes with most painted neighbours first. Painted hexes never change.
+- **Seed**: the same seed draws the same land (note it to draw it again); 🎲 gives another. **Land model** chooses one when the system has several.
+- **Fill the empty hexes** fills every empty hex of the map; ↶ takes it all back in one step, so try another seed and fill again.
+- To fill only one region, paint the region on the empty hexes and use its panel's **Generate its empty hexes** ([Regions](03-regions.md)).
+- A terrain the model draws that the map's palette lacks is said in a message: add it with **Edit palette**.
+
+With the Generic rules, _The plain land_ grows plains, farmland, forests, hills, mountains, lakes and marshes. The Grey Marches' example map leaves its east blank: **Fill the empty hexes** draws it with _The lie of the Marches_ (hills that rise into ranges east of the Hollow Hills), or leave it blank to discover it as you travel ([Play](08-play.md)).

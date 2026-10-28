@@ -1,0 +1,17 @@
+{
+  "name": "@open-tabletop/land-engine",
+  "version": "0.0.0",
+  "description": "Terrain with memory: an empty hex's terrain follows from the land around it (chance tables in space, as data).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/random": "*"
+  }
+}

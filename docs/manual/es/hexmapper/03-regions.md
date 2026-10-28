@@ -8,6 +8,8 @@ Las regiones dan nombre a zonas del mapa: reinos, territorios, zonas peligrosas.
 2. Pinta sus hexes con el pincel (el mismo **Tamaño del pincel** que el terreno). El clic derecho saca hexes de su región; <kbd>Ctrl</kbd>+clic coge la región de un hex.
 3. En los ajustes de la región: **Nombre**, color, **Mostrar el nombre en el mapa** con su **Estilo** (el del mapa o uno propio) y una **Nota enlazada**.
 
+**Generar sus hexes vacíos**, en sus ajustes, rellena los hexes de la región que aún no tienen terreno con el modelo de tierra del sistema, como hace **Generar tierra** de la herramienta Terreno con todo el mapa (con su semilla y su modelo): una región de hexes vacíos pintada al este de una cordillera crece desde la cordillera ([Terreno](02-terrain.md#generar-tierra)).
+
 Un hex pertenece como mucho a una región. El panel del hex también tiene una lista **Región** para cambiarla. **Borrar región**, en sus ajustes, la quita (pregunta antes si tiene hexes, que se quedan sin región; ↶ lo deshace).
 
 ## Valores

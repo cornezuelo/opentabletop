@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its two example maps in one campaign, the sheet its companions are made with and the Company's own, its gear, its factions, its progress clocks and what its world does by itself.
+  pack's dependency, its two example maps in one campaign, the sheet its companions are made with and the Company's own, its gear, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -27,6 +27,8 @@ clocks: clocks.default
 # How the Marches move (world.yaml): what the world does by itself.
 world: world.default
 weather: [weather.sky]
+# The lie of the Marches (land.yaml): Generate's land, and discovery's east of the Hills.
+land: [land.default]
 packs: [core]
 # Listed in the Hexmapper's Maps → Example maps: the Marches, and the Hollow Hills up close
 # (3 km a hex), two maps of one campaign (both files name it: The Grey Marches).

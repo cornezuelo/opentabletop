@@ -1,0 +1,29 @@
+# The lie of the Marches (system.yaml): how the land goes on, as a land model. The
+# Hexmapper's Generate fills empty hexes with it (the unpainted east of the example map),
+# and discovery hands over to it east of the Hollow Hills (The land ahead, discovery.yaml).
+kind: land
+id: default
+name: The lie of the Marches
+description: |-
+  How the land of the Marches goes on: the hills rise into ranges and bare peaks, heath and woods cling to their feet, and water lies in the hollows between them.
+
+  **Shows:**
+
+  - **A land model** (`kind: land`): for each terrain, how likely a hex next to it is to be each terrain; an empty hex adds up the rows of its known neighbours
+  - `weights: { from: 2 }`: the land the party comes from counts twice
+  - `start`: the land where nothing around is known
+  - Used by **Generate** in the Hexmapper, and by discovery through a table that hands over to it (`set: { land: land.default }` in _The land ahead_)
+next:
+  plains: { plains: 5, heath: 2, farmland: 1, forest: 1, hills: 1 }
+  farmland: { farmland: 4, plains: 3 }
+  heath: { heath: 4, hills: 2, plains: 2, marsh: 1 }
+  forest: { forest: 6, dense-forest: 2, hills: 1, plains: 1 }
+  dense-forest: { dense-forest: 5, forest: 3 }
+  hills: { hills: 5, mountains: 2, heath: 2, forest: 1 }
+  mountains: { mountains: 5, hills: 3, peaks: 1 }
+  peaks: { peaks: 2, mountains: 4 }
+  lake: { lake: 5, marsh: 2, heath: 1 }
+  marsh: { marsh: 3, lake: 2, heath: 1 }
+# The land you come from counts twice: a trip into the unknown follows its own road.
+weights: { from: 2 }
+start: { hills: 3, heath: 2, plains: 1 }

@@ -315,3 +315,135 @@ entries: [{ result: forest, set: { terrain: forest, poi: false } }]
     expect(state.travel.time).toBeGreaterThanOrEqual(until)
   })
 })
+
+describe('discovery with a land model', () => {
+  /** A system `y` whose terrain comes from a model, or a table handing over to one. */
+  const landPack = (terrain: string, extra = '', system = 'land: [land.wild]') =>
+    loadPacks([
+      { path: 'y/pack.yaml', content: 'id: y\nname: Y\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'y/defs.yaml',
+        content: `
+kind: system
+travel: travel-rules.default
+bindings: bindings.default
+${system}
+---
+kind: travel-rules
+travel:
+  hoursPerDay: 8
+  start: '07:00'
+  onward: { do: actions.march, with: { until: destination } }
+  halt: { at: '19:00', do: actions.camp }
+terrains: { forest: { multiplier: 1 }, lake: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 80 } }
+actions:
+  march:
+    params: { until: { choices: [destination, hex] } }
+    when: { time.hour: { gte: 7, lt: 19 } }
+    do: [{ travel.move: '{{params.until}}' }]
+  camp: { do: [{ time: '07:00' }] }
+---
+kind: bindings
+on: {}
+discover:
+  terrain: ${terrain}
+---
+kind: land
+id: wild
+# Forest only ever goes on as forest.
+next: { forest: { forest: 1 }, lake: { lake: 1 } }
+start: { lake: 1 }
+${extra}`,
+      },
+    ]).registry
+
+  const play = (registry: ReturnType<typeof landPack>) => {
+    const system = travelSystems(registry).systems.find((s) => s.id === 'y')!
+    const options = {
+      system,
+      world: line({ '0': { terrain: 'forest' } }),
+      oracle: createOracleEngine({ registry, random: seeded('y') }),
+      random: seeded('land'),
+      discover: 'neighbors',
+    } as const
+    let { session } = startTrip({ system, location: '0' })
+    session = stepTrip(options, session, { type: 'setDestination', hex: '3' }).state
+    return stepTrip(options, session, { type: 'travel' }).discovered
+  }
+
+  it('decides the terrain from the land around', () => {
+    const registry = landPack('{ land: land.wild }')
+    const { systems, problems } = travelSystems(registry)
+    expect(problems).toEqual([])
+    const system = systems.find((s) => s.id === 'y')!
+    expect(system.bindings?.discover?.terrain).toEqual({ land: 'y/wild' })
+    expect(Object.keys(system.land ?? {})).toEqual(['y/wild'])
+    // The forest grows from the painted hex, hex by hex.
+    expect(play(registry)).toEqual({
+      '1': { terrain: 'forest' },
+      '2': { terrain: 'forest' },
+      '3': { terrain: 'forest' },
+      '4': { terrain: 'forest' },
+    })
+  })
+
+  it('lets a table hand the decision over to a model', () => {
+    const registry = landPack(
+      '{ resolve: table.ahead }',
+      `---
+kind: table
+id: ahead
+roll: 1d6
+entries:
+  - { id: wild, range: 1-6, result: The wild goes on, set: { land: land.wild } }
+`,
+    )
+    expect(travelSystems(registry).problems).toEqual([])
+    expect(play(registry)['3']).toEqual({ terrain: 'forest' })
+  })
+
+  it('says when the system brings no such model, or a model names terrains the rules lack', () => {
+    const missing = travelSystems(landPack('{ land: land.wild }', '', 'land: []')).problems
+    expect(missing.map((p) => p.message)).toEqual([
+      `The system doesn't bring the land model "land.wild" (land: in kind: system)`,
+    ])
+    const both = travelSystems(landPack('{ land: land.wild, resolve: table.x }')).problems
+    expect(both.map((p) => p.message)).toContain(
+      'needs "resolve" (a table: table.<id>) or "land" (a model: land.<id>)',
+    )
+    const strange = travelSystems(
+      loadPacks([
+        { path: 'z/pack.yaml', content: 'id: z\nname: Z\nversion: 0.1.0\nlocale: en\n' },
+        {
+          path: 'z/defs.yaml',
+          content: `kind: system
+travel: travel-rules.default
+land: [land.odd]
+---
+kind: travel-rules
+travel: { hoursPerDay: 8 }
+terrains: { forest: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 20 } }
+---
+kind: land
+id: odd
+next: { forest: { swamp: 1 } }
+`,
+        },
+      ]).registry,
+    ).problems
+    expect(strange).toMatchObject([
+      {
+        severity: 'warning',
+        message: 'the travel rules know no terrain "swamp"',
+        file: 'z/defs.yaml',
+      },
+    ])
+    expect(
+      travelSystems(
+        landPack('{ land: land.wild }', '', 'land: [land.wild]\n---\nkind: land\nid: bad\nnext: 3'),
+      ).problems.map((p) => p.message),
+    ).toEqual(['needs a row for at least one terrain (forest: { forest: 6, hills: 2 })'])
+  })
+})

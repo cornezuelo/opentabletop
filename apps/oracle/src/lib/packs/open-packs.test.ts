@@ -15,6 +15,7 @@ import {
 } from '@open-tabletop/session'
 import { calendarFacts, qualify, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
+import { landPatch, landTerrains } from '@open-tabletop/land-engine'
 import {
   createCampaign,
   startWorld,
@@ -1444,6 +1445,29 @@ describe('bundled open packs', () => {
     for (const id of reached)
       for (const e of tables.get(id) ?? [])
         if (e.set?.terrain) expect(known, `${id} → ${e.set.terrain}`).toContain(e.set.terrain)
+  })
+
+  it("Core's plain land grows coherent land, water too, of the Generic rules' terrains", () => {
+    const core = travelSystems(registry).systems.find((s) => s.id === 'core')!
+    const model = core.land!['core/default']
+    for (const terrain of landTerrains(model))
+      expect(Object.keys(core.rules.terrains)).toContain(terrain)
+    const patch = landPatch(model, seeded('plain'), 16)
+    const terrains = [...patch.values()]
+    expect(terrains).toHaveLength(256)
+    expect(terrains).toContain('lake')
+    // Land gathers: most hexes have a neighbour of their own terrain.
+    const cols = 16
+    const same = [...patch].filter(([key, t]) => {
+      const [c, r] = key.split(',').map(Number)
+      return [
+        [c - 1, r],
+        [c + 1, r],
+        [c, r - 1],
+        [c, r + 1],
+      ].some(([x, y]) => x >= 0 && y >= 0 && x < cols && patch.get(`${x},${y}`) === t)
+    })
+    expect(same.length / patch.size).toBeGreaterThan(0.7)
   })
 
   it('the Grey Marches discover a map whose terrains their rules know', () => {

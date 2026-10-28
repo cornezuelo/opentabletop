@@ -558,10 +558,12 @@ on: { … }
 ```
 
 - The **terrain** table sees the hex you stand on: `terrain`, its tags, fields and region, plus `hex` (the hex being decided) and the land around it: `around.<terrain>` (how many of its known neighbours have it), `common` (the most frequent). It answers with `set: { terrain: hills }`; `set: { terrain: '{{common}}' }` makes the land around grow, so lakes, forests and ranges come out whole instead of a patchwork; `when: { around.lake: { gte: 2 } }` gathers water.
+- **A land model instead** (`kind: land`, [Land models](../technical/07-kinds.md#land-models)): `terrain: { land: land.default }` decides each empty hex from the rows of all its known neighbours added up, with no table. The system must list it (`land: [land.default]` in its `kind: system`).
+- **A table that hands over to a model:** an entry with `set: { land: land.<id> }` (and no `terrain`) lets the model decide that hex. The table keeps the special cases and the model the rest; an entry whose `when` reads the region gives a region its own land: `{ id: north, range: 1-6, when: { from.region: The North }, set: { land: land.north } }`. A model the system doesn't list decides nothing.
 - The **contents** table sees the entered hex. Its text becomes a point of interest; `set: { poi: false }` means nothing worth noting, `set: { poi: 'A name' }` names it differently. `tags` (one or a list) and `name` are written on the hex too.
 - Party stats and today's values are in the context of both, as in checks.
 
-The Grey Marches' `discovery.yaml` is a full example: terrain that tends to go on, families of land, a landmark found only once.
+The Grey Marches' `discovery.yaml` is a full example: terrain that tends to go on, families of land, a landmark found only once, and east of the Hollow Hills a hand-over to their land model (`land.yaml`).
 
 ## 8. Trying it
 

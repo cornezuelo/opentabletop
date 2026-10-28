@@ -1,0 +1,6 @@
+land/default:
+  name: La tierra sencilla
+  description: |-
+    Una tierra pequeña y universal: llanuras y bosques, colinas que se alzan en montañas, lagos y las marismas a su alrededor.
+
+    Un hex vacío suma las filas de los terrenos que lo rodean, así que cada terreno tiende a seguir siendo él mismo.

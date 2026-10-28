@@ -40,6 +40,7 @@
     "@open-tabletop/travel-engine": "*",
     "@open-tabletop/travel-ui": "*",
     "@open-tabletop/ui-kit": "*",
+    "@open-tabletop/land-engine": "*",
     "@open-tabletop/weather-engine": "*",
     "@open-tabletop/world-engine": "*",
     "dompurify": "^3.4.16",

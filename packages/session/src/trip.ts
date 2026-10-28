@@ -9,8 +9,9 @@ import {
   type RefScope,
   type Registry,
 } from '@open-tabletop/oracle-engine'
-import type { RandomSource } from '@open-tabletop/random'
+import { mathRandom, type RandomSource } from '@open-tabletop/random'
 import { validateWeather, type WeatherModel } from '@open-tabletop/weather-engine'
+import { landTerrains, validateLand, type LandModel } from '@open-tabletop/land-engine'
 import {
   calendarFrom,
   defaultCalendar,
@@ -109,6 +110,8 @@ export interface TravelSystem {
   calendar?: DataCalendar
   /** Weather models its bindings may name, by pack/id. */
   weather?: Record<string, WeatherModel>
+  /** Land models its discovery and the Hexmapper's Generate may use, by pack/id. */
+  land?: Record<string, LandModel>
   /** Packs whose tables, oracles and decks it brings: its own first. */
   packs: string[]
   /** The sheet its party's members are made with (`sheet` in `kind: system`), by `pack/id`. */
@@ -286,6 +289,7 @@ const PART_NAMES: Record<string, string> = {
   bindings: 'bindings',
   calendar: 'calendar',
   weather: 'weather model',
+  land: 'land model',
   items: 'item catalogue',
 }
 const SYSTEM_KEYS = new Set([
@@ -297,6 +301,7 @@ const SYSTEM_KEYS = new Set([
   'bindings',
   'calendar',
   'weather',
+  'land',
   'packs',
   'maps',
   'sheet',
@@ -329,6 +334,15 @@ export function travelSystems(registry: Registry): {
       const errors = extra.id ? validateWeather(extra.data) : ['id: a weather model needs one']
       problems.push(...errors.map((e) => problem(id, extra.file, 'weather', e, extra.id)))
       if (!errors.length) weather[`${id}/${extra.id}`] = extra.data as unknown as WeatherModel
+    }
+  // Land models of every pack (`kind: land`), by pack/id.
+  const land: Record<string, LandModel> = {}
+  for (const [id] of registry.packs)
+    for (const extra of extrasOf(id)) {
+      if (extra.kind !== 'land') continue
+      const errors = extra.id ? validateLand(extra.data) : ['id: a land model needs one']
+      problems.push(...errors.map((e) => problem(id, extra.file, 'land', e, extra.id)))
+      if (!errors.length) land[`${id}/${extra.id}`] = extra.data as unknown as LandModel
     }
   // Every pack's bindings, parsed once; their tables checked.
   const bindingsOf = new Map<Extra, ReturnType<typeof parseBindings>>()
@@ -378,12 +392,13 @@ export function travelSystems(registry: Registry): {
   /** A system made of these parts; undefined (and reported) when its rules are broken. */
   function build(
     pack: string,
-    base: Omit<TravelSystem, 'rules' | 'bindings' | 'calendar' | 'weather' | 'sources'>,
+    base: Omit<TravelSystem, 'rules' | 'bindings' | 'calendar' | 'weather' | 'land' | 'sources'>,
     parts: {
       rules?: Extra
       bindings?: Extra
       calendar?: Extra
       weather: Record<string, WeatherModel>
+      land: Record<string, LandModel>
       /** The `kind: system` naming these parts (absent for an implicit system). */
       system?: Extra
       sheet?: Extra
@@ -436,6 +451,48 @@ export function travelSystems(registry: Registry): {
         ),
       )
     }
+    // Discovery's land model: one the system brings.
+    const byLand = bindings?.discover?.terrain?.land
+    if (byLand && !parts.land[byLand]) {
+      const owner = ownerOf(parts.bindings!) ?? pack
+      const written = (parts.bindings!.data as { discover?: { terrain?: { land?: string } } })
+        .discover?.terrain?.land
+      const scope = extrasScope(owner, 'land')
+      const known = written !== undefined && findRef(scope, written)
+      problems.push(
+        problem(
+          owner,
+          parts.bindings!.file,
+          'bindings',
+          `discover.terrain.land: ${
+            known
+              ? `The system doesn't bring the land model "${written}" (land: in kind: system)`
+              : refProblem(scope, written ?? byLand, 'land model', ['land'])
+          }`,
+          parts.bindings!.id,
+        ),
+      )
+    }
+    // Terrains its land models name that its rules don't know: a hex would get a terrain
+    // nothing reads.
+    const terrains = Object.keys(rules.terrains ?? {})
+    if (parts.system && parts.rules && terrains.length)
+      for (const [key, model] of Object.entries(parts.land)) {
+        const unknown = landTerrains(model).filter((t) => !terrains.includes(t))
+        if (!unknown.length) continue
+        const [owner, modelId] = key.split('/', 2)
+        const file = extrasOf(owner).find((e) => e.kind === 'land' && e.id === modelId)?.file ?? ''
+        problems.push(
+          problem(
+            owner,
+            file,
+            'land',
+            `next: the travel rules know no terrain ${unknown.map((t) => `"${t}"`).join(', ')}`,
+            modelId,
+            'warning',
+          ),
+        )
+      }
     let calendar: DataCalendar | undefined
     if (parts.calendar) {
       const errors = validateCalendar(parts.calendar.data)
@@ -702,6 +759,7 @@ export function travelSystems(registry: Registry): {
       },
       ...(calendar && { calendar }),
       ...(Object.keys(parts.weather).length && { weather: parts.weather }),
+      ...(Object.keys(parts.land).length && { land: parts.land }),
       ...(sheet && { sheet }),
       ...(partySheet && { partySheet }),
       ...(factions && { factions }),
@@ -731,6 +789,7 @@ export function travelSystems(registry: Registry): {
           bindings: extras.find((e) => e.kind === 'bindings'),
           calendar: extras.find((e) => e.kind === 'calendar'),
           weather,
+          land,
           sheet: extras.find((e) => e.kind === 'sheet'),
           factions: extras.find((e) => e.kind === 'factions'),
           clocks: extras.find((e) => e.kind === 'clocks'),
@@ -775,6 +834,12 @@ export function travelSystems(registry: Registry): {
         const key = definitionId(ref, id)
         if (model && weather[key]) own[key] = weather[key]
       })
+      const ownLand: Record<string, LandModel> = {}
+      list('land', data.land).forEach((ref, i) => {
+        const model = part(`land.${i}`, 'land', ref)
+        const key = definitionId(ref, id)
+        if (model && land[key]) ownLand[key] = land[key]
+      })
       const packs = [id]
       list('packs', data.packs).forEach((other, i) => {
         if (other !== id && !dependencies.includes(other))
@@ -812,6 +877,7 @@ export function travelSystems(registry: Registry): {
           bindings: part('bindings', 'bindings', data.bindings),
           calendar: part('calendar', 'calendar', data.calendar),
           weather: own,
+          land: ownLand,
           system: def,
           sheet: part('sheet', 'sheet', data.sheet),
           partySheet: part('partySheet', 'sheet', data.partySheet),
@@ -1074,6 +1140,8 @@ export function stepTrip(
           discover,
           reveal: options.discover,
           locale: options.locale,
+          land: system.land,
+          random: options.random ?? mathRandom(),
         })
       : undefined
   const result = createSession({

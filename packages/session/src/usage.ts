@@ -240,6 +240,24 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
     if (def && packs.includes(def.pack))
       recorder({ kind: 'weather', ...place(def) }).walk(def.data, '')
   }
+  // Its land models: each row reads a terrain around a hex and sets the hex's.
+  for (const id of Object.keys(system.land ?? {})) {
+    const def = extra('land', id)
+    if (!def || !packs.includes(def.pack)) continue
+    const terrain = (t: string, how: UseHow, path: string) =>
+      out.push({
+        written: t,
+        name: 'hex.terrain',
+        how,
+        at: { kind: 'land', ...place(def), path },
+        values: [t],
+      })
+    for (const [from, row] of Object.entries(asObject(def.data.next))) {
+      terrain(from, 'reads', `next.${from}`)
+      for (const t of Object.keys(asObject(row))) terrain(t, 'sets', `next.${from}.${t}`)
+    }
+    for (const t of Object.keys(asObject(def.data.start))) terrain(t, 'sets', `start.${t}`)
+  }
 
   // Tables, oracles, generators and decks of its packs.
   for (const def of registry.definitions.values())

@@ -36,7 +36,7 @@ Drag the party token to put it somewhere else: the trail follows, and during a t
 
 With a system that can discover (the Grey Marches can; their example map leaves its east blank), tick **Discover the map as you travel**. Start with a blank map: paint only the hex where the party begins and click a destination anywhere. As the party travels, the system's tables decide the **empty** hexes:
 
-- **Terrain**, seen from the land you're on (forest tends to go on as forest).
+- **Terrain**, seen from the land you're on (forest tends to go on as forest): by a table, or by a [land model](../technical/07-kinds.md#land-models) that adds up the land all around the hex.
 - **What is there**, the first time you enter a hex: a point of interest, tags (a `landmark` stops the Grey Marches' trips there), a name. The trip stops when you find something, so you can play it.
 
 **What is discovered**: _the hexes around the party_ (what it sees: their terrain is known before you step in, so routes and speeds are real) or _only the hex the party enters_. The system chooses one; you can change it for your game.

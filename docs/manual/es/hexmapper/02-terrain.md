@@ -46,3 +46,15 @@ Los ids de terreno (`forest`, `hills`…) son lo que leen las reglas de viaje y 
 ## Símbolos del terreno
 
 Cada terreno puede dibujar un símbolo discreto en sus hexes (un árbol, una montaña, olas…) en un tono más claro u oscuro de su color. Elígelo en **Editar paleta** con el botón junto al color: el conjunto Terreno, cualquier imagen del mapa o **Importar una imagen…** para usar una tuya. El control **Símbolos del terreno** los atenúa; a 0 se ocultan. Los hexes con icono muestran el icono en su lugar.
+
+## Generar tierra
+
+**Generar tierra**, al final de la herramienta Terreno, rellena los hexes **vacíos** del mapa con un **modelo de tierra** del sistema del mapa (su `land:`, mira [Modelos de tierra](../technical/07-kinds.md#modelos-de-tierra)): para cada terreno, lo probable que es que un hex junto a él sea cada terreno. Cada hex vacío suma la tierra de todos sus vecinos conocidos, así bosques, cordilleras y lagos crecen juntos en vez de salir un mosaico.
+
+- Pinta primero la tierra que te importa (una costa, una cordillera, un lago): la tierra crece hacia fuera desde ella, primero los hexes con más vecinos pintados. Los hexes pintados no cambian nunca.
+- **Semilla**: la misma semilla saca la misma tierra (apúntala para volver a sacarla); 🎲 da otra. **Modelo de tierra** elige uno cuando el sistema tiene varios.
+- **Rellenar los hexes vacíos** rellena todos los hexes vacíos del mapa; ↶ lo quita todo de un paso, así que prueba otra semilla y vuelve a rellenar.
+- Para rellenar solo una región, pinta la región sobre los hexes vacíos y usa **Generar sus hexes vacíos** en su panel ([Regiones](03-regions.md)).
+- Si el modelo saca un terreno que la paleta del mapa no tiene, un mensaje lo dice: añádelo con **Editar paleta**.
+
+Con las reglas genéricas, _La tierra sencilla_ hace crecer llanuras, cultivos, bosques, colinas, montañas, lagos y marismas. El mapa de ejemplo de las Marcas Grises deja su este en blanco: **Rellenar los hexes vacíos** lo dibuja con _La tierra de las Marcas_ (colinas que se alzan en cordilleras al este de las Hollow Hills), o déjalo en blanco para descubrirlo al viajar ([Jugar](08-play.md)).

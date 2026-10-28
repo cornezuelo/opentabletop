@@ -35,6 +35,7 @@ packages/                   # libraries, scope @open-tabletop/*
   travel-engine/            # routes, movement, time, supplies, declared values, actions as steps, checks
   world-engine/             # the world clock: time, scheduled events, holidays and moons, progress clocks, timeline
   weather-engine/           # weather with inertia: Markov models per season as data (`kind: weather`)
+  land-engine/              # terrain with memory: an empty hex's terrain from the land around it, as data (`kind: land`)
   faction-engine/           # factions as data (`kind: factions`): territory claimed, grown and lost hex by hex, world turns due
   character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations; items and their catalogues (`kind: items`)
   map/                      # the map model: types, format, migrations and serializing, shared by the apps that read maps

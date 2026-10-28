@@ -44,6 +44,7 @@ import {
   type CharacterAction,
   type CharacterState,
 } from '@open-tabletop/character-engine'
+import { validateLand } from '@open-tabletop/land-engine'
 import { weatherShares, type HexFlower, type WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
 import { parse, parseAllDocuments, stringify } from 'yaml'
@@ -81,7 +82,7 @@ function problems(files: string[]): string[] {
   ])
   return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
     (p) =>
-      !/Unknown (table|weather model|roll mode|travel rules|bindings|calendar|sheet) "[\w/.-]+"$/.test(
+      !/Unknown (table|weather model|land model|roll mode|travel rules|bindings|calendar|sheet) "[\w/.-]+"$/.test(
         p,
       ) &&
       !/"[\w-]+" isn't a dependency of this pack$/.test(p) &&
@@ -105,6 +106,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'bindings',
         'calendar',
         'weather',
+        'land',
         'system',
         'sheet',
         'factions',
@@ -134,6 +136,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
       if (doc?.kind === 'factions') expect(parseFactions(doc).errors).toEqual([])
       else if (doc?.kind === 'sheet') expect(parseSheet(doc).errors).toEqual([])
       else if (doc?.kind === 'items') expect(parseCatalogue(doc).errors).toEqual([])
+      else if (doc?.kind === 'land') expect(validateLand(doc)).toEqual([])
   })
 })
 

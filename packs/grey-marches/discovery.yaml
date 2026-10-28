@@ -19,8 +19,18 @@ description: |-
   - What tables see of the land around the hex: `around.lake`, `common`, `commonCount`, `aroundCount`
   - `set: { terrain: '{{common}}' }`: a value from a template
   - Cascades into one table per kind of land (4–5 on the die)
+  - Hands over to a land model past the Hollow Hills: `set: { land: land.default }` (_The lie of the Marches_)
 roll: 1d6
 entries:
+  # East of the Hollow Hills nobody has drawn the map: the lie of the Marches (land.yaml)
+  # decides it, from all the land around.
+  - {
+      id: hills-unmapped,
+      range: 1-6,
+      when: { from.region: The Hollow Hills },
+      result: The hills go on into the unknown,
+      set: { land: land.default },
+    }
   # Water gathers: a hex between two lakes (or two seas) is mostly water too.
   - {
       id: lake,

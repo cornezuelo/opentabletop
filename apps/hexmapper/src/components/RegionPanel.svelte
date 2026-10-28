@@ -9,6 +9,7 @@
   import ColorPicker from './ColorPicker.svelte'
   import { NoteRefInput } from '@open-tabletop/ui-kit'
   import NameDisplay from './NameDisplay.svelte'
+  import GenerateLand from './GenerateLand.svelte'
 
   const COLORS = ['#8b1e1e', '#2f5d8a', '#3d6b35', '#5b3a6e', '#b5734a', '#1b1a17', '#c8a24a']
 
@@ -166,6 +167,7 @@
       help={t('fields.regionHelp')}
       onchange={(fields) => update((r) => ({ ...r, fields: fields.length ? fields : undefined }))}
     />
+    <GenerateLand region={active.id} />
     <button class="danger" onclick={remove}>{t('regions.delete')}</button>
   </div>
 {/if}

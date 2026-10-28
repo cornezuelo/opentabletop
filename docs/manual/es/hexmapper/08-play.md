@@ -36,7 +36,7 @@ Arrastra el token del grupo para ponerlo en otro sitio: el rastro le sigue, y du
 
 Con un sistema que sepa descubrir (las Marcas Grises saben; su mapa de ejemplo deja el este en blanco), marca **Descubrir el mapa al viajar**. Empieza con un mapa en blanco: pinta solo el hex donde empieza el grupo y haz clic en un destino cualquiera. Mientras el grupo viaja, las tablas del sistema deciden los hexes **vacíos**:
 
-- **El terreno**, visto desde la tierra que pisas (el bosque tiende a seguir siendo bosque).
+- **El terreno**, visto desde la tierra que pisas (el bosque tiende a seguir siendo bosque): con una tabla, o con un [modelo de tierra](../technical/07-kinds.md#modelos-de-tierra) que suma la tierra de todo alrededor del hex.
 - **Qué hay**, la primera vez que entras en un hex: un punto de interés, etiquetas (un `landmark` detiene allí los viajes de las Marcas Grises), un nombre. El viaje se detiene cuando encuentras algo, para que lo juegues.
 
 **Qué se descubre**: _los hexes alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlos, así que rutas y velocidades son reales) o _solo el hex al que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.

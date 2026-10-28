@@ -1,0 +1,11 @@
+land/default:
+  name: La tierra de las Marcas
+  description: |-
+    Cómo sigue la tierra de las Marcas: las colinas se alzan en cordilleras y picos pelados, el brezal y los bosques se agarran a sus faldas, y el agua se queda en las hondonadas entre ellas.
+
+    **Enseña:**
+
+    - **Un modelo de tierra** (`kind: land`): para cada terreno, lo probable que es que un hex junto a él sea cada terreno; un hex vacío suma las filas de sus vecinos conocidos
+    - `weights: { from: 2 }`: la tierra de la que viene el grupo cuenta doble
+    - `start`: la tierra donde no se conoce nada alrededor
+    - Lo usa **Generar** en el Hexmapper, y el descubrimiento a través de una tabla que le pasa la decisión (`set: { land: land.default }` en _La tierra de delante_)

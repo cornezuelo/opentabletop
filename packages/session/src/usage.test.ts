@@ -22,6 +22,13 @@ describe('where a name is used', () => {
     )
     // Conditions that compare a terrain, a road, the weather.
     expect(of({ kind: 'terrain', id: 'forest' }).length).toBeGreaterThan(2)
+    // The land model: its rows read the land around and set the hex's.
+    expect(of({ kind: 'terrain', id: 'peaks' })).toEqual(
+      expect.arrayContaining([
+        'reads land default next.peaks',
+        'sets land default next.mountains.peaks',
+      ]),
+    )
     expect(of({ kind: 'edge', id: 'road' }).length).toBeGreaterThan(2)
     expect(of({ kind: 'weather', id: 'storm' })).toContain(
       'reads travel-rules default actions.forage.unless',
