@@ -28,7 +28,17 @@
     'overview',
     ...(file ? (['rules', 'checks'] as Tab[]) : []),
     ...(system?.pack
-      ? (['sheet', 'items', 'factions', 'clocks', 'world', 'calendar', 'weather', 'modes'] as Tab[])
+      ? ([
+          'sheet',
+          'items',
+          'factions',
+          'clocks',
+          'world',
+          'calendar',
+          'weather',
+          'land',
+          'modes',
+        ] as Tab[])
       : []),
     'try',
     ...(file || declared ? (['yaml'] as Tab[]) : []),
@@ -54,6 +64,7 @@
         'world',
         'calendar',
         'weather',
+        'land',
         'roll-modes',
       ] as const)
         for (const part of systemParts(system, kind)) add(part.root, part.path)
@@ -106,7 +117,7 @@
         <TryTab {system} />
       {:else if tab === 'yaml' && files.length}
         <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
-      {:else if (tab === 'sheet' || tab === 'items' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'modes') && system.pack}
+      {:else if (tab === 'sheet' || tab === 'items' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
         <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">

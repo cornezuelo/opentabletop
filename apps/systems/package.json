@@ -23,6 +23,8 @@
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/oracle-ui": "*",
     "@open-tabletop/pack-ui": "*",
+    "@open-tabletop/land-engine": "*",
+    "@open-tabletop/map": "*",
     "@open-tabletop/random": "*",
     "@open-tabletop/schema": "*",
     "@open-tabletop/session": "*",

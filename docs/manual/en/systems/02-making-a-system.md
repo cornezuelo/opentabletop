@@ -22,9 +22,10 @@ Each tab has its own page:
 - [**World**](11-world.md): what its world does by itself: when a clock fills, after every world turn, as something turns true.
 - [**Calendar**](12-calendar.md): months, weekdays, moons and holidays.
 - [**Weather**](13-weather.md): weather with inertia, season by season.
-- [**Roll modes**](14-roll-modes.md): advantage, disadvantage and the like.
-- [**Try it**](15-try-it.md): a trip without a map, to test it as you make it.
-- [**YAML**](16-yaml.md): the files the forms write, for anything they don't cover.
+- [**Land**](14-land.md): terrain with memory, to generate and discover land.
+- [**Roll modes**](15-roll-modes.md): advantage, disadvantage and the like.
+- [**Try it**](16-try-it.md): a trip without a map, to test it as you make it.
+- [**YAML**](17-yaml.md): the files the forms write, for anything they don't cover.
 
 ## Changing a bundled system
 

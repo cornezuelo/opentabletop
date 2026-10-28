@@ -40,6 +40,7 @@ export const en = {
     world: 'World',
     calendar: 'Calendar',
     weather: 'Weather',
+    land: 'Land',
     modes: 'Roll modes',
     try: 'Try it',
     yaml: 'YAML',
@@ -105,6 +106,14 @@ export const en = {
       help: "Weather models (`kind: weather`) the system's bindings can name, listed in its **Overview**. Each kind of weather can set values for the day (`set: { snowed-in: true }`) that conditions read; the day's weather is `weather` in tables and conditions:\n• `trip.weather: storm`\n• `trip.weather: [rain, storm]`",
       none: 'This system names no weather models.',
       create: 'New weather model',
+    },
+    land: {
+      title: 'Its land models',
+      intro:
+        "Terrain with memory: for each terrain, how likely a hex next to it is to be each terrain, so land grows coherent (forests stay forests, hills gather into ranges). The Hexmapper's **Generate land** fills empty hexes with one, and discovery may decide empty hexes with one (`discover.terrain: { land: land.default }`).",
+      help: "Land models (`kind: land`), listed in its **Overview** (`land:`). An empty hex adds up the rows of its known neighbours' terrains and picks by those weights:\n• two forest neighbours count the forest row twice\n• none known: **Where nothing is known**\nDiscovery uses one by its bindings (`discover.terrain: { land: land.default }`), or a terrain table hands over to one (`set: { land: land.default }` on an entry).",
+      none: 'This system names no land models.',
+      create: 'New land model',
     },
     modes: {
       title: 'Roll modes of its packs',
@@ -413,6 +422,29 @@ export const en = {
     month: 'Month',
     day: 'Day',
   },
+  land: {
+    name: 'Name',
+    nameHelp: "The model's name.\n• **The lie of the land**\n• **Northern wilds**",
+    from: 'The hex it’s seen from counts',
+    fromHelp:
+      'In discovery, how many times the hex the party stands on counts among the neighbours of the hex being decided (empty: once, as any other). Generating land has no such hex.\n• `2` — the land you come from counts twice: a trip into the unknown follows its own land\n• `0` — only the other neighbours count',
+    rows: 'Next to each terrain',
+    rowsHelp:
+      'For each terrain (rows), how likely a hex next to it is to be each terrain (columns): weights, not percentages; empty is 0. An empty hex adds up the rows of all its known neighbours.\n• **Forest** row: `forest 6`, `hills 2`, `plains 2` — forests tend to go on as forest\n• **Hills** row: `hills 4`, `mountains 2` — hills gather into ranges\nA terrain with no row adds nothing; a column with no row is never a neighbour that pulls.',
+    fromTo: 'Next to ↓ / becomes →',
+    start: 'Where nothing is known',
+    startHelp:
+      'The weights of a hex with no known neighbour the model has a row for: the first hex of a blank map, a hex in the middle of nowhere.\n• `plains 3`, `forest 2` — mostly open land',
+    shares: 'Over many hexes',
+    sharesHelp:
+      'How much of each terrain a large patch grown from nothing with these weights has: a check that the land feels right.',
+    newTerrain: 'Terrain',
+    addTerrain: 'Add a terrain',
+    preview: 'A patch of this land',
+    previewHelp:
+      "Land grown from nothing with this model, from the middle outwards, in the Hexmapper's terrain colours. **Another** draws another patch; the Hexmapper's **Generate land** grows it from the land you painted instead.",
+    again: 'Another',
+  },
   weather: {
     name: 'Name',
     nameHelp: "The model's name.\n• **Mountain skies**",
@@ -506,6 +538,10 @@ export const en = {
     weatherHelp:
       "The weather models (`kind: weather`) its bindings can name in a check (`weather: weather.highland-skies`), so the day's weather has inertia: this pack's and its dependencies'.\n• `weather: [weather.highland-skies]`\n• `weather: [weather.coast, core/weather.plains]`",
     noWeather: 'No weather models in this pack or its dependencies.',
+    land: 'Land models',
+    landHelp:
+      "The land models (`kind: land`) the Hexmapper's **Generate land** fills empty hexes with, and discovery may use: this pack's and its dependencies'.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`",
+    noLand: 'No land models in this pack or its dependencies.',
     packs: 'Packs it brings',
     packsHelp:
       "The packs whose tables, oracles, generators and decks come with the system: its own always, and the dependencies you tick (`packs: [core]`). A map playing the system shows them in its Oracle panel. To bring another pack, add it to the pack's dependencies (`pack.yaml`).",

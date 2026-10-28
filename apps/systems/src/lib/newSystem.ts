@@ -182,7 +182,7 @@ const CORE_CALENDAR = writeRef('calendar', 'default', DEFAULT_SYSTEM)
  * The parts a system can name, by kind, as it names them: its pack's as `kind.id`, its
  * dependencies' as `pack/kind.id`.
  */
-export type PartKind = 'travel-rules' | 'bindings' | 'calendar' | 'weather'
+export type PartKind = 'travel-rules' | 'bindings' | 'calendar' | 'weather' | 'land'
 
 export function partChoices(system: TravelSystem, kind: PartKind): string[] {
   const pack = system.pack
@@ -294,7 +294,15 @@ export function declareSystem(system: TravelSystem): boolean {
 
 /** The kinds of definition a system's tabs edit besides its rules and bindings. */
 export type PartTabKind =
-  'calendar' | 'weather' | 'roll-modes' | 'sheet' | 'items' | 'factions' | 'clocks' | 'world'
+  | 'calendar'
+  | 'weather'
+  | 'land'
+  | 'roll-modes'
+  | 'sheet'
+  | 'items'
+  | 'factions'
+  | 'clocks'
+  | 'world'
 
 /** Where a part named `ref` (`kind.id` of the system's pack, or `pack/kind.id`) is written. */
 function partSource(pack: string, kind: string, ref: string): PartSource | null {
@@ -351,8 +359,8 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
         : []
       : ownOfKind(pack).slice(0, 1)
   else {
-    // Weather models and item catalogues: a list in the system.
-    const listed = data?.[kind === 'items' ? 'items' : 'weather']
+    // Weather models, land models and item catalogues: a list in the system.
+    const listed = data?.[kind]
     refs = data ? (Array.isArray(listed) ? (listed as string[]) : []) : ownOfKind(pack)
   }
   return refs.flatMap((ref) => partSource(pack, kind, ref) ?? [])
@@ -378,7 +386,7 @@ export function createSystemPart(
     .map((e) => e.id ?? 'default')
   const base = party
     ? 'party'
-    : kind === 'calendar' || kind === 'weather' || kind === 'sheet'
+    : kind === 'calendar' || kind === 'weather' || kind === 'sheet' || kind === 'land'
       ? kind
       : kind === 'items'
         ? 'gear'

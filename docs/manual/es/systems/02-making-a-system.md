@@ -22,9 +22,10 @@ Cada pestaña tiene su página:
 - [**Mundo**](11-world.md): lo que su mundo hace por sí solo: cuando se llena un reloj, tras cada turno del mundo, cuando algo pasa a cumplirse.
 - [**Calendario**](12-calendar.md): meses, días de la semana, lunas y fiestas.
 - [**Clima**](13-weather.md): clima con inercia, estación a estación.
-- [**Modos de tirada**](14-roll-modes.md): ventaja, desventaja y similares.
-- [**Pruébalo**](15-try-it.md): un viaje sin mapa, para probarlo mientras lo haces.
-- [**YAML**](16-yaml.md): los ficheros que escriben los formularios, para lo que estos no cubren.
+- [**Tierra**](14-land.md): terreno con memoria, para generar y descubrir tierra.
+- [**Modos de tirada**](15-roll-modes.md): ventaja, desventaja y similares.
+- [**Pruébalo**](16-try-it.md): un viaje sin mapa, para probarlo mientras lo haces.
+- [**YAML**](17-yaml.md): los ficheros que escriben los formularios, para lo que estos no cubren.
 
 ## Cambiar un sistema incluido
 

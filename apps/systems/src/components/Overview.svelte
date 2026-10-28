@@ -44,6 +44,7 @@
   const deps = $derived(dependencies(system))
   const brought = $derived(Array.isArray(data?.packs) ? (data.packs as string[]) : [])
   const weather = $derived(Array.isArray(data?.weather) ? (data.weather as string[]) : [])
+  const land = $derived(Array.isArray(data?.land) ? (data.land as string[]) : [])
 
   /** The parts shown as selects, each with the key it's written under and its tab. */
   const PARTS: { key: string; kind: PartKind; tab?: Tab }[] = [
@@ -100,7 +101,7 @@
     doc?.setText('system', [key], data?.[key], [key], text)
   }
 
-  function toggle(key: 'weather' | 'packs', list: string[], id: string, on: boolean) {
+  function toggle(key: 'weather' | 'land' | 'packs', list: string[], id: string, on: boolean) {
     const next = on ? [...list, id] : list.filter((x) => x !== id)
     doc?.edit('system', [key], next.length ? next : undefined)
   }
@@ -196,6 +197,24 @@
         </label>
       {:else}
         <p class="help">{t('overview.noWeather')}</p>
+      {/each}
+    </section>
+
+    <section>
+      <h3>{t('overview.land')}<InfoTip text={t('overview.landHelp')} /></h3>
+      {#each partChoices(system, 'land') as id (id)}
+        <label class="check">
+          <input
+            type="checkbox"
+            checked={land.includes(id)}
+            {disabled}
+            onchange={(e) => toggle('land', land, id, e.currentTarget.checked)}
+          />
+          {#if partName(system, 'land', id)}{partName(system, 'land', id)}{/if}
+          <code>{id}</code>
+        </label>
+      {:else}
+        <p class="help">{t('overview.noLand')}</p>
       {/each}
     </section>
 

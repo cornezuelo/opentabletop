@@ -19,7 +19,7 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  */
 /** Each kind's starting point; `factions` only from the Systems app, which writes their sheet too. */
 export const SYSTEM_TEMPLATES: Record<
-  SystemKind | 'factions' | 'clocks' | 'world' | 'items',
+  SystemKind | 'factions' | 'clocks' | 'world' | 'items' | 'land',
   (id: string) => Record<string, unknown>
 > = {
   // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
@@ -108,6 +108,19 @@ export const SYSTEM_TEMPLATES: Record<
     })),
     moons: [{ id: 'moon', name: 'The moon', cycle: 28 }],
     holidays: [{ id: 'midsummer', name: 'Midsummer', month: 'sun', day: 15 }],
+  }),
+  // Terrain with memory: each terrain tends to go on as itself; change the terrains and weights.
+  land: (id) => ({
+    kind: 'land',
+    id,
+    name: 'The land',
+    next: {
+      plains: { plains: 5, forest: 2, hills: 1 },
+      forest: { forest: 5, plains: 2 },
+      hills: { hills: 4, mountains: 2, plains: 1 },
+      mountains: { mountains: 4, hills: 2 },
+    },
+    start: { plains: 2, forest: 1 },
   }),
   // Weather with memory, the same in every season: change the weights per season.
   weather: (id) => {

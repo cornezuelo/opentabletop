@@ -15,6 +15,7 @@
   import ItemsForm from './ItemsForm.svelte'
   import SheetForm from './SheetForm.svelte'
   import WeatherForm from './WeatherForm.svelte'
+  import LandForm from './LandForm.svelte'
 
   /**
    * The definitions of one kind a system uses (its calendar, its weather models, the roll
@@ -93,6 +94,8 @@
         <SheetForm {doc} {system} scope={sheetScope(system, part.id)} />
       {:else if kind === 'weather'}
         <WeatherForm {doc} seasons={seasonsFor(system)} />
+      {:else if kind === 'land'}
+        <LandForm {doc} {system} />
       {:else}
         <RollModesForm {doc} {system} />
       {/if}

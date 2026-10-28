@@ -42,6 +42,7 @@ export const es: Messages<typeof en> = {
     world: 'Mundo',
     calendar: 'Calendario',
     weather: 'Clima',
+    land: 'Tierra',
     modes: 'Modos de tirada',
     try: 'Pruébalo',
     yaml: 'YAML',
@@ -108,6 +109,14 @@ export const es: Messages<typeof en> = {
       help: 'Modelos de clima (`kind: weather`) que pueden nombrar los bindings del sistema, enumerados en su **Resumen**. Cada tipo de clima puede fijar valores del día (`set: { snowed-in: true }`) que leen las condiciones; el clima del día es `weather` en tablas y condiciones:\n• `trip.weather: storm`\n• `trip.weather: [rain, storm]`',
       none: 'Este sistema no nombra modelos de clima.',
       create: 'Nuevo modelo de clima',
+    },
+    land: {
+      title: 'Sus modelos de tierra',
+      intro:
+        'Terreno con memoria: para cada terreno, lo probable que es que un hex junto a él sea cada terreno, así la tierra sale coherente (los bosques siguen siendo bosques, las colinas se juntan en cordilleras). **Generar tierra** del Hexmapper rellena con uno los hexes vacíos, y el descubrimiento puede decidir con uno los hexes vacíos (`discover.terrain: { land: land.default }`).',
+      help: 'Modelos de tierra (`kind: land`), listados en su **Resumen** (`land:`). Un hex vacío suma las filas de los terrenos de sus vecinos conocidos y elige con esos pesos:\n• dos vecinos de bosque cuentan dos veces la fila del bosque\n• sin ninguno conocido: **Donde no se conoce nada**\nEl descubrimiento usa uno por sus bindings (`discover.terrain: { land: land.default }`), o una tabla de terreno le pasa la decisión (`set: { land: land.default }` en una entrada).',
+      none: 'Este sistema no nombra modelos de tierra.',
+      create: 'Nuevo modelo de tierra',
     },
     modes: {
       title: 'Los modos de tirada de sus packs',
@@ -422,6 +431,30 @@ export const es: Messages<typeof en> = {
     month: 'Mes',
     day: 'Día',
   },
+  land: {
+    name: 'Nombre',
+    nameHelp:
+      'El nombre del modelo.\n• **La forma de la tierra**\n• **Tierras salvajes del norte**',
+    from: 'El hex desde el que se ve cuenta',
+    fromHelp:
+      'Al descubrir, cuántas veces cuenta el hex que pisa el grupo entre los vecinos del hex que se decide (vacío: una, como cualquier otro). Al generar tierra no hay tal hex.\n• `2` — la tierra de la que vienes cuenta doble: un viaje hacia lo desconocido sigue su propia tierra\n• `0` — solo cuentan los demás vecinos',
+    rows: 'Junto a cada terreno',
+    rowsHelp:
+      'Para cada terreno (filas), lo probable que es que un hex junto a él sea cada terreno (columnas): pesos, no porcentajes; vacío es 0. Un hex vacío suma las filas de todos sus vecinos conocidos.\n• Fila **Bosque**: `forest 6`, `hills 2`, `plains 2` — los bosques tienden a seguir siendo bosque\n• Fila **Colinas**: `hills 4`, `mountains 2` — las colinas se juntan en cordilleras\nUn terreno sin fila no suma nada; una columna sin fila nunca es un vecino que tire.',
+    fromTo: 'Junto a ↓ / se vuelve →',
+    start: 'Donde no se conoce nada',
+    startHelp:
+      'Los pesos de un hex sin ningún vecino conocido con fila en el modelo: el primer hex de un mapa en blanco, un hex en mitad de la nada.\n• `plains 3`, `forest 2` — sobre todo tierra abierta',
+    shares: 'A lo largo de muchos hexes',
+    sharesHelp:
+      'Cuánto de cada terreno tiene una extensión grande que crece desde la nada con estos pesos: una comprobación de que la tierra se siente bien.',
+    newTerrain: 'Terreno',
+    addTerrain: 'Añadir un terreno',
+    preview: 'Un trozo de esta tierra',
+    previewHelp:
+      'Tierra que crece desde la nada con este modelo, del centro hacia fuera, con los colores de terreno del Hexmapper. **Otro** saca otro trozo; **Generar tierra** del Hexmapper la hace crecer en cambio desde la tierra que pintaste.',
+    again: 'Otro',
+  },
   weather: {
     name: 'Nombre',
     nameHelp: 'El nombre del modelo.\n• **Cielo de montaña**',
@@ -515,6 +548,10 @@ export const es: Messages<typeof en> = {
     weatherHelp:
       'Los modelos de clima (`kind: weather`) que sus bindings pueden nombrar en una comprobación (`weather: weather.highland-skies`), para que el clima del día tenga inercia: los de este pack y los de sus dependencias.\n• `weather: [weather.highland-skies]`\n• `weather: [weather.coast, core/weather.plains]`',
     noWeather: 'No hay modelos de clima en este pack ni en sus dependencias.',
+    land: 'Modelos de tierra',
+    landHelp:
+      'Los modelos de tierra (`kind: land`) con los que **Generar tierra** del Hexmapper rellena los hexes vacíos, y que el descubrimiento puede usar: los de este pack y sus dependencias.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`',
+    noLand: 'No hay modelos de tierra en este pack ni en sus dependencias.',
     packs: 'Packs que trae',
     packsHelp:
       'Los packs cuyas tablas, oráculos, generadores y mazos vienen con el sistema: el suyo siempre, y las dependencias que marques (`packs: [core]`). Un mapa que se juega con el sistema los muestra en su panel del Oracle. Para traer otro pack, añádelo a las dependencias del pack (`pack.yaml`).',

@@ -44,7 +44,8 @@ import {
   type CharacterAction,
   type CharacterState,
 } from '@open-tabletop/character-engine'
-import { validateLand } from '@open-tabletop/land-engine'
+import { landShares, validateLand, type LandModel } from '@open-tabletop/land-engine'
+import { SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
 import { weatherShares, type HexFlower, type WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
 import { parse, parseAllDocuments, stringify } from 'yaml'
@@ -1384,5 +1385,23 @@ describe("Systems → Items: a delver's kit plays as the manual says", () => {
     }
     expect(events).toContain('ITEM_SPENT')
     expect(kael.items!.some((i) => i.id === 'torch')).toBe(false)
+  })
+})
+
+describe('Systems → Land: the step-by-step model is the YAML the page shows', () => {
+  it.each(['en', 'es'])('%s', (locale) => {
+    const yaml = examples(read(`${locale}/systems/14-land.md`)).find((y) => kindOf(y) === 'land')!
+    const page = parse(yaml) as LandModel & Record<string, unknown>
+    // Step 1: New land model; steps 2 and 3, the forest's row and the lakes.
+    const made = SYSTEM_TEMPLATES.land('land') as unknown as LandModel & Record<string, unknown>
+    made.name = page.name
+    made.next.forest = { ...made.next.forest, forest: 6, plains: 1, lake: 1 }
+    made.next.lake = { lake: 4, forest: 2 }
+    expect(made).toEqual(page)
+    expect(validateLand(page)).toEqual([])
+    // Step 4: lakes among the forests, over many hexes.
+    const shares = new Map(landShares(page, seeded('lakes')).map((s) => [s.terrain, s.share]))
+    expect(shares.get('lake')).toBeGreaterThan(0)
+    expect(shares.get('forest')).toBeGreaterThan(shares.get('lake')!)
   })
 })
