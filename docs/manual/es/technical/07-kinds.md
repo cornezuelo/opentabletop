@@ -502,7 +502,7 @@ clocks:
 
 ## Las reglas del mundo
 
-Lo que el mundo de un sistema hace por sí solo (`world:` en su [sistema](#sistemas)), haya o no un viaje en marcha: reacciones escritas como las acciones de un viaje, cada una con los momentos en que llega, sus condiciones y sus pasos. Se juegan allí donde se mueva el mundo (el panel Mundo del Hexmapper, la aplicación Campaign, el tiempo que avanza bajo un viaje). En la aplicación Systems: su pestaña **Mundo** ([Mundo](../systems/11-world.md)).
+Lo que el mundo de un sistema hace por sí solo (`world:` en su [sistema](#sistemas)), haya o no un viaje en marcha: reacciones escritas como las acciones de un viaje, cada una con los momentos en que llega, sus condiciones y sus pasos. Se juegan allí donde se mueva el mundo (el panel Mundo del Hexmapper, la aplicación Campaign, el tiempo que avanza bajo un viaje). En la aplicación Systems: su pestaña **Mundo** ([Mundo](../systems/11-world.md)). Todos los momentos y el orden en que se juegan: [Qué reacciona a qué](11-what-reacts-to-what.md).
 
 ```yaml
 kind: world

@@ -106,4 +106,4 @@ One commit each, both bundled packs and the manual with each:
 1. **The world's reactions**: `kind: world`, moments and steps (no waiting yet), conditions' memory, time jumps day by day, loops on load; `onFull` moved (pack format 9); Systems' World tab and the Clocks tab's reactions; the Grey Marches' and Core's `world.yaml`.
 2. **World turns both ways**: the general `moments` queue (campaign format bump), `world.turn` heard by trips, `do: world.turn` from a trip.
 3. **The world waits for the player**: `pause` and `ask` in world reactions, kept in the campaign, shown by the Campaign app, the World panel and trips.
-4. **What reacts to what**: the manual page with every moment of every subsystem and the order they're played in (piece 3).
+4. ✅ (2026-10-29) **What reacts to what**: the manual page with every moment of every subsystem and the order they're played in (piece 3).

@@ -173,7 +173,7 @@ Cuándo se tira una comprobación (`at:`) o el propio sistema hace una acción (
 | un turno del mundo (`world.turn`)                                            | tras un turno del mundo de la campaña, lo traiga lo que lo traiga (el tiempo, una mano, un paso `do: world.turn`) |
 | una condición al cumplirse (`{ when: { party.values.morale: { lte: 0 } } }`) | una vez, al cumplirse, sea lo que sea lo que la cambió; otra solo después de dejar de cumplirse                   |
 
-Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón.
+Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` es un botón. Todos los momentos, quién los oye y en qué orden llegan cuando pasan varios a la vez: [Qué reacciona a qué](11-what-reacts-to-what.md).
 
 **Las reacciones del mundo** ([Las reglas del mundo](07-kinds.md#las-reglas-del-mundo)) llegan en momentos propios: `world.turn` (tras cada turno del mundo), `world.clocks.<id>.full` (un reloj que se llena) y condiciones que pasan a cumplirse (`{ when: { world.events: market-day } }`), miradas tras cualquier cosa que cambie el mundo y al empezar cada día por el camino.
 

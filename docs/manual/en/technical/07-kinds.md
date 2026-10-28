@@ -506,7 +506,7 @@ clocks:
 
 ## The world's rules
 
-What a system's world does by itself (`world:` in its [system](#systems)), with or without a trip going on: reactions written as a trip's actions are, each with the moments it comes at, its conditions and its steps. Played wherever the world moves (the Hexmapper's World panel, the Campaign app, time moving under a trip). In the Systems app: its **World** tab ([World](../systems/11-world.md)).
+What a system's world does by itself (`world:` in its [system](#systems)), with or without a trip going on: reactions written as a trip's actions are, each with the moments it comes at, its conditions and its steps. Played wherever the world moves (the Hexmapper's World panel, the Campaign app, time moving under a trip). In the Systems app: its **World** tab ([World](../systems/11-world.md)). Every moment and the order they are played in: [What reacts to what](11-what-reacts-to-what.md).
 
 ```yaml
 kind: world

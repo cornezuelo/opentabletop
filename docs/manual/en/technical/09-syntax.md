@@ -173,7 +173,7 @@ When a check is rolled (`at:`) or an action is taken by the system itself (`on:`
 | a world turn (`world.turn`)                                                | after a world turn of the campaign, whatever brought it (time, a hand, a step's `do: world.turn`)  |
 | a condition turning true (`{ when: { party.values.morale: { lte: 0 } } }`) | once, as it turns true, whatever changed it; again only after it stopped holding                   |
 
-A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button.
+A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button. Every moment, who hears it and in which order they come when several happen at once: [What reacts to what](11-what-reacts-to-what.md).
 
 **The world's reactions** ([The world's rules](07-kinds.md#the-world-s-rules)) come at moments of their own: `world.turn` (after every world turn), `world.clocks.<id>.full` (a clock filling) and conditions turning true (`{ when: { world.events: market-day } }`), looked at after anything that changes the world and at each day's start on the way.
 
