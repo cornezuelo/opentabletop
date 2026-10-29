@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { withNotes, type Campaign } from '@open-tabletop/campaign'
-  import { FactionNotes } from '@open-tabletop/campaign-ui'
-  import { CharacterCard, placeUrl } from '@open-tabletop/character-ui'
-  import { factionName, localize, type LocalizedText } from '@open-tabletop/session'
-  import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
+  import type { Campaign } from '@open-tabletop/campaign'
+  import { FactionCards, factionColor } from '@open-tabletop/campaign-ui'
+  import { placeUrl } from '@open-tabletop/character-ui'
+  import { factionName } from '@open-tabletop/session'
+  import { InfoTip } from '@open-tabletop/ui-kit'
   import { open } from '../lib/campaign.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -24,15 +24,7 @@
   const map = $derived(open.landMap)
   const land = $derived(map?.territories ?? {})
   const name = (id: string) => (system ? factionName(system, id, getLocale()) : id)
-  const about = (id: string) =>
-    (system &&
-      localize(system.def.factions[id]?.description as LocalizedText | undefined, getLocale())) ||
-    ''
-  const color = (id: string) => system?.def.factions[id]?.color ?? '#8a7f6e'
-  const count = (id: string) => {
-    const n = land[id]?.length ?? 0
-    return n === 1 ? t('factions.territoryOne') : t('factions.territory', { n })
-  }
+  const color = (id: string) => factionColor(system, id)
   /** Whether no faction of the campaign holds land on the map chosen. */
   const bare = $derived(!!own && !own.factions.some((f) => land[f.id]?.length))
   const mapName = (name: string) => name || t('places.untitledMap')
@@ -89,55 +81,16 @@
   </div>
 
   <span class="label">{t('tabs.factions')}<InfoTip markdown={t('factions.help')} /></span>
-  {#each own.factions as f (f.id)}
-    <details
-      class="faction"
-      open={faction === f.id}
-      ontoggle={(e) => toggled(f.id, e.currentTarget.open)}
-    >
-      <summary>
-        <span class="swatch" style:background={color(f.id)}></span>
-        <strong>{name(f.id)}</strong>
-        {#if map}<span class="count">{count(f.id)}</span>{/if}
-      </summary>
-      {#if about(f.id)}<Markdown class="about" text={about(f.id)} />{/if}
-      <FactionNotes
-        notes={own.notes?.[f.id]}
-        name={name(f.id)}
-        locale={getLocale()}
-        onchange={(change) => open.setFactions(withNotes(own, f.id, change))}
-      />
-      <CharacterCard
-        sheet={system.sheet.def}
-        character={f}
-        locale={getLocale()}
-        named={false}
-        path={`factions.${f.id}`}
-        onchange={(next) =>
-          open.setFactions({
-            ...own,
-            factions: own.factions.map((x) => (x.id === next.id ? next : x)),
-          })}
-      />
-    </details>
-  {/each}
-
-  <!-- The help beside the button, not on it: pressing it runs the turn. -->
-  <div class="row">
-    <button onclick={() => open.worldTurn()}>{t('factions.turn')}</button>
-    <span class="help">{t('whatItDoes')}<InfoTip markdown={t('factions.turnHelp')} /></span>
-  </div>
-  {#if system.def.every}
-    <label class="check">
-      <input
-        type="checkbox"
-        checked={own.auto !== false}
-        onchange={(e) =>
-          open.setFactions({ ...own, auto: e.currentTarget.checked ? undefined : false })}
-      />
-      {t('factions.auto', { days: system.def.every })}<InfoTip markdown={t('factions.autoHelp')} />
-    </label>
-  {/if}
+  <FactionCards
+    {own}
+    {system}
+    locale={getLocale()}
+    territories={map ? land : undefined}
+    open={faction}
+    ontoggle={toggled}
+    onchange={(next) => open.setFactions(next)}
+    onturn={() => open.worldTurn()}
+  />
   <button class="link" onclick={() => open.removeFactions()}>{t('factions.remove')}</button>
 {:else if own}
   <p class="help">{t('factions.missing', { system: own.system })}</p>
@@ -188,29 +141,6 @@
     gap: 5px;
   }
 
-  .faction {
-    padding: 4px 8px 8px;
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-  }
-
-  .faction summary {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-
-  .faction[open] summary {
-    margin-bottom: 6px;
-  }
-
-  .faction :global(.about) {
-    margin-bottom: 6px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
   .swatch {
     flex: none;
     width: 12px;
@@ -222,19 +152,6 @@
   .swatch.striped {
     border: 1px dashed var(--faction);
     background: repeating-linear-gradient(-45deg, var(--faction) 0 1.5px, transparent 1.5px 4px);
-  }
-
-  .count {
-    margin-left: auto;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .check {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
   }
 
   button {

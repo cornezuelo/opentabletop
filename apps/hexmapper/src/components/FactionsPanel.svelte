@@ -1,9 +1,6 @@
 <script lang="ts">
-  import { withNotes } from '@open-tabletop/campaign'
-  import { FactionNotes } from '@open-tabletop/campaign-ui'
-  import { CharacterCard } from '@open-tabletop/character-ui'
-  import { factionName, localize, type LocalizedText } from '@open-tabletop/session'
-  import { confirmAction, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
+  import { FactionCards } from '@open-tabletop/campaign-ui'
+  import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import {
     bringFactions,
@@ -27,93 +24,47 @@
     void own
     return factionsSystem()
   })
-  const name = (id: string) => (system ? factionName(system, id, getLocale()) : id)
-  /** What the system says a faction is (its `description`), in the UI's language. */
-  const about = (id: string) =>
-    (system &&
-      localize(system.def.factions[id]?.description as LocalizedText | undefined, getLocale())) ||
-    ''
-  const color = (id: string) => system?.def.factions[id]?.color ?? '#8a7f6e'
 </script>
+
+<!-- Its brush on the line itself: pressing it doesn't unfold the sheet. -->
+{#snippet brush(id: string)}
+  {@const painting = editor.factionBrush === id}
+  <button
+    class="brush"
+    class:active={painting}
+    aria-pressed={painting}
+    aria-label={painting ? t('factions.stopPainting') : t('factions.paint')}
+    use:tooltip={painting ? t('factions.stopPainting') : t('factions.paint')}
+    onclick={(e) => {
+      e.preventDefault()
+      editor.factionBrush = painting ? null : id
+    }}>✎</button
+  >
+{/snippet}
+
+{#snippet paintHint(id: string)}
+  {#if editor.factionBrush === id}
+    <p class="help paint">
+      {t('factions.paintHint')}<InfoTip markdown={t('factions.paintHelp')} />
+    </p>
+  {/if}
+{/snippet}
 
 <!-- The World panel's Factions tab: a line per faction with its brush; its sheet unfolds. -->
 <div class="field">
   {#if own && system}
     <p class="help">{t('factions.intro')}<InfoTip markdown={t('factions.help')} /></p>
     <span class="help what">{t('factions.land')}<InfoTip markdown={t('factions.landHelp')} /></span>
-    {#each own.factions as faction (faction.id)}
-      <details class="faction">
-        <summary>
-          <span class="swatch" style:background={color(faction.id)}></span>
-          <span class="who"
-            ><strong>{name(faction.id)}</strong>
-            <span class="count"
-              >{(own.territories[faction.id]?.length ?? 0) === 1
-                ? t('factions.territoryOne')
-                : t('factions.territory', { n: own.territories[faction.id]?.length ?? 0 })}</span
-            ></span
-          >
-          <!-- Its brush on the line itself: pressing it doesn't unfold the sheet. -->
-          <button
-            class="brush"
-            class:active={editor.factionBrush === faction.id}
-            aria-pressed={editor.factionBrush === faction.id}
-            aria-label={editor.factionBrush === faction.id
-              ? t('factions.stopPainting')
-              : t('factions.paint')}
-            use:tooltip={editor.factionBrush === faction.id
-              ? t('factions.stopPainting')
-              : t('factions.paint')}
-            onclick={(e) => {
-              e.preventDefault()
-              editor.factionBrush = editor.factionBrush === faction.id ? null : faction.id
-            }}>✎</button
-          >
-        </summary>
-        {#if editor.factionBrush === faction.id}
-          <p class="help paint">
-            {t('factions.paintHint')}<InfoTip markdown={t('factions.paintHelp')} />
-          </p>
-        {/if}
-        {#if about(faction.id)}<Markdown class="about" text={about(faction.id)} />{/if}
-        <FactionNotes
-          notes={own.notes?.[faction.id]}
-          name={name(faction.id)}
-          locale={getLocale()}
-          onchange={(change) => editor.setFactions(withNotes(own, faction.id, change))}
-        />
-        <CharacterCard
-          sheet={system.sheet.def}
-          character={faction}
-          locale={getLocale()}
-          named={false}
-          path={`factions.${faction.id}`}
-          onchange={(next) =>
-            editor.setFactions({
-              ...own,
-              factions: own.factions.map((f) => (f.id === next.id ? next : f)),
-            })}
-        />
-      </details>
-    {/each}
-    <!-- The help beside the button, not on it: pressing it runs the turn. -->
-    <div class="row">
-      <button onclick={() => worldTurnNow()}>{t('factions.turn')}</button>
-      <span class="help">{t('panel.whatItDoes')}<InfoTip markdown={t('factions.turnHelp')} /></span>
-    </div>
-    {#if system.def.every}
-      <label class="check">
-        <input
-          type="checkbox"
-          checked={own.auto !== false}
-          onchange={(e) =>
-            editor.setFactions({ ...own, auto: e.currentTarget.checked ? undefined : false })}
-        />
-        {t('factions.auto', { days: system.def.every })}<InfoTip
-          markdown={t('factions.autoHelp')}
-        />
-      </label>
-    {/if}
+    <FactionCards
+      {own}
+      {system}
+      locale={getLocale()}
+      territories={own.territories}
+      head={brush}
+      top={paintHint}
+      onchange={(next) => editor.setFactions(next)}
+      onturn={() => worldTurnNow()}
+    />
     <button
       class="link"
       onclick={async () => (await confirmAction(t('factions.confirmRemove'))) && removeFactions()}
@@ -134,32 +85,8 @@
     gap: 6px;
   }
 
-  .faction {
-    padding: 4px 8px 8px;
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-  }
-
-  .faction summary {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-
-  .faction[open] summary {
-    margin-bottom: 6px;
-  }
-
   .paint {
     margin-bottom: 6px;
-  }
-
-  .who {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-width: 0;
   }
 
   .brush {
@@ -171,37 +98,6 @@
   .brush.active {
     color: var(--accent);
     border-color: var(--accent);
-  }
-
-  .swatch {
-    flex: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-  }
-
-  .count {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .check {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-  }
-
-  .faction :global(.about) {
-    margin-bottom: 6px;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 
   .what {
