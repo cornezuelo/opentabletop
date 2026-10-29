@@ -19,7 +19,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
   import { tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n'
+  import { translator } from './i18n'
 
   /**
    * A foldable card's head: its name, its id and a line saying what it does; a click folds
@@ -35,6 +35,7 @@
     order,
     disabled = false,
     children,
+    locale,
   }: {
     title: string
     id: string
@@ -45,7 +46,11 @@
     /** Read-only: the place is shown, but nothing moves. */
     disabled?: boolean
     children?: Snippet
+    /** The UI language. */
+    locale: string
   } = $props()
+
+  const t = translator(() => locale)
 
   const DRAG = $derived(`application/x-opentabletop-${order?.list ?? 'card'}`)
   /** Another card of the list dragged over this one. */
@@ -84,16 +89,16 @@
       class="grip"
       role="button"
       tabindex="-1"
-      aria-label={t('forms.drag')}
+      aria-label={t('cards.drag')}
       draggable="true"
       ondragstart={dragStart}
-      use:tooltip={t('forms.drag')}>⠿</span
+      use:tooltip={t('cards.drag')}>⠿</span
     >
   {/if}
   <button
     class="title"
     aria-expanded={open}
-    use:tooltip={open ? t('forms.fold') : t('forms.unfold')}
+    use:tooltip={open ? t('cards.fold') : t('cards.unfold')}
     onclick={ontoggle}
   >
     <span class="arrow">{open ? '▾' : '▸'}</span>
@@ -105,15 +110,15 @@
   {#if order && !disabled}
     <button
       class="icon"
-      aria-label={t('actions.up')}
-      use:tooltip={t('actions.up')}
+      aria-label={t('cards.up')}
+      use:tooltip={t('cards.up')}
       disabled={order.index === 0}
       onclick={() => order.onmove(-1)}>↑</button
     >
     <button
       class="icon"
-      aria-label={t('actions.down')}
-      use:tooltip={t('actions.down')}
+      aria-label={t('cards.down')}
+      use:tooltip={t('cards.down')}
       disabled={order.index === order.count - 1}
       onclick={() => order.onmove(1)}>↓</button
     >

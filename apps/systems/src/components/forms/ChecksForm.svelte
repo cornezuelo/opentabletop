@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { CardHead, CardTools } from '@open-tabletop/pack-ui'
   import ReactionEditor from './ReactionEditor.svelte'
   import { parseRef } from '@open-tabletop/oracle-engine'
   import { idText, translator } from '@open-tabletop/travel-ui'
@@ -13,8 +14,6 @@
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { SvelteSet } from 'svelte/reactivity'
   import RecordRows from './RecordRows.svelte'
-  import CardHead from './CardHead.svelte'
-  import CardTools from './CardTools.svelte'
   import { matches } from '../../lib/search'
   import UsedBy from '../uses/UsedBy.svelte'
   import UsesList from '../uses/UsesList.svelte'
@@ -289,6 +288,7 @@
     <h3>{t('checks.title')}<InfoTip text={t('checks.help')} /></h3>
     {#if checks.length > 1}
       <CardTools
+        locale={getLocale()}
         bind:query
         {shown}
         total={checks.length}
@@ -305,6 +305,7 @@
       {#if shows(check)}
         <div class="check">
           <CardHead
+            locale={getLocale()}
             title={checkTitle(check)}
             id={event}
             said={open ? undefined : summary(check)}

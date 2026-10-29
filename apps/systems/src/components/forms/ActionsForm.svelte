@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { CardHead, CardTools } from '@open-tabletop/pack-ui'
   import { SvelteSet } from 'svelte/reactivity'
   import {
     actionSteps,
@@ -24,12 +25,10 @@
   import type { CharacterState } from '@open-tabletop/character-engine'
   import { actionLine, actionReading, type StepContext } from '../../lib/steps'
   import { matches } from '../../lib/search'
-  import CardHead from './CardHead.svelte'
   import ReactionEditor from './ReactionEditor.svelte'
   import UsedBy from '../uses/UsedBy.svelte'
   import UsesList from '../uses/UsesList.svelte'
   import { usesFor } from '../../lib/usage'
-  import CardTools from './CardTools.svelte'
   import { getLocale, t } from '../../lib/i18n'
   import { dayPartRefs, partLabel } from '../../lib/dayParts'
   import { clockOfMoment, tripWorldMoments } from '../../lib/worldMoments'
@@ -289,6 +288,7 @@
 <div class="actions">
   {#if ids.length > 1}
     <CardTools
+      locale={getLocale()}
       bind:query
       shown={visible.length}
       total={ids.length}
@@ -302,6 +302,7 @@
     {@const open = unfolded.has(id)}
     <div class="action">
       <CardHead
+        locale={getLocale()}
         title={label(id)}
         {id}
         said={open ? undefined : summary(id)}

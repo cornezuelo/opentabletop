@@ -91,4 +91,16 @@ export const es: Messages<typeof en> = {
     badYaml:
       'Escríbelo como pares clave: valor, p. ej. hex.tags: landmark o hex.terrain: [forest, hills].',
   },
+  cards: {
+    search: 'Buscar…',
+    shown: '{shown} de {total}',
+    noMatch: 'Nada coincide con «{query}».',
+    openAll: 'Desplegar todo',
+    closeAll: 'Plegar todo',
+    unfold: 'Mostrar sus campos',
+    fold: 'Plegarla',
+    drag: 'Arrastra sobre otra ficha para moverla allí',
+    up: 'Subir',
+    down: 'Bajar',
+  },
 }

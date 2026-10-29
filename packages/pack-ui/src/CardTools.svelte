@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '../../lib/i18n'
+  import { translator } from './i18n'
 
   /**
    * Above a long list of folded cards (actions, checks): a search box, how many cards it
@@ -12,6 +12,7 @@
     label,
     onopenall,
     oncloseall,
+    locale,
   }: {
     query?: string
     shown: number
@@ -20,19 +21,23 @@
     label: string
     onopenall: () => void
     oncloseall: () => void
+    /** The UI language. */
+    locale: string
   } = $props()
+
+  const t = translator(() => locale)
 </script>
 
 <div class="tools">
-  <input type="search" placeholder={t('forms.search')} aria-label={label} bind:value={query} />
-  {#if query.trim()}<small>{t('forms.shown', { shown, total })}</small>{/if}
+  <input type="search" placeholder={t('cards.search')} aria-label={label} bind:value={query} />
+  {#if query.trim()}<small>{t('cards.shown', { shown, total })}</small>{/if}
   <span class="fold">
-    <button class="link" onclick={onopenall}>{t('forms.openAll')}</button>
-    <button class="link" onclick={oncloseall}>{t('forms.closeAll')}</button>
+    <button class="link" onclick={onopenall}>{t('cards.openAll')}</button>
+    <button class="link" onclick={oncloseall}>{t('cards.closeAll')}</button>
   </span>
 </div>
 {#if query.trim() && !shown}
-  <p class="none">{t('forms.noMatch', { query: query.trim() })}</p>
+  <p class="none">{t('cards.noMatch', { query: query.trim() })}</p>
 {/if}
 
 <style>

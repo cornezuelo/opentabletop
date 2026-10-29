@@ -622,13 +622,6 @@ export const en = {
     yes: 'yes',
     no: 'no',
     search: 'Search…',
-    shown: '{shown} of {total}',
-    noMatch: 'Nothing matches “{query}”.',
-    openAll: 'Unfold all',
-    closeAll: 'Fold all',
-    unfold: 'Show its fields',
-    fold: 'Fold it',
-    drag: 'Drag onto another card to move it there',
     /** Beside a button with help: its explanation, without pressing it. */
     whatItDoes: 'What it does',
     description: 'Description (its help)',

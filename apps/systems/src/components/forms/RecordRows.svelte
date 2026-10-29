@@ -73,6 +73,7 @@
 </script>
 
 <script lang="ts">
+  import { CardHead, CardTools } from '@open-tabletop/pack-ui'
   import { SvelteSet } from 'svelte/reactivity'
   import {
     confirmAction,
@@ -86,8 +87,6 @@
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { getLocale, t } from '../../lib/i18n'
   import { matches } from '../../lib/search'
-  import CardHead from './CardHead.svelte'
-  import CardTools from './CardTools.svelte'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import type { RowsDoc } from '../../lib/partDoc.svelte'
   import type { TravelSystem, Use } from '@open-tabletop/session'
@@ -408,6 +407,7 @@
   <div class="cards">
     {#if rows.length > 5}
       <CardTools
+        locale={getLocale()}
         bind:query
         shown={visible.length}
         total={rows.length}
@@ -420,6 +420,7 @@
       {@const open = unfolded.has(id)}
       <div class="card">
         <CardHead
+          locale={getLocale()}
           title={title(id, row)}
           {id}
           said={open ? undefined : summary(row, id)}

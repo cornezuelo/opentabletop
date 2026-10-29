@@ -87,4 +87,16 @@ export const en = {
     badYaml:
       'Write it as key: value pairs, e.g. hex.tags: landmark or hex.terrain: [forest, hills].',
   },
+  cards: {
+    search: 'Search…',
+    shown: '{shown} of {total}',
+    noMatch: 'Nothing matches “{query}”.',
+    openAll: 'Unfold all',
+    closeAll: 'Fold all',
+    unfold: 'Show its fields',
+    fold: 'Fold it',
+    drag: 'Drag onto another card to move it there',
+    up: 'Move up',
+    down: 'Move down',
+  },
 } as const

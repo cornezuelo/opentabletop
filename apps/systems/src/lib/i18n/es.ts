@@ -633,13 +633,6 @@ export const es: Messages<typeof en> = {
     yes: 'sí',
     no: 'no',
     search: 'Buscar…',
-    shown: '{shown} de {total}',
-    noMatch: 'Nada coincide con «{query}».',
-    openAll: 'Desplegar todo',
-    closeAll: 'Plegar todo',
-    unfold: 'Mostrar sus campos',
-    fold: 'Plegarla',
-    drag: 'Arrastra sobre otra ficha para moverla allí',
     whatItDoes: 'Qué hace',
     description: 'Descripción (su ayuda)',
     descriptionHelp:
