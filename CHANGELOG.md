@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-10-29
+
 ### Apps
 
 - Characters, Travel, Hexmapper, Systems: **a room in all**: a sheet's **Room in all** (`items.room: '{{self.values.capacity * 2}}'`) counts everything a character carries, containers' contents too, refused past it with **Over its room** `refuse`; the card shows **Carried 9 / 16**, tables read `self.carried.used` and `.room`.
