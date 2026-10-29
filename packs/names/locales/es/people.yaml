@@ -1,0 +1,97 @@
+# Names themselves (Astrid, Valcampo, the syllables) stay as they are: only words are
+# translated. Bynames are nouns, so they fit anyone whatever their gender.
+person:
+  name: ¿Cómo se llama?
+  description: |-
+    Un **nombre para alguien**: elige su pueblo, o _Cualquiera_ para uno al azar.
+
+    Cada pueblo es también un generador propio (_Un nombre del norte_…), y sus tablas se pueden tirar por separado.
+  inputs:
+    folk:
+      label: Pueblo
+      labels:
+        any: Cualquiera
+        north: Del norte
+        south: Del sur
+        fair: Pueblo hermoso
+        invented: Inventado
+        modern: Moderno
+person-north:
+  name: Un nombre del norte
+  description: |-
+    Un nombre y el de su padre, duros y cortos, de costas frías e inviernos largos; a veces, un apodo (_Sigrun Haldorsdottir Manto Gris_).
+given-north:
+  name: Nombres del norte
+  description: |-
+    Nombres de pila del pueblo del norte; cada uno dice si es de hombre o de mujer (`gender: m` o `f`).
+father-north:
+  name: Padres del norte
+  description: De quién es hijo o hija alguien, en el pueblo del norte; un nombre del norte le añade -sson o -sdottir.
+person-south:
+  name: Un nombre del sur
+  description: |-
+    Un nombre y un apellido, largos y cantarines, de ciudades cálidas junto al mar; a veces, un apodo (_Aurelia Valcampo Mano Justa_).
+given-south:
+  name: Nombres del sur
+  description: Nombres de pila del pueblo del sur.
+family-south:
+  name: Apellidos del sur
+  description: Apellidos del pueblo del sur, a menudo un lugar o un oficio.
+person-fair:
+  name: Un nombre del pueblo hermoso
+  description: |-
+    Un nombre que fluye y la casa a la que pertenece, de bosques viejos y canciones más viejas aún (_Ilyanwë de la Casa Hoja de Plata_).
+given-fair:
+  name: Nombres del pueblo hermoso
+  description: Nombres de pila del pueblo hermoso.
+house-fair:
+  name: Casas del pueblo hermoso
+  description: La casa a la que pertenece alguien, en el pueblo hermoso.
+  entries:
+    silverleaf: de la Casa Hoja de Plata
+    starfall: de la Casa Estrella Fugaz
+    moonwell: de la Casa Pozo de Luna
+    dawnsong: de la Casa Canto del Alba
+    ashgrove: de la Casa Fresneda
+    nightbloom: de la Casa Flor de Noche
+    windmere: de la Casa Lago del Viento
+    brightwater: de la Casa Agua Clara
+byname:
+  name: Apodos
+  description: Cómo llama la gente a alguien a sus espaldas, o a la cara.
+  entries:
+    bold: ' Sin Miedo'
+    grey: ' Manto Gris'
+    fair: ' Mano Justa'
+    unlucky: ' Mala Estrella'
+    quiet: ' Pocas Palabras'
+    red: ' Mano Roja'
+    old: ' Muchos Inviernos'
+    lame: ' Pie Torcido'
+    wise: ' Ojo Sabio'
+    crow: ' de los Cuervos'
+    oath: ' Rompejuramentos'
+    twice: ' Dos Vidas'
+invented:
+  name: Un nombre inventado
+  description: |-
+    Un nombre hecho de **sílabas**, distinto de cualquier otro: un comienzo, a veces una sílaba en medio, y un final (_Thargar_, _Veymira_, _Oranthel_). Para personas, pero también para una bestia, un dios o una ciudad perdida.
+syllable-start:
+  name: Sílabas para empezar
+  description: La primera sílaba de un _nombre inventado_.
+syllable-middle:
+  name: Sílabas en medio
+  description: Una sílaba en medio de un _nombre inventado_, cuando la tiene.
+syllable-end:
+  name: Sílabas para acabar
+  description: La última sílaba de un _nombre inventado_.
+person-modern:
+  name: Un nombre moderno
+  description: |-
+    Un nombre y un apellido para el mundo de hoy, o el del siglo pasado (_Nadia Brennan_).
+given-modern:
+  name: Nombres modernos
+  description: Nombres de pila para el mundo de hoy.
+family-modern:
+  name: Apellidos modernos
+  description: Apellidos para el mundo de hoy.

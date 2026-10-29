@@ -1,0 +1,346 @@
+# Names for people: an oracle to choose the folk, a generator for each folk (a given
+# name and a family name), the tables they roll, and names made of syllables.
+# Every definition is tagged with what it names (`people`) and its setting (`fantasy`,
+# `modern`), so the Oracle's Filter finds them.
+kind: oracle
+id: person
+tags: [names, people, fantasy, modern]
+name: Someone's name
+description: |-
+  A **name for someone**: choose their folk, or _Any_ for a folk at random.
+
+  Each folk is also a generator of its own (_A northern name_…), and their tables can be rolled alone.
+inputs:
+  folk:
+    label: Folk
+    options: [any, north, south, fair, invented, modern]
+    labels:
+      any: Any
+      north: Northern
+      south: Southern
+      fair: Fair folk
+      invented: Invented
+      modern: Modern
+    default: any
+variants:
+  any:
+    entries:
+      - { id: north, generator: generator.person-north }
+      - { id: south, generator: generator.person-south }
+      - { id: fair, generator: generator.person-fair }
+      - { id: invented, generator: generator.invented }
+  north:
+    entries: [{ id: north, generator: generator.person-north }]
+  south:
+    entries: [{ id: south, generator: generator.person-south }]
+  fair:
+    entries: [{ id: fair, generator: generator.person-fair }]
+  invented:
+    entries: [{ id: invented, generator: generator.invented }]
+  modern:
+    entries: [{ id: modern, generator: generator.person-modern }]
+---
+# A child takes their father's name: -sson for a son, -sdottir for a daughter, by what
+# the given name sets (`given.gender`). One in six comes with a byname: fields rolled
+# only when an earlier one allows it.
+kind: generator
+id: person-north
+tags: [names, people, fantasy]
+name: A northern name
+description: |-
+  A given name and their father's, hard and short, from cold coasts and long winters; now and then a byname (_Sigrun Haldorsdottir the Grey_).
+fields:
+  given: { table: table.given-north }
+  father: { table: table.father-north }
+  son: { value: sson, when: { given.gender: m } }
+  daughter: { value: sdottir, when: { given.gender: f } }
+  odds: { roll: 1d6 }
+  byname: { table: table.byname, when: { odds: 6 } }
+template: '{{given}} {{father}}{{son}}{{daughter}}{{byname}}'
+---
+kind: table
+id: given-north
+tags: [names, people, fantasy]
+name: Northern given names
+description: |-
+  Given names of the northern folk; each sets whether it's a man's or a woman's (`gender: m` or `f`).
+entries:
+  - { id: arne, result: Arne, set: { gender: m } }
+  - { id: astrid, result: Astrid, set: { gender: f } }
+  - { id: bjorn, result: Bjorn, set: { gender: m } }
+  - { id: eirik, result: Eirik, set: { gender: m } }
+  - { id: freya, result: Freya, set: { gender: f } }
+  - { id: gudrun, result: Gudrun, set: { gender: f } }
+  - { id: halla, result: Halla, set: { gender: f } }
+  - { id: ingvar, result: Ingvar, set: { gender: m } }
+  - { id: kari, result: Kari, set: { gender: f } }
+  - { id: leif, result: Leif, set: { gender: m } }
+  - { id: ragna, result: Ragna, set: { gender: f } }
+  - { id: sigrun, result: Sigrun, set: { gender: f } }
+  - { id: sven, result: Sven, set: { gender: m } }
+  - { id: thora, result: Thora, set: { gender: f } }
+  - { id: ulf, result: Ulf, set: { gender: m } }
+  - { id: yrsa, result: Yrsa, set: { gender: f } }
+---
+kind: table
+id: father-north
+tags: [names, people, fantasy]
+name: Northern fathers
+description: Whose child someone is, among the northern folk; a northern name adds -sson or -sdottir.
+entries:
+  - { id: arne, result: Arne }
+  - { id: bjorn, result: Bjorn }
+  - { id: eirik, result: Eirik }
+  - { id: gunnar, result: Gunnar }
+  - { id: haldor, result: Haldor }
+  - { id: ivar, result: Ivar }
+  - { id: kol, result: Kol }
+  - { id: orm, result: Orm }
+  - { id: ragnar, result: Ragnar }
+  - { id: thorvald, result: Thorvald }
+  - { id: ulf, result: Ulf }
+  - { id: vig, result: Vig }
+---
+kind: generator
+id: person-south
+tags: [names, people, fantasy]
+name: A southern name
+description: |-
+  A given name and a family name, long and sung, from warm cities by the sea; now and then a byname (_Aurelia Valcampo the Fair_).
+fields:
+  given: { table: table.given-south }
+  family: { table: table.family-south }
+  odds: { roll: 1d6 }
+  byname: { table: table.byname, when: { odds: 6 } }
+template: '{{given}} {{family}}{{byname}}'
+---
+kind: table
+id: given-south
+tags: [names, people, fantasy]
+name: Southern given names
+description: Given names of the southern folk.
+entries:
+  - { id: alessia, result: Alessia }
+  - { id: aurelia, result: Aurelia }
+  - { id: bruno, result: Bruno }
+  - { id: cassio, result: Cassio }
+  - { id: delfina, result: Delfina }
+  - { id: emilio, result: Emilio }
+  - { id: fiora, result: Fiora }
+  - { id: lucan, result: Lucan }
+  - { id: marcello, result: Marcello }
+  - { id: nerina, result: Nerina }
+  - { id: ottavia, result: Ottavia }
+  - { id: renzo, result: Renzo }
+  - { id: serafina, result: Serafina }
+  - { id: tullio, result: Tullio }
+  - { id: valeria, result: Valeria }
+  - { id: vico, result: Vico }
+---
+kind: table
+id: family-south
+tags: [names, people, fantasy]
+name: Southern family names
+description: Family names of the southern folk, often a place or a trade.
+entries:
+  - { id: alcamo, result: Alcamo }
+  - { id: bellandi, result: Bellandi }
+  - { id: corvi, result: Corvi }
+  - { id: delmare, result: Delmare }
+  - { id: ferrante, result: Ferrante }
+  - { id: lombardo, result: Lombardo }
+  - { id: marchetti, result: Marchetti }
+  - { id: orsini, result: Orsini }
+  - { id: rinaldi, result: Rinaldi }
+  - { id: santoro, result: Santoro }
+  - { id: valcampo, result: Valcampo }
+  - { id: zanetti, result: Zanetti }
+---
+kind: generator
+id: person-fair
+tags: [names, people, fantasy]
+name: A fair folk's name
+description: |-
+  A flowing name and the house it belongs to, from old woods and older songs (_Ilyanwë of House Silverleaf_).
+fields:
+  given: { table: table.given-fair }
+  house: { table: table.house-fair }
+template: '{{given}} {{house}}'
+---
+kind: table
+id: given-fair
+tags: [names, people, fantasy]
+name: Fair folk's given names
+description: Given names of the fair folk.
+entries:
+  - { id: aerendil, result: Aerendil }
+  - { id: caelith, result: Caelith }
+  - { id: elowen, result: Elowen }
+  - { id: faelar, result: Faelar }
+  - { id: ilyanwe, result: Ilyanwë }
+  - { id: liraen, result: Liraen }
+  - { id: mirandel, result: Mirandel }
+  - { id: naeris, result: Naeris }
+  - { id: sylvaren, result: Sylvaren }
+  - { id: thalion, result: Thalion }
+  - { id: vaelin, result: Vaelin }
+  - { id: ysolde, result: Ysolde }
+---
+# The house's name is a text to translate: written whole, "of House…" included, so a
+# translation can put the words in its own order.
+kind: table
+id: house-fair
+tags: [names, people, fantasy]
+name: Houses of the fair folk
+description: The house someone belongs to, among the fair folk.
+entries:
+  - { id: silverleaf, result: of House Silverleaf }
+  - { id: starfall, result: of House Starfall }
+  - { id: moonwell, result: of House Moonwell }
+  - { id: dawnsong, result: of House Dawnsong }
+  - { id: ashgrove, result: of House Ashgrove }
+  - { id: nightbloom, result: of House Nightbloom }
+  - { id: windmere, result: of House Windmere }
+  - { id: brightwater, result: of House Brightwater }
+---
+# A byname begins with a space: it goes right after the name, and nothing shows when
+# the generator doesn't roll it.
+kind: table
+id: byname
+tags: [names, people, fantasy]
+name: Bynames
+description: What people call someone behind their back, or to their face.
+entries:
+  - { id: bold, result: ' the Bold' }
+  - { id: grey, result: ' the Grey' }
+  - { id: fair, result: ' the Fair' }
+  - { id: unlucky, result: ' the Unlucky' }
+  - { id: quiet, result: ' the Quiet' }
+  - { id: red, result: ' the Red' }
+  - { id: old, result: ' the Old' }
+  - { id: lame, result: ' the Lame' }
+  - { id: wise, result: ' the Wise' }
+  - { id: crow, result: ' Crow-friend' }
+  - { id: oath, result: ' Oathbreaker' }
+  - { id: twice, result: ' Twice-born' }
+---
+# Names built from syllables: a start, sometimes a middle, an end. The parts aren't
+# words, so they have nothing to translate.
+kind: generator
+id: invented
+tags: [names, people, fantasy]
+name: An invented name
+description: |-
+  A name made of **syllables**, unlike any other: a start, now and then a middle, and an end (_Thargar_, _Veymira_, _Oranthel_). For people, but also for a beast, a god or a lost city.
+fields:
+  start: { table: table.syllable-start }
+  odds: { roll: 1d6 }
+  middle: { table: table.syllable-middle, when: { odds: { gte: 4 } } }
+  end: { table: table.syllable-end }
+template: '{{start}}{{middle}}{{end}}'
+---
+kind: table
+id: syllable-start
+tags: [names, fantasy]
+name: Syllables to start
+description: The first syllable of an _invented name_.
+entries:
+  - { id: ka, result: Ka }
+  - { id: vey, result: Vey }
+  - { id: or, result: Or }
+  - { id: thar, result: Thar }
+  - { id: mel, result: Mel }
+  - { id: zu, result: Zu }
+  - { id: bra, result: Bra }
+  - { id: ys, result: Ys }
+  - { id: gor, result: Gor }
+  - { id: ael, result: Ael }
+  - { id: dru, result: Dru }
+  - { id: sel, result: Sel }
+---
+kind: table
+id: syllable-middle
+tags: [names, fantasy]
+name: Syllables in the middle
+description: A syllable in the middle of an _invented name_, when it has one.
+entries:
+  - { id: an, result: an }
+  - { id: dro, result: dro }
+  - { id: mi, result: mi }
+  - { id: ri, result: ri }
+  - { id: thu, result: thu }
+  - { id: le, result: le }
+  - { id: va, result: va }
+  - { id: ko, result: ko }
+---
+kind: table
+id: syllable-end
+tags: [names, fantasy]
+name: Syllables to end
+description: The last syllable of an _invented name_.
+entries:
+  - { id: dosh, result: dosh }
+  - { id: ra, result: ra }
+  - { id: thel, result: thel }
+  - { id: ix, result: ix }
+  - { id: wen, result: wen }
+  - { id: gar, result: gar }
+  - { id: ys, result: ys }
+  - { id: mund, result: mund }
+  - { id: ela, result: ela }
+  - { id: or, result: or }
+  - { id: ash, result: ash }
+  - { id: iel, result: iel }
+---
+kind: generator
+id: person-modern
+tags: [names, people, modern]
+name: A modern name
+description: |-
+  A given name and a surname for today's world, or the last century's (_Nadia Brennan_).
+fields:
+  given: { table: table.given-modern }
+  family: { table: table.family-modern }
+template: '{{given}} {{family}}'
+---
+kind: table
+id: given-modern
+tags: [names, people, modern]
+name: Modern given names
+description: Given names for today's world.
+entries:
+  - { id: alex, result: Alex }
+  - { id: carmen, result: Carmen }
+  - { id: daniel, result: Daniel }
+  - { id: elena, result: Elena }
+  - { id: frank, result: Frank }
+  - { id: grace, result: Grace }
+  - { id: hugo, result: Hugo }
+  - { id: iris, result: Iris }
+  - { id: jonas, result: Jonas }
+  - { id: lucia, result: Lucía }
+  - { id: marcus, result: Marcus }
+  - { id: nadia, result: Nadia }
+  - { id: omar, result: Omar }
+  - { id: priya, result: Priya }
+  - { id: sam, result: Sam }
+  - { id: yuki, result: Yuki }
+---
+kind: table
+id: family-modern
+tags: [names, people, modern]
+name: Modern surnames
+description: Surnames for today's world.
+entries:
+  - { id: almeida, result: Almeida }
+  - { id: brennan, result: Brennan }
+  - { id: castillo, result: Castillo }
+  - { id: dubois, result: Dubois }
+  - { id: fischer, result: Fischer }
+  - { id: hart, result: Hart }
+  - { id: kowalski, result: Kowalski }
+  - { id: moreno, result: Moreno }
+  - { id: nakamura, result: Nakamura }
+  - { id: okafor, result: Okafor }
+  - { id: reyes, result: Reyes }
+  - { id: walsh, result: Walsh }

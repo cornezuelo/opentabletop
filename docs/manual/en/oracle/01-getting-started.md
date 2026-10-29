@@ -1,6 +1,6 @@
 # Getting started
 
-The Oracle app rolls and edits the random tables of your games: tables, oracles, generators and decks, grouped in **packs**. Everything stays in your browser; to keep a copy or move it to another computer, see [Backups of everything](../technical/05-backups.md).
+The Oracle app rolls and edits the random tables of your games: tables, oracles, generators and decks, grouped in **packs**. Everything stays in your browser; to keep a copy or move it to another computer, see [Backups of everything](../technical/05-backups.md). It comes with three packs: [Core](../packs/01-core.md) (oracles and tables for any game), [The Grey Marches](../packs/02-grey-marches.md) (a setting to play and learn from) and [Names](../packs/03-names.md) (names for people and places).
 
 ## The screen
 

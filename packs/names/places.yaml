@@ -1,0 +1,288 @@
+# Names for places: an oracle to choose what is named, and a generator for each.
+# Tagged with what they name (`settlements`, `inns`, `landmarks`, `ships`, `worlds`) and
+# their setting (`fantasy`, `sci-fi`).
+kind: oracle
+id: place
+tags: [names, settlements, inns, landmarks, ships, worlds, fantasy, sci-fi]
+name: What's it called?
+description: |-
+  A **name for a place**: choose what it is.
+
+  Rolled from the Hexmapper on a hex, a landmark's name fits its terrain when the system calls it `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` or `sea`.
+inputs:
+  what:
+    label: What is it
+    options: [settlement, inn, landmark, ship, world]
+    labels:
+      settlement: A village or town
+      inn: An inn or tavern
+      landmark: A landmark
+      ship: A starship
+      world: A world
+    default: settlement
+variants:
+  settlement:
+    entries: [{ id: settlement, generator: generator.settlement }]
+  inn:
+    entries: [{ id: inn, generator: generator.inn }]
+  landmark:
+    entries: [{ id: landmark, generator: generator.landmark }]
+  ship:
+    entries: [{ id: ship, generator: generator.ship }]
+  world:
+    entries: [{ id: world, generator: generator.world }]
+---
+# A village's name is a made-up word, joined from two parts: like a person's name, it
+# stays as it is in every language.
+kind: generator
+id: settlement
+tags: [names, settlements, fantasy]
+name: A village or town
+description: |-
+  A name for a village, a town or a hamlet, joined from two old words (_Ashford_, _Wolfstead_, _Kingsmere_).
+fields:
+  start: { table: table.settlement-start }
+  end: { table: table.settlement-end }
+template: '{{start}}{{end}}'
+---
+kind: table
+id: settlement-start
+tags: [names, settlements, fantasy]
+name: Settlement names, first half
+description: The first half of _a village or town_'s name.
+entries:
+  - { id: ash, result: Ash }
+  - { id: black, result: Black }
+  - { id: bram, result: Bram }
+  - { id: elder, result: Elder }
+  - { id: frost, result: Frost }
+  - { id: kings, result: Kings }
+  - { id: mill, result: Mill }
+  - { id: ox, result: Ox }
+  - { id: raven, result: Raven }
+  - { id: salt, result: Salt }
+  - { id: stone, result: Stone }
+  - { id: thorn, result: Thorn }
+  - { id: wolf, result: Wolf }
+  - { id: wyn, result: Wyn }
+---
+kind: table
+id: settlement-end
+tags: [names, settlements, fantasy]
+name: Settlement names, second half
+description: The second half of _a village or town_'s name.
+entries:
+  - { id: bridge, result: bridge }
+  - { id: bury, result: bury }
+  - { id: by, result: by }
+  - { id: dale, result: dale }
+  - { id: ford, result: ford }
+  - { id: ham, result: ham }
+  - { id: holt, result: holt }
+  - { id: mere, result: mere }
+  - { id: stead, result: stead }
+  - { id: ton, result: ton }
+  - { id: well, result: well }
+  - { id: wick, result: wick }
+---
+# An inn's name is words, so it's translated. Its sign is written whole with its article,
+# and what follows begins with its own space: a translation can make them agree.
+kind: generator
+id: inn
+tags: [names, inns, fantasy]
+name: An inn or tavern
+description: |-
+  The name over the door: a sign and, half the time, a second one (_The Drowned Rat_, _The Golden Goose and Lantern_).
+fields:
+  sign: { table: table.inn-sign }
+  odds: { roll: 1d6 }
+  and: { table: table.inn-and, when: { odds: { gte: 4 } } }
+template: '{{sign}}{{and}}'
+---
+kind: table
+id: inn-sign
+tags: [names, inns, fantasy]
+name: Inn signs
+description: What's painted on an inn's sign.
+entries:
+  - { id: drowned-rat, result: The Drowned Rat }
+  - { id: golden-goose, result: The Golden Goose }
+  - { id: laughing-fox, result: The Laughing Fox }
+  - { id: black-boar, result: The Black Boar }
+  - { id: three-crowns, result: The Three Crowns }
+  - { id: sleeping-giant, result: The Sleeping Giant }
+  - { id: green-man, result: The Green Man }
+  - { id: broken-wheel, result: The Broken Wheel }
+  - { id: white-hart, result: The White Hart }
+  - { id: lame-horse, result: The Lame Horse }
+  - { id: crooked-key, result: The Crooked Key }
+  - { id: silver-eel, result: The Silver Eel }
+---
+kind: table
+id: inn-and
+tags: [names, inns, fantasy]
+name: Inn signs, the second one
+description: A second thing on the sign, after _and_.
+entries:
+  - { id: lantern, result: ' and Lantern' }
+  - { id: anchor, result: ' and Anchor' }
+  - { id: barrel, result: ' and Barrel' }
+  - { id: crown, result: ' and Crown' }
+  - { id: feather, result: ' and Feather' }
+  - { id: kettle, result: ' and Kettle' }
+  - { id: sword, result: ' and Sword' }
+  - { id: thistle, result: ' and Thistle' }
+---
+# The landmark reads the hex it's rolled on (`hex.terrain`): forests give woods and holts,
+# hills tors and barrows. Anywhere else, or rolled by hand, the generic ones.
+kind: generator
+id: landmark
+tags: [names, landmarks, fantasy]
+name: A landmark
+description: |-
+  A name for a place in the wild: what it is and what it's known for (_The Barrow of the Crows_, _The Fen of Whispers_).
+
+  Rolled on a hex, what it is fits the terrain (if the system calls it `forest`, `hills`, `swamp`…); by hand, anything.
+fields:
+  feature: { table: table.landmark-feature }
+  of: { table: table.landmark-of }
+template: '{{feature}} {{of}}'
+---
+kind: table
+id: landmark-feature
+tags: [names, landmarks, fantasy]
+name: Landmarks
+description: |-
+  What a landmark is. Some only come up on a hex of their terrain: `hex.terrain` of `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` or `sea`.
+entries:
+  - { id: stone, result: The Stone }
+  - { id: cross, result: The Crossing }
+  - { id: barrow, result: The Barrow }
+  - { id: tower, result: The Tower }
+  - { id: well, result: The Well }
+  - { id: wood, result: The Wood, weight: 3, when: { hex.terrain: forest } }
+  - { id: holt, result: The Holt, weight: 3, when: { hex.terrain: forest } }
+  - { id: tor, result: The Tor, weight: 3, when: { hex.terrain: [hills, mountains] } }
+  - { id: peak, result: The Peak, weight: 3, when: { hex.terrain: mountains } }
+  - { id: fen, result: The Fen, weight: 3, when: { hex.terrain: [swamp, marsh] } }
+  - { id: mere, result: The Mere, weight: 3, when: { hex.terrain: [lake, swamp, marsh] } }
+  - { id: cove, result: The Cove, weight: 3, when: { hex.terrain: [coast, sea] } }
+  - { id: rocks, result: The Rocks, weight: 3, when: { hex.terrain: [coast, sea] } }
+---
+kind: table
+id: landmark-of
+tags: [names, landmarks, fantasy]
+name: What a landmark is known for
+description: The second half of _a landmark_'s name, "of" included.
+entries:
+  - { id: crows, result: of the Crows }
+  - { id: king, result: of the Drowned King }
+  - { id: sorrows, result: of Sorrows }
+  - { id: hanged, result: of the Hanged Man }
+  - { id: whispers, result: of Whispers }
+  - { id: saint, result: of the Lost Saint }
+  - { id: bells, result: of Bells }
+  - { id: wolves, result: of the Wolves }
+  - { id: witch, result: of the Old Witch }
+  - { id: ash, result: of Ashes }
+---
+kind: generator
+id: ship
+tags: [names, ships, sci-fi]
+name: A starship
+description: |-
+  A ship's name with its registry: who flies it and what they called it (_ISV Patience_, _the free trader Second Chance_).
+fields:
+  registry: { table: table.ship-registry }
+  name: { table: table.ship-name }
+template: '{{registry}} {{name}}'
+---
+kind: table
+id: ship-registry
+tags: [names, ships, sci-fi]
+name: Ship registries
+description: Who a starship belongs to.
+entries:
+  - { id: isv, result: ISV }
+  - { id: navy, result: the navy cruiser }
+  - { id: trader, result: the free trader }
+  - { id: hauler, result: the ore hauler }
+  - { id: survey, result: the survey ship }
+  - { id: pilgrim, result: the pilgrim ark }
+---
+kind: table
+id: ship-name
+tags: [names, ships, sci-fi]
+name: Ship names
+description: What a starship's crew called her.
+entries:
+  - { id: patience, result: Patience }
+  - { id: chance, result: Second Chance }
+  - { id: errand, result: Fool's Errand }
+  - { id: horizon, result: Far Horizon }
+  - { id: debt, result: Unpaid Debt }
+  - { id: lantern, result: Lantern }
+  - { id: mercy, result: Small Mercy }
+  - { id: reckoning, result: Reckoning }
+  - { id: wanderer, result: Wanderer }
+  - { id: promise, result: Kept Promise }
+---
+# A world's name is invented: two parts and a numeral, all of them the same in every language.
+kind: generator
+id: world
+tags: [names, worlds, sci-fi]
+name: A world
+description: |-
+  A planet's name and its place around its star (_Kessaron IV_, _Vel Ishta II_).
+fields:
+  root: { table: table.world-root }
+  end: { table: table.world-end }
+  place: { table: table.world-numeral }
+template: '{{root}}{{end}} {{place}}'
+---
+kind: table
+id: world-root
+tags: [names, worlds, sci-fi]
+name: World names, first part
+description: The first part of _a world_'s name.
+entries:
+  - { id: kess, result: Kess }
+  - { id: vel, result: Vel Ish }
+  - { id: tor, result: Tor }
+  - { id: ny, result: Ny }
+  - { id: ara, result: Ara }
+  - { id: zeph, result: Zeph }
+  - { id: cor, result: Cor }
+  - { id: hal, result: Hal }
+---
+kind: table
+id: world-end
+tags: [names, worlds, sci-fi]
+name: World names, second part
+description: The second part of _a world_'s name.
+entries:
+  - { id: aron, result: aron }
+  - { id: ta, result: ta }
+  - { id: une, result: une }
+  - { id: dris, result: dris }
+  - { id: ox, result: ox }
+  - { id: elle, result: elle }
+  - { id: ion, result: ion }
+  - { id: ar, result: ar }
+---
+# The numeral is the world's place around its star.
+kind: table
+id: world-numeral
+tags: [names, worlds, sci-fi]
+name: A world's place around its star
+description: Its numeral, from the star outwards.
+roll: 1d8
+entries:
+  - { id: i, range: 1, result: I }
+  - { id: ii, range: 2, result: II }
+  - { id: iii, range: 3, result: III }
+  - { id: iv, range: 4, result: IV }
+  - { id: v, range: 5, result: V }
+  - { id: vi, range: 6, result: VI }
+  - { id: vii, range: 7, result: VII }
+  - { id: viii, range: 8, result: VIII }

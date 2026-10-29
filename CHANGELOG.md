@@ -8,6 +8,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Every app: **Export…** and **Import…** in the app switcher, beside backups: choose what goes, as a tree with ticks (your packs, campaigns with their maps and trips, the roster's characters). What a ticked thing needs and isn't ticked (a pack's dependency, a map's or trip's campaign, the pack of a system or sheet, a trip's characters) is said under **Left out**, with **Add what's missing**; a copy of a personal-use pack is marked. Importing shows the same tree: **New** ticked, **Already here** left alone, **Replaces yours** only if ticked (asked first); nothing else here is removed.
 
+### Packs
+
+- **Names**, a new bundled pack of name generators for any game: **Someone's name** (northern, southern, fair folk, invented from syllables, modern, or any) and **What's it called?** (villages, inns, landmarks that fit their hex's terrain, starships, worlds), each part a generator and tables of its own, tagged `names` and by what they name and their setting for the Oracle's **Filter**; in English and Spanish.
+
 ### Formats
 
 - **Exports** (`opentabletop-export-<date>.zip`, version 1): `opentabletop-export.json`, each pack in `packs/<id>/` (the Oracle's **Import .zip** reads them) and one JSON file per map, campaign, trip and character, each in its own versioned format.

@@ -1,6 +1,6 @@
 # Primeros pasos
 
-La aplicación Oracle tira y edita las tablas aleatorias de tus juegos: tablas, oráculos, generadores y mazos, agrupados en **packs**. Todo se queda en tu navegador; para tener una copia o llevarlo a otro ordenador, ver [Copias de seguridad de todo](../technical/05-backups.md).
+La aplicación Oracle tira y edita las tablas aleatorias de tus juegos: tablas, oráculos, generadores y mazos, agrupados en **packs**. Todo se queda en tu navegador; para tener una copia o llevarlo a otro ordenador, ver [Copias de seguridad de todo](../technical/05-backups.md). Trae tres packs: [Core](../packs/01-core.md) (oráculos y tablas para cualquier partida), [Las Marcas Grises](../packs/02-grey-marches.md) (una ambientación para jugar y aprender) y [Nombres](../packs/03-names.md) (nombres para gente y lugares).
 
 ## La pantalla
 

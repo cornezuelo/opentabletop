@@ -62,6 +62,7 @@ apps/                       # each with its own CLAUDE.md
 packs/                      # open data packs
   core/                     # generic content for any game (oracles, inspiration, scene twists); no travel system
   grey-marches/             # showcase setting: a travel system and tables using every feature, with an example map (maps/)
+  names/                    # name generators for any game (people, villages, inns, landmarks, ships, worlds); no rules
   kal-arath/                # README only (the pack is personal use: see below)
 packs-private/              # (git-ignored) checkout of the private packs repo
 docs/

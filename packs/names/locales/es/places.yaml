@@ -1,0 +1,137 @@
+# Villages' and worlds' names are made-up words and stay as they are. An inn's sign
+# carries its own article, and what follows its own "y el" / "y la", so they agree.
+place:
+  name: ¿Cómo se llama el sitio?
+  description: |-
+    Un **nombre para un lugar**: elige qué es.
+
+    Tirado desde el Hexmapper sobre un hex, el nombre de un paraje encaja con su terreno cuando el sistema lo llama `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` o `sea`.
+  inputs:
+    what:
+      label: Qué es
+      labels:
+        settlement: Un pueblo o una villa
+        inn: Una posada o taberna
+        landmark: Un paraje
+        ship: Una nave estelar
+        world: Un mundo
+settlement:
+  name: Un pueblo o una villa
+  description: |-
+    Un nombre para un pueblo, una villa o una aldea, unido de dos palabras antiguas (_Ashford_, _Wolfstead_, _Kingsmere_).
+settlement-start:
+  name: Nombres de pueblo, primera mitad
+  description: La primera mitad del nombre de _un pueblo o una villa_.
+settlement-end:
+  name: Nombres de pueblo, segunda mitad
+  description: La segunda mitad del nombre de _un pueblo o una villa_.
+inn:
+  name: Una posada o taberna
+  description: |-
+    El nombre sobre la puerta: un letrero y, la mitad de las veces, un segundo (_La Rata Ahogada_, _La Oca de Oro y el Farol_).
+inn-sign:
+  name: Letreros de posada
+  description: Lo que hay pintado en el letrero de una posada.
+  entries:
+    drowned-rat: La Rata Ahogada
+    golden-goose: La Oca de Oro
+    laughing-fox: El Zorro que Ríe
+    black-boar: El Jabalí Negro
+    three-crowns: Las Tres Coronas
+    sleeping-giant: El Gigante Dormido
+    green-man: El Hombre Verde
+    broken-wheel: La Rueda Rota
+    white-hart: El Ciervo Blanco
+    lame-horse: El Caballo Cojo
+    crooked-key: La Llave Torcida
+    silver-eel: La Anguila de Plata
+inn-and:
+  name: Letreros de posada, el segundo
+  description: Una segunda cosa en el letrero, tras la _y_.
+  entries:
+    lantern: ' y el Farol'
+    anchor: ' y el Ancla'
+    barrel: ' y el Barril'
+    crown: ' y la Corona'
+    feather: ' y la Pluma'
+    kettle: ' y el Caldero'
+    sword: ' y la Espada'
+    thistle: ' y el Cardo'
+landmark:
+  name: Un paraje
+  description: |-
+    Un nombre para un lugar en la naturaleza: qué es y por qué se le conoce (_El Túmulo de los Cuervos_, _La Ciénaga de los Susurros_).
+
+    Tirado sobre un hex, qué es encaja con el terreno (si el sistema lo llama `forest`, `hills`, `swamp`…); a mano, cualquiera.
+landmark-feature:
+  name: Parajes
+  description: |-
+    Qué es un paraje. Algunos solo salen en un hex de su terreno: `hex.terrain` de `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` o `sea`.
+  entries:
+    stone: La Piedra
+    cross: El Cruce
+    barrow: El Túmulo
+    tower: La Torre
+    well: El Pozo
+    wood: El Bosque
+    holt: El Soto
+    tor: El Risco
+    peak: El Pico
+    fen: La Ciénaga
+    mere: La Laguna
+    cove: La Cala
+    rocks: Las Rocas
+landmark-of:
+  name: Por qué se conoce un paraje
+  description: La segunda mitad del nombre de _un paraje_, con su «de».
+  entries:
+    crows: de los Cuervos
+    king: del Rey Ahogado
+    sorrows: de los Pesares
+    hanged: del Ahorcado
+    whispers: de los Susurros
+    saint: del Santo Perdido
+    bells: de las Campanas
+    wolves: de los Lobos
+    witch: de la Vieja Bruja
+    ash: de las Cenizas
+ship:
+  name: Una nave estelar
+  description: |-
+    El nombre de una nave con su registro: quién la pilota y cómo la llamaron (_ISV Paciencia_, _el mercante libre Segunda Oportunidad_).
+ship-registry:
+  name: Registros de nave
+  description: De quién es una nave estelar.
+  entries:
+    navy: el crucero de la armada
+    trader: el mercante libre
+    hauler: el carguero de mineral
+    survey: la nave de reconocimiento
+    pilgrim: el arca de peregrinos
+ship-name:
+  name: Nombres de nave
+  description: Cómo llamó su tripulación a una nave estelar.
+  entries:
+    patience: Paciencia
+    chance: Segunda Oportunidad
+    errand: Causa Perdida
+    horizon: Horizonte Lejano
+    debt: Deuda Pendiente
+    lantern: Farol
+    mercy: Pequeña Merced
+    reckoning: Ajuste de Cuentas
+    wanderer: Errante
+    promise: Promesa Cumplida
+world:
+  name: Un mundo
+  description: |-
+    El nombre de un planeta y su lugar alrededor de su estrella (_Kessaron IV_, _Vel Ishta II_).
+world-root:
+  name: Nombres de mundo, primera parte
+  description: La primera parte del nombre de _un mundo_.
+world-end:
+  name: Nombres de mundo, segunda parte
+  description: La segunda parte del nombre de _un mundo_.
+world-numeral:
+  name: El lugar de un mundo alrededor de su estrella
+  description: Su numeral, de la estrella hacia fuera.

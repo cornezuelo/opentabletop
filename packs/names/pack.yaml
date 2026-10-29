@@ -1,0 +1,10 @@
+# Names for people, settlements, inns, landmarks, ships and worlds, for any game.
+# Original content, MIT like the rest of the repo. Only tables, generators and
+# oracles: no rules, so any system can use it, and any pack can depend on it.
+id: names
+name: { en: Names, es: Nombres }
+version: 0.1.0
+# The pack format it is written for (what its syntax means; see the manual: Packs).
+format: 10
+locale: en
+license: MIT

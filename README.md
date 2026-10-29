@@ -64,7 +64,7 @@ packages/   hex, random, dice, conditions, time        building blocks
             ui-kit, pack-ui, oracle-ui, travel-ui,      shared Svelte pieces
             character-ui, manual-ui
 apps/       hexmapper, campaign, oracle, travel, characters, systems, manual, cli
-packs/      core, grey-marches
+packs/      core, grey-marches, names
 docs/       design notes, the manual (docs/manual/<language>/<app>/), the backlog
 ```
 
