@@ -142,6 +142,8 @@ export const en = {
       "Keeps this party in the roster (the Characters app), with this trip's linked characters as its members: what happens to it here is written there, and the next trip can go on with it.",
     open: vocabulary.en.roster.open,
     linked: 'In the roster as {name}',
+    offer:
+      '{name} is in this campaign without a trip. Bring them to this trip, with their members?',
   },
   members: {
     land: 'land',

@@ -1,12 +1,13 @@
 import type { RosterPlace } from '@open-tabletop/session'
-import { appUrl, type AppId } from '@open-tabletop/ui-kit'
+import { appUrl, campaignUrl, type AppId } from '@open-tabletop/ui-kit'
 
 /** A roster character in the Characters app (the trip panel's **Open in Characters**). */
 export const characterUrl = (id: string): string =>
   `${appUrl('characters')}#/character/${encodeURIComponent(id)}`
 
-/** Where a roster character plays: the Hexmapper's map, or Travel's trip. */
+/** Where a roster character plays: the Hexmapper's map, Travel's trip, or its campaign (without a trip). */
 export function placeUrl(place: RosterPlace): string | undefined {
+  if (place.app === 'campaign') return campaignUrl(place.id, 'characters')
   if (place.app === 'hexmapper') return `${appUrl('hexmapper')}#/${encodeURIComponent(place.id)}`
   if (place.app === 'travel') return `${appUrl('travel')}#/trip/${encodeURIComponent(place.id)}`
   return undefined

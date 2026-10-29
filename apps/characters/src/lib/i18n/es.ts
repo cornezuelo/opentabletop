@@ -110,6 +110,13 @@ export const es: Messages<typeof en> = {
     playsAsToken: 'un token en {place}, en {app}',
     inCampaign: 'en la campaña {campaign}',
     untitledCampaign: 'una campaña sin nombre',
+    inCampaignOnly: 'en la campaña {campaign}, sin viaje',
+    campaign: 'En una campaña',
+    campaignHelp:
+      'Una partida rápida: juega en una campaña sin viaje ni token. La pestaña **Personajes** de la campaña lo enseña, la lista de aquí lo encuentra bajo esa campaña, y un viaje nuevo de la campaña ofrece su grupo (un grupo se lleva a sus miembros).\nSigue estando en un solo sitio a la vez: meterlo en una campaña lo saca del viaje o token en el que juega (pregunta antes; ese sitio conserva su copia, ya sin enlazar). Para tener a la misma gente en dos campañas, **Duplícalos**.',
+    noCampaign: 'Ninguna',
+    leaveConfirm:
+      'Esto se los lleva de donde juegan ahora: {list}. ¿Seguir? Esos sitios conservan sus copias, ya sin enlazar con el plantel.',
     openCampaign: vocabulary.es.campaign.open,
     open: 'Abrir',
     duplicate: 'Duplicar',

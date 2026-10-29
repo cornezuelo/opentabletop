@@ -95,14 +95,14 @@ What happened in the world, newest first: events that came due, holidays and moo
 
 **Maps** lists the maps of the Hexmapper (its library in this browser) in the campaign, with their size; **Trips**, Travel's trips (a map's trip plays on its map). Each is a card with **Open ↗** (**Continue ↗** for the trip going on, which says so). A campaign doesn't list them itself: each map and trip names its campaign.
 
-- **New map in this campaign ↗** opens the Hexmapper with a new map already in it, played with its system; **New trip in this campaign ↗** opens Travel with a new trip in it, likewise.
+- **New map in this campaign ↗** opens the Hexmapper with a new map already in it, played with its system; **New trip in this campaign ↗** opens Travel with a new trip in it, likewise; when a party of the system is in the campaign without a trip ([Characters](#characters)), the new trip offers to bring it, with its members.
 - **Add an existing map…** / **Add an existing trip…** lists the others this browser keeps, each with the campaign it's in now (or _a campaign of its own_); **Bring it ↗** opens it in its app and moves it here, as **Map settings → Campaign** or the trip room's **Campaign** does.
 
 If the map or trip brings a world of its own (a world clock, factions, Oracle rolls), its app asks which one stays: **Keep the campaign's** or **Bring this one's**. The campaign it leaves is deleted if nothing else is in it.
 
 ### Characters
 
-The characters of your roster ([Characters](../characters/01-getting-started.md)) playing in the campaign: in its trips' parties, among those present, or on its maps' tokens, each with where it plays and **Open ↗**. A name opens the character in Characters; **Open the roster ↗** opens the app.
+The characters of your roster ([Characters](../characters/01-getting-started.md)) playing in the campaign: in its trips' parties, among those present, on its maps' tokens, or in it **without a trip** (a quick game: **In a campaign** on its page in Characters), each with where it plays and **Open ↗**. A name opens the character in Characters; **Open the roster ↗** opens the app.
 
 The other apps bring you back here with **Open in Campaign ↗**: under **Playing** in every app's bar, the Hexmapper's World panel (above its tabs), Travel's trip room (under **Campaign**), the Oracle (under **Campaign**, when it rolls in one) and a roster character's **Where it plays** in Characters.
 

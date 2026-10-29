@@ -258,4 +258,27 @@ describe('parties in the roster', () => {
     ])
     expect(scouts.playing).toBeUndefined()
   })
+
+  it('puts a party in a campaign without a trip, with its members', async () => {
+    const { campaignPlace, putInCampaign, partyInCampaign, takenFromPlay } =
+      await import('./roster')
+    const quick = campaignPlace('c1', 'A quick game')
+    let r = company()
+    r = {
+      characters: r.characters.map((e) =>
+        e.character.id === 'mara' ? { ...e, playing: trip } : e,
+      ),
+    }
+    // Mara plays in a trip: putting the party in the campaign takes her from it (asked first).
+    expect(takenFromPlay(r, 'the-company').map((e) => e.character.id)).toEqual(['mara'])
+    r = putInCampaign(r, 'the-company', quick, T)
+    for (const id of ['the-company', 'kael', 'mara'])
+      expect(rosterEntry(r, id)?.playing).toEqual(quick)
+    expect(partyInCampaign(r, 'c1', 'band/company')?.character.id).toBe('the-company')
+    expect(partyInCampaign(r, 'c2', 'band/company')).toBeUndefined()
+    // Out of it: in the roster only.
+    r = putInCampaign(r, 'the-company', undefined, T)
+    expect(rosterEntry(r, 'kael')?.playing).toBeUndefined()
+    expect(partyInCampaign(r, 'c1', 'band/company')).toBeUndefined()
+  })
 })

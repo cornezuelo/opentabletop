@@ -95,7 +95,12 @@
     roster.roster.characters.map(({ character, playing: where }) => {
       const found = systems.sheetOf(character.sheet)
       return {
-        campaign: where ? placeCampaign[`${where.app}:${where.id}`] : undefined,
+        campaign:
+          where?.app === 'campaign'
+            ? where.id
+            : where
+              ? placeCampaign[`${where.app}:${where.id}`]
+              : undefined,
         key: character.id,
         name: character.name || character.id,
         tags: character.tags,

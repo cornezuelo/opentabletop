@@ -140,6 +140,7 @@ export const es: Messages<typeof en> = {
       'Guarda este grupo en el plantel (la aplicación Characters), con los personajes enlazados de este viaje como miembros: lo que le pase aquí se escribe allí, y el siguiente viaje puede seguir con él.',
     open: vocabulary.es.roster.open,
     linked: 'En el plantel como {name}',
+    offer: '{name} está en esta campaña sin viaje. ¿Traerlo a este viaje, con sus miembros?',
   },
   members: {
     land: 'tierras',

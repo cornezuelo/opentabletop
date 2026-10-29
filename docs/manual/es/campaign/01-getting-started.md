@@ -95,14 +95,14 @@ Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fi
 
 **Mapas** lista los mapas del Hexmapper (su biblioteca en este navegador) que están en la campaña, con su tamaño; **Viajes**, los viajes de Travel (el viaje de un mapa se juega en su mapa). Cada uno es una tarjeta con **Abrir ↗** (**Seguir ↗** para el viaje en curso, que lo dice). Una campaña no los apunta ella misma: cada mapa y viaje nombra su campaña.
 
-- **Nuevo mapa en esta campaña ↗** abre el Hexmapper con un mapa nuevo ya en ella, jugado con su sistema; **Nuevo viaje en esta campaña ↗** abre Travel con un viaje nuevo en ella, igual.
+- **Nuevo mapa en esta campaña ↗** abre el Hexmapper con un mapa nuevo ya en ella, jugado con su sistema; **Nuevo viaje en esta campaña ↗** abre Travel con un viaje nuevo en ella, igual; cuando hay en la campaña un grupo del sistema sin viaje ([Personajes](#personajes)), el viaje nuevo ofrece traerlo, con sus miembros.
 - **Añadir un mapa existente…** / **Añadir un viaje existente…** lista los demás que guarda este navegador, cada uno con la campaña en la que está ahora (o _una campaña propia_); **Traerlo ↗** lo abre en su aplicación y lo mueve aquí, como hacen **Ajustes del mapa → Campaña** o la **Campaña** de la sala del viaje.
 
 Si el mapa o el viaje trae un mundo propio (un reloj del mundo, facciones, tiradas del Oráculo), su aplicación pregunta cuál se queda: **Mantener el de la campaña** o **Traer el propio**. La campaña que deja se borra si no queda nada más en ella.
 
 ### Personajes
 
-Los personajes de tu plantel ([Characters](../characters/01-getting-started.md)) que juegan en la campaña: en el grupo de sus viajes, entre los presentes o en los tokens de sus mapas, cada uno con dónde juega y **Abrir ↗**. Un nombre abre el personaje en Characters; **Abrir el plantel ↗** abre la aplicación.
+Los personajes de tu plantel ([Characters](../characters/01-getting-started.md)) que juegan en la campaña: en el grupo de sus viajes, entre los presentes, en los tokens de sus mapas o en ella **sin viaje** (una partida rápida: **En una campaña** en su página de Characters), cada uno con dónde juega y **Abrir ↗**. Un nombre abre el personaje en Characters; **Abrir el plantel ↗** abre la aplicación.
 
 Las demás aplicaciones te traen aquí con **Abrir en Campaign ↗**: bajo **Jugando** en la barra de cada aplicación, el panel Mundo del Hexmapper (encima de sus pestañas), la sala del viaje de Travel (bajo **Campaña**), el Oracle (bajo **Campaña**, cuando tira en una) y **Dónde juega** de un personaje del plantel en Characters.
 

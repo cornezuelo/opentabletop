@@ -9,7 +9,8 @@
 
   /**
    * A campaign's cast: the characters of the roster playing in its trips (party members, those
-   * present) and on its maps' tokens, each with where it plays and links to it.
+   * present), on its maps' tokens, or in it without a trip (a quick game), each with where it
+   * plays and links to it.
    */
   let { campaign }: { campaign: Campaign } = $props()
 
@@ -24,7 +25,9 @@
     })
   })
   const isHere = (e: RosterEntry) =>
-    !!e.playing && places.some((p) => p.app === e.playing!.app && p.id === e.playing!.id)
+    !!e.playing &&
+    ((e.playing.app === 'campaign' && e.playing.id === campaign.id) ||
+      places.some((p) => p.app === e.playing!.app && p.id === e.playing!.id))
   const cast = $derived(
     roster.roster.characters
       .filter(isHere)
@@ -43,9 +46,11 @@
         >
         {#if playing}
           <span class="where">
-            {t(playing.token ? 'cast.onToken' : 'cast.onTrip', { place: playing.name })}
+            {playing.app === 'campaign'
+              ? t('cast.noTrip')
+              : t(playing.token ? 'cast.onToken' : 'cast.onTrip', { place: playing.name })}
           </span>
-          {#if url}<a href={url}>{t('places.open')}</a>{/if}
+          {#if url && playing.app !== 'campaign'}<a href={url}>{t('places.open')}</a>{/if}
         {/if}
       </li>
     {/each}

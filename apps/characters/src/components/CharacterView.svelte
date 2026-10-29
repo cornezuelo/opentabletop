@@ -2,8 +2,11 @@
   import { CharacterCard, placeUrl, roster, sheetText } from '@open-tabletop/character-ui'
   import type { CharacterState } from '@open-tabletop/character-engine'
   import {
+    campaignPlace,
     editInRoster,
     partyWith,
+    putInCampaign,
+    takenFromPlay,
     rosterEntry,
     systemName,
     tagsInUse,
@@ -21,6 +24,7 @@
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { placeCampaign } from '@open-tabletop/travel-ui'
+  import { listCampaigns } from '@open-tabletop/storage'
   import { deleteCharacter, duplicateCharacter, exportCharacters } from '../lib/actions'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -88,10 +92,44 @@
 
   const appName = (place: RosterPlace) => APPS.find((a) => a.id === place.app)?.name ?? place.app
   const placeText = (place: RosterPlace) =>
-    t(place.token ? 'character.playsAsToken' : 'character.playsIn', {
-      place: place.name,
-      app: appName(place),
-    })
+    place.app === 'campaign'
+      ? t('character.inCampaignOnly', { campaign: place.name })
+      : t(place.token ? 'character.playsAsToken' : 'character.playsIn', {
+          place: place.name,
+          app: appName(place),
+        })
+
+  /** The campaigns it can be in without a trip (a quick game). */
+  let campaigns = $state<{ id: string; name: string }[]>([])
+  $effect(() => {
+    void listCampaigns()
+      .then((list) => (campaigns = list.map((c) => ({ id: c.id, name: c.name }))))
+      .catch(() => {})
+  })
+  /** Puts it (a party, with its members) in a campaign without a trip, or in none. */
+  async function setCampaign(campaign: string) {
+    const taken = takenFromPlay(roster.roster, id)
+    if (
+      taken.length &&
+      !(await confirmAction(
+        t('character.leaveConfirm', {
+          list: taken
+            .map((e) => `${e.character.name || e.character.id} (${e.playing!.name})`)
+            .join(', '),
+        }),
+      ))
+    )
+      return
+    const found = campaigns.find((c) => c.id === campaign)
+    roster.set(
+      putInCampaign(
+        roster.roster,
+        id,
+        found ? campaignPlace(found.id, found.name || t('character.untitledCampaign')) : undefined,
+        now(),
+      ),
+    )
+  }
 
   /** The campaign the place it plays in is in (read from the map library or Travel's trips). */
   let campaign = $state<{ id: string; name: string }>()
@@ -190,7 +228,7 @@
           {@const url = placeUrl(entry.playing)}
           {placeText(entry.playing)}
           {#if url}<a href={url}>{t('character.open')}</a>{/if}
-          {#if campaign}<br />{t('character.inCampaign', {
+          {#if campaign && entry.playing.app !== 'campaign'}<br />{t('character.inCampaign', {
               campaign: campaign.name || t('character.untitledCampaign'),
             })}
             <a href={campaignUrl(campaign.id)}>{t('character.openCampaign')}</a>{/if}
@@ -198,6 +236,24 @@
           <Markdown class="inline" text={isParty ? t('party.nowhere') : t('character.nowhere')} />
         {/if}
       </dd>
+      {#if campaigns.length}
+        <dt>{t('character.campaign')}<InfoTip markdown={t('character.campaignHelp')} /></dt>
+        <dd>
+          <select
+            value={entry.playing?.app === 'campaign' ? entry.playing.id : ''}
+            onchange={(e) => {
+              const value = e.currentTarget.value
+              e.currentTarget.value = entry.playing?.app === 'campaign' ? entry.playing.id : ''
+              void setCampaign(value)
+            }}
+          >
+            <option value="">{t('character.noCampaign')}</option>
+            {#each campaigns as c (c.id)}
+              <option value={c.id}>{c.name || t('character.untitledCampaign')}</option>
+            {/each}
+          </select>
+        </dd>
+      {/if}
     </dl>
 
     <label class="field">

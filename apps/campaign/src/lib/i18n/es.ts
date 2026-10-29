@@ -151,10 +151,11 @@ export const es: Messages<typeof en> = {
   },
   cast: {
     intro:
-      'Los personajes de tu plantel (la aplicación Characters) que juegan en esta campaña: en el grupo de sus viajes, entre los presentes o en los tokens de sus mapas. Cada uno está en un sitio a la vez.',
+      'Los personajes de tu plantel (la aplicación Characters) que juegan en esta campaña: en el grupo de sus viajes, entre los presentes, en los tokens de sus mapas o en ella sin viaje (una partida rápida: **En una campaña** en su página de Characters; un viaje nuevo de la campaña ofrece su grupo). Cada uno está en un sitio a la vez.',
     none: 'Aún no juega en esta campaña ningún personaje del plantel.',
     onTrip: 'en «{place}»',
     onToken: 'un token en «{place}»',
+    noTrip: 'sin viaje',
     roster: 'Abrir el plantel ↗',
   },
   overview: {

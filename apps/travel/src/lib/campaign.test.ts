@@ -334,4 +334,57 @@ describe('trips in campaigns', () => {
     expect(lines).toContain('SAID wyrm-wakes')
     expect(c.deserializeCampaign(kept.get('grey-marches')!.json).moments).toBeUndefined()
   })
+
+  it('a new trip of a campaign offers the party in it without a trip', async () => {
+    const { campaign: c, dialog, trip, systems } = await openTravel()
+    const session = await import('@open-tabletop/session')
+    const { roster } = await import('@open-tabletop/character-ui')
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    const quick = { ...c.createCampaign('c1', 'A quick game'), system: greyMarches.id }
+    kept.set('c1', {
+      id: 'c1',
+      name: 'A quick game',
+      modified: quick.modified,
+      json: c.serializeCampaign(quick),
+    })
+    // The Company, with Kael, put in the campaign in the Characters app.
+    const rules = session.partyOf(greyMarches)
+    let r = session.keepInRoster(
+      roster.roster,
+      session.newMember(rules, { id: 'kael', name: 'Kael' }),
+      'T0',
+    ).roster
+    r = session.keepPartyInRoster(
+      r,
+      session.newParty(rules, { id: 'x' }),
+      'The Company',
+      ['kael'],
+      'T0',
+    ).roster
+    r = session.putInCampaign(r, 'the-company', session.campaignPlace('c1', 'A quick game'), 'T0')
+    roster.set(r)
+    expect(session.rosterEntry(roster.roster, 'kael')!.playing).toMatchObject({
+      app: 'campaign',
+      id: 'c1',
+    })
+
+    let done = false
+    const creating = Promise.resolve(trip.create(greyMarches.id, 'spring', 'c1')).then(
+      () => (done = true),
+    )
+    const asked: string[] = []
+    for (let i = 0; i < 20 && !done; i++) {
+      await settle()
+      if (dialog.current) {
+        asked.push(dialog.current.message)
+        dialog.current.resolve('ok')
+      }
+    }
+    await creating
+    expect(asked.at(-1)).toMatch(/The Company is in this campaign without a trip/)
+    expect(trip.saved.session!.partyRef).toBe('the-company')
+    expect(trip.saved.session!.members!.map((m) => m.id)).toEqual(['kael'])
+    expect(session.isLinked(roster.roster, 'the-company', trip.place!)).toBe(true)
+    expect(session.isLinked(roster.roster, 'kael', trip.place!)).toBe(true)
+  })
 })

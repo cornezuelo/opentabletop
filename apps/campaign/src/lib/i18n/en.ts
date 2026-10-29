@@ -150,10 +150,11 @@ export const en = {
   },
   cast: {
     intro:
-      'The characters of your roster (the Characters app) playing in this campaign: in its trips’ parties, among those present, or on its maps’ tokens. Each is in one place at a time.',
+      'The characters of your roster (the Characters app) playing in this campaign: in its trips’ parties, among those present, on its maps’ tokens, or in it without a trip (a quick game: **In a campaign** on its page in Characters; a new trip of the campaign offers its party). Each is in one place at a time.',
     none: 'No character of the roster plays in this campaign yet.',
     onTrip: 'in “{place}”',
     onToken: 'a token on “{place}”',
+    noTrip: 'without a trip',
     roster: 'Open the roster ↗',
   },
   overview: {

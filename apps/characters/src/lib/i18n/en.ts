@@ -106,6 +106,13 @@ export const en = {
     playsAsToken: 'a token on {place}, in {app}',
     inCampaign: 'in the campaign {campaign}',
     untitledCampaign: 'an untitled campaign',
+    inCampaignOnly: 'in the campaign {campaign}, without a trip',
+    campaign: 'In a campaign',
+    campaignHelp:
+      'A quick game: it plays in a campaign without a trip or token. The campaign’s **Characters** tab lists it, the list here finds it under that campaign, and a new trip of the campaign offers its party (a party takes its members with it).\nIt’s still in one place at a time: putting it in a campaign takes it out of the trip or token it plays in (asked first; that place keeps its copy, no longer linked). To have the same people in two campaigns, **Duplicate** them.',
+    noCampaign: 'None',
+    leaveConfirm:
+      'This takes from where they play now: {list}. Go on? Those places keep their copies, no longer linked to the roster.',
     openCampaign: vocabulary.en.campaign.open,
     open: 'Open',
     duplicate: 'Duplicate',

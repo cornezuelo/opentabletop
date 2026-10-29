@@ -69,7 +69,8 @@ export async function placeCampaign(place: {
   id: string
 }): Promise<{ id: string; name: string } | undefined> {
   let id: string | undefined
-  if (place.app === 'hexmapper') {
+  if (place.app === 'campaign') id = place.id
+  else if (place.app === 'hexmapper') {
     const entry = await getLibraryMap(place.id).catch(() => null)
     id = entry ? campaignOfMap(entry.json)?.campaign : undefined
   } else if (place.app === 'travel') {

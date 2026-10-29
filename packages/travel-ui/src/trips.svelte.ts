@@ -7,6 +7,8 @@ import {
   migrateTotals,
   missingSystem,
   leavePlace,
+  bringParty,
+  partyInCampaign,
   partyOf,
   pullMembers,
   SEASON_START_DAYS,
@@ -403,6 +405,34 @@ export class TripStore {
     return opening.then(async () => {
       await this.chooseSystem(system)
       this.start(system, season)
+      await this.offerParty()
+    })
+  }
+
+  /**
+   * A new trip of a campaign offers the party in it without a trip (a quick game), if one
+   * of the system's party sheet is: it comes with its members.
+   */
+  private async offerParty(): Promise<void> {
+    const place = this.place
+    const sheet = this.system.partySheet
+    if (!place || !sheet || !this.saved.session) return
+    const party = partyInCampaign(roster.roster, this.saved.campaign, sheet.id)
+    if (!party) return
+    const t = translator(this.options.locale)
+    const name = party.character.name || party.character.id
+    if (!(await confirmAction(t('partySheet.offer', { name }), { danger: false }))) return
+    this.edit((s) => {
+      const brought = bringParty(
+        roster.roster,
+        s,
+        party.character.id,
+        place,
+        partyOf(this.system),
+        now(),
+      )
+      roster.set(brought.roster)
+      return brought.session
     })
   }
 

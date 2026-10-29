@@ -28,9 +28,9 @@ export interface RosterEntry {
   members?: string[]
 }
 
-/** A trip or token a roster character plays in. */
+/** A trip or token a roster character plays in, or a campaign it's in without a trip. */
 export interface RosterPlace {
-  /** The app that keeps it (`hexmapper`, `travel`). */
+  /** The app that keeps it (`hexmapper`, `travel`; `campaign`: in a campaign, without a trip). */
   app: string
   /** The map's or trip's id. */
   id: string
@@ -41,6 +41,68 @@ export interface RosterPlace {
 }
 
 export const emptyRoster = (): Roster => ({ characters: [] })
+
+/**
+ * A campaign as a place (a quick game: in it without a trip or token, docs/campaigns.md §11):
+ * its cast has them, and a new trip of it offers its party.
+ */
+export const campaignPlace = (id: string, name: string): RosterPlace => ({
+  app: 'campaign',
+  id,
+  name,
+})
+
+/**
+ * Puts a roster character in a campaign without a trip (`place`), or takes it out (none); a
+ * party takes its members with it. Each leaves where it played (the host asks first: that
+ * place keeps its copy, no longer linked). The ids of those that were playing elsewhere
+ * come back too, to say so.
+ */
+export function putInCampaign(
+  roster: Roster,
+  id: string,
+  place: RosterPlace | undefined,
+  now: string,
+): Roster {
+  const entry = rosterEntry(roster, id)
+  if (!entry) return roster
+  let next = roster
+  for (const who of [id, ...(entry.members ?? [])]) {
+    const e = rosterEntry(next, who)
+    if (!e) continue
+    if (place) next = takeFromRoster(next, who, place, now)?.roster ?? next
+    else if (e.playing?.app === 'campaign') {
+      const rest = { ...e, modified: now }
+      delete rest.playing
+      next = replace(next, who, rest)
+    }
+  }
+  return next
+}
+
+/** Who a party or character's putting somewhere would take from a trip or token (the host asks first). */
+export const takenFromPlay = (roster: Roster, id: string): RosterEntry[] => {
+  const entry = rosterEntry(roster, id)
+  if (!entry) return []
+  return [id, ...(entry.members ?? [])].flatMap((who) => {
+    const e = rosterEntry(roster, who)
+    return e?.playing && e.playing.app !== 'campaign' ? [e] : []
+  })
+}
+
+/** The roster party in a campaign without a trip, of a sheet, if any (what a new trip of it offers). */
+export const partyInCampaign = (
+  roster: Roster,
+  campaign: string,
+  sheet: string,
+): RosterEntry | undefined =>
+  roster.characters.find(
+    (e) =>
+      e.members &&
+      e.character.sheet === sheet &&
+      e.playing?.app === 'campaign' &&
+      e.playing.id === campaign,
+  )
 
 export const samePlace = (a: RosterPlace | undefined, b: RosterPlace): boolean =>
   !!a && a.app === b.app && a.id === b.id && (a.token ?? '') === (b.token ?? '')
