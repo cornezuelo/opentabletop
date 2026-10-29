@@ -77,7 +77,7 @@
   }
 </script>
 
-<h1>{t('bestiary.title')}<InfoTip markdown={t('bestiary.help')} /></h1>
+<h1 class="page-title">{t('bestiary.title')}<InfoTip markdown={t('bestiary.help')} /></h1>
 {#if systems.list.length}
   <div class="bar">
     <label>
@@ -157,9 +157,7 @@
 
 <style>
   h1 {
-    margin: 0 0 12px;
-    font-family: Georgia, serif;
-    font-weight: normal;
+    margin-bottom: 12px;
   }
 
   .bar {

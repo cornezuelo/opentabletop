@@ -45,7 +45,7 @@
     <header>
       <div class="title">
         <KindBadge kind={def.kind} full />
-        <h1>{displayName(def)}</h1>
+        <h1 class="page-title">{displayName(def)}</h1>
         <button
           class="star"
           class:on={favorites.has(def.id)}
@@ -130,13 +130,6 @@
     display: flex;
     gap: 10px;
     align-items: center;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 24px;
-    font-weight: normal;
   }
 
   .meta {

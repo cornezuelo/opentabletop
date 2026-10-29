@@ -150,3 +150,11 @@ button.link {
   border: none;
   cursor: pointer;
 }
+
+/* The title of a view (a character, a system, a pack, a definition…). */
+.page-title {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: normal;
+}

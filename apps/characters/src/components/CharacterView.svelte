@@ -84,7 +84,7 @@
 {#if entry && character}
   <article class="character">
     <header>
-      <h1>{label}</h1>
+      <h1 class="page-title">{label}</h1>
       <div class="buttons">
         <button use:tooltip={t('character.duplicateTip')} onclick={duplicate}
           >{t('character.duplicate')}</button
@@ -178,12 +178,6 @@
     gap: 8px 16px;
     align-items: center;
     justify-content: space-between;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-weight: normal;
   }
 
   .buttons {

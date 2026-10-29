@@ -83,7 +83,7 @@
 {#if system}
   <article class="system">
     <header>
-      <h1>{systemName(system, getLocale())}</h1>
+      <h1 class="page-title">{systemName(system, getLocale())}</h1>
       <a class="play" href={`${appUrl('travel')}#/system/${encodeURIComponent(id)}/play`}
         >{t('edit.playInTravel')}</a
       >
@@ -142,13 +142,6 @@
     gap: 12px;
     height: 100%;
     min-height: 0;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 24px;
-    font-weight: normal;
   }
 
   /* Wraps instead of pushing the view wider than its column (the help column open). */

@@ -126,7 +126,7 @@
 {#if pack}
   <article class="pack">
     <header>
-      <h1>{manifest.name ?? root}</h1>
+      <h1 class="page-title">{manifest.name ?? root}</h1>
       <div class="meta">
         <code>{manifest.id ?? root}</code>
         {#if manifest.version}<span>{t('pack.version')} {manifest.version}</span>{/if}
@@ -255,13 +255,6 @@
     flex-direction: column;
     gap: 18px;
     max-width: 900px;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 26px;
-    font-weight: normal;
   }
 
   h2 {

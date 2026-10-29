@@ -22,7 +22,7 @@
 {#if system}
   <article class="system">
     <header>
-      <h1>{systemName(system, getLocale())}</h1>
+      <h1 class="page-title">{systemName(system, getLocale())}</h1>
       <a class="edit" href={`${appUrl('systems')}#/system/${encodeURIComponent(id)}/rules`}
         >{t('nav.editInSystems')}</a
       >
@@ -58,13 +58,6 @@
     flex-wrap: wrap;
     gap: 4px 16px;
     align-items: baseline;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 24px;
-    font-weight: normal;
   }
 
   .edit {
