@@ -4,9 +4,14 @@ The Characters app keeps your **roster**: the characters this browser keeps, of 
 
 ## The screen
 
-- **Header**: the app switcher (nine dots), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the characters list and the help column away, and bring them back.
-- **Characters** (left): **New character**, **Import…**, a search box, and the roster grouped by system (the system whose sheet each one is made with: its characters', or another of its sheets, such as a beast's for a copy of a template; **Other sheets** for those whose system isn't loaded). Under the list, **Bestiary** opens the system's templates ([below](#the-bestiary)) and **Make or edit systems** opens the Systems app.
-- **The character** (center): the one chosen in the list.
+- **Header**: the app switcher (nine dots), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the lists and the help column away, and bring them back.
+- **The lists** (left), two tabs alike:
+  - **Characters**: **New character**, **Import…** and the roster.
+  - **Bestiary**: **New template** and the templates of every system's bestiaries ([below](#the-bestiary)).
+
+  Each is grouped by system, and within a system by the sheet each entry is made with when it has more than one (in the Grey Marches, _Companion_ and _Foe_): a character or template is listed with the system whose sheet it is, its characters' or another of its sheets (a beast's, for a copy of a template); **Other sheets** gathers those whose system isn't loaded. A search box finds them by name, id or tag, and under it the tags they have, as pills: choose some to see only those with every tag chosen (`npc`, or `npc` and `bandit`); **×** shows them all again. A system tells its player characters from its NPCs by their sheets and by the tags you give them. At the bottom, **Make or edit systems** opens the Systems app.
+
+- **The character** or **the template** (center): the one chosen in the list.
 
 Labels underlined with dots have an explanation: click one and the help column opens on it.
 
@@ -27,11 +32,11 @@ Labels underlined with dots have an explanation: click one and the help column o
 
 ## The bestiary
 
-**Bestiary** (under the list) shows the creatures and kinds of people a system can make, as **templates**: each a character of one of the system's sheets whose rolls (`{{2d4}}`) are made again for every copy ([Bestiary](../systems/18-bestiary.md)). Pick the system, search by name, id or tag, and pick a template:
+The **Bestiary** tab lists the creatures and kinds of people your systems can make, as **templates**: each a character of one of the system's sheets whose rolls (`{{2d4}}`) are made again for every copy ([Bestiary](../systems/18-bestiary.md)). Pick one in the list (a variant has the tags of the template it's like, so in the Grey Marches filtering by `pack` finds the pack leader too):
 
 - **Make copies in the roster** makes that many independent characters, named after the template and numbered (_Grey wolf 1_, _2_…), each with its own rolls and remembering the template it came from (**Made from**). They're listed with their system, and edited like any character. Handy to keep track of specific wolves without a trip.
 - Its card shows what the template says: **Values** (a number or a roll; empty takes the sheet's default, shown faint), **Conditions**, **Tags**, **Items** from the system's catalogues, the one it is a **Variant of**, the generator its **Names** come from, what becomes of copies **Left behind** and its **Token**.
-- A template in a bundled pack is read-only: **Edit a copy of the pack** makes a pack of your own (it overrides the bundled one) where it can be changed. Changes are saved as you make them and only affect copies made afterwards. Its name and description are written in the language the app is in: in the template itself when it's the pack's own language, otherwise in the pack's translation ([Translating](../technical/01-translating.md)). **New template** and **Delete the template** work in a pack of your own.
+- A template in a bundled pack is read-only: **Edit a copy of the pack** makes a pack of your own (it overrides the bundled one) where it can be changed. Changes are saved as you make them and only affect copies made afterwards. Its name and description are written in the language the app is in: in the template itself when it's the pack's own language, otherwise in the pack's translation ([Translating](../technical/01-translating.md)). **Delete the template** works in a pack of your own. **New template** asks for the system and a name, and adds it to that system's bestiary in a pack of yours; only systems with one are listed (to add to a bundled bestiary, press **Edit a copy of the pack** on one of its templates first).
 
 ## On trips
 

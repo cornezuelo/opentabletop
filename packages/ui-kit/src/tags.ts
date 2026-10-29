@@ -19,6 +19,11 @@ export function addTags(
   return out
 }
 
+/** Whether an entry has every tag chosen in a list's filter (`TagFilter`); true when none is. */
+export function hasTags(tags: readonly string[] | undefined, chosen: readonly string[]): boolean {
+  return chosen.every((t) => tags?.includes(t))
+}
+
 export interface TagGroup {
   /** What the names in it start with (`time`), or '' for names without a dot. */
   group: string

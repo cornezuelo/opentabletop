@@ -138,8 +138,8 @@
       {#if madeFrom}
         <dt>{t('character.madeFrom')}<InfoTip markdown={t('character.madeFromHelp')} /></dt>
         <dd>
-          {madeFrom.name}{#if madeFrom.bestiaryName}
-            {' '}({madeFrom.bestiaryName})
+          {#if madeFrom.bestiaryName}
+            {`${madeFrom.name} (${madeFrom.bestiaryName})`}
             <a
               href="#/bestiary"
               onclick={(e) => {
@@ -147,7 +147,7 @@
                 go({ name: 'bestiary', bestiary: madeFrom.from, template: madeFrom.id })
               }}>{t('character.openTemplate')}</a
             >{:else}
-            <code>{madeFrom.from}</code>{/if}
+            {madeFrom.name} <code>{madeFrom.from}</code>{/if}
         </dd>
       {/if}
       <dt>{t('character.id')}<InfoTip markdown={t('character.idHelp', { id })} /></dt>

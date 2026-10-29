@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Characters: the left column has two tabs, **Characters** and **Bestiary**, alike: grouped by system, then by sheet when a system has several (companions and foes), with a search and a **filter by tag** (a variant has its template's tags); the Bestiary's own system picker and list are gone, and **New template** asks for the system and a name. `TagFilter` (ui-kit) is the shared filter.
+
 ### Fixes
 
 - Characters: a copy of a template on a sheet of its own (a Grey Marches wolf) is listed with its system and edited like any character, instead of under **Other sheets**, read-only; its view says what it was **Made from**, with a link to the template in the Bestiary.

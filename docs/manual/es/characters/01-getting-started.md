@@ -4,9 +4,14 @@ La aplicación Characters guarda tu **plantel**: los personajes que guarda este 
 
 ## La pantalla
 
-- **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañitas de los bordes de la columna central (‹ ›) pliegan la lista de personajes y la columna de ayuda, y las vuelven a sacar.
-- **Personajes** (izquierda): **Nuevo personaje**, **Importar…**, un buscador y el plantel agrupado por sistema (el sistema con cuya hoja está hecho cada uno: la de sus personajes u otra de sus hojas, como la de una bestia para una copia de una plantilla; **Otras hojas** para aquellos cuyo sistema no está cargado). Bajo la lista, **Bestiario** abre las plantillas del sistema ([más abajo](#el-bestiario)) y **Crear o editar sistemas** abre la aplicación Systems.
-- **El personaje** (centro): el que elijas en la lista.
+- **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañitas de los bordes de la columna central (‹ ›) pliegan las listas y la columna de ayuda, y las vuelven a sacar.
+- **Las listas** (izquierda), dos pestañas iguales:
+  - **Personajes**: **Nuevo personaje**, **Importar…** y el plantel.
+  - **Bestiario**: **Nueva plantilla** y las plantillas de los bestiarios de todos los sistemas ([más abajo](#el-bestiario)).
+
+  Cada una se agrupa por sistema y, dentro de un sistema, por la hoja con la que está hecha cada entrada cuando hay más de una (en las Marcas Grises, _Compañero_ y _Enemigo_): un personaje o una plantilla sale con el sistema de su hoja, la de sus personajes u otra de sus hojas (la de una bestia, en una copia de una plantilla); **Otras hojas** reúne aquellos cuyo sistema no está cargado. Un buscador los encuentra por nombre, id o etiqueta, y debajo salen las etiquetas que tienen: elige algunas para ver solo los que tengan todas las elegidas (`npc`, o `npc` y `bandit`); **×** vuelve a mostrarlos todos. Un sistema distingue a sus personajes jugadores de sus PNJ por sus hojas y por las etiquetas que les pongas. Abajo, **Crear o editar sistemas** abre la aplicación Systems.
+
+- **El personaje** o **la plantilla** (centro): el que elijas en la lista.
 
 Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y la columna de ayuda se abre en ella.
 
@@ -27,11 +32,11 @@ Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y l
 
 ## El bestiario
 
-**Bestiario** (bajo la lista) muestra las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una de las hojas del sistema cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia ([Bestiario](../systems/18-bestiary.md)). Elige el sistema, busca por nombre, id o etiqueta y elige una plantilla:
+La pestaña **Bestiario** lista las criaturas y clases de gente que tus sistemas pueden crear, como **plantillas**: cada una un personaje de una de las hojas del sistema cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia ([Bestiario](../systems/18-bestiary.md)). Elige una en la lista (una variante tiene las etiquetas de la plantilla de la que es variante, así que en las Marcas Grises filtrar por `pack` también encuentra al jefe de la manada):
 
 - **Hacer copias en el plantel** crea ese número de personajes independientes, con el nombre de la plantilla y numerados (_Lobo gris 1_, _2_…), cada uno con sus propias tiradas y recordando la plantilla de la que viene (**Hecho a partir de**). Salen con su sistema y se editan como cualquier personaje. Útil para llevar la cuenta de lobos concretos sin un viaje.
 - Su ficha muestra lo que dice la plantilla: **Valores** (un número o una tirada; vacío toma el valor por defecto de la hoja, en gris), **Condiciones**, **Etiquetas**, **Objetos** de los catálogos del sistema, la plantilla de la que es **Variante**, el generador de donde salen sus **Nombres**, qué pasa con las copias **Al dejarlas atrás** y su **Ficha**.
-- Una plantilla de un pack incluido es de solo lectura: **Editar una copia del pack** crea un pack tuyo (que sustituye al incluido) donde se puede cambiar. Los cambios se guardan según los haces y solo afectan a las copias que se hagan después. Su nombre y su descripción se escriben en el idioma de la aplicación: en la propia plantilla si es el idioma del pack, y si no, en la traducción del pack ([Traducir](../technical/01-translating.md)). **Nueva plantilla** y **Borrar la plantilla** funcionan en un pack tuyo.
+- Una plantilla de un pack incluido es de solo lectura: **Editar una copia del pack** crea un pack tuyo (que sustituye al incluido) donde se puede cambiar. Los cambios se guardan según los haces y solo afectan a las copias que se hagan después. Su nombre y su descripción se escriben en el idioma de la aplicación: en la propia plantilla si es el idioma del pack, y si no, en la traducción del pack ([Traducir](../technical/01-translating.md)). **Borrar la plantilla** funciona en un pack tuyo. **Nueva plantilla** pide el sistema y un nombre, y la añade al bestiario de ese sistema en un pack tuyo; solo salen los sistemas que tienen uno (para añadir a un bestiario incluido, pulsa antes **Editar una copia del pack** en una de sus plantillas).
 
 ## De viaje
 

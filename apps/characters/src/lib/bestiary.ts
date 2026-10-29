@@ -1,4 +1,9 @@
-import type { Sheet, SheetText, TemplateDef } from '@open-tabletop/character-engine'
+import {
+  resolveTemplate,
+  type Sheet,
+  type SheetText,
+  type TemplateDef,
+} from '@open-tabletop/character-engine'
 import { sheetText, idName, roster } from '@open-tabletop/character-ui'
 import { overlayTexts } from '@open-tabletop/pack-ui'
 import { manifestOf } from '@open-tabletop/pack-ui/packs'
@@ -19,6 +24,10 @@ export interface TemplateEntry {
   id: string
   def: TemplateDef
   name: string
+  /** Its tags, with those of the template it's a variant of. */
+  tags: string[]
+  /** The sheet it's made with (`pack/id`, absent when not found) and that sheet. */
+  sheetId?: string
   sheet?: Sheet
   /** The other templates of its bestiary, for **Variant of**. */
   others: string[]
@@ -32,6 +41,8 @@ export function templatesOf(system: TravelSystem, locale: string): TemplateEntry
       id,
       def,
       name: sheetText(def.name, locale) ?? idName(id),
+      tags: resolveTemplate(b.def, id)?.tags ?? def.tags ?? [],
+      sheetId: b.sheets[id],
       sheet: system.templateSheets?.[b.sheets[id] ?? ''],
       others: Object.keys(b.def.templates).filter((x) => x !== id),
     })),
@@ -154,4 +165,21 @@ export function makeCopies(
     ids.push(id)
   }
   return ids
+}
+
+/** The bestiaries of a system in packs of the user's, where new templates can go. */
+export function ownBestiaries(system: TravelSystem): string[] {
+  return (system.bestiary ?? []).map((b) => b.id).filter(canEdit)
+}
+
+/** Adds a template named `name` to a bestiary of the user's; its id, or undefined if it can't. */
+export function addTemplate(
+  system: TravelSystem,
+  bestiary: string,
+  name: string,
+): string | undefined {
+  const b = system.bestiary?.find((x) => x.id === bestiary)
+  if (!b) return undefined
+  const id = freeTemplateId(Object.keys(b.def.templates), characterId(name, []) || 'creature')
+  return saveTemplate(bestiary, id, { name }) ? id : undefined
 }

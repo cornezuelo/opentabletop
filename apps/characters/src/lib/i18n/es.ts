@@ -7,8 +7,8 @@ export const es: Messages<typeof en> = {
     tagline: 'Tus personajes, de cualquier sistema.',
   },
   nav: {
-    showSidebar: 'Mostrar la lista de personajes',
-    hideSidebar: 'Ocultar la lista de personajes (más espacio)',
+    showSidebar: 'Mostrar las listas',
+    hideSidebar: 'Ocultar las listas (más espacio)',
     showHelp: 'Mostrar la ayuda',
     hideHelp: 'Ocultar la ayuda (más espacio)',
     help: 'Ayuda y manual',
@@ -22,6 +22,11 @@ export const es: Messages<typeof en> = {
     empty: 'Aún no hay personajes.',
     noMatch: 'Ningún personaje coincide.',
     bestiary: 'Bestiario',
+    lists: 'Personajes o plantillas',
+    newTemplate: 'Nueva plantilla',
+    noTemplates: 'Ningún sistema tiene bestiario.',
+    tags: 'Filtrar por etiqueta',
+    clearTags: 'Mostrar todos, tengan las etiquetas que tengan',
     makeSystems: 'Crear o editar sistemas →',
   },
   welcome: {
@@ -37,12 +42,21 @@ export const es: Messages<typeof en> = {
     cantMake: 'No se pueden hacer estas copias: la plantilla no tiene hoja.',
     readOnly: 'Esta plantilla está en el pack incluido «{pack}», que es de solo lectura.',
     editCopy: 'Editar una copia del pack',
-    add: 'Nueva plantilla',
-    newName: 'Nueva criatura',
     delete: 'Borrar la plantilla',
     confirmDelete: '¿Borrar la plantilla «{name}»? Las copias ya hechas conservan lo que tienen.',
-    none: 'Este sistema no tiene bestiario. Crea uno en la app Systems (su pestaña **Bestiario**).',
+    none: 'Aún no hay ningún sistema con bestiario. Crea uno en la aplicación Systems (su pestaña **Bestiario**).',
+    intro:
+      'Las criaturas y clases de gente que tus sistemas pueden crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. Elige una en **Bestiario**, a la izquierda, por sistema y hoja; búscala, o fíltrala por sus etiquetas. De una plantilla se hacen copias en el plantel, y las tablas y los efectos las hacen en un viaje (`present.<id>: 3`).',
+    notFound:
+      'Esta plantilla no está en ningún bestiario cargado: puede que se quitara su pack o se borrara la plantilla.',
     noSheet: 'No se encuentra su hoja, así que no se puede mostrar.',
+  },
+  newTemplate: {
+    title: 'Nueva plantilla',
+    systemHelp:
+      'El sistema en cuyo bestiario va. Solo salen los sistemas con un bestiario en un pack tuyo: para añadir a uno incluido, abre una de sus plantillas y pulsa antes **Editar una copia del pack**.',
+    namePlaceholder: 'Oso de las cavernas',
+    none: 'Aún no hay ningún sistema con un bestiario en un pack tuyo. Abre una plantilla del bestiario al que quieras añadir y pulsa **Editar una copia del pack**, o crea un bestiario en la aplicación Systems (su pestaña **Bestiario**).',
   },
   new: {
     title: 'Nuevo personaje',

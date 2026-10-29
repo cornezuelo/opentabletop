@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addTags, tagChoices } from './tags'
+import { addTags, hasTags, tagChoices } from './tags'
 
 describe('addTags', () => {
   it('splits on commas, trims and keeps each word once', () => {
@@ -35,5 +35,14 @@ describe('tagChoices', () => {
       'morning',
       'xmorning',
     ])
+  })
+})
+
+describe('hasTags', () => {
+  it('keeps an entry with every tag chosen, and every entry when none is', () => {
+    expect(hasTags(['npc', 'bandit'], ['npc'])).toBe(true)
+    expect(hasTags(['npc', 'bandit'], ['npc', 'pc'])).toBe(false)
+    expect(hasTags(undefined, [])).toBe(true)
+    expect(hasTags(undefined, ['npc'])).toBe(false)
   })
 })

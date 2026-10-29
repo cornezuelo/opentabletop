@@ -22,6 +22,22 @@ describe('the bestiary in Characters', () => {
     expect(wolf.sheet).toBeDefined()
     expect(wolf.others).toContain('pack-leader')
     expect(wolf.def.values?.health).toBeDefined()
+    expect(wolf.sheetId).toBe('grey-marches/foe')
+    // A variant has the tags of the template it's like, for the filter by tag.
+    const leader = templatesOf(marches, 'en').find((e) => e.id === 'pack-leader')!
+    expect(leader.tags).toEqual(expect.arrayContaining(['beast', 'pack', 'leader']))
+  })
+
+  it('adds a template only to a bestiary of the user’s', async () => {
+    const { library, systems, ownBestiaries, addTemplate, templatesOf } = await open()
+    const marches = () => systems.list.find((s) => s.id === 'grey-marches')!
+    expect(ownBestiaries(marches())).toEqual([])
+    library.editCopy('grey-marches')
+    const [own] = ownBestiaries(marches())
+    expect(own).toBe('grey-marches/marches')
+    expect(addTemplate(marches(), own, 'Cave bear')).toBe('cave-bear')
+    expect(addTemplate(marches(), own, 'Cave bear')).toBe('cave-bear-2')
+    expect(templatesOf(marches(), 'en').find((e) => e.id === 'cave-bear')?.name).toBe('Cave bear')
   })
 
   it('makes independent copies in the roster, numbered, keeping where they come from', async () => {
