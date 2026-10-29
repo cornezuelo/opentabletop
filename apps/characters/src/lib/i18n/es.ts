@@ -35,13 +35,23 @@ export const es: Messages<typeof en> = {
   },
   bestiary: {
     title: 'Bestiario',
-    help: 'Las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. **Hacer copias** mete ese número de personajes independientes en el plantel. Las tablas y los efectos las hacen en un viaje (`present.<id>: 3`). Una plantilla de un pack incluido es de solo lectura: **Editar una copia** crea un pack tuyo donde cambiarla; lo que cambies solo afecta a las copias que se hagan después.',
+    help: 'Las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. **Crear un personaje** mete uno en el plantel, con nombre del generador de la plantilla si tiene uno (un PNJ que vuelve); **Crear copias** mete varios (una pelea en la mesa). Las tablas y los efectos las hacen en un viaje (`present.<id>: 3`). Una plantilla de un pack incluido es de solo lectura: **Editar una copia** crea un pack tuyo donde cambiarla; lo que cambies solo afecta a las copias que se hagan después.',
+    inRoster: 'En el plantel',
+    inRosterHelp:
+      'Personajes hechos a partir de esta plantilla, guardados en el plantel como cualquier otro: cada uno con sus propias tiradas (sus valores se tiran de nuevo para cada uno), sus etiquetas y lo que lleva, y recordando la plantilla de la que viene (**Hecho a partir de**).\n• **Crear un personaje** — uno, con nombre de los **Nombres de** de la plantilla si tiene (Hrolf, un bandido que vuelve), y se abre para editarlo\n• **Crear copias** — ese número de una vez (cuatro lobos para la pelea de esta noche), con nombre igual o numerados (_Lobo gris 1_, _2_…)\nDebajo sale cuántos hay en el plantel, con **Borrarlos todos** para quitarlos cuando acabe el encuentro.',
+    makeOne: 'Crear un personaje',
+    or: 'o',
+    makeMany: 'Crear copias',
+    copies: '{count} hechos a partir de ella en el plantel.',
+    clear: 'Borrarlos todos',
+    confirmClear: '¿Borrar del plantel los {count} personajes hechos a partir de «{name}»?',
+    confirmClearPlaying:
+      '¿Borrar del plantel los {count} personajes hechos a partir de «{name}»? {playing} juegan en algún sitio: sus viajes o tokens conservan su propia copia, ya sin enlazar.',
+    cleared: 'Borrados {count} × {name} del plantel.',
     count: 'Cuántas',
-    make: 'Hacer copias en el plantel',
     made: 'Hechas {count} × {name}.',
     cantMake: 'No se pueden hacer estas copias: la plantilla no tiene hoja.',
     readOnly: 'Esta plantilla está en el pack incluido «{pack}», que es de solo lectura.',
-    editCopy: 'Editar una copia del pack',
     delete: 'Borrar la plantilla',
     confirmDelete: '¿Borrar la plantilla «{name}»? Las copias ya hechas conservan lo que tienen.',
     none: 'Aún no hay ningún sistema con bestiario. Crea uno en la aplicación Systems (su pestaña **Bestiario**).',
@@ -54,9 +64,9 @@ export const es: Messages<typeof en> = {
   newTemplate: {
     title: 'Nueva plantilla',
     systemHelp:
-      'El sistema en cuyo bestiario va. Solo salen los sistemas con un bestiario en un pack tuyo: para añadir a uno incluido, abre una de sus plantillas y pulsa antes **Editar una copia del pack**.',
+      'El sistema en cuyo bestiario va. Solo salen los sistemas con un bestiario en un pack tuyo: para añadir a uno incluido, abre una de sus plantillas y pulsa antes **Editar una copia**.',
     namePlaceholder: 'Oso de las cavernas',
-    none: 'Aún no hay ningún sistema con un bestiario en un pack tuyo. Abre una plantilla del bestiario al que quieras añadir y pulsa **Editar una copia del pack**, o crea un bestiario en la aplicación Systems (su pestaña **Bestiario**).',
+    none: 'Aún no hay ningún sistema con un bestiario en un pack tuyo. Abre una plantilla del bestiario al que quieras añadir y pulsa **Editar una copia**, o crea un bestiario en la aplicación Systems (su pestaña **Bestiario**).',
   },
   new: {
     title: 'Nuevo personaje',

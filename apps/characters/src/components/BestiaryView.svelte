@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { TemplateEditor } from '@open-tabletop/character-ui'
+  import { sheetText, TemplateEditor } from '@open-tabletop/character-ui'
   import { systemName } from '@open-tabletop/session'
   import type { TemplateDef } from '@open-tabletop/character-engine'
+  import { PackNotice } from '@open-tabletop/pack-ui'
   import { confirmAction, InfoTip, Markdown, showToast } from '@open-tabletop/ui-kit'
   import {
     bestiarySource,
     canEdit,
+    copiesOf,
+    deleteCopies,
     deleteTemplate,
     makeCopies,
     saveTemplate,
@@ -17,9 +20,9 @@
 
   /**
    * A template of a system's bestiary (picked in the left column's **Bestiary**): a character
-   * of a sheet whose rolls are made again for every copy. Make copies as roster characters,
-   * and, in a pack of the user's, change it (a bundled pack is copied first). With no
-   * template given, what the bestiary is.
+   * of a sheet whose rolls are made again for every copy. Make one character of it, or many
+   * copies, in the roster, and clear them away; in a pack of the user's, change it (a bundled
+   * pack is copied first). With no template given, what the bestiary is.
    */
   let { bestiary, template }: { bestiary?: string; template?: string } = $props()
 
@@ -28,19 +31,17 @@
     system &&
       templatesOf(system, getLocale()).find((e) => e.bestiary === bestiary && e.id === template),
   )
+  const source = $derived(entry && bestiarySource(entry.bestiary))
   const editable = $derived(!!entry && canEdit(entry.bestiary))
   const itemIds = $derived([
     ...new Set((system?.items ?? []).flatMap((c) => Object.keys(c.def.items))),
   ])
+  const copies = $derived(entry ? copiesOf(entry) : [])
   const any = $derived(systems.list.some((s) => s.bestiary?.length))
-  let count = $state(1)
+  let count = $state(3)
 
   function change(next: TemplateDef) {
     if (entry) saveTemplate(entry.bestiary, entry.id, next, entry.def, getLocale())
-  }
-  function copyPack() {
-    const source = entry && bestiarySource(entry.bestiary)
-    if (source) library.editCopy(source.root)
   }
   async function remove() {
     if (!entry) return
@@ -54,33 +55,69 @@
     deleteTemplate(entry.bestiary, entry.id)
     go({ name: 'bestiary' }, true)
   }
-  function make() {
+  function make(how: number) {
     if (!system || !entry) return
-    const ids = makeCopies(system, entry.id, entry.name, Math.max(1, Math.floor(count) || 1))
+    const ids = makeCopies(system, entry, Math.max(1, Math.floor(how) || 1), getLocale())
     if (!ids.length) return showToast(t('bestiary.cantMake'), 'error')
+    if (ids.length === 1) return go({ name: 'character', id: ids[0] })
     showToast(t('bestiary.made', { count: ids.length, name: entry.name }))
-    if (ids.length === 1) go({ name: 'character', id: ids[0] })
+  }
+  async function clear() {
+    if (!entry) return
+    const playing = copies.filter((e) => e.playing).length
+    const question = t(playing ? 'bestiary.confirmClearPlaying' : 'bestiary.confirmClear', {
+      count: copies.length,
+      name: entry.name,
+      playing,
+    })
+    if (!(await confirmAction(question, { confirm: t('bestiary.clear'), danger: true }))) return
+    showToast(t('bestiary.cleared', { count: deleteCopies(entry), name: entry.name }))
   }
 </script>
 
 {#if entry && system}
   <section class="detail">
-    <h1 class="page-title">
-      {entry.name}<InfoTip markdown={t('bestiary.help')} />
-    </h1>
+    <h1 class="page-title">{entry.name}<InfoTip markdown={t('bestiary.help')} /></h1>
     <p class="where">
-      {systemName(system, getLocale())} · <code>present.{entry.id}</code>
+      {systemName(system, getLocale())} · {entry.sheet
+        ? (sheetText(entry.sheet.name, getLocale()) ?? entry.sheetId)
+        : entry.sheetId} · <code>present.{entry.id}</code>
     </p>
-    <div class="make">
-      <label>
-        <span>{t('bestiary.count')}</span>
-        <input type="number" min="1" bind:value={count} />
-      </label>
-      <button class="primary" onclick={make} disabled={!entry.sheet}>{t('bestiary.make')}</button>
+
+    <div class="roster">
+      <span class="label"
+        >{t('bestiary.inRoster')}<InfoTip markdown={t('bestiary.inRosterHelp')} /></span
+      >
+      <div class="make">
+        <button class="primary" onclick={() => make(1)} disabled={!entry.sheet}
+          >{t('bestiary.makeOne')}</button
+        >
+        <span class="or">{t('bestiary.or')}</span>
+        <input
+          type="number"
+          min="2"
+          aria-label={t('bestiary.count')}
+          bind:value={count}
+          disabled={!entry.sheet}
+        />
+        <button onclick={() => make(count)} disabled={!entry.sheet}>{t('bestiary.makeMany')}</button
+        >
+      </div>
+      {#if copies.length}
+        <p class="copies">
+          {t('bestiary.copies', { count: copies.length })}
+          <button class="danger" onclick={clear}>{t('bestiary.clear')}</button>
+        </p>
+      {/if}
     </div>
-    {#if !editable}
-      <p class="help">{t('bestiary.readOnly', { pack: entry.bestiary.split('/')[0] })}</p>
-      <button class="start" onclick={copyPack}>{t('bestiary.editCopy')}</button>
+
+    {#if source}
+      <PackNotice
+        {library}
+        root={source.root}
+        locale={getLocale()}
+        texts={{ readOnly: t('bestiary.readOnly', { pack: source.root }) }}
+      />
     {/if}
     {#if entry.sheet}
       {#key `${entry.bestiary}:${entry.id}:${editable}`}
@@ -126,28 +163,48 @@
     color: var(--text-muted);
   }
 
-  .make {
-    display: flex;
-    gap: 10px;
-    align-items: end;
-  }
-
-  .make label {
+  .roster {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
+  }
+
+  .label {
     font-size: 12px;
     color: var(--text-muted);
   }
 
-  .make input {
-    width: 70px;
+  .make {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
   }
 
+  .make input {
+    width: 60px;
+  }
+
+  .or,
+  .copies,
   .help {
     margin: 0;
     font-size: 13px;
     color: var(--text-muted);
+  }
+
+  .copies button {
+    margin-left: 6px;
+    padding: 0;
+    font-size: 13px;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .danger {
+    color: var(--danger, #d9534f);
   }
 
   .start {

@@ -17,8 +17,11 @@ const written = z.union([z.number(), z.string().min(1)])
 export const BEHIND = ['stay', 'leave'] as const
 export type Behind = (typeof BEHIND)[number]
 
-/** The token kinds a template may be drawn as on a map. */
-const TOKEN_KINDS = ['pc', 'npc', 'enemy'] as const
+/**
+ * The token kinds a template may be drawn as on a map: the map's own kinds of token (how
+ * it's drawn: its default colours and icon), not a game's, so not a system's to declare.
+ */
+export const TEMPLATE_TOKEN_KINDS = ['pc', 'npc', 'enemy'] as const
 
 const template = z
   .object({
@@ -40,7 +43,7 @@ const template = z
     token: z
       .object({
         icon: z.string().min(1).optional(),
-        kind: z.enum(TOKEN_KINDS).optional(),
+        kind: z.enum(TEMPLATE_TOKEN_KINDS).optional(),
         color: z.string().min(1).optional(),
       })
       .strict()

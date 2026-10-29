@@ -1,4 +1,4 @@
-import type { Messages } from '@open-tabletop/ui-kit'
+import { vocabulary, type Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
 export const es: Messages<typeof en> = {
@@ -89,6 +89,7 @@ export const es: Messages<typeof en> = {
     tokenHelp: 'Cómo se dibuja una copia en un mapa. Todo opcional.',
     tokenIcon: 'Icono',
     tokenKind: 'Tipo',
+    tokenKinds: vocabulary.es.tokenKinds,
     tokenColor: 'Color',
   },
   origin: {

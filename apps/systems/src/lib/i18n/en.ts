@@ -944,15 +944,12 @@ export const en = {
   },
   edit: {
     readOnly: 'This system comes bundled and is read-only.',
-    personalCopy: 'Your copy stays in this browser and is personal use only.',
     editedCopy:
       'Your edited copy of a bundled system: it replaces the bundled one in this browser.',
-    revert: 'Revert to bundled',
     updatedTip:
       'The bundled version of this system changed since you made your copy: open it to take or keep each change.',
     confirmRevert:
       'Discard your changes to this system and go back to the bundled version? (↶ undoes it.)',
-    makeCopy: 'Edit a copy',
     dependency:
       'From {pack}, a pack this system brings along: read-only here, since every system that brings it shares it. To change it for this system, make your own in the system’s pack.',
     builtIn:

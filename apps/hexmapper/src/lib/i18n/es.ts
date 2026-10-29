@@ -489,7 +489,7 @@ export const es: Messages = {
       'Los tokens nuevos son copias de una plantilla del bestiario del sistema (y de los que añaden los packs de su campaña): su aspecto, su nombre y una hoja con sus valores tirados para cada uno, como un perfil. Son del mapa, como cualquier token que coloques: un guardia en un puente, una guarida. Las tablas que se tiran con uno seleccionado leen su hoja (`token.values.health`).\nLas copias que hacen los resultados de un viaje son otra cosa: los presentes, dibujados en Jugar a partir del viaje y nunca guardados en el mapa.',
     noTemplate: 'Ninguna (un token sin más)',
     kind: 'Tipo',
-    kinds: { party: 'Grupo', pc: 'PJ', npc: 'PNJ', enemy: 'Enemigo' },
+    kinds: vocabulary.es.tokenKinds,
     kindsPlural: {
       party: 'Grupo',
       pc: 'Personajes jugadores',

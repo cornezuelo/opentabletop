@@ -1,4 +1,15 @@
 export const en = {
+  notice: {
+    readOnly: 'This pack comes bundled and is read-only.',
+    personalCopy: 'Your copy stays in this browser and is personal use only.',
+    makeCopy: 'Edit a copy',
+    makeCopyHelp:
+      'A bundled pack can’t change, but a copy of it can: **Edit a copy** makes the whole pack yours, in this browser, and your copy replaces the bundled one everywhere (every app, every map and trip that uses it). **Revert to bundled** throws your copy away and goes back to the bundled one; when a new version brings changes to the bundled pack, you choose which to take.',
+    editedCopy: 'Your edited copy of a bundled pack: it replaces the bundled one in this browser.',
+    revert: 'Revert to bundled',
+    confirmRevert:
+      'Discard your changes to this pack and go back to the bundled version? (↶ undoes it.)',
+  },
   updates: {
     title: 'The bundled version of this pack has changed since you made your copy.',
     versions: 'Bundled: {bundled} · your copy: {mine}.',

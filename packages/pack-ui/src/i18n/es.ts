@@ -2,6 +2,17 @@ import type { Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
 export const es: Messages<typeof en> = {
+  notice: {
+    readOnly: 'Este pack viene incluido y es de solo lectura.',
+    personalCopy: 'Tu copia se queda en este navegador y es solo para uso personal.',
+    makeCopy: 'Editar una copia',
+    makeCopyHelp:
+      'Un pack incluido no se puede cambiar, pero una copia suya sí: **Editar una copia** hace tuyo el pack entero, en este navegador, y tu copia sustituye a la incluida en todas partes (todas las aplicaciones, todos los mapas y viajes que lo usan). **Volver a la versión incluida** tira tu copia y vuelve a la incluida; cuando una versión nueva trae cambios al pack incluido, eliges cuáles coger.',
+    editedCopy: 'Tu copia editada de un pack incluido: sustituye al incluido en este navegador.',
+    revert: 'Volver a la versión incluida',
+    confirmRevert:
+      '¿Descartar tus cambios en este pack y volver a la versión incluida? (↶ lo deshace).',
+  },
   updates: {
     title: 'La versión incluida de este pack ha cambiado desde que hiciste tu copia.',
     versions: 'Incluida: {bundled} · tu copia: {mine}.',

@@ -955,14 +955,11 @@ export const es: Messages<typeof en> = {
   },
   edit: {
     readOnly: 'Este sistema viene incluido y es de solo lectura.',
-    personalCopy: 'Tu copia se queda en este navegador y es solo para uso personal.',
     editedCopy: 'Tu copia editada de un sistema incluido: sustituye al incluido en este navegador.',
-    revert: 'Volver a la versión incluida',
     updatedTip:
       'La versión incluida de este sistema ha cambiado desde que hiciste tu copia: ábrelo para coger o conservar cada cambio.',
     confirmRevert:
       '¿Descartar tus cambios en este sistema y volver a la versión incluida? (↶ lo deshace.)',
-    makeCopy: 'Editar una copia',
     dependency:
       'De {pack}, un pack que trae este sistema: aquí es de solo lectura, porque lo comparten todos los sistemas que lo traen. Para cambiarlo en este sistema, haz el tuyo en el pack del sistema.',
     builtIn:

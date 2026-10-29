@@ -12,6 +12,8 @@ async function open() {
   return { roster, library, systems, ...bestiary }
 }
 
+const wolf = { bestiary: 'grey-marches/marches', id: 'grey-wolf', name: 'Grey wolf' }
+
 describe('the bestiary in Characters', () => {
   beforeEach(() => localStorage.clear())
 
@@ -43,7 +45,7 @@ describe('the bestiary in Characters', () => {
   it('makes independent copies in the roster, numbered, keeping where they come from', async () => {
     const { roster, systems, makeCopies } = await open()
     const marches = systems.list.find((s) => s.id === 'grey-marches')!
-    const ids = makeCopies(marches, 'grey-wolf', 'Grey wolf', 3)
+    const ids = makeCopies(marches, wolf, 3)
     expect(ids).toHaveLength(3)
     expect(new Set(ids).size).toBe(3)
     const made = roster.roster.characters.map((e) => e.character)
@@ -51,13 +53,28 @@ describe('the bestiary in Characters', () => {
     expect(made.every((c) => c.template?.id === 'grey-wolf')).toBe(true)
   })
 
+  it('names copies by the template’s generator, and finds and deletes a template’s copies', async () => {
+    const { roster, systems, makeCopies, copiesOf, deleteCopies } = await open()
+    const marches = systems.list.find((s) => s.id === 'grey-marches')!
+    const bandit = { bestiary: 'grey-marches/marches', id: 'bandit', name: 'Bandit' }
+    const [hrolf] = makeCopies(marches, bandit, 1)
+    const named = roster.roster.characters.find((e) => e.character.id === hrolf)!.character
+    expect(named.name).not.toMatch(/^Bandit/)
+    expect(named.template).toEqual({ id: 'bandit', from: 'grey-marches/marches' })
+    makeCopies(marches, wolf, 2)
+    expect(copiesOf(wolf)).toHaveLength(2)
+    expect(copiesOf(bandit)).toHaveLength(1)
+    expect(deleteCopies(wolf)).toBe(2)
+    expect(roster.roster.characters.map((e) => e.character.id)).toEqual([hrolf])
+  })
+
   it('finds a copy on a sheet of its own with its system, to edit it like any character', async () => {
     const { roster, systems, makeCopies } = await open()
     const marches = systems.list.find((s) => s.id === 'grey-marches')!
-    const [id] = makeCopies(marches, 'grey-wolf', 'Grey wolf', 1)
-    const wolf = roster.roster.characters.find((e) => e.character.id === id)!.character
-    expect(wolf.sheet).not.toBe(marches.sheet.id)
-    const found = systems.sheetOf(wolf.sheet)!
+    const [id] = makeCopies(marches, wolf, 1)
+    const copy = roster.roster.characters.find((e) => e.character.id === id)!.character
+    expect(copy.sheet).not.toBe(marches.sheet.id)
+    const found = systems.sheetOf(copy.sheet)!
     expect(found.system.id).toBe('grey-marches')
     expect(found.def.values.health).toBeDefined()
     expect(systems.ofSheet(marches.sheet.id)?.id).toBe('grey-marches')

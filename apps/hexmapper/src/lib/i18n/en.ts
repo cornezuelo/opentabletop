@@ -484,7 +484,7 @@ export const en = {
       "New tokens are copies of a template of the system's bestiary (and of those its campaign's packs add): its look, its name and a sheet with its values rolled for each one, like a statblock. They're the map's, as any token you place: a guard at a bridge, a lair. Tables rolled with one selected read its sheet (`token.values.health`).\nThe copies a trip's results make are something else: those present, drawn in Play from the trip and never kept in the map.",
     noTemplate: 'None (a plain token)',
     kind: 'Kind',
-    kinds: { party: 'Party', pc: 'PC', npc: 'NPC', enemy: 'Enemy' },
+    kinds: vocabulary.en.tokenKinds,
     kindsPlural: {
       party: 'Party',
       pc: 'Player characters',

@@ -1,3 +1,5 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
+
 export const en = {
   name: 'Name',
   values: 'Values',
@@ -85,6 +87,7 @@ export const en = {
     tokenHelp: 'How a copy is drawn on a map. All optional.',
     tokenIcon: 'Icon',
     tokenKind: 'Kind',
+    tokenKinds: vocabulary.en.tokenKinds,
     tokenColor: 'Colour',
   },
   origin: {

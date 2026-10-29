@@ -75,8 +75,6 @@ export const en = {
   tabs: { roll: 'Roll', edit: 'Edit' },
   edit: {
     readOnly: 'This pack is bundled and read-only.',
-    personalCopy: 'Your copy stays in this browser and is personal use only.',
-    makeCopy: 'Edit a copy',
     duplicate: 'Duplicate as a new pack',
     duplicateHelp:
       'Other packs depend on this one, so it can’t be replaced by a copy: make a new pack of yours from it, with its own id, and change that one.',

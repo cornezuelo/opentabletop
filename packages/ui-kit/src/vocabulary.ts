@@ -79,6 +79,8 @@ export const vocabulary = {
     },
     /** The kinds of definition that can be rolled. */
     kinds: { table: 'Table', oracle: 'Oracle', generator: 'Generator', deck: 'Deck' },
+    /** How a token is drawn on a map (its kind decides its default colours and icon). */
+    tokenKinds: { party: 'Party', pc: 'PC', npc: 'NPC', enemy: 'Enemy' },
     pathKinds: {
       road: 'Road',
       trail: 'Trail',
@@ -196,6 +198,7 @@ export const vocabulary = {
       stay: 'se queda',
     },
     kinds: { table: 'Tabla', oracle: 'Oráculo', generator: 'Generador', deck: 'Mazo' },
+    tokenKinds: { party: 'Grupo', pc: 'PJ', npc: 'PNJ', enemy: 'Enemigo' },
     pathKinds: {
       road: 'Camino',
       trail: 'Sendero',

@@ -15,12 +15,13 @@ src/
     terrains.ts       # terrain and edge names (the Hexmapper palette, suggested in the rules)
     maps.ts           # a system's example maps (`maps:`, OTD bundles in its pack): read, added, named
     systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
-    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|factions|clocks|world|calendar|weather|land|modes|try|yaml>
+    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|factions|clocks|world|calendar|weather|land|modes|try|yaml>
+    tabs.ts           # a system's tabs, each once and in order (systemTabs)
     trial.svelte.ts   # the Try it tab's trips (travel-ui TripStore, `opentabletop.systems.trips`)
     steps.ts          # a step's kind, changing it, a new kind's value, the step in words (StepCard's title)
     usage.ts          # where a system's names are used (session's index of uses): Used by, Find a name; each place's name and link and the list are oracle-ui's (`shownPlace`, `UsesList`), shared with the Oracle's Rolled by
     i18n/             # typed en/es dictionaries
-  components/         # Sidebar (systems, new system), SystemView (tabs), Overview (the kind: system form), YamlTab (the parts' files), TryTab (a test trip), ReadOnly (edit a copy / revert);
+  components/         # Sidebar (systems, new system), SystemView (tabs), Overview (the kind: system form), YamlTab (the parts' files), TryTab (a test trip), ReadOnly (pack-ui's PackNotice worded for a system: edit a copy / revert);
                       # forms/: RulesForm (+ values of the day), ActionsForm (actions, conditions as rows), StepCard (a step as a card),
                       # ChecksForm (checks + bindings + stats, stats from the characters, carried supplies), RecordRows;
                       # parts/: the sheet, item catalogues, factions, clocks, world rules (WorldForm, WorldSteps), calendar, weather, land and roll modes forms (PartsTab);

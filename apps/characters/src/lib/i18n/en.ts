@@ -33,13 +33,23 @@ export const en = {
   },
   bestiary: {
     title: 'Bestiary',
-    help: 'The creatures and kinds of people a system can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. **Make copies** puts that many independent characters in the roster. Tables and effects make them in a trip (`present.<id>: 3`). A template in a bundled pack is read-only: **Edit a copy** makes a pack of your own to change it in; what you change affects only the copies made afterwards.',
+    help: 'The creatures and kinds of people a system can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. **Make a character** puts one in the roster, named by the template’s generator if it has one (a recurring NPC); **Make copies** puts several (a fight at the table). Tables and effects make them in a trip (`present.<id>: 3`). A template in a bundled pack is read-only: **Edit a copy** makes a pack of your own to change it in; what you change affects only the copies made afterwards.',
+    inRoster: 'In the roster',
+    inRosterHelp:
+      'Characters made from this template, kept in the roster like any other: each with its own rolls (its values rolled again for each), its tags and what it carries, and remembering the template it came from (**Made from**).\n• **Make a character** — one, named by the template’s **Names from** if it has one (Hrolf, a bandit who comes back), and opened to edit\n• **Make copies** — that many at once (four wolves for tonight’s fight), named the same way or numbered (_Grey wolf 1_, _2_…)\nHow many are in the roster shows below, with **Delete them all** to clear them away when the encounter is over.',
+    makeOne: 'Make a character',
+    or: 'or',
+    makeMany: 'Make copies',
+    copies: '{count} made from it in the roster.',
+    clear: 'Delete them all',
+    confirmClear: 'Delete the {count} characters made from “{name}” from the roster?',
+    confirmClearPlaying:
+      'Delete the {count} characters made from “{name}” from the roster? {playing} of them play somewhere: their trips or tokens keep their own copy, no longer linked.',
+    cleared: 'Deleted {count} × {name} from the roster.',
     count: 'How many',
-    make: 'Make copies in the roster',
     made: 'Made {count} × {name}.',
     cantMake: 'These copies can’t be made: the template has no sheet.',
     readOnly: 'This template is in the bundled pack “{pack}”, which is read-only.',
-    editCopy: 'Edit a copy of the pack',
     delete: 'Delete the template',
     confirmDelete: 'Delete the template “{name}”? Copies already made keep what they have.',
     none: 'No system has a bestiary yet. Make one in the Systems app (its **Bestiary** tab).',
@@ -52,9 +62,9 @@ export const en = {
   newTemplate: {
     title: 'New template',
     systemHelp:
-      'The system whose bestiary it goes in. Only systems with a bestiary in a pack of your own are listed: to add to a bundled one, open one of its templates and press **Edit a copy of the pack** first.',
+      'The system whose bestiary it goes in. Only systems with a bestiary in a pack of your own are listed: to add to a bundled one, open one of its templates and press **Edit a copy** first.',
     namePlaceholder: 'Cave bear',
-    none: 'No system has a bestiary in a pack of your own yet. Open a template of the bestiary you want to add to and press **Edit a copy of the pack**, or make a bestiary in the Systems app (its **Bestiary** tab).',
+    none: 'No system has a bestiary in a pack of your own yet. Open a template of the bestiary you want to add to and press **Edit a copy**, or make a bestiary in the Systems app (its **Bestiary** tab).',
   },
   new: {
     title: 'New character',

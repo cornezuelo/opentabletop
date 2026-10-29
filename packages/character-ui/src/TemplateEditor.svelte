@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { isMadeOf, type Sheet, type TemplateDef } from '@open-tabletop/character-engine'
+  import {
+    isMadeOf,
+    TEMPLATE_TOKEN_KINDS,
+    type Sheet,
+    type TemplateDef,
+  } from '@open-tabletop/character-engine'
   import { InfoTip, SuggestInput, TagInput } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
@@ -263,7 +268,9 @@
         onchange={(e) => setToken('kind', e.currentTarget.value)}
       >
         <option value="">—</option>
-        {#each ['pc', 'npc', 'enemy'] as k (k)}<option value={k}>{k}</option>{/each}
+        {#each TEMPLATE_TOKEN_KINDS as k (k)}<option value={k}
+            >{t(`template.tokenKinds.${k}`)}</option
+          >{/each}
       </select>
     </label>
     <label>

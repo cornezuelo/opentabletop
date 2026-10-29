@@ -77,8 +77,6 @@ export const es: Messages<typeof en> = {
   tabs: { roll: 'Tirar', edit: 'Editar' },
   edit: {
     readOnly: 'Este pack viene incluido y es de solo lectura.',
-    personalCopy: 'Tu copia se queda en este navegador y es solo para uso personal.',
-    makeCopy: 'Editar una copia',
     duplicate: 'Duplicar como pack nuevo',
     duplicateHelp:
       'Otros packs dependen de este, así que no puede sustituirlo una copia: haz un pack tuyo nuevo a partir de él, con su propio id, y cambia ese.',
