@@ -168,3 +168,10 @@ The user approved Claude's recommendations ("me parece bien en general"), with *
 - **f.** A user's bestiary reaches a system through the packs a map or campaign adds.
 - **g.** Systems gets a **Bestiary** tab too, sharing the Characters app's form.
 - **h.** Places from results (`kind: places`, `hex.pois.<template>`) are the last phase.
+
+Phase 4, decided with the user (2026-10-29), Claude's recommendations:
+
+- **i.** Built now, small: POIs on hexes from a `kind: places` catalogue; point 7 reuses the catalogue for rooms and pieces.
+- **j.** A place made in play is written into the map, as discovery writes terrain and POIs today, editable like any POI, with **Made from** its template.
+- **k.** Discovery's contents keep making a plain POI from their text; an entry may name a template instead (`effects: { hex.pois.shrine: 1 }`) for its icon, fields and tags. The Grey Marches' ruins and shrines move to templates.
+- **l.** A trip without a map (Travel) only notes the place in the journal; point 7 gives such trips places of their own.

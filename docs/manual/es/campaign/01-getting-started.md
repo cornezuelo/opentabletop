@@ -11,8 +11,11 @@ Una campaña guarda solo aquello con lo que juegan las reglas. Su historia, sus 
 La barra de cada aplicación dice en qué campaña juegas, junto al selector de aplicaciones: **Jugando: The Grey Marches ▾** (o **Sin campaña ▾**). Es la misma en todas las aplicaciones, y **sigue a lo que abres**: abrir un mapa en el Hexmapper o un viaje en curso en Travel hace de su campaña la que juegas, y abrir una campaña aquí también, así que la campaña que se muestra es siempre la que tienes delante. Haz clic en ella para:
 
 - **Abrir en Campaign ↗**: la campaña, aquí.
-- Las demás campañas que guarda este navegador. En el Oracle y en Characters, elegir una hace que juegues en ella desde entonces (**No jugar en ninguna campaña** no juega en ninguna, para quien solo quiere una tirada o llevar personajes); donde hay un mapa, un viaje o una campaña abiertos, se abren aquí, porque para jugar en otra abres uno de sus mapas o viajes.
 - **Campaña nueva ↗**: [una campaña nueva](#una-campaña-nueva) aquí.
+- **No jugar en ninguna campaña** (en el Oracle y en Characters): no juega en ninguna, para quien solo quiere una tirada o llevar personajes.
+- Las demás campañas que guarda este navegador. En el Oracle y en Characters, elegir una hace que juegues en ella desde entonces; donde hay un mapa, un viaje o una campaña abiertos, se abren aquí, porque para jugar en otra abres uno de sus mapas o viajes.
+
+Una campaña que se borra (aquí, o con su último mapa en el Hexmapper) deja de jugarse: la barra dice **Sin campaña**. Una que aún no tiene nombre sale como **Campaña sin nombre**.
 
 Cada aplicación la usa: Campaign la abre; el Hexmapper abre un mapa suyo al empezar (el último abierto, si está en ella; si no, el más reciente) y agrupa su biblioteca por campaña, esta primero; Travel abre su último viaje y agrupa los viajes por campaña; Characters muestra los personajes que juegan en ella, con **Todas las campañas** y **Sin campaña** a un clic; y el Oracle tira en ella ([Tirar en una campaña](../oracle/02-rolling.md#tirar-en-una-campaña)). Es una preferencia de este navegador, guardada con tus demás preferencias en las copias.
 

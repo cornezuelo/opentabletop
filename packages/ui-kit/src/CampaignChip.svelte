@@ -20,6 +20,7 @@
       none: 'No campaign',
       label: 'The campaign you’re playing',
       open: vocabulary.en.campaign.open,
+      untitled: vocabulary.en.campaign.untitled,
       switchTo: 'Play in another',
       noneHelp: 'Play in no campaign',
       openOther: 'To play in another, open one of its maps or trips:',
@@ -30,6 +31,7 @@
       none: 'Sin campaña',
       label: 'La campaña en la que juegas',
       open: vocabulary.es.campaign.open,
+      untitled: vocabulary.es.campaign.untitled,
       switchTo: 'Jugar en otra',
       noneHelp: 'No jugar en ninguna campaña',
       openOther: 'Para jugar en otra, abre uno de sus mapas o viajes:',
@@ -51,21 +53,24 @@
       .then(
         (list) =>
           (campaigns = list
-            .map((c) => ({ id: c.id, name: c.name || c.id }))
+            .map((c) => ({ id: c.id, name: c.name || text.untitled }))
             .sort((a, b) => a.name.localeCompare(b.name, locale))),
       )
       .catch(() => {})
   })
 
   const id = $derived(held ?? playing.id)
-  const name = $derived(campaigns.find((c) => c.id === id)?.name ?? id)
+  const name = $derived(campaigns.find((c) => c.id === id)?.name ?? text.untitled)
   const others = $derived(campaigns.filter((c) => c.id !== id))
 </script>
 
 <div class="chip" class:none={!id}>
   <MoreMenu label={text.label} align="left">
     {#snippet button()}{id ? text.playing.replace('{name}', name ?? '') : text.none} ▾{/snippet}
+    <!-- What every app offers first, alike: then the other campaigns. -->
     {#if id}<a href={campaignUrl(id)}>{text.open}</a>{/if}
+    <a href={newCampaignUrl()}>{text.start}</a>
+    {#if id && !held}<button onclick={() => playIn(undefined)}>{text.noneHelp}</button>{/if}
     {#if others.length}
       <span class="heading">{held ? text.openOther : text.switchTo}</span>
       {#each others as c (c.id)}
@@ -76,8 +81,6 @@
         {/if}
       {/each}
     {/if}
-    {#if id && !held}<button onclick={() => playIn(undefined)}>{text.noneHelp}</button>{/if}
-    <a href={newCampaignUrl()}>{text.start}</a>
   </MoreMenu>
 </div>
 

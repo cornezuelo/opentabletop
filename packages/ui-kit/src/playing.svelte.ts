@@ -1,3 +1,4 @@
+import { getCampaign, onAnyCampaignChange } from '@open-tabletop/storage'
 import { CURRENT_CAMPAIGN_KEY, readCurrentCampaign, rememberCampaign } from './currentCampaign'
 
 /**
@@ -39,3 +40,26 @@ if (typeof window !== 'undefined')
     const id = readCurrentCampaign()
     if (id !== playing.id) changed(id)
   })
+
+type Kept = Pick<typeof import('@open-tabletop/storage'), 'getCampaign' | 'onAnyCampaignChange'>
+
+/**
+ * A campaign that isn't kept any more (deleted here or in another app, or gone with the last
+ * map of it) is played no more: **No campaign**, never a campaign nobody can open. Checked
+ * now and on every change of the campaigns; returns a stop.
+ */
+export function forgetGoneCampaigns(kept: Kept = { getCampaign, onAnyCampaignChange }): () => void {
+  const check = async () => {
+    const id = playing.id
+    if (id === undefined) return
+    const entry = await kept.getCampaign(id).catch(() => undefined)
+    if (entry === null && playing.id === id) playIn(undefined)
+  }
+  void check()
+  return kept.onAnyCampaignChange((change) => {
+    if (change.type === 'delete' && change.id === playing.id) playIn(undefined)
+    else if (change.type === 'many') void check()
+  })
+}
+
+if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') forgetGoneCampaigns()

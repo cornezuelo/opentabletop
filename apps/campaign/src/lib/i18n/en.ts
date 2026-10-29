@@ -18,7 +18,7 @@ export const en = {
     newCampaign: 'New campaign',
     empty: 'No campaigns yet.',
     noMatch: 'No campaign matches.',
-    untitled: 'Untitled campaign',
+    untitled: vocabulary.en.campaign.untitled,
     makeSystems: 'Make or edit systems →',
   },
   new: {
@@ -90,12 +90,6 @@ export const en = {
     noSystem: 'The campaign’s system declares no factions.',
     missing:
       'These factions came from “{system}”, a system not loaded in this browser: their sheets are kept, but can’t be shown or take turns until it is.',
-    territory: campaignTexts.en.factions.territory,
-    territoryOne: campaignTexts.en.factions.territoryOne,
-    turn: campaignTexts.en.factions.turn,
-    turnHelp: campaignTexts.en.factions.turnHelp,
-    auto: campaignTexts.en.factions.auto,
-    autoHelp: campaignTexts.en.factions.autoHelp,
     remove: 'Take the factions out of the campaign',
     confirmRemove:
       'Take the factions out of this campaign? Their sheets are forgotten, and their land on every map of it.',

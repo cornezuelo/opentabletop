@@ -20,6 +20,8 @@ export const vocabulary = {
     campaign: {
       /** A link to the campaign in the Campaign app, from wherever it's played. */
       open: 'Open in Campaign ↗',
+      /** A campaign with no name yet, wherever it's listed. */
+      untitled: 'Untitled campaign',
       pauseOther:
         'Another trip is going on in this campaign: “{trip}”. Pause it and play this one? Time is one in a campaign: if its clock went on, this party waits until then.',
       caughtUp: "The campaign's clock had gone on: the party waited until then.",
@@ -144,6 +146,7 @@ export const vocabulary = {
     },
     campaign: {
       open: 'Abrir en Campaign ↗',
+      untitled: 'Campaña sin nombre',
       pauseOther:
         'Hay otro viaje en curso en esta campaña: «{trip}». ¿Pausarlo y jugar este? En una campaña el tiempo es uno: si su reloj avanzó, este grupo espera hasta entonces.',
       caughtUp: 'El reloj de la campaña había avanzado: el grupo ha esperado hasta entonces.',

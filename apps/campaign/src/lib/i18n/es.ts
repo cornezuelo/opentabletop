@@ -19,7 +19,7 @@ export const es: Messages<typeof en> = {
     newCampaign: 'Nueva campaña',
     empty: 'Aún no hay campañas.',
     noMatch: 'Ninguna campaña coincide.',
-    untitled: 'Campaña sin nombre',
+    untitled: vocabulary.es.campaign.untitled,
     makeSystems: 'Crear o editar sistemas →',
   },
   new: {
@@ -91,12 +91,6 @@ export const es: Messages<typeof en> = {
     noSystem: 'El sistema de la campaña no declara facciones.',
     missing:
       'Estas facciones vienen de «{system}», un sistema que no está cargado en este navegador: sus hojas se guardan, pero no se pueden mostrar ni jugar turnos hasta que lo esté.',
-    territory: campaignTexts.es.factions.territory,
-    territoryOne: campaignTexts.es.factions.territoryOne,
-    turn: campaignTexts.es.factions.turn,
-    turnHelp: campaignTexts.es.factions.turnHelp,
-    auto: campaignTexts.es.factions.auto,
-    autoHelp: campaignTexts.es.factions.autoHelp,
     remove: 'Quitar las facciones de la campaña',
     confirmRemove:
       '¿Quitar las facciones de esta campaña? Se olvidan sus hojas, y su tierra en todos sus mapas.',

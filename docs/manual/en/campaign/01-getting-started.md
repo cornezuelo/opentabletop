@@ -11,8 +11,11 @@ A campaign keeps only what the rules play with. Its story, places and people liv
 Every app's bar says which campaign you're playing, beside the app switcher: **Playing: The Grey Marches ▾** (or **No campaign ▾**). It's the same in every app, and it **follows what you open**: opening a map in the Hexmapper or a trip going on in Travel makes its campaign the one you're playing, and opening a campaign here does too, so the campaign shown is always the one in front of you. Click it for:
 
 - **Open in Campaign ↗**: the campaign here.
-- The other campaigns this browser keeps. In the Oracle and Characters, choosing one plays in it from then on (**Play in no campaign** plays in none, for whoever only wants a roll or a character manager); where a map, a trip or a campaign is open, they open here instead, since to play in another you open one of its maps or trips.
 - **New campaign ↗**: [a new campaign](#a-new-campaign) here.
+- **Play in no campaign** (in the Oracle and Characters): plays in none, for whoever only wants a roll or a character manager.
+- The other campaigns this browser keeps. In the Oracle and Characters, choosing one plays in it from then on; where a map, a trip or a campaign is open, they open here instead, since to play in another you open one of its maps or trips.
+
+A campaign that's deleted (here, or with the last map of it in the Hexmapper) is played no more: the bar says **No campaign**. One without a name yet shows as **Untitled campaign**.
 
 Each app uses it: Campaign opens it; the Hexmapper opens a map of it when it starts (the last one open, if it's in it; else its newest) and groups its library by campaign, this one first; Travel opens its latest trip and groups the trips by campaign; Characters shows the characters playing in it, with **All campaigns** and **No campaign** a click away; and the Oracle rolls in it ([Rolling in a campaign](../oracle/02-rolling.md#rolling-in-a-campaign)). It's a preference of this browser, kept with your other preferences in backups.
 

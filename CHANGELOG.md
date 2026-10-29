@@ -14,6 +14,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Travel and the Hexmapper: the party's items on **The party**'s card showed their ids (`ration`) instead of their names, and couldn't be chosen from the system's catalogues.
 - Travel: a trip's campaign of its own kept the name of the system it was first opened with (_Generic rules_) after the trip was played with another one; it follows the trip's name now (renamed, or another system), until the campaign is renamed by hand.
 - Every app: **Playing** in the bar didn't hear a campaign renamed or kept by the same page (only by other tabs), and kept showing its old name.
+- Every app: after the last map of a campaign was removed in the Hexmapper (or a campaign deleted anywhere), **Playing** in the bar kept naming it by its id, and **Open in Campaign** opened nothing; it says **No campaign** now, and a campaign without a name shows as **Untitled campaign**.
+- Every app: the **Playing** menu lists **Open in Campaign**, **New campaign** and **Play in no campaign** first, then the other campaigns.
 
 ## [0.24.0] - 2026-10-29
 
