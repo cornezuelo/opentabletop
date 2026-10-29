@@ -1,15 +1,11 @@
 <script lang="ts">
   import { localize } from '@open-tabletop/session'
-  import {
-    formatClock,
-    type Calendar,
-    type CalendarParts,
-    type GameTime,
-  } from '@open-tabletop/time'
+  import type { Calendar, GameTime } from '@open-tabletop/time'
   import type { WorldState } from '@open-tabletop/world-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { translator, type CampaignUiKey } from './i18n'
   import type { WorldControls } from './controls'
+  import { shortTime } from './when'
 
   /**
    * The world clock's timeline: what happened, newest first (events come due, holidays,
@@ -38,15 +34,7 @@
     localize(text, locale, 'en') ?? id
   /** A line that starts with a moon's name ("the Pale Moon is full") starts in capitals. */
   const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
-  /** Short: "Day 15, 09:00" (and the month's day with a calendar of its own). */
-  function short(time: GameTime) {
-    const parts = calendar.describe(time)
-    const date =
-      'month' in parts
-        ? `${(parts as CalendarParts).month.day} ${name((parts as CalendarParts).month.name, (parts as CalendarParts).month.id)}`
-        : t('world.day', { day: parts.day })
-    return `${date}, ${formatClock(parts)}`
-  }
+  const short = (time: GameTime) => shortTime(calendar, time, locale)
 
   let note = $state('')
 </script>

@@ -7,7 +7,7 @@
     restoreBackup,
     summarize,
   } from '@open-tabletop/storage'
-  import { APPS, appBlurb, appIconUrl, appUrl, logoUrl, type AppId } from './apps'
+  import { APPS, appBlurb, appIconUrl, appUrl, logoUrl, REPO, type AppId } from './apps'
   import { ask } from './dialog.svelte'
   import { showToast } from './toasts.svelte'
   import { tooltip } from './tooltip'
@@ -52,6 +52,9 @@
         'Or choose what goes: your packs, campaigns with their maps and trips, characters, to share them or take some of them elsewhere.',
       export: 'Export…',
       import: 'Import…',
+      source: 'Source code on GitHub',
+      issues: 'Report a problem',
+      changes: 'What’s new',
     },
     es: {
       button: 'Aplicaciones de OpenTabletop',
@@ -81,6 +84,9 @@
         'O elige qué va: tus packs, campañas con sus mapas y viajes, personajes, para compartirlos o llevarte parte a otro sitio.',
       export: 'Exportar…',
       import: 'Importar…',
+      source: 'Código fuente en GitHub',
+      issues: 'Avisar de un problema',
+      changes: 'Novedades',
     },
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
@@ -201,7 +207,12 @@
       >
     </div>
   </section>
-  <button class="close" onclick={() => dialog.close()}>{text.close}</button>
+  <footer>
+    <a href={REPO}>{text.source}</a>
+    <a href="{REPO}/issues">{text.issues}</a>
+    <a href="{REPO}/blob/main/CHANGELOG.md">{text.changes}</a>
+    <button class="close" onclick={() => dialog.close()}>{text.close}</button>
+  </footer>
 </dialog>
 
 <TransferDialog bind:this={transfer} {locale} />
@@ -364,8 +375,26 @@
     border-color: var(--accent);
   }
 
-  .close {
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: center;
     margin-top: 12px;
-    float: right;
+    padding-top: 12px;
+    font-size: 12px;
+    border-top: 1px solid var(--panel-border);
+  }
+
+  footer a {
+    color: var(--text-muted);
+  }
+
+  footer a:hover {
+    color: var(--accent);
+  }
+
+  .close {
+    margin-left: auto;
   }
 </style>

@@ -13,7 +13,7 @@ Los nombres del mapa y del pack están en inglés, que es la lengua base del pac
 3. Prueba el camino a Fuerte Keld (el peaje), la senda al santuario (el vado), el sendero a las Piedras Grises (un lugar señalado que te espera), una noche en el Bosque Gris o la barca por el lago: en la orilla de Brenna, cambia el modo de viaje a **En barca**; solo va por agua y costa, así que vuelve a **A pie** para desembarcar.
 4. Ve hacia el este, a los hexes en blanco: se descubren según avanzas (desmarca **Descubrir el mapa al viajar** para dejarlos en blanco).
 5. **Mapas → Mapas de ejemplo → The Hollow Hills**: las colinas alrededor de Hollow Gate de cerca, dibujadas a 3 km por hex, en **la misma campaña** (_The Grey Marches_, **Ajustes del mapa → Campaña**): un solo reloj del mundo, las mismas facciones, los Clanes de Hierro con tierra en los dos mapas. La Compañía espera en el camino que sale de Fort Keld: sigue el sendero por el mojón de vigía de los clanes (un lugar señalado) y el vado de Stonewater hasta las Barrow-halls, o sube a la Moot-stone y al santuario de los cuervos. El tiempo que pasa en un mapa ha pasado también en el otro; se juega un viaje a la vez, así que empezar uno allí pregunta si pausar el otro.
-6. En la [aplicación Campaign](../campaign/01-getting-started.md), _The Grey Marches_ lista los dos mapas en **Mapas y viajes**; su pestaña **Facciones** muestra la tierra en cualquiera de ellos (elige el mapa encima del minimapa).
+6. En la [aplicación Campaign](../campaign/01-getting-started.md), _The Grey Marches_ lista los dos mapas en **Mapas**; su pestaña **Facciones** muestra la tierra en cualquiera de ellos (elige el mapa encima del minimapa).
 
 El mismo sistema se juega sin mapa en la aplicación Travel.
 

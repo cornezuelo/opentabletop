@@ -3,6 +3,7 @@
   import {
     AppShell,
     Dialogs,
+    parseInCampaign,
     readLastSystem,
     rememberSystem,
     Toasts,
@@ -14,9 +15,19 @@
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
+  import { openInCampaign } from './lib/inCampaign'
+
+  // A trip put in a campaign from the Campaign app: a new one, or one kept here joining it.
+  const inCampaign = parseInCampaign(location.hash)
+  if (inCampaign) {
+    history.replaceState(null, '', '#/')
+    void openInCampaign(inCampaign.campaign, inCampaign.id).then((system) => {
+      if (system) go({ name: 'system', id: system }, true)
+    })
+  }
 
   // Opened without a view, it starts on the system last chosen here or in another app.
-  const last = location.hash ? undefined : readLastSystem()
+  const last = location.hash || inCampaign ? undefined : readLastSystem()
   if (last && systems.get(last)) go({ name: 'system', id: last }, true)
   $effect(() => {
     if (nav.view.name === 'system' && systems.get(nav.view.id)) rememberSystem(nav.view.id)

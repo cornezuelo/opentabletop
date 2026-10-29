@@ -48,6 +48,7 @@ export const es: Messages = {
     eventsHelp:
       'Cosas que pasan en una fecha: una fiesta, un ataque, la llegada de un barco. Llegan cuando el tiempo las alcanza, en la cronología y el diario del viaje; las que se repiten vuelven.\n• _Atacan los Señores de la Sal_ en 3 días\n• _Día de mercado_ cada 7 días',
     noEvents: 'Nada programado.',
+    noClocks: 'Ningún reloj de progreso.',
     eventName: 'Qué pasa',
     inDays: 'Dentro de (días)',
     at: 'a las',

@@ -5,7 +5,14 @@ export { default as WayEditor } from './WayEditor.svelte'
 export { idText, translator, type Translate, type TravelUiKey } from './i18n'
 export { entryText, highlightText, journalMarkdown, whyText, type JournalContext } from './journal'
 export { edgeChoices, edgeName, PALETTE, terrainChoices, terrainName } from './terrains'
-export { campaignPlaces, placeCampaign, TRAVEL_TRIPS_KEY, type CampaignPlace } from './places'
+export {
+  allPlaces,
+  campaignPlaces,
+  placeCampaign,
+  TRAVEL_TRIPS_KEY,
+  type CampaignPlace,
+  type PlaceInCampaign,
+} from './places'
 export { readTrips, TripStore, type Saved, type TripStoreOptions } from './trips.svelte'
 export { WATER, wayWorld, type WayHex } from './way'
 export { default as PartyMembers } from './PartyMembers.svelte'

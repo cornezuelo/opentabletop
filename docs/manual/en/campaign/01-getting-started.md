@@ -4,17 +4,24 @@ The Campaign app shows your **campaigns**: the worlds your maps and trips are pl
 
 A campaign keeps only what the rules play with. Its story, places and people live in your notes app: **Notes** links to its page there.
 
+**Campaign is where play starts**: the site's root opens it, it's first in the app switcher, and it opens **the campaign you were playing** (the last one opened here; else the newest). With none yet, it offers to start one ([below](#a-new-campaign)), with quiet links to the Oracle, Characters and the Hexmapper for whoever only wants to roll or keep characters.
+
 ## The screen
 
-- **Header**: the app switcher (nine dots), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the campaigns list and the help column away, and bring them back.
-- **Campaigns** (left): **New campaign**, a search box and the campaigns this browser keeps, the last changed first. Under the list, **Make or edit systems** opens the Systems app.
+- **Header**: the app switcher (nine dots: every app, Campaign first, your data's backups and exports, and links to the source code, to report a problem and to what's new), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the campaigns list and the help column away, and bring them back.
+- **Campaigns** (left): **New campaign**, a search box and the campaigns this browser keeps, the last changed first, each with its system and, once its world clock goes, its date. Under the list, **Make or edit systems** opens the Systems app.
 - **The campaign** (center): the one chosen in the list, with its tabs.
 
 Labels underlined with dots have an explanation: click one and the help column opens on it.
 
 ## A new campaign
 
-**New campaign** asks for a **name** and a **system** (the one you last chose in any app comes first), and makes an empty campaign: no world clock yet, no maps or trips. Add maps and trips to it from their own apps (below).
+**New campaign** (or **Start your campaign**, the first time) asks for a **name** and a **system** (the one you last chose in any app comes first), and two things ticked, which you can untick:
+
+- **Start the world clock**, on the day you choose (**It starts on**: a day of the system's calendar, its first morning by default). Unticked, it can be started later in **World**.
+- **Bring its factions** (when the system declares some, with how many): their sheets come now, and the land each starts with comes with each map that joins. Unticked, they can be brought later in **Factions**.
+
+It opens on its **Overview**. Then add maps and trips from **Maps** and **Trips** ([below](#maps-and-trips)).
 
 ## How campaigns come to be
 
@@ -31,15 +38,15 @@ You rarely make one here. Campaigns appear by themselves:
 
 Two campaigns that should be one (two maps of the same game that each started their own): move every map and trip of one into the other, and the empty one goes away by itself.
 
-1. In **Maps and trips** of the campaign you'll leave, see what's in it.
-2. Open each map in the Hexmapper and choose the other campaign in **Map settings → Campaign → The map is in**; for each trip, choose it in Travel's trip room (**Campaign**).
+1. In **Maps** and **Trips** of the campaign you'll leave, see what's in it.
+2. In the campaign you'll keep, **Add an existing map…** / **Add an existing trip…** and **Bring it ↗** each one (or open each in its app and choose the other campaign: **Map settings → Campaign → The map is in**, Travel's trip room's **Campaign**).
 3. The first one you move asks which world stays: **Keep the campaign's** (the one you join) or **Bring this one's** (its clock, factions and Oracle take the place of the other's, for everything in it).
 
 When the last map or trip has moved, the campaign it left is deleted.
 
 ## The campaign
 
-At the top, its **name** (click it to change it; every app names the campaign with it) and **Delete**. Under them:
+At the top, its **name** (click it to change it; every app names the campaign with it) and **⋯** with **Delete**. Under them:
 
 - **System**: the game system its maps and trips are played with, with **Edit the system in Systems →**. It's chosen in a map's **Map settings → Campaign** (or when a trip in it starts), since it is theirs too ([Campaigns](../hexmapper/01-getting-started.md#campaigns)).
 - **Notes**: its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it.
@@ -47,7 +54,16 @@ At the top, its **name** (click it to change it; every app names the campaign wi
 
 **Delete** is only possible when no map or trip is in the campaign: move them to another campaign (or delete them) first. It asks, and forgets the campaign's clock, timeline, factions and Oracle state.
 
-The campaign's tabs (a choice of them in a window too narrow for them side by side; the address of each, such as `#/campaign/<id>/timeline` or `#/campaign/<id>/factions`, can be linked):
+The campaign's tabs (a choice of them in a window too narrow for them side by side; the address of each, such as `#/campaign/<id>/timeline` or `#/campaign/<id>/factions`, can be linked; `#/campaign/<id>` is its Overview):
+
+### Overview
+
+What is going on, at a glance; each block's title leads to its tab:
+
+- **Today**: the date, the part of the day, the moons and the weather, with moving time on and **Set the date**, as in **World** (to start the clock if it isn't going, too).
+- **Going on**: the trip going on in the campaign, with **Continue ↗**; with none, **New trip in this campaign ↗** and **New map in this campaign ↗**. Under it, how many maps, trips, characters and factions it has.
+- **Coming next**: the events soonest due. **Progress clocks**: each with its segments filled.
+- **Lately**: the last lines of the timeline, and a note of your own.
 
 ### World
 
@@ -67,12 +83,16 @@ What happened in the world, newest first: events that came due, holidays and moo
 
 ### Maps and trips
 
-The maps of the Hexmapper (its library in this browser) and Travel's trips that are in the campaign, each with **Open ↗**; the trip going on says so. A campaign doesn't list them itself: each map and trip names its campaign. To add one:
+**Maps** lists the maps of the Hexmapper (its library in this browser) in the campaign, with their size; **Trips**, Travel's trips (a map's trip plays on its map). Each is a card with **Open ↗** (**Continue ↗** for the trip going on, which says so). A campaign doesn't list them itself: each map and trip names its campaign.
 
-- **A map**: open it in the Hexmapper and choose this campaign in **Map settings → Campaign → The map is in**.
-- **A trip**: choose it in Travel's trip room (**Campaign**), for a new trip or one under way.
+- **New map in this campaign ↗** opens the Hexmapper with a new map already in it, played with its system; **New trip in this campaign ↗** opens Travel with a new trip in it, likewise.
+- **Add an existing map…** / **Add an existing trip…** lists the others this browser keeps, each with the campaign it's in now (or _a campaign of its own_); **Bring it ↗** opens it in its app and moves it here, as **Map settings → Campaign** or the trip room's **Campaign** does.
 
-If the map or trip brings a world of its own (a world clock, factions, Oracle rolls), its app asks which one stays. The campaign it leaves is deleted if nothing else is in it.
+If the map or trip brings a world of its own (a world clock, factions, Oracle rolls), its app asks which one stays: **Keep the campaign's** or **Bring this one's**. The campaign it leaves is deleted if nothing else is in it.
+
+### Characters
+
+The characters of your roster ([Characters](../characters/01-getting-started.md)) playing in the campaign: in its trips' parties, among those present, or on its maps' tokens, each with where it plays and **Open ↗**. A name opens the character in Characters; **Open the roster ↗** opens the app.
 
 The other apps bring you back here with **Open in Campaign ↗**: the Hexmapper's World panel (above its tabs), Travel's trip room (under **Campaign**), the Oracle (under **Campaign**, with one chosen) and a roster character's **Where it plays** in Characters.
 

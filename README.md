@@ -31,7 +31,7 @@ make install   # dependencies
 make serve     # build every app and serve them at http://localhost:8080/
 ```
 
-Then open `http://localhost:8080/hexmapper/`, `/campaign/`, `/oracle/`, `/travel/`, `/characters/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
+Then open `http://localhost:8080/`, which opens Campaign (start a campaign there), or any app: `/hexmapper/`, `/campaign/`, `/oracle/`, `/travel/`, `/characters/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
 
 `make` lists every command. The usual ones:
 

@@ -2,6 +2,7 @@ import {
   bringClocks,
   bringFactions,
   createCampaign,
+  deserializeCampaign,
   serializeCampaign,
   missingClocks,
   splitFactions,
@@ -26,9 +27,9 @@ import { deserializeMap, newId, serializeMap, type HexMap } from '@open-tabletop
 import { mathRandom } from '@open-tabletop/random'
 import { calendarOf, localize, type TravelSystem } from '@open-tabletop/session'
 import {
+  allCampaigns,
   allLibraryMaps,
   deleteCampaign,
-  listCampaigns,
   onCampaignChange,
   onLibraryChange,
   putCampaign,
@@ -50,6 +51,9 @@ export interface CampaignItem {
   id: string
   name: string
   modified: string
+  /** Its system (absent: the default one) and its world clock's moment, if going. */
+  system?: string
+  time?: number
 }
 
 class Campaigns {
@@ -63,11 +67,23 @@ class Campaigns {
   }
 
   async refresh(): Promise<void> {
-    this.list = (await listCampaigns().catch(() => [])).map(({ id, name, modified }) => ({
-      id,
-      name,
-      modified,
-    }))
+    this.list = (await allCampaigns().catch(() => []))
+      .map(({ id, name, modified, json }): CampaignItem => {
+        let campaign: Campaign | undefined
+        try {
+          campaign = deserializeCampaign(json)
+        } catch {
+          // Listed by name; opening it says what's wrong.
+        }
+        return {
+          id,
+          name,
+          modified,
+          ...(campaign?.system && { system: campaign.system }),
+          ...(campaign?.world && { time: campaign.world.time }),
+        }
+      })
+      .sort((a, b) => b.modified.localeCompare(a.modified))
     this.loaded = true
   }
 }
@@ -408,10 +424,36 @@ class OpenCampaign {
 
 export const open = new OpenCampaign()
 
-/** Makes a new campaign, empty but for its name and system, and keeps it; returns its id. */
-export async function newCampaign(name: string, system: string): Promise<string> {
+/** What a new campaign starts with besides its name and system. */
+export interface NewCampaignOptions {
+  /** Its world clock, started at this moment (absent: not started). */
+  start?: number
+  /** Whether the system's factions come in (their sheets; their land comes with a map). */
+  factions?: boolean
+}
+
+/**
+ * Makes a new campaign with its name and system, its world clock started and the system's
+ * factions brought in if asked, and keeps it; returns its id.
+ */
+export async function newCampaign(
+  name: string,
+  systemId: string,
+  options: NewCampaignOptions = {},
+): Promise<string> {
   const id = newId()
-  const campaign = { ...createCampaign(id, await freeCampaignName(name.trim(), id)), system }
+  let campaign: Campaign = {
+    ...createCampaign(id, await freeCampaignName(name.trim(), id)),
+    system: systemId,
+  }
+  const system = systems.get(systemId)
+  if (options.start !== undefined)
+    campaign = startWorld({ campaign }, options.start, worldHost(campaign, system)).campaign
+  if (options.factions && system.factions) {
+    const time = campaign.world?.time ?? 0
+    const brought = bringFactions(campaign, undefined, system.factions, system.id, time)
+    campaign = { ...campaign, factions: splitFactions(brought).factions }
+  }
   await putCampaign({
     id: campaign.id,
     name: campaign.name,
@@ -436,8 +478,8 @@ export async function removeCampaign(campaign: Campaign): Promise<boolean> {
     const list = places
       .map((p) =>
         p.app === 'hexmapper'
-          ? `${t('places.maps')}: ${p.name || t('places.untitledMap')}`
-          : `${t('places.trips')}: ${p.name || t('places.untitledTrip')}`,
+          ? `${t('tabs.maps')}: ${p.name || t('places.untitledMap')}`
+          : `${t('tabs.trips')}: ${p.name || t('places.untitledTrip')}`,
       )
       .join(' · ')
     showToast(t('campaign.cantDelete', { list }), 'error', 10000)

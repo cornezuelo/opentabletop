@@ -1,9 +1,17 @@
 /**
  * What the main area shows, mirrored in the URL hash so views can be linked (the other
- * apps' **Open in Campaign**): #/campaign/<id>, #/campaign/<id>/<tab>,
+ * apps' **Open in Campaign**): #/campaign/<id> (its Overview), #/campaign/<id>/<tab>,
  * #/campaign/<id>/factions/<faction> (that faction's card open), #/new.
  */
-export const TABS = ['world', 'factions', 'timeline', 'places'] as const
+export const TABS = [
+  'overview',
+  'world',
+  'maps',
+  'trips',
+  'characters',
+  'factions',
+  'timeline',
+] as const
 export type Tab = (typeof TABS)[number]
 
 export type View =
@@ -18,14 +26,15 @@ export function parseView(hash: string): View {
   if (name === 'campaign' && id)
     return tab === 'factions' && faction
       ? { name, id, tab, faction }
-      : { name, id, tab: isTab(tab) ? tab : 'world' }
+      : // Older links: `places` was its maps and trips together.
+        { name, id, tab: tab === 'places' ? 'maps' : isTab(tab) ? tab : 'overview' }
   if (name === 'new') return { name }
   return { name: 'welcome' }
 }
 
 export const formatView = (view: View): string =>
   view.name === 'campaign'
-    ? `#/campaign/${encodeURIComponent(view.id)}${view.tab === 'world' ? '' : `/${view.tab}`}${
+    ? `#/campaign/${encodeURIComponent(view.id)}${view.tab === 'overview' ? '' : `/${view.tab}`}${
         view.faction ? `/${encodeURIComponent(view.faction)}` : ''
       }`
     : view.name === 'new'

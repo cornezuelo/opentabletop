@@ -2,18 +2,35 @@
   import { WorldClock, WorldTimeline, WorldWaiting } from '@open-tabletop/campaign-ui'
   import { placeUrl } from '@open-tabletop/character-ui'
   import { calendarOf, systemName } from '@open-tabletop/session'
-  import { APPS, appUrl, InfoTip, Markdown, NoteRefInput, Tabs } from '@open-tabletop/ui-kit'
+  import {
+    APPS,
+    appUrl,
+    InfoTip,
+    Markdown,
+    MoreMenu,
+    NoteRefInput,
+    rememberCampaign,
+    Tabs,
+  } from '@open-tabletop/ui-kit'
   import { open, removeCampaign } from '../lib/campaign.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go, TABS, type Tab } from '../lib/nav.svelte'
+  import Cast from './Cast.svelte'
   import Factions from './Factions.svelte'
-  import Places from './Places.svelte'
+  import Overview from './Overview.svelte'
+  import PlaceList from './PlaceList.svelte'
 
-  /** A campaign: its name, system and notes, and its world in tabs. */
+  /**
+   * A campaign: its name, system and notes, and its world in tabs (an Overview first). The
+   * one opened is the one being played: Campaign opens it again next time.
+   */
   let { id, tab, faction }: { id: string; tab: Tab; faction?: string } = $props()
 
   $effect(() => {
     void open.open(id)
+  })
+  $effect(() => {
+    if (open.found && open.id === id) rememberCampaign(id)
   })
   const campaign = $derived(open.campaign)
   const system = $derived(open.system)
@@ -35,7 +52,10 @@
   }
 
   async function remove() {
-    if (campaign && (await removeCampaign(campaign))) go({ name: 'welcome' }, true)
+    if (campaign && (await removeCampaign(campaign))) {
+      rememberCampaign(undefined)
+      go({ name: 'welcome' }, true)
+    }
   }
 
   const tabName = (tab: Tab) => t(`tabs.${tab}`)
@@ -54,9 +74,9 @@
         aria-label={t('campaign.name')}
         onchange={(e) => rename(e.currentTarget)}
       />
-      <div class="buttons">
+      <MoreMenu label={t('campaign.more')}>
         <button class="danger" onclick={remove}>{t('campaign.delete')}</button>
-      </div>
+      </MoreMenu>
     </header>
 
     <dl class="facts">
@@ -108,8 +128,9 @@
     />
 
     <div class="tab" id="campaign-panel" role="tabpanel" aria-labelledby="campaign-tab-{tab}">
-      {#if tab === 'world'}
-        <p class="help">{t('world.help')}</p>
+      {#if tab === 'overview'}
+        <Overview {campaign} />
+      {:else if tab === 'world'}
         <WorldClock
           locale={getLocale()}
           world={campaign.world}
@@ -138,8 +159,12 @@
         {:else}
           <div class="help"><Markdown text={t('timeline.none')} /></div>
         {/if}
+      {:else if tab === 'maps'}
+        <PlaceList {campaign} app="hexmapper" />
+      {:else if tab === 'trips'}
+        <PlaceList {campaign} app="travel" />
       {:else}
-        <Places {campaign} />
+        <Cast {campaign} />
       {/if}
     </div>
   </article>
@@ -150,7 +175,7 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
-    max-width: 720px;
+    max-width: 1100px;
   }
 
   header {
@@ -175,24 +200,6 @@
   .title:hover,
   .title:focus {
     border-color: var(--panel-border);
-  }
-
-  .buttons {
-    display: flex;
-    gap: 6px;
-  }
-
-  .buttons button {
-    padding: 5px 10px;
-    font-size: 12px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .buttons .danger {
-    color: var(--danger, #d9534f);
   }
 
   .facts {

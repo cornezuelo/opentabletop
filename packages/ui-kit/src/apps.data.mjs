@@ -3,15 +3,19 @@
 // with one icon and one description. Plain JavaScript so Node can read it without building.
 
 /** In the order the app switcher and the landing page show them. */
+// Campaign first: it's where play starts (the site's root opens it).
 export const APP_LIST = [
-  { id: 'hexmapper', name: 'Hexmapper', devPort: 5173, available: true },
   { id: 'campaign', name: 'Campaign', devPort: 5179, available: true },
+  { id: 'hexmapper', name: 'Hexmapper', devPort: 5173, available: true },
   { id: 'oracle', name: 'Oracle', devPort: 5174, available: true },
   { id: 'travel', name: 'Travel', devPort: 5175, available: true },
   { id: 'characters', name: 'Characters', devPort: 5178, available: true },
   { id: 'systems', name: 'Systems', devPort: 5177, available: true },
   { id: 'manual', name: 'Manual', devPort: 5176, available: true },
 ]
+
+/** Where OpenTabletop's source is: the switcher's links to it, its issues and its changes. */
+export const REPO = 'https://github.com/cornezuelo/opentabletop'
 
 export const FRAME = '<rect width="32" height="32" rx="6" fill="#26241f"/>'
 const GOLD = '#c8a24a'

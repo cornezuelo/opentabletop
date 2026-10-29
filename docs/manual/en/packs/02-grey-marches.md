@@ -11,7 +11,7 @@
 3. Try the road to Fort Keld (the toll), the path to the shrine (the ford), the trail to the Grey Stones (a landmark that waits for you), a night in the Greywood, or the ferry across the Saltmere: at Brenna's shore, switch the travel mode to **By boat**; it only goes on water and coast, so switch back to **On foot** to land.
 4. Head east, into the blank hexes: they are discovered as you go (untick **Discover the map as you travel** to keep them blank).
 5. **Maps → Example maps → The Hollow Hills**: the hills around Hollow Gate up close, drawn at 3 km a hex, in **the same campaign** (_The Grey Marches_, **Map settings → Campaign**): one world clock, the same factions, the Iron Clans holding land on both maps. The Company waits on the way out of Fort Keld: follow the trail past the clans' watch-cairn (a landmark) and over Stonewater Ford to the Barrow-halls, or up to the Moot-stone and the Raven Shrine. Time spent on one map has gone by on the other; one trip plays at a time, so starting one there asks to pause the other.
-6. In the [Campaign app](../campaign/01-getting-started.md), _The Grey Marches_ lists both maps under **Maps and trips**; its **Factions** tab shows the land on either (choose the map above the minimap).
+6. In the [Campaign app](../campaign/01-getting-started.md), _The Grey Marches_ lists both maps under **Maps**; its **Factions** tab shows the land on either (choose the map above the minimap).
 
 The same system plays without a map in the Travel app.
 

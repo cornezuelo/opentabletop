@@ -4,17 +4,24 @@ La aplicación Campaign muestra tus **campañas**: los mundos en los que se jueg
 
 Una campaña guarda solo aquello con lo que juegan las reglas. Su historia, sus lugares y su gente viven en tu aplicación de notas: **Notas** enlaza con su página allí.
 
+**Campaign es donde empieza el juego**: la raíz del sitio la abre, es la primera del selector de aplicaciones, y abre **la campaña que estabas jugando** (la última abierta aquí; si no, la más reciente). Si aún no hay ninguna, ofrece empezar una ([más abajo](#una-campaña-nueva)), con enlaces discretos al Oracle, Characters y el Hexmapper para quien solo quiere tirar dados o llevar personajes.
+
 ## La pantalla
 
-- **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidos por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de campañas y la columna de ayuda, y las vuelven a mostrar.
-- **Campañas** (izquierda): **Nueva campaña**, un buscador y las campañas que guarda este navegador, la última cambiada primero. Bajo la lista, **Crear o editar sistemas** abre la aplicación Systems.
+- **Cabecera**: el selector de aplicaciones (nueve puntos: todas las aplicaciones, Campaign la primera, las copias y exportaciones de tus datos, y enlaces al código fuente, para avisar de un problema y a las novedades), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidos por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de campañas y la columna de ayuda, y las vuelven a mostrar.
+- **Campañas** (izquierda): **Nueva campaña**, un buscador y las campañas que guarda este navegador, la última cambiada primero, cada una con su sistema y, cuando su reloj del mundo está en marcha, su fecha. Bajo la lista, **Crear o editar sistemas** abre la aplicación Systems.
 - **La campaña** (centro): la elegida en la lista, con sus pestañas.
 
 Las etiquetas subrayadas con puntos tienen una explicación: pulsa una y la columna de ayuda se abre en ella.
 
 ## Una campaña nueva
 
-**Nueva campaña** pide un **nombre** y un **sistema** (el último que elegiste en cualquier aplicación sale primero), y crea una campaña vacía: aún sin reloj del mundo, sin mapas ni viajes. Añádele mapas y viajes desde sus propias aplicaciones (abajo).
+**Nueva campaña** (o **Empieza tu campaña**, la primera vez) pide un **nombre** y un **sistema** (el último que elegiste en cualquier aplicación sale primero), y dos cosas marcadas, que puedes desmarcar:
+
+- **Poner en marcha el reloj del mundo**, el día que elijas (**Empieza el**: un día del calendario del sistema, su primera mañana por defecto). Sin marcar, se puede poner en marcha después en **Mundo**.
+- **Traer sus facciones** (cuando el sistema declara alguna, con cuántas): sus hojas llegan ahora, y la tierra con que empieza cada una llega con cada mapa que entre. Sin marcar, se pueden traer después en **Facciones**.
+
+Se abre en su **Resumen**. Después, añade mapas y viajes desde **Mapas** y **Viajes** ([más abajo](#mapas-y-viajes)).
 
 ## Cómo nacen las campañas
 
@@ -31,15 +38,15 @@ Pocas veces crearás una aquí. Las campañas aparecen solas:
 
 Dos campañas que deberían ser una (dos mapas del mismo juego que empezaron cada uno la suya): lleva todos los mapas y viajes de una a la otra, y la vacía desaparece por sí sola.
 
-1. En **Mapas y viajes** de la campaña que vas a dejar, mira qué hay en ella.
-2. Abre cada mapa en el Hexmapper y elige la otra campaña en **Ajustes del mapa → Campaña → El mapa está en**; para cada viaje, elígela en la sala del viaje de Travel (**Campaña**).
+1. En **Mapas** y **Viajes** de la campaña que vas a dejar, mira qué hay en ella.
+2. En la campaña que vas a conservar, **Añadir un mapa existente…** / **Añadir un viaje existente…** y **Traerlo ↗** cada uno (o abre cada uno en su aplicación y elige la otra campaña: **Ajustes del mapa → Campaña → El mapa está en**, la **Campaña** de la sala del viaje de Travel).
 3. El primero que lleves pregunta qué mundo se queda: **Mantener el de la campaña** (la que unes) o **Traer el propio** (su reloj, facciones y Oráculo ocupan el lugar de los de la otra, para todo lo que hay en ella).
 
 Cuando se ha llevado el último mapa o viaje, la campaña que dejó se borra.
 
 ## La campaña
 
-Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran la campaña con él) y **Borrar**. Debajo:
+Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran la campaña con él) y **⋯** con **Borrar**. Debajo:
 
 - **Sistema**: el sistema de juego con el que se juegan sus mapas y viajes, con **Editar el sistema en Systems →**. Se elige en los **Ajustes del mapa → Campaña** de un mapa (o al empezar un viaje en ella), ya que también es de ellos ([Campañas](../hexmapper/01-getting-started.md#campañas)).
 - **Notas**: su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre.
@@ -47,7 +54,16 @@ Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran l
 
 **Borrar** solo se puede cuando no hay ningún mapa ni viaje en la campaña: llévalos a otra campaña (o bórralos) antes. Pregunta, y olvida el reloj, la cronología, las facciones y el estado del Oráculo de la campaña.
 
-Las pestañas de la campaña (un desplegable con ellas en una ventana demasiado estrecha para tenerlas en fila; la dirección de cada una, como `#/campaign/<id>/timeline` o `#/campaign/<id>/factions`, se puede enlazar):
+Las pestañas de la campaña (un desplegable con ellas en una ventana demasiado estrecha para tenerlas en fila; la dirección de cada una, como `#/campaign/<id>/timeline` o `#/campaign/<id>/factions`, se puede enlazar; `#/campaign/<id>` es su Resumen):
+
+### Resumen
+
+Lo que está pasando, de un vistazo; el título de cada bloque lleva a su pestaña:
+
+- **Hoy**: la fecha, la parte del día, las lunas y el clima, con avanzar el tiempo y **Fijar la fecha**, como en **Mundo** (y ponerlo en marcha, si no lo está).
+- **En curso**: el viaje en curso en la campaña, con **Seguir ↗**; si no hay ninguno, **Nuevo viaje en esta campaña ↗** y **Nuevo mapa en esta campaña ↗**. Debajo, cuántos mapas, viajes, personajes y facciones tiene.
+- **Lo próximo**: los eventos que llegan antes. **Relojes de progreso**: cada uno con sus segmentos llenos.
+- **Últimamente**: las últimas líneas de la cronología, y una nota tuya.
 
 ### Mundo
 
@@ -67,12 +83,16 @@ Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fi
 
 ### Mapas y viajes
 
-Los mapas del Hexmapper (su biblioteca en este navegador) y los viajes de Travel que están en la campaña, cada uno con **Abrir ↗**; el viaje en marcha lo dice. Una campaña no los apunta ella misma: cada mapa y viaje nombra su campaña. Para añadir uno:
+**Mapas** lista los mapas del Hexmapper (su biblioteca en este navegador) que están en la campaña, con su tamaño; **Viajes**, los viajes de Travel (el viaje de un mapa se juega en su mapa). Cada uno es una tarjeta con **Abrir ↗** (**Seguir ↗** para el viaje en curso, que lo dice). Una campaña no los apunta ella misma: cada mapa y viaje nombra su campaña.
 
-- **Un mapa**: ábrelo en el Hexmapper y elige esta campaña en **Ajustes del mapa → Campaña → El mapa está en**.
-- **Un viaje**: elígela en la sala del viaje de Travel (**Campaña**), para un viaje nuevo o uno ya en marcha.
+- **Nuevo mapa en esta campaña ↗** abre el Hexmapper con un mapa nuevo ya en ella, jugado con su sistema; **Nuevo viaje en esta campaña ↗** abre Travel con un viaje nuevo en ella, igual.
+- **Añadir un mapa existente…** / **Añadir un viaje existente…** lista los demás que guarda este navegador, cada uno con la campaña en la que está ahora (o _una campaña propia_); **Traerlo ↗** lo abre en su aplicación y lo mueve aquí, como hacen **Ajustes del mapa → Campaña** o la **Campaña** de la sala del viaje.
 
-Si el mapa o el viaje trae un mundo propio (un reloj del mundo, facciones, tiradas del Oráculo), su aplicación pregunta cuál se queda. La campaña que deja se borra si no queda nada más en ella.
+Si el mapa o el viaje trae un mundo propio (un reloj del mundo, facciones, tiradas del Oráculo), su aplicación pregunta cuál se queda: **Mantener el de la campaña** o **Traer el propio**. La campaña que deja se borra si no queda nada más en ella.
+
+### Personajes
+
+Los personajes de tu plantel ([Characters](../characters/01-getting-started.md)) que juegan en la campaña: en el grupo de sus viajes, entre los presentes o en los tokens de sus mapas, cada uno con dónde juega y **Abrir ↗**. Un nombre abre el personaje en Characters; **Abrir el plantel ↗** abre la aplicación.
 
 Las demás aplicaciones te traen aquí con **Abrir en Campaign ↗**: el panel Mundo del Hexmapper (encima de sus pestañas), la sala del viaje de Travel (bajo **Campaña**), el Oracle (bajo **Campaña**, con una elegida) y **Dónde juega** de un personaje del plantel en Characters.
 

@@ -28,6 +28,7 @@ vi.mock('@open-tabletop/storage', async (original) => ({
   putCampaign: async (entry: LibraryEntry) => void kept.set(entry.id, entry),
   listCampaigns: async () =>
     [...kept.values()].map(({ id, name, modified }) => ({ id, name, modified })),
+  allCampaigns: async () => [...kept.values()],
   onCampaignChange: (listener: (change: LibraryChange) => void) => {
     hear = listener
     return () => {}
@@ -118,6 +119,29 @@ describe('the Campaign app', () => {
     expect(await removing).toBe(true)
     expect(kept.has(id)).toBe(false)
     expect(app.campaigns.list).toEqual([])
+  })
+
+  it('starts a new campaign with its world clock going and the system’s factions in', async () => {
+    const { c, app, systems, calendarOf } = await openApp()
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    const start = calendarOf(greyMarches).at(3, '08:00')
+    const id = await app.newCampaign('The Marches', greyMarches.id, { start, factions: true })
+    const made = c.deserializeCampaign(kept.get(id)!.json)
+    expect(made.world?.time).toBe(start)
+    // The system's progress clocks come with the clock, and the world's weather is rolled.
+    expect(made.world?.clocks.length).toBeGreaterThan(0)
+    expect(made.worldWeather).toBeDefined()
+    // Every faction the system declares, with its sheet (their land comes with a map).
+    const declared = Object.keys(greyMarches.factions!.def.factions)
+    expect(made.factions?.factions.map((f) => f.id).sort()).toEqual(declared.sort())
+    // The list says its system and date.
+    expect(app.campaigns.list[0]).toMatchObject({ id, system: greyMarches.id, time: start })
+    // Unticked, neither comes.
+    const bare = c.deserializeCampaign(
+      kept.get(await app.newCampaign('Bare', greyMarches.id))!.json,
+    )
+    expect(bare.world).toBeUndefined()
+    expect(bare.factions).toBeUndefined()
   })
 
   it('says when a campaign isn’t kept here', async () => {

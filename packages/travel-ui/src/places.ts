@@ -26,15 +26,20 @@ function campaignOfMap(json: string): { campaign: string; name: string } | null 
   }
 }
 
+/** A map of the library or a trip of Travel, with the campaign it's in. */
+export interface PlaceInCampaign extends CampaignPlace {
+  campaign: string
+}
+
 /**
- * The maps of the library and Travel's trips that are in a campaign (a campaign doesn't
- * list them: each names its own). Whatever can't be read counts as in none.
+ * Every map of the library and trip of Travel, each with the campaign it's in (a campaign
+ * doesn't list them: each names its own). Whatever can't be read is left out.
  */
-export async function campaignPlaces(campaign: string): Promise<CampaignPlace[]> {
-  const places: CampaignPlace[] = []
+export async function allPlaces(): Promise<PlaceInCampaign[]> {
+  const places: PlaceInCampaign[] = []
   for (const entry of await allLibraryMaps().catch(() => [])) {
     const map = campaignOfMap(entry.json)
-    if (map?.campaign === campaign) places.push({ app: 'hexmapper', id: entry.id, name: map.name })
+    if (map) places.push({ app: 'hexmapper', id: entry.id, name: map.name, campaign: map.campaign })
   }
   let stored: string | null = null
   try {
@@ -44,8 +49,15 @@ export async function campaignPlaces(campaign: string): Promise<CampaignPlace[]>
   }
   if (stored)
     for (const trip of readTrips(TRAVEL_TRIPS_KEY, undefined, { getItem: () => stored }).trips)
-      if (trip.campaign === campaign) places.push({ app: 'travel', id: trip.id, name: trip.name })
+      places.push({ app: 'travel', id: trip.id, name: trip.name, campaign: trip.campaign })
   return places
+}
+
+/** The maps of the library and Travel's trips that are in a campaign. */
+export async function campaignPlaces(campaign: string): Promise<CampaignPlace[]> {
+  return (await allPlaces())
+    .filter((p) => p.campaign === campaign)
+    .map(({ app, id, name }) => ({ app, id, name }))
 }
 
 /**

@@ -45,6 +45,7 @@
     missing = 0,
     defaultStart,
     timeline = true,
+    stoppable = true,
     part = 'all',
     waiting,
   }: {
@@ -68,6 +69,8 @@
     defaultStart: number
     /** Whether the timeline shows under the clocks (false: the host shows it elsewhere). */
     timeline?: boolean
+    /** Whether **Remove the world clock** shows (false: a page that only sums it up). */
+    stoppable?: boolean
     /**
      * Which part to show, for a host that puts them in tabs: `now` (the date, moving time
      * on, starting and stopping the clock), `events`, `clocks`; `all` (default) one under
@@ -524,7 +527,7 @@
 
     {#if timeline && part === 'all'}<WorldTimeline {locale} {world} {calendar} {controls} />{/if}
 
-    {#if shows('now')}
+    {#if shows('now') && stoppable}
       <button
         class="danger"
         onclick={async () => (await confirmAction(t('world.confirmStop'))) && controls.stop()}

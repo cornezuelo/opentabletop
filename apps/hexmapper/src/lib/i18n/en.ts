@@ -339,6 +339,7 @@ export const en = {
     linkCopied: 'Map link copied',
     copyHexLink: 'Copy link to this hex',
     hexLinkCopied: 'Hex link copied',
+    missing: 'The map {id} isn’t in this browser.',
     notFoundTitle: 'Map not in this browser',
     notFound:
       "This link points to the map {id}, which isn't in this browser (another device, or its data was cleared). Open its file, {id}.otd.json, to go there.",

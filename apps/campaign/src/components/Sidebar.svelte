@@ -1,12 +1,24 @@
 <script lang="ts">
   import { appUrl, SideButtons, SideItem, SideList, Sidebar } from '@open-tabletop/ui-kit'
-  import { campaigns } from '../lib/campaign.svelte'
-  import { t } from '../lib/i18n'
+  import { shortTime } from '@open-tabletop/campaign-ui'
+  import { calendarOf, systemName } from '@open-tabletop/session'
+  import { campaigns, type CampaignItem } from '../lib/campaign.svelte'
+  import { getLocale, t } from '../lib/i18n'
+  import { systems } from '../lib/packs.svelte'
   import { go, nav } from '../lib/nav.svelte'
 
-  /** The campaigns this browser keeps, newest first, with a search box. */
+  /** The campaigns this browser keeps, newest first (each with its system and date), with a search box. */
   const selected = $derived(nav.view.name === 'campaign' ? nav.view.id : undefined)
   let search = $state('')
+
+  /** Its system, and its world clock's date if going. */
+  function detail(c: CampaignItem): string {
+    const system = systems.get(c.system)
+    const name = systemName(system, getLocale())
+    return c.time === undefined
+      ? name
+      : `${name} · ${shortTime(calendarOf(system), c.time, getLocale())}`
+  }
 
   const shown = $derived.by(() => {
     const wanted = search.trim().toLowerCase()
@@ -34,9 +46,10 @@
       {#each shown as c (c.id)}
         <SideItem
           name={c.name || t('nav.untitled')}
+          detail={detail(c)}
           untitled={!c.name}
           selected={selected === c.id}
-          onclick={() => go({ name: 'campaign', id: c.id, tab: 'world' })}
+          onclick={() => go({ name: 'campaign', id: c.id, tab: 'overview' })}
         />
       {/each}
     </SideList>

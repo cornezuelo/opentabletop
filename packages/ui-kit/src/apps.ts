@@ -3,10 +3,12 @@
  * (`make site`) they live side by side as `<site>/<app>/`; in development each runs on
  * its own port.
  */
-import { APP_BLURBS, APP_ICON_SVGS, APP_LIST, FRAME, logoSvg } from './apps.data.mjs'
+import { APP_BLURBS, APP_ICON_SVGS, APP_LIST, FRAME, logoSvg, REPO } from './apps.data.mjs'
+
+export { REPO }
 
 export type AppId =
-  'hexmapper' | 'campaign' | 'oracle' | 'travel' | 'characters' | 'systems' | 'manual'
+  'campaign' | 'hexmapper' | 'oracle' | 'travel' | 'characters' | 'systems' | 'manual'
 
 export interface AppInfo {
   id: AppId
@@ -50,9 +52,29 @@ export function appUrl(id: AppId): string {
     : `../${id}/`
 }
 
+/** A tab of a campaign in the Campaign app. */
+export type CampaignTab =
+  'overview' | 'world' | 'maps' | 'trips' | 'characters' | 'factions' | 'timeline'
+
 /** A campaign in the Campaign app (the other apps' **Open in Campaign ↗**), at one of its tabs. */
-export const campaignUrl = (
-  id: string,
-  tab?: 'world' | 'factions' | 'timeline' | 'places',
-): string =>
-  `${appUrl('campaign')}#/campaign/${encodeURIComponent(id)}${tab && tab !== 'world' ? `/${tab}` : ''}`
+export const campaignUrl = (id: string, tab?: CampaignTab): string =>
+  `${appUrl('campaign')}#/campaign/${encodeURIComponent(id)}${tab && tab !== 'overview' ? `/${tab}` : ''}`
+
+/**
+ * A map of the Hexmapper or a trip of Travel put in a campaign from the Campaign app: a new
+ * one (no `id`), or one kept there joining it (asking what stays, as its own settings do).
+ */
+export const inCampaignUrl = (app: 'hexmapper' | 'travel', campaign: string, id?: string): string =>
+  `${appUrl(app)}#/in-campaign/${encodeURIComponent(campaign)}${id ? `/${encodeURIComponent(id)}` : ''}`
+
+/** Reads `#/in-campaign/<campaign>[/<id>]` (see `inCampaignUrl`); null for anything else. */
+export function parseInCampaign(hash: string): { campaign: string; id?: string } | null {
+  const match = /^#\/in-campaign\/([^/]+)(?:\/([^/]+))?\/?$/.exec(hash)
+  if (!match) return null
+  try {
+    const campaign = decodeURIComponent(match[1])
+    return match[2] ? { campaign, id: decodeURIComponent(match[2]) } : { campaign }
+  } catch {
+    return null
+  }
+}

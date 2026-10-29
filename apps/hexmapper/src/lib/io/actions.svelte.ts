@@ -172,6 +172,18 @@ export async function newMap(): Promise<void> {
 }
 
 /**
+ * A map put in a campaign from the Campaign app (`#/in-campaign/<campaign>[/<map>]`): a new
+ * one, or one of the library (`map`), moved to it as Map settings → Campaign does (asking
+ * what stays). False if the move was cancelled, `missing` if the map isn't kept here.
+ */
+export async function openInCampaign(campaign: string, map?: string): Promise<boolean | 'missing'> {
+  if (map) {
+    if (!(await openLibraryMap(map))) return 'missing'
+  } else await switchTo({ map: createMap() })
+  return moveToCampaign(campaign)
+}
+
+/**
  * Saves an OTD bundle (`<id>.otd.json`) that other OpenTabletop tools can read: the map with
  * its campaign.
  */

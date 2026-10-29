@@ -6,6 +6,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Campaign is where play starts: the site's root opens it, it's first in the app switcher, and it opens the campaign you were playing (or **Start your campaign** when there's none). A new campaign asks for the day it starts, and comes with its world clock going and the system's factions in (unless unticked).
+- Campaign: an **Overview** tab first (today with moving time on, the trip going on with **Continue ↗**, what comes next, progress clocks, the latest of the timeline, how many maps, trips, characters and factions); **Maps and trips** split into **Maps** and **Trips**, as cards, with **New map / New trip in this campaign ↗** (the Hexmapper or Travel opens with one already in it) and **Add an existing one…** (it's brought over there, asking which world stays); a **Characters** tab with the roster characters playing in it; **Delete** moved into a **⋯** menu; the campaigns list says each one's system and date; the page uses the screen's width.
+- The app switcher links to the source code, to report a problem and to what's new (they were on the root page).
+
 - Systems and Characters: templates are edited in Systems only, like sheets. Systems' **Bestiary** shows them as folded cards (search, **Unfold all**), each unfolding to the whole template editor laid out by its sheet: a box per value, its conditions, tags, items, variant, names and token. Characters shows a template as it is, with **Make a character**, **Make copies** and its copies, and **Edit in Systems ↗**, which opens the template there, unfolded; **New template ↗** opens Systems' Bestiary. A template's `present.<id>` is explained where it's shown: how tables and effects make and read its copies.
 
 ## [0.22.0] - 2026-10-29

@@ -21,10 +21,6 @@ export const en = {
     untitled: 'Untitled campaign',
     makeSystems: 'Make or edit systems →',
   },
-  welcome: {
-    title: 'Campaign',
-    body: 'A campaign is the world your maps and trips share: one date and calendar, the events and progress clocks to come, what happened (its timeline), the factions and the Oracle’s decks. Every map of the Hexmapper and every trip of Travel is in one; a new map or trip starts a campaign of its own, and joins another from its settings.\n\nChoose a campaign on the left, or make one with **New campaign** and add maps and trips to it.',
-  },
   new: {
     title: 'New campaign',
     name: 'Name',
@@ -32,6 +28,17 @@ export const en = {
     system: vocabulary.en.terms.system,
     systemHelp:
       'The game system its maps and trips are played with: its calendar names the days, and its progress clocks, weather and factions are the campaign’s. A map or trip that joins the campaign plays with it.',
+    firstTitle: 'Start your campaign',
+    firstIntro:
+      'A campaign is the world your maps and trips share: its date and calendar, the events and progress clocks to come, what happened, its factions and the Oracle’s decks. Give it a name and the game system it’s played with; maps, trips and characters come into it later.',
+    clock: 'Start the world clock',
+    clockHelp:
+      'The campaign’s date, shared by its maps and trips: it moves on as they travel, or by hand. Unticked, it can be started later in **World**.\n• The day it starts is a day of the system’s calendar',
+    start: 'It starts on',
+    factions: 'Bring its factions ({count})',
+    factionsHelp:
+      'The powers the system declares (`kind: factions`): their sheets come now, and the land each starts with comes with each map that joins the campaign. Unticked, they can be brought later in **Factions**.',
+    without: 'Just rolling, or keeping characters? Open',
     create: 'Create',
   },
   campaign: {
@@ -50,11 +57,12 @@ export const en = {
     playingHelp:
       'One trip goes on in a campaign at a time, since its time is the campaign’s. Moving time on here, that trip waits until the new date when it next steps.',
     open: 'Open',
+    more: 'More',
     delete: 'Delete',
     confirmDelete:
       'Delete the campaign “{name}”? Its world clock, timeline, factions and Oracle state are forgotten. Nothing is in it.',
     cantDelete:
-      'In this campaign: {list}. Move them to another campaign (or delete them) first: see Maps and trips.',
+      'In this campaign: {list}. Move them to another campaign (or delete them) first: see **Maps** and **Trips**.',
     deleted: 'Campaign “{name}” deleted.',
     missing: 'This campaign isn’t kept in this browser.',
     noRewindTrip:
@@ -94,35 +102,73 @@ export const en = {
   },
   tabs: {
     label: 'The campaign',
+    overview: 'Overview',
     world: 'World',
+    maps: 'Maps',
+    trips: 'Trips',
+    characters: 'Characters',
     factions: campaignTexts.en.factions.title,
     timeline: 'Timeline',
-    places: 'Maps and trips',
-  },
-  world: {
-    help: 'The campaign’s clock: today’s date, events you schedule (a festival, an attack, a deadline), progress clocks and the world’s weather. It is the same clock in every map and trip of the campaign: moving it here moves it there.',
   },
   timeline: {
     none: 'The world clock isn’t running yet: start it in **World**.',
   },
   places: {
-    maps: 'Maps',
-    mapsHelp:
-      'The maps of the Hexmapper (its library in this browser) that are in this campaign. A map joins another campaign in its **Map settings → Campaign**.',
-    trips: 'Trips',
-    tripsHelp:
-      'Travel’s trips (without a map) in this campaign. A trip joins another campaign in its trip room (**Campaign**). A map’s trip plays on its map.',
-    noMaps: 'No maps.',
-    noTrips: 'No trips.',
+    mapsIntro:
+      'The maps of the Hexmapper (its library in this browser) in this campaign: their trips and tokens play in its world. **Open ↗** opens one there.',
+    tripsIntro:
+      'Travel’s trips (without a map) in this campaign: their time is the campaign’s. A map’s trip plays on its map, under **Maps**.',
+    new: {
+      maps: 'New map in this campaign ↗',
+      trips: 'New trip in this campaign ↗',
+    },
+    add: {
+      maps: 'Add an existing map…',
+      trips: 'Add an existing trip…',
+    },
+    addTitle: {
+      maps: 'The other maps of this browser',
+      trips: 'The other trips of this browser',
+    },
+    addHelp: {
+      maps: 'A map is in one campaign at a time. **Bring it** opens it in the Hexmapper and moves it here, as its **Map settings → Campaign** does: if its campaign has a world of its own (a clock, factions), you’re asked which one stays. The campaign it leaves is deleted if nothing else is in it.',
+      trips:
+        'A trip is in one campaign at a time. **Bring it** opens it in Travel and moves it here, as its trip room’s **Campaign** does: if its campaign has a world of its own, you’re asked which one stays. Its time becomes this campaign’s when it next steps.',
+    },
+    none: {
+      maps: 'No map is in this campaign yet.',
+      trips: 'No trip is in this campaign yet.',
+    },
+    ownCampaign: 'a campaign of its own',
+    bring: 'Bring it ↗',
     untitledMap: 'Untitled map',
     untitledTrip: 'Untitled trip',
     open: 'Open ↗',
+    continue: 'Continue ↗',
     going: 'going on',
     goingHelp: 'The trip going on in the campaign now (one at a time).',
-    howTo:
-      'To add a map, open it in the Hexmapper and choose this campaign in **Map settings → Campaign**; to add a trip, choose it in Travel’s trip room.',
-    newMap: 'Open the Hexmapper ↗',
-    newTrip: 'Open Travel ↗',
+  },
+  cast: {
+    intro:
+      'The characters of your roster (the Characters app) playing in this campaign: in its trips’ parties, among those present, or on its maps’ tokens. Each is in one place at a time.',
+    none: 'No character of the roster plays in this campaign yet.',
+    onTrip: 'in “{place}”',
+    onToken: 'a token on “{place}”',
+    roster: 'Open the roster ↗',
+  },
+  overview: {
+    today: 'Today',
+    going: 'Going on',
+    goingHelp:
+      'The trip going on in the campaign: one at a time, since its time is the campaign’s. **Continue ↗** opens it where it’s played.',
+    nothingGoing: 'No trip is going on.',
+    next: 'Coming next',
+    clocks: 'Progress clocks',
+    latest: 'Lately',
+    maps: 'Maps: {count}',
+    trips: 'Trips: {count}',
+    cast: 'Characters: {count}',
+    factions: 'Factions: {count}',
   },
   storage: {
     full: 'The browser’s storage is full: packs and campaigns may not be saved.',

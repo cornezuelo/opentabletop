@@ -47,6 +47,7 @@ export const en = {
     eventsHelp:
       "Things that happen on a date: a festival, an attack, a ship arriving. They come due when time reaches them, in the timeline and the trip's journal; repeating ones come back.\n• _The Salt Lords attack_ in 3 days\n• _Market day_ every 7 days",
     noEvents: 'Nothing scheduled.',
+    noClocks: 'No progress clocks.',
     eventName: 'What happens',
     inDays: 'In days',
     at: 'at',

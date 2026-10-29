@@ -1,11 +1,21 @@
 <script lang="ts">
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { AppShell, Dialogs, Toasts, Welcome } from '@open-tabletop/ui-kit'
+  import { AppShell, Dialogs, readCurrentCampaign, Toasts } from '@open-tabletop/ui-kit'
   import CampaignView from './components/CampaignView.svelte'
   import NewCampaign from './components/NewCampaign.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
+  import { campaigns } from './lib/campaign.svelte'
+
+  // Opened without a campaign (the site's root, Home): the one being played, else the
+  // newest; with none yet, making one is all it offers.
+  $effect(() => {
+    if (nav.view.name !== 'welcome' || !campaigns.loaded) return
+    const current = readCurrentCampaign()
+    const to = campaigns.list.find((c) => c.id === current) ?? campaigns.list[0]
+    if (to) go({ name: 'campaign', id: to.id, tab: 'overview' }, true)
+  })
 </script>
 
 <AppShell
@@ -29,8 +39,8 @@
     <CampaignView id={nav.view.id} tab={nav.view.tab} faction={nav.view.faction} />
   {:else if nav.view.name === 'new'}
     <NewCampaign />
-  {:else}
-    <Welcome title={t('welcome.title')} tagline={t('app.tagline')} body={t('welcome.body')} />
+  {:else if campaigns.loaded && !campaigns.list.length}
+    <NewCampaign first />
   {/if}
 </AppShell>
 

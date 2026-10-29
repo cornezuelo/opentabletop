@@ -3,9 +3,9 @@ import { t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 import { view } from '../store/view'
-import { openExampleMap, openLibraryMap, openMapFile } from './actions.svelte'
+import { openExampleMap, openInCampaign, openLibraryMap, openMapFile } from './actions.svelte'
 import { exampleMaps } from './examples'
-import { ask } from '@open-tabletop/ui-kit'
+import { ask, parseInCampaign } from '@open-tabletop/ui-kit'
 import { formatDeepLink, parseDeepLink, parseExampleLink, resolveHexLabel } from './deepLink'
 
 /** Shareable URL of the open map, or of one of its hexes (CCRR/axial label). */
@@ -22,6 +22,14 @@ async function follow(hash: string): Promise<void> {
     if (found) await openExampleMap(found)
     else
       showToast(t('library.exampleMissing', { path: `${example.pack}/${example.path}` }), 'error')
+    history.replaceState(null, '', formatDeepLink(editor.map.meta.id))
+    return
+  }
+  const inCampaign = parseInCampaign(hash)
+  if (inCampaign) {
+    // A new map in a campaign, or one of the library joining it (the Campaign app's Maps).
+    if ((await openInCampaign(inCampaign.campaign, inCampaign.id)) === 'missing')
+      showToast(t('library.missing', { id: inCampaign.id ?? '' }), 'error')
     history.replaceState(null, '', formatDeepLink(editor.map.meta.id))
     return
   }

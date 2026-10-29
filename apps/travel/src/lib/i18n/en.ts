@@ -24,5 +24,6 @@ export const en = {
     title: 'Travel',
     body: 'Pick a system on the left to play a trip with it. Trips here have no map: you describe the way hex by hex, and the system decides how fast you go over each terrain and road, what you carry, and which checks are rolled on the way. Systems are made and edited in the Systems app; to travel on a map, use the Hexmapper (Play mode) with the same systems.',
   },
+  inCampaign: { missing: 'The trip {id} isn’t in this browser.' },
   storage: { full: 'Browser storage is full: export your packs to keep them safe.' },
 } as const

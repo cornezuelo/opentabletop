@@ -22,10 +22,6 @@ export const es: Messages<typeof en> = {
     untitled: 'Campaña sin nombre',
     makeSystems: 'Crear o editar sistemas →',
   },
-  welcome: {
-    title: 'Campaign',
-    body: 'Una campaña es el mundo que comparten tus mapas y viajes: una fecha y un calendario, los eventos y relojes de progreso por venir, lo que ha pasado (su cronología), las facciones y los mazos del Oráculo. Cada mapa del Hexmapper y cada viaje de Travel está en una; un mapa o viaje nuevo empieza una campaña propia, y se une a otra desde sus ajustes.\n\nElige una campaña a la izquierda, o crea una con **Nueva campaña** y añádele mapas y viajes.',
-  },
   new: {
     title: 'Nueva campaña',
     name: 'Nombre',
@@ -33,6 +29,17 @@ export const es: Messages<typeof en> = {
     system: vocabulary.es.terms.system,
     systemHelp:
       'El sistema de juego con el que se juegan sus mapas y viajes: su calendario nombra los días, y sus relojes de progreso, su clima y sus facciones son los de la campaña. Un mapa o viaje que se une a la campaña juega con él.',
+    firstTitle: 'Empieza tu campaña',
+    firstIntro:
+      'Una campaña es el mundo que comparten tus mapas y viajes: su fecha y su calendario, los eventos y relojes de progreso por venir, lo que ha pasado, sus facciones y los mazos del Oráculo. Dale un nombre y el sistema de juego con el que se juega; los mapas, viajes y personajes llegan después.',
+    clock: 'Poner en marcha el reloj del mundo',
+    clockHelp:
+      'La fecha de la campaña, compartida por sus mapas y viajes: avanza según viajan, o a mano. Sin marcar, se puede poner en marcha después en **Mundo**.\n• El día en que empieza es un día del calendario del sistema',
+    start: 'Empieza el',
+    factions: 'Traer sus facciones ({count})',
+    factionsHelp:
+      'Los poderes que declara el sistema (`kind: factions`): sus hojas llegan ahora, y la tierra con que empieza cada una llega con cada mapa que entre en la campaña. Sin marcar, se pueden traer después en **Facciones**.',
+    without: '¿Solo tirar dados o llevar personajes? Abre',
     create: 'Crear',
   },
   campaign: {
@@ -51,11 +58,12 @@ export const es: Messages<typeof en> = {
     playingHelp:
       'En una campaña hay un viaje en marcha a la vez, ya que su tiempo es el de la campaña. Si avanzas el tiempo aquí, ese viaje espera hasta la nueva fecha cuando dé su siguiente paso.',
     open: 'Abrir',
+    more: 'Más',
     delete: 'Borrar',
     confirmDelete:
       '¿Borrar la campaña «{name}»? Se olvidan su reloj del mundo, su cronología, sus facciones y el estado de su Oráculo. No hay nada en ella.',
     cantDelete:
-      'En esta campaña: {list}. Llévalos a otra campaña (o bórralos) antes: mira Mapas y viajes.',
+      'En esta campaña: {list}. Llévalos a otra campaña (o bórralos) antes: mira **Mapas** y **Viajes**.',
     deleted: 'Campaña «{name}» borrada.',
     missing: 'Esta campaña no se guarda en este navegador.',
     noRewindTrip:
@@ -95,35 +103,73 @@ export const es: Messages<typeof en> = {
   },
   tabs: {
     label: 'La campaña',
+    overview: 'Resumen',
     world: 'Mundo',
+    maps: 'Mapas',
+    trips: 'Viajes',
+    characters: 'Personajes',
     factions: campaignTexts.es.factions.title,
     timeline: 'Cronología',
-    places: 'Mapas y viajes',
-  },
-  world: {
-    help: 'El reloj de la campaña: la fecha de hoy, eventos que programas (una fiesta, un ataque, un plazo), relojes de progreso y el clima del mundo. Es el mismo reloj en todos los mapas y viajes de la campaña: moverlo aquí lo mueve allí.',
   },
   timeline: {
     none: 'El reloj del mundo aún no está en marcha: ponlo en marcha en **Mundo**.',
   },
   places: {
-    maps: 'Mapas',
-    mapsHelp:
-      'Los mapas del Hexmapper (su biblioteca en este navegador) que están en esta campaña. Un mapa se une a otra campaña en sus **Ajustes del mapa → Campaña**.',
-    trips: 'Viajes',
-    tripsHelp:
-      'Los viajes de Travel (sin mapa) en esta campaña. Un viaje se une a otra campaña en su sala del viaje (**Campaña**). El viaje de un mapa se juega en su mapa.',
-    noMaps: 'Ningún mapa.',
-    noTrips: 'Ningún viaje.',
-    untitledMap: 'Mapa sin nombre',
-    untitledTrip: 'Viaje sin nombre',
+    mapsIntro:
+      'Los mapas del Hexmapper (su biblioteca en este navegador) que están en esta campaña: sus viajes y tokens se juegan en su mundo. **Abrir ↗** abre uno allí.',
+    tripsIntro:
+      'Los viajes de Travel (sin mapa) que están en esta campaña: su tiempo es el de la campaña. El viaje de un mapa se juega en su mapa, en **Mapas**.',
+    new: {
+      maps: 'Nuevo mapa en esta campaña ↗',
+      trips: 'Nuevo viaje en esta campaña ↗',
+    },
+    add: {
+      maps: 'Añadir un mapa existente…',
+      trips: 'Añadir un viaje existente…',
+    },
+    addTitle: {
+      maps: 'Los demás mapas de este navegador',
+      trips: 'Los demás viajes de este navegador',
+    },
+    addHelp: {
+      maps: 'Un mapa está en una campaña a la vez. **Traerlo** lo abre en el Hexmapper y lo mueve aquí, como hace su **Ajustes del mapa → Campaña**: si su campaña tiene un mundo propio (un reloj, facciones), se pregunta cuál se queda. La campaña que deja se borra si no queda nada en ella.',
+      trips:
+        'Un viaje está en una campaña a la vez. **Traerlo** lo abre en Travel y lo mueve aquí, como hace la **Campaña** de su sala del viaje: si su campaña tiene un mundo propio, se pregunta cuál se queda. Su tiempo pasa a ser el de esta campaña en su siguiente paso.',
+    },
+    none: {
+      maps: 'Aún no hay ningún mapa en esta campaña.',
+      trips: 'Aún no hay ningún viaje en esta campaña.',
+    },
+    ownCampaign: 'una campaña propia',
+    bring: 'Traerlo ↗',
+    untitledMap: 'Mapa sin título',
+    untitledTrip: 'Viaje sin título',
     open: 'Abrir ↗',
-    going: 'en marcha',
-    goingHelp: 'El viaje en marcha en la campaña ahora (uno a la vez).',
-    howTo:
-      'Para añadir un mapa, ábrelo en el Hexmapper y elige esta campaña en **Ajustes del mapa → Campaña**; para añadir un viaje, elígela en la sala del viaje de Travel.',
-    newMap: 'Abrir el Hexmapper ↗',
-    newTrip: 'Abrir Travel ↗',
+    continue: 'Seguir ↗',
+    going: 'en curso',
+    goingHelp: 'El viaje en curso en la campaña ahora (uno a la vez).',
+  },
+  cast: {
+    intro:
+      'Los personajes de tu plantel (la aplicación Characters) que juegan en esta campaña: en el grupo de sus viajes, entre los presentes o en los tokens de sus mapas. Cada uno está en un sitio a la vez.',
+    none: 'Aún no juega en esta campaña ningún personaje del plantel.',
+    onTrip: 'en «{place}»',
+    onToken: 'un token en «{place}»',
+    roster: 'Abrir el plantel ↗',
+  },
+  overview: {
+    today: 'Hoy',
+    going: 'En curso',
+    goingHelp:
+      'El viaje en curso en la campaña: uno a la vez, porque su tiempo es el de la campaña. **Seguir ↗** lo abre donde se juega.',
+    nothingGoing: 'No hay ningún viaje en curso.',
+    next: 'Lo próximo',
+    clocks: 'Relojes de progreso',
+    latest: 'Últimamente',
+    maps: 'Mapas: {count}',
+    trips: 'Viajes: {count}',
+    cast: 'Personajes: {count}',
+    factions: 'Facciones: {count}',
   },
   storage: {
     full: 'El almacenamiento del navegador está lleno: puede que no se guarden packs ni campañas.',

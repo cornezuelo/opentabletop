@@ -26,6 +26,7 @@ export const es: Messages<typeof en> = {
     title: 'Travel',
     body: 'Elige un sistema a la izquierda para jugar un viaje con él. Aquí los viajes no tienen mapa: describes el camino hex a hex, y el sistema decide a qué velocidad se va por cada terreno y camino, qué se lleva encima y qué comprobaciones se tiran por el camino. Los sistemas se crean y editan en la aplicación Systems; para viajar sobre un mapa, usa el Hexmapper (modo Jugar) con los mismos sistemas.',
   },
+  inCampaign: { missing: 'El viaje {id} no está en este navegador.' },
   storage: {
     full: 'El almacenamiento del navegador está lleno: exporta tus packs para no perderlos.',
   },
