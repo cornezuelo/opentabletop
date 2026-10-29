@@ -1,6 +1,6 @@
 # The bestiary, and results that make things — design
 
-Design for the backlog's _A bestiary_ (Characters engine) and the user's point 6, _Results that make things: entities from templates_, written together as agreed on 2026-10-29. **To review with the user**: section 8 lists what needs a decision, each with Claude's recommendation.
+Design for the backlog's _A bestiary_ (Characters engine) and the user's point 6, _Results that make things: entities from templates_, written together as agreed on 2026-10-29. **Decided with the user 2026-10-29**: section 8.
 
 The asks, in the user's words: "en Characters nos falta algo estilo bestiario… poder editar fichas para monstruos aparte de PJs y PNJs" (2026-10-19); "el oráculo dice «3 lobos hambrientos», se generan tres lobos independientes saliendo de su template con sus hojas. El mecanismo sirve tanto para PNJ, objetos, lugares y otras entidades reconocidas por OTD" (2026-10-20); "necesitaremos una manera de representar varios tokens en el mismo hex… que seleccionar el hex muestre los tokens que hay en él" (2026-10-29).
 
@@ -54,6 +54,7 @@ kind: bestiary
 id: beasts
 name: Beasts of the Marches
 sheet: sheet.beast # every entry's sheet, unless the entry names its own
+behind: leave # copies left behind are gone (absent: they stay); an entry may say otherwise
 templates:
   grey-wolf:
     name: Grey wolf
@@ -80,6 +81,7 @@ templates:
 - `like`: a variant of another template of the same catalogue; chains allowed, a loop refused on load.
 - `names`: a table or generator rolled for each copy's name.
 - `token`: its look on a map (an icon, a kind, a colour), all optional.
+- `behind`: what happens to its copies when the party leaves them behind, `stay` or `leave` (section 3.3); the catalogue's default and an entry's own.
 - Translated in `locales/` like any definition (`bestiary/beasts`, keyed by template).
 - The system lists its catalogues: `bestiary: [bestiary.beasts, bestiary.folk]` in `kind: system`, beside `items:`.
 
@@ -89,7 +91,12 @@ A copy is a plain character (`CharacterState`) with one more field, the template
 
 ### 3.3 Those present
 
-The trip keeps the copies it made (`present`, beside `members` in session's state), **each where it was made** (the hex, or the way's place in Travel). **Those present are the ones at the party's place**: what tables, conditions and effects see. Moving on leaves them behind, still drawn where they were on the map and back among those present if the party returns; nothing a system needs to write for "the wolves don't follow you". Section 8 b weighs the other way (they follow until removed).
+The trip keeps the copies it made (`present`, beside `members` in session's state), **each where it was made** (the hex, or the way's place in Travel). **Those present are the ones at the party's place**: what tables, conditions and effects see. **What happens to those left behind is the system's** (the user, 2026-10-29: a system may prefer a new encounter rolled every time the hex is visited): `behind:` on the catalogue, or on a template, says it:
+
+- `behind: stay` (the documented default): moving on leaves them behind, still drawn where they were on the map and back among those present if the party returns. A lair, a camp, a guard at a bridge.
+- `behind: leave`: they're gone when the party leaves their place (a `PRESENT_LEFT` line), so the next visit rolls its encounter afresh. Wandering wolves, a patrol, a crowd.
+
+Anything subtler (they follow for a day, they come back at night) is a sheet condition with `leaves: true` (below), or an action, reading where the copy is (`self.here`: at the party's place) and the time.
 
 Effects, with the paths party members already use:
 
@@ -149,13 +156,15 @@ Why effects and not a new `creates:` key (the backlog's first sketch): effects a
 
 Each phase brings its manual pages and its part of the bundled packs, in English and Spanish.
 
-## 8. To decide with the user
+## 8. Decided with the user (2026-10-29)
 
-- **a. The kind's name**: `kind: bestiary` (recommended: what players call it, and NPC types read fine in it, as B/X lists bandits among monsters) or `kind: templates`.
-- **b. Where copies are**: (1) **each where it was made**, those present being the ones at the party's place (recommended: leaving them behind needs no rule, they stay drawn on the map, and point 7's rooms and point 9's zones are places too); (2) with the party until removed (a system then writes the leaving, at `trip.hex-enter`).
-- **c. Paths**: `present.<template>` to make and count, `present.<template>.…` / `present.all.…` for every copy, `characters.<id>` for one (recommended: the members' vocabulary, so `acting`, roles and point 9's turns can point at a copy later).
-- **d. Gone by itself**: a sheet condition's `leaves: true` (recommended: a state of the sheet says it, like a spent item's `spent: remove`), or only effects and the player.
-- **e. Editing a template later**: copies keep what they were made with (recommended), or follow the template.
-- **f. A user's bestiary in a bundled system**: through the packs a map or campaign adds (recommended: the mechanism exists), or a list in Preferences.
-- **g. Systems' Bestiary tab** too, sharing the Characters app's form (recommended, for consistency with Items), or the Characters app only.
-- **h. Places from results** (`kind: places`, `hex.pois.<template>`): the last phase (recommended), or left for later altogether.
+The user approved Claude's recommendations ("me parece bien en general"), with **b** changed:
+
+- **a.** `kind: bestiary`.
+- **b.** **The system decides** what happens to copies left behind (the user: "lo de que sean persistentes o no tendrá que decidirlo el sistema, puede haber algún sistema que prefiera volver a tirar un nuevo conflicto cada vez que se visita el hex"): `behind: stay | leave` on the catalogue or a template, `stay` the documented default (section 3.3). Each copy is kept where it was made; those present are the ones at the party's place.
+- **c.** `present.<template>` to make and count, `present.<template>.…` / `present.all.…` for every copy, `characters.<id>` for one: the members' vocabulary.
+- **d.** A sheet condition's `leaves: true` takes a copy off by itself; effects and the player do the rest.
+- **e.** Copies keep what they were made with; editing a template changes only copies made after.
+- **f.** A user's bestiary reaches a system through the packs a map or campaign adds.
+- **g.** Systems gets a **Bestiary** tab too, sharing the Characters app's form.
+- **h.** Places from results (`kind: places`, `hex.pois.<template>`) are the last phase.
