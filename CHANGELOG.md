@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-10-29
+
 ### Apps
 
 - Every app: **Playing: <campaign> ▾** in the bar says which campaign you're playing, the same in every app, with **Open in Campaign ↗**, the other campaigns and **New campaign ↗**. It follows what you open: a map in the Hexmapper, a trip going on in Travel or a campaign in Campaign makes theirs the one you're playing; in the Oracle and Characters you choose it there (or **Play in no campaign**).
