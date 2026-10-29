@@ -7,6 +7,7 @@
   import { rulesFile, systemFile, systemParts, systemRoot } from '../lib/newSystem'
   import { library, systems } from '../lib/packs.svelte'
   import { systemDoc } from '../lib/systemDoc.svelte'
+  import { systemTabs } from '../lib/tabs'
   import { staleCopies } from '../lib/transfer'
   import ChecksForm from './forms/ChecksForm.svelte'
   import RulesForm from './forms/RulesForm.svelte'
@@ -24,27 +25,9 @@
   const file = $derived(system ? rulesFile(system) : null)
   const declared = $derived(system ? systemFile(system) : null)
   const root = $derived(system ? (systemRoot(system) ?? file?.root) : undefined)
-  const tabs = $derived<Tab[]>([
-    'overview',
-    ...(file ? (['rules', 'checks'] as Tab[]) : []),
-    ...(system?.pack
-      ? ([
-          'sheet',
-          'items',
-          'bestiary',
-          'bestiary',
-          'factions',
-          'clocks',
-          'world',
-          'calendar',
-          'weather',
-          'land',
-          'modes',
-        ] as Tab[])
-      : []),
-    'try',
-    ...(file || declared ? (['yaml'] as Tab[]) : []),
-  ])
+  const tabs = $derived(
+    systemTabs({ rules: !!file, pack: !!system?.pack, files: !!(file || declared) }),
+  )
   const doc = systemDoc(() => file ?? { root: '', path: '' })
   const overview = systemDoc(() => declared ?? { root: '', path: '' })
   /** The files its parts are written in, for the YAML tab (its rules' first). */
