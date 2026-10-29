@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import { tooltip } from './tooltip'
 
   /** A small pill after a name: where it comes from (`personal`) or that it has news (`updated`). */
-  let { kind, children }: { kind?: 'personal' | 'updated'; children: Snippet } = $props()
+  let { kind, tip, children }: { kind?: 'personal' | 'updated'; tip?: string; children: Snippet } =
+    $props()
 </script>
 
-<span class="tag {kind ?? ''}">{@render children()}</span>
+<span class="tag {kind ?? ''}" use:tooltip={tip}>{@render children()}</span>
 
 <style>
   .tag {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fullText, tooltip } from '@open-tabletop/ui-kit'
+  import { fullText, SideCount, SideTag, tooltip } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { OlderPacks } from '@open-tabletop/pack-ui'
   import { displayName, KIND_ORDER } from '../lib/names'
@@ -100,19 +100,18 @@
               {manifest.name ?? pack.root}
             </button>
             {#if pack.personal}
-              <span class="tag personal" use:tooltip={t('originTips.personal')}
-                >{t('origin.personal')}</span
+              <SideTag kind="personal" tip={t('originTips.personal')}
+                >{t('origin.personal')}</SideTag
               >
             {/if}
             {#if pack.overrides}
-              <span class="tag" use:tooltip={t('originTips.edited')}>{t('origin.edited')}</span>
+              <SideTag tip={t('originTips.edited')}>{t('origin.edited')}</SideTag>
               {#if workspace.bundledChanges(pack.root).length}
-                <span class="tag updated" use:tooltip={t('originTips.updated')}
-                  >{t('origin.updated')}</span
+                <SideTag kind="updated" tip={t('originTips.updated')}>{t('origin.updated')}</SideTag
                 >
               {/if}
             {:else if pack.origin === 'bundled'}
-              <span class="tag" use:tooltip={t('originTips.bundled')}>{t('origin.bundled')}</span>
+              <SideTag tip={t('originTips.bundled')}>{t('origin.bundled')}</SideTag>
             {/if}
             {#if pack.origin === 'user'}
               <button
@@ -123,7 +122,8 @@
               >
             {/if}
             {#if errors}
-              <span class="errors" use:tooltip={t('nav.problems', { count: errors })}>{errors}</span
+              <span class="push"
+                ><SideCount count={errors} tip={t('nav.problems', { count: errors })} /></span
               >
             {/if}
           </div>
@@ -211,24 +211,6 @@
     cursor: pointer;
   }
 
-  .tag {
-    flex: none;
-    padding: 0 5px;
-    font-size: 10px;
-    color: var(--text-muted);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-  }
-
-  .tag.personal {
-    color: #d8c58a;
-  }
-
-  .tag.updated {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
-
   .add {
     flex: none;
     width: 20px;
@@ -248,20 +230,13 @@
     border-color: var(--panel-border);
   }
 
-  .add + .errors {
-    margin-left: 0;
+  .push {
+    display: flex;
+    margin-left: auto;
   }
 
-  .errors {
-    flex: none;
-    min-width: 16px;
-    margin-left: auto;
-    padding: 0 4px;
-    font-size: 11px;
-    color: white;
-    text-align: center;
-    background: var(--danger);
-    border-radius: 8px;
+  .add + .push {
+    margin-left: 0;
   }
 
   ul {

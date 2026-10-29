@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SideItem, SideList, SideTag, Sidebar, tooltip } from '@open-tabletop/ui-kit'
+  import { SideCount, SideItem, SideList, SideTag, Sidebar } from '@open-tabletop/ui-kit'
   import { OlderPacks } from '@open-tabletop/pack-ui'
   import { systemName } from '@open-tabletop/session'
   import { getLocale, t } from '../lib/i18n'
@@ -48,19 +48,15 @@
       >
         {#if o}<SideTag>{t(`origin.${o}`)}</SideTag>{/if}
         {#if library.bundledChanges(library.rootOf(s.id) ?? '').length}
-          <span class="updated" use:tooltip={t('edit.updatedTip')}>
-            <SideTag kind="updated">{t('origin.updated')}</SideTag>
-          </span>
+          <SideTag kind="updated" tip={t('edit.updatedTip')}>{t('origin.updated')}</SideTag>
         {:else if staleCopies(s).length}
-          <span class="updated" use:tooltip={t('edit.staleTip')}>
-            <SideTag kind="updated">{t('origin.updated')}</SideTag>
-          </span>
+          <SideTag kind="updated" tip={t('edit.staleTip')}>{t('origin.updated')}</SideTag>
         {/if}
         {#if library.pack(library.rootOf(s.id) ?? '')?.personal}
           <SideTag kind="personal">{t('origin.personal')}</SideTag>
         {/if}
         {#if count}
-          <span class="errors" use:tooltip={t('nav.problems', { count })}>{count}</span>
+          <SideCount {count} tip={t('nav.problems', { count })} />
         {/if}
       </SideItem>
     {/each}
@@ -79,21 +75,6 @@
 </Sidebar>
 
 <style>
-  .updated {
-    display: flex;
-  }
-
-  .errors {
-    flex: none;
-    min-width: 16px;
-    padding: 0 4px;
-    font-size: 11px;
-    color: white;
-    text-align: center;
-    background: var(--danger);
-    border-radius: 8px;
-  }
-
   form {
     display: flex;
     gap: 4px;
