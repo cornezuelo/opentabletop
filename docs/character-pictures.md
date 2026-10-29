@@ -57,6 +57,7 @@ No image editing (crop, filters) beyond the automatic shrink; no galleries or se
 - c. **Images from the notes app** wait until the notes integration is taken up; nice to have if SilverBullet and Obsidian can really serve them, not a priority.
 - d. **Tokens opt in**, one by one (**Show its picture**).
 - e. **Not a priority**: the work in course comes first.
+- f. **Asked 2026-10-29, to fold in when this is taken up:** zoom and crop before the picture is shrunk, and basic operations (rotate, flip, perhaps brightness), in the browser; and pictures on more than characters: items (optional), POIs, perhaps factions, bestiary templates and the party. It points to a store of pictures not tied to characters (see §8).
 
 ## 8. An image library? (asked 2026-10-23: "ve pensando en hacer una biblioteca de imágenes… si te tiene sentido, que igual no aporta nada")
 
