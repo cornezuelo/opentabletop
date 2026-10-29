@@ -24,7 +24,30 @@
 
   const entry = $derived(rosterEntry(roster.roster, id))
   const character = $derived(entry?.character)
-  const system = $derived(character ? systems.ofSheet(character.sheet) : undefined)
+  const found = $derived(character ? systems.sheetOf(character.sheet) : undefined)
+  const system = $derived(found?.system)
+  /** The Systems tab its sheet is edited in. */
+  const sheetTab = $derived(
+    !system || !character
+      ? 'sheet'
+      : character.sheet === system.sheet.id || character.sheet === system.partySheet?.id
+        ? 'sheet'
+        : character.sheet === system.factions?.sheet.id
+          ? 'factions'
+          : 'bestiary',
+  )
+  /** The template it's a copy of, named, if its bestiary is one of its system's. */
+  const madeFrom = $derived.by(() => {
+    const from = character?.template
+    if (!from) return undefined
+    const bestiary = system?.bestiary?.find((b) => b.id === from.from)
+    const def = bestiary?.def.templates[from.id]
+    return {
+      ...from,
+      name: sheetText(def?.name, getLocale()) ?? from.id,
+      bestiaryName: bestiary && (sheetText(bestiary.def.name, getLocale()) ?? from.from),
+    }
+  })
   const label = $derived(character ? character.name || character.id : '')
   /** The other roster characters, for its relations (`character:<id>`). */
   const targets = $derived(
@@ -100,18 +123,33 @@
     <dl class="facts">
       <dt>{t('character.sheet')}<InfoTip markdown={t('character.sheetHelp')} /></dt>
       <dd>
-        {#if system}
-          {sheetText(system.sheet.def.name, getLocale()) ?? character.sheet} · {systemName(
+        {#if found && system}
+          {sheetText(found.def.name, getLocale()) ?? character.sheet} · {systemName(
             system,
             getLocale(),
           )}
-          <a href="{appUrl('systems')}#/system/{encodeURIComponent(system.id)}/sheet"
+          <a href="{appUrl('systems')}#/system/{encodeURIComponent(system.id)}/{sheetTab}"
             >{t('character.editSheet')}</a
           >
         {:else}
           <code>{character.sheet}</code>
         {/if}
       </dd>
+      {#if madeFrom}
+        <dt>{t('character.madeFrom')}<InfoTip markdown={t('character.madeFromHelp')} /></dt>
+        <dd>
+          {madeFrom.name}{#if madeFrom.bestiaryName}
+            {' '}({madeFrom.bestiaryName})
+            <a
+              href="#/bestiary"
+              onclick={(e) => {
+                e.preventDefault()
+                go({ name: 'bestiary', bestiary: madeFrom.from, template: madeFrom.id })
+              }}>{t('character.openTemplate')}</a
+            >{:else}
+            <code>{madeFrom.from}</code>{/if}
+        </dd>
+      {/if}
       <dt>{t('character.id')}<InfoTip markdown={t('character.idHelp', { id })} /></dt>
       <dd><code>{id}</code></dd>
       <dt>{t('character.where')}<InfoTip markdown={t('character.whereHelp')} /></dt>
@@ -141,9 +179,9 @@
       />
     </label>
 
-    {#if system}
+    {#if found && system}
       <CharacterCard
-        sheet={system.sheet.def}
+        sheet={found.def}
         {character}
         catalogues={system.items}
         locale={getLocale()}

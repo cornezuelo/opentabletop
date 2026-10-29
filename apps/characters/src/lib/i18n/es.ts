@@ -60,6 +60,10 @@ export const es: Messages<typeof en> = {
     sheetHelp:
       'La hoja con la que está hecho (`pack/id`): sus valores, contadores, estados y tipos de relación. Una hoja es de su sistema, y se edita en la aplicación Systems.',
     editSheet: 'Editar la hoja en Systems →',
+    madeFrom: 'Hecho a partir de',
+    madeFromHelp:
+      'La plantilla de un bestiario de la que se copió: sus números se tiraron al hacerlo y, desde entonces, es un personaje como cualquier otro. Cambiar la plantilla después no lo cambia.',
+    openTemplate: 'Abrir en el Bestiario',
     missingSheet:
       'Su hoja ({sheet}) no está cargada: sus valores se muestran tal cual, y no se pueden cambiar hasta que vuelva su pack.',
     id: 'Id',

@@ -35,6 +35,8 @@
   const label = (value: Parameters<typeof sheetText>[0], id: string) =>
     sheetText(value, locale) ?? idName(id)
   const written = (v: unknown) => (v === undefined ? '' : String(v))
+  /** A text players read, in the editor's language (translations come as `{ en, es }`). */
+  const shown = (v: Parameters<typeof sheetText>[0]) => sheetText(v, locale) ?? ''
   /** What was typed: a number when it is one, else the roll or variable as written. */
   const read = (text: string): number | string | undefined => {
     const s = text.trim()
@@ -95,7 +97,7 @@
       <span>{t('name')}</span>
       <input
         type="text"
-        value={written(template.name)}
+        value={shown(template.name)}
         {disabled}
         onchange={(e) => set('name', e.currentTarget.value.trim())}
       />
@@ -104,7 +106,7 @@
       <span>{t('template.description')}</span>
       <input
         type="text"
-        value={written(template.description)}
+        value={shown(template.description)}
         {disabled}
         onchange={(e) => set('description', e.currentTarget.value.trim())}
       />

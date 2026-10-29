@@ -5,7 +5,7 @@ La aplicación Characters guarda tu **plantel**: los personajes que guarda este 
 ## La pantalla
 
 - **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañitas de los bordes de la columna central (‹ ›) pliegan la lista de personajes y la columna de ayuda, y las vuelven a sacar.
-- **Personajes** (izquierda): **Nuevo personaje**, **Importar…**, un buscador y el plantel agrupado por sistema (el sistema con cuya hoja de personajes está hecho cada uno; **Otras hojas** para aquellos cuyo sistema no está cargado). Bajo la lista, **Bestiario** abre las plantillas del sistema ([más abajo](#el-bestiario)) y **Crear o editar sistemas** abre la aplicación Systems.
+- **Personajes** (izquierda): **Nuevo personaje**, **Importar…**, un buscador y el plantel agrupado por sistema (el sistema con cuya hoja está hecho cada uno: la de sus personajes u otra de sus hojas, como la de una bestia para una copia de una plantilla; **Otras hojas** para aquellos cuyo sistema no está cargado). Bajo la lista, **Bestiario** abre las plantillas del sistema ([más abajo](#el-bestiario)) y **Crear o editar sistemas** abre la aplicación Systems.
 - **El personaje** (centro): el que elijas en la lista.
 
 Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y la columna de ayuda se abre en ella.
@@ -18,6 +18,7 @@ Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y l
 
 - **Duplicar** hace una copia con sus valores, solo en el plantel; **Exportar** lo descarga como fichero `.otd.json`; **Borrar** lo quita del plantel (tras preguntar).
 - **Hoja**: la hoja con la que está hecho y su sistema, con **Editar la hoja en Systems →**. Un personaje cuya hoja no está cargada (su pack quitado, o un pack de uso personal en otra compilación) muestra sus valores tal cual, y no se puede cambiar hasta que vuelva la hoja.
+- **Hecho a partir de**, en una copia de una plantilla: la plantilla y su bestiario, con **Abrir en el Bestiario**. Sus números se tiraron al hacerlo; desde entonces es un personaje como cualquier otro, que se edita aquí, y cambiar la plantilla no lo cambia.
 - **Id**: cómo se lee, como arriba.
 - **Dónde juega**: el mapa o el viaje en el que viaja ahora, con **Abrir**, o _solo en el plantel_; debajo, la campaña en la que está ese mapa o viaje, con **Abrir en Campaign ↗** (la aplicación [Campaign](../campaign/01-getting-started.md)).
 - **Notas**: su página en tu aplicación de notas (una ruta como `Personajes/Viejo Tobin`); **↗** la abre. La aplicación de notas se elige en **Preferencias**. Su historia, su aspecto y sus secretos viven allí, no aquí.
@@ -28,9 +29,9 @@ Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y l
 
 **Bestiario** (bajo la lista) muestra las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una de las hojas del sistema cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia ([Bestiario](../systems/18-bestiary.md)). Elige el sistema, busca por nombre, id o etiqueta y elige una plantilla:
 
-- **Hacer copias en el plantel** crea ese número de personajes independientes, con el nombre de la plantilla y numerados (_Lobo gris 1_, _2_…), cada uno con sus propias tiradas y recordando la plantilla de la que viene. Útil para llevar la cuenta de lobos concretos sin un viaje.
+- **Hacer copias en el plantel** crea ese número de personajes independientes, con el nombre de la plantilla y numerados (_Lobo gris 1_, _2_…), cada uno con sus propias tiradas y recordando la plantilla de la que viene (**Hecho a partir de**). Salen con su sistema y se editan como cualquier personaje. Útil para llevar la cuenta de lobos concretos sin un viaje.
 - Su ficha muestra lo que dice la plantilla: **Valores** (un número o una tirada; vacío toma el valor por defecto de la hoja, en gris), **Condiciones**, **Etiquetas**, **Objetos** de los catálogos del sistema, la plantilla de la que es **Variante**, el generador de donde salen sus **Nombres**, qué pasa con las copias **Al dejarlas atrás** y su **Ficha**.
-- Una plantilla de un pack incluido es de solo lectura: **Editar una copia del pack** crea un pack tuyo (que sustituye al incluido) donde se puede cambiar. Los cambios se guardan según los haces y solo afectan a las copias que se hagan después. **Nueva plantilla** y **Borrar la plantilla** funcionan en un pack tuyo.
+- Una plantilla de un pack incluido es de solo lectura: **Editar una copia del pack** crea un pack tuyo (que sustituye al incluido) donde se puede cambiar. Los cambios se guardan según los haces y solo afectan a las copias que se hagan después. Su nombre y su descripción se escriben en el idioma de la aplicación: en la propia plantilla si es el idioma del pack, y si no, en la traducción del pack ([Traducir](../technical/01-translating.md)). **Nueva plantilla** y **Borrar la plantilla** funcionan en un pack tuyo.
 
 ## De viaje
 

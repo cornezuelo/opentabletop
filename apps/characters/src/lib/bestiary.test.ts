@@ -35,6 +35,46 @@ describe('the bestiary in Characters', () => {
     expect(made.every((c) => c.template?.id === 'grey-wolf')).toBe(true)
   })
 
+  it('finds a copy on a sheet of its own with its system, to edit it like any character', async () => {
+    const { roster, systems, makeCopies } = await open()
+    const marches = systems.list.find((s) => s.id === 'grey-marches')!
+    const [id] = makeCopies(marches, 'grey-wolf', 'Grey wolf', 1)
+    const wolf = roster.roster.characters.find((e) => e.character.id === id)!.character
+    expect(wolf.sheet).not.toBe(marches.sheet.id)
+    const found = systems.sheetOf(wolf.sheet)!
+    expect(found.system.id).toBe('grey-marches')
+    expect(found.def.values.health).toBeDefined()
+    expect(systems.ofSheet(marches.sheet.id)?.id).toBe('grey-marches')
+  })
+
+  it('writes a template’s texts in the language being edited, the rest where it changed', async () => {
+    const { library, systems, templatesOf, saveTemplate } = await open()
+    const entry = () =>
+      templatesOf(
+        systems.list.find((s) => s.id === 'grey-marches')!,
+        'es',
+      ).find((e) => e.id === 'grey-wolf')!
+    library.editCopy('grey-marches')
+    const root = library.rootOf('grey-marches')!
+    const before = entry().def
+    // Translated texts come folded in as { en, es }.
+    expect(typeof before.name).toBe('object')
+    saveTemplate(entry().bestiary, 'grey-wolf', { ...before, name: 'Lobo flaco' }, before, 'es')
+    expect(library.readFile(root, 'locales/es/bestiary.yaml')).toContain('name: Lobo flaco')
+    saveTemplate(
+      entry().bestiary,
+      'grey-wolf',
+      { ...entry().def, tags: ['beast'] },
+      entry().def,
+      'es',
+    )
+    const base = library.readFile(root, 'bestiary.yaml')!
+    expect(base).toContain('name: Grey wolf')
+    expect(base).not.toContain('Lobo')
+    expect(entry().def.tags).toEqual(['beast'])
+    expect(entry().def.name).toEqual({ en: 'Grey wolf', es: 'Lobo flaco' })
+  })
+
   it('changes a template only in a pack of the user, after a copy of the bundled one', async () => {
     const { library, systems, templatesOf, saveTemplate, canEdit } = await open()
     const marches = () => systems.list.find((s) => s.id === 'grey-marches')!

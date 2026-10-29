@@ -5,6 +5,7 @@ export { default as OlderPacks } from './OlderPacks.svelte'
 export { PackLibrary } from './library.svelte'
 export * from './packs'
 export * from './yaml'
+export { overlayTexts, type PackFiles } from './texts'
 export { completeYaml, yamlHints, type YamlHints } from './completion'
 export {
   FACTION_SHEET,

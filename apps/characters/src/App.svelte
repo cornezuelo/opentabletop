@@ -29,7 +29,9 @@
   {#if nav.view.name === 'character'}
     {#key nav.view.id}<CharacterView id={nav.view.id} />{/key}
   {:else if nav.view.name === 'bestiary'}
-    <BestiaryView />
+    {#key `${nav.view.bestiary}:${nav.view.template}`}
+      <BestiaryView bestiary={nav.view.bestiary} template={nav.view.template} />
+    {/key}
   {:else if nav.view.name === 'new'}
     <NewCharacter />
   {:else}

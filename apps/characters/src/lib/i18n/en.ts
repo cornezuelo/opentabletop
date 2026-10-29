@@ -57,6 +57,10 @@ export const en = {
     sheetHelp:
       'The sheet it’s made with (`pack/id`): its values, tracks, conditions and kinds of relation. A sheet belongs to its system, and is edited in the Systems app.',
     editSheet: 'Edit the sheet in Systems →',
+    madeFrom: 'Made from',
+    madeFromHelp:
+      'The template of a bestiary it was copied from: its numbers were rolled when it was made, and it’s a character like any other from then on. Changing the template later doesn’t change it.',
+    openTemplate: 'Open in the Bestiary',
     missingSheet:
       'Its sheet ({sheet}) isn’t loaded: its values are shown as they are, and can’t be changed until its pack is back.',
     id: 'Id',

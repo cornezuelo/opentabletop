@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- Characters: a copy of a template on a sheet of its own (a Grey Marches wolf) is listed with its system and edited like any character, instead of under **Other sheets**, read-only; its view says what it was **Made from**, with a link to the template in the Bestiary.
+- Characters' Bestiary: translated names and descriptions no longer show as `[object Object]`, and editing a template writes its texts in the language being edited (the pack's translation file when it isn't the pack's own) and only what changed, instead of writing every translation into the template.
+
 ## [0.21.0] - 2026-10-29
 
 ### Apps

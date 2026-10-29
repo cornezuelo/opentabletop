@@ -1,3 +1,4 @@
+import type { Sheet } from '@open-tabletop/character-engine'
 import { groupBundled, PackLibrary } from '@open-tabletop/pack-ui'
 import { travelSystems, type TravelSystem } from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
@@ -27,17 +28,43 @@ export const library = new PackLibrary(
   },
 )
 
+/** A system that has a sheet for its characters. */
+export type CharacterSystem = TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
+
 /** The systems that have a sheet for their characters: characters are made with theirs. */
 class Systems {
-  list: (TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> })[] = $derived(
-    travelSystems(library.registry).systems.filter(
-      (s): s is TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> } => !!s.sheet,
-    ),
+  list: CharacterSystem[] = $derived(
+    travelSystems(library.registry).systems.filter((s): s is CharacterSystem => !!s.sheet),
   )
 
-  /** The first system whose characters are made with a sheet (`pack/id`). */
+  /**
+   * The system a sheet (`pack/id`) belongs to, and the sheet: any of its sheets (its
+   * characters', its party's, its factions', its templates'), so a copy of a template on a
+   * sheet of its own (a beast's) is found too. Systems whose characters use it come first.
+   */
+  sheetOf(sheet: string): { system: CharacterSystem; def: Sheet } | undefined {
+    const own = this.list.find((s) => s.sheet.id === sheet)
+    if (own) return { system: own, def: own.sheet.def }
+    for (const system of this.list) {
+      const def = sheetsOf(system)[sheet]
+      if (def) return { system, def }
+    }
+    return undefined
+  }
+
+  /** The system a sheet (`pack/id`) belongs to. */
   ofSheet(sheet: string) {
-    return this.list.find((s) => s.sheet.id === sheet)
+    return this.sheetOf(sheet)?.system
+  }
+}
+
+/** Every sheet of a system, by `pack/id`. */
+function sheetsOf(system: TravelSystem): Record<string, Sheet> {
+  return {
+    ...system.templateSheets,
+    ...(system.factions && { [system.factions.sheet.id]: system.factions.sheet.def }),
+    ...(system.partySheet && { [system.partySheet.id]: system.partySheet.def }),
+    ...(system.sheet && { [system.sheet.id]: system.sheet.def }),
   }
 }
 

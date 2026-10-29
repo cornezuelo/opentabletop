@@ -5,7 +5,7 @@ The Characters app keeps your **roster**: the characters this browser keeps, of 
 ## The screen
 
 - **Header**: the app switcher (nine dots), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the characters list and the help column away, and bring them back.
-- **Characters** (left): **New character**, **Import…**, a search box, and the roster grouped by system (the system whose characters' sheet each one is made with; **Other sheets** for those whose system isn't loaded). Under the list, **Bestiary** opens the system's templates ([below](#the-bestiary)) and **Make or edit systems** opens the Systems app.
+- **Characters** (left): **New character**, **Import…**, a search box, and the roster grouped by system (the system whose sheet each one is made with: its characters', or another of its sheets, such as a beast's for a copy of a template; **Other sheets** for those whose system isn't loaded). Under the list, **Bestiary** opens the system's templates ([below](#the-bestiary)) and **Make or edit systems** opens the Systems app.
 - **The character** (center): the one chosen in the list.
 
 Labels underlined with dots have an explanation: click one and the help column opens on it.
@@ -18,6 +18,7 @@ Labels underlined with dots have an explanation: click one and the help column o
 
 - **Duplicate** makes a copy with its values, in the roster only; **Export** downloads it as an `.otd.json` file; **Delete** removes it from the roster (after asking).
 - **Sheet**: the sheet it's made with and its system, with **Edit the sheet in Systems →**. A character whose sheet isn't loaded (its pack removed, or a personal-use pack in another build) shows its values as they are, and can't be changed until the sheet is back.
+- **Made from**, for a copy of a template: the template and its bestiary, with **Open in the Bestiary**. Its numbers were rolled when it was made; from then on it's a character like any other, edited here, and changing the template doesn't change it.
 - **Id**: how it's read, as above.
 - **Where it plays**: the map or trip it travels on now, with **Open**, or _only in the roster_; under it, the campaign that map or trip is in, with **Open in Campaign ↗** (the [Campaign](../campaign/01-getting-started.md) app).
 - **Notes**: its page in your notes app (a path such as `People/Old Tobin`); **↗** opens it. The notes app is chosen in **Preferences**. Its story, looks and secrets live there, not here.
@@ -28,9 +29,9 @@ Labels underlined with dots have an explanation: click one and the help column o
 
 **Bestiary** (under the list) shows the creatures and kinds of people a system can make, as **templates**: each a character of one of the system's sheets whose rolls (`{{2d4}}`) are made again for every copy ([Bestiary](../systems/18-bestiary.md)). Pick the system, search by name, id or tag, and pick a template:
 
-- **Make copies in the roster** makes that many independent characters, named after the template and numbered (_Grey wolf 1_, _2_…), each with its own rolls and remembering the template it came from. Handy to keep track of specific wolves without a trip.
+- **Make copies in the roster** makes that many independent characters, named after the template and numbered (_Grey wolf 1_, _2_…), each with its own rolls and remembering the template it came from (**Made from**). They're listed with their system, and edited like any character. Handy to keep track of specific wolves without a trip.
 - Its card shows what the template says: **Values** (a number or a roll; empty takes the sheet's default, shown faint), **Conditions**, **Tags**, **Items** from the system's catalogues, the one it is a **Variant of**, the generator its **Names** come from, what becomes of copies **Left behind** and its **Token**.
-- A template in a bundled pack is read-only: **Edit a copy of the pack** makes a pack of your own (it overrides the bundled one) where it can be changed. Changes are saved as you make them and only affect copies made afterwards. **New template** and **Delete the template** work in a pack of your own.
+- A template in a bundled pack is read-only: **Edit a copy of the pack** makes a pack of your own (it overrides the bundled one) where it can be changed. Changes are saved as you make them and only affect copies made afterwards. Its name and description are written in the language the app is in: in the template itself when it's the pack's own language, otherwise in the pack's translation ([Translating](../technical/01-translating.md)). **New template** and **Delete the template** work in a pack of your own.
 
 ## On trips
 

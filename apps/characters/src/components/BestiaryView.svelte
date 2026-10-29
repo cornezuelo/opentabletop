@@ -19,13 +19,19 @@
   /**
    * The bestiary of a system: its templates (creatures, kinds of people), each a character
    * of a sheet whose rolls are made again for every copy. Make copies as roster characters,
-   * and, in a pack of the user's, change them (a bundled pack is copied first).
+   * and, in a pack of the user's, change them (a bundled pack is copied first). A template
+   * may be given to show first (a copy's **Made from**).
    */
-  let chosen = $state(systems.list[0]?.id ?? '')
+  let { bestiary, template }: { bestiary?: string; template?: string } = $props()
+
+  let chosen = $state(
+    (bestiary && systems.list.find((s) => s.bestiary?.some((b) => b.id === bestiary))?.id) ||
+      (systems.list[0]?.id ?? ''),
+  )
   const system = $derived<TravelSystem | undefined>(systems.list.find((s) => s.id === chosen))
   const entries = $derived(system ? templatesOf(system, getLocale()) : [])
   let search = $state('')
-  let picked = $state('')
+  let picked = $state(bestiary && template ? `${bestiary}:${template}` : '')
   const shown = $derived.by(() => {
     const wanted = search.trim().toLowerCase()
     return entries.filter(
@@ -44,7 +50,7 @@
   const own = $derived((system?.bestiary ?? []).find((b) => canEdit(b.id))?.id)
 
   function change(next: TemplateDef) {
-    if (entry) saveTemplate(entry.bestiary, entry.id, next)
+    if (entry) saveTemplate(entry.bestiary, entry.id, next, entry.def, getLocale())
   }
   function copyPack() {
     const source = entry && bestiarySource(entry.bestiary)

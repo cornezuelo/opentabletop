@@ -1,6 +1,8 @@
-import type { Sheet, TemplateDef } from '@open-tabletop/character-engine'
+import type { Sheet, SheetText, TemplateDef } from '@open-tabletop/character-engine'
 import { sheetText, idName, roster } from '@open-tabletop/character-ui'
-import { readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
+import { overlayTexts } from '@open-tabletop/pack-ui'
+import { manifestOf } from '@open-tabletop/pack-ui/packs'
+import { readDefinition, setIn, type Path } from '@open-tabletop/pack-ui/yaml'
 import {
   characterId,
   keepInRoster,
@@ -55,17 +57,55 @@ export function canEdit(bestiary: string): boolean {
   return !!source && library.isEditable(source.root)
 }
 
-/** Writes a template (a new one or a changed one) into its bestiary's file; false if it can't. */
-export function saveTemplate(bestiary: string, id: string, def: TemplateDef): boolean {
+/** A template's texts players read, edited in the UI's language (`TemplateEditor` gives them as one string). */
+const TEXTS = ['name', 'description'] as const
+
+/**
+ * Writes a template into its bestiary's file; false if it can't. A new one (no `before`) is
+ * written whole; a changed one only where it changed, its texts in the language being edited
+ * (the definition for the pack's base language, else its translation file), as Systems does.
+ */
+export function saveTemplate(
+  bestiary: string,
+  id: string,
+  def: TemplateDef,
+  before?: TemplateDef,
+  locale = 'en',
+): boolean {
   const source = bestiarySource(bestiary)
   if (!source || !library.isEditable(source.root)) return false
-  const text = library.readFile(source.root, source.path) ?? ''
-  library.writeFile(
-    source.root,
-    source.path,
-    setIn(text, `@bestiary/${source.id}`, ['templates', id], def),
-    true,
-  )
+  const selector = `@bestiary/${source.id}`
+  const read = () => library.readFile(source.root, source.path) ?? ''
+  const write = (at: Path, value: unknown) =>
+    library.writeFile(source.root, source.path, setIn(read(), selector, at, value), true)
+  if (!before) {
+    write(['templates', id], def)
+    return true
+  }
+  const pack = library.pack(source.root)
+  const texts = overlayTexts({
+    library,
+    locale: () => locale,
+    root: () => source.root,
+    base: () => (pack && manifestOf(pack).locale) ?? 'en',
+    file: () => source.path,
+    key: () => selector.slice(1),
+    edit: (_kind, at, value) => write(at, value),
+  })
+  const next = def as Record<string, unknown>
+  const prev = before as Record<string, unknown>
+  for (const key of new Set([...Object.keys(next), ...Object.keys(prev)])) {
+    const at = ['templates', id, key]
+    if (JSON.stringify(next[key]) === JSON.stringify(prev[key])) continue
+    if ((TEXTS as readonly string[]).includes(key)) {
+      const typed = typeof next[key] === 'string' ? next[key] : ''
+      if (typed === (sheetText(prev[key] as SheetText | undefined, locale) ?? '')) continue
+      const raw = (readDefinition(read(), selector)?.templates as Record<string, TemplateDef>)?.[
+        id
+      ]?.[key as (typeof TEXTS)[number]]
+      texts.setText('', at, raw, at, typed)
+    } else write(at, next[key])
+  }
   return true
 }
 
