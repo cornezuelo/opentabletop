@@ -9,6 +9,7 @@ import {
   leavePlace,
   partyOf,
   pullMembers,
+  placeCharacters,
   SEASON_START_DAYS,
   settlePlace,
   startTrip,
@@ -23,6 +24,7 @@ import {
   type TravelSystem,
   addEntry,
   calendarOf,
+  withAddedBestiaries,
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
 import {
@@ -102,6 +104,8 @@ export interface TripStoreOptions {
   oldKey?: string
   systems: () => TravelSystem[]
   oracle: () => Parameters<typeof stepTrip>[0]['oracle']
+  /** The loaded packs, for the bestiaries the trip's campaign adds (absent: only its system's). */
+  registry?: () => Registry
   locale: () => string
   /**
    * The app whose trips take roster characters (`travel`): each trip is a place of the
@@ -116,6 +120,9 @@ export interface TripStoreOptions {
    */
   campaignApp?: string
 }
+
+/** The loaded packs, as session reads them. */
+type Registry = Parameters<typeof withAddedBestiaries>[1]
 
 /** The time of a change, for the roster (plain text, not reactive state). */
 const now = (): string => new Date(Date.now()).toISOString()
@@ -425,13 +432,29 @@ export class TripStore {
     void this.openCampaign()
   }
 
-  /** The open trip's system as it is now: edits to its rules count from the next step. */
+  /**
+   * The open trip's system as it is now: edits to its rules count from the next step. With
+   * the bestiaries of the packs its campaign adds, after its own.
+   */
   get system(): TravelSystem {
     const list = this.options.systems()
-    return (
+    const system =
       list.find((s) => s.id === this.saved.system) ?? list[0] ?? missingSystem(this.saved.system)
-    )
+    const packs = this.campaign?.packs ?? []
+    const registry = this.options.registry?.()
+    if (!packs.length || !registry) return system
+    const key = packs.join('\n')
+    const kept = this.added.get(system)
+    if (kept?.packs === key && kept.registry === registry) return kept.system
+    const done = withAddedBestiaries(system, registry, packs).system
+    this.added.set(system, { packs: key, registry, system: done })
+    return done
   }
+  /** Systems with their campaign's bestiaries, kept while its packs stay the same. */
+  private added = new WeakMap<
+    TravelSystem,
+    { packs: string; registry: Registry; system: TravelSystem }
+  >()
 
   private save() {
     try {
@@ -443,7 +466,14 @@ export class TripStore {
     // Its roster characters, as the trip has them now.
     const place = this.place
     if (place)
-      roster.set(settlePlace(roster.roster, this.saved.session?.members ?? [], place, now()))
+      roster.set(
+        settlePlace(
+          roster.roster,
+          this.saved.session ? placeCharacters(this.saved.session) : [],
+          place,
+          now(),
+        ),
+      )
   }
 
   /** A new trip with a system and season, at the first hex of the way. */

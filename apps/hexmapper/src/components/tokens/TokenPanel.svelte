@@ -8,7 +8,7 @@
     SheetOrigin,
     sheetText,
   } from '@open-tabletop/character-ui'
-  import { tripTab } from '@open-tabletop/travel-ui'
+  import { templateChoices, tripTab } from '@open-tabletop/travel-ui'
   import {
     characterId,
     keepInRoster,
@@ -59,7 +59,26 @@
     const iconId = Object.values(DEFAULT_TOKEN_ICONS).includes(t.iconId)
       ? DEFAULT_TOKEN_ICONS[kind]
       : t.iconId
-    editor.tokenTemplate = { ...t, kind, iconId }
+    editor.tokenTemplate = { ...t, kind, iconId, from: undefined }
+  }
+
+  /** The templates of the system's bestiary (and those its campaign's packs add). */
+  const bestiary = $derived(templateChoices(activeSystem(), getLocale()))
+  /** New tokens are copies of a template, with its look and its sheet (none: plain tokens). */
+  function fromBestiary(id: string) {
+    const choice = bestiary.find((c) => c.id === id)
+    if (!choice) {
+      editor.tokenTemplate = { ...editor.tokenTemplate, from: undefined }
+      return
+    }
+    const look = partyOf(activeSystem()).bestiary?.(id)?.template.token ?? {}
+    const kind = look.kind ?? 'enemy'
+    editor.tokenTemplate = {
+      kind,
+      iconId: look.icon ?? DEFAULT_TOKEN_ICONS[kind],
+      ...(look.color && { color: look.color }),
+      from: { id, name: choice.name },
+    }
   }
 
   /** The party's sheet, stats and characters are Play's: its Party tab. */
@@ -394,6 +413,18 @@
       auto
       onchange={(color) => (editor.tokenTemplate = { ...editor.tokenTemplate, color })}
     />
+    {#if bestiary.length}
+      <label class="field">
+        <span>{t('tokens.fromBestiary')}<InfoTip markdown={t('tokens.fromBestiaryHelp')} /></span>
+        <select
+          value={editor.tokenTemplate.from?.id ?? ''}
+          onchange={(e) => fromBestiary(e.currentTarget.value)}
+        >
+          <option value="">{t('tokens.noTemplate')}</option>
+          {#each bestiary as c (c.id)}<option value={c.id}>{c.name}</option>{/each}
+        </select>
+      </label>
+    {/if}
   </div>
 {/if}
 

@@ -536,11 +536,24 @@
             "id": "wyrm",
             "iconId": "game:dragon-head"
           }
+        },
+        "character": {
+          "sheet": "grey-marches/foe",
+          "values": {
+            "health": 30,
+            "harm": 4,
+            "morale": 12
+          },
+          "template": {
+            "id": "wyrm",
+            "from": "grey-marches/marches"
+          }
         }
       },
       "stats": {
         "might": "18"
-      }
+      },
+      "tags": ["beast", "wyrm"]
     }
   ],
   "maps": [

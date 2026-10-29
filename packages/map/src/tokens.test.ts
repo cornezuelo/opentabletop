@@ -62,6 +62,27 @@ describe('tokens', () => {
     expect(placed.some((p) => p.token.name === 'off')).toBe(false)
   })
 
+  it('past six on a hex, draws a group as one (×N), and the rest as a chip (+N)', () => {
+    const wolf = (n: number) => ({ ...token(`w${n}`, 'enemy', '0,0'), group: 'wolf' })
+    const six = [token('p', 'party', '0,0'), wolf(1), wolf(2), wolf(3), wolf(4), wolf(5)]
+    // Six fit apart.
+    expect(layoutTokens(six).map((p) => p.token.name)).toEqual(['p', 'w1', 'w2', 'w3', 'w4', 'w5'])
+    // A seventh: the wolves are one token, the first of them, for all five.
+    const seven = [...six, token('npc', 'npc', '0,0')]
+    let placed = layoutTokens(seven)
+    expect(placed.map((p) => p.token.name)).toEqual(['p', 'w1', 'npc'])
+    expect(placed[1].group?.map((t) => t.name)).toEqual(['w1', 'w2', 'w3', 'w4', 'w5'])
+    expect(placed[0].group).toBeUndefined()
+    // Drawn apart when asked, whatever the number.
+    expect(layoutTokens(seven, { group: false })).toHaveLength(7)
+    // Many of their own (no group): five fit, a chip holds the rest.
+    const crowd = Array.from({ length: 9 }, (_, i) => token(`c${i}`, 'npc', '1,1'))
+    placed = layoutTokens(crowd)
+    expect(placed).toHaveLength(6)
+    expect(placed[5].more?.map((t) => t.name)).toEqual(['c5', 'c6', 'c7', 'c8'])
+    expect(placed[5].token.name).toBe('c5')
+  })
+
   it('names new tokens', () => {
     expect(nextTokenName([token('Enemy 1', 'enemy')], 'enemy', 'Enemy')).toBe('Enemy 2')
   })

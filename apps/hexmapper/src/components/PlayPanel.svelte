@@ -107,6 +107,17 @@
   />
   {t('play.straightTrail')}<InfoTip text={t('play.straightTrailHelp')} />
 </label>
+{#if session?.present?.length}
+  <label class="check">
+    <input
+      type="checkbox"
+      checked={play?.copiesApart ?? false}
+      onchange={(e) =>
+        updatePlay((p) => ({ ...p, copiesApart: e.currentTarget.checked || undefined }))}
+    />
+    {t('play.copiesApart')}<InfoTip markdown={t('play.copiesApartHelp')} />
+  </label>
+{/if}
 
 {#if !party?.hex}
   <p class="help">{t('play.placeHelp')}</p>

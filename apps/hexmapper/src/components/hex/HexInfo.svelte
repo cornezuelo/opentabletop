@@ -2,6 +2,7 @@
   import FieldEditor from '../FieldEditor.svelte'
   import NameDisplay from '../NameDisplay.svelte'
   import LineIcon from '../LineIcon.svelte'
+  import HexHere from './HexHere.svelte'
   import HexIcon from './HexIcon.svelte'
   import HexNotes from './HexNotes.svelte'
   import HexPaths from './HexPaths.svelte'
@@ -100,6 +101,7 @@
   </div>
 
   {#key key}
+    <HexHere {key} />
     <label class="field">
       <span>{t('hex.name')}</span>
       <input

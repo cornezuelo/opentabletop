@@ -163,6 +163,21 @@ export const es: Messages<typeof en> = {
     fromMembers:
       'Sale de los valores de los personajes mientras el grupo tenga alguno (la regla del sistema): edita los suyos.',
   },
+  present: {
+    title: 'Aquí',
+    help: 'Los presentes: a quien encuentra el viaje, hechos con las plantillas del bestiario del sistema (un encuentro que trae tres lobos hace tres copias, cada una con sus propios valores tirados). Los que están donde está el grupo están aquí; las tablas, chequeos y acciones los leen y sus efectos los alcanzan, según el sistema:\n• `present.wolf: 3` — llegan tres lobos\n• `present.count: { gte: 1 }` — si hay alguien aquí\n• `present.wolf.values.health: -2` — cada lobo de aquí\n• `characters.wolf-2.values.health: -2` — uno de ellos\nUna copia cuya hoja tiene un estado que la quita (un enemigo abatido a 0 de salud) se va por sí sola cuando se cumple.',
+    none: 'No hay nadie.',
+    add: 'Añadir del bestiario',
+    addHelp:
+      'Hace a mano una copia de una plantilla aquí, como haría un efecto `present.<plantilla>: 1`: sus valores tirados, con el nombre de la plantilla. La lista es el bestiario del sistema y los de los packs que añade su campaña.',
+    remove: 'Quitar',
+    confirmRemove: '¿Quitar a {name} de los presentes?',
+    keepTip:
+      'Guarda esta copia en el plantel (la aplicación Characters) como un personaje propio, enlazado a este viaje mientras siga en él: un enemigo que se convierte en alguien a quien volver a ver.',
+    behind: '{count} dejados atrás en otros lugares',
+    behindHelp:
+      'Copias hechas en otro lugar, que el grupo dejó: se quedan allí y vuelven a estar aquí si regresa. Si los que se quedan atrás siguen allí o se van lo decide el sistema (el `behind` de cada plantilla).',
+  },
   blocked: {
     value: '{name}: no es posible el resto del día.',
     once: 'Una vez al día: ya se ha hecho hoy.',

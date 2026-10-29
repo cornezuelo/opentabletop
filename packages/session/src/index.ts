@@ -1289,20 +1289,42 @@ export function pullMembers(
   at: string = new Date().toISOString(),
 ): SessionState {
   const { characters, updated } = pullFromRoster(roster, s.members ?? [], place)
+  // Copies kept in the roster (those present) follow it too.
+  const copies = pullFromRoster(
+    roster,
+    (s.present ?? []).map((p) => p.character),
+    place,
+  )
+  updated.push(...copies.updated)
   if (!updated.length) return s
+  const named = [...characters, ...copies.characters]
   const next = addEntry(
     s,
     {
       source: 'user',
       code: 'ROSTER_UPDATED',
-      data: { names: updated.map((id) => characters.find((c) => c.id === id)?.name || id) },
+      data: { names: updated.map((id) => named.find((c) => c.id === id)?.name || id) },
     },
     at,
   )
-  next.members = structuredClone(characters)
+  if (s.members) next.members = structuredClone(characters)
+  if (copies.updated.length)
+    next.present = (s.present ?? []).map((p, i) => ({
+      ...p,
+      character: structuredClone(copies.characters[i]),
+    }))
   refreshParty(next, party)
   return next
 }
+
+/**
+ * The trip's characters as a place of the roster: its members, then those present (a copy
+ * kept in the roster plays in the trip until it leaves).
+ */
+export const placeCharacters = (s: SessionState): CharacterState[] => [
+  ...(s.members ?? []),
+  ...(s.present ?? []).map((p) => p.character),
+]
 
 /**
  * What the last step did: its journal entries, and those added after it (a table rolled

@@ -26,6 +26,8 @@ Systems declare their checks (the weather each morning, getting lost, encounters
 
 A result may also bring **those present**: characters made from the system's templates where the party is (the Grey Marches' wolves and their leader, each with its own health), kept in the trip until they fall, run or are left behind; the journal says who comes and goes. See [Those present](../travel/02-playing.md#characters).
 
+In Play they are drawn on the hexes where they were made, from the trip: they are never written into the map's tokens. Up to six tokens on a hex are drawn apart; past that, the copies of one template are one token with how many (**×6**), and what still doesn't fit is a chip (**+3**). Tick **Draw copies apart** in the Play panel to draw every copy on its own, however many. Selecting a hex lists everything on it under **Here**: the party, those present (the same cards as Travel's **Here** box) and the tokens placed by hand.
+
 The bundled **Grey Marches** show all of it, on their example map (**Maps → Example maps**): weather by season, getting lost off roads, encounters by terrain, region, danger and time of day, a toll on the bridge, a ford rolled on an oracle, a boat on the lake, and checks with no table — the trip stops at the standing stones (`landmark`) until you describe the place and press **Continue**. See [The Grey Marches](../packs/02-grey-marches.md).
 
 Terrain, roads and rivers, the hex's tags, fields and region, the season and today's weather all reach the travel rules and the tables, so a system can make forests slower or roads safe from getting lost. What each system does is in its pack: see [Roads, rivers, walls and borders](04-roads-and-rivers.md#what-roads-and-rivers-do-when-you-travel).

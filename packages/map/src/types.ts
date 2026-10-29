@@ -220,6 +220,8 @@ export interface PlayState {
   showTrail: boolean
   /** The trail and the planned route as straight lines between hexes (default: curves). */
   straightTrail?: boolean
+  /** Those present of one template on a hex drawn apart, however many (default: one ×N past six). */
+  copiesApart?: boolean
   /** Rules mode only: system (pack id or 'generic') and the session state (travel, oracle, journal). */
   /**
    * The trip: `system` is the one it was started with (its campaign's, at that

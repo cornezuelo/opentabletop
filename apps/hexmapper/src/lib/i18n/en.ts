@@ -479,6 +479,10 @@ export const en = {
       'Delete the party "{name}"? This ends the trip: its time, party sheet and journal are lost, and Ctrl+Z only brings back the token.',
     help: 'Click an empty hex to place a token like the one below (Shift+click adds one to a hex that already has tokens). Click a token to edit it and drag it to another hex; right-click or Delete removes it.',
     newTitle: 'New tokens',
+    fromBestiary: 'Place from the bestiary',
+    fromBestiaryHelp:
+      "New tokens are copies of a template of the system's bestiary (and of those its campaign's packs add): its look, its name and a sheet with its values rolled for each one, like a statblock. They're the map's, as any token you place: a guard at a bridge, a lair. Tables rolled with one selected read its sheet (`token.values.health`).\nThe copies a trip's results make are something else: those present, drawn in Play from the trip and never kept in the map.",
+    noTemplate: 'None (a plain token)',
     kind: 'Kind',
     kinds: { party: 'Party', pc: 'PC', npc: 'NPC', enemy: 'Enemy' },
     kindsPlural: {
@@ -536,6 +540,9 @@ export const en = {
     straightTrail: 'Straight lines',
     straightTrailHelp:
       'Draw the trail and the planned route as straight lines from hex to hex. Unticked, they curve and follow the drawn roads, trails and rivers they walk, beside them.',
+    copiesApart: 'Draw copies apart',
+    copiesApartHelp:
+      "Those present (the copies a trip's results make from the system's bestiary) are drawn on the hexes where they were made. Up to six tokens on a hex are drawn apart; past that, the copies of one template are one token with how many (×6), and what still doesn't fit is a chip (+3). Ticked, every copy is drawn apart, however many. Selecting a hex lists everything on it under **Here**.",
     placeHelp: 'Click a hex to place the party.',
     simpleHelp: 'The party is at {hex}: click a hex to move it there.',
     destinationHelp: 'Click a hex to set the destination.',

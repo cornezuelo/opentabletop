@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Travel, Hexmapper: **the Here box** in the Party tab lists those present as folded cards grouped by template (_×4_), editable by hand, with **×** to take one off, **Keep in the roster** and **Add from the bestiary**; the packs a campaign or map adds now bring their bestiaries to the system.
+- Hexmapper: in Play, those present are **drawn on their hexes** from the trip (never written into the map): past six on a hex, one token per template with **×N**, then a **+N** chip; **Draw copies apart** turns it off, and selecting a hex lists everything on it under **Here**. In Edit, tokens can be **placed from the bestiary**, with a sheet rolled for each; the Grey Marches' example map has the Wyrm's lair made that way.
+
 ## [0.19.0] - 2026-10-29
 
 ### Apps

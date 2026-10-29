@@ -2,6 +2,7 @@ import type { CharacterState } from '@open-tabletop/character-engine'
 import { roster } from '@open-tabletop/character-ui'
 import {
   partyOf,
+  placeCharacters,
   playingAt,
   pullFromRoster,
   pullMembers,
@@ -38,9 +39,11 @@ export const tokenPlace = (token: string, map: HexMap = editor.map): RosterPlace
   token,
 })
 
-/** The party's characters: the trip's, or the company waiting for one. */
-const membersOf = (map: HexMap): CharacterState[] =>
-  (map.play && sessionOf(map.play)?.members) ?? map.play?.rules?.members ?? []
+/** The party's characters (and those present the trip kept): the trip's, or the company waiting for one. */
+function membersOf(map: HexMap): CharacterState[] {
+  const session = map.play && sessionOf(map.play)
+  return session ? placeCharacters(session) : (map.play?.rules?.members ?? [])
+}
 
 /** A token's sheet as the roster character it is (the roster's id and name). */
 const tokenCharacter = (token: MapToken, as: CharacterState): CharacterState | undefined =>

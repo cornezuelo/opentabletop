@@ -14,6 +14,7 @@ import {
   resolveChange,
   type TravelState,
 } from '@open-tabletop/travel-engine'
+import { momentRoller } from '@open-tabletop/variables'
 
 /**
  * Those present (docs/bestiary.md): the copies of templates a trip made, each kept where
@@ -167,6 +168,30 @@ export function changePresent(
     names: made.map((p) => p.character.name ?? p.character.id),
   })
   return events
+}
+
+/**
+ * A copy of a template made outside a trip (a token placed on a map from the bestiary):
+ * its values rolled with rolls of its own, seeded by `seed`; undefined when the system has
+ * no such template or its sheet.
+ */
+export function templateCopy(
+  rules: PresentRules,
+  id: string,
+  init: { id: string; name?: string },
+  seed: string,
+): CharacterState | undefined {
+  const found = rules.bestiary?.(id)
+  const sheetId = found && rules.templateSheet?.(found.bestiary, id)
+  const sheet = sheetId ? rules.sheets?.[sheetId] : undefined
+  if (!found || !sheetId || !sheet) return undefined
+  return copyOf(
+    sheet,
+    sheetId,
+    found.template,
+    { ...init, from: found.bestiary },
+    { roller: momentRoller(seed), items: rules.items },
+  )
 }
 
 const left = (

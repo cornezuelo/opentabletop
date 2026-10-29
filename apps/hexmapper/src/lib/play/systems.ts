@@ -4,6 +4,7 @@ import {
   systemIdOf,
   systemUses,
   travelSystems,
+  withAddedBestiaries,
   type TravelSystem,
   type Use,
 } from '@open-tabletop/session'
@@ -30,10 +31,25 @@ export function playSystems(): TravelSystem[] {
   return load()
 }
 
-/** A system by id (`generic` is Core's); one that doesn't travel if its pack isn't loaded. */
+const added = new WeakMap<TravelSystem, { packs: string; system: TravelSystem }>()
+
+/**
+ * A system by id (`generic` is Core's); one that doesn't travel if its pack isn't loaded.
+ * With the bestiaries of the packs the map's campaign adds, after its own.
+ */
 export function getSystem(id: string): TravelSystem {
   const wanted = systemIdOf(id)
-  return load().find((s) => s.id === wanted) ?? missingSystem(wanted)
+  const system = load().find((s) => s.id === wanted)
+  if (!system) return missingSystem(wanted)
+  const packs = editor.setup.packs ?? []
+  if (!packs.length) return system
+  const key = packs.join('\n')
+  const kept = added.get(system)
+  if (kept?.packs === key) return kept.system
+  const done = withAddedBestiaries(system, library.registry, packs)
+  for (const p of done.problems) console.warn(`[packs] ${formatDiagnostic(p)}`)
+  added.set(system, { packs: key, system: done.system })
+  return done.system
 }
 
 /**

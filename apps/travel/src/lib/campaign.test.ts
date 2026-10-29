@@ -254,6 +254,37 @@ describe('trips in campaigns', () => {
     expect(trip.campaign?.factions?.lastTurn).toBe(after.factions!.lastTurn)
   })
 
+  it('a trip makes copies from the bestiaries of the packs its campaign adds', async () => {
+    const { campaign: c, trip, systems } = await openTravel()
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    const { partyOf, applyResult } = await import('@open-tabletop/session')
+    const { templateChoices } = await import('@open-tabletop/travel-ui')
+    // The Grey Marches' system names only its own bestiary; its campaign adds Core's pack.
+    expect(greyMarches.bestiary!.map((b) => b.id)).toEqual(['grey-marches/marches'])
+    const own = {
+      ...c.createCampaign('c1', 'Marches and more'),
+      system: greyMarches.id,
+      packs: ['core'],
+    }
+    kept.set('c1', {
+      id: 'c1',
+      name: 'Marches and more',
+      modified: own.modified,
+      json: c.serializeCampaign(own),
+    })
+    await trip.create(greyMarches.id, 'spring', 'c1')
+    await settle()
+    expect(trip.campaign?.packs).toEqual(['core'])
+    expect(trip.system.bestiary!.map((b) => b.id)).toEqual(['grey-marches/marches', 'core/foes'])
+    // The Here box offers Core's foe too, and an effect makes one, on Core's sheet.
+    expect(templateChoices(trip.system, 'en').map((t) => t.id)).toContain('foe')
+    trip.edit((s) => applyResult(s, { effects: { 'present.foe': 1 } }, {}, partyOf(trip.system)))
+    expect(trip.saved.session!.present![0].character).toMatchObject({
+      template: { id: 'foe', from: 'core/foes' },
+      sheet: 'core/character',
+    })
+  })
+
   it('a trip hears a clock filled in another app on its next step', async () => {
     const { campaign: c, world: w, trip, systems } = await openTravel()
     const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!

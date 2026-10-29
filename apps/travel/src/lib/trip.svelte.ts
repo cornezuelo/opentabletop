@@ -9,6 +9,7 @@ export const trip = new TripStore({
   oldKey: 'opentabletop.travel.trip',
   systems: () => systems.list,
   oracle: () => library.engine,
+  registry: () => library.registry,
   locale: getLocale,
   // Its trips take characters from the roster (the Characters app) and keep them in step.
   rosterApp: 'travel',

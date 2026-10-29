@@ -66,6 +66,7 @@
   import { tripTab, type TripTab } from './tripTab.svelte'
   import { journalFilter } from './journalFilter.svelte'
   import PartyMembers from './PartyMembers.svelte'
+  import PresentHere from './PresentHere.svelte'
   import { CharacterCard, SheetOrigin } from '@open-tabletop/character-ui'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import { WorldWaiting } from '@open-tabletop/campaign-ui'
@@ -952,6 +953,17 @@
           {systemWhere}
           {uses}
           {nameOf}
+          {onedit}
+        />
+      {/if}
+      {#if system.bestiary?.length || session.present?.length}
+        <PresentHere
+          {system}
+          {session}
+          {locale}
+          names={blockName}
+          placeName={hexLabel}
+          {place}
           {onedit}
         />
       {/if}

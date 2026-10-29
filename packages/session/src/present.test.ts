@@ -2,7 +2,8 @@ import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { applyResult } from './index'
+import { applyResult, placeCharacters, pullMembers } from './index'
+import { editInRoster, keepInRoster, settlePlace } from './roster'
 import { partyOf, startTrip, stepTrip, travelSystems, tripFacts, withAddedBestiaries } from './trip'
 import { removePresent } from './present'
 
@@ -260,5 +261,35 @@ describe('those present: copies of templates in a trip', () => {
       sheet: 'wilds/beast',
       template: { id: 'boar', from: 'mine/mine' },
     })
+  })
+
+  it('a copy kept in the roster plays in the trip, in step with it, until it leaves', () => {
+    const { session } = startTrip({ system: wilds, location: 'a', time: 8 * 60 })
+    const rules = partyOf(wilds)
+    let s = applyResult(session, { effects: { 'present.bandit': 1 } }, {}, rules)
+    const place = { app: 'travel', id: 't1', name: 'The trip' }
+    const bandit = s.present![0].character
+    let roster = keepInRoster({ characters: [] }, bandit, 'now', place).roster
+    // The trip's characters, for the roster, are its members and those present.
+    expect(placeCharacters(s).map((c) => c.id)).toEqual(['bandit'])
+    roster = settlePlace(roster, placeCharacters(s), place, 'now')
+    expect(roster.characters[0].playing).toEqual(place)
+
+    // Changed in the Characters app: the trip's copy follows, said in the journal.
+    roster = editInRoster(
+      roster,
+      'bandit',
+      (e) => ({ ...e, character: { ...e.character, values: { health: 9 } } }),
+      'later',
+    )
+    s = pullMembers(s, roster, place, rules)
+    expect(s.present![0].character.values.health).toBe(9)
+    expect(s.journal.at(-1)).toMatchObject({ code: 'ROSTER_UPDATED', data: { names: ['Bandit'] } })
+    expect(s.members).toBeUndefined()
+
+    // Gone from the trip: it stays in the roster, playing nowhere.
+    removePresent(s, 'bandit')
+    roster = settlePlace(roster, placeCharacters(s), place, 'now')
+    expect(roster.characters[0].playing).toBeUndefined()
   })
 })

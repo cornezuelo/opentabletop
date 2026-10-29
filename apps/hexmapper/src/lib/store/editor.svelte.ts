@@ -175,7 +175,13 @@ class Editor {
   /** Token selected with the token tool (its panel edits it). */
   selectedToken = $state<string | null>(null)
   /** What a click on an empty hex places with the token tool. */
-  tokenTemplate = $state<{ kind: TokenKind; iconId: string; color?: string }>({
+  tokenTemplate = $state<{
+    kind: TokenKind
+    iconId: string
+    color?: string
+    /** A template of the system's bestiary: the token is a copy of it, with its sheet. */
+    from?: { id: string; name: string }
+  }>({
     kind: 'pc',
     iconId: 'game:swordman',
   })

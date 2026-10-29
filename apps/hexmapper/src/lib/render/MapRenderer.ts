@@ -18,7 +18,6 @@ import {
   hasMetadata,
   hexesWithTag,
   ICON_DEFAULTS,
-  layoutTokens,
   type MapPath,
   nodeFlags,
   partyToken,
@@ -53,6 +52,7 @@ import {
 } from '@open-tabletop/hex'
 import { editor } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
+import { drawnTokens, isCopy } from '../play/present'
 import { currentTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 const EMPTY_FILL = 0x2a2823
@@ -462,6 +462,8 @@ export class MapRenderer {
       this.drawTokens()
     } else if (change.kind === 'play') {
       this.drawParty()
+      // Those present are drawn from the play state.
+      this.drawTokens()
     } else if (change.kind === 'regions') {
       this.drawRegions()
     } else if (change.kind === 'factions') {
@@ -923,20 +925,52 @@ export class MapRenderer {
     }
   }
 
-  /** Tokens (party, characters, enemies…): a ringed disc with the icon, several per hex. */
+  /**
+   * Tokens (party, characters, enemies…): a ringed disc with the icon, several per hex; in
+   * Play, those present too, a group of copies as one with ×N, and +N for what didn't fit.
+   */
   drawTokens(): void {
     for (const child of this.tokenLayer.removeChildren()) child.destroy()
     const { assets, grid } = editor.map
     const hs = grid.hexSize
     const g = new Graphics()
     this.tokenLayer.addChild(g)
-    for (const placed of layoutTokens(editor.map.tokens)) {
+    const drawn = drawnTokens()
+    const all = drawn.map((p) => p.token)
+    /** A small count on a token's lower right (×N) or in a chip (+N). */
+    const badge = (text: string, x: number, y: number, size: number) => {
+      const label = new Text({
+        text,
+        style: {
+          fontFamily: FONT_FAMILIES.sans.family,
+          fontSize: size,
+          fontWeight: '700',
+          fill: '#1b1a17',
+          stroke: { color: 0xf4eedd, width: size * 0.3, join: 'round' },
+        },
+      })
+      label.anchor.set(0.5)
+      label.position.set(x, y)
+      label.resolution = this.textResolution()
+      return label
+    }
+    const labels: Text[] = []
+    for (const placed of drawn) {
       const { token } = placed
       if (!inBounds(parseKey(placed.hex), grid)) continue
       const c = this.centerOf(parseKey(placed.hex))
       const at = { x: c.x + placed.dx * hs, y: c.y + placed.dy * hs }
       const r = placed.radius * hs
-      const color = tokenColor(token, editor.map.tokens)
+      if (placed.more) {
+        g.circle(at.x, at.y, r)
+          .fill({ color: 0xf4eedd, alpha: 0.92 })
+          .stroke({ width: Math.max(1, r * 0.1), color: 0x6b6458 })
+        labels.push(badge(`+${placed.more.length}`, at.x, at.y, r * 0.9))
+        continue
+      }
+      const color = tokenColor(token, all)
+      if (placed.group)
+        labels.push(badge(`×${placed.group.length}`, at.x + r * 0.75, at.y + r * 0.75, r * 0.7))
       if (token.halo !== false)
         g.circle(at.x, at.y, r)
           .fill({ color: 0xf4eedd, alpha: 0.92 })
@@ -957,9 +991,10 @@ export class MapRenderer {
       if (image.tintable) sprite.tint = color
       this.tokenLayer.addChild(sprite)
     }
-    for (const placed of layoutTokens(editor.map.tokens)) {
-      if (!placed.token.showName || !placed.token.name || !editor.map.captions.tokenNames.show)
-        continue
+    for (const label of labels) this.tokenLayer.addChild(label)
+    for (const placed of drawn) {
+      if (placed.more || !placed.token.showName || !placed.token.name) continue
+      if (!editor.map.captions.tokenNames.show) continue
       const c = this.centerOf(parseKey(placed.hex))
       const at = { x: c.x + placed.dx * hs, y: c.y + (placed.dy + placed.radius) * hs + 1 }
       this.tokenLayer.addChild(
@@ -968,12 +1003,13 @@ export class MapRenderer {
     }
   }
 
-  /** Topmost token under a world point. */
+  /** Topmost token of the map under a world point (those present and chips aren't picked). */
   private tokenAt(world: Point): string | null {
     const hs = editor.map.grid.hexSize
-    const placed = layoutTokens(editor.map.tokens)
+    const placed = drawnTokens()
     for (let i = placed.length - 1; i >= 0; i--) {
       const p = placed[i]
+      if (p.more || isCopy(p.token)) continue
       const c = this.centerOf(parseKey(p.hex))
       const d = Math.hypot(world.x - (c.x + p.dx * hs), world.y - (c.y + p.dy * hs))
       if (d <= p.radius * hs) return p.token.id

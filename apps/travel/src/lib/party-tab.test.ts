@@ -76,3 +76,51 @@ describe('the Party tab', () => {
     expect(trip.saved.session!.stats.charisma).toBe(0)
   })
 })
+
+describe('those present', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.spyOn(Math, 'random').mockReturnValue(0.42)
+  })
+
+  it('shows who is here grouped by template, and those left behind', async () => {
+    const { trip, session: s, text } = await openTravel()
+    await trip.create('grey-marches', 'spring')
+    for (let i = 0; i < 4; i++) trip.addHex({ terrain: 'plains', tags: [], edges: ['road'] })
+    // Nobody yet: the box says so, and offers the system's bestiary.
+    let shown = text()
+    expect(shown).toContain('Nobody here.')
+    expect(shown).toContain('Add from the bestiary')
+    expect(shown).toContain('Grey wolf')
+
+    // Three wolves and their leader come (without one they break), as an encounter's
+    // effects would make them; and the Wyrm.
+    const rules = s.partyOf(trip.system)
+    trip.edit((x) => {
+      const next = structuredClone(x)
+      s.changePresent(next, rules, 'grey-wolf', 3)
+      s.changePresent(next, rules, 'pack-leader', 1)
+      s.changePresent(next, rules, 'wyrm', 1)
+      return next
+    })
+    const wolves = trip.saved.session!.present!.filter(
+      (p) => p.character.template?.id === 'grey-wolf',
+    )
+    expect(wolves).toHaveLength(3)
+    shown = text()
+    expect(shown).not.toContain('Nobody here.')
+    expect(shown).toContain('Grey wolf ×3')
+    // Each copy in one line: the values its sheet shows first.
+    const wolf = wolves[1].character
+    expect(shown).toContain(`Health ${wolf.values.health} · Harm ${wolf.values.harm}`)
+
+    // The party moves on: the pack (`behind: leave`) is gone, the Wyrm stays in its place.
+    await trip.step({ type: 'action', id: 'march' })
+    const left = trip.saved.session!.present ?? []
+    expect(trip.saved.session!.travel.location).not.toBe('0')
+    expect(left.map((p) => p.character.template?.id)).toEqual(['wyrm'])
+    shown = text()
+    expect(shown).toContain('1 left behind elsewhere')
+    expect(shown).toContain('Nobody here.')
+  })
+})

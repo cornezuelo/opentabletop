@@ -484,6 +484,10 @@ export const es: Messages = {
       '¿Borrar el grupo «{name}»? Se termina el viaje: se pierden su tiempo, la hoja del grupo y el diario, y Ctrl+Z solo recupera el token.',
     help: 'Haz clic en un hex vacío para colocar un token como el de abajo (Mayús+clic añade otro a un hex que ya tiene tokens). Haz clic en un token para editarlo y arrástralo a otro hex; clic derecho o Supr lo quita.',
     newTitle: 'Tokens nuevos',
+    fromBestiary: 'Colocar desde el bestiario',
+    fromBestiaryHelp:
+      'Los tokens nuevos son copias de una plantilla del bestiario del sistema (y de los que añaden los packs de su campaña): su aspecto, su nombre y una hoja con sus valores tirados para cada uno, como un perfil. Son del mapa, como cualquier token que coloques: un guardia en un puente, una guarida. Las tablas que se tiran con uno seleccionado leen su hoja (`token.values.health`).\nLas copias que hacen los resultados de un viaje son otra cosa: los presentes, dibujados en Jugar a partir del viaje y nunca guardados en el mapa.',
+    noTemplate: 'Ninguna (un token sin más)',
     kind: 'Tipo',
     kinds: { party: 'Grupo', pc: 'PJ', npc: 'PNJ', enemy: 'Enemigo' },
     kindsPlural: {
@@ -541,6 +545,9 @@ export const es: Messages = {
     straightTrail: 'Líneas rectas',
     straightTrailHelp:
       'Dibuja el rastro y la ruta planeada como líneas rectas de hex a hex. Sin marcar, se curvan y siguen los caminos, senderos y ríos dibujados que recorren, a su lado.',
+    copiesApart: 'Dibujar copias aparte',
+    copiesApartHelp:
+      'Los presentes (las copias que los resultados de un viaje hacen del bestiario del sistema) se dibujan en los hexes donde se hicieron. Hasta seis tokens en un hex se dibujan separados; a partir de ahí, las copias de una misma plantilla son un solo token con cuántas son (×6), y lo que aún no cabe es una ficha (+3). Marcado, cada copia se dibuja aparte, sean cuantas sean. Al seleccionar un hex se lista todo lo que hay en él en **Aquí**.',
     placeHelp: 'Haz clic en un hex para colocar al grupo.',
     simpleHelp: 'El grupo está en {hex}: haz clic en un hex para moverlo allí.',
     destinationHelp: 'Haz clic en un hex para fijar el destino.',

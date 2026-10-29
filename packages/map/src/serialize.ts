@@ -450,6 +450,7 @@ function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
     ),
     showTrail: p.showTrail !== false,
     ...(p.straightTrail === true && { straightTrail: true }),
+    ...(p.copiesApart === true && { copiesApart: true }),
     ...(isRecord(p.discover) && {
       discover: {
         on: p.discover.on === true,

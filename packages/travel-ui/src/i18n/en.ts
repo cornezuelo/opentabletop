@@ -165,6 +165,22 @@ export const en = {
     fromMembers:
       'Made of the characters’ values while the party has any (the system’s rule): edit theirs.',
   },
+  /** Those present: copies of the system's templates the trip made. */
+  present: {
+    title: 'Here',
+    help: "Those present: who the trip meets, made from the templates of the system's bestiary (an encounter that brings three wolves makes three copies, each with its own rolled values). The ones at the party's place are here; tables, checks and actions read them and their effects reach them, depending on the system:\n• `present.wolf: 3` — three wolves come\n• `present.count: { gte: 1 }` — whether anyone is here\n• `present.wolf.values.health: -2` — every wolf here\n• `characters.wolf-2.values.health: -2` — one of them\nA copy whose sheet has a condition that takes it off (a foe down at 0 health) leaves by itself when it holds.",
+    none: 'Nobody here.',
+    add: 'Add from the bestiary',
+    addHelp:
+      "Makes one copy of a template here by hand, as an effect `present.<template>: 1` would: its values rolled, named from the template. The list is the system's bestiary and those of the packs its campaign adds.",
+    remove: 'Take off',
+    confirmRemove: 'Take {name} off those present?',
+    keepTip:
+      'Keeps this copy in the roster (the Characters app) as a character of its own, linked to this trip while it stays: a foe that becomes someone you meet again.',
+    behind: '{count} left behind elsewhere',
+    behindHelp:
+      "Copies made at another place, which the party left: they stay there and are here again if it comes back. Whether those left behind stay or go is the system's (each template's `behind`).",
+  },
   /** Why a button is disabled. */
   blocked: {
     value: '{name}: not possible for the rest of the day.',

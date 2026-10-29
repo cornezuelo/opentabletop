@@ -5,7 +5,6 @@ import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../com
 import {
   type HexIcon,
   type LayerId,
-  layoutTokens,
   type MapPath,
   type MapToken,
   newId,
@@ -15,6 +14,7 @@ import {
 } from '@open-tabletop/map'
 import { clickHex, partyMoved } from '../play/play'
 import { paintTerritory } from '../play/factions'
+import { drawnTokens, isCopy, tokenFromBestiary } from '../play/present'
 import { placeInHex } from '../render/pathGeometry'
 import {
   hexToPixel,
@@ -167,8 +167,8 @@ class TokenTool implements Tool {
       if (selected.kind === 'party') partyMoved(hex)
       return true
     }
-    const { kind, iconId, color } = editor.tokenTemplate
-    const token: MapToken = {
+    const { kind, iconId, color, from } = editor.tokenTemplate
+    const token: MapToken = (from && tokenFromBestiary(from.id, hex, from.name)) || {
       id: newId(),
       name: nextTokenName(editor.map.tokens, kind, t(`tokens.kinds.${kind}` as MessageKey)),
       kind,
@@ -220,8 +220,8 @@ function nearestTokenIn(cell: Offset, world: Point): string | null {
   const center = cellCenter(cell)
   const hs = editor.map.grid.hexSize
   let best: { id: string; d: number } | null = null
-  for (const p of layoutTokens(editor.map.tokens)) {
-    if (p.hex !== hex) continue
+  for (const p of drawnTokens()) {
+    if (p.hex !== hex || p.more || isCopy(p.token)) continue
     const d = Math.hypot(world.x - (center.x + p.dx * hs), world.y - (center.y + p.dy * hs))
     if (!best || d < best.d) best = { id: p.token.id, d }
   }

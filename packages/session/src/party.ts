@@ -597,6 +597,7 @@ export function characterToOtd(
         ...(member.relations.length && { relations: member.relations }),
         ...(member.items?.length && { items: member.items }),
         ...(member.places && { places: member.places }),
+        ...(member.template && { template: member.template }),
       },
     },
   }
@@ -633,8 +634,16 @@ export function characterFromOtd(raw: {
     ...(typeof own.places === 'object' &&
       own.places !== null &&
       !Array.isArray(own.places) && { places: own.places as CharacterState['places'] }),
+    ...(isTemplateRef(own.template) && { template: own.template }),
   }
 }
+
+/** A copy's template as kept (`{ id, from }`). */
+const isTemplateRef = (v: unknown): v is NonNullable<CharacterState['template']> =>
+  typeof v === 'object' &&
+  v !== null &&
+  typeof (v as { id?: unknown }).id === 'string' &&
+  typeof (v as { from?: unknown }).from === 'string'
 
 /**
  * The map as the trip sees it, with the members' relations to each hex: a relation to
