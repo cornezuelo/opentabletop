@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-10-29
+
 ### Apps
 
 - Characters: the left column has two tabs, **Characters** and **Bestiary**, alike: grouped by system, then by sheet when a system has several (companions and foes), with a search and a **filter by tag** (a variant has its template's tags); the Bestiary's own system picker and list are gone, and **New template** asks for the system and a name. `TagFilter` (ui-kit) is the shared filter.
