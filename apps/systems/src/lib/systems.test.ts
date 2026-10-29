@@ -301,6 +301,17 @@ describe('systems in the Systems app', () => {
     // Every read after a change reloads the packs: a few seconds in all.
   }, 30_000)
 
+  it('a new bestiary is created on the system, named by it and valid', () => {
+    const id = createSystem('Menagerie')!
+    const system = () => systems.get(id)!
+    expect(systemParts(system(), 'bestiary')).toEqual([])
+    expect(createSystemPart(system(), 'bestiary')).toBe('creatures')
+    expect(systemParts(system(), 'bestiary')).toMatchObject([{ root: id, kind: 'bestiary' }])
+    expect(library.readFile(id, 'system.yaml')).toMatch(/bestiary:/)
+    expect(Object.keys(system().bestiary?.[0].def.templates ?? {})).toEqual(['wolf', 'wolf-leader'])
+    expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
+  }, 30_000)
+
   it('a new calendar, weather model and roll modes are created and named by the system', () => {
     const id = createSystem('Weathered')!
     const system = () => systems.get(id)!

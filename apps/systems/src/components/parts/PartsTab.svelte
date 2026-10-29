@@ -13,6 +13,7 @@
   import ClocksForm from './ClocksForm.svelte'
   import WorldForm from './WorldForm.svelte'
   import ItemsForm from './ItemsForm.svelte'
+  import BestiaryForm from './BestiaryForm.svelte'
   import SheetForm from './SheetForm.svelte'
   import WeatherForm from './WeatherForm.svelte'
   import LandForm from './LandForm.svelte'
@@ -90,6 +91,8 @@
         <WorldForm {doc} {system} />
       {:else if kind === 'items'}
         <ItemsForm {doc} {system} />
+      {:else if kind === 'bestiary'}
+        <BestiaryForm {doc} {system} />
       {:else if kind === 'sheet'}
         <SheetForm {doc} {system} scope={sheetScope(system, part.id)} />
       {:else if kind === 'weather'}

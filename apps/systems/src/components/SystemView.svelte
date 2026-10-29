@@ -31,6 +31,8 @@
       ? ([
           'sheet',
           'items',
+          'bestiary',
+          'bestiary',
           'factions',
           'clocks',
           'world',
@@ -59,6 +61,7 @@
       for (const kind of [
         'sheet',
         'items',
+        'bestiary',
         'factions',
         'clocks',
         'world',
@@ -117,7 +120,7 @@
         <TryTab {system} />
       {:else if tab === 'yaml' && files.length}
         <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
-      {:else if (tab === 'sheet' || tab === 'items' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
+      {:else if (tab === 'sheet' || tab === 'items' || tab === 'bestiary' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
         <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">

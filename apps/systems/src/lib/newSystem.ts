@@ -300,6 +300,7 @@ export type PartTabKind =
   | 'roll-modes'
   | 'sheet'
   | 'items'
+  | 'bestiary'
   | 'factions'
   | 'clocks'
   | 'world'
@@ -390,7 +391,9 @@ export function createSystemPart(
       ? kind
       : kind === 'items'
         ? 'gear'
-        : 'default'
+        : kind === 'bestiary'
+          ? 'creatures'
+          : 'default'
   const id = freeId(base, taken)
   const file = `${kind}.yaml`
   const declared = systemFile(system)?.system
@@ -400,7 +403,11 @@ export function createSystemPart(
       file,
       appendDefinition(
         library.readFile(root, file) ?? '',
-        party ? PARTY_SHEET(id) : SYSTEM_TEMPLATES[kind](id),
+        party
+          ? PARTY_SHEET(id)
+          : kind === 'bestiary'
+            ? bestiaryTemplate(id, system)
+            : SYSTEM_TEMPLATES[kind](id),
       ),
     )
     // New factions name a sheet `faction`: written beside them when the pack has none.
@@ -434,6 +441,15 @@ export function createSystemPart(
     )
   })
   return id
+}
+
+/** A new bestiary on the system's characters' sheet, whichever pack it is from. */
+function bestiaryTemplate(id: string, system: TravelSystem): Record<string, unknown> {
+  const template = SYSTEM_TEMPLATES.bestiary(id)
+  const [owner, sheet] = system.sheet?.id.split('/', 2) ?? []
+  return sheet
+    ? { ...template, sheet: writeRef('sheet', sheet, owner === system.pack ? undefined : owner) }
+    : template
 }
 
 /** The pack format a pack was written for (`format` in its pack.yaml; absent: today's). */

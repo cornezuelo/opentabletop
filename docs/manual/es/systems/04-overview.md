@@ -12,6 +12,7 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 - **Modelos de clima**: los que pueden nombrar sus bindings (`weather: weather.highland-skies`), cada uno con su nombre y su id. Se editan en [Clima](13-weather.md).
 - **Modelos de tierra**: los que pueden usar **Generar tierra** del Hexmapper y el descubrimiento (`land: [land.default]`), cada uno con su nombre y su id. Se editan en [Tierra](14-land.md).
 - **Catálogos de objetos** (`items:`, una lista): lo que pueden llevar sus personajes; se crean, se eligen y se editan en [Objetos](08-items.md), cuyo **Nuevo catálogo** añade uno aquí.
+- **Bestiarios** (`bestiary:`, una lista): las criaturas y clases de gente que puede crear; se crean, se eligen y se editan en [Bestiario](18-bestiary.md), cuyo **Nuevo bestiario** añade uno aquí.
 
 ## Packs que trae
 

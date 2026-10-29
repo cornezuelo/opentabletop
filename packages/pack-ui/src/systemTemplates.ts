@@ -19,7 +19,7 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  */
 /** Each kind's starting point; `factions` only from the Systems app, which writes their sheet too. */
 export const SYSTEM_TEMPLATES: Record<
-  SystemKind | 'factions' | 'clocks' | 'world' | 'items' | 'land',
+  SystemKind | 'factions' | 'clocks' | 'world' | 'items' | 'bestiary' | 'land',
   (id: string) => Record<string, unknown>
 > = {
   // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
@@ -172,6 +172,18 @@ export const SYSTEM_TEMPLATES: Record<
     items: {
       rope: { name: 'Rope', description: 'Fifty feet of hemp.', tags: ['climbing'] },
       torch: { name: 'Torch', tags: ['light'] },
+    },
+  }),
+  // Two templates to rename, on Core's character sheet (the Systems app puts the system's own):
+  // rolls in braces are rolled for each copy.
+  bestiary: (id) => ({
+    kind: 'bestiary',
+    id,
+    name: 'Creatures',
+    sheet: 'core/sheet.character',
+    templates: {
+      wolf: { name: 'Wolf', tags: ['beast'] },
+      'wolf-leader': { name: 'Wolf leader', like: 'wolf', tags: ['leader'] },
     },
   }),
   // One clock that starts over once full: what a system's world clock starts with (what

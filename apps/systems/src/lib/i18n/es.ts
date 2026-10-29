@@ -36,6 +36,7 @@ export const es: Messages<typeof en> = {
     rules: 'Reglas',
     checks: 'Comprobaciones',
     sheet: 'Hoja',
+    bestiary: 'Bestiario',
     items: 'Objetos',
     factions: 'Facciones',
     clocks: 'Relojes',
@@ -55,6 +56,14 @@ export const es: Messages<typeof en> = {
       help: 'Catálogos de objetos, tantos como quiera el sistema (equipo, armas, magia), nombrados en su **Resumen** (`items:`). Las tablas y condiciones leen lo que tiene un personaje:\n• `characters.kael.items.torch.count: { gte: 1 }` — tiene una antorcha\n• `acting.items.tags: light` — lleva algo con la etiqueta light\nLos efectos los dan y los quitan:\n• `acting.items.torch: -1` — una antorcha menos\n• `party.members.items.ration: 1` — una ración a cada uno, del catálogo si no tienen ninguna',
       none: 'Este sistema no tiene catálogos de objetos: sus personajes pueden llevar igualmente objetos escritos a mano.',
       create: 'Nuevo catálogo',
+    },
+    bestiary: {
+      title: 'Su bestiario',
+      intro:
+        "Criaturas y clases de gente que puede crear (`kind: bestiary`): plantillas, cada una un personaje de una hoja escrito como se escribe uno, con tiradas (`2d4`) que se resuelven para cada copia. Una tabla o una acción hace copias con un efecto (`present.wolf: '{{1d4+2}}'`), y quedan entre los presentes del viaje. Una copia conserva con lo que se hizo: cambiar una plantilla solo afecta a las copias hechas después.",
+      help: 'Bestiarios, tantos como quiera el sistema, nombrados en su **Resumen** (`bestiary:`), y los de los paquetes que añade un mapa o una campaña. Los efectos y las condiciones leen las copias:\n• `present.wolf: 3` — llegan tres lobos\n• `present.wolf.count: { gte: 1 }` — hay algún lobo\n• `present.all.values.morale: -1` — cada copia pierde un punto de moral',
+      none: 'Este sistema no tiene bestiario.',
+      create: 'Nuevo bestiario',
     },
     clocks: {
       title: 'Sus relojes de progreso',
@@ -150,6 +159,47 @@ export const es: Messages<typeof en> = {
       'Qué es como lugar, para que los objetos quepan en él por estas etiquetas igual que en los lugares de la hoja:\n• `pack` — todo lo que cabe en una mochila cabe dentro',
     noFields:
       'La hoja aún no da campos a los objetos: añádelos en **Hoja → Objetos** (huecos, peso, usos…) y cada objeto de aquí tendrá una casilla para ellos.',
+  },
+  bestiaryForm: {
+    name: 'Nombre',
+    nameHelp: 'Cómo se llama este bestiario.\n• **Criaturas de las marcas**',
+    sheet: 'Hoja',
+    sheetHelp:
+      'La hoja con la que se hacen todas las plantillas, salvo que una nombre la suya (`sheet.beast`). Las criaturas suelen tener una hoja más ligera que la del grupo.',
+    templateSheetHelp: 'La hoja de esta plantilla, cuando no es la del bestiario.\n• `sheet.beast`',
+    sheetBestiary: 'la del bestiario',
+    behind: 'Al dejarlas atrás',
+    behindHelp:
+      'Qué pasa con las copias cuando el grupo deja el lugar donde se hicieron: se **quedan** allí (se vuelven a encontrar al volver) o **se van** (desaparecen; al volver puede salir una nueva). Lo decide el sistema. Vacío: se quedan.\n• `leave` — un encuentro nuevo en cada visita',
+    behindDefault: 'se quedan (por defecto)',
+    behindBestiary: 'el del bestiario',
+    templates: 'Plantillas',
+    templatesHelp:
+      'Cada plantilla, con un id por el que la nombran tablas y efectos (`present.<id>`): su nombre, su hoja, la plantilla de la que es variante, los valores con que empieza (un número o una tirada, resuelta para cada copia), sus condiciones, objetos y etiquetas.\n• `wolf` — valores `health: 2d4`\n• `wolf-leader` — como `wolf`, etiquetas `leader`',
+    templateName: 'Nombre',
+    like: 'Variante de',
+    likeHelp:
+      'Otra plantilla de este bestiario de la que partir: una variante toma sus valores y objetos (escribiendo encima) y suma sus etiquetas y condiciones.\n• `wolf` — un jefe que es un lobo más grande',
+    values: 'Valores',
+    valuesHelp:
+      'Los valores de la hoja con que empieza, una fila cada uno: un número, o una tirada entre llaves que se resuelve para cada copia.\n• `health` · `{{2d4}}`\n• `bite` · `2`',
+    conditions: 'Condiciones',
+    conditionsHelp: 'Las condiciones de la hoja con que empieza, cada una una píldora.\n• `hungry`',
+    items: 'Objetos',
+    itemsHelp:
+      'Lo que lleva, de los catálogos del sistema, con cuántos (un número o una tirada). Vacío: lo que la hoja da al empezar.\n• `knife` · `1`\n• `ration` · `{{1d2}}`',
+    tags: 'Etiquetas',
+    tagsHelp:
+      'Palabras por las que lo leen las condiciones, cada una una píldora:\n• `beast`, `undead`, `leader`',
+    names: 'Nombres',
+    namesHelp:
+      'Una tabla o generador que se tira para el nombre de cada copia. Vacío: el nombre de la plantilla, numerado.\n• `names/generator.folk`',
+    tokenIcon: 'Icono de la ficha',
+    tokenIconHelp: 'Cómo se dibuja en un mapa, un id de icono o un glifo.\n• `wolf`',
+    tokenKind: 'Tipo de ficha',
+    tokenKindHelp: 'Si se dibuja como **pc**, **npc** o **enemy**.',
+    tokenColor: 'Color de la ficha',
+    tokenColorHelp: 'Un color para su ficha.\n• `#8b1e1e`',
   },
   clocksForm: {
     name: 'Nombre',
