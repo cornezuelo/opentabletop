@@ -9,6 +9,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Characters: the left column has two tabs, **Characters** and **Bestiary**, alike: grouped by system, then by sheet when a system has several (companions and foes), with a search and a **filter by tag** (a variant has its template's tags); the Bestiary's own system picker and list are gone, and **New template** asks for the system and a name. `TagFilter` (ui-kit) is the shared filter.
 - Characters' Bestiary: a template's view says its system and sheet; **Make a character** makes one, named by the template's generator if it has one (a bandit comes as _Brenna_), and opens it; **Make copies** makes several; how many the roster has made from it shows under them, with **Delete them all**. A token's kind reads PC, NPC or Enemy.
 - Oracle, Systems and Characters: the notice on a bundled pack is one shared piece (pack-ui's `PackNotice`), and explains in the help column what **Edit a copy** does.
+- Characters, Travel and the Hexmapper: a character's **Tags**, and a template's, suggest those its system's characters and templates already use (and, on a trip, its characters'), so the same word is written the same everywhere and the lists' filter by tag finds them.
 
 ### Fixes
 

@@ -15,6 +15,7 @@
     partyOf,
     playingAt,
     samePlace,
+    tagsInUse,
     takeFromRoster,
   } from '@open-tabletop/session'
   import { tokenPlace } from '../../lib/play/roster'
@@ -313,6 +314,7 @@
           <CharacterCard
             sheet={sheet.def}
             catalogues={activeSystem().items}
+            tagChoices={tagsInUse(activeSystem(), roster.roster)}
             character={{ ...selected.character, id: selected.id, name: selected.name }}
             locale={getLocale()}
             named={false}

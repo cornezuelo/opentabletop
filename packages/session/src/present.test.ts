@@ -1,10 +1,19 @@
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
+import type { CharacterState } from '@open-tabletop/character-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { applyResult, placeCharacters, pullMembers } from './index'
-import { editInRoster, keepInRoster, settlePlace } from './roster'
-import { partyOf, startTrip, stepTrip, travelSystems, tripFacts, withAddedBestiaries } from './trip'
+import { editInRoster, emptyRoster, keepInRoster, settlePlace } from './roster'
+import {
+  partyOf,
+  startTrip,
+  stepTrip,
+  tagsInUse,
+  travelSystems,
+  tripFacts,
+  withAddedBestiaries,
+} from './trip'
 import { removePresent } from './present'
 
 /**
@@ -291,5 +300,27 @@ describe('those present: copies of templates in a trip', () => {
     removePresent(s, 'bandit')
     roster = settlePlace(roster, placeCharacters(s), place, 'now')
     expect(roster.characters[0].playing).toBeUndefined()
+  })
+})
+
+describe('the tags in use', () => {
+  it('gathers the tags of the system’s roster characters, its templates and those given', () => {
+    const character = (id: string, sheet: string, tags: string[]): CharacterState => ({
+      id,
+      sheet,
+      values: {},
+      conditions: {},
+      tags,
+      cards: [],
+      relations: [],
+    })
+    let roster = keepInRoster(emptyRoster(), character('rolf', 'wilds/beast', ['npc']), 't').roster
+    roster = keepInRoster(roster, character('else', 'other/sheet', ['elsewhere']), 't').roster
+    expect(tagsInUse(wilds, roster, [character('kael', 'wilds/beast', ['hired', 'npc'])])).toEqual([
+      'hired',
+      'leader',
+      'npc',
+      'pack',
+    ])
   })
 })

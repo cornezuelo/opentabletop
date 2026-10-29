@@ -7,6 +7,7 @@
     partyOf,
     presentHere,
     removePresent,
+    tagsInUse,
     type PresentEvent,
     type RosterPlace,
     type SessionState,
@@ -150,6 +151,10 @@
         {sheet}
         character={c}
         catalogues={system.items}
+        tagChoices={tagsInUse(system, roster.roster, [
+          ...(session.members ?? []),
+          ...(session.present ?? []).map((p) => p.character),
+        ])}
         {locale}
         {names}
         time={session.travel.time}

@@ -1,7 +1,13 @@
 <script lang="ts">
   import { CharacterCard, placeUrl, roster, sheetText } from '@open-tabletop/character-ui'
   import type { CharacterState } from '@open-tabletop/character-engine'
-  import { editInRoster, rosterEntry, systemName, type RosterPlace } from '@open-tabletop/session'
+  import {
+    editInRoster,
+    rosterEntry,
+    systemName,
+    tagsInUse,
+    type RosterPlace,
+  } from '@open-tabletop/session'
   import {
     APPS,
     appUrl,
@@ -184,6 +190,7 @@
         sheet={found.def}
         {character}
         catalogues={system.items}
+        tagChoices={tagsInUse(system, roster.roster)}
         locale={getLocale()}
         {targets}
         onchange={setCharacter}

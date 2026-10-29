@@ -23,6 +23,7 @@
     disabled = false,
     others = [],
     items = [],
+    tagChoices = [],
     onchange,
   }: {
     sheet: Sheet
@@ -33,6 +34,8 @@
     others?: readonly string[]
     /** The ids of the items the system's catalogues have, for **Items**. */
     items?: readonly string[]
+    /** Tags to suggest (those its system's characters already use: session's `tagsInUse`). */
+    tagChoices?: readonly string[]
     onchange: (next: TemplateDef) => void
   } = $props()
 
@@ -198,6 +201,7 @@
   <TagInput
     label={t('tags')}
     value={template.tags ?? []}
+    choices={tagChoices}
     placeholder={t('template.tagsPlaceholder')}
     removeLabel={t('removeTag')}
     {disabled}

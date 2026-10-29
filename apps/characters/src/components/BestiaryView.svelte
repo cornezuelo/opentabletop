@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { sheetText, TemplateEditor } from '@open-tabletop/character-ui'
-  import { systemName } from '@open-tabletop/session'
+  import { roster, sheetText, TemplateEditor } from '@open-tabletop/character-ui'
+  import { systemName, tagsInUse } from '@open-tabletop/session'
   import type { TemplateDef } from '@open-tabletop/character-engine'
   import { PackNotice } from '@open-tabletop/pack-ui'
   import { confirmAction, InfoTip, Markdown, showToast } from '@open-tabletop/ui-kit'
@@ -128,6 +128,7 @@
           disabled={!editable}
           others={entry.others}
           items={itemIds}
+          tagChoices={tagsInUse(system, roster.roster)}
           onchange={change}
         />
       {/key}

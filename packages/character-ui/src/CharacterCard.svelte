@@ -38,6 +38,7 @@
     targets = [],
     named = true,
     catalogues = [],
+    tagChoices = [],
     onchange,
   }: {
     sheet: Sheet
@@ -59,6 +60,8 @@
     named?: boolean
     /** The system's item catalogues, for adding items and effects that give them. */
     catalogues?: readonly { id: string; def: Catalogue }[]
+    /** Tags to suggest (those its system's characters already use: session's `tagsInUse`). */
+    tagChoices?: readonly string[]
     onchange: (next: CharacterState) => void
   } = $props()
 
@@ -337,6 +340,7 @@
     <TagInput
       label={t('tags')}
       value={character.tags}
+      choices={tagChoices}
       placeholder={t('tagsPlaceholder')}
       removeLabel={t('removeTag')}
       {disabled}

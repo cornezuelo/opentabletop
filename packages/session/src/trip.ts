@@ -61,6 +61,7 @@ import {
   parseWorldRules,
 } from '@open-tabletop/world-engine'
 import type { SystemFactions } from './factions'
+import type { Roster } from './roster'
 import type { SystemClocks } from './clocks'
 import type { SystemWorld } from './world'
 import { definitionId } from './refs'
@@ -1463,4 +1464,35 @@ export function tripFacts(
   const party = partyOf(options.system)
   const context = tripContext(current, options.facts ?? {}, {}, party)
   return tripContext(current, engine.context(current.travel, context), {}, party)
+}
+
+/** Every sheet of a system, by `pack/id`: its characters', its party's, its factions', its templates'. */
+export function systemSheets(system: TravelSystem): Record<string, Sheet> {
+  return {
+    ...system.templateSheets,
+    ...(system.factions && { [system.factions.sheet.id]: system.factions.sheet.def }),
+    ...(system.partySheet && { [system.partySheet.id]: system.partySheet.def }),
+    ...(system.sheet && { [system.sheet.id]: system.sheet.def }),
+  }
+}
+
+/**
+ * The tags a system's characters already use, sorted, to suggest wherever one is given
+ * tags: those of the roster's characters made with its sheets, of its templates (with
+ * those of the templates they're like), and of `others` (a trip's members, those present).
+ */
+export function tagsInUse(
+  system: TravelSystem,
+  roster: Roster,
+  others: readonly CharacterState[] = [],
+): string[] {
+  const sheets = systemSheets(system)
+  const out = new Set<string>()
+  for (const { character } of roster.characters)
+    if (character.sheet in sheets) for (const tag of character.tags) out.add(tag)
+  for (const b of system.bestiary ?? [])
+    for (const id of Object.keys(b.def.templates))
+      for (const tag of resolveTemplate(b.def, id)?.tags ?? []) out.add(tag)
+  for (const c of others) for (const tag of c.tags) out.add(tag)
+  return [...out].sort((a, b) => a.localeCompare(b))
 }

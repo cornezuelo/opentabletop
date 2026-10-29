@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { addEntry, usesOf, type Use } from '@open-tabletop/session'
+  import { addEntry, tagsInUse, usesOf, type Use } from '@open-tabletop/session'
   import { usesHelp } from './uses'
   import {
     localize,
@@ -280,6 +280,7 @@
         sheet={system.sheet.def}
         character={member}
         catalogues={system.items}
+        tagChoices={tagsInUse(system, roster.roster, members)}
         {locale}
         {names}
         time={session.travel.time}

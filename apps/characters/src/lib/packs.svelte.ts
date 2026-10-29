@@ -1,6 +1,6 @@
 import type { Sheet } from '@open-tabletop/character-engine'
 import { groupBundled, PackLibrary } from '@open-tabletop/pack-ui'
-import { travelSystems, type TravelSystem } from '@open-tabletop/session'
+import { systemSheets, travelSystems, type TravelSystem } from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
 import { t } from './i18n'
 
@@ -46,7 +46,7 @@ class Systems {
     const own = this.list.find((s) => s.sheet.id === sheet)
     if (own) return { system: own, def: own.sheet.def }
     for (const system of this.list) {
-      const def = sheetsOf(system)[sheet]
+      const def = systemSheets(system)[sheet]
       if (def) return { system, def }
     }
     return undefined
@@ -55,16 +55,6 @@ class Systems {
   /** The system a sheet (`pack/id`) belongs to. */
   ofSheet(sheet: string) {
     return this.sheetOf(sheet)?.system
-  }
-}
-
-/** Every sheet of a system, by `pack/id`. */
-function sheetsOf(system: TravelSystem): Record<string, Sheet> {
-  return {
-    ...system.templateSheets,
-    ...(system.factions && { [system.factions.sheet.id]: system.factions.sheet.def }),
-    ...(system.partySheet && { [system.partySheet.id]: system.partySheet.def }),
-    ...(system.sheet && { [system.sheet.id]: system.sheet.def }),
   }
 }
 
