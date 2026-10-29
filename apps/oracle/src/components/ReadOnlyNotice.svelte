@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { Notice, tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
   import { manifestOf } from '../lib/packs/workspace'
   import { workspace } from '../lib/packs/workspace.svelte'
@@ -20,7 +20,7 @@
   let duplicating = $state(false)
 </script>
 
-<div class="notice">
+<Notice>
   <span>{t('edit.readOnly')}{personal ? ` ${t('edit.personalCopy')}` : ''}</span>
   {#if needed}
     <button use:tooltip={t('edit.duplicateHelp')} onclick={() => (duplicating = true)}
@@ -29,30 +29,5 @@
   {:else}
     <button onclick={() => workspace.editCopy(root)}>{t('edit.makeCopy')}</button>
   {/if}
-</div>
+</Notice>
 {#if duplicating}<NewPackDialog from={root} onclose={() => (duplicating = false)} />{/if}
-
-<style>
-  .notice {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
-    font-size: 13px;
-    color: var(--text-muted);
-    background: var(--panel);
-    border: 1px dashed var(--panel-border);
-    border-radius: 6px;
-  }
-
-  button {
-    flex: none;
-    padding: 5px 10px;
-    color: var(--bg);
-    background: var(--accent);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-</style>
