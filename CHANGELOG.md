@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-29
+
 ### Apps
 
 - Travel, Hexmapper: **the Here box** in the Party tab lists those present as folded cards grouped by template (_×4_), editable by hand, with **×** to take one off, **Keep in the roster** and **Add from the bestiary**; the packs a campaign or map adds now bring their bestiaries to the system.
