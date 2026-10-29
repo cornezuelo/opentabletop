@@ -60,6 +60,7 @@
       packsNeed: '{item} adds {target} to its system.',
       member: '{target} plays in {item}.',
       place: '{item} plays in {target}.',
+      partyNeed: '{target} is in the party {item}.',
       addMissing: 'Add what’s missing',
       all: 'All',
       none: 'None',
@@ -108,6 +109,7 @@
       packsNeed: '{item} añade {target} a su sistema.',
       member: '{target} juega en {item}.',
       place: '{item} juega en {target}.',
+      partyNeed: '{target} está en el grupo {item}.',
       addMissing: 'Añadir lo que falta',
       all: 'Todo',
       none: 'Nada',
@@ -240,6 +242,7 @@
       packs: text.packsNeed,
       member: text.member,
       place: text.place,
+      party: text.partyNeed,
     }[m.need.why]
     return fill(message, { item: labelOf(m.item), target: labelOf(m.target) })
   }

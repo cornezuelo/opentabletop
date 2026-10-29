@@ -104,4 +104,52 @@ describe('trips and the roster', () => {
     trip.remove()
     expect(s.rosterEntry(roster.roster, 'kael')!.playing).toBeUndefined()
   })
+
+  it('takes a roster party with its members, carries it to the next trip, and lets it go', async () => {
+    const { roster, session: s, trip } = await openTravel()
+    await trip.create('grey-marches', 'spring')
+    trip.addHex()
+    trip.addHex()
+    const system = trip.system
+    const rules = s.partyOf(system)
+    // Made in the Characters app: the Company, with Kael in it.
+    const kael = s.newMember(rules, { id: 'kael', name: 'Kael' })
+    roster.set(s.keepInRoster(roster.roster, kael, 'T0').roster)
+    const company = s.newParty(rules, { id: 'x', values: { morale: 2 } })
+    roster.set(s.keepPartyInRoster(roster.roster, company, 'The Company', ['kael'], 'T0').roster)
+    const place = trip.place!
+
+    // From the roster, on the party's card (what PartyRoster does).
+    trip.edit((x) => {
+      const brought = s.bringParty(roster.roster, x, 'the-company', place, rules, 'T1')
+      roster.set(brought.roster)
+      return brought.session
+    })
+    const session = trip.saved.session!
+    expect(session.partyRef).toBe('the-company')
+    expect(session.party).toMatchObject({ id: 'party', values: { morale: 2 } })
+    expect(session.members?.map((m) => m.id)).toEqual(['kael'])
+    for (const id of ['the-company', 'kael'])
+      expect(s.isLinked(roster.roster, id, place)).toBe(true)
+
+    // What the trip does to it is written back, by its roster id.
+    await trip.step({ type: 'action', id: 'march' })
+    expect(s.rosterEntry(roster.roster, 'the-company')!.character).toEqual({
+      ...trip.saved.session!.party,
+      id: 'the-company',
+      name: 'The Company',
+    })
+
+    // Starting the trip again goes on with the same party, as it was.
+    const before = trip.saved.session!.party!.values
+    trip.start()
+    expect(trip.saved.session!.partyRef).toBe('the-company')
+    expect(trip.saved.session!.party!.values).toEqual(before)
+    expect(s.isLinked(roster.roster, 'the-company', place)).toBe(true)
+
+    // Deleting the trip lets the party and its members go, the party keeping them.
+    trip.remove()
+    expect(s.rosterEntry(roster.roster, 'the-company')!.playing).toBeUndefined()
+    expect(s.rosterEntry(roster.roster, 'the-company')!.members).toEqual(['kael'])
+  })
 })

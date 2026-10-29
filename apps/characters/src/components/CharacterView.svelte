@@ -3,6 +3,7 @@
   import type { CharacterState } from '@open-tabletop/character-engine'
   import {
     editInRoster,
+    partyWith,
     rosterEntry,
     systemName,
     tagsInUse,
@@ -24,6 +25,8 @@
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
   import { systems } from '../lib/packs.svelte'
+  import PartyMembersBox from './PartyMembersBox.svelte'
+  import SplitParty from './SplitParty.svelte'
 
   /** One character of the roster: its card, its notes, where it plays, and what to do with it. */
   let { id }: { id: string } = $props()
@@ -55,6 +58,10 @@
     }
   })
   const label = $derived(character ? character.name || character.id : '')
+  /** A party (its sheet and members), and the party a character is in. */
+  const isParty = $derived(!!entry?.members)
+  const party = $derived(isParty ? undefined : partyWith(roster.roster, id))
+  let splitting = $state(false)
   /** The other roster characters, for its relations (`character:<id>`). */
   const targets = $derived(
     roster.roster.characters
@@ -115,9 +122,15 @@
     <header>
       <h1 class="page-title">{label}</h1>
       <div class="buttons">
-        <button use:tooltip={t('character.duplicateTip')} onclick={duplicate}
-          >{t('character.duplicate')}</button
+        <button
+          use:tooltip={isParty ? t('party.duplicateTip') : t('character.duplicateTip')}
+          onclick={duplicate}>{t('character.duplicate')}</button
         >
+        {#if isParty && system?.partySheet && !entry.playing && entry.members?.length}
+          <button use:tooltip={t('party.splitTip')} onclick={() => (splitting = true)}
+            >{t('party.split')}</button
+          >
+        {/if}
         <button
           use:tooltip={t('character.exportTip')}
           onclick={() => exportCharacters([entry], label)}>{t('character.export')}</button
@@ -156,6 +169,19 @@
             {madeFrom.name} <code>{madeFrom.from}</code>{/if}
         </dd>
       {/if}
+      {#if party}
+        <dt>{t('party.inParty')}<InfoTip markdown={t('party.inPartyHelp')} /></dt>
+        <dd>
+          <a
+            class="plain"
+            href="#/character/{encodeURIComponent(party.character.id)}"
+            onclick={(e) => {
+              e.preventDefault()
+              go({ name: 'character', id: party.character.id })
+            }}>{party.character.name || party.character.id}</a
+          >
+        </dd>
+      {/if}
       <dt>{t('character.id')}<InfoTip markdown={t('character.idHelp', { id })} /></dt>
       <dd><code>{id}</code></dd>
       <dt>{t('character.where')}<InfoTip markdown={t('character.whereHelp')} /></dt>
@@ -169,7 +195,7 @@
             })}
             <a href={campaignUrl(campaign.id)}>{t('character.openCampaign')}</a>{/if}
         {:else}
-          <Markdown class="inline" text={t('character.nowhere')} />
+          <Markdown class="inline" text={isParty ? t('party.nowhere') : t('character.nowhere')} />
         {/if}
       </dd>
     </dl>
@@ -184,6 +210,10 @@
         onchange={setNote}
       />
     </label>
+
+    {#if isParty}
+      <PartyMembersBox {entry} {system} />
+    {/if}
 
     {#if found && system}
       <CharacterCard
@@ -205,6 +235,9 @@
       </dl>
     {/if}
   </article>
+  {#if splitting && system}
+    <SplitParty {entry} {system} onclose={() => (splitting = false)} />
+  {/if}
 {:else}
   <p class="help">{t('character.notFound')}</p>
 {/if}
@@ -257,6 +290,10 @@
 
   dd {
     margin: 0;
+  }
+
+  dd a.plain {
+    margin-left: 0;
   }
 
   dd a {

@@ -75,6 +75,10 @@ export const es: Messages<typeof en> = {
       'El sistema con cuya hoja de personajes se hace: decide sus valores, contadores y estados, y los viajes a los que puede unirse (los jugados con un sistema que tenga la misma hoja). Solo salen los sistemas con hoja de personajes.',
     name: 'Nombre',
     namePlaceholder: 'Viejo Tobin',
+    sheet: 'Hoja',
+    sheetHelp:
+      'Qué hacer: un personaje, con la hoja de los personajes de su sistema, o un **grupo**, con su hoja de grupo (lo que es de todo el grupo: moral, provisiones…). Un grupo tiene **miembros**, personajes del plantel que eliges después de hacerlo; llevado a un viaje, van con él.',
+    aParty: 'un grupo',
     create: 'Crear',
     noSystems:
       'Ningún sistema tiene aún hoja de personajes: crea una en Systems (su pestaña **Hoja**).',
@@ -120,6 +124,42 @@ export const es: Messages<typeof en> = {
       '¿Borrar a {name} del plantel? Juega en {place}: ese viaje conserva su copia, ya sin enlazar con el plantel.',
     deleted: '{name}, borrado.',
     notFound: 'Este personaje no está en el plantel (borrado, o en otro navegador).',
+  },
+  party: {
+    members: 'Miembros',
+    membersHelp:
+      'Los personajes del plantel que están en este grupo, en orden. Llevado a un viaje (la pestaña **Grupo** del viaje, **Del plantel** en **El grupo**), van con él, y su hoja es el grupo del viaje. Un personaje está en un solo grupo a la vez.\nMientras el grupo juega en algún sitio, ese viaje lleva la lista: sus personajes enlazados son sus miembros.',
+    none: 'Aún no tiene miembros.',
+    nowhere:
+      'Solo en el plantel. Para llevarlo de viaje, elígelo en **Del plantel** en la ficha de **El grupo**, en la pestaña **Grupo** del viaje: sus miembros van con él.',
+    add: 'Añadir un miembro',
+    remove: 'Sacar del grupo',
+    playingNote:
+      'Juega en {place}: sus miembros son los personajes de ese viaje, y se cambian allí.',
+    moveConfirm: '{name} está en {party}. ¿Pasarlo a este grupo?',
+    inParty: 'Grupo',
+    inPartyHelp:
+      'El grupo en el que está este personaje: va con él a los viajes. Un personaje está en un solo grupo a la vez.',
+    duplicateTip:
+      'Una copia con sus valores y objetos, solo en el plantel, sin miembros (un personaje está en un solo grupo a la vez).',
+    split: 'Dividir el grupo',
+    splitTip: 'Algunos miembros siguen su camino, como un grupo nuevo.',
+    splitTitle: 'Dividir {name}',
+    splitHelp:
+      'Marca quién se va. El grupo nuevo empieza como cualquier grupo nuevo de su hoja (sus valores iniciales, nada más), y este se queda con todo: nada sale de la nada. Di qué tiene cada lado de cada valor y objeto; **=** le da al nuevo lo mismo que a este, **½** la mitad a cada uno.',
+    newName: 'Nombre del grupo nuevo',
+    newNameValue: '{name} (2)',
+    who: 'Quién se va',
+    value: 'Valor',
+    stays: 'Se queda',
+    goes: 'Se va',
+    same: 'Lo mismo que este',
+    half: 'La mitad a cada uno',
+    items: 'Objetos',
+    itemGoes: 'Cuántos se van',
+    cancel: 'Cancelar',
+    doSplit: 'Dividir',
+    splitDone: '{name} sigue su camino.',
   },
   imported: {
     some: 'Importados: {names}.',

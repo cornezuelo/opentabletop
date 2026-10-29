@@ -138,6 +138,18 @@ export function newMember(
   return createCharacter(rules.sheet.def, rules.sheet.id, init, rules.items)
 }
 
+/**
+ * A new party of the system's party sheet, with its defaults and `init` (`items: []` starts it
+ * with nothing, instead of the sheet's `items.start`).
+ */
+export function newParty(
+  rules: PartyRules,
+  init: Partial<CharacterState> & { id: string },
+): CharacterState {
+  if (!rules.partySheet) throw new Error('This system has no party sheet')
+  return createCharacter(rules.partySheet.def, rules.partySheet.id, init, rules.items)
+}
+
 const hasMembers = (s: PartyTarget): s is PartyTarget & { members: CharacterState[] } =>
   !!s.members?.length
 

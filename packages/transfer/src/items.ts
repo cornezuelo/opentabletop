@@ -10,9 +10,11 @@ export type ItemKind = 'pack' | 'campaign' | 'map' | 'trip' | 'character'
  * - `system`: the pack of the system a campaign or trip plays, or of a character's sheet;
  * - `packs`: a pack a campaign adds to its system's;
  * - `member`: a roster character playing on a map or in a trip;
- * - `place`: the map or trip a roster character plays in.
+ * - `place`: the map or trip a roster character plays in;
+ * - `party`: a roster character in a party (the party's members).
  */
-export type NeedReason = 'dependency' | 'campaign' | 'system' | 'packs' | 'member' | 'place'
+export type NeedReason =
+  'dependency' | 'campaign' | 'system' | 'packs' | 'member' | 'place' | 'party'
 
 export interface Need {
   /** The key of what's needed (`pack:core`, `campaign:c1`…). */
@@ -187,6 +189,12 @@ export function listItems(kept: Kept, personal: ReadonlySet<string> = new Set())
       needs: [
         ...(sheet ? [{ key: keyOf('pack', sheet), why: 'system' as const }] : []),
         ...(place ? [{ key: place, why: 'place' as const }] : []),
+        // A party's members.
+        ...(Array.isArray(entry.members)
+          ? entry.members
+              .filter((m): m is string => typeof m === 'string')
+              .map((m) => ({ key: keyOf('character', m), why: 'party' as const }))
+          : []),
       ],
     })
   }

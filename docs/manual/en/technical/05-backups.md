@@ -11,7 +11,7 @@ It holds everything the apps keep in this browser:
 - **Maps**: every map of the Hexmapper's library, with its play state (party, trail, trip, journal) and the land each faction holds on it.
 - **Campaigns**: the world each map is played in: its world clock and weather, its factions and its Oracle (history, decks, once-only results).
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
-- **The Characters app's roster**: every character it keeps, with its notes and where it plays.
+- **The Characters app's roster**: every character and party it keeps, with its notes, where it plays and a party's members.
 - **The Travel app's trips**, the **Oracle app's** history, decks and seed, and **favorites**.
 - **Preferences**: language, notes app, the packs hidden in the Oracle, the last system chosen, the campaign you're playing, layouts and the like.
 
@@ -55,6 +55,7 @@ When something ticked needs something that isn't, **Left out** says what and why
 - `Trip «To the coast» plays in Campaign «The North».`: a map or trip without its campaign has no world clock, factions or Oracle elsewhere.
 - `Campaign «The North» is played with Pack «Homebrew».`: the pack of the system a campaign, trip or character's sheet plays with, and the packs a campaign adds to its system's.
 - `Brenna plays in Trip «To the coast».`: a roster character and the map or trip it plays in, both ways.
+- `Brenna is in the party The Company.`: a roster party and its members.
 
 **Add what's missing** ticks all of it, and what that needs in turn. You can still export without it. Packs that come with the apps (Core, the Grey Marches…) are never in the file and never asked for: every copy of OpenTabletop has them. Preferences, the Oracle app's history and Systems' test trips go only in backups.
 
@@ -100,7 +101,7 @@ packs/<id>/pack.yaml, …         each pack as a pack folder
 maps/<id>.json                  each map as the Hexmapper's library keeps it
 campaigns/<id>.json             each campaign in its own format
 trips/<id>.json                 each Travel trip as Travel keeps it
-characters/<id>.json            each roster character with its notes and where it plays
+characters/<id>.json            each roster character with its notes and where it plays (a party with its members)
 ```
 
 - `opentabletop-export.json` lists the packs (with what a copy of a bundled pack was based on) and the maps' and campaigns' names and times; trips and characters carry their own. An export of a newer `version` than the app understands is refused.

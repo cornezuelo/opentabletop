@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Characters, Travel and the Hexmapper: **parties in the roster**. A system's party sheet (the Grey Marches' Company) can be kept in the roster with its **members**, and carried from trip to trip as it is (3 rations left, 3 rations at the next start). **New character** makes a party when the system has a party sheet; its page lists its **Members** (added and taken out while it plays nowhere; a character is in one party at a time) and offers **Split the party**: who goes, and what each side keeps of each value and item (**=**, **½**), the new party starting as any new one. On a trip, **The party**'s card has **Keep in the roster** and **From the roster** (its members come with it), kept in step like characters. Export… asks for a party's members with it.
+
 ## [0.24.0] - 2026-10-29
 
 ### Apps

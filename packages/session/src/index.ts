@@ -25,7 +25,19 @@ import {
 import { rolledNodes } from './journal'
 import { settlePresent, type Present, type PresentEvent } from './present'
 import { definitionId } from './refs'
-import { pullFromRoster, type Roster, type RosterPlace } from './roster'
+import {
+  pullFromRoster,
+  rosterEntry,
+  samePlace,
+  settlePlace,
+  setMembers,
+  keepPartyInRoster,
+  takeFromRoster,
+  renameMember,
+  characterId,
+  type Roster,
+  type RosterPlace,
+} from './roster'
 import {
   applyMemberEffects,
   isMemberPath,
@@ -35,6 +47,7 @@ import {
   picksWho,
   partyItems,
   refreshParty,
+  editPartySheet,
   settleStates,
   answerSharing,
   waitingForRoom,
@@ -231,6 +244,12 @@ export interface SessionState {
   discovery?: DiscoveryState
   /** The party itself, a character of the system's party sheet (none without one). */
   party?: CharacterState
+  /**
+   * The roster party the party is (its id there), while the roster says it plays here: its
+   * sheet and members are kept in step with the roster's (docs/characters-app.md §8). Absent:
+   * the trip's own.
+   */
+  partyRef?: string
   /** The party's characters, in order (none: the party is played as a whole). */
   members?: CharacterState[]
   /**
@@ -1285,7 +1304,7 @@ export function pullMembers(
   s: SessionState,
   roster: Roster,
   place: RosterPlace,
-  party: PartyRules,
+  rules: PartyRules,
   at: string = new Date().toISOString(),
 ): SessionState {
   const { characters, updated } = pullFromRoster(roster, s.members ?? [], place)
@@ -1296,8 +1315,21 @@ export function pullMembers(
     place,
   )
   updated.push(...copies.updated)
+  // The roster party, by its roster id.
+  const own = s.party && s.partyRef ? rosterEntry(roster, s.partyRef) : undefined
+  const party =
+    own &&
+    samePlace(own.playing, place) &&
+    JSON.stringify(own.character) !== JSON.stringify({ ...s.party, id: s.partyRef })
+      ? { ...structuredClone(own.character), id: PARTY_ID }
+      : undefined
+  if (party) updated.push(s.partyRef!)
   if (!updated.length) return s
-  const named = [...characters, ...copies.characters]
+  const named = [
+    ...characters,
+    ...copies.characters,
+    ...(party ? [{ ...party, id: s.partyRef! }] : []),
+  ]
   const next = addEntry(
     s,
     {
@@ -1313,7 +1345,8 @@ export function pullMembers(
       ...p,
       character: structuredClone(copies.characters[i]),
     }))
-  refreshParty(next, party)
+  if (party) editPartySheet(next, rules, party)
+  refreshParty(next, rules)
   return next
 }
 
@@ -1324,7 +1357,104 @@ export function pullMembers(
 export const placeCharacters = (s: SessionState): CharacterState[] => [
   ...(s.members ?? []),
   ...(s.present ?? []).map((p) => p.character),
+  // The party, by its roster id.
+  ...(s.party && s.partyRef ? [{ ...s.party, id: s.partyRef }] : []),
 ]
+
+/**
+ * A trip (or a map's) after any change, written to the roster (`settlePlace`): its linked
+ * characters and party, and the roster party's members the trip's linked members. The same
+ * roster when nothing changed.
+ */
+export function settleSession(
+  roster: Roster,
+  s: SessionState,
+  place: RosterPlace,
+  now: string,
+): Roster {
+  const next = settlePlace(roster, placeCharacters(s), place, now)
+  const party = s.partyRef ? rosterEntry(next, s.partyRef) : undefined
+  if (!party?.members || !samePlace(party.playing, place)) return next
+  const linked = (s.members ?? [])
+    .map((m) => m.id)
+    .filter((id) => samePlace(rosterEntry(next, id)?.playing, place))
+  return setMembers(next, party.character.id, linked, now)
+}
+
+/**
+ * The places a roster party's taking would take characters from: its own, and its members'
+ * that play somewhere else (the host asks first). By name.
+ */
+export function partyTaking(
+  roster: Roster,
+  id: string,
+  place: RosterPlace,
+): { name: string; place: string }[] {
+  const party = rosterEntry(roster, id)
+  if (!party) return []
+  return [party.character.id, ...(party.members ?? [])].flatMap((m) => {
+    const e = rosterEntry(roster, m)
+    return e?.playing && !samePlace(e.playing, place)
+      ? [{ name: e.character.name || m, place: e.playing.name }]
+      : []
+  })
+}
+
+/**
+ * Brings a roster party to a trip: it's the trip's party from now on (its sheet, the stats
+ * made of it following), and its members join the trip's (those of the system's sheet that
+ * aren't there yet). Each plays here from now on; the party it replaces stays in the roster.
+ */
+export function bringParty(
+  roster: Roster,
+  s: SessionState,
+  id: string,
+  place: RosterPlace,
+  rules: PartyRules,
+  now: string,
+): { roster: Roster; session: SessionState } {
+  const taken = takeFromRoster(roster, id, place, now)
+  if (!taken || !rules.partySheet || taken.character.sheet !== rules.partySheet.id)
+    return { roster, session: s }
+  let next = taken.roster
+  const out = structuredClone(s)
+  const members = rosterEntry(next, id)?.members ?? []
+  for (const m of members) {
+    if (out.members?.some((c) => c.id === m) && samePlace(rosterEntry(next, m)?.playing, place))
+      continue
+    const entry = rosterEntry(next, m)
+    if (!entry || entry.character.sheet !== rules.sheet?.id) continue
+    const joined = takeFromRoster(next, m, place, now)!
+    next = joined.roster
+    // A character of the trip's own with that id makes room.
+    if (out.members?.some((c) => c.id === m))
+      renameMember(out, m, characterId(m, [...out.members.map((c) => c.id), m]))
+    out.members = [...(out.members ?? []), joined.character]
+  }
+  out.partyRef = id
+  editPartySheet(out, rules, { ...taken.character, id: PARTY_ID })
+  return { roster: settleSession(next, out, place, now), session: out }
+}
+
+/**
+ * Keeps a trip's party in the roster, playing here, named `name`: its members the trip's
+ * linked members. The trip's party is that roster party from now on.
+ */
+export function keepParty(
+  roster: Roster,
+  s: SessionState,
+  name: string,
+  place: RosterPlace,
+  now: string,
+): { roster: Roster; session: SessionState } {
+  if (!s.party) return { roster, session: s }
+  const members = (s.members ?? [])
+    .map((m) => m.id)
+    .filter((id) => samePlace(rosterEntry(roster, id)?.playing, place))
+  const kept = keepPartyInRoster(roster, s.party, name, members, now, place)
+  const session = { ...s, partyRef: kept.id, party: { ...s.party, name } }
+  return { roster: settleSession(kept.roster, session, place, now), session }
+}
 
 /**
  * What the last step did: its journal entries, and those added after it (a table rolled

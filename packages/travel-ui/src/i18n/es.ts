@@ -128,6 +128,18 @@ export const es: Messages<typeof en> = {
     sum: 'suma de {value}: {list}',
     count: 'cuántos son: {list}',
     nobody: 'no cuenta nadie',
+    fromRoster: vocabulary.es.roster.from,
+    fromRosterHelp:
+      'Grupos del plantel (la aplicación Characters) hechos con la hoja de grupo de este sistema. Uno pasa a ser el grupo de este viaje: su hoja tal como estaba (valores, condiciones, objetos: si le quedaban 3 raciones, tiene 3 raciones), y sus miembros se unen a los personajes del viaje. Queda enlazado: lo que le pase aquí se escribe en el plantel tras cada paso, sus miembros son los personajes enlazados del viaje, y lo que cambies en Characters llega al viaje. Un grupo juega en un solo sitio a la vez: traer uno que juega en otro sitio pregunta antes.',
+    takeConfirm:
+      'Esto se los lleva de donde juegan ahora: {list}. ¿Traerlos aquí? Esos sitios conservan sus copias, ya sin enlazar con el plantel.',
+    replaceConfirm:
+      'El grupo de este viaje no está en el plantel: si traes otro, su hoja tal como está ahora se pierde. ¿Traerlo?',
+    keep: vocabulary.es.roster.keep,
+    keepTip:
+      'Guarda este grupo en el plantel (la aplicación Characters), con los personajes enlazados de este viaje como miembros: lo que le pase aquí se escribe allí, y el siguiente viaje puede seguir con él.',
+    open: vocabulary.es.roster.open,
+    linked: 'En el plantel como {name}',
   },
   members: {
     land: 'tierras',

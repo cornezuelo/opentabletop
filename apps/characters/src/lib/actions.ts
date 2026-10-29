@@ -3,7 +3,12 @@ import {
   deleteFromRoster,
   duplicateInRoster,
   keepInRoster,
+  keepPartyInRoster,
   newMember,
+  newParty,
+  setMembers,
+  splitParty,
+  type PartySplit,
   partyOf,
   rosterEntry,
   rosterFromOtd,
@@ -16,15 +21,40 @@ import { validateBundle } from '@open-tabletop/schema'
 
 const now = () => new Date().toISOString()
 
-/** A new character of a system's characters' sheet, in the roster; its id. */
-export function createCharacter(system: TravelSystem, name: string): string {
+/**
+ * A new character of a system's characters' sheet, in the roster (or, with `party`, a new
+ * party of its party sheet, without members); its id.
+ */
+export function createCharacter(system: TravelSystem, name: string, party = false): string {
   const id = characterId(
     name,
     roster.roster.characters.map((e) => e.character.id),
   )
+  if (party && system.partySheet) {
+    const made = newParty(partyOf(system), { id, ...(name && { name }) })
+    const kept = keepPartyInRoster(roster.roster, made, name || id, [], now())
+    roster.set(kept.roster)
+    return kept.id
+  }
   const character = newMember(partyOf(system), { id, ...(name && { name }) })
   roster.set(keepInRoster(roster.roster, character, now()).roster)
   return id
+}
+
+/** A party's members, set while it plays nowhere (each leaves the party it was in). */
+export function setPartyMembers(id: string, members: string[]): void {
+  roster.set(setMembers(roster.roster, id, members, now()))
+}
+
+/** The new party a split makes starts as any new party of the sheet: its starting values, nothing else. */
+export const partyStart = (system: TravelSystem, id: string) =>
+  newParty(partyOf(system), { id, items: [] })
+
+/** Splits a party (**Split the party**); the new one's id. */
+export function splitTheParty(id: string, split: PartySplit): string {
+  const made = splitParty(roster.roster, id, split, now())
+  roster.set(made.roster)
+  return made.id
 }
 
 /** A copy of a character, in the roster only; its id. */

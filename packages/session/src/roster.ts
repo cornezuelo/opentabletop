@@ -20,6 +20,12 @@ export interface RosterEntry {
   noteRef?: string
   /** Where it plays now (absent: nowhere, only in the roster). */
   playing?: RosterPlace
+  /**
+   * A party (a character of its system's party sheet): the ids of the roster characters in it,
+   * in order (docs/characters-app.md §8). Absent: a character, not a party. A character is in
+   * one party at a time.
+   */
+  members?: string[]
 }
 
 /** A trip or token a roster character plays in. */
@@ -57,6 +63,32 @@ export function characterId(name: string, taken: Iterable<string>): string {
 export const rosterEntry = (roster: Roster, id: string): RosterEntry | undefined =>
   roster.characters.find((e) => e.character.id === id)
 
+/** Whether a roster entry is a party (its sheet and its members). */
+export const isParty = (entry: RosterEntry | undefined): boolean => !!entry?.members
+
+/** The party a roster character is in, if any. */
+export const partyWith = (roster: Roster, id: string): RosterEntry | undefined =>
+  roster.characters.find((e) => e.members?.includes(id))
+
+/**
+ * A party's members set (the Characters app, or the trip it plays in): each one leaves the
+ * party it was in. The same roster when nothing changed.
+ */
+export function setMembers(roster: Roster, party: string, ids: string[], now: string): Roster {
+  const entry = rosterEntry(roster, party)
+  if (!entry?.members) return roster
+  const wanted = [...new Set(ids)].filter((id) => id !== party && rosterEntry(roster, id))
+  const moving = new Set(wanted)
+  let changed = JSON.stringify(entry.members) !== JSON.stringify(wanted)
+  const characters = roster.characters.map((e) => {
+    if (e === entry) return changed ? { ...e, members: wanted, modified: now } : e
+    if (!e.members?.some((id) => moving.has(id))) return e
+    changed = true
+    return { ...e, members: e.members.filter((id) => !moving.has(id)), modified: now }
+  })
+  return changed ? { characters } : roster
+}
+
 /** Whether a place's copy of a character is the roster's (the roster says it plays there). */
 export const isLinked = (roster: Roster, id: string, place: RosterPlace): boolean =>
   samePlace(rosterEntry(roster, id)?.playing, place)
@@ -83,6 +115,31 @@ export function keepInRoster(
     ...(place && { playing: place }),
   }
   return { roster: { characters: [...roster.characters, entry] }, id }
+}
+
+/**
+ * Keeps a party in the roster: its sheet (`party`, named `name`) and its members (roster
+ * ids; each leaves the party it was in). Its id comes from its name. With a place, it plays there.
+ */
+export function keepPartyInRoster(
+  roster: Roster,
+  party: CharacterState,
+  name: string,
+  members: string[],
+  now: string,
+  place?: RosterPlace,
+): { roster: Roster; id: string } {
+  const id = characterId(
+    name,
+    roster.characters.map((e) => e.character.id),
+  )
+  const entry: RosterEntry = {
+    character: structuredClone({ ...party, id, name }),
+    modified: now,
+    members: [],
+    ...(place && { playing: place }),
+  }
+  return { roster: setMembers({ characters: [...roster.characters, entry] }, id, members, now), id }
 }
 
 /**
@@ -206,7 +263,7 @@ export function editInRoster(
   return replace(roster, id, { ...next, character: { ...next.character, id }, modified: now })
 }
 
-/** A copy of a roster character, with a new id and name, playing nowhere. */
+/** A copy of a roster character, with a new id and name, playing nowhere (a party's, without members: a character is in one party at a time). */
 export function duplicateInRoster(
   roster: Roster,
   id: string,
@@ -224,14 +281,103 @@ export function duplicateInRoster(
     character,
     modified: now,
     ...(entry.noteRef && { noteRef: entry.noteRef }),
+    ...(entry.members && { members: [] }),
   }
   return { roster: { characters: [...roster.characters, added] }, id: copy }
 }
 
-/** Removes a character from the roster; the place it played in keeps its copy, unlinked. */
+/**
+ * Removes a character from the roster (and from its party); the place it played in keeps its
+ * copy, unlinked. A party's members stay in the roster, in no party.
+ */
 export const deleteFromRoster = (roster: Roster, id: string): Roster => ({
-  characters: roster.characters.filter((e) => e.character.id !== id),
+  characters: roster.characters
+    .filter((e) => e.character.id !== id)
+    .map((e) =>
+      e.members?.includes(id) ? { ...e, members: e.members.filter((m) => m !== id) } : e,
+    ),
 })
+
+/**
+ * How a party splits (**Split the party**): who goes, and what each side keeps of its values
+ * and items. Nothing is made out of nothing: the player says both sides' numbers.
+ */
+export interface PartySplit {
+  /** The new party's name. */
+  name: string
+  /** The members who go (ids of the party's). */
+  members: string[]
+  /** The new party as any new party of its sheet starts (its starting values, no items). */
+  start: CharacterState
+  /** Each value as it stays and as it goes (absent: the old one keeps it, the new one starts at its own). */
+  values: Record<string, { stays: number; goes: number }>
+  /** How many of each item (by `key`) go; what's inside an item that goes whole goes with it. */
+  items: Record<string, number>
+}
+
+/**
+ * Splits a party (it plays nowhere): a new party with the members who go, the values and items
+ * the split gives it, playing nowhere; the old one keeps the rest. Its id.
+ */
+export function splitParty(
+  roster: Roster,
+  id: string,
+  split: PartySplit,
+  now: string,
+): { roster: Roster; id: string } {
+  const entry = rosterEntry(roster, id)
+  if (!entry?.members) return { roster, id }
+  const stays = structuredClone(entry.character)
+  const goes = structuredClone(split.start)
+  for (const [value, { stays: kept, goes: gone }] of Object.entries(split.values)) {
+    stays.values[value] = kept
+    goes.values[value] = gone
+  }
+  const items = stays.items ?? []
+  const keys = new Set(items.map((i) => i.key))
+  // Whole items going, and what they hold (inside them, at any depth).
+  const whole = new Set(
+    items.filter((i) => (split.items[i.key] ?? 0) >= i.count && i.count > 0).map((i) => i.key),
+  )
+  const inside = (i: (typeof items)[number]): boolean => {
+    for (let at = i.place, n = 0; at && keys.has(at) && n < items.length; n++) {
+      if (whole.has(at)) return true
+      at = items.find((x) => x.key === at)?.place
+    }
+    return false
+  }
+  const kept: typeof items = []
+  const moved: typeof items = []
+  for (const item of items) {
+    if (inside(item)) {
+      moved.push(item)
+      continue
+    }
+    const n = Math.min(item.count, Math.max(0, split.items[item.key] ?? 0))
+    if (n >= item.count && item.count > 0) moved.push(item)
+    else if (n > 0) {
+      kept.push({ ...item, count: item.count - n })
+      moved.push({ ...structuredClone(item), count: n })
+    } else kept.push(item)
+  }
+  stays.items = kept
+  goes.items = moved
+  if (!kept.length) delete stays.items
+  if (!moved.length) delete goes.items
+  const made = keepPartyInRoster(
+    { characters: roster.characters },
+    goes,
+    split.name,
+    split.members.filter((m) => entry.members!.includes(m)),
+    now,
+  )
+  const next = replace(made.roster, id, {
+    ...rosterEntry(made.roster, id)!,
+    character: stays,
+    modified: now,
+  })
+  return { roster: next, id: made.id }
+}
 
 /**
  * Renames a trip's member everywhere the trip names it: who acts, the roles, who rolls and
@@ -287,6 +433,9 @@ export function readRoster(raw: unknown): Roster {
       ...(playing &&
         typeof playing.app === 'string' &&
         typeof playing.id === 'string' && { playing }),
+      ...(Array.isArray(e!.members) && {
+        members: e!.members.filter((m): m is string => typeof m === 'string'),
+      }),
     })
   }
   return { characters }

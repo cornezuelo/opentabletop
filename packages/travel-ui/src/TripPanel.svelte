@@ -66,6 +66,7 @@
   import { tripTab, type TripTab } from './tripTab.svelte'
   import { journalFilter } from './journalFilter.svelte'
   import PartyMembers from './PartyMembers.svelte'
+  import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
   import { CharacterCard, SheetOrigin } from '@open-tabletop/character-ui'
   import type { WaitingSaid } from '@open-tabletop/campaign'
@@ -886,6 +887,15 @@
         >
           {#if system.partySheet && session.party}
             <SheetOrigin sheet={system.partySheet} {system} {locale} where={systemWhere} />
+            {#if place}
+              <PartyRoster
+                system={{ ...system, partySheet: system.partySheet }}
+                {session}
+                {locale}
+                {place}
+                {onedit}
+              />
+            {/if}
             <CharacterCard
               sheet={system.partySheet.def}
               character={session.party}

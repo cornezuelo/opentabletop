@@ -130,6 +130,18 @@ export const en = {
     sum: '{value} added up: {list}',
     count: 'how many: {list}',
     nobody: 'nobody counts',
+    fromRoster: vocabulary.en.roster.from,
+    fromRosterHelp:
+      "Parties of the roster (the Characters app) made with this system's party sheet. One becomes this trip's party: its sheet as it was (values, conditions, items: 3 rations left, 3 rations now), and its members join the trip's characters. It stays linked: what happens to it here is written back to the roster after every step, its members are the trip's linked characters, and what you change in the Characters app reaches the trip. A party plays in one place at a time: taking one that plays elsewhere asks first.",
+    takeConfirm:
+      'This takes from where they play now: {list}. Bring them here? Those places keep their copies, no longer linked to the roster.',
+    replaceConfirm:
+      "This trip's party isn't in the roster: bringing another one loses its sheet as it is now. Bring it?",
+    keep: vocabulary.en.roster.keep,
+    keepTip:
+      "Keeps this party in the roster (the Characters app), with this trip's linked characters as its members: what happens to it here is written there, and the next trip can go on with it.",
+    open: vocabulary.en.roster.open,
+    linked: 'In the roster as {name}',
   },
   members: {
     land: 'land',

@@ -69,6 +69,7 @@ import {
   MEMBER_PATH,
   partyBlocks,
   refreshParty,
+  editPartySheet,
   relatedWorld,
   keptNumbers,
   type PartyRules,
@@ -1187,6 +1188,9 @@ export function startTrip(options: {
   seed?: string
   /** The party's characters (of the system's sheet), in order. */
   members?: CharacterState[]
+  /** The party's own sheet, and the roster party it is (the last trip's: the same party goes on). */
+  party?: CharacterState
+  partyRef?: string
 }): { startDay: number; session: SessionState } {
   const { rules, bindings } = options.system
   const calendar = calendarOf(options.system)
@@ -1210,8 +1214,12 @@ export function startTrip(options: {
   )
   const session = initialSessionState(travel, stats)
   if (options.members?.length) session.members = structuredClone(options.members)
-  // Its members, and the party's own sheet when the system has one.
-  refreshParty(session, partyOf(options.system))
+  // Its members, and the party's own sheet when the system has one (the stats made of it following).
+  const party = partyOf(options.system)
+  if (options.party && options.party.sheet === party.partySheet?.id) {
+    if (options.partyRef) session.partyRef = options.partyRef
+    editPartySheet(session, party, structuredClone(options.party))
+  } else refreshParty(session, party)
   return { startDay, session }
 }
 

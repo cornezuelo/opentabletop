@@ -2,12 +2,12 @@ import type { CharacterState } from '@open-tabletop/character-engine'
 import { roster } from '@open-tabletop/character-ui'
 import {
   partyOf,
-  placeCharacters,
   playingAt,
   pullFromRoster,
   pullMembers,
   samePlace,
   settlePlace,
+  settleSession,
   type Roster,
   type RosterPlace,
 } from '@open-tabletop/session'
@@ -39,10 +39,15 @@ export const tokenPlace = (token: string, map: HexMap = editor.map): RosterPlace
   token,
 })
 
-/** The party's characters (and those present the trip kept): the trip's, or the company waiting for one. */
-function membersOf(map: HexMap): CharacterState[] {
+/**
+ * The map's party written to the roster: the trip's (its characters, those present it kept
+ * and its party), or the company waiting for one.
+ */
+function settleParty(r: Roster, map: HexMap, at: string): Roster {
   const session = map.play && sessionOf(map.play)
-  return session ? placeCharacters(session) : (map.play?.rules?.members ?? [])
+  return session
+    ? settleSession(r, session, mapPlace(map), at)
+    : settlePlace(r, map.play?.rules?.members ?? [], mapPlace(map), at)
 }
 
 /** A token's sheet as the roster character it is (the roster's id and name). */
@@ -62,7 +67,7 @@ function tokenLinks(r: Roster, map: HexMap) {
 /** Writes the map's linked characters to the roster, and lets go of those it no longer has. */
 export function settleMap(map: HexMap = editor.map): void {
   const at = now()
-  let next = settlePlace(roster.roster, membersOf(map), mapPlace(map), at)
+  let next = settleParty(roster.roster, map, at)
   for (const { entry, token } of tokenLinks(next, map)) {
     const found = map.tokens.find((x) => x.id === token)
     const character = found && tokenCharacter(found, entry.character)

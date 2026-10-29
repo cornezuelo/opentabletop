@@ -11,7 +11,7 @@ Contiene todo lo que las aplicaciones guardan en este navegador:
 - **Mapas**: todos los de la biblioteca del Hexmapper, con su estado de juego (grupo, rastro, viaje, diario) y la tierra que tiene en él cada facción.
 - **Campañas**: el mundo en el que se juega cada mapa: su reloj del mundo y su clima, sus facciones y su Oráculo (historial, mazos, resultados que solo salen una vez).
 - **Tus packs**: los que has creado o editado, y las copias editadas de packs incluidos.
-- **El plantel de la aplicación Characters**: cada personaje que guarda, con sus notas y dónde juega.
+- **El plantel de la aplicación Characters**: cada personaje y grupo que guarda, con sus notas, dónde juega y los miembros de un grupo.
 - **Los viajes de la aplicación Travel**, el historial, los mazos y la semilla de la **aplicación Oracle**, y los **favoritos**.
 - **Preferencias**: idioma, aplicación de notas, los packs ocultos en el Oracle, el último sistema elegido, la campaña en la que juegas, disposición de paneles y similares.
 
@@ -55,6 +55,7 @@ Cuando algo marcado necesita algo que no lo está, **Se queda fuera** dice qué 
 - `Viaje «A la costa» se juega en Campaña «El Norte».`: un mapa o viaje sin su campaña no tiene reloj del mundo, facciones ni Oracle en otro sitio.
 - `Campaña «El Norte» se juega con Pack «Casero».`: el pack del sistema con el que se juega una campaña, un viaje o la hoja de un personaje, y los packs que una campaña añade a los de su sistema.
 - `Brenna juega en Viaje «A la costa».`: un personaje del plantel y el mapa o viaje en el que juega, en los dos sentidos.
+- `Brenna está en el grupo La Compañía.`: un grupo del plantel y sus miembros.
 
 **Añadir lo que falta** lo marca todo, y lo que eso necesite a su vez. Puedes exportar igualmente sin ello. Los packs que traen las aplicaciones (Core, las Marcas Grises…) nunca van en el fichero ni se piden: toda copia de OpenTabletop los tiene. Las preferencias, el historial de la aplicación Oracle y los viajes de prueba de Systems solo van en las copias de seguridad.
 
@@ -100,7 +101,7 @@ packs/<id>/pack.yaml, …         cada pack como carpeta de pack
 maps/<id>.json                  cada mapa tal y como lo guarda la biblioteca del Hexmapper
 campaigns/<id>.json             cada campaña en su propio formato
 trips/<id>.json                 cada viaje de Travel tal y como lo guarda Travel
-characters/<id>.json            cada personaje del plantel con sus notas y dónde juega
+characters/<id>.json            cada personaje del plantel con sus notas y dónde juega (un grupo, con sus miembros)
 ```
 
 - `opentabletop-export.json` lista los packs (con aquello en lo que se basaba una copia de un pack incluido) y los nombres y fechas de mapas y campañas; viajes y personajes llevan los suyos. Una exportación de una `version` más reciente de lo que entiende la aplicación se rechaza.

@@ -72,6 +72,10 @@ export const en = {
       'The system whose characters’ sheet it’s made with: it decides its values, tracks and conditions, and the trips it can join (those played with a system that has the same sheet). Only systems with a characters’ sheet are listed.',
     name: 'Name',
     namePlaceholder: 'Old Tobin',
+    sheet: 'Sheet',
+    sheetHelp:
+      'What to make: a character, with the sheet of its system’s characters, or a **party**, with its party sheet (what belongs to the whole party: morale, provisions…). A party has **members**, characters of the roster you choose after making it; taken on a trip, they go with it.',
+    aParty: 'a party',
     create: 'Create',
     noSystems: 'No system has a characters’ sheet yet: make one in Systems (its **Sheet** tab).',
   },
@@ -116,6 +120,41 @@ export const en = {
       'Delete {name} from the roster? It plays in {place}: that trip keeps its copy, no longer linked to the roster.',
     deleted: '{name} deleted.',
     notFound: 'This character isn’t in the roster (deleted, or in another browser).',
+  },
+  party: {
+    members: 'Members',
+    membersHelp:
+      'The roster characters in this party, in order. Taken on a trip (the trip’s **Party** tab, **From the roster** under **The party**), they go with it, and its sheet is the trip’s party. A character is in one party at a time.\nWhile the party plays somewhere, that trip keeps the list: its linked characters are its members.',
+    none: 'No members yet.',
+    nowhere:
+      'Only in the roster. To take it on a trip, choose it under **From the roster** on **The party**’s card, in the trip’s **Party** tab: its members come with it.',
+    add: 'Add a member',
+    remove: 'Take out of the party',
+    playingNote: 'It plays in {place}: its members are that trip’s characters, changed there.',
+    moveConfirm: '{name} is in {party}. Move them to this party?',
+    inParty: 'Party',
+    inPartyHelp:
+      'The party this character is in: taken on a trip with it. A character is in one party at a time.',
+    duplicateTip:
+      'A copy with its values and items, in the roster only, without members (a character is in one party at a time).',
+    split: 'Split the party',
+    splitTip: 'Some members go their own way, as a new party.',
+    splitTitle: 'Split {name}',
+    splitHelp:
+      'Tick who goes. The new party starts as any new party of its sheet (its starting values, nothing else), and this one keeps everything: nothing is made out of nothing. Say what each side has of each value and item; **=** gives the new one the same as this one, **½** half each.',
+    newName: 'Name of the new party',
+    newNameValue: '{name} (2)',
+    who: 'Who goes',
+    value: 'Value',
+    stays: 'Stays',
+    goes: 'Goes',
+    same: 'The same as this one',
+    half: 'Half each',
+    items: 'Items',
+    itemGoes: 'How many go',
+    cancel: 'Cancel',
+    doSplit: 'Split',
+    splitDone: '{name} goes its own way.',
   },
   imported: {
     some: 'Imported: {names}.',

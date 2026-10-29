@@ -9,9 +9,9 @@ import {
   leavePlace,
   partyOf,
   pullMembers,
-  placeCharacters,
   SEASON_START_DAYS,
   settlePlace,
+  settleSession,
   startTrip,
   systemName,
   systemIdOf,
@@ -467,12 +467,9 @@ export class TripStore {
     const place = this.place
     if (place)
       roster.set(
-        settlePlace(
-          roster.roster,
-          this.saved.session ? placeCharacters(this.saved.session) : [],
-          place,
-          now(),
-        ),
+        this.saved.session
+          ? settleSession(roster.roster, this.saved.session, place, now())
+          : settlePlace(roster.roster, [], place, now()),
       )
   }
 
@@ -487,6 +484,11 @@ export class TripStore {
       stats: this.saved.system === system ? this.saved.session?.stats : undefined,
       // The same party of characters goes on to the next trip with the same system.
       members: this.saved.system === system ? this.saved.session?.members : undefined,
+      // …and its party, the roster's if it was.
+      ...(this.saved.system === system && {
+        party: this.saved.session?.party,
+        partyRef: this.saved.session?.partyRef,
+      }),
       // What the trip's rolls in conditions are seeded with: each trip its own.
       seed: Math.random().toString(36).slice(2, 10),
       // With its campaign's world clock running, the trip starts at the world's time.

@@ -133,6 +133,20 @@ describe('what can be exported', () => {
     ])
   })
 
+  it('a party needs its members', () => {
+    const party = {
+      character: { id: 'the-company', sheet: 'grey-marches/company', name: 'The Company' },
+      modified: 'T',
+      members: ['brenna'],
+    }
+    const kept = storage().kept
+    const items = listItems({ ...kept, characters: [...kept.characters, party] })
+    expect(items.find((i) => i.key === 'character:the-company')!.needs).toEqual([
+      { key: 'pack:grey-marches', why: 'system' },
+      { key: 'character:brenna', why: 'party' },
+    ])
+  })
+
   it('says what a choice leaves out, and adds it all', () => {
     const items = listItems(storage().kept)
     const chosen = new Set(['trip:trip-1'])

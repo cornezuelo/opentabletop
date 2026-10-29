@@ -133,6 +133,11 @@ function newSession(
     // …and its characters: the same party goes on to the next trip.
     members:
       play.rules?.system === system ? (sessionOf(play)?.members ?? play.rules.members) : undefined,
+    // …and its party, the roster's if it was.
+    ...(play.rules?.system === system && {
+      party: sessionOf(play)?.party,
+      partyRef: sessionOf(play)?.partyRef,
+    }),
     // With the world clock running, trips start at the world's time.
     ...(editor.campaign.world && { time: editor.campaign.world.time }),
     // What the trip's rolls in conditions are seeded with: each trip its own.
