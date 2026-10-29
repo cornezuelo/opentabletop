@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-10-29
+
 ### Apps
 
 - Characters: a **Bestiary** lists a system's templates, **makes copies in the roster** (independent, each with its own rolls) and edits them in a pack of your own (a bundled pack is copied first); the template editor (`TemplateEditor`) lives in `character-ui`.
