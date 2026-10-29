@@ -65,6 +65,9 @@ export const en = {
     noRoom: 'No room left for {name}',
   },
   template: {
+    present: 'Named as',
+    presentHelp:
+      "How tables, actions and effects name this template's copies where the party is (those present). Their inputs suggest it.\n• `present.wolf: 3` — an effect: three copies here, each with its own rolls\n• `present.wolf: -1` — the last one goes; `'=0'` all of them\n• `present.wolf.count: { gte: 2 }` — a condition: two or more here\n• `present.wolf.values.health: -1` — every copy here loses 1",
     description: 'Description',
     like: 'Variant of',
     likeHelp:

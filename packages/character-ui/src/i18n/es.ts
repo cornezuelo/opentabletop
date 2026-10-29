@@ -66,6 +66,9 @@ export const es: Messages<typeof en> = {
     noRoom: 'No queda sitio para {name}',
   },
   template: {
+    present: 'Se nombra',
+    presentHelp:
+      "Cómo nombran las tablas, las acciones y los efectos a las copias de esta plantilla donde está el grupo (los presentes). Sus campos lo sugieren.\n• `present.wolf: 3` — un efecto: tres copias aquí, cada una con sus tiradas\n• `present.wolf: -1` — se va la última; `'=0'` todas\n• `present.wolf.count: { gte: 2 }` — una condición: dos o más aquí\n• `present.wolf.values.health: -1` — cada copia de aquí pierde 1",
     description: 'Descripción',
     like: 'Variante de',
     likeHelp:

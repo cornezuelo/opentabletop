@@ -2,7 +2,7 @@ import { TABS } from './tabs'
 
 /**
  * What the main area shows, mirrored in the URL hash so views can be linked:
- * #/system/<id>/<tab>.
+ * #/system/<id>/<tab>[/<item>] (an item of the tab, unfolded: a template of the bestiary).
  */
 export type Tab =
   | 'overview'
@@ -20,17 +20,24 @@ export type Tab =
   | 'modes'
   | 'try'
   | 'yaml'
-export type View = { name: 'welcome' } | { name: 'system'; id: string; tab: Tab }
+export type View = { name: 'welcome' } | { name: 'system'; id: string; tab: Tab; item?: string }
 
 function parse(hash: string): View {
-  const [name, id, tab] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
+  const [name, id, tab, item] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
   if (name === 'system' && id)
-    return { name, id, tab: TABS.includes(tab as Tab) ? (tab as Tab) : 'overview' }
+    return {
+      name,
+      id,
+      tab: TABS.includes(tab as Tab) ? (tab as Tab) : 'overview',
+      ...(item && { item }),
+    }
   return { name: 'welcome' }
 }
 
 const format = (view: View): string =>
-  view.name === 'system' ? `#/system/${encodeURIComponent(view.id)}/${view.tab}` : '#/'
+  view.name === 'system'
+    ? `#/system/${encodeURIComponent(view.id)}/${view.tab}${view.item ? `/${encodeURIComponent(view.item)}` : ''}`
+    : '#/'
 
 export const nav = $state<{ view: View }>({ view: parse(location.hash) })
 

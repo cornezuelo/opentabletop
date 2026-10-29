@@ -57,6 +57,13 @@
     set: (value: unknown) => void
   }
 
+  /** What a card's own fields (`body`) get: its id and row, and whether it can change. */
+  export interface CardBody {
+    id: string
+    row: Record<string, unknown> | null
+    disabled: boolean
+  }
+
   /** Columns too big for a table's cell: rows with one are shown as cards. */
   const BIG: readonly Column['type'][] = ['condition', 'pairs', 'flow', 'custom']
 
@@ -74,6 +81,7 @@
 
 <script lang="ts">
   import { CardHead, CardTools } from '@open-tabletop/pack-ui'
+  import { untrack } from 'svelte'
   import { SvelteSet } from 'svelte/reactivity'
   import {
     confirmAction,
@@ -112,6 +120,8 @@
     uses,
     cards: asCards,
     ordered,
+    body,
+    unfold = [],
   }: {
     doc: RowsDoc
     kind?: string
@@ -133,13 +143,20 @@
      * Its name tells its drags from other lists'.
      */
     ordered?: string
+    /**
+     * An unfolded card's fields drawn by the form itself (a template's whole editor), below
+     * its id; the columns still say what a folded card shows and what the search finds.
+     */
+    body?: Snippet<[CardBody]>
+    /** Cards unfolded from the start (one a link asked for). */
+    unfold?: readonly string[]
   } = $props()
 
   const cards = $derived(
     asCards ?? (columns.some((c) => BIG.includes(c.type)) || columns.length > 4),
   )
   /** The cards shown unfolded (folded by default). */
-  const unfolded = new SvelteSet<string>()
+  const unfolded = new SvelteSet<string>(untrack(() => unfold))
   let query = $state('')
   const locale = $derived(getLocale())
   const nameColumn = $derived(columns.find((c) => c.field === 'name' && c.type === 'text'))
@@ -445,7 +462,10 @@
               <span>{idLabel}</span>
               {@render idBox(id)}
             </label>
-            {#each columns as c (c.field)}
+            {#if body}
+              <div class="wide-field">{@render body({ id, row, disabled })}</div>
+            {/if}
+            {#each body ? [] : columns as c (c.field)}
               {#if c.type === 'check'}
                 <label class="field inline">
                   {@render control(id, row, c)}

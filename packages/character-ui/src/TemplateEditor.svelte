@@ -17,6 +17,7 @@
    * what is empty is left out.
    */
   let {
+    id,
     sheet,
     template,
     locale,
@@ -26,6 +27,8 @@
     tagChoices = [],
     onchange,
   }: {
+    /** Its id in its bestiary: what tables and effects name its copies with (`present.<id>`). */
+    id?: string
     sheet: Sheet
     template: TemplateDef
     locale: string
@@ -100,6 +103,12 @@
 </script>
 
 <div class="editor">
+  {#if id}
+    <p class="present">
+      {t('template.present')}<InfoTip markdown={t('template.presentHelp')} />
+      <code>present.{id}</code>
+    </p>
+  {/if}
   <div class="head">
     <label>
       <span>{t('name')}</span>
@@ -361,6 +370,12 @@
     background: none;
     border: none;
     cursor: pointer;
+    color: var(--text-muted);
+  }
+
+  .present {
+    margin: 0;
+    font-size: 12px;
     color: var(--text-muted);
   }
 

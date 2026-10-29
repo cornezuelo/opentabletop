@@ -23,7 +23,7 @@ export const es: Messages<typeof en> = {
     noMatch: 'Ningún personaje coincide.',
     bestiary: 'Bestiario',
     lists: 'Personajes o plantillas',
-    newTemplate: 'Nueva plantilla',
+    newTemplate: 'Nueva plantilla ↗',
     noTemplates: 'Ningún sistema tiene bestiario.',
     tags: 'Filtrar por etiqueta',
     clearTags: 'Mostrar todos, tengan las etiquetas que tengan',
@@ -35,7 +35,7 @@ export const es: Messages<typeof en> = {
   },
   bestiary: {
     title: 'Bestiario',
-    help: 'Las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. **Crear un personaje** mete uno en el plantel, con nombre del generador de la plantilla si tiene uno (un PNJ que vuelve); **Crear copias** mete varios (una pelea en la mesa). Las tablas y los efectos las hacen en un viaje (`present.<id>: 3`). Una plantilla de un pack incluido es de solo lectura: **Editar una copia** crea un pack tuyo donde cambiarla; lo que cambies solo afecta a las copias que se hagan después.',
+    help: 'Las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. **Crear un personaje** mete uno en el plantel, con nombre del generador de la plantilla si tiene uno (un PNJ que vuelve); **Crear copias** mete varios (una pelea en la mesa). Las tablas y los efectos las hacen en un viaje (`present.<id>: 3`). Aquí se ven las plantillas tal cual, y se editan en la aplicación Systems (**Editar en Systems ↗**): lo que cambies allí solo afecta a las copias que se hagan después.',
     inRoster: 'En el plantel',
     inRosterHelp:
       'Personajes hechos a partir de esta plantilla, guardados en el plantel como cualquier otro: cada uno con sus propias tiradas (sus valores se tiran de nuevo para cada uno), sus etiquetas y lo que lleva, y recordando la plantilla de la que viene (**Hecho a partir de**).\n• **Crear un personaje** — uno, con nombre de los **Nombres de** de la plantilla si tiene (Hrolf, un bandido que vuelve), y se abre para editarlo\n• **Crear copias** — ese número de una vez (cuatro lobos para la pelea de esta noche), con nombre igual o numerados (_Lobo gris 1_, _2_…)\nDebajo sale cuántos hay en el plantel, con **Borrarlos todos** para quitarlos cuando acabe el encuentro.',
@@ -51,22 +51,15 @@ export const es: Messages<typeof en> = {
     count: 'Cuántas',
     made: 'Hechas {count} × {name}.',
     cantMake: 'No se pueden hacer estas copias: la plantilla no tiene hoja.',
-    readOnly: 'Esta plantilla está en el pack incluido «{pack}», que es de solo lectura.',
-    delete: 'Borrar la plantilla',
-    confirmDelete: '¿Borrar la plantilla «{name}»? Las copias ya hechas conservan lo que tienen.',
-    none: 'Aún no hay ningún sistema con bestiario. Crea uno en la aplicación Systems (su pestaña **Bestiario**).',
+    edit: 'Editar en Systems ↗',
+    editHelp:
+      'Las plantillas son parte de su sistema, como sus hojas, así que se editan en la aplicación Systems, en su pestaña **Bestiario**: este enlace la abre en esta plantilla. Las copias ya hechas no cambian con ella: cada una es un personaje del plantel, que se edita aquí como cualquier otro.\n• Allí un sistema incluido es de solo lectura: antes, **Editar una copia**',
+    none: 'Aún no hay ningún sistema con bestiario. Crea uno en la aplicación Systems (su pestaña **Bestiario**): **Nueva plantilla ↗** te lleva allí.',
     intro:
       'Las criaturas y clases de gente que tus sistemas pueden crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. Elige una en **Bestiario**, a la izquierda, por sistema y hoja; búscala, o fíltrala por sus etiquetas. De una plantilla se hacen copias en el plantel, y las tablas y los efectos las hacen en un viaje (`present.<id>: 3`).',
     notFound:
       'Esta plantilla no está en ningún bestiario cargado: puede que se quitara su pack o se borrara la plantilla.',
     noSheet: 'No se encuentra su hoja, así que no se puede mostrar.',
-  },
-  newTemplate: {
-    title: 'Nueva plantilla',
-    systemHelp:
-      'El sistema en cuyo bestiario va. Solo salen los sistemas con un bestiario en un pack tuyo: para añadir a uno incluido, abre una de sus plantillas y pulsa antes **Editar una copia**.',
-    namePlaceholder: 'Oso de las cavernas',
-    none: 'Aún no hay ningún sistema con un bestiario en un pack tuyo. Abre una plantilla del bestiario al que quieras añadir y pulsa **Editar una copia**, o crea un bestiario en la aplicación Systems (su pestaña **Bestiario**).',
   },
   new: {
     title: 'Nuevo personaje',

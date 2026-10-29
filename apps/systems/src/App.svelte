@@ -46,7 +46,7 @@
     />{/snippet}
   {#snippet help()}<HelpPanel app="systems" locale={getLocale()} />{/snippet}
   {#if nav.view.name === 'system'}
-    {#key nav.view.id}<SystemView id={nav.view.id} tab={nav.view.tab} />{/key}
+    {#key nav.view.id}<SystemView id={nav.view.id} tab={nav.view.tab} item={nav.view.item} />{/key}
   {:else}
     <Welcome title={t('welcome.title')} tagline={t('app.tagline')} body={t('welcome.body')} />
   {/if}

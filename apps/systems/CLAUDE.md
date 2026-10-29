@@ -15,7 +15,8 @@ src/
     terrains.ts       # terrain and edge names (the Hexmapper palette, suggested in the rules)
     maps.ts           # a system's example maps (`maps:`, OTD bundles in its pack): read, added, named
     systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
-    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|factions|clocks|world|calendar|weather|land|modes|try|yaml>
+    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|factions|clocks|world|calendar|weather|land|modes|try|yaml>[/<item>] (a template, unfolded)
+    bestiary.ts       # the Bestiary tab: a part's bestiary as the system read it, a template shown and written (texts in the language edited)
     tabs.ts           # a system's tabs, each once and in order (systemTabs)
     trial.svelte.ts   # the Try it tab's trips (travel-ui TripStore, `opentabletop.systems.trips`)
     steps.ts          # a step's kind, changing it, a new kind's value, the step in words (StepCard's title)
@@ -29,6 +30,7 @@ src/
 ```
 
 - The Checks tab keeps rules and bindings in step: renaming a check renames its binding; removing it removes its binding.
+- Templates of bestiaries are edited here only (folded cards, character-ui's `TemplateEditor`); the Characters app shows them and links here.
 - Bundled systems are read-only: **Edit a copy** (PackLibrary `editCopy`) makes an editable copy.
 - Text files stay the source of truth: forms write YAML keeping comments.
 

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
- * The Characters app's Bestiary: a system's templates, copies of one as roster characters,
- * each with its own rolls, and changing a template only in a pack of the user's.
+ * The Characters app's Bestiary: a system's templates, shown as they are (edited in
+ * Systems), and copies of one as roster characters, each with its own rolls.
  */
 async function open() {
   vi.resetModules()
@@ -30,16 +30,12 @@ describe('the bestiary in Characters', () => {
     expect(leader.tags).toEqual(expect.arrayContaining(['beast', 'pack', 'leader']))
   })
 
-  it('adds a template only to a bestiary of the user’s', async () => {
-    const { library, systems, ownBestiaries, addTemplate, templatesOf } = await open()
-    const marches = () => systems.list.find((s) => s.id === 'grey-marches')!
-    expect(ownBestiaries(marches())).toEqual([])
-    library.editCopy('grey-marches')
-    const [own] = ownBestiaries(marches())
-    expect(own).toBe('grey-marches/marches')
-    expect(addTemplate(marches(), own, 'Cave bear')).toBe('cave-bear')
-    expect(addTemplate(marches(), own, 'Cave bear')).toBe('cave-bear-2')
-    expect(templatesOf(marches(), 'en').find((e) => e.id === 'cave-bear')?.name).toBe('Cave bear')
+  it('links a template to where it is edited: its system’s Bestiary tab in Systems', async () => {
+    const { templateUrl } = await open()
+    expect(templateUrl({ id: 'grey-marches' }, 'grey-wolf')).toMatch(
+      /systems\/#\/system\/grey-marches\/bestiary\/grey-wolf$/,
+    )
+    expect(templateUrl({ id: 'grey-marches' })).toMatch(/#\/system\/grey-marches\/bestiary$/)
   })
 
   it('makes independent copies in the roster, numbered, keeping where they come from', async () => {
@@ -80,34 +76,6 @@ describe('the bestiary in Characters', () => {
     expect(systems.ofSheet(marches.sheet.id)?.id).toBe('grey-marches')
   })
 
-  it('writes a template’s texts in the language being edited, the rest where it changed', async () => {
-    const { library, systems, templatesOf, saveTemplate } = await open()
-    const entry = () =>
-      templatesOf(
-        systems.list.find((s) => s.id === 'grey-marches')!,
-        'es',
-      ).find((e) => e.id === 'grey-wolf')!
-    library.editCopy('grey-marches')
-    const root = library.rootOf('grey-marches')!
-    const before = entry().def
-    // Translated texts come folded in as { en, es }.
-    expect(typeof before.name).toBe('object')
-    saveTemplate(entry().bestiary, 'grey-wolf', { ...before, name: 'Lobo flaco' }, before, 'es')
-    expect(library.readFile(root, 'locales/es/bestiary.yaml')).toContain('name: Lobo flaco')
-    saveTemplate(
-      entry().bestiary,
-      'grey-wolf',
-      { ...entry().def, tags: ['beast'] },
-      entry().def,
-      'es',
-    )
-    const base = library.readFile(root, 'bestiary.yaml')!
-    expect(base).toContain('name: Grey wolf')
-    expect(base).not.toContain('Lobo')
-    expect(entry().def.tags).toEqual(['beast'])
-    expect(entry().def.name).toEqual({ en: 'Grey wolf', es: 'Lobo flaco' })
-  })
-
   it('offers a copy made here to the trips and tokens of its system, not to another', async () => {
     const { roster, systems, makeCopies } = await open()
     const { rosterCreatures } = await import('@open-tabletop/session')
@@ -117,18 +85,5 @@ describe('the bestiary in Characters', () => {
     const place = { app: 'travel', id: 't1', name: 'A trip' }
     expect(rosterCreatures(marches, roster.roster, place).map((e) => e.character.id)).toEqual([id])
     expect(rosterCreatures(generic, roster.roster, place)).toEqual([])
-  })
-
-  it('changes a template only in a pack of the user, after a copy of the bundled one', async () => {
-    const { library, systems, templatesOf, saveTemplate, canEdit } = await open()
-    const marches = () => systems.list.find((s) => s.id === 'grey-marches')!
-    const entry = () => templatesOf(marches(), 'en').find((e) => e.id === 'grey-wolf')!
-    const { bestiary, def } = entry()
-    expect(canEdit(bestiary)).toBe(false)
-    expect(saveTemplate(bestiary, 'grey-wolf', { ...def, tags: ['changed'] })).toBe(false)
-    library.editCopy(bestiary.split('/')[0])
-    expect(canEdit(bestiary)).toBe(true)
-    expect(saveTemplate(bestiary, 'grey-wolf', { ...def, tags: ['changed'] })).toBe(true)
-    expect(entry().def.tags).toEqual(['changed'])
   })
 })

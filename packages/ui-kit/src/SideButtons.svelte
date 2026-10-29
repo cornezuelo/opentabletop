@@ -1,7 +1,10 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  /** A row of a sidebar's buttons; the main one has `class="primary"`. */
+  /**
+   * A row of a sidebar's buttons; the main one has `class="primary"`. A link (one that opens
+   * another app) looks like the buttons.
+   */
   let { children }: { children: Snippet } = $props()
 </script>
 
@@ -14,7 +17,8 @@
     gap: 6px;
   }
 
-  .buttons :global(button) {
+  .buttons :global(button),
+  .buttons :global(a) {
     flex: 1 1 auto;
     white-space: nowrap;
     padding: 5px 8px;
@@ -25,7 +29,14 @@
     cursor: pointer;
   }
 
-  .buttons :global(button.primary) {
+  .buttons :global(a) {
+    color: inherit;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .buttons :global(button.primary),
+  .buttons :global(a.primary) {
     color: var(--accent);
     border-color: var(--accent);
   }

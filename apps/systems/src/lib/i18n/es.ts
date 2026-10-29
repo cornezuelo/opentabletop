@@ -172,34 +172,18 @@ export const es: Messages<typeof en> = {
     behindHelp:
       'Qué pasa con las copias cuando el grupo deja el lugar donde se hicieron: se **quedan** allí (se vuelven a encontrar al volver) o **se van** (desaparecen; al volver puede salir una nueva). Lo decide el sistema. Vacío: se quedan.\n• `leave` — un encuentro nuevo en cada visita',
     behindDefault: 'se quedan (por defecto)',
-    behindBestiary: 'el del bestiario',
     templates: 'Plantillas',
-    templatesHelp:
-      'Cada plantilla, con un id por el que la nombran tablas y efectos (`present.<id>`): su nombre, su hoja, la plantilla de la que es variante, los valores con que empieza (un número o una tirada, resuelta para cada copia), sus condiciones, objetos y etiquetas.\n• `wolf` — valores `health: 2d4`\n• `wolf-leader` — como `wolf`, etiquetas `leader`',
     templateName: 'Nombre',
     like: 'Variante de',
-    likeHelp:
-      'Otra plantilla de este bestiario de la que partir: una variante toma sus valores y objetos (escribiendo encima) y suma sus etiquetas y condiciones.\n• `wolf` — un jefe que es un lobo más grande',
     values: 'Valores',
-    valuesHelp:
-      'Los valores de la hoja con que empieza, una fila cada uno: un número, o una tirada entre llaves que se resuelve para cada copia.\n• `health` · `{{2d4}}`\n• `bite` · `2`',
     conditions: 'Condiciones',
-    conditionsHelp: 'Las condiciones de la hoja con que empieza, cada una una píldora.\n• `hungry`',
     items: 'Objetos',
-    itemsHelp:
-      'Lo que lleva, de los catálogos del sistema, con cuántos (un número o una tirada). Vacío: lo que la hoja da al empezar.\n• `knife` · `1`\n• `ration` · `{{1d2}}`',
     tags: 'Etiquetas',
-    tagsHelp:
-      'Palabras por las que lo leen las condiciones, cada una una píldora:\n• `beast`, `undead`, `leader`',
     names: 'Nombres',
-    namesHelp:
-      'Una tabla o generador que se tira para el nombre de cada copia. Vacío: el nombre de la plantilla, numerado.\n• `names/generator.folk`',
-    tokenIcon: 'Icono de la ficha',
-    tokenIconHelp: 'Cómo se dibuja en un mapa, un id de icono o un glifo.\n• `wolf`',
-    tokenKind: 'Tipo de ficha',
-    tokenKindHelp: 'Si se dibuja como **pc**, **npc** o **enemy**.',
-    tokenColor: 'Color de la ficha',
-    tokenColorHelp: 'Un color para su ficha.\n• `#8b1e1e`',
+    noSheet:
+      'No se encuentra su hoja: elige una arriba, o da al bestiario una **Hoja**, para editar sus valores.',
+    templatesHelp:
+      'Cada plantilla, plegada en una línea; pulsa una para desplegar su editor: la hoja con que se hace, los valores con que empieza (un número o una tirada, resuelta para cada copia), sus condiciones, etiquetas y objetos, la plantilla de la que es variante, sus nombres y su ficha. Su id es como la nombran las tablas y los efectos (`present.<id>`). Las plantillas solo se editan aquí: la aplicación Characters las muestra y hace copias.\n• `wolf` — valores `health: {{2d4}}`\n• `wolf-leader` — una variante de `wolf`, etiquetas `leader`',
   },
   clocksForm: {
     name: 'Nombre',

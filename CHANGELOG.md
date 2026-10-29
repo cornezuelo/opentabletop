@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Systems and Characters: templates are edited in Systems only, like sheets. Systems' **Bestiary** shows them as folded cards (search, **Unfold all**), each unfolding to the whole template editor laid out by its sheet: a box per value, its conditions, tags, items, variant, names and token. Characters shows a template as it is, with **Make a character**, **Make copies** and its copies, and **Edit in Systems ↗**, which opens the template there, unfolded; **New template ↗** opens Systems' Bestiary. A template's `present.<id>` is explained where it's shown: how tables and effects make and read its copies.
+
 ## [0.22.0] - 2026-10-29
 
 ### Apps

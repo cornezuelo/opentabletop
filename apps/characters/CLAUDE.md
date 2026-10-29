@@ -10,12 +10,12 @@ The roster of characters. It is one app of the OpenTabletop ecosystem: read the 
 src/
   lib/
     actions.ts        # create, duplicate, delete, import, export (on character-ui's roster store)
-    bestiary.ts       # a system's templates, copies in the roster, writing templates in a user pack (texts via pack-ui's overlayTexts)
+    bestiary.ts       # a system's templates, copies in the roster, the link to edit one in Systems (templates are edited there only)
     groups.ts         # the left column's lists: by system, then by sheet; search and filter by tag
     packs.svelte.ts   # PackLibrary (shared with the other apps), the systems with a characters' sheet, a sheet's system (sheetOf)
-    nav.svelte.ts     # #/character/<id>, #/new, #/bestiary[/<bestiary>/<template>], #/new-template
+    nav.svelte.ts     # #/character/<id>, #/new, #/bestiary[/<bestiary>/<template>]
     i18n/             # typed en/es dictionaries
-  components/         # Sidebar (tabs Characters and Bestiary), NewCharacter, CharacterView, BestiaryView (a template), NewTemplate
+  components/         # Sidebar (tabs Characters and Bestiary), NewCharacter, CharacterView, BestiaryView (a template, read-only: make copies, Edit in Systems ↗)
 ```
 
 - The roster's rules (keep, take, sync, leave, ids, OTD) are plain functions in `session` (`roster.ts`); the store in this browser is `character-ui`'s `roster` (`opentabletop.characters`, versioned; backups join it by character, the newer kept).

@@ -13,7 +13,7 @@
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { importCharacters } from '../lib/actions'
-  import { templatesOf } from '../lib/bestiary'
+  import { templatesOf, templateUrl } from '../lib/bestiary'
   import { filterEntries, groupEntries, type ListEntry } from '../lib/groups'
   import { getLocale, t } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
@@ -25,7 +25,7 @@
    */
   type Tab = 'characters' | 'bestiary'
   const tabOf = (name: string): Tab | undefined =>
-    name === 'bestiary' || name === 'newTemplate'
+    name === 'bestiary'
       ? 'bestiary'
       : name === 'character' || name === 'new'
         ? 'characters'
@@ -89,6 +89,20 @@
     ),
   )
 
+  /**
+   * Templates are made in Systems: at the Bestiary tab of the system of the template shown,
+   * else of the first system with one, else Systems itself.
+   */
+  const newTemplateUrl = $derived.by(() => {
+    const shown =
+      nav.view.name === 'bestiary' &&
+      systems.list.find((s) =>
+        s.bestiary?.some((b) => nav.view.name === 'bestiary' && b.id === nav.view.bestiary),
+      )
+    const system = shown || systems.list.find((s) => s.bestiary?.length)
+    return system ? templateUrl(system) : appUrl('systems')
+  })
+
   function open(e: ListEntry) {
     if (tab === 'characters') return go({ name: 'character', id: e.key })
     const at = e.key.lastIndexOf(':')
@@ -125,9 +139,7 @@
         >{t('nav.import')}</button
       >
     {:else}
-      <button class="primary" onclick={() => go({ name: 'newTemplate' })}
-        >{t('nav.newTemplate')}</button
-      >
+      <a class="primary" href={newTemplateUrl}>{t('nav.newTemplate')}</a>
     {/if}
   </SideButtons>
   <input bind:this={file} type="file" accept=".json,application/json" hidden onchange={imported} />

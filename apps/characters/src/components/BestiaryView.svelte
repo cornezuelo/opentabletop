@@ -1,28 +1,17 @@
 <script lang="ts">
   import { roster, sheetText, TemplateEditor } from '@open-tabletop/character-ui'
   import { systemName, tagsInUse } from '@open-tabletop/session'
-  import type { TemplateDef } from '@open-tabletop/character-engine'
-  import { PackNotice } from '@open-tabletop/pack-ui'
   import { confirmAction, InfoTip, Markdown, showToast } from '@open-tabletop/ui-kit'
-  import {
-    bestiarySource,
-    canEdit,
-    copiesOf,
-    deleteCopies,
-    deleteTemplate,
-    makeCopies,
-    saveTemplate,
-    templatesOf,
-  } from '../lib/bestiary'
+  import { copiesOf, deleteCopies, makeCopies, templatesOf, templateUrl } from '../lib/bestiary'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
-  import { library, systems } from '../lib/packs.svelte'
+  import { systems } from '../lib/packs.svelte'
 
   /**
    * A template of a system's bestiary (picked in the left column's **Bestiary**): a character
-   * of a sheet whose rolls are made again for every copy. Make one character of it, or many
-   * copies, in the roster, and clear them away; in a pack of the user's, change it (a bundled
-   * pack is copied first). With no template given, what the bestiary is.
+   * of a sheet whose rolls are made again for every copy, shown as it is (templates are
+   * edited in Systems only). Make one character of it, or many copies, in the roster, and
+   * clear them away. With no template given, what the bestiary is.
    */
   let { bestiary, template }: { bestiary?: string; template?: string } = $props()
 
@@ -31,8 +20,6 @@
     system &&
       templatesOf(system, getLocale()).find((e) => e.bestiary === bestiary && e.id === template),
   )
-  const source = $derived(entry && bestiarySource(entry.bestiary))
-  const editable = $derived(!!entry && canEdit(entry.bestiary))
   const itemIds = $derived([
     ...new Set((system?.items ?? []).flatMap((c) => Object.keys(c.def.items))),
   ])
@@ -40,21 +27,6 @@
   const any = $derived(systems.list.some((s) => s.bestiary?.length))
   let count = $state(3)
 
-  function change(next: TemplateDef) {
-    if (entry) saveTemplate(entry.bestiary, entry.id, next, entry.def, getLocale())
-  }
-  async function remove() {
-    if (!entry) return
-    if (
-      !(await confirmAction(t('bestiary.confirmDelete', { name: entry.name }), {
-        confirm: t('bestiary.delete'),
-        danger: true,
-      }))
-    )
-      return
-    deleteTemplate(entry.bestiary, entry.id)
-    go({ name: 'bestiary' }, true)
-  }
   function make(how: number) {
     if (!system || !entry) return
     const ids = makeCopies(system, entry, Math.max(1, Math.floor(how) || 1), getLocale())
@@ -81,7 +53,10 @@
     <p class="where">
       {systemName(system, getLocale())} · {entry.sheet
         ? (sheetText(entry.sheet.name, getLocale()) ?? entry.sheetId)
-        : entry.sheetId} · <code>present.{entry.id}</code>
+        : entry.sheetId}
+      · <a href={templateUrl(system, entry.id)}>{t('bestiary.edit')}</a><InfoTip
+        markdown={t('bestiary.editHelp')}
+      />
     </p>
 
     <div class="roster">
@@ -111,31 +86,21 @@
       {/if}
     </div>
 
-    {#if source}
-      <PackNotice
-        {library}
-        root={source.root}
-        locale={getLocale()}
-        texts={{ readOnly: t('bestiary.readOnly', { pack: source.root }) }}
-      />
-    {/if}
     {#if entry.sheet}
-      {#key `${entry.bestiary}:${entry.id}:${editable}`}
-        <TemplateEditor
-          sheet={entry.sheet}
-          template={entry.def}
-          locale={getLocale()}
-          disabled={!editable}
-          others={entry.others}
-          items={itemIds}
-          tagChoices={tagsInUse(system, roster.roster)}
-          onchange={change}
-        />
-      {/key}
+      <TemplateEditor
+        id={entry.id}
+        sheet={entry.sheet}
+        template={entry.def}
+        locale={getLocale()}
+        disabled
+        others={entry.others}
+        items={itemIds}
+        tagChoices={tagsInUse(system, roster.roster)}
+        onchange={() => {}}
+      />
     {:else}
       <p class="help">{t('bestiary.noSheet')}</p>
     {/if}
-    {#if editable}<button class="danger start" onclick={remove}>{t('bestiary.delete')}</button>{/if}
   </section>
 {:else}
   <h1 class="page-title">{t('bestiary.title')}</h1>
@@ -208,7 +173,7 @@
     color: var(--danger, #d9534f);
   }
 
-  .start {
-    align-self: start;
+  .where a {
+    color: var(--accent);
   }
 </style>

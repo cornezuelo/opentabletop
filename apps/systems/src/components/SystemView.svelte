@@ -18,7 +18,7 @@
   import YamlTab from './YamlTab.svelte'
 
   /** One system: its overview, its rules and checks, its files; play it in Travel. */
-  let { id, tab }: { id: string; tab: Tab } = $props()
+  let { id, tab, item }: { id: string; tab: Tab; item?: string } = $props()
 
   const system = $derived(systems.get(id))
   /** Where its travel rules (and bindings) are, and where its own definition is. */
@@ -104,7 +104,7 @@
       {:else if tab === 'yaml' && files.length}
         <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
       {:else if (tab === 'sheet' || tab === 'items' || tab === 'bestiary' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
-        <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} />
+        <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} {item} />
       {:else if (tab === 'rules' || tab === 'checks') && file}
         <div class="forms">
           {#if tab === 'rules'}<RulesForm {doc} {system} />{:else}<ChecksForm {doc} {system} />{/if}

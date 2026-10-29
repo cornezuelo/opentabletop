@@ -4,7 +4,6 @@
   import CharacterView from './components/CharacterView.svelte'
   import BestiaryView from './components/BestiaryView.svelte'
   import NewCharacter from './components/NewCharacter.svelte'
-  import NewTemplate from './components/NewTemplate.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
@@ -35,8 +34,6 @@
     {/key}
   {:else if nav.view.name === 'new'}
     <NewCharacter />
-  {:else if nav.view.name === 'newTemplate'}
-    <NewTemplate />
   {:else}
     <Welcome title={t('welcome.title')} tagline={t('app.tagline')} body={t('welcome.body')} />
   {/if}

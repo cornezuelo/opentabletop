@@ -1,16 +1,23 @@
 <script lang="ts">
-  import type { TravelSystem } from '@open-tabletop/session'
+  import type { TemplateDef } from '@open-tabletop/character-engine'
+  import { roster, TemplateEditor } from '@open-tabletop/character-ui'
+  import { tagsInUse, type TravelSystem } from '@open-tabletop/session'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n'
+  import { bestiaryOf, shownTemplate, writeTemplate } from '../../lib/bestiary'
+  import { getLocale, t } from '../../lib/i18n'
   import { library } from '../../lib/packs.svelte'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import RecordRows, { type Column } from '../forms/RecordRows.svelte'
 
   /**
    * A bestiary (`kind: bestiary`) as forms: its name, the sheet and `behind` its templates
-   * share, and each template with its variant, values, conditions, items and token.
+   * share, and each template as a folded card unfolding to its whole editor (character-ui's
+   * `TemplateEditor`, the one place templates are edited): the sheet it's made with, its
+   * values, conditions, tags, items, variant, names and token. `item`: a template asked for
+   * in the link, unfolded.
    */
-  let { doc, system }: { doc: PartDoc; system: TravelSystem } = $props()
+  let { doc, system, id, item }: { doc: PartDoc; system: TravelSystem; id: string; item?: string } =
+    $props()
 
   const data = $derived(doc.data())
   const disabled = $derived(!doc.editable)
@@ -21,98 +28,24 @@
       .filter((e) => e.kind === 'sheet')
       .map((e) => `sheet.${e.id ?? 'default'}`),
   )
-  /** What the sheets of the templates declare, for the values and conditions to pick from. */
-  const sheetDefs = $derived(Object.values(system.templateSheets ?? {}))
-  const valueIds = $derived([...new Set(sheetDefs.flatMap((s) => Object.keys(s.values)))])
-  const conditionIds = $derived([...new Set(sheetDefs.flatMap((s) => Object.keys(s.conditions)))])
   const itemIds = $derived([
     ...new Set((system.items ?? []).flatMap((c) => Object.keys(c.def.items))),
   ])
+  /** The bestiary as the system read it: each template's sheet, resolved. */
+  const read = $derived(bestiaryOf(system, { root: doc.root, id }))
+  const sheetOf = (template: string) => system.templateSheets?.[read?.sheets[template] ?? '']
+  const tagChoices = $derived(tagsInUse(system, roster.roster))
+  /** What a folded card says and the search finds; an unfolded card is the template's editor. */
   const columns = $derived<Column[]>([
     { field: 'name', label: t('bestiaryForm.templateName'), type: 'text' },
-    {
-      field: 'description',
-      label: t('forms.description'),
-      help: t('forms.descriptionHelp'),
-      type: 'text',
-    },
-    {
-      field: 'sheet',
-      label: t('bestiaryForm.sheet'),
-      help: t('bestiaryForm.templateSheetHelp'),
-      type: 'select',
-      choices: sheets,
-      placeholder: t('bestiaryForm.sheetBestiary'),
-    },
-    {
-      field: 'like',
-      label: t('bestiaryForm.like'),
-      help: t('bestiaryForm.likeHelp'),
-      type: 'select',
-      choices: templates,
-    },
-    {
-      field: 'values',
-      label: t('bestiaryForm.values'),
-      help: t('bestiaryForm.valuesHelp'),
-      type: 'pairs',
-      fresh: 1,
-      hints: Object.fromEntries(valueIds.map((v) => [v, []])),
-    },
-    {
-      field: 'conditions',
-      label: t('bestiaryForm.conditions'),
-      help: t('bestiaryForm.conditionsHelp'),
-      type: 'list',
-      choices: conditionIds,
-    },
-    {
-      field: 'items',
-      label: t('bestiaryForm.items'),
-      help: t('bestiaryForm.itemsHelp'),
-      type: 'pairs',
-      fresh: 1,
-      hints: Object.fromEntries(itemIds.map((i) => [i, []])),
-    },
-    {
-      field: 'tags',
-      label: t('bestiaryForm.tags'),
-      help: t('bestiaryForm.tagsHelp'),
-      type: 'list',
-    },
-    {
-      field: 'names',
-      label: t('bestiaryForm.names'),
-      help: t('bestiaryForm.namesHelp'),
-      type: 'value',
-    },
-    {
-      field: 'behind',
-      label: t('bestiaryForm.behind'),
-      help: t('bestiaryForm.behindHelp'),
-      type: 'select',
-      choices: ['stay', 'leave'],
-      placeholder: t('bestiaryForm.behindBestiary'),
-    },
-    {
-      field: 'token.icon',
-      label: t('bestiaryForm.tokenIcon'),
-      help: t('bestiaryForm.tokenIconHelp'),
-      type: 'value',
-    },
-    {
-      field: 'token.kind',
-      label: t('bestiaryForm.tokenKind'),
-      help: t('bestiaryForm.tokenKindHelp'),
-      type: 'select',
-      choices: ['pc', 'npc', 'enemy'],
-    },
-    {
-      field: 'token.color',
-      label: t('bestiaryForm.tokenColor'),
-      help: t('bestiaryForm.tokenColorHelp'),
-      type: 'value',
-    },
+    { field: 'sheet', label: t('bestiaryForm.sheet'), type: 'select' },
+    { field: 'like', label: t('bestiaryForm.like'), type: 'select' },
+    { field: 'values', label: t('bestiaryForm.values'), type: 'pairs' },
+    { field: 'conditions', label: t('bestiaryForm.conditions'), type: 'list' },
+    { field: 'items', label: t('bestiaryForm.items'), type: 'pairs' },
+    { field: 'tags', label: t('bestiaryForm.tags'), type: 'list' },
+    { field: 'names', label: t('bestiaryForm.names'), type: 'value' },
+    { field: 'behind', label: t('bestiaryForm.behind'), type: 'select' },
   ])
 </script>
 
@@ -162,7 +95,46 @@
       suggestions={['wolf', 'bandit', 'guard', 'skeleton', 'goblin']}
       template={{}}
       {columns}
-    />
+      cards
+      unfold={item ? [item] : []}
+    >
+      {#snippet body({ id: template, row, disabled: off })}
+        {@const raw = (row ?? {}) as TemplateDef}
+        {@const shown = shownTemplate(doc, template, raw)}
+        {@const sheet = sheetOf(template)}
+        <div class="template">
+          <label class="sheet">
+            <span
+              >{t('bestiaryForm.sheet')}<InfoTip text={t('bestiaryForm.templateSheetHelp')} /></span
+            >
+            <select
+              value={raw.sheet ?? ''}
+              disabled={off}
+              onchange={(e) =>
+                doc.edit('', ['templates', template, 'sheet'], e.currentTarget.value || undefined)}
+            >
+              <option value="">{t('bestiaryForm.sheetBestiary')}</option>
+              {#each sheets as s (s)}<option value={s}>{s}</option>{/each}
+            </select>
+          </label>
+          {#if sheet}
+            <TemplateEditor
+              id={template}
+              {sheet}
+              template={shown}
+              locale={getLocale()}
+              disabled={off}
+              others={templates.filter((x) => x !== template)}
+              items={itemIds}
+              {tagChoices}
+              onchange={(next) => writeTemplate(doc, template, raw, shown, next)}
+            />
+          {:else}
+            <p class="help">{t('bestiaryForm.noSheet')}</p>
+          {/if}
+        </div>
+      {/snippet}
+    </RecordRows>
   </section>
 </div>
 
@@ -190,6 +162,21 @@
     margin: 0;
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .template {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sheet {
+    max-width: 260px;
+  }
+
+  .help {
+    margin: 0;
+    color: var(--text-muted);
   }
 
   label {

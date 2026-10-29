@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import { seasonsFor, type TravelSystem } from '@open-tabletop/session'
   import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
+  import { bestiaryOf } from '../../lib/bestiary'
   import { createSystemPart, systemParts, systemRoot, type PartTabKind } from '../../lib/newSystem'
   import { library } from '../../lib/packs.svelte'
   import { partDoc } from '../../lib/partDoc.svelte'
@@ -22,10 +24,20 @@
    * The definitions of one kind a system uses (its calendar, its weather models, the roll
    * modes of its packs): one at a time, edited in a form; a new one from its template.
    */
-  let { system, kind }: { system: TravelSystem; kind: PartTabKind } = $props()
+  let { system, kind, item }: { system: TravelSystem; kind: PartTabKind; item?: string } = $props()
 
   const parts = $derived(systemParts(system, kind))
-  let chosen = $state(0)
+  /** An item asked for in the link (a template of a bestiary): the part that has it, unfolded. */
+  let chosen = $state(
+    untrack(() =>
+      item && kind === 'bestiary'
+        ? Math.max(
+            0,
+            parts.findIndex((p) => item in (bestiaryOf(system, p)?.def.templates ?? {})),
+          )
+        : 0,
+    ),
+  )
   const part = $derived(parts[Math.min(chosen, parts.length - 1)] ?? null)
   const doc = partDoc(() => part)
   const root = $derived(systemRoot(system))
@@ -92,7 +104,7 @@
       {:else if kind === 'items'}
         <ItemsForm {doc} {system} />
       {:else if kind === 'bestiary'}
-        <BestiaryForm {doc} {system} />
+        <BestiaryForm {doc} {system} id={part.id} {item} />
       {:else if kind === 'sheet'}
         <SheetForm {doc} {system} scope={sheetScope(system, part.id)} />
       {:else if kind === 'weather'}

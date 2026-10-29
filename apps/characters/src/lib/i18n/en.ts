@@ -22,7 +22,7 @@ export const en = {
     makeSystems: 'Make or edit systems →',
     bestiary: 'Bestiary',
     lists: 'Characters or templates',
-    newTemplate: 'New template',
+    newTemplate: 'New template ↗',
     noTemplates: 'No system has a bestiary.',
     tags: 'Filter by tag',
     clearTags: 'Show all, whatever their tags',
@@ -33,7 +33,7 @@ export const en = {
   },
   bestiary: {
     title: 'Bestiary',
-    help: 'The creatures and kinds of people a system can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. **Make a character** puts one in the roster, named by the template’s generator if it has one (a recurring NPC); **Make copies** puts several (a fight at the table). Tables and effects make them in a trip (`present.<id>: 3`). A template in a bundled pack is read-only: **Edit a copy** makes a pack of your own to change it in; what you change affects only the copies made afterwards.',
+    help: 'The creatures and kinds of people a system can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. **Make a character** puts one in the roster, named by the template’s generator if it has one (a recurring NPC); **Make copies** puts several (a fight at the table). Tables and effects make them in a trip (`present.<id>: 3`). Templates are shown here as they are, and edited in the Systems app (**Edit in Systems ↗**): what you change there affects only the copies made afterwards.',
     inRoster: 'In the roster',
     inRosterHelp:
       'Characters made from this template, kept in the roster like any other: each with its own rolls (its values rolled again for each), its tags and what it carries, and remembering the template it came from (**Made from**).\n• **Make a character** — one, named by the template’s **Names from** if it has one (Hrolf, a bandit who comes back), and opened to edit\n• **Make copies** — that many at once (four wolves for tonight’s fight), named the same way or numbered (_Grey wolf 1_, _2_…)\nHow many are in the roster shows below, with **Delete them all** to clear them away when the encounter is over.',
@@ -49,22 +49,15 @@ export const en = {
     count: 'How many',
     made: 'Made {count} × {name}.',
     cantMake: 'These copies can’t be made: the template has no sheet.',
-    readOnly: 'This template is in the bundled pack “{pack}”, which is read-only.',
-    delete: 'Delete the template',
-    confirmDelete: 'Delete the template “{name}”? Copies already made keep what they have.',
-    none: 'No system has a bestiary yet. Make one in the Systems app (its **Bestiary** tab).',
+    edit: 'Edit in Systems ↗',
+    editHelp:
+      'Templates are part of their system, like its sheets, so they are edited in the Systems app, at its **Bestiary** tab: this link opens it at this template. Copies already made don’t change with it: each is a character of the roster, edited here like any other.\n• A bundled system is read-only there: **Edit a copy** first',
+    none: 'No system has a bestiary yet. Make one in the Systems app (its **Bestiary** tab): **New template ↗** takes you there.',
     intro:
       'The creatures and kinds of people your systems can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. Pick one in **Bestiary** on the left, by system and sheet; search it, or filter it by its tags. From a template you make copies in the roster, and tables and effects make them in a trip (`present.<id>: 3`).',
     notFound:
       'This template isn’t in any loaded bestiary: its pack may have been removed, or the template deleted.',
     noSheet: 'Its sheet isn’t found, so it can’t be shown.',
-  },
-  newTemplate: {
-    title: 'New template',
-    systemHelp:
-      'The system whose bestiary it goes in. Only systems with a bestiary in a pack of your own are listed: to add to a bundled one, open one of its templates and press **Edit a copy** first.',
-    namePlaceholder: 'Cave bear',
-    none: 'No system has a bestiary in a pack of your own yet. Open a template of the bestiary you want to add to and press **Edit a copy**, or make a bestiary in the Systems app (its **Bestiary** tab).',
   },
   new: {
     title: 'New character',

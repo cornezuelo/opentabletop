@@ -169,33 +169,18 @@ export const en = {
     behindHelp:
       "What becomes of copies when the party leaves the place they were made: they **stay** there (met again on return) or **leave** (gone; a new one may be rolled at the next visit). It is the system's to decide. Empty: stay.\n• `leave` — a new encounter every visit",
     behindDefault: 'stay (default)',
-    behindBestiary: "the bestiary's",
     templates: 'Templates',
-    templatesHelp:
-      'Each template, by an id tables and effects name it with (`present.<id>`): its name, its sheet, the template it is a variant of, the values it starts with (a number or a roll, rolled for each copy), its conditions, items and tags.\n• `wolf` — values `health: 2d4`\n• `wolf-leader` — like `wolf`, tags `leader`',
     templateName: 'Name',
     like: 'Variant of',
-    likeHelp:
-      'Another template of this bestiary to start from: a variant takes its values and items (writing over them), and adds its tags and conditions.\n• `wolf` — a leader that is a bigger wolf',
     values: 'Values',
-    valuesHelp:
-      "The sheet's values it starts with, one row each: a number, or a roll in braces that is rolled for every copy.\n• `health` · `{{2d4}}`\n• `bite` · `2`",
     conditions: 'Conditions',
-    conditionsHelp: "The sheet's conditions it starts with, each one a pill.\n• `hungry`",
     items: 'Items',
-    itemsHelp:
-      "What it carries, from the system's catalogues, with how many (a number or a roll). Empty: what the sheet starts characters with.\n• `knife` · `1`\n• `ration` · `{{1d2}}`",
     tags: 'Tags',
-    tagsHelp: 'Words conditions read it by, each one a pill:\n• `beast`, `undead`, `leader`',
     names: 'Names',
-    namesHelp:
-      "A table or generator rolled for each copy's name. Empty: the template's name, numbered.\n• `names/generator.folk`",
-    tokenIcon: 'Token icon',
-    tokenIconHelp: 'How it is drawn on a map, an icon id or a glyph.\n• `wolf`',
-    tokenKind: 'Token kind',
-    tokenKindHelp: 'Whether it is drawn as a **pc**, an **npc** or an **enemy**.',
-    tokenColor: 'Token colour',
-    tokenColorHelp: 'A colour for its token.\n• `#8b1e1e`',
+    noSheet:
+      "Its sheet isn't found: choose one above, or give the bestiary a **Sheet**, to edit its values.",
+    templatesHelp:
+      'Each template, folded to one line; click one to unfold its editor: the sheet it is made with, the values it starts with (a number or a roll, rolled for each copy), its conditions, tags and items, the template it is a variant of, its names and its token. Its id is what tables and effects name it with (`present.<id>`). Templates are edited here only: the Characters app shows them and makes copies.\n• `wolf` — values `health: {{2d4}}`\n• `wolf-leader` — a variant of `wolf`, tags `leader`',
   },
   clocksForm: {
     name: 'Name',
