@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-10-29
+
 ### Apps
 
 - Every app: **Export…** and **Import…** in the app switcher, beside backups: choose what goes, as a tree with ticks (your packs, campaigns with their maps and trips, the roster's characters). What a ticked thing needs and isn't ticked (a pack's dependency, a map's or trip's campaign, the pack of a system or sheet, a trip's characters) is said under **Left out**, with **Add what's missing**; a copy of a personal-use pack is marked. Importing shows the same tree: **New** ticked, **Already here** left alone, **Replaces yours** only if ticked (asked first); nothing else here is removed.
