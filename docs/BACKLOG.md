@@ -265,6 +265,7 @@ In order (agreed 2026-10-07, reordered 2026-10-08: the characters engine moved u
   - Shared: **light or dark theme** (only dark today), and **named colour themes** (user, 2026-10-28, low priority: "estaría bien poder configurar distintos themes para la app (verde oscuro, rojo oscuro, nord, y más)"): ui-kit's theme tokens in a few sets (dark green, dark red, Nord…) chosen in Preferences and shared by every app; **text size**; **help column open at start** or folded.
   - Oracle: **always show the dice breakdown** and **Details**; **how many rolls the history keeps**; the **YAML editor**'s font size and line wrap.
   - Travel: the **system and season** a new trip starts with; the way's default **km per hex**; **24 h or 12 h** clock; **ask before a day passes** (yes / no); the **journal export** (date format, whether it includes the rolls).
+- **A more visual Land tab, to review later** (user, 2026-10-29: "con visual me refería a algo como el hex flower, eso de mapa de calor suena chulo, pero apunta revisar esto más para adelante"). Systems' **Land** tab (alpha item 27) shows a land model as a grid of weights, its shares over many hexes and a generated patch; the user wanted something as visual as the Weather tab's hex flower. Ideas to weigh then: the grid as a **heat map** (each cell shaded by its share of its row), and a picture of what each terrain leads to (a hex with its six neighbours coloured by likelihood, or arrows between terrains). Nothing decided.
 
 **Characters and the campaign record**
 
