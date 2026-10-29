@@ -55,3 +55,8 @@ export {
 } from './insert.svelte'
 export { LAST_SYSTEM_KEY, readLastSystem, rememberSystem } from './lastSystem'
 export { CampaignKeeper, freeCampaignName } from './campaignKeeper.svelte'
+export { default as Sidebar } from './Sidebar.svelte'
+export { default as SideButtons } from './SideButtons.svelte'
+export { default as SideItem } from './SideItem.svelte'
+export { default as SideList } from './SideList.svelte'
+export { default as SideTag } from './SideTag.svelte'
