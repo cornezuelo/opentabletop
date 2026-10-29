@@ -1,6 +1,6 @@
 <script lang="ts">
   import { systemName } from '@open-tabletop/session'
-  import { InfoTip, readLastSystem } from '@open-tabletop/ui-kit'
+  import { InfoTip, NewForm, readLastSystem } from '@open-tabletop/ui-kit'
   import { newCampaign } from '../lib/campaign.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -12,8 +12,7 @@
   let name = $state('')
   let busy = $state(false)
 
-  async function create(e: SubmitEvent) {
-    e.preventDefault()
+  async function create() {
     if (!name.trim() || busy) return
     busy = true
     try {
@@ -25,8 +24,12 @@
   }
 </script>
 
-<h1>{t('new.title')}</h1>
-<form onsubmit={create}>
+<NewForm
+  title={t('new.title')}
+  create={t('new.create')}
+  disabled={!name.trim() || busy}
+  onsubmit={create}
+>
   <label class="field">
     <span>{t('new.name')}</span>
     <!-- svelte-ignore a11y_autofocus -->
@@ -46,34 +49,4 @@
       {/each}
     </select>
   </label>
-  <button class="primary" type="submit" disabled={!name.trim() || busy}>{t('new.create')}</button>
-</form>
-
-<style>
-  h1 {
-    margin: 0 0 16px;
-    font-family: Georgia, serif;
-    font-weight: normal;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 420px;
-  }
-
-  .primary {
-    align-self: start;
-    padding: 6px 14px;
-    color: var(--accent);
-    background: var(--bg);
-    border: 1px solid var(--accent);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .primary:disabled {
-    opacity: 0.4;
-  }
-</style>
+</NewForm>

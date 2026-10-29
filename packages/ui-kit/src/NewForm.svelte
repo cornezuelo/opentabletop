@@ -1,0 +1,68 @@
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+
+  /**
+   * The page that makes something new: a title, its fields (`<label class="field">` with a
+   * `<span>` and a control) and the button that makes it.
+   */
+  let {
+    title,
+    create,
+    disabled = false,
+    onsubmit,
+    children,
+  }: {
+    title: string
+    /** The button's text. */
+    create: string
+    disabled?: boolean
+    onsubmit: () => void
+    children: Snippet
+  } = $props()
+</script>
+
+<h1>{title}</h1>
+<form
+  onsubmit={(e) => {
+    e.preventDefault()
+    onsubmit()
+  }}
+>
+  {@render children()}
+  <button class="primary" type="submit" {disabled}>{create}</button>
+</form>
+
+<style>
+  h1 {
+    margin: 0 0 16px;
+    font-family: Georgia, serif;
+    font-weight: normal;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 420px;
+  }
+
+  form :global(.field) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .primary {
+    align-self: start;
+    padding: 6px 14px;
+    color: var(--accent);
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .primary:disabled {
+    opacity: 0.4;
+  }
+</style>
