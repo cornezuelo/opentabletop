@@ -113,6 +113,15 @@ The author wants a journal to keep by itself too, and a notes app of our own for
 4. **A quick game is a campaign without a trip.** A party or character can be in a campaign without playing in a trip or token: its place is the campaign itself, so a campaign has a cast (its **Characters** tab, point 1), the filter of point 3 finds them, and a new trip of the campaign offers its party. One place at a time holds: taking them to another campaign asks, and **Duplicate** (a character or a whole party) is how the same people play in both.
 5. **Map nodes** (sub-maps, rooms: [BACKLOG](BACKLOG.md) point 7) are presented within this frame: campaign → maps → sub-maps, a tree in the library and a breadcrumb in the header, designed with the author before any code.
 
+**The Campaign app redesigned (agreed with the author 2026-10-29, after looking at it in the built app).** What was wrong: the site's root was a launcher of every app, the Hexmapper first; Campaign's welcome was a wall of text even with campaigns; a new campaign left two steps undone (starting the clock, bringing the system's factions); **Maps and trips** was a dead end (go to the Hexmapper's Map settings…); nothing said what is going on now; **Delete** was the loudest thing in the header; the World tab said its help twice; the page used half the screen. Agreed, on Claude's proposal:
+
+- **The root opens Campaign** (`/` → `campaign/`), the apps' launcher stays in the switcher; Campaign opens **the current campaign** (the last opened, `opentabletop.campaign.current`), or **Start your campaign** when there is none, with quiet links for whoever only wants to roll or keep characters.
+- **Making one asks for a name, a system and the day it starts**, with **Start the world clock** and **Bring its factions** ticked (they can be unticked).
+- **Tabs**: **Overview** (the default: today's date and weather with moving time on, what comes next, progress clocks, trips going on with **Continue ↗**, the latest of the timeline, who plays; each block links to its tab) · **World** · **Maps** · **Trips** · **Characters** · **Factions** · **Timeline**.
+- **Maps** and **Trips** as cards with **Open ↗**, and **New map / New trip in this campaign** (the Hexmapper or Travel opens with a new one already in it) and **Add an existing one** (from the map library, or a trip in no campaign).
+- **Characters**: who plays in its trips and tokens (those in it without a trip come with point 4).
+- **Header**: name, system, notes; **Delete** in a **⋯** menu. The sidebar says each campaign's system and date.
+
 ## How we got here
 
 The first draft (2026-10-19, same day) kept factions in each map and a Factions app over the library's maps. Asked how one faction could be on several maps, the author chose consistency and an app that reads intuitively: campaigns, and the Campaign app instead of a Factions app.
