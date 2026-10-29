@@ -24,7 +24,7 @@ Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan e
 
 **Guardar** escribe el mapa en un fichero (`.otd.json`, OpenTabletop Data) para tener copia o compartirlo; **Mapas → Importar fichero…** (o <kbd>Ctrl</kbd>+<kbd>O</kbd>) lo vuelve a abrir. Si el fichero es un mapa que este navegador ya tiene (por ejemplo, una copia antigua) y son distintos, Hexmapper pregunta si **sustituir** tu copia por el fichero o **conservar ambos** (el fichero se abre como un mapa aparte, con una campaña propia). Un fichero lleva la [campaña](#campañas) de su mapa; si este navegador ya tiene esa campaña (otro mapa suyo, el mapa de un amigo de tu partida) y es distinta, Hexmapper también pregunta: **Unirse** (el mapa se abre en la campaña de aquí, sin el reloj del mundo, las facciones ni el Oráculo del fichero), **Sustituir el mío** (la campaña del fichero ocupa el lugar de la de aquí, para todos sus mapas y viajes) o **Conservar aparte** (la campaña del fichero se guarda como una nueva propia).
 
-> Si borras los datos del navegador se borra su biblioteca: guarda en fichero los mapas que te importen, o una [copia de seguridad de todo](../technical/05-backups.md) (selector de aplicaciones → **Guardar una copia**).
+> Si borras los datos del navegador se borra su biblioteca: guarda en fichero los mapas que te importen, o una [copia de seguridad de todo](../technical/05-backups.md) (selector de aplicaciones → **Guardar una copia**), o una [exportación](../technical/05-backups.md#exportar-e-importar-parte) de los mapas y campañas que elijas (selector de aplicaciones → **Exportar…**).
 
 ## Deshacer y ajustes
 

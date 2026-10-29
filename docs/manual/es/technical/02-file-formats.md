@@ -51,6 +51,8 @@ Las reglas exactas (qué campos, qué valores) están definidas en el código, e
 
 Un **.zip de packs** (el **Exportar .zip** de la Oracle para un pack, el **Exportar como .zip** de la aplicación Systems para un sistema y todos los packs que necesita) tiene cada pack en su carpeta en la raíz (`grey-marches/pack.yaml`, `core/pack.yaml`…), primero el pack propio del sistema. Al importarlo se lee cada carpeta con un `pack.yaml`, a cualquier profundidad, cada fichero va a la carpeta de pack más cercana por encima, y solo los ficheros `.yaml`, `.yml` y `.json`; cada pack toma el nombre del `id` de su manifiesto, se llame como se llame su carpeta. Así que una carpeta de pack que comprimas a mano también se importa.
 
+Una **exportación** (el **Exportar…** del selector de aplicaciones: packs, campañas con sus mapas y viajes, personajes, elegidos uno a uno) es un .zip con sus packs en `packs/<id>/` y lo demás al lado; importarla en la Oracle toma solo sus packs. Ver [Copias de seguridad y exportaciones](05-backups.md#el-fichero-de-una-exportación).
+
 ## Mapas: OpenTabletop Data (`.otd.json`)
 
 El Hexmapper guarda los mapas como **paquetes OTD**, un formato JSON pensado para compartirse entre herramientas:

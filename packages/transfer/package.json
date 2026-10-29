@@ -1,0 +1,19 @@
+{
+  "name": "@open-tabletop/transfer",
+  "version": "0.0.0",
+  "description": "Export and import what the OpenTabletop apps keep, choosing what goes: your packs, campaigns with their maps and trips, the roster's characters, and what each needs.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/storage": "*",
+    "fflate": "^0.8.3",
+    "yaml": "^2.9.1"
+  }
+}

@@ -16,6 +16,8 @@ export { createI18n, translate, type MessageKey, type Messages } from './i18n.sv
 export { initialLocale, pickLocale } from './locale.mjs'
 export { default as AppBrand } from './AppBrand.svelte'
 export { default as AppSwitcher } from './AppSwitcher.svelte'
+export { default as TransferDialog } from './TransferDialog.svelte'
+export { markPersonalPacks, personalPacks } from './personalPacks'
 export {
   APP_ICONS,
   APPS,

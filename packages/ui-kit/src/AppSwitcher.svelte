@@ -11,6 +11,7 @@
   import { ask } from './dialog.svelte'
   import { showToast } from './toasts.svelte'
   import { tooltip } from './tooltip'
+  import TransferDialog from './TransferDialog.svelte'
 
   /**
    * A button that opens the list of OpenTabletop apps, each with a short description,
@@ -47,6 +48,10 @@
       replace: 'Replace everything',
       restored: 'Backup restored. Reloading…',
       restoreFailed: 'The backup could not be restored: {error}',
+      transferHelp:
+        'Or choose what goes: your packs, campaigns with their maps and trips, characters, to share them or take some of them elsewhere.',
+      export: 'Export…',
+      import: 'Import…',
     },
     es: {
       button: 'Aplicaciones de OpenTabletop',
@@ -72,10 +77,15 @@
       replace: 'Sustituirlo todo',
       restored: 'Copia restaurada. Recargando…',
       restoreFailed: 'No se pudo restaurar la copia: {error}',
+      transferHelp:
+        'O elige qué va: tus packs, campañas con sus mapas y viajes, personajes, para compartirlos o llevarte parte a otro sitio.',
+      export: 'Exportar…',
+      import: 'Importar…',
     },
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
   let dialog: HTMLDialogElement
+  let transfer: TransferDialog
   let busy = $state(false)
 
   const fill = (message: string, values: Record<string, string | number>) =>
@@ -173,9 +183,28 @@
       <button disabled={busy} onclick={backup}>{text.backup}</button>
       <button disabled={busy} onclick={restore}>{text.restore}</button>
     </div>
+    <p>{text.transferHelp}</p>
+    <div class="buttons">
+      <button
+        disabled={busy}
+        onclick={() => {
+          dialog.close()
+          transfer.openExport()
+        }}>{text.export}</button
+      >
+      <button
+        disabled={busy}
+        onclick={() => {
+          dialog.close()
+          transfer.openImport()
+        }}>{text.import}</button
+      >
+    </div>
   </section>
   <button class="close" onclick={() => dialog.close()}>{text.close}</button>
 </dialog>
+
+<TransferDialog bind:this={transfer} {locale} />
 
 <style>
   .open {

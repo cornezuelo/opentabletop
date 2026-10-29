@@ -61,7 +61,7 @@ The pack page shows its manifest, its **problems** (click one to jump to the lin
 
 ## Backups and sharing
 
-**Export .zip** downloads the pack as a folder; **Import .zip** adds the packs of a .zip: one pack, or a whole system with the packs it brings, exported from the Systems app (packs already here unchanged are left alone; replacing a different version asks first). Your packs live only in this browser: export them to keep them safe.
+**Export .zip** downloads the pack as a folder; **Import .zip** adds the packs of a .zip: one pack, or a whole system with the packs it brings, exported from the Systems app (packs already here unchanged are left alone; replacing a different version asks first). Your packs live only in this browser: export them to keep them safe. To take several packs at once, with the campaigns and characters that use them, use the app switcher's [**Export…**](../technical/05-backups.md#exporting-and-importing-some-of-it).
 
 The Hexmapper sees your packs when both apps are served from the same site (e.g. `…/oracle/` and `…/hexmapper/`).
 

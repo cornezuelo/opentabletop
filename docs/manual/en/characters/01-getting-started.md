@@ -32,4 +32,4 @@ A roster character travels in **one place at a time**: a map's trip in the Hexma
 
 **Export** writes an OTD file (`.otd.json`) with its `characters`: its values as `stats`, its tags, its note, and its sheet, conditions, relations and items in `ext.character` (see [File formats](../technical/02-file-formats.md)). **Import…** adds the characters of such a file: one exported here, or a map saved by the Hexmapper (its party's characters). Characters whose id the roster already has get a new one. Characters that aren't made with a sheet (a map's plain tokens) are left out.
 
-The roster lives in this browser (`opentabletop.characters`), like your packs and maps: a [backup](../technical/05-backups.md) includes it. Export the characters you care about to keep them safe.
+The roster lives in this browser (`opentabletop.characters`), like your packs and maps: a [backup](../technical/05-backups.md) includes it. Export the characters you care about to keep them safe, or several at once, with the trips they play in, with the app switcher's [**Export…**](../technical/05-backups.md#exporting-and-importing-some-of-it).

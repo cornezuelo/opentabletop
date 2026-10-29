@@ -152,4 +152,4 @@ Tus propias acciones caben entre medias: **Descansar** dos horas, **Buscar comid
 
 ## Se guarda solo
 
-El viaje se guarda en el navegador mientras juegas, y sigue ahí cuando vuelves. Una [copia de seguridad](../technical/05-backups.md) lo lleva a otro ordenador.
+El viaje se guarda en el navegador mientras juegas, y sigue ahí cuando vuelves. Una [copia de seguridad](../technical/05-backups.md) lo lleva a otro ordenador, o una [exportación](../technical/05-backups.md#exportar-e-importar-parte) solo de los viajes que elijas (selector de aplicaciones → **Exportar…**).

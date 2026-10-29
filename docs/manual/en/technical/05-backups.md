@@ -1,4 +1,4 @@
-# Backups of everything
+# Backups and exports
 
 Every OpenTabletop app keeps your work in this browser: no account, no server. A **backup** puts all of it in one file, to move your games to another computer or to keep a copy in case the browser's data is lost (clearing site data, a new profile, a broken disk).
 
@@ -36,6 +36,38 @@ Restoring a backup can't be undone with Ctrl+Z. If in doubt, make a backup of th
 
 Apps share their data only when they are served from the same site (for example, all of them under `http://localhost:8080/`). A backup made on one site and restored on another moves everything across.
 
+## Exporting and importing some of it
+
+A backup takes everything. To choose what goes (one campaign to a friend, your homebrew packs to another computer, a few characters), use **Export…** in the app switcher, below the backup buttons.
+
+It lists what you've made, as a tree with ticks, all ticked at first:
+
+- **Your packs**: the packs you made or edited, and your copies of bundled packs. A copy of a pack whose licence allows only personal use is marked **Personal use**, and ticking it warns that the file isn't to be shared.
+- **Campaigns**, each with its **maps** (the Hexmapper's) and **trips** (Travel's) under it. Ticking a campaign ticks its maps and trips too; untick any of them to leave it out.
+- **Maps and trips** whose campaign isn't kept here, if any.
+- **Characters**: the roster's.
+
+**All** and **None** tick or untick everything. Press **Export** and `opentabletop-export-<date>.zip` is downloaded.
+
+When something ticked needs something that isn't, **Left out** says what and why, for example:
+
+- `Pack «Homebrew» depends on Pack «Lore».`: a pack's `dependencies` (see [File formats](02-file-formats.md)).
+- `Trip «To the coast» plays in Campaign «The North».`: a map or trip without its campaign has no world clock, factions or Oracle elsewhere.
+- `Campaign «The North» is played with Pack «Homebrew».`: the pack of the system a campaign, trip or character's sheet plays with, and the packs a campaign adds to its system's.
+- `Brenna plays in Trip «To the coast».`: a roster character and the map or trip it plays in, both ways.
+
+**Add what's missing** ticks all of it, and what that needs in turn. You can still export without it. Packs that come with the apps (Core, the Grey Marches…) are never in the file and never asked for: every copy of OpenTabletop has them. Preferences, the Oracle app's history and Systems' test trips go only in backups.
+
+To bring an export in, press **Import…** in the app switcher and choose the file. The same tree shows what it holds, each thing marked:
+
+- **New**: not here; ticked.
+- **Already here**: here and the same; nothing to do, so it can't be ticked.
+- **Replaces yours**: here with the same id, but different (you went on playing a trip in both places, say); not ticked. Tick it to replace yours with the file's: OpenTabletop asks first, since it can't be undone.
+
+**Left out** works the same, counting what this browser has already: a trip whose campaign is here needs nothing more. Importing adds what you ticked beside everything else here (nothing else is removed) and reloads the page; close other OpenTabletop tabs first.
+
+The Oracle's **Import .zip** reads an export too, taking only its packs.
+
 ## The file
 
 A JSON file:
@@ -57,3 +89,20 @@ A JSON file:
 - `maps` copies the Hexmapper's library as it is: each `json` is a map in the Hexmapper's own format, which carries its version and is migrated when the map opens. To share a single map with other tools, use the Hexmapper's **Save** (an OTD bundle, see [File formats](02-file-formats.md)).
 - `campaigns` copies the campaigns the same way, each `json` in their own versioned format. Backups made before campaigns (`version` 1) have none: each of their maps makes its own when it opens.
 - `version` is the version of this envelope. Newer backups than the app understands are refused rather than read wrongly.
+
+## The export file
+
+A .zip:
+
+```
+opentabletop-export.json        what it holds: { "format": "opentabletop-export", "version": 1, "created", "packs", "maps", "campaigns" }
+packs/<id>/pack.yaml, …         each pack as a pack folder
+maps/<id>.json                  each map as the Hexmapper's library keeps it
+campaigns/<id>.json             each campaign in its own format
+trips/<id>.json                 each Travel trip as Travel keeps it
+characters/<id>.json            each roster character with its notes and where it plays
+```
+
+- `opentabletop-export.json` lists the packs (with what a copy of a bundled pack was based on) and the maps' and campaigns' names and times; trips and characters carry their own. An export of a newer `version` than the app understands is refused.
+- Every map, campaign, trip and character keeps its own format's version and is migrated when its app reads it, as in a backup.
+- Ids with characters a file name can't hold are written escaped (`%2F` for `/`).

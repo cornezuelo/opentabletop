@@ -24,7 +24,7 @@ An example you open becomes **your map**: your changes and your trip are kept in
 
 **Save** writes the map to a file (`.otd.json`, OpenTabletop Data) to back it up or share it; **Maps → Import file…** (or <kbd>Ctrl</kbd>+<kbd>O</kbd>) opens one again. If the file is a map this browser already has (say, an older backup) and they differ, Hexmapper asks whether to **replace** your copy with the file or **keep both** (the file opens as a separate map, with a campaign of its own). A file carries its map's [campaign](#campaigns); if this browser already has that campaign (another map of it, a friend's map of your game) and it differs, Hexmapper asks too: **Join it** (the map opens in the campaign kept here, and the file's world clock, factions and Oracle are left out), **Replace mine** (the file's campaign takes the place of the one here, for every map and trip in it) or **Keep apart** (the file's campaign is kept as a new one of its own).
 
-> Clearing the browser's data deletes its library: save files of the maps you care about, or a [backup of everything](../technical/05-backups.md) (app switcher → **Save a backup**).
+> Clearing the browser's data deletes its library: save files of the maps you care about, or a [backup of everything](../technical/05-backups.md) (app switcher → **Save a backup**), or an [export](../technical/05-backups.md#exporting-and-importing-some-of-it) of the maps and campaigns you choose (app switcher → **Export…**).
 
 ## Undo and settings
 

@@ -78,4 +78,4 @@ The other apps bring you back here with **Open in Campaign ↗**: the Hexmapper'
 
 ## Where campaigns are kept
 
-Campaigns live in this browser (IndexedDB), beside the Hexmapper's maps, and a [backup](../technical/05-backups.md) includes them. A map saved to a file carries its campaign ([File formats](../technical/02-file-formats.md)).
+Campaigns live in this browser (IndexedDB), beside the Hexmapper's maps, and a [backup](../technical/05-backups.md) includes them. A map saved to a file carries its campaign ([File formats](../technical/02-file-formats.md)). To take a whole campaign elsewhere, with all its maps and trips, the packs it's played with and its characters, use the app switcher's [**Export…**](../technical/05-backups.md#exporting-and-importing-some-of-it).

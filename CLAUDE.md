@@ -42,6 +42,7 @@ packages/                   # libraries, scope @open-tabletop/*
   campaign/                 # campaigns: the world shared by maps (clock, weather, factions' sheets, Oracle); format, factions' land per map, the world clock played (turns, full clocks, a trip's effects)
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
+  transfer/                 # export and import some of it: what's kept as a tree with what each needs, the export .zip
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
   pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor, conditions as rows (ConditionEditor)
   oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
@@ -89,7 +90,7 @@ apps  →  *-ui, ui-kit  →  campaign  →  map  →  session  →  *-engine  �
 - Among the lower packages: `conditions` → `variables` → `dice` (variables and rolls in written values are read in one place).
 - An engine **never imports another engine**. Whatever they share (dice, time, conditions) goes into a lower-level package.
 - `note-refs` depends on nothing, and no engine depends on it: external references are opaque strings to engines.
-- `storage` is a browser adapter (IndexedDB, localStorage) with no dependencies; only apps and UI packages use it, never engines.
+- `storage` is a browser adapter (IndexedDB, localStorage) with no dependencies; only apps and UI packages use it, never engines. `transfer` (exports) reads what `storage` keeps, as raw entries, and is used the same way (by ui-kit's app switcher).
 
 ## Common schema: OpenTabletop Data (OTD)
 

@@ -7,6 +7,7 @@ import {
   type Registry,
 } from '@open-tabletop/oracle-engine'
 import { mathRandom, type RandomSource } from '@open-tabletop/random'
+import { markPersonalPacks } from '@open-tabletop/ui-kit'
 import {
   bundledChanges,
   effectivePacks,
@@ -100,6 +101,7 @@ export class PackLibrary {
     } = {},
   ) {
     this.bundled = bundled
+    markPersonalPacks(bundled.filter((p) => p.personal).map((p) => p.root))
     this.onStorageFull = options.onStorageFull
     this.extraDiagnostics = options.extraDiagnostics
     this.user = readUserPacks()

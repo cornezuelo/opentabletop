@@ -78,4 +78,4 @@ Las demás aplicaciones te traen aquí con **Abrir en Campaign ↗**: el panel M
 
 ## Dónde se guardan las campañas
 
-Las campañas viven en este navegador (IndexedDB), junto a los mapas del Hexmapper, y una [copia de seguridad](../technical/05-backups.md) las incluye. Un mapa guardado en un archivo lleva su campaña ([Formatos de archivo](../technical/02-file-formats.md)).
+Las campañas viven en este navegador (IndexedDB), junto a los mapas del Hexmapper, y una [copia de seguridad](../technical/05-backups.md) las incluye. Un mapa guardado en un archivo lleva su campaña ([Formatos de archivo](../technical/02-file-formats.md)). Para llevarte una campaña entera, con todos sus mapas y viajes, los packs con los que se juega y sus personajes, usa el [**Exportar…**](../technical/05-backups.md#exportar-e-importar-parte) del selector de aplicaciones.

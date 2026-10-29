@@ -44,4 +44,18 @@ describe('packs in a .zip', () => {
     expect(plan.replaced.map((x) => x.root)).toEqual(['old'])
     expect(plan.added.map((x) => x.root)).toEqual(['new'])
   })
+
+  it('reads the packs of an export of everything, and nothing else of it', () => {
+    const zip = zipSync({
+      'opentabletop-export.json': strToU8('{"format":"opentabletop-export","version":1}'),
+      'packs/lore/pack.yaml': strToU8(manifest('lore')),
+      'packs/lore/tables.yaml': strToU8('kind: table\n'),
+      'maps/greymarches1.json': strToU8('{}'),
+      'trips/t1.json': strToU8('{}'),
+    })
+    const packs = zipToPacks(zip)
+    expect(packs.map((p) => [p.root, p.files.map((f) => f.path).sort()])).toEqual([
+      ['lore', ['pack.yaml', 'tables.yaml']],
+    ])
+  })
 })

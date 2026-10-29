@@ -152,4 +152,4 @@ Your own actions fit in between: **Rest** two hours, **Forage for food** (three 
 
 ## Saved as you play
 
-The trip is saved in the browser as you play, and is still there when you come back. A [backup](../technical/05-backups.md) takes it to another computer.
+The trip is saved in the browser as you play, and is still there when you come back. A [backup](../technical/05-backups.md) takes it to another computer, or an [export](../technical/05-backups.md#exporting-and-importing-some-of-it) of only the trips you choose (app switcher → **Export…**).

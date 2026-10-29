@@ -21,6 +21,7 @@
     "@open-tabletop/campaign": "*",
     "@open-tabletop/note-refs": "*",
     "@open-tabletop/storage": "*",
+    "@open-tabletop/transfer": "*",
     "marked": "^18.1.0"
   }
 }
