@@ -101,7 +101,7 @@ export const es: Messages<typeof en> = {
     whereHelp:
       'Un personaje viaja en un sitio a la vez: el viaje de un mapa en el Hexmapper, un viaje en Travel o un token en un mapa. Lo que le pasa allí se vuelca aquí tras cada paso; lo que cambies aquí, el viaje lo encuentra la próxima vez que se abra. Al lado sale la campaña en la que está ese sitio, con un enlace a ella en la aplicación Campaign.',
     nowhere:
-      'Solo en el plantel. Para llevarlo de viaje, abre la pestaña **Grupo** del viaje y elígelo en **Del plantel**.',
+      'Solo en el plantel. Para llevarlo de viaje, elígelo en **Del plantel** en la pestaña **Grupo** del viaje: con el grupo, o en **Aquí** entre los presentes (una criatura, un PNJ que se cruza en el camino); o dáselo a un token de un mapa (su **Hoja**).',
     playsIn: '{place}, en {app}',
     playsAsToken: 'un token en {place}, en {app}',
     inCampaign: 'en la campaña {campaign}',

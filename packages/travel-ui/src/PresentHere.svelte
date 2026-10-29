@@ -1,13 +1,17 @@
 <script lang="ts">
   import {
     addEntry,
+    addPresent,
     changePresent,
     isLinked,
     keepInRoster,
     partyOf,
     presentHere,
     removePresent,
+    rosterCreatures,
+    systemSheets,
     tagsInUse,
+    takeFromRoster,
     type PresentEvent,
     type RosterPlace,
     type SessionState,
@@ -25,8 +29,8 @@
    * Those present: the copies of the system's templates the trip made (an encounter's
    * wolves, a bandit chief), the ones at the party's place as folded cards grouped by
    * template, edited by hand like the party's characters; those left behind elsewhere,
-   * counted under them. A copy can be added from the bestiary, taken off, or kept in the
-   * roster.
+   * counted under them. A copy can be added from the bestiary, brought from the roster (a
+   * creature or NPC made in the Characters app), taken off, or kept in the roster.
    */
   let {
     system,
@@ -69,7 +73,10 @@
   const behind = $derived(
     party ? (session.present ?? []).filter((p) => p.at !== session.travel.location) : [],
   )
-  const sheetOf = (c: CharacterState) => system.templateSheets?.[c.sheet]
+  const sheets = $derived(systemSheets(system))
+  const sheetOf = (c: CharacterState) => sheets[c.sheet]
+  /** Roster characters that could be here (a creature, an NPC), when this is the party's place. */
+  const available = $derived(place && party ? rosterCreatures(system, roster.roster, place) : [])
   const linked = (c: CharacterState) => !!place && isLinked(roster.roster, c.id, place)
 
   /** Changes those present, and says in the journal who came or left. */
@@ -98,6 +105,27 @@
         p.character.id === c.id ? { ...p, character: next } : p,
       )
     })
+  }
+
+  /**
+   * A roster character comes to the party's place, linked to this trip (taken from where it
+   * played, after asking).
+   */
+  async function bring(id: string) {
+    if (!place) return
+    const entry = available.find((e) => e.character.id === id)
+    if (!entry) return
+    const name = entry.character.name || entry.character.id
+    if (
+      entry.playing &&
+      !(await confirmAction(t('members.takeConfirm', { name, place: entry.playing.name })))
+    )
+      return
+    const taken = takeFromRoster(roster.roster, id, place, new Date().toISOString())
+    if (!taken) return
+    roster.set(taken.roster)
+    const character = taken.character
+    edit((s) => addPresent(s, character))
   }
 
   /** A copy kept in the roster, linked to this trip (a new id if its own is taken there). */
@@ -211,6 +239,28 @@
       >
         <option value="">{t('members.choose')}</option>
         {#each choices as c (c.id)}<option value={c.id}>{c.name}</option>{/each}
+      </select>
+    </label>
+  {/if}
+  {#if available.length}
+    <label class="from">
+      <span>{t('present.fromRoster')}<InfoTip markdown={t('present.fromRosterHelp')} /></span>
+      <select
+        value=""
+        onchange={(e) => {
+          const id = e.currentTarget.value
+          e.currentTarget.value = ''
+          if (id) void bring(id)
+        }}
+      >
+        <option value="">{t('members.choose')}</option>
+        {#each available as e (e.character.id)}
+          <option value={e.character.id}
+            >{e.character.name || e.character.id}{e.playing
+              ? ` (${t('members.playsIn', { place: e.playing.name })})`
+              : ''}</option
+          >
+        {/each}
       </select>
     </label>
   {/if}

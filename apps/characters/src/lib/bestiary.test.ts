@@ -108,6 +108,17 @@ describe('the bestiary in Characters', () => {
     expect(entry().def.name).toEqual({ en: 'Grey wolf', es: 'Lobo flaco' })
   })
 
+  it('offers a copy made here to the trips and tokens of its system, not to another', async () => {
+    const { roster, systems, makeCopies } = await open()
+    const { rosterCreatures } = await import('@open-tabletop/session')
+    const marches = systems.list.find((s) => s.id === 'grey-marches')!
+    const generic = systems.list.find((s) => s.id !== 'grey-marches')!
+    const [id] = makeCopies(marches, wolf, 1)
+    const place = { app: 'travel', id: 't1', name: 'A trip' }
+    expect(rosterCreatures(marches, roster.roster, place).map((e) => e.character.id)).toEqual([id])
+    expect(rosterCreatures(generic, roster.roster, place)).toEqual([])
+  })
+
   it('changes a template only in a pack of the user, after a copy of the bundled one', async () => {
     const { library, systems, templatesOf, saveTemplate, canEdit } = await open()
     const marches = () => systems.list.find((s) => s.id === 'grey-marches')!

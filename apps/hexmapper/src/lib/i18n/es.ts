@@ -464,7 +464,7 @@ export const es: Messages = {
     giveSheet: 'Darle una hoja ({sheet})',
     fromRoster: vocabulary.es.roster.from,
     fromRosterHelp:
-      'Da a este token un personaje del plantel (la aplicación Characters) hecho con la hoja del sistema del mapa: un PNJ que vuelve en varios mapas. El token guarda su copia, enlazada: lo que cambies aquí se vuelca al plantel, y lo que cambie allí llega al mapa. Un personaje está en un sitio a la vez: tomar uno de un viaje o de otro token pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
+      'Da a este token un personaje del plantel (la aplicación Characters) hecho con la hoja de los personajes del sistema del mapa o de sus plantillas: un PNJ que vuelve en varios mapas, una criatura hecha del bestiario. El token guarda su copia, enlazada: lo que cambies aquí se vuelca al plantel, y lo que cambie allí llega al mapa. Un personaje está en un sitio a la vez: tomar uno de un viaje o de otro token pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
     rosterChoose: vocabulary.es.roster.choose,
     rosterPlaysIn: vocabulary.es.roster.playsIn,
     rosterTake: vocabulary.es.roster.takeConfirm,

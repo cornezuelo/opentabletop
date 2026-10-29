@@ -61,7 +61,7 @@ import {
   parseWorldRules,
 } from '@open-tabletop/world-engine'
 import type { SystemFactions } from './factions'
-import type { Roster } from './roster'
+import { samePlace, type Roster, type RosterEntry, type RosterPlace } from './roster'
 import type { SystemClocks } from './clocks'
 import type { SystemWorld } from './world'
 import { definitionId } from './refs'
@@ -1495,4 +1495,20 @@ export function tagsInUse(
       for (const tag of resolveTemplate(b.def, id)?.tags ?? []) out.add(tag)
   for (const c of others) for (const tag of c.tags) out.add(tag)
   return [...out].sort((a, b) => a.localeCompare(b))
+}
+
+/**
+ * The roster's characters that can be met in a place of this system (one of those present
+ * in a trip, a token's statblock): those made with the sheet of its characters or of its
+ * templates (a creature made from its bestiary, a recurring NPC), not playing there already.
+ */
+export function rosterCreatures(
+  system: TravelSystem,
+  roster: Roster,
+  place: RosterPlace,
+): RosterEntry[] {
+  const sheets = new Set([system.sheet?.id, ...Object.keys(system.templateSheets ?? {})])
+  return roster.characters.filter(
+    (e) => sheets.has(e.character.sheet) && !samePlace(e.playing, place),
+  )
 }

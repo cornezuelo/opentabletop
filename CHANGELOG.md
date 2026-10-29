@@ -10,9 +10,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Characters' Bestiary: a template's view says its system and sheet; **Make a character** makes one, named by the template's generator if it has one (a bandit comes as _Brenna_), and opens it; **Make copies** makes several; how many the roster has made from it shows under them, with **Delete them all**. A token's kind reads PC, NPC or Enemy.
 - Oracle, Systems and Characters: the notice on a bundled pack is one shared piece (pack-ui's `PackNotice`), and explains in the help column what **Edit a copy** does.
 - Characters, Travel and the Hexmapper: a character's **Tags**, and a template's, suggest those its system's characters and templates already use (and, on a trip, its characters'), so the same word is written the same everywhere and the lists' filter by tag finds them.
+- Travel and the Hexmapper: a creature or NPC made in the Characters app can be played: the **Here** box's **From the roster** brings it to the party's place as one of those present (linked, read by tables and rules like the others), and a token's **From the roster** offers it too.
 
 ### Fixes
 
+- Hexmapper: a token placed from the bestiary showed its card with the sheet of the system's characters instead of its own (a wolf with a companion's values); it uses its own sheet now.
 - Systems: a system with a pack (every bundled one) opened blank since v0.21.0: its **Bestiary** tab was listed twice. The tabs come from one ordered list now, each once, with a test.
 - Characters: a copy of a template on a sheet of its own (a Grey Marches wolf) is listed with its system and edited like any character, instead of under **Other sheets**, read-only; its view says what it was **Made from**, with a link to the template in the Bestiary.
 - Characters' Bestiary: translated names and descriptions no longer show as `[object Object]`, and editing a template writes its texts in the language being edited (the pack's translation file when it isn't the pack's own) and only what changed, instead of writing every translation into the template.

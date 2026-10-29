@@ -168,4 +168,4 @@ Las Marcas Grises juegan con todo esto y más (una hoja de la Compañía con mor
 - **Niveles desplazados en uno.** El primer nivel es el **Mín.**: con Mín. `1`, `d4, d6, d8` hace del 1 un d4. Sin Mín., es el 0.
 - **Los heridos siguen contando.** `max: survival` cuenta a todos; para dejar fuera a algunos, añade `unless: { conditions: wounded }`, y `none` para cuando no queda nadie (si no, 0).
 - **Un valor que baja de cero.** Sin **Mín.**, los efectos llevan un valor por debajo de 0. Dale los límites que tenga tu juego, o ninguno cuando de verdad no tiene.
-- **Personajes de otro sistema.** Un viaje toma personajes hechos con la hoja de su sistema: **Del plantel** solo enseña esos; un personaje de otra hoja se queda en el plantel.
+- **Personajes de otro sistema.** Un viaje toma personajes hechos con las hojas de su sistema: el **Del plantel** del grupo enseña los de la hoja de sus personajes, y el de **Aquí** los de la hoja de sus personajes y de sus plantillas (criaturas, PNJ); un personaje de otro sistema se queda en el plantel.

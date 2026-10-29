@@ -4,7 +4,7 @@ import type { CharacterState } from '@open-tabletop/character-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { applyResult, placeCharacters, pullMembers } from './index'
-import { editInRoster, emptyRoster, keepInRoster, settlePlace } from './roster'
+import { editInRoster, emptyRoster, keepInRoster, settlePlace, takeFromRoster } from './roster'
 import {
   partyOf,
   startTrip,
@@ -14,7 +14,7 @@ import {
   tripFacts,
   withAddedBestiaries,
 } from './trip'
-import { removePresent } from './present'
+import { addPresent, removePresent, templateCopy } from './present'
 
 /**
  * A made-up system played as a whole: a check at dawn whose table brings wolves (as many as
@@ -300,6 +300,36 @@ describe('those present: copies of templates in a trip', () => {
     removePresent(s, 'bandit')
     roster = settlePlace(roster, placeCharacters(s), place, 'now')
     expect(roster.characters[0].playing).toBeUndefined()
+  })
+
+  it('a roster character made in the Characters app is brought here, read and kept in step', () => {
+    const rules = partyOf(wilds)
+    const place = { app: 'travel', id: 't1', name: 'The trip' }
+    // A wolf made from the template in the Characters app, in no trip yet.
+    const wolf = templateCopy(rules, 'wolf', { id: 'wolf', name: 'Old Grey' }, 'made')!
+    let roster = keepInRoster(emptyRoster(), wolf, 'now').roster
+    const { session } = startTrip({ system: wilds, location: 'a', time: 8 * 60 })
+    // The trip's own wolf has its id: it makes room.
+    let s = applyResult(session, { effects: { 'present.wolf': 1 } }, {}, rules)
+    const taken = takeFromRoster(roster, 'wolf', place, 'now')!
+    roster = taken.roster
+    const events = addPresent(s, taken.character)
+    expect(events).toEqual([
+      { type: 'PRESENT_CAME', template: 'wolf', ids: ['wolf'], names: ['Old Grey'] },
+    ])
+    expect(s.present!.map((p) => p.character.id)).toEqual(['wolf-2', 'wolf'])
+    // Tables read it with the template's copies.
+    expect(tripFacts({ system: wilds, world }, s).present).toMatchObject({ wolf: { count: 2 } })
+    // Changed in the Characters app, the trip's copy follows.
+    roster = editInRoster(
+      roster,
+      'wolf',
+      (e) => ({ ...e, character: { ...e.character, values: { health: 1 } } }),
+      'later',
+    )
+    s = pullMembers(s, roster, place, rules)
+    expect(s.present!.find((p) => p.character.id === 'wolf')!.character.values.health).toBe(1)
+    expect(s.present!.find((p) => p.character.id === 'wolf-2')!.character.values.health).not.toBe(1)
   })
 })
 

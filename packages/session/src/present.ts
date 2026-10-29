@@ -209,6 +209,35 @@ const left = (
   ...(conditionName !== undefined && { conditionName }),
 })
 
+/**
+ * Brings a character to the party's place as one of those present (in place): one taken from
+ * the roster, made from a template or by hand. A copy of the trip's own with its id makes
+ * room (its id numbered), so the one brought keeps its id and its link. It stays when left
+ * behind, as the system's default.
+ */
+export function addPresent(s: PresentTarget, character: CharacterState): PresentEvent[] {
+  const used = new Set([
+    ...(s.party ? [s.party.id] : []),
+    ...(s.members ?? []).map((m) => m.id),
+    ...(s.present ?? []).map((p) => p.character.id),
+  ])
+  if (used.has(character.id)) {
+    const free = newId(character.id, used)
+    s.present = (s.present ?? []).map((p) =>
+      p.character.id === character.id ? { ...p, character: { ...p.character, id: free } } : p,
+    )
+  }
+  s.present = [...(s.present ?? []), { character, at: s.travel.location ?? '' }]
+  return [
+    {
+      type: 'PRESENT_CAME',
+      template: character.template?.id ?? character.id,
+      ids: [character.id],
+      names: [character.name ?? character.id],
+    },
+  ]
+}
+
 /** Takes one copy off by hand (in place), with its line. */
 export function removePresent(s: PresentTarget, id: string): PresentEvent[] {
   const p = (s.present ?? []).find((c) => c.character.id === id)

@@ -170,6 +170,9 @@ export const es: Messages<typeof en> = {
     add: 'Añadir del bestiario',
     addHelp:
       'Hace a mano una copia de una plantilla aquí, como haría un efecto `present.<plantilla>: 1`: sus valores tirados, con el nombre de la plantilla. La lista es el bestiario del sistema y los de los packs que añade su campaña.',
+    fromRoster: vocabulary.es.roster.from,
+    fromRosterHelp:
+      'Personajes del plantel (la aplicación Characters) hechos con la hoja de los personajes de este sistema o de sus plantillas: una criatura hecha del bestiario, un PNJ que vuelve. Uno viene aquí, al sitio del grupo, como uno de los presentes, y queda enlazado: lo que le pase en este viaje se vuelca al plantel, y lo que cambies en la aplicación Characters llega al viaje. Un personaje juega en un sitio a la vez: traer uno que juega en otro sitio pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
     remove: 'Quitar',
     confirmRemove: '¿Quitar a {name} de los presentes?',
     keepTip:

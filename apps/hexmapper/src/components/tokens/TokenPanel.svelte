@@ -14,7 +14,8 @@
     keepInRoster,
     partyOf,
     playingAt,
-    samePlace,
+    rosterCreatures,
+    systemSheets,
     tagsInUse,
     takeFromRoster,
   } from '@open-tabletop/session'
@@ -110,16 +111,24 @@
     update((tk) => ({ ...tk, character: character as MapToken['character'] }))
   }
 
+  /**
+   * The sheet the token's character is made with: the system's characters' one, or another of
+   * its sheets (a creature placed from the bestiary is made with its template's).
+   */
+  const own = $derived.by(() => {
+    const id = selected?.character?.sheet
+    const def = id ? systemSheets(activeSystem())[id] : undefined
+    return id && def ? { id, def } : sheet
+  })
+
   /** The roster character the token's sheet is, if any. */
   const linked = $derived(
     selected ? playingAt(roster.roster, tokenPlace(selected.id))[0] : undefined,
   )
-  /** Roster characters of the map's sheet that could be this token. */
+  /** Roster characters that could be this token (a recurring NPC, a creature). */
   const available = $derived(
     sheet && selected
-      ? roster.roster.characters.filter(
-          (e) => e.character.sheet === sheet.id && !samePlace(e.playing, tokenPlace(selected.id)),
-        )
+      ? rosterCreatures(activeSystem(), roster.roster, tokenPlace(selected.id))
       : [],
   )
 
@@ -305,14 +314,14 @@
       <div class="field">
         <span>{t('tokens.sheet')}<InfoTip text={t('tokens.sheetHelp')} /></span>
         <SheetOrigin
-          {sheet}
+          sheet={own ?? sheet}
           system={activeSystem()}
           locale={getLocale()}
           where={t('play.systemWhere')}
         />
         {#if selected.character}
           <CharacterCard
-            sheet={sheet.def}
+            sheet={(own ?? sheet).def}
             catalogues={activeSystem().items}
             tagChoices={tagsInUse(activeSystem(), roster.roster)}
             character={{ ...selected.character, id: selected.id, name: selected.name }}

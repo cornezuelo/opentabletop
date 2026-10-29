@@ -459,7 +459,7 @@ export const en = {
     giveSheet: 'Give it a sheet ({sheet})',
     fromRoster: vocabulary.en.roster.from,
     fromRosterHelp:
-      "Gives this token a character of the roster (the Characters app) made with the map's system's sheet: a recurring NPC on several maps. The token keeps its copy, linked: what you change here is written back to the roster, and what changes there reaches the map. A character is in one place at a time: taking one from a trip or another token asks first, and that place keeps its copy, no longer linked.",
+      "Gives this token a character of the roster (the Characters app) made with the sheet of the map's system's characters or of its templates: a recurring NPC on several maps, a creature made from the bestiary. The token keeps its copy, linked: what you change here is written back to the roster, and what changes there reaches the map. A character is in one place at a time: taking one from a trip or another token asks first, and that place keeps its copy, no longer linked.",
     rosterChoose: vocabulary.en.roster.choose,
     rosterPlaysIn: vocabulary.en.roster.playsIn,
     rosterTake: vocabulary.en.roster.takeConfirm,

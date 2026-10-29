@@ -173,6 +173,9 @@ export const en = {
     add: 'Add from the bestiary',
     addHelp:
       "Makes one copy of a template here by hand, as an effect `present.<template>: 1` would: its values rolled, named from the template. The list is the system's bestiary and those of the packs its campaign adds.",
+    fromRoster: vocabulary.en.roster.from,
+    fromRosterHelp:
+      "Characters of the roster (the Characters app) made with the sheet of this system's characters or of its templates: a creature made from the bestiary, a recurring NPC. One comes here, at the party's place, as one of those present, and stays linked: what happens to it on this trip is written back to the roster, and what you change in the Characters app reaches the trip. A character plays in one place at a time: taking one that plays elsewhere asks first, and that place keeps its copy, no longer linked.",
     remove: 'Take off',
     confirmRemove: 'Take {name} off those present?',
     keepTip:

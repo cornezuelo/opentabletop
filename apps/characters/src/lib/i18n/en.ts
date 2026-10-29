@@ -98,7 +98,7 @@ export const en = {
     whereHelp:
       'A character travels in one place at a time: a map’s trip in the Hexmapper, a trip in Travel, or a token on a map. What happens to it there is written back here after every step; what you change here, the trip finds when it next opens. The campaign that place is in shows beside it, with a link to it in the Campaign app.',
     nowhere:
-      'Only in the roster. To take it on a trip, open the trip’s **Party** tab and choose it under **From the roster**.',
+      'Only in the roster. To take it on a trip, choose it under **From the roster** in the trip’s **Party** tab: with the party, or in **Here** among those present (a creature, an NPC met on the way); or give it to a token on a map (its **Sheet**).',
     playsIn: '{place}, in {app}',
     playsAsToken: 'a token on {place}, in {app}',
     inCampaign: 'in the campaign {campaign}',
