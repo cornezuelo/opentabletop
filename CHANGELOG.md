@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-10-29
+
 ### Apps
 
 - Campaign is where play starts: the site's root opens it, it's first in the app switcher, and it opens the campaign you were playing (or **Start your campaign** when there's none). A new campaign asks for the day it starts, and comes with its world clock going and the system's factions in (unless unticked).
