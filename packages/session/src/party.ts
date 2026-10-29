@@ -27,6 +27,15 @@ import {
 } from '@open-tabletop/travel-engine'
 import type { Bindings } from './index'
 import type { Effects, LimitReached } from './effects'
+import {
+  changePresent,
+  presentFacts,
+  presentHere,
+  PRESENT_PATH,
+  type Present,
+  type PresentEvent,
+  type PresentRules,
+} from './present'
 
 /**
  * The party as its members: the sheet they're made with (the system's `sheet`), and what
@@ -34,7 +43,7 @@ import type { Effects, LimitReached } from './effects'
  * them, the party's own sheet (`partySheet`): the party itself as one character (`party`),
  * whatever its members, whose values stats may be (`from: { party: morale }`).
  */
-export interface PartyRules {
+export interface PartyRules extends PresentRules {
   sheet?: { id: string; def: Sheet }
   partySheet?: { id: string; def: Sheet }
   bindings?: Bindings
@@ -52,6 +61,8 @@ export interface PartyTarget {
   /** The party itself, a character of the system's party sheet (none without one). */
   party?: CharacterState
   members?: CharacterState[]
+  /** The copies of templates the trip made, where each was made (docs/bestiary.md). */
+  present?: Present[]
   acting?: string
   /** Who holds each of the system's journey roles (`roles.<id>.*`), by role id. */
   roles?: Record<string, string>
@@ -79,7 +90,7 @@ export interface Sharing {
   time?: number
 }
 
-/** The sheet a member (or the party itself) is made with, when it's the system's. */
+/** The sheet a member (the party itself, a copy of a template) is made with, when it's the system's. */
 export const sheetOf =
   (rules: PartyRules) =>
   (member: CharacterState): Sheet | undefined =>
@@ -87,7 +98,7 @@ export const sheetOf =
       ? rules.sheet.def
       : rules.partySheet && member.sheet === rules.partySheet.id
         ? rules.partySheet.def
-        : undefined
+        : rules.sheets?.[member.sheet]
 
 /** Whether the system has stats made of one character the player chooses (`from: { pick }`). */
 export const picksWho = (rules: PartyRules): boolean =>
@@ -249,14 +260,28 @@ export function partyBlocks(
  * acting now, if any).
  */
 export function memberFacts(
-  s: Pick<PartyTarget, 'members' | 'acting' | 'roles'>,
+  s: Pick<PartyTarget, 'members' | 'acting' | 'roles' | 'present'> & {
+    travel?: PartyTarget['travel']
+  },
   /** Their sheets, for their items' places. */
   rules: PartyRules = {},
 ): Record<string, unknown> {
-  if (!s.members?.length) return {}
-  const characters = Object.fromEntries(
-    s.members.map((m) => [m.id, characterFacts(m, sheetOf(rules)(m))]),
-  )
+  // Those present (copies of templates here), read beside the members.
+  const copies =
+    s.present?.length || rules.templateIds?.length
+      ? presentFacts({ present: s.present, travel: s.travel ?? {} }, rules)
+      : undefined
+  if (!s.members?.length)
+    return copies
+      ? {
+          present: copies.present,
+          ...(Object.keys(copies.characters).length && { characters: copies.characters }),
+        }
+      : {}
+  const characters = {
+    ...copies?.characters,
+    ...Object.fromEntries(s.members.map((m) => [m.id, characterFacts(m, sheetOf(rules)(m))])),
+  }
   const acting = s.acting !== undefined ? characters[s.acting] : undefined
   // Each journey role held, as its holder (`roles.guide.values.pathfinding`).
   const roles = Object.fromEntries(
@@ -266,6 +291,7 @@ export function memberFacts(
   )
   return {
     characters,
+    ...(copies && { present: copies.present }),
     ...(acting && { acting }),
     ...(Object.keys(roles).length && { roles }),
   }
@@ -308,13 +334,31 @@ export function applyMemberEffects(
    * steps, which the travel engine noted as they happened (its day may be over by now).
    */
   noteReached = true,
-): { limits: LimitReached[]; events: CharacterEvent[]; nobody: string[]; unknown: string[] } {
+): {
+  limits: LimitReached[]
+  events: CharacterEvent[]
+  nobody: string[]
+  unknown: string[]
+  /** Copies of templates that came or left (`present.<template>`). */
+  present: PresentEvent[]
+} {
   const limits: LimitReached[] = []
   const events: CharacterEvent[] = []
   const nobody: string[] = []
   const unknown: string[] = []
-  // A party played as a whole, without a sheet of its own: nothing here applies.
-  if (!s.members?.length && !s.party) return { limits, events, nobody, unknown }
+  const present: PresentEvent[] = []
+  // A party played as a whole, without a sheet of its own: only those present are changed.
+  const whole = !s.members?.length && !s.party
+  /** One copy by its id (`characters.wolf-2.…`), which a party played as a whole may change. */
+  const copyPath = (path: string) => {
+    const who = MEMBER_PATH.exec(path)?.[1]
+    return (
+      !!who?.startsWith('characters.') &&
+      !!s.present?.some((p) => `characters.${p.character.id}` === who)
+    )
+  }
+  if (whole && !Object.keys(effects).some((p) => PRESENT_PATH.test(p) || copyPath(p)))
+    return { limits, events, nobody, unknown, present }
   const { travel } = s
   const roller =
     travel.day !== undefined
@@ -346,7 +390,11 @@ export function applyMemberEffects(
       const moved = new Set(happened.flatMap((e) => (e.type === 'VALUE_CHANGED' ? [e.value] : [])))
       for (const [stat, value] of partyStats(rules))
         if (moved.has(value) && next.values[value] !== undefined) s.stats[stat] = next.values[value]
-    } else s.members = (s.members ?? []).map((m) => (m.id === target.id ? next : m))
+    } else if (s.present?.some((p) => p.character.id === target.id))
+      s.present = s.present.map((p) =>
+        p.character.id === target.id ? { ...p, character: next } : p,
+      )
+    else s.members = (s.members ?? []).map((m) => (m.id === target.id ? next : m))
     for (const e of happened) {
       events.push(e)
       if (e.type === 'LIMIT_REACHED')
@@ -405,6 +453,24 @@ export function applyMemberEffects(
       ]
   }
   for (const [path, change] of Object.entries(effects)) {
+    // Those present: a template's copies made or taken away, or each of them changed.
+    const [, template, copyPart, copyRest] = PRESENT_PATH.exec(path) ?? []
+    if (template !== undefined) {
+      if (typeof change === 'boolean') continue
+      if (!copyPart) {
+        present.push(...changePresent(s, rules, template, change, context))
+        continue
+      }
+      const copies = presentHere(s).filter(
+        (p) => template === 'all' || p.character.template?.id === template,
+      )
+      for (const p of copies) {
+        const now = s.present!.find((c) => c.character.id === p.character.id)!.character
+        applyTo(now, `${copyPart}.${copyRest}`, change)
+      }
+      continue
+    }
+    if (whole && !copyPath(path)) continue
     const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
     if (!who) continue
     if (who === 'party' && part === 'items') {
@@ -414,6 +480,13 @@ export function applyMemberEffects(
     }
     const rest = `${part}.${id}`
     const members: CharacterState[] = s.members ?? []
+    /** A member by id, or a copy of a template the trip made. */
+    const characterById = (wanted: string): CharacterState[] => {
+      const member = members.filter((m) => m.id === wanted)
+      if (member.length) return member
+      const copy = s.present?.find((p) => p.character.id === wanted)
+      return copy ? [copy.character] : []
+    }
     const holder = who.startsWith('roles.') ? s.roles?.[who.slice('roles.'.length)] : undefined
     const targets: CharacterState[] =
       who === 'party'
@@ -426,7 +499,7 @@ export function applyMemberEffects(
             ? members.filter((m) => m.id === s.acting)
             : who.startsWith('roles.')
               ? members.filter((m) => m.id === holder)
-              : members.filter((m) => m.id === who.slice('characters.'.length))
+              : characterById(who.slice('characters.'.length))
     if (!targets.length) {
       // Nobody acting, or nobody holding the role: nothing happens, and the journal says so.
       ;(who === 'acting' || who.startsWith('roles.') ? nobody : unknown).push(path)
@@ -441,7 +514,9 @@ export function applyMemberEffects(
       const now =
         target.id === PARTY_ID && who === 'party'
           ? s.party!
-          : ((s.members ?? []).find((m) => m.id === target.id) ?? target)
+          : ((s.members ?? []).find((m) => m.id === target.id) ??
+            s.present?.find((p) => p.character.id === target.id)?.character ??
+            target)
       applyTo(now, rest, change)
     }
   }
@@ -455,7 +530,7 @@ export function applyMemberEffects(
   const after = partyNumbers(s, rules)
   for (const path of new Set([...Object.keys(before), ...Object.keys(after)]))
     tallyChange(travel, path, before[path] ?? 0, after[path] ?? 0)
-  return { limits, events, nobody, unknown }
+  return { limits, events, nobody, unknown, present }
 }
 
 /**

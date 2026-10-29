@@ -1,0 +1,121 @@
+# Who the Company meets: a sheet for its foes and the bestiary they're made from
+# (system.yaml: `bestiary: [bestiary.marches]`). The encounters (encounters.yaml) make copies
+# of them, kept in the trip as those present (`present.<template>`).
+
+# A foe's sheet: lighter than a companion's. Two conditions take a copy off by themselves
+# (`leaves: true`): one that holds by itself (`down`, at health 0) and one set by effects
+# (`routed`, `bought-off`).
+kind: sheet
+id: foe
+name: Foe
+description: |-
+  What the Company meets on the road and has to deal with: beasts, outlaws, the Hunt.
+
+  **Shows:** a sheet for creatures and NPC types, lighter than a companion's; conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); items, so a template may carry some.
+values:
+  health:
+    name: Health
+    description: The harm it can still take; at 0 it's down, and gone.
+    min: 0
+    display: number
+  harm:
+    name: Harm
+    description: How hard it hits, for your own rulings and the tables that read it.
+    min: 0
+  morale:
+    name: Morale
+    description: How long it stands its ground, from 2 to 12, for your morale rolls (a 2d6 over it, it runs).
+    min: 2
+    max: 12
+conditions:
+  down:
+    name: Down
+    description: 'Health 0: it falls, and is gone from those present.'
+    when: { self.values.health: { lte: 0 } }
+    leaves: true
+  routed:
+    name: Routed
+    description: It runs; gone from those present.
+    leaves: true
+  bought-off:
+    name: Bought off
+    description: Paid to go; gone from those present.
+    leaves: true
+  enraged:
+    name: Enraged
+    description: Fights to the end, whatever its morale.
+# What a foe carries (nothing to begin with): what its template gives, from the Company's gear.
+items: {}
+---
+# The bestiary: templates the encounters copy, each copy rolling its own health. A variant
+# (`like:`) takes what it doesn't say from another; `names:` names each copy from a table;
+# `behind:` says whether copies the Company leaves behind stay there (the Wyrm in its wood)
+# or are gone (the rest, so the next visit rolls its encounter afresh).
+kind: bestiary
+id: marches
+name: Who walks the Marches
+description: |-
+  The beasts, outlaws, riders and worse the Company meets on the road.
+
+  **Shows:**
+
+  - Templates of characters (`kind: bestiary`) on a sheet of the pack's own (`sheet: sheet.foe`), and one on the companions' (an NPC type: the Vale's riders)
+  - Values rolled for each copy: `health: '{{1d4+1}}'`
+  - A variant: the pack leader is a grey wolf (`like: grey-wolf`) with more health and a tag of its own; the bandit chief likewise
+  - Copies named from a table (`names: table.npc-names`): _Brenna_, _Corin_… instead of _Bandit 2_
+  - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
+  - How each is drawn on a map (`token:` its icon and kind)
+  - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood (`behind: stay`)
+sheet: sheet.foe
+behind: leave
+templates:
+  grey-wolf:
+    name: Grey wolf
+    description: Lean and patient; they hunt in packs, and break when their leader falls.
+    tags: [beast, pack]
+    values: { health: '{{1d4+1}}', harm: 1, morale: 7 }
+    token: { icon: 'game:wolf-head', kind: enemy }
+  pack-leader:
+    like: grey-wolf
+    name: Pack leader
+    description: The biggest of the pack; while it stands, the others stand with it.
+    tags: [leader]
+    values: { health: '{{2d4+2}}', harm: 2, morale: 9 }
+  ember-rider:
+    name: Rider of the Ember Hunt
+    description: A pale rider under the full Ember Moon, who never tires and never speaks.
+    tags: [hunt, haunted]
+    values: { health: '{{2d6}}', harm: 2, morale: 12 }
+    conditions: [enraged]
+    token: { icon: 'game:ghost', kind: enemy }
+  wyrm:
+    name: The Greywood Wyrm
+    description: Coiled in the heart of the Greywood. It doesn't follow; it waits.
+    tags: [beast, wyrm]
+    values: { health: 30, harm: 4, morale: 12 }
+    token: { icon: 'game:dragon-head', kind: enemy }
+    behind: stay
+  bandit:
+    name: Bandit
+    description: An outlaw of the Hollow Hills, hungry and badly armed.
+    names: table.npc-names
+    tags: [people, outlaw]
+    values: { health: '{{1d6+1}}', harm: 1, morale: 7 }
+    items: { ration: '{{1d2}}' }
+    token: { icon: 'game:hooded-figure', kind: enemy }
+  bandit-chief:
+    like: bandit
+    name: Bandit chief
+    description: Leads the band; better fed, better armed, and quicker to bargain.
+    tags: [leader]
+    values: { health: '{{2d6+2}}', harm: 2, morale: 9 }
+    items: { ration: 2 }
+  vale-rider:
+    # An NPC type on the companions' own sheet: a rider of the Vale's patrol.
+    sheet: sheet.companion
+    name: Rider of the Vale
+    description: One of the Vale's patrol, riding its roads and borders.
+    names: table.npc-names
+    tags: [people, vale]
+    values: { survival: 2, charisma: 1, health: 3 }
+    token: { icon: 'game:mounted-knight', kind: npc }

@@ -493,6 +493,42 @@ actions:
       - { id: word, say: 'Travellers bring word of what the powers of the Marches are doing.' }
       - when: { factions.iron-clans.conditions: at-war }
         effects: { party.stats.morale: -1 }
+  # Those present (bestiary.yaml): the copies of templates the encounters made, at the
+  # Company's hex. Open while someone hostile is here (`present.count`, `present.tags`); every
+  # one of them changed at once (`present.all.…`, one roll for all); whoever's health reaches
+  # 0 is down, and gone by itself (the foe's sheet: `leaves: true`).
+  drive-off:
+    name: Drive them off
+    description: 'With foes here: ten minutes of steel and fire. Each of them takes 1d3 harm, and the fallen are gone; whoever acts takes 1 harm unless their Survival is 2 or more.'
+    when: { present.count: { gte: 1 } }
+    unless: { present.tags: vale }
+    hideWhenUnavailable: true
+    do:
+      - { time: 10 }
+      - { effects: { present.all.values.health: '-{{1d3}}' } }
+      - unless: { acting.values.survival: { gte: 2 } }
+        effects: { acting.values.health: -1 }
+      - { id: fought, say: 'Steel and fire on the road.' }
+  # Outlaws among those present (a tag of their template): a ration for each of them
+  # (`'-{{present.count}}'`), and a condition that takes them off (`bought-off`).
+  buy-off:
+    name: Buy them off
+    description: 'With outlaws here: a ration for each one of them, and they go.'
+    when: { present.tags: outlaw, party.items.ration.count: { gte: '{{present.count}}' } }
+    hideWhenUnavailable: true
+    do:
+      - effects:
+          { party.items.ration: '-{{present.count}}', present.all.conditions.bought-off: true }
+      - { id: paid, say: 'The outlaws take the food and melt back into the hills.' }
+  # A reaction on those present (a moment written as a condition): once the pack leader is
+  # gone (down, by hand…) with grey wolves still here, the rest of the pack runs.
+  pack-breaks:
+    name: The pack breaks
+    description: 'Once the pack leader is gone with grey wolves still here, they run.'
+    on: { when: { present.pack-leader.count: 0, present.grey-wolf.count: { gte: 1 } } }
+    do:
+      - { effects: { present.grey-wolf.conditions.routed: true } }
+      - { id: run, say: 'Without their leader, the wolves break and run.' }
 checks:
   # Each check has a name and a description for players (the event id is for the bindings).
   - event: WEATHER_CHECK_REQUIRED

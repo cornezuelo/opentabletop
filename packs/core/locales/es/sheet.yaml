@@ -17,7 +17,7 @@ sheet/character:
       description: Herido de verdad hasta que se le quite; tus tablas y reglas dicen qué le impide.
     down:
       name: Caído
-      description: Fuera de combate mientras su salud sea 0; se le pasa por sí solo cuando recupera salud.
+      description: Fuera de combate mientras su salud sea 0; se le pasa por sí solo cuando recupera salud. Un enemigo sacado del bestiario se va en cuanto cae.
 sheet/party:
   name: Grupo
   description: |-

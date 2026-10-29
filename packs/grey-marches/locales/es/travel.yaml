@@ -149,6 +149,24 @@ travel-rules/default:
       do:
         word:
           say: 'Los viajeros traen noticias de lo que hacen los poderes de las Marcas.'
+    drive-off:
+      name: Ahuyentarlos
+      description: 'Con enemigos aquí: diez minutos de acero y fuego. Cada uno recibe 1d3 de daño, y los que caen se van; quien actúa recibe 1 de daño salvo que su Supervivencia sea 2 o más.'
+      do:
+        fought:
+          say: 'Acero y fuego en el camino.'
+    buy-off:
+      name: Comprar su marcha
+      description: 'Con forajidos aquí: una ración por cada uno, y se van.'
+      do:
+        paid:
+          say: 'Los forajidos cogen la comida y se pierden de nuevo por las colinas.'
+    pack-breaks:
+      name: La manada se desbanda
+      description: 'En cuanto falta el jefe de la manada y quedan lobos grises aquí, huyen.'
+      do:
+        run:
+          say: 'Sin su jefe, los lobos se desbandan y huyen.'
   checks:
     WEATHER_CHECK_REQUIRED:
       name: Clima

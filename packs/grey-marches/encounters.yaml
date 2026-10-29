@@ -23,6 +23,7 @@ description: |-
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
   - An effect on every companion: the haunted lights fill each one's dread, and tick the world clock's _The Greywood Wyrm wakes_ (`world.clocks…`)
+  - Results that make copies of the bestiary's templates, kept as those present (`present.grey-wolf: '{{wolves - 1}}'`): as many as a `set` rolled and the text says (`{{wolves}} grey wolves`), their leader among them; the bandits and their chief, the Hunt's riders, the Wyrm, the Vale's riders
   - A faction's value in a condition: the Vale's patrol shares its bread when the Vale thinks well of you (`factions.the-vale.values.reputation`)
 roll: '1d6 + {{hex.danger}}'
 entries:
@@ -40,15 +41,17 @@ entries:
             - { hex.danger: { gte: 5 } }
             - { hex.danger: { gte: 3 }, world.clocks.the-greywood-wyrm-wakes: { gte: 6 } }
     result: 'The Greywood Wyrm uncoils across the path. It will not come again.'
+    # It's there now, among those present (bestiary.yaml), and stays in its wood.
+    effects: { present.wyrm: 1 }
   # The calendar (calendar.yaml): when the Ember Moon is full, the hunt rides at night.
   - id: hunt
     range: 1-20
     when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }
-    result: 'Horns in the dark: the Ember Hunt rides under the full moon — they are {{result}}'
+    result: 'Horns in the dark: {{riders}} riders of the Ember Hunt under the full moon — they are {{result}}'
     pause: true
     table: table.reaction
-    set: { reactionModifier: -3 }
-    effects: { party.stats.morale: -1 }
+    set: { reactionModifier: -3, riders: '{{1d3+1}}' }
+    effects: { party.stats.morale: -1, present.ember-rider: '{{riders}}' }
   # Nights in haunted places, whatever the roll.
   # …and every companion's dread fills a box (an effect on every member of the party).
   - id: lights
@@ -84,18 +87,22 @@ entries:
     # Someone to deal with: the trip stops until you go on.
     pause: true
     table: table.reaction
+    # Two or three riders, on the companions' sheet (an NPC type), each named.
+    effects: { present.vale-rider: '{{1d2+1}}' }
   # Lists of terrains, a dice expression inside the text, then roll the reaction.
   - id: wolves
     range: 5-20
     # Wolves keep away in summer: `not` with a value.
     when:
       { all: [{ hex.terrain: [forest, dense-forest, heath] }, { time.season: { not: summer } }] }
-    result: '{{1d4+2}} grey wolves — they are {{result}}'
+    result: '{{wolves}} grey wolves, their leader among them — they are {{result}}'
     pause: true
     table: table.reaction
-    # Values for the next table (reactionModifier) and for the party: morale drops.
-    set: { reactionModifier: -2 }
-    effects: { party.stats.morale: -1 }
+    # Values for the next table (reactionModifier), how many come (read by the text and the
+    # effects alike) and for the party: morale drops.
+    set: { reactionModifier: -2, wolves: '{{1d4+2}}' }
+    # The wolves themselves, among those present (bestiary.yaml): the pack and its leader.
+    effects: { party.stats.morale: -1, present.grey-wolf: '{{wolves - 1}}', present.pack-leader: 1 }
   # Then roll a generator: {{result}} is its text.
   - id: traveller
     range: 1-4
@@ -106,11 +113,11 @@ entries:
   - id: bandits
     range: 5-20
     when: { hex.terrain: { in: [hills, marsh, swamp] } }
-    result: 'Bandits of the Hollow Hills — they are {{result}}'
+    result: '{{bandits}} bandits of the Hollow Hills — they are {{result}}'
     pause: true
     table: table.reaction
-    set: { reactionModifier: -1 }
-    effects: { party.stats.morale: -1 }
+    set: { reactionModifier: -1, bandits: '{{1d4+1}}' }
+    effects: { party.stats.morale: -1, present.bandit: '{{bandits - 1}}', present.bandit-chief: 1 }
   - { id: tracks, range: 1-20, result: 'Only tracks, and the feeling of being watched' }
 ---
 # A party stat plus a modifier the entry before it may set; advantage on offer (Core's roll

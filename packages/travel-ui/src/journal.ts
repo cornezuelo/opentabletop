@@ -536,6 +536,29 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return e.text ?? ''
     case 'MEMBER_LEFT':
       return t('journal.memberLeft', { name: String(d.name ?? '') })
+    // Those present: copies of a system's templates that came or left.
+    case 'PRESENT_CAME':
+      return t('journal.presentCame', {
+        names: Array.isArray(d.names) ? d.names.join(', ') : '',
+      })
+    case 'PRESENT_LEFT': {
+      const name = String(d.name ?? d.id ?? '')
+      if (d.because === 'condition')
+        return t('journal.presentLeftCondition', {
+          name,
+          condition: String(d.conditionName ?? d.condition ?? '').replaceAll('-', ' '),
+        })
+      return t(
+        d.because === 'behind'
+          ? 'journal.presentLeftBehind'
+          : d.because === 'hand'
+            ? 'journal.presentLeftHand'
+            : 'journal.presentLeft',
+        { name },
+      )
+    }
+    case 'UNKNOWN_TEMPLATE':
+      return t('journal.unknownTemplate', { name: String(d.template ?? '') })
     case 'ROSTER_UPDATED':
       return t('journal.rosterUpdated', {
         names: Array.isArray(d.names) ? d.names.join(', ') : '',

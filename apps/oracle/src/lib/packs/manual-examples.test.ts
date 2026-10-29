@@ -39,6 +39,7 @@ import {
   createCharacter,
   itemFromCatalogue,
   lookupItems,
+  parseBestiary,
   parseCatalogue,
   parseSheet,
   type CharacterAction,
@@ -114,6 +115,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'clocks',
         'world',
         'items',
+        'bestiary',
       ]),
     )
   })
@@ -137,6 +139,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
       if (doc?.kind === 'factions') expect(parseFactions(doc).errors).toEqual([])
       else if (doc?.kind === 'sheet') expect(parseSheet(doc).errors).toEqual([])
       else if (doc?.kind === 'items') expect(parseCatalogue(doc).errors).toEqual([])
+      else if (doc?.kind === 'bestiary') expect(parseBestiary(doc).errors).toEqual([])
       else if (doc?.kind === 'land') expect(validateLand(doc)).toEqual([])
   })
 })

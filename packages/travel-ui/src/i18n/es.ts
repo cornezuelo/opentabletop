@@ -227,6 +227,13 @@ export const es: Messages<typeof en> = {
     },
     cleared: '{name} (ya no)',
     memberLeft: '{name} deja el grupo',
+    presentCame: 'Ahora aquí: {names}',
+    presentLeft: '{name} se va',
+    presentLeftCondition: '{name} se va ({condition})',
+    presentLeftBehind: '{name} se queda atrás y desaparece',
+    presentLeftHand: 'Se quita a mano: {name}',
+    unknownTemplate:
+      'Ningún bestiario del sistema tiene la plantilla «{name}», así que no viene nadie',
     rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
     itemSpent: '{name}: se gasta uno',
     shared: '{name}, repartido: {list}',

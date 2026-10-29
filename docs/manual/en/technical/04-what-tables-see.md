@@ -14,6 +14,7 @@ Each value has a **full name** that says where it comes from (`hex.terrain`) and
 | `trip.*`             | [the trip](#the-trip-trip): its day, way of travelling, weather, what it has done              |
 | `world.*`            | [the world clock](#the-world-world-and-factions) (a campaign's)                                |
 | `party.*`            | [the party](#the-party-party): its stats, its sheet, its items and characters                  |
+| `present.*`          | [those present](#those-present-present): copies of the system's templates where the party is   |
 | `today.*`            | [the values of the day](#the-day-s-values-today-yesterday), and `yesterday.*` the day before's |
 | `from.*`, `around.*` | [the hex left and the hexes around](#around-the-party-from-around)                             |
 
@@ -170,6 +171,20 @@ Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party
 A value **made of others** (`from:` on the sheet) and a condition that **holds by itself** (`when:`) are read like any other, but no effect changes them: the journal says _“Kael: Wounds” holds by itself…_ and nothing changes. Inside its own sheet (a `from`, a bound, a condition's `when`), a character reads itself as `self.*`: `self.values.health`, `self.conditions`, `self.tags`; a condition's `when` reads the world too, with the names on this page ([Sheets](07-kinds.md#sheets)).
 
 The party's stats a system makes of its characters (`from` in its bindings) are read as any other stat (`party.stats.navigation`), and the items they carry as the party's together: `party.items.ration.count`.
+
+## Those present, `present.*`
+
+When the system has a [bestiary](07-kinds.md#bestiaries) and a result made copies of its templates (`present.wolf: 3`): the copies at the party's place. Each copy is a character too, read by its id as the party's are (`characters.wolf-2.values.health`), with its own sheet's values and conditions.
+
+| Name                                                 | Kind                | Values                                                                                                                    |
+| ---------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `present.ids`                                        | list of ids         | The copies here: `present.ids: wolf-2` holds while that wolf is here.                                                     |
+| `present.count`                                      | number              | How many are here, of every template.                                                                                     |
+| `present.tags`                                       | list                | Every tag of those here: `present.tags: outlaw`.                                                                          |
+| `present.<template>.count`, `present.<template>.ids` | number, list of ids | How many copies of one template are here, and which; every template of the system is there, at 0 when none of it is here. |
+| `characters.<id>.*`                                  | group               | A copy here, with the names of [Characters](#characters).                                                                 |
+
+Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party-effects)): `present.wolf: 2` (two more wolves), `present.wolf.values.health: -1` (every wolf here), `present.all.conditions.routed: true` (everyone here), `characters.wolf-2.values.health: -1` (one). Copies the party left behind aren't here, and those whose template says `behind: leave` are gone; a copy with a condition that `leaves` is gone at once.
 
 ## The world, `world.*`, and factions
 

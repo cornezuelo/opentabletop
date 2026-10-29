@@ -1,0 +1,65 @@
+sheet/foe:
+  name: Enemigo
+  description: |-
+    Lo que la Compañía encuentra en el camino y con lo que tiene que lidiar: bestias, forajidos, la Cacería.
+
+    **Enseña:** una hoja para criaturas y tipos de PNJ, más ligera que la de un compañero; estados que quitan una copia de los presentes por sí solos (`leaves: true`): uno que se cumple por sí solo (_Abatido_, con salud 0) y otros que ponen los efectos (_En desbandada_, _Sobornado_); objetos, para que una plantilla pueda llevar alguno.
+  values:
+    health:
+      name: Salud
+      description: El daño que aún aguanta; a 0 cae, y se va.
+    harm:
+      name: Daño
+      description: Lo fuerte que golpea, para vuestras decisiones y las tablas que lo leen.
+    morale:
+      name: Moral
+      description: Cuánto aguanta antes de huir, de 2 a 12, para vuestras tiradas de moral (un 2d6 por encima, huye).
+  conditions:
+    down:
+      name: Abatido
+      description: 'Salud 0: cae, y deja de estar entre los presentes.'
+    routed:
+      name: En desbandada
+      description: Huye; deja de estar entre los presentes.
+    bought-off:
+      name: Sobornado
+      description: Le pagan para que se vaya; deja de estar entre los presentes.
+    enraged:
+      name: Enfurecido
+      description: Lucha hasta el final, tenga la moral que tenga.
+bestiary/marches:
+  name: Quién recorre las Marcas
+  description: |-
+    Las bestias, forajidos, jinetes y cosas peores con que la Compañía se cruza en el camino.
+
+    **Enseña:**
+
+    - Plantillas de personajes (`kind: bestiary`) sobre una hoja propia del pack (`sheet: sheet.foe`), y una sobre la de los compañeros (un tipo de PNJ: los jinetes del Valle)
+    - Valores que tira cada copia: `health: '{{1d4+1}}'`
+    - Una variante: el jefe de la manada es un lobo gris (`like: grey-wolf`) con más salud y una etiqueta propia; el cabecilla de los bandidos, igual
+    - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
+    - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
+    - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
+    - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque (`behind: stay`)
+  templates:
+    grey-wolf:
+      name: Lobo gris
+      description: Flaco y paciente; caza en manada, y se desbanda cuando cae su jefe.
+    pack-leader:
+      name: Jefe de la manada
+      description: El más grande de la manada; mientras aguanta, los demás aguantan con él.
+    ember-rider:
+      name: Jinete de la Cacería Ascua
+      description: Un jinete pálido bajo la luna Ascua llena, que nunca se cansa y nunca habla.
+    wyrm:
+      name: La Sierpe del Bosque Gris
+      description: Enroscada en el corazón del Bosque Gris. No persigue; espera.
+    bandit:
+      name: Bandido
+      description: Un forajido de las Colinas Huecas, hambriento y mal armado.
+    bandit-chief:
+      name: Cabecilla de los bandidos
+      description: Manda en la banda; mejor comido, mejor armado y más dispuesto a negociar.
+    vale-rider:
+      name: Jinete del Valle
+      description: Uno de la patrulla del Valle, que recorre sus caminos y sus lindes.

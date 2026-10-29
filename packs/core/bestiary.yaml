@@ -1,0 +1,33 @@
+# The Generic rules' bestiary (system.yaml: `bestiary: [bestiary.foes]`): one template, on the
+# characters' own sheet, and a table that makes copies of it. The smallest that works.
+kind: bestiary
+id: foes
+name: Foes
+description: |-
+  Whoever stands in the way: a template to make foes from.
+
+  **Shows:** the smallest bestiary: one template on the characters' sheet (`sheet: sheet.character`), its health rolled for each copy; a copy whose health reaches 0 is down, and gone (the sheet's _Down_ `leaves`).
+sheet: sheet.character
+templates:
+  foe:
+    name: Foe
+    description: Someone or something hostile; your tables say who.
+    values: { health: '{{1d3}}' }
+---
+# Rolled by hand during a trip, its result makes copies of the template (`present.foe`):
+# as many as its `set` rolls, said in its text.
+kind: table
+id: trouble
+tags: [encounters]
+name: Trouble on the road
+description: |-
+  **Foes** block the way: how many, and they're there.
+
+  **Shows:** a result that makes copies of a template (`present.foe: '{{foes}}'`), as many as its `set` rolls and its text says.
+roll: 1d1
+entries:
+  - id: foes
+    range: 1
+    set: { foes: '{{1d3}}' }
+    result: '{{foes}} foes block the way'
+    effects: { present.foe: '{{foes}}' }

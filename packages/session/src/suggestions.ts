@@ -102,6 +102,8 @@ export function contextSuggestions(
     factions,
     clocks,
     items,
+    bestiary,
+    templateSheets,
   } of systems) {
     // A system that isn't loaded names nothing.
     if (pack !== undefined && !ours(pack)) continue
@@ -158,6 +160,22 @@ export function contextSuggestions(
       // Where the characters are tied to the hex (it, its region, a place in it).
       add('hex.related')
       for (const kind of Object.keys(sheet.def.relations)) add(`hex.relations.${kind}`)
+    }
+    // Those present: copies of its templates here, how many of each, their tags.
+    if (bestiary?.length) {
+      const templates = bestiary.flatMap((b) => Object.entries(b.def.templates))
+      add('present.ids')
+      add('present.count')
+      add('present.tags', ...new Set(templates.flatMap(([, t]) => t.tags ?? [])))
+      for (const [id] of templates) {
+        add(`present.${id}.count`)
+        add(`present.${id}.ids`)
+      }
+      // Each copy by its id, with its sheet's values and conditions.
+      for (const sheet of Object.values(templateSheets ?? {})) {
+        for (const value of Object.keys(sheet.values)) add(`characters.<id>.values.${value}`)
+        add('characters.<id>.conditions', ...Object.keys(sheet.conditions))
+      }
     }
     if (calendar) {
       const def = calendar.def
@@ -355,8 +373,32 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
-  for (const { bindings, sheet, partySheet, factions, clocks, items } of travelSystems(registry)
-    .systems) {
+  for (const {
+    bindings,
+    sheet,
+    partySheet,
+    factions,
+    clocks,
+    items,
+    bestiary,
+    templateSheets,
+  } of travelSystems(registry).systems) {
+    // Those present: copies of its templates made or taken away, and every one of them (of a
+    // template, or all) changed by its sheet's values and conditions.
+    for (const b of bestiary ?? [])
+      for (const id of Object.keys(b.def.templates)) out[`present.${id}`] = ['1', '-1', '=0']
+    if (bestiary?.length) {
+      const whos = [
+        'present.all',
+        ...bestiary.flatMap((b) => Object.keys(b.def.templates).map((id) => `present.${id}`)),
+      ]
+      for (const sheet of Object.values(templateSheets ?? {}))
+        for (const who of whos) {
+          for (const value of Object.keys(sheet.values)) out[`${who}.values.${value}`] = ['-1']
+          for (const c of Object.keys(sheet.conditions))
+            out[`${who}.conditions.${c}`] = ['true', 'false']
+        }
+    }
     // Its progress clocks: segments filled (or emptied) by a result.
     for (const id of Object.keys(clocks?.def.clocks ?? {})) out[`world.clocks.${id}`] = ['1', '-1']
     // A faction's turn: its own values, another's, its territory, the world's clocks.

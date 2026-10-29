@@ -43,6 +43,8 @@ const STORY = new Set([
   'PAUSE_SKIPPED',
   'DESTINATION_REACHED',
   'MEMBER_LEFT',
+  'PRESENT_CAME',
+  'PRESENT_LEFT',
   'WORLD_EVENT',
   'HOLIDAY',
   'CLOCK_FILLED',
@@ -77,7 +79,10 @@ export function entryTopic(e: Line): JournalTopic {
     e.code === 'NOBODY_ACTING' ||
     e.code === 'NOT_WRITABLE' ||
     e.code === 'REACTED' ||
-    e.code === 'MEMBER_LEFT'
+    e.code === 'MEMBER_LEFT' ||
+    e.code === 'PRESENT_CAME' ||
+    e.code === 'PRESENT_LEFT' ||
+    e.code === 'UNKNOWN_TEMPLATE'
   )
     return 'characters'
   // A change to a character (the party's own sheet is the trip's).

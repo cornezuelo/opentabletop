@@ -135,6 +135,10 @@ With characters, the party is its members, as the system says:
 
 Without characters, the same system plays the party as a whole, and what it says of characters doesn't happen. A new trip with the same system takes the same characters along. The syntax, for systems: [Characters, in Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
+### Those present
+
+A system with a [bestiary](../technical/07-kinds.md#bestiaries) can make **those present**: when a result brings someone (_4 grey wolves, their leader among them_), it makes that many characters from the system's templates, each with its own rolled values, where the party is. The journal says who comes (_Here now: Grey wolf, Grey wolf 2…_) and who goes: one whose sheet says so when it falls or runs (_Grey wolf 2 is gone (Down)_), or one left behind when the party moves on, if the system makes those go. The system's rules read them (the Grey Marches' **Drive them off** shows only while someone hostile is here) and change them. The syntax, for systems: [What tables see](../technical/04-what-tables-see.md#those-present-present).
+
 ## Ways of travelling
 
 The list in the panel has the ways of travelling the system declares, each with its speed. Some can't be chosen everywhere: the Grey Marches' **By boat** only at the water's edge or the ferry, and only through water and coast; **By cart** only along roads (with no road ahead there's no route). A value of the day can leave one behind: the Grey Marches' **Deep snow** (falling snow sets it) blocks **On horseback**, and a party already riding stops until you choose another way (_Deep snow: “On horseback” can’t go on while it lasts; choose another way of travelling_; on foot the trip goes on). Terrains may open and close too: the Grey Marches' peaks only in summer and not in snow, their lakes only in the two coldest months (crossed on the ice); routes go around what's closed.

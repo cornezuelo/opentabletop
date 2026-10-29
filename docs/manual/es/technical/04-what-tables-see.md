@@ -14,6 +14,7 @@ Cada valor tiene un **nombre completo** que dice de dónde sale (`hex.terrain`) 
 | `trip.*`             | [el viaje](#el-viaje-trip): su día, la forma de viajar, el clima, lo que ha hecho                 |
 | `world.*`            | [el reloj del mundo](#el-mundo-world-y-las-facciones) (el de la campaña)                          |
 | `party.*`            | [el grupo](#el-grupo-party): sus características, su hoja, sus objetos y personajes               |
+| `present.*`          | [los presentes](#los-presentes-present): copias de las plantillas del sistema donde está el grupo |
 | `today.*`            | [los valores del día](#los-valores-del-dia-today-yesterday), y `yesterday.*` los del día anterior |
 | `from.*`, `around.*` | [el hex que se deja y los de alrededor](#alrededor-del-grupo-from-around)                         |
 
@@ -170,6 +171,20 @@ Los efectos llegan a ellos con los mismos nombres ([Sintaxis](09-syntax.md#cambi
 Un valor que **sale de otros** (`from:` en la hoja) y un estado que **se cumple por sí solo** (`when:`) se leen como cualquier otro, pero ningún efecto los cambia: el diario dice _«Kael: Heridas» se mantiene por sí solo…_ y no cambia nada. Dentro de su propia hoja (un `from`, un límite, el `when` de un estado), un personaje se lee a sí mismo como `self.*`: `self.values.health`, `self.conditions`, `self.tags`; el `when` de un estado lee también el mundo, con los nombres de esta página ([Hojas](07-kinds.md#hojas)).
 
 Las características del grupo que un sistema saca de sus personajes (`from` en sus bindings) se leen como cualquier otra (`party.stats.navigation`), y los objetos que llevan como los del grupo juntos: `party.items.ration.count`.
+
+## Los presentes, `present.*`
+
+Cuando el sistema tiene un [bestiario](07-kinds.md#bestiarios) y un resultado ha hecho copias de sus plantillas (`present.wolf: 3`): las copias que están donde el grupo. Cada copia es también un personaje, que se lee por su id como los del grupo (`characters.wolf-2.values.health`), con los valores y estados de su propia hoja.
+
+| Nombre                                                 | Tipo                 | Valores                                                                                                                |
+| ------------------------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `present.ids`                                          | lista de ids         | Las copias que están aquí: `present.ids: wolf-2` se cumple mientras ese lobo esté aquí.                                |
+| `present.count`                                        | número               | Cuántas hay aquí, de todas las plantillas.                                                                             |
+| `present.tags`                                         | lista                | Todas las etiquetas de los que están aquí: `present.tags: outlaw`.                                                     |
+| `present.<plantilla>.count`, `present.<plantilla>.ids` | número, lista de ids | Cuántas copias de una plantilla hay aquí, y cuáles; están todas las plantillas del sistema, a 0 cuando no hay ninguna. |
+| `characters.<id>.*`                                    | grupo                | Una copia que está aquí, con los nombres de [Personajes](#personajes).                                                 |
+
+Los efectos llegan a ellas con los mismos nombres ([Sintaxis](09-syntax.md#cambiar-el-grupo-effects)): `present.wolf: 2` (dos lobos más), `present.wolf.values.health: -1` (cada lobo de aquí), `present.all.conditions.routed: true` (todos los de aquí), `characters.wolf-2.values.health: -1` (uno). Las copias que el grupo dejó atrás no están aquí, y las de una plantilla con `behind: leave` desaparecen; una copia con un estado que `leaves` desaparece al momento.
 
 ## El mundo, `world.*`, y las facciones
 

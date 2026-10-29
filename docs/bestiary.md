@@ -96,7 +96,7 @@ The trip keeps the copies it made (`present`, beside `members` in session's stat
 - `behind: stay` (the documented default): moving on leaves them behind, still drawn where they were on the map and back among those present if the party returns. A lair, a camp, a guard at a bridge.
 - `behind: leave`: they're gone when the party leaves their place (a `PRESENT_LEFT` line), so the next visit rolls its encounter afresh. Wandering wolves, a patrol, a crowd.
 
-Anything subtler (they follow for a day, they come back at night) is a sheet condition with `leaves: true` (below), or an action, reading where the copy is (`self.here`: at the party's place) and the time.
+Anything subtler (they follow for a day, they come back at night) is an action or a reaction of the system's, reading those present and the time (built with phase 1: no `self.here` yet; a copy's own conditions don't see where it is).
 
 Effects, with the paths party members already use:
 
@@ -110,7 +110,7 @@ Effects, with the paths party members already use:
 | `present.all.conditions.fled: true`        | every copy here, whatever its template                              |
 | `characters.grey-wolf-2.values.health: -2` | one copy, by its id, as one member is changed today                 |
 
-Reads: `present` (the ids here), `present.count`, `present.tags` (every tag of those here), `present.<template>.count`, `present.<template>.*` and `characters.<id>.*` read as `party.members` and `characters.<id>` do. `all`, `count` and `tags` can't be a template's id (as `tags` can't be an item's).
+Reads (as built): `present.ids` (the ids here), `present.count`, `present.tags` (every tag of those here), `present.<template>.count` and `.ids` (every template of the system, at 0 when none is here), and each copy here as `characters.<id>.*`, as members are read. `all`, `count` and `tags` can't be a template's id (as `tags` can't be an item's).
 
 **Gone when the system says**: a sheet condition with `leaves: true` takes a copy off the trip when it holds, with a journal line (`dead: { when: { self.values.health: { lte: 0 } }, leaves: true }`; `fled`, `bought off`); without one, copies stay until an effect or the player removes them. An effect `present.<template>: -N` and the × on the card do the rest.
 
@@ -149,7 +149,7 @@ Why effects and not a new `creates:` key (the backlog's first sketch): effects a
 
 ## 7. Phases
 
-1. **Headless**: `kind: bestiary` (character-engine: `parseBestiary`, `like`, `copyOf(template, rolls, taken ids)`), `bestiary:` in `kind: system` and added packs' catalogues (session), the trip's `present` with places, `present.*` effects and reads, `characters.<copy>`, `leaves`, journal codes; saved trips and maps keep the list (a format bump with no migration: absent is none). The bundled packs' templates and encounters, tests that play them. Manual: Kinds, What tables see, Syntax, Conditions' lists, both packs' pages.
+1. ✅ (2026-10-29) **Headless**: `kind: bestiary` (character-engine: `parseBestiary`, `like`, `copyOf(template, rolls, taken ids)`), `bestiary:` in `kind: system` and added packs' catalogues (session), the trip's `present` with places, `present.*` effects and reads, `characters.<copy>`, `leaves`, journal codes; saved trips and maps keep the list (no format change: absent is none). The bundled packs' templates and encounters, tests that play them. Manual: Kinds, What tables see, Syntax, Conditions' lists, both packs' pages.
 2. **The apps**: Travel's **Here** box; the Hexmapper's drawing of play state's copies (grouping, ×N, +N, **Here** in the hex panel, the map setting) and **Place from the bestiary**; **Keep in the roster**. Manual: Travel's Playing, the Hexmapper's Play and Tokens, Characters.
 3. **Editing**: the Characters app's **Bestiary** and Systems' **Bestiary** tab, sharing the form; YAML suggestions. Manual: Characters, Systems.
 4. **Places from results**: `kind: places` and `hex.pois.<template>`, with the Grey Marches' discovery making ruins and shrines as POIs.

@@ -43,8 +43,12 @@ import {
 import {
   ITEM_KEYS,
   lookupItems,
+  lookupTemplates,
+  parseBestiary,
   parseCatalogue,
   parseSheet,
+  resolveTemplate,
+  type Bestiary,
   type Catalogue,
   type CharacterState,
   type Sheet,
@@ -80,6 +84,16 @@ import {
   type SessionState,
   tripContext,
 } from './index'
+
+/** A bestiary of a system: the catalogue, and the full id of each template's sheet. */
+export interface SystemBestiary {
+  id: string
+  def: Bestiary
+  /** Each template's sheet (`pack/id`), for the templates whose sheet was found. */
+  sheets: Record<string, string>
+  /** What each template's `names` rolls, by full id (`pack/generator.id`). */
+  names: Record<string, string>
+}
 
 /**
  * A game system: what a pack declares it brings (`kind: system`), or, for older packs,
@@ -126,6 +140,13 @@ export interface TravelSystem {
   world?: SystemWorld
   /** Its item catalogues (`items` in `kind: system`), by `pack/id`, in the order it lists them. */
   items?: { id: string; def: Catalogue }[]
+  /**
+   * Its bestiaries (`bestiary` in `kind: system`, then those of the packs a map or campaign
+   * adds: `withAddedBestiaries`), by `pack/id`, in order; each template's sheet by its id.
+   */
+  bestiary?: SystemBestiary[]
+  /** The sheets its templates are made with, by `pack/id`. */
+  templateSheets?: Record<string, Sheet>
   /**
    * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
    * (`maps/frontier.otd.json`), in the order it lists them.
@@ -291,6 +312,7 @@ const PART_NAMES: Record<string, string> = {
   weather: 'weather model',
   land: 'land model',
   items: 'item catalogue',
+  bestiary: 'bestiary',
 }
 const SYSTEM_KEYS = new Set([
   'kind',
@@ -310,6 +332,7 @@ const SYSTEM_KEYS = new Set([
   'clocks',
   'world',
   'items',
+  'bestiary',
 ])
 
 /**
@@ -407,6 +430,7 @@ export function travelSystems(registry: Registry): {
       clocks?: Extra
       world?: Extra
       items?: Extra[]
+      bestiary?: Extra[]
     },
   ): TravelSystem | undefined {
     let rules = NO_TRAVEL
@@ -744,6 +768,13 @@ export function travelSystems(registry: Registry): {
             )
       items.push({ id: `${owner}/${extra.id ?? 'default'}`, def: parsed.catalogue })
     }
+    // Its bestiaries, each template's sheet found.
+    const read = readBestiaries(
+      registry,
+      (parts.bestiary ?? []).map((extra) => ({ extra, owner: ownerOf(extra) ?? pack })),
+      items,
+    )
+    problems.push(...read.problems)
     const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
       extra && { pack: owner, id: extra.id ?? 'default', file: extra.file }
     return {
@@ -766,6 +797,7 @@ export function travelSystems(registry: Registry): {
       ...(clocks && { clocks }),
       ...(world && { world }),
       ...(items.length && { items }),
+      ...(read.bestiary.length && { bestiary: read.bestiary, templateSheets: read.sheets }),
     }
   }
   const owners = new Map<Extra, string>()
@@ -795,6 +827,7 @@ export function travelSystems(registry: Registry): {
           clocks: extras.find((e) => e.kind === 'clocks'),
           world: extras.find((e) => e.kind === 'world'),
           items: extras.filter((e) => e.kind === 'items'),
+          bestiary: extras.filter((e) => e.kind === 'bestiary'),
         },
       )
       if (system) systems.push(system)
@@ -887,6 +920,9 @@ export function travelSystems(registry: Registry): {
           items: list('items', data.items).flatMap(
             (ref, i) => part(`items.${i}`, 'items', ref) ?? [],
           ),
+          bestiary: list('bestiary', data.bestiary).flatMap(
+            (ref, i) => part(`bestiary.${i}`, 'bestiary', ref) ?? [],
+          ),
         },
       )
       if (system) systems.push(system)
@@ -931,6 +967,107 @@ function membersBindings(bindings: Bindings, sheet?: Sheet, partySheet?: Sheet):
 }
 
 /**
+ * Bestiaries (`kind: bestiary`) as a system uses them: each parsed, each template's sheet
+ * found from its pack (a sheet of its own or a dependency's) and checked against what the
+ * template writes; what it carries checked against the system's catalogues.
+ */
+function readBestiaries(
+  registry: Registry,
+  extras: { extra: Extra; owner: string }[],
+  catalogues: { id: string; def: Catalogue }[],
+): { bestiary: SystemBestiary[]; sheets: Record<string, Sheet>; problems: Diagnostic[] } {
+  const bestiary: SystemBestiary[] = []
+  const sheets: Record<string, Sheet> = {}
+  const problems: Diagnostic[] = []
+  const itemIds = new Set(catalogues.flatMap((c) => Object.keys(c.def.items)))
+  for (const { extra, owner } of extras) {
+    const report = (e: string, severity?: Diagnostic['severity']) =>
+      problems.push(problem(owner, extra.file, 'bestiary', e, extra.id, severity))
+    const parsed = parseBestiary(extra.data)
+    parsed.errors.forEach((e) => report(e))
+    if (!parsed.bestiary) continue
+    const def = parsed.bestiary
+    const scope: RefScope = {
+      ...refScope(registry, owner, (k, full) => {
+        const [pack, id] = full.split('/', 2)
+        return (registry.extras.get(pack) ?? []).some(
+          (e) => e.kind === k && (e.id ?? 'default') === id,
+        )
+      }),
+      kinds: ['sheet'],
+    }
+    const own: Record<string, string> = {}
+    const names: Record<string, string> = {}
+    for (const id of Object.keys(def.templates)) {
+      const template = resolveTemplate(def, id)
+      if (!template?.sheet) continue
+      const at = `templates.${id}`
+      const full = findRef(scope, template.sheet)
+      if (!full) {
+        report(`${at}.sheet: ${refProblem(scope, template.sheet, 'sheet', ['sheet'])}`)
+        continue
+      }
+      if (!sheets[full]) {
+        const [pack, sheetId] = full.split('/', 2)
+        const found = (registry.extras.get(pack) ?? []).find(
+          (e) => e.kind === 'sheet' && (e.id ?? 'default') === sheetId,
+        )
+        const sheet = found && parseSheet(found.data).sheet
+        if (!sheet) continue
+        sheets[full] = sheet
+      }
+      own[id] = full
+      const sheet = sheets[full]
+      for (const value of Object.keys(template.values))
+        if (!sheet.values[value])
+          report(`${at}.values.${value}: the sheet "${full}" declares no such value`, 'warning')
+      for (const c of template.conditions)
+        if (!sheet.conditions[c])
+          report(`${at}.conditions: the sheet "${full}" declares no condition "${c}"`, 'warning')
+      for (const item of Object.keys(template.items ?? {}))
+        if (!itemIds.has(item))
+          report(`${at}.items.${item}: no catalogue of the system has this item`, 'warning')
+      if (template.names && !isDynamicRef(template.names)) {
+        const rolls = refScope(registry, owner)
+        const found = findRef(rolls, template.names)
+        if (!found)
+          report(`${at}.names: ${refProblem(rolls, template.names, 'table', ROLLABLE_KINDS)}`)
+        else names[id] = found
+      }
+    }
+    bestiary.push({ id: `${owner}/${extra.id ?? 'default'}`, def, sheets: own, names })
+  }
+  return { bestiary, sheets, problems }
+}
+
+/**
+ * A system with the bestiaries of the packs a map or campaign adds (`packs`), after its
+ * own: their templates are offered and made like the system's (docs/bestiary.md §5).
+ */
+export function withAddedBestiaries(
+  system: TravelSystem,
+  registry: Registry,
+  packs: readonly string[],
+): { system: TravelSystem; problems: Diagnostic[] } {
+  const known = new Set((system.bestiary ?? []).map((b) => b.id))
+  const extras = packs.flatMap((owner) =>
+    (registry.extras.get(owner) ?? [])
+      .filter((e) => e.kind === 'bestiary' && !known.has(`${owner}/${e.id ?? 'default'}`))
+      .map((extra) => ({ extra, owner })),
+  )
+  if (!extras.length) return { system, problems: [] }
+  const read = readBestiaries(registry, extras, system.items ?? [])
+  return {
+    system: {
+      ...system,
+      bestiary: [...(system.bestiary ?? []), ...read.bestiary],
+      templateSheets: { ...system.templateSheets, ...read.sheets },
+    },
+    problems: read.problems,
+  }
+}
+
+/**
  * Effects of a system (its actions, rests and checks, and its pack's tables, oracles and
  * decks) on values it doesn't declare: a stat missing from its bindings, a value or item
  * its sheets or catalogues don't have. Warnings: the effect still applies, but nobody names the value.
@@ -962,6 +1099,8 @@ function undeclaredEffects(
       const [, factionPart, factionId] =
         /^(?:faction|factions\.[^.]+)\.(values|conditions|territory)(?:\.(.+))?$/.exec(path) ?? []
       if (/^world\.clocks\./.test(path)) continue
+      // Copies of a template, those present: the bestiaries' (read with the trip's).
+      if (/^present\./.test(path)) continue
       const factionKnown =
         factionPart === 'territory' ||
         (factions &&
@@ -1084,6 +1223,15 @@ export const partyOf = (system: TravelSystem): PartyRules => ({
     items: lookupItems(system.items),
     itemIds: [...new Set(system.items.flatMap((c) => Object.keys(c.def.items)))],
   }),
+  ...(system.bestiary && {
+    bestiary: lookupTemplates(system.bestiary),
+    templateIds: [...new Set(system.bestiary.flatMap((b) => Object.keys(b.def.templates)))],
+    templateSheet: (bestiary: string, template: string) =>
+      system.bestiary?.find((b) => b.id === bestiary)?.sheets[template],
+    templateNames: (bestiary: string, template: string) =>
+      system.bestiary?.find((b) => b.id === bestiary)?.names[template],
+    sheets: system.templateSheets ?? {},
+  }),
 })
 
 /**
@@ -1165,6 +1313,7 @@ export function stepTrip(
     sheet: system.sheet,
     partySheet: system.partySheet,
     items: partyOf(system).items,
+    templates: partyOf(system),
   }).step(session, action)
   return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
 }
@@ -1217,6 +1366,7 @@ function handSession(
     sheet: system.sheet,
     partySheet: system.partySheet,
     items: partyOf(system).items,
+    templates: partyOf(system),
   })
 }
 

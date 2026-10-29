@@ -23,6 +23,7 @@ import {
   type LimitReached,
 } from './effects'
 import { rolledNodes } from './journal'
+import { settlePresent, type Present, type PresentEvent } from './present'
 import { definitionId } from './refs'
 import { pullFromRoster, type Roster, type RosterPlace } from './roster'
 import {
@@ -232,6 +233,11 @@ export interface SessionState {
   party?: CharacterState
   /** The party's characters, in order (none: the party is played as a whole). */
   members?: CharacterState[]
+  /**
+   * Those present: the copies of templates the trip made, each where it was made; those at
+   * the party's place are what tables see (`present.*`, docs/bestiary.md). Absent: none.
+   */
+  present?: Present[]
   /** The member acting now (`acting.*`), chosen by the player. */
   acting?: string
   /** Who holds each of the system's journey roles (`roles.<id>.*`), chosen by the player. */
@@ -452,6 +458,11 @@ export function createSession(options: {
   partySheet?: PartyRules['partySheet']
   /** The system's item catalogues, for effects that give an item. */
   items?: PartyRules['items']
+  /** The system's templates (its bestiaries), for effects that make copies of them. */
+  templates?: Pick<
+    PartyRules,
+    'bestiary' | 'templateIds' | 'templateSheet' | 'templateNames' | 'sheets'
+  >
 }): Session {
   const random = options.random ?? mathRandom()
   const host = options.facts ?? {}
@@ -466,6 +477,26 @@ export function createSession(options: {
     partySheet: options.partySheet,
     bindings: options.bindings,
     items: options.items,
+    ...(options.templates?.bestiary && {
+      bestiary: options.templates.bestiary,
+      templateIds: options.templates.templateIds,
+      templateSheet: options.templates.templateSheet,
+      templateNames: options.templates.templateNames,
+      sheets: options.templates.sheets,
+      ...(options.locale && { locale: options.locale }),
+      // A copy's name rolled on what its template's `names` says (nothing kept of the roll).
+      ...(options.oracle && {
+        nameFrom: (ref: string, context: Record<string, unknown>) => {
+          try {
+            return options.oracle!.resolve(ref, context, undefined, { locale: options.locale })
+              .resolution.text
+          } catch (error) {
+            if (error instanceof OracleError) return undefined
+            throw error
+          }
+        },
+      }),
+    }),
   }
   /** The host's facts, with what the members' conditions block (for the travel engine). */
   const hostOf = (s: SessionState, more: Record<string, unknown> = {}) => {
@@ -596,13 +627,32 @@ export function createSession(options: {
       time,
     )
   }
+  /** Who of those present came or left, as journal lines (`PRESENT_CAME`, `PRESENT_LEFT`). */
+  const presentLines = (
+    s: SessionState,
+    entries: JournalEntry[],
+    events: PresentEvent[],
+    time?: number,
+  ) => {
+    for (const { type, ...data } of events)
+      add(s, entries, { source: 'travel', code: type, ...(time !== undefined && { time }), data })
+  }
   /**
    * What holds by itself in the world as it is now (a state while the party travels by
-   * boat, in winter…), settled on the party and its members, with a line for each change.
+   * boat, in winter…), settled on the party and its members, with a line for each change;
+   * then those present: what holds on each, who leaves by a condition and who's left behind.
    */
   const settleWorld = (s: SessionState, entries: JournalEntry[]) => {
-    if (!s.members?.length && !s.party) return
-    told(s, entries, settleStates(s, party, worldOf(s), s.travel.time), s.travel.time)
+    if (s.members?.length || s.party)
+      told(s, entries, settleStates(s, party, worldOf(s), s.travel.time), s.travel.time)
+    settleCopies(s, entries)
+  }
+  /** Those present settled: what holds on each, who leaves by a condition, who's left behind. */
+  const settleCopies = (s: SessionState, entries: JournalEntry[]) => {
+    if (!s.present?.length) return
+    const done = settlePresent(s, party, worldOf(s), s.travel.time)
+    told(s, entries, done.events, s.travel.time)
+    presentLines(s, entries, done.present, s.travel.time)
   }
   /** The trip's world as conditions see it now (what tables see, by their full names). */
   const worldOf = (s: SessionState) =>
@@ -692,6 +742,7 @@ export function createSession(options: {
         for (const path of done.nobody)
           add(s, entries, { source: 'travel', code: 'NOBODY_ACTING', time, data: { path } })
         told(s, entries, done.events, time)
+        presentLines(s, entries, done.present, time)
         return done.limits
       }
       /** Discovers at the party's hex; true when it found something to stop for. */
@@ -1180,6 +1231,8 @@ export function createSession(options: {
         act = next
       }
       restoreActing()
+      // Where the step left the party: those it left behind that go are gone.
+      settleCopies(s, entries)
       return { state: s, entries }
     }
   }
@@ -1314,6 +1367,7 @@ export * from './suggestions'
 // The full names of facts (`hex.terrain`, `trip.day`…), for hosts that build contexts.
 export { FACT_GROUPS, FACT_PATHS, hexIdOf, qualify } from '@open-tabletop/travel-engine'
 export * from './party'
+export * from './present'
 export * from './factions'
 export * from './clocks'
 export * from './world'

@@ -1,0 +1,18 @@
+bestiary/foes:
+  name: Enemigos
+  description: |-
+    Quien se interpone en el camino: una plantilla de la que sacar enemigos.
+
+    **Enseña:** el bestiario más pequeño: una plantilla sobre la hoja de los personajes (`sheet: sheet.character`), con su salud tirada para cada copia; una copia cuya salud llega a 0 cae, y se va (el _Caído_ de la hoja tiene `leaves`).
+  templates:
+    foe:
+      name: Enemigo
+      description: Alguien o algo hostil; vuestras tablas dicen quién.
+trouble:
+  name: Problemas en el camino
+  description: |-
+    **Enemigos** cortan el paso: cuántos, y ahí están.
+
+    **Enseña:** un resultado que hace copias de una plantilla (`present.foe: '{{foes}}'`), tantas como tira su `set` y dice su texto.
+  entries:
+    foes: '{{foes}} enemigos cortan el paso'

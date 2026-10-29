@@ -4,6 +4,19 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Travel, Hexmapper: **those present**: a result can bring characters made from the system's templates where the party is, each rolling its own values (_4 grey wolves, their leader among them_); the journal says who comes (_Here now: …_) and who goes (fallen, routed, or left behind when the system says so). Tables, conditions and effects read and change them (`present.count`, `present.<template>.count`, `present.all.values.health: -1`, `characters.wolf-2.…`). The trip panel's **Here** box and their tokens on the map come next.
+
+### Packs
+
+- **The Grey Marches**: _Who walks the Marches_, a bestiary (grey wolves and their pack leader, bandits and their chief, the Ember Hunt's riders, the Greywood Wyrm, the Vale's riders) on a new **Foe** sheet; the encounters make them, **Drive them off** and **Buy them off** deal with them, and **The pack breaks** once its leader falls. Wolves, bandits and riders left behind are gone, so a hex visited again rolls its encounter afresh; the Wyrm stays in its wood.
+- **Core**: a bestiary of one template, **Foe**, and **Trouble on the road**, a table that makes them; the Character sheet's **Down** takes a foe off those present.
+
+### Formats
+
+- Packs: a new kind, **`kind: bestiary`** (templates of characters: `sheet`, `values` rolled per copy, `like`, `names`, `items`, `token`, `behind: stay | leave`), named by a system's `bestiary:`; sheet conditions take `leaves: true`; effects `present.<template>`. Saved trips and maps keep those present (`present` in the trip), with no format change: older ones simply have none.
+
 ## [0.18.0] - 2026-10-29
 
 ### Apps

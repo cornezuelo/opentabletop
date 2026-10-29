@@ -98,6 +98,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'clocks',
     'world',
     'items',
+    'bestiary',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -115,6 +116,8 @@ const ENUMS: Record<string, readonly string[]> = {
   share: ['even', 'order'],
   track: ['true', 'false'],
   display: ['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels'],
+  behind: ['stay', 'leave'],
+  leaves: ['true', 'false'],
 }
 /** Keys whose value is a reference to something rolled: a table, oracle, generator or deck. */
 const REF_KEYS = new Set(['table', 'generator', 'resolve', 'turn'])
@@ -268,6 +271,15 @@ const KEYS = [
   'land',
   'next',
   'weights',
+  // Bestiaries: templates of characters, and what takes a copy off.
+  'bestiary',
+  'templates',
+  'like',
+  'names',
+  'token',
+  'icon',
+  'behind',
+  'leaves',
 ]
 
 export interface Completion {

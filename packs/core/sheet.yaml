@@ -25,8 +25,11 @@ conditions:
     description: Hurt badly enough to matter until it's cleared; your tables and rules say what it stops.
   down:
     name: Down
-    description: Out of the fight while their health is 0; it lifts by itself when health comes back.
+    description: Out of the fight while their health is 0; it lifts by itself when health comes back. A foe made from the bestiary is gone once down.
     when: { self.values.health: { lte: 0 } }
+    # Copies of a template (bestiary.yaml) that are down leave those present; a party's
+    # characters never leave this way.
+    leaves: true
 # What they carry is one list (no places): ten things in all, each counted as one; what's
 # given past it is left behind, said in the journal.
 items:

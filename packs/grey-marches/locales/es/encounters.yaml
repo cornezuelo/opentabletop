@@ -17,16 +17,17 @@ encounter:
     - `set` de un valor para la tabla siguiente (`reactionModifier`) y de una característica del grupo (`morale`)
     - Un efecto sobre cada compañero: las luces embrujadas llenan el pavor de cada uno, y hacen avanzar el _The Greywood Wyrm wakes_ del reloj del mundo (`world.clocks…`)
     - El valor de una facción en una condición: la patrulla del Valle comparte su pan cuando el Valle os aprecia (`factions.the-vale.values.reputation`)
+    - Resultados que hacen copias de las plantillas del bestiario, que quedan como los presentes (`present.grey-wolf: '{{wolves - 1}}'`): tantas como tira un `set` y dice el texto (`{{wolves}} lobos grises`), con su jefe entre ellos; los bandidos y su cabecilla, los jinetes de la Cacería, la Sierpe, los jinetes del Valle
   entries:
-    hunt: 'Cuernos en la oscuridad: la Cacería Ascua cabalga bajo la luna llena; están {{result}}'
+    hunt: 'Cuernos en la oscuridad: {{riders}} jinetes de la Cacería Ascua bajo la luna llena; están {{result}}'
     wyrm: La Sierpe del Bosque Gris se despliega sobre el sendero. No volverá.
     lights: Luces pálidas flotan entre los árboles y dicen vuestros nombres
     quiet: Nadie se cruza en vuestro camino
     friends: 'Una patrulla del Valle: os saludan como amigos y comparten su pan'
     patrol: 'Una patrulla del Valle: están {{result}}'
-    wolves: '{{1d4+2}} lobos grises: están {{result}}'
+    wolves: '{{wolves}} lobos grises, con su jefe entre ellos: están {{result}}'
     traveller: 'Por el camino os cruzáis con {{result}}'
-    bandits: 'Bandidos de las Colinas Huecas: están {{result}}'
+    bandits: '{{bandits}} bandidos de las Colinas Huecas: están {{result}}'
     tracks: Solo huellas, y la sensación de que os vigilan
 reaction:
   name: Reacción

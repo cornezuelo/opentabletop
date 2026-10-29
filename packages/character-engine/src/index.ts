@@ -45,8 +45,10 @@ import {
   type OwnPlace,
   type SheetItems,
 } from './items'
+import type { Template } from './bestiary'
 
 export * from './items'
+export * from './bestiary'
 
 /** A text a player reads, or the same in several languages (translations fold in as these). */
 const text = z.union([z.string(), z.record(z.string(), z.string())])
@@ -154,6 +156,11 @@ const condition = z
         message: 'a condition',
       })
       .optional(),
+    /**
+     * Takes a character off where it's only present (a trip's copies of a template), as soon
+     * as it has this condition: killed, fled, bought off. Nothing for the party's own.
+     */
+    leaves: z.boolean().optional(),
   })
   .strict()
 
@@ -546,6 +553,8 @@ export interface CharacterState {
   items?: ItemState[]
   /** Places of its own, besides its sheet's (an odd creature's), by id. */
   places?: Record<string, OwnPlace>
+  /** The template it's a copy of: its id and the bestiary's full id (`pack/id`). */
+  template?: { id: string; from: string }
 }
 
 /** A new character with the sheet's defaults (a value without one starts at 0), then `init`. */
@@ -576,6 +585,54 @@ export function createCharacter(
       itemEffect(sheet.items, made, id, count, items, [])
   settle(sheet, made, [], {})
   return made
+}
+
+/**
+ * A copy of a template (docs/bestiary.md): a new character of its sheet with the template's
+ * values, conditions, tags, cards and items, each `{{…}}` read with `roller` and `context`
+ * (so each copy rolls its own: `health: '{{2d4}}'`); what the template leaves out takes the
+ * sheet's defaults, and its items the sheet's `items.start`.
+ */
+export function copyOf(
+  sheet: Sheet,
+  sheetId: string,
+  template: Template,
+  init: { id: string; name?: string; from: string },
+  options: { roller?: Roller; context?: Record<string, unknown>; items?: ItemLookup } = {},
+): CharacterState {
+  const seen = options.context ?? {}
+  const read = (written: number | string): number | undefined => {
+    const change = resolveChange(written, seen, options.roller)
+    if (typeof change === 'number') return change
+    const set = Number(change.replace(/^=/, ''))
+    return Number.isFinite(set) ? set : undefined
+  }
+  const values = Object.fromEntries(
+    Object.entries(template.values).flatMap(([id, w]) => {
+      const n = read(w)
+      return n === undefined ? [] : [[id, n]]
+    }),
+  )
+  const made = createCharacter(
+    sheet,
+    sheetId,
+    {
+      id: init.id,
+      ...(init.name !== undefined && { name: init.name }),
+      values,
+      conditions: Object.fromEntries(template.conditions.map((c) => [c, {}])),
+      tags: [...template.tags],
+      cards: [...template.cards],
+      ...(template.items && { items: [] }),
+      template: { id: template.id, from: init.from },
+    },
+    options.items,
+  )
+  if (!template.items) return made
+  const changes = Object.fromEntries(
+    Object.entries(template.items).map(([id, w]) => [`items.${id}`, w]),
+  )
+  return applyCharacter(sheet, made, { type: 'change', effects: changes }, options).state
 }
 
 export type CharacterAction =
