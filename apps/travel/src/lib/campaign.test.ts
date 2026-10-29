@@ -387,4 +387,36 @@ describe('trips in campaigns', () => {
     expect(session.isLinked(roster.roster, 'the-company', trip.place!)).toBe(true)
     expect(session.isLinked(roster.roster, 'kael', trip.place!)).toBe(true)
   })
+
+  it('a campaign of its own follows the trip’s name until it’s named by hand', async () => {
+    const { campaign: c, trip, systems } = await openTravel()
+    const core = systems.list.find((s) => s.id === 'core')!
+    const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
+    await trip.create(core.id, 'spring')
+    trip.addHex()
+    await settle()
+    const id = trip.saved.campaign
+    expect(id).toBe(trip.saved.id)
+    const named = () => c.deserializeCampaign(kept.get(id)!.json).name
+    expect(named()).toBe('Generic rules')
+    // Played with another system: its campaign is named after it now.
+    trip.start(greyMarches.id, 'spring')
+    for (let i = 0; i < 5; i++) await settle()
+    expect(named()).toBe('The Grey Marches')
+    expect(trip.campaign?.name).toBe('The Grey Marches')
+    // Renamed: it follows.
+    trip.rename('To the Vale')
+    for (let i = 0; i < 5; i++) await settle()
+    expect(named()).toBe('To the Vale')
+    // Named by hand in Campaign: it stays.
+    const mine = { ...c.deserializeCampaign(kept.get(id)!.json), name: 'My game' }
+    kept.set(id, { id, name: 'My game', modified: mine.modified, json: c.serializeCampaign(mine) })
+    trip.open(trip.saved.id)
+    await trip.create(core.id, 'spring')
+    trip.open(id)
+    for (let i = 0; i < 5; i++) await settle()
+    trip.rename('Back home')
+    for (let i = 0; i < 5; i++) await settle()
+    expect(named()).toBe('My game')
+  })
 })

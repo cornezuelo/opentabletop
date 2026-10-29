@@ -899,6 +899,7 @@
             <CharacterCard
               sheet={system.partySheet.def}
               character={session.party}
+              catalogues={system.items}
               {locale}
               names={blockName}
               path="party"

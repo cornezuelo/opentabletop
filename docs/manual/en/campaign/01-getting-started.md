@@ -38,7 +38,7 @@ It opens on its **Overview**. Then add maps and trips from **Maps** and **Trips*
 You rarely make one here. Campaigns appear by themselves:
 
 - **A new map** (Hexmapper) starts in a campaign of its own, named after the map.
-- **A new trip** (Travel) starts in one of its own too, named after the trip.
+- **A new trip** (Travel) starts in one of its own too, named after the trip (its name, else its system's), and it keeps following the trip's name when you rename the trip or play it with another system, until you rename the campaign yourself.
 - **An example map** opens in the campaign its file names: the Grey Marches' two maps share _The Grey Marches_, so the second one you open joins the first one's. If this browser doesn't have that campaign but has others with **the same name or played with the same system** (say, a map of that game you started before), the Hexmapper asks: **Join “…”** one of them (the map shares its world, and the example's own clock and factions are left out), or **Start its own** (the example's campaign, apart).
 - **A map file** brings its campaign: if this browser has it already, the Hexmapper asks whether to join it, replace it or keep the file's apart ([Your maps](../hexmapper/01-getting-started.md#your-maps)).
 

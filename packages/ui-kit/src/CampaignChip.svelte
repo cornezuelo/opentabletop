@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { listCampaigns, onCampaignChange } from '@open-tabletop/storage'
+  import { listCampaigns, onAnyCampaignChange } from '@open-tabletop/storage'
   import { campaignUrl, newCampaignUrl } from './apps'
   import MoreMenu from './MoreMenu.svelte'
   import { vocabulary } from './vocabulary'
@@ -40,9 +40,9 @@
 
   let campaigns = $state<{ id: string; name: string }[]>([])
   let version = $state(0)
-  $effect(() => onCampaignChange(() => version++))
-  // Read again when another window changes them, and when the campaign shown changes (one
-  // this window has just kept).
+  $effect(() => onAnyCampaignChange(() => version++))
+  // Read again when a campaign changes (here or in another window: renamed, kept), and when
+  // the campaign shown changes.
   $effect(() => {
     void version
     void held

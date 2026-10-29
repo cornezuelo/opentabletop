@@ -437,8 +437,31 @@ export class TripStore {
   }
 
   rename(name: string): void {
+    const before = this.me?.name
     this.saved = { ...this.saved, name: name.trim() }
     this.save()
+    void this.followName(before)
+  }
+
+  /**
+   * A trip's campaign of its own is named after it (its name, else its system's): while it
+   * still has the name it was given (`before`, maybe numbered: `… (2)`), it follows the trip's
+   * when that changes (renamed, played with another system). A name given by hand stays.
+   */
+  private async followName(before: string | undefined): Promise<void> {
+    const keeper = this.keeper
+    const campaign = this.campaign
+    const name = this.me?.name
+    if (!keeper || !campaign || !before || !name || name === before) return
+    if (campaign.id !== this.saved.id) return
+    const given = campaign.name.replace(/ \(\d+\)$/, '')
+    if (given !== before) return
+    const free = await freeCampaignName(name, campaign.id)
+    // As it is now (a step may have changed it meanwhile), unless renamed or left meanwhile.
+    const current = this.campaign
+    if (current?.id !== campaign.id || current.name !== campaign.name) return
+    const renamed = { ...current, name: free }
+    keeper.set(renamed)
   }
 
   /** Deletes the open trip (the last one left is emptied instead) and opens another. */
@@ -505,6 +528,7 @@ export class TripStore {
 
   /** A new trip with a system and season, at the first hex of the way. */
   start(system = this.saved.system, season = this.saved.season): void {
+    const before = this.me?.name
     const list = this.options.systems()
     const s = list.find((x) => x.id === system) ?? list[0] ?? missingSystem(system)
     const { startDay, session } = startTrip({
@@ -526,6 +550,7 @@ export class TripStore {
     })
     this.saved = { ...this.saved, system: s.id, season, startDay, session }
     this.aim()
+    void this.followName(before)
   }
 
   /** Heads for the last hex of the way (a no-op if already there or no trip). */

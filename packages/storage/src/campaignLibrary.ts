@@ -23,3 +23,6 @@ export const allCampaigns = campaigns.all
 export const updateCampaigns = campaigns.update
 /** Calls `listener` whenever another window or app changes a campaign. */
 export const onCampaignChange = campaigns.onChange
+/** Calls `listener` whenever a campaign changes, in this page or another window or app. */
+export const onAnyCampaignChange = (listener: Parameters<typeof campaigns.onAnyChange>[0]) =>
+  campaigns.onAnyChange(listener)

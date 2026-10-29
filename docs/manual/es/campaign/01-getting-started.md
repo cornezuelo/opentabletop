@@ -38,7 +38,7 @@ Se abre en su **Resumen**. Después, añade mapas y viajes desde **Mapas** y **V
 Pocas veces crearás una aquí. Las campañas aparecen solas:
 
 - **Un mapa nuevo** (Hexmapper) empieza en una campaña propia, con el nombre del mapa.
-- **Un viaje nuevo** (Travel) también empieza en una propia, con el nombre del viaje.
+- **Un viaje nuevo** (Travel) también empieza en una propia, con el nombre del viaje (el suyo o, si no, el de su sistema), y sigue el nombre del viaje cuando lo renombras o lo juegas con otro sistema, hasta que renombres tú la campaña.
 - **Un mapa de ejemplo** se abre en la campaña que nombra su fichero: los dos mapas de las Marcas Grises comparten _The Grey Marches_, así que el segundo que abras se une a la del primero. Si este navegador no tiene esa campaña pero sí otras **con el mismo nombre o jugadas con el mismo sistema** (por ejemplo, un mapa de ese juego que empezaste antes), el Hexmapper pregunta: **Unirse a «…»** una de ellas (el mapa comparte su mundo, y el reloj y las facciones del ejemplo se quedan fuera) o **Empezar la suya** (la campaña del ejemplo, aparte).
 - **Un fichero de mapa** trae su campaña: si este navegador ya la tiene, el Hexmapper pregunta si unirse a ella, reemplazarla o guardar aparte la del fichero ([Tus mapas](../hexmapper/01-getting-started.md#tus-mapas)).
 

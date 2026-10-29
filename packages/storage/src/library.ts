@@ -53,6 +53,11 @@ export interface Library {
    * (never for this page's own writes). Returns a function that stops listening.
    */
   onChange(listener: (change: LibraryChange) => void): () => void
+  /**
+   * Like `onChange`, and for this page's own writes too (what only shows what's kept, as the
+   * bar's **Playing**, reads again either way).
+   */
+  onAnyChange(listener: (change: LibraryChange) => void): () => void
 }
 
 /** A library: an IndexedDB store, its changes announced on `channel`. */
@@ -84,7 +89,11 @@ export function createLibrary(store: StoreName, channelName: string): Library {
     return channel
   }
 
+  // This page's own listeners of `onAnyChange` (a channel doesn't hear its own messages).
+  const here = new Set<(change: LibraryChange) => void>()
+
   function announce(change: LibraryChange): void {
+    for (const listener of here) listener(change)
     try {
       pageChannel()?.postMessage(change)
     } catch {
@@ -140,6 +149,14 @@ export function createLibrary(store: StoreName, channelName: string): Library {
       }
       ch.addEventListener('message', handler)
       return () => ch.removeEventListener('message', handler)
+    },
+    onAnyChange(listener) {
+      here.add(listener)
+      const stop = this.onChange(listener)
+      return () => {
+        here.delete(listener)
+        stop()
+      }
     },
   }
 }
