@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-10-29
+
 ### Apps
 
 - Travel, Hexmapper: **those present**: a result can bring characters made from the system's templates where the party is, each rolling its own values (_4 grey wolves, their leader among them_); the journal says who comes (_Here now: …_) and who goes (fallen, routed, or left behind when the system says so). Tables, conditions and effects read and change them (`present.count`, `present.<template>.count`, `present.all.values.health: -1`, `characters.wolf-2.…`). The trip panel's **Here** box and their tokens on the map come next.
