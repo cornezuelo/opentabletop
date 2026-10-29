@@ -62,6 +62,31 @@ export const en = {
     loose: 'No room for it: drop something, or move it to a place',
     noRoom: 'No room left for {name}',
   },
+  template: {
+    description: 'Description',
+    like: 'Variant of',
+    likeHelp:
+      'Another template of this bestiary to start from: a variant takes its values and items (writing over them) and adds its tags and conditions.\n• `wolf` — a leader that is a bigger wolf',
+    names: 'Names from',
+    namesHelp:
+      "A table or generator rolled for each copy's name. Empty: the template's name, numbered.\n• `names/generator.folk`",
+    behind: 'Left behind',
+    behindHelp:
+      "What becomes of copies when the party leaves the place they were made: they **stay** there, or **leave**. It is the system's to decide; empty takes the bestiary's, else they stay.",
+    stay: 'Stay',
+    leave: 'Leave',
+    valuesHelp:
+      "The sheet's values it starts with: a number, or a roll in braces that is rolled for every copy. Empty: the sheet's default (shown faint).\n• `{{2d4}}` — two four-sided dice\n• `{{1d6+2}}`\n• `3`",
+    tagsHelp: 'Words conditions read it by, each one a pill:\n• `beast`, `leader`',
+    tagsPlaceholder: 'beast, leader',
+    itemsHelp:
+      "What it carries, from the system's catalogues, with how many (a number or a roll). Empty: what the sheet starts characters with.\n• `knife` · `1`\n• `ration` · `{{1d2}}`",
+    token: 'Token',
+    tokenHelp: 'How a copy is drawn on a map. All optional.',
+    tokenIcon: 'Icon',
+    tokenKind: 'Kind',
+    tokenColor: 'Colour',
+  },
   origin: {
     line: 'Sheet: {sheet} · {system}',
     help: "What this sheet has (its values, conditions and kinds of relation) is its system's to say: only what it declares is shown. To add or change one, edit the sheet in the Systems app (a bundled system is duplicated first).",

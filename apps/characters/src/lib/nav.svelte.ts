@@ -2,12 +2,13 @@
  * What the main area shows, mirrored in the URL hash so views can be linked (the trip panel's
  * **Open in Characters**): #/character/<id>, #/new.
  */
-export type View = { name: 'welcome' } | { name: 'new' } | { name: 'character'; id: string }
+export type View =
+  { name: 'welcome' } | { name: 'new' } | { name: 'bestiary' } | { name: 'character'; id: string }
 
 function parse(hash: string): View {
   const [name, id] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
   if (name === 'character' && id) return { name, id }
-  if (name === 'new') return { name }
+  if (name === 'new' || name === 'bestiary') return { name }
   return { name: 'welcome' }
 }
 
@@ -16,7 +17,9 @@ const format = (view: View): string =>
     ? `#/character/${encodeURIComponent(view.id)}`
     : view.name === 'new'
       ? '#/new'
-      : '#/'
+      : view.name === 'bestiary'
+        ? '#/bestiary'
+        : '#/'
 
 export const nav = $state<{ view: View }>({ view: parse(location.hash) })
 

@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Characters: a **Bestiary** lists a system's templates, **makes copies in the roster** (independent, each with its own rolls) and edits them in a pack of your own (a bundled pack is copied first); the template editor (`TemplateEditor`) lives in `character-ui`.
 - Systems: a **Bestiary** tab edits a system's bestiaries (templates with their sheet, variant, values, conditions, items, names and token); **New bestiary** starts one on the system's characters' sheet. Manual: Systems' Bestiary page, en/es.
 
 ## [0.20.0] - 2026-10-29

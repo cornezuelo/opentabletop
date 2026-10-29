@@ -12,6 +12,7 @@
   } from '@open-tabletop/ui-kit'
   import { Markdown } from '@open-tabletop/ui-kit'
   import CharacterView from './components/CharacterView.svelte'
+  import BestiaryView from './components/BestiaryView.svelte'
   import NewCharacter from './components/NewCharacter.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
@@ -78,6 +79,8 @@
     <main>
       {#if nav.view.name === 'character'}
         {#key nav.view.id}<CharacterView id={nav.view.id} />{/key}
+      {:else if nav.view.name === 'bestiary'}
+        <BestiaryView />
       {:else if nav.view.name === 'new'}
         <NewCharacter />
       {:else}

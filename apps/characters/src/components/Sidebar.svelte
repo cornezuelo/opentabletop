@@ -88,6 +88,7 @@
       {roster.roster.characters.length ? t('nav.noMatch') : t('nav.empty')}
     </p>
   {/each}
+  <button class="link" onclick={() => go({ name: 'bestiary' })}>{t('nav.bestiary')}</button>
   <a class="make" href={appUrl('systems')}>{t('nav.makeSystems')}</a>
 </nav>
 
@@ -181,8 +182,17 @@
     color: var(--text-muted);
   }
 
-  .make {
+  .make,
+  .link {
     font-size: 13px;
     color: var(--accent);
+  }
+
+  .link {
+    padding: 0;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 </style>

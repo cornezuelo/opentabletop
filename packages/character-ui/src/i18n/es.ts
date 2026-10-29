@@ -65,6 +65,32 @@ export const es: Messages<typeof en> = {
     loose: 'No tiene sitio: suelta algo, o muévelo a un lugar',
     noRoom: 'No queda sitio para {name}',
   },
+  template: {
+    description: 'Descripción',
+    like: 'Variante de',
+    likeHelp:
+      'Otra plantilla de este bestiario de la que partir: una variante toma sus valores y objetos (escribiendo encima) y suma sus etiquetas y condiciones.\n• `wolf` — un jefe que es un lobo más grande',
+    names: 'Nombres de',
+    namesHelp:
+      'Una tabla o generador que se tira para el nombre de cada copia. Vacío: el nombre de la plantilla, numerado.\n• `names/generator.folk`',
+    behind: 'Al dejarlas atrás',
+    behindHelp:
+      'Qué pasa con las copias cuando el grupo deja el lugar donde se hicieron: se **quedan** allí o **se van**. Lo decide el sistema; vacío toma lo del bestiario, y si no, se quedan.',
+    stay: 'Se quedan',
+    leave: 'Se van',
+    valuesHelp:
+      'Los valores de la hoja con que empieza: un número, o una tirada entre llaves que se resuelve para cada copia. Vacío: el valor por defecto de la hoja (en gris).\n• `{{2d4}}` — dos dados de cuatro caras\n• `{{1d6+2}}`\n• `3`',
+    tagsHelp:
+      'Palabras por las que lo leen las condiciones, cada una una píldora:\n• `beast`, `leader`',
+    tagsPlaceholder: 'beast, leader',
+    itemsHelp:
+      'Lo que lleva, de los catálogos del sistema, con cuántos (un número o una tirada). Vacío: lo que la hoja da al empezar.\n• `knife` · `1`\n• `ration` · `{{1d2}}`',
+    token: 'Ficha',
+    tokenHelp: 'Cómo se dibuja una copia en un mapa. Todo opcional.',
+    tokenIcon: 'Icono',
+    tokenKind: 'Tipo',
+    tokenColor: 'Color',
+  },
   origin: {
     line: 'Hoja: {sheet} · {system}',
     help: 'Lo que tiene esta hoja (sus valores, estados y tipos de relación) lo decide su sistema: solo se muestra lo que declara. Para añadir o cambiar uno, edita la hoja en la aplicación Systems (un sistema incluido se duplica antes).',
