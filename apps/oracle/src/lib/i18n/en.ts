@@ -50,7 +50,7 @@ export const en = {
     title: vocabulary.en.terms.campaign,
     open: vocabulary.en.campaign.open,
     none: 'No campaign',
-    help: "Where hand rolls keep their decks, once-only results and history:\n• **No campaign** — the Oracle's own, kept in this browser\n• a campaign (a Hexmapper map's, or a trip's of Travel) — shared with it: a card drawn here is gone on that map's trips too, and the rolls show in its Oracle panel\nYour seed (Preferences) stays this browser's own either way.",
+    help: "Where hand rolls keep their decks, once-only results and history: the campaign you're playing, chosen in **Playing** at the top (shared by every app).\n• **No campaign** — the Oracle's own, kept in this browser\n• a campaign — shared with its maps and trips: a card drawn here is gone on that map's trips too, and the rolls show in its Oracle panel\nYour seed (Preferences) stays this browser's own either way.",
   },
   prefs: {
     seed: 'Seed for rolls',

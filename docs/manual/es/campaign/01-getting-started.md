@@ -6,9 +6,19 @@ Una campaña guarda solo aquello con lo que juegan las reglas. Su historia, sus 
 
 **Campaign es donde empieza el juego**: la raíz del sitio la abre, es la primera del selector de aplicaciones, y abre **la campaña que estabas jugando** (la última abierta aquí; si no, la más reciente). Si aún no hay ninguna, ofrece empezar una ([más abajo](#una-campaña-nueva)), con enlaces discretos al Oracle, Characters y el Hexmapper para quien solo quiere tirar dados o llevar personajes.
 
+## La campaña en la que juegas
+
+La barra de cada aplicación dice en qué campaña juegas, junto al selector de aplicaciones: **Jugando: The Grey Marches ▾** (o **Sin campaña ▾**). Es la misma en todas las aplicaciones, y **sigue a lo que abres**: abrir un mapa en el Hexmapper o un viaje en curso en Travel hace de su campaña la que juegas, y abrir una campaña aquí también, así que la campaña que se muestra es siempre la que tienes delante. Haz clic en ella para:
+
+- **Abrir en Campaign ↗**: la campaña, aquí.
+- Las demás campañas que guarda este navegador. En el Oracle y en Characters, elegir una hace que juegues en ella desde entonces (**No jugar en ninguna campaña** no juega en ninguna, para quien solo quiere una tirada o llevar personajes); donde hay un mapa, un viaje o una campaña abiertos, se abren aquí, porque para jugar en otra abres uno de sus mapas o viajes.
+- **Campaña nueva ↗**: [una campaña nueva](#una-campaña-nueva) aquí.
+
+Cada aplicación la usa: Campaign la abre; el Hexmapper abre un mapa suyo al empezar (el último abierto, si está en ella; si no, el más reciente) y agrupa su biblioteca por campaña, esta primero; Travel abre su último viaje y agrupa los viajes por campaña; Characters muestra los personajes que juegan en ella, con **Todas las campañas** y **Sin campaña** a un clic; y el Oracle tira en ella ([Tirar en una campaña](../oracle/02-rolling.md#tirar-en-una-campaña)). Es una preferencia de este navegador, guardada con tus demás preferencias en las copias.
+
 ## La pantalla
 
-- **Cabecera**: el selector de aplicaciones (nueve puntos: todas las aplicaciones, Campaign la primera, las copias y exportaciones de tus datos, y enlaces al código fuente, para avisar de un problema y a las novedades), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidos por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de campañas y la columna de ayuda, y las vuelven a mostrar.
+- **Cabecera**: el selector de aplicaciones (nueve puntos: todas las aplicaciones, Campaign la primera, las copias y exportaciones de tus datos, y enlaces al código fuente, para avisar de un problema y a las novedades), **Jugando** ([arriba](#la-campaña-en-la-que-juegas)), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidos por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de campañas y la columna de ayuda, y las vuelven a mostrar.
 - **Campañas** (izquierda): **Nueva campaña**, un buscador y las campañas que guarda este navegador, la última cambiada primero, cada una con su sistema y, cuando su reloj del mundo está en marcha, su fecha. Bajo la lista, **Crear o editar sistemas** abre la aplicación Systems.
 - **La campaña** (centro): la elegida en la lista, con sus pestañas.
 
@@ -94,7 +104,7 @@ Si el mapa o el viaje trae un mundo propio (un reloj del mundo, facciones, tirad
 
 Los personajes de tu plantel ([Characters](../characters/01-getting-started.md)) que juegan en la campaña: en el grupo de sus viajes, entre los presentes o en los tokens de sus mapas, cada uno con dónde juega y **Abrir ↗**. Un nombre abre el personaje en Characters; **Abrir el plantel ↗** abre la aplicación.
 
-Las demás aplicaciones te traen aquí con **Abrir en Campaign ↗**: el panel Mundo del Hexmapper (encima de sus pestañas), la sala del viaje de Travel (bajo **Campaña**), el Oracle (bajo **Campaña**, con una elegida) y **Dónde juega** de un personaje del plantel en Characters.
+Las demás aplicaciones te traen aquí con **Abrir en Campaign ↗**: bajo **Jugando** en la barra de cada aplicación, el panel Mundo del Hexmapper (encima de sus pestañas), la sala del viaje de Travel (bajo **Campaña**), el Oracle (bajo **Campaña**, cuando tira en una) y **Dónde juega** de un personaje del plantel en Characters.
 
 ## Dónde se guardan las campañas
 

@@ -27,6 +27,13 @@ export const es: Messages<typeof en> = {
     noTemplates: 'Ningún sistema tiene bestiario.',
     tags: 'Filtrar por etiqueta',
     clearTags: 'Mostrar todos, tengan las etiquetas que tengan',
+    campaign: 'Campaña',
+    campaignHelp:
+      'Qué personajes muestra la lista, según dónde juegan:\n• la campaña en la que juegas (**Jugando** arriba, por defecto) — los de sus viajes y los de las fichas de sus mapas\n• **Todas las campañas** — todo el plantel\n• **Sin campaña** — los que no juegan en ninguna parte',
+    allCampaigns: 'Todas las campañas',
+    noCampaign: 'Sin campaña',
+    noneInCampaign:
+      'Ningún personaje juega en ella: elige «Todas las campañas» para ver todo el plantel.',
     makeSystems: 'Crear o editar sistemas →',
   },
   welcome: {

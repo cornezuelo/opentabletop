@@ -13,7 +13,7 @@ It holds everything the apps keep in this browser:
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
 - **The Characters app's roster**: every character it keeps, with its notes and where it plays.
 - **The Travel app's trips**, the **Oracle app's** history, decks and seed, and **favorites**.
-- **Preferences**: language, notes app, the packs hidden in the Oracle, the last system chosen, layouts and the like.
+- **Preferences**: language, notes app, the packs hidden in the Oracle, the last system chosen, the campaign you're playing, layouts and the like.
 
 Bundled packs are not in it: they come with the apps.
 

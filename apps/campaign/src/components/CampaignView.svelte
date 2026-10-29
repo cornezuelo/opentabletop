@@ -9,7 +9,7 @@
     Markdown,
     MoreMenu,
     NoteRefInput,
-    rememberCampaign,
+    playIn,
     Tabs,
   } from '@open-tabletop/ui-kit'
   import { open, removeCampaign } from '../lib/campaign.svelte'
@@ -30,7 +30,7 @@
     void open.open(id)
   })
   $effect(() => {
-    if (open.found && open.id === id) rememberCampaign(id)
+    if (open.found && open.id === id) playIn(id)
   })
   const campaign = $derived(open.campaign)
   const system = $derived(open.system)
@@ -53,7 +53,7 @@
 
   async function remove() {
     if (campaign && (await removeCampaign(campaign))) {
-      rememberCampaign(undefined)
+      playIn(undefined)
       go({ name: 'welcome' }, true)
     }
   }

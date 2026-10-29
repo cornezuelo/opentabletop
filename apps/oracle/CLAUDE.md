@@ -11,7 +11,7 @@ src/
   lib/
     packs/      # bundled packs, the app's PackLibrary, new-pack helpers, zip import/export, templates
     i18n/       # typed en/es dictionaries on top of ui-kit's createI18n
-    oracle.svelte.ts  # the app's OracleUi (roller, history, pack texts) from @open-tabletop/oracle-ui; rolls in the campaign chosen (CampaignKeeper) or its own state
+    oracle.svelte.ts  # the app's OracleUi (roller, history, pack texts) from @open-tabletop/oracle-ui; rolls in the campaign being played (ui-kit `playing`, CampaignKeeper) or its own state
     nav.svelte.ts  # view state mirrored in the URL hash (#/def/<pack>/<id>[/edit], #/pack/<folder>, #/file/<folder>/<path>)
   components/   # Sidebar, DefinitionView (Roll / Edit tabs, duplicate / copy to / delete),
                 # PackView, FileEditor (CodeMirror), NewPackDialog, NewDefinitionDialog

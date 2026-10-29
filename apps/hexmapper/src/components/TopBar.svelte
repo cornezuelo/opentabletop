@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { AppBrand, AppSwitcher, PreferencesButton, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    AppBrand,
+    AppSwitcher,
+    CampaignChip,
+    playIn,
+    PreferencesButton,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
+  import { getCampaign } from '@open-tabletop/storage'
   import LineIcon from './LineIcon.svelte'
   import {
     getLocale,
@@ -9,7 +17,7 @@
     type Locale,
     type MessageKey,
   } from '../lib/i18n/index.svelte'
-  import { newMap, saveMap } from '../lib/io/actions.svelte'
+  import { library, newMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type PanelView } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
 
@@ -21,6 +29,23 @@
   $effect(() => {
     const name = editor.meta.name.trim()
     document.title = name ? `${t('app.title')} - ${name}` : t('app.title')
+  })
+  /**
+   * The bar's **Playing** follows the open map's campaign once it's kept (a new map's is kept
+   * with its first change; until then it plays in no campaign anyone else sees).
+   */
+  let held = $state<string>()
+  $effect(() => {
+    void library.version
+    const id = editor.setup.id
+    if (!library.loaded) return
+    void getCampaign(id)
+      .then((kept) => {
+        if (editor.setup.id !== id) return
+        held = kept ? id : undefined
+        if (kept) playIn(id)
+      })
+      .catch(() => {})
   })
   const toggle = (panel: PanelView) => () =>
     (editor.panelView = editor.panelView === panel ? 'tool' : panel)
@@ -75,6 +100,7 @@
 <header class="bar">
   <span class="name"><AppBrand app="hexmapper" name={t('app.title')} /></span>
   <AppSwitcher current="hexmapper" locale={getLocale()} />
+  <CampaignChip locale={getLocale()} {held} />
   <div class="spacer"></div>
   {#each groups as group, g (g)}
     {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}

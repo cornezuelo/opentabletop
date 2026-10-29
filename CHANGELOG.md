@@ -4,6 +4,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Every app: **Playing: <campaign> ▾** in the bar says which campaign you're playing, the same in every app, with **Open in Campaign ↗**, the other campaigns and **New campaign ↗**. It follows what you open: a map in the Hexmapper, a trip going on in Travel or a campaign in Campaign makes theirs the one you're playing; in the Oracle and Characters you choose it there (or **Play in no campaign**).
+- Hexmapper: it starts on a map of the campaign you're playing, and **Maps** lists your maps by campaign, that one first. Travel: it starts on that campaign's latest trip, and **Trip** lists the trips by campaign.
+- Characters: **Campaign** above the list shows the characters playing in the campaign you're playing by default, with **All campaigns** and **No campaign**.
+- Oracle: hand rolls go to the campaign you're playing (chosen in **Playing**), instead of a choice of its own; the campaign it rolled in before becomes the one you're playing if there was none.
+
 ## [0.23.0] - 2026-10-29
 
 ### Apps

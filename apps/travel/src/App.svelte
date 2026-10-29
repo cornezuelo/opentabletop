@@ -4,6 +4,8 @@
     AppShell,
     Dialogs,
     parseInCampaign,
+    playIn,
+    playing,
     readLastSystem,
     rememberSystem,
     Toasts,
@@ -26,8 +28,25 @@
     })
   }
 
-  // Opened without a view, it starts on the system last chosen here or in another app.
-  const last = location.hash || inCampaign ? undefined : readLastSystem()
+  // Opened in a campaign (the bar's **Playing**) another trip is in: its latest trip opens.
+  let fromPlaying = false
+  if (!inCampaign && playing.id && trip.saved.campaign !== playing.id) {
+    const latest = trip.trips.findLast((saved) => saved.campaign === playing.id)
+    if (latest) {
+      trip.open(latest.id)
+      fromPlaying = true
+    }
+  }
+  // …and from then on the bar's **Playing** follows the open trip's campaign, once it's going
+  // on (a trip not started yet plays nowhere).
+  $effect(() => {
+    if (trip.inCampaigns && trip.saved.session) playIn(trip.saved.campaign)
+  })
+
+  // Opened without a view, it starts on that trip's system, else the system last chosen here
+  // or in another app.
+  const last =
+    location.hash || inCampaign ? undefined : fromPlaying ? trip.saved.system : readLastSystem()
   if (last && systems.get(last)) go({ name: 'system', id: last }, true)
   $effect(() => {
     if (nav.view.name === 'system' && systems.get(nav.view.id)) rememberSystem(nav.view.id)
@@ -47,6 +66,7 @@
   {locales}
   onlocale={(locale) => setLocale(locale as 'en' | 'es')}
   onhome={() => go({ name: 'welcome' })}
+  held={trip.saved.session ? trip.saved.campaign : undefined}
   texts={{
     help: t('nav.help'),
     showSidebar: t('nav.showSidebar'),

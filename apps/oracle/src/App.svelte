@@ -3,6 +3,7 @@
   import {
     AppBrand,
     AppSwitcher,
+    CampaignChip,
     contextHelp,
     Dialogs,
     FoldTab,
@@ -95,6 +96,7 @@
   <header class="bar">
     <AppBrand app="oracle" name={t('app.title')} onclick={() => go({ name: 'welcome' })} />
     <AppSwitcher current="oracle" locale={getLocale()} />
+    <CampaignChip locale={getLocale()} />
     <div class="spacer"></div>
     <UndoButtons library={workspace} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
     <button onclick={() => (dialogs.newDefinition = {})}>{t('nav.newDefinition')}</button>

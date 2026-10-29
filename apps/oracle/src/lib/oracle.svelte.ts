@@ -1,21 +1,29 @@
 import { emptyState } from '@open-tabletop/oracle-engine'
 import { createOracleUi, localRollerStore, type RollerStore } from '@open-tabletop/oracle-ui'
-import { CampaignKeeper } from '@open-tabletop/ui-kit'
+import { CampaignKeeper, onPlayingChange, playIn, playing } from '@open-tabletop/ui-kit'
 import { getLocale } from './i18n'
 import { workspace } from './packs/workspace.svelte'
 
-/** The campaign the Oracle rolls in, remembered by this browser ('' = none, its own state). */
-const CHOICE = 'opentabletop.oracle.campaign'
-
-function readChoice(): string {
-  try {
-    return localStorage.getItem(CHOICE) ?? ''
-  } catch {
-    return ''
-  }
+/**
+ * The campaign the Oracle rolls in: the one being played (the bar's **Playing**, shared by
+ * every app); '' = none, its own state.
+ */
+export const campaignChoice = {
+  get id(): string {
+    return playing.id ?? ''
+  },
 }
 
-export const campaignChoice = $state({ id: readChoice() })
+// Before the bar's **Playing**, the Oracle remembered a campaign of its own: it becomes the
+// one being played if none is.
+const OLD_CHOICE = 'opentabletop.oracle.campaign'
+try {
+  const old = localStorage.getItem(OLD_CHOICE)
+  if (old && !playing.id) playIn(old)
+  localStorage.removeItem(OLD_CHOICE)
+} catch {
+  // Nothing to bring.
+}
 
 /** Its own state and history, kept in this browser: rolls without a campaign. */
 const own = localRollerStore('opentabletop.oracle')
@@ -66,14 +74,15 @@ export const oracleUi = createOracleUi({
 
 /** Rolls from now on in a campaign (its id), or in the Oracle's own state (''). */
 export function chooseCampaign(id: string): void {
-  campaignChoice.id = id
-  try {
-    localStorage.setItem(CHOICE, id)
-  } catch {
-    // Not remembered; it still applies now.
-  }
+  playIn(id || undefined)
+}
+
+/** Reads the campaign rolled in (if any) and the roller's state from it. */
+function follow(id: string): void {
   if (id) void keeper.open(id, '')
   oracleUi.roller.reload()
 }
 
+// The bar, another app or another tab chose another campaign: rolls go there from now on.
+onPlayingChange((id) => follow(id ?? ''))
 if (campaignChoice.id) void keeper.open(campaignChoice.id, '')

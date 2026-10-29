@@ -26,6 +26,12 @@ export const en = {
     noTemplates: 'No system has a bestiary.',
     tags: 'Filter by tag',
     clearTags: 'Show all, whatever their tags',
+    campaign: 'Campaign',
+    campaignHelp:
+      'Which characters the list shows, by where they play:\n• the campaign you’re playing (**Playing** at the top, the default) — those in its trips and on its maps’ tokens\n• **All campaigns** — the whole roster\n• **No campaign** — those playing nowhere',
+    allCampaigns: 'All campaigns',
+    noCampaign: 'No campaign',
+    noneInCampaign: 'No character plays in it: choose “All campaigns” to see the whole roster.',
   },
   welcome: {
     title: 'Characters',

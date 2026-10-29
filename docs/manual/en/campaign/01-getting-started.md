@@ -6,9 +6,19 @@ A campaign keeps only what the rules play with. Its story, places and people liv
 
 **Campaign is where play starts**: the site's root opens it, it's first in the app switcher, and it opens **the campaign you were playing** (the last one opened here; else the newest). With none yet, it offers to start one ([below](#a-new-campaign)), with quiet links to the Oracle, Characters and the Hexmapper for whoever only wants to roll or keep characters.
 
+## The campaign you play in
+
+Every app's bar says which campaign you're playing, beside the app switcher: **Playing: The Grey Marches ▾** (or **No campaign ▾**). It's the same in every app, and it **follows what you open**: opening a map in the Hexmapper or a trip going on in Travel makes its campaign the one you're playing, and opening a campaign here does too, so the campaign shown is always the one in front of you. Click it for:
+
+- **Open in Campaign ↗**: the campaign here.
+- The other campaigns this browser keeps. In the Oracle and Characters, choosing one plays in it from then on (**Play in no campaign** plays in none, for whoever only wants a roll or a character manager); where a map, a trip or a campaign is open, they open here instead, since to play in another you open one of its maps or trips.
+- **New campaign ↗**: [a new campaign](#a-new-campaign) here.
+
+Each app uses it: Campaign opens it; the Hexmapper opens a map of it when it starts (the last one open, if it's in it; else its newest) and groups its library by campaign, this one first; Travel opens its latest trip and groups the trips by campaign; Characters shows the characters playing in it, with **All campaigns** and **No campaign** a click away; and the Oracle rolls in it ([Rolling in a campaign](../oracle/02-rolling.md#rolling-in-a-campaign)). It's a preference of this browser, kept with your other preferences in backups.
+
 ## The screen
 
-- **Header**: the app switcher (nine dots: every app, Campaign first, your data's backups and exports, and links to the source code, to report a problem and to what's new), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the campaigns list and the help column away, and bring them back.
+- **Header**: the app switcher (nine dots: every app, Campaign first, your data's backups and exports, and links to the source code, to report a problem and to what's new), **Playing** ([above](#the-campaign-you-play-in)), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the campaigns list and the help column away, and bring them back.
 - **Campaigns** (left): **New campaign**, a search box and the campaigns this browser keeps, the last changed first, each with its system and, once its world clock goes, its date. Under the list, **Make or edit systems** opens the Systems app.
 - **The campaign** (center): the one chosen in the list, with its tabs.
 
@@ -94,7 +104,7 @@ If the map or trip brings a world of its own (a world clock, factions, Oracle ro
 
 The characters of your roster ([Characters](../characters/01-getting-started.md)) playing in the campaign: in its trips' parties, among those present, or on its maps' tokens, each with where it plays and **Open ↗**. A name opens the character in Characters; **Open the roster ↗** opens the app.
 
-The other apps bring you back here with **Open in Campaign ↗**: the Hexmapper's World panel (above its tabs), Travel's trip room (under **Campaign**), the Oracle (under **Campaign**, with one chosen) and a roster character's **Where it plays** in Characters.
+The other apps bring you back here with **Open in Campaign ↗**: under **Playing** in every app's bar, the Hexmapper's World panel (above its tabs), Travel's trip room (under **Campaign**), the Oracle (under **Campaign**, when it rolls in one) and a roster character's **Where it plays** in Characters.
 
 ## Where campaigns are kept
 

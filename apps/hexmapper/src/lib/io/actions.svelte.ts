@@ -18,7 +18,7 @@ import { DEFAULT_SYSTEM, systemIdOf, systemName } from '@open-tabletop/session'
 import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { editor, isCampaignChange } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
-import { ask, confirmAction, freeCampaignName, showToast } from '@open-tabletop/ui-kit'
+import { ask, confirmAction, freeCampaignName, playing, showToast } from '@open-tabletop/ui-kit'
 import { exampleState, forgetExample, rememberExample, type ExampleMap } from './examples'
 import {
   allCampaigns,
@@ -47,7 +47,8 @@ const PENDING_CAMPAIGN_KEY = 'hexmapper.pendingCampaign'
 const now = (): string => new Date(Date.now()).toISOString()
 
 /** Bumped whenever the library changes, so lists can refresh. */
-export const library = $state({ version: 0 })
+/** `version`: bumped on every change of the library; `loaded`: once the first map is open. */
+export const library = $state({ version: 0, loaded: false })
 
 /**
  * A map to open, and its campaign when it brings one (a file, a map saved before campaigns);
@@ -583,6 +584,7 @@ export async function startPersistence(): Promise<() => void> {
   } catch {
     showToast(t('file.errorAutosave'), 'error')
   }
+  library.loaded = true
 
   const stop = editor.onChange((change) => {
     if (taking) return
@@ -673,11 +675,26 @@ async function takeCampaignFromElsewhere(): Promise<void> {
  * library or from the crash copy written when the tab closed, whichever is newer; and its
  * campaign's crash copy if newer than the one kept.
  */
+/**
+ * The map to open in the campaign being played (the bar's **Playing**): the last one open if
+ * it's in it, else its newest map; none without one, or if it has no maps.
+ */
+async function lastInPlaying(): Promise<string | undefined> {
+  const campaign = playing.id
+  if (!campaign) return undefined
+  const maps = new Set(
+    (await campaignPlaces(campaign)).filter((p) => p.app === 'hexmapper').map((p) => p.id),
+  )
+  const last = readCurrent()
+  if (last && maps.has(last)) return last
+  return (await listLibrary()).find((entry) => maps.has(entry.id))?.id
+}
+
 async function initialMap(): Promise<Opening> {
   const pending = readPending(PENDING_KEY)
   const pendingMap = pending ? safeOpen(pending) : null
   const linked = parseDeepLink(location.hash)?.mapId
-  const ids = [linked, readCurrent(), (await listLibrary())[0]?.id].filter(
+  const ids = [linked, await lastInPlaying(), readCurrent(), (await listLibrary())[0]?.id].filter(
     (id): id is string => !!id,
   )
   let found: Opening | null = null

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { AppShell, Dialogs, readCurrentCampaign, Toasts } from '@open-tabletop/ui-kit'
+  import { AppShell, Dialogs, playing, Toasts } from '@open-tabletop/ui-kit'
   import CampaignView from './components/CampaignView.svelte'
   import NewCampaign from './components/NewCampaign.svelte'
   import Sidebar from './components/Sidebar.svelte'
@@ -12,7 +12,7 @@
   // newest; with none yet, making one is all it offers.
   $effect(() => {
     if (nav.view.name !== 'welcome' || !campaigns.loaded) return
-    const current = readCurrentCampaign()
+    const current = playing.id
     const to = campaigns.list.find((c) => c.id === current) ?? campaigns.list[0]
     if (to) go({ name: 'campaign', id: to.id, tab: 'overview' }, true)
   })
@@ -25,6 +25,7 @@
   {locales}
   onlocale={(locale) => setLocale(locale as 'en' | 'es')}
   onhome={() => go({ name: 'welcome' })}
+  held={nav.view.name === 'campaign' ? nav.view.id : undefined}
   texts={{
     help: t('nav.help'),
     showSidebar: t('nav.showSidebar'),

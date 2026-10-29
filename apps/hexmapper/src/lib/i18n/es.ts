@@ -309,6 +309,8 @@ export const es: Messages = {
   library: {
     examples: 'Mapas de ejemplo',
     yours: 'Tus mapas',
+    ownCampaigns: 'Cada uno en una campaña propia',
+    playing: 'en juego',
     exampleHelp:
       'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero. Los ejemplos de una misma campaña se abren en ella y comparten su reloj del mundo y sus facciones.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Systems, dicen qué enseña.',
     exampleOf: 'con {system}',

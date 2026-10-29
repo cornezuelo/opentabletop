@@ -75,4 +75,32 @@ describe('the Oracle in a campaign', () => {
     chooseCampaign('')
     expect(roller.history).toHaveLength(1)
   })
+
+  it('rolls in the campaign being played, chosen in another app, and brings its old choice', async () => {
+    vi.resetModules()
+    const c = await import('@open-tabletop/campaign')
+    for (const [id, name] of [
+      ['m1', 'The Frontier'],
+      ['m2', 'The Coast'],
+    ]) {
+      const campaign = c.createCampaign(id, name)
+      kept.set(id, { id, name, modified: campaign.modified, json: c.serializeCampaign(campaign) })
+    }
+    // The Oracle remembered a campaign of its own before the bar's **Playing**.
+    localStorage.setItem('opentabletop.oracle.campaign', 'm1')
+    const { campaignChoice, oracleUi } = await import('./oracle.svelte')
+    const { playIn, playing, CURRENT_CAMPAIGN_KEY } = await import('@open-tabletop/ui-kit')
+    expect(playing.id).toBe('m1')
+    expect(campaignChoice.id).toBe('m1')
+    expect(localStorage.getItem(CURRENT_CAMPAIGN_KEY)).toBe('m1')
+    expect(localStorage.getItem('opentabletop.oracle.campaign')).toBeNull()
+
+    // Another app plays in the Coast: the Oracle's draws go there.
+    playIn('m2')
+    await settle()
+    oracleUi.roller.run(DECK, {}, 'draw')
+    await settle()
+    expect(c.deserializeCampaign(kept.get('m2')!.json).oracle?.history).toHaveLength(1)
+    expect(c.deserializeCampaign(kept.get('m1')!.json).oracle?.history ?? []).toHaveLength(0)
+  })
 })

@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte'
   import AppBrand from './AppBrand.svelte'
   import AppSwitcher from './AppSwitcher.svelte'
+  import CampaignChip from './CampaignChip.svelte'
   import type { AppId } from './apps'
   import { contextHelp } from './contextHelp.svelte'
   import FoldTab from './FoldTab.svelte'
@@ -9,8 +10,8 @@
   import { tooltip } from './tooltip'
 
   /**
-   * The frame of an app with a list on the left: a top bar (brand, app switcher, language,
-   * help), the list (foldable, remembered in this browser), the main view and the help column.
+   * The frame of an app with a list on the left: a top bar (brand, app switcher, the campaign
+   * being played, language, help), the list (foldable, remembered in this browser), the main view and the help column.
    */
   let {
     app,
@@ -19,6 +20,7 @@
     locales,
     onlocale,
     onhome,
+    held,
     texts,
     sidebar,
     bar,
@@ -33,6 +35,8 @@
     onlocale: (locale: string) => void
     /** The brand clicked. */
     onhome: () => void
+    /** The campaign of what's open (a trip, a campaign): the bar's **Playing** follows it. */
+    held?: string
     texts: {
       help: string
       showSidebar: string
@@ -82,6 +86,7 @@
   <header class="bar">
     <AppBrand {app} {name} onclick={onhome} />
     <AppSwitcher current={app} {locale} />
+    <CampaignChip {locale} {held} />
     <div class="spacer"></div>
     {@render bar?.()}
     <PreferencesButton {locale} {locales} {onlocale} />

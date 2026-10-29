@@ -25,6 +25,7 @@ export {
   appIconUrl,
   appUrl,
   campaignUrl,
+  newCampaignUrl,
   inCampaignUrl,
   logoUrl,
   parseInCampaign,
@@ -61,6 +62,9 @@ export {
 export { LAST_SYSTEM_KEY, readLastSystem, rememberSystem } from './lastSystem'
 export { CURRENT_CAMPAIGN_KEY, readCurrentCampaign, rememberCampaign } from './currentCampaign'
 export { CampaignKeeper, freeCampaignName } from './campaignKeeper.svelte'
+export { onPlayingChange, playIn, playing } from './playing.svelte'
+export { groupByCampaign, type CampaignGroup } from './campaignGroups'
+export { default as CampaignChip } from './CampaignChip.svelte'
 export { default as Sidebar } from './Sidebar.svelte'
 export { default as SideButtons } from './SideButtons.svelte'
 export { default as SideItem } from './SideItem.svelte'

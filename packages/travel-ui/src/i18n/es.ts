@@ -365,6 +365,7 @@ export const es: Messages<typeof en> = {
     name: 'Nombre',
     unnamed: '{system}, día {day}',
     new: 'Otro viaje',
+    ownCampaigns: 'Cada uno en una campaña propia',
     delete: 'Borrar',
     deleteConfirm: '¿Borrar el viaje «{trip}» y su diario?',
   },

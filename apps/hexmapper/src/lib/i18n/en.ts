@@ -308,6 +308,8 @@ export const en = {
   library: {
     examples: 'Example maps',
     yours: 'Your maps',
+    ownCampaigns: 'Each in a campaign of its own',
+    playing: 'playing',
     exampleHelp:
       'A map a system brings to be played on (its `maps:`), ready with that system chosen.\nIt opens as one of your maps: open it again later to go on, or start it fresh. Examples of one campaign open in it, sharing its world clock and factions.\nThe system’s pages in the manual, or its **Overview** in the Systems app, say what it shows.',
     exampleOf: 'with {system}',

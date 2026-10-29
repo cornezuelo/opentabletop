@@ -288,4 +288,36 @@ describe('a map’s campaign', () => {
     expect(editor.campaign.factions!.factions.map((f) => f.values)).toEqual(values)
     expect(editor.map.territories!['iron-clans']).toEqual(marchesLand)
   })
+
+  it('opens a map of the campaign being played, and the bar follows the map opened', async () => {
+    const { serializeMap, createMap } = await import('@open-tabletop/map')
+    const put = (id: string, campaign: string, modified: string) => {
+      const map = createMap()
+      map.meta = { ...map.meta, id, name: id, campaign, modified }
+      maps.set(id, { id, name: id, modified, json: serializeMap(map) })
+    }
+    // Newest first, as the library lists them.
+    put('south1', 'south', '2026-01-03T00:00:00.000Z')
+    put('north2', 'north', '2026-01-02T00:00:00.000Z')
+    put('north1', 'north', '2026-01-01T00:00:00.000Z')
+    // The last map open was the South's, but the North is being played (chosen in Campaign).
+    localStorage.setItem('hexmapper.currentMap', 'south1')
+    localStorage.setItem('opentabletop.campaign.current', 'north')
+    const { actions, editor } = await openHexmapper()
+    const { playing, playIn } = await import('@open-tabletop/ui-kit')
+    // The page's listeners (saving when it's hidden), not looked at here.
+    const listen = { addEventListener: () => {}, removeEventListener: () => {} }
+    vi.stubGlobal('document', { ...listen, visibilityState: 'visible' })
+    if (typeof window === 'undefined') vi.stubGlobal('window', listen)
+    vi.stubGlobal('location', { hash: '' })
+    await actions.startPersistence()
+    vi.unstubAllGlobals()
+    expect(editor.map.meta.id).toBe('north2')
+    expect(actions.library.loaded).toBe(true)
+    // Opening the South's map (the bar's effect does this in the app) plays in the South.
+    await actions.openLibraryMap('south1')
+    playIn(editor.setup.id)
+    expect(playing.id).toBe('south')
+    expect(localStorage.getItem('opentabletop.campaign.current')).toBe('south')
+  })
 })

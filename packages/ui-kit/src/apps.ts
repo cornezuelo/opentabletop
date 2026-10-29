@@ -60,6 +60,9 @@ export type CampaignTab =
 export const campaignUrl = (id: string, tab?: CampaignTab): string =>
   `${appUrl('campaign')}#/campaign/${encodeURIComponent(id)}${tab && tab !== 'overview' ? `/${tab}` : ''}`
 
+/** The Campaign app making a new campaign. */
+export const newCampaignUrl = (): string => `${appUrl('campaign')}#/new`
+
 /**
  * A map of the Hexmapper or a trip of Travel put in a campaign from the Campaign app: a new
  * one (no `id`), or one kept there joining it (asking what stays, as its own settings do).

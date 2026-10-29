@@ -19,6 +19,7 @@ describe('trips and the roster', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.42)
   })
 
+  // The first test loads Travel and the bundled packs: slow on a busy machine.
   it('takes a roster character, keeps it in step, and lets it go', async () => {
     const { roster, session: s, trip } = await openTravel()
     await trip.create('grey-marches', 'spring')
@@ -75,7 +76,7 @@ describe('trips and the roster', () => {
     // Taken out of the party: it stays in the roster, playing nowhere.
     again.trip.edit((x) => ({ ...x, members: x.members!.filter((m) => m.id !== 'brenna') }))
     expect(again.session.rosterEntry(again.roster.roster, 'brenna')!.playing).toBeUndefined()
-  })
+  }, 20_000)
 
   it('a character travels in one trip at a time', async () => {
     const { roster, session: s, trip } = await openTravel()

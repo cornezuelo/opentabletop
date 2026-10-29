@@ -8,7 +8,13 @@
   } from '@open-tabletop/session'
   import { defaultCalendar } from '@open-tabletop/time'
   import { roster } from '@open-tabletop/character-ui'
-  import { campaignUrl, confirmAction, InfoTip } from '@open-tabletop/ui-kit'
+  import {
+    campaignUrl,
+    confirmAction,
+    groupByCampaign,
+    InfoTip,
+    playing as playingCampaign,
+  } from '@open-tabletop/ui-kit'
   import { untrack } from 'svelte'
   import { translator } from './i18n'
   import { terrainName } from './terrains'
@@ -92,6 +98,16 @@
     void trip.campaign
     void trip.campaigns().then((list) => (campaigns = list))
   })
+  /** The trips by campaign (the one being played first), as the trip's choice lists them. */
+  const tripGroups = $derived(
+    groupByCampaign(
+      trip.trips,
+      (saved) => (trip.inCampaigns ? saved.campaign : undefined),
+      Object.fromEntries(campaigns.map((c) => [c.id, c.name])),
+      playingCampaign.id,
+      locale,
+    ),
+  )
   /** Other campaigns than the trip's own (a map's, another trip's). */
   const others = $derived(campaigns.filter((c) => c.id !== trip.saved.id))
 
@@ -124,8 +140,18 @@
         <label class="field">
           <span>{t('trips.title')}<InfoTip text={t('trips.help')} /></span>
           <select value={trip.saved.id} onchange={(e) => openTrip(e.currentTarget.value)}>
-            {#each trip.trips as saved (saved.id)}
-              <option value={saved.id}>{tripLabel(saved)}</option>
+            {#each tripGroups as group (group.campaign ?? '')}
+              {#if tripGroups.length > 1 || group.campaign}
+                <optgroup label={group.campaign ? group.name : t('trips.ownCampaigns')}>
+                  {#each group.items as saved (saved.id)}
+                    <option value={saved.id}>{tripLabel(saved)}</option>
+                  {/each}
+                </optgroup>
+              {:else}
+                {#each group.items as saved (saved.id)}
+                  <option value={saved.id}>{tripLabel(saved)}</option>
+                {/each}
+              {/if}
             {/each}
           </select>
         </label>

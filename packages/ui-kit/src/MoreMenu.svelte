@@ -5,9 +5,20 @@
   /**
    * A **⋯** button with the actions that shouldn't sit in sight (deleting, moving): its
    * `children` are buttons, shown in a list below it; a click on one, outside it or Escape
-   * closes it.
+   * closes it. With `button`, the toggle shows that instead of **⋯** (and its list opens
+   * under its left edge with `align: 'left'`).
    */
-  let { label, children }: { label: string; children: Snippet } = $props()
+  let {
+    label,
+    button,
+    align = 'right',
+    children,
+  }: {
+    label: string
+    button?: Snippet
+    align?: 'left' | 'right'
+    children: Snippet
+  } = $props()
 
   let open = $state(false)
   let root: HTMLDivElement
@@ -28,15 +39,23 @@
   <button
     type="button"
     class="toggle"
+    class:wide={!!button}
     aria-label={label}
     aria-haspopup="menu"
     aria-expanded={open}
     use:tooltip={label}
-    onclick={() => (open = !open)}>⋯</button
+    onclick={() => (open = !open)}
+    >{#if button}{@render button()}{:else}⋯{/if}</button
   >
   {#if open}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div class="list" role="menu" tabindex="-1" onclick={() => (open = false)}>
+    <div
+      class="list"
+      class:left={align === 'left'}
+      role="menu"
+      tabindex="-1"
+      onclick={() => (open = false)}
+    >
       {@render children()}
     </div>
   {/if}
@@ -60,6 +79,16 @@
     cursor: pointer;
   }
 
+  .toggle.wide {
+    width: auto;
+    max-width: 260px;
+    padding: 0 10px;
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .toggle:hover,
   .toggle[aria-expanded='true'] {
     color: var(--text);
@@ -81,7 +110,13 @@
     box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
   }
 
-  .list :global(button) {
+  .list.left {
+    right: auto;
+    left: 0;
+  }
+
+  .list :global(button),
+  .list :global(a) {
     padding: 6px 10px;
     font-size: 13px;
     text-align: left;
@@ -92,7 +127,12 @@
     cursor: pointer;
   }
 
-  .list :global(button:hover) {
+  .list :global(a) {
+    text-decoration: none;
+  }
+
+  .list :global(button:hover),
+  .list :global(a:hover) {
     background: rgb(200 162 74 / 0.1);
   }
 

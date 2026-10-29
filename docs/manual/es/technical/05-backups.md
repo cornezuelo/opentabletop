@@ -13,7 +13,7 @@ Contiene todo lo que las aplicaciones guardan en este navegador:
 - **Tus packs**: los que has creado o editado, y las copias editadas de packs incluidos.
 - **El plantel de la aplicación Characters**: cada personaje que guarda, con sus notas y dónde juega.
 - **Los viajes de la aplicación Travel**, el historial, los mazos y la semilla de la **aplicación Oracle**, y los **favoritos**.
-- **Preferencias**: idioma, aplicación de notas, los packs ocultos en el Oracle, el último sistema elegido, disposición de paneles y similares.
+- **Preferencias**: idioma, aplicación de notas, los packs ocultos en el Oracle, el último sistema elegido, la campaña en la que juegas, disposición de paneles y similares.
 
 Los packs incluidos no van en ella: vienen con las aplicaciones.
 

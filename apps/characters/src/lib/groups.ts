@@ -11,6 +11,22 @@ export interface ListEntry {
   systemTitle: string
   sheet: string
   sheetTitle: string
+  /** The campaign it plays in (a character's, by the trip or map it's in), if any. */
+  campaign?: string
+}
+
+/** Which characters the list shows: the campaign being played's, all, or those in none. */
+export type CampaignFilter = 'playing' | 'all' | 'none'
+
+/** The entries a campaign filter keeps (`playing`: the campaign being played's, if any). */
+export function filterByCampaign(
+  entries: readonly ListEntry[],
+  filter: CampaignFilter,
+  playing: string | undefined,
+): ListEntry[] {
+  if (filter === 'none') return entries.filter((e) => !e.campaign)
+  if (filter === 'playing' && playing) return entries.filter((e) => e.campaign === playing)
+  return [...entries]
 }
 
 /** A system's entries, by the sheets they're made with. */

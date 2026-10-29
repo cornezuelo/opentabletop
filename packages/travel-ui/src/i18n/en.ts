@@ -371,6 +371,7 @@ export const en = {
     name: 'Name',
     unnamed: '{system}, day {day}',
     new: 'Another trip',
+    ownCampaigns: 'Each in a campaign of its own',
     delete: 'Delete',
     deleteConfirm: 'Delete the trip “{trip}” and its journal?',
   },

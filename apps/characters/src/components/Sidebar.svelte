@@ -11,10 +11,20 @@
     TagFilter,
     Tabs,
     tooltip,
+    InfoTip,
+    playing,
   } from '@open-tabletop/ui-kit'
+  import { listCampaigns, onLibraryChange } from '@open-tabletop/storage'
+  import { allPlaces } from '@open-tabletop/travel-ui'
   import { importCharacters } from '../lib/actions'
   import { templatesOf, templateUrl } from '../lib/bestiary'
-  import { filterEntries, groupEntries, type ListEntry } from '../lib/groups'
+  import {
+    filterByCampaign,
+    filterEntries,
+    groupEntries,
+    type CampaignFilter,
+    type ListEntry,
+  } from '../lib/groups'
   import { getLocale, t } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
   import { systems } from '../lib/packs.svelte'
@@ -52,10 +62,40 @@
   const sheetName = (name: Parameters<typeof sheetText>[0], id: string) =>
     sheetText(name, locale) ?? id
 
+  /**
+   * The campaign of every map and trip (`app:id`), to know which campaign each character plays
+   * in, read again when maps or trips change; and the campaigns' names.
+   */
+  let placeCampaign = $state<Record<string, string>>({})
+  let campaignName = $state('')
+  let version = $state(0)
+  $effect(() => onLibraryChange(() => version++))
+  $effect(() => {
+    void version
+    void roster.roster
+    void allPlaces().then(
+      (places) =>
+        (placeCampaign = Object.fromEntries(places.map((p) => [`${p.app}:${p.id}`, p.campaign]))),
+    )
+  })
+  $effect(() => {
+    const id = playing.id
+    if (!id) return
+    void listCampaigns()
+      .then((list) => (campaignName = list.find((c) => c.id === id)?.name || id))
+      .catch(() => {})
+  })
+  /** The characters shown: by default, the cast of the campaign being played. */
+  let campaignFilter = $state<CampaignFilter>('playing')
+  const filter = $derived<CampaignFilter>(
+    campaignFilter === 'playing' && !playing.id ? 'all' : campaignFilter,
+  )
+
   const characters = $derived<ListEntry[]>(
-    roster.roster.characters.map(({ character }) => {
+    roster.roster.characters.map(({ character, playing: where }) => {
       const found = systems.sheetOf(character.sheet)
       return {
+        campaign: where ? placeCampaign[`${where.app}:${where.id}`] : undefined,
         key: character.id,
         name: character.name || character.id,
         tags: character.tags,
@@ -79,7 +119,8 @@
       })),
     ),
   )
-  const entries = $derived(tab === 'characters' ? characters : templates)
+  const shownCharacters = $derived(filterByCampaign(characters, filter, playing.id))
+  const entries = $derived(tab === 'characters' ? shownCharacters : templates)
   const allTags = $derived([...new Set(entries.flatMap((e) => e.tags))])
   const groups = $derived(
     groupEntries(
@@ -143,6 +184,19 @@
     {/if}
   </SideButtons>
   <input bind:this={file} type="file" accept=".json,application/json" hidden onchange={imported} />
+  {#if tab === 'characters' && characters.length}
+    <label class="side-field">
+      <span>{t('nav.campaign')}<InfoTip text={t('nav.campaignHelp')} /></span>
+      <select
+        value={filter}
+        onchange={(e) => (campaignFilter = e.currentTarget.value as CampaignFilter)}
+      >
+        {#if playing.id}<option value="playing">{campaignName || playing.id}</option>{/if}
+        <option value="all">{t('nav.allCampaigns')}</option>
+        <option value="none">{t('nav.noCampaign')}</option>
+      </select>
+    </label>
+  {/if}
   {#if entries.length}
     <input
       class="side-search"
@@ -177,7 +231,9 @@
         {entries.length
           ? t('nav.noMatch')
           : tab === 'characters'
-            ? t('nav.empty')
+            ? characters.length
+              ? t('nav.noneInCampaign')
+              : t('nav.empty')
             : t('nav.noTemplates')}
       </p>
     {/each}
@@ -186,6 +242,14 @@
 </Sidebar>
 
 <style>
+  .side-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
   .lists {
     display: flex;
     flex-direction: column;
