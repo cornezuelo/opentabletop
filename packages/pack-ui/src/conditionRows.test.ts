@@ -43,7 +43,7 @@ describe('conditions as rows', () => {
       { 'place.terrain': 'forest', 'place.danger': { gte: 3 } },
       { 'place.danger': { gte: 2, lte: 4 } },
       { 'party.stats.fatigue': { lt: '{{party.stats.endurance}}' } },
-      { any: [{ 'trip.edges': ['road', 'river'] }, { 'trip.mode': 'modes.boat' }] },
+      { any: [{ 'trip.connections': ['road', 'river'] }, { 'trip.mode': 'modes.boat' }] },
       { 'trip.mode': { not: ['boat', 'cart'] }, 'icon.id': { exists: true } },
     ])
       expect(roundTrip(c)).toEqual(c)

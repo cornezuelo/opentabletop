@@ -75,7 +75,7 @@ describe('regions', () => {
 })
 
 describe('path kinds and travel', () => {
-  it('roads, trails and rivers are travel edges; borders and walls are only drawn', () => {
+  it('roads, trails and rivers are travel connections; borders and walls are only drawn', () => {
     const map = createMap()
     map.paths = [
       { id: 'road00000001', kind: 'road', hexes: ['0,0', '1,0'] },
@@ -83,8 +83,8 @@ describe('path kinds and travel', () => {
       { id: 'border000001', kind: 'border', hexes: ['1,0', '2,0'], closed: true },
     ]
     const world = mapWorld(map)
-    expect(world.edges('0,0', '1,0')).toEqual(['road'])
-    expect(world.edges('1,0', '2,0')).toEqual([])
+    expect(world.connections('0,0', '1,0')).toEqual(['road'])
+    expect(world.connections('1,0', '2,0')).toEqual([])
   })
 })
 

@@ -29,7 +29,7 @@ There's no built-in day and no built-in march: the party moves with the actions 
 
 Each with its **Name** and **Description (its help)** for players (the trip panel shows the description of the one chosen as the help of **Travel**), its **km per day** and: Their order counts: **the first is a new trip's way**; each card shows its place, and its handle (⠿) drags it onto another (or ↑ / ↓ one place).
 
-- **Only through**: where it can go, a condition on each hex it enters, built as rows (see [Conditions as rows](#conditions-as-rows)). E.g. the Grey Marches' boat on water or coast, **Any of these**: `place.water` · **is** · `true` and `place.terrain` · **is** · `coast`, or a cart only by road, `trip.edges` · **is** · `road`. Where it holds, even a terrain that is closed (or not **Passable**) lets it in.
+- **Only through**: where it can go, a condition on each hex it enters, built as rows (see [Conditions as rows](#conditions-as-rows)). E.g. the Grey Marches' boat on water or coast, **Any of these**: `place.water` · **is** · `true` and `place.terrain` · **is** · `coast`, or a cart only by road, `trip.connections` · **is** · `road`. Where it holds, even a terrain that is closed (or not **Passable**) lets it in.
 - **Only when**: where and when it can be chosen, as rows too. E.g. the Grey Marches' boat only at the water's edge or the ferry, **Any of these**: `place.water` · **is** · `true`, `place.terrain` · **is** · `coast` and `place.tags` · **is** · `ferry`.
 - **Not when**: when it can't.
 
@@ -39,7 +39,7 @@ A trip starts with the first way of the list; the player chooses another in the 
 
 - **Terrains**: how each changes the speed (**Speed ×**) and whether it can be entered (**Passable**, and **Open when** / **Closed when**: conditions on the hex entered and the moment; a way of travelling with **Only through** goes by that alone, as above). E.g. the Grey Marches' peaks, open only in summer and closed in snow or storm: `time.season` · **is** · `summer` / `trip.weather` · **is one of** · `snow, storm`. **Speed × for terrains not listed** covers any terrain the map uses that isn't in the list.
 - **Water hexes**: the same, for hexes the map marks as water that have no rule of their own in Terrains. A way of travelling whose **Only through** holds on water can still sail them.
-- **Roads and rivers**: following one from one hex to the next, its **Speed ×** replaces the terrain's (a road `1.5`: half again as fast). It replaces it, it doesn't multiply it: a river at `1` makes mountains along it as easy as plains. Lines not listed do nothing; conditions can still tell them apart (`trip.edges: road`).
+- **Connections**: the kinds of connection between places (roads, trails, rivers). Following one from one place to the next, its **Speed ×** replaces the terrain's (a road `1.5`: half again as fast). It replaces it, it doesn't multiply it: a river at `1` makes mountains along it as easy as plains. Lines not listed do nothing; conditions can still tell them apart (`trip.connections: road`).
 
 ## What the party carries
 
@@ -112,7 +112,7 @@ A system for crossing a desert by camel: camels are faster than walking but drin
 
 1. **Create it**: type _Salt Road_ under the system list and press **+**.
 2. **Camels**: under **Ways of travelling**, add `camel`, named _By camel_, **km per day** `40`. In 8 marching hours that's 5 km an hour on easy ground.
-3. **The land**: under **Terrains**, set `desert` to **Speed ×** `0.5` (sand is slow: a 10 km hex takes a camel 4 hours). Add `salt-flat`, **Speed ×** `1`, **Passable** ticked, and **Closed when** `time.season: spring`: the spring rains flood it. Leave **Roads and rivers** as they are: a `road` at `1.5` replaces the desert's `0.5` wherever the party follows one.
+3. **The land**: under **Terrains**, set `desert` to **Speed ×** `0.5` (sand is slow: a 10 km hex takes a camel 4 hours). Add `salt-flat`, **Speed ×** `1`, **Passable** ticked, and **Closed when** `time.season: spring`: the spring rains flood it. Leave **Connections** as they are: a `road` at `1.5` replaces the desert's `0.5` wherever the party follows one.
 4. **Water**: in **Sheet**, the party's sheet (_the party_, a copy of the Generic rules' with Morale and Food), add a value `water`, named _Water_, **Starts at** `3`, **Min** `0` and **Max** `3`: three days in the skins, never more.
 5. **Parched**: under **Values of the day**, add `parched`, named _Parched_, with **Blocks** `modes.camel`: thirsty camels won't carry anyone.
 6. **Drinking**: under **Actions**, **Add an action** `drink`, named _Drink_, with **By itself at** `time.part.morning`. Its steps: **Change values** with the row `party.values.water` · `-1`; then a second step, **Set a value of the day** `parched: true`, with **Only when** `trip.below` · **is** · `party.values.water` (only when the skins were already empty: the drink hit the water's **Min**).

@@ -16,7 +16,7 @@ import {
 
 /** A system whose party is its members: stats from them, rations they carry, wounds that block. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 12\n' },
   {
     path: 'band/system.yaml',
     content: `
@@ -110,7 +110,7 @@ const world: TravelWorld = {
   place: () => ({ terrain: 'plains' }),
   neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
   distance: (x, y) => (x === y ? 0 : 1),
-  edges: () => [],
+  connections: () => [],
 }
 
 const rations = (count: number) => [

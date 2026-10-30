@@ -58,7 +58,7 @@ terrains:
   sea: { passable: false }
   deep-sea: { passable: false }
 water: { passable: false }
-edges:
+connections:
   road: { multiplier: 1.5 }
   trail: { multiplier: 1.2 }
 modes:

@@ -79,7 +79,7 @@ const world: TravelWorld = {
   place: () => ({ terrain: 'plains' }),
   neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
   distance: (x, y) => (x === y ? 0 : 1),
-  edges: () => [],
+  connections: () => [],
 }
 
 describe('trips', () => {
@@ -424,7 +424,7 @@ divisions:
 
   it('checks and actions see the host’s facts (the world clock’s clocks and events)', () => {
     const { registry: clocked } = loadPacks([
-      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
+      { path: 'w/pack.yaml', content: 'id: w\nversion: 0.1.0\nlocale: en\nformat: 12\n' },
       {
         path: 'w/travel.yaml',
         content: `
@@ -490,7 +490,7 @@ values: { lost: { blocks: [travel.move] } }
 
 describe('values that name another value ($)', () => {
   const { registry: mouths } = loadPacks([
-    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
+    { path: 'm/pack.yaml', content: 'id: m\nversion: 0.1.0\nlocale: en\nformat: 12\n' },
     {
       path: 'm/travel.yaml',
       content: `
@@ -642,7 +642,7 @@ describe("Core's system: the Generic rules as data", () => {
     place: () => ({ terrain: 'plains' }),
     neighbors: (h) => [String(Number(h) - 1), String(Number(h) + 1)],
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
-    edges: () => [],
+    connections: () => [],
   }
 
   it('despairs once, as the party’s morale reaches 0, stopping the trip', () => {

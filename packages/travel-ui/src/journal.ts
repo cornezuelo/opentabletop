@@ -103,7 +103,7 @@ const FACT_NAMES = new Set([
   'trip.marched',
   'trip.weather',
   'trip.mode',
-  'trip.edges',
+  'trip.connections',
   'time.hour',
   'time.tags',
   'time.part',

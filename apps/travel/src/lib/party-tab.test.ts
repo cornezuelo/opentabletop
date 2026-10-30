@@ -86,7 +86,7 @@ describe('those present', () => {
   it('shows who is here grouped by template, and those left behind', async () => {
     const { trip, session: s, text } = await openTravel()
     await trip.create('grey-marches', 'spring')
-    for (let i = 0; i < 4; i++) trip.addHex({ terrain: 'plains', tags: [], edges: ['road'] })
+    for (let i = 0; i < 4; i++) trip.addHex({ terrain: 'plains', tags: [], connections: ['road'] })
     // Nobody yet: the box says so, and offers the system's bestiary.
     let shown = text()
     expect(shown).toContain('Nobody here.')

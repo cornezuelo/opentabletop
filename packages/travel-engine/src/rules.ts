@@ -426,8 +426,11 @@ export const travelRulesSchema = z
       .optional(),
     /** Multiplier for terrains not listed (default 1). */
     defaultTerrain: z.object({ multiplier: z.number().nonnegative() }).strict().optional(),
-    /** Edge kinds (road, river…); an edge with a multiplier replaces the terrain's. */
-    edges: z
+    /**
+     * Kinds of connection between places (road, river, door…); one with a multiplier
+     * replaces the terrain's.
+     */
+    connections: z
       .record(z.string(), z.object({ multiplier: z.number().positive().optional() }).strict())
       .optional(),
     modes: z.record(

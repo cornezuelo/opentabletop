@@ -43,7 +43,7 @@ See `@open-tabletop/map` (`packages/map/src/types.ts`; its format, migrations an
 
 **Hexes are keyed by offset coordinates (`col,row`), not axial.** Offset "odd-q" for flat-top, "odd-r" for pointy-top. Switching orientation keeps every cell's content and CCRR label. Math is done in axial (`@open-tabletop/hex`). Shrinking the map keeps data of cells left outside, so undo loses nothing.
 
-**Paths** store every hex they cross (travel semantics: edges between consecutive hexes) plus `nodes`, the indices of user-placed points. Only nodes are drawn and get handles, so straight mode gives true straight lines. Per-node offsets place points off-center; water hexes cut paths at the shore.
+**Paths** store every hex they cross (travel semantics: connections between consecutive hexes) plus `nodes`, the indices of user-placed points. Only nodes are drawn and get handles, so straight mode gives true straight lines. Per-node offsets place points off-center; water hexes cut paths at the shore.
 
 **Two different scales, not to be confused:**
 

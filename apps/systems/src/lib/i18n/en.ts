@@ -689,7 +689,7 @@ export const en = {
       "What players read in the trip panel and the journal instead of the id:\n• `horse` → _On horseback_\n• `food` → _Rations_\nWritten in the current language: the pack's own, or its translation file (`locales/<language>/`) when the interface is in another one. Empty: the id (or the app's name for the usual ones: foot, horse, food…).",
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
-      "Where this way of travelling can go: a condition on **each hex it enters** (its terrain, water, tags, region, fields, the roads or rivers of the step).\n• a boat: `place.water: true`\n• a boat that also follows the coast: `any: [{ place.water: true }, { place.terrain: coast }]`\n• a cart only by road: `trip.edges: road`\n• a mount that avoids forests: `not: { place.terrain: [forest, dense-forest] }`\nWhere it holds, even closed terrains are open to it; where it doesn't, it can't go, whatever the terrain says (see **Passable** in Terrains). Empty: wherever terrains allow.",
+      "Where this way of travelling can go: a condition on **each hex it enters** (its terrain, water, tags, region, fields, the roads or rivers of the step).\n• a boat: `place.water: true`\n• a boat that also follows the coast: `any: [{ place.water: true }, { place.terrain: coast }]`\n• a cart only by road: `trip.connections: road`\n• a mount that avoids forests: `not: { place.terrain: [forest, dense-forest] }`\nWhere it holds, even closed terrains are open to it; where it doesn't, it can't go, whatever the terrain says (see **Passable** in Terrains). Empty: wherever terrains allow.",
     anyTerrain: 'wherever terrains allow',
     terrains: vocabulary.en.terms.terrains,
     terrainsHelp:
@@ -708,12 +708,12 @@ export const en = {
     defaultTerrain: 'Speed × for terrains not listed',
     defaultTerrainHelp:
       "The speed for any terrain missing above:\n• `1` — normal (the default when empty)\n• `0.75` — unknown ground is a bit slower\nA map with a terrain the system doesn't know (`badlands`) uses this.",
-    edges: 'Roads and rivers',
-    edgesHelp:
-      "Following a road, trail or river **from one hex to the next**: its speed replaces the terrain's.\n• `road` × `1.5` — half again as fast as open ground\n• `trail` × `1` — as open ground, even through a forest\n• `river` × `2` — downstream by boat\nLines not listed do nothing. Checks can tell them apart too: `trip.edges: road` in a condition.",
-    edge: 'Line',
-    edgeMultiplierHelp:
-      "Speed along this line, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road at `1.5` through a terrain at `0.5` is three times as fast as that terrain.",
+    connections: 'Connections',
+    connectionsHelp:
+      "Following a road, trail or river, or crossing any other connection a map draws, **from one place to the next**: its speed replaces the terrain's.\n• `road` × `1.5` — half again as fast as open ground\n• `trail` × `1` — as open ground, even through a forest\n• `river` × `2` — downstream by boat\nKinds not listed do nothing. Checks can tell them apart too: `trip.connections: road` in a condition.",
+    connection: 'Kind',
+    connectionMultiplierHelp:
+      "Speed along this kind of connection, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road at `1.5` through a terrain at `0.5` is three times as fast as that terrain.",
     weather: vocabulary.en.terms.weather,
     weatherHelp:
       "How each weather slows the party. Tables set it with `set: { weather: … }` (usually rolled at dawn), or a weather model with inertia.\n• `storm` × `0` — no travel that day\n• `heavy-rain` × `0.5` — half speed\n• `fog` × `0.75`\nWeather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`).",
@@ -915,7 +915,7 @@ export const en = {
     when: 'Only if',
     unless: 'Skip if',
     conditionHelp:
-      "When the check is rolled (**Only if**) or skipped (**Skip if**), with conditions like the tables', one row each (what it reads · comparison · value), or as YAML:\n• `place.terrain: forest` — the hex\n• `place.tags: landmark` — a tag of the hex\n• `trip.edges: [road, river]` — the road or river of the step\n• `place.danger: { gte: 2 }` — a value of the hex or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.values.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: party.values.food` — the party's food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
+      "When the check is rolled (**Only if**) or skipped (**Skip if**), with conditions like the tables', one row each (what it reads · comparison · value), or as YAML:\n• `place.terrain: forest` — the hex\n• `place.tags: landmark` — a tag of the hex\n• `trip.connections: [road, river]` — the road or river of the step\n• `place.danger: { gte: 2 }` — a value of the hex or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.values.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: party.values.food` — the party's food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
     always: 'always',
     never: 'never',
     resolve: 'Rolled on',
@@ -997,6 +997,6 @@ export const en = {
   },
   yaml: { line: 'line {line}' },
   terrains: vocabulary.en.terrains,
-  edgeKinds: vocabulary.en.pathKinds,
+  connectionKinds: vocabulary.en.pathKinds,
   storage: { full: 'Browser storage is full: export your packs to keep them safe.' },
 } as const

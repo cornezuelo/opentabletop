@@ -7,7 +7,7 @@ import { readTrips, TripStore } from './trips.svelte'
 
 const KEY = 'opentabletop.travel.trips'
 const OLD_KEY = 'opentabletop.travel.trip'
-const way = [{ terrain: 'plains', tags: [], edges: [] }]
+const way = [{ terrain: 'plains', tags: [], connections: [] }]
 const storage = (data: Record<string, unknown>) => ({
   getItem: (k: string) => (k in data ? JSON.stringify(data[k]) : null),
 })

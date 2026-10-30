@@ -16,7 +16,7 @@ const heath: TravelWorld = {
   place: () => ({ terrain: 'heath', fields: { danger: '4' } }),
   neighbors: () => [],
   distance: () => 0,
-  edges: () => [],
+  connections: () => [],
 }
 
 /** A result of a table rolled as a trip's check would, with a seed that brings `entry`. */

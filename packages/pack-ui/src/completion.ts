@@ -186,7 +186,7 @@ const KEYS = [
   'passable',
   'water',
   'defaultTerrain',
-  'edges',
+  'connections',
   'kmPerDay',
   'through',
   'min',

@@ -164,7 +164,7 @@ terrains:
   lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # helado en pleno invierno
 defaultTerrain: { multiplier: 1 } # velocidad × de los terrenos no listados
 water: { passable: false } # hexes de agua sin regla propia
-edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # por un camino o río
+connections: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # por un camino o río
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # valores del día que ponen tablas y acciones
   lost: { name: Perdidos, blocks: [travel.move] }
@@ -207,7 +207,12 @@ actions:
   eat: { on: time.day-end, do: [{ effects: { party.values.food: -1 } }] }
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
-  - { event: NAVIGATION_CHECK_REQUIRED, name: Perderse, at: '06:00', unless: { trip.edges: road } }
+  - {
+      event: NAVIGATION_CHECK_REQUIRED,
+      name: Perderse,
+      at: '06:00',
+      unless: { trip.connections: road },
+    }
   - {
       event: ENCOUNTER_CHECK_REQUIRED,
       at: [trip.place-enter, actions.rest],
@@ -234,7 +239,7 @@ Un paso hace una cosa: `time` (minutos, una hora, `'14:00'`, o una parte del dí
 
 Los packs escritos para un formato de pack anterior no se leen (mira [Formatos de fichero](02-file-formats.md#packs)).
 
-**Qué ven las tablas:** los datos del viaje (`place.terrain`, `trip.edges`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<valor>`…) y el grupo (`party.stats.fatigue`, `party.values.food`, `party.items.ration.count`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
+**Qué ven las tablas:** los datos del viaje (`place.terrain`, `trip.connections`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<valor>`…) y el grupo (`party.stats.fatigue`, `party.values.food`, `party.items.ration.count`): la lista completa está en [Qué ven las tablas](04-what-tables-see.md).
 
 ## Bindings
 

@@ -337,7 +337,7 @@ export const en = {
       trip_marched: 'the day’s march (hours)',
       trip_weather: 'the weather',
       trip_mode: 'the way of travelling',
-      trip_edges: 'the way taken',
+      trip_connections: 'the way taken',
       time_hour: 'the hour',
       time_tags: 'the time of day',
       time_part: 'the part of the day',
@@ -409,20 +409,20 @@ export const en = {
     terrain: vocabulary.en.terms.terrain,
     tags: vocabulary.en.terms.tags,
     tagsPlaceholder: 'landmark, haunted…',
-    edges: 'To the next hex',
+    connections: 'To the next hex',
     numberHelp:
       "The hexes in order: the party starts at 1 and heads for the last one. Hexes already passed can't be changed; add more at the end to keep going.",
     terrainHelp:
       "How fast the hex is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — tables and conditions read `place.terrain: forest`\nIts speed, and whether it can be crossed, are the system's: its travel rules say them.",
     tagsHelp:
       'Words that mark the hex, each one a pill (Enter or a comma adds it, × takes it out), for the checks and tables that look for them:\n• `landmark` — `place.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
-    edgesHelp:
-      'Whether a road, trail or river joins this hex to the next one. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.edges: road`)',
+    connectionsHelp:
+      'Whether a road, trail or river joins this hex to the next one. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.connections: road`)',
     addHex: 'Add a hex',
     remove: 'Remove',
     destinationHint: 'Add hexes to the way to set off.',
     arrivedHint: 'Add more hexes to keep going.',
   },
   terrains: vocabulary.en.terrains,
-  edgeKinds: vocabulary.en.pathKinds,
+  connectionKinds: vocabulary.en.pathKinds,
 } as const

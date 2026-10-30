@@ -57,7 +57,7 @@ export interface TravelWorld {
   /** A hint for routes: km between two places, never more than any way between them (0 is fine). */
   distance(a: string, b: string): number
   /** The kinds of the connections between two neighbouring places, e.g. ['road'] or ['river']. */
-  edges(a: string, b: string): string[]
+  connections(a: string, b: string): string[]
   /** The km a step from `a` into its neighbour `b` measures, at the map's scale. */
   km(a: string, b: string): number
 }
@@ -844,13 +844,13 @@ export function createTravelEngine(options: {
       terrain: place?.terrain,
       water: !!place?.water,
       tags: place?.tags ?? [],
-      edges: world.edges(a, b),
+      connections: world.connections(a, b),
       mode: state.mode,
       weather: state.weather,
     }
   }
 
-  /** Terrain/edge multiplier for entering `b` from `a` (0 or Infinity-safe). */
+  /** Terrain/connection multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (state: TravelState, a: string, b: string): number => {
     const mode = rules.modes[state.mode]
     const place = world.place(b)
@@ -872,10 +872,10 @@ export function createTravelEngine(options: {
     )
       return 0
     const edgeMultipliers = world
-      .edges(a, b)
-      .map((e) => rules.edges?.[e]?.multiplier)
+      .connections(a, b)
+      .map((e) => rules.connections?.[e]?.multiplier)
       .filter((m): m is number => m !== undefined)
-    // Roads and similar edges replace the terrain penalty.
+    // Roads and similar connections replace the terrain penalty.
     return edgeMultipliers.length
       ? Math.max(...edgeMultipliers)
       : (terrainRule?.multiplier ?? rules.defaultTerrain?.multiplier ?? 1)
@@ -909,7 +909,7 @@ export function createTravelEngine(options: {
       rules.defaultTerrain?.multiplier ?? 1,
       ...Object.values(rules.terrains).map((t) => t.multiplier ?? 1),
       rules.water?.multiplier ?? 0,
-      ...Object.values(rules.edges ?? {}).map((e) => e.multiplier ?? 0),
+      ...Object.values(rules.connections ?? {}).map((e) => e.multiplier ?? 0),
     )
     const minPerKm = 60 / ((mode.kmPerDay / rules.travel.hoursPerDay) * best)
     const result = findPath<string>(state.location, to, {
@@ -925,7 +925,7 @@ export function createTravelEngine(options: {
   }
 
   /**
-   * What checks see. `edges` are the lines of the stretch the check is about: the one just
+   * What checks see. `connections` are the kinds of the stretch the check is about: the one just
    * walked when entering a place, the one ahead at dawn or in camp.
    */
   const checkContext = (
@@ -945,11 +945,11 @@ export function createTravelEngine(options: {
       terrain: place?.terrain,
       tags: place?.tags ?? [],
       // The stretch given (the one just walked entering a place), or else the one ahead.
-      edges:
+      connections:
         a && b
-          ? world.edges(a, b)
+          ? world.connections(a, b)
           : state.route?.[1]
-            ? world.edges(state.location, state.route[1])
+            ? world.connections(state.location, state.route[1])
             : [],
       weather: state.weather,
       mode: state.mode,
@@ -1024,7 +1024,7 @@ export function createTravelEngine(options: {
       if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
       // The actions the system takes at this moment come first (their checks too), seeing
       // what its checks see.
-      const walked = from ? { ...left, edges: world.edges(from, state.location) } : {}
+      const walked = from ? { ...left, connections: world.connections(from, state.location) } : {}
       for (const id of triggered.get(at) ?? []) {
         const still = takeAction(state, id, events, {
           on: at,

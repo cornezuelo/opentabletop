@@ -29,13 +29,13 @@ it.skipIf(!OUT)('writes the old trips of this version', { timeout: 120_000 }, as
   }
   // A road for a while, then a landmark in the forest (the Grey Marches pause there).
   const way = [
-    { terrain: 'plains', tags: [], edges: ['road'] },
-    { terrain: 'plains', tags: [], edges: ['road'] },
-    { terrain: 'forest', tags: [], edges: [] },
-    { terrain: 'forest', tags: ['landmark'], edges: [] },
-    { terrain: 'hills', tags: [], edges: [] },
-    { terrain: 'hills', tags: [], edges: [] },
-    { terrain: 'plains', tags: [], edges: [] },
+    { terrain: 'plains', tags: [], connections: ['road'] },
+    { terrain: 'plains', tags: [], connections: ['road'] },
+    { terrain: 'forest', tags: [], connections: [] },
+    { terrain: 'forest', tags: ['landmark'], connections: [] },
+    { terrain: 'hills', tags: [], connections: [] },
+    { terrain: 'hills', tags: [], connections: [] },
+    { terrain: 'plains', tags: [], connections: [] },
   ]
   const newTrip = async (system: string) => {
     await trip.create(system, 'autumn')

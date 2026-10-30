@@ -19,7 +19,7 @@ El mapa solo dice por dónde va cada línea. Lo que significa para un viaje lo d
 - **Velocidad**: cada tipo de línea puede tener un multiplicador de velocidad. Con las **reglas genéricas** un camino es ×1,5 y un sendero ×1,2, y un río no cambia nada. Con las **Marcas Grises**, un camino es ×1,5 y un sendero ×1,2; otro sistema puede hacer que no aceleren nada.
 - **Comprobaciones**: un sistema puede saltarse una comprobación mientras sigues una línea. En las **Marcas Grises** no se tira para perderse al seguir un camino o un río, ni hay encuentros al llegar por el camino; las reglas genéricas no tienen tirada de perderse.
 
-Seguir una línea significa que la ruta va de hex en hex a lo largo de ella. Para ver o cambiar lo que hace un sistema, abre su pack en la aplicación Oráculo (`edges` y `checks` en sus reglas de viaje); [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) lo explica.
+Seguir una línea significa que la ruta va de hex en hex a lo largo de ella. Para ver o cambiar lo que hace un sistema, abre su pack en la aplicación Oráculo (`connections` y `checks` en sus reglas de viaje); [Conectar tablas con mapas y viajes](../oracle/07-connecting.md) lo explica.
 
 ## Dibujar
 

@@ -65,7 +65,7 @@ function line(painted: Record<string, { terrain: string; tags?: string[]; name?:
     neighbors: (hex) =>
       [Number(hex) - 1, Number(hex) + 1].filter((n) => n >= 0 && n < 10).map(String),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
-    edges: () => [],
+    connections: () => [],
   }
   return world
 }
@@ -244,7 +244,7 @@ entries:
       place: (hex) => cells[hex] ?? null,
       neighbors: (hex) => ring[hex] ?? [],
       distance: (x, y) => (x === y ? 0 : 1),
-      edges: () => [],
+      connections: () => [],
     }
     const { session } = startTrip({ system: sys, location: 'd' })
     const step = stepTrip(

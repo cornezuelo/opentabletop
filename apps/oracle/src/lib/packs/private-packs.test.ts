@@ -26,7 +26,7 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
     neighbors: (hex) =>
       [String(Number(hex) - 1), String(Number(hex) + 1)].filter((h) => +h >= 0 && +h < 3),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
-    edges: () => [],
+    connections: () => [],
   }
   const options = (seed: string) => ({
     system: system(),

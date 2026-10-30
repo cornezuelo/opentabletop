@@ -32,7 +32,7 @@ A fever haunts the marshes. Travellers who cross them carry it, and each time it
 3. **The roads**: add a clock `the-closed-roads`, named _The roads close_, **Segments** `2`, **Then** empty (`keep`: once closed, they stay closed).
 4. **When they fill**: on the fever's card, **Add what happens when it fills**: the **World** tab opens with a reaction `the-fever-fills` **At** `world.clocks.the-fever.full`. Name it _The fever spreads_; its **Steps**: **Say** _The fever reaches the villages._, then **Add a step**, **Roll** `core/table.twists`, then **Add a step**, **Change** `world.clocks.the-closed-roads` · `1`. Back in **Clocks**, the same on the roads' card: a reaction `the-closed-roads-fills`, named _The roads close_, whose one step **Says** _The lords close the roads._
 5. **Travellers carry it**: in **Checks**, **Add a check**, with **Check** `FEVER`, named _Fever_. **When** `trip.place-enter`; **Only if** `place.terrain` · **is** · `swamp`; no table; **Changes** `world.clocks.the-fever` · `1`.
-6. **The barrier**: **Add a check**, with **Check** `BARRIER`, named _Turned back at the barrier_. **When** `trip.place-enter`; **Only if** the rows `world.clocks.the-closed-roads` · **is at least** · `2` and `trip.edges` · **is** · `road`; no table; tick **Pause after it**.
+6. **The barrier**: **Add a check**, with **Check** `BARRIER`, named _Turned back at the barrier_. **When** `trip.place-enter`; **Only if** the rows `world.clocks.the-closed-roads` · **is at least** · `2` and `trip.connections` · **is** · `road`; no table; tick **Pause after it**.
 7. **Word of it**: in **Rules → Actions**, **Add an action** `news`, named _Word of the fever_, with **By itself at** `world.clocks.the-fever.full`. Its one step: **Say** _Word comes: the fever has reached the villages._
 8. **A map**: in Map, **New map**; in **Map settings → Campaign → System**, _The Fever Marshes_. Paint a row of hexes: one of `plains`, three of `swamp`, then three of `plains` with a `road` along them.
 9. **Play it**: open the **World** panel (☾) and **Start the world clock**: its **Clocks** tab shows _The marsh fever_ at 1/4 and _The roads close_ at 0/2. In **Play**, put the party on the first plains hex, set the plains hex after the swamps as the destination and travel there.
@@ -96,7 +96,7 @@ checks:
   - event: BARRIER # step 6
     name: Turned back at the barrier
     at: trip.place-enter
-    when: { world.clocks.the-closed-roads: { gte: 2 }, trip.edges: road }
+    when: { world.clocks.the-closed-roads: { gte: 2 }, trip.connections: road }
     pause: true
 actions:
   news: # step 7

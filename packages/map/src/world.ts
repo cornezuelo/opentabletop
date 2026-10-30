@@ -19,13 +19,13 @@ import { type HexMap, TRAVEL_PATH_KINDS } from './types'
  */
 export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
   const { grid } = map
-  const edges = new Map<string, Set<string>>()
+  const connections = new Map<string, Set<string>>()
   for (const path of map.paths.filter((p) => TRAVEL_PATH_KINDS.includes(p.kind)))
     for (let i = 0; i < path.hexes.length - 1; i++) {
       const [a, b] = [path.hexes[i], path.hexes[i + 1]]
       for (const pair of [`${a}|${b}`, `${b}|${a}`]) {
-        if (!edges.has(pair)) edges.set(pair, new Set())
-        edges.get(pair)!.add(path.kind)
+        if (!connections.has(pair)) connections.set(pair, new Set())
+        connections.get(pair)!.add(path.kind)
       }
     }
   const cell = (hex: string) => parseKey(hex as HexKey)
@@ -63,6 +63,6 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
     neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),
     distance: (a, b) =>
       km * distance(toAxial(cell(a), grid.orientation), toAxial(cell(b), grid.orientation)),
-    edges: (a, b) => [...(edges.get(`${a}|${b}`) ?? [])],
+    connections: (a, b) => [...(connections.get(`${a}|${b}`) ?? [])],
   }
 }

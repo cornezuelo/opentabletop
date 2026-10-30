@@ -7,5 +7,5 @@ export const PALETTE = Object.keys(en.terrains)
 export const terrainName = (id: string): string =>
   id in en.terrains ? t(`terrains.${id}` as MessageKey) : id.replaceAll('-', ' ')
 
-export const edgeName = (id: string): string =>
-  id in en.edgeKinds ? t(`edgeKinds.${id}` as MessageKey) : id.replaceAll('-', ' ')
+export const connectionName = (id: string): string =>
+  id in en.connectionKinds ? t(`connectionKinds.${id}` as MessageKey) : id.replaceAll('-', ' ')

@@ -165,7 +165,7 @@ terrains:
   lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # frozen in deep winter
 defaultTerrain: { multiplier: 1 } # speed × for terrains not listed
 water: { passable: false } # water hexes without a rule of their own
-edges: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # along a road or river
+connections: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # along a road or river
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # values of the day tables and actions set
   lost: { name: Lost, blocks: [travel.move] }
@@ -212,7 +212,7 @@ checks:
       event: NAVIGATION_CHECK_REQUIRED,
       name: Getting lost,
       at: '06:00',
-      unless: { trip.edges: road },
+      unless: { trip.connections: road },
     }
   - {
       event: ENCOUNTER_CHECK_REQUIRED,
@@ -240,7 +240,7 @@ A step does one thing: `time` (minutes, a clock, `'14:00'`, or a part of the cal
 
 Packs written for an older pack format aren't read (see [File formats](02-file-formats.md#packs)).
 
-**What tables see:** the trip's facts (`place.terrain`, `trip.edges`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<value>`…) and the party (`party.stats.fatigue`, `party.values.food`, `party.items.ration.count`): the full list is in [What tables see](04-what-tables-see.md).
+**What tables see:** the trip's facts (`place.terrain`, `trip.connections`, `trip.mode`, `time.day`, `time.season`, `trip.weather`, `yesterday.<value>`…) and the party (`party.stats.fatigue`, `party.values.food`, `party.items.ration.count`): the full list is in [What tables see](04-what-tables-see.md).
 
 ## Bindings
 

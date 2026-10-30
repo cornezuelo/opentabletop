@@ -54,7 +54,7 @@ toll:
 
     **Enseña:**
 
-    - Una comprobación con `all` / `tags` / `edges`
+    - Una comprobación con `all` / `tags` / `connections`
     - Una tirada por debajo de una característica en una condición: `party.stats.charisma: { gte: '{{1d6}}' }`, un solo d6 para las dos entradas (`when` en una, `unless` en la otra)
     - Un efecto con un número negativo: `party.items.ration: -1`, una ración gastada
     - Un efecto sobre una facción desde un viaje: pagar hace que la guarnición de Fort Keld os aprecie más (`factions.fort-keld.values.reputation: 1`, en un mapa con sus facciones)

@@ -99,7 +99,7 @@ terrains:
   forest: { multiplier: 0.5 } # a media velocidad
   mountains: { multiplier: 0.33 }
   sea: { passable: false }
-edges:
+connections:
   road: { multiplier: 1.5 } # más rápido por los caminos
 modes:
   foot: { name: A pie, kmPerDay: 30 }
@@ -128,7 +128,7 @@ actions:
     do: [{ effects: { party.values.food: -1 } }] # la comida del grupo (su hoja, abajo)
 checks:
   - { event: WEATHER, at: '06:00' }
-  - { event: LOST, at: '06:00', unless: { trip.edges: [road, river] } }
+  - { event: LOST, at: '06:00', unless: { trip.connections: [road, river] } }
   - { event: ENCOUNTER, at: trip.place-enter, when: { place.terrain: [forest, swamp] } }
   - { event: NIGHT, at: actions.camp }
   - { event: FORAGE, at: actions.forage, when: { place.terrain: [forest, plains] } }
@@ -170,7 +170,7 @@ El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qu�
 No hay un día ni una marcha integrados: el grupo se mueve con las acciones que tienen un paso `travel.move` (su **march**, abajo), el viaje sigue por sí solo con la que nombra su `onward`, y lo que hace cuando no puede moverse es su **parada**. **travel** dice cuándo empiezan los viajes nuevos (`start`: una hora o una parte del día del calendario; vacío, medianoche) y cuántas horas lleva el día de marcha de una forma de viajar (`hoursPerDay`, la escala de su velocidad); las acciones también gastan horas. Su `hexKm` es la escala a la que se juega el sistema, cuántos km mide un hex (`hexKm: 30`: un hex es un día de marcha a 30 km al día): la usan los viajes sin mapa, y también un mapa con el sistema salvo que el mapa fije su propia escala (Mapa: Ajustes del mapa → Mapa). Sin ella, la del mapa o la del camino de Viajes, 10 por defecto. El `kmPerDay` de una forma de viajar es lo que recorre en esas horas por terreno fácil, y todo lo demás lo multiplica:
 
 - **terrains**: la velocidad en cada terreno (`multiplier`: 0.5 es la mitad, 2 el doble), por los ids de la paleta de Mapa. `defaultTerrain: { multiplier: 1 }` cubre los terrenos que usa el mapa y la lista no nombra.
-- **edges**: caminos, senderos y ríos que sigue el grupo (`road: { multiplier: 1.5 }`). Siguiendo uno, su multiplicador sustituye al del terreno.
+- **connections**: los tipos de conexión que sigue el grupo: caminos, senderos, ríos (`road: { multiplier: 1.5 }`). Siguiendo uno, su multiplicador sustituye al del terreno.
 - **weather**: el clima de hoy (por el id que pone una tabla o un modelo de clima) frena a todos: `storm: { speed: 0 }` (nadie viaja), `heavy-rain: { speed: 0.5 }`.
 
 Un terreno puede estar **cerrado**: `passable: false`, siempre, o con una [condición](../technical/08-conditions.md) sobre el hex al que se entra y el momento. Las rutas rodean lo cerrado.
@@ -190,7 +190,7 @@ water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 
 **modes** son las formas de viajar entre las que elige el jugador en el panel del viaje, cada una con su `kmPerDay` y un `name` (y una `description`) para los jugadores: el panel y el diario muestran _A caballo_ en lugar de `horse`, traducido en `locales/` como el resto. Sin nombre, se enseña el id, más legible (`on-foot`: on foot). Dos condiciones dan forma a cada una:
 
-- `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { place.water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; un carro solo por camino: `through: { trip.edges: road }`.
+- `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `connections` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { place.water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; un carro solo por camino: `through: { trip.connections: road }`.
 - `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Sistemas): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }`; un caballo, no con nieve: `unless: { trip.weather: snow }`.
 
 Un valor del día también puede bloquear una (`blocks: [modes.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
@@ -371,11 +371,16 @@ El diario lo dice primero (**En el mundo: se llenó La Sierpe despierta**), y lu
 
 **Momentos escritos como condiciones** (reacciones). Algunas cosas pasan una vez, cuando algo se hace cierto, sea lo que sea lo que lo hizo cierto: _cuando la moral llega a 0, los mercenarios desertan_. Escribe el momento como una condición, `on: { when: { party.values.morale: { lte: 0 } } }` (también con `unless`), en el `on:` de una acción o el `at:` de una comprobación, solo o en una lista junto a momentos con nombre (`at: [time.part.morning, { when: … }]`). Llega **una vez, al cumplirse la condición**, y otra solo después de que haya dejado de cumplirse: cuenta una tabla que baja la moral, una acción, una mano en la ficha del grupo, el turno de una facción. Se mira tras cada cambio del viaje, leyendo lo que ven las tablas (el viaje, el hex, la hora, el grupo, los personajes, los relojes del mundo), y lo que llega se juega allí mismo, como las acciones y comprobaciones de cualquier momento (una pausa detiene el viaje). Lo que ya se cumple al empezar un viaje llega en su primer paso (un viaje que empieza con moral 0 ve desertar a sus mercenarios); un viaje guardado antes de que existieran las reacciones toma lo que se cumple la próxima vez que se juega como ya visto. Con `for: party.members`, se mira para cada miembro, leído con ese miembro como `acting` (`on: { when: { acting.values.health: { lte: 0 } }, for: party.members }`), y se juega con él actuando (el diario dice _Por Mara, entra en juego una regla del sistema_), cada miembro una vez. Las reacciones que se desencadenan unas a otras (directamente o en cadena) se paran tras 10 seguidas, con una línea en el diario. Que se llene un reloj (`world.clocks.<id>.full`, arriba) es un caso de esto, que se oye aunque se llene fuera del viaje. **Un estado no es una reacción**: lo que deba cumplirse todo el rato (sobrecargado, agotado) es un estado de la hoja con `when:` ([Hojas](../technical/07-kinds.md#hojas)); una reacción es para algo que pasa. Las Marcas Grises: los mercenarios desertan cuando la moral llega a 0, un compañero cae cuando su salud llega a 0 (`for: party.members`), y se saca un presagio cuando el reloj de la Sierpe llega a 4 (`at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]`); la _Desesperación_ de Core detiene el viaje cuando la moral llega a 0.
 
-`when` / `unless` deciden dónde y cuándo se aplica, con las mismas [condiciones](../technical/08-conditions.md) que las tablas; `edges` son los caminos o ríos del tramo (el que acabas de recorrer al entrar en un hex, el que tienes por delante en un momento del día y al acampar).
+`when` / `unless` deciden dónde y cuándo se aplica, con las mismas [condiciones](../technical/08-conditions.md) que las tablas; `connections` son los caminos o ríos del tramo (el que acabas de recorrer al entrar en un hex, el que tienes por delante en un momento del día y al acampar).
 
 ```yaml
 checks:
-  - { event: LOST, name: Perderse, at: time.part.morning, unless: { trip.edges: [road, river] } }
+  - {
+      event: LOST,
+      name: Perderse,
+      at: time.part.morning,
+      unless: { trip.connections: [road, river] },
+    }
   - event: ENCOUNTER
     at: [trip.place-enter, actions.rest]
     when:

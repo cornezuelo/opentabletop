@@ -13,8 +13,8 @@ describe('the map as the travel engine sees it', () => {
     expect(world.place('1,1')).toMatchObject({ terrain: 'forest', tags: ['haunted'] })
     expect(world.place('-1,0')).toBeNull()
     expect(world.neighbors('1,1')).toContain('2,1')
-    expect(world.edges('1,1', '2,1')).toEqual(['road'])
-    expect(world.edges('2,1', '1,1')).toEqual(['road'])
+    expect(world.connections('1,1', '2,1')).toEqual(['road'])
+    expect(world.connections('2,1', '1,1')).toEqual(['road'])
   })
 
   it('measures a step a hex at the map’s scale, and distances in km', () => {

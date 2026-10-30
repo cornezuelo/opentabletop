@@ -209,8 +209,10 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    `place.tags`, `place.pois.<id>`, `{{place.danger}}`), the moment `trip.place-enter`, a
  *    `travel.move` to the next `place`, the total `trip.places` (in 10: `hex.*`,
  *    `trip.hex-enter`, `hex`, `trip.hexes`).
+ * 12. What joins two places is a connection: travel rules' `connections:` (road, river,
+ *    door…) and `trip.connections` (in 11: `edges:` and `trip.edges`).
  */
-export const PACK_FORMAT = 11
+export const PACK_FORMAT = 12
 
 export const manifestSchema = z
   .object({

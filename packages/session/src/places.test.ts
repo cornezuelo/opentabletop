@@ -16,7 +16,7 @@ const plain: TravelWorld = {
   place: () => ({ terrain: 'plains' }),
   neighbors: () => [],
   distance: () => 0,
-  edges: () => [],
+  connections: () => [],
 }
 
 describe('catalogues of places', () => {

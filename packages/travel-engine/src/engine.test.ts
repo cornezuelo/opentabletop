@@ -49,7 +49,7 @@ function makeWorld(): TravelWorld {
         toAxial(parseKey(a as `${number},${number}`), 'flat'),
         toAxial(parseKey(b as `${number},${number}`), 'flat'),
       ),
-    edges: (a, b) => (road.has(a) && road.has(b) ? ['road'] : []),
+    connections: (a, b) => (road.has(a) && road.has(b) ? ['road'] : []),
   }
 }
 
@@ -89,7 +89,7 @@ const { rules, errors } = parseTravelRules({
     mountains: { multiplier: 0.25 },
     sea: { passable: false },
   },
-  edges: { road: { multiplier: 1.5 } },
+  connections: { road: { multiplier: 1.5 } },
   modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 60 } },
   resources: { food: { min: 0 } },
   weather: { storm: { speed: 0 }, 'heavy-rain': { speed: 0.5 } },
@@ -108,7 +108,7 @@ const { rules, errors } = parseTravelRules({
   },
   checks: [
     { event: 'WEATHER_CHECK_REQUIRED', at: '06:00' },
-    { event: 'NAVIGATION_CHECK_REQUIRED', at: '06:00', unless: { edges: ['road', 'river'] } },
+    { event: 'NAVIGATION_CHECK_REQUIRED', at: '06:00', unless: { connections: ['road', 'river'] } },
     { event: 'ENCOUNTER_CHECK_REQUIRED', at: '06:00' },
     { event: 'CAMP_ENCOUNTER_CHECK_REQUIRED', at: 'actions.camp' },
   ],
@@ -1001,10 +1001,14 @@ describe('check context', () => {
       travel: DAY,
       actions: DAY_ACTIONS,
       terrains: { steppe: { multiplier: 1 } },
-      edges: { road: { multiplier: 1.5 } },
+      connections: { road: { multiplier: 1.5 } },
       modes: { foot: { kmPerDay: 90 } },
       checks: [
-        { event: 'ENCOUNTER_CHECK_REQUIRED', at: 'trip.place-enter', unless: { edges: 'road' } },
+        {
+          event: 'ENCOUNTER_CHECK_REQUIRED',
+          at: 'trip.place-enter',
+          unless: { connections: 'road' },
+        },
       ],
     })
     const engine = createTravelEngine({ world, rules: enter! })
@@ -1030,7 +1034,7 @@ describe('water', () => {
       ] ?? null,
     neighbors: (hex) => ({ a: ['b'], b: ['a', 'c'], c: ['b'] })[hex] ?? [],
     distance: (x, y) => 10 * Math.abs(x.charCodeAt(0) - y.charCodeAt(0)),
-    edges: () => [],
+    connections: () => [],
   }
   const rulesWith = (extra: object) =>
     parseTravelRules({
@@ -1088,8 +1092,8 @@ describe('only through', () => {
       travel: DAY,
       actions: DAY_ACTIONS,
       terrains: { steppe: {}, mountains: { multiplier: 0.25 }, sea: { passable: false } },
-      edges: { road: { multiplier: 1.5 } },
-      modes: { foot: { kmPerDay: 30 }, cart: { kmPerDay: 40, through: { edges: 'road' } } },
+      connections: { road: { multiplier: 1.5 } },
+      modes: { foot: { kmPerDay: 30 }, cart: { kmPerDay: 40, through: { connections: 'road' } } },
     })
     expect(errors).toEqual([])
     const eng = createTravelEngine({ world, rules: carts! })
@@ -1104,7 +1108,7 @@ describe('only through', () => {
       travel: DAY,
       actions: DAY_ACTIONS,
       terrains: {},
-      modes: { cart: { kmPerDay: 40, through: { edges: { near: 'road' } } } },
+      modes: { cart: { kmPerDay: 40, through: { connections: { near: 'road' } } } },
     })
     expect(bad.errors.some((e) => e.startsWith('modes.cart.through'))).toBe(true)
   })
@@ -2051,7 +2055,7 @@ describe('full names of facts', () => {
       place: { id: '2,9', terrain: 'steppe', tags: [] },
       time: { season: 'spring', day: state.day, hour: 6 },
       system: { hoursPerDay: 8 },
-      trip: { day: 1, marched: 0, mode: 'foot', visits: 1, edges: [] },
+      trip: { day: 1, marched: 0, mode: 'foot', visits: 1, connections: [] },
       world: { clocks: { 'the-flood': 4 }, events: ['market-day'] },
       today: { lost: true },
       season: 'spring',
@@ -2072,7 +2076,7 @@ describe('full names of facts', () => {
           do: [{ time: 60 }],
         },
         flood: { when: { 'world.clocks.the-flood': { gte: 4 } }, do: [{ time: 60 }] },
-        roadside: { when: { 'trip.edges': 'road' }, do: [{ time: 60 }] },
+        roadside: { when: { 'trip.connections': 'road' }, do: [{ time: 60 }] },
       },
     })
     const engine = createTravelEngine({ world, rules: own! })
@@ -2080,7 +2084,7 @@ describe('full names of facts', () => {
     expect(why().dawn).toBeUndefined()
     expect(why().flood).toMatchObject({ condition: 'when' })
     expect(why({ clocks: { 'the-flood': 4 } }).flood).toBeUndefined()
-    // Entering a hex by road: the step's edges.
+    // Entering a hex by road: the step's connections.
     expect(engine.availability({ ...start('5,9') }).roadside).toMatchObject({ condition: 'when' })
   })
 })
@@ -2815,7 +2819,7 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
           facts: {
             moment: 'trip.place-enter',
             from: expect.objectContaining({ id: '0,1' }),
-            edges: [],
+            connections: [],
           },
         },
       ],

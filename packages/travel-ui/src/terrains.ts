@@ -11,10 +11,11 @@ export function terrainChoices(system: TravelSystem): string[] {
 }
 
 /** Kinds of line to choose from: the usual ones plus any the rules name. */
-export function edgeChoices(system: TravelSystem): string[] {
-  return [...new Set(['road', 'trail', 'river', ...Object.keys(system.rules.edges ?? {})])]
+export function connectionChoices(system: TravelSystem): string[] {
+  return [...new Set(['road', 'trail', 'river', ...Object.keys(system.rules.connections ?? {})])]
 }
 
 export const terrainName = (t: Translate, id: string): string => idText(t, `terrains.${id}`, id)
 
-export const edgeName = (t: Translate, id: string): string => idText(t, `edgeKinds.${id}`, id)
+export const connectionName = (t: Translate, id: string): string =>
+  idText(t, `connectionKinds.${id}`, id)

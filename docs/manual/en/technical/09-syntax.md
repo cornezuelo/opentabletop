@@ -36,7 +36,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 - Where a field rolls something (an entry's or card's `table:` / `generator:`, a binding's `resolve:`, a faction's `turn:`, a step's `roll:` in an action or a world reaction), it may be a table, an oracle, a generator or a deck: the kind says which (`table: generator.npc`, `resolve: oracle.ford`).
 - A pack's `aliases` give another name to a reference: `aliases: { table.twist: core/table.twists }`, then `table: table.twist`.
 - Entries and cards have ids too, for translations and once-only entries.
-- **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.place-enter`, `time.day-end`, a part of the day `time.part.morning`, a clock of the world filling `world.clocks.<id>.full`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.edges: road`, `place.terrain: forest`.
+- **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.place-enter`, `time.day-end`, a part of the day `time.part.morning`, a clock of the world filling `world.clocks.<id>.full`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.connections: road`, `place.terrain: forest`.
 
 ## Dice
 
@@ -87,22 +87,22 @@ A missing value shows as nothing. Variables work in results, generator templates
 
 When something applies. The same syntax everywhere: `when` (must hold) and `unless` (must not). Full reference: [Conditions](08-conditions.md).
 
-| Write                                               | Holds when                                  |
-| --------------------------------------------------- | ------------------------------------------- |
-| `place.terrain: forest`                             | it's exactly that                           |
-| `place.terrain: [forest, hills]`                    | it's any of them                            |
-| `place.tags: landmark`                              | a list (tags, holidays) contains it         |
-| `time.season: { not: summer }`                      | it's anything else (or missing)             |
-| `place.danger: { gte: 3 }`                          | `gt`, `gte`, `lt`, `lte`: a number compared |
-| `place.danger: { gte: 2, lte: 4 }`                  | every comparison holds                      |
-| `trip.weather: { in: [rain, storm] }`               | the same as a list                          |
-| `place.region: { exists: false }`                   | it's missing (`true`: it's there)           |
-| `place.danger: { gt: '{{party.stats.stealth}}' }`   | a variable: compared with another value     |
-| `party.stats.wits: { gte: '{{1d20}}' }`             | a roll: under the wits (once a moment)      |
-| `{ place.terrain: forest, timeOfDay: night }`       | every pair holds                            |
-| `any: [{ trip.edges: road }, { trip.mode: boat }]`  | one of them holds                           |
-| `all: [{ place.tags: ford }, { place.tags: toll }]` | all of them (one name twice)                |
-| `not: { timeOfDay: night }`                         | the condition inside doesn't                |
+| Write                                                    | Holds when                                  |
+| -------------------------------------------------------- | ------------------------------------------- |
+| `place.terrain: forest`                                  | it's exactly that                           |
+| `place.terrain: [forest, hills]`                         | it's any of them                            |
+| `place.tags: landmark`                                   | a list (tags, holidays) contains it         |
+| `time.season: { not: summer }`                           | it's anything else (or missing)             |
+| `place.danger: { gte: 3 }`                               | `gt`, `gte`, `lt`, `lte`: a number compared |
+| `place.danger: { gte: 2, lte: 4 }`                       | every comparison holds                      |
+| `trip.weather: { in: [rain, storm] }`                    | the same as a list                          |
+| `place.region: { exists: false }`                        | it's missing (`true`: it's there)           |
+| `place.danger: { gt: '{{party.stats.stealth}}' }`        | a variable: compared with another value     |
+| `party.stats.wits: { gte: '{{1d20}}' }`                  | a roll: under the wits (once a moment)      |
+| `{ place.terrain: forest, timeOfDay: night }`            | every pair holds                            |
+| `any: [{ trip.connections: road }, { trip.mode: boat }]` | one of them holds                           |
+| `all: [{ place.tags: ford }, { place.tags: toll }]`      | all of them (one name twice)                |
+| `not: { timeOfDay: night }`                              | the condition inside doesn't                |
 
 **Where they go:**
 

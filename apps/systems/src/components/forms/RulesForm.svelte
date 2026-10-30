@@ -3,7 +3,7 @@
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
   import { t } from '../../lib/i18n'
   import { actionIds, type SystemDoc } from '../../lib/systemDoc.svelte'
-  import { edgeName, terrainName, PALETTE } from '../../lib/terrains'
+  import { connectionName, terrainName, PALETTE } from '../../lib/terrains'
   import { contextSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { dayPartRefs } from '../../lib/dayParts'
   import { BLOCKABLE, ref, refId } from '@open-tabletop/travel-engine'
@@ -337,20 +337,20 @@
   </section>
 
   <section>
-    <h3>{t('rules.edges')}<InfoTip text={t('rules.edgesHelp')} /></h3>
+    <h3>{t('rules.connections')}<InfoTip text={t('rules.connectionsHelp')} /></h3>
     <RecordRows
       {doc}
-      at={['edges']}
-      uses={system && { of: (id) => usesFor(system, { kind: 'edge', id }), system }}
-      idLabel={t('rules.edge')}
+      at={['connections']}
+      uses={system && { of: (id) => usesFor(system, { kind: 'connection', id }), system }}
+      idLabel={t('rules.connection')}
       suggestions={['road', 'trail', 'river']}
-      nameOf={edgeName}
+      nameOf={connectionName}
       template={{ multiplier: 1.5 }}
       columns={[
         {
           field: 'multiplier',
           label: t('rules.multiplier'),
-          help: t('rules.edgeMultiplierHelp'),
+          help: t('rules.connectionMultiplierHelp'),
           type: 'number',
           min: 0,
         },

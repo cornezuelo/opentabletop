@@ -82,7 +82,7 @@ export function contextSuggestions(
   add('below')
   add('above')
   add('doing')
-  add('edges', 'road', 'trail', 'river')
+  add('connections', 'road', 'trail', 'river')
   // The terrains are the systems' (below) and the map's (the host's `extra`).
   add('terrain')
   add('tags')
@@ -192,7 +192,7 @@ export function contextSuggestions(
     add('weather', ...Object.keys(rules.weather ?? {}))
     add('mode', ...Object.keys(rules.modes))
     add('party.mode', ...Object.keys(rules.modes))
-    add('edges', ...Object.keys(rules.edges ?? {}))
+    add('connections', ...Object.keys(rules.connections ?? {}))
     // The party's own sheet, and its items with its members': what they spent and gained,
     // and what hit a bound, by full name.
     const numbers = [

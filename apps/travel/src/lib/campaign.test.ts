@@ -100,7 +100,7 @@ describe('trips in campaigns', () => {
       name: 'The Frontier',
     })
     expect(await placeCampaign({ app: 'map', id: 'gone' })).toBeUndefined()
-    for (let i = 0; i < 4; i++) trip.addHex({ terrain: 'plains', tags: [], edges: ['road'] })
+    for (let i = 0; i < 4; i++) trip.addHex({ terrain: 'plains', tags: [], connections: ['road'] })
     await settle()
 
     // The map's trip played there last: playing this one asks to pause it.

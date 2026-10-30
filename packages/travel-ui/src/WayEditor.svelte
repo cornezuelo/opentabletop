@@ -2,7 +2,7 @@
   import type { TravelSystem } from '@open-tabletop/session'
   import { InfoTip, TagInput, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
-  import { edgeChoices, edgeName, terrainChoices, terrainName } from './terrains'
+  import { connectionChoices, connectionName, terrainChoices, terrainName } from './terrains'
   import type { TripStore } from './trips.svelte'
 
   /** The hexes of a trip without a map: terrain, tags and the road or river to the next one. */
@@ -23,7 +23,7 @@
   const way = $derived(trip.saved.way)
   const here = $derived(trip.location)
   const terrains = $derived(terrainChoices(system))
-  const edges = $derived(edgeChoices(system))
+  const kinds = $derived(connectionChoices(system))
 </script>
 
 <div class="way">
@@ -82,25 +82,29 @@
           onclick={() => trip.removeHex(i)}>×</button
         >
         {#if i < way.length - 1}
-          <div class="edges" aria-label={t('play.edges')}>
+          <div class="connections" aria-label={t('play.connections')}>
             <span
-              >↓ {t('play.edges')}{#if i === 0}<InfoTip text={t('play.edgesHelp')} />{/if}</span
+              >↓ {t('play.connections')}{#if i === 0}<InfoTip
+                  text={t('play.connectionsHelp')}
+                />{/if}</span
             >
-            {#each edges as kind (kind)}
+            {#each kinds as kind (kind)}
               <label>
                 <input
                   type="checkbox"
-                  checked={hex.edges.includes(kind)}
+                  checked={hex.connections.includes(kind)}
                   disabled={i < here}
                   onchange={(e) => {
                     const on = e.currentTarget.checked
                     trip.updateHex(i, (h) => ({
                       ...h,
-                      edges: on ? [...h.edges, kind] : h.edges.filter((k) => k !== kind),
+                      connections: on
+                        ? [...h.connections, kind]
+                        : h.connections.filter((k) => k !== kind),
                     }))
                   }}
                 />
-                {edgeName(t, kind)}
+                {connectionName(t, kind)}
               </label>
             {/each}
           </div>
@@ -190,7 +194,7 @@
     color: var(--accent);
   }
 
-  .edges {
+  .connections {
     display: flex;
     flex-wrap: wrap;
     grid-column: 2 / -1;
@@ -199,7 +203,7 @@
     color: var(--text-muted);
   }
 
-  .edges label {
+  .connections label {
     display: flex;
     gap: 4px;
     align-items: center;

@@ -24,7 +24,7 @@ A map, whatever its grid, is read by the rules as a **graph**:
 - **Connections** between places: by default, neighbouring cells connect; drawn connections add or replace them, each with a **kind** the system names (`door`, `stairs`, `passage`, `secret`, `rope`…), tags and values (`locked`, `dc: 3`). A connection's **state** while playing (found, open, locked, broken) is play state, not the map (definitions ≠ state).
 - The engine changes little: `TravelWorld` names places instead of hexes; `edges(a, b)` returns the connection's kinds; `distance` is a hint for routes (any graph may give 0, the search still works); the time a step takes comes from the system (§5), not only from km.
 
-What rules read is the same syntax, generalised: `place.terrain`, `place.tags`, `place.kind` (`hex`, `square`, `area`, `point`), `trip.edges: door`, `trip.places`. **`hex.*` goes** (decision A): every name that says hex where it means the place the party is (facts, moments, totals, effects such as `hex.pois.<place>`) is renamed, with a pack format bump; packs of the older format are refused, ours are moved.
+What rules read is the same syntax, generalised: `place.terrain`, `place.tags`, `place.kind` (`hex`, `square`, `area`, `point`), `trip.connections: door`, `trip.places`. **`hex.*` goes** (decision A): every name that says hex where it means the place the party is (facts, moments, totals, effects such as `hex.pois.<place>`) is renamed, with a pack format bump; packs of the older format are refused, ours are moved.
 
 ## 4. Grids and drawing
 
@@ -93,7 +93,7 @@ User: "también poder dibujar ríos y masas de agua que se vean guay; para los h
 - Choosing: **New map** asks for the kind (with a picture of each), which sets the grid, the tools in sight, the style and the scale; everything stays changeable in Map settings, so a kind is a starting point, not a cage. A system may say which kinds its maps use (the Grey Marches: hexcrawl, and dungeons under it).
 - **Decided (2026-10-30)**: kinds are presets of one model (as above); they come in the order hexcrawl → its dungeons as sub-maps → square maps with structures (the city, the hybrid) → the pointcrawl; a hex map holds no structures: a site inside a hex is a sub-map.
 
-## 11. Phase 1's syntax: a proposal (2026-10-30, to agree before code)
+## 11. Phase 1's syntax (proposed 2026-10-30, decided with the user the same day)
 
 Phase 1a is built (nothing new for packs): the travel engine walks places and the connections between them, each step measuring its own km. What's left of phase 1 adds pack syntax and a map format, so it's proposed here first. Claude's proposal, one choice per point:
 
@@ -105,3 +105,5 @@ Phase 1a is built (nothing new for packs): the travel engine walks places and th
 6. **The bundled packs**: the Grey Marches' example map gets a ford (`ford: { minutes: 60 }`, passable unless `today.flood`) and a hidden path over the hills found by a check (state `found`); Core gets a `gate` with `passable: { unless: { connection.state: shut } }` and an action to open it.
 
 Phases after agreeing: (1b) the rename of point 1, if agreed; (1c) connections on the map and in `mapWorld` / `wayWorld`, the Connection tool; (1d) kinds' `minutes` and `passable`, `connection.*`, state and its effects; (1e) the bundled packs and their manual pages.
+
+**Decided with the user (2026-10-30)**: every point as proposed; point 1, the rename (user: "cambiamos por coherencia"); point 2, the connections are a **layer of their own** in Layers, shown or hidden like the others.

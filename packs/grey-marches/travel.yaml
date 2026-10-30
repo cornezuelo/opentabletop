@@ -43,7 +43,7 @@ terrains:
 # Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…
 water: { passable: false }
 defaultTerrain: { multiplier: 1 }
-edges:
+connections:
   road: { multiplier: 1.5 }
   trail: { multiplier: 1.2 }
 modes:
@@ -57,12 +57,12 @@ modes:
     kmPerDay: 40
     through: { any: [{ place.water: true }, { place.terrain: coast }] }
     when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }
-  # A cart only rolls along roads (through: the roads of each step, `trip.edges`).
+  # A cart only rolls along roads (through: the roads of each step, `trip.connections`).
   cart:
     name: By cart
     description: Slow and steady, and only along the roads.
     kmPerDay: 30
-    through: { trip.edges: road }
+    through: { trip.connections: road }
 weather:
   rain: { speed: 0.75 }
   fog: { speed: 0.75 }
@@ -299,7 +299,7 @@ actions:
   carter:
     name: Ride with a carter
     description: 'On a road, by day: a carter going your way takes you two hexes along your route in two hours. Once a day.'
-    when: { time.tags: { not: dark }, trip.edges: road }
+    when: { time.tags: { not: dark }, trip.connections: road }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
@@ -543,14 +543,15 @@ checks:
     # Also a moment written as a condition: once, as the Wyrm's clock reaches 4.
     at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]
     unless: { trip.arrived: true }
-  # Off roads and rivers, and not by boat: any / edges / mode. The checks of one moment are
+  # Off roads and rivers, and not by boat: any / connections / mode. The checks of one moment are
   # decided one by one, in this order: at the same dawn, this one already sees the weather
   # just rolled (`trip.weather`): nobody travels in a storm, so nobody gets lost.
   - event: NAVIGATION_CHECK_REQUIRED
     name: Getting lost
     description: Every dawn off roads and rivers (not by boat), unless a storm keeps the Company in. Navigation helps; fog makes it harder.
     at: time.part.morning
-    unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }, { trip.weather: storm }] }
+    unless:
+      { any: [{ trip.connections: [road, river] }, { trip.mode: boat }, { trip.weather: storm }] }
   # Encounters where the map says there is danger (a hex field) over the party's Stealth (a
   # variable: a stealthy party slips through the safer hexes unseen), never on the road;
   # also when resting somewhere dangerous enough. Two moments (at: a list), told apart by
@@ -568,13 +569,13 @@ checks:
             place.danger: { gt: '{{party.stats.stealth}}' },
           }
         - { trip.moment: actions.rest, place.danger: { gte: 3 } }
-    unless: { trip.edges: road }
-  # A toll on tagged hexes reached by road: all / tags / edges.
+    unless: { trip.connections: road }
+  # A toll on tagged hexes reached by road: all / tags / connections.
   - event: TOLL_CHECK_REQUIRED
     name: Toll
     description: Keld Bridge, arriving by road.
     at: trip.place-enter
-    when: { all: [{ place.tags: toll }, { trip.edges: road }] }
+    when: { all: [{ place.tags: toll }, { trip.connections: road }] }
   # Fords are rolled on an oracle, except by boat: not.
   - event: FORD_CHECK_REQUIRED
     name: Ford
@@ -607,7 +608,7 @@ checks:
         - { trip.moment: actions.camp, place.danger: { gte: 2 } }
         - all:
             - { trip.moment: trip.place-enter, time.tags: dark, place.danger: { gte: 1 } }
-            - { not: { trip.edges: road } }
+            - { not: { trip.connections: road } }
     # A journey role: whoever keeps watch (`roles.lookout`, chosen in the trip), read by their
     # own values. With nobody on watch, this never holds.
     unless:
@@ -634,7 +635,7 @@ checks:
     description: Each hex entered after nightfall, off the road. The dark makes it easy to lose your way.
     at: trip.place-enter
     when: { time.tags: dark }
-    unless: { trip.edges: road }
+    unless: { trip.connections: road }
   # Conditions on the party: a day ending with no rations left (party.items.ration.count:
   # the Company's and its companions' together, 0 when nobody has one), when the party can't
   # camp either (camp needs food): the night out in the open, hungry.

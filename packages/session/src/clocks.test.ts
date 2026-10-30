@@ -10,7 +10,7 @@ import { travelSystems } from './trip'
  * reaction to the first filling: words, a table rolled, effects.
  */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 12\n' },
   {
     path: 'marks/system.yaml',
     content: 'kind: system\nname: Marks\nclocks: clocks.default\nworld: world.default\n',

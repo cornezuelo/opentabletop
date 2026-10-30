@@ -70,7 +70,7 @@ describe('bundled open packs', () => {
       neighbors: (hex) =>
         [Number(hex) - 1, Number(hex) + 1].filter((i) => i >= 0 && i < n).map(String),
       distance: (x, y) => Math.abs(Number(x) - Number(y)),
-      edges: () => (road ? ['road'] : []),
+      connections: () => (road ? ['road'] : []),
     }
   }
 
@@ -1512,7 +1512,7 @@ describe('bundled open packs', () => {
       {
         path: 'mine/pack.yaml',
         content:
-          "id: mine\nversion: 0.1.0\nlocale: en\nformat: 11\ndependencies: { core: '>=0.1.0' }\n",
+          "id: mine\nversion: 0.1.0\nlocale: en\nformat: 12\ndependencies: { core: '>=0.1.0' }\n",
       },
       {
         path: 'mine/system.yaml',

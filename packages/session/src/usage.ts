@@ -51,7 +51,7 @@ export type Declared =
   /** A kind of relation of one of its sheets (`home`): read wherever relations are. */
   | { kind: 'sheet-relation'; sheet: SheetScope; id: string }
   /** Its ways of travelling, terrains, roads and rivers, kinds of weather, actions and factions. */
-  | { kind: 'mode' | 'terrain' | 'edge' | 'weather' | 'action' | 'faction'; id: string }
+  | { kind: 'mode' | 'terrain' | 'connection' | 'weather' | 'action' | 'faction'; id: string }
   /** A check, by its event. */
   | { kind: 'check'; id: string }
   /** A table, oracle, generator or deck of its packs: `table.ruins` in `pack`. */
@@ -406,8 +406,8 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
     case 'terrain':
       match = (u) => TERRAIN_FACTS.includes(u.name) && has(u)
       break
-    case 'edge':
-      match = (u) => u.name === 'trip.edges' && has(u)
+    case 'connection':
+      match = (u) => u.name === 'trip.connections' && has(u)
       break
     case 'weather':
       // Read as the day's weather, or set by a table (`set: { weather: storm }`).
@@ -518,7 +518,7 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
   const rules = system.rules as Record<string, unknown>
   for (const id of ids(rules.modes)) out.push({ kind: 'mode', id })
   for (const id of ids(rules.terrains)) out.push({ kind: 'terrain', id })
-  for (const id of ids(rules.edges)) out.push({ kind: 'edge', id })
+  for (const id of ids(rules.connections)) out.push({ kind: 'connection', id })
   for (const id of ids(rules.weather)) out.push({ kind: 'weather', id })
   for (const id of ids(rules.actions)) out.push({ kind: 'action', id })
   for (const event of new Set((system.rules.checks ?? []).map((c) => c.event)))

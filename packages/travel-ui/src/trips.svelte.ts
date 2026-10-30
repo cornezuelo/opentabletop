@@ -71,9 +71,11 @@ import { campaignTexts, clockFilledText, worldWords } from '@open-tabletop/campa
  * `core/…`); v8: where the last step's journal lines start (`session.lastStep`), none in
  * older trips until they next step; v9: the campaign it plays in (`campaign`), for older
  * trips one of its own (the trip's id); v10: the party's supplies are its values or items
- * (`travel.resources` moves to the party sheet's values). All migrated on reading.
+ * (`travel.resources` moves to the party sheet's values); v11: a way's hexes join the next by
+ * `connections` (their `edges` before), and the trip's journal and totals say places where
+ * they said hexes. All migrated on reading.
  */
-const VERSION = 10
+const VERSION = 11
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {
@@ -139,7 +141,7 @@ const blank = (system = DEFAULT_SYSTEM, id = newTripId()): Saved => ({
   system,
   season: 'spring',
   hexKm: 10,
-  way: [{ terrain: 'plains', tags: [], edges: [] }],
+  way: [{ terrain: 'plains', tags: [], connections: [] }],
   startDay: SEASON_START_DAYS.spring,
   session: null,
 })
@@ -154,6 +156,13 @@ const isTrip = (raw: unknown): raw is Omit<Saved, 'id' | 'name' | 'campaign'> & 
 function withCampaign<T extends Partial<Saved>>(t: T): T & { id: string; campaign: string } {
   const id = t.id || newTripId()
   return { ...t, id, campaign: t.campaign || id }
+}
+
+/** A hex of an older way, whose connections to the next were its `edges` (before version 11). */
+function connectionsOf(hex: WayHex & { edges?: string[] }): WayHex {
+  if (!hex.edges) return hex
+  const { edges, ...rest } = hex
+  return { ...rest, connections: rest.connections ?? edges }
 }
 
 /** Saved trips, migrating the single trip of older versions. */
@@ -172,6 +181,7 @@ export function readTrips(
           ...t,
           name: t.name ?? '',
           system: systemIdOf(t.system),
+          way: t.way.map(connectionsOf),
           session:
             t.session &&
             migratePlaces(
@@ -818,7 +828,11 @@ export class TripStore {
   // The way ahead: hexes can be added, changed and removed ahead of the party.
 
   addHex(
-    hex: WayHex = { terrain: this.saved.way.at(-1)?.terrain ?? 'plains', tags: [], edges: [] },
+    hex: WayHex = {
+      terrain: this.saved.way.at(-1)?.terrain ?? 'plains',
+      tags: [],
+      connections: [],
+    },
   ): void {
     this.saved = { ...this.saved, way: [...this.saved.way, hex] }
     this.aim()

@@ -28,7 +28,7 @@ export const BUILT_IN_VALUES = [
   'year',
   'weekday',
   'holidays',
-  'edges',
+  'connections',
   'party.mode',
   'below',
   'above',

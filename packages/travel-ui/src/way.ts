@@ -7,8 +7,8 @@ export const WATER = ['lake', 'sea', 'deep-sea']
 export interface WayHex {
   terrain: string
   tags: string[]
-  /** Kinds of line (road, river…) that lead from this hex to the next. */
-  edges: string[]
+  /** Kinds of connection (road, river…) that lead from this hex to the next. */
+  connections: string[]
 }
 
 /**
@@ -31,9 +31,9 @@ export function wayWorld(way: readonly WayHex[], hexKm: number): TravelWorld {
       return [i - 1, i + 1].filter(valid).map(String)
     },
     distance: (a, b) => hexKm * Math.abs(index(a) - index(b)),
-    edges(a, b) {
+    connections(a, b) {
       const [i, j] = [index(a), index(b)].sort((x, y) => x - y)
-      return j === i + 1 ? (way[i]?.edges ?? []) : []
+      return j === i + 1 ? (way[i]?.connections ?? []) : []
     },
   }
 }

@@ -225,7 +225,7 @@ export const NO_TRAVEL: TravelRules = {
   travel: { hoursPerDay: 0, hexKm: 10 },
   terrains: {},
   water: { passable: false },
-  edges: {},
+  connections: {},
   modes: {},
   checks: [],
   values: {},
@@ -1506,7 +1506,7 @@ const NO_WORLD: TravelWorld = {
   place: () => null,
   neighbors: () => [],
   distance: () => 0,
-  edges: () => [],
+  connections: () => [],
 }
 
 /**

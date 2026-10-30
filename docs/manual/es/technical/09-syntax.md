@@ -36,7 +36,7 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 - Donde un campo tira algo (el `table:` / `generator:` de una entrada o carta, el `resolve:` de un binding, el `turn:` de una facción, el `roll:` de un paso de una acción o de una reacción del mundo), puede ser una tabla, un oráculo, un generador o un mazo: el kind dice cuál (`table: generator.npc`, `resolve: oracle.ford`).
 - Los `aliases` de un pack dan otro nombre a una referencia: `aliases: { table.twist: core/table.twists }`, y luego `table: table.twist`.
 - Las entradas y las cartas también tienen id, para las traducciones y las entradas de una sola vez.
-- **Dentro de un sistema**, lo que nombran sus reglas se escribe por su nombre completo, `subsistema.id`, para que siempre diga qué es: un momento (`trip.place-enter`, `time.day-end`, una parte del día `time.part.morning`, un reloj del mundo al llenarse `world.clocks.<id>.full`), una acción (`actions.camp`), una comprobación (`checks.ENCOUNTER`), una forma de viajar (`modes.horse`), seguir avanzando (`travel.move`), un parámetro de la acción (`params.how`). Los valores que compara una condición siguen cortos, porque su clave ya dice qué son: `trip.edges: road`, `place.terrain: forest`.
+- **Dentro de un sistema**, lo que nombran sus reglas se escribe por su nombre completo, `subsistema.id`, para que siempre diga qué es: un momento (`trip.place-enter`, `time.day-end`, una parte del día `time.part.morning`, un reloj del mundo al llenarse `world.clocks.<id>.full`), una acción (`actions.camp`), una comprobación (`checks.ENCOUNTER`), una forma de viajar (`modes.horse`), seguir avanzando (`travel.move`), un parámetro de la acción (`params.how`). Los valores que compara una condición siguen cortos, porque su clave ya dice qué son: `trip.connections: road`, `place.terrain: forest`.
 
 ## Dados
 
@@ -87,22 +87,22 @@ Un valor que falta no muestra nada. Las variables sirven en resultados, plantill
 
 Cuándo se aplica algo. La misma sintaxis en todas partes: `when` (debe cumplirse) y `unless` (no debe). Referencia completa: [Condiciones](08-conditions.md).
 
-| Escribe                                             | Se cumple cuando                                |
-| --------------------------------------------------- | ----------------------------------------------- |
-| `place.terrain: forest`                             | es exactamente eso                              |
-| `place.terrain: [forest, hills]`                    | es cualquiera de ellos                          |
-| `place.tags: landmark`                              | una lista (etiquetas, festividades) lo contiene |
-| `time.season: { not: summer }`                      | es cualquier otra cosa (o falta)                |
-| `place.danger: { gte: 3 }`                          | `gt`, `gte`, `lt`, `lte`: un número comparado   |
-| `place.danger: { gte: 2, lte: 4 }`                  | se cumplen todas las comparaciones              |
-| `trip.weather: { in: [rain, storm] }`               | lo mismo que una lista                          |
-| `place.danger: { gt: '{{party.stats.stealth}}' }`   | una variable: comparado con otro valor          |
-| `party.stats.wits: { gte: '{{1d20}}' }`             | una tirada: bajo el ingenio (una por momento)   |
-| `place.region: { exists: false }`                   | falta (`true`: está)                            |
-| `{ place.terrain: forest, timeOfDay: night }`       | se cumplen todos los pares                      |
-| `any: [{ trip.edges: road }, { trip.mode: boat }]`  | se cumple uno de ellos                          |
-| `all: [{ place.tags: ford }, { place.tags: toll }]` | todos (un nombre dos veces)                     |
-| `not: { timeOfDay: night }`                         | la condición de dentro no se cumple             |
+| Escribe                                                  | Se cumple cuando                                |
+| -------------------------------------------------------- | ----------------------------------------------- |
+| `place.terrain: forest`                                  | es exactamente eso                              |
+| `place.terrain: [forest, hills]`                         | es cualquiera de ellos                          |
+| `place.tags: landmark`                                   | una lista (etiquetas, festividades) lo contiene |
+| `time.season: { not: summer }`                           | es cualquier otra cosa (o falta)                |
+| `place.danger: { gte: 3 }`                               | `gt`, `gte`, `lt`, `lte`: un número comparado   |
+| `place.danger: { gte: 2, lte: 4 }`                       | se cumplen todas las comparaciones              |
+| `trip.weather: { in: [rain, storm] }`                    | lo mismo que una lista                          |
+| `place.danger: { gt: '{{party.stats.stealth}}' }`        | una variable: comparado con otro valor          |
+| `party.stats.wits: { gte: '{{1d20}}' }`                  | una tirada: bajo el ingenio (una por momento)   |
+| `place.region: { exists: false }`                        | falta (`true`: está)                            |
+| `{ place.terrain: forest, timeOfDay: night }`            | se cumplen todos los pares                      |
+| `any: [{ trip.connections: road }, { trip.mode: boat }]` | se cumple uno de ellos                          |
+| `all: [{ place.tags: ford }, { place.tags: toll }]`      | todos (un nombre dos veces)                     |
+| `not: { timeOfDay: night }`                              | la condición de dentro no se cumple             |
 
 **Dónde van:**
 

@@ -29,7 +29,7 @@ describe('where a name is used', () => {
         'sets land default next.mountains.peaks',
       ]),
     )
-    expect(of({ kind: 'edge', id: 'road' }).length).toBeGreaterThan(2)
+    expect(of({ kind: 'connection', id: 'road' }).length).toBeGreaterThan(2)
     expect(of({ kind: 'weather', id: 'storm' })).toContain(
       'reads travel-rules default actions.forage.unless',
     )
@@ -74,7 +74,7 @@ describe('where a name is used', () => {
     for (const kind of [
       'mode',
       'terrain',
-      'edge',
+      'connection',
       'weather',
       'action',
       'check',
@@ -192,7 +192,7 @@ describe('where a name is used', () => {
 
 /** A made-up system using each name in its short and full forms. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 12\n' },
   {
     path: 'band/system.yaml',
     content:

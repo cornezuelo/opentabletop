@@ -29,7 +29,7 @@ No hay un día ni una marcha integrados: el grupo se mueve con las acciones que 
 
 Cada una con su **Nombre** y su **Descripción (su ayuda)** para los jugadores (el panel del viaje enseña la de la elegida como ayuda de **Viaje**), sus **km por día** y: Su orden cuenta: **la primera es la de un viaje nuevo**; cada ficha enseña su puesto, y su asa (⠿) la arrastra sobre otra (o ↑ / ↓ un puesto).
 
-- **Solo por**: por dónde puede ir, una condición sobre cada hex en el que entra, construida en filas (mira [Condiciones en filas](#condiciones-en-filas)). P. ej. la barca de las Marcas Grises por agua o costa, **Alguna de estas**: `place.water` · **es** · `true` y `place.terrain` · **es** · `coast`, o un carro solo por camino, `trip.edges` · **es** · `road`. Donde se cumple, la deja entrar incluso un terreno cerrado (o no **Transitable**).
+- **Solo por**: por dónde puede ir, una condición sobre cada hex en el que entra, construida en filas (mira [Condiciones en filas](#condiciones-en-filas)). P. ej. la barca de las Marcas Grises por agua o costa, **Alguna de estas**: `place.water` · **es** · `true` y `place.terrain` · **es** · `coast`, o un carro solo por camino, `trip.connections` · **es** · `road`. Donde se cumple, la deja entrar incluso un terreno cerrado (o no **Transitable**).
 - **Solo si**: dónde y cuándo se puede elegir, también en filas. P. ej. la barca de las Marcas Grises solo a la orilla o en el transbordador, **Alguna de estas**: `place.water` · **es** · `true`, `place.terrain` · **es** · `coast` y `place.tags` · **es** · `ferry`.
 - **Salvo si**: cuándo no.
 
@@ -39,7 +39,7 @@ Un viaje empieza con la primera forma de la lista; el jugador elige otra en el p
 
 - **Terrenos**: cómo cambia la velocidad cada uno (**Velocidad ×**) y si se puede entrar (**Transitable**, y **Abierto cuando** / **Cerrado cuando**: condiciones sobre el hex al que se entra y el momento; una forma de viajar con **Solo por** va solo por eso, como arriba). P. ej. los picos de las Marcas Grises, abiertos solo en verano y cerrados con nieve o tormenta: `time.season` · **es** · `summer` / `trip.weather` · **es uno de** · `snow, storm`. **Velocidad × de los terrenos no listados** cubre cualquier terreno del mapa que no esté en la lista.
 - **Hexes de agua**: lo mismo, para los hexes que el mapa marca como agua y no tienen regla propia en Terrenos. Una forma de viajar cuyo **Solo por** se cumple en el agua puede navegarlos igualmente.
-- **Caminos y ríos**: al seguir uno de un hex al siguiente, su **Velocidad ×** sustituye a la del terreno (un camino a `1.5`: un 50 % más rápido). La sustituye, no la multiplica: un río a `1` hace que las montañas a su orilla se crucen como llanuras. Las líneas no listadas no hacen nada; las condiciones pueden distinguirlas igualmente (`trip.edges: road`).
+- **Conexiones**: los tipos de conexión entre lugares (caminos, senderos, ríos). Al seguir uno de un lugar al siguiente, su **Velocidad ×** sustituye a la del terreno (un camino a `1.5`: un 50 % más rápido). La sustituye, no la multiplica: un río a `1` hace que las montañas a su orilla se crucen como llanuras. Las líneas no listadas no hacen nada; las condiciones pueden distinguirlas igualmente (`trip.connections: road`).
 
 ## Lo que lleva el grupo
 
@@ -112,7 +112,7 @@ Un sistema para cruzar un desierto en camello: los camellos van más rápido que
 
 1. **Créalo**: escribe _Ruta de la Sal_ bajo la lista de sistemas y pulsa **+**.
 2. **Camellos**: en **Formas de viajar**, añade `camel`, con el nombre _En camello_ y **km por día** `40`. En 8 horas de marcha son 5 km por hora en terreno fácil.
-3. **El terreno**: en **Terrenos**, pon `desert` a **Velocidad ×** `0.5` (la arena es lenta: un hex de 10 km le lleva a un camello 4 horas). Añade `salt-flat`, **Velocidad ×** `1`, **Transitable** marcado y **Cerrado cuando** `time.season: spring`: las lluvias de primavera lo inundan. Deja **Caminos y ríos** como están: un `road` a `1.5` sustituye al `0.5` del desierto allí donde el grupo sigue uno.
+3. **El terreno**: en **Terrenos**, pon `desert` a **Velocidad ×** `0.5` (la arena es lenta: un hex de 10 km le lleva a un camello 4 horas). Añade `salt-flat`, **Velocidad ×** `1`, **Transitable** marcado y **Cerrado cuando** `time.season: spring`: las lluvias de primavera lo inundan. Deja **Conexiones** como están: un `road` a `1.5` sustituye al `0.5` del desierto allí donde el grupo sigue uno.
 4. **Agua**: en **Hoja**, la hoja del grupo (_el grupo_, una copia de la de las reglas genéricas con Moral y Comida), añade un valor `water`, con el nombre _Agua_, **Empieza en** `3`, **Mín.** `0` y **Máx.** `3`: tres días en los odres, nunca más.
 5. **Sedientos**: en **Valores del día**, añade `parched`, con el nombre _Sedientos_ y **Bloquea** `modes.camel`: los camellos con sed no llevan a nadie.
 6. **Beber**: en **Acciones**, **Añadir una acción** `drink`, con el nombre _Beber_ y **Automática en** `time.part.morning`. Sus pasos: **Cambiar valores** con la fila `party.values.water` · `-1`; luego un segundo paso, **Dar un valor del día** `parched: true`, con **Solo si** `trip.below` · **es** · `party.values.water` (solo si los odres ya estaban vacíos: el trago llegó al **Mín.** del agua).

@@ -330,7 +330,7 @@ export const es: Messages<typeof en> = {
       trip_marched: 'la marcha del día (horas)',
       trip_weather: 'el clima',
       trip_mode: 'la forma de viajar',
-      trip_edges: 'el camino tomado',
+      trip_connections: 'el camino tomado',
       time_hour: 'la hora',
       time_tags: 'el momento del día',
       time_part: 'la parte del día',
@@ -402,20 +402,20 @@ export const es: Messages<typeof en> = {
     terrain: vocabulary.es.terms.terrain,
     tags: vocabulary.es.terms.tags,
     tagsPlaceholder: 'landmark, haunted…',
-    edges: 'Al siguiente hex',
+    connections: 'Al siguiente hex',
     numberHelp:
       'Los hexes en orden: el grupo empieza en el 1 y va hacia el último. Los hexes ya recorridos no se pueden cambiar; añade más al final para seguir.',
     terrainHelp:
       'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno:\n• `forest` — las tablas y condiciones leen `place.terrain: forest`\nSu velocidad, y si se puede cruzar, son cosa del sistema: lo dicen sus reglas de viaje.',
     tagsHelp:
       'Palabras que marcan el hex, cada una una pastilla (Intro o una coma la añade, × la quita), para las comprobaciones y tablas que las buscan:\n• `landmark` — `place.tags: landmark` en una condición\n• `shrine, haunted`\nLas sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
-    edgesHelp:
-      'Si un camino, sendero o río une este hex con el siguiente. Lo que eso hace depende del sistema:\n• los caminos suelen ser más rápidos (`road` × `1.5`)\n• un sistema puede saltarse algunas comprobaciones en ellos (**Salvo si** `trip.edges: road`)',
+    connectionsHelp:
+      'Si un camino, sendero o río une este hex con el siguiente. Lo que eso hace depende del sistema:\n• los caminos suelen ser más rápidos (`road` × `1.5`)\n• un sistema puede saltarse algunas comprobaciones en ellos (**Salvo si** `trip.connections: road`)',
     addHex: 'Añadir un hex',
     remove: 'Quitar',
     destinationHint: 'Añade hexes al camino para ponerte en marcha.',
     arrivedHint: 'Añade más hexes para seguir.',
   },
   terrains: vocabulary.es.terrains,
-  edgeKinds: vocabulary.es.pathKinds,
+  connectionKinds: vocabulary.es.pathKinds,
 }

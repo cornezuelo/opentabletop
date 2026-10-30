@@ -58,12 +58,12 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 
 ## Joining conditions
 
-| Write         | Holds when                   | Example                                                                          |
-| ------------- | ---------------------------- | -------------------------------------------------------------------------------- |
-| several pairs | all of them hold             | `{ place.terrain: forest, timeOfDay: night }`                                    |
-| `all: [ … ]`  | every condition in the list  | `all: [{ place.terrain: [forest, dense-forest] }, { place.danger: { gte: 5 } }]` |
-| `any: [ … ]`  | at least one of them         | `any: [{ trip.edges: road }, { trip.edges: river }, { trip.mode: boat }]`        |
-| `not: { … }`  | the condition inside doesn't | `not: { timeOfDay: night }`                                                      |
+| Write         | Holds when                   | Example                                                                               |
+| ------------- | ---------------------------- | ------------------------------------------------------------------------------------- |
+| several pairs | all of them hold             | `{ place.terrain: forest, timeOfDay: night }`                                         |
+| `all: [ … ]`  | every condition in the list  | `all: [{ place.terrain: [forest, dense-forest] }, { place.danger: { gte: 5 } }]`      |
+| `any: [ … ]`  | at least one of them         | `any: [{ trip.connections: road }, { trip.connections: river }, { trip.mode: boat }]` |
+| `not: { … }`  | the condition inside doesn't | `not: { timeOfDay: night }`                                                           |
 
 `all`, `any` and `not` count as one more pair beside the others: `{ place.tags: market, any: [{ time.weekday: marketday }, { world.events: market-day }] }` is a market town on either day. They nest: `{ all: [{ time.moons.ember: full }, { not: { place.tags: haunted } }] }`. `all` is needed when one value appears twice, since a pair can only be written once (`{ all: [{ place.tags: ford }, { place.tags: toll }] }`: a hex with both tags).
 
@@ -73,14 +73,14 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 
 - `when` must hold for the thing to apply; without it, it always applies.
 - `unless` must **not** hold; without it, nothing stops it.
-- With both, both are checked: `when: { place.terrain: forest }, unless: { trip.edges: road }` is a forest not reached by road.
+- With both, both are checked: `when: { place.terrain: forest }, unless: { trip.connections: road }` is a forest not reached by road.
 - **When one stops an action or a march, the trip says why**: the pairs that failed, with what they read and what they asked (every failing branch of an `any`; for an `unless`, the pairs that held). On a button's tooltip and in the journal: _the hour is 21:00: it needs under 20:00_, _By torchlight doesn’t hold_, _the weather is storm_ (an `unless`). Facts are named for players when the trip knows them (the hour, the day's march, the weather, the terrain, a stat or a value of the day by the system's name), the rest as written.
 
 ## Where you'll find them, in the Grey Marches
 
 - Entries: the encounter table's Wyrm, `when: { all: [{ place.terrain: [forest, dense-forest] }, { place.danger: { gte: 5 } }] }`; the hunt, `when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }`; the Vale's patrol, `when: { place.region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
 - Generator fields: _Delving a ruin_'s trap, `when: { danger: { lte: 2 } }`, and its untouched ruin, `unless: { untouched: { lt: 90 } }`.
-- Checks: encounters `at: [trip.place-enter, actions.rest]`, `when: { any: [{ trip.moment: trip.place-enter, time.tags: { not: dark }, place.danger: { gt: '{{party.stats.stealth}}' } }, { trip.moment: actions.rest, place.danger: { gte: 3 } }] }`, `unless: { trip.edges: road }`; getting lost, `unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }`; the ford, `when: { all: [{ place.tags: ford }, { not: { trip.mode: boat } }] }`.
+- Checks: encounters `at: [trip.place-enter, actions.rest]`, `when: { any: [{ trip.moment: trip.place-enter, time.tags: { not: dark }, place.danger: { gt: '{{party.stats.stealth}}' } }, { trip.moment: actions.rest, place.danger: { gte: 3 } }] }`, `unless: { trip.connections: road }`; getting lost, `unless: { any: [{ trip.connections: [road, river] }, { trip.mode: boat }] }`; the ford, `when: { all: [{ place.tags: ford }, { not: { trip.mode: boat } }] }`.
 - Actions and steps: foraging, `unless: { trip.weather: storm }`; camp's fed night, `unless: { trip.below: party.items.ration }`; eating fodder, `when: { trip.mode: horse }`; the ferry's steps after it asks, `when: { params.fare: wait }`, and its wait for Brenna, `wait: { time.part: [afternoon, evening] }` (a step that waits until its condition holds: see [Actions and steps](10-actions-and-steps.md#waiting-for-something-wait-and-limit)).
 - Ways of travelling: the boat goes `through: { any: [{ place.water: true }, { place.terrain: coast }] }` and is boarded `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
 - Terrains: the peaks are `passable: { when: { time.season: summer }, unless: { trip.weather: [snow, storm] } }`; lakes, `passable: { when: { time.month: [deepwinter, wolfmoon] } }` (frozen). They see the hex entered and the moment, like `through`.

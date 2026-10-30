@@ -104,7 +104,7 @@ terrains:
   forest: { multiplier: 0.5 } # half speed
   mountains: { multiplier: 0.33 }
   sea: { passable: false }
-edges:
+connections:
   road: { multiplier: 1.5 } # faster on roads
 modes:
   foot: { name: On foot, kmPerDay: 30 }
@@ -133,7 +133,7 @@ actions:
     do: [{ effects: { party.values.food: -1 } }] # the party's food (its sheet, below)
 checks:
   - { event: WEATHER, at: '06:00' }
-  - { event: LOST, at: '06:00', unless: { trip.edges: [road, river] } }
+  - { event: LOST, at: '06:00', unless: { trip.connections: [road, river] } }
   - { event: ENCOUNTER, at: trip.place-enter, when: { place.terrain: [forest, swamp] } }
   - { event: NIGHT, at: actions.camp }
   - { event: FORAGE, at: actions.forage, when: { place.terrain: [forest, plains] } }
@@ -175,7 +175,7 @@ The rest of this section goes over each part of that example: what it's for, wha
 There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (its **march**, below), the trip goes on by itself with the one its `onward` names, and what it does when it can't move is its **halt**. **travel** says when new trips start (`start`: a clock or a part of the calendar's day; empty, midnight) and how many hours a way's day of marching takes (`hoursPerDay`, the scale of its speed); actions spend hours too. Its `hexKm` is the scale the system is played at, how many km a hex measures (`hexKm: 30`: a hex is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Map: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
 
 - **terrains**: the speed on each terrain (`multiplier`: 0.5 is half speed, 2 double), by the ids of Map's palette. `defaultTerrain: { multiplier: 1 }` covers the terrains the map uses and the list doesn't name.
-- **edges**: roads, trails and rivers the party follows (`road: { multiplier: 1.5 }`). Following one, its multiplier replaces the terrain's.
+- **connections**: the kinds of connection the party follows: roads, trails, rivers (`road: { multiplier: 1.5 }`). Following one, its multiplier replaces the terrain's.
 - **weather**: today's weather (by the id a table or weather model sets) slows everyone down: `storm: { speed: 0 }` (nobody travels), `heavy-rain: { speed: 0.5 }`.
 
 A terrain can be **closed**: `passable: false`, always, or on a [condition](../technical/08-conditions.md) about the hex entered and the moment. Routes go around what's closed.
@@ -195,7 +195,7 @@ water: { passable: false } # water hexes whose terrain isn't listed
 
 **modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, the id is shown, made readable (`on-foot`: on foot). Two conditions shape each one:
 
-- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `edges` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { place.water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; a cart only by road: `through: { trip.edges: road }`.
+- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `connections` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { place.water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; a cart only by road: `through: { trip.connections: road }`.
 - `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }`; a horse not in snow: `unless: { trip.weather: snow }`.
 
 A value of the day can block one too (`blocks: [modes.horse]`, below): it can't be chosen, and a party already travelling that way stops until it changes.
@@ -376,7 +376,7 @@ The journal says it first (**In the world: The Wyrm wakes filled**), and then it
 
 **Moments written as conditions** (reactions). Some things happen once, when something becomes true, whatever made it true: _when morale reaches 0, the hirelings desert_. Write the moment as a condition, `on: { when: { party.values.morale: { lte: 0 } } }` (with `unless` too), for an action's `on:` or a check's `at:`, alone or in a list beside named moments (`at: [time.part.morning, { when: … }]`). It comes **once, as the condition turns true**, and again only after it has stopped holding: a table that lowers morale, an action, a hand on the party's card, a faction's turn all count. It's looked at after every change of the trip, reading what tables see (the trip, the hex, the time, the party, the characters, the world's clocks), and what comes is played there and then, as any moment's actions and checks (a pause stops the trip). What already holds when a trip starts comes on its first step (a trip that starts with morale 0 sees its hirelings desert); a trip saved before reactions existed takes what holds when it's next played as already seen. With `for: party.members`, it's looked at for each member, read with that member as `acting` (`on: { when: { acting.values.health: { lte: 0 } }, for: party.members }`), and played with them acting (the journal says _For Mara, a rule of the system comes into play_), each member once. Reactions that set each other off (directly or in a chain) stop after 10 in a row, with a line in the journal. A clock filling (`world.clocks.<id>.full`, above) is one case of it, heard even when filled away from the trip. **A state is not a reaction**: what should hold all the while (encumbered, weary) is a sheet's condition with `when:` ([Sheets](../technical/07-kinds.md#sheets)); a reaction is for something that happens. The Grey Marches: the hirelings desert as morale reaches 0, a companion falls as their health does (`for: party.members`), and an omen is drawn as the Wyrm's clock reaches 4 (`at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]`); Core's _Despair_ stops the trip as morale reaches 0.
 
-`when` / `unless` decide where and when it applies, with the same [conditions](../technical/08-conditions.md) as tables; `edges` are the roads or rivers of the stretch (the one just walked when entering a hex, the one ahead at a moment of the day and in camp).
+`when` / `unless` decide where and when it applies, with the same [conditions](../technical/08-conditions.md) as tables; `connections` are the roads or rivers of the stretch (the one just walked when entering a hex, the one ahead at a moment of the day and in camp).
 
 ```yaml
 checks:
@@ -384,7 +384,7 @@ checks:
       event: LOST,
       name: Getting lost,
       at: time.part.morning,
-      unless: { trip.edges: [road, river] },
+      unless: { trip.connections: [road, river] },
     }
   - event: ENCOUNTER
     at: [trip.place-enter, actions.rest]

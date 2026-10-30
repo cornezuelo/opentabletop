@@ -46,7 +46,7 @@ const world: TravelWorld = {
   place: () => ({ terrain: 'steppe' }),
   neighbors: (h) => neighborCells(key(h), shape).map(keyOf),
   distance: (a, b) => distance(toAxial(key(a), 'flat'), toAxial(key(b), 'flat')),
-  edges: () => [],
+  connections: () => [],
 }
 
 const core = coreSystem()

@@ -699,7 +699,7 @@ export const es: Messages<typeof en> = {
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id:\n• `horse` → _A caballo_\n• `food` → _Raciones_\nSe escribe en el idioma actual: el del pack, o su fichero de traducción (`locales/<idioma>/`) si la interfaz está en otro. Vacío: el id (o el nombre de la aplicación para los habituales: foot, horse, food…).',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
-      'Por dónde puede ir esta forma de viajar: una condición sobre **cada hex en el que entra** (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso).\n• una barca: `place.water: true`\n• una barca que además sigue la costa: `any: [{ place.water: true }, { place.terrain: coast }]`\n• un carro solo por camino: `trip.edges: road`\n• una montura que evita los bosques: `not: { place.terrain: [forest, dense-forest] }`\nDonde se cumple, ni los terrenos cerrados la paran; donde no, no puede ir, diga lo que diga el terreno (mira **Transitable** en Terrenos). Vacío: por donde dejen los terrenos.',
+      'Por dónde puede ir esta forma de viajar: una condición sobre **cada hex en el que entra** (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso).\n• una barca: `place.water: true`\n• una barca que además sigue la costa: `any: [{ place.water: true }, { place.terrain: coast }]`\n• un carro solo por camino: `trip.connections: road`\n• una montura que evita los bosques: `not: { place.terrain: [forest, dense-forest] }`\nDonde se cumple, ni los terrenos cerrados la paran; donde no, no puede ir, diga lo que diga el terreno (mira **Transitable** en Terrenos). Vacío: por donde dejen los terrenos.',
     anyTerrain: 'por donde dejen los terrenos',
     terrains: vocabulary.es.terms.terrains,
     terrainsHelp:
@@ -718,12 +718,12 @@ export const es: Messages<typeof en> = {
     defaultTerrain: 'Velocidad × de los terrenos no listados',
     defaultTerrainHelp:
       'La velocidad de cualquier terreno que no esté arriba:\n• `1` — normal (lo que vale si está vacío)\n• `0.75` — el terreno desconocido es algo más lento\nUn mapa con un terreno que el sistema no conoce (`badlands`) usa esto.',
-    edges: 'Caminos y ríos',
-    edgesHelp:
-      'Seguir un camino, sendero o río **de un hex al siguiente**: su velocidad sustituye a la del terreno.\n• `road` × `1.5` — la mitad más rápido que a campo abierto\n• `trail` × `1` — como a campo abierto, aunque cruce un bosque\n• `river` × `2` — río abajo en barca\nLas líneas no listadas no hacen nada. Las comprobaciones también las distinguen: `trip.edges: road` en una condición.',
-    edge: 'Línea',
-    edgeMultiplierHelp:
-      'Velocidad por esta línea, en lugar de la del terreno:\n• `1.5` — la mitad más rápido que a campo abierto\n• `1` — velocidad de campo abierto, sea cual sea el terreno\nUn camino a `1.5` por un terreno a `0.5` es el triple de rápido que ese terreno.',
+    connections: 'Conexiones',
+    connectionsHelp:
+      'Seguir un camino, sendero o río, o cruzar cualquier otra conexión que dibuje un mapa, **de un lugar al siguiente**: su velocidad sustituye a la del terreno.\n• `road` × `1.5` — la mitad más rápido que a campo abierto\n• `trail` × `1` — como a campo abierto, aunque cruce un bosque\n• `river` × `2` — río abajo en barca\nLos tipos no listados no hacen nada. Las comprobaciones también las distinguen: `trip.connections: road` en una condición.',
+    connection: 'Tipo',
+    connectionMultiplierHelp:
+      'Velocidad por este tipo de conexión, en lugar de la del terreno:\n• `1.5` — la mitad más rápido que a campo abierto\n• `1` — velocidad de campo abierto, sea cual sea el terreno\nUn camino a `1.5` por un terreno a `0.5` es el triple de rápido que ese terreno.',
     weather: vocabulary.es.terms.weather,
     weatherHelp:
       'Cómo frena cada clima al grupo. Las tablas lo fijan con `set: { weather: … }` (normalmente al alba), o un modelo de clima con inercia.\n• `storm` × `0` — ese día no se viaja\n• `heavy-rain` × `0.5` — a media velocidad\n• `fog` × `0.75`\nLos climas no listados no cambian la velocidad; las condiciones aún pueden leerlos (`trip.weather: storm`).',
@@ -925,7 +925,7 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:
-      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), con condiciones como las de las tablas, una fila cada una (qué lee · comparación · valor), o como YAML:\n• `place.terrain: forest` — el hex\n• `place.tags: landmark` — una etiqueta del hex\n• `trip.edges: [road, river]` — el camino o río del paso\n• `place.danger: { gte: 2 }` — un valor del hex o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.values.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: party.values.food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
+      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), con condiciones como las de las tablas, una fila cada una (qué lee · comparación · valor), o como YAML:\n• `place.terrain: forest` — el hex\n• `place.tags: landmark` — una etiqueta del hex\n• `trip.connections: [road, river]` — el camino o río del paso\n• `place.danger: { gte: 2 }` — un valor del hex o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.values.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: party.values.food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
     always: 'siempre',
     never: 'nunca',
     resolve: 'Se tira en',
@@ -1007,7 +1007,7 @@ export const es: Messages<typeof en> = {
   },
   yaml: { line: 'línea {line}' },
   terrains: vocabulary.es.terrains,
-  edgeKinds: vocabulary.es.pathKinds,
+  connectionKinds: vocabulary.es.pathKinds,
   storage: {
     full: 'El almacenamiento del navegador está lleno: exporta tus packs para no perderlos.',
   },

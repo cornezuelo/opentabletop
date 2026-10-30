@@ -58,12 +58,12 @@ Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tab
 
 ## Juntar condiciones
 
-| Escribe      | Se cumple cuando                  | Ejemplo                                                                          |
-| ------------ | --------------------------------- | -------------------------------------------------------------------------------- |
-| varios pares | se cumplen todos                  | `{ place.terrain: forest, timeOfDay: night }`                                    |
-| `all: [ … ]` | todas las condiciones de la lista | `all: [{ place.terrain: [forest, dense-forest] }, { place.danger: { gte: 5 } }]` |
-| `any: [ … ]` | al menos una                      | `any: [{ trip.edges: road }, { trip.edges: river }, { trip.mode: boat }]`        |
-| `not: { … }` | la condición de dentro no         | `not: { timeOfDay: night }`                                                      |
+| Escribe      | Se cumple cuando                  | Ejemplo                                                                               |
+| ------------ | --------------------------------- | ------------------------------------------------------------------------------------- |
+| varios pares | se cumplen todos                  | `{ place.terrain: forest, timeOfDay: night }`                                         |
+| `all: [ … ]` | todas las condiciones de la lista | `all: [{ place.terrain: [forest, dense-forest] }, { place.danger: { gte: 5 } }]`      |
+| `any: [ … ]` | al menos una                      | `any: [{ trip.connections: road }, { trip.connections: river }, { trip.mode: boat }]` |
+| `not: { … }` | la condición de dentro no         | `not: { timeOfDay: night }`                                                           |
 
 `all`, `any` y `not` cuentan como un par más junto a los otros: `{ place.tags: market, any: [{ time.weekday: marketday }, { world.events: market-day }] }` es un pueblo con mercado en cualquiera de los dos días. Se anidan: `{ all: [{ time.moons.ember: full }, { not: { place.tags: haunted } }] }`. `all` hace falta cuando un valor aparece dos veces, porque un par solo se puede escribir una vez (`{ all: [{ place.tags: ford }, { place.tags: toll }] }`: un hex con las dos etiquetas).
 
@@ -73,14 +73,14 @@ Todo lo que puede leer una condición está en [Qué ven las tablas](04-what-tab
 
 - `when` se debe cumplir para que se aplique; sin él, se aplica siempre.
 - `unless` **no** se debe cumplir; sin él, nada lo impide.
-- Con los dos, se miran los dos: `when: { place.terrain: forest }, unless: { trip.edges: road }` es un bosque al que no se llega por camino.
+- Con los dos, se miran los dos: `when: { place.terrain: forest }, unless: { trip.connections: road }` es un bosque al que no se llega por camino.
 - **Cuando una detiene una acción o una marcha, el viaje dice por qué**: los pares que han fallado, con lo que han leído y lo que pedían (cada rama de un `any` que falla; en un `unless`, los pares que se cumplían). En el tooltip de un botón y en el diario: _la hora es 21:00: hace falta menos de 20:00_, _A la luz de las antorchas no se cumple_, _el clima es storm_ (un `unless`). Los datos se nombran para los jugadores cuando el viaje los conoce (la hora, la marcha del día, el clima, el terreno, una característica o un valor del día por el nombre del sistema), el resto tal como están escritos.
 
 ## Dónde las verás, en las Marcas Grises
 
 - Entradas: la Sierpe de la tabla de encuentros, `when: { all: [{ place.terrain: [forest, dense-forest] }, { place.danger: { gte: 5 } }] }`; la cacería, `when: { all: [{ time.moons.ember: full }, { timeOfDay: night }] }`; la patrulla del Valle, `when: { place.region: { eq: Ashford Vale } }, unless: { timeOfDay: night }`.
 - Campos de generador: la trampa de _Explorar una ruina_, `when: { danger: { lte: 2 } }`, y su ruina intacta, `unless: { untouched: { lt: 90 } }`.
-- Comprobaciones: los encuentros `at: [trip.place-enter, actions.rest]`, `when: { any: [{ trip.moment: trip.place-enter, time.tags: { not: dark }, place.danger: { gt: '{{party.stats.stealth}}' } }, { trip.moment: actions.rest, place.danger: { gte: 3 } }] }`, `unless: { trip.edges: road }`; perderse, `unless: { any: [{ trip.edges: [road, river] }, { trip.mode: boat }] }`; el vado, `when: { all: [{ place.tags: ford }, { not: { trip.mode: boat } }] }`.
+- Comprobaciones: los encuentros `at: [trip.place-enter, actions.rest]`, `when: { any: [{ trip.moment: trip.place-enter, time.tags: { not: dark }, place.danger: { gt: '{{party.stats.stealth}}' } }, { trip.moment: actions.rest, place.danger: { gte: 3 } }] }`, `unless: { trip.connections: road }`; perderse, `unless: { any: [{ trip.connections: [road, river] }, { trip.mode: boat }] }`; el vado, `when: { all: [{ place.tags: ford }, { not: { trip.mode: boat } }] }`.
 - Acciones y pasos: buscar comida, `unless: { trip.weather: storm }`; la noche bien comidos de la acampada, `unless: { trip.below: party.items.ration }`; comer forraje, `when: { trip.mode: horse }`; los pasos del transbordador tras su pregunta, `when: { params.fare: wait }`, y su espera a Brenna, `wait: { time.part: [afternoon, evening] }` (un paso que espera hasta que se cumpla su condición: mira [Acciones y pasos](10-actions-and-steps.md#esperar-algo-wait-y-limit)).
 - Formas de viajar: la barca va `through: { any: [{ place.water: true }, { place.terrain: coast }] }` y se sube `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }` (solo se elige a la orilla o en el transbordador; si no, sale desactivada en el panel del viaje, diciendo por qué).
 - Terrenos: los picos son `passable: { when: { time.season: summer }, unless: { trip.weather: [snow, storm] } }`; los lagos, `passable: { when: { time.month: [deepwinter, wolfmoon] } }` (helados). Ven el hex al que se entra y el momento, como `through`.

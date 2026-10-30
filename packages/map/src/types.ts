@@ -285,12 +285,12 @@ export interface LayerState {
 
 export const PATH_KINDS = ['road', 'trail', 'river', 'border', 'wall'] as const
 export type PathKind = (typeof PATH_KINDS)[number]
-/** Paths the Travel Engine sees as edges; borders and walls are only drawn. */
+/** Paths the Travel Engine sees as connections; borders and walls are only drawn. */
 export const TRAVEL_PATH_KINDS: readonly PathKind[] = ['road', 'trail', 'river']
 
 /**
  * A road, trail or river running center-to-center through hexes. Consecutive hexes
- * are neighbors, so a path also defines edges the Travel Engine can query.
+ * are neighbors, so a path also defines connections the Travel Engine can query.
  */
 export interface MapPath {
   id: string

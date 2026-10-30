@@ -136,7 +136,7 @@ description: |-
 
   **Shows:**
 
-  - A check with `all` / `tags` / `edges`
+  - A check with `all` / `tags` / `connections`
   - A roll-under against a stat in a condition: `party.stats.charisma: { gte: '{{1d6}}' }`, one d6 for both entries (`when` on one, `unless` on the other)
   - An effect with a negative number: `party.items.ration: -1`, a ration spent
   - An effect on a faction from a trip: paying makes the garrison of Fort Keld think better of you (`factions.fort-keld.values.reputation: 1`, on a map with its factions)

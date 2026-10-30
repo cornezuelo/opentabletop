@@ -56,7 +56,7 @@ export const SYSTEM_TEMPLATES: Record<
       lake: { passable: false },
       sea: { passable: false },
     },
-    edges: { road: { multiplier: 1.5 }, trail: { multiplier: 1.2 } },
+    connections: { road: { multiplier: 1.5 }, trail: { multiplier: 1.2 } },
     modes: { foot: { kmPerDay: 30 }, horse: { kmPerDay: 50 } },
     actions: {
       // Marching by day (06:00–20:00) for 8 hours, to the destination or one hex; camp
