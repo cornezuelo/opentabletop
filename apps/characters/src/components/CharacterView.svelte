@@ -332,22 +332,6 @@
     color: var(--danger, #d9534f);
   }
 
-  .facts {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 6px 14px;
-    margin: 0;
-    font-size: 13px;
-  }
-
-  dt {
-    color: var(--text-muted);
-  }
-
-  dd {
-    margin: 0;
-  }
-
   dd a.plain {
     margin-left: 0;
   }

@@ -159,6 +159,25 @@ button.link {
   font-weight: normal;
 }
 
+/* What a view is, as labels and values side by side (a character's sheet and campaign, a
+   campaign's system and notes): `<dl class="facts">`. */
+dl.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 14px;
+  align-items: baseline;
+  margin: 0;
+  font-size: 13px;
+}
+
+dl.facts dt {
+  color: var(--text-muted);
+}
+
+dl.facts dd {
+  margin: 0;
+}
+
 /* A button busy with something that takes a while (`use:busy`): a spinner over its label,
    which stays (its width, and what screen readers read). */
 button.busy {
