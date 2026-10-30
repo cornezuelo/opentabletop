@@ -3385,6 +3385,33 @@ describe('connections: what crossing one does', () => {
     ).toBe((hours * 60) / 2 + 30)
   })
 
+  it('the connections leaving the place, by kind, and effects on them', () => {
+    const eng = createTravelEngine({
+      world: rooms,
+      rules: dungeon({
+        actions: {
+          ...DAY_ACTIONS,
+          force: {
+            when: { 'place.connections.door.state': 'locked' },
+            do: [{ effects: { 'place.connections.door.state': 'open' } }],
+          },
+        },
+      }),
+    })
+    const facts = eng.context(at('a')) as { place: { connections: Record<string, unknown> } }
+    expect(facts.place.connections).toEqual({
+      door: { id: 'oak-door', kind: 'door', tags: ['old'], state: 'locked' },
+      tunnel: { kind: 'tunnel', tags: [] },
+    })
+    const { state, events } = eng.apply(at('a'), { type: 'action', id: 'force' })
+    expect(state.connections).toEqual({ 'oak-door': { state: 'open' } })
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'CONNECTION_CHANGED', id: 'oak-door', value: 'open' }),
+    )
+    // A step it opened is crossed now.
+    expect(eng.stepMinutes(state, 'a', 'b')).toBe(11)
+  })
+
   it('checks and actions read the connection of the step as connection.*', () => {
     const eng = createTravelEngine({
       world: rooms,

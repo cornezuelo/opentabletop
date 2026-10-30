@@ -1586,6 +1586,18 @@
           "kind": "ford",
           "name": "Stonewater Ford",
           "tags": ["ford"]
+        },
+        {
+          "id": "barrowroad01",
+          "between": ["10,8", "12,11"],
+          "kind": "hidden-path",
+          "name": "The Barrow-road",
+          "stats": [
+            {
+              "key": "state",
+              "value": "hidden"
+            }
+          ]
         }
       ]
     }

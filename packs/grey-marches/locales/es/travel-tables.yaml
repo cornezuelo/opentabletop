@@ -47,6 +47,20 @@ fishing:
     catch: 'Un {{roll}}, igual o menor que vuestra Supervivencia: buena pesca, comida para dos días'
     some: 'Un {{roll}}: unos pocos peces pequeños, comida para un día'
     nothing: 'Un {{roll}}: no pica nada'
+hidden-path:
+  name: Buscando la senda oculta
+  description: |-
+    Donde empieza una **senda oculta** (el Barrow-road, de las Barrow-halls a Hollow Gate), el grupo la busca cada vez que pasa, hasta encontrarla: tira un d6 más la **Supervivencia** del grupo; con 5 o más la encuentra, y desde entonces las rutas pueden tomarla.
+
+    **Enseña:**
+
+    - Una comprobación sobre las conexiones que salen del lugar, por tipo y estado: `place.connections.hidden-path.state: hidden`
+    - Un efecto sobre ellas, guardado en el viaje y nunca en el mapa: `place.connections.hidden-path.state: found`
+    - Una conexión que no se puede cruzar hasta entonces: `passable: { when: { connection.state: found } }`
+    - Una conexión entre hexes lejanos: los hexes entre sus extremos al `multiplier` de su tipo, no al de las colinas
+  entries:
+    nothing: Brezo y piedras; ni rastro de la senda
+    found: 'Mojones medio enterrados en el brezo: el Barrow-road'
 toll:
   name: El peaje
   description: |-

@@ -186,6 +186,9 @@ travel-rules/default:
     FORD_CHECK_REQUIRED:
       name: Vado
       description: Cruzar el río a pie o a caballo, en un vado.
+    HIDDEN_PATH_CHECK_REQUIRED:
+      name: Senda oculta
+      description: Donde empieza una senda oculta, hasta encontrarla; la Supervivencia ayuda.
     SHRINE_CHECK_REQUIRED:
       name: Santuario
       description: Un santuario junto al camino, la primera vez que el viaje pasa por él. El viaje se detiene tras la tirada; pulsa Continuar para seguir.
@@ -232,6 +235,9 @@ travel-rules/default:
     ford:
       name: Vado
       description: Una hora más para cruzarlo; infranqueable un día de tormenta.
+    hidden-path:
+      name: Senda oculta
+      description: Un camino por las colinas que solo conocen los clanes; no se puede seguir hasta encontrarlo.
   modes:
     foot:
       name: A pie

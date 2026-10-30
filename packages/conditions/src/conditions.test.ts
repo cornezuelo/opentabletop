@@ -19,6 +19,15 @@ describe('matches', () => {
     expect(matches({ lost: false, danger: 4 }, ctx)).toBe(true)
   })
 
+  it('a map holds the keys it has (the connections leaving a place, by kind)', () => {
+    const place = { place: { connections: { door: { state: 'locked' }, road: {} } } }
+    expect(matches({ 'place.connections': 'door' }, place)).toBe(true)
+    expect(matches({ 'place.connections': ['gate', 'road'] }, place)).toBe(true)
+    expect(matches({ 'place.connections': 'gate' }, place)).toBe(false)
+    expect(matches({ 'place.connections': { not: 'door' } }, place)).toBe(false)
+    expect(matches({ 'place.connections.door.state': 'locked' }, place)).toBe(true)
+  })
+
   it('handles comparisons', () => {
     expect(matches({ danger: { gte: 4 } }, ctx)).toBe(true)
     expect(matches({ danger: { gt: 4 } }, ctx)).toBe(false)

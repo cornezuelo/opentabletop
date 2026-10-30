@@ -54,6 +54,15 @@ connections:
     description: An hour more to cross; impassable on a day of storm.
     extra: 60
     passable: { unless: { today.fordImpossible: true } }
+  # A hidden path drawn between two far hexes (the Barrow-road, from the Barrow-halls to
+  # Hollow Gate): it can't be followed until it's found (its state in the trip, `hidden` on
+  # the map), and a check where it starts finds it (`place.connections.hidden-path.state`).
+  # Between far places it goes at its multiplier over its length, not the hills' speed.
+  hidden-path:
+    name: Hidden path
+    description: A way over the hills only the clans know; it can't be followed until found.
+    multiplier: 1.2
+    passable: { when: { connection.state: found } }
 modes:
   foot: { name: On foot, kmPerDay: 25 }
   # Horses go twice as fast and eat fodder (the eat action below, at the end of each day).
@@ -593,6 +602,13 @@ checks:
     when:
       all:
         [{ any: [{ place.tags: ford }, { connection.kind: ford }] }, { not: { trip.mode: boat } }]
+  # A hidden path leaving the place, not yet found: the party looks for it (the connections
+  # leaving the place by kind, and their state in this trip: `place.connections.<kind>`).
+  - event: HIDDEN_PATH_CHECK_REQUIRED
+    name: Hidden path
+    description: Where a hidden path starts, until it's found; Survival helps.
+    at: trip.place-enter
+    when: { place.connections.hidden-path.state: hidden }
   # Rolled on a table, then the trip pauses (pause) so you can describe the shrine. Only the
   # first time the trip comes by (`trip.visits`: 1 the first time in a hex).
   - event: SHRINE_CHECK_REQUIRED
@@ -861,6 +877,7 @@ on:
   # An oracle resolves the ford; the context gives its input (how likely it goes well).
   FORD_CHECK_REQUIRED: { resolve: oracle.ford, context: { odds: even } }
   SHRINE_CHECK_REQUIRED: { resolve: table.shrine }
+  HIDDEN_PATH_CHECK_REQUIRED: { resolve: table.hidden-path }
   FORAGE_CHECK_REQUIRED: { resolve: table.forage }
   FISHING_CHECK_REQUIRED: { resolve: table.fishing }
   HUNGER_CHECK_REQUIRED: { resolve: table.hunger }

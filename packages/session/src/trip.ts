@@ -1159,6 +1159,8 @@ function undeclaredEffects(
       if (/^world\.clocks\./.test(path)) continue
       // The step's connection (`connection.state: open`): any value it may have.
       if (/^connection\./.test(path)) continue
+      // Those leaving the place (`place.connections.gate.state: open`): any of their values.
+      if (/^place\.connections\./.test(path)) continue
       // Copies of a template, those present: the bestiaries' (read with the trip's).
       if (/^present\./.test(path)) continue
       // Places made on the party's hex: its catalogues' (`placeIds`).

@@ -113,6 +113,38 @@ export function changeConnection(
   return { id, name, key, value }
 }
 
+/** An effect on the connections of a kind leaving the party's place (`place.connections.door.state`). */
+export const PLACE_CONNECTION_EFFECT = /^place\.connections\.([^.]+)\.([^.]+)$/
+
+/**
+ * Changes a value of every connection of a kind leaving the party's place (`around`: the
+ * place's `connections` facts, by kind), as `changeConnection` does one: those drawn on
+ * the map, with an id. A number adds to each one's own value.
+ */
+export function changePlaceConnections(
+  travel: { connections?: Record<string, Record<string, unknown>> },
+  around: unknown,
+  kind: string,
+  key: string,
+  change: number | string | boolean,
+): ConnectionChange[] {
+  const facts = (around as Record<string, Record<string, unknown>> | undefined)?.[kind]
+  if (!facts) return []
+  const one = <T>(v: T | T[]): T | undefined => (Array.isArray(v) ? undefined : v)
+  return [facts.id]
+    .flat()
+    .filter((id): id is string => typeof id === 'string')
+    .flatMap((id) => {
+      const done = changeConnection(
+        travel,
+        { id, kind, name: one(facts.name) ?? kind, [key]: one(facts[key]) },
+        key,
+        change,
+      )
+      return done ? [done] : []
+    })
+}
+
 /** A connection drawn between two places, as the world gives it. */
 export interface Connection {
   id: string
@@ -864,7 +896,12 @@ export function createTravelEngine(options: {
     }
   }
   /** A place as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
-  const placeFacts = (id: string): Record<string, unknown> => {
+  /**
+   * What conditions read of a place. With the trip (`state`), the connections leaving it by
+   * kind (`place.connections.door`), each with its values and state in play, those of several
+   * of a kind together: a value they share as it is, values that differ as a list.
+   */
+  const placeFacts = (id: string, state?: TravelState): Record<string, unknown> => {
     const place = world.place(id)
     return {
       ...place,
@@ -872,7 +909,35 @@ export function createTravelEngine(options: {
       terrain: place?.terrain,
       tags: place?.tags ?? [],
       water: !!place?.water,
+      ...(state && { connections: connectionsAround(state, id) }),
     }
+  }
+  const connectionsAround = (
+    state: TravelState,
+    id: string,
+  ): Record<string, Record<string, unknown>> => {
+    const byKind: Record<string, Record<string, unknown>[]> = {}
+    for (const n of world.neighbors(id)) {
+      const drawn = world.connectionOf?.(id, n)
+      for (const kind of world.connections(id, n))
+        (byKind[kind] ??= []).push(
+          drawn?.kind === kind
+            ? { ...drawn, tags: drawn.tags ?? [], ...state.connections?.[drawn.id] }
+            : { kind, tags: [] },
+        )
+    }
+    return Object.fromEntries(
+      Object.entries(byKind).map(([kind, all]) => {
+        const merged: Record<string, unknown> = {}
+        for (const key of new Set(all.flatMap((c) => Object.keys(c)))) {
+          const values = [...new Set(all.flatMap((c) => [c[key]].flat()))].filter(
+            (v) => v !== undefined,
+          )
+          merged[key] = key === 'tags' || values.length > 1 ? values : values[0]
+        }
+        return [kind, { ...merged, kind }]
+      }),
+    )
   }
   /** The neighbours of a place together: every terrain, tag and region among them. */
   const aroundFacts = (id: string): Record<string, unknown> => {
@@ -923,7 +988,7 @@ export function createTravelEngine(options: {
       ...calendarFacts(date),
       season: date.season,
       ...place,
-      place: placeFacts(b),
+      place: placeFacts(b, state),
       terrain: place?.terrain,
       water: !!place?.water,
       tags: place?.tags ?? [],
@@ -1063,7 +1128,7 @@ export function createTravelEngine(options: {
       ...calendarFacts(calendar.describe(state.time)),
       // Everything the map knows about the place (fields, region…), then the travel facts.
       ...place,
-      place: placeFacts(state.location),
+      place: placeFacts(state.location, state),
       terrain: place?.terrain,
       tags: place?.tags ?? [],
       // The stretch given (the one just walked entering a place), or else the one ahead.
@@ -1875,6 +1940,14 @@ export function createTravelEngine(options: {
       if (key !== undefined) {
         const done = changeConnection(state, now.connection as Record<string, unknown>, key, change)
         if (done) limits.push({ type: 'CONNECTION_CHANGED', ...done, time: state.time })
+        continue
+      }
+      // Those of a kind leaving the place (a hidden path found).
+      const [, kind, placeKey] = PLACE_CONNECTION_EFFECT.exec(path) ?? []
+      if (kind !== undefined) {
+        const around = (now.place as Record<string, unknown> | undefined)?.connections
+        for (const done of changePlaceConnections(state, around, kind, placeKey, change))
+          limits.push({ type: 'CONNECTION_CHANGED', ...done, time: state.time })
         continue
       }
       const stat = /^party\.stats\.(.+)$/.exec(path)?.[1]

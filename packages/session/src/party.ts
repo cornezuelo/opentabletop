@@ -18,8 +18,10 @@ import {
 import {
   placeIdOf,
   changeConnection,
+  changePlaceConnections,
   changeValue,
   CONNECTION_EFFECT,
+  PLACE_CONNECTION_EFFECT,
   type ConnectionChange,
   momentRolls,
   resolveChange,
@@ -496,6 +498,21 @@ export function applyMemberEffects(
         typeof change === 'boolean' ? change : resolveChange(change, context, roller),
       )
       if (done) connections.push(done)
+      continue
+    }
+    // Those of a kind leaving the party's place (a hidden path found).
+    const [, placeKind, placeKey] = PLACE_CONNECTION_EFFECT.exec(path) ?? []
+    if (placeKind !== undefined) {
+      const around = (context.place as Record<string, unknown> | undefined)?.connections
+      connections.push(
+        ...changePlaceConnections(
+          s.travel,
+          around,
+          placeKind,
+          placeKey,
+          typeof change === 'boolean' ? change : resolveChange(change, context, roller),
+        ),
+      )
       continue
     }
     // Places made on the party's place: as many as the change says (the host writes them).

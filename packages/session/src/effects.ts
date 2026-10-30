@@ -65,6 +65,9 @@ export function effectsOf(value: Record<string, unknown>): Effects {
     // A character's condition set or cleared.
     else if (change === true || change === false || change === 'true' || change === 'false')
       out[path] = String(change)
+    // A connection's value set to a word (`connection.state: open`, a hidden path `found`).
+    else if (typeof change === 'string' && /^(connection|place\.connections)\./.test(path))
+      out[path] = change
   }
   const record = (v: unknown) =>
     typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {}

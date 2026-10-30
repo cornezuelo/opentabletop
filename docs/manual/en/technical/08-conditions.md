@@ -27,6 +27,7 @@ Several comparisons on the same value must all hold: `place.danger: { gte: 2, lt
 
 - **Numbers** only compare with numbers: `place.danger: { gte: 3 }` doesn't hold where there's no danger, or where it was written as text.
 - **Lists** in the context, like a hex's `tags` or the day's `holidays`, hold when they **contain** the value: `place.tags: landmark` holds for a hex tagged `ford, landmark`; `place.tags: [ford, toll]` for one with either.
+- **Groups by name**, like the connections leaving a place by kind, hold when they have that name: `place.connections: door` holds where a door leaves the place; `place.connections.door.state: locked` reads inside it.
 - **Missing values** don't match, except with `not` and `exists: false`.
 - **Dotted names** read inside a value: `party.stats.survival`, `icon.guards`, `time.moons.pale`, `yesterday.lost`.
 - **Full names** say where a value comes from, and can't be hidden by a stat with the same name: `place.terrain: forest` is `terrain: forest`, `time.part: night` is `part: night`, `trip.mode: boat` is `mode: boat`. Every one, with its short name: [What tables see](04-what-tables-see.md#how-to-read-this-page).

@@ -9,6 +9,7 @@ import {
   tripAvailability,
   tripChanges,
   tripContext,
+  tripFacts,
   shownAt,
 } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
@@ -249,6 +250,56 @@ describe('example maps', () => {
     expect(ford && ford.type === 'CHECK_REQUIRED' && ford.check.context.connection).toMatchObject({
       kind: 'ford',
     })
+  })
+
+  it('the Hollow Hills: the Barrow-road can’t be taken until a check finds it', () => {
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'hollowhills1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const world = mapWorld(map, system.rules.travel.hexKm)
+    const options = {
+      system,
+      world,
+      oracle: createOracleEngine({ registry, random: seeded('barrow-road') }),
+      locale: 'en',
+    }
+    const engine = createTravelEngine({ world, rules: system.rules, calendar: system.calendar })
+    // Drawn between far hexes, hidden on the map: the place's connections say so.
+    expect(world.far?.('10,8', '12,11')).toBe(true)
+    let { session } = startTrip({ system, location: '10,7', season: 'summer' })
+    // A party that knows the hills: 1d6 + 4 finds it at once.
+    session.stats.survival = 4
+    const hidden = engine.plan({ ...session.travel, location: '10,8' }, '12,11')!
+    expect(hidden.length).toBeGreaterThan(2)
+    // Coming into the Barrow-halls, the party looks for it until it's found.
+    session = stepTrip(options, session, { type: 'setDestination', place: '10,8' }).state
+    for (let i = 0; i < 6 && session.travel.location !== '10,8'; i++) {
+      for (const id of session.travel.pendingChecks.map((c) => c.id))
+        session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+      session = stepTrip(options, session, { type: 'travel' }).state
+    }
+    expect(session.travel.location).toBe('10,8')
+    for (let i = 0; i < 4 && session.travel.pendingChecks.length; i++)
+      for (const id of session.travel.pendingChecks.map((c) => c.id))
+        session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+    const codes = session.journal.map((e) => `${e.code} ${e.data?.event ?? ''}`)
+    expect(codes).toContain('ORACLE_RESULT HIDDEN_PATH_CHECK_REQUIRED')
+    expect(session.travel.connections).toEqual({ barrowroad01: { state: 'found' } })
+    expect(session.journal.find((e) => e.code === 'CONNECTION_CHANGED')?.data).toMatchObject({
+      id: 'barrowroad01',
+      name: 'The Barrow-road',
+      value: 'found',
+    })
+    // Found: the route takes it, one step to Hollow Gate, and the check no longer comes up.
+    expect(engine.plan(session.travel, '12,11')).toEqual(['10,8', '12,11'])
+    expect(
+      tripFacts(options, session).place as { connections: Record<string, unknown> },
+    ).toMatchObject({ connections: { 'hidden-path': { state: 'found' } } })
   })
 
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {

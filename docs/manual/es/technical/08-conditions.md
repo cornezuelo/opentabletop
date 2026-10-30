@@ -27,6 +27,7 @@ Varias comparaciones sobre el mismo valor se deben cumplir todas: `place.danger:
 
 - **Los números** solo se comparan con números: `place.danger: { gte: 3 }` no se cumple donde no hay peligro, ni donde se escribió como texto.
 - **Las listas** del contexto, como las `tags` de un hex o las `holidays` del día, se cumplen cuando **contienen** el valor: `place.tags: landmark` se cumple en un hex con las etiquetas `ford, landmark`; `place.tags: [ford, toll]`, en uno con cualquiera de las dos.
+- **Los grupos por nombre**, como las conexiones que salen de un lugar por tipo, se cumplen cuando tienen ese nombre: `place.connections: door` se cumple donde sale una puerta del lugar; `place.connections.door.state: locked` lee dentro.
 - **Los valores que faltan** no encajan, salvo con `not` y `exists: false`.
 - **Los nombres con puntos** leen dentro de un valor: `party.stats.survival`, `icon.guards`, `time.moons.pale`, `yesterday.lost`.
 - **Los nombres completos** dicen de dónde sale un valor, y una característica con el mismo nombre no los tapa: `place.terrain: forest` es `terrain: forest`, `time.part: night` es `part: night`, `trip.mode: boat` es `mode: boat`. Todos, con su nombre corto: [Lo que ven las tablas](04-what-tables-see.md#como-leer-esta-pagina).

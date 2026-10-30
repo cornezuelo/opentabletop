@@ -127,12 +127,14 @@ function matchValue(
 }
 
 /**
- * Equality, where an array context value matches if it contains the expected value, and
- * an expected list (a reference to one) if it holds the value.
+ * Equality, where an array context value matches if it contains the expected value, a map
+ * (`place.connections`, by kind) if it has the expected key, and an expected list (a
+ * reference to one) if it holds the value.
  */
 function equals(value: unknown, expected: unknown): boolean {
   if (Array.isArray(expected)) return expected.some((e) => equals(value, e))
   if (Array.isArray(value)) return value.some((v) => v === expected)
+  if (isObject(value)) return typeof expected === 'string' && Object.hasOwn(value, expected)
   return value === expected
 }
 

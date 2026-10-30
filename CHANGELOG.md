@@ -7,13 +7,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Travel, Map and Systems: **what a kind of connection does** is the system's: `extra` minutes (a step through it takes them on top of its usual time: a ford, an hour more), `passable` with **Open when** / **Closed when** (a locked door: the route goes round it, or up to it and stops there), and its `name`. Conditions read the step's connection as `connection.*` (its kind, tags, values and its state in this trip); an effect `connection.state: open` changes it in the trip, never on the map, and the journal says so. A way of travelling may take `minutes` a step instead of `kmPerDay` (rooms, points).
+- Travel, Map and Systems: **the connections leaving the party's place**, by kind, are read as `place.connections` (`place.connections: door`; `place.connections.door.state: locked`), and an effect `place.connections.<kind>.<key>` changes them in the trip (a hidden path found where it starts). Conditions: a group by name holds when it has that name.
 - Map: a **Connections** tool (**C**) joins two places with a connection of a kind the system names (a bridge, a gate, a tunnel between two far hexes, which become neighbours), with a name, tags and values; trips read its kind as `trip.connections`. One between far hexes measures the hexes between its ends (or its own **Length**) at its kind's speed, never the terrain's. Connections have their own layer in Layers. Maps v29.
 - Every app: the apps' names are in the interface's language (in Spanish: Mapa, Campaña, Personajes, Oráculo, Viajes, Sistemas, Manual), in the switcher, each app's bar, the window's title, the texts and the manual; the Hexmapper is called **Map**.
 - Map: its address is `…/map/` (`…/hexmapper/` sends you on, keeping the link to a map or hex; a Hexmapper installed for offline use opens Map once online: install Map again for its own icon).
 
 ### Packs
 
-- Core: a **gate** (`connections: gate`, ten minutes more, shut while its state says so) and **Open the gate**. The Grey Marches: a **ford** kind (an hour more, impassable on a storm day), drawn as Stonewater Ford on the Hollow Hills map; the ford's check also comes up crossing a drawn ford.
+- Core: a **gate** (`connections: gate`, ten minutes more, shut while its state says so) and **Open the gate**. The Grey Marches: a **ford** kind (an hour more, impassable on a storm day), drawn as Stonewater Ford on the Hollow Hills map; the ford's check also comes up crossing a drawn ford. The Grey Marches' **Barrow-road**, a hidden path from the Barrow-halls to Hollow Gate that can't be followed until the **Hidden path** check finds it.
 
 ### Formats
 

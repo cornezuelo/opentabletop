@@ -89,6 +89,8 @@ export function contextSuggestions(
   add('connection.tags')
   add('connection.id')
   add('connection.state')
+  // The connections leaving the party's place, by kind (`place.connections: door`).
+  add('place.connections', 'road', 'trail', 'river')
   // The terrains are the systems' (below) and the map's (the host's `extra`).
   add('terrain')
   add('tags')
@@ -200,6 +202,8 @@ export function contextSuggestions(
     add('party.mode', ...Object.keys(rules.modes))
     add('connections', ...Object.keys(rules.connections ?? {}))
     add('connection.kind', ...Object.keys(rules.connections ?? {}))
+    add('place.connections', ...Object.keys(rules.connections ?? {}))
+    for (const kind of Object.keys(rules.connections ?? {})) add(`place.connections.${kind}.state`)
     // The party's own sheet, and its items with its members': what they spent and gained,
     // and what hit a bound, by full name.
     const numbers = [
@@ -377,8 +381,8 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
 /**
  * Paths effects can change (`effects: { party.stats.morale: -1 }`): the party's declared
  * stats, its sheet and items, its characters' values and conditions, and places made on the
- * party's hex (`place.pois.<id>`), in every loaded system; and the step's connection's values
- * in play (`connection.state`).
+ * party's hex (`place.pois.<id>`), in every loaded system; and the values in play of the step's
+ * connection (`connection.state`) and of those leaving the place (`place.connections.<kind>.state`).
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   // The connection of the step (a door opened): a value of it in play, any the system reads.
@@ -393,7 +397,11 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     bestiary,
     templateSheets,
     places,
+    rules,
   } of travelSystems(registry).systems) {
+    // The connections of a kind leaving the party's place (a hidden path found).
+    for (const kind of Object.keys(rules.connections ?? {}))
+      out[`place.connections.${kind}.state`] = ['open', 'shut']
     // Places made on the party's hex from its catalogues.
     for (const c of places ?? [])
       for (const id of Object.keys(c.def.places)) out[`place.pois.${id}`] = ['1']

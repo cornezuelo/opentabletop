@@ -149,6 +149,28 @@ entries:
     result: The bridge-warden likes your look and waves you through
     when: { party.stats.charisma: { gte: '{{1d6}}' } }
 ---
+# Finding a hidden path: an effect on the connections of a kind leaving the party's place.
+kind: table
+id: hidden-path
+tags: [travel, rules]
+name: Looking for the hidden path
+description: |-
+  Where a **hidden path** starts (the Barrow-road, from the Barrow-halls to Hollow Gate), the party looks for it each time it comes by, until it's found: roll a d6 plus the party's **Survival**; on 5 or more it's found, and routes may take it from then on.
+
+  **Shows:**
+
+  - A check on the connections leaving the place, by kind and state: `place.connections.hidden-path.state: hidden`
+  - An effect on them, kept in the trip and never on the map: `place.connections.hidden-path.state: found`
+  - A connection that can't be crossed until then: `passable: { when: { connection.state: found } }`
+  - A connection between far hexes: the hexes between its ends at its kind's `multiplier`, not the hills'
+roll: '1d6 + {{party.stats.survival}}'
+entries:
+  - { id: nothing, range: 1-4, result: Heather and stones; no sign of the path }
+  - id: found
+    range: 5-20
+    result: 'Cairns half-buried in the heather: the Barrow-road'
+    effects: { place.connections.hidden-path.state: found }
+---
 # Fatigue down (negative) at a shrine; a once-only blessing comes up a single time.
 kind: table
 id: shrine
