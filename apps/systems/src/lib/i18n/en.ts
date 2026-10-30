@@ -966,7 +966,13 @@ export const en = {
     dependency:
       'From {pack}, a pack this system brings along: read-only here, since every system that brings it shares it. To change it for this system, make your own in the system’s pack.',
     builtIn:
-      'The Generic rules are Core’s system, the one a map plays when it chooses none: read-only here, as every system may bring Core. To change them, create a new system (below the list on the left): it starts from a copy of their rules.',
+      'The Generic rules are Core’s system, the one a map plays when it chooses none: read-only here, as every system may bring Core. **Edit a copy** makes a new system of yours that plays as they do (a copy of their rules, Core’s sheets, gear, bestiary, places and land), to change as you like.',
+    copyGeneric: 'Edit a copy',
+    copyGenericName: 'My generic rules',
+    more: 'More',
+    delete: 'Delete this system',
+    confirmDelete:
+      'Delete «{name}»? Its whole pack ({pack}) goes with it, with every table and part in it. Maps, trips and campaigns played with it keep their state but play without it. (↶ undoes it.)',
     playInTravel: 'Play it in Travel →',
     staleCopy:
       'This system uses your copy of «{pack}», and the bundled «{pack}» changed since you made it. Your copy replaces the bundled pack whole, so what the newer one added (a table this system names…) is missing until you take it:',

@@ -1,10 +1,18 @@
 <script lang="ts">
   import { BundledUpdates, manifestOf } from '@open-tabletop/pack-ui'
   import { DEFAULT_SYSTEM, systemName } from '@open-tabletop/session'
-  import { appUrl } from '@open-tabletop/ui-kit'
+  import { appUrl, confirmAction, Markdown, MoreMenu } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
-  import { rulesFile, systemFile, systemParts, systemRoot } from '../lib/newSystem'
+  import {
+    canDelete,
+    copyGenericRules,
+    deleteSystem,
+    rulesFile,
+    systemFile,
+    systemParts,
+    systemRoot,
+  } from '../lib/newSystem'
   import { library, systems } from '../lib/packs.svelte'
   import { systemDoc } from '../lib/systemDoc.svelte'
   import { systemTabs } from '../lib/tabs'
@@ -60,6 +68,18 @@
   const problems = $derived(
     files.flatMap((f) => library.diagnostics(f.root, f.path).filter((d) => d.severity === 'error')),
   )
+  /** A copy of the Generic rules to edit, opened. */
+  function copyGeneric() {
+    const copy = copyGenericRules(t('edit.copyGenericName'))
+    if (copy) go({ name: 'system', id: copy, tab: 'overview' })
+  }
+
+  async function remove() {
+    if (!system || !root) return
+    const name = systemName(system, getLocale())
+    if (!(await confirmAction(t('edit.confirmDelete', { name, pack: root })))) return
+    if (deleteSystem(system)) go({ name: 'welcome' })
+  }
   /** Packs it uses (Core…) that are your copies, older than the bundled ones. */
   const stale = $derived(system ? staleCopies(system) : [])
 </script>
@@ -67,15 +87,25 @@
 {#if system}
   <article class="system">
     <header>
-      <h1 class="page-title">{systemName(system, getLocale())}</h1>
+      <div class="title-row">
+        <h1 class="page-title">{systemName(system, getLocale())}</h1>
+        {#if canDelete(system)}
+          <MoreMenu label={t('edit.more')}>
+            <button class="danger" onclick={remove}>{t('edit.delete')}</button>
+          </MoreMenu>
+        {/if}
+      </div>
       <a class="play" href={`${appUrl('travel')}#/system/${encodeURIComponent(id)}/play`}
         >{t('edit.playInTravel')}</a
       >
       <!-- On every tab: edit a copy of a bundled system, or revert your copy to it. -->
-      <!-- Core's Generic rules: every system may bring Core, so no copy of it (a new system
-           starts from a copy of its rules instead). -->
+      <!-- Core's Generic rules: every system may bring Core, so its copy is a new system of
+           yours that plays as they do (Core's own pack stays as it is). -->
       {#if system.id === DEFAULT_SYSTEM && library.pack(root ?? '')?.origin === 'bundled'}
-        <p class="help">{t('edit.builtIn')}</p>
+        <div class="generic">
+          <div class="help"><Markdown text={t('edit.builtIn')} /></div>
+          <button onclick={copyGeneric}>{t('edit.copyGeneric')}</button>
+        </div>
       {:else if root}<div class="copy"><ReadOnly {root} /></div>{/if}
       <div class="tabs" role="tablist">
         {#each tabs as name (name)}
@@ -186,6 +216,41 @@
     margin-top: 6px;
     font-size: 13px;
     color: var(--accent);
+  }
+
+  .title-row {
+    display: flex;
+    gap: 8px 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .generic {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .generic .help {
+    flex: 1;
+    min-width: 260px;
+    margin: 0;
+    max-width: 760px;
+  }
+
+  .generic .help :global(p) {
+    margin: 0;
+  }
+
+  .generic button {
+    padding: 5px 12px;
+    font-size: 13px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    cursor: pointer;
   }
 
   .copy:not(:empty) {

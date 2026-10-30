@@ -975,7 +975,13 @@ export const es: Messages<typeof en> = {
     dependency:
       'De {pack}, un pack que trae este sistema: aquí es de solo lectura, porque lo comparten todos los sistemas que lo traen. Para cambiarlo en este sistema, haz el tuyo en el pack del sistema.',
     builtIn:
-      'Las reglas genéricas son el sistema de Core, el que juega un mapa que no elige ninguno: aquí son de solo lectura, porque cualquier sistema puede traer Core. Para cambiarlas, crea un sistema nuevo (debajo de la lista de la izquierda): empieza con una copia de sus reglas.',
+      'Las reglas genéricas son el sistema de Core, el que juega un mapa que no elige ninguno: aquí son de solo lectura, porque cualquier sistema puede traer Core. **Editar una copia** crea un sistema nuevo vuestro que juega como ellas (una copia de sus reglas, las hojas, el equipo, el bestiario, los lugares y la tierra de Core), para cambiarlo a vuestro gusto.',
+    copyGeneric: 'Editar una copia',
+    copyGenericName: 'Mis reglas genéricas',
+    more: 'Más',
+    delete: 'Borrar este sistema',
+    confirmDelete:
+      '¿Borrar «{name}»? Se va con él todo su pack ({pack}), con cada tabla y parte que tenga. Los mapas, viajes y campañas jugados con él conservan su estado, pero se juegan sin él. (↶ lo deshace.)',
     staleCopy:
       'Este sistema usa tu copia de «{pack}», y el «{pack}» incluido ha cambiado desde que la hiciste. Tu copia sustituye entero al pack incluido, así que lo que trae el nuevo (una tabla que este sistema nombra…) falta hasta que lo cojas:',
     staleTip:

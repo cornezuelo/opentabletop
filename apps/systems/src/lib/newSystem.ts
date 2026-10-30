@@ -94,7 +94,11 @@ function coreDependency(): Record<string, string> {
  * calendar (their day is named by its parts), and bindings that roll their checks as Core
  * does (its weather model). Returns its id (also its folder), or null if that id is taken.
  */
-export function createSystem(name: string): string | null {
+export function createSystem(
+  name: string,
+  /** More parts its `kind: system` names (Core's, for a copy of the Generic rules). */
+  parts: Record<string, unknown> = {},
+): string | null {
   const id = slugify(name)
   if (library.pack(id) || library.rootOf(id)) return null
   const manifest = stringify({
@@ -118,6 +122,7 @@ export function createSystem(name: string): string | null {
     ...(withCore && { calendar: CORE_CALENDAR }),
     ...(checks.weather.length && { weather: checks.weather }),
     ...(checks.places.length && { places: checks.places }),
+    ...parts,
   })
   const rules = stringify({ kind: 'travel-rules', id: 'default', ...coreRules() })
   const bindings = stringify({ kind: 'bindings', id: 'default', on: checks.on, stats: {} })
@@ -132,6 +137,45 @@ export function createSystem(name: string): string | null {
     ],
   })
   return id
+}
+
+/**
+ * A copy of the Generic rules to edit (Core's own stays as it is, as every system may bring
+ * it): a new system as `createSystem` makes one, which also names Core's characters' sheet,
+ * gear, bestiary and land, so it plays as they do until you change them. Named `name`, or
+ * `name 2`, `name 3`… when taken. Returns its id.
+ */
+export function copyGenericRules(name: string): string | null {
+  const root = library.rootOf(DEFAULT_SYSTEM)
+  const text = root ? library.readFile(root, 'system.yaml') : undefined
+  const core = (text && readDefinition(text, '@system/default')) || {}
+  const parts: Record<string, unknown> = {}
+  if (typeof core.sheet === 'string') parts.sheet = fromCore(core.sheet)
+  for (const key of ['items', 'bestiary', 'land'] as const)
+    if (Array.isArray(core[key]))
+      parts[key] = (core[key] as unknown[]).flatMap((r) => fromCore(r) ?? [])
+  for (let n = 1; n < 100; n++) {
+    const id = createSystem(n === 1 ? name : `${name} ${n}`, parts)
+    if (id) return id
+  }
+  return null
+}
+
+/**
+ * Whether a system can be deleted here: one of your own packs (made or imported here), not
+ * your copy of a bundled one (that's reverted instead).
+ */
+export function canDelete(system: TravelSystem): boolean {
+  const root = systemRoot(system)
+  return !!root && library.pack(root)?.origin === 'user' && !library.bundledPack(root)
+}
+
+/** Deletes a system of yours: its whole pack, with every other definition in it. Undoable. */
+export function deleteSystem(system: TravelSystem): boolean {
+  const root = systemRoot(system)
+  if (!root || !canDelete(system)) return false
+  library.removePack(root)
+  return true
 }
 
 /**

@@ -6,7 +6,10 @@ import { describe, expect, it } from 'vitest'
 import {
   createPart,
   createSystem,
+  canDelete,
+  copyGenericRules,
   createSystemPart,
+  deleteSystem,
   declareSystem,
   packFormat,
   partChoices,
@@ -310,6 +313,30 @@ describe('systems in the Systems app', () => {
     expect(library.readFile(id, 'system.yaml')).toMatch(/bestiary:/)
     expect(Object.keys(system().bestiary?.[0].def.templates ?? {})).toEqual(['wolf', 'wolf-leader'])
     expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
+  }, 30_000)
+
+  it('a copy of the Generic rules plays as they do, and a system of yours can be deleted', () => {
+    const id = copyGenericRules('My generic rules')!
+    const copy = systems.get(id)!
+    const core = systems.get('core')!
+    expect(copy.pack).toBe(id)
+    // Its own rules, Core's other parts by name: it plays as the Generic rules do.
+    expect(Object.keys(copy.rules.actions ?? {})).toEqual(Object.keys(core.rules.actions ?? {}))
+    expect(copy.sheet?.id).toBe('core/character')
+    expect(copy.items?.map((c) => c.id)).toEqual(['core/gear'])
+    expect(copy.bestiary?.map((b) => b.id)).toEqual(['core/foes'])
+    expect(copy.places?.map((c) => c.id)).toEqual(['core/default'])
+    expect(Object.keys(copy.land ?? {})).toEqual(['core/default'])
+    expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
+    // A second copy takes the next free name; Core's own can't be deleted, yours can.
+    const second = copyGenericRules('My generic rules')!
+    expect(second).not.toBe(id)
+    expect(canDelete(core)).toBe(false)
+    expect(canDelete(systems.get(second)!)).toBe(true)
+    expect(deleteSystem(systems.get(second)!)).toBe(true)
+    expect(systems.get(second)).toBeUndefined()
+    library.undo()
+    expect(systems.get(second)).toBeDefined()
   }, 30_000)
 
   it('a new system makes Core’s places, and a catalogue of its own is created and named by it', () => {
