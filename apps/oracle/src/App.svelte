@@ -99,9 +99,13 @@
     <CampaignChip locale={getLocale()} />
     <div class="spacer"></div>
     <UndoButtons library={workspace} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
-    <button onclick={() => (dialogs.newDefinition = {})}>{t('nav.newDefinition')}</button>
-    <button onclick={() => (creating = true)}>{t('nav.newPack')}</button>
-    <button use:tooltip={t('nav.importTip')} onclick={importPacks}>{t('nav.import')}</button>
+    <button class="button" onclick={() => (dialogs.newDefinition = {})}
+      >{t('nav.newDefinition')}</button
+    >
+    <button class="button" onclick={() => (creating = true)}>{t('nav.newPack')}</button>
+    <button class="button" use:tooltip={t('nav.importTip')} onclick={importPacks}
+      >{t('nav.import')}</button
+    >
     <PreferencesButton
       locale={getLocale()}
       {locales}
@@ -201,18 +205,6 @@
     padding: 8px 12px;
     background: var(--panel);
     border-bottom: 1px solid var(--panel-border);
-  }
-
-  .bar > button:not(.help-toggle) {
-    padding: 5px 12px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .bar > button:not(.help-toggle):hover {
-    border-color: var(--accent);
   }
 
   .spacer {
@@ -339,7 +331,7 @@
       padding: 6px 8px;
     }
 
-    .bar > button:not(.help-toggle) {
+    .bar > .button {
       padding: 4px 8px;
       font-size: 13px;
     }

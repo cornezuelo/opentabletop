@@ -48,7 +48,7 @@
   <div class="actions">
     <a class="button primary" href={inCampaignUrl(app, campaign.id)}>{t(`places.new.${kind}`)}</a>
     {#if others.length}
-      <button aria-expanded={adding} onclick={() => (adding = !adding)}
+      <button class="button" aria-expanded={adding} onclick={() => (adding = !adding)}
         >{t(`places.add.${kind}`)}</button
       >
     {/if}
@@ -109,23 +109,6 @@
   .actions {
     display: flex;
     gap: 8px;
-  }
-
-  .button,
-  .actions button {
-    padding: 5px 12px;
-    font-size: 13px;
-    color: var(--text);
-    text-decoration: none;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .button.primary {
-    color: var(--accent);
-    border-color: var(--accent);
   }
 
   .adding {

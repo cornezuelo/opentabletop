@@ -127,6 +127,29 @@ select:focus-visible {
   color: var(--text-muted);
 }
 
+/* A plain button with words (or a link that acts as one): `class="button"`; `primary` for
+   the one that matters most. */
+.button {
+  display: inline-block;
+  padding: 5px 12px;
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.button.primary {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 button.icon {
   flex: none;
   width: 30px;

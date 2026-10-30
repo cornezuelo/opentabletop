@@ -122,10 +122,10 @@
     <p class="help">{t(`parts.${key}.none`)}</p>
   {/if}
   {#if canCreate}
-    <button class="add" onclick={() => create()}>{t(`parts.${key}.create`)}</button>
+    <button class="button add" onclick={() => create()}>{t(`parts.${key}.create`)}</button>
   {/if}
   {#if canCreateParty}
-    <button class="add" onclick={() => create(true)}>{t('parts.sheet.createParty')}</button>
+    <button class="button add" onclick={() => create(true)}>{t('parts.sheet.createParty')}</button>
   {/if}
 </div>
 
@@ -184,11 +184,5 @@
 
   .add {
     align-self: flex-start;
-    padding: 5px 12px;
-    font-size: 13px;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
   }
 </style>

@@ -104,7 +104,7 @@
       {#if system.id === DEFAULT_SYSTEM && library.pack(root ?? '')?.origin === 'bundled'}
         <div class="generic">
           <div class="help"><Markdown text={t('edit.builtIn')} /></div>
-          <button onclick={copyGeneric}>{t('edit.copyGeneric')}</button>
+          <button class="button" onclick={copyGeneric}>{t('edit.copyGeneric')}</button>
         </div>
       {:else if root}<div class="copy"><ReadOnly {root} /></div>{/if}
       <div class="tabs" role="tablist">
@@ -242,15 +242,6 @@
 
   .generic .help :global(p) {
     margin: 0;
-  }
-
-  .generic button {
-    padding: 5px 12px;
-    font-size: 13px;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
   }
 
   .copy:not(:empty) {

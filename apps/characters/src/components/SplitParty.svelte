@@ -168,8 +168,10 @@
     </table>
   {/if}
   <div class="buttons">
-    <button onclick={() => element?.close()}>{t('party.cancel')}</button>
-    <button class="primary" disabled={!name.trim()} onclick={split}>{t('party.doSplit')}</button>
+    <button class="button" onclick={() => element?.close()}>{t('party.cancel')}</button>
+    <button class="button primary" disabled={!name.trim()} onclick={split}
+      >{t('party.doSplit')}</button
+    >
   </div>
 </dialog>
 
@@ -247,14 +249,6 @@
     display: flex;
     gap: 6px;
     justify-content: flex-end;
-  }
-
-  .buttons button {
-    padding: 5px 12px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
   }
 
   .buttons .primary {

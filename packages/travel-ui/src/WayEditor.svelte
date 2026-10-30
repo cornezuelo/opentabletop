@@ -108,7 +108,7 @@
       </li>
     {/each}
   </ol>
-  <button class="add" onclick={() => trip.addHex()}>{t('play.addHex')}</button>
+  <button class="button add" onclick={() => trip.addHex()}>{t('play.addHex')}</button>
 </div>
 
 <style>
@@ -211,10 +211,5 @@
 
   .add {
     align-self: flex-start;
-    padding: 5px 12px;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
   }
 </style>
