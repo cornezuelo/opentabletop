@@ -14,6 +14,7 @@
   import { formatDeepLink } from '../lib/io/deepLink'
   import { editor } from '../lib/store/editor.svelte'
   import {
+    busy,
     confirmAction,
     groupByCampaign,
     helpMarkdown,
@@ -61,9 +62,21 @@
     new Intl.DateTimeFormat(getLocale(), { dateStyle: 'medium', timeStyle: 'short' }),
   )
 
-  async function open(id: string) {
-    if (await openLibraryMap(id)) editor.panelView = 'tool'
+  /** What's being opened (a map of the library, an example): its button turns. */
+  let opening = $state<string | null>(null)
+
+  /** Opens something (`what` names its button), then shows the map's tools if it opened. */
+  async function opened(what: string, task: () => Promise<unknown>) {
+    if (opening) return
+    opening = what
+    try {
+      if ((await task()) !== false) editor.panelView = 'tool'
+    } finally {
+      opening = null
+    }
   }
+
+  const open = (id: string) => opened(id, () => openLibraryMap(id))
 
   async function remove(entry: Entry) {
     if (await confirmAction(t('library.confirmDelete', { name: entry.name || t('map.untitled') })))
@@ -107,7 +120,8 @@
                 : t('library.exampleHelp'),
             ),
           }}
-          onclick={() => openExampleMap(example).then(() => (editor.panelView = 'tool'))}
+          use:busy={opening === `example:${example.id}`}
+          onclick={() => opened(`example:${example.id}`, () => openExampleMap(example))}
           ><span class="name">{example.name}</span><span class="meta"
             >{t('library.exampleOf', { system: exampleSystemName(example, getLocale()) })}</span
           >{#if newer.has(example.id)}<span class="newer">{t('library.exampleNewerTag')}</span
@@ -132,7 +146,12 @@
   <ul>
     {#each group.items as entry (entry.id)}
       <li class:current={entry.id === editor.meta.id}>
-        <button class="open" onclick={() => open(entry.id)} disabled={entry.id === editor.meta.id}>
+        <button
+          class="open"
+          use:busy={opening === entry.id}
+          onclick={() => open(entry.id)}
+          disabled={entry.id === editor.meta.id}
+        >
           <span class="name">{entry.name || t('map.untitled')}</span>
           <span class="meta"
             >{entry.id} · {entry.modified ? date.format(new Date(entry.modified)) : ''}</span

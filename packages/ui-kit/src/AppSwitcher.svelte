@@ -11,6 +11,7 @@
   import { ask } from './dialog.svelte'
   import { showToast } from './toasts.svelte'
   import { tooltip } from './tooltip'
+  import { busy as busyButton } from './busy'
   import TransferDialog from './TransferDialog.svelte'
 
   /**
@@ -46,6 +47,7 @@
       cancel: 'Cancel',
       merge: 'Add to mine',
       replace: 'Replace everything',
+      restoring: 'Restoring the backup…',
       restored: 'Backup restored. Reloading…',
       restoreFailed: 'The backup could not be restored: {error}',
       transferHelp:
@@ -78,6 +80,7 @@
       cancel: 'Cancelar',
       merge: 'Añadir a lo mío',
       replace: 'Sustituirlo todo',
+      restoring: 'Restaurando la copia…',
       restored: 'Copia restaurada. Recargando…',
       restoreFailed: 'No se pudo restaurar la copia: {error}',
       transferHelp:
@@ -92,21 +95,23 @@
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
   let dialog: HTMLDialogElement
   let transfer: TransferDialog
-  let busy = $state(false)
+  /** What's under way: a backup being made (its button turns), or none. */
+  let doing = $state<'backup' | null>(null)
+  const busy = $derived(doing !== null)
 
   const fill = (message: string, values: Record<string, string | number>) =>
     message.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? ''))
   const reason = (error: unknown) => (error instanceof Error ? error.message : String(error))
 
   async function backup() {
-    busy = true
+    doing = 'backup'
     try {
       downloadBackup(await makeBackup())
       showToast(text.saved)
     } catch (error) {
       showToast(fill(text.failed, { error: reason(error) }), 'error', 8000)
     } finally {
-      busy = false
+      doing = null
     }
   }
 
@@ -124,12 +129,16 @@
       { value: 'merge', label: text.merge, kind: 'primary' },
     ])
     if (mode !== 'merge' && mode !== 'replace') return
+    // The dialog is closed: a toast says it's under way until it's done.
+    const restoring = showToast(text.restoring, 'info', 60000)
     try {
       await restoreBackup(backup, mode)
+      restoring()
       showToast(text.restored)
       // Every app reads its data on start: reload to see the restored state.
       setTimeout(() => location.reload(), 800)
     } catch (error) {
+      restoring()
       showToast(fill(text.restoreFailed, { error: reason(error) }), 'error', 8000)
     }
   }
@@ -186,7 +195,9 @@
     <h3>{text.data}</h3>
     <p>{text.dataHelp}</p>
     <div class="buttons">
-      <button disabled={busy} onclick={backup}>{text.backup}</button>
+      <button disabled={busy} use:busyButton={doing === 'backup'} onclick={backup}
+        >{text.backup}</button
+      >
       <button disabled={busy} onclick={restore}>{text.restore}</button>
     </div>
     <p>{text.transferHelp}</p>

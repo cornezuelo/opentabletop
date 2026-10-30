@@ -1,6 +1,6 @@
 <script lang="ts">
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { AppShell, Dialogs, playing, Toasts } from '@open-tabletop/ui-kit'
+  import { AppShell, Dialogs, playing, Spinner, Toasts } from '@open-tabletop/ui-kit'
   import CampaignView from './components/CampaignView.svelte'
   import NewCampaign from './components/NewCampaign.svelte'
   import Sidebar from './components/Sidebar.svelte'
@@ -42,6 +42,8 @@
     <NewCampaign />
   {:else if campaigns.loaded && !campaigns.list.length}
     <NewCampaign first />
+  {:else if !campaigns.loaded}
+    <Spinner label={t('nav.loading')} shown />
   {/if}
 </AppShell>
 

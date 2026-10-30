@@ -11,12 +11,13 @@
   } from '../lib/io/export'
   import { type PaperId, PAPERS, paperSize } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
-  import { InfoTip, showToast } from '@open-tabletop/ui-kit'
+  import { busy as busyButton, InfoTip, showToast } from '@open-tabletop/ui-kit'
 
   let pixelsPerHex = $state<number>(100)
   let transparent = $state(false)
   let dpi = $state<number>(300)
-  let busy = $state(false)
+  /** The export being made (its button turns), or none. */
+  let busy = $state<'png' | 'pdf' | null>(null)
   /** Empty hexes white on paper and in the PNG (saves ink). */
   let emptyWhite = $state(false)
   /** Splits the PDF into pages of a paper, overlapping a little, to print a big map at home. */
@@ -41,8 +42,8 @@
     return gridSizeMm()
   })
 
-  async function run(task: () => Promise<string>) {
-    busy = true
+  async function run(kind: 'png' | 'pdf', task: () => Promise<string>) {
+    busy = kind
     // Let the UI show the busy state before the (synchronous) render blocks the thread.
     await new Promise((resolve) => setTimeout(resolve, 30))
     try {
@@ -51,12 +52,12 @@
       console.error(error)
       showToast(t('export.error'), 'error')
     } finally {
-      busy = false
+      busy = null
     }
   }
 
   const png = () =>
-    run(async () => {
+    run('png', async () => {
       const result = await exportPng(pixelsPerHex, transparent, emptyWhite)
       const done = t('export.pngDone', { w: result.width, h: result.height })
       return result.pixelsPerHex < pixelsPerHex
@@ -65,7 +66,7 @@
     })
 
   const pdf = () =>
-    run(async () => {
+    run('pdf', async () => {
       const result = await exportPdf(dpi, {
         emptyWhite,
         ...(tiled && { tile: { paper: tilePaper, landscape: tileLandscape } }),
@@ -105,7 +106,9 @@
   <input type="checkbox" bind:checked={transparent} />
   {t('export.transparent')}
 </label>
-<button class="primary" disabled={busy} onclick={png}>{t('export.png')}</button>
+<button class="primary" disabled={!!busy} use:busyButton={busy === 'png'} onclick={png}
+  >{t('export.png')}</button
+>
 
 <h2>PDF</h2>
 <p class="help">
@@ -146,7 +149,9 @@
     })}
   </p>
 {/if}
-<button class="primary" disabled={busy} onclick={pdf}>{t('export.pdf')}</button>
+<button class="primary" disabled={!!busy} use:busyButton={busy === 'pdf'} onclick={pdf}
+  >{t('export.pdf')}</button
+>
 
 <style>
   h2 {

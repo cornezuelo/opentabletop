@@ -18,6 +18,8 @@
   import { confirmAction } from './dialog.svelte'
   import { personalPacks } from './personalPacks'
   import { showToast } from './toasts.svelte'
+  import { busy as busyButton } from './busy'
+  import Spinner from './Spinner.svelte'
 
   /**
    * Export or import what the apps keep, choosing what goes: your packs, campaigns with
@@ -170,7 +172,10 @@
     const data = await pickExportFile()
     if (!data) return
     const read = readExport(data)
-    if (!read.kept) return showToast(read.error === 'newer' ? text.newer : text.invalid, 'error')
+    if (!read.kept) {
+      showToast(read.error === 'newer' ? text.newer : text.invalid, 'error')
+      return
+    }
     mode = 'import'
     busy = true
     try {
@@ -295,7 +300,7 @@
   </p>
 
   {#if busy && !items.length}
-    <p>{text.reading}</p>
+    <p><Spinner label={text.reading} shown /></p>
   {:else if !items.length}
     <p>{text.nothing}</p>
   {:else}
@@ -377,7 +382,11 @@
     >
     <span class="gap"></span>
     <button disabled={busy} onclick={() => element.close()}>{text.cancel}</button>
-    <button class="primary" disabled={busy || !chosen.size} onclick={finish}
+    <button
+      class="primary"
+      disabled={busy || !chosen.size}
+      use:busyButton={busy && !!items.length}
+      onclick={finish}
       >{fill(mode === 'export' ? text.export : text.import, { n: chosen.size })}</button
     >
   </div>

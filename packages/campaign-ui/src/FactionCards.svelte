@@ -7,7 +7,7 @@
     type LocalizedText,
     type SystemFactions,
   } from '@open-tabletop/session'
-  import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
+  import { busy, InfoTip, Markdown } from '@open-tabletop/ui-kit'
   import type { Snippet } from 'svelte'
   import FactionNotes from './FactionNotes.svelte'
   import { factionColor } from './factions'
@@ -43,7 +43,7 @@
     head?: Snippet<[string]>
     top?: Snippet<[string]>
     onchange: (next: T) => void
-    onturn: () => void
+    onturn: () => void | Promise<void>
   } = $props()
 
   const t = translator(() => locale)
@@ -54,6 +54,20 @@
   const count = (id: string) => {
     const n = territories?.[id]?.length ?? 0
     return n === 1 ? t('factions.territoryOne') : t('factions.territory', { n })
+  }
+
+  /** A world turn being played: its button turns until it's done. */
+  let turning = $state(false)
+  async function turn() {
+    if (turning) return
+    turning = true
+    try {
+      // Let the button show it before the turn (all at once) is played.
+      await new Promise((resolve) => setTimeout(resolve, 30))
+      await onturn()
+    } finally {
+      turning = false
+    }
   }
 </script>
 
@@ -98,7 +112,7 @@
 
 <!-- The help beside the button, not on it: pressing it runs the turn. -->
 <div class="row">
-  <button onclick={onturn}>{t('factions.turn')}</button>
+  <button use:busy={turning} onclick={turn}>{t('factions.turn')}</button>
   <span class="help">{t('whatItDoes')}<InfoTip markdown={t('factions.turnHelp')} /></span>
 </div>
 {#if system.def.every}

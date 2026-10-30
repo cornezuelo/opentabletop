@@ -8,6 +8,7 @@ export const en = {
     tagline: 'What is going on in your world.',
   },
   nav: {
+    loading: 'Reading your campaigns…',
     showSidebar: 'Show the campaigns list',
     hideSidebar: 'Hide the campaigns list (more room)',
     showHelp: 'Show the help',

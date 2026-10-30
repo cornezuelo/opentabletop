@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import { busy as busyButton } from './busy'
 
   /**
    * The page that makes something new: a title, its fields (`<label class="field">` with a
@@ -9,6 +10,7 @@
     title,
     create,
     disabled = false,
+    busy = false,
     onsubmit,
     children,
   }: {
@@ -16,6 +18,8 @@
     /** The button's text. */
     create: string
     disabled?: boolean
+    /** Making it takes a while: the button turns until it's done. */
+    busy?: boolean
     onsubmit: () => void
     children: Snippet
   } = $props()
@@ -29,7 +33,7 @@
   }}
 >
   {@render children()}
-  <button class="primary" type="submit" {disabled}>{create}</button>
+  <button class="primary" type="submit" {disabled} use:busyButton={busy}>{create}</button>
 </form>
 
 <style>

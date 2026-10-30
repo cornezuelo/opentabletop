@@ -8,6 +8,7 @@
     InfoTip,
     Markdown,
     MoreMenu,
+    Spinner,
     NoteRefInput,
     playIn,
     Tabs,
@@ -168,6 +169,8 @@
       {/if}
     </div>
   </article>
+{:else}
+  <Spinner label={t('nav.loading')} shown />
 {/if}
 
 <style>

@@ -45,6 +45,7 @@
   title={first ? t('new.firstTitle') : t('new.title')}
   create={t('new.create')}
   disabled={!name.trim() || busy}
+  {busy}
   onsubmit={create}
 >
   {#if first}<div class="intro"><Markdown text={t('new.firstIntro')} /></div>{/if}

@@ -18,7 +18,7 @@
     type ScheduledEvent,
     type WorldState,
   } from '@open-tabletop/world-engine'
-  import { ClockDial, confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { busy, ClockDial, confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import DateInput from './DateInput.svelte'
   import WorldWaiting from './WorldWaiting.svelte'
@@ -245,6 +245,18 @@
       .filter(Boolean)
       .join('\n')
   }
+
+  /** Time being moved on (a trip may march all the while): which button turns, or none. */
+  let moving = $state<string | null>(null)
+  async function move(key: string, task: () => Promise<void>) {
+    if (moving) return
+    moving = key
+    try {
+      await task()
+    } finally {
+      moving = null
+    }
+  }
 </script>
 
 {#if !world}
@@ -285,10 +297,12 @@
             <DateInput {calendar} {locale} bind:value={dateTo} />
             <div class="row">
               <button
-                onclick={async () => {
-                  await controls.setDate(dateTo)
-                  settingDate = false
-                }}
+                use:busy={moving === 'date'}
+                onclick={() =>
+                  move('date', async () => {
+                    await controls.setDate(dateTo)
+                    settingDate = false
+                  })}
                 disabled={dateTo === world.time}>{t('world.setDateGo')}</button
               >
               <button onclick={() => (settingDate = false)}>{t('world.setDateCancel')}</button>
@@ -304,18 +318,29 @@
             : t('world.advance')}<InfoTip text={advanceHelp} /></span
         >
         <div class="buttons">
-          <button onclick={() => controls.advance({ minutes: 60 })}>{t('world.hour')}</button>
+          <button
+            use:busy={moving === 'hour'}
+            onclick={() => move('hour', () => controls.advance({ minutes: 60 }))}
+            >{t('world.hour')}</button
+          >
           {#each divisions as d (d.id)}
-            <button onclick={() => controls.advance({ until: { part: d.id } })}
+            <button
+              use:busy={moving === `part:${d.id}`}
+              onclick={() =>
+                move(`part:${d.id}`, () => controls.advance({ until: { part: d.id } }))}
               >{t('world.nextPart', { division: divisionName(d) })}</button
             >
           {/each}
-          <button onclick={() => controls.advance({ until: 'next-day' })}
+          <button
+            use:busy={moving === 'day'}
+            onclick={() => move('day', () => controls.advance({ until: 'next-day' }))}
             >{t('world.nextDay')}</button
           >
           <button
             disabled={!upcoming(world).length}
-            onclick={() => controls.advance({ until: 'next-event' })}>{t('world.nextEvent')}</button
+            use:busy={moving === 'event'}
+            onclick={() => move('event', () => controls.advance({ until: 'next-event' }))}
+            >{t('world.nextEvent')}</button
           >
         </div>
         {#if divisions.length}
@@ -332,10 +357,12 @@
             </select>
             <button
               disabled={!untilPart}
-              onclick={async () => {
-                await controls.advance({ until: { part: untilPart } })
-                untilPart = ''
-              }}>{t('world.untilPartGo')}</button
+              use:busy={moving === 'until'}
+              onclick={() =>
+                move('until', async () => {
+                  await controls.advance({ until: { part: untilPart } })
+                  untilPart = ''
+                })}>{t('world.untilPartGo')}</button
             >
           </div>
         {/if}

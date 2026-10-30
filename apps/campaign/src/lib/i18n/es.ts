@@ -9,6 +9,7 @@ export const es: Messages<typeof en> = {
     tagline: 'Lo que pasa en tu mundo.',
   },
   nav: {
+    loading: 'Leyendo vuestras campañas…',
     showSidebar: 'Mostrar la lista de campañas',
     hideSidebar: 'Ocultar la lista de campañas (más espacio)',
     showHelp: 'Mostrar la ayuda',

@@ -9,6 +9,7 @@
   import { defaultCalendar } from '@open-tabletop/time'
   import { roster } from '@open-tabletop/character-ui'
   import {
+    busy,
     campaignUrl,
     confirmAction,
     groupByCampaign,
@@ -57,6 +58,9 @@
   let season = $state<Season>(trip.saved.season)
 
   /** Starts the open trip again (with this or another system). */
+  /** A trip being started (its button turns until it's going). */
+  let starting = $state(false)
+
   async function start(id: string, s: Season) {
     const target = find(id) ?? system
     // Only a trip with something in its journal has anything to lose.
@@ -67,7 +71,14 @@
       return
     // The system is the campaign's: in one shared with others, asked first.
     if (!(await trip.chooseSystem(target.id))) return
-    trip.start(target.id, s)
+    starting = true
+    try {
+      // Let the button show it before the first day is played.
+      await new Promise((resolve) => setTimeout(resolve, 30))
+      trip.start(target.id, s)
+    } finally {
+      starting = false
+    }
     if (target.id !== system.id) onsystem(target.id)
   }
 
@@ -230,7 +241,7 @@
           onworld={(choice) => trip.answerWorld(choice)}
         />
       {:else if !session}
-        <button class="primary" onclick={() => start(system.id, season)}
+        <button class="primary" use:busy={starting} onclick={() => start(system.id, season)}
           >{t('play.switch', { system: name(system) })}</button
         >
       {/if}
