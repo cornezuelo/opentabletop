@@ -14,6 +14,7 @@
   import { bindShortcuts } from './lib/shortcuts'
   import { roster } from '@open-tabletop/character-ui'
   import { pullMap } from './lib/play/roster'
+  import { loadLinks } from './lib/io/submaps'
 
   let ready = $state(false)
 
@@ -43,6 +44,12 @@
       unbind()
       for (const stop of stops) stop()
     }
+  })
+
+  // Another map opened, or this one now hangs elsewhere: the maps it reaches are read again.
+  $effect(() => {
+    void [editor.meta.id, editor.meta.parent?.map, ready]
+    if (ready) untrack(() => void loadLinks())
   })
 
   // The roster changed (the Characters app, another tab): the map's characters catch up.

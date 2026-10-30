@@ -861,6 +861,28 @@ export class MapRenderer {
         g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round' })
       }
     }
+    // The ways into sub-maps (a ring with a point down) and, on a sub-map, out of it (up).
+    const ways: [HexKey, 'in' | 'out'][] = [
+      ...(editor.linked.children ?? []).flatMap((c): [HexKey, 'in'][] =>
+        c.meta.parent ? [[c.meta.parent.place, 'in']] : [],
+      ),
+      ...(editor.map.meta.parent
+        ? ([[editor.map.meta.parent.entrance, 'out']] as [HexKey, 'out'][])
+        : []),
+    ]
+    for (const [key, way] of ways) {
+      const cell = parseKey(key)
+      if (!inBounds(cell, grid)) continue
+      const c = this.centerOf(cell)
+      const at = { x: c.x - 0.42 * hexSize, y: c.y + 0.42 * hexSize }
+      const r = 0.2 * hexSize
+      g.circle(at.x, at.y, r).fill({ color: CONNECTION_COLOR })
+      g.circle(at.x, at.y, r).stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
+      const d = way === 'in' ? 1 : -1
+      const s = r * 0.55
+      g.poly([at.x - s, at.y - (s * d) / 2, at.x + s, at.y - (s * d) / 2, at.x, at.y + s * d])
+      g.fill({ color: CONNECTION_OUTLINE })
+    }
     const start = editor.connectionStart
     if (start && inBounds(parseKey(start), grid)) {
       g.poly(this.cornersAt(parseKey(start)))

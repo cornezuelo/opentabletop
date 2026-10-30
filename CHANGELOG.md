@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Map: **sub-maps**. A hex can lead into a map of its own (a dungeon under a hill, a town): **New sub-map here** in the hex's panel makes one in the same campaign; **Maps** lists sub-maps under their map, a sub-map's bar says where it hangs (_The Hollow Hills › The Barrow-halls_), and its **Map settings** its entrance and the kind of the way in. On a trip, **Go in ↗** heads through the way: a step of a kind the system names (what it costs and does), and the trip goes on in the sub-map, which opens (the same trip, journal and time); **Go out ↗** brings it back. Maps v30.
 - Travel, Map and Systems: **what a kind of connection does** is the system's: `extra` minutes (a step through it takes them on top of its usual time: a ford, an hour more), `passable` with **Open when** / **Closed when** (a locked door: the route goes round it, or up to it and stops there), and its `name`. Conditions read the step's connection as `connection.*` (its kind, tags, values and its state in this trip); an effect `connection.state: open` changes it in the trip, never on the map, and the journal says so. A way of travelling may take `minutes` a step instead of `kmPerDay` (rooms, points).
 - Travel, Map and Systems: **the connections leaving the party's place**, by kind, are read as `place.connections` (`place.connections: door`; `place.connections.door.state: locked`), and an effect `place.connections.<kind>.<key>` changes them in the trip (a hidden path found where it starts). Conditions: a group by name holds when it has that name.
 - Map: **connections in play**: one the trip going on can't cross now is greyed with its diamond crossed out, and its panel says under **In the trip going on** whether it can be crossed and what the trip changed of it.
@@ -15,7 +16,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
-- Core: a **gate** (`connections: gate`, ten minutes more, shut while its state says so) and **Open the gate**. The Grey Marches: a **ford** kind (an hour more, impassable on a storm day), drawn as Stonewater Ford on the Hollow Hills map; the ford's check also comes up crossing a drawn ford. The Grey Marches' **Barrow-road**, a hidden path from the Barrow-halls to Hollow Gate that can't be followed until the **Hidden path** check finds it.
+- Core: a **gate** (`connections: gate`, ten minutes more, shut while its state says so) and **Open the gate**. The Grey Marches: a **ford** kind (an hour more, impassable on a storm day), drawn as Stonewater Ford on the Hollow Hills map; the ford's check also comes up crossing a drawn ford. The Grey Marches' **Barrow-halls**, a sub-map under the Hollow Hills (a third example map, kept beside them), entered by a `way-in` (ten minutes more); Core's `way-in` (five). The Grey Marches' **Barrow-road**, a hidden path from the Barrow-halls to Hollow Gate that can't be followed until the **Hidden path** check finds it.
 
 ### Formats
 

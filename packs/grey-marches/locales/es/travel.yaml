@@ -235,6 +235,9 @@ travel-rules/default:
     ford:
       name: Vado
       description: Una hora más para cruzarlo; infranqueable un día de tormenta.
+    way-in:
+      name: Bajada
+      description: Diez minutos para bajar a lo que hay debajo, o para volver a subir.
     hidden-path:
       name: Senda oculta
       description: Un camino por las colinas que solo conocen los clanes; no se puede seguir hasta encontrarlo.

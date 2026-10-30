@@ -9,6 +9,7 @@ import {
   settleTrip,
   shareTrip,
   type Season,
+  moveTrip,
   type SessionState,
   type TravelSystem,
   travels,
@@ -25,12 +26,20 @@ import {
   takeMoments,
   type CampaignTrip,
 } from '@open-tabletop/campaign'
-import { chooseSystem } from '../io/actions.svelte'
+import { chooseSystem, keepOpenMap, openLibraryMap } from '../io/actions.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
-import { mapWorld } from '@open-tabletop/map'
+import { mapWorld, parsePlaceOn } from '@open-tabletop/map'
 import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
+
+/**
+ * The map as the trip sees it with the system's scale: its places, and the ways into its
+ * sub-maps and out of it (the maps the library keeps).
+ */
+export function playWorld(system: TravelSystem) {
+  return mapWorld(editor.map, system.rules.travel.hexKm, editor.linked)
+}
 
 function current(): PlayState {
   return (
@@ -149,6 +158,8 @@ function newSession(
 /** Play tool click: place the party, move it (simple) or set the destination (rules). */
 export function clickHex(key: HexKey): void {
   const play = current()
+  // The trip went on into another map: this one waits for it, untouched.
+  if (play.away) return void showToast(t('submap.awayHere'), 'info', 6000)
   const location = partyLocation()
   // The party is placed and a system chosen, but the trip hasn't started: it starts
   // where the party is, heading for the hex clicked.
@@ -275,7 +286,7 @@ function stepOnly(action: TravelAction): void {
   const system = getSystem(play.rules.system)
   const options = {
     system,
-    world: mapWorld(editor.map, system.rules.travel.hexKm),
+    world: playWorld(system),
     oracle: oracle(),
     locale: getLocale(),
     discover: discoverMode(play, system),
@@ -293,10 +304,14 @@ function stepOnly(action: TravelAction): void {
   }
   const { state, entries, discovered } = result
   editor.applyDiscovery(discovered)
+  // Places of another map (a way in or out) are that map's trail, not this one's.
   const entered = entries.flatMap((e) =>
-    e.code === 'PLACE_ENTERED' ? [e.data?.place as HexKey] : [],
+    e.code === 'PLACE_ENTERED' && !parsePlaceOn(String(e.data?.place))
+      ? [e.data?.place as HexKey]
+      : [],
   )
-  placeParty(state.travel.location as HexKey)
+  const into = parsePlaceOn(state.travel.location)
+  if (!into) placeParty(state.travel.location as HexKey)
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
@@ -314,6 +329,42 @@ function stepOnly(action: TravelAction): void {
     trail: [...play.trail, ...entered],
     rules: { ...play.rules, session: journaled },
   })
+  // The party went through a way into another map: the trip goes on there.
+  if (into) void goOnIn(into.map)
+}
+
+/**
+ * The trip reached a place of another map of its tree (into a sub-map, or out of it): it
+ * goes on there, the same trip (members, journal, time), and that map opens. This map keeps
+ * the party where it left from, and says where the trip went (`away`).
+ */
+export async function goOnIn(map: string): Promise<boolean> {
+  const play = current()
+  const session = sessionOf(play)
+  if (!session || !play.rules) return false
+  const moved = moveTrip(session, editor.map.meta.id, map)
+  const { rules, discover } = play
+  save({ ...play, away: map, rules: { ...rules, session: null } })
+  await keepOpenMap().catch(console.error)
+  if (!(await openLibraryMap(map))) {
+    // The other map isn't kept here: the trip stays where it was.
+    save({ ...play, rules: { ...rules, session } })
+    showToast(t('submap.missing'), 'error')
+    return false
+  }
+  const here = current()
+  delete here.away
+  const location = moved.travel.location as HexKey
+  placeParty(location)
+  save({
+    ...here,
+    mode: 'rules',
+    trail: here.trail.at(-1) === location ? here.trail : [...here.trail, location],
+    rules: { system: rules.system, startDay: rules.startDay, session: moved },
+    ...(discover && { discover }),
+  })
+  editor.setPlaying(mapTrip())
+  return true
 }
 
 /** How this trip discovers the map: off, or revealing neighbours or the entered hex only. */
@@ -340,7 +391,7 @@ export function editSession(update: (session: SessionState) => SessionState): vo
   const next = settleTrip(
     {
       system,
-      world: mapWorld(editor.map, system.rules.travel.hexKm),
+      world: playWorld(system),
       locale: getLocale(),
       facts: worldFactsNow(),
     },
@@ -364,7 +415,7 @@ export function shareSession(moved?: Record<string, number>): void {
   const next = shareTrip(
     {
       system,
-      world: mapWorld(editor.map, system.rules.travel.hexKm),
+      world: playWorld(system),
       locale: getLocale(),
       facts: worldFactsNow(),
     },

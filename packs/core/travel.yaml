@@ -68,6 +68,12 @@ connections:
     description: Ten minutes more to pass; can't be passed while it's shut.
     extra: 10
     passable: { unless: { connection.state: shut } }
+  # The way into a sub-map drawn under a place (Map's sub-maps) and out of it: five minutes
+  # more than the step, which measures nothing.
+  way-in:
+    name: Way in
+    description: Five minutes to go in, or to come back out.
+    extra: 5
 modes:
   foot: { name: On foot, kmPerDay: 30 }
   horse: { name: On horseback, kmPerDay: 50 }

@@ -23,6 +23,7 @@ import {
   type LayerId,
   type LayerState,
   type MapLabel,
+  type MapLinks,
   type MapMeta,
   type MapRegion,
   type MapToken,
@@ -94,6 +95,14 @@ class Editor {
   terrains = $state<TerrainType[]>([...this.map.terrains])
   layers = $state<Record<LayerId, LayerState>>(structuredClone(this.map.layers))
   play = $state.raw<HexMap['play']>(undefined)
+  /**
+   * The maps this one reaches by its ways in and out (its parent, its sub-maps), as the
+   * library keeps them, and the names of the maps above it, the topmost first.
+   */
+  linked = $state.raw<MapLinks & { ancestors: { id: string; name: string }[] }>({
+    children: [],
+    ancestors: [],
+  })
   world = $state.raw<Campaign['world']>(undefined)
   /** What the campaign's world waits for the player to answer, if anything. */
   waiting = $state.raw<Campaign['waiting']>(undefined)
@@ -505,6 +514,7 @@ class Editor {
 
   /** Opens a map with its campaign (by default a new one of its own). */
   load(map: HexMap, campaign: Campaign = createCampaign(map.meta.campaign, map.meta.name)): void {
+    if (map.meta.id !== this.map.meta.id) this.linked = { children: [], ancestors: [] }
     this.map = map
     this.campaign = campaign
     this.history.clear()

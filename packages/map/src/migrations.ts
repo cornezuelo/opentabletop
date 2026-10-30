@@ -312,6 +312,13 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   28(data) {
     return data
   },
+  /**
+   * v30: sub-maps (`meta.parent`, where one hangs), a trip gone on into another map
+   * (`play.away`), a far connection's own `km`; older maps have none.
+   */
+  29(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

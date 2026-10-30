@@ -6,6 +6,7 @@
   import HexIcon from './HexIcon.svelte'
   import HexNotes from './HexNotes.svelte'
   import HexPaths from './HexPaths.svelte'
+  import HexSubMaps from './HexSubMaps.svelte'
   import NoteLink from './NoteLink.svelte'
   import PoiList from './PoiList.svelte'
   import TagEditor from './TagEditor.svelte'
@@ -102,6 +103,7 @@
 
   {#key key}
     <HexHere {key} />
+    <HexSubMaps {key} name={hex.name ?? ''} />
     <label class="field">
       <span>{t('hex.name')}</span>
       <input

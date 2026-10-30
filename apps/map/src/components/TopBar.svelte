@@ -17,7 +17,7 @@
     type Locale,
     type MessageKey,
   } from '../lib/i18n/index.svelte'
-  import { library, newMap, saveMap } from '../lib/io/actions.svelte'
+  import { library, newMap, openLibraryMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type PanelView } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
 
@@ -101,6 +101,17 @@
   <span class="name"><AppBrand app="map" name={t('app.title')} /></span>
   <AppSwitcher current="map" locale={getLocale()} />
   <CampaignChip locale={getLocale()} {held} />
+  {#if editor.linked.ancestors.length}
+    <!-- A sub-map: the maps above it, each opening its map, then this one. -->
+    <nav class="crumbs" aria-label={t('submap.breadcrumb')}>
+      {#each editor.linked.ancestors as above (above.id)}
+        <button class="crumb" onclick={() => openLibraryMap(above.id)}
+          >{above.name || t('map.untitled')}</button
+        ><span class="crumb-sep" aria-hidden="true">›</span>
+      {/each}
+      <span class="crumb here">{editor.meta.name || t('map.untitled')}</span>
+    </nav>
+  {/if}
   <div class="spacer"></div>
   {#each groups as group, g (g)}
     {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}
@@ -132,6 +143,46 @@
 </header>
 
 <style>
+  .crumbs {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .crumbs .crumb {
+    flex: 0 1 auto;
+    width: auto;
+    height: auto;
+    min-width: 3em;
+    max-width: 16em;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 4px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .crumbs button.crumb:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .crumb.here {
+    color: var(--text);
+  }
+
+  .crumb-sep {
+    color: var(--text-muted);
+  }
+
   .bar {
     display: flex;
     gap: 4px;

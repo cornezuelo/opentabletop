@@ -242,6 +242,8 @@ export function mapToBundle(
       coordFormat: map.grid.coordFormat,
     },
     ...(map.scale.hexKm !== undefined && { scale: { hexKm: map.scale.hexKm } }),
+    // A sub-map: the place of another map that leads into it.
+    ...(map.meta.parent && { parent: { ...map.meta.parent } }),
     terrains: map.terrains.map((t) => ({ ...t })),
     hexes,
     paths: map.paths.map((p) => ({ ...p })),
@@ -382,6 +384,7 @@ function playToOtd(map: HexMap) {
         ...(play && { mode: play.mode, trail: play.trail, showTrail: play.showTrail }),
         ...(play?.straightTrail && { straightTrail: true }),
         ...(play?.copiesApart && { copiesApart: true }),
+        ...(play?.away && { away: play.away }),
         ...(play?.discover && { discover: play.discover }),
         ...(play?.rules && { system: play.rules.system, startDay: play.rules.startDay }),
         ...(session && { dayVars: session.dayVars, nextEntry: session.nextEntry }),
@@ -477,6 +480,7 @@ function playFromOtd(
     showTrail: ext.showTrail,
     ...(ext.straightTrail === true && { straightTrail: true }),
     ...(ext.copiesApart === true && { copiesApart: true }),
+    ...(typeof ext.away === 'string' && { away: ext.away }),
     ...(ext.discover !== undefined && { discover: ext.discover }),
     ...(rules && { rules }),
   }
@@ -656,6 +660,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
       modified: ext.modified,
       // Files saved before campaigns have none: the map gets one of its own (migrations).
       ...(bundle.campaign && { campaign: bundle.campaign.id }),
+      ...(otdMap.parent && { parent: otdMap.parent }),
     },
     grid: {
       orientation: otdMap.grid.orientation,

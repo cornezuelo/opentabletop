@@ -100,6 +100,15 @@ export const map = z
     hexes: z.record(hexKey, hex),
     paths: z.array(path).optional(),
     connections: z.array(connection).optional(),
+    /** A sub-map: the place of its parent map that leads into it, and its own entrance. */
+    parent: z
+      .object({
+        map: z.string().min(1),
+        place: hexKey,
+        entrance: hexKey,
+        kind: z.string().optional(),
+      })
+      .optional(),
   })
   .loose()
 

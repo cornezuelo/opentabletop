@@ -10,11 +10,13 @@ import {
   tripChanges,
   tripContext,
   tripFacts,
+  moveTrip,
+  type SessionState,
   shownAt,
 } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import { createTravelEngine } from '@open-tabletop/travel-engine'
-import { mapWorld } from '@open-tabletop/map'
+import { mapWorld, placeOn } from '@open-tabletop/map'
 import { exampleMaps, exampleState, forgetExample, rememberExample } from './examples'
 import { parseMapFile } from './otd'
 
@@ -300,6 +302,80 @@ describe('example maps', () => {
     expect(
       tripFacts(options, session).place as { connections: Record<string, unknown> },
     ).toMatchObject({ connections: { 'hidden-path': { state: 'found' } } })
+  })
+
+  it('the Barrow-halls: the trip goes down from the Hollow Hills, on, and back up', () => {
+    const open = (id: string) => parseMapFile(EXAMPLE_MAPS.find((m) => m.id === id)!.json).map
+    const hills = open('hollowhills1')
+    const halls = open('barrowhalls1')
+    expect(halls.meta.parent).toEqual({
+      map: 'hollowhills1',
+      place: '10,8',
+      entrance: '0,3',
+      kind: 'way-in',
+    })
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const km = system.rules.travel.hexKm
+    const oracle = createOracleEngine({ registry, random: seeded('barrow-halls') })
+    const above = {
+      system,
+      world: mapWorld(hills, km, { children: [halls] }),
+      oracle,
+      locale: 'en',
+    }
+    const below = { system, world: mapWorld(halls, km, { parent: hills }), oracle, locale: 'en' }
+    /** Steps until the party stands at `place`, resolving whatever checks come up. */
+    const reach = (options: typeof above, session: SessionState, place: string) => {
+      session = stepTrip(options, session, { type: 'setDestination', place }).state
+      for (let i = 0; i < 12 && session.travel.location !== place; i++) {
+        for (const id of session.travel.pendingChecks.map((c) => c.id))
+          session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+        session = stepTrip(options, session, {
+          type: 'action',
+          id: 'march',
+          with: { until: 'place' },
+        }).state
+      }
+      for (let i = 0; i < 4 && session.travel.pendingChecks.length; i++)
+        for (const id of session.travel.pendingChecks.map((c) => c.id))
+          session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+      return session
+    }
+    let { session } = startTrip({ system, location: '10,8', season: 'summer' })
+    // A party that knows the hills: it doesn't get lost on the way.
+    session.stats.navigation = 6
+    const start = session.travel.time
+    // Down the way: a step of its kind, ten minutes more, onto the halls' entrance.
+    const way = placeOn('barrowhalls1', '0,3')
+    session = reach(above, session, way)
+    expect(session.travel.location).toBe(way)
+    expect(session.travel.time - start).toBeGreaterThanOrEqual(10)
+    // The trip goes on in the halls: the same trip, its places now theirs.
+    const visitsAbove = session.travel.visits?.['10,8']
+    session = moveTrip(session, 'hollowhills1', 'barrowhalls1')
+    expect(session.travel.location).toBe('0,3')
+    expect(session.travel.visits?.['@hollowhills1/10,8']).toBe(visitsAbove)
+    expect(session.travel.route).toBeUndefined()
+    // On to the chief's tomb (a landmark: the trip pauses there), through the barrow's halls.
+    session = reach(below, session, '7,3')
+    expect(session.travel.location).toBe('7,3')
+    const entered = session.journal.flatMap((e) =>
+      e.code === 'PLACE_ENTERED' ? [String(e.data?.place)] : [],
+    )
+    expect(entered).toContain('6,3')
+    // Coming down the way is the halls' first place entered (it was `@barrowhalls1/0,3`).
+    expect(entered[0]).toBe('0,3')
+    // And back up the way out, to the hex it came down from.
+    session = reach(below, session, placeOn('hollowhills1', '10,8'))
+    session = moveTrip(session, 'barrowhalls1', 'hollowhills1')
+    expect(session.travel.location).toBe('10,8')
+    expect(session.journal.some((e) => e.data?.place === '@barrowhalls1/7,3')).toBe(true)
   })
 
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {

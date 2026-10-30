@@ -71,9 +71,9 @@ describe('the roster in the Characters app', () => {
       import: 'default',
       eager: true,
     }) as Record<string, string>
-    const [map] = Object.values(files)
+    const map = Object.entries(files).find(([path]) => path.endsWith('/grey-marches.otd.json'))?.[1]
     expect(map).toBeDefined()
-    const done = importCharacters(map)
+    const done = importCharacters(map!)
     expect(done).toEqual({ names: expect.arrayContaining(['Kael', 'Mara']) })
   })
 })

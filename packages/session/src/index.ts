@@ -1542,6 +1542,7 @@ export function dayVariables(
 export * from './effects'
 export * from './journal'
 export * from './trip'
+export * from './submaps'
 export * from './discovery'
 export * from './suggestions'
 // The full names of facts (`place.terrain`, `trip.day`…), for hosts that build contexts.

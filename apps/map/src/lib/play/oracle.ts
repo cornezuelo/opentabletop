@@ -6,7 +6,7 @@ import { getLocale } from '../i18n/index.svelte'
 import { fieldValues, type HexKey, newId } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
-import { editSession, partyLocation, sessionOf } from './play'
+import { editSession, partyLocation, playWorld, sessionOf } from './play'
 import { mapWorld } from '@open-tabletop/map'
 import { worldFactsNow } from './world.svelte'
 
@@ -82,7 +82,7 @@ export function rollContext(): Record<string, unknown> {
         ...tripFacts(
           {
             system: getSystem(play!.rules!.system),
-            world: mapWorld(editor.map, getSystem(play!.rules!.system).rules.travel.hexKm),
+            world: playWorld(getSystem(play!.rules!.system)),
             facts: world,
           },
           session,

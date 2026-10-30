@@ -14,6 +14,7 @@ Selecciona un hex con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y e
 - **Hecho a partir de**, en un punto de interés que un viaje creó con una [plantilla de lugar](../technical/07-kinds.md#lugares) del sistema (una ruina descubierta): cuál. Se edita como cualquier otro; que la plantilla cambie después no lo toca.
 - **Nota enlazada**: una página de tu aplicación de notas.
 - El icono y las líneas que cruzan el hex.
+- **Caminos a otros mapas**: los [submapas](13-sub-maps.md) que hay bajo él (**Abrir**; **Entrar ↗** en un viaje con el grupo allí), la salida en la entrada de un submapa, y **Nuevo submapa aquí**.
 
 Un punto dorado marca los hexes con detalles que no se ven en el mapa.
 

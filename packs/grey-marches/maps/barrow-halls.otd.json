@@ -1,0 +1,289 @@
+{
+  "parties": [],
+  "factions": [],
+  "clocks": [],
+  "log": [],
+  "otd": "0.2.0",
+  "campaign": {
+    "id": "grey-marches",
+    "type": "campaign",
+    "name": "The Grey Marches"
+  },
+  "characters": [],
+  "maps": [
+    {
+      "id": "barrowhalls1",
+      "type": "map",
+      "name": "The Barrow-halls",
+      "grid": {
+        "orientation": "flat",
+        "width": 9,
+        "height": 7,
+        "coordFormat": "CCRR"
+      },
+      "scale": {
+        "hexKm": 0.01
+      },
+      "parent": {
+        "map": "hollowhills1",
+        "place": "10,8",
+        "entrance": "0,3",
+        "kind": "way-in"
+      },
+      "terrains": [
+        {
+          "id": "barrow-floor",
+          "name": "Barrow floor",
+          "color": "#8a7f6a",
+          "glyph": "game:tombstone"
+        },
+        {
+          "id": "rubble",
+          "name": "Rubble",
+          "color": "#6b6355",
+          "glyph": "game:stone-pile"
+        },
+        {
+          "id": "black-water",
+          "name": "Black water",
+          "color": "#1f2a33",
+          "glyph": "game:wave-crest",
+          "water": true
+        }
+      ],
+      "hexes": {
+        "0,3": {
+          "terrain": "barrow-floor",
+          "name": "The barrow stair"
+        },
+        "1,3": {
+          "terrain": "barrow-floor"
+        },
+        "2,3": {
+          "terrain": "barrow-floor"
+        },
+        "3,3": {
+          "terrain": "barrow-floor"
+        },
+        "2,2": {
+          "terrain": "barrow-floor"
+        },
+        "2,4": {
+          "terrain": "barrow-floor"
+        },
+        "4,2": {
+          "terrain": "barrow-floor",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "4,3": {
+          "terrain": "barrow-floor",
+          "name": "The long barrow",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "4,4": {
+          "terrain": "barrow-floor",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "5,2": {
+          "terrain": "barrow-floor",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "5,3": {
+          "terrain": "barrow-floor",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "5,4": {
+          "terrain": "barrow-floor",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "6,2": {
+          "terrain": "rubble",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "6,4": {
+          "terrain": "rubble",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "2"
+            }
+          ]
+        },
+        "6,3": {
+          "terrain": "barrow-floor",
+          "stats": [
+            {
+              "key": "danger",
+              "value": "3"
+            }
+          ]
+        },
+        "7,3": {
+          "terrain": "barrow-floor",
+          "name": "The chief's tomb",
+          "tags": ["landmark"],
+          "stats": [
+            {
+              "key": "danger",
+              "value": "4"
+            }
+          ]
+        },
+        "4,5": {
+          "terrain": "black-water"
+        },
+        "5,5": {
+          "terrain": "black-water"
+        }
+      },
+      "paths": [],
+      "ext": {
+        "map": {
+          "version": 30,
+          "created": "2026-10-30T12:00:00.000Z",
+          "modified": "2026-10-30T12:00:00.000Z",
+          "hexSize": 40,
+          "showCoords": true,
+          "glyphs": 0.45,
+          "print": {
+            "hexMm": 25,
+            "paper": null,
+            "landscape": false,
+            "marginMm": 10,
+            "customPaper": {
+              "width": 500,
+              "height": 700
+            }
+          },
+          "layers": {
+            "terrain": {
+              "visible": true,
+              "locked": false
+            },
+            "grid": {
+              "visible": true,
+              "locked": false
+            },
+            "regions": {
+              "visible": true,
+              "locked": false
+            },
+            "factions": {
+              "visible": true,
+              "locked": false
+            },
+            "paths": {
+              "visible": true,
+              "locked": false
+            },
+            "connections": {
+              "visible": true,
+              "locked": false
+            },
+            "icons": {
+              "visible": true,
+              "locked": false
+            },
+            "coords": {
+              "visible": true,
+              "locked": false
+            },
+            "labels": {
+              "visible": true,
+              "locked": false
+            },
+            "party": {
+              "visible": true,
+              "locked": false
+            },
+            "relations": {
+              "visible": false,
+              "locked": false
+            },
+            "tokens": {
+              "visible": true,
+              "locked": false
+            },
+            "markers": {
+              "visible": true,
+              "locked": false
+            }
+          },
+          "labels": [],
+          "regions": [],
+          "captions": {
+            "hexNames": {
+              "show": true,
+              "font": "fell",
+              "size": 1,
+              "italic": false,
+              "halo": true,
+              "haloColor": "#f4eedd"
+            },
+            "regionNames": {
+              "show": true,
+              "font": "fell",
+              "size": 1,
+              "italic": true,
+              "halo": true,
+              "haloColor": "#f4eedd"
+            },
+            "tokenNames": {
+              "show": true,
+              "font": "fell",
+              "size": 1,
+              "italic": false,
+              "halo": true,
+              "haloColor": "#f4eedd"
+            }
+          },
+          "regionStyle": {
+            "fill": 0.14,
+            "border": 0.09,
+            "dashed": false,
+            "borderOpacity": 0.85
+          },
+          "assets": [],
+          "icons": {}
+        }
+      }
+    }
+  ],
+  "pois": [],
+  "state": {}
+}

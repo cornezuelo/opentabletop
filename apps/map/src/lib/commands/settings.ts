@@ -46,16 +46,16 @@ function pick<T extends object>(source: T, patch: Partial<T> | undefined): Parti
 export class SetMetaCommand implements Command {
   private before: Partial<MapMeta> = {}
 
-  constructor(private patch: Partial<Pick<MapMeta, 'name'>>) {}
+  constructor(private patch: Partial<Pick<MapMeta, 'name' | 'parent'>>) {}
 
   apply(map: HexMap): MapChange {
-    this.before = { name: map.meta.name }
-    Object.assign(map.meta, this.patch)
+    this.before = pick(map.meta, this.patch)
+    Object.assign(map.meta, structuredClone(this.patch))
     return { kind: 'meta' }
   }
 
   revert(map: HexMap): MapChange {
-    Object.assign(map.meta, this.before)
+    Object.assign(map.meta, structuredClone(this.before))
     return { kind: 'meta' }
   }
 }

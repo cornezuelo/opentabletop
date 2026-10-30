@@ -27,6 +27,7 @@ import type {
   HexMap,
   LabelStyle,
   MapConnection,
+  MapParent,
   MapAsset,
   MapLabel,
   CaptionOverride,
@@ -117,6 +118,7 @@ function validate(data: Record<string, unknown>): HexMap {
       created: typeof meta.created === 'string' ? meta.created : now,
       modified: typeof meta.modified === 'string' ? meta.modified : now,
       campaign: typeof meta.campaign === 'string' && meta.campaign ? meta.campaign : id,
+      ...(parseParent(meta.parent) && { parent: parseParent(meta.parent) }),
     },
     grid: {
       orientation: grid.orientation === 'pointy' ? 'pointy' : 'flat',
@@ -469,9 +471,25 @@ function parseTokens(value: unknown): MapToken[] {
   return tokens
 }
 
+/** A sub-map's parent: its map, the place leading in and the entrance (absent if broken). */
+function parseParent(value: unknown): MapParent | undefined {
+  if (!isRecord(value)) return undefined
+  const { map, place, entrance, kind } = value
+  if (typeof map !== 'string' || !map) return undefined
+  if (typeof place !== 'string' || !HEX_KEY.test(place)) return undefined
+  if (typeof entrance !== 'string' || !HEX_KEY.test(entrance)) return undefined
+  return {
+    map,
+    place: place as HexKey,
+    entrance: entrance as HexKey,
+    ...(typeof kind === 'string' && kind.trim() && { kind: kind.trim() }),
+  }
+}
+
 function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
   const rules = isRecord(p.rules) ? p.rules : undefined
   return {
+    ...(typeof p.away === 'string' && p.away && { away: p.away }),
     mode: p.mode === 'rules' ? 'rules' : 'simple',
     trail: (Array.isArray(p.trail) ? p.trail : []).filter(
       (k): k is HexKey => typeof k === 'string' && HEX_KEY.test(k),

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createMap } from './defaults'
-import { mapWorld } from './world'
+import { mapWorld, parsePlaceOn, placeOn } from './world'
 
 describe('the map as the travel engine sees it', () => {
   const map = createMap()
@@ -54,5 +54,38 @@ describe('connections drawn on the map', () => {
       connections: [{ id: 't', between: ['0,0', '5,5'], kind: 'tunnel', km: 12 }],
     })
     expect(measured.km('5,5', '0,0')).toBe(12)
+  })
+})
+
+describe('ways into sub-maps', () => {
+  const parent = createMap()
+  parent.meta = { ...parent.meta, id: 'up' }
+  const child = createMap()
+  child.meta = {
+    ...child.meta,
+    id: 'down',
+    name: 'Below',
+    parent: { map: 'up', place: '3,3', entrance: '1,1', kind: 'way-in' },
+  }
+  child.hexes['1,1'] = { terrain: 'plains', name: 'The stair' }
+
+  it('join the parent place and the entrance, both ways, as a step of the way’s kind', () => {
+    const world = mapWorld(parent, undefined, { children: [child] })
+    const inside = placeOn('down', '1,1')
+    expect(world.neighbors('3,3')).toContain(inside)
+    expect(world.neighbors(inside)).toEqual(['3,3'])
+    expect(world.connections('3,3', inside)).toEqual(['way-in'])
+    expect(world.connectionOf?.(inside, '3,3')).toMatchObject({ kind: 'way-in', name: 'Below' })
+    expect(world.km('3,3', inside)).toBe(0)
+    expect(world.far?.('3,3', inside)).toBe(true)
+    // What the other map knows of its place.
+    expect(world.place(inside)).toMatchObject({ terrain: 'plains', name: 'The stair' })
+    expect(parsePlaceOn(inside)).toEqual({ map: 'down', place: '1,1' })
+    expect(parsePlaceOn('1,1')).toBeUndefined()
+    // From inside, the way out.
+    const below = mapWorld(child, undefined, { parent })
+    expect(below.neighbors('1,1')).toContain(placeOn('up', '3,3'))
+    // Without its links, a map has no ways.
+    expect(mapWorld(parent).neighbors('3,3')).not.toContain(inside)
   })
 })

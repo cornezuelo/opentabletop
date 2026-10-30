@@ -19,7 +19,13 @@ import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { editor, isCampaignChange } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
 import { ask, confirmAction, freeCampaignName, playing, showToast } from '@open-tabletop/ui-kit'
-import { exampleState, forgetExample, rememberExample, type ExampleMap } from './examples'
+import {
+  exampleMaps,
+  exampleState,
+  forgetExample,
+  rememberExample,
+  type ExampleMap,
+} from './examples'
 import {
   allCampaigns,
   deleteCampaign,
@@ -97,6 +103,7 @@ async function saveCurrent(): Promise<void> {
         name: map.meta.name,
         modified: map.meta.modified,
         json: serializeMap(map),
+        ...(map.meta.parent && { parent: map.meta.parent.map }),
       })
     } catch (error) {
       dirty = true
@@ -105,6 +112,12 @@ async function saveCurrent(): Promise<void> {
     library.version++
   }
   if (!dirty && !campaignDirty) clearPending()
+}
+
+/** Writes the open map now, changed or not (before another one takes its place). */
+export async function keepOpenMap(): Promise<void> {
+  dirty = true
+  await saveCurrent()
 }
 
 /**
@@ -249,9 +262,37 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
     if (!opening) return
     await switchTo(opening)
     rememberExample(id, example)
+    if (id === example.id) await keepSubMaps(id)
     await sayCampaign()
   } catch (error) {
     showToast(errorMessage(error), 'error')
+  }
+}
+
+/**
+ * The example maps that hang under one just opened (its sub-maps, theirs…), kept in the
+ * library beside it if they aren't yet, so its ways in lead somewhere.
+ */
+async function keepSubMaps(parent: string): Promise<void> {
+  for (const example of exampleMaps()) {
+    let map: HexMap
+    try {
+      map = parseMapFile(example.json).map
+    } catch {
+      continue
+    }
+    if (map.meta.parent?.map !== parent || (await getLibraryMap(map.meta.id))) continue
+    map = { ...map, meta: { ...map.meta, campaign: editor.map.meta.campaign } }
+    await putLibraryMap({
+      id: map.meta.id,
+      name: map.meta.name,
+      modified: map.meta.modified,
+      json: serializeMap(map),
+      parent,
+    })
+    rememberExample(map.meta.id, example)
+    library.version++
+    await keepSubMaps(map.meta.id)
   }
 }
 

@@ -5,7 +5,9 @@
   import { mapSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
-  import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { formatCoord, parseKey } from '@open-tabletop/hex'
+  import { InfoTip, showToast, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { openLibraryMap } from '../lib/io/actions.svelte'
 
   async function copyId() {
     try {
@@ -15,6 +17,23 @@
       // Clipboard blocked (e.g. insecure context): the id is still selectable.
     }
   }
+
+  /** A sub-map's way in: the parent's place, this map's entrance and the kind of the way. */
+  const parent = $derived(editor.meta.parent)
+  const parentName = $derived(
+    editor.linked.parent?.meta.name || editor.linked.ancestors.at(-1)?.name || parent?.map || '',
+  )
+  const parentPlace = $derived.by(() => {
+    const other = editor.linked.parent
+    if (!parent) return ''
+    return other
+      ? formatCoord(parseKey(parent.place), other.grid.coordFormat, other.grid)
+      : parent.place
+  })
+  const coord = (key: string) =>
+    formatCoord(parseKey(key as `${number},${number}`), editor.grid.coordFormat, editor.grid)
+  const setParent = (patch: Partial<NonNullable<typeof parent>>) =>
+    parent && editor.execute(new SetMetaCommand({ parent: { ...parent, ...patch } }))
 
   function setName(input: HTMLInputElement) {
     const name = input.value.trim()
@@ -41,6 +60,34 @@
     >
   </div>
 </div>
+
+{#if parent}
+  <div class="field inside">
+    <span>{t('submap.inside')}<InfoTip text={t('submap.insideHelp')} /></span>
+    <p>
+      <button class="link" onclick={() => openLibraryMap(parent.map)}>{parentName}</button>
+      · {parentPlace}
+    </p>
+    <p>
+      {t('submap.entrance')}: <strong>{coord(parent.entrance)}</strong>
+      {#if editor.selected && editor.selected !== parent.entrance}
+        <button class="link" onclick={() => setParent({ entrance: editor.selected! })}
+          >{t('submap.entranceHere', { hex: coord(editor.selected) })}</button
+        >
+      {/if}
+    </p>
+  </div>
+  <div class="field">
+    <span>{t('submap.kind')}<InfoTip text={t('submap.kindHelp')} /></span>
+    <SuggestInput
+      value={parent.kind ?? ''}
+      list={Object.keys(mapSystem().rules.connections ?? {})}
+      label={t('submap.kind')}
+      placeholder="way-in"
+      onchange={(kind) => setParent({ kind: kind.trim() || undefined })}
+    />
+  </div>
+{/if}
 
 <label class="field">
   <span>{t('map.hexKm')}<InfoTip text={t('map.hexKmHelp')} /></span>
@@ -90,6 +137,22 @@
 </label>
 
 <style>
+  .inside p {
+    margin: 0;
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  .link {
+    padding: 0;
+    font: inherit;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   .id {
     display: flex;
     align-items: center;

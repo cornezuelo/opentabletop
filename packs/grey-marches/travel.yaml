@@ -40,6 +40,9 @@ terrains:
   lake:
     multiplier: 0.5
     passable: { when: { time.month: [deepwinter, wolfmoon] } }
+  # Underground, in the Barrow-halls (a sub-map of the Hollow Hills): halls and fallen stone.
+  barrow-floor: { multiplier: 1 }
+  rubble: { multiplier: 0.5 }
 # Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…
 water: { passable: false }
 defaultTerrain: { multiplier: 1 }
@@ -58,6 +61,12 @@ connections:
   # Hollow Gate): it can't be followed until it's found (its state in the trip, `hidden` on
   # the map), and a check where it starts finds it (`place.connections.hidden-path.state`).
   # Between far places it goes at its multiplier over its length, not the hills' speed.
+  # The way down into a sub-map (the Barrow-halls under the Hollow Hills) and back up: ten
+  # minutes more than the step, which measures nothing.
+  way-in:
+    name: Way down
+    description: Ten minutes to go down into what lies below, or to climb back out.
+    extra: 10
   hidden-path:
     name: Hidden path
     description: A way over the hills only the clans know; it can't be followed until found.

@@ -247,6 +247,11 @@ export interface PlayState {
    * the party travels. `reveal` overrides the system's choice (neighbours or entered hex).
    */
   discover?: { on: boolean; reveal?: 'neighbors' | 'entered' }
+  /**
+   * The trip went on into another map of its tree (a sub-map, or its parent), by id: it plays
+   * there now, and this map keeps only where the party left from.
+   */
+  away?: string
 }
 
 /**
@@ -358,6 +363,27 @@ export interface MapMeta {
    * A new map, and every map saved before campaigns, has one of its own.
    */
   campaign: string
+  /** A sub-map: the place of another map of its campaign that leads into it. */
+  parent?: MapParent
+}
+
+/**
+ * Where a sub-map hangs (a dungeon under a hex, a city on a map of the land): the place of
+ * its parent map that leads into it, and the way in, a step between that place and its own
+ * `entrance` the trip takes like any other.
+ */
+export interface MapParent {
+  /** The parent map's id. */
+  map: string
+  /** The parent's place that leads into it. */
+  place: HexKey
+  /** Its place the way in arrives at, and leaves from. */
+  entrance: HexKey
+  /**
+   * The kind of connection the way in is, as the system names it (`way-in`): what the step
+   * costs and does (`extra`, `passable`, `connection.kind` in checks). Absent: none.
+   */
+  kind?: string
 }
 
 export interface HexMap {

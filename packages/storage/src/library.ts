@@ -19,6 +19,8 @@ export interface LibraryEntry {
   name: string
   modified: string
   json: string
+  /** The entry it hangs under (a sub-map's parent map), for listing them as a tree. */
+  parent?: string
 }
 
 const request = <T>(r: IDBRequest<T>): Promise<T> =>
@@ -172,7 +174,12 @@ export function createLibrary(store: StoreName, channelName: string): Library {
     async list() {
       const entries = await run<LibraryEntry[]>('readonly', (s) => s.getAll())
       return entries
-        .map(({ id, name, modified }) => ({ id, name, modified }))
+        .map(({ id, name, modified, parent }) => ({
+          id,
+          name,
+          modified,
+          ...(parent && { parent }),
+        }))
         .sort((a, b) => b.modified.localeCompare(a.modified))
     },
     all() {

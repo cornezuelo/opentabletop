@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
+  import { placeLabel } from '../lib/io/submaps'
+  import { openLibraryMap } from '../lib/io/actions.svelte'
   import { systemName, travels } from '@open-tabletop/session'
   import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
@@ -15,10 +16,10 @@
     step,
     updatePlay,
     type Season,
+    playWorld,
   } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
   import { mapPlace } from '../lib/play/roster'
-  import { mapWorld } from '@open-tabletop/map'
   import { answerWorld, worldFactsNow, worldWaiting as waitingNow } from '../lib/play/world.svelte'
   import {
     activeSystem,
@@ -45,8 +46,16 @@
   const system = $derived(activeSystem())
   const mapSystem = $derived(mapSystemId())
   const otherSystem = $derived(session && play?.rules && play.rules.system !== mapSystem)
-  const coord = (key: string) =>
-    formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
+  /** The map the trip went on into: a sub-map or the parent, by name. */
+  const awayName = (id: string) =>
+    [editor.linked.parent, ...(editor.linked.children ?? [])].find((m) => m?.meta.id === id)?.meta
+      .name ||
+    editor.linked.ancestors.find((a) => a.id === id)?.name ||
+    id
+  const coord = (key: string) => {
+    void editor.grid
+    return placeLabel(key)
+  }
 
   const terrainLabel = (id: string) => {
     const terrain = editor.terrains.find((x) => x.id === id)
@@ -125,6 +134,14 @@
   <p class="help">{t('play.simpleHelp', { hex: coord(party.hex) })}</p>
 {/if}
 
+{#if play?.away}
+  {@const away = play.away}
+  <p class="away">
+    {t('submap.away', { name: awayName(away) })}
+    <button class="link" onclick={() => openLibraryMap(away)}>{t('submap.openAway')}</button>
+  </p>
+{/if}
+
 {#if play?.mode === 'rules'}
   <TripSetup
     systems={playSystems()}
@@ -186,7 +203,7 @@
       hexLabel={coord}
       relationTargets={relationTargets()}
       terrainName={terrainLabel}
-      world={mapWorld(editor.map, system.rules.travel.hexKm)}
+      world={playWorld(system)}
       facts={worldFactsNow()}
       title={editor.map.meta.name || t('map.untitled')}
       nameOf={oracleUi.nameOf}
@@ -220,6 +237,24 @@
 {/if}
 
 <style>
+  .away {
+    margin: 0 0 8px;
+    padding: 6px 8px;
+    font-size: 13px;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+  }
+
+  .away .link {
+    padding: 0;
+    font: inherit;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   .segmented {
     display: grid;
     grid-template-columns: 1fr 1fr;

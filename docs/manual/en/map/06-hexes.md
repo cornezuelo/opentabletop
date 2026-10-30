@@ -14,6 +14,7 @@ Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details
 - **Made from**, on a point of interest a trip made from a system's [place template](../technical/07-kinds.md#places) (a discovered ruin): which one. It's edited like any other; changing the template later doesn't touch it.
 - **Linked note**: a page of your notes app.
 - The icon and the lines crossing the hex.
+- **Ways into other maps**: the [sub-maps](13-sub-maps.md) under it (**Open**; **Go in ↗** on a trip with the party there), the way out at a sub-map's entrance, and **New sub-map here**.
 
 A gold dot marks hexes with details you can't see on the map.
 

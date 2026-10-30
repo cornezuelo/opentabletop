@@ -12,13 +12,78 @@ import { DEFAULT_HEX_KM } from './defaults'
 import { fieldValues } from './hex'
 import { type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
 
+/** A place of another map of the tree, as the world of this one names it: `@<map>/<hex>`. */
+export const placeOn = (map: string, hex: string): string => `@${map}/${hex}`
+
+/** The map and place of a place of another map (`@<map>/<hex>`); undefined for this map's. */
+export function parsePlaceOn(id: string): { map: string; place: HexKey } | undefined {
+  const match = /^@(.+)\/(\d+,\d+)$/.exec(id)
+  return match ? { map: match[1], place: match[2] as HexKey } : undefined
+}
+
+/** The maps a map's world reaches by its ways in and out: its parent and its sub-maps. */
+export interface MapLinks {
+  parent?: HexMap
+  children?: HexMap[]
+}
+
+/** A way between a place of this map and one of another: into a sub-map, or out of this one. */
+interface Way {
+  here: string
+  there: string
+  /** The map at the other end. */
+  other: HexMap
+  kind?: string
+  /** The sub-map's, for the journal: the way into it, or out of this one. */
+  id: string
+  name: string
+}
+
+/** This map's ways: into each of its sub-maps (from their parent place), and out of it. */
+function waysOf(map: HexMap, links: MapLinks): Way[] {
+  const ways: Way[] = []
+  for (const child of links.children ?? []) {
+    const p = child.meta.parent
+    if (!p || p.map !== map.meta.id) continue
+    ways.push({
+      here: p.place,
+      there: placeOn(child.meta.id, p.entrance),
+      other: child,
+      ...(p.kind && { kind: p.kind }),
+      id: `way-${child.meta.id}`,
+      name: child.meta.name,
+    })
+  }
+  const own = map.meta.parent
+  if (own && links.parent?.meta.id === own.map)
+    ways.push({
+      here: own.entrance,
+      there: placeOn(own.map, own.place),
+      other: links.parent,
+      ...(own.kind && { kind: own.kind }),
+      id: `way-${map.meta.id}`,
+      name: map.meta.name,
+    })
+  return ways
+}
+
 /**
  * The map as the Travel Engine sees it: each hex a place (its terrain, tags, region, values,
  * icon, faction and places in it), its neighbours, and the roads, rivers and drawn
  * connections between them (one drawn between far hexes makes them neighbours), a step a
- * hex at the map's scale, else the system's (`systemHexKm`), else the default.
+ * hex at the map's scale, else the system's (`systemHexKm`), else the default. With its
+ * `links`, the ways into its sub-maps and out of it are steps too: to a place of the other
+ * map (`@<map>/<hex>`, what it knows of it), of the way's kind, no distance.
  */
-export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
+export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}): TravelWorld {
+  const ways = waysOf(map, links)
+  const wayOf = (a: string, b: string) =>
+    ways.find((w) => (w.here === a && w.there === b) || (w.here === b && w.there === a))
+  const others = new Map<string, TravelWorld>()
+  const otherWorld = (other: HexMap) => {
+    if (!others.has(other.meta.id)) others.set(other.meta.id, mapWorld(other, systemHexKm))
+    return others.get(other.meta.id)!
+  }
   const { grid } = map
   const connections = new Map<string, Set<string>>()
   const join = (a: string, b: string, kind: string) => {
@@ -52,12 +117,20 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
     Object.keys(territories).find((id) => territories[id].includes(hex))
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
   const km = map.scale.hexKm ?? systemHexKm ?? DEFAULT_HEX_KM
-  const isFar = (a: string, b: string) => drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1
+  const isFar = (a: string, b: string) =>
+    !!wayOf(a, b) || (drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1)
   return {
-    // A connection between far hexes measures its own `km`, else the hexes between its ends.
-    km: (a, b) => (isFar(a, b) ? (drawn.get(`${a}|${b}`)!.km ?? km * hexDistance(a, b)) : km),
+    // A connection between far hexes measures its own `km`, else the hexes between its ends;
+    // a way into another map, none.
+    km: (a, b) =>
+      wayOf(a, b) ? 0 : isFar(a, b) ? (drawn.get(`${a}|${b}`)!.km ?? km * hexDistance(a, b)) : km,
     far: isFar,
     place(hex) {
+      const there = parsePlaceOn(hex)
+      if (there) {
+        const way = ways.find((w) => w.there === hex)
+        return way ? otherWorld(way.other).place(there.place) : null
+      }
       if (!inBounds(cell(hex), grid)) return null
       const data = map.hexes[hex as HexKey]
       const inRegion = data?.region ? map.regions.find((r) => r.id === data.region) : undefined
@@ -81,12 +154,27 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
         ...(data?.pois?.length && { pois: data.pois.map((p) => p.id) }),
       }
     },
-    neighbors: (hex) => [...neighborCells(cell(hex), grid).map(keyOf), ...(far.get(hex) ?? [])],
+    neighbors: (hex) =>
+      parsePlaceOn(hex)
+        ? ways.filter((w) => w.there === hex).map((w) => w.here)
+        : [
+            ...neighborCells(cell(hex), grid).map(keyOf),
+            ...(far.get(hex) ?? []),
+            ...ways.filter((w) => w.here === hex).map((w) => w.there),
+          ],
     // A far connection is a shortcut: with any, no distance is sure to be a lower bound.
-    distance: (a, b) => (far.size ? 0 : km * hexDistance(a, b)),
-    connections: (a, b) => [...(connections.get(`${a}|${b}`) ?? [])],
+    distance: (a, b) =>
+      far.size || parsePlaceOn(a) || parsePlaceOn(b) ? 0 : km * hexDistance(a, b),
+    connections: (a, b) => {
+      const way = wayOf(a, b)
+      if (way) return way.kind ? [way.kind] : []
+      return [...(connections.get(`${a}|${b}`) ?? [])]
+    },
     // Its values (`fields`) as `connection.<key>`, beside its id, kind, name and tags.
     connectionOf(a, b) {
+      const way = wayOf(a, b)
+      if (way)
+        return way.kind ? { id: way.id, kind: way.kind, tags: [], name: way.name } : undefined
       const c = drawn.get(`${a}|${b}`)
       if (!c) return undefined
       return {
