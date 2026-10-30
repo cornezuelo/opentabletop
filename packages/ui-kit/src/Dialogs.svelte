@@ -13,6 +13,7 @@
 </script>
 
 <dialog
+  class="modal"
   bind:this={element}
   oncancel={(e) => {
     e.preventDefault()
@@ -26,7 +27,7 @@
     {@const request = dialog.current}
     <h2>{request.title}</h2>
     <p>{request.message}</p>
-    <div class="buttons">
+    <div class="dialog-buttons">
       {#each request.buttons as button (button.value)}
         <button class={button.kind} onclick={() => request.resolve(button.value)}
           >{button.label}</button
@@ -39,16 +40,6 @@
 <style>
   dialog {
     max-width: 440px;
-    padding: 20px;
-    color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 10px;
-    box-shadow: 0 12px 40px rgb(0 0 0 / 0.5);
-  }
-
-  dialog::backdrop {
-    background: rgb(0 0 0 / 0.5);
   }
 
   h2 {
@@ -62,34 +53,5 @@
     white-space: pre-line;
     line-height: 1.5;
     color: var(--text-muted);
-  }
-
-  .buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-
-  button {
-    padding: 7px 12px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  button:hover {
-    border-color: var(--text-muted);
-  }
-
-  button.primary {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
-
-  button.danger {
-    color: var(--danger);
-    border-color: var(--danger);
   }
 </style>

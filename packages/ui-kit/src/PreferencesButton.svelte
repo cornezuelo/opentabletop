@@ -82,7 +82,7 @@
   </svg>
 </button>
 
-<dialog bind:this={dialog} onclick={(e) => e.target === dialog && dialog.close()}>
+<dialog class="modal" bind:this={dialog} onclick={(e) => e.target === dialog && dialog.close()}>
   <h2>{text.title}</h2>
   <section>
     <h3>{text.shared}</h3>
@@ -159,15 +159,6 @@
   dialog {
     width: min(460px, calc(100vw - 32px));
     max-height: calc(100vh - 48px);
-    padding: 18px;
-    color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-  }
-
-  dialog::backdrop {
-    background: rgb(0 0 0 / 0.5);
   }
 
   h2 {

@@ -76,7 +76,7 @@
   const valueName = (v: string) => sheetText(sheet.values[v].name, getLocale()) ?? v
 </script>
 
-<dialog bind:this={element} {onclose}>
+<dialog class="modal" bind:this={element} {onclose}>
   <h2>{t('party.splitTitle', { name: label(entry) })}</h2>
   <div class="help"><Markdown text={t('party.splitHelp')} /></div>
   <label class="field">
@@ -167,11 +167,9 @@
       </tbody>
     </table>
   {/if}
-  <div class="buttons">
-    <button class="button" onclick={() => element?.close()}>{t('party.cancel')}</button>
-    <button class="button primary" disabled={!name.trim()} onclick={split}
-      >{t('party.doSplit')}</button
-    >
+  <div class="dialog-buttons">
+    <button onclick={() => element?.close()}>{t('party.cancel')}</button>
+    <button class="primary" disabled={!name.trim()} onclick={split}>{t('party.doSplit')}</button>
   </div>
 </dialog>
 
@@ -179,21 +177,12 @@
   dialog {
     width: min(560px, calc(100vw - 32px));
     max-height: calc(100vh - 48px);
-    padding: 18px;
-    color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
   }
 
   dialog[open] {
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-
-  dialog::backdrop {
-    background: rgb(0 0 0 / 0.5);
   }
 
   h2 {
@@ -243,17 +232,5 @@
     border: 1px solid var(--panel-border);
     border-radius: 4px;
     cursor: pointer;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-  }
-
-  .buttons .primary {
-    color: var(--accent-contrast, #fff);
-    background: var(--accent);
-    border-color: var(--accent);
   }
 </style>

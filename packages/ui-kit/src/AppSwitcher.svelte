@@ -162,7 +162,7 @@
   >
 </button>
 
-<dialog bind:this={dialog} onclick={(e) => e.target === dialog && dialog.close()}>
+<dialog class="modal" bind:this={dialog} onclick={(e) => e.target === dialog && dialog.close()}>
   <h2><img class="logo" src={logoUrl()} alt="" />{text.title}</h2>
   <ul>
     {#each APPS as app (app.id)}
@@ -260,15 +260,6 @@
 
   dialog {
     width: min(460px, calc(100vw - 32px));
-    padding: 18px;
-    color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-  }
-
-  dialog::backdrop {
-    background: rgb(0 0 0 / 0.5);
   }
 
   h2 {

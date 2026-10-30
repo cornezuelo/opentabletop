@@ -291,7 +291,11 @@
   }
 </script>
 
-<dialog bind:this={element} onclick={(e) => e.target === element && !busy && element.close()}>
+<dialog
+  class="modal"
+  bind:this={element}
+  onclick={(e) => e.target === element && !busy && element.close()}
+>
   <h2>{mode === 'export' ? text.exportTitle : text.importTitle}</h2>
   <p class="help">
     {#each (mode === 'export' ? text.exportHelp : text.importHelp).split('**') as part, i (i)}{#if i % 2}<strong
@@ -367,7 +371,7 @@
     {/if}
   {/if}
 
-  <div class="buttons">
+  <div class="dialog-buttons">
     <button
       class="plain"
       disabled={!items.length}
@@ -396,20 +400,11 @@
   dialog {
     width: min(560px, calc(100vw - 32px));
     max-height: calc(100vh - 48px);
-    padding: 18px;
-    color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
   }
 
   dialog[open] {
     display: flex;
     flex-direction: column;
-  }
-
-  dialog::backdrop {
-    background: rgb(0 0 0 / 0.5);
   }
 
   h2 {
@@ -538,10 +533,7 @@
     color: var(--text-muted);
   }
 
-  .buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  .dialog-buttons {
     margin-top: 12px;
   }
 
@@ -549,28 +541,10 @@
     flex: 1;
   }
 
-  button {
-    padding: 6px 14px;
-    color: var(--text);
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  button:hover:not(:disabled) {
-    border-color: var(--accent);
-  }
-
-  button.plain {
+  .dialog-buttons button.plain {
     padding: 6px 8px;
     background: transparent;
     border-color: transparent;
     color: var(--text-muted);
-  }
-
-  button.primary {
-    color: var(--accent);
-    border-color: var(--accent);
   }
 </style>

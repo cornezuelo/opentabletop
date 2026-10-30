@@ -44,7 +44,7 @@
   }
 </script>
 
-<dialog bind:this={dialog} {onclose}>
+<dialog class="modal" bind:this={dialog} {onclose}>
   <form
     method="dialog"
     onsubmit={(e) => {
@@ -69,7 +69,7 @@
         <input type="text" bind:value={locale} />
       </label>
     {/if}
-    <div class="buttons">
+    <div class="dialog-buttons">
       <button type="button" onclick={() => dialog.close()}>{t('newPack.cancel')}</button>
       <button type="submit" class="primary">{t('newPack.create')}</button>
     </div>
@@ -79,15 +79,6 @@
 <style>
   dialog {
     width: 360px;
-    padding: 18px;
-    color: var(--text);
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-  }
-
-  dialog::backdrop {
-    background: rgb(0 0 0 / 0.5);
   }
 
   form {
@@ -105,25 +96,5 @@
     margin: 0;
     font-size: 13px;
     color: var(--text-muted);
-  }
-
-  .buttons {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-  }
-
-  .buttons button {
-    padding: 6px 14px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .buttons .primary {
-    color: var(--bg);
-    background: var(--accent);
-    border-color: var(--accent);
   }
 </style>

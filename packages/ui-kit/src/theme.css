@@ -201,6 +201,58 @@ dl.facts dd {
   margin: 0;
 }
 
+/* A modal dialog (`<dialog class="modal">`, its width its own) and its buttons at the foot
+   (`.dialog-buttons`): Cancel and the like plain, the one that does it `primary`, one that
+   deletes or replaces `danger`. */
+dialog.modal {
+  padding: 18px;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.5);
+}
+
+dialog.modal::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.dialog-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.dialog-buttons button {
+  padding: 6px 14px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dialog-buttons button:hover:not(:disabled) {
+  border-color: var(--text-muted);
+}
+
+.dialog-buttons button.primary {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.dialog-buttons button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.dialog-buttons button.danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
 /* A button busy with something that takes a while (`use:busy`): a spinner over its label,
    which stays (its width, and what screen readers read). */
 button.busy {
