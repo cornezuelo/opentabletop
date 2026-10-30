@@ -3,7 +3,7 @@
   import { placeUrl } from '@open-tabletop/character-ui'
   import { onLibraryChange } from '@open-tabletop/storage'
   import { allPlaces, type PlaceInCampaign } from '@open-tabletop/travel-ui'
-  import { fullText, inCampaignUrl, InfoTip, Markdown } from '@open-tabletop/ui-kit'
+  import { inCampaignUrl, InfoTip, Markdown, RowCard, RowCards } from '@open-tabletop/ui-kit'
   import { campaigns, open } from '../lib/campaign.svelte'
   import { t } from '../lib/i18n'
 
@@ -58,32 +58,33 @@
 {#if adding}
   <section class="adding">
     <h3>{t(`places.addTitle.${kind}`)}<InfoTip markdown={t(`places.addHelp.${kind}`)} /></h3>
-    <ul>
+    <RowCards>
       {#each others as p (p.id)}
-        <li>
-          <span class="name" class:untitled={!p.name} use:fullText>{p.name || untitled}</span>
-          <span class="where">{whereNow(p)}</span>
+        <RowCard plain name={p.name || untitled} untitled={!p.name} meta={whereNow(p)}>
           <a href={inCampaignUrl(app, campaign.id, p.id)}>{t('places.bring')}</a>
-        </li>
+        </RowCard>
       {/each}
-    </ul>
+    </RowCards>
   </section>
 {/if}
 
 {#if mine.length}
-  <ul class="cards">
+  <RowCards>
     {#each mine as p (p.id)}
       {@const url = placeUrl(p)}
-      <li class="card" class:going={going(p)}>
-        <span class="name" class:untitled={!p.name} use:fullText>{p.name || untitled}</span>
-        {#if app === 'hexmapper' && size(p)}<span class="where">{size(p)}</span>{/if}
+      <RowCard
+        name={p.name || untitled}
+        untitled={!p.name}
+        meta={app === 'hexmapper' ? size(p) : undefined}
+        highlight={going(p)}
+      >
         {#if going(p)}<span class="badge"
             >{t('places.going')}<InfoTip text={t('places.goingHelp')} /></span
           >{/if}
         {#if url}<a href={url}>{t(going(p) ? 'places.continue' : 'places.open')}</a>{/if}
-      </li>
+      </RowCard>
     {/each}
-  </ul>
+  </RowCards>
 {:else}
   <p class="help">{t(`places.none.${kind}`)}</p>
 {/if}
@@ -127,33 +128,6 @@
     border-color: var(--accent);
   }
 
-  ul {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  li {
-    display: flex;
-    gap: 12px;
-    align-items: baseline;
-    min-width: 0;
-  }
-
-  .card {
-    padding: 10px 12px;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-  }
-
-  .card.going {
-    border-color: var(--accent);
-  }
-
   .adding {
     padding: 10px 12px;
     border: 1px dashed var(--panel-border);
@@ -166,36 +140,8 @@
     font-weight: 600;
   }
 
-  .adding li {
-    padding: 3px 0;
-    font-size: 13px;
-  }
-
-  .name {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .untitled {
-    font-style: italic;
-    color: var(--text-muted);
-  }
-
-  .where {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
   .badge {
     font-size: 12px;
-    color: var(--accent);
-  }
-
-  a {
-    font-size: 13px;
     color: var(--accent);
   }
 

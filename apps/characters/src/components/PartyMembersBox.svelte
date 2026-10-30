@@ -1,7 +1,7 @@
 <script lang="ts">
   import { characterUrl, roster } from '@open-tabletop/character-ui'
   import { partyWith, rosterEntry, type RosterEntry } from '@open-tabletop/session'
-  import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, RowCard, RowCards, tooltip } from '@open-tabletop/ui-kit'
   import { setPartyMembers } from '../lib/actions'
   import { t } from '../lib/i18n'
   import type { CharacterSystem } from '../lib/packs.svelte'
@@ -52,25 +52,28 @@
   {#if entry.playing}
     <p class="help">{t('party.playingNote', { place: entry.playing.name })}</p>
   {/if}
-  {#each members as m (m.character.id)}
-    <div class="member">
-      <a href={characterUrl(m.character.id)}>{label(m)}</a>
-      {#if !entry.playing}
-        <button
-          class="icon"
-          aria-label={t('party.remove')}
-          use:tooltip={t('party.remove')}
-          onclick={() =>
-            setPartyMembers(
-              id,
-              (entry.members ?? []).filter((x) => x !== m.character.id),
-            )}>×</button
-        >
-      {/if}
-    </div>
+  {#if members.length}
+    <RowCards>
+      {#each members as m (m.character.id)}
+        <RowCard name={label(m)} href={characterUrl(m.character.id)}>
+          {#if !entry.playing}
+            <button
+              class="icon"
+              aria-label={t('party.remove')}
+              use:tooltip={t('party.remove')}
+              onclick={() =>
+                setPartyMembers(
+                  id,
+                  (entry.members ?? []).filter((x) => x !== m.character.id),
+                )}>×</button
+            >
+          {/if}
+        </RowCard>
+      {/each}
+    </RowCards>
   {:else}
     <p class="help">{t('party.none')}</p>
-  {/each}
+  {/if}
   {#if !entry.playing && available.length}
     <select
       value=""
@@ -102,19 +105,6 @@
     margin: 0;
     font-size: 15px;
     font-weight: 600;
-  }
-
-  .member {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 8px;
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-  }
-
-  a {
-    color: var(--accent);
   }
 
   .icon {

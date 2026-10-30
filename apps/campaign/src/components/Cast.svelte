@@ -4,7 +4,7 @@
   import type { RosterEntry } from '@open-tabletop/session'
   import { onLibraryChange } from '@open-tabletop/storage'
   import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
-  import { appUrl, fullText, Markdown } from '@open-tabletop/ui-kit'
+  import { appUrl, Markdown, RowCard, RowCards } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n'
 
   /**
@@ -37,63 +37,28 @@
 
 <div class="help"><Markdown text={t('cast.intro')} /></div>
 {#if cast.length}
-  <ul>
+  <RowCards>
     {#each cast as { character, playing } (character.id)}
       {@const url = playing && placeUrl(playing)}
-      <li>
-        <a class="name" href={characterUrl(character.id)} use:fullText
-          >{character.name || character.id}</a
-        >
-        {#if playing}
-          <span class="where">
-            {playing.app === 'campaign'
-              ? t('cast.noTrip')
-              : t(playing.token ? 'cast.onToken' : 'cast.onTrip', { place: playing.name })}
-          </span>
-          {#if url && playing.app !== 'campaign'}<a href={url}>{t('places.open')}</a>{/if}
-        {/if}
-      </li>
+      <RowCard
+        name={character.name || character.id}
+        href={characterUrl(character.id)}
+        meta={playing
+          ? playing.app === 'campaign'
+            ? t('cast.noTrip')
+            : t(playing.token ? 'cast.onToken' : 'cast.onTrip', { place: playing.name })
+          : undefined}
+      >
+        {#if url && playing && playing.app !== 'campaign'}<a href={url}>{t('places.open')}</a>{/if}
+      </RowCard>
     {/each}
-  </ul>
+  </RowCards>
 {:else}
   <p class="none">{t('cast.none')}</p>
 {/if}
 <a class="roster" href={appUrl('characters')}>{t('cast.roster')}</a>
 
 <style>
-  ul {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  li {
-    display: flex;
-    gap: 12px;
-    align-items: baseline;
-    padding: 8px 12px;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-  }
-
-  .name {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    color: var(--text);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .where {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
   a {
     font-size: 13px;
     color: var(--accent);
