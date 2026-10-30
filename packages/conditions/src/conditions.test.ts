@@ -143,7 +143,7 @@ describe('why a condition fails', () => {
     trip: { marched: 8, weather: 'storm' },
     time: { tags: ['dark'] },
     party: { stats: { stealth: 1 } },
-    hex: { danger: 3 },
+    place: { danger: 3 },
   }
 
   it('names the pairs that failed, with what they read and what they asked', () => {
@@ -159,22 +159,22 @@ describe('why a condition fails', () => {
     expect(explain({ 'trip.marched': { lt: '{{party.stats.stealth}}' } }, context)).toEqual([
       { path: 'trip.marched', value: 8, op: 'lt', asked: 1 },
     ])
-    expect(explain({ 'hex.danger': { gte: 3 } }, context)).toEqual([])
+    expect(explain({ 'place.danger': { gte: 3 } }, context)).toEqual([])
     expect(explain(undefined, context)).toEqual([])
   })
 
   it('every failing branch of an any, and the pairs that held inside a not', () => {
     expect(
       explain(
-        { any: [{ 'trip.weather': 'clear' }, { 'hex.danger': { lt: 2 } }], 'hex.danger': 3 },
+        { any: [{ 'trip.weather': 'clear' }, { 'place.danger': { lt: 2 } }], 'place.danger': 3 },
         context,
       ),
     ).toEqual([
       { path: 'trip.weather', value: 'storm', op: 'eq', asked: 'clear' },
-      { path: 'hex.danger', value: 3, op: 'lt', asked: 2 },
+      { path: 'place.danger', value: 3, op: 'lt', asked: 2 },
     ])
     // An `unless` is a `not`: the pair that held, negated.
-    expect(explain({ not: { 'time.tags': 'dark', 'hex.danger': 9 } }, context)).toEqual([])
+    expect(explain({ not: { 'time.tags': 'dark', 'place.danger': 9 } }, context)).toEqual([])
     expect(explain({ not: { 'time.tags': 'dark' } }, context)).toEqual([
       { path: 'time.tags', value: ['dark'], op: 'eq', asked: 'dark', negated: true },
     ])

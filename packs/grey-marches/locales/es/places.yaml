@@ -6,7 +6,7 @@ places/default:
     **Enseña:**
 
     - Un catálogo de lugares (`kind: places`), nombrado por el sistema (`places: [places.default]`)
-    - El contenido del descubrimiento nombrando una plantilla (`effects: { hex.pois.ruins: 1 }`) en vez de un punto de interés simple hecho de su texto
+    - El contenido del descubrimiento nombrando una plantilla (`effects: { place.pois.ruins: 1 }`) en vez de un punto de interés simple hecho de su texto
     - Etiquetas que un lugar da a su hex, leídas por acciones: `ruins` (_Explorar la ruina_), `shrine` (_Rito de la Luna Ascua_)
     - Textos y campos rellenados con el resultado que crea el lugar: `{{result}}`, y una tirada en un campo (`'{{1d6+2}}'`)
     - Un icono del mapa (`game:castle-ruins`)

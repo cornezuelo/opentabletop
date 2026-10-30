@@ -10,7 +10,7 @@
   /** What the map and trips already give: a value with one of these names is hidden. */
   /** Names the map or a trip already gives: a field with one would be hidden by it. */
   const RESERVED = new Set([
-    'hex',
+    'place',
     'name',
     'icon',
     'token',
@@ -56,8 +56,8 @@
         { reads: true, packs: [...mapSystem().packs, ...(editor.setup.packs ?? [])] },
       ),
     ).flatMap(([full, values]): [string, string[]][] => {
-      // A hex's values by their full names too (`hex.danger`, `hex.icon.guards`).
-      const key = full.startsWith('hex.') ? full.slice(4) : full
+      // A hex's values by their full names too (`place.danger`, `place.icon.guards`).
+      const key = full.startsWith('place.') ? full.slice(6) : full
       const name =
         scope === 'icon'
           ? key.startsWith('icon.') && key.slice(5)

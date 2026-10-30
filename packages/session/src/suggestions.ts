@@ -40,9 +40,9 @@ export function contextSuggestions(
   }
 
   // What the map and a trip always give.
-  add('hex.id')
+  add('place.id')
   add('name')
-  add('hex.name')
+  add('place.name')
   add('region')
   add('icon.id')
   add('token.name')
@@ -64,7 +64,7 @@ export function contextSuggestions(
   add('tripDay')
   add('visits', 1)
   // What the trip has done so far (only by their full names).
-  add('trip.hexes')
+  add('trip.places')
   add('trip.km')
   add('trip.hours')
   add('trip.checks')
@@ -122,7 +122,7 @@ export function contextSuggestions(
     // Its factions: each one's values and conditions, and who holds a hex.
     if (factions) {
       const ids = Object.keys(factions.def.factions)
-      add('hex.faction', ...ids)
+      add('place.faction', ...ids)
       for (const who of ['faction', ...ids.map((id) => `factions.${id}`)]) {
         for (const value of Object.keys(factions.sheet.def.values)) add(`${who}.values.${value}`)
         add(`${who}.conditions`, ...Object.keys(factions.sheet.def.conditions))
@@ -158,8 +158,8 @@ export function contextSuggestions(
         }
       }
       // Where the characters are tied to the hex (it, its region, a place in it).
-      add('hex.related')
-      for (const kind of Object.keys(sheet.def.relations)) add(`hex.relations.${kind}`)
+      add('place.related')
+      for (const kind of Object.keys(sheet.def.relations)) add(`place.relations.${kind}`)
     }
     // Those present: copies of its templates here, how many of each, their tags.
     if (bestiary?.length) {
@@ -233,7 +233,7 @@ export function contextSuggestions(
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)
       condition(action.unless, add)
-      // Its parameters, with their choices (`params.until: hex`).
+      // Its parameters, with their choices (`params.until: place`).
       for (const [id, param] of Object.entries(action.params ?? {}))
         add(`params.${id}`, ...choiceIds(param))
     }
@@ -248,7 +248,7 @@ export function contextSuggestions(
   for (const [id, def] of registry.definitions)
     if (ours(id.split('/')[0])) definition(def, add, reads ? () => {} : add)
   for (const [key, values] of Object.entries(extra)) add(key, ...values)
-  // Every short name by its full name too (`terrain` → `hex.terrain`, `moons.pale` →
+  // Every short name by its full name too (`terrain` → `place.terrain`, `moons.pale` →
   // `time.moons.pale`), with the same values.
   for (const [key, values] of [...out]) {
     const [head, ...rest] = key.split('.')
@@ -370,7 +370,7 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
 /**
  * Paths effects can change (`effects: { party.stats.morale: -1 }`): the party's declared
  * stats, its sheet and items, its characters' values and conditions, and places made on the
- * party's hex (`hex.pois.<id>`), in every loaded system.
+ * party's hex (`place.pois.<id>`), in every loaded system.
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
@@ -387,7 +387,7 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
   } of travelSystems(registry).systems) {
     // Places made on the party's hex from its catalogues.
     for (const c of places ?? [])
-      for (const id of Object.keys(c.def.places)) out[`hex.pois.${id}`] = ['1']
+      for (const id of Object.keys(c.def.places)) out[`place.pois.${id}`] = ['1']
     // Those present: copies of its templates made or taken away, and every one of them (of a
     // template, or all) changed by its sheet's values and conditions.
     for (const b of bestiary ?? [])

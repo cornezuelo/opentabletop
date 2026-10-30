@@ -15,7 +15,7 @@ describe('addTags', () => {
 describe('tagChoices', () => {
   const choices = [
     'time.part.morning',
-    'trip.hex-enter',
+    'trip.place-enter',
     'time.watch.middle',
     'actions.camp',
     '06:00',
@@ -24,7 +24,7 @@ describe('tagChoices', () => {
   it('groups by the first part, leaving out what is taken', () => {
     expect(tagChoices(choices, '', ['actions.camp'])).toEqual([
       { group: 'time', items: ['time.part.morning', 'time.watch.middle'] },
-      { group: 'trip', items: ['trip.hex-enter'] },
+      { group: 'trip', items: ['trip.place-enter'] },
       { group: '', items: ['06:00'] },
     ])
   })

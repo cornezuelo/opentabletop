@@ -25,11 +25,11 @@ With both sheets, a tab above the form chooses which. When the system has [facti
 - The **Groups** values are shown in, in order, with their names: each group is a card of its own, as many side by side as fit.
 - Its **Conditions**, each with what it **Blocks** for the whole party while someone has it: `travel.move` (moving on), one of the system's actions (`actions.forced-march`), a way of travelling (`modes.horse`) (the box suggests them). With **Holds while**, a [condition](../technical/08-conditions.md) as rows, it holds by itself while that does: it reads the character as `self.*` (`self.values.dread: { gte: 6 }`) and, on a trip, the world as tables see it (`trip.mode: boat`, `time.season: winter`). One that reads the world follows it on a trip; in the Characters app, away from any trip, it stays as it was last seen.
 - Its **Items**: the fields every item has, its places and what fills them ([below](#items)).
-- Its **Kinds of relation**, with the bounds of the number one carries (a bond from 0 to 3) and how it's **Shown as**: what a character may be tied to (another character, a place, a region), read where the party is (`hex.related`).
+- Its **Kinds of relation**, with the bounds of the number one carries (a bond from 0 to 3) and how it's **Shown as**: what a character may be tied to (another character, a place, a region), read where the party is (`place.related`).
 
 Under the values, the **Preview** is a character made with the sheet as it is now, drawn as everywhere characters are shown: change a column and it changes; click its boxes, bars and dots to try them (nothing you do there is kept).
 
-Values and conditions have a **Used by** column: the stats made of each value, the bounds that read it (Health's `{{self.values.toughness}}`), and the tables, actions and checks that read or change it on a character, on whoever holds a role or on the party ([Used by](04-overview.md#used-by)). So do the kinds of relation: where they're read, by their holders (`characters.mara.relations.home`) or towards a place (`hex.relations.home`, who holds it to the hex entered).
+Values and conditions have a **Used by** column: the stats made of each value, the bounds that read it (Health's `{{self.values.toughness}}`), and the tables, actions and checks that read or change it on a character, on whoever holds a role or on the party ([Used by](04-overview.md#used-by)). So do the kinds of relation: where they're read, by their holders (`characters.mara.relations.home`) or towards a place (`place.relations.home`, who holds it to the hex entered).
 
 Values, groups, conditions and kinds of relation each have a **Description (its help)**: what it is, in a sentence or two. Wherever the sheet is shown (a character's card, the party's, a faction's), its name is underlined and clicking it shows that description first in the help column, before what the apps add (how tables read it, its bounds, what it blocks). Like names, it's written in the current language: the pack's own, or its translation file. The Grey Marches describe every part of theirs.
 
@@ -85,7 +85,7 @@ A company that crosses hills on foot: each companion has a Survival, a Toughness
 3. **Its conditions**: change its first condition into `wounded`, _Wounded_, blocking nothing, and add `lame`, _Lame_, **Blocks** `travel.move`.
 4. **The party's sheet**: the tab _the party_ is the copy of the Generic rules': rename it _The Company_ and leave its values as they are: `morale` (_Morale_, **Starts at** `3`, **Min** `0`, **Max** `5`, **Shown as** `boxes`) and `food` (_Food_, `6`, **Min** `0`), the food the rules eat as each day ends.
 5. **What the party takes from them**: in **Checks**, under **Party stats**, **Add a stat** _Survival_ with **From the sheets** `max: survival, unless: { conditions: wounded }, none: 0` (the best of those not wounded; nobody left: 0), and a stat _Morale_ with `party: morale`.
-6. **Scree**: **Add a check**, with **Check** `SCREE`, named _Scree_. **When** `trip.hex-enter`; **Only if** the rows `hex.terrain` · **is** · `hills` and `party.stats.survival` · **is under** · `{{1d6}}` (a d6 above the party's Survival); no table; **Changes** the rows `acting.values.health` · `-1` and `acting.conditions.lame` · `true`.
+6. **Scree**: **Add a check**, with **Check** `SCREE`, named _Scree_. **When** `trip.place-enter`; **Only if** the rows `place.terrain` · **is** · `hills` and `party.stats.survival` · **is under** · `{{1d6}}` (a d6 above the party's Survival); no table; **Changes** the rows `acting.values.health` · `-1` and `acting.conditions.lame` · `true`.
 7. **Hunger**: **Add a check**, with **Check** `HUNGER`, named _Hunger_. **When** `time.day-end`; **Only if** `trip.below` · **is** · `party.values.food`; **Changes** the rows `party.members.values.health` · `-1` and `party.values.morale` · `-1`.
 8. **Try it**: in **Try it**, make a way of six hexes: `plains`, `hills`, `hills`, `hills`, `plains`, `plains`. In the trip's **Party** tab, **Add a character** three times: _Kael_ with Survival `3`, _Mara_, and _Tobin_ with Toughness `4` and Health `4`. On The Company's card, set Food to `1`; choose Kael under **Acting**, and march day after day, waiting for the next morning each time the march stops.
 
@@ -138,8 +138,8 @@ partySheet: sheet.party
 checks:
   - event: SCREE # step 6
     name: Scree
-    at: trip.hex-enter
-    when: { hex.terrain: hills, party.stats.survival: { lt: '{{1d6}}' } }
+    at: trip.place-enter
+    when: { place.terrain: hills, party.stats.survival: { lt: '{{1d6}}' } }
     effects: { acting.values.health: -1, acting.conditions.lame: true }
   - event: HUNGER # step 7
     name: Hunger
@@ -168,7 +168,7 @@ The Grey Marches play with all of this and more (a Company sheet with morale, fa
 - **A bound written as a name.** `max: toughness` isn't another value: write `'{{self.values.toughness}}'`, in quotes (the system's problems say so).
 - **Writing to what holds by itself.** An effect on a value **Made of** others, or on a condition with **Holds while**, changes nothing: the journal says _“Kael: Wounds” holds by itself…_. Change what it's made of (Health), or what the condition reads (Dread).
 - **A minus without spaces.** `self.values.maxHealth-self.values.health` reads as one name (ids may hold a hyphen) and gives nothing: write `self.values.maxHealth - self.values.health`.
-- **A state written as an action.** An action `on: trip.hex-enter` that sets _Encumbered_ when the load is too high only looks at the next hex: between hexes, and after a change by hand, the sheet is out of step. Give the condition a **Holds while** instead.
+- **A state written as an action.** An action `on: trip.place-enter` that sets _Encumbered_ when the load is too high only looks at the next hex: between hexes, and after a change by hand, the sheet is out of step. Give the condition a **Holds while** instead.
 - **A load written as an action.** Adding up what's carried at each hex with an action is late and out of step: make the load a value **Made of** `{ sum: items.slots }`.
 - **Boxes, a bar or a dial with no Max.** They're drawn up to the **Max** (`of` and a bar, or their **Shown against**), so the sheet's problems say so until it has one.
 - **A load that stops at its capacity.** A **Max** of `'{{self.values.capacity}}'` keeps the load from ever showing more than it, but nothing stops more being carried: a load of 12 shows 8, and a condition _while the load is over the capacity_ never holds. Leave the load without a max and show it against the capacity with **Shown against**; to stop more going in, give the sheet that **Room in all** (or a place that room) with **Over its room** `refuse` ([limits to carrying](08-items.md#limits-to-carrying)). With **Shown as** `levels`, it needs its **Levels**.

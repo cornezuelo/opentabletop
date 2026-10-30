@@ -37,7 +37,7 @@
     CHECK_MOMENTS,
     DAY_END,
     doneOf,
-    HEX_ENTER,
+    PLACE_ENTER,
     isClock,
     isPartRef,
     ref,
@@ -84,7 +84,7 @@
     momentsText(at)
       .split(', ')
       .map((m) =>
-        m === HEX_ENTER
+        m === PLACE_ENTER
           ? t('checks.atOptions.hex-enter')
           : m === DAY_END
             ? t('checks.atOptions.day-end')
@@ -241,7 +241,7 @@
   function add() {
     const used = checks.map((c) => String(c.event))
     const event = known.find((e) => !used.includes(e)) ?? 'NEW_CHECK_REQUIRED'
-    doc.insert('travel-rules', ['checks'], checks.length, { event, at: HEX_ENTER })
+    doc.insert('travel-rules', ['checks'], checks.length, { event, at: PLACE_ENTER })
     query = ''
     unfolded.add(checks.length)
   }

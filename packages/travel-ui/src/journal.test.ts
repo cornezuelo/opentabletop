@@ -353,9 +353,9 @@ describe('the journal’s detail, and its filter', () => {
     entry(at(1, '06:00'), 'CHECK_SKIPPED', {
       data: {
         check: 'AMBUSH',
-        at: 'trip.hex-enter',
+        at: 'trip.place-enter',
         condition: 'when',
-        failed: [{ path: 'hex.danger', value: 1, op: 'gte', asked: 2 }],
+        failed: [{ path: 'place.danger', value: 1, op: 'gte', asked: 2 }],
       },
     }),
     entry(at(1, '07:00'), 'ROLLED', {
@@ -385,7 +385,7 @@ describe('the journal’s detail, and its filter', () => {
   it('tells what happened behind in words', () => {
     expect(journal.slice(0, 3).map((e) => entryText(e, context))).toEqual([
       'Moment: Day: dusk',
-      'Ambush doesn’t come up: the hex’s danger is 1: it needs 2 or more',
+      'Ambush doesn’t come up: the place’s danger is 1: it needs 2 or more',
       'Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7; gm/wolves: 1d6 → 3  [3]',
     ])
     expect(entryText(journal[4], context)).toBe('Food: 5 → 3')

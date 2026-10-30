@@ -13,7 +13,7 @@ import {
   availableActions,
   checkInfo,
   DAY_END,
-  HEX_ENTER,
+  PLACE_ENTER,
   isReactionMoment,
   doneOf,
   momentsOf,
@@ -108,9 +108,9 @@ const FACT_NAMES = new Set([
   'time.tags',
   'time.part',
   'time.season',
-  'hex.terrain',
-  'hex.danger',
-  'hex.tags',
+  'place.terrain',
+  'place.danger',
+  'place.tags',
 ])
 
 /**
@@ -148,7 +148,7 @@ export function failedText(
       const minutes = Math.round(v * 60)
       return formatClock({ hour: Math.floor(minutes / 60), minute: minutes % 60 })
     }
-    if (typeof v === 'string' && full(path) === 'hex.terrain') return terrainName?.(v) ?? v
+    if (typeof v === 'string' && full(path) === 'place.terrain') return terrainName?.(v) ?? v
     // Hours marched and the like, to two decimals at most (8.01, not 8.01111111111095).
     if (typeof v === 'number') return String(Math.round(v * 100) / 100)
     return String(v)
@@ -559,7 +559,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     }
     case 'UNKNOWN_TEMPLATE':
       return t('journal.unknownTemplate', { name: String(d.template ?? '') })
-    // A place made on the party's place (`hex.pois.<template>`): on a map, written into it.
+    // A place made on the party's place (`place.pois.<template>`): on a map, written into it.
     case 'PLACE_MADE':
       return t('journal.placeMade', {
         name: String(d.name ?? ''),
@@ -654,7 +654,7 @@ export function momentText(
     checkName,
   }: Pick<JournalContext, 't' | 'actionName' | 'partName' | 'checkName'>,
 ): string {
-  if (at === HEX_ENTER) return t('journal.moments.hexEnter')
+  if (at === PLACE_ENTER) return t('journal.moments.hexEnter')
   if (at === DAY_END) return t('journal.moments.dayEnd')
   const named = (action: string) => actionName?.(action) ?? idText(t, `actions.${action}`, action)
   const done = /^actions\.([^.]+)\.done$/.exec(at)?.[1]

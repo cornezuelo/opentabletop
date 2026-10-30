@@ -2,7 +2,7 @@
 
 Click a definition's file (or a file in the pack page) to open the YAML editor. Problems are underlined at their line and listed below; click one to jump to it. Changes are saved as you type.
 
-While you type, the editor suggests what fits (<kbd>Ctrl</kbd>+<kbd>Space</kbd> shows the suggestions anywhere): keys at the start of a line, `kind` and other fixed values, tables and generators after `table:` or `generator:`, and anything that rolls (tables, oracles, generators, decks) after `resolve:` (this pack's first), and inside one-line `when`, `unless`, `set` and `context` the names tables read or set, with their known values (`hex.terrain: forest`, `time.season: winter`…), and inside `effects` the stats, party sheet values and items the system declares (`party.stats.fatigue`, `party.values.food`, `party.items.ration`). The same suggestions appear in the forms' condition and value boxes.
+While you type, the editor suggests what fits (<kbd>Ctrl</kbd>+<kbd>Space</kbd> shows the suggestions anywhere): keys at the start of a line, `kind` and other fixed values, tables and generators after `table:` or `generator:`, and anything that rolls (tables, oracles, generators, decks) after `resolve:` (this pack's first), and inside one-line `when`, `unless`, `set` and `context` the names tables read or set, with their known values (`place.terrain: forest`, `time.season: winter`…), and inside `effects` the stats, party sheet values and items the system declares (`party.stats.fatigue`, `party.values.food`, `party.items.ration`). The same suggestions appear in the forms' condition and value boxes.
 
 Every piece of syntax at a glance (values, dice, variables, conditions, `set`, `effects`, moments, steps, limits): [Syntax](../technical/09-syntax.md).
 
@@ -36,9 +36,9 @@ The full list, with variables and where context values come from: [Dice, variabl
 `when` keeps an entry only if the context matches:
 
 ```yaml
-when: { hex.terrain: forest } # equals
-when: { hex.terrain: [hills, mountains] } # one of
-when: { hex.danger: { gte: 4 }, time.season: { not: winter } }
+when: { place.terrain: forest } # equals
+when: { place.terrain: [hills, mountains] } # one of
+when: { place.danger: { gte: 4 }, time.season: { not: winter } }
 when: { any: [{ trip.weather: storm }, { today.lost: true }] } # all / any / not
 ```
 

@@ -14,11 +14,11 @@ id: what-do-we-find
 name: ¿Qué encontramos aquí?
 roll: 1d6
 entries:
-  - { id: forest, range: 1-6, when: { hex.terrain: forest }, result: 'Troncos caídos y setas' }
+  - { id: forest, range: 1-6, when: { place.terrain: forest }, result: 'Troncos caídos y setas' }
   - {
       id: rocks,
       range: 1-6,
-      when: { hex.terrain: [hills, mountains] },
+      when: { place.terrain: [hills, mountains] },
       result: 'La boca de una cueva en la roca',
     }
   - { id: nothing, range: 1-6, result: 'Nada especial' }
@@ -34,13 +34,13 @@ Pon etiquetas a los hexes en Mapa (`haunted`, `ruins`…) y dales campos (`dange
 
 ```yaml
 entries:
-  - { id: ghost, range: 1-2, when: { hex.tags: haunted }, result: 'Una figura pálida os observa' }
-  - { id: ambush, range: 1-6, when: { hex.danger: { gte: 3 } }, result: '¡Emboscada!' }
+  - { id: ghost, range: 1-2, when: { place.tags: haunted }, result: 'Una figura pálida os observa' }
+  - { id: ambush, range: 1-6, when: { place.danger: { gte: 3 } }, result: '¡Emboscada!' }
 ```
 
-`hex.tags: haunted` se cumple cuando el hex tiene esa etiqueta entre otras. `{ gte: 3 }` significa «3 o más»; también `gt`, `lt`, `lte`, `not`.
+`place.tags: haunted` se cumple cuando el hex tiene esa etiqueta entre otras. `{ gte: 3 }` significa «3 o más»; también `gt`, `lt`, `lte`, `not`.
 
-Un campo también puede cambiar los dados: `roll: '1d6 + {{hex.danger}}'`.
+Un campo también puede cambiar los dados: `roll: '1d6 + {{place.danger}}'`.
 
 ## 3. Una tabla por estación
 
@@ -110,7 +110,7 @@ values:
   lost: { name: Perdidos, blocks: [travel.move] } # lo pone la tabla de perderse: no se viaja más hoy
 actions:
   march: # de día, las 8 horas del día: hasta el destino o un hex
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: # dormir hasta las 06:00; una noche bien comidos (no se acabó la comida) baja la fatiga
@@ -129,9 +129,9 @@ actions:
 checks:
   - { event: WEATHER, at: '06:00' }
   - { event: LOST, at: '06:00', unless: { trip.edges: [road, river] } }
-  - { event: ENCOUNTER, at: trip.hex-enter, when: { hex.terrain: [forest, swamp] } }
+  - { event: ENCOUNTER, at: trip.place-enter, when: { place.terrain: [forest, swamp] } }
   - { event: NIGHT, at: actions.camp }
-  - { event: FORAGE, at: actions.forage, when: { hex.terrain: [forest, plains] } }
+  - { event: FORAGE, at: actions.forage, when: { place.terrain: [forest, plains] } }
   - {
       event: HUNGRY,
       at: time.day-end,
@@ -190,8 +190,8 @@ water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 
 **modes** son las formas de viajar entre las que elige el jugador en el panel del viaje, cada una con su `kmPerDay` y un `name` (y una `description`) para los jugadores: el panel y el diario muestran _A caballo_ en lugar de `horse`, traducido en `locales/` como el resto. Sin nombre, se enseña el id, más legible (`on-foot`: on foot). Dos condiciones dan forma a cada una:
 
-- `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { hex.water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ hex.water: true }, { hex.terrain: coast }] }`; un carro solo por camino: `through: { trip.edges: road }`.
-- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Sistemas): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }`; un caballo, no con nieve: `unless: { trip.weather: snow }`.
+- `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { place.water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; un carro solo por camino: `through: { trip.edges: road }`.
+- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Sistemas): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }`; un caballo, no con nieve: `unless: { trip.weather: snow }`.
 
 Un valor del día también puede bloquear una (`blocks: [modes.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
 
@@ -246,7 +246,7 @@ values:
   torchlit: { name: A la luz de las antorchas }
 actions:
   march:
-    params: { until: { choices: [destination, hex, 3] } }
+    params: { until: { choices: [destination, place, 3] } }
     when:
       {
         any:
@@ -271,7 +271,7 @@ Cuándo se puede pulsar el botón:
 
 Un botón que no se puede pulsar sigue visible, desactivado, diciendo por qué, así los botones no cambian de sitio. `hideWhenUnavailable: true` lo oculta en cambio mientras no se puede hacer: para acciones que solo tienen sentido de vez en cuando, como el rito de las Marcas Grises (en un santuario con la Luna Ascua llena), convencer a los mercenarios (solo mientras se niegan) o la marcha nocturna (solo de noche).
 
-**Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son una hora (`on: '06:00'`, al dar esa hora) o una parte del día del calendario (`on: time.part.morning`, al empezar), marchando, esperando o dormidos en el campamento, `trip.hex-enter` (al entrar en cada hex), `time.day-end` (al acabar cada día, se acampe o no), otra acción (justo al empezar esa acción: `on: actions.camp`), el final de una acción (cuando acaban sus pasos: `on: actions.forage.done`), una comprobación (justo después de resolverse, tras **Continuar** si pausó: `on: checks.WEATHER_CHECK_REQUIRED`; _Un alba de tormenta_ de las Marcas Grises lee el clima recién tirado, y las siguientes comprobaciones de esa alba ven lo que cambió) o un momento del mundo (más abajo: `on: world.turn`, `on: world.clocks.<id>.full`), o varios en una lista (`on: [time.part.morning, trip.hex-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `trip.moment`, y en `time.day-end` la acción en curso como `trip.doing` (`trip.doing: camp`).
+**Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son una hora (`on: '06:00'`, al dar esa hora) o una parte del día del calendario (`on: time.part.morning`, al empezar), marchando, esperando o dormidos en el campamento, `trip.place-enter` (al entrar en cada hex), `time.day-end` (al acabar cada día, se acampe o no), otra acción (justo al empezar esa acción: `on: actions.camp`), el final de una acción (cuando acaban sus pasos: `on: actions.forage.done`), una comprobación (justo después de resolverse, tras **Continuar** si pausó: `on: checks.WEATHER_CHECK_REQUIRED`; _Un alba de tormenta_ de las Marcas Grises lee el clima recién tirado, y las siguientes comprobaciones de esa alba ven lo que cambió) o un momento del mundo (más abajo: `on: world.turn`, `on: world.clocks.<id>.full`), o varios en una lista (`on: [time.part.morning, trip.place-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `trip.moment`, y en `time.day-end` la acción en curso como `trip.doing` (`trip.doing: camp`).
 
 ```yaml
 actions:
@@ -291,9 +291,9 @@ actions:
 | `travel.speed: 0.5`                   | El resto del movimiento de hoy va a media velocidad (`1.5`: más rápido).                                                                                                                                                                                                                                                                                                                                                                                      |
 | `effects: { party.stats.fatigue: 1 }` | Cambia al grupo, como los efectos de una tabla. Un cambio que pasaría el `min` / `max` de un valor se queda en él, y los pasos siguientes lo ven en `trip.below` / `trip.above` por su nombre completo, y los valores nuevos (las características, la hoja y los objetos del grupo).                                                                                                                                                                          |
 | `set: { lost: true }`                 | Fija valores del día que declara el sistema (`values`).                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `do: actions.forage`                  | Hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). Con `with:`, sus parámetros: `{ do: actions.march, with: { until: hex } }`.                                                                                                                                                                                                                                                                                                            |
+| `do: actions.forage`                  | Hace otra acción, si se cumplen sus condiciones (si no, no pasa nada). Con `with:`, sus parámetros: `{ do: actions.march, with: { until: place } }`.                                                                                                                                                                                                                                                                                                          |
 | `roll: checks.ENCOUNTER`              | Tira ya una comprobación: todas las de ese evento cuyo `when` / `unless` se cumplan, tengan el `at` que tengan. Los pasos siguientes esperan a que se resuelva, y ven su resultado. `roll: table.ruins` (o `generator.`, `oracle.`, `deck.`, la de otro pack `core/table.twists`) tira eso en su lugar, sin comprobación ni binding: su resultado va al diario con su nombre, su `set` y sus `effects` llegan al viaje, y una entrada con `pause` lo detiene. |
-| `travel.advance: 1`                   | Avanza al grupo tantos hexes por su ruta de golpe, sin que pase el tiempo: cada hex se entra como marchando (sus comprobaciones `trip.hex-enter`, su visita, los totales del viaje); se detiene en el destino, en un paso que no puede tomar o en una comprobación. También una variable: `'{{party.stats.rank}}'`.                                                                                                                                           |
+| `travel.advance: 1`                   | Avanza al grupo tantos hexes por su ruta de golpe, sin que pase el tiempo: cada hex se entra como marchando (sus comprobaciones `trip.place-enter`, su visita, los totales del viaje); se detiene en el destino, en un paso que no puede tomar o en una comprobación. También una variable: `'{{party.stats.rank}}'`.                                                                                                                                         |
 | `travel.mode: modes.boat`             | Viaja de otra forma desde ahora, si esa forma se puede elegir ahora (su `when` / `unless`, lo que la bloquea); la ruta se vuelve a planear para ella.                                                                                                                                                                                                                                                                                                         |
 | `say: Los porteadores cantan`         | Escribe una línea propia del sistema en el diario; los `{{…}}` que lleve se leen en ese momento.                                                                                                                                                                                                                                                                                                                                                              |
 | `pause: true`                         | El viaje espera ahí hasta que el jugador pulse **Continuar** (con un texto, lo dice); luego sigue el resto.                                                                                                                                                                                                                                                                                                                                                   |
@@ -349,12 +349,12 @@ El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 **checks** son lo que tira el viaje, y cuándo. Cada una tiene un `event` (el nombre que quieras: los bindings lo usan para elegir su tabla), un `name` y una `description` para los jugadores (se ven en el panel del viaje y el diario en lugar del evento; se traducen en `locales/`, mira [Traducciones](05-translations.md#reglas-calendarios-clima-y-modos-de-tirada)) y un `at`:
 
 - una hora o una parte del día del calendario: `at: '06:00'`, `at: time.part.morning`, al llegar, marchando, esperando o dormidos en el campamento (el clima, perderse cada mañana); un viaje nuevo tiene los momentos de su primer minuto al marchar o esperar por primera vez;
-- `trip.hex-enter`: al entrar en cada hex (encuentros, un peaje, un hito);
+- `trip.place-enter`: al entrar en cada hex (encuentros, un peaje, un hito);
 - `time.day-end`: al acabar cada día, después de las acciones `time.day-end` del sistema (el hambre). Ven `trip.below` / `trip.above`, lo que llegó a un límite ese día, y `trip.doing`, la acción en curso cuando acabó;
 - una acción (`actions.<id>`): con esa acción, antes de sus pasos, que la esperan (`at: actions.camp`, `at: actions.rest`);
 - el final de una acción (`actions.<id>.done`): cuando acaban sus pasos (buscar comida en las Marcas Grises, `at: actions.forage.done`, tras sus tres horas);
 - otra comprobación (`checks.<evento>`): justo después de resolverse (`at: checks.WEATHER_CHECK_REQUIRED`);
-- varios, en una lista: las Marcas Grises tiran encuentros `at: [trip.hex-enter, actions.rest]`, y su condición distingue los dos con `trip.moment` (la tabla también lo ve);
+- varios, en una lista: las Marcas Grises tiran encuentros `at: [trip.place-enter, actions.rest]`, y su condición distingue los dos con `trip.moment` (la tabla también lo ve);
 - un momento del mundo (más abajo): `at: world.turn`, `at: world.clocks.<id>.full`;
 - una condición al cumplirse (más abajo): `at: { when: { world.clocks.the-siege: { gte: 6 } } }`, una vez, al cumplirse;
 - ninguno: solo la tira el `roll:` de un paso.
@@ -377,16 +377,16 @@ El diario lo dice primero (**En el mundo: se llenó La Sierpe despierta**), y lu
 checks:
   - { event: LOST, name: Perderse, at: time.part.morning, unless: { trip.edges: [road, river] } }
   - event: ENCOUNTER
-    at: [trip.hex-enter, actions.rest]
+    at: [trip.place-enter, actions.rest]
     when:
       {
         any:
           [
-            { trip.moment: trip.hex-enter, danger: { gte: 1 } },
+            { trip.moment: trip.place-enter, danger: { gte: 1 } },
             { trip.moment: actions.rest, danger: { gte: 3 } },
           ],
       }
-  - { event: SHRINE, at: trip.hex-enter, when: { hex.tags: shrine }, pause: true } # espera a Continuar
+  - { event: SHRINE, at: trip.place-enter, when: { place.tags: shrine }, pause: true } # espera a Continuar
   - {
       event: HUNGRY,
       at: time.day-end,
@@ -459,7 +459,7 @@ Luego los bindings dicen qué toma el grupo de ellos:
 
 Los efectos llegan a ellos: `party.members.values.health: 1` (todos los personajes), `acting.conditions.wounded: true` (el que actúa), `roles.lookout.values.health: -1` (quien tenga un rol), `characters.kael.values.health: -1` (uno). Las condiciones leen `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
 
-**Las relaciones** unen a un personaje con otro, un lugar, una región o un hex (los tipos de la hoja: un vínculo, un hogar…). Allí donde va el grupo, `hex.related` dice quién está unido al hex (él, su región o un lugar en él) y `hex.relations.home` quién lo tiene por hogar: una comprobación `when: { hex.relations.home: { exists: true } }, unless: { from.relations.home: { exists: true } }` sale cuando el grupo llega a casa.
+**Las relaciones** unen a un personaje con otro, un lugar, una región o un hex (los tipos de la hoja: un vínculo, un hogar…). Allí donde va el grupo, `place.related` dice quién está unido al hex (él, su región o un lugar en él) y `place.relations.home` quién lo tiene por hogar: una comprobación `when: { place.relations.home: { exists: true } }, unless: { from.relations.home: { exists: true } }` sale cuando el grupo llega a casa.
 
 ```yaml
 kind: sheet
@@ -477,7 +477,7 @@ Las Marcas Grises juegan así su Compañía: Supervivencia del mejor de los que 
 
 ### Facciones
 
-Los poderes del mundo del sistema son **facciones** (`kind: factions`, nombradas con `factions:` en su sistema): cada una, un personaje de una hoja (fuerza, reputación…) con tierras en un mapa. En cada turno del mundo (a mano, o cada pocos días del reloj del mundo) cada una tira una tabla de turno cuyos efectos la cambian a ella (`faction.values.strength: 1`, `faction.territory: 1`), a otra (`factions.the-vale.values.strength: -1`) o un reloj de progreso (`world.clocks.the-iron-clans-march: 1`). Cualquier tabla las lee: `factions.iron-clans.values.strength`, `hex.faction: the-vale` (la patrulla de las Marcas Grises recorre las tierras que tenga el Valle). Todas las claves: [Facciones](../technical/07-kinds.md#facciones).
+Los poderes del mundo del sistema son **facciones** (`kind: factions`, nombradas con `factions:` en su sistema): cada una, un personaje de una hoja (fuerza, reputación…) con tierras en un mapa. En cada turno del mundo (a mano, o cada pocos días del reloj del mundo) cada una tira una tabla de turno cuyos efectos la cambian a ella (`faction.values.strength: 1`, `faction.territory: 1`), a otra (`factions.the-vale.values.strength: -1`) o un reloj de progreso (`world.clocks.the-iron-clans-march: 1`). Cualquier tabla las lee: `factions.iron-clans.values.strength`, `place.faction: the-vale` (la patrulla de las Marcas Grises recorre las tierras que tenga el Valle). Todas las claves: [Facciones](../technical/07-kinds.md#facciones).
 
 ### Relojes de progreso
 
@@ -558,10 +558,10 @@ discover:
 on: { … }
 ```
 
-- La tabla de **terreno** ve el hex que pisas: `terrain`, sus etiquetas, campos y región, más `hex` (el hex que se decide) y la tierra que lo rodea: `around.<terreno>` (cuántos de sus vecinos conocidos lo tienen), `common` (el más frecuente). Responde con `set: { terrain: hills }`; `set: { terrain: '{{common}}' }` hace crecer la tierra de alrededor, así lagos, bosques y cordilleras salen enteros en lugar de un mosaico; `when: { around.lake: { gte: 2 } }` junta el agua.
+- La tabla de **terreno** ve el hex que pisas: `terrain`, sus etiquetas, campos y región, más `place` (el hex que se decide) y la tierra que lo rodea: `around.<terreno>` (cuántos de sus vecinos conocidos lo tienen), `common` (el más frecuente). Responde con `set: { terrain: hills }`; `set: { terrain: '{{common}}' }` hace crecer la tierra de alrededor, así lagos, bosques y cordilleras salen enteros en lugar de un mosaico; `when: { around.lake: { gte: 2 } }` junta el agua.
 - **Un modelo de tierra en su lugar** (`kind: land`, [Modelos de tierra](../technical/07-kinds.md#modelos-de-tierra)): `terrain: { land: land.default }` decide cada hex vacío con las filas de todos sus vecinos conocidos sumadas, sin tabla. El sistema tiene que listarlo (`land: [land.default]` en su `kind: system`).
 - **Una tabla que pasa la decisión a un modelo:** una entrada con `set: { land: land.<id> }` (y sin `terrain`) deja que el modelo decida ese hex. La tabla se queda con los casos especiales y el modelo con el resto; una entrada cuyo `when` lee la región le da a una región su propia tierra: `{ id: north, range: 1-6, when: { from.region: El Norte }, set: { land: land.north } }`. Un modelo que el sistema no lista no decide nada.
-- La tabla de **contenido** ve el hex al que entras. Su texto se convierte en un punto de interés; `set: { poi: false }` significa que no hay nada que apuntar, `set: { poi: 'Un nombre' }` lo nombra de otra forma. `tags` (una o una lista) y `name` se escriben también en el hex. Una entrada puede crear en su lugar un **lugar con una plantilla** (`effects: { hex.pois.ruins: 1 }`, de los [catálogos de lugares](../technical/07-kinds.md#lugares) del sistema): el punto de interés es el de la plantilla (su nombre, texto, icono y campos, con `{{result}}` leyendo el texto de la entrada) y sus etiquetas van al hex, en vez de uno hecho con el texto.
+- La tabla de **contenido** ve el hex al que entras. Su texto se convierte en un punto de interés; `set: { poi: false }` significa que no hay nada que apuntar, `set: { poi: 'Un nombre' }` lo nombra de otra forma. `tags` (una o una lista) y `name` se escriben también en el hex. Una entrada puede crear en su lugar un **lugar con una plantilla** (`effects: { place.pois.ruins: 1 }`, de los [catálogos de lugares](../technical/07-kinds.md#lugares) del sistema): el punto de interés es el de la plantilla (su nombre, texto, icono y campos, con `{{result}}` leyendo el texto de la entrada) y sus etiquetas van al hex, en vez de uno hecho con el texto.
 - Las características del grupo y los valores del día están en el contexto de ambas, como en las comprobaciones.
 
 El `discovery.yaml` de las Marcas Grises es un ejemplo completo: un terreno que tiende a seguir, familias de tierras, un lugar señalado que solo se encuentra una vez, y al este de las Hollow Hills una entrada que pasa la decisión a su modelo de tierra (`land.yaml`).

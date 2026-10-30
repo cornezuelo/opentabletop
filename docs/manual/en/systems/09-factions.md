@@ -10,7 +10,7 @@ A faction is two things: **a sheet**, like a character's (its Strength, its Weal
 - **When.** **World turn**, in Map's World panel or the Campaign app, takes one now, and so does a trip's step `do: world.turn` (an action of the travel rules: see [World turns](../oracle/07-connecting.md#5-your-own-travel-system)). With **Every (days)**, turns also come by themselves as the world clock moves on (by hand, or with a trip): the first that many days after the factions came in, and then every that many days.
 - **Land grows and shrinks hex by hex.** `faction.territory: 1` takes a hex next to its land: nobody's first, and when there's none left, a neighbour's (taken from them). `-1` gives up one of its hexes at its edge, which becomes nobody's. Water and hexes off the map are never held, and a faction with no land at all can't grow (it has nowhere to start from). Land changes only on the map being played: without a map (a trip of the Travel app), turns change the sheets and the clocks, never land.
 - **Values keep within their bounds**, as a character's: Strength from 0 to 6 never goes past them.
-- **The rest of the world reads them, and changes them.** Anywhere conditions and tables are written (a trip's checks, a hand roll, discovery), `factions.<id>.values.strength`, `factions.<id>.conditions: at-war` and `hex.faction` (who holds the hex the party is in) read them; a trip's results, a check's **Changes** or a full clock's effects change them by name: `factions.the-reavers.values.strength: 1`. Only a turn table knows `faction.*`: everywhere else a faction is named by its id.
+- **The rest of the world reads them, and changes them.** Anywhere conditions and tables are written (a trip's checks, a hand roll, discovery), `factions.<id>.values.strength`, `factions.<id>.conditions: at-war` and `place.faction` (who holds the hex the party is in) read them; a trip's results, a check's **Changes** or a full clock's effects change them by name: `factions.the-reavers.values.strength: 1`. Only a turn table knows `faction.*`: everywhere else a faction is named by its id.
 
 ![One world turn on a strip of the map: the Wardens' land, two hexes of nobody's, the Reavers' land. The Wardens go first and roll Core's turn table: Expands its reach, faction.territory: 1, so they take a nobody's hex next to their land. Then the Reavers roll their own table, 1d6 + their Strength: A steading burns, faction.territory: 1 and the Wardens' Strength −1; the last nobody's hex between them is taken. On the next turn that grows, there is no nobody's land left beside them, so the hex is taken from a neighbour. Below, the two lines the timeline gets.](world-turn.svg)
 
@@ -33,7 +33,7 @@ Two powers on one border: the Wardens hold the low fells, the Reavers the high m
 3. **Their sheet**: in **Sheet**, the tab _faction · the factions_ has what **New factions** made: **Strength** (**Starts at** `3`, **Min** `0`, **Max** `6`) and the condition **At war**. Leave it as it is.
 4. **The Reavers' table**: in the Oracle app, **New definition**, a table in your pack _The Border_ with the id `reaver-raid`, named _The Reavers ride_, rolled with `1d6 + {{faction.values.strength}}`: on `1-4` _The raid is beaten off_, with **Changes** `faction.values.strength: -1`; on `5-7` _Cattle driven off in the night_; on `8-12` _A steading burns_, with **Changes** `faction.territory: 1, factions.the-wardens.values.strength: -1, factions.the-wardens.conditions.at-war: true`.
 5. **Their own turn**: back in **Factions**, the Reavers' **Own turn** `table.reaver-raid`.
-6. **Robbers on the moor**: in **Checks**, **Add a check**, with **Check** `REAVERS`, named _Reavers_. **When** `trip.hex-enter`; **Only if** the rows `hex.faction` · **is** · `the-reavers` and `factions.the-reavers.values.strength` · **is at least** · `{{1d6}}` (on their land, as often as they're strong); no table; **Changes** the rows `party.values.food` · `-1` and `factions.the-reavers.values.strength` · `1`.
+6. **Robbers on the moor**: in **Checks**, **Add a check**, with **Check** `REAVERS`, named _Reavers_. **When** `trip.place-enter`; **Only if** the rows `place.faction` · **is** · `the-reavers` and `factions.the-reavers.values.strength` · **is at least** · `{{1d6}}` (on their land, as often as they're strong); no table; **Changes** the rows `party.values.food` · `-1` and `factions.the-reavers.values.strength` · `1`.
 7. **A map**: in Map, **New map**; in **Map settings → Campaign → System**, _The Border_. With **Regions** (<kbd>N</kbd>), **New region** named _The Low Fells_ and paint a patch of hexes on the west; another, _The High Moor_, a patch on the east, leaving a couple of hexes of nobody's land between them.
 8. **Bring them in**: open the **World** panel (☾), **Start the world clock**, and in its **Factions** tab, **Bring in its factions**. Press **World turn** a few times; then **Next day** eight times.
 9. **Travel through the moor**: in **Play**, put the party on the fells, set a destination across the moor and travel.
@@ -102,8 +102,8 @@ factions: factions.default
 checks:
   - event: REAVERS # step 6
     name: Reavers
-    at: trip.hex-enter
-    when: { hex.faction: the-reavers, factions.the-reavers.values.strength: { gte: '{{1d6}}' } }
+    at: trip.place-enter
+    when: { place.faction: the-reavers, factions.the-reavers.values.strength: { gte: '{{1d6}}' } }
     effects: { party.values.food: -1, factions.the-reavers.values.strength: 1 }
 # … the Generic rules' day, terrains, ways, food and actions
 ```
@@ -119,6 +119,6 @@ The Grey Marches play with all of this and more (the Iron Clans, the Vale of Ash
 - **`faction.` outside a turn table.** Only a turn table knows whose turn it is. In a trip's check, a hand roll or a world reaction's effects, name the faction: `factions.the-reavers.values.strength: 1`.
 - **Effects a turn ignores.** A turn changes factions and progress clocks only: `party.…` or `trip.…` in a turn table change nothing (there's no trip in a world turn).
 - **Turns that don't come by themselves.** They need **Every (days)**, the world clock started, and **Turns by themselves** ticked in the World panel; the first comes that many days after the factions came in, not at once.
-- **Land that doesn't change.** Land changes on the map being played: a world turn in the Campaign app changes the map chosen there, and a trip of the Travel app, with no map, changes none. `hex.faction` reads nothing there either.
+- **Land that doesn't change.** Land changes on the map being played: a world turn in the Campaign app changes the map chosen there, and a trip of the Travel app, with no map, changes none. `place.faction` reads nothing there either.
 - **An id renamed.** Tables read a faction by its id, not its name: renaming `the-reavers` leaves `factions.the-reavers.…` naming nobody. Each faction's **Used by** lists what reads or changes it (`factions.the-reavers.values.strength`); **Used by** in **Sheet**, what reads its values; a map that already has them keeps the old id.
 - **The order of turns.** Factions take their turns in the list's order, and each sees the ones before: a faction whose table reads another's Strength sees it after that one's turn.

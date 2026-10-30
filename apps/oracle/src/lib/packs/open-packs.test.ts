@@ -226,7 +226,7 @@ describe('bundled open packs', () => {
       Array.from(
         { length: 40 },
         () =>
-          // As hosts give it: with the facts' full names (`hex.region`).
+          // As hosts give it: with the facts' full names (`place.region`).
           engine.resolve('grey-marches/encounter', qualify({ region: 'Ashford Vale', timeOfDay }))
             .resolution.entry,
       )
@@ -248,7 +248,7 @@ describe('bundled open packs', () => {
   it('the Grey Marches: often nobody, and someone to deal with stops the trip', () => {
     // A hex of the Hollow Hills as a trip sees it: danger 2, by day.
     const hills = {
-      hex: { terrain: 'hills', danger: 2 },
+      place: { terrain: 'hills', danger: 2 },
       danger: 2,
       terrain: 'hills',
       timeOfDay: 'day',
@@ -270,7 +270,7 @@ describe('bundled open packs', () => {
     expect(bandits.value.pause).toBe(true)
     expect(rolled.find((r) => r.entry === 'quiet')!.value.pause).toBeUndefined()
     // In the Greywood's heart (danger 5) nobody comes up only one time in six.
-    const heart = { hex: { terrain: 'forest', danger: 5 }, danger: 5, timeOfDay: 'day' }
+    const heart = { place: { terrain: 'forest', danger: 5 }, danger: 5, timeOfDay: 'day' }
     const deep = Array.from(
       { length: 300 },
       (_, i) =>
@@ -521,7 +521,7 @@ describe('bundled open packs', () => {
       const one = stepTrip(options, trip('2'), {
         type: 'action',
         id: 'march',
-        with: { until: 'hex' },
+        with: { until: 'place' },
       }).state
       expect(one.travel.location).toBe('3')
       expect(one.travel.moving).toBeUndefined()
@@ -994,7 +994,7 @@ describe('bundled open packs', () => {
             'grey-marches/encounter',
             qualify({
               terrain: 'forest',
-              hex: { danger: 3 },
+              place: { danger: 3 },
               world: { clocks: { 'the-greywood-wyrm-wakes': filled } },
             }),
           ),
@@ -1512,7 +1512,7 @@ describe('bundled open packs', () => {
       {
         path: 'mine/pack.yaml',
         content:
-          "id: mine\nversion: 0.1.0\nlocale: en\nformat: 10\ndependencies: { core: '>=0.1.0' }\n",
+          "id: mine\nversion: 0.1.0\nlocale: en\nformat: 11\ndependencies: { core: '>=0.1.0' }\n",
       },
       {
         path: 'mine/system.yaml',

@@ -15,24 +15,24 @@ describe('conditions as rows', () => {
   it('reads pairs and every comparison as rows', () => {
     expect(
       conditionRows({
-        'hex.terrain': ['forest', 'hills'],
-        'hex.danger': { gte: 2, lte: 4 },
+        'place.terrain': ['forest', 'hills'],
+        'place.danger': { gte: 2, lte: 4 },
         'trip.mode': { not: ['boat', 'cart'] },
         'trip.weather': { not: 'storm' },
         'icon.id': { exists: true },
-        'hex.region': { exists: false },
+        'place.region': { exists: false },
         lost: true,
       }),
     ).toEqual({
       join: 'all',
       rows: [
-        { fact: 'hex.terrain', op: 'in', value: 'forest, hills' },
-        { fact: 'hex.danger', op: 'gte', value: '2' },
-        { fact: 'hex.danger', op: 'lte', value: '4' },
+        { fact: 'place.terrain', op: 'in', value: 'forest, hills' },
+        { fact: 'place.danger', op: 'gte', value: '2' },
+        { fact: 'place.danger', op: 'lte', value: '4' },
         { fact: 'trip.mode', op: 'notIn', value: 'boat, cart' },
         { fact: 'trip.weather', op: 'not', value: 'storm' },
         { fact: 'icon.id', op: 'exists', value: '' },
-        { fact: 'hex.region', op: 'missing', value: '' },
+        { fact: 'place.region', op: 'missing', value: '' },
         { fact: 'lost', op: 'is', value: 'true' },
       ],
     })
@@ -40,8 +40,8 @@ describe('conditions as rows', () => {
 
   it('writes back what it read, in the same syntax', () => {
     for (const c of [
-      { 'hex.terrain': 'forest', 'hex.danger': { gte: 3 } },
-      { 'hex.danger': { gte: 2, lte: 4 } },
+      { 'place.terrain': 'forest', 'place.danger': { gte: 3 } },
+      { 'place.danger': { gte: 2, lte: 4 } },
       { 'party.stats.fatigue': { lt: '{{party.stats.endurance}}' } },
       { any: [{ 'trip.edges': ['road', 'river'] }, { 'trip.mode': 'modes.boat' }] },
       { 'trip.mode': { not: ['boat', 'cart'] }, 'icon.id': { exists: true } },
@@ -50,38 +50,40 @@ describe('conditions as rows', () => {
   })
 
   it('reads a list of single pairs, any or all', () => {
-    expect(conditionRows({ all: [{ 'hex.tags': 'ford' }, { 'hex.tags': 'toll' }] })).toEqual({
+    expect(conditionRows({ all: [{ 'place.tags': 'ford' }, { 'place.tags': 'toll' }] })).toEqual({
       join: 'all',
       list: true,
       rows: [
-        { fact: 'hex.tags', op: 'is', value: 'ford' },
-        { fact: 'hex.tags', op: 'is', value: 'toll' },
+        { fact: 'place.tags', op: 'is', value: 'ford' },
+        { fact: 'place.tags', op: 'is', value: 'toll' },
       ],
     })
     // The same fact twice stays an `all`, which a map can't say.
-    expect(roundTrip({ all: [{ 'hex.tags': 'ford' }, { 'hex.tags': 'toll' }] })).toEqual({
-      all: [{ 'hex.tags': 'ford' }, { 'hex.tags': 'toll' }],
+    expect(roundTrip({ all: [{ 'place.tags': 'ford' }, { 'place.tags': 'toll' }] })).toEqual({
+      all: [{ 'place.tags': 'ford' }, { 'place.tags': 'toll' }],
     })
     // Written as a list, it stays one; written as pairs, the same fact twice becomes one.
-    expect(roundTrip({ all: [{ 'hex.tags': 'shrine' }, { 'time.moons.ember': 'full' }] })).toEqual({
-      all: [{ 'hex.tags': 'shrine' }, { 'time.moons.ember': 'full' }],
+    expect(
+      roundTrip({ all: [{ 'place.tags': 'shrine' }, { 'time.moons.ember': 'full' }] }),
+    ).toEqual({
+      all: [{ 'place.tags': 'shrine' }, { 'time.moons.ember': 'full' }],
     })
     expect(
       rowsCondition({
         join: 'all',
         rows: [
-          { fact: 'hex.tags', op: 'is', value: 'ford' },
-          { fact: 'hex.tags', op: 'is', value: 'toll' },
+          { fact: 'place.tags', op: 'is', value: 'ford' },
+          { fact: 'place.tags', op: 'is', value: 'toll' },
         ],
       }),
-    ).toEqual({ all: [{ 'hex.tags': 'ford' }, { 'hex.tags': 'toll' }] })
+    ).toEqual({ all: [{ 'place.tags': 'ford' }, { 'place.tags': 'toll' }] })
   })
 
   it('has no rows for what they cannot say', () => {
     expect(conditionRows({ not: { 'time.part': 'night' } })).toBeNull()
-    expect(conditionRows({ 'hex.terrain': 'forest', any: [{ lost: true }] })).toBeNull()
+    expect(conditionRows({ 'place.terrain': 'forest', any: [{ lost: true }] })).toBeNull()
     expect(
-      conditionRows({ any: [{ 'trip.moment': 'trip.hex-enter', 'hex.danger': { gte: 1 } }] }),
+      conditionRows({ any: [{ 'trip.moment': 'trip.place-enter', 'place.danger': { gte: 1 } }] }),
     ).toBeNull()
     expect(conditionRows({ all: [{ any: [{ lost: true }] }] })).toBeNull()
     expect(conditionRows({ danger: { near: 3 } })).toBeNull()
@@ -111,20 +113,20 @@ describe('conditions as rows', () => {
     const rows: ConditionRows = {
       join: 'all',
       rows: [
-        { fact: 'hex.terrain', op: 'in', value: 'forest, hills' },
-        { fact: 'hex.danger', op: 'gt', value: "'{{party.stats.stealth}}'" },
+        { fact: 'place.terrain', op: 'in', value: 'forest, hills' },
+        { fact: 'place.danger', op: 'gt', value: "'{{party.stats.stealth}}'" },
       ],
     }
     const condition = rowsCondition(rows) as Condition
-    const context = { hex: { terrain: 'hills', danger: 3 }, party: { stats: { stealth: 2 } } }
+    const context = { place: { terrain: 'hills', danger: 3 }, party: { stats: { stealth: 2 } } }
     expect(matches(condition, context)).toBe(true)
-    expect(matches(condition, { ...context, hex: { terrain: 'lake', danger: 3 } })).toBe(false)
+    expect(matches(condition, { ...context, place: { terrain: 'lake', danger: 3 } })).toBe(false)
   })
 
   it('suggests facts by their full names, and says rows in words', () => {
-    expect(conditionFacts({ terrain: [], 'hex.terrain': [], 'party.stats.wits': [] })).toEqual([
-      'hex.terrain',
+    expect(conditionFacts({ terrain: [], 'place.terrain': [], 'party.stats.wits': [] })).toEqual([
       'party.stats.wits',
+      'place.terrain',
     ])
     const ops = {
       is: 'is',
@@ -153,9 +155,9 @@ describe('conditions as rows', () => {
 
   it('keeps a comparison written with its key (`eq`, `in`) as written', () => {
     for (const c of [
-      { any: [{ 'hex.region': { eq: 'Ashford Vale' } }, { 'hex.faction': 'the-vale' }] },
-      { 'hex.terrain': { in: ['forest', 'hills'] } },
-      { 'hex.danger': { eq: 2 } },
+      { any: [{ 'place.region': { eq: 'Ashford Vale' } }, { 'place.faction': 'the-vale' }] },
+      { 'place.terrain': { in: ['forest', 'hills'] } },
+      { 'place.danger': { eq: 2 } },
     ])
       expect(rowsCondition(conditionRows(c)!)).toEqual(c)
   })

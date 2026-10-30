@@ -44,7 +44,7 @@ describe('the Names pack', () => {
   })
 
   it("fits a landmark to the hex's terrain, and to anywhere by hand", () => {
-    const forest = many('landmark', { hex: { terrain: 'forest' } })
+    const forest = many('landmark', { place: { terrain: 'forest' } })
     expect(forest.some((n) => /^The (Wood|Holt) /.test(n))).toBe(true)
     expect(forest.some((n) => /^The (Tor|Fen|Cove) /.test(n))).toBe(false)
     expect(many('landmark').some((n) => /^The (Wood|Holt|Tor|Fen) /.test(n))).toBe(false)

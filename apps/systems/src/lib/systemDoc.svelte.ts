@@ -24,7 +24,7 @@ export type Kind = 'travel-rules' | 'bindings' | 'system'
 const allMoments = (value: unknown): unknown[] =>
   Array.isArray(value) ? value : value === undefined || value === '' ? [] : [value]
 
-/** A check's `at:` or an action's `on:` as typed in a box: `time.part.morning, trip.hex-enter`. */
+/** A check's `at:` or an action's `on:` as typed in a box: `time.part.morning, trip.place-enter`. */
 export const momentsText = (value: unknown): string =>
   allMoments(value)
     .filter((m): m is string => typeof m === 'string')

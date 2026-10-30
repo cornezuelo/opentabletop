@@ -32,7 +32,7 @@ export const es: Messages<typeof en> = {
     totals: 'Probabilidad de cada total',
   },
   values: {
-    hex: 'Hex',
+    place: 'Sitio',
     terrain: vocabulary.es.terms.terrain,
     water: 'Agua',
     tags: vocabulary.es.terms.tags,
@@ -66,7 +66,7 @@ export const es: Messages<typeof en> = {
     commonCount: 'Hexes de la tierra más común',
   },
   valueHelp: {
-    hex: 'El hex de la tirada (el seleccionado, o el del grupo).',
+    place: 'El sitio de la tirada (el hex seleccionado, o donde está el grupo).',
     terrain: 'El terreno del hex, por su id (forest, hills…).',
     water: 'true en los hexes de agua (lagos, mares…).',
     tags: 'Las etiquetas del hex, una lista: una condición se cumple si la lista tiene la etiqueta.',

@@ -23,7 +23,7 @@ describe('flowText on long values', () => {
   it('keeps them on one line', () => {
     const long = {
       any: [
-        { moment: 'trip.hex-enter', danger: { gte: 1 } },
+        { moment: 'trip.place-enter', danger: { gte: 1 } },
         { moment: 'actions.rest', danger: { gte: 3 } },
         { moment: 'actions.camp', danger: { gte: 4 } },
       ],

@@ -16,7 +16,7 @@ Los dados van en la **tirada** de una tabla u oráculo (Dados en el formulario),
 | `2d6+1`, `1d20-2`, `1d6+1d4` | Suma o resta constantes y otros dados.                                                                                                     |
 | `4d6kh3`                     | Tira 4d6 y **quédate con los 3 más altos** (`kh`).                                                                                         |
 | `2d20kl1`                    | Tira 2d20 y **quédate con el más bajo** (`kl`).                                                                                            |
-| `1d6 + {{hex.danger}}`       | Suma un valor del contexto (ver abajo). Si falta cuenta como 0; si no es un número, la tirada falla con un mensaje claro.                  |
+| `1d6 + {{place.danger}}`     | Suma un valor del contexto (ver abajo). Si falta cuenta como 0; si no es un número, la tirada falla con un mensaje claro.                  |
 
 **Los modos de tirada** (ventaja, desventaja… lo que declare el sistema, ver [Tipos de definición](../technical/07-kinds.md#modos-de-tirada)) tiran la expresión entera varias veces y se quedan con el total más alto, el más bajo o el del medio. La tarjeta del resultado muestra cada dado, con los descartados tachados.
 
@@ -48,13 +48,13 @@ Usa pesos cuando ningún dado da la probabilidad que quieres, o para hacer más 
 | `{{roll}}`        | En las entradas de una tabla: el total de la propia **Tirada** de la tabla, p. ej. `'Has sacado {{roll}}'`.                          |
 | `{{campo}}`       | En la plantilla de un generador: el valor de un campo (su texto, si vino de una tabla).                                              |
 
-Un valor que falta no muestra nada. Las variables nunca ejecutan código: solo buscan valores, tiran dados y hacen cuentas (`'{{hex.danger * 2 + 1d6}}'`, `'{{floor(party.stats.mouths / 2)}}'`: [Sintaxis](../technical/09-syntax.md#variables)). Un valor que es entero un `'{{…}}'` (`count: '{{2d6}}'`) guarda lo que lee: un número sigue siendo un número.
+Un valor que falta no muestra nada. Las variables nunca ejecutan código: solo buscan valores, tiran dados y hacen cuentas (`'{{place.danger * 2 + 1d6}}'`, `'{{floor(party.stats.mouths / 2)}}'`: [Sintaxis](../technical/09-syntax.md#variables)). Un valor que es entero un `'{{…}}'` (`count: '{{2d6}}'`) guarda lo que lee: un número sigue siendo un número.
 
 Las referencias a tablas y generadores también pueden usar variables: `table: 'weather-{{time.season}}'` tira `weather-spring`, `weather-autumn`… según la estación.
 
 ## Variables y tiradas en las condiciones
 
-Las condiciones comparan igual con una variable o una tirada: `when: { hex.danger: { gt: '{{party.stats.stealth}}' } }`, o una tirada por debajo de una característica:
+Las condiciones comparan igual con una variable o una tirada: `when: { place.danger: { gt: '{{party.stats.stealth}}' } }`, o una tirada por debajo de una característica:
 
 ```yaml
 kind: table
@@ -105,7 +105,7 @@ name: Encuentro
 fields:
   who: { table: table.wilderness-creatures } # lee terrain, season… del contexto
   mood: { table: table.reaction, context: { bonus: 1 } }
-  count: { roll: '1d6 + {{hex.danger}}' } # un campo del hex en la aplicación Mapa
+  count: { roll: '1d6 + {{place.danger}}' } # un campo del hex en la aplicación Mapa
 template: '{{count}} × {{who}}, {{mood}}'
 ```
 

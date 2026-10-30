@@ -85,7 +85,7 @@ function coreChecks(): { on: Record<string, unknown>; weather: string[]; places:
   const declared = read('system.yaml', '@system/default')
   const list = (listed: unknown) =>
     (Array.isArray(listed) ? listed : [listed]).flatMap((r) => fromCore(r) ?? [])
-  // The places its exploring may make (`hex.pois.landmark`), Core's own.
+  // The places its exploring may make (`place.pois.landmark`), Core's own.
   return { on, weather: list(declared.weather), places: list(declared.places) }
 }
 

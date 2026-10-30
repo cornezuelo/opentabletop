@@ -158,7 +158,7 @@ export interface TravelSystem {
   templateSheets?: Record<string, Sheet>
   /**
    * Its catalogues of places (`places` in `kind: system`, then those of the packs a map or
-   * campaign adds: `withAddedPacks`), by `pack/id`, in order: what `hex.pois.<id>` makes.
+   * campaign adds: `withAddedPacks`), by `pack/id`, in order: what `place.pois.<id>` makes.
    */
   places?: { id: string; def: PlacesCatalogue }[]
   /**
@@ -1355,7 +1355,7 @@ export function stepTrip(
   action: TravelAction,
 ): { state: SessionState; entries: JournalEntry[]; discovered: Record<string, DiscoveredHex> } {
   const { system } = options
-  // The members' relations to the places they come to (`hex.related`).
+  // The members' relations to the places they come to (`place.related`).
   const world = relatedWorld(options.world, session.members)
   const discover = system.bindings?.discover
   const discovery =

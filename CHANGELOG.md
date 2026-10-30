@@ -11,6 +11,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Formats
 
+- Pack format 11: where the party is is a **place**, whatever the map: `place.*` in conditions and tables (`place.terrain`, `place.tags`, `{{place.danger}}`), `place.pois.<id>` in effects, the moment `trip.place-enter`, `travel.move: place` and `trip.places` (in format 10, `hex.*`, `hex.pois.<id>`, `trip.hex-enter`, `hex`, `trip.hexes`). Packs of format 10 aren't read: rewrite those names. Core, the Grey Marches and the manual are moved.
 - Map's files keep its data in `ext.map` (`ext.hexmapper` before: still read). This browser's maps and campaigns, Map's settings and the roster's characters playing on a map move to Map's names when an app first opens, as do backups made before; nothing to do by hand. Campaigns v7.
 
 ## [0.25.0] - 2026-10-30

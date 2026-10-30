@@ -45,7 +45,9 @@ describe('steps as cards', () => {
     expect(said({ effects: { 'party.stats.fatigue': '{{params.cost}}' } })).toBe(
       'Change: Fatigue {{params.cost}}',
     )
-    expect(said({ do: 'actions.march', with: { until: 'hex' } })).toBe('Take March (until: hex)')
+    expect(said({ do: 'actions.march', with: { until: 'place' } })).toBe(
+      'Take March (until: place)',
+    )
     expect(said({ roll: 'checks.ENCOUNTER' })).toBe('Roll Encounters')
     expect(said({ roll: 'table.ruins' })).toBe('Roll Ruins')
     expect(said({ pause: true })).toBe('Pause until Continue')
@@ -58,7 +60,7 @@ describe('steps as cards', () => {
   })
 
   it('changing what a step does keeps its condition and id, and drops what went with the old kind', () => {
-    const step = { id: 'x', when: { lost: true }, do: 'actions.march', with: { until: 'hex' } }
+    const step = { id: 'x', when: { lost: true }, do: 'actions.march', with: { until: 'place' } }
     expect(withKind(step as never, 'wait', {})).toEqual({
       id: 'x',
       when: { lost: true },
@@ -203,13 +205,13 @@ describe("the bundled systems' other forms as rows", () => {
     const action = {
       when: { 'party.stats.fatigue': { lt: 2 } },
       unless: {
-        any: [{ 'trip.weather': 'storm', 'hex.terrain': 'swamp' }, { 'trip.mode': 'boat' }],
+        any: [{ 'trip.weather': 'storm', 'place.terrain': 'swamp' }, { 'trip.mode': 'boat' }],
       },
       oncePerDay: true,
       do: [
         { time: 180 },
         { when: { 'trip.below': 'food' }, effects: { 'party.stats.morale': -1 } },
-        { do: 'actions.march', with: { until: 'hex' } },
+        { do: 'actions.march', with: { until: 'place' } },
         { say: 'Done.' },
       ],
     } as never

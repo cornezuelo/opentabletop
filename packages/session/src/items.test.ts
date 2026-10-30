@@ -7,7 +7,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system whose companions carry items from its catalogue: torches burn, packs fill. */
 const PACK = [
-  { path: 'delve/pack.yaml', content: 'id: delve\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
+  { path: 'delve/pack.yaml', content: 'id: delve\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
   {
     path: 'delve/system.yaml',
     content:
@@ -56,7 +56,7 @@ terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
   light:

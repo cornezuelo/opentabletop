@@ -2,7 +2,7 @@
 
 Haz clic en el fichero de una definición (o en un fichero de la página del pack) para abrir el editor YAML. Los problemas se subrayan en su línea y se listan debajo; haz clic en uno para ir a él. Los cambios se guardan mientras escribes.
 
-Mientras escribes, el editor sugiere lo que encaja (<kbd>Ctrl</kbd>+<kbd>Espacio</kbd> muestra las sugerencias en cualquier punto): claves al principio de una línea, `kind` y otros valores fijos, tablas y generadores tras `table:` o `generator:`, y todo lo que se tira (tablas, oráculos, generadores, mazos) tras `resolve:` (primero los de este pack), y dentro de los `when`, `unless`, `set` y `context` de una línea los nombres que leen o fijan las tablas, con sus valores conocidos (`hex.terrain: forest`, `time.season: winter`…), y dentro de `effects` las características, los valores de la hoja del grupo y los objetos que declara el sistema (`party.stats.fatigue`, `party.values.food`, `party.items.ration`). Las mismas sugerencias aparecen en las cajas de condiciones y valores de los formularios.
+Mientras escribes, el editor sugiere lo que encaja (<kbd>Ctrl</kbd>+<kbd>Espacio</kbd> muestra las sugerencias en cualquier punto): claves al principio de una línea, `kind` y otros valores fijos, tablas y generadores tras `table:` o `generator:`, y todo lo que se tira (tablas, oráculos, generadores, mazos) tras `resolve:` (primero los de este pack), y dentro de los `when`, `unless`, `set` y `context` de una línea los nombres que leen o fijan las tablas, con sus valores conocidos (`place.terrain: forest`, `time.season: winter`…), y dentro de `effects` las características, los valores de la hoja del grupo y los objetos que declara el sistema (`party.stats.fatigue`, `party.values.food`, `party.items.ration`). Las mismas sugerencias aparecen en las cajas de condiciones y valores de los formularios.
 
 Toda la sintaxis de un vistazo (valores, dados, variables, condiciones, `set`, `effects`, momentos, pasos, límites): [Sintaxis](../technical/09-syntax.md).
 
@@ -36,9 +36,9 @@ La lista completa, con las variables y de dónde salen los valores del contexto:
 `when` mantiene una entrada solo si el contexto coincide:
 
 ```yaml
-when: { hex.terrain: forest } # igual a
-when: { hex.terrain: [hills, mountains] } # uno de
-when: { hex.danger: { gte: 4 }, time.season: { not: winter } }
+when: { place.terrain: forest } # igual a
+when: { place.terrain: [hills, mountains] } # uno de
+when: { place.danger: { gte: 4 }, time.season: { not: winter } }
 when: { any: [{ trip.weather: storm }, { today.lost: true }] } # all / any / not
 ```
 

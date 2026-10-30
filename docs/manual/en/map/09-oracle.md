@@ -32,11 +32,16 @@ id: what-do-we-find
 name: What do we find here?
 roll: 1d6
 entries:
-  - { id: forest, range: 1-6, when: { hex.terrain: forest }, result: 'Fallen timber and mushrooms' }
+  - {
+      id: forest,
+      range: 1-6,
+      when: { place.terrain: forest },
+      result: 'Fallen timber and mushrooms',
+    }
   - {
       id: rocks,
       range: 1-6,
-      when: { hex.terrain: [hills, mountains] },
+      when: { place.terrain: [hills, mountains] },
       result: 'A cave mouth in the rock',
     }
   - { id: nothing, range: 1-6, result: 'Nothing special' }

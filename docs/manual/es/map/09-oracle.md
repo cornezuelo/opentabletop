@@ -32,11 +32,11 @@ id: what-do-we-find
 name: ¿Qué encontramos aquí?
 roll: 1d6
 entries:
-  - { id: forest, range: 1-6, when: { hex.terrain: forest }, result: 'Troncos caídos y setas' }
+  - { id: forest, range: 1-6, when: { place.terrain: forest }, result: 'Troncos caídos y setas' }
   - {
       id: rocks,
       range: 1-6,
-      when: { hex.terrain: [hills, mountains] },
+      when: { place.terrain: [hills, mountains] },
       result: 'La boca de una cueva en la roca',
     }
   - { id: nothing, range: 1-6, result: 'Nada especial' }

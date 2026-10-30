@@ -133,7 +133,7 @@ entries:
   - { id: sword, result: ' and Sword' }
   - { id: thistle, result: ' and Thistle' }
 ---
-# The landmark reads the hex it's rolled on (`hex.terrain`): forests give woods and holts,
+# The landmark reads the hex it's rolled on (`place.terrain`): forests give woods and holts,
 # hills tors and barrows. Anywhere else, or rolled by hand, the generic ones.
 kind: generator
 id: landmark
@@ -153,21 +153,21 @@ id: landmark-feature
 tags: [names, landmarks, fantasy]
 name: Landmarks
 description: |-
-  What a landmark is. Some only come up on a hex of their terrain: `hex.terrain` of `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` or `sea`.
+  What a landmark is. Some only come up on a hex of their terrain: `place.terrain` of `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` or `sea`.
 entries:
   - { id: stone, result: The Stone }
   - { id: cross, result: The Crossing }
   - { id: barrow, result: The Barrow }
   - { id: tower, result: The Tower }
   - { id: well, result: The Well }
-  - { id: wood, result: The Wood, weight: 3, when: { hex.terrain: forest } }
-  - { id: holt, result: The Holt, weight: 3, when: { hex.terrain: forest } }
-  - { id: tor, result: The Tor, weight: 3, when: { hex.terrain: [hills, mountains] } }
-  - { id: peak, result: The Peak, weight: 3, when: { hex.terrain: mountains } }
-  - { id: fen, result: The Fen, weight: 3, when: { hex.terrain: [swamp, marsh] } }
-  - { id: mere, result: The Mere, weight: 3, when: { hex.terrain: [lake, swamp, marsh] } }
-  - { id: cove, result: The Cove, weight: 3, when: { hex.terrain: [coast, sea] } }
-  - { id: rocks, result: The Rocks, weight: 3, when: { hex.terrain: [coast, sea] } }
+  - { id: wood, result: The Wood, weight: 3, when: { place.terrain: forest } }
+  - { id: holt, result: The Holt, weight: 3, when: { place.terrain: forest } }
+  - { id: tor, result: The Tor, weight: 3, when: { place.terrain: [hills, mountains] } }
+  - { id: peak, result: The Peak, weight: 3, when: { place.terrain: mountains } }
+  - { id: fen, result: The Fen, weight: 3, when: { place.terrain: [swamp, marsh] } }
+  - { id: mere, result: The Mere, weight: 3, when: { place.terrain: [lake, swamp, marsh] } }
+  - { id: cove, result: The Cove, weight: 3, when: { place.terrain: [coast, sea] } }
+  - { id: rocks, result: The Rocks, weight: 3, when: { place.terrain: [coast, sea] } }
 ---
 kind: table
 id: landmark-of

@@ -17,7 +17,7 @@ travel-rules/default:
           name: Hasta dónde
           choices:
             destination: Hasta el destino
-            hex: Un hex
+            place: Un hex
     camp:
       name: Acampar
       description: Dormir hasta la mañana.

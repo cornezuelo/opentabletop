@@ -12,7 +12,7 @@ export const es: Messages<typeof en> = {
   removeTag: 'Quitar',
   relations: 'Relaciones',
   relationsHelp:
-    'A qué está unido este personaje: otro personaje, un lugar, una región, un hex, según los tipos de relación de la hoja (un vínculo, un hogar…), algunos con un número. Las condiciones las leen:\n• `{path}.relations.home: region:The Vale` — el hogar de este personaje\n• `hex.related: kael` — al entrar en un hex al que Kael está unido (él, su región o un lugar en él)\n• `hex.relations.home: kael` — el hogar de Kael, por tipo\nEscribe un nombre de la lista, o una referencia: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.',
+    'A qué está unido este personaje: otro personaje, un lugar, una región, un hex, según los tipos de relación de la hoja (un vínculo, un hogar…), algunos con un número. Las condiciones las leen:\n• `{path}.relations.home: region:The Vale` — el hogar de este personaje\n• `place.related: kael` — al entrar en un hex al que Kael está unido (él, su región o un lugar en él)\n• `place.relations.home: kael` — el hogar de Kael, por tipo\nEscribe un nombre de la lista, o una referencia: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.',
   relationKind: 'Tipo de relación',
   relationTo: 'Unido a',
   relationToPlaceholder: 'un personaje, lugar, región…',

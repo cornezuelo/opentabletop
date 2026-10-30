@@ -14,18 +14,18 @@ description: |-
 
   - **Tags** for the Oracle's **Filter**: `encounters` and `rules`, since a trip's checks roll it
   - One table for two checks, day and night, told apart by the bindings' context `timeOfDay`
-  - Conditions on `hex.terrain`, `hex.region`, `hex.tags`, `hex.danger`, `time.season` and the moons (`time.moons.ember: full`)
-  - An entry's `unless`: the Vale's patrol, never at night; it rides wherever the Vale holds the land (`hex.faction`, a faction's territory)
-  - `once`: the Wyrm, only at `hex.danger` 5, in the Greywood's heart
+  - Conditions on `place.terrain`, `place.region`, `place.tags`, `place.danger`, `time.season` and the moons (`time.moons.ember: full`)
+  - An entry's `unless`: the Vale's patrol, never at night; it rides wherever the Vale holds the land (`place.faction`, a faction's territory)
+  - `once`: the Wyrm, only at `place.danger` 5, in the Greywood's heart
   - `pause`: the trip stops when someone to deal with comes up (the Wyrm, the Hunt, a patrol, wolves, bandits, a traveller), not for lights, a friendly patrol, tracks or nothing
-  - A chance of nothing that shrinks with the danger: a roll in a condition, `hex.danger: { lt: '{{1d6}}' }` (at danger 2, two times in three)
+  - A chance of nothing that shrinks with the danger: a roll in a condition, `place.danger: { lt: '{{1d6}}' }` (at danger 2, two times in three)
   - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
   - An effect on every companion: the haunted lights fill each one's dread, and tick the world clock's _The Greywood Wyrm wakes_ (`world.clocks…`)
   - Results that make copies of the bestiary's templates, kept as those present (`present.grey-wolf: '{{wolves - 1}}'`): as many as a `set` rolled and the text says (`{{wolves}} grey wolves`), their leader among them; the bandits and their chief, the Hunt's riders, the Wyrm, the Vale's riders
   - A faction's value in a condition: the Vale's patrol shares its bread when the Vale thinks well of you (`factions.the-vale.values.reputation`)
-roll: '1d6 + {{hex.danger}}'
+roll: '1d6 + {{place.danger}}'
 entries:
   # A once-only encounter, only at the very heart of the Greywood (danger 5), or deeper
   # than its edge once the world clock's _The Greywood Wyrm wakes_ is full (a progress
@@ -36,10 +36,10 @@ entries:
     pause: true
     when:
       all:
-        - { hex.terrain: [forest, dense-forest] }
+        - { place.terrain: [forest, dense-forest] }
         - any:
-            - { hex.danger: { gte: 5 } }
-            - { hex.danger: { gte: 3 }, world.clocks.the-greywood-wyrm-wakes: { gte: 6 } }
+            - { place.danger: { gte: 5 } }
+            - { place.danger: { gte: 3 }, world.clocks.the-greywood-wyrm-wakes: { gte: 6 } }
     result: 'The Greywood Wyrm uncoils across the path. It will not come again.'
     # It's there now, among those present (bestiary.yaml), and stays in its wood.
     effects: { present.wyrm: 1 }
@@ -56,7 +56,7 @@ entries:
   # …and every companion's dread fills a box (an effect on every member of the party).
   - id: lights
     range: 1-20
-    when: { all: [{ hex.tags: haunted }, { timeOfDay: night }] }
+    when: { all: [{ place.tags: haunted }, { timeOfDay: night }] }
     result: Pale lights drift between the trees, calling your names
     # …and the Wyrm stirs: a progress clock of the world clock, ticked from a trip.
     effects: { party.members.values.dread: 1, world.clocks.the-greywood-wyrm-wakes: 1 }
@@ -64,24 +64,24 @@ entries:
   # danger; a roll in a condition). What's above comes whatever this says.
   - id: quiet
     range: 1-20
-    when: { hex.danger: { lt: '{{1d6}}' } }
+    when: { place.danger: { lt: '{{1d6}}' } }
     result: Nobody crosses your path
   # In a named region, by day: its own people (`unless`: not at night).
-  # …or wherever the Vale holds the land (a faction's territory: `hex.faction`).
+  # …or wherever the Vale holds the land (a faction's territory: `place.faction`).
   # The Vale's patrol, when the Vale thinks well of you (a faction's value, on a map with
   # its factions): friendly, whatever the roll.
   - id: friends
     range: 1-4
     when:
       all:
-        - { any: [{ hex.region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
+        - { any: [{ place.region: { eq: Ashford Vale } }, { place.faction: the-vale }] }
         - { factions.the-vale.values.reputation: { gte: 2 } }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they greet you as friends and share their bread'
     effects: { party.items.ration: 1 }
   - id: patrol
     range: 1-4
-    when: { any: [{ hex.region: { eq: Ashford Vale } }, { hex.faction: the-vale }] }
+    when: { any: [{ place.region: { eq: Ashford Vale } }, { place.faction: the-vale }] }
     unless: { timeOfDay: night }
     result: 'A patrol of the Vale — they are {{result}}'
     # Someone to deal with: the trip stops until you go on.
@@ -94,7 +94,7 @@ entries:
     range: 5-20
     # Wolves keep away in summer: `not` with a value.
     when:
-      { all: [{ hex.terrain: [forest, dense-forest, heath] }, { time.season: { not: summer } }] }
+      { all: [{ place.terrain: [forest, dense-forest, heath] }, { time.season: { not: summer } }] }
     result: '{{wolves}} grey wolves, their leader among them — they are {{result}}'
     pause: true
     table: table.reaction
@@ -106,13 +106,13 @@ entries:
   # Then roll a generator: {{result}} is its text.
   - id: traveller
     range: 1-4
-    when: { hex.danger: { lt: 3 } }
+    when: { place.danger: { lt: 3 } }
     result: 'On the way you meet {{result}}'
     pause: true
     table: generator.npc
   - id: bandits
     range: 5-20
-    when: { hex.terrain: { in: [hills, marsh, swamp] } }
+    when: { place.terrain: { in: [hills, marsh, swamp] } }
     result: '{{bandits}} bandits of the Hollow Hills — they are {{result}}'
     pause: true
     table: table.reaction

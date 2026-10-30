@@ -31,7 +31,7 @@ import {
  * turn every two days, and a weather model of one kind of sky.
  */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
   {
     path: 'marks/system.yaml',
     content:

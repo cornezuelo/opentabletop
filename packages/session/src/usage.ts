@@ -247,7 +247,7 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
     const terrain = (t: string, how: UseHow, path: string) =>
       out.push({
         written: t,
-        name: 'hex.terrain',
+        name: 'place.terrain',
         how,
         at: { kind: 'land', ...place(def), path },
         values: [t],
@@ -352,7 +352,7 @@ function definitionUses(
 }
 
 /** What names a terrain among its values: the hex entered, the one left, those around. */
-const TERRAIN_FACTS = ['hex.terrain', 'from.terrain', 'around.terrain']
+const TERRAIN_FACTS = ['place.terrain', 'from.terrain', 'around.terrain']
 /** What names an action among its values: the one under way, those done today, the moment. */
 const ACTION_FACTS = ['trip.doing', 'trip.doneToday', 'trip.moment']
 
@@ -392,7 +392,7 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       match = (u) =>
         u.written === declared.id ||
         u.name === declared.id ||
-        u.name === `hex.${declared.id}` ||
+        u.name === `place.${declared.id}` ||
         // A value a table sets for later ones (`set: { fordModifier: -1 }`).
         u.name === `today.${declared.id}` ||
         u.name === `from.${declared.id}`
@@ -447,7 +447,7 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       break
     case 'sheet-relation': {
       // Its holders' (`characters.mara.relations.home`, `self.…`, a token's), or who holds
-      // it towards a place (`hex.relations.home`, `from.relations.home`); `bonds` its numbers.
+      // it towards a place (`place.relations.home`, `from.relations.home`); `bonds` its numbers.
       const named = new RegExp(`(^|\\.)(relations|bonds)\\.${id}(\\.|$)`)
       match = (u) => named.test(u.name)
       break

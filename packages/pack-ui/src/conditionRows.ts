@@ -134,7 +134,7 @@ function rowValue({ op, value, keyed }: ConditionRow): unknown {
 }
 
 /**
- * Rows as the condition a pack writes: pairs (`{ hex.terrain: forest, danger: { gte: 3 } }`),
+ * Rows as the condition a pack writes: pairs (`{ place.terrain: forest, danger: { gte: 3 } }`),
  * comparisons of one fact together (`danger: { gte: 2, lte: 4 }`), `all` when a fact must be
  * two things at once (or it was written so), `any` for either. Rows without a fact are left out; none is undefined.
  */
@@ -163,7 +163,7 @@ export function rowsCondition({
 }
 
 /**
- * The facts a condition's rows suggest: by their full names (`hex.terrain`), leaving out
+ * The facts a condition's rows suggest: by their full names (`place.terrain`), leaving out
  * the short names that say the same (`terrain`), which are still read.
  */
 export function conditionFacts(suggestions: Record<string, readonly string[]>): string[] {
@@ -173,7 +173,7 @@ export function conditionFacts(suggestions: Record<string, readonly string[]>): 
 }
 
 /**
- * Rows in words, for a folded card: "hex.terrain is forest and danger is at least 3", with
+ * Rows in words, for a folded card: "place.terrain is forest and danger is at least 3", with
  * the comparisons' words given by the host (its language). Null when there are no rows.
  */
 export function rowsWords(

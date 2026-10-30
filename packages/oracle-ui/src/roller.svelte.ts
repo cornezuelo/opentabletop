@@ -169,7 +169,7 @@ export class Roller {
     const { library, locale, t, onResult } = this.options
     const engine = library.engine
     const options = { locale: locale(), mode: rollMode || undefined }
-    // Short names set their full names too (`terrain: forest` is `hex.terrain` as well).
+    // Short names set their full names too (`terrain: forest` is `place.terrain` as well).
     context = qualify(context)
     try {
       const outcome =

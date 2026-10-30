@@ -20,7 +20,7 @@ terrains: { forest: { multiplier: 1 }, plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
@@ -44,7 +44,7 @@ kind: table
 id: contents
 roll: 1d6
 entries:
-  - { id: tower, range: 1-6, result: An old tower, when: { hex.id: '4' }, set: { tags: landmark, name: The Tower } }
+  - { id: tower, range: 1-6, result: An old tower, when: { place.id: '4' }, set: { tags: landmark, name: The Tower } }
   - { id: nothing, range: 1-6, result: Nothing, set: { poi: false } }
 `,
   },
@@ -177,11 +177,11 @@ describe('context suggestions', () => {
     expect(s.terrain).toEqual(expect.arrayContaining(['forest', 'plains']))
     expect(s.season).toEqual(['autumn', 'spring', 'summer', 'winter'])
     expect(s.mode).toContain('walk')
-    expect(s['hex.id']).toEqual(expect.arrayContaining(['4']))
+    expect(s['place.id']).toEqual(expect.arrayContaining(['4']))
     expect(s.danger).toEqual(['1', '2'])
     expect(s).toHaveProperty(['party.mode'])
     // Full names too, with the same values.
-    expect(s['hex.terrain']).toEqual(s.terrain)
+    expect(s['place.terrain']).toEqual(s.terrain)
     expect(s['time.season']).toEqual(s.season)
     expect(s['trip.mode']).toEqual(s.mode)
     expect(s).toHaveProperty(['trip.day'])
@@ -208,7 +208,7 @@ terrains: { forest: { multiplier: 1 }, lake: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
@@ -279,7 +279,7 @@ modes: { walk: { kmPerDay: 80 } }
 checks: [{ event: DAWN, at: '07:00', effects: { party.stats.fatigue: 0 } }]
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
@@ -339,7 +339,7 @@ terrains: { forest: { multiplier: 1 }, lake: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 80 } }
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 7, lt: 19 } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }

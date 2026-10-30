@@ -16,7 +16,7 @@ import {
 
 /** A system whose party is its members: stats from them, rations they carry, wounds that block. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
   {
     path: 'band/system.yaml',
     content: `
@@ -68,7 +68,7 @@ terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }
@@ -392,7 +392,7 @@ describe('the party is its members', () => {
     const { session } = startTrip({ system: band, location: 'a', members: company })
     const here = tripFacts({ system: band, world: regionWorld }, session)
     expect(here).toMatchObject({
-      hex: { related: ['kael', 'mara'], relations: { home: ['kael'], debt: ['mara'] } },
+      place: { related: ['kael', 'mara'], relations: { home: ['kael'], debt: ['mara'] } },
       characters: {
         mara: { relations: { bond: ['region:Vale'] }, bonds: { bond: { 'region:Vale': 2 } } },
       },
@@ -401,7 +401,7 @@ describe('the party is its members', () => {
       { system: band, world: regionWorld },
       { ...session, travel: { ...session.travel, location: 'b' } },
     )
-    expect(there.hex).toMatchObject({
+    expect(there.place).toMatchObject({
       related: ['mara'],
       relations: { bond: ['mara'], debt: ['mara'] },
     })

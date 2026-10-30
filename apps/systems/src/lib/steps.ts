@@ -109,7 +109,7 @@ export function stepSummary(step: ActionStep, names: StepNames): string {
     case 'travel.move':
       return v === 'destination'
         ? t('steps.say.moveDestination')
-        : v === 'hex'
+        : v === 'place'
           ? t('steps.say.moveHex')
           : typeof v === 'number'
             ? t('steps.say.moveHexes', { count: v })

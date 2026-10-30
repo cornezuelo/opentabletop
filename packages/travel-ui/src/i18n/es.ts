@@ -49,7 +49,7 @@ export const es: Messages<typeof en> = {
   travel: 'Viajar',
   goOn: 'Seguir',
   waitOnward: 'Esperar para seguir',
-  choices: { destination: 'hasta el destino', hex: 'un hex', hexes: '{n} hexes' },
+  choices: { destination: 'hasta el destino', place: 'un sitio', hexes: '{n} hexes' },
   continue: 'Continuar',
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
@@ -81,7 +81,7 @@ export const es: Messages<typeof en> = {
     readBy: '**Lo leen:** {names}.',
     changedBy: '**Lo cambian:** {names}.',
     totals:
-      'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido sus acciones, comprobaciones y tablas a los valores y objetos del grupo (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.hexes`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
+      'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido sus acciones, comprobaciones y tablas a los valores y objetos del grupo (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.places`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',
     exportJournal:
       'Descarga el diario en Markdown, con un título por día y las líneas que muestra el filtro: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
@@ -335,9 +335,9 @@ export const es: Messages<typeof en> = {
       time_tags: 'el momento del día',
       time_part: 'la parte del día',
       time_season: 'la estación',
-      hex_terrain: 'el terreno',
-      hex_danger: 'el peligro del hex',
-      hex_tags: 'las etiquetas del hex',
+      place_terrain: 'el terreno',
+      place_danger: 'el peligro del sitio',
+      place_tags: 'las etiquetas del sitio',
     },
   },
   stop: {
@@ -406,9 +406,9 @@ export const es: Messages<typeof en> = {
     numberHelp:
       'Los hexes en orden: el grupo empieza en el 1 y va hacia el último. Los hexes ya recorridos no se pueden cambiar; añade más al final para seguir.',
     terrainHelp:
-      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno:\n• `forest` — las tablas y condiciones leen `hex.terrain: forest`\nSu velocidad, y si se puede cruzar, son cosa del sistema: lo dicen sus reglas de viaje.',
+      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno:\n• `forest` — las tablas y condiciones leen `place.terrain: forest`\nSu velocidad, y si se puede cruzar, son cosa del sistema: lo dicen sus reglas de viaje.',
     tagsHelp:
-      'Palabras que marcan el hex, cada una una pastilla (Intro o una coma la añade, × la quita), para las comprobaciones y tablas que las buscan:\n• `landmark` — `hex.tags: landmark` en una condición\n• `shrine, haunted`\nLas sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
+      'Palabras que marcan el hex, cada una una pastilla (Intro o una coma la añade, × la quita), para las comprobaciones y tablas que las buscan:\n• `landmark` — `place.tags: landmark` en una condición\n• `shrine, haunted`\nLas sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
     edgesHelp:
       'Si un camino, sendero o río une este hex con el siguiente. Lo que eso hace depende del sistema:\n• los caminos suelen ser más rápidos (`road` × `1.5`)\n• un sistema puede saltarse algunas comprobaciones en ellos (**Salvo si** `trip.edges: road`)',
     addHex: 'Añadir un hex',

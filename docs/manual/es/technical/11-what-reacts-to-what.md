@@ -15,7 +15,7 @@ No se llaman entre sí: cada uno oye los momentos del otro a través de la campa
 | ---------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------- |
 | una hora (`'06:00'`)                                       | viaje         | cuando suena, marchando, esperando o durmiendo en el campamento                                                  |
 | una parte del día (`time.part.morning`)                    | viaje         | cuando empieza esa parte del calendario                                                                          |
-| `trip.hex-enter`                                           | viaje         | al entrar en cada hex                                                                                            |
+| `trip.place-enter`                                         | viaje         | al entrar en cada hex                                                                                            |
 | `time.day-end`                                             | viaje         | al acabar cada día del viaje, a medianoche                                                                       |
 | una acción (`actions.camp`)                                | viaje         | cuando el grupo la hace, antes de sus pasos                                                                      |
 | el final de una acción (`actions.camp.done`)               | viaje         | cuando acaban sus pasos                                                                                          |

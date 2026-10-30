@@ -96,7 +96,7 @@ export const en = {
     intricate:
       'Written in a way rows can’t show (groups inside groups, or a whole condition turned around with not:): edit it as YAML.',
     badYaml:
-      'Write it as key: value pairs, e.g. hex.tags: landmark or hex.terrain: [forest, hills].',
+      'Write it as key: value pairs, e.g. place.tags: landmark or place.terrain: [forest, hills].',
   },
   cards: {
     search: 'Search…',

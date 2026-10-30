@@ -1,6 +1,6 @@
 # The Grey Marches as a travel system. Every part of travel rules and bindings is used;
 # comments say what each one shows. Conditions use the full names of what they read
-# (`hex.terrain`, `time.tags`, `trip.mode`, `today.refusing`…): see What tables see.
+# (`place.terrain`, `time.tags`, `trip.mode`, `today.refusing`…): see What tables see.
 # Play it on the example map (Map: Maps → Example maps, then Play → With rules),
 # without a map in the Travel app, or edit it in Systems.
 kind: travel-rules
@@ -55,8 +55,8 @@ modes:
   boat:
     name: By boat
     kmPerDay: 40
-    through: { any: [{ hex.water: true }, { hex.terrain: coast }] }
-    when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }
+    through: { any: [{ place.water: true }, { place.terrain: coast }] }
+    when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }
   # A cart only rolls along roads (through: the roads of each step, `trip.edges`).
   cart:
     name: By cart
@@ -124,7 +124,7 @@ actions:
         name: How far
         choices:
           - { id: destination, name: To the destination }
-          - { id: hex, name: One hex }
+          - { id: place, name: One hex }
           - { id: 3, name: Three hexes }
     when:
       any:
@@ -229,7 +229,7 @@ actions:
   rite:
     name: Rite of the Ember Moon
     description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2, fatigue gone, every companion’s dread emptied and their nerve a die higher.'
-    when: { all: [{ hex.tags: shrine }, { time.moons.ember: full }] }
+    when: { all: [{ place.tags: shrine }, { time.moons.ember: full }] }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
@@ -311,7 +311,7 @@ actions:
   fish:
     name: Fish
     description: 'Next to a lake, the sea or on the coast, by day: two hours with a line, once a day. Roll a d6: at or under your Survival, fish for two days; 1 to 3 otherwise, for one; else nothing bites.'
-    when: { time.tags: { not: dark }, any: [{ around.water: true }, { hex.terrain: coast }] }
+    when: { time.tags: { not: dark }, any: [{ around.water: true }, { place.terrain: coast }] }
     hideWhenUnavailable: true
     oncePerDay: true
     # Its check is rolled by a step once the two hours are done (`roll:`), and the step after
@@ -330,7 +330,7 @@ actions:
     description: 'In a market town, on Marketday (or on the world clock’s market day): two hours of trading. Food +3 and fodder +2, once a day.'
     when:
       time.tags: { not: dark }
-      hex.tags: market
+      place.tags: market
       any: [{ time.weekday: marketday }, { world.events: market-day }]
     hideWhenUnavailable: true
     oncePerDay: true
@@ -365,7 +365,7 @@ actions:
   ferry:
     name: Take the ferry
     description: 'At Brenna’s ferry, by day: pay her a day of food and she casts off at once, or wait for her afternoon crossing (at the latest, until nightfall). Then you are afloat on the Saltmere, by boat.'
-    when: { hex.tags: ferry, time.tags: { not: dark } }
+    when: { place.tags: ferry, time.tags: { not: dark } }
     hideWhenUnavailable: true
     oncePerDay: true
     params:
@@ -402,7 +402,7 @@ actions:
   delve:
     name: Delve the ruin
     description: 'In a ruin, by day: three hours searching it, then what it holds and what guards it, rolled on _Delving a ruin_. Once a day.'
-    when: { hex.tags: ruins, time.tags: { not: dark } }
+    when: { place.tags: ruins, time.tags: { not: dark } }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
@@ -412,7 +412,7 @@ actions:
   # while a trip goes on (the haunted lights fill it, encounters.yaml, or a hand on the World
   # panel), heard by the trip once the step that filled it ends, at once when filled by hand,
   # or on its next step if filled in another app. Every companion's dread grows; inside the
-  # Greywood (`hex.region`), the trip stops to say so.
+  # Greywood (`place.region`), the trip stops to say so.
   wyrm-wakes:
     name: The Wyrm wakes
     description: 'When the Greywood Wyrm wakes during a trip (its clock fills): every companion’s dread +1 and nerve a die lower, and in the Greywood the trip stops.'
@@ -423,7 +423,7 @@ actions:
           id: stirs,
           say: 'Far off, something vast stirs, and the birds of the Greywood fall silent.',
         }
-      - when: { hex.region: The Greywood }
+      - when: { place.region: The Greywood }
         id: awake
         pause: 'The Wyrm is awake, and this is its wood.'
   # A moment written as a condition (a reaction): it comes once, as morale reaches 0 with
@@ -462,9 +462,9 @@ actions:
   out-of-the-wood:
     name: Out of the Greywood
     description: Leaving the Greywood, the trees thin out and spirits rise. Morale +1.
-    on: trip.hex-enter
+    on: trip.place-enter
     when: { from.region: The Greywood }
-    unless: { hex.region: The Greywood }
+    unless: { place.region: The Greywood }
     do:
       - { effects: { party.stats.morale: 1 } }
       - { id: thin, say: 'The trees thin out, and spirits rise.' }
@@ -475,7 +475,7 @@ actions:
   carry-news:
     name: Carry the news
     description: 'In a market town, by day, once a trip: an hour telling the townsfolk what you saw on the roads. The news spreads, and the powers of the Marches move (a world turn).'
-    when: { hex.tags: market, time.tags: { not: dark }, trip.taken.carry-news: { lt: 1 } }
+    when: { place.tags: market, time.tags: { not: dark }, trip.taken.carry-news: { lt: 1 } }
     hideWhenUnavailable: true
     do:
       - { time: 60 }
@@ -559,59 +559,63 @@ checks:
   - event: ENCOUNTER_CHECK_REQUIRED
     name: Encounter
     description: Entering by day a hex whose danger is over your Stealth (the Greywood, the Hollow Hills), unless you came by road; or resting where danger is 3 or more.
-    at: [trip.hex-enter, actions.rest]
+    at: [trip.place-enter, actions.rest]
     when:
       any:
         - {
-            trip.moment: trip.hex-enter,
+            trip.moment: trip.place-enter,
             time.tags: { not: dark },
-            hex.danger: { gt: '{{party.stats.stealth}}' },
+            place.danger: { gt: '{{party.stats.stealth}}' },
           }
-        - { trip.moment: actions.rest, hex.danger: { gte: 3 } }
+        - { trip.moment: actions.rest, place.danger: { gte: 3 } }
     unless: { trip.edges: road }
   # A toll on tagged hexes reached by road: all / tags / edges.
   - event: TOLL_CHECK_REQUIRED
     name: Toll
     description: Keld Bridge, arriving by road.
-    at: trip.hex-enter
-    when: { all: [{ hex.tags: toll }, { trip.edges: road }] }
+    at: trip.place-enter
+    when: { all: [{ place.tags: toll }, { trip.edges: road }] }
   # Fords are rolled on an oracle, except by boat: not.
   - event: FORD_CHECK_REQUIRED
     name: Ford
     description: Crossing the river on foot or horseback.
-    at: trip.hex-enter
-    when: { all: [{ hex.tags: ford }, { not: { trip.mode: boat } }] }
+    at: trip.place-enter
+    when: { all: [{ place.tags: ford }, { not: { trip.mode: boat } }] }
   # Rolled on a table, then the trip pauses (pause) so you can describe the shrine. Only the
   # first time the trip comes by (`trip.visits`: 1 the first time in a hex).
   - event: SHRINE_CHECK_REQUIRED
     name: Shrine
     description: A wayside shrine, the first time the trip comes by. The trip stops after the roll; press Continue to go on.
-    at: trip.hex-enter
-    when: { hex.tags: shrine, trip.visits: 1 }
+    at: trip.place-enter
+    when: { place.tags: shrine, trip.visits: 1 }
     pause: true
   # No table for this one: it only stops the trip because it says so (pause), and waits
   # for you to describe the place and press Continue.
   - event: LANDMARK_CHECK_REQUIRED
     name: Landmark
     description: Describe the place yourself (or roll on an oracle), then press Continue.
-    at: trip.hex-enter
-    when: { hex.tags: landmark }
+    at: trip.place-enter
+    when: { place.tags: landmark }
     pause: true
   # The night's encounters: in camp, or marching in the dark (a night march) off the road.
   - event: CAMP_ENCOUNTER_CHECK_REQUIRED
     name: Night encounter
     description: Camping where danger is 2 or more, or entering a hex with danger in the dark, off the road. A stealthy lookout (Stealth 2 or more) keeps the camp hidden where danger is under 3.
-    at: [actions.camp, trip.hex-enter]
+    at: [actions.camp, trip.place-enter]
     when:
       any:
-        - { trip.moment: actions.camp, hex.danger: { gte: 2 } }
+        - { trip.moment: actions.camp, place.danger: { gte: 2 } }
         - all:
-            - { trip.moment: trip.hex-enter, time.tags: dark, hex.danger: { gte: 1 } }
+            - { trip.moment: trip.place-enter, time.tags: dark, place.danger: { gte: 1 } }
             - { not: { trip.edges: road } }
     # A journey role: whoever keeps watch (`roles.lookout`, chosen in the trip), read by their
     # own values. With nobody on watch, this never holds.
     unless:
-      { trip.moment: actions.camp, hex.danger: { lt: 3 }, roles.lookout.values.stealth: { gte: 2 } }
+      {
+        trip.moment: actions.camp,
+        place.danger: { lt: 3 },
+        roles.lookout.values.stealth: { gte: 2 },
+      }
   # A moment of the calendar's day (`at: time.watch.middle`, the middle watch beginning, 23:00),
   # while the party sleeps in camp (`trip.doing`) in the dark (`time.tags`, the night's
   # tag) where danger is 3 or more, with nobody keeping watch (the lookout's values only
@@ -620,7 +624,7 @@ checks:
     name: Lights in the middle watch
     description: Asleep in camp where danger is 3 or more, with nobody keeping watch, the haunted lights come close in the middle watch. Every companion's dread +1.
     at: time.watch.middle
-    when: { trip.doing: camp, time.tags: dark, hex.danger: { gte: 3 } }
+    when: { trip.doing: camp, time.tags: dark, place.danger: { gte: 3 } }
     unless: { roles.lookout.values.stealth: { gte: 0 } }
     effects: { party.members.values.dread: 1 }
   # Marching in the dark (a night march), off the road: each hex entered may get you lost,
@@ -628,7 +632,7 @@ checks:
   - event: NIGHT_NAVIGATION_CHECK_REQUIRED
     name: Lost in the dark
     description: Each hex entered after nightfall, off the road. The dark makes it easy to lose your way.
-    at: trip.hex-enter
+    at: trip.place-enter
     when: { time.tags: dark }
     unless: { trip.edges: road }
   # Conditions on the party: a day ending with no rations left (party.items.ration.count:
@@ -655,7 +659,7 @@ checks:
     name: Foraging
     description: Rolled after three hours foraging in woods, fields, heath or marsh.
     at: actions.forage.done
-    when: { hex.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
+    when: { place.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
   # Fishing (the fish action above): a table rolled on a d6 under Survival. No `at`: only the
   # fish action's step rolls it, after its two hours.
   - event: FISHING_CHECK_REQUIRED
@@ -678,12 +682,12 @@ checks:
     when: { trip.mode: horse, trip.marched: { gt: '{{system.hoursPerDay}}' } }
     effects: { party.members.conditions.saddle-sore: true }
   # Relations: entering a companion's home (a region, a place or a hex they're tied to as
-  # `home`: `hex.relations.home`, who) from outside it (`from.relations.home`: the hex left).
+  # `home`: `place.relations.home`, who) from outside it (`from.relations.home`: the hex left).
   - event: HOMECOMING
     name: Home ground
     description: Coming into the home of one of the companions (their region, place or hex). Morale +1.
-    at: trip.hex-enter
-    when: { hex.relations.home: { exists: true } }
+    at: trip.place-enter
+    when: { place.relations.home: { exists: true } }
     unless: { from.relations.home: { exists: true } }
     effects: { party.stats.morale: 1 }
   # The trip's own days (`trip.day`, a list of them): on the tenth, twentieth and thirtieth
@@ -698,7 +702,7 @@ checks:
   - event: IN_CIRCLES
     name: Going in circles
     description: Entering a hex for the third time in a trip. Morale −1.
-    at: trip.hex-enter
+    at: trip.place-enter
     when: { trip.visits: 3 }
     effects: { party.stats.morale: -1 }
 ---

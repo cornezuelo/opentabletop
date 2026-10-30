@@ -6,7 +6,7 @@
     CHECK_MOMENTS,
     DAY_END,
     doneOf,
-    HEX_ENTER,
+    PLACE_ENTER,
     ref,
     refId,
     isClock,
@@ -61,7 +61,7 @@
     momentsText(on)
       .split(', ')
       .map((m) =>
-        m === HEX_ENTER
+        m === PLACE_ENTER
           ? t('checks.atOptions.hex-enter')
           : m === DAY_END
             ? t('checks.atOptions.day-end')

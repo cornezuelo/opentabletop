@@ -100,7 +100,7 @@ export const es: Messages<typeof en> = {
     intricate:
       'Está escrita de una forma que las filas no pueden mostrar (grupos dentro de grupos, o una condición entera dada la vuelta con not:): edítala como YAML.',
     badYaml:
-      'Escríbelo como pares clave: valor, p. ej. hex.tags: landmark o hex.terrain: [forest, hills].',
+      'Escríbelo como pares clave: valor, p. ej. place.tags: landmark o place.terrain: [forest, hills].',
   },
   cards: {
     search: 'Buscar…',

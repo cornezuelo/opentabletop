@@ -25,11 +25,11 @@ Con las dos hojas, una pestaña encima del formulario elige cuál. Si el sistema
 - Los **Grupos** en los que se muestran los valores, en orden, con sus nombres: cada grupo es una tarjeta propia, tantas una al lado de otra como quepan.
 - Sus **Estados**, cada uno con lo que **Bloquea** a todo el grupo mientras alguien lo tenga: `travel.move` (seguir moviéndose), una de las acciones del sistema (`actions.forced-march`), una forma de viajar (`modes.horse`) (la casilla los sugiere). Con **Se cumple mientras**, una [condición](../technical/08-conditions.md) en filas, se cumple por sí solo mientras se cumpla esa: lee al personaje como `self.*` (`self.values.dread: { gte: 6 }`) y, en un viaje, el mundo como lo ven las tablas (`trip.mode: boat`, `time.season: winter`). Uno que lee el mundo lo sigue en un viaje; en la aplicación Personajes, fuera de cualquier viaje, se queda como estaba la última vez.
 - Sus **Objetos**: los campos que tiene todo objeto, sus lugares y lo que los ocupa ([abajo](#objetos)).
-- Sus **Tipos de relación**, con los límites del número que lleva una (un vínculo de 0 a 3) y cómo **Se muestra**: a qué puede estar ligado un personaje (otro personaje, un lugar, una región), que se lee donde está el grupo (`hex.related`).
+- Sus **Tipos de relación**, con los límites del número que lleva una (un vínculo de 0 a 3) y cómo **Se muestra**: a qué puede estar ligado un personaje (otro personaje, un lugar, una región), que se lee donde está el grupo (`place.related`).
 
 Bajo los valores, la **Vista previa** es un personaje hecho con la hoja tal como está ahora, dibujado como en todos los sitios donde se muestran personajes: cambia una columna y cambia con ella; haz clic en sus casillas, barras y puntos para probarlos (nada de lo que hagas ahí se guarda).
 
-Los valores y estados tienen una columna **Usado en**: las características que salen de cada valor, los límites que lo leen (el `{{self.values.toughness}}` de la Salud), y las tablas, acciones y comprobaciones que lo leen o lo cambian en un personaje, en quien tiene un rol o en el grupo ([Usado en](04-overview.md#usado-en)). También los tipos de relación: dónde se leen, por quien los tiene (`characters.mara.relations.home`) o hacia un lugar (`hex.relations.home`, quién lo tiene con el hex en el que se entra).
+Los valores y estados tienen una columna **Usado en**: las características que salen de cada valor, los límites que lo leen (el `{{self.values.toughness}}` de la Salud), y las tablas, acciones y comprobaciones que lo leen o lo cambian en un personaje, en quien tiene un rol o en el grupo ([Usado en](04-overview.md#usado-en)). También los tipos de relación: dónde se leen, por quien los tiene (`characters.mara.relations.home`) o hacia un lugar (`place.relations.home`, quién lo tiene con el hex en el que se entra).
 
 Los valores, grupos, estados y tipos de relación tienen cada uno una **Descripción (su ayuda)**: qué es, en una o dos frases. Donde se enseñe la hoja (la ficha de un personaje, la del grupo, la de una facción), su nombre aparece subrayado y al hacer clic la columna de ayuda enseña primero esa descripción, antes de lo que añaden las aplicaciones (cómo lo leen las tablas, sus límites, lo que bloquea). Como los nombres, se escribe en el idioma actual: el del pack o su fichero de traducción. Las Marcas Grises describen cada parte de las suyas.
 
@@ -85,7 +85,7 @@ Una compañía que cruza unas colinas a pie: cada compañero tiene una Supervive
 3. **Sus estados**: cambia su primer estado a `wounded`, _Herido_, sin bloquear nada, y añade `lame`, _Cojo_, **Bloquea** `travel.move`.
 4. **La hoja del grupo**: la pestaña _el grupo_ es la copia de la de las Reglas genéricas: cámbiale el nombre a _La Compañía_ y deja sus valores como están: `morale` (_Moral_, **Empieza en** `3`, **Mín.** `0`, **Máx.** `5`, **Se muestra como** `boxes`) y `food` (_Comida_, `6`, **Mín.** `0`), la comida que las reglas se comen al acabar cada día.
 5. **Lo que el grupo toma de ellos**: en **Comprobaciones**, en **Características del grupo**, **Añadir una característica** _Supervivencia_ (cambia su id a `survival`) con **De las hojas** `max: survival, unless: { conditions: wounded }, none: 0` (la mejor de los que no están heridos; si no queda nadie: 0), y una característica _Moral_ (id `morale`) con `party: morale`.
-6. **Pedregal**: **Añadir una comprobación**, con **Comprobación** `SCREE` y el nombre _Pedregal_. **Cuándo** `trip.hex-enter`; **Solo si** las filas `hex.terrain` · **es** · `hills` y `party.stats.survival` · **es menos de** · `{{1d6}}` (un d6 por encima de la Supervivencia del grupo); sin tabla; **Cambios** las filas `acting.values.health` · `-1` y `acting.conditions.lame` · `true`.
+6. **Pedregal**: **Añadir una comprobación**, con **Comprobación** `SCREE` y el nombre _Pedregal_. **Cuándo** `trip.place-enter`; **Solo si** las filas `place.terrain` · **es** · `hills` y `party.stats.survival` · **es menos de** · `{{1d6}}` (un d6 por encima de la Supervivencia del grupo); sin tabla; **Cambios** las filas `acting.values.health` · `-1` y `acting.conditions.lame` · `true`.
 7. **Hambre**: **Añadir una comprobación**, con **Comprobación** `HUNGER` y el nombre _Hambre_. **Cuándo** `time.day-end`; **Solo si** `trip.below` · **es** · `party.values.food`; **Cambios** las filas `party.members.values.health` · `-1` y `party.values.morale` · `-1`.
 8. **Pruébalo**: en **Pruébalo**, haz un camino de seis hexes: `plains`, `hills`, `hills`, `hills`, `plains`, `plains`. En la pestaña **Grupo** del viaje, **Añadir un personaje** tres veces: _Kael_ con Supervivencia `3`, _Mara_, y _Tobin_ con Dureza `4` y Salud `4`. En la ficha de La Compañía, pon la Comida a `1`; elige a Kael en **Actúa** y marcha día tras día, esperando a la mañana siguiente cada vez que la marcha se detenga.
 
@@ -131,8 +131,8 @@ partySheet: sheet.party
 checks:
   - event: SCREE # paso 6
     name: Pedregal
-    at: trip.hex-enter
-    when: { hex.terrain: hills, party.stats.survival: { lt: '{{1d6}}' } }
+    at: trip.place-enter
+    when: { place.terrain: hills, party.stats.survival: { lt: '{{1d6}}' } }
     effects: { acting.values.health: -1, acting.conditions.lame: true }
   - event: HUNGER # paso 7
     name: Hambre
@@ -161,7 +161,7 @@ Las Marcas Grises juegan con todo esto y más (una hoja de la Compañía con mor
 - **Un límite escrito como un nombre.** `max: toughness` no es otro valor: escribe `'{{self.values.toughness}}'`, entre comillas (los problemas del sistema lo dicen).
 - **Escribir en lo que se mantiene por sí solo.** Un efecto sobre un valor que **Sale de** otros, o sobre un estado con **Se cumple mientras**, no cambia nada: el diario dice _«Kael: Heridas» se mantiene por sí solo…_. Cambia aquello de lo que sale (la Salud), o lo que lee el estado (el Pavor).
 - **Un menos sin espacios.** `self.values.maxHealth-self.values.health` se lee como un solo nombre (los ids pueden tener guiones) y no da nada: escribe `self.values.maxHealth - self.values.health`.
-- **Un estado escrito como una acción.** Una acción `on: trip.hex-enter` que pone _Sobrecargado_ cuando la carga es demasiada solo mira en el hex siguiente: entre hexes, y tras un cambio a mano, la hoja va desfasada. Dale al estado un **Se cumple mientras**.
+- **Un estado escrito como una acción.** Una acción `on: trip.place-enter` que pone _Sobrecargado_ cuando la carga es demasiada solo mira en el hex siguiente: entre hexes, y tras un cambio a mano, la hoja va desfasada. Dale al estado un **Se cumple mientras**.
 - **Una carga escrita como acción.** Sumar lo que se lleva en cada hex con una acción llega tarde y se desfasa: haz de la carga un valor que **Sale de** `{ sum: items.slots }`.
 - **Casillas, una barra o un dial sin Máx.** Se dibujan hasta el **Máx.** (`of` y una barra, o hasta su **Frente a**), así que los problemas de la hoja lo dicen hasta que tenga uno.
 - **Una carga que se para en su capacidad.** Un **Máx.** de `'{{self.values.capacity}}'` impide que la carga muestre nunca más que ella, pero nada impide llevar más: una carga de 12 muestra 8, y un estado _mientras la carga pase de la capacidad_ nunca se cumple. Deja la carga sin máximo y muéstrala frente a la capacidad con **Frente a**; para que no quepa más, da a la hoja ese **Sitio en total** (o ese sitio a un lugar) con **Más de lo que cabe** `refuse` ([límites a lo que se lleva](08-items.md#limites-a-lo-que-se-lleva)). Con **Se muestra como** `levels`, necesita sus **Niveles**.

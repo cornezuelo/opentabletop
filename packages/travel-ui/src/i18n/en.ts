@@ -50,7 +50,7 @@ export const en = {
   goOn: 'Go on',
   waitOnward: 'Wait to go on',
   // A move's targets, when a choice of a parameter has no name of its own.
-  choices: { destination: 'to the destination', hex: 'one hex', hexes: '{n} hexes' },
+  choices: { destination: 'to the destination', place: 'one place', hexes: '{n} hexes' },
   continue: 'Continue',
   journalTitle: 'Journal',
   exportJournal: 'Export',
@@ -83,7 +83,7 @@ export const en = {
     readBy: '**Read by:** {names}.',
     changedBy: '**Changed by:** {names}.',
     totals:
-      'What the trip has done since it started: hexes entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from the party’s values and items or added to them (your own edits don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.hexes`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
+      'What the trip has done since it started: hexes entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from the party’s values and items or added to them (your own edits don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.places`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
     actionChecks: 'Rolls {checks} where it applies; the journal says when nothing does.',
     exportJournal:
       'Download the journal as Markdown, a heading per day, with the lines the filter shows: for your notes app (SilverBullet, Obsidian…) or to print.',
@@ -342,9 +342,9 @@ export const en = {
       time_tags: 'the time of day',
       time_part: 'the part of the day',
       time_season: 'the season',
-      hex_terrain: 'the terrain',
-      hex_danger: 'the hex’s danger',
-      hex_tags: 'the hex’s tags',
+      place_terrain: 'the terrain',
+      place_danger: 'the place’s danger',
+      place_tags: 'the place’s tags',
     },
   },
   stop: {
@@ -413,9 +413,9 @@ export const en = {
     numberHelp:
       "The hexes in order: the party starts at 1 and heads for the last one. Hexes already passed can't be changed; add more at the end to keep going.",
     terrainHelp:
-      "How fast the hex is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — tables and conditions read `hex.terrain: forest`\nIts speed, and whether it can be crossed, are the system's: its travel rules say them.",
+      "How fast the hex is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — tables and conditions read `place.terrain: forest`\nIts speed, and whether it can be crossed, are the system's: its travel rules say them.",
     tagsHelp:
-      'Words that mark the hex, each one a pill (Enter or a comma adds it, × takes it out), for the checks and tables that look for them:\n• `landmark` — `hex.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
+      'Words that mark the hex, each one a pill (Enter or a comma adds it, × takes it out), for the checks and tables that look for them:\n• `landmark` — `place.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
     edgesHelp:
       'Whether a road, trail or river joins this hex to the next one. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.edges: road`)',
     addHex: 'Add a hex',

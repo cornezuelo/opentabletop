@@ -16,7 +16,7 @@ Dice go in a table's or oracle's **roll** (Dice in the form), in generator field
 | `2d6+1`, `1d20-2`, `1d6+1d4` | Add or subtract constants and other dice.                                                                                            |
 | `4d6kh3`                     | Roll 4d6 and **keep the highest** 3 (`kh`).                                                                                          |
 | `2d20kl1`                    | Roll 2d20 and **keep the lowest** 1 (`kl`).                                                                                          |
-| `1d6 + {{hex.danger}}`       | Add a value from the context (see below). If it's missing it counts as 0; if it isn't a number, the roll fails with a clear message. |
+| `1d6 + {{place.danger}}`     | Add a value from the context (see below). If it's missing it counts as 0; if it isn't a number, the roll fails with a clear message. |
 
 **Roll modes** (advantage, disadvantage… whatever the system declares, see [Kinds of definition](../technical/07-kinds.md#roll-modes)) roll the whole expression several times and keep the highest, lowest or middle total. The result card shows every die, with discarded ones crossed out.
 
@@ -48,13 +48,13 @@ Use weights when no die fits the odds you want, or to make some results rarer wi
 | `{{roll}}`        | In a table's entries: the total of the table's own **Roll**, e.g. `'You rolled {{roll}}'`.                                            |
 | `{{field}}`       | In a generator's template: a field's value (its text, if it came from a table).                                                       |
 
-A missing value shows as nothing. Variables never run code: they only look values up, roll dice and do arithmetic (`'{{hex.danger * 2 + 1d6}}'`, `'{{floor(party.stats.mouths / 2)}}'`: [Syntax](../technical/09-syntax.md#variables)). A value that is a whole `'{{…}}'` (`count: '{{2d6}}'`) keeps what it reads: a number stays a number.
+A missing value shows as nothing. Variables never run code: they only look values up, roll dice and do arithmetic (`'{{place.danger * 2 + 1d6}}'`, `'{{floor(party.stats.mouths / 2)}}'`: [Syntax](../technical/09-syntax.md#variables)). A value that is a whole `'{{…}}'` (`count: '{{2d6}}'`) keeps what it reads: a number stays a number.
 
 Table and generator references can use variables too: `table: 'weather-{{time.season}}'` rolls `weather-spring`, `weather-autumn`… depending on the season.
 
 ## Variables and rolls in conditions
 
-Conditions compare with a variable or a roll the same way: `when: { hex.danger: { gt: '{{party.stats.stealth}}' } }`, or a roll-under against a stat:
+Conditions compare with a variable or a roll the same way: `when: { place.danger: { gt: '{{party.stats.stealth}}' } }`, or a roll-under against a stat:
 
 ```yaml
 kind: table
@@ -105,7 +105,7 @@ name: Encounter
 fields:
   who: { table: table.wilderness-creatures } # reads terrain, season… from the context
   mood: { table: table.reaction, context: { bonus: 1 } }
-  count: { roll: '1d6 + {{hex.danger}}' } # a hex field from the Map app
+  count: { roll: '1d6 + {{place.danger}}' } # a hex field from the Map app
 template: '{{count}} × {{who}}, {{mood}}'
 ```
 

@@ -8,7 +8,7 @@ import type { SessionState } from './index'
 
 /** A made-up system whose rules react: to the food running out, to a member falling. */
 const pack = (extra = '') => [
-  { path: 'r/pack.yaml', content: 'id: r\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
+  { path: 'r/pack.yaml', content: 'id: r\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
   {
     path: 'r/system.yaml',
     content:

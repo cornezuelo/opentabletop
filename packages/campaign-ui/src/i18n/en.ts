@@ -117,7 +117,7 @@ export const en = {
   },
   factions: {
     title: 'Factions',
-    help: "The factions of the campaign's system (`kind: factions` in its pack): each with its colour, its sheet (its values, conditions and relations, like a character's), kept by the campaign, and the hexes it holds on each of its maps. On a **world turn** each one rolls its turn table, and what comes up changes them, their land on the map it's played on and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `hex.faction: iron-clans` — who holds the hex\n• `factions.iron-clans.territory: { gt: 10 }` — how many hexes it holds on the map being played",
+    help: "The factions of the campaign's system (`kind: factions` in its pack): each with its colour, its sheet (its values, conditions and relations, like a character's), kept by the campaign, and the hexes it holds on each of its maps. On a **world turn** each one rolls its turn table, and what comes up changes them, their land on the map it's played on and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `place.faction: iron-clans` — who holds the hex\n• `factions.iron-clans.territory: { gt: 10 }` — how many hexes it holds on the map being played",
     bring: 'Bring in its factions',
     territory: '{n} hexes',
     territoryOne: '1 hex',

@@ -30,13 +30,13 @@ import {
   refId,
   resolveChange,
   DAY_END,
-  HEX_ENTER,
+  PLACE_ENTER,
   type ActionStep,
   type Bounds,
   type CheckRule,
   type TravelRules,
 } from './rules'
-import { FACT_PATHS, hexIdOf, qualify } from './facts'
+import { FACT_PATHS, placeIdOf, qualify } from './facts'
 import { findPartRef, isPartRef, partKey } from './day'
 
 /** Read-only view of the map. Map implements it; a standalone app can fake it. */
@@ -110,7 +110,7 @@ export interface CheckOutcome {
 
 /**
  * What a trip has done so far, for the trip panel and for conditions and tables
- * (`trip.hexes`, `trip.km`, `trip.hours`, `trip.taken.camp`, `trip.checks`,
+ * (`trip.places`, `trip.km`, `trip.hours`, `trip.taken.camp`, `trip.checks`,
  * `trip.spent.party.items.ration`, `trip.gained.party.values.food`).
  */
 export interface TripTotals {
@@ -545,7 +545,7 @@ export function initialTravelState(init: {
 /**
  * The rolls a trip's conditions and effects make (`gte: '{{1d20}}'`), fixed for a moment:
  * the same dice give the same total all through the same day, hex and moment (a moment
- * such as `hex-enter`, or the action being taken), however many times they're read, so
+ * such as `place-enter`, or the action being taken), however many times they're read, so
  * what's available, the route and the checks don't change when they're looked at again.
  */
 export function momentRolls(
@@ -578,8 +578,13 @@ export function upgradeTravelState(state: TravelState): TravelState {
   }
   // Older trips' pending checks saw their moment by its short name (`hex-enter`, `camp`).
   const full = (m: unknown) => {
-    if (typeof m !== 'string' || CLOCK.test(m) || /^(trip|time|actions)\./.test(m)) return m
-    if (m === 'hex-enter') return HEX_ENTER
+    if (
+      typeof m !== 'string' ||
+      CLOCK.test(m) ||
+      (/^(trip|time|actions)\./.test(m) && m !== 'trip.place-enter')
+    )
+      return m
+    if (m === 'hex-enter' || m === 'trip.place-enter') return PLACE_ENTER
     if (m === 'day-end') return DAY_END
     return m.includes('.') ? `time.${m}` : ref('actions', m)
   }
@@ -720,7 +725,7 @@ export function createTravelEngine(options: {
   const rollsOf = (state: TravelState, seen: Record<string, unknown>, moment?: string) =>
     momentRolls(
       state,
-      hexIdOf(seen) ?? state.location,
+      placeIdOf(seen) ?? state.location,
       typeof seen.moment === 'string' ? seen.moment : moment,
     )
   /**
@@ -778,8 +783,8 @@ export function createTravelEngine(options: {
       system: partHours,
     }
   }
-  /** A hex as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
-  const hexFacts = (hex: string): Record<string, unknown> => {
+  /** A place as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
+  const placeFacts = (hex: string): Record<string, unknown> => {
     const cell = world.cell(hex)
     return {
       ...cell,
@@ -822,7 +827,7 @@ export function createTravelEngine(options: {
       ...calendarFacts(date),
       season: date.season,
       ...cell,
-      hex: hexFacts(b),
+      place: placeFacts(b),
       terrain: cell?.terrain,
       water: !!cell?.water,
       tags: cell?.tags ?? [],
@@ -923,7 +928,7 @@ export function createTravelEngine(options: {
       ...calendarFacts(calendar.describe(state.time)),
       // Everything the map knows about the hex (fields, region…), then the travel facts.
       ...cell,
-      hex: hexFacts(state.location),
+      place: placeFacts(state.location),
       terrain: cell?.terrain,
       tags: cell?.tags ?? [],
       // The stretch given (the one just walked entering a hex), or else the one ahead.
@@ -970,7 +975,7 @@ export function createTravelEngine(options: {
   const tripTotals = (state: TravelState): Record<string, unknown> => {
     const totals = state.totals ?? noTotals()
     return {
-      hexes: totals.hexes,
+      places: totals.hexes,
       km: totals.hexes * world.hexKm,
       hours: totals.marched / 60,
       taken: { ...zeros(takenIds), ...totals.taken },
@@ -1001,7 +1006,7 @@ export function createTravelEngine(options: {
     /** An action of the moment that waits (for its roll, a check, the player). */
     let held: MoveUnderWay | undefined
     // Entering a hex, the one left (`from.terrain`, `from.region`…) and the stretch walked.
-    const left = from ? { from: hexFacts(from) } : {}
+    const left = from ? { from: placeFacts(from) } : {}
     if (!event) {
       if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
       // The actions the system takes at this moment come first (their checks too), seeing
@@ -1409,7 +1414,7 @@ export function createTravelEngine(options: {
       }
       const from = state.location
       enter(state, next, events)
-      schedule(state, HEX_ENTER, events, from)
+      schedule(state, PLACE_ENTER, events, from)
       if (left !== undefined) left--
       if (state.route.length < 2) {
         events.push({ type: 'DESTINATION_REACHED', hex: next })
@@ -1947,7 +1952,7 @@ export function createTravelEngine(options: {
         const left =
           target === 'destination'
             ? undefined
-            : target === 'hex'
+            : target === 'place'
               ? 1
               : Number.isInteger(n) && n > 0
                 ? n
@@ -2106,7 +2111,7 @@ export function createTravelEngine(options: {
       }
       const from = state.location
       enter(state, next, events)
-      schedule(state, HEX_ENTER, events, from)
+      schedule(state, PLACE_ENTER, events, from)
       if (state.route.length < 2)
         return void events.push({ type: 'DESTINATION_REACHED', hex: next })
       if (halted(state)) return

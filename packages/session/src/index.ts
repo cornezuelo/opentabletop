@@ -62,7 +62,7 @@ import {
 } from './discovery'
 import {
   declaredValues,
-  hexIdOf,
+  placeIdOf,
   momentRolls,
   qualify,
   reactionsOf,
@@ -322,10 +322,10 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 
 /** The hex and moment a context is about (for its rolls). */
-const hexOf = (seen: Record<string, unknown>) => hexIdOf(seen)
+const hexOf = (seen: Record<string, unknown>) => placeIdOf(seen)
 /** Where a check came up (`hex`: the hex it's about), for its journal lines. */
 const whereOf = (check: { context: Record<string, unknown> }): { hex?: string } => {
-  const hex = hexIdOf(check.context)
+  const hex = placeIdOf(check.context)
   return hex ? { hex } : {}
 }
 const momentOf = (seen: Record<string, unknown>) =>
@@ -482,7 +482,7 @@ export function createSession(options: {
     PartyRules,
     'bestiary' | 'templateIds' | 'templateSheet' | 'templateNames' | 'sheets'
   >
-  /** The system's catalogues of places, for effects that make one (`hex.pois.<id>`). */
+  /** The system's catalogues of places, for effects that make one (`place.pois.<id>`). */
   places?: PartyRules['places']
 }): Session {
   const random = options.random ?? mathRandom()
@@ -1530,8 +1530,8 @@ export * from './journal'
 export * from './trip'
 export * from './discovery'
 export * from './suggestions'
-// The full names of facts (`hex.terrain`, `trip.day`…), for hosts that build contexts.
-export { FACT_GROUPS, FACT_PATHS, hexIdOf, qualify } from '@open-tabletop/travel-engine'
+// The full names of facts (`place.terrain`, `trip.day`…), for hosts that build contexts.
+export { FACT_GROUPS, FACT_PATHS, placeIdOf, qualify } from '@open-tabletop/travel-engine'
 export * from './party'
 export * from './present'
 export * from './places'

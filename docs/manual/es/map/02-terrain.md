@@ -23,7 +23,7 @@ La paleta lista los terrenos del mapa, agrupados:
 | Frío          | tundra, snow, glacier                                                         |
 | Agua y costa  | coast, lake, sea, deep-sea (la costa es tierra: la orilla por la que se anda) |
 
-Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó. **Editar paleta** enseña el **id** de cada terreno junto a su nombre (`dense-forest`): lo que escriben las tablas, las condiciones y las reglas de viaje (`hex.terrain: dense-forest`), sea cual sea el idioma de su nombre.
+Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó. **Editar paleta** enseña el **id** de cada terreno junto a su nombre (`dense-forest`): lo que escriben las tablas, las condiciones y las reglas de viaje (`place.terrain: dense-forest`), sea cual sea el idioma de su nombre.
 
 No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un conjunto entero de una vez (solo los terrenos que le faltan al mapa), cada uno con su símbolo y una velocidad en las reglas genéricas (las de Core):
 
@@ -34,14 +34,14 @@ No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un
 | Postapocalíptico          | ruinas, páramo, irradiado, ciénaga tóxica, cráter (grupo _Páramo_)                                                                        |
 | Ciencia ficción y espacio | jungla alienígena, campo de cristales, campo de lava, regolito (_Mundos alienígenas_); espacio, nebulosa, campo de asteroides (_Espacio_) |
 
-Los campos de lava, el espacio, las nebulosas y los campos de asteroides están cerrados a pie en las reglas genéricas: un sistema propio da a las naves una forma de viajar que solo va por ahí (`through: { hex.terrain: [space, nebula] }`), como la barca de las Marcas Grises por el agua. **Editar paleta** permite cambiar cada uno:
+Los campos de lava, el espacio, las nebulosas y los campos de asteroides están cerrados a pie en las reglas genéricas: un sistema propio da a las naves una forma de viajar que solo va por ahí (`through: { place.terrain: [space, nebula] }`), como la barca de las Marcas Grises por el agua. **Editar paleta** permite cambiar cada uno:
 
 - **Color** y **nombre** (nombre vacío = el traducido por defecto).
 - **Símbolo**: el pequeño dibujo de sus hexes (ver abajo).
 - **Agua**: marca el terreno como agua. En el mapa, los caminos, senderos y ríos se detienen en su orilla (los muros y fronteras la cruzan). No cambia nada más en el mapa. En un viaje, los hexes de agua siguen la regla **water** de las reglas de viaje salvo que su terreno tenga una propia: las reglas genéricas y las Marcas Grises los hacen intransitables a pie (salvo los lagos en invierno, que se cruzan sobre el hielo: un terreno puede abrirse o cerrarse con una condición), y un sistema puede tener barcas que solo navegan por agua (la barca de las Marcas cruza el Lago Salado). Las tablas ven `water: true` en esos hexes.
 - Añade tus propios terrenos o bórralos (los hexes pintados con un terreno borrado quedan vacíos).
 
-Los ids de terreno (`forest`, `hills`…) son lo que leen las reglas de viaje y las tablas, así que una tabla puede decir `when: { hex.terrain: forest }`.
+Los ids de terreno (`forest`, `hills`…) son lo que leen las reglas de viaje y las tablas, así que una tabla puede decir `when: { place.terrain: forest }`.
 
 ## Símbolos del terreno
 

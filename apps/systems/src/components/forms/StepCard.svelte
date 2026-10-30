@@ -236,7 +236,7 @@
                 list={kind === 'time'
                   ? ctx.times
                   : kind === 'travel.move'
-                    ? ['destination', 'hex', '3', ...ctx.params.map((p) => `{{params.${p.id}}}`)]
+                    ? ['destination', 'place', '3', ...ctx.params.map((p) => `{{params.${p.id}}}`)]
                     : kind === 'travel.speed'
                       ? ['0.5', '1.5', '0']
                       : kind === 'travel.advance'

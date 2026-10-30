@@ -61,7 +61,7 @@ function makeWorld(): TravelWorld {
 const ONWARD = { do: 'actions.march', with: { until: 'destination' } }
 /** A march as systems write it: to the destination or one hex, while its conditions hold. */
 const marching = (more: Record<string, unknown> = {}) => ({
-  params: { until: { choices: ['destination', 'hex'] } },
+  params: { until: { choices: ['destination', 'place'] } },
   ...more,
   do: [{ 'travel.move': '{{params.until}}' }],
 })
@@ -401,7 +401,7 @@ describe('the trip’s totals', () => {
     })
     const seen = engine.context(state)
     expect(seen.trip).toMatchObject({
-      hexes: 2,
+      places: 2,
       km: 60,
       hours: 8,
       taken: { camp: 1, eat: 1 },
@@ -737,7 +737,7 @@ describe('the system’s own actions', () => {
     ])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'actions.fish' }] })
     expect(bad.errors).toEqual([
-      'checks.0.at: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, checks.X, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'checks.0.at: expected trip.place-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, checks.X, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
     ])
   })
 
@@ -745,13 +745,13 @@ describe('the system’s own actions', () => {
     const short = parseTravelRules({
       ...foraging,
       travel: { ...foraging.travel, halt: { at: 'part.night', do: 'camp' } },
-      checks: [{ event: 'X', at: ['hex-enter', 'forage'] }],
+      checks: [{ event: 'X', at: ['place-enter', 'forage'] }],
       values: { stuck: { blocks: ['mode.foot'] } },
     })
     expect(short.errors).toEqual(
       expect.arrayContaining([
         expect.stringMatching(/^travel\.halt\.at: .*time\.meal\.supper/),
-        expect.stringMatching(/^checks\.0\.at\.0: .*\(did you mean trip\.hex-enter\?\)$/),
+        expect.stringMatching(/^checks\.0\.at\.0: .*\(did you mean trip\.place-enter\?\)$/),
         expect.stringMatching(/^checks\.0\.at\.1: .*\(did you mean actions\.forage\?\)$/),
         expect.stringMatching(/^travel\.halt\.do: .*\(did you mean actions\.camp\?\)$/),
       ]),
@@ -774,7 +774,7 @@ describe('the system’s own actions', () => {
       ],
     }
     expect(upgradeTravelState(older).pendingChecks.map((c) => c.context.moment)).toEqual([
-      'trip.hex-enter',
+      'trip.place-enter',
       'actions.camp',
       'time.part.morning',
       '06:00',
@@ -913,7 +913,7 @@ describe('ways of travelling with conditions', () => {
       foot: { kmPerDay: 30 },
       horse: { kmPerDay: 50 },
       // Only boarded at the water's edge (here: the ferry at 2,0).
-      boat: { kmPerDay: 40, through: { water: true }, when: { 'hex.id': '2,0' } },
+      boat: { kmPerDay: 40, through: { water: true }, when: { 'place.id': '2,0' } },
     },
   })
   const own = createTravelEngine({ world, rules: boating.rules! })
@@ -998,7 +998,7 @@ describe('check context', () => {
       edges: { road: { multiplier: 1.5 } },
       modes: { foot: { kmPerDay: 90 } },
       checks: [
-        { event: 'ENCOUNTER_CHECK_REQUIRED', at: 'trip.hex-enter', unless: { edges: 'road' } },
+        { event: 'ENCOUNTER_CHECK_REQUIRED', at: 'trip.place-enter', unless: { edges: 'road' } },
       ],
     })
     const engine = createTravelEngine({ world, rules: enter! })
@@ -1221,7 +1221,7 @@ describe('actions the system triggers, and bounded values', () => {
           { when: { mode: 'horse' }, effects: { 'party.values.food': -1 } },
         ],
       },
-      drink: { on: 'trip.hex-enter', do: [{ effects: { 'party.values.water': -1 } }] },
+      drink: { on: 'trip.place-enter', do: [{ effects: { 'party.values.water': -1 } }] },
       pray: {
         do: [
           { time: 60 },
@@ -1326,12 +1326,12 @@ describe('actions the system triggers, and bounded values', () => {
   it('may come at several moments, and their conditions see which one (moment)', () => {
     const sight = {
       event: 'SIGHT',
-      at: ['06:00', 'trip.hex-enter'],
-      when: { moment: 'trip.hex-enter' },
+      at: ['06:00', 'trip.place-enter'],
+      when: { moment: 'trip.place-enter' },
     }
     const bad = { event: 'BAD', at: ['06:00', 'actions.nowhere'] }
     expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
-      'checks.1.at.1: expected trip.hex-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, checks.SIGHT, checks.BAD, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'checks.1.at.1: expected trip.place-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, checks.SIGHT, checks.BAD, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
     )
     const { rules: several, errors } = parseTravelRules({
       ...triggered!,
@@ -1340,10 +1340,10 @@ describe('actions the system triggers, and bounded values', () => {
         camp: triggered!.actions!.camp,
         march: triggered!.actions!.march,
         watch: {
-          on: ['06:00', 'trip.hex-enter'],
+          on: ['06:00', 'trip.place-enter'],
           do: [
             { when: { moment: '06:00' }, effects: { 'party.values.gold': 1 } },
-            { when: { moment: 'trip.hex-enter' }, effects: { 'party.values.gold': 10 } },
+            { when: { moment: 'trip.place-enter' }, effects: { 'party.values.gold': 10 } },
           ],
         },
       },
@@ -1369,7 +1369,7 @@ describe('actions the system triggers, and bounded values', () => {
     expect(state.resources.gold).toBe(11)
     const sights = all.filter((e) => e.type === 'CHECK_REQUIRED')
     expect(sights.map((e) => e.type === 'CHECK_REQUIRED' && e.check.context.moment)).toEqual([
-      'trip.hex-enter',
+      'trip.place-enter',
     ])
   })
 
@@ -1389,8 +1389,8 @@ describe('actions the system triggers, and bounded values', () => {
     })
     expect(bad.errors).toEqual([
       // (pray is gone, so is the moment of its check)
-      'checks.1.at: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
-      'actions.a.on: expected trip.hex-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'checks.1.at: expected trip.place-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'actions.a.on: expected trip.place-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
       'actions.a.do.1.roll: expected checks.HUNGER, checks.OMEN, checks.AMBUSH, table.<id>',
       'actions.a.do.2.set.nope: expected lost, weary',
       // (camp is gone too, and the halt named it)
@@ -1671,7 +1671,7 @@ describe('the trip going on by itself (travel by a moment)', () => {
     expect(morning.state.time).toBe(at(2, '06:00'))
     const { state, events } = fed.apply(
       morning.state,
-      { type: 'action', id: 'march', with: { until: 'hex' } },
+      { type: 'action', id: 'march', with: { until: 'place' } },
       hungry,
     )
     expect(entered(events)).toEqual([['0,1', at(2, '14:00')]])
@@ -1687,7 +1687,7 @@ describe('day and night, and marching as the system says', () => {
     checks: [
       {
         event: 'NIGHT_LOST',
-        at: 'trip.hex-enter',
+        at: 'trip.place-enter',
         when: { any: [{ hour: { gte: 20 } }, { hour: { lt: 6 } }] },
       },
     ],
@@ -1800,7 +1800,7 @@ describe('day and night, and marching as the system says', () => {
     // Tiring on the way, the march stops there, said as its conditions.
     const tiring = parseTravelRules({
       ...tired.rules!,
-      checks: [{ event: 'TIRE', at: 'trip.hex-enter', effects: { 'party.stats.fatigue': 1 } }],
+      checks: [{ event: 'TIRE', at: 'trip.place-enter', effects: { 'party.stats.fatigue': 1 } }],
     })
     expect(tiring.errors).toEqual([])
     expect(engine.apply(ready, { type: 'travel' }, party(1)).state.location).toBe('1,0')
@@ -1814,17 +1814,17 @@ describe('day and night, and marching as the system says', () => {
         ...rules!.actions,
         march: {
           ...DAY_ACTIONS.march,
-          params: { until: { choices: ['destination', 'hex'], default: 'far' } },
+          params: { until: { choices: ['destination', 'place'], default: 'far' } },
         },
         dash: { do: [{ do: 'actions.march', with: { until: 'moon' } }, { 'travel.move': 'moon' }] },
-        hop: { do: [{ with: { until: 'hex' }, time: 5 }] },
+        hop: { do: [{ with: { until: 'place' }, time: 5 }] },
       },
     })
     expect(bad.errors).toEqual(
       expect.arrayContaining([
-        'actions.march.params.until.default: expected destination, hex',
-        'actions.dash.do.0.with.until: expected destination, hex',
-        'actions.dash.do.1.travel.move: expected destination, hex, a number of hexes or a variable',
+        'actions.march.params.until.default: expected destination, place',
+        'actions.dash.do.0.with.until: expected destination, place',
+        'actions.dash.do.1.travel.move: expected destination, place, a number of places or a variable',
         'actions.hop.do.0.with: with: gives the parameters of the action a do: step takes',
         'travel.onward.with.pace: expected until',
       ]),
@@ -1924,7 +1924,7 @@ describe('what conditions read of the moment, the trip and the land around', () 
     const leaving = parseTravelRules({
       ...rules!,
       checks: [
-        { event: 'LEFT_MOUNTAINS', at: 'trip.hex-enter', when: { 'from.terrain': 'mountains' } },
+        { event: 'LEFT_MOUNTAINS', at: 'trip.place-enter', when: { 'from.terrain': 'mountains' } },
       ],
     })
     const engine = createTravelEngine({ world, rules: leaving.rules! })
@@ -2042,7 +2042,7 @@ describe('full names of facts', () => {
     }
     const seen = engine.context(state, host)
     expect(seen).toMatchObject({
-      hex: { id: '2,9', terrain: 'steppe', tags: [] },
+      place: { id: '2,9', terrain: 'steppe', tags: [] },
       time: { season: 'spring', day: state.day, hour: 6 },
       system: { hoursPerDay: 8 },
       trip: { day: 1, marched: 0, mode: 'foot', visits: 1, edges: [] },
@@ -2059,7 +2059,7 @@ describe('full names of facts', () => {
         ...rules!.actions,
         dawn: {
           when: {
-            'hex.terrain': 'steppe',
+            'place.terrain': 'steppe',
             'trip.day': 1,
             'time.hour': { lt: '{{system.hoursPerDay}}' },
           },
@@ -2090,7 +2090,7 @@ describe('progress by moves: the advance step', () => {
       undertake: { do: [{ time: 60 }, { 'travel.advance': '{{party.stats.rank}}' }] },
       leap: { do: [{ 'travel.advance': 9 }] },
     },
-    checks: [{ event: 'ARRIVED', at: 'trip.hex-enter', when: { 'trip.arrived': true } }],
+    checks: [{ event: 'ARRIVED', at: 'trip.place-enter', when: { 'trip.arrived': true } }],
   })
   const journey = createTravelEngine({ world, rules: moves! })
   const planned = () => journey.apply(start('0,0'), { type: 'setDestination', hex: '4,0' }).state
@@ -2487,16 +2487,16 @@ describe('marching as an action: travel.move, parameters and moves under way', (
     terrains: {},
     modes: { fast: { kmPerDay: 240 } },
     resources: { gold: {} },
-    checks: [{ event: 'TOLL', at: 'trip.hex-enter', when: { 'trip.hexes': 2 } }],
+    checks: [{ event: 'TOLL', at: 'trip.place-enter', when: { 'trip.places': 2 } }],
     actions: {
       march: {
-        params: { until: { choices: ['destination', 'hex', 3] } },
+        params: { until: { choices: ['destination', 'place', 3] } },
         when: { 'time.hour': { gte: 6, lt: 20 } },
         do: [{ 'travel.move': '{{params.until}}' }, { effects: { 'party.values.gold': 1 } }],
       },
       // Twice as fast, it takes the march with a parameter of its own, then pays.
       dash: {
-        params: { far: { choices: ['hex', 3] } },
+        params: { far: { choices: ['place', 3] } },
         do: [
           { 'travel.speed': 2 },
           { do: 'actions.march', with: { until: '{{params.far}}' } },
@@ -2533,7 +2533,7 @@ describe('marching as an action: travel.move, parameters and moves under way', (
     expect(errors).toEqual([])
     expect(movingActions(own!)).toEqual(['march', 'dash'])
     expect(paramsOf(own!.actions!.march)).toEqual({ until: 'destination' })
-    expect(paramsOf(own!.actions!.march, { until: 'hex' })).toEqual({ until: 'hex' })
+    expect(paramsOf(own!.actions!.march, { until: 'place' })).toEqual({ until: 'place' })
   })
 
   it('moves as far as its parameter says, then its later steps', () => {
@@ -2541,7 +2541,7 @@ describe('marching as an action: travel.move, parameters and moves under way', (
     const { state, events } = eng.apply(before, {
       type: 'action',
       id: 'march',
-      with: { until: 'hex' },
+      with: { until: 'place' },
     })
     expect(state.location).toBe(before.route![1])
     expect(state.time).toBe(before.time + 60)
@@ -2644,7 +2644,7 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
     resources: { gold: {} },
     actions: {
       march: {
-        params: { until: { choices: ['destination', 'hex', 3] } },
+        params: { until: { choices: ['destination', 'place', 3] } },
         do: [{ 'travel.move': '{{params.until}}' }],
       },
       sing: {
@@ -2671,8 +2671,8 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
       horn: { on: '12:00', do: [{ set: { ferry: true } }] },
       // Entering the second hex, a toll stops the trip; paid, the march goes on.
       toll: {
-        on: 'trip.hex-enter',
-        when: { 'trip.hexes': 2 },
+        on: 'trip.place-enter',
+        when: { 'trip.places': 2 },
         do: [{ pause: true }, { effects: { 'party.values.gold': 5 } }],
       },
     },
@@ -2807,7 +2807,7 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
           next: 1,
           // It sees what the moment's checks see: the hex left and the stretch walked.
           facts: {
-            moment: 'trip.hex-enter',
+            moment: 'trip.place-enter',
             from: expect.objectContaining({ id: '0,1' }),
             edges: [],
           },
@@ -3017,7 +3017,7 @@ describe('order the rules say: after a check, as an action ends', () => {
       },
       // Entering a hex, it sees the one left, as that moment's checks do.
       tally: {
-        on: 'trip.hex-enter',
+        on: 'trip.place-enter',
         when: { 'from.terrain': 'steppe' },
         do: [{ effects: { 'party.values.food': -1 } }],
       },

@@ -11,7 +11,7 @@ export const en = {
   removeTag: 'Remove',
   relations: 'Relations',
   relationsHelp:
-    "What this character is tied to: another character, a place, a region, a hex, as the sheet's kinds of relation say (a bond, a home…), some with a number. Conditions read them:\n• `{path}.relations.home: region:The Vale` — this character's home\n• `hex.related: kael` — entering a hex Kael is tied to (it, its region or a place in it)\n• `hex.relations.home: kael` — Kael's home, by kind\nType a name from the list, or a reference: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.",
+    "What this character is tied to: another character, a place, a region, a hex, as the sheet's kinds of relation say (a bond, a home…), some with a number. Conditions read them:\n• `{path}.relations.home: region:The Vale` — this character's home\n• `place.related: kael` — entering a hex Kael is tied to (it, its region or a place in it)\n• `place.relations.home: kael` — Kael's home, by kind\nType a name from the list, or a reference: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.",
   relationKind: 'Kind of relation',
   relationTo: 'Tied to',
   relationToPlaceholder: 'a character, place, region…',

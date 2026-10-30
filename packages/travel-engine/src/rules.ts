@@ -22,8 +22,8 @@ const condition = z.record(z.string(), z.unknown())
 /** Text in one or several languages: "Forage" or { en: Forage for food, es: Buscar comida }. */
 const text = z.union([z.string(), z.record(z.string(), z.string())])
 
-/** The moment the party enters a hex. */
-export const HEX_ENTER = 'trip.hex-enter'
+/** The moment the party enters a place (a hex, a room…). */
+export const PLACE_ENTER = 'trip.place-enter'
 /** The moment each day ends. */
 export const DAY_END = 'time.day-end'
 /**
@@ -44,7 +44,7 @@ export const isHostMoment = (value: unknown): value is string =>
  * they begin (`actions.camp`) and once their steps are done (`actions.camp.done`), and its
  * checks once resolved (`checks.WEATHER`).
  */
-export const CHECK_MOMENTS = [HEX_ENTER, DAY_END] as const
+export const CHECK_MOMENTS = [PLACE_ENTER, DAY_END] as const
 
 /** A reference to a definition of another kind, maybe of another pack (`core/table.twists`). */
 const OTHER_REF = /^(?:[a-z0-9][a-z0-9-]*\/)?[a-z][a-z-]*\.[^/\s]+$/
@@ -84,9 +84,9 @@ const reaction = z
     message: 'a moment written as a condition needs when or unless',
   })
 export type Reaction = z.infer<typeof reaction>
-/** One moment: a name (`trip.hex-enter`, `actions.camp`…) or a condition (`{ when: … }`). */
+/** One moment: a name (`trip.place-enter`, `actions.camp`…) or a condition (`{ when: … }`). */
 const moment = z.union([z.string().min(1), reaction])
-/** One moment or several (`[time.part.morning, trip.hex-enter]`). */
+/** One moment or several (`[time.part.morning, trip.place-enter]`). */
 const moments = z.union([moment, z.array(moment).min(1)])
 /** An action's `on:` or a check's `at:` as written. */
 export type Moments = z.infer<typeof moments>
@@ -156,11 +156,11 @@ const passable = z.union([
 
 /** A parameter's value: a word or a number (`destination`, `3`). */
 const paramValue = z.union([z.string().min(1), z.number()])
-/** Values given to an action's parameters (`with: { until: hex }`), or variables. */
+/** Values given to an action's parameters (`with: { until: place }`), or variables. */
 const given = z.record(z.string(), paramValue)
 
-/** Where a `travel.move` step goes: the destination, the next hex, or a number of hexes. */
-export const MOVE_TARGETS = ['destination', 'hex'] as const
+/** Where a `travel.move` step goes: the destination, the next place, or a number of places. */
+export const MOVE_TARGETS = ['destination', 'place'] as const
 
 /** A moment a step waits for: minutes from now, a clock (`'14:00'`) or a part (`time.meal.luncheon`). */
 const until = z.union([z.number().nonnegative(), z.string()]).superRefine(checkDayMoment)
@@ -189,7 +189,7 @@ const step = z
     time: until.optional(),
     /**
      * Moves the party along its route while time passes and the action's `when` / `unless`
-     * hold: to the `destination`, to the next `hex`, or that many hexes (a number, or a
+     * hold: to the `destination`, to the next `place`, or that many places (a number, or a
      * variable: `'{{params.until}}'`).
      */
     'travel.move': z.union([z.number().int().positive(), z.string().min(1)]).optional(),
@@ -208,7 +208,7 @@ const step = z
     'travel.mode': z.string().min(1).optional(),
     effects: effects.optional(),
     do: z.string().min(1).optional(),
-    /** With `do:`, the values of that action's parameters (`with: { until: hex }`). */
+    /** With `do:`, the values of that action's parameters (`with: { until: place }`). */
     with: given.optional(),
     roll: z.string().min(1).optional(),
     set: z.record(z.string(), z.unknown()).optional(),
@@ -304,15 +304,15 @@ const action = z
     nothing: text.optional(),
     /**
      * What a button, `do:` or the system may choose when taking it, read by its steps and
-     * conditions as `{{params.<id>}}` (`params: { until: { choices: [destination, hex] } }`).
+     * conditions as `{{params.<id>}}` (`params: { until: { choices: [destination, place] } }`).
      */
     params: z.record(z.string(), param).optional(),
     /** What it does, in order. */
     do: z.array(step).optional(),
     /**
-     * The system takes it by itself at this moment (`trip.hex-enter`, `time.day-end`, a clock,
+     * The system takes it by itself at this moment (`trip.place-enter`, `time.day-end`, a clock,
      * a part of the calendar's day, or when one of its actions is taken: `actions.camp`), or at
-     * each of several (`[time.part.morning, trip.hex-enter]`), if its conditions hold; it isn't a button then. It runs before that
+     * each of several (`[time.part.morning, trip.place-enter]`), if its conditions hold; it isn't a button then. It runs before that
      * moment's checks, and its conditions see which moment it is (`moment`).
      */
     on: moments.optional(),
@@ -351,9 +351,9 @@ const checkRule = z
     /** What it is about, shown as its tooltip. */
     description: text.optional(),
     /**
-     * `trip.hex-enter`, `time.day-end`, a clock (`'06:00'`), a part of the calendar's day
+     * `trip.place-enter`, `time.day-end`, a clock (`'06:00'`), a part of the calendar's day
      * (`time.part.morning`) or one of the system's actions (`actions.camp`), or several of
-     * them (`[trip.hex-enter, actions.camp]`; its conditions see which one it is: `moment`).
+     * them (`[trip.place-enter, actions.camp]`; its conditions see which one it is: `moment`).
      * Without it, only an action's step rolls it (`roll: checks.<event>`).
      */
     at: moments.optional(),
@@ -592,7 +592,7 @@ export const travelRulesSchema = z
           ctx.addIssue({
             code: 'custom',
             path: ['actions', id, 'do', i, 'travel.move'],
-            message: 'expected destination, hex, a number of hexes or a variable',
+            message: 'expected destination, place, a number of places or a variable',
           })
         // A check of the system, or a reference of another kind the host rolls (`table.ruins`).
         if (
@@ -667,7 +667,7 @@ export type ActionDefinition = z.infer<typeof action>
 export type ActionParam = z.infer<typeof param>
 export type ParamChoice = z.infer<typeof choice>
 
-/** A parameter's choices by their values, as text (`['destination', 'hex', '3']`). */
+/** A parameter's choices by their values, as text (`['destination', 'place', '3']`). */
 export function choiceIds(param: ActionParam): string[] {
   return param.choices.map((c) => String(typeof c === 'object' ? c.id : c))
 }

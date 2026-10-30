@@ -72,7 +72,7 @@ export function rollContext(): Record<string, unknown> {
   const session = play ? sessionOf(play) : null
   const hex = rollHex()
   const cell = hex ? mapWorld(editor.map).cell(hex) : null
-  const facts: Record<string, unknown> = hex && cell ? { ...cell, hex: { ...cell, id: hex } } : {}
+  const facts: Record<string, unknown> = hex && cell ? { ...cell, place: { ...cell, id: hex } } : {}
   const world = worldFactsNow()
   // What the trip's checks would see (the moment, the trip, the party, today's values, the
   // world clock), with the selected hex's facts in place of the party's.
@@ -101,7 +101,7 @@ export function rollContext(): Record<string, unknown> {
       name: token.name,
       kind: token.kind,
     }
-  // With their full names too (`hex.terrain`, `time.season`, `world.clocks`…).
+  // With their full names too (`place.terrain`, `time.season`, `world.clocks`…).
   return Object.fromEntries(
     Object.entries(qualify(out)).filter(([, v]) => v !== undefined && v !== null),
   )

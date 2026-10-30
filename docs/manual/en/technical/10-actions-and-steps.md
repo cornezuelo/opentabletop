@@ -45,7 +45,7 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 
 ## Other actions and checks: `do` and `roll`
 
-- `do: actions.forage` takes another action, if its conditions hold (otherwise nothing happens). `{ do: actions.march, with: { until: hex } }` gives it the values of its parameters. An action that takes another is how a forced march marches: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
+- `do: actions.forage` takes another action, if its conditions hold (otherwise nothing happens). `{ do: actions.march, with: { until: place } }` gives it the values of its parameters. An action that takes another is how a forced march marches: `[{ travel.speed: 1.5 }, { do: actions.march }]`.
 - `do: world.turn` brings a world turn of the campaign now: every faction's turn, then the world's reactions to it, as a turn due with time. The trip doesn't play it (its rules don't know the world): the app it plays in does, and the journal says what the factions did; without a campaign whose system declares factions, nothing happens. It takes no `with:`, and it's the only thing of the world a step can do. See [World turns](../oracle/07-connecting.md#5-your-own-travel-system).
 - `roll: checks.ENCOUNTER_CHECK_REQUIRED` rolls a check now: every check with that event whose conditions hold, whatever its `at`. The rest of the action waits until it's resolved (and for **Continue**, if it pauses), as it does for its own moment's checks: the steps after it see what it set (`{ when: { today.loot: true }, … }`).
 - `roll: table.ruins` rolls something of the Oracle instead (a table, `oracle.<id>`, `generator.<id>`, `deck.<id>`; another pack's as `core/table.twists`), with no check or binding around it: the rest of the action waits for it like a check, its result goes to the journal by the table's name, its `set` values and `effects` reach the trip, and an entry with `pause: true` stops it until **Continue**. A name that isn't something to roll is a problem when the pack loads. The Grey Marches' _Delve the ruin_: `[{ time: 180 }, { roll: generator.ruin-delve }]`; their _Fish_ rolls its check after two hours and says so when nothing bit: `[{ time: 120 }, { roll: checks.FISHING_CHECK_REQUIRED }, { when: { today.skunked: true }, say: … }]`.
@@ -71,7 +71,7 @@ do:
 … # an excerpt of an action
 ```
 
-**A pause on the way.** When an action the system takes by itself pauses, asks or waits for a roll (one with `on: trip.hex-enter`, say a toll at a bridge, or `on: '23:00'` in the middle of a camp), it stops whatever was going on as well: the march that entered the hex stays under way, the camp's night waits. The checks of its moment come once it's done, so they see what it changed. **Continue** (or the choice) goes on with the toll's steps, then with the march, as far as it was going. When two steps would wait at once (two actions at the same moment), the first waits, and the second asks after it.
+**A pause on the way.** When an action the system takes by itself pauses, asks or waits for a roll (one with `on: trip.place-enter`, say a toll at a bridge, or `on: '23:00'` in the middle of a camp), it stops whatever was going on as well: the march that entered the hex stays under way, the camp's night waits. The checks of its moment come once it's done, so they see what it changed. **Continue** (or the choice) goes on with the toll's steps, then with the march, as far as it was going. When two steps would wait at once (two actions at the same moment), the first waits, and the second asks after it.
 
 ## Waiting for something: `wait` and `limit`
 
@@ -117,7 +117,7 @@ values:
 actions:
   march:
     name: March
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 6, lt: 20 } }
     do: [{ travel.move: '{{params.until}}' }]
   camp:

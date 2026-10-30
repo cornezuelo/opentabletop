@@ -8,7 +8,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system with a sheet for the party itself (morale, routed) beside its characters'. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
   {
     path: 'band/system.yaml',
     content:
@@ -43,7 +43,7 @@ terrains: { plains: { multiplier: 1 } }
 modes: { walk: { kmPerDay: 24 } }
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }

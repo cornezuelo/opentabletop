@@ -29,7 +29,7 @@ export const en = {
     totals: 'Chance of each total',
   },
   values: {
-    hex: 'Hex',
+    place: 'Place',
     terrain: vocabulary.en.terms.terrain,
     water: 'Water',
     tags: vocabulary.en.terms.tags,
@@ -63,7 +63,7 @@ export const en = {
     commonCount: 'Hexes of the commonest land',
   },
   valueHelp: {
-    hex: 'The hex the roll is about (the selected one, or the party’s).',
+    place: 'The place the roll is about (the selected hex, or where the party is).',
     terrain: 'The hex’s terrain, by its id (forest, hills…).',
     water: 'true on water hexes (lakes, seas…).',
     tags: 'The hex’s tags, a list: a condition holds if the list has the tag.',

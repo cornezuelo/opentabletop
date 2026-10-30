@@ -1,5 +1,5 @@
 # The places of the Marches (system.yaml: `places: [places.default]`): what discovery's
-# contents make on a hex by naming a template (`effects: { hex.pois.ruins: 1 }`, in
+# contents make on a hex by naming a template (`effects: { place.pois.ruins: 1 }`, in
 # discovery.yaml) instead of a plain point of interest from their text. The tags each gives
 # the hex are what the rules read: `ruins` lets the Company delve it, `shrine` lets it hold
 # the rite under the full Ember Moon (travel.yaml).
@@ -12,7 +12,7 @@ description: |-
   **Shows:**
 
   - A catalogue of places (`kind: places`), named by the system (`places: [places.default]`)
-  - Discovery's contents naming a template (`effects: { hex.pois.ruins: 1 }`) instead of a plain point of interest from their text
+  - Discovery's contents naming a template (`effects: { place.pois.ruins: 1 }`) instead of a plain point of interest from their text
   - Tags a place gives its hex, read by actions: `ruins` (_Delve the ruin_), `shrine` (_Rite of the Ember Moon_)
   - Texts and fields filled from the result that makes the place: `{{result}}`, and a roll in a field (`'{{1d6+2}}'`)
   - An icon of the map's (`game:castle-ruins`)

@@ -11,7 +11,7 @@ export interface ValueInfo {
  * dictionary (`values.<key>`, dots as `_`); prefixes cover families (`moons.pale`…).
  */
 export const BUILT_IN_VALUES = [
-  'hex',
+  'place',
   'terrain',
   'water',
   'tags',

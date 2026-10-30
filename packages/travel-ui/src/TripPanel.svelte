@@ -53,7 +53,7 @@
   } from '@open-tabletop/travel-engine'
   import {
     calendarOf,
-    hexIdOf,
+    placeIdOf,
     pendingLine,
     sharingRoom,
     waitingForRoom,
@@ -272,7 +272,7 @@
     const named = typeof c === 'object' ? localize(c.name, locale, 'en') : undefined
     if (named) return named
     const id = String(choiceId(c))
-    if (id === 'destination' || id === 'hex') return t(`choices.${id}`)
+    if (id === 'destination' || id === 'place') return t(`choices.${id}`)
     return /^\d+$/.test(id) ? t('choices.hexes', { n: id }) : id.replaceAll('-', ' ')
   }
   const paramName = (key: string, param: ActionParam) => localize(param.name, locale, 'en') ?? key
@@ -598,10 +598,10 @@
               ? 'journal.paused'
               : 'journal.pending',
           {
-            event: hexIdOf(check.context)
+            event: placeIdOf(check.context)
               ? t('journal.eventAt', {
                   event: pendingName(check.event),
-                  hex: hexLabel(hexIdOf(check.context)!),
+                  hex: hexLabel(placeIdOf(check.context)!),
                 })
               : pendingName(check.event),
           },

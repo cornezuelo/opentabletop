@@ -66,7 +66,7 @@ landmark:
 landmark-feature:
   name: Parajes
   description: |-
-    Qué es un paraje. Algunos solo salen en un hex de su terreno: `hex.terrain` de `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` o `sea`.
+    Qué es un paraje. Algunos solo salen en un hex de su terreno: `place.terrain` de `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` o `sea`.
   entries:
     stone: La Piedra
     cross: El Cruce

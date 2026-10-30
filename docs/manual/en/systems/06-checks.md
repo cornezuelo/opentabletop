@@ -21,7 +21,7 @@ The checks come as folded cards, each saying in one line when it's asked, what i
 
 - its id, under **Check** (`WOLVES`, `HUNGER`): the event the rules and the bindings know it by. Two checks with different tables or contexts need different ids;
 - a **Name** and **Description** for players, shown in the trip panel and the journal instead of the event id;
-- **When** it happens, written like in the YAML with suggestions: a clock such as `06:00` (as it strikes: said **At 06:00**), a part of the calendar's day such as `time.watch.middle` (as it begins: said **As Watches: middle begins**), `trip.hex-enter`, `time.day-end`, one of the system's actions such as `actions.camp` (as it begins: its steps wait for the check) or its end such as `actions.forage.done` (said **When … is done**: the Grey Marches' foraging, after its three hours), another check such as `checks.WEATHER_CHECK_REQUIRED` (said **After the check …**: right after it's resolved), a progress clock filling such as `world.clocks.the-greywood-wyrm-wakes.full` (said **When … fills**; however it fills, also by hand), a world turn of the campaign, `world.turn` (said **After a world turn**), or several, each one a pill (Enter or a comma adds it; Backspace in the empty box takes the last one out; the suggestions come grouped by what they start with) (the Grey Marches' encounters, `trip.hex-enter` and `actions.rest`). Empty: only when an action's step rolls it;
+- **When** it happens, written like in the YAML with suggestions: a clock such as `06:00` (as it strikes: said **At 06:00**), a part of the calendar's day such as `time.watch.middle` (as it begins: said **As Watches: middle begins**), `trip.place-enter`, `time.day-end`, one of the system's actions such as `actions.camp` (as it begins: its steps wait for the check) or its end such as `actions.forage.done` (said **When … is done**: the Grey Marches' foraging, after its three hours), another check such as `checks.WEATHER_CHECK_REQUIRED` (said **After the check …**: right after it's resolved), a progress clock filling such as `world.clocks.the-greywood-wyrm-wakes.full` (said **When … fills**; however it fills, also by hand), a world turn of the campaign, `world.turn` (said **After a world turn**), or several, each one a pill (Enter or a comma adds it; Backspace in the empty box takes the last one out; the suggestions come grouped by what they start with) (the Grey Marches' encounters, `trip.place-enter` and `actions.rest`). Empty: only when an action's step rolls it;
 - **As this turns true**: the check is rolled **once, as a condition turns true**, besides its moments above (the Grey Marches' _Omens_, as the Wyrm's clock reaches 4); with **For each member**, once for each character it turns true for;
 - **Only if** / **Skip if**: its conditions, as rows (see [below](#conditions-and-changes-as-rows)). E.g. the Grey Marches' getting lost, skipped on roads and rivers: `trip.edges` · **is one of** · `road, river`;
 - **Rolled on**: what resolves it, any table, oracle, generator or deck, grouped by kind, or a weather model, under _Weather with inertia_. E.g. the Grey Marches' ford is rolled on an oracle;
@@ -37,7 +37,7 @@ The tables a check is rolled on go in the same pack (add them in the Oracle app,
 
 ## Conditions and changes as rows
 
-**Only if** and **Skip if** are built as rows of **what it reads** · **comparison** · **value**, like an action's (_Conditions as rows_ under [Rules → Actions](05-rules.md#actions) says how): `hex.tags` · **is** · `landmark`, `trip.edges` · **is one of** · `road, river`, `hex.danger` · **is over** · `{{party.stats.stealth}}`. **Changes** and **Extra context** are rows of a name and a value: **+ Add a row**, then choose what it changes (suggested from the system: `party.stats.fatigue`, `party.values.food`, `party.items.ration`, `world.clocks.<id>`…) and its value (`1`, `-1`, `=0`, `-{{party.stats.mouths}}`); × removes a row. **YAML**, under each, shows the same as one line of YAML (`hex.danger: { gte: 3 }`, `party.stats.fatigue: 1`) for what rows can't say; **Rows** goes back. Every operator, variables and rolls: [Conditions](../technical/08-conditions.md); every piece of syntax at a glance: [Syntax](../technical/09-syntax.md); every value they can read: [What tables see](../technical/04-what-tables-see.md).
+**Only if** and **Skip if** are built as rows of **what it reads** · **comparison** · **value**, like an action's (_Conditions as rows_ under [Rules → Actions](05-rules.md#actions) says how): `place.tags` · **is** · `landmark`, `trip.edges` · **is one of** · `road, river`, `place.danger` · **is over** · `{{party.stats.stealth}}`. **Changes** and **Extra context** are rows of a name and a value: **+ Add a row**, then choose what it changes (suggested from the system: `party.stats.fatigue`, `party.values.food`, `party.items.ration`, `world.clocks.<id>`…) and its value (`1`, `-1`, `=0`, `-{{party.stats.mouths}}`); × removes a row. **YAML**, under each, shows the same as one line of YAML (`place.danger: { gte: 3 }`, `party.stats.fatigue: 1`) for what rows can't say; **Rows** goes back. Every operator, variables and rolls: [Conditions](../technical/08-conditions.md); every piece of syntax at a glance: [Syntax](../technical/09-syntax.md); every value they can read: [What tables see](../technical/04-what-tables-see.md).
 
 ## Party stats
 
@@ -65,9 +65,9 @@ A system where the forests and hills belong to wolves: entering them by day the 
 2. **Fatigue**: under **Party stats**, **Add a stat** and name it _Fatigue_ (its id becomes `fatigue`), **Starts at** `0`.
 3. **Hunger**: **Add a check**, with **Check** `HUNGER`, named _Hunger_. **When** `time.day-end`; **Only if** `trip.below` · **is** · `party.values.food` (the Generic rules' **Eat** happens by itself as the day ends, before this check, and hits the minimum of the party's food when there's none left); **Rolled on** _— no table —_; **Changes** `party.stats.fatigue` · `1`.
 4. **The wolves' table**: in the Oracle app, **New definition**, a table in your pack _Wolf Country_ with the id `wolves`, named _Wolves_, rolled with `1d6 + {{night}}`: on `1-4` _Only the wind in the trees_; on `5-6` _Fresh tracks; you hurry on_, with **Changes** `party.stats.fatigue: 1`; on `7-8` _The pack circles the fire_, ticking **Pause** on that entry. By day `{{night}}` is nothing, which counts as `0`: the pack never comes.
-5. **Wolves by day**: back in **Checks**, **Add a check**, with **Check** `WOLVES`, named _Wolves_. **When** `trip.hex-enter`; **Only if** `hex.terrain` · **is one of** · `forest, hills`; **Skip if** `trip.edges` · **is** · `road` (wolves keep off the roads); **Rolled on** _Wolves_.
-6. **Wolves at night**: **Add a check**, with **Check** `WOLVES_AT_NIGHT`, named _Wolves at night_. **When** `actions.camp`; **Only if** `hex.terrain` · **is one of** · `forest, hills`; **Rolled on** _Wolves_, the same table; **Extra context** `night` · `2`: at night the table rolls `1d6 + 2`, and one night in three the pack comes.
-7. **Old stones**: **Add a check**, with **Check** `OLD_STONES`, named _Old stones_. **When** `trip.hex-enter`; **Only if** `hex.tags` · **is** · `landmark`; no table; tick **Pause after it**.
+5. **Wolves by day**: back in **Checks**, **Add a check**, with **Check** `WOLVES`, named _Wolves_. **When** `trip.place-enter`; **Only if** `place.terrain` · **is one of** · `forest, hills`; **Skip if** `trip.edges` · **is** · `road` (wolves keep off the roads); **Rolled on** _Wolves_.
+6. **Wolves at night**: **Add a check**, with **Check** `WOLVES_AT_NIGHT`, named _Wolves at night_. **When** `actions.camp`; **Only if** `place.terrain` · **is one of** · `forest, hills`; **Rolled on** _Wolves_, the same table; **Extra context** `night` · `2`: at night the table rolls `1d6 + 2`, and one night in three the pack comes.
+7. **Old stones**: **Add a check**, with **Check** `OLD_STONES`, named _Old stones_. **When** `trip.place-enter`; **Only if** `place.tags` · **is** · `landmark`; no table; tick **Pause after it**.
 8. **Try it**: in **Try it**, make a way of six hexes: `plains`, `forest`, `forest`, `hills`, `plains` tagged `landmark`, `plains`, with a `road` from hex 3 to hex 4. Start a trip in summer, set **Food** to `1` in the trip panel, and march day after day, waiting for the next morning each time the march stops.
 
 **What you'll see.** The first day the party enters the forest (hex 2) at 11:20: the journal says _Wolves: Only the wind in the trees_ or _Wolves: Fresh tracks; you hurry on (Fatigue +1)_. The march stops at 14:00 in the middle of the forest, and as the night comes the party camps there: _Wolves at night_ is rolled with `+2` (**Everything** shows the dice: `1d6 + 2`), and when the pack comes the trip stops (_Wolves at night at Hex 2 (Forest): paused, go on when you are ready_): **Continue**, and the night goes on. At midnight the party eats its last food. The second day: the next forest hex at 08:40, wolves again; the hills by the road, and no wolves (**Everything**: _Wolves doesn't come up: the way taken is road_); the old stones a little after 13:00: _Old stones at Hex 5 (Plains): waiting for you_. Press **Continue**, then **Go on**: the march goes on, and stops at 14:00. That night there's nothing to eat: _Food can't go lower than 0_, _There is nothing left to eat._ and _Hunger: Fatigue +1_. On the plains no wolves are rolled, by day or by night. (The times are a fair day's: the weather check the copy keeps rolls each morning, and rain, a storm or snow slow the march.)
@@ -87,17 +87,17 @@ checks:
     effects: { party.stats.fatigue: 1 }
   - event: WOLVES # step 5
     name: Wolves
-    at: trip.hex-enter
-    when: { hex.terrain: [forest, hills] }
+    at: trip.place-enter
+    when: { place.terrain: [forest, hills] }
     unless: { trip.edges: road }
   - event: WOLVES_AT_NIGHT # step 6
     name: Wolves at night
     at: actions.camp
-    when: { hex.terrain: [forest, hills] }
+    when: { place.terrain: [forest, hills] }
   - event: OLD_STONES # step 7
     name: Old stones
-    at: trip.hex-enter
-    when: { hex.tags: landmark }
+    at: trip.place-enter
+    when: { place.tags: landmark }
     pause: true
 # … the Generic rules' day, terrains, ways, food and actions
 ---
@@ -128,7 +128,7 @@ The Grey Marches play with all of this and more (weather first at dawn and a che
 ## Common mistakes
 
 - **A check that never comes up.** Its **When** is empty (only an action's step asks it), or its conditions never hold: the map's terrain is `dense-forest` and the check asks for `forest`, the hex's tag is `Landmark` and it asks for `landmark`. Choose **Everything** in the journal: each check that didn't come up says why.
-- **The same table, by day and by night.** One check with **When** `trip.hex-enter, actions.camp` has one **Extra context**, the same at both moments. Make two checks with two ids, as steps 5 and 6 do, or let the table's entries tell the moments apart (`when: { trip.moment: actions.camp }`).
+- **The same table, by day and by night.** One check with **When** `trip.place-enter, actions.camp` has one **Extra context**, the same at both moments. Make two checks with two ids, as steps 5 and 6 do, or let the table's entries tell the moments apart (`when: { trip.moment: actions.camp }`).
 - **A check that reads what comes after it.** Checks of one moment come in the list's order: a check above the weather's sees yesterday's weather. Put the one that sets something first.
 - **Hunger every night, or never.** `trip.below: party.values.food` is seen only at the moment the food hit its minimum (the Generic rules' **Eat**, at `time.day-end`): a hunger check at another moment never sees it.
 - **A check that stops nothing.** With no table and no **Pause after it**, a check is only a line in the journal. To stop the trip, tick **Pause after it**; to stop it only on some results, tick **Pause** on those entries of its table.

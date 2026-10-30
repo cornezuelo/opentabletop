@@ -31,8 +31,8 @@ Una fiebre ronda las marismas. Los viajeros que las cruzan la llevan consigo, y 
 2. **La fiebre**: en **Relojes**, **Nuevos relojes**. Llámalos _Males de las marismas_. Cambia el reloj `the-threat-grows` a `the-fever`, con el nombre _La fiebre de las marismas_, **Segmentos** `4`, **Empieza en** `1`; **Después** se queda en `reset`.
 3. **Los caminos**: añade un reloj `the-closed-roads`, con el nombre _Se cierran los caminos_, **Segmentos** `2`, **Después** vacío (`keep`: una vez cerrados, siguen cerrados).
 4. **Al llenarse**: en la tarjeta de la fiebre, **Añadir qué pasa al llenarse**: se abre la pestaña **Mundo** con una reacción `the-fever-fills` **En** `world.clocks.the-fever.full`. Llámala _La fiebre se extiende_; sus **Pasos**: **Decir** _La fiebre llega a las aldeas._, luego **Añadir un paso**, **Tirar** `core/table.twists`, luego **Añadir un paso**, **Cambiar** `world.clocks.the-closed-roads` · `1`. De vuelta en **Relojes**, lo mismo en la tarjeta de los caminos: una reacción `the-closed-roads-fills`, con el nombre _Se cierran los caminos_, cuyo único paso **Dice** _Los señores cierran los caminos._
-5. **Los viajeros la llevan**: en **Comprobaciones**, **Añadir una comprobación**, con **Comprobación** `FEVER` y el nombre _Fiebre_. **Cuándo** `trip.hex-enter`; **Solo si** `hex.terrain` · **es** · `swamp`; sin tabla; **Cambios** `world.clocks.the-fever` · `1`.
-6. **La barrera**: **Añadir una comprobación**, con **Comprobación** `BARRIER` y el nombre _Vuelta atrás en la barrera_. **Cuándo** `trip.hex-enter`; **Solo si** las filas `world.clocks.the-closed-roads` · **es al menos** · `2` y `trip.edges` · **es** · `road`; sin tabla; marca **Pausar después**.
+5. **Los viajeros la llevan**: en **Comprobaciones**, **Añadir una comprobación**, con **Comprobación** `FEVER` y el nombre _Fiebre_. **Cuándo** `trip.place-enter`; **Solo si** `place.terrain` · **es** · `swamp`; sin tabla; **Cambios** `world.clocks.the-fever` · `1`.
+6. **La barrera**: **Añadir una comprobación**, con **Comprobación** `BARRIER` y el nombre _Vuelta atrás en la barrera_. **Cuándo** `trip.place-enter`; **Solo si** las filas `world.clocks.the-closed-roads` · **es al menos** · `2` y `trip.edges` · **es** · `road`; sin tabla; marca **Pausar después**.
 7. **La noticia**: en **Reglas → Acciones**, **Añadir una acción** `news`, con el nombre _Noticias de la fiebre_ y **Automática en** `world.clocks.the-fever.full`. Su único paso: **Decir** _Llega la noticia: la fiebre ha alcanzado las aldeas._
 8. **Un mapa**: en Mapa, **Nuevo mapa**; en **Ajustes del mapa → Campaña → Sistema**, _Las Marismas de la Fiebre_. Pinta una fila de hexes: uno de `plains`, tres de `swamp` y luego tres de `plains` con un `road` a lo largo.
 9. **Juégalo**: abre el panel **Mundo** (☾) y **Poner en marcha el reloj del mundo**: su pestaña **Relojes** muestra _La fiebre de las marismas_ a 1/4 y _Se cierran los caminos_ a 0/2. En **Jugar**, pon al grupo en el primer hex de llanura, marca como destino la llanura tras las marismas y viaja hasta allí.
@@ -90,12 +90,12 @@ world: world.default
 checks:
   - event: FEVER # paso 5
     name: Fiebre
-    at: trip.hex-enter
-    when: { hex.terrain: swamp }
+    at: trip.place-enter
+    when: { place.terrain: swamp }
     effects: { world.clocks.the-fever: 1 }
   - event: BARRIER # paso 6
     name: Vuelta atrás en la barrera
-    at: trip.hex-enter
+    at: trip.place-enter
     when: { world.clocks.the-closed-roads: { gte: 2 }, trip.edges: road }
     pause: true
 actions:

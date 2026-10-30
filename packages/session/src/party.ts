@@ -16,7 +16,7 @@ import {
   type Sheet,
 } from '@open-tabletop/character-engine'
 import {
-  hexIdOf,
+  placeIdOf,
   changeValue,
   momentRolls,
   resolveChange,
@@ -52,7 +52,7 @@ export interface PartyRules extends PresentRules {
   items?: ItemLookup
   /** The ids of the items in those catalogues. */
   itemIds?: string[]
-  /** The system's catalogues of places: what `hex.pois.<id>` makes. */
+  /** The system's catalogues of places: what `place.pois.<id>` makes. */
   places?: PlaceLookup
 }
 
@@ -356,7 +356,7 @@ export function applyMemberEffects(
   unknown: string[]
   /** Copies of templates that came or left (`present.<template>`). */
   present: PresentEvent[]
-  /** Places made on the party's place (`hex.pois.<template>`), and the templates nobody has. */
+  /** Places made on the party's place (`place.pois.<template>`), and the templates nobody has. */
   places: { at: string; place: MadePlace }[]
   unknownPlaces: string[]
 } {
@@ -387,7 +387,7 @@ export function applyMemberEffects(
     travel.day !== undefined
       ? momentRolls(
           { seed: travel.seed, day: travel.day, location: travel.location ?? '' },
-          hexIdOf(context),
+          placeIdOf(context),
           typeof context.moment === 'string' ? context.moment : undefined,
         )
       : undefined
@@ -689,8 +689,8 @@ const isTemplateRef = (v: unknown): v is NonNullable<CharacterState['template']>
 /**
  * The map as the trip sees it, with the members' relations to each hex: a relation to
  * `hex:<id>`, to the hex's region (`region:<name>`) or to a place in it (`poi:<id>`, when
- * the map lists its places as `pois`) is read there as `hex.related` (who) and
- * `hex.relations.<kind>` (who, by kind of relation).
+ * the map lists its places as `pois`) is read there as `place.related` (who) and
+ * `place.relations.<kind>` (who, by kind of relation).
  */
 export function relatedWorld(
   world: TravelWorld,

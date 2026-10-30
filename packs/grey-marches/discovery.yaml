@@ -252,33 +252,33 @@ description: |-
   - **Discovery**'s contents: `discover.contents`
   - `set: { poi: false }`: nothing worth a point of interest
   - `tags` and `name` written on the hex
-  - A condition on the hex: `hex.water: true`
+  - A condition on the hex: `place.water: true`
   - `once`: the dragon's lair
   - Dice in the text: `{{1d6+2}}`
-  - Places made from templates (`effects: { hex.pois.ruins: 1 }`, _Places of the Marches_): the ruins, the shrine and the lair, with their icons and the tags the rules read; the travellers' camp stays a plain point of interest from its text
+  - Places made from templates (`effects: { place.pois.ruins: 1 }`, _Places of the Marches_): the ruins, the shrine and the lair, with their icons and the tags the rules read; the travellers' camp stays a plain point of interest from its text
 roll: 2d6
 entries:
-  - { id: water, range: 2-12, when: { hex.water: true }, result: Open water, set: { poi: false } }
+  - { id: water, range: 2-12, when: { place.water: true }, result: Open water, set: { poi: false } }
   - {
       id: lair,
       range: 2,
       once: true,
       result: 'A dragon’s lair, bones scattered at its mouth',
-      effects: { hex.pois.lair: 1 },
+      effects: { place.pois.lair: 1 },
     }
   - {
       id: ruins,
       range: 3-4,
       result: 'Ruins: {{result}}',
       table: table.ruins,
-      effects: { hex.pois.ruins: 1 },
+      effects: { place.pois.ruins: 1 },
     }
   - { id: nothing, range: 5-9, result: Nothing of note, set: { poi: false } }
   - {
       id: shrine,
       range: 10,
       result: A wayside shrine to a forgotten god,
-      effects: { hex.pois.shrine: 1 },
+      effects: { place.pois.shrine: 1 },
     }
   - { id: camp, range: 11, result: 'A camp of {{1d6+2}} travellers', set: { tags: camp } }
   - { id: landmark, range: 12, table: table.landmarks }

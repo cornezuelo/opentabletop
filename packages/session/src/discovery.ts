@@ -42,7 +42,7 @@ export interface DiscoveredHex {
   /** A point of interest (the contents' text, or the name set with `poi`). */
   poi?: string
   /**
-   * Places made from templates of the system's catalogues (`hex.pois.<template>` in the
+   * Places made from templates of the system's catalogues (`place.pois.<template>` in the
    * contents' effects, or in any result's while the party is there), in order.
    */
   places?: MadePlace[]
@@ -124,7 +124,7 @@ export function createDiscovery(options: {
   land?: Record<string, LandModel>
   /** For land models (tables roll with the Oracle's own). */
   random: RandomSource
-  /** The system's catalogues of places, for contents that name one (`hex.pois.<template>`). */
+  /** The system's catalogues of places, for contents that name one (`place.pois.<template>`). */
   places?: PlaceLookup
 }) {
   const { world: base, oracle, discover, reveal, locale, random } = options
@@ -206,7 +206,7 @@ export function createDiscovery(options: {
     const { value } = roll(binding, {
       ...here,
       from: { ...here, id: from },
-      hex: { id: hex },
+      place: { id: hex },
       ...surroundings(hex, here),
     })
     // A table may hand the decision over to a land model (`set: { land: land.<id> }`).
@@ -257,12 +257,12 @@ export function createDiscovery(options: {
         pending.delete(hex)
         const { text, value } = roll(discover.contents, {
           ...world.cell(hex),
-          hex: { ...world.cell(hex), id: hex },
+          place: { ...world.cell(hex), id: hex },
         })
-        // Places named by template (`effects: { hex.pois.shrine: 1 }`) instead of the text.
+        // Places named by template (`effects: { place.pois.shrine: 1 }`) instead of the text.
         const context = {
           ...world.cell(hex),
-          hex: { ...world.cell(hex), id: hex },
+          place: { ...world.cell(hex), id: hex },
           ...value,
           result: text,
         }

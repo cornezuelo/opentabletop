@@ -776,7 +776,7 @@ describe('what lasts the day', () => {
 
 describe('skipping pauses', () => {
   it('a check that pauses is written in the journal and the trip goes on', () => {
-    const paused = { ...rules, checks: [{ event: 'SIGHT', at: 'trip.hex-enter', pause: true }] }
+    const paused = { ...rules, checks: [{ event: 'SIGHT', at: 'trip.place-enter', pause: true }] }
     const session = createSession({
       travel: createTravelEngine({ world, rules: paused, calendar: core.calendar }),
       rules: paused,

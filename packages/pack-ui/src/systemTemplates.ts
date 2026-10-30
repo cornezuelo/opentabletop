@@ -62,7 +62,7 @@ export const SYSTEM_TEMPLATES: Record<
       // Marching by day (06:00–20:00) for 8 hours, to the destination or one hex; camp
       // sleeps until 06:00.
       march: {
-        params: { until: { choices: ['destination', 'hex'] } },
+        params: { until: { choices: ['destination', 'place'] } },
         when: { 'time.hour': { gte: 6, lt: 20 }, 'trip.marched': { lt: '{{system.hoursPerDay}}' } },
         do: [{ 'travel.move': '{{params.until}}' }],
       },
@@ -186,7 +186,7 @@ export const SYSTEM_TEMPLATES: Record<
       'wolf-leader': { name: 'Wolf leader', like: 'wolf', tags: ['leader'] },
     },
   }),
-  // One place to rename: what a result makes on the party's hex (`hex.pois.camp: 1`).
+  // One place to rename: what a result makes on the party's hex (`place.pois.camp: 1`).
   places: (id) => ({
     kind: 'places',
     id,

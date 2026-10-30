@@ -119,7 +119,7 @@ describe('playing on the map', () => {
       files: [
         {
           path: 'pack.yaml',
-          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 10\n',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 11\n',
         },
         { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
       ],
@@ -553,7 +553,7 @@ describe('playing on the map', () => {
       }
       // The weather, how it was chosen; the moments; checks that didn't come up, and why.
       expect(of('WEATHER_ROLLED')[0].data).toMatchObject({ weather: expect.any(String) })
-      expect(of('MOMENT_REACHED').map((e) => e.data?.at)).toContain('trip.hex-enter')
+      expect(of('MOMENT_REACHED').map((e) => e.data?.at)).toContain('trip.place-enter')
       const skipped = of('CHECK_SKIPPED')
       expect(skipped.length).toBeGreaterThan(0)
       expect(skipped.every((e) => (e.data?.failed as unknown[]).length > 0)).toBe(true)
@@ -1233,7 +1233,7 @@ describe('the Company: a party made of characters', () => {
       tripFacts(
         { system: activeSystem(), world: mapWorld(editor.map) },
         { ...trip(), travel: { ...trip().travel, location: hex } },
-      ).hex as Record<string, unknown>
+      ).place as Record<string, unknown>
     expect(facts('5,7')).toMatchObject({ related: ['mara'], relations: { home: ['mara'] } })
     expect(facts('15,9')).toMatchObject({ related: ['tobin'], relations: { home: ['tobin'] } })
     expect(facts('14,3').related).toBeUndefined()

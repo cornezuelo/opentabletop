@@ -45,8 +45,8 @@ describe('the bundled packs make foes from their bestiaries', () => {
     const facts = tripFacts({ system: marches, world: heath }, session)
     const wolves = rollUntil('grey-marches/table.encounter', 'wolves', {
       ...facts,
-      'hex.terrain': 'heath',
-      'hex.danger': 4,
+      'place.terrain': 'heath',
+      'place.danger': 4,
       'time.season': 'autumn',
     })
     const count = Number(wolves.text!.split(' ')[0])

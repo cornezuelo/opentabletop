@@ -14,7 +14,7 @@ A hex belongs to one region at most. The hex panel also has a **Region** list to
 
 ## Values
 
-A region can have **fields** too (key–value, like a hex's). They hold for **every hex of the region**: give the Greywood `danger: 2` once instead of on each of its hexes. A hex's own field with the same key wins, so the heart of the forest can say `danger: 3`. A hex's panel shows what it gets from its region under its own fields ("From its region (The Greywood): danger = 2"). Tables and travel checks read them like the hex's: `{{hex.danger}}`. See [What tables see](../technical/04-what-tables-see.md).
+A region can have **fields** too (key–value, like a hex's). They hold for **every hex of the region**: give the Greywood `danger: 2` once instead of on each of its hexes. A hex's own field with the same key wins, so the heart of the forest can say `danger: 3`. A hex's panel shows what it gets from its region under its own fields ("From its region (The Greywood): danger = 2"). Tables and travel checks read them like the hex's: `{{place.danger}}`. See [What tables see](../technical/04-what-tables-see.md).
 
 ## On the map
 
@@ -26,4 +26,4 @@ A region is drawn as a light tint, a border along the inside of its outline (so 
 
 ## In play
 
-Travel checks and Oracle rolls see the hex's region by its **name**, so a table can say `when: { hex.region: Black Marches }`. See [The Oracle in the map](09-oracle.md).
+Travel checks and Oracle rolls see the hex's region by its **name**, so a table can say `when: { place.region: Black Marches }`. See [The Oracle in the map](09-oracle.md).

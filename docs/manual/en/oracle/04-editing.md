@@ -6,7 +6,7 @@ The **Edit** tab is a form over the YAML file: it changes only what you touch an
 
 ## Every definition
 
-Name, description, **Tags** (words that sort it, any the pack chooses: `encounters`, `names`, `rules` for what the system's own rules roll; the list's **Filter** shows or hides them, see [Getting started](01-getting-started.md)) and, for tables and oracles, the **dice** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… empty = pick by weight) and its **roll modes**: for each mode its system declares (advantage…), whether it's offered when rolling by hand and, in **by itself when**, the condition that applies it alone (`party.stats.explorer: { gte: 1 }`), and in **unless**, the one that stops it applying alone (`hex.tags: lit`; written alone, the mode applies always but then). For tables and oracles also:
+Name, description, **Tags** (words that sort it, any the pack chooses: `encounters`, `names`, `rules` for what the system's own rules roll; the list's **Filter** shows or hides them, see [Getting started](01-getting-started.md)) and, for tables and oracles, the **dice** (`1d6`, `2d6`, `d66`, `d%`, `1d6 + {{modifier}}`… empty = pick by weight) and its **roll modes**: for each mode its system declares (advantage…), whether it's offered when rolling by hand and, in **by itself when**, the condition that applies it alone (`party.stats.explorer: { gte: 1 }`), and in **unless**, the one that stops it applying alone (`place.tags: lit`; written alone, the mode applies always but then). For tables and oracles also:
 
 - **Clamp totals** (on by default): a total below the lowest range takes the first entry, above the highest the last one, so modifiers never leave you without a result. Off, such a total gives nothing.
 - **When exhausted**: what happens when the entry rolled has reached its limit (see below): **Roll again**, **Take the next one** still available, or **Nothing**.
@@ -26,7 +26,7 @@ Add, duplicate, move and remove entries. **Number 1–N** gives them consecutive
 
 **⋯** on a row opens its conditions, values and limits (rows that have some say so under their text):
 
-- **Only if**: the entry can only come up when the context matches, built as rows of what it reads · comparison · value, e.g. `hex.terrain` **is** `forest`, `time.season` **is one of** `autumn, winter`, `hex.danger` **is at least** `3`, `hex.tags` **is** `landmark` (the hex has that tag); **All of these** or **Any of these** joins them. Empty: always. When no entry matches, the table gives nothing. The keys a table can read are in [What tables see](../technical/04-what-tables-see.md), and every way of comparing them (`not`, `lt`, `exists`, `any`…) in [Conditions](../technical/08-conditions.md).
+- **Only if**: the entry can only come up when the context matches, built as rows of what it reads · comparison · value, e.g. `place.terrain` **is** `forest`, `time.season` **is one of** `autumn, winter`, `place.danger` **is at least** `3`, `place.tags` **is** `landmark` (the hex has that tag); **All of these** or **Any of these** joins them. Empty: always. When no entry matches, the table gives nothing. The keys a table can read are in [What tables see](../technical/04-what-tables-see.md), and every way of comparing them (`not`, `lt`, `exists`, `any`…) in [Conditions](../technical/08-conditions.md).
 - **Unless**: the entry can't come up when this matches, e.g. `timeOfDay` **is** `night` (the Grey Marches' Vale patrol, with the context its binding gives). With **Only if** too, both are checked.
 - **Sets**: values the entry gives when it comes up, one row each (a name and its value), e.g. `weather` · `storm` and `lost` · `true`, or `count` · `{{2d6}}`. The result text, later tables and generator fields, and the trip read them (see [Connecting tables](07-connecting.md)).
 - **Only once** / **At most**: how many times the entry can come up in a session (the Oracle's **New session** resets them).
@@ -41,7 +41,7 @@ An **input** (its id, a **label** to show, and its **options**, each with a labe
 
 ## Generators
 
-**Fields** are rolled in order; each (**Add field**) has a name and comes **From** a table, a generator, dice or a fixed value, and later fields can use earlier ones. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** as rows (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only when `hex.danger` **is at most** `2`) and **Context**, a row per value given to the table or generator it rolls (`timeOfDay` · `night`, `danger` · `3`).
+**Fields** are rolled in order; each (**Add field**) has a name and comes **From** a table, a generator, dice or a fixed value, and later fields can use earlier ones. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** as rows (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only when `place.danger` **is at most** `2`) and **Context**, a row per value given to the table or generator it rolls (`timeOfDay` · `night`, `danger` · `3`).
 
 ## Decks
 

@@ -1,5 +1,5 @@
 # The Generic rules' places (system.yaml: `places: [places.default]`): one template, and a
-# table that makes it on the party's hex (`hex.pois.landmark: 1`), rolled by Explore
+# table that makes it on the party's hex (`place.pois.landmark: 1`), rolled by Explore
 # (travel.yaml). The smallest that works.
 kind: places
 id: default
@@ -23,8 +23,13 @@ name: A place found?
 description: |-
   Whether exploring finds a place worth marking: on a 6, a **Landmark**.
 
-  **Shows:** a result that makes a place from a template (`effects: { hex.pois.landmark: 1 }`).
+  **Shows:** a result that makes a place from a template (`effects: { place.pois.landmark: 1 }`).
 roll: 1d6
 entries:
   - { id: nothing, range: 1-5, result: Nothing worth marking }
-  - { id: landmark, range: 6, result: A landmark worth marking, effects: { hex.pois.landmark: 1 } }
+  - {
+      id: landmark,
+      range: 6,
+      result: A landmark worth marking,
+      effects: { place.pois.landmark: 1 },
+    }

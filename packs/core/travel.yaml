@@ -50,7 +50,7 @@ terrains:
   crystal-field: { multiplier: 0.5 }
   lava-field: { passable: false }
   regolith: { multiplier: 0.75 }
-  # Open space and nebulae are for ships: a system with a way `through: { hex.terrain: [space…] }`.
+  # Open space and nebulae are for ships: a system with a way `through: { place.terrain: [space…] }`.
   space: { passable: false }
   nebula: { passable: false }
   asteroid-field: { passable: false }
@@ -86,7 +86,7 @@ values: {}
 # `id` for its translation). Exploring rolls
 # Core's Prompt generator (a step that rolls something of the Oracle: `roll:`) for an idea
 # of what the party finds, then _A place found?_ (places.yaml), which may make a place on
-# the hex (`hex.pois.landmark`).
+# the hex (`place.pois.landmark`).
 actions:
   march:
     name: March
@@ -96,7 +96,7 @@ actions:
         name: How far
         choices:
           - { id: destination, name: To the destination }
-          - { id: hex, name: One hex }
+          - { id: place, name: One hex }
     when:
       time.tags: { not: dark }
       trip.marched: { lt: '{{system.hoursPerDay}}' }

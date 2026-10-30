@@ -4,7 +4,7 @@ import { localize, type LocalizedText } from './index'
 /**
  * Places a result can make (docs/bestiary.md §3.4): a catalogue (`kind: places`) of
  * templates for points of interest, each made on the party's hex by an effect
- * `hex.pois.<template>: 1`, or by discovery's contents naming one. What a place is (its
+ * `place.pois.<template>: 1`, or by discovery's contents naming one. What a place is (its
  * name, icon, fields, the tags it gives the hex) is the pack's; the host writes it into its
  * map (Map), or only notes it where it has none (Travel).
  */
@@ -130,10 +130,10 @@ export interface MadePlace {
 }
 
 /**
- * A path that makes places on the party's hex: `hex.pois.<template>`, its change how many
+ * A path that makes places on the party's hex: `place.pois.<template>`, its change how many
  * (a number, or a roll read as the effect's).
  */
-export const PLACE_PATH = /^hex\.pois\.([^.]+)$/
+export const PLACE_PATH = /^place\.pois\.([^.]+)$/
 
 /**
  * Makes one place from its template: texts in `locale` (the pack's base one as fallback),

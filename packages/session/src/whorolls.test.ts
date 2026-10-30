@@ -7,7 +7,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripFacts } from './trip'
 
 /** A party whose Talk is one character's Charisma: whoever the player chooses, or the best. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
   {
     path: 'band/system.yaml',
     content:
@@ -31,7 +31,7 @@ modes: { walk: { kmPerDay: 24 } }
 checks: [{ event: GATE, at: '07:00' }]
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 7, lt: 19 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }] }

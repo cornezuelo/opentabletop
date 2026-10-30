@@ -18,7 +18,7 @@ description: |-
   - A party stat in the roll: `{{party.stats.navigation}}`
   - `set: { lost: true }`: no more travel today
   - Roll modes that apply by themselves (`modeWhen`): `roll-modes.advantage` with `trip.weather: clear` or a guide with Pathfinding 2 (`roles.guide.values.pathfinding`, a journey role), `roll-modes.disadvantage` with `yesterday.lost: true`
-  - A roll mode's `modeUnless`: no advantage in forests, `hex.terrain: [forest, dense-forest]`
+  - A roll mode's `modeUnless`: no advantage in forests, `place.terrain: [forest, dense-forest]`
   - Conditions on the weather, on the dark (`time.tags: dark`), and on being outside any region (`exists: false`)
 roll: '1d6 + {{party.stats.navigation}}'
 modeWhen:
@@ -27,7 +27,7 @@ modeWhen:
     { any: [{ trip.weather: clear }, { roles.guide.values.pathfinding: { gte: 2 } }] }
   roll-modes.disadvantage: { yesterday.lost: true }
 modeUnless:
-  roll-modes.advantage: { hex.terrain: [forest, dense-forest] }
+  roll-modes.advantage: { place.terrain: [forest, dense-forest] }
 entries:
   - {
       id: fog,
@@ -47,7 +47,7 @@ entries:
   # Outside any named region there are no landmarks to go by (`exists: false`).
   - id: wild
     range: 1-2
-    when: { hex.region: { exists: false } }
+    when: { place.region: { exists: false } }
     result: 'No landmarks out here: you wander off course'
     set: { lost: true }
   # Being lost also costs morale: a party stat changed by a table (stats: …).

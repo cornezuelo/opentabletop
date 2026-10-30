@@ -13,7 +13,7 @@ place-found:
   description: |-
     Si explorar encuentra un lugar que merece la pena marcar: con un 6, un **Hito**.
 
-    **Enseña:** un resultado que crea un lugar con una plantilla (`effects: { hex.pois.landmark: 1 }`).
+    **Enseña:** un resultado que crea un lugar con una plantilla (`effects: { place.pois.landmark: 1 }`).
   entries:
     nothing: Nada que merezca la pena marcar
     landmark: Un hito que merece la pena marcar

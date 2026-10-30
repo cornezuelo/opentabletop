@@ -73,7 +73,7 @@ export const es: Messages = {
     appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',
     rollHereHelp:
-      'Abre el Oráculo con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{hex.danger}}` en una tirada, `hex.danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `hex.tags: landmark`',
+      'Abre el Oráculo con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{place.danger}}` en una tirada, `place.danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `place.tags: landmark`',
     title: 'Oráculo',
     help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oráculo aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
@@ -205,7 +205,7 @@ export const es: Messages = {
     id: 'Id',
     idTip: 'Su id, como lo leen las tablas: icon.id',
     idHelp:
-      'El id del icono, como lo leen las tablas, las comprobaciones y las condiciones (sea cual sea el idioma de su nombre):\n• `icon.id: game:castle` — solo en un hex con un castillo\n• `hex.icon.id: { in: [game:castle, game:castle-ruins] }` — un castillo, en pie o en ruinas\n• `icon.id: { exists: true }` — cualquier icono\nLos iconos que importas son `asset:<id>`. Pulsa el id para seleccionarlo, o cópialo.',
+      'El id del icono, como lo leen las tablas, las comprobaciones y las condiciones (sea cual sea el idioma de su nombre):\n• `icon.id: game:castle` — solo en un hex con un castillo\n• `place.icon.id: { in: [game:castle, game:castle-ruins] }` — un castillo, en pie o en ruinas\n• `icon.id: { exists: true }` — cualquier icono\nLos iconos que importas son `asset:<id>`. Pulsa el id para seleccionarlo, o cópialo.',
     deselect: 'Hecho (Esc)',
     import: 'Importar SVG/PNG…',
     removeCustom: 'Borrar icono propio',
@@ -371,7 +371,7 @@ export const es: Messages = {
     color: 'Color',
     water: 'Agua',
     waterHelp:
-      'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: si se pueden cruzar, y con qué formas de viajar\n• las tablas ven `hex.water: true` (una condición: `hex.water: true`)',
+      'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: si se pueden cruzar, y con qué formas de viajar\n• las tablas ven `place.water: true` (una condición: `place.water: true`)',
     delete: 'Borrar terreno',
     confirmDelete: '«{name}» se usa en {count} hexes. ¿Borrarlo y dejar esos hexes vacíos?',
     add: 'Añadir terreno',
@@ -442,7 +442,7 @@ export const es: Messages = {
       'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja; ✎ pinta su tierra.',
     land: 'Su tierra',
     landHelp:
-      'Qué hexes tiene cada facción (`hex.faction`), dibujados en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las regiones y hexes que el sistema le da (Sistemas → **Facciones**), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita hexes\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno hex a hex (`faction.territory: 1` coge un hex de su frontera, `-1` cede uno)\nUn hex tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
+      'Qué hexes tiene cada facción (`place.faction`), dibujados en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las regiones y hexes que el sistema le da (Sistemas → **Facciones**), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita hexes\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno hex a hex (`faction.territory: 1` coge un hex de su frontera, `-1` cede uno)\nUn hex tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
     help: campaignTexts.es.factions.help,
     none: 'El sistema del mapa tiene facciones, aún no en este mapa: tráelas, cada una con la tierra con la que el sistema dice que empieza.',
     bring: campaignTexts.es.factions.bring,
@@ -573,8 +573,8 @@ export const es: Messages = {
   },
   hex: {
     idTip:
-      'El id del hex, como lo leen las tablas: hex.id (columna,fila, contadas desde 0, sea cual sea el formato de coordenadas del mapa)',
-    terrainIdTip: 'El id del terreno, como lo leen las tablas y las reglas de viaje: hex.terrain',
+      'El id del hex, como lo leen las tablas: place.id (columna,fila, contadas desde 0, sea cual sea el formato de coordenadas del mapa)',
+    terrainIdTip: 'El id del terreno, como lo leen las tablas y las reglas de viaje: place.terrain',
     poiIcon: 'Icono (solo para distinguir los PDI aquí)',
     noIcon: 'Sin icono',
     coord: 'Coordenada',
@@ -592,7 +592,7 @@ export const es: Messages = {
     poiDescription: 'Descripción',
     poiMadeFrom: 'Hecho a partir de',
     poiMadeFromHelp:
-      'La plantilla de lugar con la que se creó este punto de interés al jugar: un resultado del sistema (el contenido de un hex descubierto, una acción, una tabla) que nombró uno de sus catálogos de lugares.\n• `effects: { hex.pois.ruins: 1 }` — crea unas **Ruinas** en el hex del grupo, con el nombre, el texto, el icono y los campos de la plantilla, y sus etiquetas en el hex\nAhora es vuestro: editadlo o quitadlo como cualquier otro; que la plantilla cambie después no lo toca.',
+      'La plantilla de lugar con la que se creó este punto de interés al jugar: un resultado del sistema (el contenido de un hex descubierto, una acción, una tabla) que nombró uno de sus catálogos de lugares.\n• `effects: { place.pois.ruins: 1 }` — crea unas **Ruinas** en el hex del grupo, con el nombre, el texto, el icono y los campos de la plantilla, y sus etiquetas en el hex\nAhora es vuestro: editadlo o quitadlo como cualquier otro; que la plantilla cambie después no lo toca.',
     poiNotePlaceholder: 'Nota enlazada, p. ej. Lugares/{name}',
     addPoi: 'Añadir PDI',
     tags: vocabulary.es.terms.tags,
@@ -612,10 +612,10 @@ export const es: Messages = {
   },
   fields: {
     hexHelp:
-      'Valores de este hex que las tablas y comprobaciones de viaje leen por clave; los números se leen como números.\n• `danger` = `3` → `{{hex.danger}}` en una tirada, `hex.danger: { gte: 2 }` en una condición\n• `guards` = `6` → `2d6 + {{hex.guards}}`\n• `name` = `El Viejo Molino`\nUn campo propio gana al de su región.',
+      'Valores de este hex que las tablas y comprobaciones de viaje leen por clave; los números se leen como números.\n• `danger` = `3` → `{{place.danger}}` en una tirada, `place.danger: { gte: 2 }` en una condición\n• `guards` = `6` → `2d6 + {{place.guards}}`\n• `name` = `El Viejo Molino`\nUn campo propio gana al de su región.',
     fromRegion: 'De su región ({region}): {values}. Un campo propio con la misma clave gana.',
     regionHelp:
-      'Valores que tiene cada hex de la región (un campo propio del hex con la misma clave gana):\n• `danger` = `2` para todo un bosque, `4` en los hexes de su corazón\nLas tablas los leen como los del hex: `{{hex.danger}}`.',
+      'Valores que tiene cada hex de la región (un campo propio del hex con la misma clave gana):\n• `danger` = `2` para todo un bosque, `4` en los hexes de su corazón\nLas tablas los leen como los del hex: `{{place.danger}}`.',
     iconHelp:
       'Valores de este icono (un pueblo, un puente…). Las tablas tiradas en su hex los leen como `{{icon.<clave>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:

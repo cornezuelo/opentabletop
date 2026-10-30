@@ -3,7 +3,7 @@ import { CONDITION_OPS, conditionRows, rowsWords, type ConditionOp } from './con
 import { translator } from './i18n'
 
 /**
- * A condition in words in the UI's language ("hex.terrain is forest and hex.danger is at
+ * A condition in words in the UI's language ("place.terrain is forest and place.danger is at
  * least 3"), for a folded card; as YAML when rows can't say it.
  */
 export function conditionWords(condition: unknown, locale: string): string {

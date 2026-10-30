@@ -73,7 +73,7 @@ export const en = {
     appliedButton: 'Applied to the trip',
     rollHere: 'Roll here',
     rollHereHelp:
-      'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.\n• a field `danger = 3` → `{{hex.danger}}` in a roll, `hex.danger: { gte: 2 }` in a condition\n• tags `landmark` → `hex.tags: landmark`',
+      'Opens the Oracle with this hex: its terrain, tags and fields reach the tables.\n• a field `danger = 3` → `{{place.danger}}` in a roll, `place.danger: { gte: 2 }` in a condition\n• tags `landmark` → `place.tags: landmark`',
     title: 'Oracle',
     help: 'Rolls read the selected hex (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
@@ -206,7 +206,7 @@ export const en = {
     id: 'Id',
     idTip: 'Its id, as tables read it: icon.id',
     idHelp:
-      'The icon’s id, as tables, checks and conditions read it (whatever the language of its name):\n• `icon.id: game:castle` — only on a hex with a castle\n• `hex.icon.id: { in: [game:castle, game:castle-ruins] }` — a castle, standing or in ruins\n• `icon.id: { exists: true }` — any icon\nIcons you import are `asset:<id>`. Click the id to select it, or copy it.',
+      'The icon’s id, as tables, checks and conditions read it (whatever the language of its name):\n• `icon.id: game:castle` — only on a hex with a castle\n• `place.icon.id: { in: [game:castle, game:castle-ruins] }` — a castle, standing or in ruins\n• `icon.id: { exists: true }` — any icon\nIcons you import are `asset:<id>`. Click the id to select it, or copy it.',
     deselect: 'Done (Esc)',
     import: 'Import SVG/PNG…',
     removeCustom: 'Delete custom icon',
@@ -370,7 +370,7 @@ export const en = {
     color: 'Color',
     water: 'Water',
     waterHelp:
-      "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the system's rule for water: whether they can be crossed, and by which ways of travelling\n• tables see `hex.water: true` (a condition: `hex.water: true`)",
+      "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the system's rule for water: whether they can be crossed, and by which ways of travelling\n• tables see `place.water: true` (a condition: `place.water: true`)",
     delete: 'Delete terrain',
     confirmDelete: '"{name}" is used on {count} hexes. Delete it and clear those hexes?',
     add: 'Add terrain',
@@ -437,7 +437,7 @@ export const en = {
       'The powers of this world, each holding land on the map in its colour. Open one to see its sheet; ✎ paints its land.',
     land: 'Their land',
     landHelp:
-      "Which hexes each faction holds (`hex.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the regions and hexes the system names for it (Systems → **Factions**), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes hexes away\n• **world turns** — its turn table may win or lose ground hex by hex (`faction.territory: 1` takes a hex from its border, `-1` gives one up)\nA hex has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
+      "Which hexes each faction holds (`place.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the regions and hexes the system names for it (Systems → **Factions**), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes hexes away\n• **world turns** — its turn table may win or lose ground hex by hex (`faction.territory: 1` takes a hex from its border, `-1` gives one up)\nA hex has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
     help: campaignTexts.en.factions.help,
     none: "The map's system has factions, not yet on this map: bring them in, each holding the land the system says it starts with.",
     bring: campaignTexts.en.factions.bring,
@@ -568,8 +568,8 @@ export const en = {
   },
   hex: {
     idTip:
-      'The hex’s id, as tables read it: hex.id (column,row, counted from 0, whatever the map’s coordinate labels)',
-    terrainIdTip: 'The terrain’s id, as tables and travel rules read it: hex.terrain',
+      'The hex’s id, as tables read it: place.id (column,row, counted from 0, whatever the map’s coordinate labels)',
+    terrainIdTip: 'The terrain’s id, as tables and travel rules read it: place.terrain',
     poiIcon: 'Icon (only to tell POIs apart here)',
     noIcon: 'No icon',
     coord: 'Coordinate',
@@ -587,7 +587,7 @@ export const en = {
     poiDescription: 'Description',
     poiMadeFrom: 'Made from',
     poiMadeFromHelp:
-      'The place template this point of interest was made from in play: a result of the system’s (a discovered hex’s contents, an action, a table) that named one of its catalogues of places.\n• `effects: { hex.pois.ruins: 1 }` — makes one **Ruins** on the party’s hex, with the template’s name, text, icon and fields, and its tags on the hex\nIt’s yours now: edit or remove it like any other; the template changing later doesn’t touch it.',
+      'The place template this point of interest was made from in play: a result of the system’s (a discovered hex’s contents, an action, a table) that named one of its catalogues of places.\n• `effects: { place.pois.ruins: 1 }` — makes one **Ruins** on the party’s hex, with the template’s name, text, icon and fields, and its tags on the hex\nIt’s yours now: edit or remove it like any other; the template changing later doesn’t touch it.',
     poiNotePlaceholder: 'Linked note, e.g. Places/{name}',
     addPoi: 'Add POI',
     tags: vocabulary.en.terms.tags,
@@ -607,10 +607,10 @@ export const en = {
   },
   fields: {
     hexHelp:
-      "Values of this hex that tables and travel checks read by key; numbers are read as numbers.\n• `danger` = `3` → `{{hex.danger}}` in a roll, `hex.danger: { gte: 2 }` in a condition\n• `guards` = `6` → `2d6 + {{hex.guards}}`\n• `name` = `The Old Mill`\nA field of its own wins over its region's.",
+      "Values of this hex that tables and travel checks read by key; numbers are read as numbers.\n• `danger` = `3` → `{{place.danger}}` in a roll, `place.danger: { gte: 2 }` in a condition\n• `guards` = `6` → `2d6 + {{place.guards}}`\n• `name` = `The Old Mill`\nA field of its own wins over its region's.",
     fromRegion: 'From its region ({region}): {values}. A field of its own with the same key wins.',
     regionHelp:
-      "Values every hex of the region has (a hex's own field with the same key wins):\n• `danger` = `2` for a whole forest, `4` on its heart's hexes\nTables read them like the hex's: `{{hex.danger}}`.",
+      "Values every hex of the region has (a hex's own field with the same key wins):\n• `danger` = `2` for a whole forest, `4` on its heart's hexes\nTables read them like the hex's: `{{place.danger}}`.",
     iconHelp:
       'Values of this icon (a village, a bridge…). Tables rolled on its hex read them as `{{icon.<key>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:

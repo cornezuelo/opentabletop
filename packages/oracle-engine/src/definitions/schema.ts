@@ -205,8 +205,12 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  * 10. What an effect gives with no room left for it, where a sheet refuses more, is left
  *    behind, or waits for the player to make room (`items.full: ask`); in 9, it was kept
  *    in no place.
+ * 11. Where the party is is a place, whatever the map: `place.*` (`place.terrain`,
+ *    `place.tags`, `place.pois.<id>`, `{{place.danger}}`), the moment `trip.place-enter`, a
+ *    `travel.move` to the next `place`, the total `trip.places` (in 10: `hex.*`,
+ *    `trip.hex-enter`, `hex`, `trip.hexes`).
  */
-export const PACK_FORMAT = 10
+export const PACK_FORMAT = 11
 
 export const manifestSchema = z
   .object({

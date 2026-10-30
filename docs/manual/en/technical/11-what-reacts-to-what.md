@@ -15,7 +15,7 @@ They don't call each other: each hears the other's moments through the campaign 
 | ------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
 | a clock (`'06:00'`)                                     | trip           | as it strikes, marching, waiting or asleep in camp                                                   |
 | a part of the day (`time.part.morning`)                 | trip           | as the calendar's part begins                                                                        |
-| `trip.hex-enter`                                        | trip           | entering each hex                                                                                    |
+| `trip.place-enter`                                      | trip           | entering each hex                                                                                    |
 | `time.day-end`                                          | trip           | as each day of the trip ends, at midnight                                                            |
 | an action (`actions.camp`)                              | trip           | as the party takes it, before its steps                                                              |
 | an action's end (`actions.camp.done`)                   | trip           | once its steps are done                                                                              |

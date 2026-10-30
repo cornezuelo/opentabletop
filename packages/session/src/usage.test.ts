@@ -136,7 +136,7 @@ describe('where a name is used', () => {
     expect(
       where(usesOf(uses, { kind: 'sheet-condition', sheet: 'members', id: 'wounded' }, system)),
     ).toContain('reads bindings default stats.survival.from.unless')
-    // A kind of relation: who holds it towards the hex entered or left (`hex.relations.home`).
+    // A kind of relation: who holds it towards the hex entered or left (`place.relations.home`).
     const home = where(usesOf(uses, { kind: 'sheet-relation', sheet: 'members', id: 'home' }))
     expect(home.length).toBeGreaterThanOrEqual(2)
     expect(home.every((w) => w.startsWith('reads travel-rules default'))).toBe(true)
@@ -145,7 +145,7 @@ describe('where a name is used', () => {
       sheet: 'members',
       id: 'home',
     })
-    // What tables read from the map: `hex.danger`, written in full.
+    // What tables read from the map: `place.danger`, written in full.
     expect(where(usesOf(uses, { kind: 'read', id: 'danger' }))).toContain(
       'reads travel-rules default checks[3].when',
     )
@@ -192,7 +192,7 @@ describe('where a name is used', () => {
 
 /** A made-up system using each name in its short and full forms. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 10\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 11\n' },
   {
     path: 'band/system.yaml',
     content:
@@ -229,7 +229,7 @@ checks:
   - { event: GATE, at: '07:00', when: { trip.below: party.values.water } }
 actions:
   march:
-    params: { until: { choices: [destination, hex] } }
+    params: { until: { choices: [destination, place] } }
     when: { hour: { gte: 7, lt: 19 }, marched: { lt: '{{hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
   camp: { do: [{ time: '07:00' }, { set: { rested: true } }] }

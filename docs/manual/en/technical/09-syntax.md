@@ -8,16 +8,16 @@ In the apps this page is one click away: **Syntax** at the top of the help colum
 
 Most boxes and most of the YAML are `key: value` pairs.
 
-| Write                               | Means                                                   |
-| ----------------------------------- | ------------------------------------------------------- |
-| `hex.terrain: forest`               | a word                                                  |
-| `hex.danger: 3`, `today.lost: true` | a number, a yes/no                                      |
-| `hex.terrain: [forest, hills]`      | a list                                                  |
-| `hex.danger: { gte: 3 }`            | a value inside another (here, a comparison)             |
-| `count: '{{2d6}}'`                  | a [variable or roll](#variables), in quotes (see below) |
+| Write                                 | Means                                                   |
+| ------------------------------------- | ------------------------------------------------------- |
+| `place.terrain: forest`               | a word                                                  |
+| `place.danger: 3`, `today.lost: true` | a number, a yes/no                                      |
+| `place.terrain: [forest, hills]`      | a list                                                  |
+| `place.danger: { gte: 3 }`            | a value inside another (here, a comparison)             |
+| `count: '{{2d6}}'`                    | a [variable or roll](#variables), in quotes (see below) |
 
-- **In a form's box**, write the pairs without braces, separated by commas: `hex.terrain: forest, hex.danger: { gte: 3 }`. A box that can't be read turns red and isn't saved. Where a form builds a condition as rows, its **YAML** button shows this box.
-- **In YAML**, the same between braces on one line (`when: { hex.terrain: forest }`) or one pair per indented line.
+- **In a form's box**, write the pairs without braces, separated by commas: `place.terrain: forest, place.danger: { gte: 3 }`. A box that can't be read turns red and isn't saved. Where a form builds a condition as rows, its **YAML** button shows this box.
+- **In YAML**, the same between braces on one line (`when: { place.terrain: forest }`) or one pair per indented line.
 - **Quotes** (`'…'`) keep a text as text. YAML gives a few characters a meaning of their own, so a text that has them must go in quotes, or YAML reads something else:
   - **starting with `{`**: YAML opens a value inside another, so every variable or roll needs quotes: `count: '{{2d6}}'`, not `count: {{2d6}}`; `gte: '{{system.hoursPerDay}}'`, not `gte: {{system.hoursPerDay}}`;
   - **`: ` inside** (a colon and a space): YAML takes it for a new key: `result: 'Ambush: two wolves'`;
@@ -26,8 +26,8 @@ Most boxes and most of the YAML are `key: value` pairs.
 
   A quote inside a quoted text is written twice: `'The guard''s dog'`. When in doubt, quote: it never hurts. Forms do it for you.
 
-- **Dotted names** reach inside a value: `party.stats.morale`, `party.values.food`, `party.items.ration.count`, `yesterday.lost`, `time.moons.ember`, `hex.icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
-- **Full names and short names**: each fact of the map, the trip and the world has a full name by where it comes from, and most a short one: `hex.terrain` / `terrain`, `time.season` / `season`, `system.hoursPerDay` / `hoursPerDay`, `trip.day` / `tripDay`, `world.events` / `events`; the trip so far only by its full names (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); also `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Both read the same value; a full name can't be hidden by a stat with the same name. The list: [Full names and short names](04-what-tables-see.md#how-to-read-this-page).
+- **Dotted names** reach inside a value: `party.stats.morale`, `party.values.food`, `party.items.ration.count`, `yesterday.lost`, `time.moons.ember`, `place.icon.guards`, `token.might`, `around.lake`. Every name a table can read: [What tables see](04-what-tables-see.md).
+- **Full names and short names**: each fact of the map, the trip and the world has a full name by where it comes from, and most a short one: `place.terrain` / `terrain`, `time.season` / `season`, `system.hoursPerDay` / `hoursPerDay`, `trip.day` / `tripDay`, `world.events` / `events`; the trip so far only by its full names (`trip.km`, `trip.hours`, `trip.taken.camp`, `trip.spent.food`…); also `party.*`, `today.*`, `yesterday.*`, `from.*`, `around.*`. Both read the same value; a full name can't be hidden by a stat with the same name. The list: [Full names and short names](04-what-tables-see.md#how-to-read-this-page).
 
 ## Ids and references
 
@@ -36,7 +36,7 @@ Most boxes and most of the YAML are `key: value` pairs.
 - Where a field rolls something (an entry's or card's `table:` / `generator:`, a binding's `resolve:`, a faction's `turn:`, a step's `roll:` in an action or a world reaction), it may be a table, an oracle, a generator or a deck: the kind says which (`table: generator.npc`, `resolve: oracle.ford`).
 - A pack's `aliases` give another name to a reference: `aliases: { table.twist: core/table.twists }`, then `table: table.twist`.
 - Entries and cards have ids too, for translations and once-only entries.
-- **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.hex-enter`, `time.day-end`, a part of the day `time.part.morning`, a clock of the world filling `world.clocks.<id>.full`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.edges: road`, `hex.terrain: forest`.
+- **Inside a system**, what its rules name is written by its full name, `subsystem.id`, so it always says what it is: a moment (`trip.place-enter`, `time.day-end`, a part of the day `time.part.morning`, a clock of the world filling `world.clocks.<id>.full`), an action (`actions.camp`), a check (`checks.ENCOUNTER`), a way of travelling (`modes.horse`), moving on (`travel.move`), a parameter of the action (`params.how`). The values a condition compares stay short, since its key already says what they are: `trip.edges: road`, `place.terrain: forest`.
 
 ## Dice
 
@@ -50,7 +50,7 @@ In a table's or oracle's `roll`, a generator field's `roll`, and inside texts as
 | `4dF`                        | Fudge dice, −4 to +4                     |
 | `2d6+1`, `1d6+1d4`, `1d20-2` | sums and differences                     |
 | `4d6kh3`, `2d20kl1`          | keep the highest 3, keep the lowest 1    |
-| `1d6 + {{hex.danger}}`       | plus a value (missing counts as 0)       |
+| `1d6 + {{place.danger}}`     | plus a value (missing counts as 0)       |
 
 Without `roll`, a table picks by `weight` (1 if none): `{ weight: 3, result: pilgrim }`.
 
@@ -79,7 +79,7 @@ An entry's `range` is the totals it covers: `3`, `2-5`, `-1` (a total below zero
 | `'{{self.values.maxHealth - self.values.health}}'` | one value minus another (spaces around −)    |
 | `'{{floor(party.stats.mouths / 2)}}'`              | half, rounded down                           |
 | `'{{max(party.stats.survival, 1)}}'`               | at least 1                                   |
-| `'-{{1d6 + hex.danger}}'`                          | in an effect: takes away a roll plus a value |
+| `'-{{1d6 + place.danger}}'`                        | in an effect: takes away a roll plus a value |
 
 A missing value shows as nothing. Variables work in results, generator templates and fixed fields, card texts, `set` and `effects` values, references, [conditions](08-conditions.md#variables-and-rolls) (`gte: '{{party.stats.stealth}}'`, `gte: '{{1d20}}'`: a roll is the same all through a moment), and a check action's **When nothing applies** (`{terrain}`, with single braces there).
 
@@ -87,22 +87,22 @@ A missing value shows as nothing. Variables work in results, generator templates
 
 When something applies. The same syntax everywhere: `when` (must hold) and `unless` (must not). Full reference: [Conditions](08-conditions.md).
 
-| Write                                              | Holds when                                  |
-| -------------------------------------------------- | ------------------------------------------- |
-| `hex.terrain: forest`                              | it's exactly that                           |
-| `hex.terrain: [forest, hills]`                     | it's any of them                            |
-| `hex.tags: landmark`                               | a list (tags, holidays) contains it         |
-| `time.season: { not: summer }`                     | it's anything else (or missing)             |
-| `hex.danger: { gte: 3 }`                           | `gt`, `gte`, `lt`, `lte`: a number compared |
-| `hex.danger: { gte: 2, lte: 4 }`                   | every comparison holds                      |
-| `trip.weather: { in: [rain, storm] }`              | the same as a list                          |
-| `hex.region: { exists: false }`                    | it's missing (`true`: it's there)           |
-| `hex.danger: { gt: '{{party.stats.stealth}}' }`    | a variable: compared with another value     |
-| `party.stats.wits: { gte: '{{1d20}}' }`            | a roll: under the wits (once a moment)      |
-| `{ hex.terrain: forest, timeOfDay: night }`        | every pair holds                            |
-| `any: [{ trip.edges: road }, { trip.mode: boat }]` | one of them holds                           |
-| `all: [{ hex.tags: ford }, { hex.tags: toll }]`    | all of them (one name twice)                |
-| `not: { timeOfDay: night }`                        | the condition inside doesn't                |
+| Write                                               | Holds when                                  |
+| --------------------------------------------------- | ------------------------------------------- |
+| `place.terrain: forest`                             | it's exactly that                           |
+| `place.terrain: [forest, hills]`                    | it's any of them                            |
+| `place.tags: landmark`                              | a list (tags, holidays) contains it         |
+| `time.season: { not: summer }`                      | it's anything else (or missing)             |
+| `place.danger: { gte: 3 }`                          | `gt`, `gte`, `lt`, `lte`: a number compared |
+| `place.danger: { gte: 2, lte: 4 }`                  | every comparison holds                      |
+| `trip.weather: { in: [rain, storm] }`               | the same as a list                          |
+| `place.region: { exists: false }`                   | it's missing (`true`: it's there)           |
+| `place.danger: { gt: '{{party.stats.stealth}}' }`   | a variable: compared with another value     |
+| `party.stats.wits: { gte: '{{1d20}}' }`             | a roll: under the wits (once a moment)      |
+| `{ place.terrain: forest, timeOfDay: night }`       | every pair holds                            |
+| `any: [{ trip.edges: road }, { trip.mode: boat }]`  | one of them holds                           |
+| `all: [{ place.tags: ford }, { place.tags: toll }]` | all of them (one name twice)                |
+| `not: { timeOfDay: night }`                         | the condition inside doesn't                |
 
 **Where they go:**
 
@@ -155,19 +155,19 @@ On entries, cards, checks and action steps. Each key is a value the system decla
 | `world.clocks.the-siege: 1`                                             | ticks a progress clock (a faction's turn, a world reaction, or a trip's result on a map); `'=0'` sets it                                                             |
 | `present.wolf: 3`, `present.wolf: '{{wolves}}'`                         | makes copies of a [template](07-kinds.md#bestiaries) where the party is (those present), each rolling its own; `-1` takes the last away, `'=0'` all of them          |
 | `present.wolf.values.health: -2`, `present.all.conditions.routed: true` | every copy of one template here, or every copy here; one copy by its id: `characters.wolf-2.values.health: -2`                                                       |
-| `hex.pois.ruins: 1`                                                     | makes a [place](07-kinds.md#places) on the party's hex from its template: on a map, a point of interest with its tags on the hex; without one, a line in the journal |
+| `place.pois.ruins: 1`                                                   | makes a [place](07-kinds.md#places) on the party's hex from its template: on a map, a point of interest with its tags on the hex; without one, a line in the journal |
 
 A change stops at the value's `min` / `max`; what hit one that day is seen afterwards as `trip.below` / `trip.above` (lists of full names: `trip.below: party.values.food`). Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
 
 ## Moments
 
-When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.hex-enter, actions.rest]`); conditions and tables see which one as `trip.moment`.
+When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.place-enter, actions.rest]`); conditions and tables see which one as `trip.moment`.
 
 | Moment                                                                     | When                                                                                               |
 | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | a clock (`'06:00'`)                                                        | as it strikes, marching, waiting or asleep in camp                                                 |
 | a part of the day (`time.part.morning`)                                    | as the calendar's part begins, the same way                                                        |
-| `trip.hex-enter`                                                           | entering each hex                                                                                  |
+| `trip.place-enter`                                                         | entering each hex                                                                                  |
 | `time.day-end`                                                             | as each day ends, camping or not (actions first, then checks)                                      |
 | an action (`actions.camp`)                                                 | when the party takes that action, before its steps (a check that waits holds them)                 |
 | an action's end (`actions.forage.done`)                                    | once its steps are done                                                                            |
@@ -192,12 +192,12 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 | `time: '14:00'`                                                 | until it next strikes                                             |
 | `time: time.meal.luncheon`                                      | until a part of the calendar's day next starts                    |
 | `travel.move: destination`                                      | moves along the route while its conditions hold                   |
-| `travel.move: '{{params.until}}'`                               | as far as its parameter says (`hex`, `3`…)                        |
+| `travel.move: '{{params.until}}'`                               | as far as its parameter says (`place`, `3`…)                      |
 | `travel.speed: 0.5`                                             | the rest of today's moving at half speed                          |
 | `effects: { party.stats.fatigue: -1 }`                          | changes the party                                                 |
 | `set: { lost: true }`                                           | gives a value of the day                                          |
 | `do: actions.forage`                                            | takes another action, if its conditions hold                      |
-| `{ do: actions.march, with: { until: hex } }`                   | another action, with its parameters                               |
+| `{ do: actions.march, with: { until: place } }`                 | another action, with its parameters                               |
 | `roll: checks.ENCOUNTER_CHECK_REQUIRED`                         | rolls a check now (or `roll: table.ruins`: a table of the Oracle) |
 | `travel.advance: 1`                                             | moves one hex along the route, no time passing                    |
 | `travel.mode: modes.boat`                                       | travels another way, if it can be chosen now                      |
@@ -208,7 +208,7 @@ An action's `do:` is a list of steps, in order; each does one thing and may have
 | `{ id: song, say: … }`                                          | names a step for its translations                                 |
 | `{ unless: { trip.below: party.values.food }, effects: { … } }` | only when its condition holds                                     |
 
-Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, hex, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: actions.march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: actions.camp } }`, is what a party that can't march does while the time moves on by itself. Every step, with examples: [Actions and steps](10-actions-and-steps.md). Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+Marching is an action with a `travel.move` step, checked as the party moves: its `when` / `unless` (none: whenever nothing else stops it; by day for 8 hours: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). An action's `params` are what is chosen when taking it: `params: { until: { choices: [destination, place, 3] } }`, read as `{{params.until}}`. How the trip goes on by itself, `travel: { onward: { do: actions.march, with: { until: destination } } }`. The halt, `travel: { halt: { at: '20:00', do: actions.camp } }`, is what a party that can't march does while the time moves on by itself. Every step, with examples: [Actions and steps](10-actions-and-steps.md). Besides `do`, an action has `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (its button hides while it can't be taken) and `nothing` (what the journal says when none of its checks apply). Full: [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## What blocks: `blocks`
 

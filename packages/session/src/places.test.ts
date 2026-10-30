@@ -108,7 +108,7 @@ describe('results that make places', () => {
     const { session } = startTrip({ system: core, location: 'h1', seed: 'x' })
     const rules = {
       ...core.rules,
-      actions: { ...core.rules.actions, build: { do: [{ effects: { 'hex.pois.tower': 1 } }] } },
+      actions: { ...core.rules.actions, build: { do: [{ effects: { 'place.pois.tower': 1 } }] } },
     }
     const done = stepTrip({ system: { ...core, rules }, world: plain }, session, {
       type: 'action',
