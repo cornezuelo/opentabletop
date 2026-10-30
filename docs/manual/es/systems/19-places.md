@@ -24,4 +24,4 @@ Su nombre y los nombres y descripciones de los lugares se escriben en el idioma 
 
 El descubrimiento también puede crear lugares: una entrada de la tabla que decide qué hay en un hex encontrado (`discover.contents`) con `effects: { hex.pois.camp: 1 }` crea el campamento en vez de un punto de interés hecho con su texto ([Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa)). Las Marcas Grises crean así sus ruinas, sus santuarios y la guarida del dragón, y el **Explorar** de Core crea un _Hito_ con un 6.
 
-Los sistemas incluidos son de solo lectura: edita una copia.
+Los sistemas incluidos son de solo lectura: **Duplicad** uno para cambiarlo.

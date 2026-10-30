@@ -7,9 +7,9 @@ import {
   createPart,
   createSystem,
   canDelete,
-  copyGenericRules,
   createSystemPart,
   deleteSystem,
+  duplicateSystem,
   declareSystem,
   packFormat,
   partChoices,
@@ -315,29 +315,71 @@ describe('systems in the Systems app', () => {
     expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
   }, 30_000)
 
-  it('a copy of the Generic rules plays as they do, and a system of yours can be deleted', () => {
-    const id = copyGenericRules('My generic rules')!
-    const copy = systems.get(id)!
+  it('Duplicate makes an independent system of yours from any (the Generic rules, a setting, yours), and yours can be deleted', () => {
     const core = systems.get('core')!
+    const id = duplicateSystem(core, 'My generic rules')!
+    const copy = systems.get(id)!
     expect(copy.pack).toBe(id)
-    // Its own rules, Core's other parts by name: it plays as the Generic rules do.
+    expect(copy.name).toBe('My generic rules')
+    // Every part is its own, none Core's: the same actions, sheets, gear, bestiary, places, land.
     expect(Object.keys(copy.rules.actions ?? {})).toEqual(Object.keys(core.rules.actions ?? {}))
-    expect(copy.sheet?.id).toBe('core/character')
-    expect(copy.items?.map((c) => c.id)).toEqual(['core/gear'])
-    expect(copy.bestiary?.map((b) => b.id)).toEqual(['core/foes'])
-    expect(copy.places?.map((c) => c.id)).toEqual(['core/default'])
-    expect(Object.keys(copy.land ?? {})).toEqual(['core/default'])
+    expect(copy.sheet?.id).toBe(`${id}/character`)
+    expect(copy.partySheet?.id).toBe(`${id}/party`)
+    expect(copy.items?.map((c) => c.id)).toEqual([`${id}/gear`])
+    expect(copy.bestiary?.map((b) => b.id)).toEqual([`${id}/foes`])
+    expect(copy.places?.map((c) => c.id)).toEqual([`${id}/default`])
+    expect(Object.keys(copy.land ?? {})).toEqual([`${id}/default`])
+    expect(Object.keys(copy.weather ?? {})).toEqual([`${id}/default`])
+    for (const kind of [
+      'sheet',
+      'items',
+      'bestiary',
+      'places',
+      'land',
+      'calendar',
+      'weather',
+    ] as const)
+      expect(systemParts(copy, kind).every((p) => p.root === id)).toBe(true)
+    // Core's tables came too (its rules roll its Prompt): nothing is Core's, which is untouched.
+    expect(copy.packs).toEqual([id])
+    expect(library.pack('core')?.origin).toBe('bundled')
     expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
-    // A second copy takes the next free name; Core's own can't be deleted, yours can.
-    const second = copyGenericRules('My generic rules')!
+    // Its texts keep their translations, but not the old name's.
+    expect(library.readFile(id, 'locales/es/sheet.yaml')).toBeDefined()
+    expect(library.readFile(id, 'locales/es/system.yaml') ?? '').not.toMatch(/Reglas genéricas/)
+
+    // A setting: its rules and parts, with Core still brought along; no example maps.
+    const marches = systems.get('grey-marches')!
+    const mine = systems.get(duplicateSystem(marches, 'My Marches')!)!
+    expect(mine.pack).not.toBe('grey-marches')
+    expect(Object.keys(mine.rules.actions ?? {})).toEqual(Object.keys(marches.rules.actions ?? {}))
+    expect(mine.bestiary?.map((b) => b.id)).toEqual([`${mine.pack}/marches`])
+    expect(mine.packs).toEqual([mine.pack, 'core'])
+    // Its example maps play it, in a campaign of its own, as maps of their own.
+    expect(mine.maps).toEqual(marches.maps)
+    const map = JSON.parse(library.readFile(mine.pack!, marches.maps![0])!)
+    expect(map.campaign).toMatchObject({ id: mine.pack, name: mine.name })
+    expect(map.maps[0].id).toBe(`greymarches1-${mine.pack}`)
+    expect(JSON.stringify(map)).not.toMatch(/"grey-marches"/)
+    expect(
+      library
+        .diagnostics(mine.pack!)
+        .filter((d) => d.severity === 'error')
+        .map((d) => `${d.file} ${d.at} ${d.message}`),
+    ).toEqual([])
+    expect(library.pack('grey-marches')?.origin).toBe('bundled')
+
+    // Yours too, under the next free name; the original can be deleted, Core can't.
+    const second = duplicateSystem(copy, 'My generic rules')!
     expect(second).not.toBe(id)
+    expect(systems.get(second)!.sheet?.id).toBe(`${second}/character`)
     expect(canDelete(core)).toBe(false)
     expect(canDelete(systems.get(second)!)).toBe(true)
     expect(deleteSystem(systems.get(second)!)).toBe(true)
     expect(systems.get(second)).toBeUndefined()
     library.undo()
     expect(systems.get(second)).toBeDefined()
-  }, 30_000)
+  }, 60_000)
 
   it('a new system makes Core’s places, and a catalogue of its own is created and named by it', () => {
     const id = createSystem('Wanderers')!

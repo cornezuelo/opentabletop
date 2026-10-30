@@ -18,7 +18,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
-- Systems: a system of yours couldn't be deleted; **⋯ → Delete this system** beside its name deletes it (its whole pack, asking first, undoable). The Generic rules had no **Edit a copy**: theirs makes a new system of yours that plays as they do (a copy of their rules naming Core's sheets, gear, bestiary, places and land).
+- Systems: a system of yours couldn't be deleted; **⋯ → Delete this system** beside its name deletes it (its whole pack, asking first, undoable). And **Duplicate**, beside any system's name (the Generic rules, the Grey Marches, yours), makes an independent system of yours from it: a new pack with everything the original's has, its example maps playing the duplicate; the original never changes. It replaces **Edit a copy** in Systems.
 - Travel and the Hexmapper: the party's items on **The party**'s card showed their ids (`ration`) instead of their names, and couldn't be chosen from the system's catalogues.
 - Travel: a trip's campaign of its own kept the name of the system it was first opened with (_Generic rules_) after the trip was played with another one; it follows the trip's name now (renamed, or another system), until the campaign is renamed by hand.
 - Every app: **Playing** in the bar didn't hear a campaign renamed or kept by the same page (only by other tabs), and kept showing its old name.

@@ -27,7 +27,7 @@ export const en = {
   },
   welcome: {
     title: 'Systems',
-    body: 'A system is what a game is played with: its travel rules (how fast you go over each terrain and road, what you carry, what the party can do), the checks rolled on the way and the tables that answer them. Pick one on the left to see and edit it, or create a new one below the list. Bundled systems are read-only: edit a copy. Play them in the Travel app (trips without a map) or on a map in the Hexmapper.',
+    body: 'A system is what a game is played with: its travel rules (how fast you go over each terrain and road, what you carry, what the party can do), the checks rolled on the way and the tables that answer them. Pick one on the left to see and edit it, or create a new one below the list. Bundled systems are read-only: **Duplicate** one to make it yours. Play them in the Travel app (trips without a map) or on a map in the Hexmapper.',
   },
   tabs: {
     overview: 'Overview',
@@ -956,7 +956,7 @@ export const en = {
     roleName: 'Name',
   },
   edit: {
-    readOnly: 'This system comes bundled and is read-only.',
+    readOnly: 'This system comes bundled and is read-only: Duplicate makes one of yours to change.',
     editedCopy:
       'Your edited copy of a bundled system: it replaces the bundled one in this browser.',
     updatedTip:
@@ -965,10 +965,10 @@ export const en = {
       'Discard your changes to this system and go back to the bundled version? (↶ undoes it.)',
     dependency:
       'From {pack}, a pack this system brings along: read-only here, since every system that brings it shares it. To change it for this system, make your own in the system’s pack.',
-    builtIn:
-      'The Generic rules are Core’s system, the one a map plays when it chooses none: read-only here, as every system may bring Core. **Edit a copy** makes a new system of yours that plays as they do (a copy of their rules, Core’s sheets, gear, bestiary, places and land), to change as you like.',
-    copyGeneric: 'Edit a copy',
-    copyGenericName: 'My generic rules',
+    duplicate: 'Duplicate',
+    duplicateName: '{name} (copy)',
+    duplicateHelp:
+      'Makes a system of yours from this one, independent of it: a new pack with everything this one’s pack has (its rules, its parts, its tables, its translations), named _… (copy)_ (rename it in its **Overview**), to change as you like. The original never changes, bundled or yours.\n• From the **Generic rules**: a plain base to build your own game on\n• From a bundled setting: its rules to bend for your table\nIts example maps don’t come along (they name the original system); what it brings from other packs (Core’s tables) stays theirs.',
     more: 'More',
     delete: 'Delete this system',
     confirmDelete:

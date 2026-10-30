@@ -1,13 +1,13 @@
 <script lang="ts">
   import { BundledUpdates, manifestOf } from '@open-tabletop/pack-ui'
-  import { DEFAULT_SYSTEM, systemName } from '@open-tabletop/session'
-  import { appUrl, confirmAction, Markdown, MoreMenu } from '@open-tabletop/ui-kit'
+  import { systemName } from '@open-tabletop/session'
+  import { appUrl, confirmAction, InfoTip, MoreMenu } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
   import {
     canDelete,
-    copyGenericRules,
     deleteSystem,
+    duplicateSystem,
     rulesFile,
     systemFile,
     systemParts,
@@ -68,9 +68,13 @@
   const problems = $derived(
     files.flatMap((f) => library.diagnostics(f.root, f.path).filter((d) => d.severity === 'error')),
   )
-  /** A copy of the Generic rules to edit, opened. */
-  function copyGeneric() {
-    const copy = copyGenericRules(t('edit.copyGenericName'))
+  /** An independent duplicate of it, of yours, opened. */
+  function duplicate() {
+    if (!system) return
+    const copy = duplicateSystem(
+      system,
+      t('edit.duplicateName', { name: systemName(system, getLocale()) }),
+    )
     if (copy) go({ name: 'system', id: copy, tab: 'overview' })
   }
 
@@ -89,24 +93,25 @@
     <header>
       <div class="title-row">
         <h1 class="page-title">{systemName(system, getLocale())}</h1>
-        {#if canDelete(system)}
-          <MoreMenu label={t('edit.more')}>
-            <button class="danger" onclick={remove}>{t('edit.delete')}</button>
-          </MoreMenu>
-        {/if}
+        <div class="title-buttons">
+          {#if root}
+            <button class="button" onclick={duplicate}
+              >{t('edit.duplicate')}<InfoTip markdown={t('edit.duplicateHelp')} /></button
+            >
+          {/if}
+          {#if canDelete(system)}
+            <MoreMenu label={t('edit.more')}>
+              <button class="danger" onclick={remove}>{t('edit.delete')}</button>
+            </MoreMenu>
+          {/if}
+        </div>
       </div>
       <a class="play" href={`${appUrl('travel')}#/system/${encodeURIComponent(id)}/play`}
         >{t('edit.playInTravel')}</a
       >
-      <!-- On every tab: edit a copy of a bundled system, or revert your copy to it. -->
-      <!-- Core's Generic rules: every system may bring Core, so its copy is a new system of
-           yours that plays as they do (Core's own pack stays as it is). -->
-      {#if system.id === DEFAULT_SYSTEM && library.pack(root ?? '')?.origin === 'bundled'}
-        <div class="generic">
-          <div class="help"><Markdown text={t('edit.builtIn')} /></div>
-          <button class="button" onclick={copyGeneric}>{t('edit.copyGeneric')}</button>
-        </div>
-      {:else if root}<div class="copy"><ReadOnly {root} /></div>{/if}
+      <!-- On every tab: a bundled system is read-only (Duplicate makes one of yours), and an
+           older edited copy of one can go back to it. -->
+      {#if root}<div class="copy"><ReadOnly {root} /></div>{/if}
       <div class="tabs" role="tablist">
         {#each tabs as name (name)}
           <button
@@ -225,23 +230,10 @@
     justify-content: space-between;
   }
 
-  .generic {
+  .title-buttons {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px 16px;
+    gap: 8px;
     align-items: center;
-    margin-top: 8px;
-  }
-
-  .generic .help {
-    flex: 1;
-    min-width: 260px;
-    margin: 0;
-    max-width: 760px;
-  }
-
-  .generic .help :global(p) {
-    margin: 0;
   }
 
   .copy:not(:empty) {

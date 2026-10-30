@@ -29,7 +29,8 @@
     dependency?: string
     /** Whether to show the edited copy's notice and updates (false: the host shows them). */
     edited?: boolean
-    texts?: { readOnly?: string; editedCopy?: string; confirmRevert?: string }
+    /** `copyHelp`: what the host's own action (`copy`) does, for the help column. */
+    texts?: { readOnly?: string; editedCopy?: string; confirmRevert?: string; copyHelp?: string }
     /** An action of the host's in place of **Edit a copy**. */
     copy?: Snippet
   } = $props()
@@ -50,7 +51,7 @@
     <span
       >{texts.readOnly ?? t('notice.readOnly')}{pack.personal
         ? ` ${t('notice.personalCopy')}`
-        : ''}<InfoTip markdown={t('notice.makeCopyHelp')} /></span
+        : ''}<InfoTip markdown={texts.copyHelp ?? t('notice.makeCopyHelp')} /></span
     >
     {#if copy}{@render copy()}{:else}
       <button onclick={() => library.editCopy(root)}>{t('notice.makeCopy')}</button>

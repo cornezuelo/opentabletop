@@ -24,4 +24,4 @@ Its name and the places' names and descriptions are written in the language the 
 
 Discovery can make places too: an entry of the table that decides what a found hex holds (`discover.contents`) with `effects: { hex.pois.camp: 1 }` makes the camp instead of a point of interest from its text ([Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)). The Grey Marches make their ruins, shrines and the dragon's lair this way, and Core's **Explore** makes a _Landmark_ on a 6.
 
-Bundled systems are read-only: edit a copy.
+Bundled systems are read-only: **Duplicate** one to change it.

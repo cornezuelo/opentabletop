@@ -24,4 +24,4 @@ Los valores y las condiciones salen de la hoja y los objetos de los catálogos, 
 3. En **Reglas** o en las tablas, un efecto `present.wolf: '{{1d4+2}}'` trae la manada.
 4. **Pruébalo**: tras el efecto, la caja **Aquí** del viaje muestra los lobos, cada uno con su salud.
 
-Los sistemas incluidos son de solo lectura: edita una copia.
+Los sistemas incluidos son de solo lectura: **Duplicad** uno para cambiarlo.

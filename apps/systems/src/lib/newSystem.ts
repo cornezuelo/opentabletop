@@ -7,9 +7,16 @@ import {
   type LocalizedText,
   type TravelSystem,
 } from '@open-tabletop/session'
-import { FACTION_SHEET, manifestOf, PARTY_SHEET, SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
+import {
+  FACTION_SHEET,
+  MANIFEST_FILE,
+  manifestOf,
+  PARTY_SHEET,
+  SYSTEM_TEMPLATES,
+  type PackFile,
+} from '@open-tabletop/pack-ui'
 import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
-import { stringify } from 'yaml'
+import { parseDocument, stringify } from 'yaml'
 import { getLocale } from './i18n'
 import { library } from './packs.svelte'
 import type { PartSource } from './partDoc.svelte'
@@ -140,25 +147,92 @@ export function createSystem(
 }
 
 /**
- * A copy of the Generic rules to edit (Core's own stays as it is, as every system may bring
- * it): a new system as `createSystem` makes one, which also names Core's characters' sheet,
- * gear, bestiary and land, so it plays as they do until you change them. Named `name`, or
- * `name 2`, `name 3`… when taken. Returns its id.
+ * An example map of a duplicated pack, made the duplicate's: what named the original pack
+ * (its system, its campaign: both by the pack's id) names the new one, its campaign is
+ * called as the duplicate, and its maps get ids of their own (so the Hexmapper keeps them
+ * apart from the original's examples). Unreadable files are kept as they are.
  */
-export function copyGenericRules(name: string): string | null {
-  const root = library.rootOf(DEFAULT_SYSTEM)
-  const text = root ? library.readFile(root, 'system.yaml') : undefined
-  const core = (text && readDefinition(text, '@system/default')) || {}
-  const parts: Record<string, unknown> = {}
-  if (typeof core.sheet === 'string') parts.sheet = fromCore(core.sheet)
-  for (const key of ['items', 'bestiary', 'land'] as const)
-    if (Array.isArray(core[key]))
-      parts[key] = (core[key] as unknown[]).flatMap((r) => fromCore(r) ?? [])
-  for (let n = 1; n < 100; n++) {
-    const id = createSystem(n === 1 ? name : `${name} ${n}`, parts)
-    if (id) return id
+function duplicateMap(json: string, from: string, to: string, name: string): string {
+  let data: unknown
+  try {
+    data = JSON.parse(json)
+  } catch {
+    return json
   }
-  return null
+  const maps = (data as { maps?: { id?: unknown }[] }).maps ?? []
+  const renamed = new Map<string, string>([[from, to]])
+  for (const m of maps) if (typeof m.id === 'string') renamed.set(m.id, `${m.id}-${to}`)
+  const walk = (value: unknown): unknown =>
+    typeof value === 'string'
+      ? (renamed.get(value) ?? value)
+      : Array.isArray(value)
+        ? value.map(walk)
+        : value && typeof value === 'object'
+          ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, walk(v)]))
+          : value
+  const out = walk(data) as { campaign?: { name?: string } }
+  if (out.campaign) out.campaign.name = name
+  return `${JSON.stringify(out, null, 2)}\n`
+}
+
+/**
+ * An independent duplicate of a system, to change as you like (the Generic rules, the Grey
+ * Marches, one of yours): a new pack of yours with everything its pack has (the system and
+ * every part it names, its tables, its translations, its example maps), under a new id; the
+ * original is never touched. Its pack's dependencies stay (what it brings from them is
+ * shared, not copied); its example maps play the duplicate, in a campaign of their own
+ * (`duplicateMap`). A personal-use pack's
+ * duplicate stays personal use. Named `name`, or `name 2`, `name 3`… when taken; returns the
+ * duplicate system's id.
+ */
+export function duplicateSystem(system: TravelSystem, name: string): string | null {
+  const root = systemRoot(system)
+  const pack = root ? library.pack(root) : undefined
+  if (!root || !pack) return null
+  let id = ''
+  let shown = name.trim()
+  for (let n = 1; n < 100 && !id; n++) {
+    shown = n === 1 ? name.trim() : `${name.trim()} ${n}`
+    const candidate = slugify(shown)
+    if (!library.pack(candidate) && !library.rootOf(candidate)) id = candidate
+  }
+  if (!id) return null
+  const manifest = parseDocument(library.readFile(root, MANIFEST_FILE) ?? '')
+  manifest.set('id', id)
+  manifest.set('name', shown)
+  manifest.set('version', '0.1.0')
+  // The system duplicated: named as given (its translations of the old name dropped), with
+  // no description of the original's.
+  const declared = systemFile(system)?.system
+  const localId = declared?.id ?? 'default'
+  const files = pack.files.flatMap((f): PackFile[] => {
+    if (f.path === MANIFEST_FILE) return []
+    if (/\.otd\.json$/.test(f.path))
+      return [{ path: f.path, content: duplicateMap(f.content, root, id, shown) }]
+    if (declared && f.path === declared.path) {
+      let content = setIn(f.content, `@system/${localId}`, ['name'], shown)
+      content = setIn(content, `@system/${localId}`, ['description'], undefined)
+      return [{ path: f.path, content }]
+    }
+    if (
+      declared &&
+      f.path.replace(/^locales\/[^/]+\//, '') === declared.path &&
+      f.path !== declared.path
+    ) {
+      const overlay = parseDocument(f.content)
+      overlay.deleteIn([`system/${localId}`, 'name'])
+      overlay.deleteIn([`system/${localId}`, 'description'])
+      return [{ path: f.path, content: overlay.toString() }]
+    }
+    return [{ path: f.path, content: f.content }]
+  })
+  library.addPack({
+    root: id,
+    origin: 'user',
+    ...(pack.personal && { personal: true }),
+    files: [{ path: MANIFEST_FILE, content: manifest.toString() }, ...files],
+  })
+  return localId === 'default' ? id : `${id}/${localId}`
 }
 
 /**

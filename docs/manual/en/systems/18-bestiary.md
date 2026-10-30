@@ -24,4 +24,4 @@ Values and conditions come from the sheet and items from the catalogues, so a ma
 3. In **Rules** or the tables, an effect `present.wolf: '{{1d4+2}}'` brings the pack.
 4. **Try it**: after the effect, the trip's **Here** box shows the wolves, each with its own health.
 
-Bundled systems are read-only: edit a copy.
+Bundled systems are read-only: **Duplicate** one to change it.

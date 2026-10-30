@@ -29,7 +29,7 @@ export const es: Messages<typeof en> = {
   },
   welcome: {
     title: 'Systems',
-    body: 'Un sistema es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad se va por cada terreno y camino, qué se lleva encima, qué puede hacer el grupo), las comprobaciones que se tiran por el camino y las tablas que las responden. Elige uno a la izquierda para verlo y editarlo, o crea uno nuevo debajo de la lista. Los sistemas incluidos son de solo lectura: edita una copia. Juégalos en la aplicación Travel (viajes sin mapa) o sobre un mapa en el Hexmapper.',
+    body: 'Un sistema es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad se va por cada terreno y camino, qué se lleva encima, qué puede hacer el grupo), las comprobaciones que se tiran por el camino y las tablas que las responden. Elige uno a la izquierda para verlo y editarlo, o crea uno nuevo debajo de la lista. Los sistemas incluidos son de solo lectura: **Duplicad** uno para hacerlo vuestro. Juégalos en la aplicación Travel (viajes sin mapa) o sobre un mapa en el Hexmapper.',
   },
   tabs: {
     overview: 'Resumen',
@@ -966,7 +966,8 @@ export const es: Messages<typeof en> = {
     roleName: 'Nombre',
   },
   edit: {
-    readOnly: 'Este sistema viene incluido y es de solo lectura.',
+    readOnly:
+      'Este sistema viene incluido y es de solo lectura: Duplicar crea uno vuestro para cambiarlo.',
     editedCopy: 'Tu copia editada de un sistema incluido: sustituye al incluido en este navegador.',
     updatedTip:
       'La versión incluida de este sistema ha cambiado desde que hiciste tu copia: ábrelo para coger o conservar cada cambio.',
@@ -974,10 +975,10 @@ export const es: Messages<typeof en> = {
       '¿Descartar tus cambios en este sistema y volver a la versión incluida? (↶ lo deshace.)',
     dependency:
       'De {pack}, un pack que trae este sistema: aquí es de solo lectura, porque lo comparten todos los sistemas que lo traen. Para cambiarlo en este sistema, haz el tuyo en el pack del sistema.',
-    builtIn:
-      'Las reglas genéricas son el sistema de Core, el que juega un mapa que no elige ninguno: aquí son de solo lectura, porque cualquier sistema puede traer Core. **Editar una copia** crea un sistema nuevo vuestro que juega como ellas (una copia de sus reglas, las hojas, el equipo, el bestiario, los lugares y la tierra de Core), para cambiarlo a vuestro gusto.',
-    copyGeneric: 'Editar una copia',
-    copyGenericName: 'Mis reglas genéricas',
+    duplicate: 'Duplicar',
+    duplicateName: '{name} (copia)',
+    duplicateHelp:
+      'Crea a partir de este un sistema vuestro, independiente de él: un pack nuevo con todo lo que tiene el pack de este (sus reglas, sus partes, sus tablas, sus traducciones), llamado _… (copia)_ (se renombra en su **Resumen**), para cambiarlo a vuestro gusto. El original nunca cambia, sea incluido o vuestro.\n• A partir de las **Reglas genéricas**: una base sencilla sobre la que montar vuestro juego\n• A partir de una ambientación incluida: sus reglas, para ajustarlas a vuestra mesa\nSus mapas de ejemplo no vienen (nombran el sistema original); lo que trae de otros packs (las tablas de Core) sigue siendo de ellos.',
     more: 'Más',
     delete: 'Borrar este sistema',
     confirmDelete:

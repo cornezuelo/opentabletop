@@ -31,7 +31,7 @@ src/
 
 - The Checks tab keeps rules and bindings in step: renaming a check renames its binding; removing it removes its binding.
 - Templates of bestiaries are edited here only (folded cards, character-ui's `TemplateEditor`); the Characters app shows them and links here.
-- Bundled systems are read-only: **Edit a copy** (PackLibrary `editCopy`) makes an editable copy.
+- Bundled systems are read-only: **Duplicate** (`duplicateSystem`, on any system) makes an independent pack of the user's with everything the original's has, its example maps rewritten to play it; the original never changes. Copies edited in place (older versions, the Oracle's **Edit a copy**) still show **Revert to bundled** and their updates.
 - Text files stay the source of truth: forms write YAML keeping comments.
 
 ## Roadmap
