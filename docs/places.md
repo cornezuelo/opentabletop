@@ -133,3 +133,15 @@ Phase 3 is split in two: (3a) square grids, (3b) areas (rooms painted as floor, 
 - **Axial coordinates** on squares are the column and row (`5,3`); CCRR as on hexes.
 - **A new sub-map is made of squares** (a site inside a place), changeable in Map settings; the Grey Marches' Barrow-halls are squares now (maps v31).
 - Not done: `place.kind` (`hex`, `square`, `area`) as a fact for conditions (nothing needs it yet; areas will), New map asking for the kind of map (§10's presets), Core has no example map to show squares on.
+
+## 14. Phase 3b, areas: proposed (2026-10-30), to decide with the user
+
+What §8 B and §9 leave open, with Claude's proposal for each:
+
+1. **What floor is.** Proposal: on a map of squares, a cell with a terrain is floor and a cell without one is solid (rock, earth), so painting a room is painting its terrain as today, and walls are drawn by themselves wherever floor meets no floor (and at the map's edge). Alternative: a terrain says it's floor (`floor: true` in the palette, as `water`), so painted rock is possible.
+2. **An area** is a named group of cells (a room, a cave, a yard), painted with an **Areas** tool as regions are, with a name, tags, values and a note (`areas: [{ id, name, tags, fields, note }]`, each cell's `area`). Played as **one place**: a trip is "in the guardroom", its place `area:<id>`; its facts are the area's (`place.name`, `place.tags`, its values) beside the cells' terrain (the most common one). Cells in no area stay places of their own (a corridor square by square).
+3. **Between areas.** Proposal: two areas whose cells touch are joined (an open arch) unless a **wall** is drawn on the sides between them; a **door** is a connection drawn on a side (its kind the system's, as today's connections, with its state in play), which also cuts the wall there. So walls come from the floor's edge, and only walls between two floors are drawn by hand. Alternative: touching areas are closed unless a door or opening is drawn.
+4. **Where the party stands** in an area: its token on the cell it came in by (tokens keep cells), the area outlined while it's there.
+5. **The look**: one plain style first (a thick dark wall line on the floor's edge, doors as a gap with a bar), styles later (§9).
+
+Then the Grey Marches' Barrow-halls redrawn as rooms (the stair, the long barrow, the chief's tomb as areas, a door to the tomb) and Core's smallest example, with a test that plays them.
