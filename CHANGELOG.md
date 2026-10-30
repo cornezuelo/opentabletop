@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-10-30
+
 ### Apps
 
 - Map: **sub-maps**. A hex can lead into a map of its own (a dungeon under a hill, a town): **New sub-map here** in the hex's panel makes one in the same campaign; **Maps** lists sub-maps under their map, a sub-map's bar says where it hangs (_The Hollow Hills › The Barrow-halls_), and its **Map settings** its entrance and the kind of the way in. On a trip, **Go in ↗** heads through the way: a step of a kind the system names (what it costs and does), and the trip goes on in the sub-map, which opens (the same trip, journal and time); **Go out ↗** brings it back. Maps v30.
