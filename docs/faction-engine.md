@@ -50,7 +50,7 @@ Everywhere (trips, hand rolls, discovery): `factions.<id>.*` (values, conditions
 ## 5. Phases
 
 1. **Headless**: `@open-tabletop/faction-engine` (territory: claim, release, grow and shrink from the border with a `RandomSource`; turns due by the clock; `kind: factions` parsed), and the integration in `session` (factions from packs, a turn rolled with the Oracle and its effects applied, facts).
-2. **The Hexmapper**: factions in the World panel (their sheets, territory sizes, **World turn**, turns every N days), territory drawn on the map (a layer), `hex.faction` in its world; map format v18.
+2. **Map**: factions in the World panel (their sheets, territory sizes, **World turn**, turns every N days), territory drawn on the map (a layer), `hex.faction` in its world; map format v18.
 3. **The Systems app**: a Factions tab; the bundled packs (the Grey Marches' clans, the Vale, the garrison; Core's generic turn table); the manual.
 
 ## 6. To review with the author

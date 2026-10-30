@@ -4,7 +4,7 @@ import { packSources } from '../../vite.packs.ts'
 import { pwa } from '../../vite.pwa.ts'
 
 export default defineConfig({
-  // Relative asset URLs: the build works from any folder (e.g. site/hexmapper/ next to
+  // Relative asset URLs: the build works from any folder (e.g. site/map/ next to
   // site/oracle/, so both share the user packs stored for that origin).
   base: './',
   plugins: [

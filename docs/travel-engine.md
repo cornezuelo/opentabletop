@@ -10,10 +10,10 @@
 | `"col,row"` keys, orientation-independent          | Position, destination and route are stored as keys and survive an orientation change.                                   |
 | `Map.terrains` (id, name, color, water)            | Travel references terrains by id. Movement multipliers live in the **rules**, not in the palette.                       |
 | Hex metadata (`stats`, `tags`, `noteRef`)          | Read through the `TravelWorld` adapter. Optional `elevation`, `danger` and `region` fields are added to Hex (`otd.md`). |
-| `Map.paths` with crossed hexes                     | Roads, trails and rivers as edges between consecutive hexes (already in the hexmapper).                                 |
-| Command pattern / immutable state                  | The engine is `(state, action) → { state, events }`, so the hexmapper can undo a travel step by keeping snapshots.      |
+| `Map.paths` with crossed hexes                     | Roads, trails and rivers as edges between consecutive hexes (already in Map).                                           |
+| Command pattern / immutable state                  | The engine is `(state, action) → { state, events }`, so Map can undo a travel step by keeping snapshots.                |
 
-**Still missing in the hexmapper:** the world scale (`scale.hexKm`) and a party token.
+**Still missing in Map:** the world scale (`scale.hexKm`) and a party token.
 
 ## 2. Domain model
 
@@ -58,7 +58,7 @@ TravelEngine (facade: applies actions, composes the rest)
 
 ```ts
 interface TravelWorld {
-  // The hexmapper implements it over its model; a standalone app with a terrain picker
+  // Map implements it over its model; a standalone app with a terrain picker
   hexKm: number
   cell(hex: string): {
     terrain?: string
@@ -163,10 +163,10 @@ on:
 
 | Risk                                                  | Mitigation                                                                                           |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| The engine reads the hexmapper model directly         | Only through the `TravelWorld` port.                                                                 |
+| The engine reads Map model directly                   | Only through the `TravelWorld` port.                                                                 |
 | Duplicating terrain or POIs in travel state           | State only stores hex keys; data is queried when needed.                                             |
 | The route breaks when the map changes (size, terrain) | Re-validated at every step; if a hex becomes impassable, `ROUTE_BLOCKED` is emitted and it re-plans. |
-| Confusing print scale (mm) with world scale (km)      | Separate fields (`ext.hexmapper.print.hexMm` vs `Map.scale.hexKm`).                                  |
+| Confusing print scale (mm) with world scale (km)      | Separate fields (`ext.map.print.hexMm` vs `Map.scale.hexKm`).                                        |
 | Calling the Oracle from the engine                    | Events + `resolveCheck`; bindings live in `session`.                                                 |
 | A system's rules in the core                          | Rules as data; hooks are generic and named.                                                          |
 | Messages in one language from the core                | Events carry `code` + parameters; the UI translates.                                                 |
@@ -187,7 +187,7 @@ on:
 ## 6. MVP
 
 - `time` (GameTime + default calendar) and A\* in `hex`.
-- `TravelWorld` implemented by the hexmapper. Current location, destination and mode (from the rules).
+- `TravelWorld` implemented by Map. Current location, destination and mode (from the rules).
 - A\* route (`shortest`, `fastest`), `travelHex`, `travelUntil('destination' | 'nightfall')`, `advanceTime`, `advanceWatch`, `makeCamp`, `rest`.
 - Movement cost from terrain and mode (and roads, which the map already has).
 - Simple fatigue, simple food and water (generic resources).

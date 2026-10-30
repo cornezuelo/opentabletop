@@ -7,6 +7,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Every app: the apps' names are in the interface's language (in Spanish: Mapa, Campaña, Personajes, Oráculo, Viajes, Sistemas, Manual), in the switcher, each app's bar, the window's title, the texts and the manual; the Hexmapper is called **Map**.
+- Map: its address is `…/map/` (`…/hexmapper/` sends you on, keeping the link to a map or hex; a Hexmapper installed for offline use opens Map once online: install Map again for its own icon).
+
+### Formats
+
+- Map's files keep its data in `ext.map` (`ext.hexmapper` before: still read). This browser's maps and campaigns, Map's settings and the roster's characters playing on a map move to Map's names when an app first opens, as do backups made before; nothing to do by hand. Campaigns v7.
 
 ## [0.25.0] - 2026-10-30
 

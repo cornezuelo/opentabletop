@@ -24,7 +24,7 @@ export function createOracleUi(options: {
   locale: () => string
   /** localStorage prefix for the roll state and history (`<key>.state`, `<key>.history`). */
   storageKey: string
-  /** Somewhere else to keep them instead (e.g. the Hexmapper's open map). */
+  /** Somewhere else to keep them instead (e.g. Map's open map). */
   store?: RollerStore
   /** Called after every roll, e.g. to log it in a journal. */
   onResult?: (item: HistoryItem, def: Compiled | undefined) => void

@@ -133,7 +133,7 @@ export interface TravelSystem {
   calendar?: DataCalendar
   /** Weather models its bindings may name, by pack/id. */
   weather?: Record<string, WeatherModel>
-  /** Land models its discovery and the Hexmapper's Generate may use, by pack/id. */
+  /** Land models its discovery and Map's Generate may use, by pack/id. */
   land?: Record<string, LandModel>
   /** Packs whose tables, oracles and decks it brings: its own first. */
   packs: string[]

@@ -5,14 +5,14 @@ import { appUrl, campaignUrl, type AppId } from '@open-tabletop/ui-kit'
 export const characterUrl = (id: string): string =>
   `${appUrl('characters')}#/character/${encodeURIComponent(id)}`
 
-/** Where a roster character plays: the Hexmapper's map, Travel's trip, or its campaign (without a trip). */
+/** Where a roster character plays: Map's map, Travel's trip, or its campaign (without a trip). */
 export function placeUrl(place: RosterPlace): string | undefined {
   if (place.app === 'campaign') return campaignUrl(place.id, 'characters')
-  if (place.app === 'hexmapper') return `${appUrl('hexmapper')}#/${encodeURIComponent(place.id)}`
+  if (place.app === 'map') return `${appUrl('map')}#/${encodeURIComponent(place.id)}`
   if (place.app === 'travel') return `${appUrl('travel')}#/trip/${encodeURIComponent(place.id)}`
   return undefined
 }
 
 /** The app a place is in, by its id, when it's one of ours. */
 export const placeApp = (place: RosterPlace): AppId | undefined =>
-  place.app === 'hexmapper' || place.app === 'travel' ? place.app : undefined
+  place.app === 'map' || place.app === 'travel' ? place.app : undefined

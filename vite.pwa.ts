@@ -24,7 +24,7 @@ export function pwa(app: { name: string; shortName: string; description: string 
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html,svg,png,webp,woff,woff2,json,ttf}'],
-      // The Hexmapper bundles PixiJS and PDF export: bigger than the default 2 MB.
+      // Map bundles PixiJS and PDF export: bigger than the default 2 MB.
       maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
       cleanupOutdatedCaches: true,
     },

@@ -360,11 +360,11 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     place.campaign.world!.clocks.find((c) => c.ref === ref)!
   const timeline = (place: WorldPlace) => place.campaign.world!.timeline.map((e) => e.text)
 
-  /** Steps 9 and 10, played as the Hexmapper does: the world clock and the trip share one time. */
+  /** Steps 9 and 10, played as Map does: the world clock and the trip share one time. */
   function play(seed: string) {
     let s = startTrip({ system, location: '0,0', season: 'summer' }).session
     const h = host(seed)
-    const trip = { app: 'hexmapper', id: 'm1', name: 'Trip' }
+    const trip = { app: 'map', id: 'm1', name: 'Trip' }
     const started = startWorld({ campaign: createCampaign('c') }, s.travel.time, h)
     let place: WorldPlace = { ...started, campaign: playTrip(started.campaign, trip) }
     const opts = { system, world, oracle: h.oracle, locale: 'en', random: seeded(seed) }

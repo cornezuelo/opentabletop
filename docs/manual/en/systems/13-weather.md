@@ -18,7 +18,7 @@ Three other places make a model play:
 2. The [Rules](05-rules.md#weather) say how each kind of weather slows the party (**Speed ×**: `0` is a day without travel), and their **values of the day** what the weather's values block (a way of travelling, an action).
 3. Conditions anywhere read it: `trip.weather: storm` in an action's **Not when**, a check's **Skip if**, a terrain's **Closed when**, a table's entry. The day after, yesterday's is `yesterday.weather`.
 
-The system must also name the model (Overview → **Weather models**); **New weather model** does that for you. While no trip is going on, Map's world clock rolls the map system's model each day too ([The world clock](../hexmapper/12-world.md#moving-time-on)).
+The system must also name the model (Overview → **Weather models**); **New weather model** does that for you. While no trip is going on, Map's world clock rolls the map system's model each day too ([The world clock](../map/12-world.md#moving-time-on)).
 
 ## Kinds of weather
 

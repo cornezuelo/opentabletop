@@ -51,7 +51,7 @@ packages/                   # libraries, scope @open-tabletop/*
   campaign-ui/              # embeddable campaign UI: the world clock (date, moving time on, events, progress clocks, timeline), the world's words
   manual-ui/                # user manual: pages from docs/manual, search, in-app help panel, full view
 apps/                       # each with its own CLAUDE.md
-  hexmapper/                # map editor, and play on the map
+  map/                      # Map: the map editor, and play on the map
   campaign/                 # the campaigns: their world clock, timeline, maps and trips
   oracle/                   # roll and edit packs
   travel/                   # play trips without a map
@@ -100,10 +100,10 @@ Details in [`docs/otd.md`](docs/otd.md). In short:
 
 - **Campaign entities:** Campaign, Map (with Hex), POI, Party, Character, Faction, Clock and LogEntry (the persisted "Event"). They share a base `{ id, type, name, tags, noteRef, refs, ext }`.
 - **Pack definitions:** every `kind` a pack can hold (tables, oracles, generators, decks, roll modes, travel rules, bindings, calendars, weather…), in versioned, namespaced packs (`kal-arath/reaction`). Each kind is documented in `docs/manual/*/technical/07-kinds.md` (and briefly where it's used); a new kind adds itself there.
-- **`ext.<namespace>`** holds app- or system-specific data without polluting the core, e.g. `ext.hexmapper` (rendering, printing) or `ext.kal-arath`.
+- **`ext.<namespace>`** holds app- or system-specific data without polluting the core, e.g. `ext.map` (rendering, printing) or `ext.kal-arath`.
 - **References** are `type:id` strings, never nested objects.
 - **Runtime events** (`HEX_ENTERED`, `TABLE_RESOLVED`…) are messages between engines and are not persisted. What matters for the session is saved as `LogEntry`.
-- **File extension:** `.otd.json` (the hexmapper saves and opens OTD bundles only).
+- **File extension:** `.otd.json` (Map saves and opens OTD bundles only).
 
 ## Packs, sources and licensing
 
@@ -129,7 +129,7 @@ Apps ship preloaded with packs from many games, each distributed through whateve
 | Language   | TypeScript `strict`                             |
 | Monorepo   | npm workspaces                                  |
 | UI         | Svelte 5 (runes) in apps and `*-ui` packages    |
-| Map render | PixiJS v8 (hexmapper only)                      |
+| Map render | PixiJS v8 (Map only)                            |
 | Validation | Zod 4 (OTD schema and packs) → also JSON Schema |
 | Packs      | YAML (`yaml`, ISC) and JSON                     |
 | Tests      | Vitest (single config at the root)              |
@@ -164,7 +164,7 @@ FOSS dependencies only, and no unnecessary runtime dependencies in the cores.
 **Storage**
 
 - Language and personal settings (notes provider, etc.) are **user preferences** in `localStorage`, never session data.
-- **Browser storage keys start with `opentabletop.`** (or the legacy `hexmapper.`), so backups (`@open-tabletop/storage`) include them; data in IndexedDB must be added to the backup explicitly. An app that saves on its own (autosave on page hide) registers `onBeforeBackup` / `onBeforeRestore`.
+- **Browser storage keys start with `opentabletop.`** (or the legacy `hexmapper.`, moved to `opentabletop.map.*` when an app starts: `@open-tabletop/storage/start`), so backups (`@open-tabletop/storage`) include them; data in IndexedDB must be added to the backup explicitly. An app that saves on its own (autosave on page hide) registers `onBeforeBackup` / `onBeforeRestore`.
 - **Every persisted format change** (maps, campaigns, saved trips) bumps the version and adds a migration. Every release keeps its stored maps and Travel's saved trips with trips going on (`make old-maps`, `old-maps.test.ts`, `old-trips.test.ts`): they must keep opening in Play (or Travel) and playing on, so a change that breaks one is fixed with a migration, never by regenerating them.
 - **Pack syntax never changes meaning silently:** if existing YAML would mean something else, bump `PACK_FORMAT` (oracle-engine), add its row to the formats table in File formats, and move our packs (Core, the Grey Marches, Kal-Arath in `packs-private/`) to the new format in the same work. **For now (decided 2026-10-18, while nobody else writes packs) older pack formats are not read**: engines and schemas know only today's syntax, no code reads the old meaning, and a pack of an older format is refused with a clear message. Migrating other people's packs (at the edge, rewriting their files once, never in the engines) is deferred until the formats are stable (backlog). New keys that change nothing old need no bump. Saved maps, trips and backups are the user's data: they always keep their migrations (below).
 

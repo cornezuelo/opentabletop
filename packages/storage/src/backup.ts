@@ -15,7 +15,7 @@ export interface Backup {
   created: string
   /** localStorage entries of the apps, by key. */
   storage: Record<string, string>
-  /** The Hexmapper's map library. */
+  /** Map's map library. */
   maps: LibraryEntry[]
   /** The campaigns (their maps are in `maps`). */
   campaigns: LibraryEntry[]
@@ -25,7 +25,10 @@ export const BACKUP_FORMAT = 'opentabletop-backup'
 /** v2: campaigns (v1 backups have none: their maps make theirs when opened). */
 export const BACKUP_VERSION = 2
 
-/** Every app keeps its browser data under these prefixes (see the root CLAUDE.md). */
+/**
+ * Every app keeps its browser data under these prefixes (see the root CLAUDE.md); `hexmapper.`
+ * is the Map app's old one (`renamed.ts`).
+ */
 export const KEY_PREFIXES = ['opentabletop.', 'hexmapper.'] as const
 
 /** Shared storage keys that need more than "the backup wins" when merging. */
@@ -34,8 +37,13 @@ export const FAVORITES_KEY = 'opentabletop.favorites'
 /** The Characters app's roster (character-ui): its characters joined, the newer of each kept. */
 export const ROSTER_KEY = 'opentabletop.characters'
 
-/** The Hexmapper's crash copies of the open map and its campaign: only meaningful in this browser, now. */
-const LOCAL_ONLY = new Set(['hexmapper.pending', 'hexmapper.pendingCampaign'])
+/** Map's crash copies of the open map and its campaign: only meaningful in this browser, now. */
+const LOCAL_ONLY = new Set([
+  'opentabletop.map.pending',
+  'opentabletop.map.pendingCampaign',
+  'hexmapper.pending',
+  'hexmapper.pendingCampaign',
+])
 
 /** A key whose value belongs in a backup. */
 export function isAppKey(key: string): boolean {

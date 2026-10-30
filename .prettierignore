@@ -3,5 +3,5 @@ dist-local
 node_modules
 package-lock.json
 # Maps and trips stored by older releases, kept exactly as they wrote them
-apps/hexmapper/src/lib/play/old-maps/
+apps/map/src/lib/play/old-maps/
 apps/travel/src/lib/old-trips/

@@ -4,9 +4,12 @@
   "description": "Browser storage shared by OpenTabletop apps: the map library (IndexedDB), storage keys, and backups of everything.",
   "license": "MIT",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/start.ts"
+  ],
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./start": "./src/start.ts"
   },
   "scripts": {
     "check": "tsc --noEmit -p ."

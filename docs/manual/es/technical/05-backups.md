@@ -86,7 +86,7 @@ Un fichero JSON:
 }
 ```
 
-- `storage` copia como texto las entradas del almacenamiento del navegador cuyas claves empiezan por `opentabletop.` o `hexmapper.`. Quedan fuera las copias de emergencia del mapa abierto de la aplicación Mapa y de su campaña (`hexmapper.pending`, `hexmapper.pendingCampaign`).
+- `storage` copia como texto las entradas del almacenamiento del navegador cuyas claves empiezan por `opentabletop.` (o `hexmapper.`, de cuando Mapa se llamaba Hexmapper). Quedan fuera las copias de emergencia del mapa abierto de la aplicación Mapa y de su campaña (`opentabletop.map.pending`, `opentabletop.map.pendingCampaign`). Una copia hecha hasta la v0.25.0 se restaura igual: lo que guardaba con los nombres del Hexmapper pasa a los de Mapa la próxima vez que se abre una aplicación.
 - `maps` copia la biblioteca de Mapa tal cual: cada `json` es un mapa en el formato propio de Mapa, que lleva su versión y se migra al abrirlo. Para compartir un solo mapa con otras herramientas, usa **Guardar** en Mapa (un paquete OTD, ver [Formatos de fichero](02-file-formats.md)).
 - `campaigns` copia las campañas igual, cada `json` en su propio formato con versión. Las copias hechas antes de las campañas (`version` 1) no tienen: cada uno de sus mapas crea la suya al abrirse.
 - `version` es la versión de este envoltorio. Las copias más recientes de lo que entiende la aplicación se rechazan en lugar de leerse mal.

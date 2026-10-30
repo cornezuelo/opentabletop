@@ -12,7 +12,7 @@ Design for what's left of the roadmap's point 5 (_Everything connected through s
 - Steps: `do:` another action, `roll:` a check or any Oracle table, `effects` on the party, characters, clocks (`world.clocks.<id>`) and factions (`factions.<id>.…`), `say`, `pause`, `ask`.
 - Chains: loops through `do:`, `roll:` and moments refused when the pack loads; reactions and heard moments stop after 10 in a row, with a journal line.
 
-**In the world, without a trip** (the Campaign app, the Hexmapper's World panel, or time moving under a trip), only two fixed shapes react:
+**In the world, without a trip** (the Campaign app, Map's World panel, or time moving under a trip), only two fixed shapes react:
 
 - A declared clock's **`onFull`** (`kind: clocks`): words for the timeline, a table rolled, effects on clocks and factions, then `keep` / `reset` / `remove`; a full clock filling another, 10 deep at most.
 - A **world turn** (every N days, or by hand): each faction rolls its turn table, whose effects change factions and tick clocks.
@@ -57,7 +57,7 @@ reactions:
 
 ## 3. Where they play
 
-- **One place, the campaign's world** (`playWorld` in `campaign`), with the reading in `session` (as `clockFull` today: what a reaction does, given the facts and the Oracle; the campaign applies it). So the world reacts the same in the Campaign app, the Hexmapper's World panel and under a trip moving time (`followTrip` goes through it already).
+- **One place, the campaign's world** (`playWorld` in `campaign`), with the reading in `session` (as `clockFull` today: what a reaction does, given the facts and the Oracle; the campaign applies it). So the world reacts the same in the Campaign app, Map's World panel and under a trip moving time (`followTrip` goes through it already).
 - **When**: after every action on the world (time moving on, a turn, a tick, a hand edit of a clock or a faction, a trip's effects on the world), the moments it brought are played (a turn: `world.turn`; a full clock: its `onFull`, then the reactions on it), then the conditions are checked, in the order of section 5.
 - **Memory**: what held last time, kept in the campaign (`reactions`, as trips keep theirs); a campaign without it takes what holds when opened as seen, so nothing fires at once in a campaign under way (the trips' rule, item 65 (c)).
 - **Time jumps**: moving a week on checks the conditions at each day's start on the way, so a market day in the middle isn't skipped; a turn due on the way is played at its time, as today.
@@ -67,7 +67,7 @@ reactions:
 ## 4. The trip and the world, both ways
 
 - **A trip hears `world.turn`**, as it hears full clocks: queued in the campaign's `moments` and played on its next step (`on: world.turn` in the travel rules, e.g. news reaching the party). The queue becomes general: `{ at, name }` per moment (today `{ clock, ids }`, migrated: a cheap one).
-- **A trip brings a world turn**: a step `do: world.turn`. The travel engine doesn't know the world: a `do:` naming `world.…` is journaled as an event for the host (`WORLD_DO`), and the host (the Hexmapper, Travel with a campaign) plays it on the world, as it applies `world.clocks` effects today. Without a campaign, a line says nothing happened.
+- **A trip brings a world turn**: a step `do: world.turn`. The travel engine doesn't know the world: a `do:` naming `world.…` is journaled as an event for the host (`WORLD_DO`), and the host (Map, Travel with a campaign) plays it on the world, as it applies `world.clocks` effects today. Without a campaign, a line says nothing happened.
 - An event's day, a faction's value or the world's weather need **no new moment**: they're conditions, and a reaction `{ when }` comes once as they turn true, in a trip or in the world (one mechanism, no `world.events.<id>` moment).
 
 ## 5. Order and chains
@@ -84,9 +84,9 @@ reactions:
 
 ## 7. Pieces and documentation
 
-- `world-engine`: `kind: world` parsed and checked (moments, steps the world allows, loops); `session`: `worldReaction` (what one does) and the conditions' memory; `campaign`: `playWorld` plays them, the general `moments` queue (campaign format bump); `travel-engine`: `do: world.…` journaled for the host; the Hexmapper and Travel: `WORLD_DO`; travel-ui: its journal line.
+- `world-engine`: `kind: world` parsed and checked (moments, steps the world allows, loops); `session`: `worldReaction` (what one does) and the conditions' memory; `campaign`: `playWorld` plays them, the general `moments` queue (campaign format bump); `travel-engine`: `do: world.…` journaled for the host; Map and Travel: `WORLD_DO`; travel-ui: its journal line.
 - **Systems**: a **World** tab (reactions as folded cards, as actions: `CardHead`, moments and steps, conditions as rows), `world:` in the Overview; suggestions and help for `world.turn` and `do: world.turn`.
-- **Manual** (en/es): Systems' World page; Kinds (`kind: world`, `world:` in systems); Connecting, Actions and steps (`do: world.turn`, the moment `world.turn`); Syntax's moments; Campaign's and the Hexmapper's World pages (what reacts as time moves); both packs' pages; and piece (3), the page saying what reacts to what and in which order.
+- **Manual** (en/es): Systems' World page; Kinds (`kind: world`, `world:` in systems); Connecting, Actions and steps (`do: world.turn`, the moment `world.turn`); Syntax's moments; Campaign's and Map's World pages (what reacts as time moves); both packs' pages; and piece (3), the page saying what reacts to what and in which order.
 
 ## 8. Decided with the user (2026-10-23)
 

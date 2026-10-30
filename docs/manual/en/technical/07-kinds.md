@@ -284,7 +284,7 @@ A check with no binding is written in the journal (with its `effects`, if it has
 
 ## Calendars
 
-The months of the year (with their days and seasons), weekdays, moons (cycle and phase) and holidays, and the year of day 1. Trips with that system date their journal with it, and tables see `time.month`, `time.year`, `time.weekday`, `time.moons.<moon>` (new, waxing, full, waning) and `time.holidays`. The world clock (Map's [World](../hexmapper/12-world.md) panel, the Campaign app) uses the calendar of the campaign's system. Without one, a plain calendar of days and four seasons is used (the Generic rules name Core's, `core/calendar.default`, which adds its parts of the day). In the Systems app, a system's **Calendar** tab edits it with a form (renaming a month carries its holidays and translations along).
+The months of the year (with their days and seasons), weekdays, moons (cycle and phase) and holidays, and the year of day 1. Trips with that system date their journal with it, and tables see `time.month`, `time.year`, `time.weekday`, `time.moons.<moon>` (new, waxing, full, waning) and `time.holidays`. The world clock (Map's [World](../map/12-world.md) panel, the Campaign app) uses the calendar of the campaign's system. Without one, a plain calendar of days and four seasons is used (the Generic rules name Core's, `core/calendar.default`, which adds its parts of the day). In the Systems app, a system's **Calendar** tab edits it with a form (renaming a month carries its holidays and translations along).
 
 ```yaml
 kind: calendar
@@ -301,7 +301,7 @@ holidays: [{ id: midsummer, name: Midsummer, month: highsun, day: 15 }]
 
 **What tables see:** `{{time.month}}` (the month's id), `{{time.year}}`, `{{time.weekday}}`, each moon's phase as `time.moons.<moon>` (`when: { time.moons.pale: full }`) and today's holidays as a list (`when: { time.holidays: midsummer }`), plus `time.season` from the month. Ids, not names: conditions compare ids, and the journal shows the names.
 
-**Divisions of the day** (`divisions`): the ways the calendar divides the day, as many as the system wants (meals, watches, bells, prayers…), none if it declares none. Each one is keyed by its id and has either `parts` (each with an `id`, a `from` and optionally `until`, `name`, `description` and `tags`) or `every` (hours: numbered parts of equal length from midnight, 1, 2, 3…). Numbered parts read as numbers (`time.watch: 2`), whether written with `every` or as `parts` all named by whole numbers (`id: '2'`): the Systems app's **Split into equal parts…** writes them that way. A part lasts until the next one of its division starts, in the order of the day whatever order they're written in (the last one until the first, past midnight); `until` ends it earlier, leaving a gap with none of the division's parts. Tags mean only what a system's rules make of them. An id can't be a name the moment already has (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). Map's [World](../hexmapper/12-world.md) panel moves time on to the next part of each division, or to a part chosen. Names are translated keyed by the ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
+**Divisions of the day** (`divisions`): the ways the calendar divides the day, as many as the system wants (meals, watches, bells, prayers…), none if it declares none. Each one is keyed by its id and has either `parts` (each with an `id`, a `from` and optionally `until`, `name`, `description` and `tags`) or `every` (hours: numbered parts of equal length from midnight, 1, 2, 3…). Numbered parts read as numbers (`time.watch: 2`), whether written with `every` or as `parts` all named by whole numbers (`id: '2'`): the Systems app's **Split into equal parts…** writes them that way. A part lasts until the next one of its division starts, in the order of the day whatever order they're written in (the last one until the first, past midnight); `until` ends it earlier, leaving a gap with none of the division's parts. Tags mean only what a system's rules make of them. An id can't be a name the moment already has (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). Map's [World](../map/12-world.md) panel moves time on to the next part of each division, or to a part chosen. Names are translated keyed by the ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
 ```yaml
 kind: calendar
@@ -365,7 +365,7 @@ seasons:
       edge: wrap
 ```
 
-A campaign's world clock also rolls its own weather each day on its system's model while no trip is going on ([The world clock](../hexmapper/12-world.md#moving-time-on)).
+A campaign's world clock also rolls its own weather each day on its system's model while no trip is going on ([The world clock](../map/12-world.md#moving-time-on)).
 
 **What tables see:** `{{trip.weather}}`, the id of today's weather (`rain`), and each value its state sets, by name (`{{today.fordModifier}}`, `when: { today.fordImpossible: true }`); the day after, the same values as `yesterday.weather`, `yesterday.fordModifier`. There's no `{{trip.weather.value}}`: the weather is its id, and its values are values of the day like any table's `set`.
 
@@ -550,7 +550,7 @@ places:
 
 ## Factions
 
-The powers of a system's world (`factions:` in its [system](#systems)): each a character of a [sheet](#sheets) (its values, conditions and relations) holding hexes of a map, taking a turn on every **world turn**. In Map's World view they're brought onto a map, drawn and played ([Factions](../hexmapper/12-world.md#factions)).
+The powers of a system's world (`factions:` in its [system](#systems)): each a character of a [sheet](#sheets) (its values, conditions and relations) holding hexes of a map, taking a turn on every **world turn**. In Map's World view they're brought onto a map, drawn and played ([Factions](../map/12-world.md#factions)).
 
 ```yaml
 kind: factions
@@ -579,7 +579,7 @@ factions:
 
 ## Progress clocks
 
-The progress clocks a system's world starts with (`clocks:` in its [system](#systems)): segments that fill as something advances (a threat, a plan, a season of raids), each with what becomes of it once full. What happens when one fills is the [world's rules'](#the-world-s-rules). They come with the world clock when it starts (Map's World panel, the Campaign app) ([Progress clocks](../hexmapper/12-world.md#progress-clocks)); trips, tables and faction turns fill them with effects, and conditions read them.
+The progress clocks a system's world starts with (`clocks:` in its [system](#systems)): segments that fill as something advances (a threat, a plan, a season of raids), each with what becomes of it once full. What happens when one fills is the [world's rules'](#the-world-s-rules). They come with the world clock when it starts (Map's World panel, the Campaign app) ([Progress clocks](../map/12-world.md#progress-clocks)); trips, tables and faction turns fill them with effects, and conditions read them.
 
 ```yaml
 kind: clocks

@@ -1,0 +1,55 @@
+# The Oracle in the map
+
+The Oracle button (the gold hexagon under Play and the World, or <kbd>O</kbd>) opens a panel to roll any table, oracle, generator or deck of your packs without leaving the map. Its list has the Oracle app's search and **Filter** (kinds and tags; `−rules` leaves what you'd roll by hand), and both remember the same filter: see the Oracle's [Getting started](../oracle/01-getting-started.md).
+
+## The packs of a map
+
+A map can work with only some packs, chosen for its whole campaign: **Map settings → Campaign → Packs** (all the loaded packs by default). Untick **All the loaded packs** and the Oracle panel lists only the packs the map's **System** brings (ticked and greyed, _brought by the system_) and the ones you tick besides. A table can still roll tables of other packs it refers to. The Grey Marches' example map plays the Grey Marches and adds nothing, so it shows the Grey Marches and Core (which the system brings); a map playing the Generic rules shows Core, the pack they belong to.
+
+## Context from the map
+
+Rolls receive what the map knows, so tables can depend on where you are:
+
+- From the **selected hex** (or the party's, if none is selected): `terrain` (its id: `forest`, `hills`…), `water`, `tags`, `name`, `region` (by name), the region's and the hex's fields by key (the hex's win), the icon as `icon.*` and `hex`.
+- From the **selected token**: `token.name`, `token.kind` and its fields as `token.*`.
+- During a **trip with rules**: `season`, `weather`, `mode`, `day`, the party stats and today's values.
+
+They appear in grey in the roll panel's **Context**; type over them to try other values. The full list, and which value wins, is in [What tables see](../technical/04-what-tables-see.md). The top of the panel says which hex the rolls read. **Roll here** (next to the coordinates in the hex panel) opens the Oracle on the selected hex.
+
+## Keeping a result on the map
+
+Under each result, **Add to … as a point of interest** adds it to the hex's points of interest: a short result becomes its name; a long one keeps the table's name as the name and the text as its description. Edit it in the hex panel like any other point of interest; <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it. To name a village, an inn or a landmark this way, roll the bundled [Names](../packs/03-names.md) pack's _What's it called?_ on its hex.
+
+During a trip with rules, a result that changes the party's stats, its sheet, its items or its characters (`effects: { party.items.ration: -2, party.stats.morale: 2 }`) also shows **Apply to the trip** with what it changes: press it to apply those changes as a check's result would be (once per result). Checks rolled by the trip apply theirs by themselves; hand rolls only when you say so. Try it at Ashford with the Grey Marches' _At The Wet Ferret_.
+
+## Try it
+
+Make this table in the Oracle app (a pack of yours, see [Packs](../oracle/03-packs.md)):
+
+```yaml
+kind: table
+id: what-do-we-find
+name: What do we find here?
+roll: 1d6
+entries:
+  - { id: forest, range: 1-6, when: { hex.terrain: forest }, result: 'Fallen timber and mushrooms' }
+  - {
+      id: rocks,
+      range: 1-6,
+      when: { hex.terrain: [hills, mountains] },
+      result: 'A cave mouth in the rock',
+    }
+  - { id: nothing, range: 1-6, result: 'Nothing special' }
+```
+
+More examples, up to a whole travel system: [Connecting tables to maps and trips](../oracle/07-connecting.md).
+
+Then select a forest hex, press <kbd>O</kbd>, search "What do we find" and roll. The first entry whose condition holds wins.
+
+## Journal, history and your packs
+
+Each map's campaign has its own Oracle: its roll history, the cards drawn from each deck and the once-only results that already came up. They are saved with the campaign (and in the map's `.otd.json`), so opening a map of another campaign starts fresh and coming back finds them again. Hand rolls and the checks of a trip share them: a card drawn by hand is gone for the trip too, and for a trip of the Travel app playing in the same campaign, or the Oracle app rolling in it ([Rolling in a campaign](../oracle/02-rolling.md#rolling-in-a-campaign)).
+
+During a trip with rules, hand rolls are written in the journal too.
+
+The panel uses the bundled packs and the ones you make in the Oracle app. Your packs live in the browser, so both apps see them when they're served from the same site (e.g. `make serve`: `…/map/` and `…/oracle/`).

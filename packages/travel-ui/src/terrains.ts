@@ -2,7 +2,7 @@ import type { TravelSystem } from '@open-tabletop/session'
 import { vocabulary } from '@open-tabletop/ui-kit'
 import { idText, type Translate } from './i18n'
 
-/** Terrain ids of the Hexmapper's default palette, so trips can use them with any system. */
+/** Terrain ids of Map's default palette, so trips can use them with any system. */
 export const PALETTE = Object.keys(vocabulary.en.terrains)
 
 /** Terrains to choose from: the palette plus any the system's rules name. */

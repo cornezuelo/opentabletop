@@ -18,7 +18,7 @@ Otros tres sitios hacen que un modelo se juegue:
 2. Las [Reglas](05-rules.md#clima) dicen cuánto frena al grupo cada clima (**Velocidad ×**: `0` es un día sin viajar), y sus **valores del día** qué bloquean los valores del clima (una forma de viajar, una acción).
 3. Las condiciones lo leen en cualquier parte: `trip.weather: storm` en el **Salvo si** de una acción o de una comprobación, en el **Cerrado cuando** de un terreno, en una entrada de una tabla. Al día siguiente, el de ayer es `yesterday.weather`.
 
-El sistema también tiene que nombrar el modelo (Resumen → **Modelos de clima**); **Nuevo modelo de clima** lo hace por ti. Mientras no hay un viaje en marcha, el reloj del mundo de Mapa también tira cada día el modelo del sistema del mapa ([El reloj del mundo](../hexmapper/12-world.md#avanzar-el-tiempo)).
+El sistema también tiene que nombrar el modelo (Resumen → **Modelos de clima**); **Nuevo modelo de clima** lo hace por ti. Mientras no hay un viaje en marcha, el reloj del mundo de Mapa también tira cada día el modelo del sistema del mapa ([El reloj del mundo](../map/12-world.md#avanzar-el-tiempo)).
 
 ## Tipos de clima
 

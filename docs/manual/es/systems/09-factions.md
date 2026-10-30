@@ -1,6 +1,6 @@
 # Facciones
 
-La pestaña **Facciones** edita los poderes del mundo del sistema (`kind: factions`, una por sistema): reinos, clanes, gremios, una banda de forajidos. **Nuevas facciones** hace dos sobre la tabla de turno de Core, con una hoja propia, y las nombra en el sistema. En Mapa se traen a un mapa desde la vista Mundo ([Facciones](../hexmapper/12-world.md#facciones)), y a una campaña desde la pestaña [Facciones](../campaign/02-factions.md) del app Campaña. Esta página explica cómo funcionan las facciones, luego cada parte de la pestaña, monta una enemistad de frontera desde cero paso a paso y repasa los errores habituales. La ayuda junto a cada campo lo explica, con ejemplos. El YAML: [Facciones](../technical/07-kinds.md#facciones).
+La pestaña **Facciones** edita los poderes del mundo del sistema (`kind: factions`, una por sistema): reinos, clanes, gremios, una banda de forajidos. **Nuevas facciones** hace dos sobre la tabla de turno de Core, con una hoja propia, y las nombra en el sistema. En Mapa se traen a un mapa desde la vista Mundo ([Facciones](../map/12-world.md#facciones)), y a una campaña desde la pestaña [Facciones](../campaign/02-factions.md) del app Campaña. Esta página explica cómo funcionan las facciones, luego cada parte de la pestaña, monta una enemistad de frontera desde cero paso a paso y repasa los errores habituales. La ayuda junto a cada campo lo explica, con ejemplos. El YAML: [Facciones](../technical/07-kinds.md#facciones).
 
 ## Cómo funcionan las facciones
 

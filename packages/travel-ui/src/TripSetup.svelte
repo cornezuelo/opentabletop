@@ -22,7 +22,7 @@
     /** When the host decides when trips start (no season to choose): said in the help. */
     startNote?: string
     /**
-     * Where the host chooses the system, shown instead of a choice (the Hexmapper: the
+     * Where the host chooses the system, shown instead of a choice (Map: the
      * map's): said in the help.
      */
     systemNote?: string

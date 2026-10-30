@@ -63,18 +63,18 @@ Map saves maps as **OTD bundles**, a JSON format meant to be shared between tool
   "campaign": { "id": "…", "type": "campaign", "name": "…", "system": "…", "time": 4320 },
   "maps": [{ "id": "…", "type": "map", "grid": { … }, "terrains": [ … ],
              "hexes": { "3,4": { "terrain": "forest", "tags": ["ruins"], "region": "…" } },
-             "paths": [ … ], "ext": { "hexmapper": { … } } }],
+             "paths": [ … ], "ext": { "map": { … } } }],
   "pois": [ … ], "parties": [ … ], "characters": [ … ], "log": [ … ], "state": { … }
 }
 ```
 
-- `campaign` is the campaign the map belongs to (its id, name and `noteRef`, its `system`, the world clock's time, and in `ext.hexmapper.packs` the packs it adds to its system's): the world clock, its weather, the factions and the Oracle below are the campaign's, so the file stands on its own. A file saved before campaigns has none: the map opens with a campaign of its own, made from what the file brings. When this browser already has the file's campaign, opening it asks whether to join it, replace it or keep the file's apart ([Campaigns](../hexmapper/01-getting-started.md#campaigns)); a system's example maps whose files name one campaign join it without asking, so they share one world (the Grey Marches' two maps).
+- `campaign` is the campaign the map belongs to (its id, name and `noteRef`, its `system`, the world clock's time, and in `ext.map.packs` the packs it adds to its system's): the world clock, its weather, the factions and the Oracle below are the campaign's, so the file stands on its own. A file saved before campaigns has none: the map opens with a campaign of its own, made from what the file brings. When this browser already has the file's campaign, opening it asks whether to join it, replace it or keep the file's apart ([Campaigns](../map/01-getting-started.md#campaigns)); a system's example maps whose files name one campaign join it without asking, so they share one world (the Grey Marches' two maps).
 - Hexes are keyed by `"column,row"`.
 - POIs, the party and tokens (as characters with a `location`) are entities of their own; a trip's journal is in `log`.
 - The party's characters (when its system has a [sheet](07-kinds.md#sheets)) are characters too, listed by id in the party's `members`, with `kind: pc`, their values as `stats`, their tags, and what only the character engine reads (their sheet, conditions, relations, items and places of their own) in `ext.character`. A map can bring its company that way before any trip starts: the Grey Marches' example map has Kael, Mara and Old Tobin.
-- The campaign's factions are OTD factions (their values as `stats`, their sheet in `ext.character`, the hexes they hold on this map in `ext.hexmapper.territory`, their page in the notes app as `noteRef` and the GM's short note as `notes`), and `state.factions` says which system they came from and when the last world turn was.
-- `state.oracle` is the campaign's Oracle state (decks, once-only results, values set); Map keeps its hand-roll history in `ext.hexmapper.oracleHistory`.
-- `ext.<tool>` holds each tool's own data (Map keeps icons, labels, styles and its print settings in `ext.hexmapper`; files written before the system was the campaign's have the map's `system` and the `packs` it added there, read as its campaign's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
+- The campaign's factions are OTD factions (their values as `stats`, their sheet in `ext.character`, the hexes they hold on this map in `ext.map.territory`, their page in the notes app as `noteRef` and the GM's short note as `notes`), and `state.factions` says which system they came from and when the last world turn was.
+- `state.oracle` is the campaign's Oracle state (decks, once-only results, values set); Map keeps its hand-roll history in `ext.map.oracleHistory`.
+- `ext.<tool>` holds each tool's own data (Map keeps icons, labels, styles and its print settings in `ext.map`; files written before the system was the campaign's have the map's `system` and the `packs` it added there, read as its campaign's; the party's `ext.map.system` is the one its trip started with). Tools keep what they don't understand untouched when they save. Files saved while Map was called the Hexmapper (up to v0.25.0) have its data in `ext.hexmapper`: it's read as `ext.map`, and saved as `ext.map` from then on.
 
 **Characters files.** The Characters app's **Export** writes the same format with only `characters` (each with its `noteRef`), and its **Import…** reads the characters of any such file, a map's included:
 

@@ -1,7 +1,7 @@
 import { en } from './i18n/en'
 import { t, type MessageKey } from './i18n'
 
-/** Terrain ids of the Hexmapper's default palette, suggested in any system's rules. */
+/** Terrain ids of Map's default palette, suggested in any system's rules. */
 export const PALETTE = Object.keys(en.terrains)
 
 export const terrainName = (id: string): string =>

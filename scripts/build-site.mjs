@@ -2,7 +2,7 @@
 // origin so the apps share the user packs stored in the browser. A build with the
 // personal-use packs (OTT_PERSONAL_PACKS=1, `make serve`) goes to dist-local/ instead, so
 // dist/ is always safe to publish. The root opens Campaign.
-import { cpSync, existsSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { logoSvg } from '../packages/ui-kit/src/apps.data.mjs'
 
 const out = process.env.OTT_PERSONAL_PACKS === '1' ? 'dist-local' : 'dist'
@@ -38,4 +38,42 @@ writeFileSync(
 </html>
 `,
 )
-console.log(`${out}/: ${apps.join(', ')}`)
+// Map was called the Hexmapper (up to v0.25.0): its old address sends on to the new one,
+// keeping the hash (a map's id, `#/in-campaign/…`). A copy installed for offline use still
+// has the old service worker: this one replaces it, unregisters itself and reloads the
+// page, so the redirect is reached.
+mkdirSync(`${out}/hexmapper`, { recursive: true })
+writeFileSync(
+  `${out}/hexmapper/index.html`,
+  `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Map · OpenTabletop</title>
+    <meta http-equiv="refresh" content="0; url=../map/" />
+  </head>
+  <body>
+    <p><a href="../map/">OpenTabletop Map</a></p>
+    <script>
+      location.replace('../map/' + location.hash)
+    </script>
+  </body>
+</html>
+`,
+)
+writeFileSync(
+  `${out}/hexmapper/sw.js`,
+  `self.addEventListener('install', () => self.skipWaiting())
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    self.registration
+      .unregister()
+      .then(() => self.clients.matchAll({ type: 'window' }))
+      .then((clients) => clients.forEach((client) => client.navigate(client.url))),
+  )
+})
+`,
+)
+
+console.log(`${out}/: ${apps.join(', ')} (and hexmapper/, sending on to map/)`)

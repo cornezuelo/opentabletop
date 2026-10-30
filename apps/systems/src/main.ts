@@ -1,3 +1,5 @@
+// First: brings data kept by older versions up to date before anything reads it.
+import '@open-tabletop/storage/start'
 import '@open-tabletop/ui-kit/theme.css'
 import { offerUpdate } from '@open-tabletop/ui-kit'
 import { mount } from 'svelte'

@@ -6,7 +6,7 @@ import { localize, type LocalizedText } from './index'
  * templates for points of interest, each made on the party's hex by an effect
  * `hex.pois.<template>: 1`, or by discovery's contents naming one. What a place is (its
  * name, icon, fields, the tags it gives the hex) is the pack's; the host writes it into its
- * map (the Hexmapper), or only notes it where it has none (Travel).
+ * map (Map), or only notes it where it has none (Travel).
  */
 export interface PlaceTemplate {
   name: LocalizedText

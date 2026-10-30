@@ -70,7 +70,7 @@
       : null,
   )
   const percent = (n: number | undefined) => `${Math.round((n ?? 0) * 100)} %`
-  /** A terrain's colour on the Hexmapper's palettes (grey for one they lack). */
+  /** A terrain's colour on Map's palettes (grey for one they lack). */
   const colours = new Map<string, string>(
     [...DEFAULT_TERRAINS, ...Object.values(TERRAIN_SETS).flat()].map((tt) => [tt.id, tt.color]),
   )

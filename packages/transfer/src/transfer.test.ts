@@ -21,7 +21,7 @@ import {
 /** The Grey Marches' example map and its campaign, as the map library and the campaigns keep them. */
 const stored = JSON.parse(
   Object.values(
-    import.meta.glob<string>('../../../apps/hexmapper/src/lib/play/old-maps/v0.17.0-pending.json', {
+    import.meta.glob<string>('../../../apps/map/src/lib/play/old-maps/v0.17.0-pending.json', {
       query: '?raw',
       import: 'default',
       eager: true,

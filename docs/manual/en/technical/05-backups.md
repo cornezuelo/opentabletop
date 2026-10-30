@@ -86,7 +86,7 @@ A JSON file:
 }
 ```
 
-- `storage` copies the apps' browser storage entries whose keys start with `opentabletop.` or `hexmapper.`, as text. Map's crash copies of the open map and its campaign (`hexmapper.pending`, `hexmapper.pendingCampaign`) are left out.
+- `storage` copies the apps' browser storage entries whose keys start with `opentabletop.` (or `hexmapper.`, from before Map was called the Hexmapper), as text. Map's crash copies of the open map and its campaign (`opentabletop.map.pending`, `opentabletop.map.pendingCampaign`) are left out. A backup made up to v0.25.0 restores as well: what it kept under the Hexmapper's names is moved to Map's when an app next opens.
 - `maps` copies Map's library as it is: each `json` is a map in Map's own format, which carries its version and is migrated when the map opens. To share a single map with other tools, use Map's **Save** (an OTD bundle, see [File formats](02-file-formats.md)).
 - `campaigns` copies the campaigns the same way, each `json` in their own versioned format. Backups made before campaigns (`version` 1) have none: each of their maps makes its own when it opens.
 - `version` is the version of this envelope. Newer backups than the app understands are refused rather than read wrongly.

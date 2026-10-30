@@ -44,11 +44,11 @@ export interface WorldWeather {
 }
 
 /**
- * The trip going on in a campaign: one at a time (a map's in the Hexmapper, or one of
+ * The trip going on in a campaign: one at a time (a map's in Map, or one of
  * Travel's), so the world's time is one. Another trip asks to take its place.
  */
 export interface CampaignTrip {
-  /** The app it plays in (`hexmapper`, `travel`) and its id there (the map's, the trip's). */
+  /** The app it plays in (`map`, `travel`) and its id there (the map's, the trip's). */
   app: string
   id: string
   /** Its name, to say which one it is. */

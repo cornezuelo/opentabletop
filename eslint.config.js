@@ -3,7 +3,7 @@ import prettier from 'eslint-config-prettier'
 import svelte from 'eslint-plugin-svelte'
 import globals from 'globals'
 import ts from 'typescript-eslint'
-import svelteConfig from './apps/hexmapper/svelte.config.js'
+import svelteConfig from './apps/map/svelte.config.js'
 
 export default ts.config(
   { ignores: ['**/dist', '**/dist-local', '**/node_modules'] },

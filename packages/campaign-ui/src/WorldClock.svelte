@@ -30,7 +30,7 @@
   /**
    * The world clock of a campaign: the date, moving time on, events to come and progress
    * clocks (its timeline is `WorldTimeline`). What it does goes through `controls`, the
-   * host's (the Hexmapper with the map open, the Campaign app); during a trip (`trip`)
+   * host's (Map with the map open, the Campaign app); during a trip (`trip`)
    * moving time on travels or waits with the party.
    */
   let {

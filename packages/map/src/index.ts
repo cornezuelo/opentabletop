@@ -1,5 +1,5 @@
 /**
- * The map model (the Hexmapper's maps): its types, defaults, migrations and serializing,
+ * The map model (Map's maps): its types, defaults, migrations and serializing,
  * plain TypeScript, so every app reads and writes maps the same way.
  */
 export * from './types'

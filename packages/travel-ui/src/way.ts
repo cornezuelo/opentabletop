@@ -1,6 +1,6 @@
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 
-/** The default palette's water terrains (the Hexmapper's map palette decides there). */
+/** The default palette's water terrains (Map's map palette decides there). */
 export const WATER = ['lake', 'sea', 'deep-sea']
 
 /** One hex of an abstract trip: what it is and how it joins the next one. */

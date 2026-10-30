@@ -2,7 +2,7 @@
 
 Plays trips without a map. It is one app of the OpenTabletop ecosystem: read the root `CLAUDE.md` first.
 
-**Responsibility:** trips with any system, without a map: the way is a line of hexes the user describes (terrain, tags, roads/rivers to the next one). Trips on a map are the Hexmapper's Play mode; both use `session` (`startTrip`, `stepTrip`) and the `travel-ui` components. Systems are made and edited in the Systems app (each system page links there).
+**Responsibility:** trips with any system, without a map: the way is a line of hexes the user describes (terrain, tags, roads/rivers to the next one). Trips on a map are Map's Play mode; both use `session` (`startTrip`, `stepTrip`) and the `travel-ui` components. Systems are made and edited in the Systems app (each system page links there).
 
 ## Architecture
 

@@ -55,15 +55,15 @@
 
   const listed = $derived(Array.isArray(data?.maps) ? (data.maps as string[]) : [])
   const maps = $derived(systemMaps(system, listed))
-  /** Opens the map in the Hexmapper, as its Maps → Example maps would. */
-  const hexmapperLink = (path: string) =>
-    `${appUrl('hexmapper')}#/example/${encodeURIComponent(system.pack ?? '')}/${path
+  /** Opens the map in Map, as its Maps → Example maps would. */
+  const mapLink = (path: string) =>
+    `${appUrl('map')}#/example/${encodeURIComponent(system.pack ?? '')}/${path
       .split('/')
       .map(encodeURIComponent)
       .join('/')}`
   let picker = $state<HTMLInputElement>()
 
-  /** A map file saved from the Hexmapper becomes a file of the pack, listed in `maps:`. */
+  /** A map file saved from Map becomes a file of the pack, listed in `maps:`. */
   async function addMap(file: File) {
     if (!root || !doc) return
     const json = await file.text()
@@ -252,7 +252,7 @@
             <code>{map.path}</code>
           </span>
           {#if map.name}
-            <a class="plain" href={hexmapperLink(map.path)}>{t('overview.openInHexmapper')}</a>
+            <a class="plain" href={mapLink(map.path)}>{t('overview.openInMap')}</a>
           {/if}
           {#if !disabled}
             <button class="plain" onclick={() => removeMap(map.path, map.name ?? map.path)}

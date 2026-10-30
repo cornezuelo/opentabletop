@@ -12,7 +12,7 @@ La pestaña **Tierra** edita los **modelos de tierra** del sistema (`kind: land`
 
 Dónde se usa, una vez que el sistema lo lista:
 
-- **Generar tierra** de Mapa (herramienta Terreno) rellena los hexes vacíos de un mapa, y **Generar sus hexes vacíos** de una región los de la región, creciendo hacia fuera desde la tierra que pintaste ([Terreno](../hexmapper/02-terrain.md#generar-tierra)).
+- **Generar tierra** de Mapa (herramienta Terreno) rellena los hexes vacíos de un mapa, y **Generar sus hexes vacíos** de una región los de la región, creciendo hacia fuera desde la tierra que pintaste ([Terreno](../map/02-terrain.md#generar-tierra)).
 - **El descubrimiento**, cuando los bindings deciden con él los hexes vacíos (`discover.terrain: { land: land.default }`), o cuando la tabla de terreno le pasa un hex (`set: { land: land.default }` en una entrada) ([Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa)).
 
 ## La pestaña

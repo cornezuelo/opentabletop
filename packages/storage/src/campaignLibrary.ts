@@ -2,7 +2,7 @@
  * The campaigns of this browser in IndexedDB, keyed by campaign id, beside the map library.
  * Their contents are campaigns in the format of `@open-tabletop/campaign` (`json`,
  * versioned); backups copy them as they are. Every write is announced on
- * `opentabletop.campaigns`, so an app holding a campaign open (the Hexmapper, with a map of
+ * `opentabletop.campaigns`, so an app holding a campaign open (Map, with a map of
  * it) reads it again.
  */
 import { createLibrary } from './library'

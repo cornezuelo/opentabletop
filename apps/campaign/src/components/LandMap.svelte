@@ -4,7 +4,7 @@
 
   /**
    * A map at a glance, read only: its hexes in their terrain's colour, and the land each
-   * faction holds on it as on the Hexmapper: diagonal stripes in the faction's colour and a
+   * faction holds on it as on Map: diagonal stripes in the faction's colour and a
    * dashed frontier, so the terrain still shows beneath.
    */
   let { map, color, label }: { map: HexMap; color: (faction: string) => string; label: string } =
@@ -44,7 +44,7 @@
     opacity: 0.25;
   }
 
-  /* Bolder than on the Hexmapper (in a hex's radius of 10), so they read on a small map. */
+  /* Bolder than on Map (in a hex's radius of 10), so they read on a small map. */
   path.hatch {
     fill: none;
     stroke-width: 1.2;

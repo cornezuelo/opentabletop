@@ -22,6 +22,7 @@
     "@open-tabletop/oracle-ui": "*",
     "@open-tabletop/pack-ui": "*",
     "@open-tabletop/session": "*",
+    "@open-tabletop/storage": "*",
     "@open-tabletop/time": "*",
     "@open-tabletop/travel-engine": "*",
     "@open-tabletop/travel-ui": "*",

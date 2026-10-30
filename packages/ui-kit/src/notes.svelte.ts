@@ -11,7 +11,7 @@ export interface NotePreferences {
 }
 
 export const NOTES_KEY = 'opentabletop.notes'
-/** Where the Hexmapper kept them before every app shared them. */
+/** Where Map kept them before every app shared them. */
 const LEGACY_KEY = 'hexmapper.preferences'
 
 export function readNotePreferences(storage: Pick<Storage, 'getItem'>): NotePreferences {

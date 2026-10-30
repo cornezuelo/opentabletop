@@ -632,7 +632,7 @@ export const es: Messages<typeof en> = {
     exportIncludes: 'El fichero lleva: {packs}',
     exportButton: 'Exportar como .zip',
     exportPersonal: 'Incluye packs de uso personal: guárdate el fichero, no lo compartas.',
-    openInHexmapper: 'Abrir en Mapa →',
+    openInMap: 'Abrir en Mapa →',
     confirmRemoveMap: '¿Quitar el mapa «{name}» del pack? Su fichero se va también.',
     mapError: {
       missing: 'El pack no tiene ese fichero',

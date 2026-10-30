@@ -43,7 +43,7 @@ You rarely make one here. Campaigns appear by themselves:
 - **A new map** (Map) starts in a campaign of its own, named after the map.
 - **A new trip** (Travel) starts in one of its own too, named after the trip (its name, else its system's), and it keeps following the trip's name when you rename the trip or play it with another system, until you rename the campaign yourself.
 - **An example map** opens in the campaign its file names: the Grey Marches' two maps share _The Grey Marches_, so the second one you open joins the first one's. If this browser doesn't have that campaign but has others with **the same name or played with the same system** (say, a map of that game you started before), Map asks: **Join “…”** one of them (the map shares its world, and the example's own clock and factions are left out), or **Start its own** (the example's campaign, apart).
-- **A map file** brings its campaign: if this browser has it already, Map asks whether to join it, replace it or keep the file's apart ([Your maps](../hexmapper/01-getting-started.md#your-maps)).
+- **A map file** brings its campaign: if this browser has it already, Map asks whether to join it, replace it or keep the file's apart ([Your maps](../map/01-getting-started.md#your-maps)).
 
 **Two campaigns never share a name**: a new one whose name is taken gets a number, _The Grey Marches (2)_, so you can tell them apart (rename it whenever you like). And opening a map in the Map app says which campaign it's in and which maps and trips are in it too: _This map is in the campaign “The Grey Marches”, with “The Hollow Hills”_.
 
@@ -61,7 +61,7 @@ When the last map or trip has moved, the campaign it left is deleted.
 
 At the top, its **name** (click it to change it; every app names the campaign with it) and **⋯** with **Delete**. Under them:
 
-- **System**: the game system its maps and trips are played with, with **Edit the system in Systems →**. It's chosen in a map's **Map settings → Campaign** (or when a trip in it starts), since it is theirs too ([Campaigns](../hexmapper/01-getting-started.md#campaigns)).
+- **System**: the game system its maps and trips are played with, with **Edit the system in Systems →**. It's chosen in a map's **Map settings → Campaign** (or when a trip in it starts), since it is theirs too ([Campaigns](../map/01-getting-started.md#campaigns)).
 - **Notes**: its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it.
 - With a trip going on in the campaign, a line says which one, with **Open**. One trip goes on in a campaign at a time, since its time is the campaign's ([One trip at a time](../travel/02-playing.md#the-campaign)).
 
@@ -80,7 +80,7 @@ What is going on, at a glance; each block's title leads to its tab:
 
 ### World
 
-The world clock, the same one Map's **World** panel shows for a map of the campaign: start it on a date, move time on (an hour, to the next part of the day, the next day, the next event, or until a part chosen), set the date, schedule events, keep progress clocks and add the system's ones, and see today's weather. Everything works as in [The world clock](../hexmapper/12-world.md), and it is one clock: moving it here moves it on every map and trip of the campaign, and they see it at once.
+The world clock, the same one Map's **World** panel shows for a map of the campaign: start it on a date, move time on (an hour, to the next part of the day, the next day, the next event, or until a part chosen), set the date, schedule events, keep progress clocks and add the system's ones, and see today's weather. Everything works as in [The world clock](../map/12-world.md), and it is one clock: moving it here moves it on every map and trip of the campaign, and they see it at once.
 
 Here there is no party, so moving time on only moves the world: its events come due, its weather is rolled day by day, its clocks do what the system says when they fill, and the factions' turns that come due are played, their land changing on the map chosen in [Factions](02-factions.md). A trip going on in the campaign (on a map, or in Travel) waits until the new date when it next steps, living the time that passed; a clock that filled here meanwhile (by hand, or with the factions' turns) is heard then too, if its system names it ([Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system)). While a trip goes on, the clock can't go back, and the world's weather is the trip's (it isn't shown here).
 

@@ -10,7 +10,7 @@
       },
       "members": ["kael", "mara", "tobin"],
       "ext": {
-        "hexmapper": {
+        "map": {
           "token": {
             "id": "thecompany",
             "iconId": "game:meeple",
@@ -37,7 +37,7 @@
         "character": {
           "sheet": "grey-marches/faction"
         },
-        "hexmapper": {
+        "map": {
           "territory": [
             "5,2",
             "5,3",
@@ -199,7 +199,7 @@
         "character": {
           "sheet": "grey-marches/faction"
         },
-        "hexmapper": {
+        "map": {
           "territory": []
         }
       }
@@ -215,7 +215,7 @@
         "character": {
           "sheet": "grey-marches/faction"
         },
-        "hexmapper": {
+        "map": {
           "territory": []
         }
       }
@@ -1413,7 +1413,7 @@
         }
       ],
       "ext": {
-        "hexmapper": {
+        "map": {
           "version": 10,
           "created": "2026-10-19T10:00:00.000Z",
           "modified": "2026-10-19T10:00:00.000Z",

@@ -5,8 +5,8 @@ Design for the backlog's _Pictures for characters_ (Characters engine, user 2026
 ## 1. What there is today
 
 - A **character** (`CharacterState`, character-engine) has its sheet's values, conditions, tags, cards and relations, a name and a `noteRef` to the user's notes app. No picture.
-- The **roster** lives in `localStorage` (`opentabletop.characters`), backed up with every `opentabletop.` key. Maps and campaigns live in IndexedDB (`hexmapper` database: `library`, `campaigns`), added to backups explicitly.
-- The Hexmapper already embeds **user images** in a map: `MapAsset { id, name, dataUrl }` (imported icons, `importImageFile`), saved in the `.otd.json`. Tokens draw an icon, not a picture.
+- The **roster** lives in `localStorage` (`opentabletop.characters`), backed up with every `opentabletop.` key. Maps and campaigns live in IndexedDB (`opentabletop` database: `library`, `campaigns`), added to backups explicitly.
+- Map already embeds **user images** in a map: `MapAsset { id, name, dataUrl }` (imported icons, `importImageFile`), saved in the `.otd.json`. Tokens draw an icon, not a picture.
 
 ## 2. What a picture is
 
@@ -27,7 +27,7 @@ interface CharacterState {
 ## 3. Where it shows
 
 - **Characters app**: the character's header gets the portrait (a round crop, the name beside it), **Picture…** to upload, **Remove the picture**; the roster list shows a small one beside each name.
-- **Trips** (Travel and the Hexmapper's Party tab): each member's card shows it small in its head; the party sheet has none (section 7 b).
+- **Trips** (Travel and Map's Party tab): each member's card shows it small in its head; the party sheet has none (section 7 b).
 - **Tokens**: a token with a sheet linked to a roster character may draw its portrait **instead of its icon** (a checkbox **Show its picture** in the token's panel), clipped to the token's disc; the map export and print draw it too.
 - **Factions and the bestiary** could use the same field later (an emblem, a creature's picture): the store and the field are generic; nothing in this design is character-only but the UI.
 
@@ -43,8 +43,8 @@ interface CharacterState {
 - `storage`: the `pictures` store (DB version bump with its upgrade), `putPicture` / `getPicture` / `removePicture`, backup and restore.
 - `ui-kit`: `shrinkImage(file)` (canvas, size, format), and a small `Portrait` component (lazy-loads by id, a placeholder with the initials while it loads or when missing).
 - `character-engine`: the `picture` field (validated as an id string), nothing else: it never reads pixels.
-- `character-ui`: the header and list pieces; `travel-ui`: the member card's head; Hexmapper: the token option, rendering (PixiJS sprite from the data URL, cached per id) and export.
-- Manual: Characters (pictures), Travel's Playing and the Hexmapper's Tokens, File formats (`assets`), Backups; en and es.
+- `character-ui`: the header and list pieces; `travel-ui`: the member card's head; Map: the token option, rendering (PixiJS sprite from the data URL, cached per id) and export.
+- Manual: Characters (pictures), Travel's Playing and Map's Tokens, File formats (`assets`), Backups; en and es.
 
 ## 6. What it isn't
 
@@ -74,4 +74,4 @@ What it costs or changes:
 - Maps still **embed** the images they use when saved or exported (a map file must open anywhere); opening one adds its images to the library (same bytes, same id: kept once). So nothing changes for files, only for the browser.
 - A small **migration** on the way in: a map's `assets` are copied into the library when the map opens (the map keeps them too, for its file).
 
-**Proposal**: yes, it makes sense, and portraits are the moment to do it: the `pictures` store of section 2 becomes this `images` library from the start (same work, more general), the picker is the one place to upload, and the Hexmapper's icons and glyphs move to it next. A screen to manage the library (in the Characters app? a small app of its own? in Preferences?) is the open question; the picker alone is enough to start.
+**Proposal**: yes, it makes sense, and portraits are the moment to do it: the `pictures` store of section 2 becomes this `images` library from the start (same work, more general), the picker is the one place to upload, and Map's icons and glyphs move to it next. A screen to manage the library (in the Characters app? a small app of its own? in Preferences?) is the open question; the picker alone is enough to start.

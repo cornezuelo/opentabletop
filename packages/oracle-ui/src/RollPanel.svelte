@@ -21,7 +21,7 @@
     context?: Record<string, unknown>
     /** Space/Enter rolls again (off when the host uses those keys). */
     hotkeys?: boolean
-    /** Host buttons under the result (e.g. the Hexmapper's "Add as a POI"). */
+    /** Host buttons under the result (e.g. Map's "Add as a POI"). */
     actions?: Snippet<[HistoryItem]>
   } = $props()
   const { t, roller } = $derived(ui)

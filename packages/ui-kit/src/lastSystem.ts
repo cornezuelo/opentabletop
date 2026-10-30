@@ -1,6 +1,6 @@
 /**
  * The game system last chosen in Travel, Systems or the Oracle: a preference of this
- * browser, so the next app opened starts on the same system. The Hexmapper doesn't use it
+ * browser, so the next app opened starts on the same system. Map doesn't use it
  * (each map has its own system).
  */
 export const LAST_SYSTEM_KEY = 'opentabletop.lastSystem'

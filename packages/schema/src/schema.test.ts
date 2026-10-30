@@ -19,7 +19,7 @@ const sample = {
         },
       },
       paths: [{ id: 'road00000001', kind: 'road', hexes: ['1,2', '2,2'] }],
-      ext: { hexmapper: { hexSize: 40 }, somebodyElse: { keep: true } },
+      ext: { map: { hexSize: 40 }, somebodyElse: { keep: true } },
     },
   ],
   pois: [
@@ -40,7 +40,7 @@ describe('OTD bundle', () => {
     expect(bundle!.parties).toEqual([])
     expect(bundle!.state).toEqual({})
     expect(bundle!.maps[0].ext).toEqual({
-      hexmapper: { hexSize: 40 },
+      map: { hexSize: 40 },
       somebodyElse: { keep: true },
     })
     expect((bundle as Record<string, unknown>).unknownTopLevel).toBe(42)

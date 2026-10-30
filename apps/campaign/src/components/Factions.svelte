@@ -12,7 +12,7 @@
 
   /**
    * The campaign's factions: each one's card and sheet, their land on a map of the campaign
-   * (a read-only minimap; painted in the Hexmapper), a world turn on that map, and turns by
+   * (a read-only minimap; painted in Map), a world turn on that map, and turns by
    * themselves as the world clock moves on. `faction` is the one open (a deep link).
    */
   let { campaign, faction }: { campaign: Campaign; faction?: string } = $props()
@@ -28,9 +28,7 @@
   /** Whether no faction of the campaign holds land on the map chosen. */
   const bare = $derived(!!own && !own.factions.some((f) => land[f.id]?.length))
   const mapName = (name: string) => name || t('places.untitledMap')
-  const mapUrl = $derived(
-    map && placeUrl({ app: 'hexmapper', id: map.meta.id, name: map.meta.name }),
-  )
+  const mapUrl = $derived(map && placeUrl({ app: 'map', id: map.meta.id, name: map.meta.name }))
 
   function toggled(id: string, opened: boolean) {
     const view = { name: 'campaign', id: campaign.id, tab: 'factions' } as const

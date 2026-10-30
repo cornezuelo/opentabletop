@@ -1,6 +1,6 @@
 # Factions
 
-The **Factions** tab edits the powers of the system's world (`kind: factions`, one per system): kingdoms, clans, guilds, a band of outlaws. **New factions** makes two on Core's turn table, with a sheet of their own, and names them in the system. In Map they're brought onto a map from the World view ([Factions](../hexmapper/12-world.md#factions)), and into a campaign from the Campaign app's [Factions](../campaign/02-factions.md) tab. This page explains how factions work, then each part of the tab, builds a border feud from nothing step by step and lists the usual mistakes. Help next to each field explains it, with examples. The YAML: [Factions](../technical/07-kinds.md#factions).
+The **Factions** tab edits the powers of the system's world (`kind: factions`, one per system): kingdoms, clans, guilds, a band of outlaws. **New factions** makes two on Core's turn table, with a sheet of their own, and names them in the system. In Map they're brought onto a map from the World view ([Factions](../map/12-world.md#factions)), and into a campaign from the Campaign app's [Factions](../campaign/02-factions.md) tab. This page explains how factions work, then each part of the tab, builds a border feud from nothing step by step and lists the usual mistakes. Help next to each field explains it, with examples. The YAML: [Factions](../technical/07-kinds.md#factions).
 
 ## How factions work
 

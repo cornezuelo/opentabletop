@@ -149,4 +149,4 @@ actions:
 - `do:` takes an action and, optionally, `with:` its parameters (`{ do: march, with: { until: hex } }`).
 - `trip.marched` stays as "minutes moved today", whatever action moved.
 - **`PACK_FORMAT` 4** (agreed with the user 2026-10-18: format 3 was released in v0.6.0, and item 23 reads no older syntax): `advance` / `speed` steps and a bare `actions.march` are refused with the rest of format 3; our packs (Core, the Grey Marches, Kal-Arath) move to format 4 in the same work, and File formats gets its row.
-- Cost: the travel loop becomes a step; parameters are a new piece of the actions' syntax (validation: choices, defaults, unknown params); the trip panel, Hexmapper Play and the World panel read the moving actions and `travel.onward`; Systems' Actions edits parameters.
+- Cost: the travel loop becomes a step; parameters are a new piece of the actions' syntax (validation: choices, defaults, unknown params); the trip panel, Map Play and the World panel read the moving actions and `travel.onward`; Systems' Actions edits parameters.

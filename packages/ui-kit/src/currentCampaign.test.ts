@@ -30,8 +30,8 @@ describe('the campaign being played', () => {
 describe('links that put a map or trip in a campaign', () => {
   it('make a new one, or bring one kept there, and read back', async () => {
     const { inCampaignUrl, parseInCampaign } = await import('./apps')
-    const fresh = inCampaignUrl('hexmapper', 'winter')
-    expect(fresh).toMatch(/hexmapper\/#\/in-campaign\/winter$/)
+    const fresh = inCampaignUrl('map', 'winter')
+    expect(fresh).toMatch(/map\/#\/in-campaign\/winter$/)
     expect(parseInCampaign(fresh.slice(fresh.indexOf('#')))).toEqual({ campaign: 'winter' })
     const join = inCampaignUrl('travel', 'winter', 'trip1')
     expect(parseInCampaign(join.slice(join.indexOf('#')))).toEqual({

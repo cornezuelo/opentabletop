@@ -84,13 +84,13 @@ A field under the system's parts, with suggestions (every name the index met, an
 
 ## 6. In the trip panel (phase c)
 
-A stat's, role's or value's help in the trip panel (Hexmapper and Travel) already shows its description and how tables read it; it gains a line **Read by: Getting lost, Encounter · Changed by: Forage, Camp**, the definitions' names only (no links: playing isn't editing), and an **Open in Systems ↗** link to the name's Used by.
+A stat's, role's or value's help in the trip panel (Map and Travel) already shows its description and how tables read it; it gains a line **Read by: Getting lost, Encounter · Changed by: Forage, Camp**, the definitions' names only (no links: playing isn't editing), and an **Open in Systems ↗** link to the name's Used by.
 
 ## 7. Phases
 
 - **(a)** The index in session (`usage.ts`) with tests on the Grey Marches (Pathfinding found in _Getting lost_'s `modeWhen` and in Navigation's `from`; Morale changed by the encounters; `today.lost` set by _Getting lost_, read by tomorrow's `modeWhen`), Core and a made-up system for each row of section 3.
 - **(b)** Systems: **Used by** on each declared row, **Find a name** on the Overview, the links (Rules / Checks rows that open on a hash); manual: Systems' Overview, Rules, Checks, Sheet en/es; the Grey Marches page (Pathfinding as the example).
-- **(c)** The trip panel's help line and **Open in Systems ↗** (travel-ui); Hexmapper's Play and Travel's Playing en/es.
+- **(c)** The trip panel's help line and **Open in Systems ↗** (travel-ui); Map's Play and Travel's Playing en/es.
 
 ## 8. Decided (2026-10-19)
 

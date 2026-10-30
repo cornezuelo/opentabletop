@@ -17,20 +17,20 @@ export interface LandDrawing {
   /** Hexes by terrain colour (`''`: no terrain). */
   fills: { fill: string; d: string }[]
   /**
-   * Each faction's land as the Hexmapper draws it: diagonal `hatch` lines over its hexes
+   * Each faction's land as Map draws it: diagonal `hatch` lines over its hexes
    * and its `frontier`, the edges where its land ends, just inside them (to be dashed).
    */
   land: { faction: string; hatch: string; frontier: string }[]
 }
 
-/** The hatching's spacing, as a fraction of a hex's radius: wider than the Hexmapper's, as hexes are small here. */
+/** The hatching's spacing, as a fraction of a hex's radius: wider than Map's, as hexes are small here. */
 const HATCH_SPACING = 0.5
 /** How far inside its hexes a frontier runs, so two factions side by side both show. */
 const FRONTIER_INSET = 0.08
 
 /**
  * Draws a map at a glance: each hex in its terrain's colour and, over it, the land each
- * faction holds, hatched with a frontier as on the Hexmapper, so terrain and faction don't
+ * faction holds, hatched with a frontier as on Map, so terrain and faction don't
  * mix. One SVG path per colour, so a big map stays light. `size` is a hex's radius.
  */
 export function drawLand(map: HexMap, size = 10): LandDrawing {

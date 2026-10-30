@@ -1,6 +1,6 @@
 /**
  * Definitions pinned as favorites: a per-browser preference shared by every app on the
- * same site (the Oracle app and the Hexmapper's Oracle panel), kept in step across tabs.
+ * same site (the Oracle app and Map's Oracle panel), kept in step across tabs.
  */
 const KEY = 'opentabletop.favorites'
 

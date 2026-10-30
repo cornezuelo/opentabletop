@@ -30,7 +30,7 @@ export interface RosterEntry {
 
 /** A trip or token a roster character plays in, or a campaign it's in without a trip. */
 export interface RosterPlace {
-  /** The app that keeps it (`hexmapper`, `travel`; `campaign`: in a campaign, without a trip). */
+  /** The app that keeps it (`map`, `travel`; `campaign`: in a campaign, without a trip). */
   app: string
   /** The map's or trip's id. */
   id: string

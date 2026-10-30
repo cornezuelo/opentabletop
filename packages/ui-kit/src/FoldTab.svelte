@@ -3,7 +3,7 @@
 
   /**
    * The small tab on a side panel's edge that folds it away and brings it back (the
-   * Hexmapper's). It sits inside a positioned container, against the side the panel is
+   * Map's). It sits inside a positioned container, against the side the panel is
    * on: `side="left"` for a panel on the left, `right` for one on the right.
    */
   let {

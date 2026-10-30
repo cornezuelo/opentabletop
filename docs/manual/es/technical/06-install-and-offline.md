@@ -6,7 +6,7 @@ Todas las aplicaciones de OpenTabletop se pueden **instalar** como un programa y
 
 Abre la aplicación en el navegador y usa su opción de instalar: en Chrome, Edge o Brave, el icono de instalar de la barra de direcciones (o menú → **Instalar**); en el móvil, **Añadir a pantalla de inicio**. Firefox en el escritorio no instala aplicaciones web, pero todo lo demás funciona igual en él.
 
-Cada aplicación se instala por separado (Mapa, Campaña, Oráculo, Viajes, Personajes, Sistemas, Manual). Las instaladas se abren en su propia ventana, con su propio icono.
+Cada aplicación se instala por separado (Mapa, Campaña, Oráculo, Viajes, Personajes, Sistemas, Manual). Las instaladas se abren en su propia ventana, con su propio icono. Mapa se llamaba Hexmapper hasta la v0.25.0: su dirección antigua (`…/hexmapper/`) te lleva a `…/map/`, y un Hexmapper instalado entonces abre Mapa en cuanto tiene conexión; instala Mapa de nuevo para tener su propio icono.
 
 ## Sin conexión
 

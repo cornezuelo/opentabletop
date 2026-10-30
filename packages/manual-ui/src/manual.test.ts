@@ -6,10 +6,10 @@ import { pageLink, picturePath, withPictures } from './render'
 describe('manual pages', () => {
   it('parse title, order and sections', () => {
     const page = parsePage(
-      'docs/manual/en/hexmapper/02-terrain.md',
+      'docs/manual/en/map/02-terrain.md',
       '# Terrain\n\nIntro text.\n\n## Painting\n\nUse the **brush**.\n\n## The palette\n\nColors.',
     )!
-    expect(page).toMatchObject({ app: 'hexmapper', locale: 'en', slug: 'terrain', order: 2 })
+    expect(page).toMatchObject({ app: 'map', locale: 'en', slug: 'terrain', order: 2 })
     expect(page.title).toBe('Terrain')
     expect(page.sections.map((s) => [s.id, s.text])).toEqual([
       ['', 'Intro text.'],

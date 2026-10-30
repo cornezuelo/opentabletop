@@ -59,7 +59,7 @@ describe('the Oracle in a campaign', () => {
     expect(after.oracle?.history).toHaveLength(1)
     expect(Object.keys(after.oracle!.state.decks)).toContain(DECK)
 
-    // A map of it drew a card meanwhile (the Hexmapper wrote it): the Oracle reads it again.
+    // A map of it drew a card meanwhile (Map wrote it): the Oracle reads it again.
     const drawn = after.oracle!.state.decks[DECK]
     const moved = {
       ...after,

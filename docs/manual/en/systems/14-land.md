@@ -12,7 +12,7 @@ The **Land** tab edits the system's **land models** (`kind: land`): terrain with
 
 Where it's used, once the system lists it:
 
-- Map's **Generate land** (Terrain tool) fills a map's empty hexes, and a region's **Generate its empty hexes** a region's, growing from the land you painted outwards ([Terrain](../hexmapper/02-terrain.md#generating-land)).
+- Map's **Generate land** (Terrain tool) fills a map's empty hexes, and a region's **Generate its empty hexes** a region's, growing from the land you painted outwards ([Terrain](../map/02-terrain.md#generating-land)).
 - **Discovery**, when the bindings decide empty hexes with it (`discover.terrain: { land: land.default }`), or when the terrain table hands a hex over to it (`set: { land: land.default }` on an entry) ([Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)).
 
 ## The tab

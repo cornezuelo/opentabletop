@@ -7,7 +7,7 @@ ARGS ?= --help
 APPS := $(filter-out cli,$(notdir $(wildcard apps/*)))
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev dev-hexmapper dev-campaign dev-oracle dev-travel dev-characters dev-systems dev-manual dev-all build site serve rebuild preview \
+.PHONY: help install dev dev-map dev-campaign dev-oracle dev-travel dev-characters dev-systems dev-manual dev-all build site serve rebuild preview \
 	test test-watch check lint format verify old-maps clean cli private-status private-commit private-push
 
 help: ## List the commands
@@ -18,10 +18,10 @@ help: ## List the commands
 install: ## Install dependencies (after cloning or pulling)
 	npm install
 
-dev: dev-hexmapper ## Run the hexmapper with live reload (same as dev-hexmapper)
+dev: dev-map ## Run Map with live reload (same as dev-map)
 
-dev-hexmapper: ## Run the hexmapper with live reload
-	npm run dev -w apps/hexmapper
+dev-map: ## Run Map with live reload
+	npm run dev -w apps/map
 
 dev-campaign: ## Run the Campaign app with live reload
 	npm run dev -w apps/campaign
@@ -53,7 +53,7 @@ site: ## Build the public site into dist/<app>/ (open packs only: safe to publis
 
 serve: ## Build the site for this machine (with packs-private/) into dist-local/ and serve it
 	OTT_PERSONAL_PACKS=1 npm run build:site
-	@echo "Open http://localhost:$(PORT)/hexmapper/, /campaign/, /oracle/, /travel/, /characters/, /systems/ or /manual/ (Ctrl+C to stop)"
+	@echo "Open http://localhost:$(PORT)/map/, /campaign/, /oracle/, /travel/, /characters/, /systems/ or /manual/ (Ctrl+C to stop)"
 	@echo "dist-local/ has your personal-use packs: never publish it (make site builds the public dist/)."
 	python3 -m http.server $(PORT) -d dist-local
 
@@ -61,7 +61,7 @@ rebuild: ## Rebuild dist-local/ for a running make serve (then reload the page a
 	OTT_PERSONAL_PACKS=1 npm run build:site
 
 preview: ## Serve the last local build (dist-local/) again without rebuilding
-	@echo "Open http://localhost:$(PORT)/hexmapper/, /campaign/, /oracle/, /travel/, /characters/, /systems/ or /manual/ (Ctrl+C to stop)"
+	@echo "Open http://localhost:$(PORT)/map/, /campaign/, /oracle/, /travel/, /characters/, /systems/ or /manual/ (Ctrl+C to stop)"
 	python3 -m http.server $(PORT) -d dist-local
 
 cli: ## Build and run the command line (make cli ARGS="roll core/action")
@@ -86,8 +86,8 @@ format: ## Format every file with Prettier
 verify: lint check test ## Everything CI would run: lint, types and tests
 
 old-maps: ## Write this version's example maps and Travel's saved trips with trips going on, for later versions to keep opening (before a release)
-	OTT_OLD_MAPS_OUT=$(CURDIR)/apps/hexmapper/src/lib/play/old-maps/v$$(node -p "require('./package.json').version") \
-		npx vitest run apps/hexmapper/src/lib/play/old-maps.gen.test.ts
+	OTT_OLD_MAPS_OUT=$(CURDIR)/apps/map/src/lib/play/old-maps/v$$(node -p "require('./package.json').version") \
+		npx vitest run apps/map/src/lib/play/old-maps.gen.test.ts
 	OTT_OLD_TRIPS_OUT=$(CURDIR)/apps/travel/src/lib/old-trips/v$$(node -p "require('./package.json').version") \
 		npx vitest run apps/travel/src/lib/old-trips.gen.test.ts
 

@@ -27,7 +27,7 @@ Cada definición lleva la **etiqueta** `names`, la de lo que nombra (`people`, `
 
 ## En el mapa
 
-En el panel de Oráculo de Mapa, tira **¿Cómo se llama el sitio?** sobre un hex y guarda el resultado con **Añadir a … como punto de interés**: un pueblo, una posada o un paraje recibe ahí su nombre (mira [Oráculo en el mapa](../hexmapper/09-oracle.md)). _Un paraje_ lee el terreno del hex. Un mapa cuya campaña usa solo algunos packs lista Nombres cuando lo marcas en **Ajustes del mapa → Campaña → Packs**.
+En el panel de Oráculo de Mapa, tira **¿Cómo se llama el sitio?** sobre un hex y guarda el resultado con **Añadir a … como punto de interés**: un pueblo, una posada o un paraje recibe ahí su nombre (mira [Oráculo en el mapa](../map/09-oracle.md)). _Un paraje_ lee el terreno del hex. Un mapa cuya campaña usa solo algunos packs lista Nombres cuando lo marcas en **Ajustes del mapa → Campaña → Packs**.
 
 ## Cómo está hecho
 

@@ -43,7 +43,7 @@ export const MANIFEST_FILE = 'pack.yaml'
 
 /**
  * User packs are stored in the browser under an ecosystem-wide key, so apps served from
- * the same origin (hexmapper, oracle…) see the same packs.
+ * the same origin (Map, oracle…) see the same packs.
  */
 export const USER_PACKS_KEY = 'opentabletop.userPacks'
 

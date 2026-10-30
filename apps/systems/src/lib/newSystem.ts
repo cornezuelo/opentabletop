@@ -149,7 +149,7 @@ export function createSystem(
 /**
  * An example map of a duplicated pack, made the duplicate's: what named the original pack
  * (its system, its campaign: both by the pack's id) names the new one, its campaign is
- * called as the duplicate, and its maps get ids of their own (so the Hexmapper keeps them
+ * called as the duplicate, and its maps get ids of their own (so Map keeps them
  * apart from the original's examples). Unreadable files are kept as they are.
  */
 function duplicateMap(json: string, from: string, to: string, name: string): string {

@@ -6,7 +6,7 @@ export const TRAVEL_TRIPS_KEY = 'opentabletop.travel.trips'
 
 /** A map or a trip in a campaign: the app it's played in, its id there and its name. */
 export interface CampaignPlace {
-  app: 'hexmapper' | 'travel'
+  app: 'map' | 'travel'
   id: string
   name: string
 }
@@ -39,7 +39,7 @@ export async function allPlaces(): Promise<PlaceInCampaign[]> {
   const places: PlaceInCampaign[] = []
   for (const entry of await allLibraryMaps().catch(() => [])) {
     const map = campaignOfMap(entry.json)
-    if (map) places.push({ app: 'hexmapper', id: entry.id, name: map.name, campaign: map.campaign })
+    if (map) places.push({ app: 'map', id: entry.id, name: map.name, campaign: map.campaign })
   }
   let stored: string | null = null
   try {
@@ -70,7 +70,7 @@ export async function placeCampaign(place: {
 }): Promise<{ id: string; name: string } | undefined> {
   let id: string | undefined
   if (place.app === 'campaign') id = place.id
-  else if (place.app === 'hexmapper') {
+  else if (place.app === 'map') {
     const entry = await getLibraryMap(place.id).catch(() => null)
     id = entry ? campaignOfMap(entry.json)?.campaign : undefined
   } else if (place.app === 'travel') {

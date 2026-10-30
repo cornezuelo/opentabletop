@@ -280,7 +280,7 @@ Sin personajes, el grupo la guarda como un todo.
 
 ## Calendarios
 
-Los meses del año (con sus días y estaciones), los días de la semana, las lunas (ciclo y fase) y las fiestas, y el año del día 1. Los viajes con ese sistema ponen fecha a su diario con él, y las tablas ven `time.month`, `time.year`, `time.weekday`, `time.moons.<luna>` (new, waxing, full, waning) y `time.holidays`. El reloj del mundo (el panel [Mundo](../hexmapper/12-world.md) de Mapa, la aplicación Campaña) usa el calendario del sistema de la campaña. Sin uno, se usa un calendario sencillo de días y cuatro estaciones (las reglas genéricas nombran el de Core, `core/calendar.default`, que añade sus partes del día). En la aplicación Sistemas, la pestaña **Calendario** de un sistema lo edita con un formulario (renombrar un mes arrastra sus fiestas y traducciones).
+Los meses del año (con sus días y estaciones), los días de la semana, las lunas (ciclo y fase) y las fiestas, y el año del día 1. Los viajes con ese sistema ponen fecha a su diario con él, y las tablas ven `time.month`, `time.year`, `time.weekday`, `time.moons.<luna>` (new, waxing, full, waning) y `time.holidays`. El reloj del mundo (el panel [Mundo](../map/12-world.md) de Mapa, la aplicación Campaña) usa el calendario del sistema de la campaña. Sin uno, se usa un calendario sencillo de días y cuatro estaciones (las reglas genéricas nombran el de Core, `core/calendar.default`, que añade sus partes del día). En la aplicación Sistemas, la pestaña **Calendario** de un sistema lo edita con un formulario (renombrar un mes arrastra sus fiestas y traducciones).
 
 ```yaml
 kind: calendar
@@ -297,7 +297,7 @@ holidays: [{ id: midsummer, name: Pleno Verano, month: highsun, day: 15 }]
 
 **Qué ven las tablas:** `{{time.month}}` (el id del mes), `{{time.year}}`, `{{time.weekday}}`, la fase de cada luna como `time.moons.<luna>` (`when: { time.moons.pale: full }`) y las fiestas de hoy como una lista (`when: { time.holidays: midsummer }`), además de `time.season`, que sale del mes. Ids, no nombres: las condiciones comparan ids, y el diario muestra los nombres.
 
-**Divisiones del día** (`divisions`): las maneras en que el calendario divide el día, tantas como quiera el sistema (comidas, guardias, campanadas, rezos…), ninguna si no declara ninguna. Cada una va bajo su id y tiene o bien `parts` (cada parte con un `id`, un `from` y, si quieres, `until`, `name`, `description` y `tags`) o bien `every` (horas: partes numeradas de la misma duración desde la medianoche, 1, 2, 3…). Las partes numeradas se leen como números (`time.watch: 2`), se escriban con `every` o como `parts` que se llaman todas con números enteros (`id: '2'`): el **Dividir en partes iguales…** de la aplicación Sistemas las escribe así. Una parte dura hasta que empieza la siguiente de su división, en el orden del día se escriban en el orden que se escriban (la última hasta la primera, pasada la medianoche); `until` la acaba antes y deja un hueco sin ninguna parte de la división. Las etiquetas solo significan lo que las reglas de un sistema hagan con ellas. Un id no puede ser un nombre que el momento ya tiene (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). El panel [Mundo](../hexmapper/12-world.md) de Mapa avanza el tiempo hasta la siguiente parte de cada división, o hasta una parte elegida. Los nombres se traducen por los ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
+**Divisiones del día** (`divisions`): las maneras en que el calendario divide el día, tantas como quiera el sistema (comidas, guardias, campanadas, rezos…), ninguna si no declara ninguna. Cada una va bajo su id y tiene o bien `parts` (cada parte con un `id`, un `from` y, si quieres, `until`, `name`, `description` y `tags`) o bien `every` (horas: partes numeradas de la misma duración desde la medianoche, 1, 2, 3…). Las partes numeradas se leen como números (`time.watch: 2`), se escriban con `every` o como `parts` que se llaman todas con números enteros (`id: '2'`): el **Dividir en partes iguales…** de la aplicación Sistemas las escribe así. Una parte dura hasta que empieza la siguiente de su división, en el orden del día se escriban en el orden que se escriban (la última hasta la primera, pasada la medianoche); `until` la acaba antes y deja un hueco sin ninguna parte de la división. Las etiquetas solo significan lo que las reglas de un sistema hagan con ellas. Un id no puede ser un nombre que el momento ya tiene (`day`, `hour`, `minute`, `season`, `year`, `month`, `weekday`, `moons`, `holidays`, `tags`…). El panel [Mundo](../map/12-world.md) de Mapa avanza el tiempo hasta la siguiente parte de cada división, o hasta una parte elegida. Los nombres se traducen por los ids (`divisions: { meal: { name: …, parts: { elevenses: { name: … } } } }`).
 
 ```yaml
 kind: calendar
@@ -361,7 +361,7 @@ seasons:
       edge: wrap
 ```
 
-El reloj del mundo de una campaña también tira su propio clima cada día con el modelo de su sistema mientras no haya un viaje en marcha ([El reloj del mundo](../hexmapper/12-world.md#avanzar-el-tiempo)).
+El reloj del mundo de una campaña también tira su propio clima cada día con el modelo de su sistema mientras no haya un viaje en marcha ([El reloj del mundo](../map/12-world.md#avanzar-el-tiempo)).
 
 **Qué ven las tablas:** `{{trip.weather}}`, el id del clima de hoy (`rain`), y cada valor que pone su estado, por su nombre (`{{today.fordModifier}}`, `when: { today.fordImpossible: true }`); al día siguiente, los mismos valores como `yesterday.weather`, `yesterday.fordModifier`. No hay `{{trip.weather.value}}`: el clima es su id, y sus valores son valores del día como el `set` de cualquier tabla.
 
@@ -546,7 +546,7 @@ places:
 
 ## Facciones
 
-Los poderes del mundo de un sistema (`factions:` en su [sistema](#sistemas)): cada uno, un personaje de una [hoja](#hojas) (sus valores, estados y relaciones) que tiene hexes de un mapa, y juega un turno en cada **turno del mundo**. En la vista Mundo de Mapa se traen a un mapa, se dibujan y se juegan ([Facciones](../hexmapper/12-world.md#facciones)).
+Los poderes del mundo de un sistema (`factions:` en su [sistema](#sistemas)): cada uno, un personaje de una [hoja](#hojas) (sus valores, estados y relaciones) que tiene hexes de un mapa, y juega un turno en cada **turno del mundo**. En la vista Mundo de Mapa se traen a un mapa, se dibujan y se juegan ([Facciones](../map/12-world.md#facciones)).
 
 ```yaml
 kind: factions
@@ -575,7 +575,7 @@ factions:
 
 ## Relojes de progreso
 
-Los relojes de progreso con los que empieza el mundo de un sistema (`clocks:` en su [sistema](#sistemas)): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con qué es de él una vez lleno. Lo que pasa cuando uno se llena es cosa de las [reglas del mundo](#las-reglas-del-mundo). Llegan con el reloj del mundo al ponerlo en marcha (el panel Mundo de Mapa, la aplicación Campaña) ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)); los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.
+Los relojes de progreso con los que empieza el mundo de un sistema (`clocks:` en su [sistema](#sistemas)): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con qué es de él una vez lleno. Lo que pasa cuando uno se llena es cosa de las [reglas del mundo](#las-reglas-del-mundo). Llegan con el reloj del mundo al ponerlo en marcha (el panel Mundo de Mapa, la aplicación Campaña) ([Relojes de progreso](../map/12-world.md#relojes-de-progreso)); los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.
 
 ```yaml
 kind: clocks

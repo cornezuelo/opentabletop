@@ -10,7 +10,7 @@ describe('the notes app preference', () => {
     expect(readNotePreferences(storage({}))).toEqual({ provider: 'silverbullet', settings: {} })
   })
 
-  it('reads what the Hexmapper kept before every app shared it', () => {
+  it('reads what Map kept before every app shared it', () => {
     const legacy = { noteProvider: 'obsidian', noteSettings: { obsidian: { vault: 'Marches' } } }
     expect(
       readNotePreferences(storage({ 'hexmapper.preferences': JSON.stringify(legacy) })),

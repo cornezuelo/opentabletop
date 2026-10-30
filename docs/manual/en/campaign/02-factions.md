@@ -1,6 +1,6 @@
 # Factions
 
-The powers of the campaign's world (a kingdom, a clan, a guild), when its system has them (`kind: factions`, made in Systems → [Factions](../systems/09-factions.md)). Each is a sheet of values and conditions, like a character's, kept by the campaign, and **land**: the hexes it holds on each of the campaign's maps. They are the same factions Map's World panel shows for a map of the campaign ([Factions](../hexmapper/12-world.md#factions)).
+The powers of the campaign's world (a kingdom, a clan, a guild), when its system has them (`kind: factions`, made in Systems → [Factions](../systems/09-factions.md)). Each is a sheet of values and conditions, like a character's, kept by the campaign, and **land**: the hexes it holds on each of the campaign's maps. They are the same factions Map's World panel shows for a map of the campaign ([Factions](../map/12-world.md#factions)).
 
 - **Bring in its factions** (when the campaign has none yet): their sheets come to the campaign, and each the land its system says it starts with on the map chosen. With no map in the campaign yet, only their sheets come.
 - **Their land on**: the map whose land you see, in a small map of it (each hex in its terrain's colour and, over it, each faction's land as Map draws it: diagonal stripes of its colour and a dashed frontier, with the colours named under it). With several maps in the campaign, choose one; by default it's the map of the trip going on, else the first. **Paint in Map ↗** opens that map, to paint land by hand (World → Factions → **Paint its land**).

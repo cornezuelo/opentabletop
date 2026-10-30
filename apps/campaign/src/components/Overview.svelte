@@ -32,7 +32,7 @@
       if (campaign.id === id) places = list
     })
   })
-  const maps = $derived(places.filter((p) => p.app === 'hexmapper').length)
+  const maps = $derived(places.filter((p) => p.app === 'map').length)
   const trips = $derived(places.filter((p) => p.app === 'travel').length)
   const cast = $derived(
     roster.roster.characters.filter(
@@ -81,7 +81,7 @@
       <p class="none">{t('overview.nothingGoing')}</p>
       <p class="links">
         <a href={inCampaignUrl('travel', campaign.id)}>{t('places.new.trips')}</a>
-        <a href={inCampaignUrl('hexmapper', campaign.id)}>{t('places.new.maps')}</a>
+        <a href={inCampaignUrl('map', campaign.id)}>{t('places.new.maps')}</a>
       </p>
     {/if}
     <ul class="counts">

@@ -92,7 +92,7 @@ The engine already stops at dawn, nightfall and midnight while marching and wait
 ## 6. Where the user meets it
 
 - **Systems → Calendar**: the divisions, each with its parts (id, from, until, name, tags) or **Every N hours**, with their help; **Rules**: _Day starts_ and _Nightfall_ suggest the parts. Suggestions (`at`, `on`, `time`, `time.<division>`, `time.tags`) everywhere they're typed.
-- **Hexmapper → World**: the clock says the part of each division; a **Next …** button per division (_Next meal_, _Next watch_) and a menu of parts to wait until, besides **Dusk** and **Dawn** until item 10; with a trip on, its _Travel on_ / _Wait here_ as today.
+- **Map → World**: the clock says the part of each division; a **Next …** button per division (_Next meal_, _Next watch_) and a menu of parts to wait until, besides **Dusk** and **Dawn** until item 10; with a trip on, its _Travel on_ / _Wait here_ as today.
 - **Travel and the trip panel**: the time line says the parts ("Day 3, 11:20, elevenses, first watch"); the stop message names the system's nightfall by its part's name when it is one.
 - **Bundled packs**: the Grey Marches get their own parts (parts of the day, from the grey hour before dawn to the night, and watches only at night, replacing `watchHours`) and a check or action on a part and one on a watch; the Generic rules keep the default calendar's watches of 4 hours, the smallest division (`every`), and a night check on one in phase (c). Kal-Arath (private) needs nothing.
 - **Manual**: Kinds (Calendars, Travel rules), What tables see, Syntax, Conditions, Systems' Calendar and Rules pages, World, Travel's Playing, packs pages; en/es.

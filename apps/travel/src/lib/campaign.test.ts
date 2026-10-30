@@ -64,7 +64,7 @@ describe('trips in campaigns', () => {
     const frontier = {
       ...c.createCampaign('m1', 'The Frontier'),
       world: state,
-      playing: { app: 'hexmapper', id: 'm1', name: 'The Frontier' },
+      playing: { app: 'map', id: 'm1', name: 'The Frontier' },
     }
     kept.set('m1', {
       id: 'm1',
@@ -95,11 +95,11 @@ describe('trips in campaigns', () => {
       id: 'm1',
       name: 'The Frontier',
     })
-    expect(await placeCampaign({ app: 'hexmapper', id: 'm1' })).toEqual({
+    expect(await placeCampaign({ app: 'map', id: 'm1' })).toEqual({
       id: 'm1',
       name: 'The Frontier',
     })
-    expect(await placeCampaign({ app: 'hexmapper', id: 'gone' })).toBeUndefined()
+    expect(await placeCampaign({ app: 'map', id: 'gone' })).toBeUndefined()
     for (let i = 0; i < 4; i++) trip.addHex({ terrain: 'plains', tags: [], edges: ['road'] })
     await settle()
 
@@ -120,16 +120,16 @@ describe('trips in campaigns', () => {
     // Its checks roll on the campaign's Oracle, kept with it.
     expect(after.oracle).toBeDefined()
 
-    // The map played on meanwhile (the Hexmapper wrote the campaign): a day later, its trip.
+    // The map played on meanwhile (Map wrote the campaign): a day later, its trip.
     const moved = {
       ...after,
       world: clock.apply(after.world!, { type: 'advance', minutes: 1440 }).state,
-      playing: { app: 'hexmapper', id: 'm1', name: 'The Frontier' },
+      playing: { app: 'map', id: 'm1', name: 'The Frontier' },
     }
     kept.set('m1', { ...kept.get('m1')!, json: c.serializeCampaign(moved) })
     hear?.({ type: 'put', id: 'm1', modified: moved.modified })
     await settle()
-    expect(trip.campaign?.playing?.app).toBe('hexmapper')
+    expect(trip.campaign?.playing?.app).toBe('map')
 
     // Going on asks again, and the party waits until the campaign's clock first.
     const shown = toasts.length
@@ -151,7 +151,7 @@ describe('trips in campaigns', () => {
       ...kept.get('m1')!,
       json: c.serializeCampaign({
         ...c.deserializeCampaign(kept.get('m1')!.json),
-        playing: { app: 'hexmapper', id: 'm1', name: 'The Frontier' },
+        playing: { app: 'map', id: 'm1', name: 'The Frontier' },
       }),
     })
     hear?.({ type: 'put', id: 'm1', modified: 'later' })
@@ -174,7 +174,7 @@ describe('trips in campaigns', () => {
     expect(trip.saved.campaign).toBe(trip.saved.id)
     expect(trip.campaign?.id).toBe(trip.saved.id)
     expect(trip.campaign?.world).toBeUndefined()
-    expect(c.deserializeCampaign(kept.get('m1')!.json).playing?.app).toBe('hexmapper')
+    expect(c.deserializeCampaign(kept.get('m1')!.json).playing?.app).toBe('map')
   })
 
   it('joining another campaign brings its world along, or leaves it behind', async () => {

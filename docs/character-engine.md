@@ -74,14 +74,14 @@ type CharacterAction =
 ## 5. Where it's edited and played
 
 - **Systems app**: a **Sheet** tab (its values, tracks, conditions, tags, cards, party rules).
-- **A characters panel** (a `character-ui` package): the party's sheets in Travel and Hexmapper Play, a token's sheet in the Hexmapper; one sheet per character, edited by hand or by what happens in play.
+- **A characters panel** (a `character-ui` package): the party's sheets in Travel and Map Play, a token's sheet in Map; one sheet per character, edited by hand or by what happens in play.
 - **Bundled packs**: the Grey Marches move their party stats into a sheet (each companion with Survival, Charisma…, the party taking the best or the sum), with relations to Ashford and the hirelings as characters; Core gets the simplest sheet (a few values and conditions); Kal-Arath its HP, attributes and wounds.
 
 ## 6. Phases
 
 1. **The headless engine** (built 2026-10-09): `kind: sheet` (values with bounds, tracks, conditions with `blocks`, tags, cards, relation kinds), validated on load by the oracle-engine loader; `@open-tabletop/character-engine` with `create`, `apply`, `facts`, tests. Not yet used by the apps.
 2. **The party is its members**: party rules in the sheet, the session reading members' values for party stats, effects on members and the acting character; the trips format with members (a migration).
-3. **The characters panel** in Travel and the Hexmapper, and the Systems app's Sheet tab; manual pages.
+3. **The characters panel** in Travel and Map, and the Systems app's Sheet tab; manual pages.
 4. **Relations** on the map and in conditions; **journey roles**.
 5. **The bundled packs**: the Grey Marches and Core with sheets; Kal-Arath's camping and the review against its rulebook (backlog → Packs).
 

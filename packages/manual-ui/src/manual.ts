@@ -19,7 +19,7 @@ export const pictures: Record<string, string> = Object.fromEntries(
 )
 
 export const manual = createManual(files, [
-  'hexmapper',
+  'map',
   'campaign',
   'oracle',
   'travel',

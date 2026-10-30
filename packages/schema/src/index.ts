@@ -10,7 +10,7 @@ export const OTD_VERSION = '0.2.0'
 const id = z.string().min(1)
 /** Offset hex coordinates "col,row". */
 const hexKey = z.string().regex(/^\d+,\d+$/, 'hex keys look like "col,row"')
-/** Free per-namespace extension data: ext.hexmapper, ext['kal-arath']… */
+/** Free per-namespace extension data: ext.map, ext['kal-arath']… */
 const ext = z.record(z.string(), z.unknown())
 
 const entity = {

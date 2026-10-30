@@ -43,7 +43,7 @@ Pocas veces crearás una aquí. Las campañas aparecen solas:
 - **Un mapa nuevo** (Mapa) empieza en una campaña propia, con el nombre del mapa.
 - **Un viaje nuevo** (Viajes) también empieza en una propia, con el nombre del viaje (el suyo o, si no, el de su sistema), y sigue el nombre del viaje cuando lo renombras o lo juegas con otro sistema, hasta que renombres tú la campaña.
 - **Un mapa de ejemplo** se abre en la campaña que nombra su fichero: los dos mapas de las Marcas Grises comparten _The Grey Marches_, así que el segundo que abras se une a la del primero. Si este navegador no tiene esa campaña pero sí otras **con el mismo nombre o jugadas con el mismo sistema** (por ejemplo, un mapa de ese juego que empezaste antes), Mapa pregunta: **Unirse a «…»** una de ellas (el mapa comparte su mundo, y el reloj y las facciones del ejemplo se quedan fuera) o **Empezar la suya** (la campaña del ejemplo, aparte).
-- **Un fichero de mapa** trae su campaña: si este navegador ya la tiene, Mapa pregunta si unirse a ella, reemplazarla o guardar aparte la del fichero ([Tus mapas](../hexmapper/01-getting-started.md#tus-mapas)).
+- **Un fichero de mapa** trae su campaña: si este navegador ya la tiene, Mapa pregunta si unirse a ella, reemplazarla o guardar aparte la del fichero ([Tus mapas](../map/01-getting-started.md#tus-mapas)).
 
 **Dos campañas nunca comparten nombre**: una nueva cuyo nombre ya está cogido lleva un número, _The Grey Marches (2)_, para que las distingas (renómbrala cuando quieras). Y al abrir un mapa en la aplicación Mapa se dice en qué campaña está y qué mapas y viajes están también en ella: _Este mapa está en la campaña «The Grey Marches», con «The Hollow Hills»_.
 
@@ -61,7 +61,7 @@ Cuando se ha llevado el último mapa o viaje, la campaña que dejó se borra.
 
 Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran la campaña con él) y **⋯** con **Borrar**. Debajo:
 
-- **Sistema**: el sistema de juego con el que se juegan sus mapas y viajes, con **Editar el sistema en la aplicación Sistemas →**. Se elige en los **Ajustes del mapa → Campaña** de un mapa (o al empezar un viaje en ella), ya que también es de ellos ([Campañas](../hexmapper/01-getting-started.md#campañas)).
+- **Sistema**: el sistema de juego con el que se juegan sus mapas y viajes, con **Editar el sistema en la aplicación Sistemas →**. Se elige en los **Ajustes del mapa → Campaña** de un mapa (o al empezar un viaje en ella), ya que también es de ellos ([Campañas](../map/01-getting-started.md#campañas)).
 - **Notas**: su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre.
 - Con un viaje en marcha en la campaña, una línea dice cuál, con **Abrir**. En una campaña hay un viaje en marcha a la vez, ya que su tiempo es el de la campaña ([Un viaje a la vez](../travel/02-playing.md#la-campaña)).
 
@@ -80,7 +80,7 @@ Lo que está pasando, de un vistazo; el título de cada bloque lleva a su pesta�
 
 ### Mundo
 
-El reloj del mundo, el mismo que muestra el panel **Mundo** de Mapa para un mapa de la campaña: ponlo en marcha en una fecha, avanza el tiempo (una hora, hasta la siguiente parte del día, el día siguiente, el próximo evento, o hasta una parte elegida), fija la fecha, programa eventos, lleva relojes de progreso y añade los del sistema, y mira el clima de hoy. Todo funciona como en [El reloj del mundo](../hexmapper/12-world.md), y es un solo reloj: moverlo aquí lo mueve en todos los mapas y viajes de la campaña, y lo ven al momento.
+El reloj del mundo, el mismo que muestra el panel **Mundo** de Mapa para un mapa de la campaña: ponlo en marcha en una fecha, avanza el tiempo (una hora, hasta la siguiente parte del día, el día siguiente, el próximo evento, o hasta una parte elegida), fija la fecha, programa eventos, lleva relojes de progreso y añade los del sistema, y mira el clima de hoy. Todo funciona como en [El reloj del mundo](../map/12-world.md), y es un solo reloj: moverlo aquí lo mueve en todos los mapas y viajes de la campaña, y lo ven al momento.
 
 Aquí no hay grupo, así que avanzar el tiempo solo mueve el mundo: llegan sus eventos, su clima se tira día a día, sus relojes hacen lo que dice el sistema al llenarse, y se juegan los turnos de las facciones que tocan, cambiando su tierra en el mapa elegido en [Facciones](02-factions.md). Un viaje en marcha en la campaña (en un mapa, o en Viajes) espera hasta la nueva fecha cuando da su siguiente paso, viviendo el tiempo que pasó; un reloj que se llenó aquí entretanto (a mano, o con los turnos de las facciones) también lo oye entonces, si su sistema lo nombra ([Momentos del mundo](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)). Mientras hay un viaje en marcha, el reloj no puede volver atrás, y el clima del mundo es el del viaje (aquí no se muestra).
 

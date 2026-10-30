@@ -27,7 +27,7 @@ Every definition is **tagged** `names`, with what it names (`people`, `settlemen
 
 ## On the map
 
-In Map's Oracle panel, roll **What's it called?** on a hex and keep the result with **Add to … as a point of interest**: a village, an inn or a landmark gets its name there (see [The Oracle in the map](../hexmapper/09-oracle.md)). _A landmark_ reads the hex's terrain. A map whose campaign uses only some packs lists Names when you tick it in **Map settings → Campaign → Packs**.
+In Map's Oracle panel, roll **What's it called?** on a hex and keep the result with **Add to … as a point of interest**: a village, an inn or a landmark gets its name there (see [The Oracle in the map](../map/09-oracle.md)). _A landmark_ reads the hex's terrain. A map whose campaign uses only some packs lists Names when you tick it in **Map settings → Campaign → Packs**.
 
 ## How it's made
 

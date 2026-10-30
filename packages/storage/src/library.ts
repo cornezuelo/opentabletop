@@ -5,10 +5,12 @@
  * to the other windows and apps of this browser on the library's channel, so one holding
  * an entry open can read it again.
  */
-const DB_NAME = 'hexmapper'
+const DB_NAME = 'opentabletop'
 /** v2: the map library; v3: the campaigns. */
 const DB_VERSION = 3
 const STORES = ['library', 'campaigns'] as const
+/** Where they were kept before the Hexmapper was called Map (up to v0.25.0). */
+const OLD_DB_NAME = 'hexmapper'
 
 export type StoreName = (typeof STORES)[number]
 
@@ -19,17 +21,70 @@ export interface LibraryEntry {
   json: string
 }
 
-function openDb(): Promise<IDBDatabase> {
+const request = <T>(r: IDBRequest<T>): Promise<T> =>
+  new Promise((resolve, reject) => {
+    r.onsuccess = () => resolve(r.result)
+    r.onerror = () => reject(r.error)
+  })
+
+function openNamed(name: string, version?: number): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
-    request.onupgradeneeded = () => {
-      const db = request.result
+    const open = indexedDB.open(name, version)
+    open.onupgradeneeded = () => {
+      const db = open.result
       for (const store of STORES)
         if (!db.objectStoreNames.contains(store)) db.createObjectStore(store, { keyPath: 'id' })
     }
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
+    open.onsuccess = () => resolve(open.result)
+    open.onerror = () => reject(open.error)
   })
+}
+
+/**
+ * Brings the libraries of the old database into the new one (an entry the new one has
+ * already stays), then deletes the old one. Once per page; if it fails, the old database
+ * is left as it was, to try again next time.
+ */
+async function moveOldDb(): Promise<void> {
+  const names = indexedDB.databases ? (await indexedDB.databases()).map((d) => d.name) : null
+  if (names && !names.includes(OLD_DB_NAME)) return
+  const old = await openNamed(OLD_DB_NAME)
+  try {
+    const kept = STORES.filter((s) => old.objectStoreNames.contains(s))
+    const entries = await Promise.all(
+      kept.map((s) => request<LibraryEntry[]>(old.transaction(s).objectStore(s).getAll())),
+    )
+    if (entries.some((list) => list.length)) {
+      const db = await openNamed(DB_NAME, DB_VERSION)
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const tx = db.transaction(kept, 'readwrite')
+          kept.forEach((s, i) => {
+            const store = tx.objectStore(s)
+            for (const entry of entries[i])
+              store.count(entry.id).onsuccess = (e) => {
+                if (!(e.target as IDBRequest<number>).result) store.put(entry)
+              }
+          })
+          tx.oncomplete = () => resolve()
+          tx.onerror = () => reject(tx.error)
+          tx.onabort = () => reject(tx.error)
+        })
+      } finally {
+        db.close()
+      }
+    }
+  } finally {
+    old.close()
+  }
+  await request(indexedDB.deleteDatabase(OLD_DB_NAME))
+}
+
+let moved: Promise<void> | undefined
+
+async function openDb(): Promise<IDBDatabase> {
+  await (moved ??= moveOldDb().catch(() => undefined))
+  return openNamed(DB_NAME, DB_VERSION)
 }
 
 /** What changed in a library, as other windows and apps hear it. */

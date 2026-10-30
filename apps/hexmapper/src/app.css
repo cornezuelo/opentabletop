@@ -1,8 +1,0 @@
-/* The Hexmapper's own: the map fills the window. The theme is ui-kit's (theme.css). */
-html,
-body,
-#app {
-  margin: 0;
-  height: 100%;
-  overflow: hidden;
-}

@@ -2,7 +2,7 @@
 
 Makes and edits game systems. It is one app of the OpenTabletop ecosystem: read the root `CLAUDE.md` first.
 
-**Responsibility:** systems (`kind: system` and the parts it names: travel rules, bindings; later calendars, weather models and roll modes). It edits; it doesn't play: trips without a map are the Travel app's, trips on a map the Hexmapper's. Its **Try it** tab plays a test trip without a map (travel-ui's `TripRoom`) with the rules as they are, kept apart from Travel's trips; the system page links to Travel to play it.
+**Responsibility:** systems (`kind: system` and the parts it names: travel rules, bindings; later calendars, weather models and roll modes). It edits; it doesn't play: trips without a map are the Travel app's, trips on a map Map's. Its **Try it** tab plays a test trip without a map (travel-ui's `TripRoom`) with the rules as they are, kept apart from Travel's trips; the system page links to Travel to play it.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ src/
     packs.svelte.ts   # PackLibrary (bundled + user packs, shared with the other apps) and the systems
     newSystem.ts      # a new user pack (a copy of Core's Generic rules and its calendar, empty bindings, system.yaml); where a system's parts are;
                       # its choices, new parts (createPart), declaring an implicit system
-    terrains.ts       # terrain and edge names (the Hexmapper palette, suggested in the rules)
+    terrains.ts       # terrain and edge names (Map palette, suggested in the rules)
     maps.ts           # a system's example maps (`maps:`, OTD bundles in its pack): read, added, named
     systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
     nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|factions|clocks|world|calendar|weather|land|modes|try|yaml>[/<item>] (a template, unfolded)

@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@open-tabletop/manual-ui": "*",
+    "@open-tabletop/storage": "*",
     "@open-tabletop/ui-kit": "*"
   }
 }

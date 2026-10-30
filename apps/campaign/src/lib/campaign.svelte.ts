@@ -44,7 +44,7 @@ import { library, systems } from './packs.svelte'
 /**
  * The campaigns this browser keeps (`@open-tabletop/storage`), and the one open: its world
  * clock played here without a map (`@open-tabletop/campaign`), kept as it changes and read
- * again when another app changes it (the Hexmapper, Travel, the Oracle).
+ * again when another app changes it (Map, Travel, the Oracle).
  */
 
 export interface CampaignItem {
@@ -138,13 +138,13 @@ async function mapsIn(campaign: string): Promise<HexMap[]> {
       const map = deserializeMap(entry.json)
       if ((map.meta.campaign ?? map.meta.id) === campaign) maps.push(map)
     } catch {
-      // A map that can't be read is in no campaign (the Hexmapper says what's wrong).
+      // A map that can't be read is in no campaign (Map says what's wrong).
     }
   }
   return maps.sort((a, b) => a.meta.name.localeCompare(b.meta.name))
 }
 
-/** Writes a map of the library back (its land changed here); the Hexmapper hears it. */
+/** Writes a map of the library back (its land changed here); Map hears it. */
 async function keepMap(map: HexMap): Promise<void> {
   const next = { ...map, meta: { ...map.meta, modified: new Date().toISOString() } }
   await putLibraryMap({
@@ -208,7 +208,7 @@ class OpenCampaign {
     const campaign = this.campaign
     if (!campaign) return undefined
     const by = (id: string | undefined) => this.maps.find((m) => m.meta.id === id)
-    const playing = campaign.playing?.app === 'hexmapper' ? campaign.playing.id : undefined
+    const playing = campaign.playing?.app === 'map' ? campaign.playing.id : undefined
     return by(this.landMaps[campaign.id]) ?? by(playing) ?? this.maps[0]
   }
 
@@ -477,7 +477,7 @@ export async function removeCampaign(campaign: Campaign): Promise<boolean> {
     // Say which, so they can be found (a trip of Travel's is easy to forget).
     const list = places
       .map((p) =>
-        p.app === 'hexmapper'
+        p.app === 'map'
           ? `${t('tabs.maps')}: ${p.name || t('places.untitledMap')}`
           : `${t('tabs.trips')}: ${p.name || t('places.untitledTrip')}`,
       )

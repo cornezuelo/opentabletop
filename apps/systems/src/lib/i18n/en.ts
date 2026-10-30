@@ -622,7 +622,7 @@ export const en = {
     exportIncludes: 'The file holds: {packs}',
     exportButton: 'Export as .zip',
     exportPersonal: 'It includes personal-use packs: keep the file for yourself, don’t share it.',
-    openInHexmapper: 'Open in Map →',
+    openInMap: 'Open in Map →',
     confirmRemoveMap: 'Remove the map “{name}” from the pack? Its file goes too.',
     mapError: {
       missing: 'No such file in the pack',

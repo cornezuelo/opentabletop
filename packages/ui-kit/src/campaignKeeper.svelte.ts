@@ -47,7 +47,7 @@ async function read(id: string): Promise<Campaign | null> {
 /**
  * The campaign a host plays in (Travel: the open trip's; the Oracle: the one chosen), read from where campaigns are kept
  * (`@open-tabletop/storage`) and written back as it changes; when another window or app
- * changes it (the Hexmapper, a world turn), it's read again.
+ * changes it (Map, a world turn), it's read again.
  */
 export class CampaignKeeper {
   /** The campaign open now (undefined while it's being read). */

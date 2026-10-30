@@ -45,25 +45,25 @@ The result is only a terrain. What is **in** the hex (a POI, tags, a name) stays
 ## 4. Where it plays
 
 - **Discovery**: the bindings name a model instead of a table, as checks name weather models: `discover: { terrain: { land: land.default } }` (beside today's `{ resolve: table.next-terrain }`, which keeps working: a system chooses). The session asks the land engine instead of the Oracle; the journal says _Discovered: forest_ with how it was chosen in **Everything** (_from forest ×2, hills ×1_), as weather says its row.
-- **The Hexmapper's Generate**: a tool (or a command on a selection or region) that fills the **empty hexes of an area** with a model: the map's system's, or any model of its packs. Order: from the known land outwards (the hexes with most known neighbours first, ties by coordinates), so the land grows from what you painted; seeded (a seed box, **Again** for another draw), one step for ↶. It never changes painted hexes.
+- **Map's Generate**: a tool (or a command on a selection or region) that fills the **empty hexes of an area** with a model: the map's system's, or any model of its packs. Order: from the known land outwards (the hexes with most known neighbours first, ties by coordinates), so the land grows from what you painted; seeded (a seed box, **Again** for another draw), one step for ↶. It never changes painted hexes.
 - **A table can still read it**: nothing new; a table may keep deciding special hexes after or instead (a system that wants a model "but water first" writes the table and lets its last entry hand over to the model: section 8 d).
 
 ## 5. Pieces and dependencies
 
-- **A new headless package, `land-engine`** (plain TypeScript, no DOM): `validateLand(raw)`, `nextTerrain(model, neighbours, random, from?)` with how it chose, `generate(model, area, known, random)` for the Hexmapper (the order of section 4). Depends on `random` and `hex` only. Engines don't import each other: the weighted pick is already `random`'s `weightedIndex`, shared with weather-engine.
+- **A new headless package, `land-engine`** (plain TypeScript, no DOM): `validateLand(raw)`, `nextTerrain(model, neighbours, random, from?)` with how it chose, `generate(model, area, known, random)` for Map (the order of section 4). Depends on `random` and `hex` only. Engines don't import each other: the weighted pick is already `random`'s `weightedIndex`, shared with weather-engine.
 - **schema / oracle-engine**: `kind: land` known to packs (loaded as an extra like `kind: weather`), validated on load (weights ≥ 0, `next` keys and their targets are strings; unknown terrains a warning against the system's rules).
 - **session**: the discovery binding `land:`, a system's `land:` list in `kind: system` (as `weather:`), `systemUses` (**Used by** a terrain now includes the models that name it).
-- **Systems**: a **Land** tab like **Weather**: the model's rows as chance tables (a grid: rows are "next to", columns "becomes"), **Start**, **Over many hexes** (a small preview: a seeded patch of land drawn from it, in the Hexmapper's terrain colours, and the mix as percentages).
-- **Hexmapper**: **Generate** (section 4) in the terrain tool, its help, the journal's discovery line.
+- **Systems**: a **Land** tab like **Weather**: the model's rows as chance tables (a grid: rows are "next to", columns "becomes"), **Start**, **Over many hexes** (a small preview: a seeded patch of land drawn from it, in Map's terrain colours, and the mix as percentages).
+- **Map**: **Generate** (section 4) in the terrain tool, its help, the journal's discovery line.
 
 ## 6. The bundled packs
 
 - **The Grey Marches** keep _The land ahead_ as the showcase of tables that read `around`, and gain a land model used by **Generate** for their unpainted east (and by discovery on the Hollow Hills, so both mechanisms are played somewhere). Shown in their page, as usual.
-- **Core**: the Generic rules get a small universal model for the Hexmapper's natural palette (forests stay forests, hills gather into mountains, water into lakes), so any map can be generated; discovery stays off by default, as today.
+- **Core**: the Generic rules get a small universal model for Map's natural palette (forests stay forests, hills gather into mountains, water into lakes), so any map can be generated; discovery stays off by default, as today.
 
 ## 7. Documentation
 
-Systems' **Land** page (how a model works, a walkthrough with a picture of a patch growing from two painted hexes, common mistakes: a row that never comes back to itself makes a patchwork, a terrain the rules don't know), Kinds (`kind: land`), Connecting (the discovery binding), the Hexmapper's terrain page (**Generate**), both packs' pages; en and es. Manual examples loaded by the test, a walkthrough test that generates a seeded patch.
+Systems' **Land** page (how a model works, a walkthrough with a picture of a patch growing from two painted hexes, common mistakes: a row that never comes back to itself makes a patchwork, a terrain the rules don't know), Kinds (`kind: land`), Connecting (the discovery binding), Map's terrain page (**Generate**), both packs' pages; en and es. Manual examples loaded by the test, a walkthrough test that generates a seeded patch.
 
 ## 8. Decided with the user (2026-10-23)
 

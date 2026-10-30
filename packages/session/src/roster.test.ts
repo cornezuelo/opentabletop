@@ -32,9 +32,9 @@ const character = (id: string, health = 5): CharacterState => ({
   relations: [],
 })
 
-const map: RosterPlace = { app: 'hexmapper', id: 'm1', name: 'The Marches' }
+const map: RosterPlace = { app: 'map', id: 'm1', name: 'The Marches' }
 const trip: RosterPlace = { app: 'travel', id: 't1', name: 'To the Vale' }
-const token: RosterPlace = { app: 'hexmapper', id: 'm1', token: 'tok1', name: 'The Marches' }
+const token: RosterPlace = { app: 'map', id: 'm1', token: 'tok1', name: 'The Marches' }
 
 describe('the roster', () => {
   it('gives ids from names, never one taken', () => {

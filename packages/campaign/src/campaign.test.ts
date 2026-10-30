@@ -85,7 +85,7 @@ describe('campaigns', () => {
   })
 
   it('play one trip at a time: another one is told which played last', () => {
-    const map = { app: 'hexmapper', id: 'm1', name: 'North' }
+    const map = { app: 'map', id: 'm1', name: 'North' }
     const trip = { app: 'travel', id: 't1', name: 'To Keld' }
     const c = createCampaign('c1')
     expect(otherTrip(c, trip)).toBeUndefined()
@@ -131,6 +131,13 @@ describe('campaigns', () => {
       moments: [{ clock: 'The Wyrm wakes', ids: ['wyrm', 'the-wyrm-wakes'] }],
     })
     expect(deserializeCampaign(v5).moments).toEqual([campaign.moments![0]])
+    // A v6 campaign's trip on a map was in the app `hexmapper`, now `map`.
+    const v6 = JSON.stringify({
+      ...campaign,
+      version: 6,
+      playing: { app: 'hexmapper', id: 'm1', name: 'North' },
+    })
+    expect(deserializeCampaign(v6).playing).toEqual({ app: 'map', id: 'm1', name: 'North' })
     expect(campaign.version).toBe(CAMPAIGN_VERSION)
     expect(() => deserializeCampaign('{oops')).toThrow(CampaignFormatError)
     expect(() => deserializeCampaign('{"version":1}')).toThrow(CampaignFormatError)

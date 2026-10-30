@@ -10,7 +10,7 @@
       },
       "members": ["kael", "mara", "tobin"],
       "ext": {
-        "hexmapper": {
+        "map": {
           "token": {
             "id": "thecompany",
             "iconId": "game:meeple",
@@ -40,7 +40,7 @@
         "character": {
           "sheet": "grey-marches/faction"
         },
-        "hexmapper": {
+        "map": {
           "territory": [
             "13,8",
             "13,9",
@@ -104,7 +104,7 @@
         "character": {
           "sheet": "grey-marches/faction"
         },
-        "hexmapper": {
+        "map": {
           "territory": [
             "3,0",
             "3,1",
@@ -217,7 +217,7 @@
         "character": {
           "sheet": "grey-marches/faction"
         },
-        "hexmapper": {
+        "map": {
           "territory": ["15,9"]
         }
       }
@@ -478,7 +478,7 @@
         "hex": "9,10"
       },
       "ext": {
-        "hexmapper": {
+        "map": {
           "token": {
             "id": "brenna",
             "iconId": "game:cowled"
@@ -531,7 +531,7 @@
         "hex": "14,3"
       },
       "ext": {
-        "hexmapper": {
+        "map": {
           "token": {
             "id": "wyrm",
             "iconId": "game:dragon-head"
@@ -2051,7 +2051,7 @@
         }
       ],
       "ext": {
-        "hexmapper": {
+        "map": {
           "version": 10,
           "created": "2026-10-06T21:35:43.748Z",
           "modified": "2026-10-06T21:35:43.748Z",

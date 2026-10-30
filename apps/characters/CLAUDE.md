@@ -2,7 +2,7 @@
 
 The roster of characters. It is one app of the OpenTabletop ecosystem: read the root `CLAUDE.md` first.
 
-**Responsibility:** the characters this browser keeps, of any system (the roster): make them with a system's characters' sheet, edit them, link their notes, see where each plays, duplicate, delete, import and export them as OTD. Sheets are edited in the Systems app; trips (Travel, the Hexmapper's Play) take roster characters and keep them in step. Design: [`docs/characters-app.md`](../../docs/characters-app.md).
+**Responsibility:** the characters this browser keeps, of any system (the roster): make them with a system's characters' sheet, edit them, link their notes, see where each plays, duplicate, delete, import and export them as OTD. Sheets are edited in the Systems app; trips (Travel, Map's Play) take roster characters and keep them in step. Design: [`docs/characters-app.md`](../../docs/characters-app.md).
 
 ## Architecture
 

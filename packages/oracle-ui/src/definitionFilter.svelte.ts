@@ -1,6 +1,6 @@
 /**
  * What the lists of definitions show: some kinds only, and definitions with (or without)
- * some tags. A per-browser preference shared by the Oracle app and the Hexmapper's Oracle
+ * some tags. A per-browser preference shared by the Oracle app and Map's Oracle
  * panel, kept in step across tabs, as favorites are.
  */
 const KEY = 'opentabletop.oracle.filter'

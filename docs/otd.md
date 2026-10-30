@@ -1,6 +1,6 @@
 # OpenTabletop Data (OTD) — draft v0.1
 
-Common schema for exchanging data between the ecosystem's tools (hexmapper, Oracle Engine, Travel Engine…) and with third-party tools.
+Common schema for exchanging data between the ecosystem's tools (Map, Oracle Engine, Travel Engine…) and with third-party tools.
 
 Status: **draft, reviewed**. Nothing is published yet, so it can still change without migrations.
 
@@ -43,7 +43,7 @@ interface Entity {
   tags?: string[]
   noteRef?: string // path in the notes app (SilverBullet, Obsidian…): the lore lives there
   refs?: string[] // generic 'type:id' relations
-  ext?: Record<string, unknown> // per-namespace data: ext.hexmapper, ext['kal-arath']…
+  ext?: Record<string, unknown> // per-namespace data: ext.map, ext['kal-arath']…
 }
 ```
 
@@ -59,19 +59,19 @@ Because an absolute number is stored, **custom calendars** are just a way of pre
 
 ## Campaign entities
 
-| Entity          | Main fields                                                                                                                                                         | Notes                                                                                                                                                                               |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Campaign**    | `system?` (pack id), `packs` (ids + versions), `calendar`, `time: GameTime`                                                                                         | Container and global clock.                                                                                                                                                         |
-| **Map**         | `grid` (orientation, width, height, coordinate format), `scale.hexKm`, `terrains` (id, name, color, water?, biome?, tags), `hexes: Record<"col,row", Hex>`, `paths` | `ext.hexmapper`: render size, printing (`hexMm`, paper), icons, layers, text labels, assets.                                                                                        |
-| **Hex**         | `terrain?`, `name?`, `elevation?`, `danger?`, `region?`, `stats?: {key, value}[]`, `notes?`, `noteRef?`, `tags?`                                                    | A value inside `Map.hexes`, not an entity with its own id. No empty values (`normalizeHex`). `notes` are **short, optional GM notes** (Markdown); lore goes behind `noteRef`.       |
-| **Path**        | `kind` (`road`, `river`, `trail`, … extensible), `hexes: "col,row"[]`, `nodes?`, `offsets?`, `straight?`                                                            | Roads and rivers are **edges between hexes**: the Travel Engine asks "is there a road between A and B?". `nodes`/`offsets` shape the drawing; visual style goes to `ext.hexmapper`. |
-| **POI**         | `location: { map, hex }`, `kind?`, `discovered?`, `noteRef?`                                                                                                        | Used to live inside the hex; becomes an entity so other engines can reference it.                                                                                                   |
-| **Party**       | `location: { map, hex }`, `members?: 'character:id'[]`, `travel` (mode, route, destination, resources, fatigue… see `travel-engine.md`)                             | The traveling group. There can be several.                                                                                                                                          |
-| **Character**   | `kind?` (pc, npc, enemy…), `location?: { map, hex }` (e.g. a token), `stats?`, `noteRef?`                                                                           | Deliberately thin: mechanical state and a link to the note. Full sheets go in `ext.<system>` or the notes app.                                                                      |
-| **Faction**     | `stats?`, `clocks?: 'clock:id'[]`, `noteRef?`                                                                                                                       | As thin as Character.                                                                                                                                                               |
-| **Clock**       | `segments`, `filled`, `kind?` (progress, threat…), `ref?` (the clock its system declares)                                                                           | Blades-style clocks.                                                                                                                                                                |
-| **LogEntry**    | `time: GameTime`, `at: string` (real ISO date), `source` (`oracle`, `travel`, `user`…), `code`, `data`, `refs`                                                      | The persisted "Event": session journal / history. Engines emit runtime events and `session` decides which become LogEntries.                                                        |
-| **EngineState** | `oracle` (decks, occurrences, variables), `weather` (current state per region)                                                                                      | Serializable engine runtime state. Each engine defines its own.                                                                                                                     |
+| Entity          | Main fields                                                                                                                                                         | Notes                                                                                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Campaign**    | `system?` (pack id), `packs` (ids + versions), `calendar`, `time: GameTime`                                                                                         | Container and global clock.                                                                                                                                                   |
+| **Map**         | `grid` (orientation, width, height, coordinate format), `scale.hexKm`, `terrains` (id, name, color, water?, biome?, tags), `hexes: Record<"col,row", Hex>`, `paths` | `ext.map`: render size, printing (`hexMm`, paper), icons, layers, text labels, assets.                                                                                        |
+| **Hex**         | `terrain?`, `name?`, `elevation?`, `danger?`, `region?`, `stats?: {key, value}[]`, `notes?`, `noteRef?`, `tags?`                                                    | A value inside `Map.hexes`, not an entity with its own id. No empty values (`normalizeHex`). `notes` are **short, optional GM notes** (Markdown); lore goes behind `noteRef`. |
+| **Path**        | `kind` (`road`, `river`, `trail`, … extensible), `hexes: "col,row"[]`, `nodes?`, `offsets?`, `straight?`                                                            | Roads and rivers are **edges between hexes**: the Travel Engine asks "is there a road between A and B?". `nodes`/`offsets` shape the drawing; visual style goes to `ext.map`. |
+| **POI**         | `location: { map, hex }`, `kind?`, `discovered?`, `noteRef?`                                                                                                        | Used to live inside the hex; becomes an entity so other engines can reference it.                                                                                             |
+| **Party**       | `location: { map, hex }`, `members?: 'character:id'[]`, `travel` (mode, route, destination, resources, fatigue… see `travel-engine.md`)                             | The traveling group. There can be several.                                                                                                                                    |
+| **Character**   | `kind?` (pc, npc, enemy…), `location?: { map, hex }` (e.g. a token), `stats?`, `noteRef?`                                                                           | Deliberately thin: mechanical state and a link to the note. Full sheets go in `ext.<system>` or the notes app.                                                                |
+| **Faction**     | `stats?`, `clocks?: 'clock:id'[]`, `noteRef?`                                                                                                                       | As thin as Character.                                                                                                                                                         |
+| **Clock**       | `segments`, `filled`, `kind?` (progress, threat…), `ref?` (the clock its system declares)                                                                           | Blades-style clocks.                                                                                                                                                          |
+| **LogEntry**    | `time: GameTime`, `at: string` (real ISO date), `source` (`oracle`, `travel`, `user`…), `code`, `data`, `refs`                                                      | The persisted "Event": session journal / history. Engines emit runtime events and `session` decides which become LogEntries.                                                  |
+| **EngineState** | `oracle` (decks, occurrences, variables), `weather` (current state per region)                                                                                      | Serializable engine runtime state. Each engine defines its own.                                                                                                               |
 
 ## Pack definitions
 
@@ -113,8 +113,8 @@ aliases: { reaction: kal-arath/reaction }
 }
 ```
 
-- **Extension: `.otd.json`.** It says "this is the common format", which is honest once a file carries more than a map (POIs, party, travel state, journal) and other tools read it; a dedicated extension can also be associated with the app later (OS, Tauri). The hexmapper saves and opens only `.otd.json` (the pre-alpha `.hexmap.json` format was dropped).
-- **A bundle may contain just part of a campaign.** The hexmapper saves `<mapId>.otd.json` with the map, its POIs, its campaign (the `campaign` entity, with the world clock, factions and Oracle in `clocks`, `factions` and `state`) and, during play, the party and state. A full campaign is the same format with more inside.
+- **Extension: `.otd.json`.** It says "this is the common format", which is honest once a file carries more than a map (POIs, party, travel state, journal) and other tools read it; a dedicated extension can also be associated with the app later (OS, Tauri). Map saves and opens only `.otd.json` (the pre-alpha `.hexmap.json` format was dropped).
+- **A bundle may contain just part of a campaign.** Map saves `<mapId>.otd.json` with the map, its POIs, its campaign (the `campaign` entity, with the world clock, factions and Oracle in `clocks`, `factions` and `state`) and, during play, the party and state. A full campaign is the same format with more inside.
 - Packs are **not** embedded in the bundle, only referenced (`campaign.packs`). User packs are distributed separately.
 
 ## Resolved decisions

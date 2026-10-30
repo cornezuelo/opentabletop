@@ -39,7 +39,7 @@ import {
 import { FACT_PATHS, hexIdOf, qualify } from './facts'
 import { findPartRef, isPartRef, partKey } from './day'
 
-/** Read-only view of the map. The hexmapper implements it; a standalone app can fake it. */
+/** Read-only view of the map. Map implements it; a standalone app can fake it. */
 export interface TravelWorld {
   hexKm: number
   /** `water`: the map marks the hex's terrain as water (lake, sea… or one of the user's). */

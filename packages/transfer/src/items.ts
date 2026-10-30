@@ -100,7 +100,7 @@ export function listItems(kept: Kept, personal: ReadonlySet<string> = new Set())
   for (const entry of kept.characters) {
     const playing = (entry as { playing?: unknown }).playing
     if (!isRecord(playing) || typeof playing.id !== 'string') continue
-    const kind = playing.app === 'hexmapper' ? 'map' : playing.app === 'travel' ? 'trip' : undefined
+    const kind = playing.app === 'map' ? 'map' : playing.app === 'travel' ? 'trip' : undefined
     if (!kind) continue
     const key = keyOf(kind, playing.id)
     places.set(key, [...(places.get(key) ?? []), characterIdOf(entry)!])
@@ -174,7 +174,7 @@ export function listItems(kept: Kept, personal: ReadonlySet<string> = new Set())
     const playing = entry.playing
     const place =
       isRecord(playing) && typeof playing.id === 'string'
-        ? playing.app === 'hexmapper'
+        ? playing.app === 'map'
           ? keyOf('map', playing.id)
           : playing.app === 'travel'
             ? keyOf('trip', playing.id)

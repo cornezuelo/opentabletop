@@ -23,9 +23,10 @@ import type {
  * v5: the world's conditions that held (`reactions`), none in older campaigns (what holds
  * when next seen is taken as seen); v6: a moment waiting names what it's heard by (`at`),
  * world turns too, not only clocks (`{ clock, ids }` before), and what the world waits for
- * the player to answer (`waiting`), none in older campaigns.
+ * the player to answer (`waiting`), none in older campaigns; v7: the trip going on in a map
+ * is in the app `map` (`hexmapper` before the app was called Map).
  */
-export const CAMPAIGN_VERSION = 6
+export const CAMPAIGN_VERSION = 7
 
 const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {
   5: (data) =>
@@ -38,6 +39,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
               : m,
           ),
         }
+      : data,
+  6: (data) =>
+    isRecord(data.playing) && data.playing.app === 'hexmapper'
+      ? { ...data, playing: { ...data.playing, app: 'map' } }
       : data,
 }
 

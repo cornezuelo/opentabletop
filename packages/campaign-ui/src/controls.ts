@@ -1,7 +1,7 @@
 import type { Until, WorldAction } from '@open-tabletop/world-engine'
 
 /**
- * What the world clock's UI does, given by its host: the Hexmapper with a map open (a trip
+ * What the world clock's UI does, given by its host: Map with a map open (a trip
  * on it travels or waits as time moves), the Campaign app (the campaign alone).
  */
 export interface WorldControls {

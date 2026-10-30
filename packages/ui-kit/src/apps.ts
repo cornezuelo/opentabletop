@@ -15,8 +15,7 @@ import {
 
 export { REPO }
 
-export type AppId =
-  'campaign' | 'hexmapper' | 'oracle' | 'travel' | 'characters' | 'systems' | 'manual'
+export type AppId = 'campaign' | 'map' | 'oracle' | 'travel' | 'characters' | 'systems' | 'manual'
 
 export interface AppInfo {
   id: AppId
@@ -78,10 +77,10 @@ export const campaignUrl = (id: string, tab?: CampaignTab): string =>
 export const newCampaignUrl = (): string => `${appUrl('campaign')}#/new`
 
 /**
- * A map of the Hexmapper or a trip of Travel put in a campaign from the Campaign app: a new
+ * A map of Map or a trip of Travel put in a campaign from the Campaign app: a new
  * one (no `id`), or one kept there joining it (asking what stays, as its own settings do).
  */
-export const inCampaignUrl = (app: 'hexmapper' | 'travel', campaign: string, id?: string): string =>
+export const inCampaignUrl = (app: 'map' | 'travel', campaign: string, id?: string): string =>
   `${appUrl(app)}#/in-campaign/${encodeURIComponent(campaign)}${id ? `/${encodeURIComponent(id)}` : ''}`
 
 /** Reads `#/in-campaign/<campaign>[/<id>]` (see `inCampaignUrl`); null for anything else. */

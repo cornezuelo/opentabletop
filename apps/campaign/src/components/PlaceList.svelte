@@ -8,11 +8,11 @@
   import { t } from '../lib/i18n'
 
   /**
-   * The maps (`hexmapper`) or trips (`travel`) of a campaign as cards, each opening where
+   * The maps (`map`) or trips (`travel`) of a campaign as cards, each opening where
    * it's played; a new one made in it, or one kept here brought from another campaign (the
-   * Hexmapper or Travel opens and moves it, asking what stays as their own settings do).
+   * Map or Travel opens and moves it, asking what stays as their own settings do).
    */
-  let { campaign, app }: { campaign: Campaign; app: 'hexmapper' | 'travel' } = $props()
+  let { campaign, app }: { campaign: Campaign; app: 'map' | 'travel' } = $props()
 
   let places = $state<PlaceInCampaign[]>([])
   let version = $state(0)
@@ -23,7 +23,7 @@
     void campaign.playing
     void allPlaces().then((list) => (places = list))
   })
-  const kind = $derived(app === 'hexmapper' ? 'maps' : 'trips')
+  const kind = $derived(app === 'map' ? 'maps' : 'trips')
   const mine = $derived(places.filter((p) => p.app === app && p.campaign === campaign.id))
   const others = $derived(places.filter((p) => p.app === app && p.campaign !== campaign.id))
   let adding = $state(false)
@@ -40,7 +40,7 @@
     const map = open.maps.find((m) => m.meta.id === p.id)
     return map ? `${map.grid.width}×${map.grid.height}` : ''
   }
-  const untitled = $derived(t(app === 'hexmapper' ? 'places.untitledMap' : 'places.untitledTrip'))
+  const untitled = $derived(t(app === 'map' ? 'places.untitledMap' : 'places.untitledTrip'))
 </script>
 
 <div class="head">
@@ -75,7 +75,7 @@
       <RowCard
         name={p.name || untitled}
         untitled={!p.name}
-        meta={app === 'hexmapper' ? size(p) : undefined}
+        meta={app === 'map' ? size(p) : undefined}
         highlight={going(p)}
       >
         {#if going(p)}<span class="badge"

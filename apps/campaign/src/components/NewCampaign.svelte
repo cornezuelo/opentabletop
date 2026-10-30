@@ -92,7 +92,7 @@
     {t('new.without')}
     <a href={appUrl('oracle')}>{t('apps.oracle')}</a> ·
     <a href={appUrl('characters')}>{t('apps.characters')}</a> ·
-    <a href={appUrl('hexmapper')}>{t('apps.hexmapper')}</a>
+    <a href={appUrl('map')}>{t('apps.map')}</a>
   </p>
 {/if}
 

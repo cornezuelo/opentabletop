@@ -164,7 +164,7 @@
           <div class="help"><Markdown text={t('timeline.none')} /></div>
         {/if}
       {:else if tab === 'maps'}
-        <PlaceList {campaign} app="hexmapper" />
+        <PlaceList {campaign} app="map" />
       {:else if tab === 'trips'}
         <PlaceList {campaign} app="travel" />
       {:else}
