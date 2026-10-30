@@ -14,21 +14,35 @@ import { type HexMap, TRAVEL_PATH_KINDS } from './types'
 
 /**
  * The map as the Travel Engine sees it: each hex a place (its terrain, tags, region, values,
- * icon, faction and places in it), its neighbours, and the roads and rivers between them,
- * a step a hex at the map's scale, else the system's (`systemHexKm`), else the default.
+ * icon, faction and places in it), its neighbours, and the roads, rivers and drawn
+ * connections between them (one drawn between far hexes makes them neighbours), a step a
+ * hex at the map's scale, else the system's (`systemHexKm`), else the default.
  */
 export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
   const { grid } = map
   const connections = new Map<string, Set<string>>()
-  for (const path of map.paths.filter((p) => TRAVEL_PATH_KINDS.includes(p.kind)))
-    for (let i = 0; i < path.hexes.length - 1; i++) {
-      const [a, b] = [path.hexes[i], path.hexes[i + 1]]
-      for (const pair of [`${a}|${b}`, `${b}|${a}`]) {
-        if (!connections.has(pair)) connections.set(pair, new Set())
-        connections.get(pair)!.add(path.kind)
-      }
+  const join = (a: string, b: string, kind: string) => {
+    for (const pair of [`${a}|${b}`, `${b}|${a}`]) {
+      if (!connections.has(pair)) connections.set(pair, new Set())
+      connections.get(pair)!.add(kind)
     }
+  }
+  for (const path of map.paths.filter((p) => TRAVEL_PATH_KINDS.includes(p.kind)))
+    for (let i = 0; i < path.hexes.length - 1; i++)
+      join(path.hexes[i], path.hexes[i + 1], path.kind)
   const cell = (hex: string) => parseKey(hex as HexKey)
+  const hexDistance = (a: string, b: string) =>
+    distance(toAxial(cell(a), grid.orientation), toAxial(cell(b), grid.orientation))
+  /** Drawn connections between hexes that aren't next to each other: more neighbours. */
+  const far = new Map<string, string[]>()
+  for (const { between, kind } of map.connections ?? []) {
+    const [a, b] = between
+    if (!inBounds(cell(a), grid) || !inBounds(cell(b), grid)) continue
+    join(a, b, kind)
+    if (hexDistance(a, b) <= 1) continue
+    far.set(a, [...(far.get(a) ?? []), b])
+    far.set(b, [...(far.get(b) ?? []), a])
+  }
   const territories = map.territories ?? {}
   const holder = (hex: string) =>
     Object.keys(territories).find((id) => territories[id].includes(hex))
@@ -60,9 +74,9 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
         ...(data?.pois?.length && { pois: data.pois.map((p) => p.id) }),
       }
     },
-    neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),
-    distance: (a, b) =>
-      km * distance(toAxial(cell(a), grid.orientation), toAxial(cell(b), grid.orientation)),
+    neighbors: (hex) => [...neighborCells(cell(hex), grid).map(keyOf), ...(far.get(hex) ?? [])],
+    // A far connection is a shortcut: with any, no distance is sure to be a lower bound.
+    distance: (a, b) => (far.size ? 0 : km * hexDistance(a, b)),
     connections: (a, b) => [...(connections.get(`${a}|${b}`) ?? [])],
   }
 }

@@ -3,6 +3,7 @@ import { isTyping } from './render/MapRenderer'
 import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
 import {
   cancelPath,
+  deleteSelectedConnection,
   deleteSelectedIcon,
   deleteSelectedLabel,
   deleteSelectedToken,
@@ -64,6 +65,20 @@ export function bindShortcuts(): () => void {
       }
     }
 
+    if (editor.tool === 'connection' && (editor.selectedConnection || editor.connectionStart)) {
+      if (key === 'escape') {
+        editor.selectedConnection = null
+        editor.connectionStart = null
+        e.preventDefault()
+        return
+      }
+      if (editor.selectedConnection && (key === 'delete' || key === 'backspace')) {
+        deleteSelectedConnection()
+        e.preventDefault()
+        return
+      }
+    }
+
     if ((editor.tool === 'token' || editor.tool === 'select') && editor.selectedToken) {
       if (key === 'escape') {
         editor.selectedToken = null
@@ -101,6 +116,9 @@ export function bindShortcuts(): () => void {
         break
       case 'r':
         editor.tool = 'path'
+        break
+      case 'c':
+        editor.tool = 'connection'
         break
       case 'i':
         editor.tool = 'icon'

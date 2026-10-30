@@ -1747,3 +1747,59 @@ describe('the threats of the Marches: progress clocks the system declares', () =
     expect(editor.campaign.world!.clocks).toEqual([])
   })
 })
+
+describe('connections drawn on the map', () => {
+  const info = {
+    button: 0,
+    alt: false,
+    ctrl: false,
+    shift: false,
+    world: { x: -1e6, y: -1e6 },
+    pickRadius: 1,
+  }
+  const at = (key: string) => {
+    const [col, row] = key.split(',').map(Number)
+    return { col, row }
+  }
+  const click = (key: string, extra: Partial<typeof info> = {}) => {
+    const tool = currentTool()
+    tool.down(at(key), { ...info, ...extra })
+    tool.up()
+  }
+
+  it('join two places with the kind chosen, are undone, edited and read by trips', () => {
+    editor.load(createMap())
+    editor.tool = 'connection'
+    // No kind yet: nothing is drawn.
+    click('1,1')
+    expect(editor.connectionStart).toBeNull()
+    editor.connectionKind = 'tunnel'
+    click('1,1')
+    expect(editor.connectionStart).toBe('1,1')
+    click('6,4')
+    expect(editor.map.connections).toMatchObject([{ between: ['1,1', '6,4'], kind: 'tunnel' }])
+    expect(editor.selectedConnection).toBe(editor.map.connections[0].id)
+    // The same again only selects it.
+    click('6,4')
+    click('1,1')
+    expect(editor.map.connections).toHaveLength(1)
+    // The trip's world sees it: far places become neighbours, the step has its kind.
+    const world = mapWorld(editor.map)
+    expect(world.neighbors('1,1')).toContain('6,4')
+    expect(world.connections('6,4', '1,1')).toEqual(['tunnel'])
+    // Undone and redone like any edit; locked, the tool does nothing.
+    editor.undo()
+    expect(editor.map.connections).toEqual([])
+    editor.redo()
+    expect(editor.map.connections).toHaveLength(1)
+    editor.setLayer('connections', { locked: true })
+    click('2,2')
+    expect(editor.connectionStart).toBeNull()
+    editor.setLayer('connections', { locked: false })
+    // A right click drops the one being started, else deletes the one under it.
+    click('2,2')
+    click('2,2', { button: 2 })
+    expect(editor.connectionStart).toBeNull()
+    expect(editor.map.layers.connections.visible).toBe(true)
+  })
+})

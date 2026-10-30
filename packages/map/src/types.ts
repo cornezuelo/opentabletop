@@ -259,6 +259,7 @@ export const LAYER_IDS = [
   'regions',
   'factions',
   'paths',
+  'connections',
   'icons',
   'coords',
   'labels',
@@ -273,6 +274,7 @@ export const LOCKABLE_LAYERS: readonly LayerId[] = [
   'terrain',
   'regions',
   'paths',
+  'connections',
   'icons',
   'labels',
   'tokens',
@@ -310,6 +312,23 @@ export interface MapPath {
   straight?: boolean
   /** A loop: the last vertex joins the first (e.g. a border around a region). */
   closed?: boolean
+}
+
+/**
+ * A connection drawn between two places: a bridge, a gate or a pass between neighbouring
+ * hexes, or a tunnel, a ferry or a hidden path between far ones (which become neighbours).
+ * Its kind is the system's (`connections:` in its travel rules), read by rules as
+ * `trip.connections`; what changes while playing (open, found…) is the trip's, not the map's.
+ */
+export interface MapConnection {
+  id: string
+  /** The two places it joins, in either direction. */
+  between: [HexKey, HexKey]
+  /** Its kind, as the system names it (`bridge`, `ford`, `tunnel`…). */
+  kind: string
+  name?: string
+  tags?: string[]
+  fields?: CustomField[]
 }
 
 /** Physical size for printing. The grid's cols × rows stay the source of truth. */
@@ -353,6 +372,8 @@ export interface HexMap {
   /** Keyed by offset coordinates "col,row". */
   hexes: Record<HexKey, HexData>
   paths: MapPath[]
+  /** Connections drawn between places (bridges, gates, tunnels…). */
+  connections: MapConnection[]
   assets: MapAsset[]
   labels: MapLabel[]
   tokens: MapToken[]

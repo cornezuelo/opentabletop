@@ -2,9 +2,11 @@ import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../commands/paths'
 import { hitTestLabel, hitTestToken } from '../render/hitTest'
 import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../commands/tokens'
+import { AddConnectionCommand, RemoveConnectionCommand } from '../commands/connections'
 import {
   type HexIcon,
   type LayerId,
+  type MapConnection,
   type MapPath,
   type MapToken,
   newId,
@@ -859,6 +861,81 @@ class FactionTool implements Tool {
 }
 const factionTool = new FactionTool()
 
+export function deleteSelectedConnection(): void {
+  const connection = editor.map.connections.find((c) => c.id === editor.selectedConnection)
+  if (!connection) return
+  editor.execute(new RemoveConnectionCommand(connection))
+  editor.selectedConnection = null
+}
+
+/** The connection drawn nearest to a point, within `radius` of its line (world units). */
+export function connectionAt(world: Point, radius: number): MapConnection | null {
+  const { grid } = editor.map
+  let best: { connection: MapConnection; distance: number } | null = null
+  for (const connection of editor.map.connections) {
+    const [a, b] = connection.between.map((k) => cellCenter(parseKey(k)))
+    const d = segmentDistance(world, a, b)
+    if (
+      d <= radius &&
+      (!best || d < best.distance) &&
+      connection.between.every((k) => inBounds(parseKey(k), grid))
+    )
+      best = { connection, distance: d }
+  }
+  return best?.connection ?? null
+}
+
+function segmentDistance(p: Point, a: Point, b: Point): number {
+  const [dx, dy] = [b.x - a.x, b.y - a.y]
+  const length = dx * dx + dy * dy
+  const t = length ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / length)) : 0
+  return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy))
+}
+
+/**
+ * Connections: a click on a place starts one, a click on another ends it (a new connection
+ * of the chosen kind between them); a click on a connection selects it, a right click
+ * deletes it (or drops the one being started).
+ */
+const connectionTool: Tool = {
+  down(cell, info) {
+    if (blockedByLock('connections')) return
+    const hit = connectionAt(info.world, info.pickRadius / 2)
+    if (info.button === 2) {
+      if (editor.connectionStart) editor.connectionStart = null
+      else if (hit) editor.execute(new RemoveConnectionCommand(hit))
+      return
+    }
+    const key = keyOf(cell)
+    const start = editor.connectionStart
+    if (!start && hit) {
+      editor.selectedConnection = hit.id
+      return
+    }
+    if (!inBounds(cell, editor.map.grid)) return
+    const kind = editor.connectionKind.trim()
+    if (!kind) return void showToast(t('connection.noKind'))
+    if (!start || start === key) {
+      editor.connectionStart = start === key ? null : key
+      editor.selectedConnection = null
+      return
+    }
+    editor.connectionStart = null
+    const same = editor.map.connections.find(
+      (c) => c.kind === kind && c.between.includes(start) && c.between.includes(key),
+    )
+    if (same) {
+      editor.selectedConnection = same.id
+      return
+    }
+    const connection: MapConnection = { id: newId(), between: [start, key], kind }
+    editor.execute(new AddConnectionCommand(connection))
+    editor.selectedConnection = connection.id
+  },
+  move() {},
+  up() {},
+}
+
 const tools: Record<ToolId, Tool> = {
   play: playTool,
   region: new RegionTool(),
@@ -872,6 +949,7 @@ const tools: Record<ToolId, Tool> = {
   select: selectTool,
   terrain: new TerrainTool(),
   path: new PathTool(),
+  connection: connectionTool,
 }
 
 export function getTool(id: ToolId): Tool {

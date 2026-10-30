@@ -36,7 +36,8 @@ import {
 import { History } from '../commands/history'
 import { ReplaceTokenCommand } from '../commands/tokens'
 
-export type ToolId = 'select' | 'terrain' | 'region' | 'path' | 'icon' | 'text' | 'token' | 'play'
+export type ToolId =
+  'select' | 'terrain' | 'region' | 'path' | 'connection' | 'icon' | 'text' | 'token' | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 /** What the side panel shows besides the active tool's view. */
 export type PanelView = 'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'layers'
@@ -130,6 +131,8 @@ class Editor {
     this.selected = null
     this.selectedIcon = null
     this.selectedLabel = null
+    this.selectedConnection = null
+    this.connectionStart = null
     this.selectedToken =
       tool === 'play' ? (this.map.tokens.find((t) => t.kind === 'party')?.id ?? null) : token
   }
@@ -171,6 +174,13 @@ class Editor {
   labelStyle = $state<LabelStyle>({ ...DEFAULT_LABEL_STYLE })
   /** Labels being edited live (text typing, slider drags): original kept for one undo step. */
   private labelEdits = new Map<string, MapLabel>()
+
+  /** What the connection tool draws: the kind of a new connection (the system's; none yet). */
+  connectionKind = $state('')
+  /** The place a connection being drawn starts at (its first click), or null. */
+  connectionStart = $state<HexKey | null>(null)
+  /** Connection selected with the connection tool (its panel edits it). */
+  selectedConnection = $state<string | null>(null)
 
   /** Token selected with the token tool (its panel edits it). */
   selectedToken = $state<string | null>(null)
@@ -502,6 +512,8 @@ class Editor {
     this.selectedLabel = null
     this.selectedIcon = null
     this.selectedToken = null
+    this.selectedConnection = null
+    this.connectionStart = null
     this.labelEdits.clear()
     this.hexPreviews.clear()
     this.pathDraft = null
@@ -516,6 +528,11 @@ class Editor {
     if (this.selectedIcon && !this.map.hexes[this.selectedIcon]?.icon) this.selectedIcon = null
     if (this.selectedLabel && !this.getLabel(this.selectedLabel)) this.selectedLabel = null
     if (this.selectedToken && !this.getToken(this.selectedToken)) this.selectedToken = null
+    if (
+      this.selectedConnection &&
+      !this.map.connections.some((c) => c.id === this.selectedConnection)
+    )
+      this.selectedConnection = null
   }
 
   private touch(change?: MapChange): void {

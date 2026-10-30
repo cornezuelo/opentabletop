@@ -10,6 +10,7 @@
     { id: 'terrain', label: 'tools.terrain', glyph: '⬢' },
     { id: 'region', label: 'tools.region', glyph: '⛉' },
     { id: 'path', label: 'tools.path', glyph: '〰' },
+    { id: 'connection', label: 'tools.connection', glyph: '⇄' },
     { id: 'icon', label: 'tools.icon', glyph: '♜' },
     { id: 'text', label: 'tools.text', glyph: 'T' },
     { id: 'token', label: 'tools.token', glyph: '♟' },

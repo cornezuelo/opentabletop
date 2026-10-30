@@ -67,6 +67,22 @@ export const path = z
   })
   .loose()
 
+/**
+ * A connection drawn between two places (a bridge, a gate, a tunnel…): its kind is the
+ * system's, read by travel rules (`trip.connections`).
+ */
+export const connection = z
+  .object({
+    id,
+    between: z.tuple([hexKey, hexKey]),
+    kind: z.string().min(1),
+    name: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    stats: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
+    ext: ext.optional(),
+  })
+  .loose()
+
 export const map = z
   .object({
     ...entity,
@@ -81,6 +97,7 @@ export const map = z
     terrains: z.array(terrain),
     hexes: z.record(hexKey, hex),
     paths: z.array(path).optional(),
+    connections: z.array(connection).optional(),
   })
   .loose()
 

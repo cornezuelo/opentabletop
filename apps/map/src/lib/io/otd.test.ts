@@ -19,6 +19,16 @@ function sampleMap() {
   }
   map.hexes['2,2'] = { icon: { id: 'game:tipi' } }
   map.paths = [{ id: 'road00000001', kind: 'road', hexes: ['1,2', '2,2', '3,2'], nodes: [0, 2] }]
+  map.connections = [
+    {
+      id: 'conn00000001',
+      between: ['1,2', '4,4'],
+      kind: 'tunnel',
+      name: 'The Old Way',
+      tags: ['hidden'],
+      fields: [{ key: 'dc', value: '3' }],
+    },
+  ]
   map.labels = [
     {
       id: 'label0000001',
@@ -65,6 +75,17 @@ describe('OTD conversion', () => {
         location: { map: map.id, hex: '1,2' },
       },
     ])
+    // Connections are OTD's, their values `stats` as a hex's.
+    expect(map.connections).toEqual([
+      {
+        id: 'conn00000001',
+        between: ['1,2', '4,4'],
+        kind: 'tunnel',
+        name: 'The Old Way',
+        tags: ['hidden'],
+        stats: [{ key: 'dc', value: '3' }],
+      },
+    ])
     expect((map.ext as { map: { icons: object } }).map.icons).toEqual({
       '1,2': { id: 'game:castle', scale: 1.5 },
       '2,2': { id: 'game:tipi' },
@@ -76,6 +97,7 @@ describe('OTD conversion', () => {
     const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(original)))).map
     expect(back.hexes).toEqual(original.hexes)
     expect(back.paths).toEqual(original.paths)
+    expect(back.connections).toEqual(original.connections)
     expect(back.labels).toEqual(original.labels)
     expect(back.scale).toEqual(original.scale)
     expect(back.meta).toEqual(original.meta)

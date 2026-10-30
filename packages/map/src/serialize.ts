@@ -26,6 +26,7 @@ import type {
   HexKey,
   HexMap,
   LabelStyle,
+  MapConnection,
   MapAsset,
   MapLabel,
   CaptionOverride,
@@ -138,6 +139,7 @@ function validate(data: Record<string, unknown>): HexMap {
     terrains: validTerrains,
     hexes: validHexes,
     paths: parsePaths(data.paths),
+    connections: parseConnections(data.connections),
     assets: parseAssets(data.assets),
     labels: parseLabels(data.labels),
     tokens: parseTokens(data.tokens),
@@ -241,6 +243,30 @@ function parsePaths(value: unknown): MapPath[] {
     )
   }
   return paths
+}
+
+/** Connections between two places (each a valid hex key, not the same one), with a kind. */
+function parseConnections(value: unknown): MapConnection[] {
+  if (!Array.isArray(value)) return []
+  const key = (k: unknown): k is HexKey => typeof k === 'string' && /^\d+,\d+$/.test(k)
+  return value.filter(isRecord).flatMap((c): MapConnection[] => {
+    const [a, b] = Array.isArray(c.between) ? c.between : []
+    if (!key(a) || !key(b) || a === b || typeof c.kind !== 'string' || !c.kind.trim()) return []
+    const tags = Array.isArray(c.tags)
+      ? c.tags.filter((t): t is string => typeof t === 'string')
+      : []
+    const fields = parseFields(c.fields)
+    return [
+      {
+        id: isValidId(c.id) ? c.id : newId(),
+        between: [a, b],
+        kind: c.kind.trim(),
+        ...(typeof c.name === 'string' && c.name && { name: c.name }),
+        ...(tags.length && { tags }),
+        ...(fields?.length && { fields }),
+      },
+    ]
+  })
 }
 
 /**

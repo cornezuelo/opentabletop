@@ -90,6 +90,12 @@
     renderer?.drawSelection()
   })
 
+  // The selected connection, and the place one being drawn starts at.
+  $effect(() => {
+    void [editor.selectedConnection, editor.connectionStart]
+    renderer?.drawConnections()
+  })
+
   // The selected token is ringed.
   $effect(() => {
     void editor.selectedToken

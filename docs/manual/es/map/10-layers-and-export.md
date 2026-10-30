@@ -16,7 +16,7 @@ Muchos clics en el mapa podrían cambiar más de una cosa: un clic cerca de un r
 - Bloquea los **iconos** y el **texto** cuando el mapa esté terminado y solo juegues en él.
 - Bloquea los **tokens** para que las piezas no se muevan mientras editas el mapa de debajo.
 
-Una capa bloqueada se sigue dibujando y exportando. Si intentas cambiarla, un aviso te dice qué capa está bloqueada. Se pueden bloquear el terreno, las regiones, los caminos y ríos, los iconos, el texto y los tokens; la rejilla, las coordenadas, las marcas y el rastro solo se pueden ocultar. Jugar un viaje sigue moviendo al grupo: el candado es para editar, no para jugar.
+Una capa bloqueada se sigue dibujando y exportando. Si intentas cambiarla, un aviso te dice qué capa está bloqueada. Se pueden bloquear el terreno, las regiones, los caminos y ríos, las conexiones, los iconos, el texto y los tokens; la rejilla, las coordenadas, las marcas y el rastro solo se pueden ocultar. Jugar un viaje sigue moviendo al grupo: el candado es para editar, no para jugar.
 
 **Resaltar una etiqueta**, abajo en Capas, marca cada hex con esa etiqueta (`landmark`, `haunted`, `shrine`: la casilla sugiere las del mapa) y dice cuántos hay; **Oscurecer los demás hexes** apaga el resto para que destaquen. Es solo una vista mientras miras: no se guarda nada, y **Dejar de resaltar** la quita.
 

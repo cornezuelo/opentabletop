@@ -90,6 +90,9 @@ const PATH_STYLES: Record<PathKind, PathStyle> = {
 }
 /** Rivers under roads under trails; walls and borders on top. */
 const PATH_ORDER: PathKind[] = ['river', 'road', 'trail', 'wall', 'border']
+/** Connections drawn between places: a dashed line with a diamond at its middle. */
+const CONNECTION_COLOR = 0x5b3a8c
+const CONNECTION_OUTLINE = 0xf4efe2
 const DRAFT_COLOR = 0xffffff
 const HANDLE_COLOR = 0xffffff
 const HANDLE_OUTLINE = 0x1b1a17
@@ -147,6 +150,8 @@ export class MapRenderer {
   private coordLayer = new Container()
   /** Small dots on hexes that have notes, POIs, tags or fields. */
   private pathsLayer = new Graphics()
+  /** Connections drawn between places (bridges, gates, tunnels…). */
+  private connectionLayer = new Graphics()
   private iconLayer = new Container()
   private iconTextures = new IconTextures(() => {
     this.drawGlyphs()
@@ -214,6 +219,7 @@ export class MapRenderer {
       this.factionShapes,
       this.selection,
       this.pathsLayer,
+      this.connectionLayer,
       this.iconLayer,
       this.nameLayer,
       this.coordLayer,
@@ -456,6 +462,8 @@ export class MapRenderer {
       if (editor.map.paths.length > 0) this.drawPaths()
     } else if (change.kind === 'paths') {
       this.drawPaths()
+    } else if (change.kind === 'connections') {
+      this.drawConnections()
     } else if (change.kind === 'assets') {
       this.drawGlyphs()
       this.drawIcons()
@@ -540,6 +548,7 @@ export class MapRenderer {
     // The map's factions (none on a new map: the last map's land mustn't stay drawn).
     this.drawFactions()
     this.drawPaths()
+    this.drawConnections()
     this.drawIcons()
     this.drawLabels()
     this.drawParty()
@@ -805,6 +814,39 @@ export class MapRenderer {
       }
     }
     if (editor.tool === 'path') this.drawOverlay()
+  }
+
+  /**
+   * Each connection: a dashed line from one place's centre to the other's, outlined so it
+   * shows on any terrain, and a diamond at its middle; the selected one in the selection's
+   * colour, and the place a connection being drawn starts at.
+   */
+  drawConnections(): void {
+    const g = this.connectionLayer.clear()
+    const { grid } = editor.map
+    const { hexSize } = grid
+    for (const connection of editor.map.connections) {
+      const [a, b] = connection.between.map(parseKey)
+      if (!inBounds(a, grid) || !inBounds(b, grid)) continue
+      const [from, to] = [this.centerOf(a), this.centerOf(b)]
+      const color = connection.id === editor.selectedConnection ? SELECT_COLOR : CONNECTION_COLOR
+      const line = [from, to]
+      const pieces = dashes(line, 0.22 * hexSize, 0.12 * hexSize)
+      for (const piece of pieces) this.strokePolyline(g, piece)
+      g.stroke({ width: 0.16 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', alpha: 0.85 })
+      for (const piece of pieces) this.strokePolyline(g, piece)
+      g.stroke({ width: 0.09 * hexSize, color, cap: 'round' })
+      const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 }
+      const r = 0.16 * hexSize
+      g.poly([mid.x, mid.y - r, mid.x + r, mid.y, mid.x, mid.y + r, mid.x - r, mid.y])
+      g.fill({ color })
+      g.stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
+    }
+    const start = editor.connectionStart
+    if (start && inBounds(parseKey(start), grid)) {
+      g.poly(this.cornersAt(parseKey(start)))
+      g.stroke({ width: 0.08 * hexSize, color: CONNECTION_COLOR })
+    }
   }
 
   private drawLabels(): void {
@@ -1248,6 +1290,7 @@ export class MapRenderer {
     this.drawSelection()
     this.gridLines.visible = layers.grid.visible
     this.pathsLayer.visible = layers.paths.visible
+    this.connectionLayer.visible = layers.connections?.visible ?? true
     this.iconLayer.visible = layers.icons.visible
     this.labelLayer.visible = layers.labels.visible
     this.nameLayer.visible = editor.map.captions.hexNames.show

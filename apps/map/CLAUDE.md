@@ -57,6 +57,7 @@ Done:
 - **Terrain:** editable palette (name, color, water, add/delete), brush with radius, flood fill, erase (right click), eyedropper (Ctrl+click).
 - **Grid:** flat/pointy orientation, CCRR or axial coordinates, zoom and pan.
 - **Roads, trails, rivers, walls and borders:** nodes vs. crossed hexes; closed loops; smooth curves or straight segments; off-center points with snapping (Shift+click while drawing, Ctrl for free placement); drag nodes, even to other hexes, with re-routing; click a node to keep drawing (extends from an end, branches from the middle); paths stop at water shores.
+- **Connections** (`map.connections`): a kind (the system's), name, tags and values between two hexes, neighbours or far (far ones become neighbours in `mapWorld`); tool **C**, its own layer.
 - **Icons:** 111 from game-icons.net plus imported ones (SVG/PNG/JPEG/WebP); color, size, rotation, flip, halo (color and size) and outline (color and thickness), with live preview.
 - **Text:** labels with font (IM Fell English, Cinzel, sans), size, color, rotation, italic and halo (color and thickness); also outside the grid.
 - **Hex metadata:** name, short optional Markdown notes (marked + DOMPurify), POIs (with linked notes), tags and fields with autocompletion, linked note (`note-refs`), gold marker on the map, copyable hex link.

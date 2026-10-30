@@ -6,6 +6,8 @@ export type MapChange =
   | { kind: 'grid' }
   | { kind: 'terrains' }
   | { kind: 'paths' }
+  /** The connections drawn between places. */
+  | { kind: 'connections' }
   | { kind: 'assets' }
   | { kind: 'layers' }
   | { kind: 'labels' }

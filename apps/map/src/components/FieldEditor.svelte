@@ -37,8 +37,11 @@
     onchange: (fields: CustomField[]) => void
     /** What tables see of these values (e.g. "{{token.<key>}}"). */
     help?: string
-    /** Whose values: a place (hex, region, POI), an icon or a token — tables read them differently. */
-    scope?: 'place' | 'icon' | 'token'
+    /**
+     * Whose values: a place (hex, region, POI), an icon, a token or a connection — tables
+     * read them differently.
+     */
+    scope?: 'place' | 'icon' | 'token' | 'connection'
   } = $props()
 
   let draftKey = $state('')
@@ -63,7 +66,9 @@
           ? key.startsWith('icon.') && key.slice(5)
           : scope === 'token'
             ? key.startsWith('token.') && key.slice(6)
-            : !key.includes('.') && !RESERVED.has(key) && key
+            : scope === 'connection'
+              ? key.startsWith('connection.') && key.slice(11)
+              : !key.includes('.') && !RESERVED.has(key) && key
       return name && name !== 'id' && name !== 'name' && name !== 'kind' ? [[name, values]] : []
     }),
   )

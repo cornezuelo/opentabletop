@@ -1,4 +1,4 @@
-# Caminos, ríos, muros y fronteras
+# Caminos, ríos, muros, fronteras y conexiones
 
 La herramienta **Caminos y ríos** (<kbd>R</kbd>) dibuja líneas de hex a hex.
 
@@ -39,3 +39,14 @@ Sin ninguna línea en curso, los tiradores blancos son los puntos que colocaste:
 - Clic derecho en un tirador lo centra en su hex.
 
 El panel del hex lista las líneas que cruzan el hex seleccionado: cámbialas entre curvas y rectas o entre abiertas y cerradas, o bórralas.
+
+## Conexiones
+
+La herramienta **Conexiones** (<kbd>C</kbd>, **⇄**) une dos lugares con algo que no es una línea que se sigue: un puente, una puerta, un paso, un vado, o un camino entre dos hexes lejanos (un túnel, un transbordador, una senda oculta). Dos lugares lejanos unidos por una conexión pasan a ser vecinos: un viaje puede ir directamente del uno al otro en un paso.
+
+- Elige primero su **Tipo**: qué es la conexión, como lo nombra el sistema del mapa. La casilla sugiere los tipos que declara el sistema y los que ya usa el mapa; una palabra nueva también vale, y no hace nada hasta que un sistema dice qué hace.
+- Haz clic en un lugar y luego en otro: la conexión los une, dibujada como una línea discontinua con un rombo en medio. <kbd>Esc</kbd> o un clic derecho descartan una que hayas empezado.
+- Haz clic en una conexión para seleccionarla: su panel edita su **Tipo**, **Nombre**, **Etiquetas** y valores (`clave` = `valor`), y **Borrar conexión** la quita (o <kbd>Supr</kbd>). Un clic derecho sobre una conexión también la borra. Todo se deshace con <kbd>Ctrl</kbd>+<kbd>Z</kbd>.
+- El panel lista todas las conexiones del mapa; al hacer clic en una se selecciona.
+
+Lo que hace un tipo de conexión en un viaje lo decide el sistema, como con los caminos: una velocidad, o saltarse una comprobación (`trip.connections: ford` en una condición lee los tipos del paso dado). Las conexiones tienen su propia capa en **Capas**, para mostrarlas, ocultarlas o bloquearlas.

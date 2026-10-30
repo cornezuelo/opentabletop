@@ -308,6 +308,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       play: { ...play, rules: { ...play!.rules, session: migratePlaces(session, kmOf(data)) } },
     }
   },
+  /** v29: connections drawn between places (`connections`); older maps have none. */
+  28(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

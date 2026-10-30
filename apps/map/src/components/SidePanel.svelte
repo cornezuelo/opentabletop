@@ -12,6 +12,7 @@
   import WorldPanel from './WorldPanel.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
+  import ConnectionPanel from './ConnectionPanel.svelte'
   import PlayPanel from './PlayPanel.svelte'
   import Section from './Section.svelte'
   import TerrainPanel from './TerrainPanel.svelte'
@@ -205,6 +206,8 @@
     <Section title={t('panel.regions')}><RegionPanel /></Section>
   {:else if editor.tool === 'path'}
     <Section title={t('panel.paths')}><PathPanel /></Section>
+  {:else if editor.tool === 'connection'}
+    <Section title={t('panel.connections')}><ConnectionPanel /></Section>
   {:else if editor.tool === 'icon'}
     <Section title={t('panel.icons')}><IconPanel /></Section>
   {:else if editor.tool === 'text'}

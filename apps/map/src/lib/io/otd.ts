@@ -245,6 +245,13 @@ export function mapToBundle(
     terrains: map.terrains.map((t) => ({ ...t })),
     hexes,
     paths: map.paths.map((p) => ({ ...p })),
+    // A connection's values are OTD's `stats`, as a hex's.
+    ...(map.connections.length && {
+      connections: map.connections.map(({ fields, ...c }) => ({
+        ...c,
+        ...(fields?.length && { stats: fields }),
+      })),
+    }),
     ext: { ...foreign.mapExt, map: ext },
   }
   const extra = foreign.bundle ?? {}
@@ -664,6 +671,10 @@ export function bundleToMap(raw: unknown): OpenedMap {
     terrains: otdMap.terrains,
     hexes,
     paths: otdMap.paths ?? [],
+    connections: (otdMap.connections ?? []).map(({ stats, ...c }) => ({
+      ...c,
+      ...(stats && { fields: stats }),
+    })),
     assets: ext.assets ?? [],
     labels: ext.labels ?? [],
     regions: ext.regions ?? [],
