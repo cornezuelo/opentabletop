@@ -34,6 +34,6 @@ weather: [weather.sky]
 # The lie of the Marches (land.yaml): Generate's land, and discovery's east of the Hills.
 land: [land.default]
 packs: [core]
-# Listed in the Hexmapper's Maps → Example maps: the Marches, and the Hollow Hills up close
+# Listed in Map's Maps → Example maps: the Marches, and the Hollow Hills up close
 # (3 km a hex), two maps of one campaign (both files name it: The Grey Marches).
 maps: [maps/grey-marches.otd.json, maps/hollow-hills.otd.json]

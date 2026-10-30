@@ -237,7 +237,7 @@ Las reglas de viaje multiplican velocidades: el `multiplier` de un terreno o cam
 
 Las descripciones aceptan Markdown básico: una línea en blanco entre párrafos, `**negrita**`, `_cursiva_`, `` `código` ``, listas (`- elemento`), citas (`> …`) y enlaces a la web (`[texto](https://…)`); nada más, HTML incluido, se muestra como texto. En YAML, una larga va como bloque: `description: |-` y el texto sangrado debajo.
 
-Las **etiquetas** clasifican lo que se tira: `tags: [people, names]` en una tabla, oráculo, generador o mazo, las palabras que elija el pack, que el **Filtrar** del Oracle y del Hexmapper muestra u oculta (`rules`, en nuestros packs, para lo que tira el propio sistema).
+Las **etiquetas** clasifican lo que se tira: `tags: [people, names]` en una tabla, oráculo, generador o mazo, las palabras que elija el pack, que el **Filtrar** del Oráculo y de Mapa muestra u oculta (`rules`, en nuestros packs, para lo que tira el propio sistema).
 
 ## Traducciones
 

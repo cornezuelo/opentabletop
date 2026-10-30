@@ -2,12 +2,12 @@ import { vocabulary } from '@open-tabletop/ui-kit'
 /** Reference dictionary: its shape defines the message keys. */
 export const en = {
   app: {
-    title: 'Oracle',
+    title: vocabulary.en.apps.oracle,
     tagline: 'Roll and build random tables, generators, oracles and decks.',
   },
   nav: {
     favorites: 'Favorites',
-    favorite: 'Favorite: pinned on top of the list (also in the Hexmapper)',
+    favorite: 'Favorite: pinned on top of the list (also in Map)',
     help: 'Help and manual',
     undo: 'Undo the last change to your packs (Ctrl+Z)',
     redo: 'Redo (Ctrl+Shift+Z)',
@@ -62,7 +62,7 @@ export const en = {
       'Untick the packs you don’t use to leave them out of the list on the left.\nThey still load: other packs’ tables that roll on them and the other apps keep using them. Favorites stay pinned.',
   },
   welcome: {
-    title: 'Oracle',
+    title: vocabulary.en.apps.oracle,
     body: 'Pick a table, generator, oracle or deck on the left to roll it. Packs are folders of YAML files: bundled packs are read-only (edit a copy), your own packs are stored in this browser. Export them as .zip to back them up or share them.',
     packs: '{packs} packs, {definitions} definitions',
   },
@@ -82,7 +82,7 @@ export const en = {
     description: 'Description',
     tags: vocabulary.en.terms.tags,
     tagsHelp:
-      "Words that sort this definition: the pack list's **Filter** (here and in the Hexmapper's Oracle panel) shows only what has a tag, or hides it. A tag is any word the pack chooses; Enter or a comma adds one.\n• `encounters`, `people`, `places` — what it's about\n• `names` — a table of names\n• `rules` — rolled by the system's own rules (a trip's checks, a world turn), so a filter of `−rules` leaves what you'd roll by hand",
+      "Words that sort this definition: the pack list's **Filter** (here and in Map's Oracle panel) shows only what has a tag, or hides it. A tag is any word the pack chooses; Enter or a comma adds one.\n• `encounters`, `people`, `places` — what it's about\n• `names` — a table of names\n• `rules` — rolled by the system's own rules (a trip's checks, a world turn), so a filter of `−rules` leaves what you'd roll by hand",
     removeTag: 'Remove {name}',
     roll: 'Dice',
     rollHelp:
@@ -262,7 +262,7 @@ export const en = {
   newDef: {
     forTravel: 'Rules of the system',
     forTravelHelp:
-      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in the Hexmapper (Play → With rules) and in Travel, edited in the Systems app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\n• **Sheet** — what each character of the party has (values, conditions)\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
+      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in Map (Play → With rules) and in Travel, edited in the Systems app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\n• **Sheet** — what each character of the party has (values, conditions)\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
     system: {
       'roll-modes': 'Roll modes',
       'travel-rules': 'Travel rules',

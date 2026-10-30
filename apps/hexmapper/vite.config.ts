@@ -11,8 +11,8 @@ export default defineConfig({
     packSources(),
     svelte(),
     pwa({
-      name: 'OpenTabletop Hexmapper',
-      shortName: 'Hexmapper',
+      name: 'OpenTabletop Map',
+      shortName: 'Map',
       description: 'Draw hex maps and play trips on them.',
     }),
   ],

@@ -5,7 +5,7 @@ place:
   description: |-
     Un **nombre para un lugar**: elige qué es.
 
-    Tirado desde el Hexmapper sobre un hex, el nombre de un paraje encaja con su terreno cuando el sistema lo llama `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` o `sea`.
+    Tirado desde Mapa sobre un hex, el nombre de un paraje encaja con su terreno cuando el sistema lo llama `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` o `sea`.
   inputs:
     what:
       label: Qué es

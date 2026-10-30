@@ -18,7 +18,7 @@ Every visible text of the apps comes from a dictionary; there is no text written
 
 | Part                                                       | Dictionaries                                                                             |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Hexmapper                                                  | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; languages listed in `index.svelte.ts`) |
+| Map                                                        | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; languages listed in `index.svelte.ts`) |
 | Oracle app                                                 | `apps/oracle/src/lib/i18n/` (languages in `index.ts`)                                    |
 | Travel app                                                 | `apps/travel/src/lib/i18n/` (languages in `index.ts`)                                    |
 | Campaign app                                               | `apps/campaign/src/lib/i18n/` (languages in `index.ts`)                                  |

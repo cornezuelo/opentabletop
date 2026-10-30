@@ -1,12 +1,12 @@
 # Conectar tablas con mapas y viajes
 
-No hace falta programar para crear tablas que reaccionen al mapa, ni un sistema de viaje entero que el Hexmapper juegue por ti. Todo se escribe en los ficheros YAML del pack. Esta página lo construye paso a paso; cada paso funciona por sí solo.
+No hace falta programar para crear tablas que reaccionen al mapa, ni un sistema de viaje entero que Mapa juegue por ti. Todo se escribe en los ficheros YAML del pack. Esta página lo construye paso a paso; cada paso funciona por sí solo.
 
-> **Un ejemplo completo del que copiar:** el pack incluido **Las Marcas Grises** usa todo lo de esta página, y tiene un mapa de ejemplo para jugarlo (Hexmapper: Mapas → Mapas de ejemplo). Abre sus ficheros en la aplicación Oracle, o haz una copia (**Editar una copia**) para cambiarlos. [Las Marcas Grises](../packs/02-grey-marches.md) dice dónde está cada cosa.
+> **Un ejemplo completo del que copiar:** el pack incluido **Las Marcas Grises** usa todo lo de esta página, y tiene un mapa de ejemplo para jugarlo (Mapa: Mapas → Mapas de ejemplo). Abre sus ficheros en la aplicación Oráculo, o haz una copia (**Editar una copia**) para cambiarlos. [Las Marcas Grises](../packs/02-grey-marches.md) dice dónde está cada cosa.
 
 ## 1. Una tabla que depende del terreno
 
-Cuando tiras desde el Hexmapper (el panel de Oracle o un viaje), la tabla recibe lo que el mapa sabe del hex. `when` mantiene una entrada solo si coincide:
+Cuando tiras desde Mapa (el panel de Oráculo o un viaje), la tabla recibe lo que el mapa sabe del hex. `when` mantiene una entrada solo si coincide:
 
 ```yaml
 kind: table
@@ -24,13 +24,13 @@ entries:
   - { id: nothing, range: 1-6, result: 'Nada especial' }
 ```
 
-Todas las entradas cubren del 1 al 6: gana **la primera cuya condición se cumple**, y la última, sin condición, recoge el resto. Los terrenos se escriben por su id (`forest`, `hills`, `swamp`…), como en la paleta del Hexmapper.
+Todas las entradas cubren del 1 al 6: gana **la primera cuya condición se cumple**, y la última, sin condición, recoge el resto. Los terrenos se escriben por su id (`forest`, `hills`, `swamp`…), como en la paleta de Mapa.
 
 Lo que una tabla puede leer del mapa: `terrain`, `tags` (las etiquetas del hex), `region` (el nombre de la región), cada **campo** del hex por su clave (un hex con el campo `danger: 3` da `danger`) y `hex`. Durante un viaje, además, `season`, `weather`, `mode` (a pie, a caballo…), `day` y las características del grupo. Todos los valores, y cuál gana cuando dos se llaman igual: [Lo que ven las tablas](../technical/04-what-tables-see.md).
 
 ## 2. Etiquetas y campos
 
-Pon etiquetas a los hexes en el Hexmapper (`haunted`, `ruins`…) y dales campos (`danger: 3`). Después:
+Pon etiquetas a los hexes en Mapa (`haunted`, `ruins`…) y dales campos (`danger: 3`). Después:
 
 ```yaml
 entries:
@@ -84,7 +84,7 @@ Las tablas leen el grupo como `party.values.food`, `party.stats.morale`, `party.
 
 ## 5. Tu propio sistema de viaje
 
-Un pack se convierte en un **sistema** con el que se puede jugar un mapa (Hexmapper: **Ajustes del mapa → Campaña → Sistema**) y que muestran las aplicaciones Systems y Travel cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`; un `kind: system` puede nombrarlas, con el calendario, el clima y los packs que van con ellas (ver [Nombrar el sistema](#nombrar-el-sistema)):
+Un pack se convierte en un **sistema** con el que se puede jugar un mapa (Mapa: **Ajustes del mapa → Campaña → Sistema**) y que muestran las aplicaciones Sistemas y Viajes cuando tiene dos definiciones más: las **reglas de viaje** (a qué velocidad, qué comprobaciones y cuándo) y los **bindings** (qué tabla responde a cada comprobación). Ponlas en cualquier fichero del pack, p. ej. `travel.yaml`; un `kind: system` puede nombrarlas, con el calendario, el clima y los packs que van con ellas (ver [Nombrar el sistema](#nombrar-el-sistema)):
 
 ```yaml
 kind: travel-rules
@@ -163,13 +163,13 @@ bindings: bindings.default
 partySheet: sheet.party
 ```
 
-El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qué puede decir y unas líneas que funcionan. Para construir un sistema con los formularios, paso a paso, mira [Tu primer sistema](../systems/03-your-first-system.md) en la aplicación Systems; [Un día, paso a paso](../travel/02-playing.md#un-dia-paso-a-paso) dice en qué orden lo hace todo un viaje.
+El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qué puede decir y unas líneas que funcionan. Para construir un sistema con los formularios, paso a paso, mira [Tu primer sistema](../systems/03-your-first-system.md) en la aplicación Sistemas; [Un día, paso a paso](../travel/02-playing.md#un-dia-paso-a-paso) dice en qué orden lo hace todo un viaje.
 
 ### El día y la velocidad
 
-No hay un día ni una marcha integrados: el grupo se mueve con las acciones que tienen un paso `travel.move` (su **march**, abajo), el viaje sigue por sí solo con la que nombra su `onward`, y lo que hace cuando no puede moverse es su **parada**. **travel** dice cuándo empiezan los viajes nuevos (`start`: una hora o una parte del día del calendario; vacío, medianoche) y cuántas horas lleva el día de marcha de una forma de viajar (`hoursPerDay`, la escala de su velocidad); las acciones también gastan horas. Su `hexKm` es la escala a la que se juega el sistema, cuántos km mide un hex (`hexKm: 30`: un hex es un día de marcha a 30 km al día): la usan los viajes sin mapa, y también un mapa con el sistema salvo que el mapa fije su propia escala (Hexmapper: Ajustes del mapa → Mapa). Sin ella, la del mapa o la del camino de Travel, 10 por defecto. El `kmPerDay` de una forma de viajar es lo que recorre en esas horas por terreno fácil, y todo lo demás lo multiplica:
+No hay un día ni una marcha integrados: el grupo se mueve con las acciones que tienen un paso `travel.move` (su **march**, abajo), el viaje sigue por sí solo con la que nombra su `onward`, y lo que hace cuando no puede moverse es su **parada**. **travel** dice cuándo empiezan los viajes nuevos (`start`: una hora o una parte del día del calendario; vacío, medianoche) y cuántas horas lleva el día de marcha de una forma de viajar (`hoursPerDay`, la escala de su velocidad); las acciones también gastan horas. Su `hexKm` es la escala a la que se juega el sistema, cuántos km mide un hex (`hexKm: 30`: un hex es un día de marcha a 30 km al día): la usan los viajes sin mapa, y también un mapa con el sistema salvo que el mapa fije su propia escala (Mapa: Ajustes del mapa → Mapa). Sin ella, la del mapa o la del camino de Viajes, 10 por defecto. El `kmPerDay` de una forma de viajar es lo que recorre en esas horas por terreno fácil, y todo lo demás lo multiplica:
 
-- **terrains**: la velocidad en cada terreno (`multiplier`: 0.5 es la mitad, 2 el doble), por los ids de la paleta del Hexmapper. `defaultTerrain: { multiplier: 1 }` cubre los terrenos que usa el mapa y la lista no nombra.
+- **terrains**: la velocidad en cada terreno (`multiplier`: 0.5 es la mitad, 2 el doble), por los ids de la paleta de Mapa. `defaultTerrain: { multiplier: 1 }` cubre los terrenos que usa el mapa y la lista no nombra.
 - **edges**: caminos, senderos y ríos que sigue el grupo (`road: { multiplier: 1.5 }`). Siguiendo uno, su multiplicador sustituye al del terreno.
 - **weather**: el clima de hoy (por el id que pone una tabla o un modelo de clima) frena a todos: `storm: { speed: 0 }` (nadie viaja), `heavy-rain: { speed: 0.5 }`.
 
@@ -191,7 +191,7 @@ water: { passable: false } # hexes de agua cuyo terreno no está en la lista
 **modes** son las formas de viajar entre las que elige el jugador en el panel del viaje, cada una con su `kmPerDay` y un `name` (y una `description`) para los jugadores: el panel y el diario muestran _A caballo_ en lugar de `horse`, traducido en `locales/` como el resto. Sin nombre, se enseña el id, más legible (`on-foot`: on foot). Dos condiciones dan forma a cada una:
 
 - `through`: **por dónde puede ir**, una [condición](../technical/08-conditions.md) sobre cada hex en el que entra. Ve el hex (`terrain`, `water`, `tags`, `region`, sus campos), `edges` (los caminos o ríos de ese paso), `mode`, `weather` y los valores del día. Donde se cumple, la forma de viajar pasa, incluso por terrenos cerrados; donde no, no puede, y las rutas lo rodean. Una barca: `through: { hex.water: true }` (navega por el agua, donde a pie no se puede ir); la barca de las Marcas Grises también va pegada a la costa, `through: { any: [{ hex.water: true }, { hex.terrain: coast }] }`; un carro solo por camino: `through: { trip.edges: road }`.
-- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Systems): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }`; un caballo, no con nieve: `unless: { trip.weather: snow }`.
+- `when` / `unless` (**Solo si** / **Salvo si** en la aplicación Sistemas): **cuándo se puede elegir**, visto donde está el grupo. Si no, sale desactivada en el panel del viaje, diciendo por qué. La barca de las Marcas Grises solo se coge en la orilla o en un transbordador: `when: { any: [{ hex.water: true }, { hex.terrain: coast }, { hex.tags: ferry }] }`; un caballo, no con nieve: `unless: { trip.weather: snow }`.
 
 Un valor del día también puede bloquear una (`blocks: [modes.horse]`, abajo): no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie.
 
@@ -317,13 +317,13 @@ actions:
     do: [{ roll: checks.NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
 ```
 
-Lo que **tira** una acción son las comprobaciones con `at: actions.<su id>` (las de acampar: `at: actions.camp`), que se tiran antes de sus pasos. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: 'no hay nada que buscar en {terrain}'`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas. En los formularios de la aplicación Systems cada paso se escribe igual, una casilla por paso, con sugerencias. Todos los pasos, con ejemplos y un sistema entero que los usa: [Acciones y pasos](../technical/10-actions-and-steps.md). Las Marcas Grises lo usan todo: mira [su acampada, descanso y búsqueda de comida](../packs/02-grey-marches.md).
+Lo que **tira** una acción son las comprobaciones con `at: actions.<su id>` (las de acampar: `at: actions.camp`), que se tiran antes de sus pasos. `nothing` es lo que dice el diario cuando ninguna se aplica donde está el grupo (`nothing: 'no hay nada que buscar en {terrain}'`, con `{terrain}` el terreno del hex); sin él, el diario dice que allí no se tira ninguna de sus tiradas. En los formularios de la aplicación Sistemas cada paso se escribe igual, una casilla por paso, con sugerencias. Todos los pasos, con ejemplos y un sistema entero que los usa: [Acciones y pasos](../technical/10-actions-and-steps.md). Las Marcas Grises lo usan todo: mira [su acampada, descanso y búsqueda de comida](../packs/02-grey-marches.md).
 
 **La parada.** `travel: { halt: { at: '20:00', do: actions.camp } }` dice qué hace el grupo cuando no puede marchar mientras el tiempo avanza solo (el reloj del mundo, **Esperar para seguir**, una orden de viajar mientras no se puede hacer su forma de seguir): desde ese momento (una hora o una parte del día, `at: time.part.night`) hasta que acaba el día, un grupo que no está marchando hace esa acción, una vez al día. Si la acción no se puede hacer (la bloquea un valor o no se cumplen su `when` / `unless`), el diario dice por qué y el tiempo pasa sin ella, hasta que el viaje pueda seguir. Sin parada, el grupo simplemente espera.
 
 ### Viajes por movimientos
 
-Algunos juegos no marchan hora a hora: un viaje se hace de **movimientos**, cada uno acerca al grupo un tanto, y llegar puede pedir una tirada. El paso `travel.advance` es ese avance: el grupo avanza por su ruta tantos hexes (o tramos de un camino, en la app Travel) como diga, de golpe.
+Algunos juegos no marchan hora a hora: un viaje se hace de **movimientos**, cada uno acerca al grupo un tanto, y llegar puede pedir una tirada. El paso `travel.advance` es ese avance: el grupo avanza por su ruta tantos hexes (o tramos de un camino, en la app Viajes) como diga, de golpe.
 
 - **Sin marchar**: no declares ninguna acción con un paso `travel.move`, y solo los movimientos hacen avanzar al grupo.
 - **Un movimiento**: una acción cuyos pasos pasan tiempo, gastan lo que lleva el grupo y avanzan (`do: [{ time: 240 }, { effects: { party.values.food: -1 } }, { travel.advance: 1 }]`); con una comprobación (`roll:` o `at:` su id) cuya tabla decide cómo fue.
@@ -359,15 +359,15 @@ El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 - una condición al cumplirse (más abajo): `at: { when: { world.clocks.the-siege: { gte: 6 } } }`, una vez, al cumplirse;
 - ninguno: solo la tira el `roll:` de un paso.
 
-**Momentos del mundo.** Que se llene un reloj de progreso de la campaña es un momento que oye el viaje en marcha en ella: `world.clocks.<id>.full`, para el `on:` de una acción o el `at:` de una comprobación. Un reloj que declara el sistema (`clocks:` en `kind: system`) se nombra por el id que declara; uno hecho a mano en el panel Mundo, por su nombre en minúsculas con guiones (_The Wyrm wakes_ es `world.clocks.the-wyrm-wakes.full`), que la aplicación Systems no puede comprobar (avisa de que el sistema no declara ese reloj). Lo llene lo que lo llene, el viaje lo oye:
+**Momentos del mundo.** Que se llene un reloj de progreso de la campaña es un momento que oye el viaje en marcha en ella: `world.clocks.<id>.full`, para el `on:` de una acción o el `at:` de una comprobación. Un reloj que declara el sistema (`clocks:` en `kind: system`) se nombra por el id que declara; uno hecho a mano en el panel Mundo, por su nombre en minúsculas con guiones (_The Wyrm wakes_ es `world.clocks.the-wyrm-wakes.full`), que la aplicación Sistemas no puede comprobar (avisa de que el sistema no declara ese reloj). Lo llene lo que lo llene, el viaje lo oye:
 
 - lo que hizo el viaje (los `effects` de una comprobación o de una tabla, el turno de una facción que tocaba por el camino): en cuanto acaba el paso que lo llenó (una espera larga o una noche en el campamento acaban primero, y luego llega el momento);
 - una mano en el panel Mundo, una tabla tirada a mano, un turno del mundo, en la aplicación donde se juega el viaje: al momento;
-- lo mismo en otra aplicación (la aplicación Campaign, otro mapa de la campaña mientras el viaje se juega en Travel): en el siguiente paso del viaje, antes de lo que haga.
+- lo mismo en otra aplicación (la aplicación Campaña, otro mapa de la campaña mientras el viaje se juega en la aplicación Viajes): en el siguiente paso del viaje, antes de lo que haga.
 
 El diario lo dice primero (**En el mundo: se llenó La Sierpe despierta**), y luego ocurren sus acciones y comprobaciones, donde está el grupo, viendo `trip.moment: world.clocks.<id>.full`; si llena otro reloj, también se oye (diez seguidos como mucho). Solo lo oye el viaje en marcha en la campaña (uno cada vez); un reloj que se llena sin ningún viaje en marcha no lo oye nadie. _La Sierpe despierta_ de las Marcas Grises (`on: world.clocks.the-greywood-wyrm-wakes.full`) sube el pavor de cada compañero cuando las luces embrujadas llenan el reloj de la Sierpe, y detiene el viaje dentro del Bosque Gris.
 
-**Turnos del mundo.** Un turno del mundo de la campaña (el turno de cada facción, y luego las reacciones del mundo a él) también es un momento del mundo: `world.turn`, para el `on:` de una acción o el `at:` de una comprobación, que se oye como se oye un reloj al llenarse, lo traiga lo que lo traiga (un turno que toca al avanzar el tiempo, **Turno del mundo** a mano, otra aplicación, el propio viaje). El diario del viaje cuenta cada turno que se juega mientras sigue: **Turno del mundo:** y lo que hizo cada facción. Un paso trae uno: `do: world.turn` (no lleva `with:`). Las reglas de viaje no conocen el mundo, así que la aplicación en la que se juega el viaje juega el turno en el mundo de la campaña, como uno que toca con el tiempo; sin una campaña cuyo sistema declare facciones no hay turno que jugar, y el diario dice **Turno del mundo: no pasa nada**. Un turno oído que trae otro (`on: world.turn` que hace `do: world.turn`) se rechaza al cargar el pack, y la aplicación Systems avisa de un `on: world.turn` en un sistema sin facciones. _Llevar las noticias_ de las Marcas Grises (en un pueblo con mercado, una vez por viaje) trae uno; su _Noticias del camino_ los oye todos.
+**Turnos del mundo.** Un turno del mundo de la campaña (el turno de cada facción, y luego las reacciones del mundo a él) también es un momento del mundo: `world.turn`, para el `on:` de una acción o el `at:` de una comprobación, que se oye como se oye un reloj al llenarse, lo traiga lo que lo traiga (un turno que toca al avanzar el tiempo, **Turno del mundo** a mano, otra aplicación, el propio viaje). El diario del viaje cuenta cada turno que se juega mientras sigue: **Turno del mundo:** y lo que hizo cada facción. Un paso trae uno: `do: world.turn` (no lleva `with:`). Las reglas de viaje no conocen el mundo, así que la aplicación en la que se juega el viaje juega el turno en el mundo de la campaña, como uno que toca con el tiempo; sin una campaña cuyo sistema declare facciones no hay turno que jugar, y el diario dice **Turno del mundo: no pasa nada**. Un turno oído que trae otro (`on: world.turn` que hace `do: world.turn`) se rechaza al cargar el pack, y la aplicación Sistemas avisa de un `on: world.turn` en un sistema sin facciones. _Llevar las noticias_ de las Marcas Grises (en un pueblo con mercado, una vez por viaje) trae uno; su _Noticias del camino_ los oye todos.
 
 **Momentos escritos como condiciones** (reacciones). Algunas cosas pasan una vez, cuando algo se hace cierto, sea lo que sea lo que lo hizo cierto: _cuando la moral llega a 0, los mercenarios desertan_. Escribe el momento como una condición, `on: { when: { party.values.morale: { lte: 0 } } }` (también con `unless`), en el `on:` de una acción o el `at:` de una comprobación, solo o en una lista junto a momentos con nombre (`at: [time.part.morning, { when: … }]`). Llega **una vez, al cumplirse la condición**, y otra solo después de que haya dejado de cumplirse: cuenta una tabla que baja la moral, una acción, una mano en la ficha del grupo, el turno de una facción. Se mira tras cada cambio del viaje, leyendo lo que ven las tablas (el viaje, el hex, la hora, el grupo, los personajes, los relojes del mundo), y lo que llega se juega allí mismo, como las acciones y comprobaciones de cualquier momento (una pausa detiene el viaje). Lo que ya se cumple al empezar un viaje llega en su primer paso (un viaje que empieza con moral 0 ve desertar a sus mercenarios); un viaje guardado antes de que existieran las reacciones toma lo que se cumple la próxima vez que se juega como ya visto. Con `for: party.members`, se mira para cada miembro, leído con ese miembro como `acting` (`on: { when: { acting.values.health: { lte: 0 } }, for: party.members }`), y se juega con él actuando (el diario dice _Por Mara, entra en juego una regla del sistema_), cada miembro una vez. Las reacciones que se desencadenan unas a otras (directamente o en cadena) se paran tras 10 seguidas, con una línea en el diario. Que se llene un reloj (`world.clocks.<id>.full`, arriba) es un caso de esto, que se oye aunque se llene fuera del viaje. **Un estado no es una reacción**: lo que deba cumplirse todo el rato (sobrecargado, agotado) es un estado de la hoja con `when:` ([Hojas](../technical/07-kinds.md#hojas)); una reacción es para algo que pasa. Las Marcas Grises: los mercenarios desertan cuando la moral llega a 0, un compañero cae cuando su salud llega a 0 (`for: party.members`), y se saca un presagio cuando el reloj de la Sierpe llega a 4 (`at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]`); la _Desesperación_ de Core detiene el viaje cuando la moral llega a 0.
 
@@ -395,7 +395,7 @@ checks:
     }
 ```
 
-Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente los aplica, que es como un sistema escribe sus reglas como datos («un día sin comida suficiente: fatiga +1»). Una comprobación sin tabla ni efectos solo se apunta en el diario. `pause: true` la tira (si una tabla la resuelve) y luego detiene el viaje hasta **Continuar**, para que describas el lugar, la resuelvas tú o decidas algo: **solo `pause: true` detiene el viaje**, con tabla o sin ella (un lugar señalado que describir: `pause: true` y sin tabla). Esperar con el reloj del mundo (Hexmapper → [Reloj del mundo](../hexmapper/12-world.md#con-un-viaje-en-marcha)) también las tira (y hace las acciones con `on:`): cada momento al llegar, las de la acción de la parada desde su momento, `time.day-end` al acabar cada día.
+Una comprobación puede tener **sus propios efectos**: sin tabla, simplemente los aplica, que es como un sistema escribe sus reglas como datos («un día sin comida suficiente: fatiga +1»). Una comprobación sin tabla ni efectos solo se apunta en el diario. `pause: true` la tira (si una tabla la resuelve) y luego detiene el viaje hasta **Continuar**, para que describas el lugar, la resuelvas tú o decidas algo: **solo `pause: true` detiene el viaje**, con tabla o sin ella (un lugar señalado que describir: `pause: true` y sin tabla). Esperar con el reloj del mundo (Mapa → [Reloj del mundo](../hexmapper/12-world.md#con-un-viaje-en-marcha)) también las tira (y hace las acciones con `on:`): cada momento al llegar, las de la acción de la parada desde su momento, `time.day-end` al acabar cada día.
 
 ### Bindings, características y lecturas
 
@@ -426,7 +426,7 @@ reads:
 
 ### Nombrar el sistema
 
-Las reglas de viaje y los bindings bastan para un sistema con el nombre de su pack. Un `kind: system` lo dice en un solo sitio, con lo demás que trae: su calendario, los modelos de clima que usan sus bindings, tablas de otros packs (packs de los que depende) y mapas de ejemplo para jugarlo (`maps:`, ficheros de mapa del pack, que el Hexmapper lista en **Mapas → Mapas de ejemplo**). Un pack puede declarar varios, p. ej. una variante de invierno con sus propias reglas de viaje: En la aplicación Systems, el **Resumen** del sistema lo escribe con un formulario.
+Las reglas de viaje y los bindings bastan para un sistema con el nombre de su pack. Un `kind: system` lo dice en un solo sitio, con lo demás que trae: su calendario, los modelos de clima que usan sus bindings, tablas de otros packs (packs de los que depende) y mapas de ejemplo para jugarlo (`maps:`, ficheros de mapa del pack, que Mapa lista en **Mapas → Mapas de ejemplo**). Un pack puede declarar varios, p. ej. una variante de invierno con sus propias reglas de viaje: En la aplicación Sistemas, el **Resumen** del sistema lo escribe con un formulario.
 
 ```yaml
 kind: system
@@ -485,7 +485,7 @@ Un sistema puede declarar los **relojes de progreso** con los que empieza su mun
 
 ### Las reglas del mundo
 
-Lo que el mundo hace por sí solo son sus **reacciones** (`kind: world`, nombradas con `world:` en su sistema), escritas como las acciones de un viaje: en un momento del mundo (`world.turn`, tras cada turno del mundo; `world.clocks.<id>.full`, al llenarse un reloj) o al pasar a cumplirse una condición (`{ when: { factions.fort-keld.values.strength: { lte: 0 } } }`, `{ when: { world.events: market-day } }`), con pasos que dicen una línea en la cronología, tiran una tabla (`roll: table.wyrm-wakes`), cambian facciones y relojes (la marcha de los Clanes de Hierro acerca el motín de Fort Keld), o traen otra reacción o un turno del mundo (`do: world.turn`). Se juegan allí donde se mueva el mundo, haya o no un viaje en marcha; el viaje también oye llenarse un reloj. Todas las claves: [Las reglas del mundo](../technical/07-kinds.md#las-reglas-del-mundo); la pestaña [Mundo](../systems/11-world.md) de la aplicación Systems.
+Lo que el mundo hace por sí solo son sus **reacciones** (`kind: world`, nombradas con `world:` en su sistema), escritas como las acciones de un viaje: en un momento del mundo (`world.turn`, tras cada turno del mundo; `world.clocks.<id>.full`, al llenarse un reloj) o al pasar a cumplirse una condición (`{ when: { factions.fort-keld.values.strength: { lte: 0 } } }`, `{ when: { world.events: market-day } }`), con pasos que dicen una línea en la cronología, tiran una tabla (`roll: table.wyrm-wakes`), cambian facciones y relojes (la marcha de los Clanes de Hierro acerca el motín de Fort Keld), o traen otra reacción o un turno del mundo (`do: world.turn`). Se juegan allí donde se mueva el mundo, haya o no un viaje en marcha; el viaje también oye llenarse un reloj. Todas las claves: [Las reglas del mundo](../technical/07-kinds.md#las-reglas-del-mundo); la pestaña [Mundo](../systems/11-world.md) de la aplicación Sistemas.
 
 ## 6. Un calendario propio
 
@@ -541,13 +541,13 @@ on:
 
 - **states**: cada tipo de clima, con su nombre y los valores que da al día (como el `set` de una tabla); su id es lo que lee el `weather` de las reglas de viaje.
 - **seasons**: por estación, dónde empieza el clima y, desde cada tipo, los pesos del día siguiente. Si la estación no tiene fila para el clima de ayer, se empieza de nuevo desde `start`.
-- El diario muestra el clima del día por su nombre. En **Comprobaciones** de la aplicación Systems, elige el modelo bajo _Clima con inercia_.
+- El diario muestra el clima del día por su nombre. En **Comprobaciones** de la aplicación Sistemas, elige el modelo bajo _Clima con inercia_.
 
 El `sky.yaml` de las Marcas Grises es el ejemplo completo (sus tablas de `weather.yaml` siguen tirando el clima a mano, sin memoria).
 
 ## 7. Descubrir el mapa
 
-Los bindings también pueden decir cómo se deciden los hexes vacíos al viajar (el **Descubrir el mapa al viajar** del Hexmapper):
+Los bindings también pueden decir cómo se deciden los hexes vacíos al viajar (el **Descubrir el mapa al viajar** de Mapa):
 
 ```yaml
 kind: bindings
@@ -568,7 +568,7 @@ El `discovery.yaml` de las Marcas Grises es un ejemplo completo: un terreno que 
 
 ## 8. Probarlo
 
-1. En la aplicación Oracle, tira cada tabla escribiendo valores en **Contexto** (terreno, estación…) para comprobar los resultados.
-2. En la aplicación Travel, elige tu sistema y abre **Jugar**: monta un camino corto con los terrenos y etiquetas que buscan tus comprobaciones, y viaja. El diario muestra cada comprobación y su resultado.
-3. En un mapa: en el Hexmapper, Jugar → **Con reglas**, elige tu pack como reglas, coloca al grupo y viaja.
+1. En la aplicación Oráculo, tira cada tabla escribiendo valores en **Contexto** (terreno, estación…) para comprobar los resultados.
+2. En la aplicación Viajes, elige tu sistema y abre **Jugar**: monta un camino corto con los terrenos y etiquetas que buscan tus comprobaciones, y viaja. El diario muestra cada comprobación y su resultado.
+3. En un mapa: en Mapa, Jugar → **Con reglas**, elige tu pack como reglas, coloca al grupo y viaja.
 4. Los problemas de las reglas de viaje o de los bindings aparecen en la página del pack, como los de cualquier otra definición.

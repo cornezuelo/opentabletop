@@ -3,8 +3,9 @@ import { vocabulary } from '@open-tabletop/ui-kit'
 
 // Source of truth for UI strings (English is the default locale). `es.ts` mirrors this shape.
 export const en = {
+  apps: vocabulary.en.apps,
   app: {
-    title: 'Campaign',
+    title: vocabulary.en.apps.campaign,
     tagline: 'What is going on in your world.',
   },
   nav: {
@@ -45,7 +46,7 @@ export const en = {
   campaign: {
     name: 'Name',
     nameHelp:
-      'What you call it; it names the campaign in every app (the Hexmapper’s **Map settings → Campaign**, Travel’s trip room, the Oracle).',
+      'What you call it; it names the campaign in every app (Map’s **Map settings → Campaign**, Travel’s trip room, the Oracle).',
     system: vocabulary.en.terms.system,
     systemHelp:
       'The game system its maps and trips are played with: its calendar, its progress clocks, its weather and factions. It is chosen in a map’s settings (or when a trip in it starts), since it is theirs too.',
@@ -76,14 +77,14 @@ export const en = {
     help: campaignTexts.en.factions.help,
     landOn: 'Their land on',
     landOnHelp:
-      'The map of the campaign whose land you see here, and where world turns win and lose ground: **World turn** below, and the turns that come by themselves as the world clock moves on in **World**. Each map keeps its own land; the sheets are the campaign’s, the same on every map.\nBy default, the map of the trip going on, else the first. Painting land by hand is done on the map, in the Hexmapper (**Paint in the Hexmapper ↗**, then **World → Factions**).\nIf that map is open in the Hexmapper, it takes the new land at once.',
-    paintIn: 'Paint in the Hexmapper ↗',
+      'The map of the campaign whose land you see here, and where world turns win and lose ground: **World turn** below, and the turns that come by themselves as the world clock moves on in **World**. Each map keeps its own land; the sheets are the campaign’s, the same on every map.\nBy default, the map of the trip going on, else the first. Painting land by hand is done on the map, in Map (**Paint in Map ↗**, then **World → Factions**).\nIf that map is open in the Map app, it takes the new land at once.',
+    paintIn: 'Paint in Map ↗',
     minimap: 'The factions’ land on {map}',
     bringLand: 'Give them their starting land here',
     bringLandHelp:
       'No faction holds land on this map yet (it joined the campaign after they came): each gets the land its system says it starts with here, every hex of its starting regions by name (and its starting hexes, if this is the map they’re for). Their sheets don’t change.',
     noMaps:
-      'No map is in this campaign: world turns change the factions’ sheets and the progress clocks, but no land. Add a map from the Hexmapper (**Map settings → Campaign**).',
+      'No map is in this campaign: world turns change the factions’ sheets and the progress clocks, but no land. Add a map from the Map app (**Map settings → Campaign**).',
     none: 'The campaign’s system has factions, not yet in this campaign: bring them in, each holding the land the system says it starts with on the map chosen.',
     noneNoMaps:
       'The campaign’s system has factions, not yet in this campaign: bring them in. With no map in the campaign yet, only their sheets come; a map that joins gets their land here.',
@@ -110,7 +111,7 @@ export const en = {
   },
   places: {
     mapsIntro:
-      'The maps of the Hexmapper (its library in this browser) in this campaign: their trips and tokens play in its world. **Open ↗** opens one there.',
+      'The maps of the Map app (its library in this browser) in this campaign: their trips and tokens play in its world. **Open ↗** opens one there.',
     tripsIntro:
       'Travel’s trips (without a map) in this campaign: their time is the campaign’s. A map’s trip plays on its map, under **Maps**.',
     new: {
@@ -126,7 +127,7 @@ export const en = {
       trips: 'The other trips of this browser',
     },
     addHelp: {
-      maps: 'A map is in one campaign at a time. **Bring it** opens it in the Hexmapper and moves it here, as its **Map settings → Campaign** does: if its campaign has a world of its own (a clock, factions), you’re asked which one stays. The campaign it leaves is deleted if nothing else is in it.',
+      maps: 'A map is in one campaign at a time. **Bring it** opens it in Map and moves it here, as its **Map settings → Campaign** does: if its campaign has a world of its own (a clock, factions), you’re asked which one stays. The campaign it leaves is deleted if nothing else is in it.',
       trips:
         'A trip is in one campaign at a time. **Bring it** opens it in Travel and moves it here, as its trip room’s **Campaign** does: if its campaign has a world of its own, you’re asked which one stays. Its time becomes this campaign’s when it next steps.',
     },

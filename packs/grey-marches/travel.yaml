@@ -1,7 +1,7 @@
 # The Grey Marches as a travel system. Every part of travel rules and bindings is used;
 # comments say what each one shows. Conditions use the full names of what they read
 # (`hex.terrain`, `time.tags`, `trip.mode`, `today.refusing`…): see What tables see.
-# Play it on the example map (Hexmapper: Maps → Example maps, then Play → With rules),
+# Play it on the example map (Map: Maps → Example maps, then Play → With rules),
 # without a map in the Travel app, or edit it in Systems.
 kind: travel-rules
 id: default

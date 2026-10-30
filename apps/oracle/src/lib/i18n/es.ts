@@ -3,12 +3,12 @@ import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   app: {
-    title: 'Oracle',
+    title: vocabulary.es.apps.oracle,
     tagline: 'Tira y crea tablas aleatorias, generadores, oráculos y mazos.',
   },
   nav: {
     favorites: 'Favoritos',
-    favorite: 'Favorito: fijado arriba de la lista (también en el Hexmapper)',
+    favorite: 'Favorito: fijado arriba de la lista (también en Mapa)',
     help: 'Ayuda y manual',
     undo: 'Deshacer el último cambio en tus packs (Ctrl+Z)',
     redo: 'Rehacer (Ctrl+Shift+Z)',
@@ -52,7 +52,7 @@ export const es: Messages<typeof en> = {
     title: vocabulary.es.terms.campaign,
     open: vocabulary.es.campaign.open,
     none: 'Sin campaña',
-    help: 'Dónde guardan las tiradas a mano sus mazos, sus resultados de una sola vez y su historial: la campaña en la que juegas, elegida en **Jugando** arriba (la misma en todas las aplicaciones).\n• **Sin campaña** — los propios del Oracle, en este navegador\n• una campaña — compartidos con sus mapas y viajes: una carta robada aquí ya no sale en los viajes de ese mapa, y las tiradas aparecen en su panel del Oracle\nTu semilla (Preferencias) sigue siendo la de este navegador en ambos casos.',
+    help: 'Dónde guardan las tiradas a mano sus mazos, sus resultados de una sola vez y su historial: la campaña en la que juegas, elegida en **Jugando** arriba (la misma en todas las aplicaciones).\n• **Sin campaña** — los propios del Oráculo, en este navegador\n• una campaña — compartidos con sus mapas y viajes: una carta robada aquí ya no sale en los viajes de ese mapa, y las tiradas aparecen en su panel del Oráculo\nTu semilla (Preferencias) sigue siendo la de este navegador en ambos casos.',
   },
   prefs: {
     seed: 'Semilla de las tiradas',
@@ -64,13 +64,13 @@ export const es: Messages<typeof en> = {
       'Desmarca los packs que no uses para quitarlos de la lista de la izquierda.\nSiguen cargados: las tablas de otros packs que tiran en ellos y las demás aplicaciones siguen usándolos. Los favoritos siguen fijados.',
   },
   welcome: {
-    title: 'Oracle',
+    title: vocabulary.es.apps.oracle,
     body: 'Elige una tabla, generador, oráculo o mazo a la izquierda para tirarlo. Los packs son carpetas de ficheros YAML: los incluidos son de solo lectura (edita una copia) y los tuyos se guardan en este navegador. Expórtalos como .zip para tener copia o compartirlos.',
     packs: '{packs} packs, {definitions} definiciones',
   },
   rolledBy: {
     title: 'La tiran',
-    help: 'Dónde la tiran los sistemas que traen este pack: el paso de una acción (`roll: table.ruins`), el binding de una comprobación, un reloj de progreso al llenarse, la entrada de otra tabla o el campo de un generador. Cada sitio enlaza a donde se edita (las reglas en Systems, las tablas aquí).\n• **Nada la tira** — se tira a mano, o desde un pack que no trae ningún sistema\nLo que un mapa o un viaje tira por sí solo (las tablas del clima, el descubrimiento) lo dicen los bindings del sistema, que también salen.',
+    help: 'Dónde la tiran los sistemas que traen este pack: el paso de una acción (`roll: table.ruins`), el binding de una comprobación, un reloj de progreso al llenarse, la entrada de otra tabla o el campo de un generador. Cada sitio enlaza a donde se edita (las reglas en Sistemas, las tablas aquí).\n• **Nada la tira** — se tira a mano, o desde un pack que no trae ningún sistema\nLo que un mapa o un viaje tira por sí solo (las tablas del clima, el descubrimiento) lo dicen los bindings del sistema, que también salen.',
     count: '{n} sitios',
     none: 'Nada la tira',
   },
@@ -84,7 +84,7 @@ export const es: Messages<typeof en> = {
     description: 'Descripción',
     tags: vocabulary.es.terms.tags,
     tagsHelp:
-      'Palabras que clasifican esta definición: el **Filtrar** de la lista de packs (aquí y en el panel de Oráculo del Hexmapper) muestra solo lo que tiene una etiqueta, o lo oculta. Una etiqueta es cualquier palabra que elija el pack; Intro o una coma la añaden.\n• `encounters`, `people`, `places` — de qué trata\n• `names` — una tabla de nombres\n• `rules` — la tiran las reglas del propio sistema (las comprobaciones de un viaje, un turno del mundo), así que un filtro `−rules` deja lo que tirarías a mano',
+      'Palabras que clasifican esta definición: el **Filtrar** de la lista de packs (aquí y en el panel de Oráculo de Mapa) muestra solo lo que tiene una etiqueta, o lo oculta. Una etiqueta es cualquier palabra que elija el pack; Intro o una coma la añaden.\n• `encounters`, `people`, `places` — de qué trata\n• `names` — una tabla de nombres\n• `rules` — la tiran las reglas del propio sistema (las comprobaciones de un viaje, un turno del mundo), así que un filtro `−rules` deja lo que tirarías a mano',
     removeTag: 'Quitar {name}',
     roll: 'Dados',
     rollHelp:
@@ -251,7 +251,7 @@ export const es: Messages<typeof en> = {
       'Nombre, versión, idioma base, licencia y dependencias están en `pack.yaml`:\n• `version: 1.2.0`\n• `dependencies: { core: ^0.1.0 }` — tablas de otro pack que usa',
     other: 'Otras definiciones',
     otherHelp:
-      'Reglas para otros motores: reglas de viaje, bindings, calendarios, modelos de clima. Edítalas en sus ficheros (YAML), o las reglas de viaje en la aplicación **Travel**.',
+      'Reglas para otros motores: reglas de viaje, bindings, calendarios, modelos de clima. Edítalas en sus ficheros (YAML), o las reglas de viaje en la aplicación **Viajes**.',
   },
   defActions: {
     duplicate: 'Duplicar',
@@ -265,7 +265,7 @@ export const es: Messages<typeof en> = {
   newDef: {
     forTravel: 'Reglas del sistema',
     forTravelHelp:
-      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en el Hexmapper (Jugar → Con reglas) y en Travel, y que se edita en la aplicación Systems\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\n• **Hoja** — lo que tiene cada personaje del grupo (valores, estados)\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
+      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en Mapa (Jugar → Con reglas) y en Viajes, y que se edita en la aplicación Sistemas\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\n• **Hoja** — lo que tiene cada personaje del grupo (valores, estados)\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
     system: {
       'roll-modes': 'Modos de tirada',
       'travel-rules': 'Reglas de viaje',

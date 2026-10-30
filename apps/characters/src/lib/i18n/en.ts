@@ -2,7 +2,7 @@
 import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   app: {
-    title: 'Characters',
+    title: vocabulary.en.apps.characters,
     tagline: 'Your characters, of any system.',
   },
   nav: {
@@ -34,8 +34,8 @@ export const en = {
     noneInCampaign: 'No character plays in it: choose “All campaigns” to see the whole roster.',
   },
   welcome: {
-    title: 'Characters',
-    body: 'Your roster: the characters this browser keeps, of any system. Make one with **New character**, or keep one from a trip (**Keep in the roster** on its card in Travel or the Hexmapper). A character of the roster can travel on any map or trip played with its system, one at a time, and what happens to it there comes back here. Each one is made with its system’s characters’ sheet, edited in the Systems app.',
+    title: vocabulary.en.apps.characters,
+    body: 'Your roster: the characters this browser keeps, of any system. Make one with **New character**, or keep one from a trip (**Keep in the roster** on its card in Travel or Map). A character of the roster can travel on any map or trip played with its system, one at a time, and what happens to it there comes back here. Each one is made with its system’s characters’ sheet, edited in the Systems app.',
   },
   bestiary: {
     title: 'Bestiary',
@@ -99,7 +99,7 @@ export const en = {
     notesPlaceholder: 'People/{name}',
     where: 'Where it plays',
     whereHelp:
-      'A character travels in one place at a time: a map’s trip in the Hexmapper, a trip in Travel, or a token on a map. What happens to it there is written back here after every step; what you change here, the trip finds when it next opens. The campaign that place is in shows beside it, with a link to it in the Campaign app.',
+      'A character travels in one place at a time: a map’s trip in Map, a trip in Travel, or a token on a map. What happens to it there is written back here after every step; what you change here, the trip finds when it next opens. The campaign that place is in shows beside it, with a link to it in the Campaign app.',
     nowhere:
       'Only in the roster. To take it on a trip, choose it under **From the roster** in the trip’s **Party** tab: with the party, or in **Here** among those present (a creature, an NPC met on the way); or give it to a token on a map (its **Sheet**).',
     playsIn: '{place}, in {app}',

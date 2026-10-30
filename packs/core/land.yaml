@@ -1,5 +1,5 @@
 # The Generic rules' land (system.yaml): how likely a hex next to each terrain is to be each
-# terrain, so land generated with it (the Hexmapper's Generate) grows coherent: forests stay
+# terrain, so land generated with it (Map's Generate) grows coherent: forests stay
 # forests, hills gather into mountains, water into lakes. A few terrains of the natural
 # palette; discovery doesn't use it (it's off in the Generic rules' bindings).
 kind: land

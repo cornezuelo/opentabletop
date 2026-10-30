@@ -2,7 +2,7 @@ import { vocabulary } from '@open-tabletop/ui-kit'
 // Source of truth for UI strings (English is the default locale). `es.ts` mirrors this shape.
 export const en = {
   app: {
-    title: 'Systems',
+    title: vocabulary.en.apps.systems,
     tagline: 'Make and edit game systems.',
   },
   nav: {
@@ -26,8 +26,8 @@ export const en = {
     updated: 'update',
   },
   welcome: {
-    title: 'Systems',
-    body: 'A system is what a game is played with: its travel rules (how fast you go over each terrain and road, what you carry, what the party can do), the checks rolled on the way and the tables that answer them. Pick one on the left to see and edit it, or create a new one below the list. Bundled systems are read-only: **Duplicate** one to make it yours. Play them in the Travel app (trips without a map) or on a map in the Hexmapper.',
+    title: vocabulary.en.apps.systems,
+    body: 'A system is what a game is played with: its travel rules (how fast you go over each terrain and road, what you carry, what the party can do), the checks rolled on the way and the tables that answer them. Pick one on the left to see and edit it, or create a new one below the list. Bundled systems are read-only: **Duplicate** one to make it yours. Play them in the Travel app (trips without a map) or on a map in the Map app.',
   },
   tabs: {
     overview: 'Overview',
@@ -59,7 +59,7 @@ export const en = {
     places: {
       title: 'Its places',
       intro:
-        "Places a result can make on the party's hex (`kind: places`): templates of points of interest, each with its name, text, icon, fields and the tags it gives the hex. A table, an action or a discovered hex's contents makes one with an effect (`hex.pois.ruins: 1`); on a map in the Hexmapper it's written into the map, in a trip without one the journal notes it. A place keeps what it was made with: changing a template touches only places made after.",
+        "Places a result can make on the party's hex (`kind: places`): templates of points of interest, each with its name, text, icon, fields and the tags it gives the hex. A table, an action or a discovered hex's contents makes one with an effect (`hex.pois.ruins: 1`); on a map in the Map app it's written into the map, in a trip without one the journal notes it. A place keeps what it was made with: changing a template touches only places made after.",
       help: 'Catalogues of places, as many as the system wants, named in its **Overview** (`places:`), and those of the packs a map or campaign adds. Effects make them on the party’s hex:\n• `hex.pois.ruins: 1` — one **Ruins**\n• In discovery’s contents, `effects: { hex.pois.shrine: 1 }` — the hex found holds a shrine, instead of a point of interest made of the result’s text',
       none: 'This system has no catalogue of places: results may still make plain points of interest from their text in discovery.',
       create: 'New catalogue of places',
@@ -75,7 +75,7 @@ export const en = {
     clocks: {
       title: 'Its progress clocks',
       intro:
-        "Clocks of its world (`kind: clocks`): segments that fill as something advances (a threat, a plan, a season of raids), each with what becomes of it once full; what happens when one fills is the world's (**World** tab). In the Hexmapper they come with the world clock when it starts; trips, tables and faction turns fill them with effects, and conditions read them.",
+        "Clocks of its world (`kind: clocks`): segments that fill as something advances (a threat, a plan, a season of raids), each with what becomes of it once full; what happens when one fills is the world's (**World** tab). In Map they come with the world clock when it starts; trips, tables and faction turns fill them with effects, and conditions read them.",
       help: "One clocks definition per system, named in its **Overview** (`clocks:`). Conditions and tables read each by its id:\n• `world.clocks.the-wyrm-wakes: { gte: 6 }` — once it is full\nEffects fill it, from a trip, a table or a faction turn:\n• `world.clocks.the-wyrm-wakes: 1` — a segment more\n• `world.clocks.the-wyrm-wakes: -2` — two less\n• `world.clocks.the-wyrm-wakes: '=0'` — empty",
       none: 'This system declares no progress clocks: they can still be made by hand on a map.',
       create: 'New clocks',
@@ -91,7 +91,7 @@ export const en = {
     factions: {
       title: 'Its factions',
       intro:
-        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. Their land is the hexes they hold on a map: each starts with the regions written here (on any map that has them) and the hexes (only on the map they're on) when a map brings them in (the Hexmapper's World panel); from then on it's the map's, painted by hand there and won or lost hex by hex on world turns.",
+        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. Their land is the hexes they hold on a map: each starts with the regions written here (on any map that has them) and the hexes (only on the map they're on) when a map brings them in (Map's World panel); from then on it's the map's, painted by hand there and won or lost hex by hex on world turns.",
       help: 'One factions definition per system, named in its **Overview** (`factions:`). Tables and conditions read them anywhere:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `hex.faction: the-crown` — who holds the hex\nTheir turn tables change them with effects:\n• `faction.values.strength: 1` — the faction whose turn it is\n• `factions.the-rebels.values.strength: -1` — another\n• `faction.territory: 1` — a hex more, from its border\n• `world.clocks.the-siege: 1` — a progress clock of the world clock',
       none: 'This system has no factions.',
       create: 'New factions',
@@ -128,7 +128,7 @@ export const en = {
     land: {
       title: 'Its land models',
       intro:
-        "Terrain with memory: for each terrain, how likely a hex next to it is to be each terrain, so land grows coherent (forests stay forests, hills gather into ranges). The Hexmapper's **Generate land** fills empty hexes with one, and discovery may decide empty hexes with one (`discover.terrain: { land: land.default }`).",
+        "Terrain with memory: for each terrain, how likely a hex next to it is to be each terrain, so land grows coherent (forests stay forests, hills gather into ranges). Map's **Generate land** fills empty hexes with one, and discovery may decide empty hexes with one (`discover.terrain: { land: land.default }`).",
       help: "Land models (`kind: land`), listed in its **Overview** (`land:`). An empty hex adds up the rows of its known neighbours' terrains and picks by those weights:\n• two forest neighbours count the forest row twice\n• none known: **Where nothing is known**\nDiscovery uses one by its bindings (`discover.terrain: { land: land.default }`), or a terrain table hands over to one (`set: { land: land.default }` on an entry).",
       none: 'This system names no land models.',
       create: 'New land model',
@@ -286,7 +286,7 @@ export const en = {
       "What each faction rolls on a world turn (a table, oracle, generator or deck), with its own values as `faction.*`:\n• `table.faction-turn` — a table of this pack\n• `generator.schemes` — a generator of this pack\n• `core/table.faction-turn` — Core's, for any game: it grows, holds or loses ground",
     every: 'Every (days)',
     everyHelp:
-      "Days of the world clock between turns. Empty or 0: only by hand (the Hexmapper's **World turn**).\n• `7` — a turn a week",
+      "Days of the world clock between turns. Empty or 0: only by hand (Map's **World turn**).\n• `7` — a turn a week",
     byHand: 'by hand',
     factions: 'Factions',
     factionsHelp:
@@ -504,7 +504,7 @@ export const en = {
     addTerrain: 'Add a terrain',
     preview: 'A patch of this land',
     previewHelp:
-      "Land grown from nothing with this model, from the middle outwards, in the Hexmapper's terrain colours. **Another** draws another patch; the Hexmapper's **Generate land** grows it from the land you painted instead.",
+      "Land grown from nothing with this model, from the middle outwards, in Map's terrain colours. **Another** draws another patch; Map's **Generate land** grows it from the land you painted instead.",
     again: 'Another',
   },
   weather: {
@@ -602,7 +602,7 @@ export const en = {
     noWeather: 'No weather models in this pack or its dependencies.',
     land: 'Land models',
     landHelp:
-      "The land models (`kind: land`) the Hexmapper's **Generate land** fills empty hexes with, and discovery may use: this pack's and its dependencies'.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`",
+      "The land models (`kind: land`) Map's **Generate land** fills empty hexes with, and discovery may use: this pack's and its dependencies'.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`",
     noLand: 'No land models in this pack or its dependencies.',
     packs: 'Packs it brings',
     packsHelp:
@@ -613,7 +613,7 @@ export const en = {
       "This pack has no dependencies: add one to its pack.yaml to bring another pack's tables.",
     maps: 'Example maps',
     mapsHelp:
-      "Maps to play the system on, kept in its pack as map files (`.otd.json`, written by the Hexmapper's **Save**) and listed in `maps:`. The Hexmapper offers them under **Maps → Example maps**, ready with this system chosen.\n• `maps: [maps/frontier.otd.json]`\n**Add a map file…** copies a saved map into the pack's `maps/` folder; **Remove** takes it out of the pack.",
+      "Maps to play the system on, kept in its pack as map files (`.otd.json`, written by Map's **Save**) and listed in `maps:`. Map offers them under **Maps → Example maps**, ready with this system chosen.\n• `maps: [maps/frontier.otd.json]`\n**Add a map file…** copies a saved map into the pack's `maps/` folder; **Remove** takes it out of the pack.",
     noMaps: 'No example maps.',
     addMap: 'Add a map file…',
     export: 'Take it elsewhere',
@@ -622,7 +622,7 @@ export const en = {
     exportIncludes: 'The file holds: {packs}',
     exportButton: 'Export as .zip',
     exportPersonal: 'It includes personal-use packs: keep the file for yourself, don’t share it.',
-    openInHexmapper: 'Open in the Hexmapper →',
+    openInHexmapper: 'Open in Map →',
     confirmRemoveMap: 'Remove the map “{name}” from the pack? Its file goes too.',
     mapError: {
       missing: 'No such file in the pack',
@@ -654,7 +654,7 @@ export const en = {
   rules: {
     water: 'Water hexes',
     waterHelp:
-      'Hexes whose terrain the map marks as **water** (Hexmapper: Edit palette → Water) and that have no rule of their own in Terrains.\nOften **not passable**; a way of travelling whose **Only through** holds on water can still sail them:\n• a boat: `hex.water: true`\n• a boat that also hugs the shore: `any: [{ hex.water: true }, { hex.terrain: coast }]`\nA terrain listed in Terrains (a frozen `lake` with **Open when** `time.season: winter`) uses its own rule instead.',
+      'Hexes whose terrain the map marks as **water** (Map: Edit palette → Water) and that have no rule of their own in Terrains.\nOften **not passable**; a way of travelling whose **Only through** holds on water can still sail them:\n• a boat: `hex.water: true`\n• a boat that also hugs the shore: `any: [{ hex.water: true }, { hex.terrain: coast }]`\nA terrain listed in Terrains (a frozen `lake` with **Open when** `time.season: winter`) uses its own rule instead.',
     day: 'The day',
     dayHelp:
       "When trips start, the scale of their speeds and what the party does when it can't march. When and how far the party marches is its actions' (Actions below: an action with a `travel.move` step, like **March**), and how the trip goes on by itself is one of them (**Goes on by itself with**).\n• **Trips start** `06:00` or `time.part.morning` — a new trip's first moment\n• **Halt** `time.part.night` → `camp` — from then on, a party that can't march camps by itself",
@@ -679,7 +679,7 @@ export const en = {
       "The hours a way of travelling's **km a day** are marched in: the scale of its speed (km an hour). How long the party may march each day is the **March** action's (`trip.marched: { lt: '{{system.hoursPerDay}}' }` reads this number).\n• `8` — 24 km a day is 3 km an hour\n• `10` — the same 24 km at 2.4 km an hour",
     hexKm: 'km per hex',
     hexKmHelp:
-      "The scale the system is played at: how many km a hex measures. With the speeds of its ways of travelling, it says how long a hex takes.\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\n• `10` — small hexes: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Hexmapper: Map settings → Map). Empty: the map's or the way's, 10 by default.",
+      "The scale the system is played at: how many km a hex measures. With the speeds of its ways of travelling, it says how long a hex takes.\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\n• `10` — small hexes: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Map: Map settings → Map). Empty: the map's or the way's, 10 by default.",
     modes: 'Ways of travelling',
     modesHelp:
       'Ways of travelling: on foot, on horseback, by boat… Each has a speed in **km per marching day** on easy ground (terrains and roads change it), and can be limited to some places and moments.\n• `foot` — 24 km a day\n• `horse` — 40 km a day, **Not when** `trip.weather: snow`\n• `boat` — 50 km a day, **Only through** `hex.water: true`\nThe trip panel lets the player switch between them.\nTheir order counts: the first is a new trip’s way. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.',

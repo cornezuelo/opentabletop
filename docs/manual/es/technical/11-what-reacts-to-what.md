@@ -4,8 +4,8 @@ Las reglas de un sistema reaccionan a lo que pasa: una comprobación se tira al 
 
 ## Dos sitios que reaccionan
 
-- **El viaje** (sus reglas de viaje): sus comprobaciones (`at:`) y las acciones que hace por sí mismo (`on:`). Reacciona mientras el viaje avanza, en el modo Jugar del Hexmapper o en Travel. Conoce al grupo, el hex en el que está y los valores del día.
-- **El mundo** (el `kind: world` del sistema): sus reacciones (`on:`). Reacciona cuando se mueve el reloj del mundo, se mueva donde se mueva: la aplicación Campaign, el panel Mundo del Hexmapper, y bajo un viaje en marcha (el mundo es uno). Conoce el reloj del mundo, los relojes de progreso, las facciones, los eventos de hoy y el clima del mundo; no tiene grupo.
+- **El viaje** (sus reglas de viaje): sus comprobaciones (`at:`) y las acciones que hace por sí mismo (`on:`). Reacciona mientras el viaje avanza, en el modo Jugar de Mapa o en Viajes. Conoce al grupo, el hex en el que está y los valores del día.
+- **El mundo** (el `kind: world` del sistema): sus reacciones (`on:`). Reacciona cuando se mueve el reloj del mundo, se mueva donde se mueva: la aplicación Campaña, el panel Mundo de Mapa, y bajo un viaje en marcha (el mundo es uno). Conoce el reloj del mundo, los relojes de progreso, las facciones, los eventos de hoy y el clima del mundo; no tiene grupo.
 
 No se llaman entre sí: cada uno oye los momentos del otro a través de la campaña (abajo, [Entre el viaje y el mundo](#entre-el-viaje-y-el-mundo)).
 
@@ -33,7 +33,7 @@ Lo que se cumple por sí solo en una hoja (una condición con su propio `when`, 
 Un paso de un viaje (un clic: **Marchar**, **Acampar**, una acción, **Continuar**) juega todo lo que llega por el camino, minuto a minuto, en el orden en que llega:
 
 1. **Lo que ha cambiado desde el último paso** se ve primero: el grupo tal y como está ahora (cambiado a mano, o desde otra aplicación) y lo que se cumple por sí solo en sus hojas.
-2. **Los momentos del mundo** que oye el viaje y que llegaron mientras no avanzaba (un reloj llenado en la aplicación Campaign) se juegan primero, cada uno como un momento propio (mira [Entre el viaje y el mundo](#entre-el-viaje-y-el-mundo)).
+2. **Los momentos del mundo** que oye el viaje y que llegaron mientras no avanzaba (un reloj llenado en la aplicación Campaña) se juegan primero, cada uno como un momento propio (mira [Entre el viaje y el mundo](#entre-el-viaje-y-el-mundo)).
 3. **El paso en sí.** Según pasa el tiempo, cada momento que llega se juega en su minuto. Cuando llegan varios en el mismo minuto:
    - **Un día que acaba** va primero: el fin del día a medianoche, después empieza el nuevo día (los valores de hoy pasan a ser `yesterday.*`), y luego los momentos del primer minuto del nuevo día.
    - **Una hora y una parte del día** que coinciden llegan en el orden en que las reglas las nombran por primera vez (primero las comprobaciones, en su orden, y luego las acciones).

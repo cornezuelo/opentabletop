@@ -130,14 +130,14 @@ export const es: Messages<typeof en> = {
     nobody: 'no cuenta nadie',
     fromRoster: vocabulary.es.roster.from,
     fromRosterHelp:
-      'Grupos del plantel (la aplicación Characters) hechos con la hoja de grupo de este sistema. Uno pasa a ser el grupo de este viaje: su hoja tal como estaba (valores, condiciones, objetos: si le quedaban 3 raciones, tiene 3 raciones), y sus miembros se unen a los personajes del viaje. Queda enlazado: lo que le pase aquí se escribe en el plantel tras cada paso, sus miembros son los personajes enlazados del viaje, y lo que cambies en Characters llega al viaje. Un grupo juega en un solo sitio a la vez: traer uno que juega en otro sitio pregunta antes.',
+      'Grupos del plantel (la aplicación Personajes) hechos con la hoja de grupo de este sistema. Uno pasa a ser el grupo de este viaje: su hoja tal como estaba (valores, condiciones, objetos: si le quedaban 3 raciones, tiene 3 raciones), y sus miembros se unen a los personajes del viaje. Queda enlazado: lo que le pase aquí se escribe en el plantel tras cada paso, sus miembros son los personajes enlazados del viaje, y lo que cambies en Personajes llega al viaje. Un grupo juega en un solo sitio a la vez: traer uno que juega en otro sitio pregunta antes.',
     takeConfirm:
       'Esto se los lleva de donde juegan ahora: {list}. ¿Traerlos aquí? Esos sitios conservan sus copias, ya sin enlazar con el plantel.',
     replaceConfirm:
       'El grupo de este viaje no está en el plantel: si traes otro, su hoja tal como está ahora se pierde. ¿Traerlo?',
     keep: vocabulary.es.roster.keep,
     keepTip:
-      'Guarda este grupo en el plantel (la aplicación Characters), con los personajes enlazados de este viaje como miembros: lo que le pase aquí se escribe allí, y el siguiente viaje puede seguir con él.',
+      'Guarda este grupo en el plantel (la aplicación Personajes), con los personajes enlazados de este viaje como miembros: lo que le pase aquí se escribe allí, y el siguiente viaje puede seguir con él.',
     open: vocabulary.es.roster.open,
     linked: 'En el plantel como {name}',
     offer: '{name} está en esta campaña sin viaje. ¿Traerlo a este viaje, con sus miembros?',
@@ -155,13 +155,13 @@ export const es: Messages<typeof en> = {
     confirmRemove: '¿Quitar a {name} del grupo?',
     fromRoster: vocabulary.es.roster.from,
     fromRosterHelp:
-      'Personajes del plantel (la aplicación Characters) hechos con la hoja de este sistema. Uno se une al grupo con sus valores y queda enlazado: lo que le pase en este viaje se vuelca al plantel tras cada paso, y lo que cambies en la aplicación Characters llega al viaje. Un personaje viaja en un sitio a la vez: traer uno que juega en otro sitio pregunta antes, y ese viaje conserva su copia, ya sin enlazar.',
+      'Personajes del plantel (la aplicación Personajes) hechos con la hoja de este sistema. Uno se une al grupo con sus valores y queda enlazado: lo que le pase en este viaje se vuelca al plantel tras cada paso, y lo que cambies en la aplicación Personajes llega al viaje. Un personaje viaja en un sitio a la vez: traer uno que juega en otro sitio pregunta antes, y ese viaje conserva su copia, ya sin enlazar.',
     choose: vocabulary.es.roster.choose,
     playsIn: vocabulary.es.roster.playsIn,
     takeConfirm: vocabulary.es.roster.takeConfirm,
     keep: vocabulary.es.roster.keep,
     keepTip:
-      'Guarda este personaje en el plantel (la aplicación Characters), enlazado con este viaje: lo que le pase aquí se escribe allí, y luego podrá viajar en otros mapas y viajes.',
+      'Guarda este personaje en el plantel (la aplicación Personajes), enlazado con este viaje: lo que le pase aquí se escribe allí, y luego podrá viajar en otros mapas y viajes.',
     openInCharacters: vocabulary.es.roster.open,
     roles: 'Roles',
     rolesHelp:
@@ -185,11 +185,11 @@ export const es: Messages<typeof en> = {
       'Hace a mano una copia de una plantilla aquí, como haría un efecto `present.<plantilla>: 1`: sus valores tirados, con el nombre de la plantilla. La lista es el bestiario del sistema y los de los packs que añade su campaña.',
     fromRoster: vocabulary.es.roster.from,
     fromRosterHelp:
-      'Personajes del plantel (la aplicación Characters) hechos con la hoja de los personajes de este sistema o de sus plantillas: una criatura hecha del bestiario, un PNJ que vuelve. Uno viene aquí, al sitio del grupo, como uno de los presentes, y queda enlazado: lo que le pase en este viaje se vuelca al plantel, y lo que cambies en la aplicación Characters llega al viaje. Un personaje juega en un sitio a la vez: traer uno que juega en otro sitio pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
+      'Personajes del plantel (la aplicación Personajes) hechos con la hoja de los personajes de este sistema o de sus plantillas: una criatura hecha del bestiario, un PNJ que vuelve. Uno viene aquí, al sitio del grupo, como uno de los presentes, y queda enlazado: lo que le pase en este viaje se vuelca al plantel, y lo que cambies en la aplicación Personajes llega al viaje. Un personaje juega en un sitio a la vez: traer uno que juega en otro sitio pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
     remove: 'Quitar',
     confirmRemove: '¿Quitar a {name} de los presentes?',
     keepTip:
-      'Guarda esta copia en el plantel (la aplicación Characters) como un personaje propio, enlazado a este viaje mientras siga en él: un enemigo que se convierte en alguien a quien volver a ver.',
+      'Guarda esta copia en el plantel (la aplicación Personajes) como un personaje propio, enlazado a este viaje mientras siga en él: un enemigo que se convierte en alguien a quien volver a ver.',
     behind: '{count} dejados atrás en otros lugares',
     behindHelp:
       'Copias hechas en otro lugar, que el grupo dejó: se quedan allí y vuelven a estar aquí si regresa. Si los que se quedan atrás siguen allí o se van lo decide el sistema (el `behind` de cada plantilla).',
@@ -267,7 +267,7 @@ export const es: Messages<typeof en> = {
     presentLeftHand: 'Se quita a mano: {name}',
     unknownTemplate:
       'Ningún bestiario del sistema tiene la plantilla «{name}», así que no viene nadie',
-    rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Characters).',
+    rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Personajes).',
     itemSpent: '{name}: se gasta uno',
     shared: '{name}, repartido: {list}',
     unknownItem: '{name}: ningún catálogo del sistema tiene este objeto, así que no se da nada',
@@ -396,7 +396,7 @@ export const es: Messages<typeof en> = {
     hexKmHelp:
       'Cuántos km mide un hex del camino, cuando el sistema no lo fija: con las velocidades del sistema, dice cuánto se tarda en cada hex.\n• `10` — hexes pequeños: varios en un día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km',
     hexKmSystem:
-      'El sistema fija la escala (`travel.hexKm` en sus reglas): todos los viajes con él se juegan a esos km por hex. Se cambia en el sistema (Systems → Reglas).',
+      'El sistema fija la escala (`travel.hexKm` en sus reglas): todos los viajes con él se juegan a esos km por hex. Se cambia en el sistema (Sistemas → Reglas).',
     hex: 'Hex {n}',
     here: 'aquí',
     terrain: vocabulary.es.terms.terrain,

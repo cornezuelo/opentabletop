@@ -6,7 +6,7 @@ OpenTabletop está pensado para traducirse a tres niveles, del más fácil al m�
 
 ## El contenido de los packs (sin código)
 
-Las tablas, oráculos, generadores y mazos se traducen dentro de su pack, con ficheros que solo sustituyen los textos. Hazlo desde la aplicación Oracle (**Añadir idioma** en la página del pack y después elige el idioma en la pestaña **Editar** de una definición) o a mano: consulta [Traducciones](../oracle/05-translations.md). Cualquiera puede traducir sus propios packs, o enviar traducciones de los packs abiertos.
+Las tablas, oráculos, generadores y mazos se traducen dentro de su pack, con ficheros que solo sustituyen los textos. Hazlo desde la aplicación Oráculo (**Añadir idioma** en la página del pack y después elige el idioma en la pestaña **Editar** de una definición) o a mano: consulta [Traducciones](../oracle/05-translations.md). Cualquiera puede traducir sus propios packs, o enviar traducciones de los packs abiertos.
 
 ## El manual (Markdown)
 
@@ -18,12 +18,12 @@ Cada texto visible de las aplicaciones sale de un diccionario; no hay texto escr
 
 | Parte                                                                          | Diccionarios                                                                                  |
 | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| Hexmapper                                                                      | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; los idiomas se listan en `index.svelte.ts`) |
-| Aplicación Oracle                                                              | `apps/oracle/src/lib/i18n/` (idiomas en `index.ts`)                                           |
-| Aplicación Travel                                                              | `apps/travel/src/lib/i18n/` (idiomas en `index.ts`)                                           |
-| Aplicación Campaign                                                            | `apps/campaign/src/lib/i18n/` (idiomas en `index.ts`)                                         |
-| Aplicación Characters                                                          | `apps/characters/src/lib/i18n/` (idiomas en `index.ts`)                                       |
-| Aplicación Systems                                                             | `apps/systems/src/lib/i18n/` (idiomas en `index.ts`)                                          |
+| Mapa                                                                           | `apps/hexmapper/src/lib/i18n/` (`en.ts`, `es.ts`; los idiomas se listan en `index.svelte.ts`) |
+| Aplicación Oráculo                                                             | `apps/oracle/src/lib/i18n/` (idiomas en `index.ts`)                                           |
+| Aplicación Viajes                                                              | `apps/travel/src/lib/i18n/` (idiomas en `index.ts`)                                           |
+| Aplicación Campaña                                                             | `apps/campaign/src/lib/i18n/` (idiomas en `index.ts`)                                         |
+| Aplicación Personajes                                                          | `apps/characters/src/lib/i18n/` (idiomas en `index.ts`)                                       |
+| Aplicación Sistemas                                                            | `apps/systems/src/lib/i18n/` (idiomas en `index.ts`)                                          |
 | Panel de tirada, historial                                                     | `packages/oracle-ui/src/i18n/`                                                                |
 | Biblioteca de packs, editor YAML                                               | `packages/pack-ui/src/i18n/`                                                                  |
 | Panel del viaje                                                                | `packages/travel-ui/src/i18n/`                                                                |

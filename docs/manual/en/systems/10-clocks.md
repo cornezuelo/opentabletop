@@ -1,6 +1,6 @@
 # Clocks
 
-The **Clocks** tab edits the progress clocks the system's world starts with (`kind: clocks`, one per system): a threat drawing near, a plan coming together, a season of raids. **New clocks** makes one that starts over once full, and names it in the system; what happens when one fills is the world's: its **When full** opens the [World](11-world.md) tab. In the Hexmapper they come with the world clock when it starts ([Progress clocks](../hexmapper/12-world.md#progress-clocks)), and the Campaign app shows the same ones. This page explains how clocks work, then each part of the tab, builds a spreading fever from nothing step by step and lists the usual mistakes. Help next to each field explains it, with examples. The YAML: [Progress clocks](../technical/07-kinds.md#progress-clocks).
+The **Clocks** tab edits the progress clocks the system's world starts with (`kind: clocks`, one per system): a threat drawing near, a plan coming together, a season of raids. **New clocks** makes one that starts over once full, and names it in the system; what happens when one fills is the world's: its **When full** opens the [World](11-world.md) tab. In Map they come with the world clock when it starts ([Progress clocks](../hexmapper/12-world.md#progress-clocks)), and the Campaign app shows the same ones. This page explains how clocks work, then each part of the tab, builds a spreading fever from nothing step by step and lists the usual mistakes. Help next to each field explains it, with examples. The YAML: [Progress clocks](../technical/07-kinds.md#progress-clocks).
 
 ## How clocks work
 
@@ -34,7 +34,7 @@ A fever haunts the marshes. Travellers who cross them carry it, and each time it
 5. **Travellers carry it**: in **Checks**, **Add a check**, with **Check** `FEVER`, named _Fever_. **When** `trip.hex-enter`; **Only if** `hex.terrain` · **is** · `swamp`; no table; **Changes** `world.clocks.the-fever` · `1`.
 6. **The barrier**: **Add a check**, with **Check** `BARRIER`, named _Turned back at the barrier_. **When** `trip.hex-enter`; **Only if** the rows `world.clocks.the-closed-roads` · **is at least** · `2` and `trip.edges` · **is** · `road`; no table; tick **Pause after it**.
 7. **Word of it**: in **Rules → Actions**, **Add an action** `news`, named _Word of the fever_, with **By itself at** `world.clocks.the-fever.full`. Its one step: **Say** _Word comes: the fever has reached the villages._
-8. **A map**: in the Hexmapper, **New map**; in **Map settings → Campaign → System**, _The Fever Marshes_. Paint a row of hexes: one of `plains`, three of `swamp`, then three of `plains` with a `road` along them.
+8. **A map**: in Map, **New map**; in **Map settings → Campaign → System**, _The Fever Marshes_. Paint a row of hexes: one of `plains`, three of `swamp`, then three of `plains` with a `road` along them.
 9. **Play it**: open the **World** panel (☾) and **Start the world clock**: its **Clocks** tab shows _The marsh fever_ at 1/4 and _The roads close_ at 0/2. In **Play**, put the party on the first plains hex, set the plains hex after the swamps as the destination and travel there.
 10. **By hand**: in the **World** panel's **Clocks** tab, click the fever's fourth segment. Then set the last plains hex as the destination and travel on.
 

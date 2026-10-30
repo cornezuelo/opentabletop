@@ -2,7 +2,7 @@ system/default:
   name: Reglas genéricas
   description: |-
     Las reglas que juega un mapa que no elige sistema: marchar de día a pie o a caballo por
-    los terrenos de las paletas del Hexmapper, caminos y senderos que aceleran, acampar de
+    los terrenos de las paletas de Mapa, caminos y senderos que aceleran, acampar de
     noche, un día de comida al día, un clima que sigue al de ayer y frena la marcha,
     personajes con salud y una herida, y la moral del grupo.
 

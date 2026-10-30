@@ -1,6 +1,6 @@
 # Relojes
 
-La pestaña **Relojes** edita los relojes de progreso con los que empieza el mundo del sistema (`kind: clocks`, uno por sistema): una amenaza que se acerca, un plan que va tomando forma, una temporada de saqueos. **Nuevos relojes** hace uno que vuelve a empezar al llenarse, y lo nombra en el sistema; lo que pasa cuando uno se llena es cosa del mundo: su **Al llenarse** abre la pestaña [Mundo](11-world.md). En el Hexmapper llegan con el reloj del mundo cuando se pone en marcha ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)), y el app Campaign muestra los mismos. Esta página explica cómo funcionan los relojes, luego cada parte de la pestaña, monta una fiebre que se extiende desde cero paso a paso y repasa los errores habituales. La ayuda junto a cada campo lo explica, con ejemplos. El YAML: [Relojes de progreso](../technical/07-kinds.md#relojes-de-progreso).
+La pestaña **Relojes** edita los relojes de progreso con los que empieza el mundo del sistema (`kind: clocks`, uno por sistema): una amenaza que se acerca, un plan que va tomando forma, una temporada de saqueos. **Nuevos relojes** hace uno que vuelve a empezar al llenarse, y lo nombra en el sistema; lo que pasa cuando uno se llena es cosa del mundo: su **Al llenarse** abre la pestaña [Mundo](11-world.md). En Mapa llegan con el reloj del mundo cuando se pone en marcha ([Relojes de progreso](../hexmapper/12-world.md#relojes-de-progreso)), y el app Campaña muestra los mismos. Esta página explica cómo funcionan los relojes, luego cada parte de la pestaña, monta una fiebre que se extiende desde cero paso a paso y repasa los errores habituales. La ayuda junto a cada campo lo explica, con ejemplos. El YAML: [Relojes de progreso](../technical/07-kinds.md#relojes-de-progreso).
 
 ## Cómo funcionan los relojes
 
@@ -34,7 +34,7 @@ Una fiebre ronda las marismas. Los viajeros que las cruzan la llevan consigo, y 
 5. **Los viajeros la llevan**: en **Comprobaciones**, **Añadir una comprobación**, con **Comprobación** `FEVER` y el nombre _Fiebre_. **Cuándo** `trip.hex-enter`; **Solo si** `hex.terrain` · **es** · `swamp`; sin tabla; **Cambios** `world.clocks.the-fever` · `1`.
 6. **La barrera**: **Añadir una comprobación**, con **Comprobación** `BARRIER` y el nombre _Vuelta atrás en la barrera_. **Cuándo** `trip.hex-enter`; **Solo si** las filas `world.clocks.the-closed-roads` · **es al menos** · `2` y `trip.edges` · **es** · `road`; sin tabla; marca **Pausar después**.
 7. **La noticia**: en **Reglas → Acciones**, **Añadir una acción** `news`, con el nombre _Noticias de la fiebre_ y **Automática en** `world.clocks.the-fever.full`. Su único paso: **Decir** _Llega la noticia: la fiebre ha alcanzado las aldeas._
-8. **Un mapa**: en el Hexmapper, **Nuevo mapa**; en **Ajustes del mapa → Campaña → Sistema**, _Las Marismas de la Fiebre_. Pinta una fila de hexes: uno de `plains`, tres de `swamp` y luego tres de `plains` con un `road` a lo largo.
+8. **Un mapa**: en Mapa, **Nuevo mapa**; en **Ajustes del mapa → Campaña → Sistema**, _Las Marismas de la Fiebre_. Pinta una fila de hexes: uno de `plains`, tres de `swamp` y luego tres de `plains` con un `road` a lo largo.
 9. **Juégalo**: abre el panel **Mundo** (☾) y **Poner en marcha el reloj del mundo**: su pestaña **Relojes** muestra _La fiebre de las marismas_ a 1/4 y _Se cierran los caminos_ a 0/2. En **Jugar**, pon al grupo en el primer hex de llanura, marca como destino la llanura tras las marismas y viaja hasta allí.
 10. **A mano**: en la pestaña **Relojes** del panel **Mundo**, haz clic en el cuarto segmento de la fiebre. Luego marca como destino la última llanura y sigue viajando.
 
@@ -111,7 +111,7 @@ Las Marcas Grises juegan con todo esto y más (la Sierpe del Bosque Gris, que ll
 
 ## Errores habituales
 
-- **Nada se llena.** Los relojes necesitan el reloj del mundo en marcha: sin él, el `world.clocks.the-fever: 1` de un viaje no cambia nada. **Poner en marcha el reloj del mundo** en el panel Mundo (o en el app Campaign).
+- **Nada se llena.** Los relojes necesitan el reloj del mundo en marcha: sin él, el `world.clocks.the-fever: 1` de un viaje no cambia nada. **Poner en marcha el reloj del mundo** en el panel Mundo (o en el app Campaña).
 - **Un reloj que no llega.** Los relojes del sistema llegan cuando se pone en marcha el reloj del mundo. Uno declarado después (o quitado en el mapa) vuelve con **Añadir los relojes del sistema** en la pestaña **Relojes** del panel Mundo.
 - **Cambiado Empieza en, el mundo igual.** Por dónde empieza un reloj se lee una vez, cuando llega. Una campaña que ya lo tiene conserva lo que lleva: llénalo a mano.
 - **Un id cambiado.** Las reglas leen un reloj por su id: cambiar `the-fever` deja `world.clocks.the-fever` sin nombrar nada, y la acción del viaje no pasa nunca. **Usado en** lista lo que lo nombra.

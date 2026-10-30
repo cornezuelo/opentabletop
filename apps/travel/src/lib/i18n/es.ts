@@ -1,9 +1,9 @@
-import type { Messages } from '@open-tabletop/ui-kit'
+import { vocabulary, type Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   app: {
-    title: 'Travel',
+    title: vocabulary.es.apps.travel,
     tagline: 'Juega viajes sin mapa.',
   },
   nav: {
@@ -13,7 +13,7 @@ export const es: Messages<typeof en> = {
     hideHelp: 'Ocultar la ayuda (más espacio)',
     systems: 'Sistemas',
     help: 'Ayuda y manual',
-    editInSystems: 'Editar en Systems →',
+    editInSystems: 'Editar en Sistemas →',
     makeSystems: 'Crear o editar sistemas →',
   },
   origin: {
@@ -23,8 +23,8 @@ export const es: Messages<typeof en> = {
     user: 'tuyo',
   },
   welcome: {
-    title: 'Travel',
-    body: 'Elige un sistema a la izquierda para jugar un viaje con él. Aquí los viajes no tienen mapa: describes el camino hex a hex, y el sistema decide a qué velocidad se va por cada terreno y camino, qué se lleva encima y qué comprobaciones se tiran por el camino. Los sistemas se crean y editan en la aplicación Systems; para viajar sobre un mapa, usa el Hexmapper (modo Jugar) con los mismos sistemas.',
+    title: vocabulary.es.apps.travel,
+    body: 'Elige un sistema a la izquierda para jugar un viaje con él. Aquí los viajes no tienen mapa: describes el camino hex a hex, y el sistema decide a qué velocidad se va por cada terreno y camino, qué se lleva encima y qué comprobaciones se tiran por el camino. Los sistemas se crean y editan en la aplicación Sistemas; para viajar sobre un mapa, usa Mapa (modo Jugar) con los mismos sistemas.',
   },
   inCampaign: { missing: 'El viaje {id} no está en este navegador.' },
   storage: {

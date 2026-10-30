@@ -1,4 +1,4 @@
-# The powers of the Marches, as factions (Factions in the Hexmapper's World panel). Each is
+# The powers of the Marches, as factions (Factions in Map's World panel). Each is
 # a character of the `faction` sheet below, holding hexes of the map; on each world turn
 # (every 7 days of the world clock, or by hand) it rolls its turn table, whose effects change
 # its values, another faction's, its territory and the world clock's progress clocks.

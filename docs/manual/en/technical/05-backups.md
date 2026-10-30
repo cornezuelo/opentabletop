@@ -8,7 +8,7 @@ Open the app switcher (the nine dots in any app) and press **Save a backup**. Th
 
 It holds everything the apps keep in this browser:
 
-- **Maps**: every map of the Hexmapper's library, with its play state (party, trail, trip, journal) and the land each faction holds on it.
+- **Maps**: every map of Map's library, with its play state (party, trail, trip, journal) and the land each faction holds on it.
 - **Campaigns**: the world each map is played in: its world clock and weather, its factions and its Oracle (history, decks, once-only results).
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
 - **The Characters app's roster**: every character and party it keeps, with its notes, where it plays and a party's members.
@@ -43,7 +43,7 @@ A backup takes everything. To choose what goes (one campaign to a friend, your h
 It lists what you've made, as a tree with ticks, all ticked at first:
 
 - **Your packs**: the packs you made or edited, and your copies of bundled packs. A copy of a pack whose licence allows only personal use is marked **Personal use**, and ticking it warns that the file isn't to be shared.
-- **Campaigns**, each with its **maps** (the Hexmapper's) and **trips** (Travel's) under it. Ticking a campaign ticks its maps and trips too; untick any of them to leave it out.
+- **Campaigns**, each with its **maps** (Map's) and **trips** (Travel's) under it. Ticking a campaign ticks its maps and trips too; untick any of them to leave it out.
 - **Maps and trips** whose campaign isn't kept here, if any.
 - **Characters**: the roster's.
 
@@ -86,8 +86,8 @@ A JSON file:
 }
 ```
 
-- `storage` copies the apps' browser storage entries whose keys start with `opentabletop.` or `hexmapper.`, as text. The Hexmapper's crash copies of the open map and its campaign (`hexmapper.pending`, `hexmapper.pendingCampaign`) are left out.
-- `maps` copies the Hexmapper's library as it is: each `json` is a map in the Hexmapper's own format, which carries its version and is migrated when the map opens. To share a single map with other tools, use the Hexmapper's **Save** (an OTD bundle, see [File formats](02-file-formats.md)).
+- `storage` copies the apps' browser storage entries whose keys start with `opentabletop.` or `hexmapper.`, as text. Map's crash copies of the open map and its campaign (`hexmapper.pending`, `hexmapper.pendingCampaign`) are left out.
+- `maps` copies Map's library as it is: each `json` is a map in Map's own format, which carries its version and is migrated when the map opens. To share a single map with other tools, use Map's **Save** (an OTD bundle, see [File formats](02-file-formats.md)).
 - `campaigns` copies the campaigns the same way, each `json` in their own versioned format. Backups made before campaigns (`version` 1) have none: each of their maps makes its own when it opens.
 - `version` is the version of this envelope. Newer backups than the app understands are refused rather than read wrongly.
 
@@ -98,7 +98,7 @@ A .zip:
 ```
 opentabletop-export.json        what it holds: { "format": "opentabletop-export", "version": 1, "created", "packs", "maps", "campaigns" }
 packs/<id>/pack.yaml, …         each pack as a pack folder
-maps/<id>.json                  each map as the Hexmapper's library keeps it
+maps/<id>.json                  each map as Map's library keeps it
 campaigns/<id>.json             each campaign in its own format
 trips/<id>.json                 each Travel trip as Travel keeps it
 characters/<id>.json            each roster character with its notes and where it plays (a party with its members)

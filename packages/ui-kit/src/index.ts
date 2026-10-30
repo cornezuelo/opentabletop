@@ -23,6 +23,7 @@ export {
   APPS,
   appGlyphUrl,
   appIconUrl,
+  appName,
   appUrl,
   campaignUrl,
   newCampaignUrl,

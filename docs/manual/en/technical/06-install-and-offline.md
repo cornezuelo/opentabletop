@@ -6,7 +6,7 @@ Every OpenTabletop app can be **installed** like a program and works **without a
 
 Open the app in your browser and use the browser's install option: in Chrome, Edge or Brave, the install icon in the address bar (or menu → **Install**); on a phone, **Add to home screen**. Firefox on the desktop doesn't install web apps, but everything below works in it too.
 
-Each app installs on its own (Hexmapper, Campaign, Oracle, Travel, Characters, Systems, Manual). Installed apps open in their own window, with their own icon.
+Each app installs on its own (Map, Campaign, Oracle, Travel, Characters, Systems, Manual). Installed apps open in their own window, with their own icon.
 
 ## Offline
 

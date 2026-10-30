@@ -1,4 +1,4 @@
-# The threats of the Marches, as progress clocks (the Hexmapper's World panel). They come
+# The threats of the Marches, as progress clocks (Map's World panel). They come
 # with the world clock when it starts; trips, tables and faction turns fill them with
 # effects (`world.clocks.<id>: 1`), conditions read them, and once full each stays full,
 # starts over or goes away. What happens when one fills is the world's (world.yaml).

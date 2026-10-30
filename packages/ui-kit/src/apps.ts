@@ -3,7 +3,15 @@
  * (`make site`) they live side by side as `<site>/<app>/`; in development each runs on
  * its own port.
  */
-import { APP_BLURBS, APP_ICON_SVGS, APP_LIST, FRAME, logoSvg, REPO } from './apps.data.mjs'
+import {
+  APP_BLURBS,
+  APP_ICON_SVGS,
+  APP_LIST,
+  APP_NAMES,
+  FRAME,
+  logoSvg,
+  REPO,
+} from './apps.data.mjs'
 
 export { REPO }
 
@@ -12,7 +20,6 @@ export type AppId =
 
 export interface AppInfo {
   id: AppId
-  name: string
   /** Vite dev server port (vite.config.ts). */
   devPort: number
   /** False while the app doesn't exist yet: listed as coming soon. */
@@ -23,6 +30,13 @@ export const APPS: AppInfo[] = APP_LIST
 
 /** Gold-on-dark app icons (32×32 SVG), one style for the whole ecosystem. */
 export const APP_ICONS: Record<AppId, string> = APP_ICON_SVGS
+
+/** Each app's name, in the interface's language (English otherwise). */
+export const appName = (id: AppId, locale: string): string =>
+  (APP_NAMES[locale as keyof typeof APP_NAMES] ?? APP_NAMES.en)[id]
+
+/** Each app's name in every language, for the dictionaries (`vocabulary.<locale>.apps`). */
+export { APP_NAMES }
 
 /** What each app is for, in the interface's language (English otherwise). */
 export const appBlurb = (id: AppId, locale: string): string =>

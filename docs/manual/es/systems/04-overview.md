@@ -10,21 +10,21 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 
 - **Reglas de viaje**, **Bindings** y **Calendario**: con los que se juega, cada uno elegido entre los de este pack (por su id) y los de sus dependencias (`core/default`), con su nombre si lo tienen (_El cómputo real (royal-reckoning)_). **Abrir** va a la pestaña que los edita; **Crear** hace unas reglas de viaje nuevas (una copia de las genéricas, que nombra también el calendario de Core cuando el sistema no tiene ninguno y depende de Core) o unos bindings vacíos y los nombra.
 - **Modelos de clima**: los que pueden nombrar sus bindings (`weather: weather.highland-skies`), cada uno con su nombre y su id. Se editan en [Clima](13-weather.md).
-- **Modelos de tierra**: los que pueden usar **Generar tierra** del Hexmapper y el descubrimiento (`land: [land.default]`), cada uno con su nombre y su id. Se editan en [Tierra](14-land.md).
+- **Modelos de tierra**: los que pueden usar **Generar tierra** de Mapa y el descubrimiento (`land: [land.default]`), cada uno con su nombre y su id. Se editan en [Tierra](14-land.md).
 - **Catálogos de objetos** (`items:`, una lista): lo que pueden llevar sus personajes; se crean, se eligen y se editan en [Objetos](08-items.md), cuyo **Nuevo catálogo** añade uno aquí.
 - **Bestiarios** (`bestiary:`, una lista): las criaturas y clases de gente que puede crear; se crean, se eligen y se editan en [Bestiario](18-bestiary.md), cuyo **Nuevo bestiario** añade uno aquí.
 - **Catálogos de lugares** (`places:`, una lista): los lugares que sus resultados pueden crear en el hex del grupo; se crean, se eligen y se editan en [Lugares](19-places.md), cuyo **Nuevo catálogo de lugares** añade uno aquí.
 
 ## Packs que trae
 
-El suyo siempre, y las dependencias que marques, cuyas tablas vienen con él: un mapa que se juega con él las muestra en su panel del Oracle. Para traer otro pack, añádelo a las dependencias en `pack.yaml`.
+El suyo siempre, y las dependencias que marques, cuyas tablas vienen con él: un mapa que se juega con él las muestra en su panel del Oráculo. Para traer otro pack, añádelo a las dependencias en `pack.yaml`.
 
 ## Mapas de ejemplo
 
 Mapas en los que jugar el sistema, guardados en su pack (`maps:`):
 
-- **Abrir en el Hexmapper →** abre uno allí como lo haría su **Mapas → Mapas de ejemplo**.
-- **Añadir un fichero de mapa…** copia en la carpeta `maps/` del pack un fichero de mapa escrito por **Guardar** en el Hexmapper.
+- **Abrir en Mapa →** abre uno allí como lo haría su **Mapas → Mapas de ejemplo**.
+- **Añadir un fichero de mapa…** copia en la carpeta `maps/` del pack un fichero de mapa escrito por **Guardar** en Mapa.
 - **Quitar** lo saca del pack.
 
 Los mapas cuyos ficheros nombran la misma campaña (guardados desde mapas de una campaña) se abren juntos en ella y comparten su reloj del mundo y sus facciones.
@@ -54,7 +54,7 @@ En las Marcas Grises, el **Rastreo** de los compañeros (Hoja) enseña dos sitio
 
 Tus sistemas solo viven en este navegador. Para ponerlo a salvo, llevarlo a otro navegador o dárselo a alguien, el Resumen acaba con **Llevarlo a otra parte**: dice lo que lleva el fichero y **Exportar como .zip** lo descarga. El .zip lleva todos los packs que necesita el sistema, cada uno en su carpeta: el suyo, los que trae, los que tienen sus partes y sus dependencias, hasta donde lleguen. El fichero de las Marcas Grises, por ejemplo, lleva las Marcas Grises y Core.
 
-**Importar un sistema (.zip)…**, bajo la lista de sistemas, vuelve a leer ese fichero y abre el sistema que trae (el **Importar .zip** de la Oracle también lo lee):
+**Importar un sistema (.zip)…**, bajo la lista de sistemas, vuelve a leer ese fichero y abre el sistema que trae (el **Importar .zip** de la Oráculo también lo lee):
 
 - los packs que no tienes se añaden a los tuyos;
 - los que ya están y sin cambios (un Core incluido, por ejemplo) se quedan como están;

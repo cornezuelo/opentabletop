@@ -55,7 +55,7 @@ An **export** (the app switcher's **Export…**: packs, campaigns with their map
 
 ## Maps: OpenTabletop Data (`.otd.json`)
 
-Hexmapper saves maps as **OTD bundles**, a JSON format meant to be shared between tools:
+Map saves maps as **OTD bundles**, a JSON format meant to be shared between tools:
 
 ```json
 {
@@ -73,8 +73,8 @@ Hexmapper saves maps as **OTD bundles**, a JSON format meant to be shared betwee
 - POIs, the party and tokens (as characters with a `location`) are entities of their own; a trip's journal is in `log`.
 - The party's characters (when its system has a [sheet](07-kinds.md#sheets)) are characters too, listed by id in the party's `members`, with `kind: pc`, their values as `stats`, their tags, and what only the character engine reads (their sheet, conditions, relations, items and places of their own) in `ext.character`. A map can bring its company that way before any trip starts: the Grey Marches' example map has Kael, Mara and Old Tobin.
 - The campaign's factions are OTD factions (their values as `stats`, their sheet in `ext.character`, the hexes they hold on this map in `ext.hexmapper.territory`, their page in the notes app as `noteRef` and the GM's short note as `notes`), and `state.factions` says which system they came from and when the last world turn was.
-- `state.oracle` is the campaign's Oracle state (decks, once-only results, values set); the Hexmapper keeps its hand-roll history in `ext.hexmapper.oracleHistory`.
-- `ext.<tool>` holds each tool's own data (Hexmapper keeps icons, labels, styles and its print settings in `ext.hexmapper`; files written before the system was the campaign's have the map's `system` and the `packs` it added there, read as its campaign's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
+- `state.oracle` is the campaign's Oracle state (decks, once-only results, values set); Map keeps its hand-roll history in `ext.hexmapper.oracleHistory`.
+- `ext.<tool>` holds each tool's own data (Map keeps icons, labels, styles and its print settings in `ext.hexmapper`; files written before the system was the campaign's have the map's `system` and the `packs` it added there, read as its campaign's; the party's `ext.hexmapper.system` is the one its trip started with). Tools keep what they don't understand untouched when they save.
 
 **Characters files.** The Characters app's **Export** writes the same format with only `characters` (each with its `noteRef`), and its **Import…** reads the characters of any such file, a map's included:
 

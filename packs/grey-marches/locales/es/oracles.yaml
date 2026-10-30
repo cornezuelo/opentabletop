@@ -5,7 +5,7 @@ gates:
 
     **Enseña:**
 
-    - **Etiquetas** para el **Filtrar** del Oracle: `places`, y no `rules`, porque se tira a mano
+    - **Etiquetas** para el **Filtrar** del Oráculo: `places`, y no `rules`, porque se tira a mano
     - Un **oráculo** con una entrada: cómo llegáis
     - Una variante con sus propios dados
     - Un valor del icono del lugar en el mapa: `{{icon.guards}}` es 0 en Vado Ceniza y 2 en Fuerte Keld (selecciona el hex antes de tirar)
@@ -37,7 +37,7 @@ gate-news:
 ferry:
   name: La barca
   description: |-
-    La barca de Brenna sobre el **Lago Salado**. Selecciona su token en el mapa y tira esto desde el panel Oracle.
+    La barca de Brenna sobre el **Lago Salado**. Selecciona su token en el mapa y tira esto desde el panel Oráculo.
 
     **Enseña:**
 
@@ -51,7 +51,7 @@ ferry:
 inn:
   name: En El Hurón Mojado
   description: |-
-    **El Hurón Mojado**, la posada de Vado Ceniza: lo que gastas cambia la noche. En el Hexmapper, **Aplicar al viaje** bajo el resultado cambia el grupo.
+    **El Hurón Mojado**, la posada de Vado Ceniza: lo que gastas cambia la noche. En Mapa, **Aplicar al viaje** bajo el resultado cambia el grupo.
 
     **Enseña:**
 

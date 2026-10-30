@@ -1,5 +1,5 @@
 # A progress clock for any game: a threat that grows and starts over once full (the
-# Hexmapper's World panel); what it does when full is world.yaml's. A system brings both:
+# Map's World panel); what it does when full is world.yaml's. A system brings both:
 # `clocks: core/clocks.threat`, `world: core/world.threat`.
 kind: clocks
 id: threat

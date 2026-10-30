@@ -1,10 +1,10 @@
-# Oracle en el mapa
+# Oráculo en el mapa
 
-El botón de Oracle (el hexágono dorado bajo Jugar y el Mundo, o <kbd>O</kbd>) abre un panel para tirar cualquier tabla, oráculo, generador o mazo de tus packs sin salir del mapa. Su lista tiene el buscador y el **Filtrar** de la aplicación Oracle (tipos y etiquetas; `−rules` deja lo que tirarías a mano), y los dos recuerdan el mismo filtro: mira los [Primeros pasos](../oracle/01-getting-started.md) del Oracle.
+El botón de Oráculo (el hexágono dorado bajo Jugar y el Mundo, o <kbd>O</kbd>) abre un panel para tirar cualquier tabla, oráculo, generador o mazo de tus packs sin salir del mapa. Su lista tiene el buscador y el **Filtrar** de la aplicación Oráculo (tipos y etiquetas; `−rules` deja lo que tirarías a mano), y los dos recuerdan el mismo filtro: mira los [Primeros pasos](../oracle/01-getting-started.md) del Oráculo.
 
 ## Los packs de un mapa
 
-Un mapa puede trabajar solo con algunos packs, que se eligen para toda su campaña: **Ajustes del mapa → Campaña → Packs** (por defecto, todos los cargados). Desmarca **Todos los packs cargados** y el panel Oracle muestra solo los packs que trae el **Sistema** del mapa (marcados y en gris, _lo trae el sistema_) y los que marques además. Una tabla puede seguir tirando tablas de otros packs a las que se refiera. El mapa de ejemplo de las Marcas Grises se juega con las Marcas Grises y no añade nada, así que muestra las Marcas Grises y Core (que trae el sistema); un mapa que se juega con las reglas genéricas enseña Core, el pack al que pertenecen.
+Un mapa puede trabajar solo con algunos packs, que se eligen para toda su campaña: **Ajustes del mapa → Campaña → Packs** (por defecto, todos los cargados). Desmarca **Todos los packs cargados** y el panel Oráculo muestra solo los packs que trae el **Sistema** del mapa (marcados y en gris, _lo trae el sistema_) y los que marques además. Una tabla puede seguir tirando tablas de otros packs a las que se refiera. El mapa de ejemplo de las Marcas Grises se juega con las Marcas Grises y no añade nada, así que muestra las Marcas Grises y Core (que trae el sistema); un mapa que se juega con las reglas genéricas enseña Core, el pack al que pertenecen.
 
 ## Contexto del mapa
 
@@ -14,7 +14,7 @@ Las tiradas reciben lo que sabe el mapa, así que las tablas pueden depender de 
 - Del **token seleccionado**: `token.name`, `token.kind` y sus campos como `token.*`.
 - Durante un **viaje con reglas**: `season`, `weather`, `mode`, `day`, las estadísticas del grupo y los valores del día.
 
-Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores. La lista completa, y qué valor gana, está en [Lo que ven las tablas](../technical/04-what-tables-see.md). Arriba del panel se indica qué hex leen las tiradas. **Tirar aquí** (junto a las coordenadas en el panel del hex) abre Oracle con el hex seleccionado.
+Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores. La lista completa, y qué valor gana, está en [Lo que ven las tablas](../technical/04-what-tables-see.md). Arriba del panel se indica qué hex leen las tiradas. **Tirar aquí** (junto a las coordenadas en el panel del hex) abre Oráculo con el hex seleccionado.
 
 ## Guardar un resultado en el mapa
 
@@ -24,7 +24,7 @@ Durante un viaje con reglas, un resultado que cambia las características del gr
 
 ## Pruébalo
 
-Crea esta tabla en la aplicación Oracle (en un pack tuyo, ver [Packs](../oracle/03-packs.md)):
+Crea esta tabla en la aplicación Oráculo (en un pack tuyo, ver [Packs](../oracle/03-packs.md)):
 
 ```yaml
 kind: table
@@ -48,8 +48,8 @@ Después selecciona un hex de bosque, pulsa <kbd>O</kbd>, busca «Qué encontram
 
 ## Diario, historial y tus packs
 
-La campaña de cada mapa tiene su propio Oracle: su historial de tiradas, las cartas robadas de cada mazo y los resultados de una sola vez que ya salieron. Se guardan con la campaña (y en el `.otd.json` del mapa), así que abrir un mapa de otra campaña empieza de cero y al volver los encuentras. Las tiradas a mano y las comprobaciones de un viaje los comparten: una carta robada a mano tampoco sale en el viaje, ni en un viaje de la aplicación Travel que se juegue en la misma campaña, ni en la aplicación Oracle si tira en ella ([Tirar en una campaña](../oracle/02-rolling.md#tirar-en-una-campaña)).
+La campaña de cada mapa tiene su propio Oráculo: su historial de tiradas, las cartas robadas de cada mazo y los resultados de una sola vez que ya salieron. Se guardan con la campaña (y en el `.otd.json` del mapa), así que abrir un mapa de otra campaña empieza de cero y al volver los encuentras. Las tiradas a mano y las comprobaciones de un viaje los comparten: una carta robada a mano tampoco sale en el viaje, ni en un viaje de la aplicación Viajes que se juegue en la misma campaña, ni en la aplicación Oráculo si tira en ella ([Tirar en una campaña](../oracle/02-rolling.md#tirar-en-una-campaña)).
 
 Durante un viaje con reglas, las tiradas a mano también se apuntan en el diario.
 
-El panel usa los packs incluidos y los que creas en la aplicación Oracle. Tus packs viven en el navegador, así que las dos aplicaciones los ven cuando se sirven desde el mismo sitio (p. ej. `make serve`: `…/hexmapper/` y `…/oracle/`).
+El panel usa los packs incluidos y los que creas en la aplicación Oráculo. Tus packs viven en el navegador, así que las dos aplicaciones los ven cuando se sirven desde el mismo sitio (p. ej. `make serve`: `…/hexmapper/` y `…/oracle/`).

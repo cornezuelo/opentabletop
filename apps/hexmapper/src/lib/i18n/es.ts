@@ -5,7 +5,7 @@ import type { Messages } from './types'
 
 export const es: Messages = {
   app: {
-    title: 'Hexmapper',
+    title: vocabulary.es.apps.hexmapper,
   },
   hover: {
     region: `${vocabulary.es.terms.region}: {name}`,
@@ -38,13 +38,13 @@ export const es: Messages = {
     undo: 'Deshacer (Ctrl+Z)',
     redo: 'Rehacer (Ctrl+Shift+Z)',
     fit: 'Encuadrar mapa (F)',
-    oracle: 'Oracle: tira cualquier tabla (O)',
+    oracle: 'Oráculo: tira cualquier tabla (O)',
     world: 'Mundo: la fecha de la campaña, eventos y relojes de progreso',
   },
   file: {
     loaded: 'Mapa cargado',
     errorInvalid: 'El fichero no es un mapa válido.',
-    errorNewer: 'Este mapa se creó con una versión más reciente de Hexmapper.',
+    errorNewer: 'Este mapa se creó con una versión más reciente de Mapa.',
     changedElsewhere:
       'Este mapa se cambió en otra ventana: ahora muestra esa versión (Deshacer empieza de nuevo).',
     errorAutosave: 'No se pudo recuperar el autoguardado.',
@@ -73,9 +73,9 @@ export const es: Messages = {
     appliedButton: 'Aplicado al viaje',
     rollHere: 'Tirar aquí',
     rollHereHelp:
-      'Abre el Oracle con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{hex.danger}}` en una tirada, `hex.danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `hex.tags: landmark`',
-    title: 'Oracle',
-    help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oracle aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
+      'Abre el Oráculo con este hex: su terreno, etiquetas y campos llegan a las tablas.\n• un campo `danger = 3` → `{{hex.danger}}` en una tirada, `hex.danger: { gte: 2 }` en una condición\n• la etiqueta `landmark` → `hex.tags: landmark`',
+    title: 'Oráculo',
+    help: 'Las tiradas leen el hex seleccionado (o el del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oráculo aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
   panel: {
     whatItDoes: 'Qué hace',
@@ -98,12 +98,12 @@ export const es: Messages = {
     regions: vocabulary.es.terms.regions,
   },
   campaign: {
-    help: 'El mundo en el que se juega este mapa: el sistema, el reloj del mundo (el panel Mundo), las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano), compartidos por todos los mapas y viajes de la misma campaña. El mapa solo guarda su geografía y la tierra que cada facción tiene en él. Un mapa nuevo empieza en una campaña propia, con su nombre (numerado si otra campaña ya lo tiene: `Norte (2)`).\n• **Propia** — un mundo propio, como siempre tuvo un mapa\n• el nombre de otra campaña — este mapa se une a ella: su fecha, sus facciones y su Oráculo pasan a ser también los de este mapa\nSi la campaña de este mapa tiene mundo, unirse a otra pregunta cuál se queda. La campaña que se deja se borra si no queda nada más en ella. Los viajes de Travel se unen a una campaña igual.\nEn una campaña hay un viaje en curso a la vez: jugar otro pregunta si pausar el que se jugó por última vez.',
+    help: 'El mundo en el que se juega este mapa: el sistema, el reloj del mundo (el panel Mundo), las facciones y el Oráculo (mazos robados, resultados únicos, tiradas a mano), compartidos por todos los mapas y viajes de la misma campaña. El mapa solo guarda su geografía y la tierra que cada facción tiene en él. Un mapa nuevo empieza en una campaña propia, con su nombre (numerado si otra campaña ya lo tiene: `Norte (2)`).\n• **Propia** — un mundo propio, como siempre tuvo un mapa\n• el nombre de otra campaña — este mapa se une a ella: su fecha, sus facciones y su Oráculo pasan a ser también los de este mapa\nSi la campaña de este mapa tiene mundo, unirse a otra pregunta cuál se queda. La campaña que se deja se borra si no queda nada más en ella. Los viajes de la aplicación Viajes se unen a una campaña igual.\nEn una campaña hay un viaje en curso a la vez: jugar otro pregunta si pausar el que se jugó por última vez.',
     in: 'El mapa está en',
     own: 'Propia',
     name: 'Nombre de la campaña',
     nameHelp:
-      'Cómo se llama la campaña allí donde se elige (aquí, en los viajes de Travel, en el Oráculo). Sus mapas y viajes conservan sus propios nombres.\n• `Las Marcas del Norte`',
+      'Cómo se llama la campaña allí donde se elige (aquí, en los viajes de la aplicación Viajes, en el Oráculo). Sus mapas y viajes conservan sus propios nombres.\n• `Las Marcas del Norte`',
     also: 'También en ella: {places}.',
     trip: 'un viaje',
     join: vocabulary.es.campaign.whatStaysTitle,
@@ -121,12 +121,12 @@ export const es: Messages = {
   map: {
     system: vocabulary.es.terms.system,
     systemHelp:
-      'El sistema de juego con el que se juega la campaña de este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Es de la campaña, así que lo juegan todos sus mapas y viajes; cambiarlo pregunta antes si hay otros en ella. Los viajes nuevos de **Jugar** lo usan; el panel del Oracle muestra sus packs.\n• **Reglas genéricas** — el sistema de Core, el que juega un mapa sin elección: reglas de viaje sencillas, sin tablas propias\n• un sistema de otro pack — lo que declare ese pack (su página del manual lo cuenta)\nUn sistema sin reglas de viaje no juega viajes: solo su mundo, su oráculo y sus facciones.\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
+      'El sistema de juego con el que se juega la campaña de este mapa: sus reglas de viaje y las tablas que tiran, su calendario (las fechas del panel Mundo), su clima y los packs que trae. Es de la campaña, así que lo juegan todos sus mapas y viajes; cambiarlo pregunta antes si hay otros en ella. Los viajes nuevos de **Jugar** lo usan; el panel del Oráculo muestra sus packs.\n• **Reglas genéricas** — el sistema de Core, el que juega un mapa sin elección: reglas de viaje sencillas, sin tablas propias\n• un sistema de otro pack — lo que declare ese pack (su página del manual lo cuenta)\nUn sistema sin reglas de viaje no juega viajes: solo su mundo, su oráculo y sus facciones.\nUn viaje que ya está en marcha sigue con el sistema con el que empezó hasta que empiezas otro.',
     systemMissing:
       'El sistema «{system}» no está cargado en este navegador: no se pueden jugar viajes con él. Carga su pack o elige otro sistema.',
     packs: 'Packs',
     packsHelp:
-      'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añada su campaña, para todos los mapas de la campaña. Su panel del Oracle solo muestra estos.\n• un sistema que trae dos packs muestra los dos; añade otro pack para tirar también sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
+      'Los packs con los que trabaja este mapa: los que trae su sistema (siempre) y los que añada su campaña, para todos los mapas de la campaña. Su panel del Oráculo solo muestra estos.\n• un sistema que trae dos packs muestra los dos; añade otro pack para tirar también sus oráculos\n• **Todos los packs cargados** — todos, también los que añadas más tarde\nLas tablas aún pueden tirar tablas de otros packs a los que se refieren.',
     allPacks: 'Todos los packs cargados',
     fromSystem: 'lo trae el sistema',
     packMissing: 'El pack «{pack}» no está cargado en este navegador.',
@@ -312,7 +312,7 @@ export const es: Messages = {
     ownCampaigns: 'Cada uno en una campaña propia',
     playing: 'en juego',
     exampleHelp:
-      'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero. Los ejemplos de una misma campaña se abren en ella y comparten su reloj del mundo y sus facciones.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Systems, dicen qué enseña.',
+      'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero. Los ejemplos de una misma campaña se abren en ella y comparten su reloj del mundo y sus facciones.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Sistemas, dicen qué enseña.',
     exampleOf: 'con {system}',
     exampleMissing: 'Los packs cargados no tienen el mapa de ejemplo {path}.',
     exampleTitle: 'Abrir el ejemplo',
@@ -442,7 +442,7 @@ export const es: Messages = {
       'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja; ✎ pinta su tierra.',
     land: 'Su tierra',
     landHelp:
-      'Qué hexes tiene cada facción (`hex.faction`), dibujados en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las regiones y hexes que el sistema le da (Systems → **Facciones**), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita hexes\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno hex a hex (`faction.territory: 1` coge un hex de su frontera, `-1` cede uno)\nUn hex tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
+      'Qué hexes tiene cada facción (`hex.faction`), dibujados en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las regiones y hexes que el sistema le da (Sistemas → **Facciones**), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita hexes\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno hex a hex (`faction.territory: 1` coge un hex de su frontera, `-1` cede uno)\nUn hex tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
     help: campaignTexts.es.factions.help,
     none: 'El sistema del mapa tiene facciones, aún no en este mapa: tráelas, cada una con la tierra con la que el sistema dice que empieza.',
     bring: campaignTexts.es.factions.bring,
@@ -461,13 +461,13 @@ export const es: Messages = {
     giveSheet: 'Darle una hoja ({sheet})',
     fromRoster: vocabulary.es.roster.from,
     fromRosterHelp:
-      'Da a este token un personaje del plantel (la aplicación Characters) hecho con la hoja de los personajes del sistema del mapa o de sus plantillas: un PNJ que vuelve en varios mapas, una criatura hecha del bestiario. El token guarda su copia, enlazada: lo que cambies aquí se vuelca al plantel, y lo que cambie allí llega al mapa. Un personaje está en un sitio a la vez: tomar uno de un viaje o de otro token pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
+      'Da a este token un personaje del plantel (la aplicación Personajes) hecho con la hoja de los personajes del sistema del mapa o de sus plantillas: un PNJ que vuelve en varios mapas, una criatura hecha del bestiario. El token guarda su copia, enlazada: lo que cambies aquí se vuelca al plantel, y lo que cambie allí llega al mapa. Un personaje está en un sitio a la vez: tomar uno de un viaje o de otro token pregunta antes, y ese sitio conserva su copia, ya sin enlazar.',
     rosterChoose: vocabulary.es.roster.choose,
     rosterPlaysIn: vocabulary.es.roster.playsIn,
     rosterTake: vocabulary.es.roster.takeConfirm,
     keepInRoster: vocabulary.es.roster.keep,
     keepInRosterTip:
-      'Guarda esta hoja en el plantel (la aplicación Characters) como un personaje con el nombre del token, enlazado con él: luego podrá llevarse a otros mapas y viajes.',
+      'Guarda esta hoja en el plantel (la aplicación Personajes) como un personaje con el nombre del token, enlazado con él: luego podrá llevarse a otros mapas y viajes.',
     openInCharacters: vocabulary.es.roster.open,
     removeSheet: 'Quitarle la hoja',
     confirmNoSheet: '¿Quitar la hoja de este token y todo lo que hay en ella?',
@@ -619,7 +619,7 @@ export const es: Messages = {
     iconHelp:
       'Valores de este icono (un pueblo, un puente…). Las tablas tiradas en su hex los leen como `{{icon.<clave>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:
-      'Valores de este token (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oracle mientras está seleccionado los leen como `{{token.<clave>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
+      'Valores de este token (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oráculo mientras está seleccionado los leen como `{{token.<clave>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
     poiHelp:
       'Valores de este punto de interés, guardados con él en el mapa y su fichero (`treasure = 40`, `cleared = yes`). Las tablas no los leen: un hex puede tener varios puntos de interés.',
   },
@@ -641,7 +641,7 @@ export const es: Messages = {
   },
   world: {
     title: 'Mundo',
-    help: 'El reloj de la campaña: la fecha de hoy, eventos que programas (una fiesta, un ataque, un plazo), relojes de progreso y una cronología, con las facciones de la campaña, cada cosa en su pestaña. Usa el calendario del sistema con el que se juega el mapa. Los viajes con reglas lo hacen avanzar solos.\nEs el mismo mundo en todos los mapas y viajes de la campaña; **Abrir en Campaign ↗** lo muestra en la aplicación Campaign.',
+    help: 'El reloj de la campaña: la fecha de hoy, eventos que programas (una fiesta, un ataque, un plazo), relojes de progreso y una cronología, con las facciones de la campaña, cada cosa en su pestaña. Usa el calendario del sistema con el que se juega el mapa. Los viajes con reglas lo hacen avanzar solos.\nEs el mismo mundo en todos los mapas y viajes de la campaña; **Abrir en Campaña ↗** lo muestra en la aplicación Campaña.',
     openCampaign: vocabulary.es.campaign.open,
     tabs: {
       label: 'El mundo',

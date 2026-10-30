@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Every app: the apps' names are in the interface's language (in Spanish: Mapa, Campaña, Personajes, Oráculo, Viajes, Sistemas, Manual), in the switcher, each app's bar, the window's title, the texts and the manual; the Hexmapper is called **Map**.
+
 ## [0.25.0] - 2026-10-30
 
 ### Apps

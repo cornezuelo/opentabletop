@@ -1,12 +1,12 @@
 # Connecting tables to maps and trips
 
-You don't need to program to make tables that react to the map, or a whole travel system the Hexmapper plays for you. Everything is written in the pack's YAML files. This page builds it up step by step; each step works on its own.
+You don't need to program to make tables that react to the map, or a whole travel system Map plays for you. Everything is written in the pack's YAML files. This page builds it up step by step; each step works on its own.
 
-> **A complete example to copy from:** the bundled pack **The Grey Marches** uses every feature on this page, and has an example map to play it on (Hexmapper: Maps → Example maps). Open its files in the Oracle app, or make a copy (**Edit a copy**) to change them. [The Grey Marches](../packs/02-grey-marches.md) says where each feature is.
+> **A complete example to copy from:** the bundled pack **The Grey Marches** uses every feature on this page, and has an example map to play it on (Map: Maps → Example maps). Open its files in the Oracle app, or make a copy (**Edit a copy**) to change them. [The Grey Marches](../packs/02-grey-marches.md) says where each feature is.
 
 ## 1. A table that depends on the terrain
 
-When you roll from the Hexmapper (the Oracle panel, or a trip), the table receives what the map knows about the hex. `when` keeps an entry only if it matches:
+When you roll from Map (the Oracle panel, or a trip), the table receives what the map knows about the hex. `when` keeps an entry only if it matches:
 
 ```yaml
 kind: table
@@ -24,13 +24,13 @@ entries:
   - { id: nothing, range: 1-6, result: 'Nothing special' }
 ```
 
-All the entries cover 1–6: the **first one whose condition holds** wins, and the last one, without a condition, catches the rest. Terrains are written by their id (`forest`, `hills`, `swamp`…), as in the Hexmapper's palette.
+All the entries cover 1–6: the **first one whose condition holds** wins, and the last one, without a condition, catches the rest. Terrains are written by their id (`forest`, `hills`, `swamp`…), as in Map's palette.
 
 What a table can read from the map: `terrain`, `tags` (the hex's tags), `region` (the region's name), each **field** of the hex by its key (a hex with the field `danger: 3` gives `danger`), and `hex`. During a trip also `season`, `weather`, `mode` (on foot, on horseback…), `day` and the party stats. Every value, and which one wins when two share a name: [What tables see](../technical/04-what-tables-see.md).
 
 ## 2. Tags and fields
 
-Tag hexes in the Hexmapper (`haunted`, `ruins`…) and give them fields (`danger: 3`). Then:
+Tag hexes in Map (`haunted`, `ruins`…) and give them fields (`danger: 3`). Then:
 
 ```yaml
 entries:
@@ -84,7 +84,7 @@ Tables read the party back as `party.values.food`, `party.stats.morale`, `party.
 
 ## 5. Your own travel system
 
-A pack becomes a **system** a map can play (Hexmapper: **Map settings → Campaign → System**) and the Systems and Travel apps list when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
+A pack becomes a **system** a map can play (Map: **Map settings → Campaign → System**) and the Systems and Travel apps list when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
 
 ```yaml
 kind: travel-rules
@@ -167,9 +167,9 @@ The rest of this section goes over each part of that example: what it's for, wha
 
 ### The day and the speed
 
-There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (its **march**, below), the trip goes on by itself with the one its `onward` names, and what it does when it can't move is its **halt**. **travel** says when new trips start (`start`: a clock or a part of the calendar's day; empty, midnight) and how many hours a way's day of marching takes (`hoursPerDay`, the scale of its speed); actions spend hours too. Its `hexKm` is the scale the system is played at, how many km a hex measures (`hexKm: 30`: a hex is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Hexmapper: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
+There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (its **march**, below), the trip goes on by itself with the one its `onward` names, and what it does when it can't move is its **halt**. **travel** says when new trips start (`start`: a clock or a part of the calendar's day; empty, midnight) and how many hours a way's day of marching takes (`hoursPerDay`, the scale of its speed); actions spend hours too. Its `hexKm` is the scale the system is played at, how many km a hex measures (`hexKm: 30`: a hex is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Map: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
 
-- **terrains**: the speed on each terrain (`multiplier`: 0.5 is half speed, 2 double), by the ids of the Hexmapper's palette. `defaultTerrain: { multiplier: 1 }` covers the terrains the map uses and the list doesn't name.
+- **terrains**: the speed on each terrain (`multiplier`: 0.5 is half speed, 2 double), by the ids of Map's palette. `defaultTerrain: { multiplier: 1 }` covers the terrains the map uses and the list doesn't name.
 - **edges**: roads, trails and rivers the party follows (`road: { multiplier: 1.5 }`). Following one, its multiplier replaces the terrain's.
 - **weather**: today's weather (by the id a table or weather model sets) slows everyone down: `storm: { speed: 0 }` (nobody travels), `heavy-rain: { speed: 0.5 }`.
 
@@ -400,7 +400,7 @@ checks:
     }
 ```
 
-A check can have **effects of its own**: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). A check with no table and no effects is just written in the journal. `pause: true` rolls it (if a table resolves it) and then stops the trip until **Continue**, so you can describe the place, resolve it yourself or decide something: **only `pause: true` stops the trip**, with a table or without (a landmark to describe: `pause: true` and no table). Waiting with the world clock (Hexmapper → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): each moment as it comes, the halt's action's from its moment, `time.day-end` as each day ends.
+A check can have **effects of its own**: without a table it just applies them, which is how a system writes its rules as data ("a day without enough food: fatigue +1"). A check with no table and no effects is just written in the journal. `pause: true` rolls it (if a table resolves it) and then stops the trip until **Continue**, so you can describe the place, resolve it yourself or decide something: **only `pause: true` stops the trip**, with a table or without (a landmark to describe: `pause: true` and no table). Waiting with the world clock (Map → [World clock](../hexmapper/12-world.md#with-a-trip-going-on)) rolls them too (and takes the actions with `on:`): each moment as it comes, the halt's action's from its moment, `time.day-end` as each day ends.
 
 ### Bindings, stats and reads
 
@@ -425,7 +425,7 @@ reads:
 
 ### Naming the system
 
-Travel rules and bindings are enough for a system named after its pack. A `kind: system` says it in one place, with what else it brings: its calendar, the weather models its bindings use, other packs' tables (packs it depends on) and example maps to play it on (`maps:`, map files in the pack, listed in the Hexmapper's **Maps → Example maps**). A pack may declare several, e.g. a winter variant with its own travel rules: In the Systems app, the system's **Overview** writes it with a form.
+Travel rules and bindings are enough for a system named after its pack. A `kind: system` says it in one place, with what else it brings: its calendar, the weather models its bindings use, other packs' tables (packs it depends on) and example maps to play it on (`maps:`, map files in the pack, listed in Map's **Maps → Example maps**). A pack may declare several, e.g. a winter variant with its own travel rules: In the Systems app, the system's **Overview** writes it with a form.
 
 ```yaml
 kind: system
@@ -546,7 +546,7 @@ The Grey Marches' `sky.yaml` is the full example (their tables in `weather.yaml`
 
 ## 7. Discovering the map
 
-Bindings can also say how empty hexes are decided while travelling (the Hexmapper's **Discover the map as you travel**):
+Bindings can also say how empty hexes are decided while travelling (Map's **Discover the map as you travel**):
 
 ```yaml
 kind: bindings
@@ -569,5 +569,5 @@ The Grey Marches' `discovery.yaml` is a full example: terrain that tends to go o
 
 1. In the Oracle app, roll each table with values typed in **Context** (terrain, season…) to check the results.
 2. In the Travel app, pick your system and open **Play**: build a short way with the terrains and tags your checks look for, and travel. The journal shows each check and its result.
-3. On a map: in the Hexmapper, Play → **With rules**, pick your pack as the rules, place the party and travel.
+3. On a map: in Map, Play → **With rules**, pick your pack as the rules, place the party and travel.
 4. Problems in the travel rules or bindings appear in the pack page, like any other.

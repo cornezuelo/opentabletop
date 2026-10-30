@@ -171,7 +171,7 @@ export async function exportPdf(dpi: number, options: PdfOptions = {}): Promise<
       orientation: page.width > page.height ? 'landscape' : 'portrait',
       compress: true,
     })
-    pdf.setProperties({ title, creator: 'Hexmapper' })
+    pdf.setProperties({ title, creator: 'OpenTabletop' })
     const columns = Math.max(...pages.map((p) => p.column)) + 1
     const rows = Math.max(...pages.map((p) => p.row)) + 1
     let usedDpi = dpi
@@ -231,7 +231,7 @@ export async function exportPdf(dpi: number, options: PdfOptions = {}): Promise<
     orientation: page.width > page.height ? 'landscape' : 'portrait',
     compress: true,
   })
-  pdf.setProperties({ title, creator: 'Hexmapper' })
+  pdf.setProperties({ title, creator: 'OpenTabletop' })
   pdf.addImage(result.canvas, 'PNG', layout.x, layout.y, layout.image.width, layout.image.height)
   download(pdf.output('blob'), `${editor.map.meta.id}.pdf`)
   return { ...layout, dpi: usedDpi, tiles: { columns: 1, rows: 1 } }

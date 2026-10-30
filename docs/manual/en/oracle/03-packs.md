@@ -19,7 +19,7 @@ Some games only allow their tables for **personal use** (Kal-Arath, for one). Th
 
 ## Other definitions: travel rules and bindings
 
-Besides tables, oracles, generators and decks, a pack can hold definitions for **other engines**. Today these are two, and together they turn a pack into a **travel system** that the Hexmapper's Play mode (**With rules**) and the [Travel app](../travel/01-getting-started.md) can play:
+Besides tables, oracles, generators and decks, a pack can hold definitions for **other engines**. Today these are two, and together they turn a pack into a **travel system** that Map's Play mode (**With rules**) and the [Travel app](../travel/01-getting-started.md) can play:
 
 | Definition       | `kind`         | What it says                                                                                                                                |
 | ---------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -63,7 +63,7 @@ The pack page shows its manifest, its **problems** (click one to jump to the lin
 
 **Export .zip** downloads the pack as a folder; **Import .zip** adds the packs of a .zip: one pack, or a whole system with the packs it brings, exported from the Systems app (packs already here unchanged are left alone; replacing a different version asks first). Your packs live only in this browser: export them to keep them safe. To take several packs at once, with the campaigns and characters that use them, use the app switcher's [**Export…**](../technical/05-backups.md#exporting-and-importing-some-of-it).
 
-The Hexmapper sees your packs when both apps are served from the same site (e.g. `…/oracle/` and `…/hexmapper/`).
+Map sees your packs when both apps are served from the same site (e.g. `…/oracle/` and `…/hexmapper/`).
 
 ## Copying definitions
 

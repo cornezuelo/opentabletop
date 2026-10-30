@@ -11,7 +11,7 @@ travel:
   start: time.part.morning
   onward: { do: actions.march, with: { until: destination } }
   halt: { at: time.part.night, do: actions.camp }
-# The terrains of the Hexmapper's palettes; one the rules don't list is crossed at normal
+# The terrains of Map's palettes; one the rules don't list is crossed at normal
 # speed. A lake is crossed on the ice in winter (passable as a condition), never otherwise.
 terrains:
   steppe: { multiplier: 1 }
@@ -37,7 +37,7 @@ terrains:
   oasis: { multiplier: 1 }
   glacier: { multiplier: 0.25 }
   coast: { multiplier: 1 }
-  # Modern, post-apocalyptic and sci-fi terrains (the Hexmapper's terrain sets).
+  # Modern, post-apocalyptic and sci-fi terrains (Map's terrain sets).
   city: { multiplier: 1 }
   suburbs: { multiplier: 1 }
   industrial: { multiplier: 0.75 }

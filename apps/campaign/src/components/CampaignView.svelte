@@ -4,6 +4,8 @@
   import { calendarOf, systemName } from '@open-tabletop/session'
   import {
     APPS,
+    appName,
+    type AppId,
     appUrl,
     InfoTip,
     Markdown,
@@ -37,7 +39,8 @@
   const system = $derived(open.system)
   const calendar = $derived(calendarOf(system))
   const label = $derived(campaign?.name || t('nav.untitled'))
-  const appName = (app: string) => APPS.find((a) => a.id === app)?.name ?? app
+  const nameOf = (app: string) =>
+    APPS.some((a) => a.id === app) ? appName(app as AppId, getLocale()) : app
 
   function rename(input: HTMLInputElement) {
     const name = input.value.trim()
@@ -105,7 +108,7 @@
       <p class="playing">
         {t('campaign.playing', {
           name: campaign.playing.name || label,
-          app: appName(campaign.playing.app),
+          app: nameOf(campaign.playing.app),
         })}<InfoTip markdown={t('campaign.playingHelp')} />
         {#if url}<a href={url}>{t('campaign.open')}</a>{/if}
       </p>

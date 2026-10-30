@@ -10,7 +10,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 
 - **Travel rules**, **Bindings** and **Calendar**: the ones it plays with, each chosen among this pack's (by id) and its dependencies' (`core/default`), listed by name when they have one (_The Royal Reckoning (royal-reckoning)_). **Open** goes to the tab that edits them; **Create** makes new travel rules (a copy of the Generic ones, naming Core's calendar too when the system has none and depends on Core) or empty bindings and names them.
 - **Weather models**: the ones its bindings can name (`weather: weather.highland-skies`), each with its name and id. They're edited in [Weather](13-weather.md).
-- **Land models**: the ones the Hexmapper's **Generate land** and discovery can use (`land: [land.default]`), each with its name and id. They're edited in [Land](14-land.md).
+- **Land models**: the ones Map's **Generate land** and discovery can use (`land: [land.default]`), each with its name and id. They're edited in [Land](14-land.md).
 - **Item catalogues** (`items:`, a list): what its characters may carry; made, chosen and edited in [Items](08-items.md), whose **New catalogue** adds one here.
 - **Bestiaries** (`bestiary:`, a list): the creatures and kinds of people it can make; made, chosen and edited in [Bestiary](18-bestiary.md), whose **New bestiary** adds one here.
 - **Catalogues of places** (`places:`, a list): the places its results can make on the party's hex; made, chosen and edited in [Places](19-places.md), whose **New catalogue of places** adds one here.
@@ -23,8 +23,8 @@ Its own always, and the dependencies you tick, whose tables come with it: a map 
 
 Maps to play the system on, kept in its pack (`maps:`):
 
-- **Open in the Hexmapper →** opens one there as its **Maps → Example maps** would.
-- **Add a map file…** copies a map file the Hexmapper's **Save** wrote into the pack's `maps/` folder.
+- **Open in Map →** opens one there as its **Maps → Example maps** would.
+- **Add a map file…** copies a map file Map's **Save** wrote into the pack's `maps/` folder.
 - **Remove** takes it out of the pack.
 
 Maps whose files name the same campaign (saved from maps of one campaign) open in it together, sharing its world clock and factions.

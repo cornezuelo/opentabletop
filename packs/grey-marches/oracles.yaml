@@ -102,14 +102,14 @@ entries:
 # variant shows something else: rolls on party values ({{party.stats.morale}}), entries
 # that only come up with enough food (conditions on party.items), limits per session
 # (once, maxOccurrences), cascades into other tables and generators, and values that
-# change the party (food, morale, hirelings) — in the Hexmapper, "Apply to the trip"
+# change the party (food, morale, hirelings) — in Map, "Apply to the trip"
 # under the result. In the Oracle app there is no party: `exists` picks other entries.
 kind: oracle
 id: inn
 tags: [places]
 name: At The Wet Ferret
 description: |-
-  **The Wet Ferret**, the inn of Ashford: what you spend changes the night. In the Hexmapper, **Apply to the trip** under the result changes the party.
+  **The Wet Ferret**, the inn of Ashford: what you spend changes the night. In Map, **Apply to the trip** under the result changes the party.
 
   **Shows:**
 

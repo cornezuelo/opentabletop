@@ -4,8 +4,12 @@
  * package's dictionary refers to these instead of copying them. Pack content (a system's
  * own names) never goes here.
  */
+import { APP_NAMES } from './apps.data.mjs'
+
 export const vocabulary = {
   en: {
+    /** Each app's name (also in the switcher and the window's title). */
+    apps: APP_NAMES.en,
     /** The roster of characters (the Characters app), where a trip or a token meets it. */
     roster: {
       from: 'From the roster',
@@ -135,6 +139,7 @@ export const vocabulary = {
     },
   },
   es: {
+    apps: APP_NAMES.es,
     roster: {
       from: 'Del plantel',
       choose: 'Elige…',
@@ -142,10 +147,10 @@ export const vocabulary = {
       takeConfirm:
         '{name} viaja en {place}. ¿Traerlo aquí? Ese sitio conserva su copia, ya sin enlazar con el plantel.',
       keep: 'Guardar en el plantel',
-      open: 'Abrir en Characters',
+      open: 'Abrir en Personajes',
     },
     campaign: {
-      open: 'Abrir en Campaign ↗',
+      open: 'Abrir en Campaña ↗',
       untitled: 'Campaña sin nombre',
       pauseOther:
         'Hay otro viaje en curso en esta campaña: «{trip}». ¿Pausarlo y jugar este? En una campaña el tiempo es uno: si su reloj avanzó, este grupo espera hasta entonces.',

@@ -237,7 +237,7 @@ Travel rules multiply speeds: a terrain's or road's `multiplier` (`0.5` half, `1
 
 Descriptions take basic Markdown: a blank line between paragraphs, `**bold**`, `_italics_`, `` `code` ``, lists (`- item`), quotes (`> …`) and web links (`[text](https://…)`); nothing else, HTML included, is shown as text. In YAML, a long one goes as a block: `description: |-` and the text indented below.
 
-**Tags** sort what is rolled: `tags: [people, names]` on a table, oracle, generator or deck, any words the pack chooses, which the Oracle's and the Hexmapper's **Filter** show or hide (`rules`, in our packs, for what a system rolls itself).
+**Tags** sort what is rolled: `tags: [people, names]` on a table, oracle, generator or deck, any words the pack chooses, which the Oracle's and Map's **Filter** show or hide (`rules`, in our packs, for what a system rolls itself).
 
 ## Translations
 

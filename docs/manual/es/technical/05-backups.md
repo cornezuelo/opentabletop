@@ -8,12 +8,12 @@ Abre el selector de aplicaciones (los nueve puntos, en cualquier aplicación) y 
 
 Contiene todo lo que las aplicaciones guardan en este navegador:
 
-- **Mapas**: todos los de la biblioteca del Hexmapper, con su estado de juego (grupo, rastro, viaje, diario) y la tierra que tiene en él cada facción.
+- **Mapas**: todos los de la biblioteca de Mapa, con su estado de juego (grupo, rastro, viaje, diario) y la tierra que tiene en él cada facción.
 - **Campañas**: el mundo en el que se juega cada mapa: su reloj del mundo y su clima, sus facciones y su Oráculo (historial, mazos, resultados que solo salen una vez).
 - **Tus packs**: los que has creado o editado, y las copias editadas de packs incluidos.
-- **El plantel de la aplicación Characters**: cada personaje y grupo que guarda, con sus notas, dónde juega y los miembros de un grupo.
-- **Los viajes de la aplicación Travel**, el historial, los mazos y la semilla de la **aplicación Oracle**, y los **favoritos**.
-- **Preferencias**: idioma, aplicación de notas, los packs ocultos en el Oracle, el último sistema elegido, la campaña en la que juegas, disposición de paneles y similares.
+- **El plantel de la aplicación Personajes**: cada personaje y grupo que guarda, con sus notas, dónde juega y los miembros de un grupo.
+- **Los viajes de la aplicación Viajes**, el historial, los mazos y la semilla de la **aplicación Oráculo**, y los **favoritos**.
+- **Preferencias**: idioma, aplicación de notas, los packs ocultos en el Oráculo, el último sistema elegido, la campaña en la que juegas, disposición de paneles y similares.
 
 Los packs incluidos no van en ella: vienen con las aplicaciones.
 
@@ -43,7 +43,7 @@ Una copia de seguridad se lo lleva todo. Para elegir qué va (una campaña para 
 Muestra lo que has hecho como un árbol con casillas, todas marcadas al principio:
 
 - **Tus packs**: los packs que has hecho o editado, y tus copias de packs incluidos. Una copia de un pack cuya licencia solo permite el uso personal va marcada **Uso personal**, y marcarla avisa de que el fichero no se puede compartir.
-- **Campañas**, cada una con sus **mapas** (los del Hexmapper) y **viajes** (los de Travel) debajo. Marcar una campaña marca también sus mapas y viajes; desmarca cualquiera para dejarlo fuera.
+- **Campañas**, cada una con sus **mapas** (los de Mapa) y **viajes** (los de Viajes) debajo. Marcar una campaña marca también sus mapas y viajes; desmarca cualquiera para dejarlo fuera.
 - **Mapas y viajes** cuya campaña no se guarda aquí, si los hay.
 - **Personajes**: los del plantel.
 
@@ -52,12 +52,12 @@ Muestra lo que has hecho como un árbol con casillas, todas marcadas al principi
 Cuando algo marcado necesita algo que no lo está, **Se queda fuera** dice qué y por qué, por ejemplo:
 
 - `Pack «Casero» depende de Pack «Saber».`: las `dependencies` de un pack (ver [Formatos de fichero](02-file-formats.md)).
-- `Viaje «A la costa» se juega en Campaña «El Norte».`: un mapa o viaje sin su campaña no tiene reloj del mundo, facciones ni Oracle en otro sitio.
+- `Viaje «A la costa» se juega en Campaña «El Norte».`: un mapa o viaje sin su campaña no tiene reloj del mundo, facciones ni Oráculo en otro sitio.
 - `Campaña «El Norte» se juega con Pack «Casero».`: el pack del sistema con el que se juega una campaña, un viaje o la hoja de un personaje, y los packs que una campaña añade a los de su sistema.
 - `Brenna juega en Viaje «A la costa».`: un personaje del plantel y el mapa o viaje en el que juega, en los dos sentidos.
 - `Brenna está en el grupo La Compañía.`: un grupo del plantel y sus miembros.
 
-**Añadir lo que falta** lo marca todo, y lo que eso necesite a su vez. Puedes exportar igualmente sin ello. Los packs que traen las aplicaciones (Core, las Marcas Grises…) nunca van en el fichero ni se piden: toda copia de OpenTabletop los tiene. Las preferencias, el historial de la aplicación Oracle y los viajes de prueba de Systems solo van en las copias de seguridad.
+**Añadir lo que falta** lo marca todo, y lo que eso necesite a su vez. Puedes exportar igualmente sin ello. Los packs que traen las aplicaciones (Core, las Marcas Grises…) nunca van en el fichero ni se piden: toda copia de OpenTabletop los tiene. Las preferencias, el historial de la aplicación Oráculo y los viajes de prueba de Sistemas solo van en las copias de seguridad.
 
 Para traer una exportación, pulsa **Importar…** en el selector de aplicaciones y elige el fichero. El mismo árbol muestra lo que trae, cada cosa marcada así:
 
@@ -67,7 +67,7 @@ Para traer una exportación, pulsa **Importar…** en el selector de aplicacione
 
 **Se queda fuera** funciona igual, contando lo que ya tiene este navegador: un viaje cuya campaña está aquí no necesita nada más. Importar añade lo que marcaste junto a todo lo demás que hay aquí (no se quita nada) y recarga la página; cierra antes otras pestañas de OpenTabletop.
 
-El **Importar .zip** de la Oracle también lee una exportación, y toma solo sus packs.
+El **Importar .zip** de la Oráculo también lee una exportación, y toma solo sus packs.
 
 ## El fichero
 
@@ -86,8 +86,8 @@ Un fichero JSON:
 }
 ```
 
-- `storage` copia como texto las entradas del almacenamiento del navegador cuyas claves empiezan por `opentabletop.` o `hexmapper.`. Quedan fuera las copias de emergencia del mapa abierto del Hexmapper y de su campaña (`hexmapper.pending`, `hexmapper.pendingCampaign`).
-- `maps` copia la biblioteca del Hexmapper tal cual: cada `json` es un mapa en el formato propio del Hexmapper, que lleva su versión y se migra al abrirlo. Para compartir un solo mapa con otras herramientas, usa **Guardar** en el Hexmapper (un paquete OTD, ver [Formatos de fichero](02-file-formats.md)).
+- `storage` copia como texto las entradas del almacenamiento del navegador cuyas claves empiezan por `opentabletop.` o `hexmapper.`. Quedan fuera las copias de emergencia del mapa abierto de la aplicación Mapa y de su campaña (`hexmapper.pending`, `hexmapper.pendingCampaign`).
+- `maps` copia la biblioteca de Mapa tal cual: cada `json` es un mapa en el formato propio de Mapa, que lleva su versión y se migra al abrirlo. Para compartir un solo mapa con otras herramientas, usa **Guardar** en Mapa (un paquete OTD, ver [Formatos de fichero](02-file-formats.md)).
 - `campaigns` copia las campañas igual, cada `json` en su propio formato con versión. Las copias hechas antes de las campañas (`version` 1) no tienen: cada uno de sus mapas crea la suya al abrirse.
 - `version` es la versión de este envoltorio. Las copias más recientes de lo que entiende la aplicación se rechazan en lugar de leerse mal.
 
@@ -98,7 +98,7 @@ Un .zip:
 ```
 opentabletop-export.json        lo que trae: { "format": "opentabletop-export", "version": 1, "created", "packs", "maps", "campaigns" }
 packs/<id>/pack.yaml, …         cada pack como carpeta de pack
-maps/<id>.json                  cada mapa tal y como lo guarda la biblioteca del Hexmapper
+maps/<id>.json                  cada mapa tal y como lo guarda la biblioteca de Mapa
 campaigns/<id>.json             cada campaña en su propio formato
 trips/<id>.json                 cada viaje de Travel tal y como lo guarda Travel
 characters/<id>.json            cada personaje del plantel con sus notas y dónde juega (un grupo, con sus miembros)

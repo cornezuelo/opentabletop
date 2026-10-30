@@ -7,7 +7,7 @@ id: default
 name: Generic rules
 description: |-
   The rules a map plays when it chooses no system: marching by day on foot or on horseback
-  across the terrains of the Hexmapper's palettes, roads and trails that speed it up,
+  across the terrains of Map's palettes, roads and trails that speed it up,
   camping at night, a day of food eaten each day, weather that follows yesterday's and
   slows the march, characters with health and a wound, and the party's morale.
 
@@ -29,5 +29,5 @@ bestiary: [bestiary.foes]
 places: [places.default]
 # The weather models its bindings name (weather.yaml).
 weather: [weather.default]
-# Its land (land.yaml): what the Hexmapper's Generate fills empty hexes with.
+# Its land (land.yaml): what Map's Generate fills empty hexes with.
 land: [land.default]

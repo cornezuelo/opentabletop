@@ -23,11 +23,11 @@ Every generator's parts are tables of their own (_Northern given names_, _Inn si
 
 ## Finding them
 
-Every definition is **tagged** `names`, with what it names (`people`, `settlements`, `inns`, `landmarks`, `ships`, `worlds`) and its setting (`fantasy`, `modern`, `sci-fi`). In the Oracle app's (or the Hexmapper's) **Filter**, the `names` chip shows only the names of every pack (the Grey Marches' _Names of the Marches_ too); `inns` only what names inns; `−sci-fi` hides the starships and worlds. See the Oracle's [Getting started](../oracle/01-getting-started.md).
+Every definition is **tagged** `names`, with what it names (`people`, `settlements`, `inns`, `landmarks`, `ships`, `worlds`) and its setting (`fantasy`, `modern`, `sci-fi`). In the Oracle app's (or Map's) **Filter**, the `names` chip shows only the names of every pack (the Grey Marches' _Names of the Marches_ too); `inns` only what names inns; `−sci-fi` hides the starships and worlds. See the Oracle's [Getting started](../oracle/01-getting-started.md).
 
 ## On the map
 
-In the Hexmapper's Oracle panel, roll **What's it called?** on a hex and keep the result with **Add to … as a point of interest**: a village, an inn or a landmark gets its name there (see [The Oracle in the map](../hexmapper/09-oracle.md)). _A landmark_ reads the hex's terrain. A map whose campaign uses only some packs lists Names when you tick it in **Map settings → Campaign → Packs**.
+In Map's Oracle panel, roll **What's it called?** on a hex and keep the result with **Add to … as a point of interest**: a village, an inn or a landmark gets its name there (see [The Oracle in the map](../hexmapper/09-oracle.md)). _A landmark_ reads the hex's terrain. A map whose campaign uses only some packs lists Names when you tick it in **Map settings → Campaign → Packs**.
 
 ## How it's made
 

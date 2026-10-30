@@ -7,7 +7,7 @@
     restoreBackup,
     summarize,
   } from '@open-tabletop/storage'
-  import { APPS, appBlurb, appIconUrl, appUrl, logoUrl, REPO, type AppId } from './apps'
+  import { APPS, appBlurb, appIconUrl, appName, appUrl, logoUrl, REPO, type AppId } from './apps'
   import { ask } from './dialog.svelte'
   import { showToast } from './toasts.svelte'
   import { tooltip } from './tooltip'
@@ -67,7 +67,7 @@
       sameSite: 'Las aplicaciones comparten tus packs cuando se sirven desde el mismo sitio.',
       data: 'Tus datos en este navegador',
       dataHelp:
-        'Todo lo que las aplicaciones guardan aquí (mapas, tus packs, viajes, historiales y mazos del Oracle, favoritos, preferencias) en un fichero: para llevar tus partidas a otro ordenador o tener una copia por si se pierden los datos del navegador.',
+        'Todo lo que las aplicaciones guardan aquí (mapas, tus packs, viajes, historiales y mazos del Oráculo, favoritos, preferencias) en un fichero: para llevar tus partidas a otro ordenador o tener una copia por si se pierden los datos del navegador.',
       backup: 'Guardar una copia',
       restore: 'Restaurar una copia…',
       saved: 'Copia guardada: guarda el fichero en un lugar seguro.',
@@ -171,19 +171,25 @@
           <div class="app here">
             <img src={appIconUrl(app.id)} alt="" />
             <span
-              ><strong>{app.name}</strong><small>{text.here}</small>{appBlurb(app.id, locale)}</span
+              ><strong>{appName(app.id, locale)}</strong><small>{text.here}</small>{appBlurb(
+                app.id,
+                locale,
+              )}</span
             >
           </div>
         {:else if app.available}
           <a class="app" href={appUrl(app.id)}>
             <img src={appIconUrl(app.id)} alt="" />
-            <span><strong>{app.name}</strong>{appBlurb(app.id, locale)}</span>
+            <span><strong>{appName(app.id, locale)}</strong>{appBlurb(app.id, locale)}</span>
           </a>
         {:else}
           <div class="app soon">
             <img src={appIconUrl(app.id)} alt="" />
             <span
-              ><strong>{app.name}</strong><small>{text.soon}</small>{appBlurb(app.id, locale)}</span
+              ><strong>{appName(app.id, locale)}</strong><small>{text.soon}</small>{appBlurb(
+                app.id,
+                locale,
+              )}</span
             >
           </div>
         {/if}

@@ -3,7 +3,7 @@ import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   app: {
-    title: 'Characters',
+    title: vocabulary.es.apps.characters,
     tagline: 'Tus personajes, de cualquier sistema.',
   },
   nav: {
@@ -37,12 +37,12 @@ export const es: Messages<typeof en> = {
     makeSystems: 'Crear o editar sistemas →',
   },
   welcome: {
-    title: 'Characters',
-    body: 'Tu plantel: los personajes que guarda este navegador, de cualquier sistema. Crea uno con **Nuevo personaje**, o guarda uno de un viaje (**Guardar en el plantel** en su ficha, en Travel o en el Hexmapper). Un personaje del plantel puede viajar en cualquier mapa o viaje jugado con su sistema, en uno a la vez, y lo que le pase allí vuelve aquí. Cada uno se hace con la hoja de personajes de su sistema, que se edita en la aplicación Systems.',
+    title: vocabulary.es.apps.characters,
+    body: 'Tu plantel: los personajes que guarda este navegador, de cualquier sistema. Crea uno con **Nuevo personaje**, o guarda uno de un viaje (**Guardar en el plantel** en su ficha, en Viajes o en Mapa). Un personaje del plantel puede viajar en cualquier mapa o viaje jugado con su sistema, en uno a la vez, y lo que le pase allí vuelve aquí. Cada uno se hace con la hoja de personajes de su sistema, que se edita en la aplicación Sistemas.',
   },
   bestiary: {
     title: 'Bestiario',
-    help: 'Las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. **Crear un personaje** mete uno en el plantel, con nombre del generador de la plantilla si tiene uno (un PNJ que vuelve); **Crear copias** mete varios (una pelea en la mesa). Las tablas y los efectos las hacen en un viaje (`present.<id>: 3`). Aquí se ven las plantillas tal cual, y se editan en la aplicación Systems (**Editar en Systems ↗**): lo que cambies allí solo afecta a las copias que se hagan después.',
+    help: 'Las criaturas y clases de gente que un sistema puede crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. **Crear un personaje** mete uno en el plantel, con nombre del generador de la plantilla si tiene uno (un PNJ que vuelve); **Crear copias** mete varios (una pelea en la mesa). Las tablas y los efectos las hacen en un viaje (`present.<id>: 3`). Aquí se ven las plantillas tal cual, y se editan en la aplicación Sistemas (**Editar en Sistemas ↗**): lo que cambies allí solo afecta a las copias que se hagan después.',
     inRoster: 'En el plantel',
     inRosterHelp:
       'Personajes hechos a partir de esta plantilla, guardados en el plantel como cualquier otro: cada uno con sus propias tiradas (sus valores se tiran de nuevo para cada uno), sus etiquetas y lo que lleva, y recordando la plantilla de la que viene (**Hecho a partir de**).\n• **Crear un personaje** — uno, con nombre de los **Nombres de** de la plantilla si tiene (Hrolf, un bandido que vuelve), y se abre para editarlo\n• **Crear copias** — ese número de una vez (cuatro lobos para la pelea de esta noche), con nombre igual o numerados (_Lobo gris 1_, _2_…)\nDebajo sale cuántos hay en el plantel, con **Borrarlos todos** para quitarlos cuando acabe el encuentro.',
@@ -58,10 +58,10 @@ export const es: Messages<typeof en> = {
     count: 'Cuántas',
     made: 'Hechas {count} × {name}.',
     cantMake: 'No se pueden hacer estas copias: la plantilla no tiene hoja.',
-    edit: 'Editar en Systems ↗',
+    edit: 'Editar en Sistemas ↗',
     editHelp:
-      'Las plantillas son parte de su sistema, como sus hojas, así que se editan en la aplicación Systems, en su pestaña **Bestiario**: este enlace la abre en esta plantilla. Las copias ya hechas no cambian con ella: cada una es un personaje del plantel, que se edita aquí como cualquier otro.\n• Allí un sistema incluido es de solo lectura: antes, **Editar una copia**',
-    none: 'Aún no hay ningún sistema con bestiario. Crea uno en la aplicación Systems (su pestaña **Bestiario**): **Nueva plantilla ↗** te lleva allí.',
+      'Las plantillas son parte de su sistema, como sus hojas, así que se editan en la aplicación Sistemas, en su pestaña **Bestiario**: este enlace la abre en esta plantilla. Las copias ya hechas no cambian con ella: cada una es un personaje del plantel, que se edita aquí como cualquier otro.\n• Allí un sistema incluido es de solo lectura: antes, **Editar una copia**',
+    none: 'Aún no hay ningún sistema con bestiario. Crea uno en la aplicación Sistemas (su pestaña **Bestiario**): **Nueva plantilla ↗** te lleva allí.',
     intro:
       'Las criaturas y clases de gente que tus sistemas pueden crear, como **plantillas**: cada una un personaje de una hoja cuyas tiradas (`{{2d4}}`) se hacen de nuevo para cada copia. Elige una en **Bestiario**, a la izquierda, por sistema y hoja; búscala, o fíltrala por sus etiquetas. De una plantilla se hacen copias en el plantel, y las tablas y los efectos las hacen en un viaje (`present.<id>: 3`).',
     notFound:
@@ -81,13 +81,13 @@ export const es: Messages<typeof en> = {
     aParty: 'un grupo',
     create: 'Crear',
     noSystems:
-      'Ningún sistema tiene aún hoja de personajes: crea una en Systems (su pestaña **Hoja**).',
+      'Ningún sistema tiene aún hoja de personajes: crea una en Sistemas (su pestaña **Hoja**).',
   },
   character: {
     sheet: 'Hoja',
     sheetHelp:
-      'La hoja con la que está hecho (`pack/id`): sus valores, contadores, estados y tipos de relación. Una hoja es de su sistema, y se edita en la aplicación Systems.',
-    editSheet: 'Editar la hoja en Systems →',
+      'La hoja con la que está hecho (`pack/id`): sus valores, contadores, estados y tipos de relación. Una hoja es de su sistema, y se edita en la aplicación Sistemas.',
+    editSheet: 'Editar la hoja en Sistemas →',
     madeFrom: 'Hecho a partir de',
     madeFromHelp:
       'La plantilla de un bestiario de la que se copió: sus números se tiraron al hacerlo y, desde entonces, es un personaje como cualquier otro. Cambiar la plantilla después no lo cambia.',
@@ -103,7 +103,7 @@ export const es: Messages<typeof en> = {
     notesPlaceholder: 'Personajes/{name}',
     where: 'Dónde juega',
     whereHelp:
-      'Un personaje viaja en un sitio a la vez: el viaje de un mapa en el Hexmapper, un viaje en Travel o un token en un mapa. Lo que le pasa allí se vuelca aquí tras cada paso; lo que cambies aquí, el viaje lo encuentra la próxima vez que se abra. Al lado sale la campaña en la que está ese sitio, con un enlace a ella en la aplicación Campaign.',
+      'Un personaje viaja en un sitio a la vez: el viaje de un mapa en la aplicación Mapa, un viaje en la aplicación Viajes o un token en un mapa. Lo que le pasa allí se vuelca aquí tras cada paso; lo que cambies aquí, el viaje lo encuentra la próxima vez que se abra. Al lado sale la campaña en la que está ese sitio, con un enlace a ella en la aplicación Campaña.',
     nowhere:
       'Solo en el plantel. Para llevarlo de viaje, elígelo en **Del plantel** en la pestaña **Grupo** del viaje: con el grupo, o en **Aquí** entre los presentes (una criatura, un PNJ que se cruza en el camino); o dáselo a un token de un mapa (su **Hoja**).',
     playsIn: '{place}, en {app}',

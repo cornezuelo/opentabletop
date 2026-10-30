@@ -8,7 +8,7 @@ name: What's it called?
 description: |-
   A **name for a place**: choose what it is.
 
-  Rolled from the Hexmapper on a hex, a landmark's name fits its terrain when the system calls it `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` or `sea`.
+  Rolled from Map on a hex, a landmark's name fits its terrain when the system calls it `forest`, `hills`, `mountains`, `swamp`, `marsh`, `lake`, `coast` or `sea`.
 inputs:
   what:
     label: What is it

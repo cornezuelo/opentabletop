@@ -90,9 +90,9 @@
 {#if first}
   <p class="others">
     {t('new.without')}
-    <a href={appUrl('oracle')}>Oracle</a> ·
-    <a href={appUrl('characters')}>Characters</a> ·
-    <a href={appUrl('hexmapper')}>Hexmapper</a>
+    <a href={appUrl('oracle')}>{t('apps.oracle')}</a> ·
+    <a href={appUrl('characters')}>{t('apps.characters')}</a> ·
+    <a href={appUrl('hexmapper')}>{t('apps.hexmapper')}</a>
   </p>
 {/if}
 

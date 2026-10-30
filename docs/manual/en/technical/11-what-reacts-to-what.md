@@ -4,8 +4,8 @@ A system's rules react to things happening: a check is rolled at dawn, an action
 
 ## Two places that react
 
-- **The trip** (its travel rules): its checks (`at:`) and the actions it takes by itself (`on:`). It reacts as the trip goes on, in the Hexmapper's Play or in Travel. It knows the party, the hex it's in, the day's values.
-- **The world** (the system's `kind: world`): its reactions (`on:`). It reacts as the world clock moves, wherever it moves: the Campaign app, the Hexmapper's World panel, and under a trip going on (the world is one). It knows the world clock, the progress clocks, the factions, today's events and the world's weather; it has no party.
+- **The trip** (its travel rules): its checks (`at:`) and the actions it takes by itself (`on:`). It reacts as the trip goes on, in Map's Play or in Travel. It knows the party, the hex it's in, the day's values.
+- **The world** (the system's `kind: world`): its reactions (`on:`). It reacts as the world clock moves, wherever it moves: the Campaign app, Map's World panel, and under a trip going on (the world is one). It knows the world clock, the progress clocks, the factions, today's events and the world's weather; it has no party.
 
 They don't call each other: each hears the other's moments through the campaign (below, [Between the trip and the world](#between-the-trip-and-the-world)).
 

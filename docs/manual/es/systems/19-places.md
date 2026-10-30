@@ -1,6 +1,6 @@
 # Lugares
 
-La pestaña **Lugares** edita los **catálogos de lugares** del sistema (`kind: places`): plantillas de puntos de interés que sus resultados pueden crear en el hex del grupo, como ruinas, santuarios junto al camino, campamentos o guaridas. Una entrada de una tabla, un paso de una acción, una carta de un mazo o el contenido de un hex descubierto crea uno con un efecto (`hex.pois.ruins: 1`). Jugado sobre un mapa en el Hexmapper, se escribe en el mapa como un punto de interés que dice **Hecho a partir de** su plantilla, y las etiquetas de la plantilla van a su hex; en un viaje sin mapa, lo anota el diario. Un lugar conserva con lo que se hizo, así que cambiar una plantilla solo afecta a los lugares creados después.
+La pestaña **Lugares** edita los **catálogos de lugares** del sistema (`kind: places`): plantillas de puntos de interés que sus resultados pueden crear en el hex del grupo, como ruinas, santuarios junto al camino, campamentos o guaridas. Una entrada de una tabla, un paso de una acción, una carta de un mazo o el contenido de un hex descubierto crea uno con un efecto (`hex.pois.ruins: 1`). Jugado sobre un mapa en la aplicación Mapa, se escribe en el mapa como un punto de interés que dice **Hecho a partir de** su plantilla, y las etiquetas de la plantilla van a su hex; en un viaje sin mapa, lo anota el diario. Un lugar conserva con lo que se hizo, así que cambiar una plantilla solo afecta a los lugares creados después.
 
 ## La pestaña
 
@@ -18,9 +18,9 @@ Su nombre y los nombres y descripciones de los lugares se escriben en el idioma 
 ## Paso a paso: un campamento encontrado al explorar
 
 1. En **Lugares**, **Nuevo catálogo de lugares**. Trae un **camp**: dale la descripción `Las cenizas de {{1d3}} hogueras, aún calientes`.
-2. Haz una tabla que pueda encontrarlo: en el Oracle, una tabla con una entrada con `effects: { hex.pois.camp: 1 }`.
+2. Haz una tabla que pueda encontrarlo: en el Oráculo, una tabla con una entrada con `effects: { hex.pois.camp: 1 }`.
 3. En **Reglas**, da a una acción un paso que la tire (`roll: table.<tu tabla>`).
-4. **Pruébalo**: cuando sale la entrada, el diario dice _Un lugar aquí: Campamento — Las cenizas de 2 hogueras, aún calientes_. En un mapa del Hexmapper, el hex recibe el punto de interés y la etiqueta `camp`.
+4. **Pruébalo**: cuando sale la entrada, el diario dice _Un lugar aquí: Campamento — Las cenizas de 2 hogueras, aún calientes_. En un mapa de la aplicación Mapa, el hex recibe el punto de interés y la etiqueta `camp`.
 
 El descubrimiento también puede crear lugares: una entrada de la tabla que decide qué hay en un hex encontrado (`discover.contents`) con `effects: { hex.pois.camp: 1 }` crea el campamento en vez de un punto de interés hecho con su texto ([Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa)). Las Marcas Grises crean así sus ruinas, sus santuarios y la guarida del dragón, y el **Explorar** de Core crea un _Hito_ con un 6.
 

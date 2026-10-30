@@ -4,7 +4,7 @@ import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   app: {
-    title: 'Systems',
+    title: vocabulary.es.apps.systems,
     tagline: 'Crea y edita sistemas de juego.',
   },
   nav: {
@@ -28,8 +28,8 @@ export const es: Messages<typeof en> = {
     updated: 'actualización',
   },
   welcome: {
-    title: 'Systems',
-    body: 'Un sistema es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad se va por cada terreno y camino, qué se lleva encima, qué puede hacer el grupo), las comprobaciones que se tiran por el camino y las tablas que las responden. Elige uno a la izquierda para verlo y editarlo, o crea uno nuevo debajo de la lista. Los sistemas incluidos son de solo lectura: **Duplicad** uno para hacerlo vuestro. Juégalos en la aplicación Travel (viajes sin mapa) o sobre un mapa en el Hexmapper.',
+    title: vocabulary.es.apps.systems,
+    body: 'Un sistema es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad se va por cada terreno y camino, qué se lleva encima, qué puede hacer el grupo), las comprobaciones que se tiran por el camino y las tablas que las responden. Elige uno a la izquierda para verlo y editarlo, o crea uno nuevo debajo de la lista. Los sistemas incluidos son de solo lectura: **Duplicad** uno para hacerlo vuestro. Juégalos en la aplicación Viajes (viajes sin mapa) o sobre un mapa en la aplicación Mapa.',
   },
   tabs: {
     overview: 'Resumen',
@@ -61,7 +61,7 @@ export const es: Messages<typeof en> = {
     places: {
       title: 'Sus lugares',
       intro:
-        'Lugares que un resultado puede crear en el hex del grupo (`kind: places`): plantillas de puntos de interés, cada una con su nombre, texto, icono, campos y las etiquetas que da al hex. Una tabla, una acción o el contenido de un hex descubierto crea uno con un efecto (`hex.pois.ruins: 1`); sobre un mapa en el Hexmapper se escribe en el mapa, en un viaje sin mapa lo anota el diario. Un lugar conserva con lo que se hizo: cambiar una plantilla solo afecta a los lugares hechos después.',
+        'Lugares que un resultado puede crear en el hex del grupo (`kind: places`): plantillas de puntos de interés, cada una con su nombre, texto, icono, campos y las etiquetas que da al hex. Una tabla, una acción o el contenido de un hex descubierto crea uno con un efecto (`hex.pois.ruins: 1`); sobre un mapa en la aplicación Mapa se escribe en el mapa, en un viaje sin mapa lo anota el diario. Un lugar conserva con lo que se hizo: cambiar una plantilla solo afecta a los lugares hechos después.',
       help: 'Catálogos de lugares, tantos como quiera el sistema, nombrados en su **Resumen** (`places:`), y los de los paquetes que añade un mapa o una campaña. Los efectos los crean en el hex del grupo:\n• `hex.pois.ruins: 1` — unas **Ruinas**\n• En el contenido del descubrimiento, `effects: { hex.pois.shrine: 1 }` — el hex encontrado tiene un santuario, en vez de un punto de interés hecho con el texto del resultado',
       none: 'Este sistema no tiene catálogo de lugares: los resultados aún pueden crear puntos de interés simples con su texto al descubrir.',
       create: 'Nuevo catálogo de lugares',
@@ -77,7 +77,7 @@ export const es: Messages<typeof en> = {
     clocks: {
       title: 'Sus relojes de progreso',
       intro:
-        'Relojes de su mundo (`kind: clocks`): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con qué es de él una vez lleno; lo que pasa cuando se llena es cosa del mundo (pestaña **Mundo**). En el Hexmapper llegan con el reloj del mundo al ponerlo en marcha; los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.',
+        'Relojes de su mundo (`kind: clocks`): segmentos que se llenan según algo avanza (una amenaza, un plan, una temporada de saqueos), cada uno con qué es de él una vez lleno; lo que pasa cuando se llena es cosa del mundo (pestaña **Mundo**). En Mapa llegan con el reloj del mundo al ponerlo en marcha; los viajes, las tablas y los turnos de las facciones los llenan con efectos, y las condiciones los leen.',
       help: "Una definición de relojes por sistema, nombrada en su **Resumen** (`clocks:`). Las condiciones y las tablas leen cada uno por su id:\n• `world.clocks.the-wyrm-wakes: { gte: 6 }` — una vez lleno\nLos efectos lo llenan, desde un viaje, una tabla o el turno de una facción:\n• `world.clocks.the-wyrm-wakes: 1` — un segmento más\n• `world.clocks.the-wyrm-wakes: -2` — dos menos\n• `world.clocks.the-wyrm-wakes: '=0'` — vacío",
       none: 'Este sistema no declara relojes de progreso: se pueden seguir creando a mano en un mapa.',
       create: 'Nuevos relojes',
@@ -93,7 +93,7 @@ export const es: Messages<typeof en> = {
     factions: {
       title: 'Sus facciones',
       intro:
-        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. Su tierra son los hexes que tienen en un mapa: cada uno empieza con las regiones escritas aquí (en cualquier mapa que las tenga) y los hexes (solo en el mapa en el que están) cuando un mapa las trae (el panel Mundo del Hexmapper); desde entonces es del mapa, se pinta a mano allí y se gana o se pierde hex a hex en los turnos del mundo.',
+        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. Su tierra son los hexes que tienen en un mapa: cada uno empieza con las regiones escritas aquí (en cualquier mapa que las tenga) y los hexes (solo en el mapa en el que están) cuando un mapa las trae (el panel Mundo de Mapa); desde entonces es del mapa, se pinta a mano allí y se gana o se pierde hex a hex en los turnos del mundo.',
       help: 'Una definición de facciones por sistema, nombrada en su **Resumen** (`factions:`). Las tablas y condiciones las leen en todas partes:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `hex.faction: the-crown` — quién tiene el hex\nSus tablas de turno las cambian con efectos:\n• `faction.values.strength: 1` — la facción a la que le toca\n• `factions.the-rebels.values.strength: -1` — otra\n• `faction.territory: 1` — un hex más, desde su frontera\n• `world.clocks.the-siege: 1` — un reloj de progreso del reloj del mundo',
       none: 'Este sistema no tiene facciones.',
       create: 'Nuevas facciones',
@@ -131,7 +131,7 @@ export const es: Messages<typeof en> = {
     land: {
       title: 'Sus modelos de tierra',
       intro:
-        'Terreno con memoria: para cada terreno, lo probable que es que un hex junto a él sea cada terreno, así la tierra sale coherente (los bosques siguen siendo bosques, las colinas se juntan en cordilleras). **Generar tierra** del Hexmapper rellena con uno los hexes vacíos, y el descubrimiento puede decidir con uno los hexes vacíos (`discover.terrain: { land: land.default }`).',
+        'Terreno con memoria: para cada terreno, lo probable que es que un hex junto a él sea cada terreno, así la tierra sale coherente (los bosques siguen siendo bosques, las colinas se juntan en cordilleras). **Generar tierra** de Mapa rellena con uno los hexes vacíos, y el descubrimiento puede decidir con uno los hexes vacíos (`discover.terrain: { land: land.default }`).',
       help: 'Modelos de tierra (`kind: land`), listados en su **Resumen** (`land:`). Un hex vacío suma las filas de los terrenos de sus vecinos conocidos y elige con esos pesos:\n• dos vecinos de bosque cuentan dos veces la fila del bosque\n• sin ninguno conocido: **Donde no se conoce nada**\nEl descubrimiento usa uno por sus bindings (`discover.terrain: { land: land.default }`), o una tabla de terreno le pasa la decisión (`set: { land: land.default }` en una entrada).',
       none: 'Este sistema no nombra modelos de tierra.',
       create: 'Nuevo modelo de tierra',
@@ -211,7 +211,7 @@ export const es: Messages<typeof en> = {
     noSheet:
       'No se encuentra su hoja: elige una arriba, o da al bestiario una **Hoja**, para editar sus valores.',
     templatesHelp:
-      'Cada plantilla, plegada en una línea; pulsa una para desplegar su editor: la hoja con que se hace, los valores con que empieza (un número o una tirada, resuelta para cada copia), sus condiciones, etiquetas y objetos, la plantilla de la que es variante, sus nombres y su ficha. Su id es como la nombran las tablas y los efectos (`present.<id>`). Las plantillas solo se editan aquí: la aplicación Characters las muestra y hace copias.\n• `wolf` — valores `health: {{2d4}}`\n• `wolf-leader` — una variante de `wolf`, etiquetas `leader`',
+      'Cada plantilla, plegada en una línea; pulsa una para desplegar su editor: la hoja con que se hace, los valores con que empieza (un número o una tirada, resuelta para cada copia), sus condiciones, etiquetas y objetos, la plantilla de la que es variante, sus nombres y su ficha. Su id es como la nombran las tablas y los efectos (`present.<id>`). Las plantillas solo se editan aquí: la aplicación Personajes las muestra y hace copias.\n• `wolf` — valores `health: {{2d4}}`\n• `wolf-leader` — una variante de `wolf`, etiquetas `leader`',
   },
   clocksForm: {
     name: 'Nombre',
@@ -241,7 +241,7 @@ export const es: Messages<typeof en> = {
     nameHelp: 'Cómo se llaman estas reglas.\n• **Cómo se mueve el reino**',
     reactions: 'Reacciones',
     reactionsHelp:
-      'Lo que el mundo hace por sí solo, haya o no un viaje en marcha: cada reacción llega en sus momentos (**En**), si se cumplen sus condiciones, y hace sus pasos en orden. Se juegan allí donde se mueva el mundo (el panel Mundo, la aplicación Campaign, el tiempo que avanza bajo un viaje), y en el orden de esta lista cuando llegan varias a la vez.\n• tras cada turno del mundo, un rumor en la cronología\n• cuando se llena el reloj del asedio, cae la capital\n• en cuanto la fuerza de una facción llega a 0, se rompe',
+      'Lo que el mundo hace por sí solo, haya o no un viaje en marcha: cada reacción llega en sus momentos (**En**), si se cumplen sus condiciones, y hace sus pasos en orden. Se juegan allí donde se mueva el mundo (el panel Mundo, la aplicación Campaña, el tiempo que avanza bajo un viaje), y en el orden de esta lista cuando llegan varias a la vez.\n• tras cada turno del mundo, un rumor en la cronología\n• cuando se llena el reloj del asedio, cae la capital\n• en cuanto la fuerza de una facción llega a 0, se rompe',
     none: 'Aún no hay reacciones: el mundo no hace nada por sí solo salvo sus relojes y sus facciones.',
     reactionName: 'Nombre',
     on: 'En',
@@ -295,7 +295,7 @@ export const es: Messages<typeof en> = {
       'Lo que tira cada facción en un turno del mundo (una tabla, oráculo, generador o mazo), con sus propios valores como `faction.*`:\n• `table.faction-turn` — una tabla de este pack\n• `generator.schemes` — un generador de este pack\n• `core/table.faction-turn` — la de Core, para cualquier juego: crece, aguanta o pierde terreno',
     every: 'Cada (días)',
     everyHelp:
-      'Días del reloj del mundo entre turnos. Vacío o 0: solo a mano (el **Turno del mundo** del Hexmapper).\n• `7` — un turno a la semana',
+      'Días del reloj del mundo entre turnos. Vacío o 0: solo a mano (el **Turno del mundo** de Mapa).\n• `7` — un turno a la semana',
     byHand: 'a mano',
     factions: 'Facciones',
     factionsHelp:
@@ -514,7 +514,7 @@ export const es: Messages<typeof en> = {
     addTerrain: 'Añadir un terreno',
     preview: 'Un trozo de esta tierra',
     previewHelp:
-      'Tierra que crece desde la nada con este modelo, del centro hacia fuera, con los colores de terreno del Hexmapper. **Otro** saca otro trozo; **Generar tierra** del Hexmapper la hace crecer en cambio desde la tierra que pintaste.',
+      'Tierra que crece desde la nada con este modelo, del centro hacia fuera, con los colores de terreno de Mapa. **Otro** saca otro trozo; **Generar tierra** de Mapa la hace crecer en cambio desde la tierra que pintaste.',
     again: 'Otro',
   },
   weather: {
@@ -612,27 +612,27 @@ export const es: Messages<typeof en> = {
     noWeather: 'No hay modelos de clima en este pack ni en sus dependencias.',
     land: 'Modelos de tierra',
     landHelp:
-      'Los modelos de tierra (`kind: land`) con los que **Generar tierra** del Hexmapper rellena los hexes vacíos, y que el descubrimiento puede usar: los de este pack y sus dependencias.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`',
+      'Los modelos de tierra (`kind: land`) con los que **Generar tierra** de Mapa rellena los hexes vacíos, y que el descubrimiento puede usar: los de este pack y sus dependencias.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`',
     noLand: 'No hay modelos de tierra en este pack ni en sus dependencias.',
     packs: 'Packs que trae',
     packsHelp:
-      'Los packs cuyas tablas, oráculos, generadores y mazos vienen con el sistema: el suyo siempre, y las dependencias que marques (`packs: [core]`). Un mapa que se juega con el sistema los muestra en su panel del Oracle. Para traer otro pack, añádelo a las dependencias del pack (`pack.yaml`).',
+      'Los packs cuyas tablas, oráculos, generadores y mazos vienen con el sistema: el suyo siempre, y las dependencias que marques (`packs: [core]`). Un mapa que se juega con el sistema los muestra en su panel del Oráculo. Para traer otro pack, añádelo a las dependencias del pack (`pack.yaml`).',
     ownPack: 'el suyo · {count} para tirar',
     rollables: '{count} para tirar',
     noDependencies:
       'Este pack no tiene dependencias: añade una a su pack.yaml para traer las tablas de otro pack.',
     maps: 'Mapas de ejemplo',
     mapsHelp:
-      'Mapas para jugar el sistema, guardados en su pack como ficheros de mapa (`.otd.json`, escritos por **Guardar** en el Hexmapper) y listados en `maps:`. El Hexmapper los ofrece en **Mapas → Mapas de ejemplo**, listos con este sistema elegido.\n• `maps: [maps/frontier.otd.json]`\n**Añadir un fichero de mapa…** copia un mapa guardado en la carpeta `maps/` del pack; **Quitar** lo saca del pack.',
+      'Mapas para jugar el sistema, guardados en su pack como ficheros de mapa (`.otd.json`, escritos por **Guardar** en Mapa) y listados en `maps:`. Mapa los ofrece en **Mapas → Mapas de ejemplo**, listos con este sistema elegido.\n• `maps: [maps/frontier.otd.json]`\n**Añadir un fichero de mapa…** copia un mapa guardado en la carpeta `maps/` del pack; **Quitar** lo saca del pack.',
     noMaps: 'Sin mapas de ejemplo.',
     addMap: 'Añadir un fichero de mapa…',
     export: 'Llevarlo a otra parte',
     exportHelp:
-      'Guarda el sistema en un solo .zip con todos los packs que necesita: el suyo, los que trae, los que tienen sus partes y sus dependencias. Otro navegador (u otra persona) lo recibe entero importando ese fichero.\n• **Importar un sistema (.zip)…**, bajo la lista de sistemas, lo vuelve a leer\n• el **Importar .zip** de la Oracle también lo lee\nLos packs que ya están sin cambios se dejan como están; una versión distinta de uno solo se sustituye si lo dices (↶ lo deshace).',
+      'Guarda el sistema en un solo .zip con todos los packs que necesita: el suyo, los que trae, los que tienen sus partes y sus dependencias. Otro navegador (u otra persona) lo recibe entero importando ese fichero.\n• **Importar un sistema (.zip)…**, bajo la lista de sistemas, lo vuelve a leer\n• el **Importar .zip** de la Oráculo también lo lee\nLos packs que ya están sin cambios se dejan como están; una versión distinta de uno solo se sustituye si lo dices (↶ lo deshace).',
     exportIncludes: 'El fichero lleva: {packs}',
     exportButton: 'Exportar como .zip',
     exportPersonal: 'Incluye packs de uso personal: guárdate el fichero, no lo compartas.',
-    openInHexmapper: 'Abrir en el Hexmapper →',
+    openInHexmapper: 'Abrir en Mapa →',
     confirmRemoveMap: '¿Quitar el mapa «{name}» del pack? Su fichero se va también.',
     mapError: {
       missing: 'El pack no tiene ese fichero',
@@ -664,7 +664,7 @@ export const es: Messages<typeof en> = {
   rules: {
     water: 'Hexes de agua',
     waterHelp:
-      'Hexes cuyo terreno el mapa marca como **agua** (Hexmapper: Editar paleta → Agua) y que no tienen regla propia en Terrenos.\nA menudo **no se cruzan**; una forma de viajar cuyo **Solo por** se cumple en el agua sí puede navegarlos:\n• una barca: `hex.water: true`\n• una barca que además bordea la costa: `any: [{ hex.water: true }, { hex.terrain: coast }]`\nUn terreno listado en Terrenos (un `lake` helado con **Abierto cuando** `time.season: winter`) usa su propia regla.',
+      'Hexes cuyo terreno el mapa marca como **agua** (Mapa: Editar paleta → Agua) y que no tienen regla propia en Terrenos.\nA menudo **no se cruzan**; una forma de viajar cuyo **Solo por** se cumple en el agua sí puede navegarlos:\n• una barca: `hex.water: true`\n• una barca que además bordea la costa: `any: [{ hex.water: true }, { hex.terrain: coast }]`\nUn terreno listado en Terrenos (un `lake` helado con **Abierto cuando** `time.season: winter`) usa su propia regla.',
     day: 'El día',
     dayHelp:
       'Cuándo empiezan los viajes, la escala de sus velocidades y qué hace el grupo cuando no puede marchar. Cuándo y hasta dónde marcha el grupo lo dicen sus acciones (Acciones, abajo: una acción con un paso `travel.move`, como **Marchar**), y cómo sigue el viaje por sí solo es una de ellas (**Sigue por sí solo con**).\n• **Los viajes empiezan** `06:00` o `time.part.morning` — el primer momento de un viaje nuevo\n• **Parada** `time.part.night` → `camp` — desde entonces, un grupo que no puede marchar acampa por sí solo',
@@ -689,7 +689,7 @@ export const es: Messages<typeof en> = {
       "Las horas en que una forma de viajar hace sus **km al día**: la escala de su velocidad (km por hora). Cuánto puede marchar el grupo cada día lo dice la acción **Marchar** (`trip.marched: { lt: '{{system.hoursPerDay}}' }` lee este número).\n• `8` — 24 km al día son 3 km por hora\n• `10` — los mismos 24 km a 2,4 km por hora",
     hexKm: 'km por hex',
     hexKmHelp:
-      'La escala a la que se juega el sistema: cuántos km mide un hex. Con las velocidades de sus formas de viajar, dice cuánto se tarda en un hex.\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\n• `10` — hexes pequeños: varios al día\nLos viajes sin mapa (Travel, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Hexmapper: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
+      'La escala a la que se juega el sistema: cuántos km mide un hex. Con las velocidades de sus formas de viajar, dice cuánto se tarda en un hex.\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\n• `10` — hexes pequeños: varios al día\nLos viajes sin mapa (Viajes, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Mapa: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
     modes: 'Formas de viajar',
     modesHelp:
       'Formas de viajar: a pie, a caballo, en barca… Cada una tiene una velocidad en **km por día de marcha** en terreno fácil (los terrenos y caminos la cambian) y puede limitarse a algunos sitios y momentos.\n• `foot` — 24 km al día\n• `horse` — 40 km al día, **Salvo si** `trip.weather: snow`\n• `boat` — 50 km al día, **Solo por** `hex.water: true`\nEl panel del viaje deja al jugador cambiar de una a otra.\nSu orden cuenta: la primera es la de un viaje nuevo. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.',
@@ -987,11 +987,11 @@ export const es: Messages<typeof en> = {
       'Este sistema usa tu copia de «{pack}», y el «{pack}» incluido ha cambiado desde que la hiciste. Tu copia sustituye entero al pack incluido, así que lo que trae el nuevo (una tabla que este sistema nombra…) falta hasta que lo cojas:',
     staleTip:
       'Un pack que usa este sistema es tu copia de un pack incluido que ha cambiado desde entonces: ábrelo para coger o conservar cada cambio.',
-    playInTravel: 'Jugarlo en Travel →',
+    playInTravel: 'Jugarlo en Viajes →',
   },
   try: {
     intro:
-      'Un viaje sin mapa para probar el sistema mientras lo haces: describe un camino hex a hex y recórrelo. Juega las reglas tal como están ahora, así que un cambio en otra pestaña cuenta desde el siguiente paso; **Nuevo viaje** empieza de nuevo con los cambios también en el primer día. Estos viajes de prueba se guardan aparte de los de la aplicación Travel.',
+      'Un viaje sin mapa para probar el sistema mientras lo haces: describe un camino hex a hex y recórrelo. Juega las reglas tal como están ahora, así que un cambio en otra pestaña cuenta desde el siguiente paso; **Nuevo viaje** empieza de nuevo con los cambios también en el primer día. Estos viajes de prueba se guardan aparte de los de la aplicación Viajes.',
   },
   uses: {
     title: 'Usado en',

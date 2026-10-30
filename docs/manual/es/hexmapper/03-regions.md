@@ -26,4 +26,4 @@ Una región se dibuja como un tinte suave, un borde por el interior de su contor
 
 ## Al jugar
 
-Las comprobaciones de viaje y las tiradas de Oracle ven la región del hex por su **nombre**, así que una tabla puede decir `when: { hex.region: Las Marcas Negras }`. Consulta [Oracle en el mapa](09-oracle.md).
+Las comprobaciones de viaje y las tiradas de Oráculo ven la región del hex por su **nombre**, así que una tabla puede decir `when: { hex.region: Las Marcas Negras }`. Consulta [Oráculo en el mapa](09-oracle.md).

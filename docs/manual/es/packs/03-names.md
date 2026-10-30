@@ -23,11 +23,11 @@ Las partes de cada generador son tablas propias (_Nombres del norte_, _Letreros 
 
 ## Encontrarlos
 
-Cada definición lleva la **etiqueta** `names`, la de lo que nombra (`people`, `settlements`, `inns`, `landmarks`, `ships`, `worlds`) y la de su ambientación (`fantasy`, `modern`, `sci-fi`). En **Filtrar**, en la aplicación Oracle (o en el Hexmapper), la etiqueta `names` muestra solo los nombres de todos los packs (también los _Nombres de las Marcas_ de las Marcas Grises); `inns`, solo lo que nombra posadas; `−sci-fi` oculta las naves y los mundos. Mira los [Primeros pasos](../oracle/01-getting-started.md) de Oracle.
+Cada definición lleva la **etiqueta** `names`, la de lo que nombra (`people`, `settlements`, `inns`, `landmarks`, `ships`, `worlds`) y la de su ambientación (`fantasy`, `modern`, `sci-fi`). En **Filtrar**, en la aplicación Oráculo (o en Mapa), la etiqueta `names` muestra solo los nombres de todos los packs (también los _Nombres de las Marcas_ de las Marcas Grises); `inns`, solo lo que nombra posadas; `−sci-fi` oculta las naves y los mundos. Mira los [Primeros pasos](../oracle/01-getting-started.md) de Oráculo.
 
 ## En el mapa
 
-En el panel de Oracle del Hexmapper, tira **¿Cómo se llama el sitio?** sobre un hex y guarda el resultado con **Añadir a … como punto de interés**: un pueblo, una posada o un paraje recibe ahí su nombre (mira [Oracle en el mapa](../hexmapper/09-oracle.md)). _Un paraje_ lee el terreno del hex. Un mapa cuya campaña usa solo algunos packs lista Nombres cuando lo marcas en **Ajustes del mapa → Campaña → Packs**.
+En el panel de Oráculo de Mapa, tira **¿Cómo se llama el sitio?** sobre un hex y guarda el resultado con **Añadir a … como punto de interés**: un pueblo, una posada o un paraje recibe ahí su nombre (mira [Oráculo en el mapa](../hexmapper/09-oracle.md)). _Un paraje_ lee el terreno del hex. Un mapa cuya campaña usa solo algunos packs lista Nombres cuando lo marcas en **Ajustes del mapa → Campaña → Packs**.
 
 ## Cómo está hecho
 

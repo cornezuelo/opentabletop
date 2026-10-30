@@ -10,7 +10,7 @@ La tarjeta del resultado muestra el texto, los valores que fija la entrada (p. e
 
 Algunas definiciones leen valores: el terreno, la estación, un modificador… El recuadro **Contexto** lista los que necesita una definición (o cualquier tabla que tire), por su nombre (_Fiestas_, _Guardias_…), con lo que es cada uno y su clave (`{{icon.guards}}`) en su ayuda (pulsa su nombre subrayado con puntos), y los valores que aparecen en sus condiciones como sugerencias. Las aplicaciones nombran los valores que dan los mapas y los viajes; un sistema nombra sus características y los demás valores que leen sus tablas (`reads:` en sus bindings, mira [Conectar](07-connecting.md)). En blanco significa desconocido. La entrada de un oráculo (p. ej. la probabilidad) es aquí una lista.
 
-En el Hexmapper estos valores vienen del mapa y del viaje; consulta [Oracle en el mapa](../hexmapper/09-oracle.md).
+En Mapa estos valores vienen del mapa y del viaje; consulta [Oráculo en el mapa](../hexmapper/09-oracle.md).
 
 ## Modos de tirada (ventaja y otros)
 
@@ -30,7 +30,7 @@ Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Las entradas marcada
 
 ## Tirar en una campaña
 
-Tus tiradas guardan sus mazos, sus resultados de una sola vez y su historial en **la campaña en la que juegas**: la que dice **Jugando** en la barra de arriba, la misma en todas las aplicaciones ([La campaña en la que juegas](../campaign/01-getting-started.md#la-campaña-en-la-que-juegas)); **Campaña**, arriba del historial, dice cuál. Haz clic en **Jugando** para elegir otra, o en **No jugar en ninguna campaña** para los propios del Oracle, en este navegador. Abrir un mapa o un viaje en otra aplicación también la cambia, y el Oracle la sigue. En una campaña tiras en su mundo: una carta que robas aquí ya no está en el mazo para los viajes de ese mapa, un resultado de una sola vez que salió allí no sale aquí, y el historial es el que muestra el panel del Oracle del mapa. **Nueva sesión** y **Borrar** actúan entonces sobre los de la campaña. Cuando el mapa o un viaje la cambian en otra ventana, el Oracle la vuelve a leer. Tu semilla sigue siendo la de este navegador en ambos casos. En una campaña, **Abrir en Campaign ↗**, debajo, la muestra en la aplicación [Campaign](../campaign/01-getting-started.md).
+Tus tiradas guardan sus mazos, sus resultados de una sola vez y su historial en **la campaña en la que juegas**: la que dice **Jugando** en la barra de arriba, la misma en todas las aplicaciones ([La campaña en la que juegas](../campaign/01-getting-started.md#la-campaña-en-la-que-juegas)); **Campaña**, arriba del historial, dice cuál. Haz clic en **Jugando** para elegir otra, o en **No jugar en ninguna campaña** para los propios del Oráculo, en este navegador. Abrir un mapa o un viaje en otra aplicación también la cambia, y el Oráculo la sigue. En una campaña tiras en su mundo: una carta que robas aquí ya no está en el mazo para los viajes de ese mapa, un resultado de una sola vez que salió allí no sale aquí, y el historial es el que muestra el panel del Oráculo del mapa. **Nueva sesión** y **Borrar** actúan entonces sobre los de la campaña. Cuando el mapa o un viaje la cambian en otra ventana, el Oráculo la vuelve a leer. Tu semilla sigue siendo la de este navegador en ambos casos. En una campaña, **Abrir en Campaña ↗**, debajo, la muestra en la aplicación [Campaña](../campaign/01-getting-started.md).
 
 ## Tiradas repetibles
 

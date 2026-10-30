@@ -33,7 +33,7 @@ Las comprobaciones salen como fichas plegadas, cada una diciendo en una línea c
 
 Si los bindings aún nombran tablas para comprobaciones que las reglas ya no tienen (una comprobación quitada en el YAML), una nota las lista y **Quitarlas** las borra.
 
-Las tablas en las que se tira una comprobación van en el mismo pack (añádelas en la aplicación Oracle, donde también sale tu pack), o vienen de otros packs con su id completo (`core/weather`).
+Las tablas en las que se tira una comprobación van en el mismo pack (añádelas en la aplicación Oráculo, donde también sale tu pack), o vienen de otros packs con su id completo (`core/weather`).
 
 ## Condiciones y cambios en filas
 
@@ -64,7 +64,7 @@ Un sistema en el que los bosques y las colinas son de los lobos: al entrar en el
 1. **Créalo**: escribe _Tierra de Lobos_ bajo la lista de sistemas y pulsa **+**.
 2. **Fatiga**: en **Características del grupo**, **Añadir una característica** y llámala _Fatiga_ (su id pasa a ser `fatiga`; cámbialo a `fatigue`, como en el resto de esta página), **Empieza en** `0`.
 3. **Hambre**: **Añadir una comprobación**, con **Comprobación** `HUNGER` y el nombre _Hambre_. **Cuándo** `time.day-end`; **Solo si** `trip.below` · **es** · `party.values.food` (el **Comer** de las Reglas genéricas ocurre automáticamente al acabar el día, antes de esta comprobación, y llega al mínimo de la comida del grupo cuando no queda); **Se tira en** _— sin tabla —_; **Cambios** `party.stats.fatigue` · `1`.
-4. **La tabla de los lobos**: en la aplicación Oracle, **Nueva definición**, una tabla en tu pack _Tierra de Lobos_ con el id `wolves`, el nombre _Lobos_ y la tirada `1d6 + {{night}}`: con `1-4` _Solo el viento entre los árboles_; con `5-6` _Huellas frescas; apretáis el paso_, con **Cambios** `party.stats.fatigue: 1`; con `7-8` _La manada ronda el fuego_, marcando **Pausar** en esa entrada. De día `{{night}}` no es nada, que cuenta como `0`: la manada nunca llega.
+4. **La tabla de los lobos**: en la aplicación Oráculo, **Nueva definición**, una tabla en tu pack _Tierra de Lobos_ con el id `wolves`, el nombre _Lobos_ y la tirada `1d6 + {{night}}`: con `1-4` _Solo el viento entre los árboles_; con `5-6` _Huellas frescas; apretáis el paso_, con **Cambios** `party.stats.fatigue: 1`; con `7-8` _La manada ronda el fuego_, marcando **Pausar** en esa entrada. De día `{{night}}` no es nada, que cuenta como `0`: la manada nunca llega.
 5. **Lobos de día**: de vuelta en **Comprobaciones**, **Añadir una comprobación**, con **Comprobación** `WOLVES` y el nombre _Lobos_. **Cuándo** `trip.hex-enter`; **Solo si** `hex.terrain` · **es uno de** · `forest, hills`; **Salvo si** `trip.edges` · **es** · `road` (los lobos no se acercan a los caminos); **Se tira en** _Lobos_.
 6. **Lobos de noche**: **Añadir una comprobación**, con **Comprobación** `WOLVES_AT_NIGHT` y el nombre _Lobos de noche_. **Cuándo** `actions.camp`; **Solo si** `hex.terrain` · **es uno de** · `forest, hills`; **Se tira en** _Lobos_, la misma tabla; **Contexto extra** `night` · `2`: de noche la tabla tira `1d6 + 2`, y una noche de cada tres llega la manada.
 7. **Piedras viejas**: **Añadir una comprobación**, con **Comprobación** `OLD_STONES` y el nombre _Piedras viejas_. **Cuándo** `trip.hex-enter`; **Solo si** `hex.tags` · **es** · `landmark`; sin tabla; marca **Pausar después**.
@@ -74,7 +74,7 @@ Un sistema en el que los bosques y las colinas son de los lobos: al entrar en el
 
 ## Lo mismo en YAML
 
-Lo que los pasos añaden a las Reglas genéricas y a sus bindings, como lo muestra la pestaña **YAML** (un extracto: el resto sigue como estaba), y la tabla, como la muestra el editor YAML del Oracle:
+Lo que los pasos añaden a las Reglas genéricas y a sus bindings, como lo muestra la pestaña **YAML** (un extracto: el resto sigue como estaba), y la tabla, como la muestra el editor YAML del Oráculo:
 
 ```yaml
 # travel.yaml: las reglas (kind: travel-rules)
@@ -135,4 +135,4 @@ Las Marcas Grises juegan con todo esto y más (el clima primero al alba y una co
 - **Una marcha que no sigue tras Continuar.** **Continuar** acaba la pausa y sigue con una espera que haya detenido, pero una marcha que haya detenido espera a **Seguir** (o a que el viaje siga solo).
 - **Lobos en el camino.** **Salvo si** `trip.edges` · **es** · `road` lee el camino o río que el grupo siguió para entrar en el hex: un hex de bosque al que se entra campo a través, junto a un camino, sigue teniendo lobos.
 - **Un ⚠ en Se tira en.** La tabla nombrada no está en el pack del sistema ni en los packs que trae: una tabla de otro pack se nombra con su id completo (`core/weather`), y ese pack tiene que ser una de las dependencias del pack.
-- **Una tabla que pide un valor.** Un valor que la tabla lee y nada da (`{{night}}` de día) cuenta como `0` en los dados; en las condiciones no es nada. Tirada a mano en el Oracle, lo pide.
+- **Una tabla que pide un valor.** Un valor que la tabla lee y nada da (`{{night}}` de día) cuenta como `0` en los dados; en las condiciones no es nada. Tirada a mano en el Oráculo, lo pide.

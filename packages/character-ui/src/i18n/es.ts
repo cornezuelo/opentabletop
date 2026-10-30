@@ -97,7 +97,7 @@ export const es: Messages<typeof en> = {
   },
   origin: {
     line: 'Hoja: {sheet} · {system}',
-    help: 'Lo que tiene esta hoja (sus valores, estados y tipos de relación) lo decide su sistema: solo se muestra lo que declara. Para añadir o cambiar uno, edita la hoja en la aplicación Systems (un sistema incluido se duplica antes).',
-    edit: 'Editar en Systems ↗',
+    help: 'Lo que tiene esta hoja (sus valores, estados y tipos de relación) lo decide su sistema: solo se muestra lo que declara. Para añadir o cambiar uno, edita la hoja en la aplicación Sistemas (un sistema incluido se duplica antes).',
+    edit: 'Editar en Sistemas ↗',
   },
 }

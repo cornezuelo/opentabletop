@@ -4,7 +4,7 @@ Las aplicaciones son una forma de editar; los ficheros son lo que manda. Algunas
 
 ## Editar packs como ficheros
 
-1. **Exporta .zip** un pack desde la aplicación Oracle y descomprímelo, o empieza con una carpeta vacía y un `pack.yaml`.
+1. **Exporta .zip** un pack desde la aplicación Oráculo y descomprímelo, o empieza con una carpeta vacía y un `pack.yaml`.
 2. Edita su YAML con cualquier editor de texto. Los editores que entienden YAML ayudan con la sangría.
 3. **Importa .zip** de nuevo (comprime la carpeta) y la aplicación lo comprueba y lista sus problemas con su línea.
 
@@ -34,8 +34,8 @@ El script construido, `apps/cli/dist/opentabletop.mjs`, funciona donde haya Node
 
 ## Mapas a mano
 
-Un mapa `.otd.json` se puede editar con un editor de texto: renombrar hexes en bloque, pasar datos entre mapas o escribir un script que genere un mapa. Mantén la estructura válida: el Hexmapper rechaza los ficheros que no encajan con el esquema y dice por qué. Otras herramientas pueden leer los mismos ficheros y añadir sus propios datos en `ext.<herramienta>`.
+Un mapa `.otd.json` se puede editar con un editor de texto: renombrar hexes en bloque, pasar datos entre mapas o escribir un script que genere un mapa. Mantén la estructura válida: Mapa rechaza los ficheros que no encajan con el esquema y dice por qué. Otras herramientas pueden leer los mismos ficheros y añadir sus propios datos en `ext.<herramienta>`.
 
 ## Comandos útiles
 
-Desde la carpeta del proyecto: `make` los lista todos. Los principales: `make dev` (Hexmapper con recarga en vivo), `make dev-oracle`, `make dev-travel`, `make dev-manual`, `make dev-all` (todas), `make serve` (todas las aplicaciones en un sitio), `make verify` (formato, tipos y tests).
+Desde la carpeta del proyecto: `make` los lista todos. Los principales: `make dev` (Mapa con recarga en vivo), `make dev-oracle`, `make dev-travel`, `make dev-manual`, `make dev-all` (todas), `make serve` (todas las aplicaciones en un sitio), `make verify` (formato, tipos y tests).

@@ -1,3 +1,5 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
+
 const TEXT = {
   en: {
     help: 'Help',
@@ -8,12 +10,7 @@ const TEXT = {
     back: 'Back',
     title: 'Manual',
     apps: {
-      hexmapper: 'Hexmapper',
-      campaign: 'Campaign',
-      oracle: 'Oracle',
-      travel: 'Travel',
-      characters: 'Characters',
-      systems: 'Systems',
+      ...vocabulary.en.apps,
       packs: 'Packs',
       technical: 'Technical',
     } as Record<string, string>,
@@ -38,12 +35,7 @@ const TEXT = {
     back: 'Volver',
     title: 'Manual',
     apps: {
-      hexmapper: 'Hexmapper',
-      campaign: 'Campaign',
-      oracle: 'Oracle',
-      travel: 'Travel',
-      characters: 'Characters',
-      systems: 'Systems',
+      ...vocabulary.es.apps,
       packs: 'Packs',
       technical: 'Técnico',
     } as Record<string, string>,

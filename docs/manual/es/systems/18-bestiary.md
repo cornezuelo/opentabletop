@@ -2,7 +2,7 @@
 
 La pestaña **Bestiario** edita los **bestiarios** del sistema (`kind: bestiary`): las criaturas y clases de gente que puede crear, como **plantillas**. Una plantilla es un personaje de una de las [hojas](07-sheet.md) del sistema, escrito como se escribe un personaje, cuyas tiradas se hacen de nuevo para cada copia: un _lobo gris_ con `health: 2d4` da lobos con distinta salud. Una tabla o una acción hace copias con un efecto (`present.grey-wolf: '{{1d4+2}}'`), y quedan entre los presentes del viaje. Una copia conserva con lo que se hizo, así que cambiar una plantilla solo toca a las copias hechas después.
 
-Esta pestaña es **el único sitio donde se crean y se cambian las plantillas**: son parte del sistema, como sus hojas. La [aplicación Characters](../characters/01-getting-started.md#el-bestiario) las muestra tal cual y hace copias de ellas en el plantel; su **Editar en Systems ↗** abre esta pestaña en la plantilla, desplegada, y su **Nueva plantilla ↗** abre esta pestaña.
+Esta pestaña es **el único sitio donde se crean y se cambian las plantillas**: son parte del sistema, como sus hojas. La [aplicación Personajes](../characters/01-getting-started.md#el-bestiario) las muestra tal cual y hace copias de ellas en el plantel; su **Editar en Sistemas ↗** abre esta pestaña en la plantilla, desplegada, y su **Nueva plantilla ↗** abre esta pestaña.
 
 ## La pestaña
 

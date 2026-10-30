@@ -1,5 +1,5 @@
 # A faction's turn for any game: what it does when the world turns (Factions in the
-# Hexmapper's World panel). It only changes the territory, which every faction has; a
+# Map's World panel). It only changes the territory, which every faction has; a
 # system with values of its own (strength, wealth…) writes its own turn table.
 kind: table
 id: faction-turn

@@ -4,7 +4,7 @@ import { iconNamesEn } from './iconNames'
 // Source of truth for UI strings (English is the default locale). `es.ts` must mirror this shape.
 export const en = {
   app: {
-    title: 'Hexmapper',
+    title: vocabulary.en.apps.hexmapper,
   },
   // Under the map: what holds the hex under the pointer.
   hover: {
@@ -44,7 +44,7 @@ export const en = {
   file: {
     loaded: 'Map loaded',
     errorInvalid: 'The file is not a valid map.',
-    errorNewer: 'This map was created with a newer version of Hexmapper.',
+    errorNewer: 'This map was created with a newer version of Map.',
     changedElsewhere:
       'This map was changed in another window: it now shows that version (Undo starts again).',
     errorAutosave: 'The autosave could not be restored.',

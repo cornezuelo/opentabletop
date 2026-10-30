@@ -1,8 +1,12 @@
 <script lang="ts">
   import { appIconUrl, type AppId } from './apps'
 
-  /** App icon and name, the same in every app's header. */
+  /** App icon and name, the same in every app's header; the window's title says it too. */
   let { app, name, onclick }: { app: AppId; name: string; onclick?: () => void } = $props()
+
+  $effect(() => {
+    document.title = `${name} · OpenTabletop`
+  })
 </script>
 
 {#if onclick}

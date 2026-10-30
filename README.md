@@ -10,7 +10,7 @@ It is **game-system agnostic**: the apps know no game's rules. A game comes as a
 
 | App            | What it does                                                                                                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hexmapper**  | Draw hex maps (terrain, roads and rivers, regions, icons, tokens, notes), print or export them, and **play** on them: trips with rules, discovery of blank hexes, the world clock. |
+| **Map**        | Draw hex maps (terrain, roads and rivers, regions, icons, tokens, notes), print or export them, and **play** on them: trips with rules, discovery of blank hexes, the world clock. |
 | **Oracle**     | Browse, roll and **edit** every table, oracle, generator and deck of your packs, with forms or a YAML editor with live problems; create and share packs.                           |
 | **Travel**     | Play trips without a map, with any system.                                                                                                                                         |
 | **Characters** | Your roster of characters, of any system: make them, keep their notes, and take them on trips on any map.                                                                          |
@@ -31,7 +31,7 @@ make install   # dependencies
 make serve     # build every app and serve them at http://localhost:8080/
 ```
 
-Then open `http://localhost:8080/`, which opens Campaign (start a campaign there), or any app: `/hexmapper/`, `/campaign/`, `/oracle/`, `/travel/`, `/characters/`, `/systems/` or `/manual/`. To try everything at once, in the Hexmapper choose **Maps → Example maps → The Grey Marches** and press **Play**.
+Then open `http://localhost:8080/`, which opens Campaign (start a campaign there), or any app: `/hexmapper/`, `/campaign/`, `/oracle/`, `/travel/`, `/characters/`, `/systems/` or `/manual/`. To try everything at once, in Map choose **Maps → Example maps → The Grey Marches** and press **Play**.
 
 `make` lists every command. The usual ones:
 

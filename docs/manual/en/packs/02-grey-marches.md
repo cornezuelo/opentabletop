@@ -6,7 +6,7 @@
 
 ## Playing it
 
-1. In the Hexmapper, **Maps → Example maps → The Grey Marches**. It opens as one of your maps; open it again later to go on, or start it fresh.
+1. In Map, **Maps → Example maps → The Grey Marches**. It opens as one of your maps; open it again later to go on, or start it fresh.
 2. **Play** (<kbd>P</kbd>): the map opens ready, **With rules**, playing **The Grey Marches** (its system in **Map settings → Campaign → System**), with discovery on. Choose a season if you like (**New trip**) and click a destination: the party starts in Ashford. It's the Company: Kael, Mara and Old Tobin, in the **Characters** section of the trip's **Party** tab, where you choose who acts (whoever leads a ford, whoever tends the wounded) and see their health, the rations and gear they carry and their dread; the party's Survival, Charisma, Navigation and Stealth are theirs.
 3. Try the road to Fort Keld (the toll), the path to the shrine (the ford), the trail to the Grey Stones (a landmark that waits for you), a night in the Greywood, or the ferry across the Saltmere: at Brenna's shore, switch the travel mode to **By boat**; it only goes on water and coast, so switch back to **On foot** to land.
 4. Head east, into the blank hexes: they are discovered as you go (untick **Discover the map as you travel** to keep them blank).

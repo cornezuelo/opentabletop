@@ -1,6 +1,6 @@
 # Places
 
-The **Places** tab edits the system's **catalogues of places** (`kind: places`): templates of points of interest its results can make on the party's hex, such as ruins, wayside shrines, camps or lairs. A table entry, an action's step, a deck's card or a discovered hex's contents makes one with an effect (`hex.pois.ruins: 1`). Played on a map in the Hexmapper, it's written into the map as a point of interest that says **Made from** its template, and the template's tags go on its hex; in a trip without a map, the journal notes it. A place keeps what it was made with, so changing a template only touches places made afterwards.
+The **Places** tab edits the system's **catalogues of places** (`kind: places`): templates of points of interest its results can make on the party's hex, such as ruins, wayside shrines, camps or lairs. A table entry, an action's step, a deck's card or a discovered hex's contents makes one with an effect (`hex.pois.ruins: 1`). Played on a map in the Map app, it's written into the map as a point of interest that says **Made from** its template, and the template's tags go on its hex; in a trip without a map, the journal notes it. A place keeps what it was made with, so changing a template only touches places made afterwards.
 
 ## The tab
 
@@ -20,7 +20,7 @@ Its name and the places' names and descriptions are written in the language the 
 1. In **Places**, **New catalogue of places**. It comes with a **camp**: give it the description `The ashes of {{1d3}} fires, still warm`.
 2. Make a table that may find it: in the Oracle, a table whose entry has `effects: { hex.pois.camp: 1 }`.
 3. In **Rules**, give an action a step that rolls it (`roll: table.<your table>`).
-4. **Try it**: when the entry comes up, the journal says _A place here: Camp — The ashes of 2 fires, still warm_. On a map in the Hexmapper, the hex gets the point of interest and the tag `camp`.
+4. **Try it**: when the entry comes up, the journal says _A place here: Camp — The ashes of 2 fires, still warm_. On a map in the Map app, the hex gets the point of interest and the tag `camp`.
 
 Discovery can make places too: an entry of the table that decides what a found hex holds (`discover.contents`) with `effects: { hex.pois.camp: 1 }` makes the camp instead of a point of interest from its text ([Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)). The Grey Marches make their ruins, shrines and the dragon's lair this way, and Core's **Explore** makes a _Landmark_ on a 6.
 

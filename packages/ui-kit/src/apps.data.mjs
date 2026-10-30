@@ -5,13 +5,13 @@
 /** In the order the app switcher and the landing page show them. */
 // Campaign first: it's where play starts (the site's root opens it).
 export const APP_LIST = [
-  { id: 'campaign', name: 'Campaign', devPort: 5179, available: true },
-  { id: 'hexmapper', name: 'Hexmapper', devPort: 5173, available: true },
-  { id: 'oracle', name: 'Oracle', devPort: 5174, available: true },
-  { id: 'travel', name: 'Travel', devPort: 5175, available: true },
-  { id: 'characters', name: 'Characters', devPort: 5178, available: true },
-  { id: 'systems', name: 'Systems', devPort: 5177, available: true },
-  { id: 'manual', name: 'Manual', devPort: 5176, available: true },
+  { id: 'campaign', devPort: 5179, available: true },
+  { id: 'hexmapper', devPort: 5173, available: true },
+  { id: 'oracle', devPort: 5174, available: true },
+  { id: 'travel', devPort: 5175, available: true },
+  { id: 'characters', devPort: 5178, available: true },
+  { id: 'systems', devPort: 5177, available: true },
+  { id: 'manual', devPort: 5176, available: true },
 ]
 
 /** Where OpenTabletop's source is: the switcher's links to it, its issues and its changes. */
@@ -42,6 +42,28 @@ export function logoSvg(framed = false) {
   return framed
     ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 72 72"><rect x="-4" y="-4" width="72" height="72" rx="13" fill="#26241f"/>${body}</svg>`
     : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">${body}</svg>`
+}
+
+/** Each app's name, in each interface language. */
+export const APP_NAMES = {
+  en: {
+    campaign: 'Campaign',
+    hexmapper: 'Map',
+    oracle: 'Oracle',
+    travel: 'Travel',
+    characters: 'Characters',
+    systems: 'Systems',
+    manual: 'Manual',
+  },
+  es: {
+    campaign: 'Campaña',
+    hexmapper: 'Mapa',
+    oracle: 'Oráculo',
+    travel: 'Viajes',
+    characters: 'Personajes',
+    systems: 'Sistemas',
+    manual: 'Manual',
+  },
 }
 
 /** What each app is for, in each interface language. */

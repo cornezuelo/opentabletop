@@ -4,7 +4,7 @@ A system is a few definitions in a pack: **travel rules** (`kind: travel-rules`:
 
 ## A new system
 
-Write a name in the box at the bottom of the system list and press **+**. It creates one of your packs with a copy of the Generic rules (Core's) to start from and empty bindings (in `travel.yaml`) and the system that names them and Core's calendar, whose parts of the day those rules name (in `system.yaml`; the pack depends on Core), and opens its **Overview**. The system is ready to play right away in the Travel app and in the Hexmapper (in the same browser): **Play it in Travel →**, under its name, opens its trip in Travel.
+Write a name in the box at the bottom of the system list and press **+**. It creates one of your packs with a copy of the Generic rules (Core's) to start from and empty bindings (in `travel.yaml`) and the system that names them and Core's calendar, whose parts of the day those rules name (in `system.yaml`; the pack depends on Core), and opens its **Overview**. The system is ready to play right away in the Travel app and in Map (in the same browser): **Play it in Travel →**, under its name, opens its trip in Travel.
 
 To learn by doing, [Your first system](03-your-first-system.md) builds a small one step by step.
 

@@ -34,8 +34,8 @@ The built script, `apps/cli/dist/opentabletop.mjs`, runs anywhere Node.js does: 
 
 ## Maps by hand
 
-An `.otd.json` map can be edited with a text editor — renaming hexes in bulk, moving data between maps, or writing a script that generates a map. Keep the structure valid: the Hexmapper rejects files that don't match the schema and says why. Other tools can read the same files and add their own `ext.<tool>` data.
+An `.otd.json` map can be edited with a text editor — renaming hexes in bulk, moving data between maps, or writing a script that generates a map. Keep the structure valid: Map rejects files that don't match the schema and says why. Other tools can read the same files and add their own `ext.<tool>` data.
 
 ## Useful commands
 
-From the project folder: `make` lists everything. The main ones: `make dev` (Hexmapper with live reload), `make dev-oracle`, `make dev-travel`, `make dev-manual`, `make dev-all` (all of them), `make serve` (every app on one site), `make verify` (formatting, types and tests).
+From the project folder: `make` lists everything. The main ones: `make dev` (Map with live reload), `make dev-oracle`, `make dev-travel`, `make dev-manual`, `make dev-all` (all of them), `make serve` (every app on one site), `make verify` (formatting, types and tests).

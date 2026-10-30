@@ -14,6 +14,8 @@
   } from '@open-tabletop/session'
   import {
     APPS,
+    appName,
+    type AppId,
     appUrl,
     campaignUrl,
     confirmAction,
@@ -90,13 +92,14 @@
     })
   }
 
-  const appName = (place: RosterPlace) => APPS.find((a) => a.id === place.app)?.name ?? place.app
+  const nameOf = (place: RosterPlace) =>
+    APPS.some((a) => a.id === place.app) ? appName(place.app as AppId, getLocale()) : place.app
   const placeText = (place: RosterPlace) =>
     place.app === 'campaign'
       ? t('character.inCampaignOnly', { campaign: place.name })
       : t(place.token ? 'character.playsAsToken' : 'character.playsIn', {
           place: place.name,
-          app: appName(place),
+          app: nameOf(place),
         })
 
   /** The campaigns it can be in without a trip (a quick game). */
