@@ -831,13 +831,13 @@ export class MapRenderer {
       const [from, to] = [this.centerOf(a), this.centerOf(b)]
       const color = connection.id === editor.selectedConnection ? SELECT_COLOR : CONNECTION_COLOR
       const line = [from, to]
-      const pieces = dashes(line, 0.22 * hexSize, 0.12 * hexSize)
+      const pieces = dashes(line, 0.3 * hexSize, 0.16 * hexSize)
       for (const piece of pieces) this.strokePolyline(g, piece)
-      g.stroke({ width: 0.16 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', alpha: 0.85 })
+      g.stroke({ width: 0.22 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', alpha: 0.85 })
       for (const piece of pieces) this.strokePolyline(g, piece)
-      g.stroke({ width: 0.09 * hexSize, color, cap: 'round' })
+      g.stroke({ width: 0.13 * hexSize, color, cap: 'round' })
       const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 }
-      const r = 0.16 * hexSize
+      const r = 0.26 * hexSize
       g.poly([mid.x, mid.y - r, mid.x + r, mid.y, mid.x, mid.y + r, mid.x - r, mid.y])
       g.fill({ color })
       g.stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
