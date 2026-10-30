@@ -13,6 +13,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 - **Land models**: the ones the Hexmapper's **Generate land** and discovery can use (`land: [land.default]`), each with its name and id. They're edited in [Land](14-land.md).
 - **Item catalogues** (`items:`, a list): what its characters may carry; made, chosen and edited in [Items](08-items.md), whose **New catalogue** adds one here.
 - **Bestiaries** (`bestiary:`, a list): the creatures and kinds of people it can make; made, chosen and edited in [Bestiary](18-bestiary.md), whose **New bestiary** adds one here.
+- **Catalogues of places** (`places:`, a list): the places its results can make on the party's hex; made, chosen and edited in [Places](19-places.md), whose **New catalogue of places** adds one here.
 
 ## Packs it brings
 

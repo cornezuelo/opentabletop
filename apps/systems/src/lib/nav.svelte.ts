@@ -11,6 +11,7 @@ export type Tab =
   | 'sheet'
   | 'items'
   | 'bestiary'
+  | 'places'
   | 'factions'
   | 'clocks'
   | 'world'

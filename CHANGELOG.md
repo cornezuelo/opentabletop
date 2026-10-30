@@ -8,6 +8,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Characters, Travel and the Hexmapper: **parties in the roster**. A system's party sheet (the Grey Marches' Company) can be kept in the roster with its **members**, and carried from trip to trip as it is (3 rations left, 3 rations at the next start). **New character** makes a party when the system has a party sheet; its page lists its **Members** (added and taken out while it plays nowhere; a character is in one party at a time) and offers **Split the party**: who goes, and what each side keeps of each value and item (**=**, **½**), the new party starting as any new one. On a trip, **The party**'s card has **Keep in the roster** and **From the roster** (its members come with it), kept in step like characters. Export… asks for a party's members with it.
 - Characters and Campaign: **a quick game** is a campaign without a trip. A character or party's **In a campaign** puts it in one (a party with its members, asking before taking any from a trip): the campaign's **Characters** tab lists it, Characters' **Campaign** filter finds it there, and Travel's new trip in that campaign offers to bring its party.
+- Hexmapper, Travel and Systems: **places from results**. A system's catalogues of places (`kind: places`) are templates of points of interest; an effect `hex.pois.<place>: 1` (a table, an action, a discovered hex's contents) makes one on the party's hex: in the Hexmapper a point of interest with the template's name, text, icon and fields that says **Made from** its template, its tags on the hex; in Travel a line in the journal. Systems' new **Places** tab edits them.
+
+### Packs
+
+- The Grey Marches: discovery's ruins, wayside shrines and the dragon's lair are made from _Places of the Marches_ (with icons, and the tags that let you delve a ruin or hold the rite at a shrine). Core: **Explore** may find a **Landmark** (on a 6), from Core's one-place catalogue; a new system made in Systems brings it along.
 
 ### Fixes
 

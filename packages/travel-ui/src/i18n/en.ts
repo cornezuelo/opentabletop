@@ -265,6 +265,8 @@ export const en = {
     cleared: '{name} (no more)',
     memberLeft: '{name} leaves the party',
     presentCame: 'Here now: {names}',
+    placeMade: 'A place here: {name}{what}',
+    unknownPlace: 'No catalogue of places of the system has “{name}”, so nothing is made',
     presentLeft: '{name} is gone',
     presentLeftCondition: '{name} is gone ({condition})',
     presentLeftBehind: '{name} stays behind, and is gone',

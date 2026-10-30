@@ -369,7 +369,8 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
 
 /**
  * Paths effects can change (`effects: { party.stats.morale: -1 }`): the party's declared
- * stats, its sheet and items, and its characters' values and conditions, in every loaded system.
+ * stats, its sheet and items, its characters' values and conditions, and places made on the
+ * party's hex (`hex.pois.<id>`), in every loaded system.
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
   const out: Record<string, string[]> = {}
@@ -382,7 +383,11 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     items,
     bestiary,
     templateSheets,
+    places,
   } of travelSystems(registry).systems) {
+    // Places made on the party's hex from its catalogues.
+    for (const c of places ?? [])
+      for (const id of Object.keys(c.def.places)) out[`hex.pois.${id}`] = ['1']
     // Those present: copies of its templates made or taken away, and every one of them (of a
     // template, or all) changed by its sheet's values and conditions.
     for (const b of bestiary ?? [])

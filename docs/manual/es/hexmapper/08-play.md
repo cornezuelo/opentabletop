@@ -42,6 +42,7 @@ Con un sistema que sepa descubrir (las Marcas Grises saben; su mapa de ejemplo d
 
 - **El terreno**, visto desde la tierra que pisas (el bosque tiende a seguir siendo bosque): con una tabla, o con un [modelo de tierra](../technical/07-kinds.md#modelos-de-tierra) que suma la tierra de todo alrededor del hex.
 - **Qué hay**, la primera vez que entras en un hex: un punto de interés, etiquetas (un `landmark` detiene allí los viajes de las Marcas Grises), un nombre. El viaje se detiene cuando encuentras algo, para que lo juegues.
+- **Lugares con plantillas**: un sistema con [catálogos de lugares](../technical/07-kinds.md#lugares) puede hacer un lugar encontrado con uno (las ruinas, los santuarios junto al camino y la guarida del dragón de las Marcas Grises): un punto de interés con el nombre, el texto, el icono y los campos de la plantilla, y sus etiquetas en el hex (un hex `ruins` se puede explorar). Cualquier resultado de un viaje puede crear uno igual en el hex del grupo (el **Explorar** de Core, con un 6, un _Hito_). El punto de interés dice **Hecho a partir de** su plantilla, y es vuestro para editarlo o quitarlo como cualquier otro.
 
 **Qué se descubre**: _los hexes alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlos, así que rutas y velocidades son reales) o _solo el hex al que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.
 

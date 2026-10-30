@@ -11,6 +11,7 @@ Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details
 - **Tags**: free words (`ruins`, `haunted`, `landmark`…) with suggestions from the rest of the map.
 - **Fields**: key–value pairs (`danger: 3`, `elevation: 1200`). Travel checks and tables read them by key. Keys and values already used on the map are suggested as you type, and so are the names the loaded packs' tables read (the Grey Marches' `danger`, for example).
 - **Fields** of a point of interest: each point of interest has its own (`rooms: 3`), kept with it; tables don't read them.
+- **Made from**, on a point of interest a trip made from a system's [place template](../technical/07-kinds.md#places) (a discovered ruin): which one. It's edited like any other; changing the template later doesn't touch it.
 - **Linked note**: a page of your notes app.
 - The icon and the lines crossing the hex.
 

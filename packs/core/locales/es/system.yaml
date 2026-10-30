@@ -9,4 +9,4 @@ system/default:
     **Enseña:** el sistema más pequeño: reglas de viaje con marchar, acampar, descansar y
     comer; una comprobación de clima enlazada a un modelo de clima por estación (el de hoy
     sigue al de ayer); un calendario cuyo día se nombra por partes (la noche con la etiqueta `dark`);
-    una hoja de personaje, una hoja de grupo y un catálogo de equipo; un bestiario de una plantilla; un modelo de tierra para generar terreno.
+    una hoja de personaje, una hoja de grupo y un catálogo de equipo; un bestiario de una plantilla; un catálogo de un lugar que explorar puede encontrar; un modelo de tierra para generar terreno.

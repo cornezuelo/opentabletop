@@ -13,6 +13,7 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 - **Modelos de tierra**: los que pueden usar **Generar tierra** del Hexmapper y el descubrimiento (`land: [land.default]`), cada uno con su nombre y su id. Se editan en [Tierra](14-land.md).
 - **Catálogos de objetos** (`items:`, una lista): lo que pueden llevar sus personajes; se crean, se eligen y se editan en [Objetos](08-items.md), cuyo **Nuevo catálogo** añade uno aquí.
 - **Bestiarios** (`bestiary:`, una lista): las criaturas y clases de gente que puede crear; se crean, se eligen y se editan en [Bestiario](18-bestiary.md), cuyo **Nuevo bestiario** añade uno aquí.
+- **Catálogos de lugares** (`places:`, una lista): los lugares que sus resultados pueden crear en el hex del grupo; se crean, se eligen y se editan en [Lugares](19-places.md), cuyo **Nuevo catálogo de lugares** añade uno aquí.
 
 ## Packs que trae
 

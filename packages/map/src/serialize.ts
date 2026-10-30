@@ -163,6 +163,7 @@ function parseHex(value: Record<string, unknown>): HexData {
       note: str(p.note),
       icon: str(p.icon),
       fields: parseFields(p.fields),
+      template: str(p.template),
     }))
   const fields: CustomField[] = parseFields(value.fields) ?? []
   const tags = Array.isArray(value.tags)

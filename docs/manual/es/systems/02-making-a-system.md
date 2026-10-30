@@ -18,6 +18,7 @@ Cada pestaña tiene su página:
 - [**Hoja**](07-sheet.md): lo que tiene cada personaje, y el propio grupo.
 - [**Objetos**](08-items.md): lo que pueden llevar sus personajes, en catálogos.
 - [**Bestiario**](18-bestiary.md): las criaturas y clases de gente que puede crear, como plantillas.
+- [**Lugares**](19-places.md): los lugares que sus resultados pueden crear en el mapa, como plantillas.
 - [**Facciones**](09-factions.md): los poderes de su mundo y sus turnos.
 - [**Relojes**](10-clocks.md): los relojes de progreso con los que empieza su mundo, y qué es de cada uno una vez lleno.
 - [**Mundo**](11-world.md): lo que su mundo hace por sí solo: cuando se llena un reloj, tras cada turno del mundo, cuando algo pasa a cumplirse.

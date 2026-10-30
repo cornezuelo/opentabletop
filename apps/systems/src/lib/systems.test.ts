@@ -312,6 +312,20 @@ describe('systems in the Systems app', () => {
     expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
   }, 30_000)
 
+  it('a new system makes Core’s places, and a catalogue of its own is created and named by it', () => {
+    const id = createSystem('Wanderers')!
+    const system = () => systems.get(id)!
+    // Its copy of the Generic rules explores and may find Core's landmark.
+    expect(system().places?.map((c) => c.id)).toEqual(['core/default'])
+    expect(createSystemPart(system(), 'places')).toBe('default')
+    expect(systemParts(system(), 'places')).toMatchObject([
+      { root: 'core', kind: 'places' },
+      { root: id, kind: 'places', id: 'default' },
+    ])
+    expect(Object.keys(system().places?.[1].def.places ?? {})).toEqual(['camp'])
+    expect(library.diagnostics(id).filter((d) => d.severity === 'error')).toEqual([])
+  }, 30_000)
+
   it('a new calendar, weather model and roll modes are created and named by the system', () => {
     const id = createSystem('Weathered')!
     const system = () => systems.get(id)!

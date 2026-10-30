@@ -1,6 +1,8 @@
 <script lang="ts">
   import FieldEditor from '../FieldEditor.svelte'
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { localize } from '@open-tabletop/session'
+  import { activeSystem } from '../../lib/play/systems'
   import { getLocale, t } from '../../lib/i18n/index.svelte'
   import { type HexKey, newId, type Poi } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
@@ -19,6 +21,14 @@
     if (builtin) return { svg: builtinSvg(builtin) }
     const asset = editor.map.assets.find((a) => `asset:${a.id}` === id)
     return asset ? { url: asset.dataUrl } : null
+  }
+
+  /** The name of the place template a POI was made from (`pack/catalogue/id`), or its id. */
+  function templateName(template: string): string {
+    const at = template.lastIndexOf('/')
+    const catalogue = activeSystem().places?.find((c) => c.id === template.slice(0, at))
+    const place = catalogue?.def.places[template.slice(at + 1)]
+    return (place && localize(place.name, getLocale(), 'en')) || template
   }
 
   function update(id: string, patch: Partial<Poi>) {
@@ -77,6 +87,12 @@
           onclick={() => remove(poi.id)}>✕</button
         >
       </div>
+      {#if poi.template}
+        <span class="made-from"
+          >{t('hex.poiMadeFrom')}<InfoTip text={t('hex.poiMadeFromHelp')} />:
+          <strong>{templateName(poi.template)}</strong></span
+        >
+      {/if}
       {#if picking === poi.id}
         <TokenIconPicker
           value={poi.icon}
@@ -165,6 +181,11 @@
 
   .name {
     font-weight: 600;
+  }
+
+  .made-from {
+    color: var(--text-muted);
+    font-size: 0.85em;
   }
 
   textarea {

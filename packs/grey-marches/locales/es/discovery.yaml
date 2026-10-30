@@ -126,6 +126,7 @@ hex-contents:
     - Una condición sobre el hex: `hex.water: true`
     - `once`: la guarida del dragón
     - Dados en el texto: `{{1d6+2}}`
+    - Lugares hechos con plantillas (`effects: { hex.pois.ruins: 1 }`, _Lugares de las Marcas_): las ruinas, el santuario y la guarida, con sus iconos y las etiquetas que leen las reglas; el campamento de viajeros sigue siendo un punto de interés simple hecho de su texto
   entries:
     water: Aguas abiertas
     lair: La guarida de un dragón, con huesos esparcidos a la entrada

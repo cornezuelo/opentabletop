@@ -85,7 +85,8 @@ values: {}
 # (`trip.below: party.values.food`) and the journal says so (a `say` step, named by its
 # `id` for its translation). Exploring rolls
 # Core's Prompt generator (a step that rolls something of the Oracle: `roll:`) for an idea
-# of what the party finds.
+# of what the party finds, then _A place found?_ (places.yaml), which may make a place on
+# the hex (`hex.pois.landmark`).
 actions:
   march:
     name: March
@@ -121,11 +122,12 @@ actions:
       - { id: empty, when: { trip.below: party.values.food }, say: There is nothing left to eat. }
   explore:
     name: Explore
-    description: 'An hour looking around, by day: an idea of what you find (an action and a subject, Core’s Prompt).'
+    description: 'An hour looking around, by day: an idea of what you find (an action and a subject, Core’s Prompt), and on a 6 a landmark worth marking.'
     when: { time.tags: { not: dark } }
     do:
       - { time: 60 }
       - { roll: generator.prompt }
+      - { roll: table.place-found }
   # A moment written as a condition (a reaction): once, as morale reaches 0.
   despair:
     name: Despair

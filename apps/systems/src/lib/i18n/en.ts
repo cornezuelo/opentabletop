@@ -35,6 +35,7 @@ export const en = {
     checks: 'Checks',
     sheet: 'Sheet',
     bestiary: 'Bestiary',
+    places: 'Places',
     items: 'Items',
     factions: 'Factions',
     clocks: 'Clocks',
@@ -54,6 +55,14 @@ export const en = {
       help: 'Item catalogues, as many as the system wants (gear, weapons, magic), named in its **Overview** (`items:`). Tables and conditions read what a character has:\n• `characters.kael.items.torch.count: { gte: 1 }` — has a torch\n• `acting.items.tags: light` — carries something tagged light\nEffects give and take them:\n• `acting.items.torch: -1` — one torch fewer\n• `party.members.items.ration: 1` — a ration each, from the catalogue if they have none',
       none: 'This system has no item catalogues: its characters may still carry items written by hand.',
       create: 'New catalogue',
+    },
+    places: {
+      title: 'Its places',
+      intro:
+        "Places a result can make on the party's hex (`kind: places`): templates of points of interest, each with its name, text, icon, fields and the tags it gives the hex. A table, an action or a discovered hex's contents makes one with an effect (`hex.pois.ruins: 1`); on a map in the Hexmapper it's written into the map, in a trip without one the journal notes it. A place keeps what it was made with: changing a template touches only places made after.",
+      help: 'Catalogues of places, as many as the system wants, named in its **Overview** (`places:`), and those of the packs a map or campaign adds. Effects make them on the party’s hex:\n• `hex.pois.ruins: 1` — one **Ruins**\n• In discovery’s contents, `effects: { hex.pois.shrine: 1 }` — the hex found holds a shrine, instead of a point of interest made of the result’s text',
+      none: 'This system has no catalogue of places: results may still make plain points of interest from their text in discovery.',
+      create: 'New catalogue of places',
     },
     bestiary: {
       title: 'Its bestiary',
@@ -156,6 +165,25 @@ export const en = {
       "What it is as a place, so items fit it by these tags as by the sheet's places':\n• `pack` — anything that fits a pack fits inside it",
     noFields:
       'The sheet gives items no fields yet: add them in **Sheet → Items** (slots, weight, uses…), and each item here gets a box for them.',
+  },
+  placesForm: {
+    name: 'Name',
+    nameHelp: 'What this catalogue is called.\n• **Places of the marches**',
+    places: 'Places',
+    placesHelp:
+      'Each place, by an id effects name it with (`hex.pois.<id>`): its name and text, its icon, the tags its hex gets and its fields.\n• `ruins` — icon `game:castle-ruins`, tags `ruins`\n• `shrine` — tags `shrine`, read by an action that only works there (`hex.tags: shrine`)',
+    placeName: 'Name',
+    descriptionHelp:
+      'What the point of interest says. Variables and rolls are read from the result that makes it:\n• `{{result}}` — the result’s own text\n• `A camp of {{1d6+2}} travellers`',
+    icon: 'Icon',
+    iconHelp:
+      'An icon of the map’s, by id, to tell it apart in the hex’s points of interest:\n• `game:castle-ruins`\n• `game:totem`\nEmpty: none.',
+    tags: 'Tags of the hex',
+    tagsHelp:
+      'Tags the hex gets when the place is made there, as discovery’s `set: { tags }`: what rules read.\n• `ruins` — `hex.tags: ruins`\n• `danger`, `landmark`',
+    fields: 'Fields',
+    fieldsHelp:
+      'The point of interest’s fields, `key: value` pairs; values may hold variables and rolls, read when it’s made:\n• `skulls: {{1d6+2}}`\n• `god: forgotten`',
   },
   bestiaryForm: {
     name: 'Name',

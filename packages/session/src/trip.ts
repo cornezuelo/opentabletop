@@ -76,6 +76,13 @@ import {
 } from './party'
 import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
 import {
+  lookupPlaces,
+  parsePlaces,
+  PLACE_PATH,
+  type MadePlace,
+  type PlacesCatalogue,
+} from './places'
+import {
   createSession,
   initialSessionState,
   parseBindings,
@@ -144,11 +151,16 @@ export interface TravelSystem {
   items?: { id: string; def: Catalogue }[]
   /**
    * Its bestiaries (`bestiary` in `kind: system`, then those of the packs a map or campaign
-   * adds: `withAddedBestiaries`), by `pack/id`, in order; each template's sheet by its id.
+   * adds: `withAddedPacks`), by `pack/id`, in order; each template's sheet by its id.
    */
   bestiary?: SystemBestiary[]
   /** The sheets its templates are made with, by `pack/id`. */
   templateSheets?: Record<string, Sheet>
+  /**
+   * Its catalogues of places (`places` in `kind: system`, then those of the packs a map or
+   * campaign adds: `withAddedPacks`), by `pack/id`, in order: what `hex.pois.<id>` makes.
+   */
+  places?: { id: string; def: PlacesCatalogue }[]
   /**
    * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
    * (`maps/frontier.otd.json`), in the order it lists them.
@@ -315,6 +327,7 @@ const PART_NAMES: Record<string, string> = {
   land: 'land model',
   items: 'item catalogue',
   bestiary: 'bestiary',
+  places: 'catalogue of places',
 }
 const SYSTEM_KEYS = new Set([
   'kind',
@@ -335,6 +348,7 @@ const SYSTEM_KEYS = new Set([
   'world',
   'items',
   'bestiary',
+  'places',
 ])
 
 /**
@@ -433,6 +447,7 @@ export function travelSystems(registry: Registry): {
       world?: Extra
       items?: Extra[]
       bestiary?: Extra[]
+      places?: Extra[]
     },
   ): TravelSystem | undefined {
     let rules = NO_TRAVEL
@@ -749,6 +764,11 @@ export function travelSystems(registry: Registry): {
               ? Object.keys(e.data.items)
               : [],
           ),
+          (parts.places ?? []).flatMap((e) =>
+            typeof e.data.places === 'object' && e.data.places !== null
+              ? Object.keys(e.data.places)
+              : [],
+          ),
         ),
       )
     // Its item catalogues, each field one its sheet declares.
@@ -777,6 +797,11 @@ export function travelSystems(registry: Registry): {
       items,
     )
     problems.push(...read.problems)
+    // Its catalogues of places.
+    const places = readPlaces(
+      (parts.places ?? []).map((extra) => ({ extra, owner: ownerOf(extra) ?? pack })),
+    )
+    problems.push(...places.problems)
     const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
       extra && { pack: owner, id: extra.id ?? 'default', file: extra.file }
     return {
@@ -800,6 +825,7 @@ export function travelSystems(registry: Registry): {
       ...(world && { world }),
       ...(items.length && { items }),
       ...(read.bestiary.length && { bestiary: read.bestiary, templateSheets: read.sheets }),
+      ...(places.places.length && { places: places.places }),
     }
   }
   const owners = new Map<Extra, string>()
@@ -830,6 +856,7 @@ export function travelSystems(registry: Registry): {
           world: extras.find((e) => e.kind === 'world'),
           items: extras.filter((e) => e.kind === 'items'),
           bestiary: extras.filter((e) => e.kind === 'bestiary'),
+          places: extras.filter((e) => e.kind === 'places'),
         },
       )
       if (system) systems.push(system)
@@ -924,6 +951,9 @@ export function travelSystems(registry: Registry): {
           ),
           bestiary: list('bestiary', data.bestiary).flatMap(
             (ref, i) => part(`bestiary.${i}`, 'bestiary', ref) ?? [],
+          ),
+          places: list('places', data.places).flatMap(
+            (ref, i) => part(`places.${i}`, 'places', ref) ?? [],
           ),
         },
       )
@@ -1042,30 +1072,54 @@ function readBestiaries(
   return { bestiary, sheets, problems }
 }
 
+/** Catalogues of places (`kind: places`) as a system uses them: each parsed, its problems reported. */
+function readPlaces(extras: { extra: Extra; owner: string }[]): {
+  places: { id: string; def: PlacesCatalogue }[]
+  problems: Diagnostic[]
+} {
+  const places: { id: string; def: PlacesCatalogue }[] = []
+  const problems: Diagnostic[] = []
+  for (const { extra, owner } of extras) {
+    const parsed = parsePlaces(extra.data)
+    for (const e of parsed.errors) problems.push(problem(owner, extra.file, 'places', e, extra.id))
+    if (parsed.places) places.push({ id: `${owner}/${extra.id ?? 'default'}`, def: parsed.places })
+  }
+  return { places, problems }
+}
+
 /**
- * A system with the bestiaries of the packs a map or campaign adds (`packs`), after its
- * own: their templates are offered and made like the system's (docs/bestiary.md §5).
+ * A system with the bestiaries and catalogues of places of the packs a map or campaign adds
+ * (`packs`), after its own: their templates are offered and made like the system's
+ * (docs/bestiary.md §5).
  */
-export function withAddedBestiaries(
+export function withAddedPacks(
   system: TravelSystem,
   registry: Registry,
   packs: readonly string[],
 ): { system: TravelSystem; problems: Diagnostic[] } {
-  const known = new Set((system.bestiary ?? []).map((b) => b.id))
-  const extras = packs.flatMap((owner) =>
-    (registry.extras.get(owner) ?? [])
-      .filter((e) => e.kind === 'bestiary' && !known.has(`${owner}/${e.id ?? 'default'}`))
-      .map((extra) => ({ extra, owner })),
-  )
-  if (!extras.length) return { system, problems: [] }
-  const read = readBestiaries(registry, extras, system.items ?? [])
+  const added = (kind: string, known: { id: string }[] = []) => {
+    const ids = new Set(known.map((k) => k.id))
+    return packs.flatMap((owner) =>
+      (registry.extras.get(owner) ?? [])
+        .filter((e) => e.kind === kind && !ids.has(`${owner}/${e.id ?? 'default'}`))
+        .map((extra) => ({ extra, owner })),
+    )
+  }
+  const bestiaries = added('bestiary', system.bestiary)
+  const catalogues = added('places', system.places)
+  if (!bestiaries.length && !catalogues.length) return { system, problems: [] }
+  const read = readBestiaries(registry, bestiaries, system.items ?? [])
+  const places = readPlaces(catalogues)
   return {
     system: {
       ...system,
-      bestiary: [...(system.bestiary ?? []), ...read.bestiary],
-      templateSheets: { ...system.templateSheets, ...read.sheets },
+      ...(read.bestiary.length && {
+        bestiary: [...(system.bestiary ?? []), ...read.bestiary],
+        templateSheets: { ...system.templateSheets, ...read.sheets },
+      }),
+      ...(places.places.length && { places: [...(system.places ?? []), ...places.places] }),
     },
-    problems: read.problems,
+    problems: [...read.problems, ...places.problems],
   }
 }
 
@@ -1086,6 +1140,8 @@ function undeclaredEffects(
   partySheet?: Sheet,
   /** The ids of the items its catalogues have. */
   itemIds: string[] = [],
+  /** The ids of the places its catalogues have. */
+  placeIds: string[] = [],
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
@@ -1103,6 +1159,18 @@ function undeclaredEffects(
       if (/^world\.clocks\./.test(path)) continue
       // Copies of a template, those present: the bestiaries' (read with the trip's).
       if (/^present\./.test(path)) continue
+      // Places made on the party's hex: its catalogues' (`placeIds`).
+      const placeId = PLACE_PATH.exec(path)?.[1]
+      if (placeId !== undefined) {
+        if (!placeIds.includes(placeId))
+          out.push({
+            severity: 'warning',
+            message: `Effect on "${path}": no catalogue of places of this system has "${placeId}"`,
+            pack,
+            ...where,
+          })
+        continue
+      }
       const factionKnown =
         factionPart === 'territory' ||
         (factions &&
@@ -1241,6 +1309,7 @@ export const partyOf = (system: TravelSystem): PartyRules => ({
       system.bestiary?.find((b) => b.id === bestiary)?.names[template],
     sheets: system.templateSheets ?? {},
   }),
+  ...(system.places && { places: lookupPlaces(system.places) }),
 })
 
 /**
@@ -1299,6 +1368,7 @@ export function stepTrip(
           locale: options.locale,
           land: system.land,
           random: options.random ?? mathRandom(),
+          places: partyOf(system).places,
         })
       : undefined
   const result = createSession({
@@ -1323,8 +1393,31 @@ export function stepTrip(
     partySheet: system.partySheet,
     items: partyOf(system).items,
     templates: partyOf(system),
+    places: partyOf(system).places,
   }).step(session, action)
-  return { ...result, discovered: Object.fromEntries(discovery?.found ?? []) }
+  return {
+    ...result,
+    discovered: withPlacesMade(Object.fromEntries(discovery?.found ?? []), result.entries),
+  }
+}
+
+/**
+ * What a step found, by hex, with the places its results made (`PLACE_MADE` lines) added to
+ * their hexes' places and tags: what a host with a map writes into it.
+ */
+export function withPlacesMade(
+  found: Record<string, DiscoveredHex>,
+  entries: JournalEntry[],
+): Record<string, DiscoveredHex> {
+  const out = { ...found }
+  for (const e of entries) {
+    if (e.code !== 'PLACE_MADE' || typeof e.data?.hex !== 'string' || !e.data.hex) continue
+    const { hex, ...place } = e.data as unknown as { hex: string } & MadePlace
+    const was = out[hex] ?? {}
+    const tags = [...new Set([...(was.tags ?? []), ...(place.tags ?? [])])]
+    out[hex] = { ...was, places: [...(was.places ?? []), place], ...(tags.length && { tags }) }
+  }
+  return out
 }
 
 /**

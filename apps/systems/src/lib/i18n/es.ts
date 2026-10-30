@@ -37,6 +37,7 @@ export const es: Messages<typeof en> = {
     checks: 'Comprobaciones',
     sheet: 'Hoja',
     bestiary: 'Bestiario',
+    places: 'Lugares',
     items: 'Objetos',
     factions: 'Facciones',
     clocks: 'Relojes',
@@ -56,6 +57,14 @@ export const es: Messages<typeof en> = {
       help: 'Catálogos de objetos, tantos como quiera el sistema (equipo, armas, magia), nombrados en su **Resumen** (`items:`). Las tablas y condiciones leen lo que tiene un personaje:\n• `characters.kael.items.torch.count: { gte: 1 }` — tiene una antorcha\n• `acting.items.tags: light` — lleva algo con la etiqueta light\nLos efectos los dan y los quitan:\n• `acting.items.torch: -1` — una antorcha menos\n• `party.members.items.ration: 1` — una ración a cada uno, del catálogo si no tienen ninguna',
       none: 'Este sistema no tiene catálogos de objetos: sus personajes pueden llevar igualmente objetos escritos a mano.',
       create: 'Nuevo catálogo',
+    },
+    places: {
+      title: 'Sus lugares',
+      intro:
+        'Lugares que un resultado puede crear en el hex del grupo (`kind: places`): plantillas de puntos de interés, cada una con su nombre, texto, icono, campos y las etiquetas que da al hex. Una tabla, una acción o el contenido de un hex descubierto crea uno con un efecto (`hex.pois.ruins: 1`); sobre un mapa en el Hexmapper se escribe en el mapa, en un viaje sin mapa lo anota el diario. Un lugar conserva con lo que se hizo: cambiar una plantilla solo afecta a los lugares hechos después.',
+      help: 'Catálogos de lugares, tantos como quiera el sistema, nombrados en su **Resumen** (`places:`), y los de los paquetes que añade un mapa o una campaña. Los efectos los crean en el hex del grupo:\n• `hex.pois.ruins: 1` — unas **Ruinas**\n• En el contenido del descubrimiento, `effects: { hex.pois.shrine: 1 }` — el hex encontrado tiene un santuario, en vez de un punto de interés hecho con el texto del resultado',
+      none: 'Este sistema no tiene catálogo de lugares: los resultados aún pueden crear puntos de interés simples con su texto al descubrir.',
+      create: 'Nuevo catálogo de lugares',
     },
     bestiary: {
       title: 'Su bestiario',
@@ -159,6 +168,25 @@ export const es: Messages<typeof en> = {
       'Qué es como lugar, para que los objetos quepan en él por estas etiquetas igual que en los lugares de la hoja:\n• `pack` — todo lo que cabe en una mochila cabe dentro',
     noFields:
       'La hoja aún no da campos a los objetos: añádelos en **Hoja → Objetos** (huecos, peso, usos…) y cada objeto de aquí tendrá una casilla para ellos.',
+  },
+  placesForm: {
+    name: 'Nombre',
+    nameHelp: 'Cómo se llama este catálogo.\n• **Lugares de las marcas**',
+    places: 'Lugares',
+    placesHelp:
+      'Cada lugar, con un id por el que lo nombran los efectos (`hex.pois.<id>`): su nombre y texto, su icono, las etiquetas que recibe su hex y sus campos.\n• `ruins` — icono `game:castle-ruins`, etiquetas `ruins`\n• `shrine` — etiquetas `shrine`, leídas por una acción que solo funciona allí (`hex.tags: shrine`)',
+    placeName: 'Nombre',
+    descriptionHelp:
+      'Lo que dice el punto de interés. Las variables y las tiradas se leen del resultado que lo crea:\n• `{{result}}` — el texto del propio resultado\n• `Un campamento de {{1d6+2}} viajeros`',
+    icon: 'Icono',
+    iconHelp:
+      'Un icono del mapa, por su id, para distinguirlo entre los puntos de interés del hex:\n• `game:castle-ruins`\n• `game:totem`\nVacío: ninguno.',
+    tags: 'Etiquetas del hex',
+    tagsHelp:
+      'Etiquetas que recibe el hex cuando el lugar se crea en él, como el `set: { tags }` del descubrimiento: lo que leen las reglas.\n• `ruins` — `hex.tags: ruins`\n• `danger`, `landmark`',
+    fields: 'Campos',
+    fieldsHelp:
+      'Los campos del punto de interés, pares `clave: valor`; los valores pueden llevar variables y tiradas, que se leen al crearlo:\n• `skulls: {{1d6+2}}`\n• `god: forgotten`',
   },
   bestiaryForm: {
     name: 'Nombre',

@@ -38,4 +38,4 @@ travel-rules/default:
           pause: El grupo ha perdido el ánimo.
     explore:
       name: Explorar
-      description: 'Una hora mirando alrededor, de día: una idea de lo que encontráis (una acción y un tema, la Inspiración de Core).'
+      description: 'Una hora mirando alrededor, de día: una idea de lo que encontráis (una acción y un tema, la Inspiración de Core) y, con un 6, un hito que merece la pena marcar.'

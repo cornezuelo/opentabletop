@@ -210,6 +210,8 @@ export function mapToBundle(
         ...(poi.note && { noteRef: poi.note }),
         ...(poi.icon && { ext: { hexmapper: { icon: poi.icon } } }),
         ...(toStats(poi.fields) && { stats: toStats(poi.fields) }),
+        // The place template it was made from: a reference (`place:<catalogue>/<id>`).
+        ...(poi.template && { refs: [`place:${poi.template}`] }),
       })
   }
   const ext: HexmapperExt = {
@@ -534,6 +536,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
       note: poi.noteRef,
       icon: (poi.ext as { hexmapper?: { icon?: string } } | undefined)?.hexmapper?.icon,
       fields: fromStats((poi as { stats?: Record<string, unknown> }).stats),
+      template: poi.refs?.find((r) => r.startsWith('place:'))?.slice('place:'.length),
     }
     const hex = (hexes[poi.location.hex] ??= {})
     hex.pois = [...((hex.pois as Poi[]) ?? []), entry]

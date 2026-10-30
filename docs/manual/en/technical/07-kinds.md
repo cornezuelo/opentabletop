@@ -21,6 +21,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `clocks`       | The progress clocks its world starts with, and what each does when full    | The world clock (the Hexmapper's World panel, the Campaign app), the Systems app     | One per system    |
 | `items`        | What its characters may carry: items with tags, numbers, places            | Characters' cards (trips, tokens, the Characters app), effects, the Systems app      | Any               |
 | `bestiary`     | Templates of characters (creatures, NPC types) that results make copies of | Trips (those present: effects `present.<template>`)                                  | Any               |
+| `places`       | Templates of points of interest that results make on the party's hex       | Trips (effects `hex.pois.<place>`), written on the map by the Hexmapper              | Any               |
 | `system`       | A game system: which of the above it uses, and which packs                 | Every app that plays with a system: Hexmapper, Travel, Campaign, Characters, Systems | Any               |
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card), an action's `roll:` step (`roll: table.ruins`), an entry or card that rolls another (`table:`), a generator's field, a progress clock as it fills (`resolve:`) and a faction's world turn (`turn:`). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
@@ -517,6 +518,36 @@ templates:
 - A pack a map or campaign adds brings its bestiaries too, after the system's own.
 - Translated keyed `bestiary/<id>`, by template (`templates: { wolf: { name: Lobo } }`).
 
+## Places
+
+Templates of points of interest that a system's results make on the party's hex (`places:` in its [system](#systems), a list: as many as it wants): ruins, shrines, camps, lairs. An effect `hex.pois.<place>: 1` makes one there; on a map in the Hexmapper it's written into the map as a point of interest that remembers what it was made from (**Made from**), with the template's tags added to its hex, as discovery writes what it finds; in a trip without a map (the Travel app) the journal notes it.
+
+```yaml
+kind: places
+id: sites
+name: Sites
+places:
+  ruins:
+    name: Ruins
+    description: '{{result}}' # the text of the result that makes it
+    icon: game:castle-ruins # an icon of the map's
+    tags: [ruins] # given to its hex: rules read them (hex.tags: ruins)
+  camp:
+    name: Camp
+    description: A camp of {{1d6+2}} travellers # rolled as it's made
+    icon: game:campfire
+    tags: [camp]
+    fields: { fires: '{{1d3}}', kind: travellers } # the point of interest's fields
+```
+
+- Each place, by an id effects name it with (no dots): `name` (required), `description`, `icon` (a map icon's id, `game:<name>`, as the Hexmapper's icon picker lists them), `tags` and `fields`.
+- `description` and the `fields`' values may hold `{{…}}`: read from the result that makes the place (`{{result}}`, its `set` values, the trip's facts) and rolled (`{{1d6}}`), once, as it's made.
+- `tags` go on the **hex**, not the point of interest: they're what conditions read (`hex.tags: shrine`), as discovery's `set: { tags }`.
+- A place is made once: later changes to its template don't touch places already made, and on the map it's yours to edit or remove like any other point of interest.
+- Results make them with an effect: an entry's `effects: { hex.pois.ruins: 1 }`, an action's step, a deck's card, or **discovery**'s contents (`discover.contents`), whose entry then makes the place instead of a plain point of interest from its text ([Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)). The number says how many (`2`, `'{{1d2}}'`); a place nobody's catalogue has makes nothing, and the journal says so.
+- A pack a map or campaign adds brings its catalogues of places too, after the system's own.
+- Translated keyed `places/<id>`, by place (`places: { ruins: { name: Ruinas } }`).
+
 ## Factions
 
 The powers of a system's world (`factions:` in its [system](#systems)): each a character of a [sheet](#sheets) (its values, conditions and relations) holding hexes of a map, taking a turn on every **world turn**. In the Hexmapper's World view they're brought onto a map, drawn and played ([Factions](../hexmapper/12-world.md#factions)).
@@ -622,7 +653,7 @@ reactions:
 
 ## Systems
 
-A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar, weather models, land models, sheets, item catalogues, bestiaries, factions, progress clocks and world rules, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
+A system names, in one place, what a game played with it uses: its travel rules, bindings, calendar, weather models, land models, sheets, item catalogues, bestiaries, places, factions, progress clocks and world rules, and the packs whose tables, oracles and decks it brings along. A campaign is played with one system, shared by its maps and trips: chosen for a Hexmapper map's campaign in **Map settings → Campaign → System** (its trips, its World panel's calendar and its Oracle panel use what the system brings), and by a trip in the Travel app on the system's page (a trip keeps the system it started with); both list them by name.
 
 ```yaml
 kind: system
@@ -639,13 +670,14 @@ clocks: clocks.default # the progress clocks its world starts with
 world: world.default # what its world does by itself
 items: [items.gear] # what its characters may carry (item catalogues)
 bestiary: [bestiary.marches] # the templates its results make copies of
+places: [places.default] # the places its results make on the party's hex
 weather: [weather.sky] # the weather models its bindings may use
 land: [land.default] # its land models: discovery's and Generate's
 packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 ```
 
-- Every part is optional. Without `travel`, the system doesn't travel (Play and Travel say so; its world, oracle and factions still play), and any system can name Core's, `travel: core/travel-rules.default`, the **Generic rules** (with `calendar: core/calendar.default`, whose parts of the day they name, and `bindings: core/bindings.default` with `weather: [core/weather.default]`, which roll their weather check); without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `land`, it has no land model to discover or generate with; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `sheet`, its party is played as a whole; without `bestiary`, its results make no copies of templates. Core's own system, `core`, is the one a map plays when it chooses none: [the Generic rules](../packs/01-core.md#the-generic-rules).
+- Every part is optional. Without `travel`, the system doesn't travel (Play and Travel say so; its world, oracle and factions still play), and any system can name Core's, `travel: core/travel-rules.default`, the **Generic rules** (with `calendar: core/calendar.default`, whose parts of the day they name, and `bindings: core/bindings.default` with `weather: [core/weather.default]`, which roll their weather check); without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `land`, it has no land model to discover or generate with; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `sheet`, its party is played as a whole; without `bestiary`, its results make no copies of templates; without `places`, they make no places from templates. Core's own system, `core`, is the one a map plays when it chooses none: [the Generic rules](../packs/01-core.md#the-generic-rules).
 - Each part is a definition of this pack, by its kind and id (`travel: travel-rules.default`), or of a pack it depends on (`travel: core/travel-rules.slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.

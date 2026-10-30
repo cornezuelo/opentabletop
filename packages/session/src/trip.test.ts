@@ -681,10 +681,11 @@ describe("Core's system: the Generic rules as data", () => {
     })
   })
 
-  it('explores: a step rolls Core’s Prompt generator, named in the journal', () => {
+  it('explores: a step rolls Core’s Prompt generator, named in the journal, then whether a place is found', () => {
     const { registry } = loadPacks(corePack())
     const system = travelSystems(registry).systems.find((s) => s.id === 'core')!
-    const oracle = createOracleEngine({ registry, random: sequence([0.1, 0.6]) })
+    // The prompt's two rolls, then a 1 on _A place found?_.
+    const oracle = createOracleEngine({ registry, random: sequence([0.1, 0.6, 0]) })
     const { session } = startTrip({ system, location: '0' })
     const { state } = stepTrip({ system, world: road, oracle, locale: 'es' }, session, {
       type: 'action',
@@ -693,6 +694,9 @@ describe("Core's system: the Generic rules as data", () => {
     const result = state.journal.find((e) => e.code === 'ORACLE_RESULT')!
     expect(result.data).toMatchObject({ event: 'generator.prompt', named: 'Inspiración' })
     expect(result.text).toBeTruthy()
+    expect(state.journal.findLast((e) => e.code === 'ORACLE_RESULT')!.text).toBe(
+      'Nada que merezca la pena marcar',
+    )
     expect(state.travel.time - session.travel.time).toBe(60)
   })
 

@@ -1,0 +1,19 @@
+places/default:
+  name: Lugares
+  description: |-
+    Lugares que un resultado puede crear en el hex del grupo.
+
+    **Enseña:** el catálogo de lugares más pequeño: una plantilla con un nombre, un texto, un icono del mapa y una etiqueta que da al hex; en un mapa se escribe como un punto de interés, en un viaje sin mapa lo anota el diario.
+  places:
+    landmark:
+      name: Hito
+      description: Algo que merece la pena volver a encontrar.
+place-found:
+  name: ¿Un lugar?
+  description: |-
+    Si explorar encuentra un lugar que merece la pena marcar: con un 6, un **Hito**.
+
+    **Enseña:** un resultado que crea un lugar con una plantilla (`effects: { hex.pois.landmark: 1 }`).
+  entries:
+    nothing: Nada que merezca la pena marcar
+    landmark: Un hito que merece la pena marcar

@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its two example maps in one campaign, the sheet its companions are made with and the Company's own, its gear, the bestiary its encounters make foes from, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its two example maps in one campaign, the sheet its companions are made with and the Company's own, its gear, the bestiary its encounters make foes from, the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -24,6 +24,8 @@ factions: factions.default
 items: [items.gear]
 # Who walks the Marches (bestiary.yaml): the templates its encounters make copies of.
 bestiary: [bestiary.marches]
+# The places of the Marches (places.yaml): what discovery's contents make on a hex.
+places: [places.default]
 # The threats of the Marches (clocks.yaml): the progress clocks its world clock starts with.
 clocks: clocks.default
 # How the Marches move (world.yaml): what the world does by itself.

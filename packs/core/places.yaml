@@ -1,0 +1,30 @@
+# The Generic rules' places (system.yaml: `places: [places.default]`): one template, and a
+# table that makes it on the party's hex (`hex.pois.landmark: 1`), rolled by Explore
+# (travel.yaml). The smallest that works.
+kind: places
+id: default
+name: Places
+description: |-
+  Places a result can make on the party's hex.
+
+  **Shows:** the smallest catalogue of places: one template with a name, a text, an icon of the map's and a tag it gives the hex; on a map it's written as a point of interest, in a trip without one the journal notes it.
+places:
+  landmark:
+    name: Landmark
+    description: Something worth finding again.
+    icon: game:obelisk
+    tags: [landmark]
+---
+# Rolled by Explore's last step: on a 6, a landmark is made on the party's hex.
+kind: table
+id: place-found
+tags: [places]
+name: A place found?
+description: |-
+  Whether exploring finds a place worth marking: on a 6, a **Landmark**.
+
+  **Shows:** a result that makes a place from a template (`effects: { hex.pois.landmark: 1 }`).
+roll: 1d6
+entries:
+  - { id: nothing, range: 1-5, result: Nothing worth marking }
+  - { id: landmark, range: 6, result: A landmark worth marking, effects: { hex.pois.landmark: 1 } }

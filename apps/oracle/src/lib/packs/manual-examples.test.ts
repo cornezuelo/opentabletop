@@ -27,6 +27,7 @@ import {
   refreshParty,
   startTrip,
   stepTrip,
+  parsePlaces,
   tripAvailability,
   travelSystems,
   type SessionState,
@@ -116,6 +117,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'world',
         'items',
         'bestiary',
+        'places',
       ]),
     )
   })
@@ -140,6 +142,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
       else if (doc?.kind === 'sheet') expect(parseSheet(doc).errors).toEqual([])
       else if (doc?.kind === 'items') expect(parseCatalogue(doc).errors).toEqual([])
       else if (doc?.kind === 'bestiary') expect(parseBestiary(doc).errors).toEqual([])
+      else if (doc?.kind === 'places') expect(parsePlaces(doc).errors).toEqual([])
       else if (doc?.kind === 'land') expect(validateLand(doc)).toEqual([])
   })
 })
@@ -1038,11 +1041,11 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
 
   it('loads (steps 1–7)', () => {
     expect(diagnostics.map(formatDiagnostic)).toEqual([])
-    // Explore rolls Core's prompt, which this test doesn't bring.
+    // Explore rolls Core's prompt and whether a place is found, which this test doesn't bring.
     expect(
       travelSystems(registry)
         .problems.map(formatDiagnostic)
-        .filter((p) => !p.includes('generator.prompt')),
+        .filter((p) => !p.includes('generator.prompt') && !p.includes('table.place-found')),
     ).toEqual([])
     expect(system.sheet?.id).toBe('co/sheet')
     expect(system.partySheet?.id).toBe('co/party')

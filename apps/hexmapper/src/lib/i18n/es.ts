@@ -590,6 +590,9 @@ export const es: Messages = {
     pois: 'Puntos de interés',
     poiName: 'Nombre del PDI',
     poiDescription: 'Descripción',
+    poiMadeFrom: 'Hecho a partir de',
+    poiMadeFromHelp:
+      'La plantilla de lugar con la que se creó este punto de interés al jugar: un resultado del sistema (el contenido de un hex descubierto, una acción, una tabla) que nombró uno de sus catálogos de lugares.\n• `effects: { hex.pois.ruins: 1 }` — crea unas **Ruinas** en el hex del grupo, con el nombre, el texto, el icono y los campos de la plantilla, y sus etiquetas en el hex\nAhora es vuestro: editadlo o quitadlo como cualquier otro; que la plantilla cambie después no lo toca.',
     poiNotePlaceholder: 'Nota enlazada, p. ej. Lugares/{name}',
     addPoi: 'Añadir PDI',
     tags: vocabulary.es.terms.tags,

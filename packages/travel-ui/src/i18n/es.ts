@@ -259,6 +259,8 @@ export const es: Messages<typeof en> = {
     cleared: '{name} (ya no)',
     memberLeft: '{name} deja el grupo',
     presentCame: 'Ahora aquí: {names}',
+    placeMade: 'Un lugar aquí: {name}{what}',
+    unknownPlace: 'Ningún catálogo de lugares del sistema tiene «{name}», así que no se crea nada',
     presentLeft: '{name} se va',
     presentLeftCondition: '{name} se va ({condition})',
     presentLeftBehind: '{name} se queda atrás y desaparece',

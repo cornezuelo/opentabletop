@@ -99,6 +99,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'world',
     'items',
     'bestiary',
+    'places',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -280,6 +281,9 @@ const KEYS = [
   'icon',
   'behind',
   'leaves',
+  // Catalogues of places: the places, what each gives its point of interest and its hex.
+  'places',
+  'fields',
 ]
 
 export interface Completion {

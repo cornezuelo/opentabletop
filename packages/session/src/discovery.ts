@@ -2,7 +2,10 @@ import { nextTerrain, type LandModel } from '@open-tabletop/land-engine'
 import type { OracleEngine, OracleState } from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
+import { onceRoller } from '@open-tabletop/variables'
 import { definitionId } from './refs'
+import { effectsOf } from './effects'
+import { makePlace, PLACE_PATH, type MadePlace, type PlaceLookup } from './places'
 
 /**
  * A check-like binding: which definition to resolve, with extra context; or, for the
@@ -38,6 +41,11 @@ export interface DiscoveredHex {
   name?: string
   /** A point of interest (the contents' text, or the name set with `poi`). */
   poi?: string
+  /**
+   * Places made from templates of the system's catalogues (`hex.pois.<template>` in the
+   * contents' effects, or in any result's while the party is there), in order.
+   */
+  places?: MadePlace[]
 }
 
 /** Discovery state kept in the session: hexes revealed whose contents are still unknown. */
@@ -116,6 +124,8 @@ export function createDiscovery(options: {
   land?: Record<string, LandModel>
   /** For land models (tables roll with the Oracle's own). */
   random: RandomSource
+  /** The system's catalogues of places, for contents that name one (`hex.pois.<template>`). */
+  places?: PlaceLookup
 }) {
   const { world: base, oracle, discover, reveal, locale, random } = options
   /** Found during this step, by hex. */
@@ -249,11 +259,36 @@ export function createDiscovery(options: {
           ...world.cell(hex),
           hex: { ...world.cell(hex), id: hex },
         })
-        const tags = tagsOf(value.tags)
+        // Places named by template (`effects: { hex.pois.shrine: 1 }`) instead of the text.
+        const context = {
+          ...world.cell(hex),
+          hex: { ...world.cell(hex), id: hex },
+          ...value,
+          result: text,
+        }
+        const places = Object.entries(effectsOf(value)).flatMap(([path, change]) => {
+          const id = PLACE_PATH.exec(path)?.[1]
+          const made =
+            id !== undefined &&
+            makePlace(id, options.places, context, locale ?? 'en', onceRoller(random))
+          if (!made) return []
+          const count = typeof change === 'number' ? Math.max(0, Math.floor(change)) : 1
+          return Array.from({ length: count }, () => made)
+        })
+        const tags = [
+          ...new Set([...(tagsOf(value.tags) ?? []), ...places.flatMap((p) => p.tags ?? [])]),
+        ]
         const poi =
-          value.poi === false ? undefined : typeof value.poi === 'string' ? value.poi : text
+          value.poi === false
+            ? undefined
+            : typeof value.poi === 'string'
+              ? value.poi
+              : places.length
+                ? undefined
+                : text
         const patch: DiscoveredHex = {
-          ...(tags && { tags }),
+          ...(tags.length && { tags }),
+          ...(places.length && { places }),
           ...(typeof value.name === 'string' && value.name && { name: value.name }),
           ...(poi && { poi }),
         }

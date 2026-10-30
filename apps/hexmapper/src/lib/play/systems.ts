@@ -4,7 +4,7 @@ import {
   systemIdOf,
   systemUses,
   travelSystems,
-  withAddedBestiaries,
+  withAddedPacks,
   type TravelSystem,
   type Use,
 } from '@open-tabletop/session'
@@ -46,7 +46,7 @@ export function getSystem(id: string): TravelSystem {
   const key = packs.join('\n')
   const kept = added.get(system)
   if (kept?.packs === key) return kept.system
-  const done = withAddedBestiaries(system, library.registry, packs)
+  const done = withAddedPacks(system, library.registry, packs)
   for (const p of done.problems) console.warn(`[packs] ${formatDiagnostic(p)}`)
   added.set(system, { packs: key, system: done.system })
   return done.system

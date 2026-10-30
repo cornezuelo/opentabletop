@@ -585,6 +585,9 @@ export const en = {
     pois: 'Points of interest',
     poiName: 'POI name',
     poiDescription: 'Description',
+    poiMadeFrom: 'Made from',
+    poiMadeFromHelp:
+      'The place template this point of interest was made from in play: a result of the system’s (a discovered hex’s contents, an action, a table) that named one of its catalogues of places.\n• `effects: { hex.pois.ruins: 1 }` — makes one **Ruins** on the party’s hex, with the template’s name, text, icon and fields, and its tags on the hex\nIt’s yours now: edit or remove it like any other; the template changing later doesn’t touch it.',
     poiNotePlaceholder: 'Linked note, e.g. Places/{name}',
     addPoi: 'Add POI',
     tags: vocabulary.en.terms.tags,

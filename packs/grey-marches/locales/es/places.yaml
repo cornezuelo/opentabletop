@@ -1,0 +1,21 @@
+places/default:
+  name: Lugares de las Marcas
+  description: |-
+    Las ruinas, los santuarios junto al camino y las guaridas con que da la Compañía al descubrir las Marcas, escritos cada uno en el mapa como un punto de interés con su icono, su texto y sus campos, y con las etiquetas que las reglas leen en su hex.
+
+    **Enseña:**
+
+    - Un catálogo de lugares (`kind: places`), nombrado por el sistema (`places: [places.default]`)
+    - El contenido del descubrimiento nombrando una plantilla (`effects: { hex.pois.ruins: 1 }`) en vez de un punto de interés simple hecho de su texto
+    - Etiquetas que un lugar da a su hex, leídas por acciones: `ruins` (_Explorar la ruina_), `shrine` (_Rito de la Luna Ascua_)
+    - Textos y campos rellenados con el resultado que crea el lugar: `{{result}}`, y una tirada en un campo (`'{{1d6+2}}'`)
+    - Un icono del mapa (`game:castle-ruins`)
+  places:
+    ruins:
+      name: Ruinas
+    shrine:
+      name: Santuario junto al camino
+      description: Un santuario a un dios olvidado junto al viejo camino. Bajo la Luna Ascua llena, la Compañía puede celebrar aquí su rito.
+    lair:
+      name: Guarida de dragón
+      description: Huesos esparcidos a la entrada, y olor a humo.

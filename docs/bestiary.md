@@ -150,9 +150,9 @@ Why effects and not a new `creates:` key (the backlog's first sketch): effects a
 ## 7. Phases
 
 1. ✅ (2026-10-29) **Headless**: `kind: bestiary` (character-engine: `parseBestiary`, `like`, `copyOf(template, rolls, taken ids)`), `bestiary:` in `kind: system` and added packs' catalogues (session), the trip's `present` with places, `present.*` effects and reads, `characters.<copy>`, `leaves`, journal codes; saved trips and maps keep the list (no format change: absent is none). The bundled packs' templates and encounters, tests that play them. Manual: Kinds, What tables see, Syntax, Conditions' lists, both packs' pages.
-2. **The apps**: Travel's **Here** box; the Hexmapper's drawing of play state's copies (grouping, ×N, +N, **Here** in the hex panel, the map setting) and **Place from the bestiary**; **Keep in the roster**. Manual: Travel's Playing, the Hexmapper's Play and Tokens, Characters.
-3. **Editing**: the Characters app's **Bestiary** and Systems' **Bestiary** tab, sharing the form; YAML suggestions. Manual: Characters, Systems.
-4. **Places from results**: `kind: places` and `hex.pois.<template>`, with the Grey Marches' discovery making ruins and shrines as POIs.
+2. ✅ **The apps**: Travel's **Here** box; the Hexmapper's drawing of play state's copies (grouping, ×N, +N, **Here** in the hex panel, the map setting) and **Place from the bestiary**; **Keep in the roster**. Manual: Travel's Playing, the Hexmapper's Play and Tokens, Characters.
+3. ✅ **Editing**: the Characters app's **Bestiary** and Systems' **Bestiary** tab, sharing the form; YAML suggestions. Manual: Characters, Systems.
+4. ✅ (2026-10-30) **Places from results**: `kind: places` and `hex.pois.<template>`, with the Grey Marches' discovery making ruins and shrines as POIs.
 
 Each phase brings its manual pages and its part of the bundled packs, in English and Spanish.
 

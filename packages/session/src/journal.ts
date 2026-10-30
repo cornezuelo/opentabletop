@@ -45,6 +45,7 @@ const STORY = new Set([
   'MEMBER_LEFT',
   'PRESENT_CAME',
   'PRESENT_LEFT',
+  'PLACE_MADE',
   'WORLD_EVENT',
   'HOLIDAY',
   'CLOCK_FILLED',

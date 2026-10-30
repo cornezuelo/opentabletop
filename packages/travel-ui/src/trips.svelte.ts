@@ -26,7 +26,7 @@ import {
   type TravelSystem,
   addEntry,
   calendarOf,
-  withAddedBestiaries,
+  withAddedPacks,
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
 import {
@@ -124,7 +124,7 @@ export interface TripStoreOptions {
 }
 
 /** The loaded packs, as session reads them. */
-type Registry = Parameters<typeof withAddedBestiaries>[1]
+type Registry = Parameters<typeof withAddedPacks>[1]
 
 /** The time of a change, for the roster (plain text, not reactive state). */
 const now = (): string => new Date(Date.now()).toISOString()
@@ -499,7 +499,7 @@ export class TripStore {
     const key = packs.join('\n')
     const kept = this.added.get(system)
     if (kept?.packs === key && kept.registry === registry) return kept.system
-    const done = withAddedBestiaries(system, registry, packs).system
+    const done = withAddedPacks(system, registry, packs).system
     this.added.set(system, { packs: key, registry, system: done })
     return done
   }

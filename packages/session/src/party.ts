@@ -27,6 +27,7 @@ import {
 } from '@open-tabletop/travel-engine'
 import type { Bindings } from './index'
 import type { Effects, LimitReached } from './effects'
+import { makePlace, PLACE_PATH, type MadePlace, type PlaceLookup } from './places'
 import {
   changePresent,
   presentFacts,
@@ -51,6 +52,8 @@ export interface PartyRules extends PresentRules {
   items?: ItemLookup
   /** The ids of the items in those catalogues. */
   itemIds?: string[]
+  /** The system's catalogues of places: what `hex.pois.<id>` makes. */
+  places?: PlaceLookup
 }
 
 /** The id of the party's own character (made with the party sheet). */
@@ -353,12 +356,17 @@ export function applyMemberEffects(
   unknown: string[]
   /** Copies of templates that came or left (`present.<template>`). */
   present: PresentEvent[]
+  /** Places made on the party's place (`hex.pois.<template>`), and the templates nobody has. */
+  places: { at: string; place: MadePlace }[]
+  unknownPlaces: string[]
 } {
   const limits: LimitReached[] = []
   const events: CharacterEvent[] = []
   const nobody: string[] = []
   const unknown: string[] = []
   const present: PresentEvent[] = []
+  const places: { at: string; place: MadePlace }[] = []
+  const unknownPlaces: string[] = []
   // A party played as a whole, without a sheet of its own: only those present are changed.
   const whole = !s.members?.length && !s.party
   /** One copy by its id (`characters.wolf-2.…`), which a party played as a whole may change. */
@@ -369,8 +377,11 @@ export function applyMemberEffects(
       !!s.present?.some((p) => `characters.${p.character.id}` === who)
     )
   }
-  if (whole && !Object.keys(effects).some((p) => PRESENT_PATH.test(p) || copyPath(p)))
-    return { limits, events, nobody, unknown, present }
+  if (
+    whole &&
+    !Object.keys(effects).some((p) => PRESENT_PATH.test(p) || PLACE_PATH.test(p) || copyPath(p))
+  )
+    return { limits, events, nobody, unknown, present, places, unknownPlaces }
   const { travel } = s
   const roller =
     travel.day !== undefined
@@ -465,6 +476,24 @@ export function applyMemberEffects(
       ]
   }
   for (const [path, change] of Object.entries(effects)) {
+    // Places made on the party's place: as many as the change says (the host writes them).
+    const placeId = PLACE_PATH.exec(path)?.[1]
+    if (placeId !== undefined) {
+      if (typeof change === 'boolean') continue
+      const count = Math.max(
+        0,
+        Math.floor(changeValue(0, resolveChange(change, context, roller)).to),
+      )
+      if (!count) continue
+      const read = { ...context, ...(time !== undefined && { time }) }
+      const made = makePlace(placeId, rules.places, read, rules.locale ?? 'en', roller)
+      if (!made) {
+        unknownPlaces.push(placeId)
+        continue
+      }
+      for (let i = 0; i < count; i++) places.push({ at: travel.location ?? '', place: made })
+      continue
+    }
     // Those present: a template's copies made or taken away, or each of them changed.
     const [, template, copyPart, copyRest] = PRESENT_PATH.exec(path) ?? []
     if (template !== undefined) {
@@ -542,7 +571,7 @@ export function applyMemberEffects(
   const after = partyNumbers(s, rules)
   for (const path of new Set([...Object.keys(before), ...Object.keys(after)]))
     tallyChange(travel, path, before[path] ?? 0, after[path] ?? 0)
-  return { limits, events, nobody, unknown, present }
+  return { limits, events, nobody, unknown, present, places, unknownPlaces }
 }
 
 /**

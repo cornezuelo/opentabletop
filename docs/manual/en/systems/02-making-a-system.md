@@ -18,6 +18,7 @@ Each tab has its own page:
 - [**Sheet**](07-sheet.md): what each character has, and the party itself.
 - [**Items**](08-items.md): what its characters may carry, in catalogues.
 - [**Bestiary**](18-bestiary.md): the creatures and kinds of people it can make, as templates.
+- [**Places**](19-places.md): the places its results can make on the map, as templates.
 - [**Factions**](09-factions.md): the powers of its world and their turns.
 - [**Clocks**](10-clocks.md): the progress clocks its world starts with, and what becomes of each once full.
 - [**World**](11-world.md): what its world does by itself: when a clock fills, after every world turn, as something turns true.

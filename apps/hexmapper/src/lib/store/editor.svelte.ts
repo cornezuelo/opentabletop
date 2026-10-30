@@ -286,6 +286,19 @@ class Editor {
       if (d.tags?.length) hex.tags = [...new Set([...(hex.tags ?? []), ...d.tags])]
       if (d.name && !hex.name) hex.name = d.name
       if (d.poi) hex.pois = [...(hex.pois ?? []), { id: newId(), name: d.poi }]
+      // Places made from templates: each a point of interest, with what it was made from.
+      for (const p of d.places ?? [])
+        hex.pois = [
+          ...(hex.pois ?? []),
+          {
+            id: newId(),
+            name: p.name,
+            ...(p.description && { description: p.description }),
+            ...(p.icon && { icon: p.icon }),
+            ...(p.fields?.length && { fields: p.fields }),
+            template: p.template,
+          },
+        ]
       this.map.hexes[key] = hex
       keys.push(key)
     }

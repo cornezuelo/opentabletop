@@ -122,6 +122,7 @@ export function normalizeHex(hex: HexData | undefined): HexData {
         ...(note ? { note } : {}),
         ...(p.icon ? { icon: p.icon } : {}),
         ...(cleanFields(p.fields) && { fields: cleanFields(p.fields) }),
+        ...(p.template ? { template: p.template } : {}),
       }
     })
     .filter((p) => p.name || p.description)

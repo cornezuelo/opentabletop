@@ -1,0 +1,35 @@
+# The places of the Marches (system.yaml: `places: [places.default]`): what discovery's
+# contents make on a hex by naming a template (`effects: { hex.pois.ruins: 1 }`, in
+# discovery.yaml) instead of a plain point of interest from their text. The tags each gives
+# the hex are what the rules read: `ruins` lets the Company delve it, `shrine` lets it hold
+# the rite under the full Ember Moon (travel.yaml).
+kind: places
+id: default
+name: Places of the Marches
+description: |-
+  The ruins, wayside shrines and lairs the Company comes upon as it discovers the Marches, each written on the map as a point of interest with its icon, its text and its fields, and with the tags the rules read on its hex.
+
+  **Shows:**
+
+  - A catalogue of places (`kind: places`), named by the system (`places: [places.default]`)
+  - Discovery's contents naming a template (`effects: { hex.pois.ruins: 1 }`) instead of a plain point of interest from their text
+  - Tags a place gives its hex, read by actions: `ruins` (_Delve the ruin_), `shrine` (_Rite of the Ember Moon_)
+  - Texts and fields filled from the result that makes the place: `{{result}}`, and a roll in a field (`'{{1d6+2}}'`)
+  - An icon of the map's (`game:castle-ruins`)
+places:
+  ruins:
+    name: Ruins
+    description: '{{result}}'
+    icon: game:castle-ruins
+    tags: [ruins]
+  shrine:
+    name: Wayside shrine
+    description: A shrine to a forgotten god beside the old road. Under the full Ember Moon, the Company may hold its rite here.
+    icon: game:totem
+    tags: [shrine]
+  lair:
+    name: Dragon's lair
+    description: Bones scattered at its mouth, and the smell of smoke.
+    icon: game:dragon-head
+    tags: [lair, danger]
+    fields: { skulls: '{{1d6+2}}' }

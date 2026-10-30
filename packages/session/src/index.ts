@@ -482,6 +482,8 @@ export function createSession(options: {
     PartyRules,
     'bestiary' | 'templateIds' | 'templateSheet' | 'templateNames' | 'sheets'
   >
+  /** The system's catalogues of places, for effects that make one (`hex.pois.<id>`). */
+  places?: PartyRules['places']
 }): Session {
   const random = options.random ?? mathRandom()
   const host = options.facts ?? {}
@@ -496,6 +498,8 @@ export function createSession(options: {
     partySheet: options.partySheet,
     bindings: options.bindings,
     items: options.items,
+    ...(options.places && { places: options.places }),
+    ...(options.locale && { locale: options.locale }),
     ...(options.templates?.bestiary && {
       bestiary: options.templates.bestiary,
       templateIds: options.templates.templateIds,
@@ -762,6 +766,16 @@ export function createSession(options: {
           add(s, entries, { source: 'travel', code: 'NOBODY_ACTING', time, data: { path } })
         told(s, entries, done.events, time)
         presentLines(s, entries, done.present, time)
+        // Places made: the host writes them on its map (a trip without one only notes them).
+        for (const { at, place } of done.places)
+          add(s, entries, {
+            source: 'travel',
+            code: 'PLACE_MADE',
+            time,
+            data: { hex: at, ...place },
+          })
+        for (const template of done.unknownPlaces)
+          add(s, entries, { source: 'travel', code: 'UNKNOWN_PLACE', time, data: { template } })
         return done.limits
       }
       /** Discovers at the party's hex; true when it found something to stop for. */
@@ -790,7 +804,7 @@ export function createSession(options: {
           ...(text && { text }),
           data: { hex, ...discovered },
         })
-        return !!discovered.poi
+        return !!discovered.poi || !!discovered.places?.length
       }
       // Going on, an action that moves the party (march…), or going on from a step that
       // stopped the trip (what it stopped may move).
@@ -1520,6 +1534,7 @@ export * from './suggestions'
 export { FACT_GROUPS, FACT_PATHS, hexIdOf, qualify } from '@open-tabletop/travel-engine'
 export * from './party'
 export * from './present'
+export * from './places'
 export * from './factions'
 export * from './clocks'
 export * from './world'

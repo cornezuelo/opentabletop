@@ -28,6 +28,11 @@ export interface Poi {
   note?: string
   /** Icon to tell it apart in the hex panel (not drawn on the map). */
   icon?: string
+  /**
+   * The place template it was made from in play (`grey-marches/default/ruins`: a catalogue of
+   * places, `kind: places`, and its id), shown as **Made from**; edited like any other after.
+   */
+  template?: string
 }
 
 export interface CustomField {

@@ -55,10 +55,11 @@ const fromCore = (ref: unknown): string | undefined =>
 
 /**
  * What resolves the Generic rules' checks (Core's bindings, `on`), named from another
- * pack, and the weather models they roll (Core's system's `weather`): a copy of the rules
- * keeps its checks bound to Core's tables and weather.
+ * pack, and the weather models they roll (Core's system's `weather`) and the places its
+ * exploring makes (`places`): a copy of the rules keeps its checks bound to Core's tables,
+ * weather and places.
  */
-function coreChecks(): { on: Record<string, unknown>; weather: string[] } {
+function coreChecks(): { on: Record<string, unknown>; weather: string[]; places: string[] } {
   const root = library.rootOf(DEFAULT_SYSTEM)
   const read = (file: string, at: string) => {
     const text = root ? library.readFile(root, file) : undefined
@@ -74,9 +75,11 @@ function coreChecks(): { on: Record<string, unknown>; weather: string[] } {
       ...(v.weather !== undefined && { weather: fromCore(v.weather) }),
     }
   }
-  const listed = read('system.yaml', '@system/default').weather
-  const weather = (Array.isArray(listed) ? listed : [listed]).flatMap((r) => fromCore(r) ?? [])
-  return { on, weather }
+  const declared = read('system.yaml', '@system/default')
+  const list = (listed: unknown) =>
+    (Array.isArray(listed) ? listed : [listed]).flatMap((r) => fromCore(r) ?? [])
+  // The places its exploring may make (`hex.pois.landmark`), Core's own.
+  return { on, weather: list(declared.weather), places: list(declared.places) }
 }
 
 /** Core as a dependency (`core: '>=<its version>'`), for a pack that takes its calendar. */
@@ -104,7 +107,7 @@ export function createSystem(name: string): string | null {
     ...(Object.keys(coreDependency()).length && { dependencies: coreDependency() }),
   })
   const withCore = Object.keys(coreDependency()).length > 0
-  const checks = withCore ? coreChecks() : { on: {}, weather: [] }
+  const checks = withCore ? coreChecks() : { on: {}, weather: [], places: [] }
   const party = coreParty()
   const system = stringify({
     kind: 'system',
@@ -114,6 +117,7 @@ export function createSystem(name: string): string | null {
     ...(party && { partySheet: 'sheet.party' }),
     ...(withCore && { calendar: CORE_CALENDAR }),
     ...(checks.weather.length && { weather: checks.weather }),
+    ...(checks.places.length && { places: checks.places }),
   })
   const rules = stringify({ kind: 'travel-rules', id: 'default', ...coreRules() })
   const bindings = stringify({ kind: 'bindings', id: 'default', on: checks.on, stats: {} })
@@ -301,6 +305,7 @@ export type PartTabKind =
   | 'sheet'
   | 'items'
   | 'bestiary'
+  | 'places'
   | 'factions'
   | 'clocks'
   | 'world'
@@ -360,7 +365,7 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
         : []
       : ownOfKind(pack).slice(0, 1)
   else {
-    // Weather models, land models and item catalogues: a list in the system.
+    // Weather models, land models, item catalogues, bestiaries and places: a list in the system.
     const listed = data?.[kind]
     refs = data ? (Array.isArray(listed) ? (listed as string[]) : []) : ownOfKind(pack)
   }

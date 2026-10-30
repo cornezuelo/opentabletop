@@ -19,7 +19,7 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  */
 /** Each kind's starting point; `factions` only from the Systems app, which writes their sheet too. */
 export const SYSTEM_TEMPLATES: Record<
-  SystemKind | 'factions' | 'clocks' | 'world' | 'items' | 'bestiary' | 'land',
+  SystemKind | 'factions' | 'clocks' | 'world' | 'items' | 'bestiary' | 'places' | 'land',
   (id: string) => Record<string, unknown>
 > = {
   // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
@@ -184,6 +184,20 @@ export const SYSTEM_TEMPLATES: Record<
     templates: {
       wolf: { name: 'Wolf', tags: ['beast'] },
       'wolf-leader': { name: 'Wolf leader', like: 'wolf', tags: ['leader'] },
+    },
+  }),
+  // One place to rename: what a result makes on the party's hex (`hex.pois.camp: 1`).
+  places: (id) => ({
+    kind: 'places',
+    id,
+    name: 'Places',
+    places: {
+      camp: {
+        name: 'Camp',
+        description: 'Someone camped here not long ago.',
+        icon: 'game:campfire',
+        tags: ['camp'],
+      },
     },
   }),
   // One clock that starts over once full: what a system's world clock starts with (what

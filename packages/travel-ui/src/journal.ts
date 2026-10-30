@@ -559,6 +559,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     }
     case 'UNKNOWN_TEMPLATE':
       return t('journal.unknownTemplate', { name: String(d.template ?? '') })
+    // A place made on the party's place (`hex.pois.<template>`): on a map, written into it.
+    case 'PLACE_MADE':
+      return t('journal.placeMade', {
+        name: String(d.name ?? ''),
+        what: typeof d.description === 'string' && d.description ? ` — ${d.description}` : '',
+      })
+    case 'UNKNOWN_PLACE':
+      return t('journal.unknownPlace', { name: String(d.template ?? '') })
     case 'ROSTER_UPDATED':
       return t('journal.rosterUpdated', {
         names: Array.isArray(d.names) ? d.names.join(', ') : '',
@@ -732,7 +740,11 @@ export function highlightText(
       return hex && t('highlights.arrived', { hex })
     case 'HEX_DISCOVERED':
       // A place found (a point of interest), not every hex the land ahead was decided on.
-      return d.poi && hex ? t('highlights.found', { hex, what: e.text ?? '—' }) : undefined
+      return (d.poi || Array.isArray(d.places)) && hex
+        ? t('highlights.found', { hex, what: e.text ?? '—' })
+        : undefined
+    case 'PLACE_MADE':
+      return hex ? t('highlights.found', { hex, what: String(d.name ?? '—') }) : undefined
     case 'MEMBER_LEFT':
       return t('journal.memberLeft', { name: String(d.name ?? '') })
     case 'CHECK_PAUSED': {

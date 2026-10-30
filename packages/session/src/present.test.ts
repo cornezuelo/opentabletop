@@ -12,7 +12,7 @@ import {
   tagsInUse,
   travelSystems,
   tripFacts,
-  withAddedBestiaries,
+  withAddedPacks,
 } from './trip'
 import { addPresent, removePresent, templateCopy } from './present'
 
@@ -259,7 +259,7 @@ describe('those present: copies of templates in a trip', () => {
       },
     ]).registry
     const base = travelSystems(extra).systems.find((s) => s.id === 'wilds')!
-    const { system, problems } = withAddedBestiaries(base, extra, ['mine'])
+    const { system, problems } = withAddedPacks(base, extra, ['mine'])
     expect(problems).toEqual([])
     expect(system.bestiary?.map((b) => b.id)).toEqual(['wilds/beasts', 'mine/mine'])
     const { session } = startTrip({ system, location: 'a', time: 8 * 60 })
