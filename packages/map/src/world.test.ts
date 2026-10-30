@@ -41,4 +41,18 @@ describe('connections drawn on the map', () => {
     // With a shortcut, distance can't promise a lower bound.
     expect(world.distance('0,0', '5,5')).toBe(0)
   })
+
+  it('a far one measures the hexes between its ends, or its own km', () => {
+    const world = mapWorld(map)
+    expect(world.far?.('0,0', '5,5')).toBe(true)
+    expect(world.far?.('1,1', '2,1')).toBe(false)
+    expect(world.km('1,1', '2,1')).toBe(10)
+    // Flat-top odd-q: 0,0 to 5,5 is 8 hexes apart.
+    expect(world.km('0,0', '5,5')).toBe(80)
+    const measured = mapWorld({
+      ...map,
+      connections: [{ id: 't', between: ['0,0', '5,5'], kind: 'tunnel', km: 12 }],
+    })
+    expect(measured.km('5,5', '0,0')).toBe(12)
+  })
 })

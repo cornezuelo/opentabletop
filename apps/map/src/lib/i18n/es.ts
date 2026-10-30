@@ -565,6 +565,9 @@ export const es: Messages = {
     drawing: 'Desde {hex}: haz clic en el otro lugar (Esc o un clic derecho cancela).',
     name: 'Nombre',
     namePlaceholder: 'p. ej. El Puente Viejo',
+    km: 'Longitud (km)',
+    kmHelp:
+      'Cuánto mide la conexión, entre dos lugares lejanos: vacía, los hexes entre sus extremos a la escala del mapa (el número que se ve). Se recorre a la velocidad de su tipo (`multiplier` en las reglas de viaje del sistema, 1 si no tiene), nunca a la del terreno: no cruza las tierras de en medio.\n• `12` — un túnel más corto que las colinas de encima\n• `90` — el largo rodeo de un transbordador por la costa',
     tags: 'Etiquetas',
     tagsHelp:
       'Palabras que marcan la conexión, para las reglas que las buscan (lo que hace cada una depende del sistema):\n• `hidden`\n• `toll, guarded`',

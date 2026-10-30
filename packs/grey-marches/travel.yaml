@@ -47,12 +47,12 @@ connections:
   road: { multiplier: 1.5 }
   trail: { multiplier: 1.2 }
   # A ford drawn on the map (Map's Connections: Stonewater Ford in the Hollow Hills): an hour
-  # to cross whatever the speed (minutes), and shut on a day a storm makes it impassable
-  # (passable reads today's value the weather set): routes go round, or stop before it.
+  # more than the step would take (extra minutes), and shut on a day a storm makes it
+  # impassable (passable reads today's value the weather set): routes go round, or stop before it.
   ford:
     name: Ford
-    description: An hour to cross; impassable on a day of storm.
-    minutes: 60
+    description: An hour more to cross; impassable on a day of storm.
+    extra: 60
     passable: { unless: { today.fordImpossible: true } }
 modes:
   foot: { name: On foot, kmPerDay: 25 }

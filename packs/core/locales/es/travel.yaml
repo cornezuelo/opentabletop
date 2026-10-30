@@ -2,7 +2,7 @@ travel-rules/default:
   connections:
     gate:
       name: Verja
-      description: Diez minutos para pasarla; no se puede pasar mientras está cerrada.
+      description: Diez minutos más para pasarla; no se puede pasar mientras está cerrada.
   modes:
     foot:
       name: A pie

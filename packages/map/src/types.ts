@@ -329,6 +329,8 @@ export interface MapConnection {
   name?: string
   tags?: string[]
   fields?: CustomField[]
+  /** How long it is, between far places; else the hexes between its ends at the map's scale. */
+  km?: number
 }
 
 /** Physical size for printing. The grid's cols × rows stay the source of truth. */

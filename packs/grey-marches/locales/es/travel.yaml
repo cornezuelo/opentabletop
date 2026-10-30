@@ -231,7 +231,7 @@ travel-rules/default:
   connections:
     ford:
       name: Vado
-      description: Una hora para cruzarlo; infranqueable un día de tormenta.
+      description: Una hora más para cruzarlo; infranqueable un día de tormenta.
   modes:
     foot:
       name: A pie

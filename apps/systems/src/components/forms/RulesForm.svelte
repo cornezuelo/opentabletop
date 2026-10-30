@@ -363,9 +363,9 @@
           min: 0,
         },
         {
-          field: 'minutes',
-          label: t('rules.connectionMinutes'),
-          help: t('rules.connectionMinutesHelp'),
+          field: 'extra',
+          label: t('rules.connectionExtra'),
+          help: t('rules.connectionExtraHelp'),
           type: 'number',
           min: 0,
         },

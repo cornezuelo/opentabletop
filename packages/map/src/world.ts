@@ -52,8 +52,11 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
     Object.keys(territories).find((id) => territories[id].includes(hex))
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
   const km = map.scale.hexKm ?? systemHexKm ?? DEFAULT_HEX_KM
+  const isFar = (a: string, b: string) => drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1
   return {
-    km: () => km,
+    // A connection between far hexes measures its own `km`, else the hexes between its ends.
+    km: (a, b) => (isFar(a, b) ? (drawn.get(`${a}|${b}`)!.km ?? km * hexDistance(a, b)) : km),
+    far: isFar,
     place(hex) {
       if (!inBounds(cell(hex), grid)) return null
       const data = map.hexes[hex as HexKey]

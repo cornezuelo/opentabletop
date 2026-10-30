@@ -8,7 +8,7 @@ import { travelSystems } from './trip'
 
 /** Two factions on a row of hexes: the clans in the hills, the vale in the vale. */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 12\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 13\n' },
   {
     path: 'marks/system.yaml',
     content: 'kind: system\nname: Marks\nfactions: factions.default\n',

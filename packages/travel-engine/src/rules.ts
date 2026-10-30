@@ -428,9 +428,10 @@ export const travelRulesSchema = z
     defaultTerrain: z.object({ multiplier: z.number().nonnegative() }).strict().optional(),
     /**
      * Kinds of connection between places (road, river, door…): what crossing one does. A
-     * multiplier replaces the terrain's; `minutes`, a step through it takes that long
-     * whatever the speed ("a door takes a turn"); `passable`, whether it can be crossed (a
-     * condition that sees the step and the connection: `connection.state`…).
+     * multiplier replaces the terrain's (and is the speed through one drawn between far
+     * places, default 1); `extra`, minutes a step through it takes on top of its usual time
+     * ("a ford takes an hour more"); `passable`, whether it can be crossed (a condition that
+     * sees the step and the connection: `connection.state`…).
      */
     connections: z
       .record(
@@ -441,7 +442,7 @@ export const travelRulesSchema = z
             name: text.optional(),
             description: text.optional(),
             multiplier: z.number().positive().optional(),
-            minutes: z.number().nonnegative().optional(),
+            extra: z.number().nonnegative().optional(),
             passable: passable.optional(),
           })
           .strict(),

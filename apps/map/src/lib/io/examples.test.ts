@@ -202,7 +202,7 @@ describe('example maps', () => {
     expect(mapWorld(marches, system.rules.travel.hexKm).km('', '')).toBe(10)
   })
 
-  it('the Hollow Hills: Stonewater Ford takes an hour, and a storm day shuts it', () => {
+  it('the Hollow Hills: Stonewater Ford takes an hour more, and a storm day shuts it', () => {
     const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'hollowhills1')!.json)
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
@@ -220,8 +220,15 @@ describe('example maps', () => {
     })
     const engine = createTravelEngine({ world, rules: system.rules, calendar: system.calendar })
     const { session } = startTrip({ system, location: '5,7', season: 'summer' })
-    // An hour, whatever the trail and the hills would make it.
-    expect(engine.stepMinutes(session.travel, '5,7', '6,8')).toBe(60)
+    // The step along the trail, and an hour more for the ford.
+    const unforded = createTravelEngine({
+      world: mapWorld({ ...map, connections: [] }, system.rules.travel.hexKm),
+      rules: system.rules,
+      calendar: system.calendar,
+    })
+    const usual = unforded.stepMinutes(session.travel, '5,7', '6,8')
+    expect(usual).toBeGreaterThan(0)
+    expect(engine.stepMinutes(session.travel, '5,7', '6,8')).toBe(usual + 60)
     // A storm day (the weather's `fordImpossible`): it can't be crossed; the route goes round.
     const storm = { ...session.travel, today: { fordImpossible: true } }
     expect(engine.stepMinutes(storm, '5,7', '6,8')).toBe(Infinity)

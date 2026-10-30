@@ -211,8 +211,10 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    `trip.hex-enter`, `hex`, `trip.hexes`).
  * 12. What joins two places is a connection: travel rules' `connections:` (road, river,
  *    door…) and `trip.connections` (in 11: `edges:` and `trip.edges`).
+ * 13. A kind of connection's time adds to the step, `extra` minutes (in 12, `minutes`
+ *    replaced the step's time).
  */
-export const PACK_FORMAT = 12
+export const PACK_FORMAT = 13
 
 export const manifestSchema = z
   .object({

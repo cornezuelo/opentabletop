@@ -3304,8 +3304,8 @@ describe('connections: what crossing one does', () => {
       terrains: { floor: { multiplier: 1 } },
       modes: { careful: { minutes: 10 } },
       connections: {
-        door: { minutes: 1, passable: { unless: { 'connection.state': 'locked' } } },
-        tunnel: { minutes: 60 },
+        door: { extra: 1, passable: { unless: { 'connection.state': 'locked' } } },
+        tunnel: { extra: 60 },
       },
       ...more,
     }).rules!
@@ -3326,17 +3326,63 @@ describe('connections: what crossing one does', () => {
     expect(eng.stepMinutes(at('b'), 'b', 'c')).toBe(10)
   })
 
-  it('a kind with minutes takes them whatever the speed, and passable reads the connection', () => {
+  it('a kind’s extra minutes add to the step, and passable reads the connection', () => {
     const eng = createTravelEngine({ world: rooms, rules: dungeon() })
-    expect(eng.stepMinutes(at('a'), 'a', 'c')).toBe(60)
+    // The way of travelling's ten minutes, and the tunnel's hour more.
+    expect(eng.stepMinutes(at('a'), 'a', 'c')).toBe(70)
     // The door is locked (its value on the map): it can't be crossed…
     expect(eng.stepMinutes(at('a'), 'a', 'b')).toBe(Infinity)
     // …until the trip says it's open: its state in play wins over the map's.
     const opened = { ...at('a'), connections: { 'oak-door': { state: 'open' } } }
-    expect(eng.stepMinutes(opened, 'a', 'b')).toBe(1)
+    expect(eng.stepMinutes(opened, 'a', 'b')).toBe(11)
+    // Empty or 0: the step as usual.
+    const plain = createTravelEngine({
+      world: rooms,
+      rules: dungeon({ connections: { tunnel: { extra: 0 } } }),
+    })
+    expect(plain.stepMinutes(at('a'), 'a', 'c')).toBe(10)
     // The route finds the way round through the tunnel while it's locked.
     expect(eng.plan(at('a'), 'b')).toEqual(['a', 'c', 'b'])
     expect(eng.plan(opened, 'b')).toEqual(['a', 'b'])
+  })
+
+  it('a connection between far places measures its own km, at its kind’s speed, not the terrain’s', () => {
+    /** Three hexes of 10 km across a lake: a tunnel joins a and d under it. */
+    const lake: TravelWorld = {
+      km: (x, y) => ([x, y].sort().join('') === 'ad' ? 30 : 10),
+      far: (x, y) => [x, y].sort().join('') === 'ad',
+      place: (id) => (['a', 'd'].includes(id) ? { terrain: 'marsh' } : null),
+      neighbors: (id) => ({ a: ['d'], d: ['a'] })[id] ?? [],
+      distance: () => 0,
+      connections: (x, y) => ([x, y].sort().join('') === 'ad' ? ['tunnel'] : []),
+    }
+    const rules = (tunnel: Record<string, unknown>) =>
+      parseTravelRules({
+        kind: 'travel-rules',
+        travel: DAY,
+        actions: DAY_ACTIONS,
+        terrains: { marsh: { multiplier: 0.5 } },
+        modes: { foot: { kmPerDay: 30 } },
+        connections: { tunnel },
+      }).rules!
+    const start = initialTravelState({
+      location: 'a',
+      mode: 'foot',
+      time: defaultCalendar.at(1, '06:00'),
+    })
+    const hours = DAY.hoursPerDay
+    // 30 km at 30 km a day of marching: a day's marching hours, not slowed by the marsh…
+    expect(createTravelEngine({ world: lake, rules: rules({}) }).stepMinutes(start, 'a', 'd')).toBe(
+      hours * 60,
+    )
+    // …at its kind's multiplier when it has one, with its extra minutes on top.
+    expect(
+      createTravelEngine({ world: lake, rules: rules({ multiplier: 2, extra: 30 }) }).stepMinutes(
+        start,
+        'a',
+        'd',
+      ),
+    ).toBe((hours * 60) / 2 + 30)
   })
 
   it('checks and actions read the connection of the step as connection.*', () => {

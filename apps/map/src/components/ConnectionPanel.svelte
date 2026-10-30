@@ -1,7 +1,7 @@
 <script lang="ts">
   import { helpMarkdown, InfoTip, Markdown, SuggestInput, TagInput } from '@open-tabletop/ui-kit'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
-  import type { HexKey, MapConnection } from '@open-tabletop/map'
+  import { mapWorld, type HexKey, type MapConnection } from '@open-tabletop/map'
   import FieldEditor from './FieldEditor.svelte'
   import { t } from '../lib/i18n/index.svelte'
   import { editor } from '../lib/store/editor.svelte'
@@ -23,6 +23,14 @@
     ]),
   ])
   const tags = $derived([...new Set(connections.flatMap((c) => c.tags ?? []))])
+  /** Between far places, the km measured on the grid (what an empty Length means). */
+  const measured = $derived.by(() => {
+    if (!selected) return undefined
+    const plain = { ...($state.snapshot(selected) as MapConnection), km: undefined }
+    const world = mapWorld({ ...editor.map, connections: [plain] }, mapSystem().rules.travel.hexKm)
+    const [a, b] = selected.between
+    return world.far?.(a, b) ? world.km(a, b) : undefined
+  })
 
   function update(change: (c: MapConnection) => MapConnection): void {
     if (!selected) return
@@ -75,6 +83,22 @@
         }}
       />
     </label>
+    {#if measured !== undefined}
+      <label class="field">
+        <span>{t('connection.km')}<InfoTip text={t('connection.kmHelp')} /></span>
+        <input
+          type="number"
+          min="0"
+          step="any"
+          value={selected.km ?? ''}
+          placeholder={String(Math.round(measured * 10) / 10)}
+          onchange={(e) => {
+            const km = Number(e.currentTarget.value)
+            update((c) => ({ ...c, km: e.currentTarget.value && km > 0 ? km : undefined }))
+          }}
+        />
+      </label>
+    {/if}
     <div class="field">
       <span>{t('connection.tags')}<InfoTip text={t('connection.tagsHelp')} /></span>
       <TagInput

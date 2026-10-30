@@ -79,6 +79,8 @@ export const connection = z
     name: z.string().optional(),
     tags: z.array(z.string()).optional(),
     stats: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
+    /** Its length in km, between far places (else measured on the grid). */
+    km: z.number().positive().optional(),
     ext: ext.optional(),
   })
   .loose()

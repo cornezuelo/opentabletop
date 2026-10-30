@@ -686,7 +686,7 @@ export const en = {
     kmPerDay: 'km per day',
     stepMinutes: 'Minutes a step',
     stepMinutesHelp:
-      "Instead of **km per day**, how long each step takes on easy ground, whatever its distance (one or the other, not both): for maps of rooms or points where distance doesn't matter.\n• `10` — a turn a room\n• `60` — an hour from one point to the next\nTerrains slow it as they would a distance (`0.5`: twice as long); a connection with its own **Minutes** takes those instead.",
+      "Instead of **km per day**, how long each step takes on easy ground, whatever its distance (one or the other, not both): for maps of rooms or points where distance doesn't matter.\n• `10` — ten minutes a room\n• `60` — an hour from one point to the next\nTerrains slow it as they would a distance (`0.5`: twice as long); a connection's **Extra minutes** add to it.",
     name: 'Name',
     nameHelp:
       "What players read in the trip panel and the journal instead of the id:\n• `horse` → _On horseback_\n• `food` → _Rations_\nWritten in the current language: the pack's own, or its translation file (`locales/<language>/`) when the interface is in another one. Empty: the id (or the app's name for the usual ones: foot, horse, food…).",
@@ -715,16 +715,16 @@ export const en = {
     connectionsHelp:
       "Following a road, trail or river, or crossing any other connection a map draws, **from one place to the next**: its speed replaces the terrain's.\n• `road` × `1.5` — half again as fast as open ground\n• `trail` × `1` — as open ground, even through a forest\n• `river` × `2` — downstream by boat\nKinds not listed do nothing. Checks can tell them apart too: `trip.connections: road` in a condition.",
     connection: 'Kind',
-    connectionMinutes: 'Minutes',
-    connectionMinutesHelp:
-      'How long crossing this kind of connection takes, whatever the speed, the terrain or the distance (the longest, if a step has several):\n• `10` — a door that takes a turn to open\n• `60` — an hour to ford a river\nEmpty: the step takes what its distance and the terrain say.',
+    connectionExtra: 'Extra minutes',
+    connectionExtraHelp:
+      "Minutes a step through this kind of connection takes on top of its usual time (its distance at the way of travelling's speed); the most, if a step has several:\n• `10` — ten minutes more to open a door and go through\n• `60` — an hour more to ford a river\nEmpty or `0`: the step takes its usual time.",
     connectionWhenHelp:
       "When this kind of connection can be crossed, as a condition on **the step**: the connection itself (`connection.state`, `connection.tags`, its values), the place entered, the way of travelling, the weather, the calendar, today's values.\n• **Closed when** `connection.state: locked` — a door, until something opens it\n• **Open when** `time.season: [summer, autumn]` — a ford\n• **Closed when** `trip.weather: storm` — a rope bridge\nWhile it can't be crossed, routes go round it; with no other way, they lead up to it and stop there.",
     connectionPassableHelp:
       "Whether this kind of connection can be crossed at all. **Unticked**: never (routes go round, or stop before it); **Ticked**: while **Open when** holds (empty: always) and **Closed when** doesn't (empty: never).",
 
     connectionMultiplierHelp:
-      "Speed along this kind of connection, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road at `1.5` through a terrain at `0.5` is three times as fast as that terrain.",
+      "Speed along this kind of connection, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road at `1.5` through a terrain at `0.5` is three times as fast as that terrain. A connection drawn between far places (a tunnel) crosses none of the land between: it goes at this speed, `1` if empty.",
     weather: vocabulary.en.terms.weather,
     weatherHelp:
       "How each weather slows the party. Tables set it with `set: { weather: … }` (usually rolled at dawn), or a weather model with inertia.\n• `storm` × `0` — no travel that day\n• `heavy-rain` × `0.5` — half speed\n• `fog` × `0.75`\nWeather not listed doesn't change the speed; conditions can still read it (`trip.weather: storm`).",

@@ -560,6 +560,9 @@ export const en = {
     drawing: 'From {hex}: click the other place (Esc or a right click cancels).',
     name: 'Name',
     namePlaceholder: 'e.g. The Old Bridge',
+    km: 'Length (km)',
+    kmHelp:
+      "How long the connection is, between two far places: empty, the hexes between its ends at the map's scale (the number shown). It goes at its kind's speed (`multiplier` in the system's travel rules, 1 if it has none), never the terrain's: it crosses none of the land between.\n• `12` — a tunnel shorter than the hills above it\n• `90` — a ferry's long way round the coast",
     tags: 'Tags',
     tagsHelp:
       'Words that mark the connection, for the rules that look for them (what each does depends on the system):\n• `hidden`\n• `toll, guarded`',

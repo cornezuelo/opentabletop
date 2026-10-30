@@ -65,8 +65,8 @@ connections:
   # otherwise (`state: shut` among its values on the map): Open the gate, below, opens it.
   gate:
     name: Gate
-    description: Ten minutes to pass; can't be passed while it's shut.
-    minutes: 10
+    description: Ten minutes more to pass; can't be passed while it's shut.
+    extra: 10
     passable: { unless: { connection.state: shut } }
 modes:
   foot: { name: On foot, kmPerDay: 30 }

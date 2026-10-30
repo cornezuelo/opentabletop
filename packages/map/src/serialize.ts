@@ -264,6 +264,7 @@ function parseConnections(value: unknown): MapConnection[] {
         ...(typeof c.name === 'string' && c.name && { name: c.name }),
         ...(tags.length && { tags }),
         ...(fields?.length && { fields }),
+        ...(typeof c.km === 'number' && c.km > 0 && { km: c.km }),
       },
     ]
   })

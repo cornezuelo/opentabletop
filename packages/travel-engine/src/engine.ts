@@ -65,6 +65,11 @@ export interface TravelWorld {
   connectionOf?(a: string, b: string): Connection | undefined
   /** The km a step from `a` into its neighbour `b` measures, at the map's scale. */
   km(a: string, b: string): number
+  /**
+   * Whether the step from `a` to `b` skips the places between them (a tunnel, a ferry drawn
+   * between far hexes): it goes at its connection's multiplier, not the terrain's.
+   */
+  far?(a: string, b: string): boolean
 }
 
 /** An effect on the connection of the step (`connection.state: open`, `connection.uses: -1`). */
@@ -973,32 +978,32 @@ export function createTravelEngine(options: {
     const edgeMultipliers = kinds
       .map((e) => rules.connections?.[e]?.multiplier)
       .filter((m): m is number => m !== undefined)
-    // Roads and similar connections replace the terrain penalty.
-    return edgeMultipliers.length
-      ? Math.max(...edgeMultipliers)
-      : (terrainRule?.multiplier ?? rules.defaultTerrain?.multiplier ?? 1)
+    // Roads and similar connections replace the terrain penalty; a connection between far
+    // places crosses none of the land between, so it goes at its own (1 if it has none).
+    if (edgeMultipliers.length) return Math.max(...edgeMultipliers)
+    if (world.far?.(a, b)) return 1
+    return terrainRule?.multiplier ?? rules.defaultTerrain?.multiplier ?? 1
   }
 
   const dayFactor = (state: TravelState): number =>
     (state.weather ? (rules.weather?.[state.weather]?.speed ?? 1) : 1) * (state.speedToday ?? 1)
 
   /**
-   * How long a step takes at today's normal pace: a connection's own time (`minutes`, the
-   * longest of the step's), else the way of travelling's time a step (`minutes`) or its
-   * distance a day over the step's km, slowed by the terrain or sped by a road.
+   * How long a step takes at today's normal pace: the way of travelling's time a step
+   * (`minutes`) or its distance a day over the step's km, slowed by the terrain or sped by a
+   * road, plus the `extra` minutes of its connection (a ford's hour; the longest of the step's).
    */
   const baseMinutes = (state: TravelState, a: string, b: string, shutToo = false): number => {
     const mode = rules.modes[state.mode]
     const m = multiplier(state, a, b, shutToo)
     if (!mode || m <= 0) return Infinity
-    const fixed = world
-      .connections(a, b)
-      .map((k) => rules.connections?.[k]?.minutes)
-      .filter((n): n is number => n !== undefined)
-    if (fixed.length) return Math.max(...fixed)
-    if (mode.minutes !== undefined) return mode.minutes / m
+    const extra = Math.max(
+      0,
+      ...world.connections(a, b).map((k) => rules.connections?.[k]?.extra ?? 0),
+    )
+    if (mode.minutes !== undefined) return mode.minutes / m + extra
     const kmPerHour = mode.kmPerDay! / rules.travel.hoursPerDay
-    return (world.km(a, b) / (kmPerHour * m)) * 60
+    return (world.km(a, b) / (kmPerHour * m)) * 60 + extra
   }
 
   const stepMinutes = (state: TravelState, a: string, b: string): number => {
@@ -1020,12 +1025,10 @@ export function createTravelEngine(options: {
       rules.water?.multiplier ?? 0,
       ...Object.values(rules.connections ?? {}).map((e) => e.multiplier ?? 0),
     )
-    // A time a step that isn't a distance (a door's minutes, a turn a step) can be shorter
-    // than any guess from the km left: no guess then.
-    const timed =
-      mode.minutes !== undefined ||
-      Object.values(rules.connections ?? {}).some((c) => c.minutes !== undefined)
-    const minPerKm = timed ? 0 : 60 / ((mode.kmPerDay! / rules.travel.hoursPerDay) * best)
+    // A time a step that isn't a distance (a turn a step) can be shorter than any guess from
+    // the km left: no guess then.
+    const minPerKm =
+      mode.minutes !== undefined ? 0 : 60 / ((mode.kmPerDay! / rules.travel.hoursPerDay) * best)
     const search = (shutToo: boolean) =>
       findPath<string>(state.location, to, {
         neighbors: world.neighbors,

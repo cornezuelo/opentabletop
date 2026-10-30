@@ -44,7 +44,7 @@ describe('a connection’s state in play', () => {
     expect(
       opened.entries.flatMap((e) => (e.code === 'CONNECTION_CHANGED' ? [e.data] : [])),
     ).toEqual([{ id: 'the-gate', name: 'gate', key: 'state', value: 'open', time: 370 }])
-    // Open now: the action no longer applies, and a march crosses it in its 10 minutes.
+    // Open now: the action no longer applies, and a march crosses it, 10 minutes more than a step.
     expect(tripFacts(options, opened.state)).toMatchObject({ connection: { state: 'open' } })
     const crossed = stepTrip(options, opened.state, {
       type: 'action',
@@ -52,7 +52,8 @@ describe('a connection’s state in play', () => {
       with: { until: 'place' },
     })
     expect(crossed.state.travel.location).toBe('b')
-    expect(crossed.state.travel.time - opened.state.travel.time).toBe(10)
+    // A km at 30 km in 8 hours (16 minutes), and the gate's 10 minutes more.
+    expect(crossed.state.travel.time - opened.state.travel.time).toBe(26)
   })
 
   it('a check’s effects change the connection just crossed: a number adds to it', () => {

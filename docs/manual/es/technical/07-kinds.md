@@ -167,7 +167,7 @@ water: { passable: false } # hexes de agua sin regla propia
 connections: # por un camino o río; por una puerta dibujada en el mapa
   road: { multiplier: 1.5 }
   river: { multiplier: 1 }
-  door: { name: Puerta, minutes: 10, passable: { unless: { connection.state: locked } } }
+  door: { name: Puerta, extra: 10, passable: { unless: { connection.state: locked } } }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # valores del día que ponen tablas y acciones
   lost: { name: Perdidos, blocks: [travel.move] }

@@ -168,7 +168,7 @@ water: { passable: false } # water hexes without a rule of their own
 connections: # along a road or river; through a door drawn on the map
   road: { multiplier: 1.5 }
   river: { multiplier: 1 }
-  door: { name: Door, minutes: 10, passable: { unless: { connection.state: locked } } }
+  door: { name: Door, extra: 10, passable: { unless: { connection.state: locked } } }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # values of the day tables and actions set
   lost: { name: Lost, blocks: [travel.move] }
