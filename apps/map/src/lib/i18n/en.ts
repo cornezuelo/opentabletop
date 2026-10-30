@@ -570,6 +570,11 @@ export const en = {
     removeTag: 'Remove {name}',
     fieldsHelp:
       "Values of this connection (`key` = `value`), for the system's rules:\n• `toll` = `2`\n• `dc` = `3`\nWhat each one does depends on the system.",
+    inTrip: 'In the trip going on',
+    inTripHelp:
+      "What the trip played on this map has made of the connection, never saved on the map: whether it can be crossed now (its kind's **Open when** / **Closed when** in the system's travel rules, seeing its state in the trip), and the values effects changed (`connection.state: open`, `place.connections.<kind>.state: found`). On the map, one that can't be crossed now is greyed, its diamond crossed out.\n• `state` = `open` — a gate an action opened\n• `uses` = `1` — a value counted down by a check",
+    open: 'Can be crossed now',
+    shut: "Can't be crossed now",
     delete: 'Delete connection',
     list: 'Connections on the map ({count})',
   },

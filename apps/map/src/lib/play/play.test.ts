@@ -49,6 +49,7 @@ import {
 } from './world.svelte'
 import { bringFactions, paintTerritory, removeFactions } from './factions'
 import { currentTool } from '../tools/tools'
+import { connectionsNow } from './connections'
 import { oracleUi, rollContext } from './oracle'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
 import { library } from './packs'
@@ -1801,5 +1802,29 @@ describe('connections drawn on the map', () => {
     click('2,2', { button: 2 })
     expect(editor.connectionStart).toBeNull()
     expect(editor.map.layers.connections.visible).toBe(true)
+  })
+
+  it('show what the trip going on has made of them: shut until found, then open', () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'hollowhills1')!.json))
+    // No trip: nothing to show.
+    expect(connectionsNow().size).toBe(0)
+    clickHex('10,8')
+    expect(editor.map.play?.rules?.system).toBe('grey-marches')
+    // The Barrow-road is hidden on the map: it can't be crossed; the ford can.
+    expect(connectionsNow().get('barrowroad01')).toEqual({ open: false, changed: {} })
+    expect(connectionsNow().get('stonewater01')?.open).toBe(true)
+    // Found in the trip (what the Hidden path check does): open, with what changed.
+    editSession((s) => ({
+      ...s,
+      travel: { ...s.travel, connections: { barrowroad01: { state: 'found' } } },
+    }))
+    expect(connectionsNow().get('barrowroad01')).toEqual({
+      open: true,
+      changed: { state: 'found' },
+    })
+    // Never on the map.
+    expect(editor.map.connections.find((c) => c.id === 'barrowroad01')?.fields).toEqual([
+      { key: 'state', value: 'hidden' },
+    ])
   })
 })

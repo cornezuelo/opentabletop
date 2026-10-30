@@ -625,6 +625,11 @@ export interface TravelEngine {
   context(state: TravelState, facts?: HostFacts): Record<string, unknown>
   /** Minutes to step from `a` to its neighbor `b` in the given state (Infinity if impossible). */
   stepMinutes(state: TravelState, a: string, b: string): number
+  /**
+   * Whether every connection between `a` and `b` can be crossed now (their kinds'
+   * `passable`, seeing their state in the trip), whatever the land: a shut door, a hidden path.
+   */
+  connectionOpen(state: TravelState, a: string, b: string): boolean
   plan(state: TravelState, to: string, strategy?: RouteStrategy): string[] | null
 }
 
@@ -999,6 +1004,17 @@ export function createTravelEngine(options: {
     }
   }
 
+  const connectionOpen = (state: TravelState, a: string, b: string): boolean =>
+    world
+      .connections(a, b)
+      .every((k) =>
+        isPassable(
+          rules.connections?.[k]?.passable,
+          () => qualify(throughContext(state, a, b)),
+          momentRolls(state, b),
+        ),
+      )
+
   /** Terrain/connection multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (
     state: TravelState,
@@ -1028,18 +1044,7 @@ export function createTravelEngine(options: {
       return 0
     // A kind of connection the step takes that can't be crossed now (a locked door) stops it.
     const kinds = world.connections(a, b)
-    if (
-      !shutToo &&
-      kinds.some(
-        (k) =>
-          !isPassable(
-            rules.connections?.[k]?.passable,
-            () => qualify(throughContext(state, a, b)),
-            momentRolls(state, b),
-          ),
-      )
-    )
-      return 0
+    if (!shutToo && !connectionOpen(state, a, b)) return 0
     const edgeMultipliers = kinds
       .map((e) => rules.connections?.[e]?.multiplier)
       .filter((m): m is number => m !== undefined)
@@ -2360,6 +2365,7 @@ export function createTravelEngine(options: {
 
   return {
     stepMinutes,
+    connectionOpen,
     plan,
     context: (input, facts = {}) => qualify(checkContext(upgradeTravelState(input), [], facts)),
     availability(input, facts = {}) {

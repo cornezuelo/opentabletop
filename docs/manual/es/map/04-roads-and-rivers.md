@@ -48,5 +48,6 @@ La herramienta **Conexiones** (<kbd>C</kbd>, **⇄**) une dos lugares con algo q
 - Haz clic en un lugar y luego en otro: la conexión los une, dibujada como una línea discontinua con un rombo en medio. <kbd>Esc</kbd> o un clic derecho descartan una que hayas empezado.
 - Haz clic en una conexión para seleccionarla: su panel edita su **Tipo**, **Nombre**, **Longitud (km)** cuando une lugares lejanos (vacía: medida en la cuadrícula, el número que se ve), **Etiquetas** y valores (`clave` = `valor`), y **Borrar conexión** la quita (o <kbd>Supr</kbd>). Un clic derecho sobre una conexión también la borra. Todo se deshace con <kbd>Ctrl</kbd>+<kbd>Z</kbd>.
 - El panel lista todas las conexiones del mapa; al hacer clic en una se selecciona.
+- Mientras hay un viaje en curso, la que no puede cruzar ahora sale en gris con el rombo tachado, y su panel dice qué ha hecho el viaje de ella: [Las conexiones al jugar](08-play.md).
 
 Lo que hace un tipo de conexión en un viaje lo decide el sistema, como con los caminos: una velocidad, o saltarse una comprobación (`trip.connections: ford` en una condición lee los tipos del paso dado). Las conexiones tienen su propia capa en **Capas**, para mostrarlas, ocultarlas o bloquearlas.

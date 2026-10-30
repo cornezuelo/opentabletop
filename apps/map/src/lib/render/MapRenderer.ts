@@ -28,6 +28,7 @@ import {
 import { iconImage } from '../icons/registry'
 import { catmullRom, catmullRomClosed, dashes, offsetPolyline } from './curves'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
+import { connectionsNow } from '../play/connections'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
 import { mapFocus } from './focus'
@@ -92,6 +93,8 @@ const PATH_STYLES: Record<PathKind, PathStyle> = {
 const PATH_ORDER: PathKind[] = ['river', 'road', 'trail', 'wall', 'border']
 /** Connections drawn between places: a dashed line with a diamond at its middle. */
 const CONNECTION_COLOR = 0x5b3a8c
+/** One the trip going on can't cross now: greyed, its diamond crossed out. */
+const SHUT_COLOR = 0x8a8478
 const CONNECTION_OUTLINE = 0xf4efe2
 const DRAFT_COLOR = 0xffffff
 const HANDLE_COLOR = 0xffffff
@@ -470,6 +473,8 @@ export class MapRenderer {
       this.drawTokens()
     } else if (change.kind === 'play') {
       this.drawParty()
+      // What the trip changed of the connections (a gate opened, a path found).
+      if (editor.map.connections.length) this.drawConnections()
       // Those present are drawn from the play state.
       this.drawTokens()
     } else if (change.kind === 'regions') {
@@ -819,17 +824,25 @@ export class MapRenderer {
   /**
    * Each connection: a dashed line from one place's centre to the other's, outlined so it
    * shows on any terrain, and a diamond at its middle; the selected one in the selection's
-   * colour, and the place a connection being drawn starts at.
+   * colour, one the trip going on can't cross now greyed with its diamond crossed out, and
+   * the place a connection being drawn starts at.
    */
   drawConnections(): void {
     const g = this.connectionLayer.clear()
     const { grid } = editor.map
     const { hexSize } = grid
+    const now = connectionsNow()
     for (const connection of editor.map.connections) {
       const [a, b] = connection.between.map(parseKey)
       if (!inBounds(a, grid) || !inBounds(b, grid)) continue
       const [from, to] = [this.centerOf(a), this.centerOf(b)]
-      const color = connection.id === editor.selectedConnection ? SELECT_COLOR : CONNECTION_COLOR
+      const shut = now.get(connection.id)?.open === false
+      const color =
+        connection.id === editor.selectedConnection
+          ? SELECT_COLOR
+          : shut
+            ? SHUT_COLOR
+            : CONNECTION_COLOR
       const line = [from, to]
       const pieces = dashes(line, 0.3 * hexSize, 0.16 * hexSize)
       for (const piece of pieces) this.strokePolyline(g, piece)
@@ -841,6 +854,12 @@ export class MapRenderer {
       g.poly([mid.x, mid.y - r, mid.x + r, mid.y, mid.x, mid.y + r, mid.x - r, mid.y])
       g.fill({ color })
       g.stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
+      if (shut) {
+        const x = r * 0.45
+        g.moveTo(mid.x - x, mid.y - x).lineTo(mid.x + x, mid.y + x)
+        g.moveTo(mid.x + x, mid.y - x).lineTo(mid.x - x, mid.y + x)
+        g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round' })
+      }
     }
     const start = editor.connectionStart
     if (start && inBounds(parseKey(start), grid)) {

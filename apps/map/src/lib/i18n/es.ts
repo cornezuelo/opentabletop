@@ -575,6 +575,11 @@ export const es: Messages = {
     removeTag: 'Quitar {name}',
     fieldsHelp:
       'Valores de esta conexión (`clave` = `valor`), para las reglas del sistema:\n• `toll` = `2`\n• `dc` = `3`\nLo que hace cada uno depende del sistema.',
+    inTrip: 'En el viaje en curso',
+    inTripHelp:
+      'Lo que el viaje jugado en este mapa ha hecho de la conexión, nunca guardado en el mapa: si se puede cruzar ahora (el **Abierto cuando** / **Cerrado cuando** de su tipo en las reglas de viaje del sistema, viendo su estado en el viaje) y los valores que han cambiado los efectos (`connection.state: open`, `place.connections.<tipo>.state: found`). En el mapa, la que no se puede cruzar ahora sale en gris, con el rombo tachado.\n• `state` = `open` — una verja que abrió una acción\n• `uses` = `1` — un valor que descuenta una comprobación',
+    open: 'Se puede cruzar ahora',
+    shut: 'No se puede cruzar ahora',
     delete: 'Borrar conexión',
     list: 'Conexiones del mapa ({count})',
   },

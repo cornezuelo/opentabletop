@@ -1549,6 +1549,23 @@ export function tripAvailability(
 }
 
 /**
+ * Whether each pair of places' connections can be crossed now in a trip (their kinds'
+ * `passable`, seeing their state in it), for a host to show what's shut: one answer a pair.
+ */
+export function connectionsOpen(
+  options: { system: TravelSystem; world: TravelWorld },
+  session: SessionState,
+  pairs: [string, string][],
+): boolean[] {
+  const engine = createTravelEngine({
+    world: options.world,
+    rules: options.system.rules,
+    calendar: calendarOf(options.system),
+  })
+  return pairs.map(([a, b]) => engine.connectionOpen(session.travel, a, b))
+}
+
+/**
  * What conditions and tables see now in a trip, as its checks would: the hex, the moment
  * (season, hour, daylight, the calendar), the trip, the party, today's values and the
  * host's facts. For rolls by hand during a trip.

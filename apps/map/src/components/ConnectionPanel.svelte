@@ -8,6 +8,7 @@
   import { ReplaceConnectionCommand } from '../lib/commands/connections'
   import { deleteSelectedConnection } from '../lib/tools/tools'
   import { mapSystem } from '../lib/play/systems'
+  import { connectionsNow } from '../lib/play/connections'
 
   const coord = (hex: HexKey) => formatCoord(parseKey(hex), editor.grid.coordFormat, editor.grid)
   const connections = $derived.by(() => {
@@ -23,6 +24,12 @@
     ]),
   ])
   const tags = $derived([...new Set(connections.flatMap((c) => c.tags ?? []))])
+  /** The selected one as the trip going on has it, if one is. */
+  const inTrip = $derived.by(() => {
+    void editor.revision
+    void editor.map.play
+    return selected && connectionsNow().get(selected.id)
+  })
   /** Between far places, the km measured on the grid (what an empty Length means). */
   const measured = $derived.by(() => {
     if (!selected) return undefined
@@ -71,6 +78,19 @@
         onchange={(kind) => kind.trim() && update((c) => ({ ...c, kind: kind.trim() }))}
       />
     </div>
+    {#if inTrip}
+      <div class="trip">
+        <span class="title"
+          >{t('connection.inTrip')}<InfoTip text={t('connection.inTripHelp')} /></span
+        >
+        <span class:shut={!inTrip.open}
+          >{inTrip.open ? t('connection.open') : t('connection.shut')}</span
+        >
+        {#each Object.entries(inTrip.changed) as [key, value] (key)}
+          <span><code>{key}</code> = <code>{String(value)}</code></span>
+        {/each}
+      </div>
+    {/if}
     <label class="field">
       <span>{t('connection.name')}</span>
       <input
@@ -161,6 +181,24 @@
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px solid var(--panel-border);
+  }
+
+  .trip {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    padding: 6px 8px;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+  }
+
+  .trip .title {
+    color: var(--text-muted);
+  }
+
+  .trip .shut {
+    color: var(--danger, #b3261e);
   }
 
   .between,
