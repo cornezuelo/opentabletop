@@ -10,6 +10,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Characters and Campaign: **a quick game** is a campaign without a trip. A character or party's **In a campaign** puts it in one (a party with its members, asking before taking any from a trip): the campaign's **Characters** tab lists it, Characters' **Campaign** filter finds it there, and Travel's new trip in that campaign offers to bring its party.
 - Hexmapper, Travel and Systems: **places from results**. A system's catalogues of places (`kind: places`) are templates of points of interest; an effect `hex.pois.<place>: 1` (a table, an action, a discovered hex's contents) makes one on the party's hex: in the Hexmapper a point of interest with the template's name, text, icon and fields that says **Made from** its template, its tags on the hex; in Travel a line in the journal. Systems' new **Places** tab edits them.
 - Every app: what takes a while shows it. A button busy with its work (creating a campaign, opening a map or an example, exporting a PNG or PDF, a backup, importing or exporting, starting a trip, moving the world's time on, a world turn) turns in place of its label and can't be pressed twice; Campaign says it's reading your campaigns while it does, and a restore says it's under way.
+- Every app: dialogs, their buttons, plain buttons, one-line cards (Campaign's maps, trips and characters, a party's members) and labelled facts look the same everywhere; a dialog's main button is filled.
 
 ### Packs
 
