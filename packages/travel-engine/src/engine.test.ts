@@ -37,13 +37,14 @@ function makeWorld(): TravelWorld {
     return 'steppe'
   }
   return {
-    hexKm: 30,
-    cell: (hex) => {
+    km: () => 30,
+    place: (hex) => {
       const c = parseKey(hex as `${number},${number}`)
       return c.col >= 0 && c.row >= 0 && c.col < 10 && c.row < 10 ? { terrain: terrain(hex) } : null
     },
     neighbors: (hex) => neighborCells(parseKey(hex as `${number},${number}`), shape).map(keyOf),
     distance: (a, b) =>
+      30 *
       distance(
         toAxial(parseKey(a as `${number},${number}`), 'flat'),
         toAxial(parseKey(b as `${number},${number}`), 'flat'),
@@ -191,11 +192,11 @@ describe('routes', () => {
   it('plans around impassable and slow terrain', () => {
     // Next to the end of the range, going around (3,8) beats crossing a mountain hex…
     const around = engine.plan(start('2,7'), '4,7')!
-    expect(around.some((h) => world.cell(h)?.terrain === 'mountains')).toBe(false)
+    expect(around.some((h) => world.place(h)?.terrain === 'mountains')).toBe(false)
     expect(around.at(-1)).toBe('4,7')
     // …but far from it, crossing is faster than a long detour.
     const through = engine.plan(start('2,2'), '4,2')!
-    expect(through.some((h) => world.cell(h)?.terrain === 'mountains')).toBe(true)
+    expect(through.some((h) => world.place(h)?.terrain === 'mountains')).toBe(true)
     expect(engine.plan(start(), '6,6')).toBeNull() // the sea is impassable
   })
 
@@ -238,9 +239,9 @@ describe('routes', () => {
     ).toHaveLength(1)
   })
 
-  it('shortest counts steps, fastest counts time', () => {
+  it('shortest counts km, fastest counts time', () => {
     const shortest = engine.plan(start('2,4'), '4,4', 'shortest')!
-    expect(shortest.length - 1).toBe(world.distance('2,4', '4,4'))
+    expect((shortest.length - 1) * 30).toBe(world.distance('2,4', '4,4'))
   })
 
   it('uses roads to go faster', () => {
@@ -251,7 +252,7 @@ describe('routes', () => {
 
 describe('travel', () => {
   it('asks for the day-start checks before moving', () => {
-    const first = run(start(), { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
+    const first = run(start(), { type: 'setDestination', place: '2,0' }, { type: 'travel' })
     const { state } = first
     let { events } = first
     expect(
@@ -269,8 +270,8 @@ describe('travel', () => {
 
     ;({ events } = run(resolved.state, { type: 'travel' }))
     // One hex per day on foot: 8 h of marching from 06:00.
-    expect(events.find((e) => e.type === 'HEX_ENTERED')).toMatchObject({
-      hex: '1,0',
+    expect(events.find((e) => e.type === 'PLACE_ENTERED')).toMatchObject({
+      place: '1,0',
       time: defaultCalendar.at(1, '14:00'),
     })
     expect(events.at(-1)).toMatchObject({ reason: 'conditions' })
@@ -279,25 +280,29 @@ describe('travel', () => {
   it('covers two hexes a day on horseback', () => {
     let { state } = run(
       start('0,0', 'horse'),
-      { type: 'setDestination', hex: '2,0' },
+      { type: 'setDestination', place: '2,0' },
       { type: 'travel' },
     )
     ;({ state } = resolveAll(state))
     const { state: after, events } = run(state, { type: 'travel' })
     expect(after.location).toBe('2,0')
-    expect(events.filter((e) => e.type === 'HEX_ENTERED')).toHaveLength(2)
-    expect(events).toContainEqual({ type: 'DESTINATION_REACHED', hex: '2,0' })
+    expect(events.filter((e) => e.type === 'PLACE_ENTERED')).toHaveLength(2)
+    expect(events).toContainEqual({ type: 'DESTINATION_REACHED', place: '2,0' })
   })
 
   it('skips the navigation check when following a road', () => {
-    const { events } = run(start('0,9'), { type: 'setDestination', hex: '3,9' }, { type: 'travel' })
+    const { events } = run(
+      start('0,9'),
+      { type: 'setDestination', place: '3,9' },
+      { type: 'travel' },
+    )
     const checks = events.flatMap((e) => (e.type === 'CHECK_REQUIRED' ? [e.check.event] : []))
     expect(checks).not.toContain('NAVIGATION_CHECK_REQUIRED')
     expect(checks).toContain('WEATHER_CHECK_REQUIRED')
   })
 
   it('stays put for the day when lost', () => {
-    let { state } = run(start(), { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
+    let { state } = run(start(), { type: 'setDestination', place: '2,0' }, { type: 'travel' })
     ;({ state } = run(state, { type: 'resolveCheck', id: state.pendingChecks[0].id }))
     const nav = state.pendingChecks.find((c) => c.event === 'NAVIGATION_CHECK_REQUIRED')!
     ;({ state } = run(state, {
@@ -320,7 +325,7 @@ describe('travel', () => {
     })
     const eng = createTravelEngine({ world, rules: snowy! })
     let state: TravelState = { ...start('0,0', 'horse'), today: { snowbound: true } }
-    state = eng.apply(state, { type: 'setDestination', hex: '2,0' }).state
+    state = eng.apply(state, { type: 'setDestination', place: '2,0' }).state
     state.dayChecksDone = true
     const { events } = eng.apply(state, { type: 'travel' })
     // It says which way it leaves behind: another can go on.
@@ -331,14 +336,14 @@ describe('travel', () => {
     })
     const afoot = eng.apply(state, { type: 'setMode', mode: 'foot' }).state
     expect(eng.availability(afoot).travel).toBeUndefined()
-    expect(eng.apply(afoot, { type: 'travel' }).events.some((e) => e.type === 'HEX_ENTERED')).toBe(
-      true,
-    )
+    expect(
+      eng.apply(afoot, { type: 'travel' }).events.some((e) => e.type === 'PLACE_ENTERED'),
+    ).toBe(true)
   })
 
   it("stays put while the host says something blocks it (a member's condition), saying who", () => {
     let state: TravelState = start('0,0')
-    state = engine.apply(state, { type: 'setDestination', hex: '2,0' }).state
+    state = engine.apply(state, { type: 'setDestination', place: '2,0' }).state
     state.dayChecksDone = true
     const facts = { party: { blocked: { 'travel.move': { value: 'wounded', who: 'kael' } } } }
     const { events } = engine.apply(state, { type: 'travel' }, facts)
@@ -348,7 +353,7 @@ describe('travel', () => {
   })
 
   it('applies weather: storms stop travel, heavy rain halves speed', () => {
-    let { state } = run(start(), { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
+    let { state } = run(start(), { type: 'setDestination', place: '2,0' }, { type: 'travel' })
     const weather = state.pendingChecks.find((c) => c.event === 'WEATHER_CHECK_REQUIRED')!
     ;({ state } = run(state, {
       type: 'resolveCheck',
@@ -364,7 +369,7 @@ describe('travel', () => {
   })
 
   it('reports blocked routes when the map changes', () => {
-    let { state } = run(start(), { type: 'setDestination', hex: '2,0' })
+    let { state } = run(start(), { type: 'setDestination', place: '2,0' })
     ;({ state } = resolveAll(run(state, { type: 'travel' }).state))
     state = { ...state, route: ['0,0', '6,6'] }
     const { events } = run(state, { type: 'travel' })
@@ -374,23 +379,24 @@ describe('travel', () => {
   it('never mutates the input state', () => {
     const before = start()
     const snapshot = structuredClone(before)
-    run(before, { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
+    run(before, { type: 'setDestination', place: '2,0' }, { type: 'travel' })
     expect(before).toEqual(snapshot)
   })
 })
 
 describe('the trip’s totals', () => {
-  it('counts hexes, hours marched, actions, checks and supplies, read as trip.*', () => {
+  it('counts places, km, hours marched, actions, checks and supplies, read as trip.*', () => {
     let { state } = run(
       start('0,0', 'horse'),
-      { type: 'setDestination', hex: '2,0' },
+      { type: 'setDestination', place: '2,0' },
       { type: 'travel' },
     )
     ;({ state } = resolveAll(state))
     ;({ state } = run(state, { type: 'travel' }, { type: 'action', id: 'camp' }))
     ;({ state } = resolveAll(state))
     expect(state.totals).toEqual({
-      hexes: 2,
+      places: 2,
+      km: 60,
       marched: 8 * 60,
       taken: { camp: 1, eat: 1, march: 1 },
       // Day 1's dawn (3), the camp's (1), and day 2's dawn as the party wakes (3).
@@ -427,12 +433,12 @@ describe('the trip’s totals', () => {
       mode: 'horse',
       time: defaultCalendar.at(1, '06:00'),
     })
-    state = tripEngine.apply(state, { type: 'setDestination', hex: '1,0' }).state
+    state = tripEngine.apply(state, { type: 'setDestination', place: '1,0' }).state
     expect(tripEngine.availability(state).boast).toMatchObject({ condition: 'when' })
     state = tripEngine.apply(state, { type: 'travel' }).state
     expect(state.location).toBe('1,0')
     expect(tripEngine.availability(state).boast).toMatchObject({ condition: 'when' })
-    state = tripEngine.apply(state, { type: 'setDestination', hex: '2,0' }).state
+    state = tripEngine.apply(state, { type: 'setDestination', place: '2,0' }).state
     state = tripEngine.apply(state, { type: 'travel' }).state
     expect(tripEngine.availability(state).boast).toBeUndefined()
   })
@@ -708,7 +714,7 @@ describe('the system’s own actions', () => {
   it('say how many of their checks came up', () => {
     const steppe = own.apply(start(), { type: 'action', id: 'forage' }).events[0]
     // Held by its check: its time passes once it's resolved.
-    expect(steppe).toMatchObject({ minutes: 0, checks: 1, hex: '0,0', terrain: 'steppe' })
+    expect(steppe).toMatchObject({ minutes: 0, checks: 1, place: '0,0', terrain: 'steppe' })
     // In the mountains nothing applies: the journal can say so, and why the check didn't
     // come up (its `when`, and what it read).
     const mountains = own.apply(start('3,0'), { type: 'action', id: 'forage' })
@@ -874,7 +880,7 @@ describe('actions as steps, and declared values', () => {
   })
 
   it('a declared value blocks what it names for the rest of the day', () => {
-    let { state } = runOn(own, start(), { type: 'setDestination', hex: '2,0' })
+    let { state } = runOn(own, start(), { type: 'setDestination', place: '2,0' })
     ;({ state } = resolveAll(runOn(own, state, { type: 'travel' }).state))
     const check = runOn(own, state, { type: 'travel' }).state
     const stuck = { ...check, today: { stranded: true } }
@@ -961,7 +967,7 @@ describe('check context', () => {
   it('carries everything the map knows about the hex (fields, region…)', () => {
     const marches: TravelWorld = {
       ...makeWorld(),
-      cell: () => ({ terrain: 'steppe', tags: ['haunted'], region: 'Black Marches', danger: 3 }),
+      place: () => ({ terrain: 'steppe', tags: ['haunted'], region: 'Black Marches', danger: 3 }),
     }
     const { rules: r } = parseTravelRules({
       kind: 'travel-rules',
@@ -975,7 +981,7 @@ describe('check context', () => {
       ],
     })
     const e = createTravelEngine({ world: marches, rules: r! })
-    const { events } = e.apply(e.apply(start(), { type: 'setDestination', hex: '1,0' }).state, {
+    const { events } = e.apply(e.apply(start(), { type: 'setDestination', place: '1,0' }).state, {
       type: 'travel',
     })
     const checks = events.flatMap((ev) => (ev.type === 'CHECK_REQUIRED' ? [ev.check] : []))
@@ -1004,7 +1010,7 @@ describe('check context', () => {
     const engine = createTravelEngine({ world, rules: enter! })
     const checks = (from: string, to: string) => {
       let state = start(from)
-      state = engine.apply(state, { type: 'setDestination', hex: to }).state
+      state = engine.apply(state, { type: 'setDestination', place: to }).state
       return engine
         .apply(state, { type: 'travel' })
         .events.filter((e) => e.type === 'CHECK_REQUIRED')
@@ -1017,13 +1023,13 @@ describe('check context', () => {
 describe('water', () => {
   /** A row: land, a custom water terrain ("mere"), land. */
   const row: TravelWorld = {
-    hexKm: 10,
-    cell: (hex) =>
+    km: () => 10,
+    place: (hex) =>
       ({ a: { terrain: 'plains' }, b: { terrain: 'mere', water: true }, c: { terrain: 'plains' } })[
         hex
       ] ?? null,
     neighbors: (hex) => ({ a: ['b'], b: ['a', 'c'], c: ['b'] })[hex] ?? [],
-    distance: (x, y) => Math.abs(x.charCodeAt(0) - y.charCodeAt(0)),
+    distance: (x, y) => 10 * Math.abs(x.charCodeAt(0) - y.charCodeAt(0)),
     edges: () => [],
   }
   const rulesWith = (extra: object) =>
@@ -1064,7 +1070,7 @@ describe('water', () => {
     expect(engine.stepMinutes(boat, 'b', 'a')).toBe(Infinity) // can't land
     const lake: TravelWorld = {
       ...row,
-      cell: () => ({ terrain: 'mere', water: true }),
+      place: () => ({ terrain: 'mere', water: true }),
       neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
     }
     const sailing = createTravelEngine({
@@ -1278,7 +1284,7 @@ describe('actions the system triggers, and bounded values', () => {
       1,
     )
     // Entering a hex drinks.
-    const going = eng.apply(begin(), { type: 'setDestination', hex: '0,1' }).state
+    const going = eng.apply(begin(), { type: 'setDestination', place: '0,1' }).state
     expect(eng.apply(going, { type: 'travel' }).state.resources.water).toBe(1)
   })
 
@@ -1352,7 +1358,7 @@ describe('actions the system triggers, and bounded values', () => {
     const eng = createTravelEngine({ world, rules: several! })
     let state = begin()
     let all: TravelEvent[] = []
-    for (const action of [{ type: 'setDestination', hex: '1,0' }, { type: 'travel' }] as const) {
+    for (const action of [{ type: 'setDestination', place: '1,0' }, { type: 'travel' }] as const) {
       const result = eng.apply(state, action)
       state = result.state
       all = [...all, ...result.events]
@@ -1516,12 +1522,12 @@ describe('the trip going on by itself (travel by a moment)', () => {
   const taken = (events: TravelEvent[], action: string) =>
     events.filter((e) => e.type === 'ACTION_TAKEN' && e.action === action)
   const entered = (events: TravelEvent[]) =>
-    events.flatMap((e) => (e.type === 'HEX_ENTERED' ? [[e.hex, e.time]] : []))
+    events.flatMap((e) => (e.type === 'PLACE_ENTERED' ? [[e.place, e.time]] : []))
   const stops = (events: TravelEvent[]) =>
     events.flatMap((e) => (e.type === 'TRAVEL_STOPPED' ? [e.reason] : []))
   /** Steppe hexes a day apart on foot (8 h each), south from 0,0. */
   const planned = (eng = engine, hex = '0,3') =>
-    run2(eng, start(), { type: 'setDestination', hex }).state
+    run2(eng, start(), { type: 'setDestination', place: hex }).state
   const run2 = (eng: typeof engine, state: TravelState, action: TravelAction) =>
     eng.apply(state, action)
   /** Camp only with food left (a condition on the party, like a pack writes it). */
@@ -1634,7 +1640,7 @@ describe('the trip going on by itself (travel by a moment)', () => {
     }).rules!
     const eng = createTravelEngine({ world, rules: stormy })
     const state = {
-      ...run2(eng, start(), { type: 'setDestination', hex: '0,3' }).state,
+      ...run2(eng, start(), { type: 'setDestination', place: '0,3' }).state,
       weather: 'storm',
       dayChecksDone: true,
       resources: { food: 0 },
@@ -1746,7 +1752,7 @@ describe('day and night, and marching as the system says', () => {
   })
 
   it('marches while the system’s march holds: by torchlight past nightfall, until midnight', () => {
-    const planned = own.apply(at('20:00'), { type: 'setDestination', hex: '9,0' }).state
+    const planned = own.apply(at('20:00'), { type: 'setDestination', place: '9,0' }).state
     const stopped = own.apply(planned, { type: 'travel' })
     expect(stopped.state.time).toBe(defaultCalendar.at(1, '20:00'))
     expect(stopped.events).toEqual([
@@ -1767,7 +1773,7 @@ describe('day and night, and marching as the system says', () => {
   })
 
   it('checks at night see the hour', () => {
-    const planned = own.apply(at('20:00'), { type: 'setDestination', hex: '1,0' }).state
+    const planned = own.apply(at('20:00'), { type: 'setDestination', place: '1,0' }).state
     const lit = own.apply(planned, { type: 'action', id: 'night-march' }).state
     const { events } = own.apply({ ...lit, progress: 300 }, { type: 'travel' })
     expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
@@ -1789,7 +1795,7 @@ describe('day and night, and marching as the system says', () => {
     const engine = createTravelEngine({ world, rules: tired.rules! })
     const planned = engine.apply(resolveAll(start()).state, {
       type: 'setDestination',
-      hex: '2,0',
+      place: '2,0',
     }).state
     const ready = { ...planned, dayChecksDone: true }
     const party = (fatigue: number) => ({ party: { stats: { fatigue, endurance: 3 } } })
@@ -1884,7 +1890,7 @@ describe('what conditions read of the moment, the trip and the land around', () 
       tripDay: 1,
       visits: 1,
     })
-    const planned = own.apply(first, { type: 'setDestination', hex: '2,0' }).state
+    const planned = own.apply(first, { type: 'setDestination', place: '2,0' }).state
     expect(own.context(planned)).toMatchObject({ routeLeft: 2 })
     const rested = own.apply(planned, { type: 'action', id: 'rest' }).state
     expect(own.context(rested).doneToday).toEqual(['rest'])
@@ -1894,7 +1900,7 @@ describe('what conditions read of the moment, the trip and the land around', () 
     expect(own.context(day).marched).toBeGreaterThan(0)
     /** Travels on (resolving every check) until the party gets to `hex`. */
     const goTo = (from: TravelState, hex: string) => {
-      let state = own.apply(from, { type: 'setDestination', hex }).state
+      let state = own.apply(from, { type: 'setDestination', place: hex }).state
       for (let i = 0; i < 40 && state.location !== hex; i++) {
         state = resolveAll(state).state
         state = own.apply(state, {
@@ -1930,7 +1936,7 @@ describe('what conditions read of the moment, the trip and the land around', () 
     const engine = createTravelEngine({ world, rules: leaving.rules! })
     const planned = engine.apply(
       { ...start('3,0'), progress: 0 },
-      { type: 'setDestination', hex: '4,0' },
+      { type: 'setDestination', place: '4,0' },
     ).state
     const { events } = engine.apply(planned, { type: 'travel' })
     expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
@@ -1996,16 +2002,16 @@ describe('progress made on a slower day', () => {
   it('enters the hex at once when the way got faster, and time never goes back', () => {
     const planned = engine.apply(resolveAll(start()).state, {
       type: 'setDestination',
-      hex: '2,0',
+      place: '2,0',
     }).state
     // Ten hours towards a hex in heavy rain (half speed: 960 minutes then); the rain is
     // gone and it costs 480 now, already walked.
     const walked = { ...planned, progress: 600, dayChecksDone: true }
-    const { state, events } = engine.apply(walked, { type: 'travel', until: 'hex' })
+    const { state, events } = engine.apply(walked, { type: 'travel', until: 'place' })
     expect(state.time).toBe(walked.time)
     expect(state.travelledToday).toBe(0)
-    expect(events.find((e) => e.type === 'HEX_ENTERED')).toMatchObject({
-      hex: '1,0',
+    expect(events.find((e) => e.type === 'PLACE_ENTERED')).toMatchObject({
+      place: '1,0',
       time: walked.time,
     })
   })
@@ -2016,15 +2022,15 @@ describe('progress made on a slower day', () => {
   it('a hex walked all but a sliver is entered at once, at dawn or later', () => {
     const planned = engine.apply(resolveAll(start()).state, {
       type: 'setDestination',
-      hex: '2,0',
+      place: '2,0',
     }).state
     // Late in the year, when the clock's minutes are big numbers.
     const dawn = defaultCalendar.at(200, '06:00')
     for (const time of [dawn, dawn + 120]) {
       const walked = { ...planned, day: 200, time, progress: 480 - 1e-12, dayChecksDone: true }
       expect(walked.time + (480 - walked.progress)).toBe(walked.time)
-      const { state, events } = engine.apply(walked, { type: 'travel', until: 'hex' })
-      expect(events.find((e) => e.type === 'HEX_ENTERED')).toMatchObject({ hex: '1,0', time })
+      const { state, events } = engine.apply(walked, { type: 'travel', until: 'place' })
+      expect(events.find((e) => e.type === 'PLACE_ENTERED')).toMatchObject({ place: '1,0', time })
       expect(state.location).toBe('1,0')
     }
   })
@@ -2093,7 +2099,7 @@ describe('progress by moves: the advance step', () => {
     checks: [{ event: 'ARRIVED', at: 'trip.place-enter', when: { 'trip.arrived': true } }],
   })
   const journey = createTravelEngine({ world, rules: moves! })
-  const planned = () => journey.apply(start('0,0'), { type: 'setDestination', hex: '4,0' }).state
+  const planned = () => journey.apply(start('0,0'), { type: 'setDestination', place: '4,0' }).state
 
   it('is valid, and moves along the route as many legs as it says, no time passing', () => {
     expect(errors).toEqual([])
@@ -2108,8 +2114,8 @@ describe('progress by moves: the advance step', () => {
     expect(state.route?.length).toBe(before.route!.length - 2)
     expect(state.location).toBe(before.route![2])
     expect(state.time).toBe(before.time + 60)
-    expect(events.filter((e) => e.type === 'HEX_ENTERED')).toHaveLength(2)
-    expect(state.totals?.hexes).toBe(2)
+    expect(events.filter((e) => e.type === 'PLACE_ENTERED')).toHaveLength(2)
+    expect(state.totals?.places).toBe(2)
     expect(state.visits?.[state.location]).toBe(1)
   })
 
@@ -2234,7 +2240,7 @@ describe('the parts of the calendar’s day', () => {
   })
 
   it('on the march, elevenses stops the party for its moment, and it marches on', () => {
-    const first = run2(fresh(), { type: 'setDestination', hex: '1,0' }, { type: 'travel' })
+    const first = run2(fresh(), { type: 'setDestination', place: '1,0' }, { type: 'travel' })
     expect(first.events.some((e) => e.type === 'ACTION_TAKEN' && e.action === 'elevenses')).toBe(
       true,
     )
@@ -2316,7 +2322,7 @@ describe('rules without a built-in day', () => {
     // No `lost` of its own either: nothing it doesn't declare.
     expect(eng.context(begin()).today).toEqual({})
     const night = begin(at(1, '22:00'))
-    const { state } = play(eng, night, { type: 'setDestination', hex: '2,0' }, { type: 'travel' })
+    const { state } = play(eng, night, { type: 'setDestination', place: '2,0' }, { type: 'travel' })
     // 8 h a hex, day and night alike, past midnight.
     expect(state.location).toBe('2,0')
     expect(state.time).toBe(at(2, '14:00'))
@@ -2334,7 +2340,7 @@ describe('rules without a built-in day', () => {
       ],
     })
     const eng = createTravelEngine({ world, rules: own!, calendar })
-    const first = eng.apply(begin(), { type: 'setDestination', hex: '2,0' })
+    const first = eng.apply(begin(), { type: 'setDestination', place: '2,0' })
     const marched = eng.apply(first.state, { type: 'travel' })
     expect(marched.events.filter((e) => e.type === 'CHECK_REQUIRED').length).toBe(1)
     expect(marched.events.at(-1)).toMatchObject({ reason: 'check' })
@@ -2369,7 +2375,7 @@ describe('rules without a built-in day', () => {
     } as never)
     expect(errors).toEqual([])
     const eng = createTravelEngine({ world, rules: own!, calendar })
-    const planned = eng.apply(begin(), { type: 'setDestination', hex: '9,0' }).state
+    const planned = eng.apply(begin(), { type: 'setDestination', place: '9,0' }).state
     const fed = play(eng, planned, { type: 'travel', by: at(3, '06:00') })
     // 14 hours of day a day (06:00–20:00): 28 hours, three hexes and a half.
     expect(fed.events.filter((e) => e.type === 'ACTION_TAKEN' && e.action === 'camp')).toHaveLength(
@@ -2379,7 +2385,7 @@ describe('rules without a built-in day', () => {
       time: at(1, '20:00'),
     })
     expect(fed.state.time).toBe(at(3, '06:00'))
-    expect(fed.events.filter((e) => e.type === 'HEX_ENTERED')).toHaveLength(3)
+    expect(fed.events.filter((e) => e.type === 'PLACE_ENTERED')).toHaveLength(3)
     // Hungry, the halt can't be taken: said, and the time passes until it can march.
     const hungry = play(
       eng,
@@ -2471,7 +2477,7 @@ describe('the host’s day, past midnight', () => {
       mode: 'foot',
       time: defaultCalendar.at(1, '22:00'),
     })
-    const planned = eng.apply(late, { type: 'setDestination', hex: '5,0' }).state
+    const planned = eng.apply(late, { type: 'setDestination', place: '5,0' }).state
     // The host's today (a session's values of the day) says torchlit: until midnight only.
     const { state, events } = eng.apply(planned, { type: 'travel' }, { today: { torchlit: true } })
     expect(state.time).toBe(defaultCalendar.at(2, '00:00'))
@@ -2521,7 +2527,7 @@ describe('marching as an action: travel.move, parameters and moves under way', (
         time: defaultCalendar.at(1, '08:00'),
         resources: { gold: 0 },
       }),
-      { type: 'setDestination', hex: '0,6' },
+      { type: 'setDestination', place: '0,6' },
     ).state
   const resolve = (state: TravelState) =>
     state.pendingChecks.reduce(
@@ -2548,7 +2554,7 @@ describe('marching as an action: travel.move, parameters and moves under way', (
     expect(state.resources.gold).toBe(1)
     expect(state.moving).toBeUndefined()
     expect(events[0]).toMatchObject({ type: 'ACTION_TAKEN', action: 'march', minutes: 60 })
-    expect(events.at(-2)).toMatchObject({ type: 'TRAVEL_STOPPED', reason: 'hex' })
+    expect(events.at(-2)).toMatchObject({ type: 'TRAVEL_STOPPED', reason: 'place' })
   })
 
   it('stopped by a check, the move stays under way; going on finishes it and its steps', () => {
@@ -2594,12 +2600,12 @@ describe('marching as an action: travel.move, parameters and moves under way', (
 
   it('one hex at a time (for a host that discovers), the move stays under way', () => {
     const before = begin()
-    const one = eng.apply(before, { type: 'action', id: 'march', until: 'hex' })
+    const one = eng.apply(before, { type: 'action', id: 'march', until: 'place' })
     expect(one.state.location).toBe(before.route![1])
     expect(one.state.moving).toEqual({
       frames: [{ action: 'march', params: { until: 'destination' }, next: 1 }],
     })
-    const two = eng.apply(one.state, { type: 'travel', until: 'hex' })
+    const two = eng.apply(one.state, { type: 'travel', until: 'place' })
     expect(two.state.location).toBe(before.route![2])
     expect(two.state.moving).toBeDefined()
   })
@@ -2686,7 +2692,7 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
         time: defaultCalendar.at(1, '08:00'),
         resources: { gold: 2 },
       }),
-      { type: 'setDestination', hex: '0,6' },
+      { type: 'setDestination', place: '0,6' },
     ).state
   const take = (state: TravelState, id: string) => eng.apply(state, { type: 'action', id })
 
@@ -3074,9 +3080,9 @@ describe('order the rules say: after a check, as an action ends', () => {
   })
 
   it('an action a moment takes sees what its checks see: the hex left', () => {
-    const planned = eng.apply(begin('08:00'), { type: 'setDestination', hex: '2,0' }).state
-    const { state: moved, events } = eng.apply(planned, { type: 'travel', until: 'hex' })
-    expect(events.some((e) => e.type === 'HEX_ENTERED')).toBe(true)
+    const planned = eng.apply(begin('08:00'), { type: 'setDestination', place: '2,0' }).state
+    const { state: moved, events } = eng.apply(planned, { type: 'travel', until: 'place' })
+    expect(events.some((e) => e.type === 'PLACE_ENTERED')).toBe(true)
     expect(moved.resources.food).toBe(2)
   })
 

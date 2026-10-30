@@ -19,8 +19,8 @@ export function wayWorld(way: readonly WayHex[], hexKm: number): TravelWorld {
   const index = (hex: string) => Number(hex)
   const valid = (i: number) => Number.isInteger(i) && i >= 0 && i < way.length
   return {
-    hexKm,
-    cell(hex) {
+    km: () => hexKm,
+    place(hex) {
       const h = way[index(hex)]
       return h
         ? { terrain: h.terrain, tags: h.tags, ...(WATER.includes(h.terrain) && { water: true }) }
@@ -30,7 +30,7 @@ export function wayWorld(way: readonly WayHex[], hexKm: number): TravelWorld {
       const i = index(hex)
       return [i - 1, i + 1].filter(valid).map(String)
     },
-    distance: (a, b) => Math.abs(index(a) - index(b)),
+    distance: (a, b) => hexKm * Math.abs(index(a) - index(b)),
     edges(a, b) {
       const [i, j] = [index(a), index(b)].sort((x, y) => x - y)
       return j === i + 1 ? (way[i]?.edges ?? []) : []

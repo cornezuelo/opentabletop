@@ -15,7 +15,7 @@ export const en = {
     stats: 'Stats',
   },
   totals: {
-    line: '{hexes} hexes{km} · {hours} marched',
+    line: '{places} hexes{km} · {hours} marched',
     km: ' · {km} km',
     checks: 'Checks: {count}',
     taken: 'Actions: {list}',

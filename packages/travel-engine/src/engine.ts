@@ -40,16 +40,26 @@ import { FACT_PATHS, placeIdOf, qualify } from './facts'
 import { findPartRef, isPartRef, partKey } from './day'
 
 /** Read-only view of the map. Map implements it; a standalone app can fake it. */
+/**
+ * Read-only view of where a trip goes: places (a map's hexes, the legs of a way, rooms…) and
+ * the connections between them. Map implements it from a map; a standalone app can fake it.
+ */
 export interface TravelWorld {
-  hexKm: number
-  /** `water`: the map marks the hex's terrain as water (lake, sea… or one of the user's). */
-  cell(
-    hex: string,
+  /**
+   * What the rules see of a place. `water`: the map marks its terrain as water (lake, sea…
+   * or one of the user's).
+   */
+  place(
+    id: string,
   ): { terrain?: string; tags?: string[]; water?: boolean; [key: string]: unknown } | null
-  neighbors(hex: string): string[]
+  /** The places one step from it. */
+  neighbors(id: string): string[]
+  /** A hint for routes: km between two places, never more than any way between them (0 is fine). */
   distance(a: string, b: string): number
-  /** Edge kinds between two neighboring hexes, e.g. ['road'] or ['river']. */
+  /** The kinds of the connections between two neighbouring places, e.g. ['road'] or ['river']. */
   edges(a: string, b: string): string[]
+  /** The km a step from `a` into its neighbour `b` measures, at the map's scale. */
+  km(a: string, b: string): number
 }
 
 export interface PendingCheck {
@@ -60,7 +70,7 @@ export interface PendingCheck {
    * opaque reference the host resolves (the event is the same reference).
    */
   resolve?: string
-  /** Facts for whoever resolves it (terrain, weather, hex…). */
+  /** Facts for whoever resolves it (terrain, weather, place…). */
   context: Record<string, unknown>
   /** The check's own effects (`party.stats.fatigue: 1`), applied by whoever resolves it. */
   effects?: Record<string, number | string>
@@ -85,7 +95,7 @@ export interface QueuedCheck {
   time: GameTime
   day: number
   /**
-   * The trip as it was at that moment (the hex, the hour, what hit a bound, the action
+   * The trip as it was at that moment (the place, the hour, what hit a bound, the action
    * under way…): a day-end check decided after midnight still sees the day that ended.
    */
   context: Record<string, unknown>
@@ -114,8 +124,10 @@ export interface CheckOutcome {
  * `trip.spent.party.items.ration`, `trip.gained.party.values.food`).
  */
 export interface TripTotals {
-  /** Hexes entered (`trip.km` is them at the map's scale). */
-  hexes: number
+  /** Places entered (`trip.places`). */
+  places: number
+  /** Km of the steps into them (`trip.km`). */
+  km: number
   /** Minutes marched (`trip.hours`). */
   marched: number
   /** Times each of the system's actions was taken, by the player or by itself. */
@@ -164,7 +176,8 @@ function nested(flat: Record<string, number>): Record<string, unknown> {
 
 /** A trip that has done nothing yet. */
 export const noTotals = (): TripTotals => ({
-  hexes: 0,
+  places: 0,
+  km: 0,
   marched: 0,
   taken: {},
   checks: 0,
@@ -190,7 +203,7 @@ export interface TravelState {
   time: GameTime
   location: string
   destination?: string
-  /** Planned hexes from the current location ([0]) to the destination. */
+  /** Planned places from the current location ([0]) to the destination. */
   route?: string[]
   mode: string
   /** Older trips: the party's supplies (the host moves them to the party's sheet). */
@@ -229,20 +242,20 @@ export interface TravelState {
   speedToday?: number
   /** The day the trip started (`tripDay` counts from it; absent in older trips). */
   firstDay?: number
-  /** Times the party has been in each hex this trip, the one it starts in included. */
+  /** Times the party has been in each place this trip, the one it starts in included. */
   visits?: Record<string, number>
   /** The system's own actions done today (for `oncePerDay`). */
   actionsToday?: string[]
   /**
    * What the trip's rolls in conditions and effects (`'{{1d20}}'`) are seeded with, with the
-   * day, hex and moment (see `momentRolls`); older trips have none.
+   * day, place and moment (see `momentRolls`); older trips have none.
    */
   seed?: string
   /** What the trip has done so far (absent in older trips: counted from then on). */
   totals?: TripTotals
   /**
    * A move under way that stopped before it was done (a check came up, the host asked for
-   * one hex at a time, the moment it was given came): going on (`travel`) continues it, then
+   * one place at a time, the moment it was given came): going on (`travel`) continues it, then
    * the rest of the steps of the actions it was part of. Taking another action or waiting
    * drops it.
    */
@@ -278,13 +291,13 @@ export interface MoveFrame {
 }
 
 /**
- * A move under way: the actions it's part of, innermost first, and the hexes left. Or,
+ * A move under way: the actions it's part of, innermost first, and the places left. Or,
  * `held`, actions stopped at a step for the player (`pause:`, `ask:`): the innermost goes
  * on from its next step, with no move to finish first.
  */
 export interface MoveUnderWay {
   frames: MoveFrame[]
-  /** Hexes still to go (absent: to the destination). */
+  /** Places still to go (absent: to the destination). */
   left?: number
   /** Stopped at a step (`pause:`, `ask:`), not in a move. */
   held?: true
@@ -310,7 +323,7 @@ export interface Waiting {
 
 export type StopReason =
   | 'destination'
-  | 'hex'
+  | 'place'
   /** Older trips: night fell, or the day's marching hours were spent. */
   | 'nightfall'
   | 'day-limit'
@@ -337,7 +350,7 @@ export type TravelEvent =
   | { type: 'DAY_STARTED'; day: number }
   | { type: 'ROUTE_PLANNED'; route: string[]; strategy: RouteStrategy }
   | { type: 'NO_ROUTE'; to: string }
-  | { type: 'HEX_ENTERED'; hex: string; time: GameTime }
+  | { type: 'PLACE_ENTERED'; place: string; time: GameTime }
   | { type: 'CHECK_REQUIRED'; check: PendingCheck; time: GameTime }
   /** A moment some check or action names came (`at`): its actions and checks are looked at. */
   | { type: 'MOMENT_REACHED'; at: string; time: GameTime }
@@ -351,7 +364,7 @@ export type TravelEvent =
       time: GameTime
     }
   | { type: 'CHECK_RESOLVED'; id: string; outcome: CheckOutcome }
-  | { type: 'DESTINATION_REACHED'; hex: string }
+  | { type: 'DESTINATION_REACHED'; place: string }
   | { type: 'ROUTE_BLOCKED'; from: string; to: string }
   | {
       type: 'TRAVEL_STOPPED'
@@ -413,7 +426,7 @@ export type TravelEvent =
       time: GameTime
       minutes: number
       checks: number
-      hex: string
+      place: string
       terrain?: string
       on?: string
     }
@@ -442,15 +455,15 @@ export type Unavailable =
 export type RouteStrategy = 'shortest' | 'fastest'
 
 export type TravelAction =
-  | { type: 'setDestination'; hex: string; strategy?: RouteStrategy }
+  | { type: 'setDestination'; place: string; strategy?: RouteStrategy }
   /**
    * Goes on: the move under way (`moving`), else the way the trip goes on by itself
    * (`travel.onward`, once). With `by` (a moment), the trip goes on by itself until then:
    * it moves while the system's way on lets it, waits (with the system's halt) until it can
-   * again, and waits where it ends up once the route is done. With `until: 'hex'`, a move
-   * stops at each hex it enters, still under way (for hosts that discover hex by hex).
+   * again, and waits where it ends up once the route is done. With `until: 'place'`, a move
+   * stops at each place it enters, still under way (for hosts that discover place by place).
    */
-  | { type: 'travel'; until?: 'hex' | 'destination'; by?: GameTime }
+  | { type: 'travel'; until?: 'place' | 'destination'; by?: GameTime }
   | { type: 'advanceTime'; minutes: number }
   /**
    * Waits where the party is until a moment, living it: the checks and actions of the
@@ -466,14 +479,14 @@ export type TravelAction =
   /**
    * One of the system's actions (`actions.<id>` in the rules), e.g. march, camp or forage,
    * with the values of its parameters (`with`). With `minutes`, a length chosen by hand
-   * replaces the time its steps pass; with `until: 'hex'`, as for `travel`.
+   * replaces the time its steps pass; with `until: 'place'`, as for `travel`.
    */
   | {
       type: 'action'
       id: string
       with?: Record<string, unknown>
       minutes?: number
-      until?: 'hex' | 'destination'
+      until?: 'place' | 'destination'
     }
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
@@ -482,9 +495,9 @@ export type TravelAction =
    * Goes on from a step that stopped the trip (`pause:`, `ask:` with the player's `choice`):
    * the rest of what it stopped goes on at once, unless a check still waits; or, with no
    * step waiting, the rest of an action its checks held, once they're resolved. `until:
-   * 'hex'` as for `travel`.
+   * 'place'` as for `travel`.
    */
-  | { type: 'resume'; choice?: string | number; until?: 'hex' | 'destination' }
+  | { type: 'resume'; choice?: string | number; until?: 'place' | 'destination' }
   /**
    * A moment of the world the host says came (`world.clocks.<id>.full`): the actions and
    * checks that name it (`on:` / `at:`) happen now, as at any moment.
@@ -544,16 +557,16 @@ export function initialTravelState(init: {
 
 /**
  * The rolls a trip's conditions and effects make (`gte: '{{1d20}}'`), fixed for a moment:
- * the same dice give the same total all through the same day, hex and moment (a moment
+ * the same dice give the same total all through the same day, place and moment (a moment
  * such as `place-enter`, or the action being taken), however many times they're read, so
  * what's available, the route and the checks don't change when they're looked at again.
  */
 export function momentRolls(
   state: Pick<TravelState, 'seed' | 'day' | 'location'>,
-  hex: string = state.location,
+  place: string = state.location,
   moment = '',
 ): Roller {
-  return momentRoller(`${state.seed ?? ''}|${state.day}|${hex}|${moment}`)
+  return momentRoller(`${state.seed ?? ''}|${state.day}|${place}|${moment}`)
 }
 
 /**
@@ -670,10 +683,10 @@ export function createTravelEngine(options: {
   /** The actions that move the party (a `travel.move` step, theirs or another's they take). */
   const movers = new Set(movingActions(rules))
   /**
-   * Where moves stop besides their own end, for this order: at each hex entered (still
+   * Where moves stop besides their own end, for this order: at each place entered (still
    * under way), at a moment (`by`).
    */
-  let cap: { hexByHex: boolean; by: GameTime } = { hexByHex: false, by: Infinity }
+  let cap: { placeByPlace: boolean; by: GameTime } = { placeByPlace: false, by: Infinity }
   /** The hour each part starts, as a number: `system.<division>.<part>`. */
   const partHours = Object.fromEntries(
     divisions.map((d) => [d.id, Object.fromEntries(d.parts.map((p) => [p.id, p.from / 60]))]),
@@ -693,8 +706,8 @@ export function createTravelEngine(options: {
   /** A declared value holds while it's set to anything but false. */
   const holds = (v: unknown) => v !== undefined && v !== null && v !== false
   /**
-   * Whether a condition holds where it's read, its rolls fixed for the moment: the hex it
-   * reads (`hex`), and the moment (`moment`, else the one given: the action, `march`…).
+   * Whether a condition holds where it's read, its rolls fixed for the moment: the place it
+   * reads (`place`), and the moment (`moment`, else the one given: the action, `march`…).
    */
   const test = (
     state: TravelState,
@@ -784,53 +797,53 @@ export function createTravelEngine(options: {
     }
   }
   /** A place as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
-  const placeFacts = (hex: string): Record<string, unknown> => {
-    const cell = world.cell(hex)
+  const placeFacts = (id: string): Record<string, unknown> => {
+    const place = world.place(id)
     return {
-      ...cell,
-      id: hex,
-      terrain: cell?.terrain,
-      tags: cell?.tags ?? [],
-      water: !!cell?.water,
+      ...place,
+      id,
+      terrain: place?.terrain,
+      tags: place?.tags ?? [],
+      water: !!place?.water,
     }
   }
-  /** The neighbours of a hex together: every terrain, tag and region among them. */
-  const aroundFacts = (hex: string): Record<string, unknown> => {
-    type Cell = NonNullable<ReturnType<TravelWorld['cell']>>
-    const cells = world.neighbors(hex).flatMap((h): Cell[] => {
-      const cell = world.cell(h)
-      return cell ? [cell] : []
+  /** The neighbours of a place together: every terrain, tag and region among them. */
+  const aroundFacts = (id: string): Record<string, unknown> => {
+    type Place = NonNullable<ReturnType<TravelWorld['place']>>
+    const places = world.neighbors(id).flatMap((n): Place[] => {
+      const place = world.place(n)
+      return place ? [place] : []
     })
-    const all = (pick: (c: Cell) => unknown) => [
-      ...new Set(cells.flatMap((c) => [pick(c)].flat().filter((v) => v !== undefined))),
+    const all = (pick: (p: Place) => unknown) => [
+      ...new Set(places.flatMap((p) => [pick(p)].flat().filter((v) => v !== undefined))),
     ]
     return {
-      terrain: all((c) => c.terrain),
-      tags: all((c) => c.tags ?? []),
-      region: all((c) => c.region),
-      water: cells.some((c) => c.water),
+      terrain: all((p) => p.terrain),
+      tags: all((p) => p.tags ?? []),
+      region: all((p) => p.region),
+      water: places.some((p) => p.water),
     }
   }
 
   /**
    * What a way of travelling's "only through" and a terrain's `passable` see when stepping
-   * from `a` into `b`: the hex entered (everything the map knows of it), the roads or rivers
-   * of the step, the mode, the weather, the calendar (season, moons…) and today's values.
-   * Light on purpose: route planning asks it for many hexes.
+   * from `a` into `b`: the place entered (everything the map knows of it), the roads or
+   * rivers of the step, the mode, the weather, the calendar (season, moons…) and today's
+   * values. Light on purpose: route planning asks it for many places.
    */
   const throughContext = (state: TravelState, a: string, b: string): Record<string, unknown> => {
-    const cell = world.cell(b)
+    const place = world.place(b)
     const date = calendar.describe(state.time)
     return {
       ...state.today,
       today: { ...state.today },
       ...calendarFacts(date),
       season: date.season,
-      ...cell,
+      ...place,
       place: placeFacts(b),
-      terrain: cell?.terrain,
-      water: !!cell?.water,
-      tags: cell?.tags ?? [],
+      terrain: place?.terrain,
+      water: !!place?.water,
+      tags: place?.tags ?? [],
       edges: world.edges(a, b),
       mode: state.mode,
       weather: state.weather,
@@ -840,12 +853,12 @@ export function createTravelEngine(options: {
   /** Terrain/edge multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (state: TravelState, a: string, b: string): number => {
     const mode = rules.modes[state.mode]
-    const cell = world.cell(b)
-    if (!mode || !cell) return 0
-    const terrain = cell.terrain
-    // A terrain's own rule wins; water hexes without one follow the `water` rule.
+    const place = world.place(b)
+    if (!mode || !place) return 0
+    const terrain = place.terrain
+    // A terrain's own rule wins; water places without one follow the `water` rule.
     const terrainRule =
-      (terrain ? rules.terrains[terrain] : undefined) ?? (cell.water ? rules.water : undefined)
+      (terrain ? rules.terrains[terrain] : undefined) ?? (place.water ? rules.water : undefined)
     const through = modeThrough(mode)
     if (through) {
       // "Only through" where its condition holds: there, even closed terrains are open to it.
@@ -876,7 +889,7 @@ export function createTravelEngine(options: {
     const m = multiplier(state, a, b)
     if (!mode || m <= 0) return Infinity
     const kmPerHour = mode.kmPerDay / rules.travel.hoursPerDay
-    return (world.hexKm / (kmPerHour * m)) * 60
+    return (world.km(a, b) / (kmPerHour * m)) * 60
   }
 
   const stepMinutes = (state: TravelState, a: string, b: string): number => {
@@ -891,47 +904,47 @@ export function createTravelEngine(options: {
   ): string[] | null => {
     const mode = rules.modes[state.mode]
     if (!mode) return null
-    // Admissible heuristic for "fastest": the best possible speed on any hex.
+    // Admissible heuristic for "fastest": the km left at the best possible speed anywhere.
     const best = Math.max(
       rules.defaultTerrain?.multiplier ?? 1,
       ...Object.values(rules.terrains).map((t) => t.multiplier ?? 1),
       rules.water?.multiplier ?? 0,
       ...Object.values(rules.edges ?? {}).map((e) => e.multiplier ?? 0),
     )
-    const minPerHex = (world.hexKm / ((mode.kmPerDay / rules.travel.hoursPerDay) * best)) * 60
+    const minPerKm = 60 / ((mode.kmPerDay / rules.travel.hoursPerDay) * best)
     const result = findPath<string>(state.location, to, {
       neighbors: world.neighbors,
       cost: (a, b) => {
         const minutes = baseMinutes(state, a, b)
         if (!Number.isFinite(minutes)) return Infinity
-        return strategy === 'shortest' ? 1 : minutes
+        return strategy === 'shortest' ? world.km(a, b) : minutes
       },
-      heuristic: (a, b) => world.distance(a, b) * (strategy === 'shortest' ? 1 : minPerHex),
+      heuristic: (a, b) => world.distance(a, b) * (strategy === 'shortest' ? 1 : minPerKm),
     })
     return result?.path ?? null
   }
 
   /**
    * What checks see. `edges` are the lines of the stretch the check is about: the one just
-   * walked when entering a hex, the one ahead at dawn or in camp.
+   * walked when entering a place, the one ahead at dawn or in camp.
    */
   const checkContext = (
     state: TravelState,
     [a, b]: string[] = [],
     facts: HostFacts = {},
   ): Record<string, unknown> => {
-    const cell = world.cell(state.location)
+    const place = world.place(state.location)
     const host = facts.party as Record<string, unknown> | undefined
     return {
       ...facts,
       ...state.today,
       ...calendarFacts(calendar.describe(state.time)),
-      // Everything the map knows about the hex (fields, region…), then the travel facts.
-      ...cell,
+      // Everything the map knows about the place (fields, region…), then the travel facts.
+      ...place,
       place: placeFacts(state.location),
-      terrain: cell?.terrain,
-      tags: cell?.tags ?? [],
-      // The stretch given (the one just walked entering a hex), or else the one ahead.
+      terrain: place?.terrain,
+      tags: place?.tags ?? [],
+      // The stretch given (the one just walked entering a place), or else the one ahead.
       edges:
         a && b
           ? world.edges(a, b)
@@ -975,8 +988,8 @@ export function createTravelEngine(options: {
   const tripTotals = (state: TravelState): Record<string, unknown> => {
     const totals = state.totals ?? noTotals()
     return {
-      places: totals.hexes,
-      km: totals.hexes * world.hexKm,
+      places: totals.places,
+      km: totals.km,
       hours: totals.marched / 60,
       taken: { ...zeros(takenIds), ...totals.taken },
       checks: totals.checks,
@@ -1005,7 +1018,7 @@ export function createTravelEngine(options: {
     const stretch = from ? [from, state.location] : next ? [state.location, next] : []
     /** An action of the moment that waits (for its roll, a check, the player). */
     let held: MoveUnderWay | undefined
-    // Entering a hex, the one left (`from.terrain`, `from.region`…) and the stretch walked.
+    // Entering a place, the one left (`from.terrain`, `from.region`…) and the stretch walked.
     const left = from ? { from: placeFacts(from) } : {}
     if (!event) {
       if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
@@ -1316,8 +1329,8 @@ export function createTravelEngine(options: {
   /**
    * Moves the party along its route while time passes, as the step `travel.move` of action
    * `id` (with its parameters): minute by minute while the action's conditions hold, up to
-   * the destination or `left` hexes. Returns the hexes still to go when the move stops
-   * before it's done (a check came up, one hex at a time, the moment of the order: it's
+   * the destination or `left` places. Returns the places still to go when the move stops
+   * before it's done (a check came up, one place at a time, the moment of the order: it's
    * still under way); undefined when it's over (got there, its conditions or a value, the
    * weather or the way stopped it). Says why it stopped (`TRAVEL_STOPPED`).
    */
@@ -1341,7 +1354,7 @@ export function createTravelEngine(options: {
     if (halted(state)) return suspend(haltReason(state))
     if (!state.route || state.route.length < 2) {
       if (state.destination && state.destination === state.location)
-        events.push({ type: 'DESTINATION_REACHED', hex: state.location })
+        events.push({ type: 'DESTINATION_REACHED', place: state.location })
       return stop(state.route ? 'destination' : 'no-route')
     }
     // A value that blocks moving on, or the way the party is travelling (`modes.horse`).
@@ -1352,7 +1365,7 @@ export function createTravelEngine(options: {
     for (;;) {
       const next = state.route[1]
       if (!next) {
-        events.push({ type: 'DESTINATION_REACHED', hex: state.location })
+        events.push({ type: 'DESTINATION_REACHED', place: state.location })
         return stop('destination')
       }
       const cost = stepMinutes(state, state.location, next)
@@ -1363,9 +1376,9 @@ export function createTravelEngine(options: {
       if (state.time >= by) return suspend('waited')
       const why = moveStop(state, state.time, state.travelledToday, id, params)
       if (why) return stopWith(why)
-      // Move minute by minute while the action's conditions hold, up to the next hex, the
+      // Move minute by minute while the action's conditions hold, up to the next place, the
       // moment asked for, a moment the system names or midnight (a new day).
-      // Already past it (the way got faster since: better weather…): the hex is entered now.
+      // Already past it (the way got faster since: better weather…): the place is entered now.
       const reach = state.time + Math.max(0, cost - state.progress)
       const midnight = calendar.at(state.day + 1, 0)
       let end = Math.min(by, midnight, reach)
@@ -1382,7 +1395,7 @@ export function createTravelEngine(options: {
       state.time += marched
       state.travelledToday += marched
       totalsOf(state).marched += marched
-      // Moved up to the hex's moment, the hex is reached: minutes add up with decimals, and
+      // Moved up to the place's moment, the place is reached: minutes add up with decimals, and
       // a sliver left short of the cost (less than the clock tells apart from now) would be
       // moved towards for no time at all, for ever.
       state.progress = state.time >= reach ? cost : state.progress + marched
@@ -1417,12 +1430,12 @@ export function createTravelEngine(options: {
       schedule(state, PLACE_ENTER, events, from)
       if (left !== undefined) left--
       if (state.route.length < 2) {
-        events.push({ type: 'DESTINATION_REACHED', hex: next })
+        events.push({ type: 'DESTINATION_REACHED', place: next })
         return stop('destination')
       }
-      if (left === 0) return stop('hex')
+      if (left === 0) return stop('place')
       if (halted(state)) return suspend(haltReason(state))
-      if (cap.hexByHex) return suspend('hex')
+      if (cap.placeByPlace) return suspend('place')
     }
   }
 
@@ -1527,7 +1540,7 @@ export function createTravelEngine(options: {
    * (`travel.onward`) whenever it can be taken, waiting (with the system's halt) while it
    * can't; once the route is done (or there is none, or no way on), it waits there. A value
    * that blocks travel (a storm, lost…) is said in the journal once a day. Stops early for
-   * a check (the host resolves it and goes on), a hex when it asked for one at a time, or a
+   * a check (the host resolves it and goes on), a place when it asked for one at a time, or a
    * way blocked for good.
    */
   const journey = (state: TravelState, by: GameTime, events: TravelEvent[]): void => {
@@ -1541,7 +1554,7 @@ export function createTravelEngine(options: {
       if (state.time >= by) return stop('waited')
       if (!state.moving && (!onward || !state.route || state.route.length < 2)) {
         if (state.destination && state.destination === state.location)
-          events.push({ type: 'DESTINATION_REACHED', hex: state.location })
+          events.push({ type: 'DESTINATION_REACHED', place: state.location })
         return wait(state, by, events)
       }
       if (!state.moving && !canGoOn(state, state.time)) {
@@ -1568,7 +1581,7 @@ export function createTravelEngine(options: {
         reason === 'held' ||
         reason === 'blocked' ||
         reason === 'waited' ||
-        (reason === 'hex' && state.moving)
+        (reason === 'place' && state.moving)
       )
         return void events.push(stopped!)
       // Nothing moved (a way on that doesn't move, or stops at once): the time goes on to
@@ -1802,15 +1815,15 @@ export function createTravelEngine(options: {
         ...steps.filter((s) => typeof s.time !== 'number'),
       ]
     const start = state.time
-    const cell = world.cell(state.location)
+    const place = world.place(state.location)
     const head = {
       type: 'ACTION_TAKEN' as const,
       action: id,
       time: start,
       minutes: 0,
       checks: 0,
-      hex: state.location,
-      ...(cell?.terrain && { terrain: cell.terrain }),
+      place: state.location,
+      ...(place?.terrain && { terrain: place.terrain }),
       ...(options.on && { on: options.on }),
     }
     events.push(head)
@@ -2046,7 +2059,7 @@ export function createTravelEngine(options: {
       // A step stopped the trip for the player (this one, or an action a moment took): the
       // rest waits until they go on.
       if (state.waiting) return { frames: [frame(i)], held: true }
-      // What came up in it (its roll, the moments it lived, the hexes it entered) comes
+      // What came up in it (its roll, the moments it lived, the places it entered) comes
       // before the rest: the steps after it wait until it's resolved, and see what it set.
       if (hold && state.pendingChecks.length > pending) return { frames: [frame(i)], held: true }
     }
@@ -2097,9 +2110,9 @@ export function createTravelEngine(options: {
   }
 
   /**
-   * Moves the party `legs` hexes along its route at once, no time passing (a move that
-   * makes progress): each hex entered as by marching (its visit, the trip's totals, its
-   * `hex-enter` checks). Stops at the destination, at a way it can't take, or at a check.
+   * Moves the party `legs` places along its route at once, no time passing (a move that
+   * makes progress): each place entered as by marching (its visit, the trip's totals, its
+   * `trip.place-enter` checks). Stops at the destination, at a way it can't take, or at a check.
    */
   const advance = (state: TravelState, legs: number, events: TravelEvent[]): void => {
     for (let i = 0; i < legs; i++) {
@@ -2113,7 +2126,7 @@ export function createTravelEngine(options: {
       enter(state, next, events)
       schedule(state, PLACE_ENTER, events, from)
       if (state.route.length < 2)
-        return void events.push({ type: 'DESTINATION_REACHED', hex: next })
+        return void events.push({ type: 'DESTINATION_REACHED', place: next })
       if (halted(state)) return
     }
   }
@@ -2128,14 +2141,16 @@ export function createTravelEngine(options: {
     return state.waiting && { held: state.waiting.action }
   }
 
-  /** The party steps into the next hex of its route: its visit, the totals, the journal. */
+  /** The party steps into the next place of its route: its visit, the totals, the journal. */
   const enter = (state: TravelState, next: string, events: TravelEvent[]): void => {
+    const totals = totalsOf(state)
+    totals.places++
+    totals.km += world.km(state.location, next)
     state.progress = 0
     state.location = next
     state.route = state.route!.slice(1)
     state.visits = { ...state.visits, [next]: (state.visits?.[next] ?? 0) + 1 }
-    totalsOf(state).hexes++
-    events.push({ type: 'HEX_ENTERED', hex: next, time: state.time })
+    events.push({ type: 'PLACE_ENTERED', place: next, time: state.time })
   }
 
   return {
@@ -2199,9 +2214,9 @@ export function createTravelEngine(options: {
       // A new trip's first moments (a clock, a part beginning as it starts) happen as it
       // first marches or waits that day; a check they bring comes first.
       cap = {
-        hexByHex:
+        placeByPlace:
           (action.type === 'travel' || action.type === 'action' || action.type === 'resume') &&
-          action.until === 'hex',
+          action.until === 'place',
         by: action.type === 'travel' ? (action.by ?? Infinity) : Infinity,
       }
       if (
@@ -2229,13 +2244,13 @@ export function createTravelEngine(options: {
       switch (action.type) {
         case 'setDestination': {
           const strategy = action.strategy ?? 'fastest'
-          const route = plan(state, action.hex, strategy)
+          const route = plan(state, action.place, strategy)
           if (!route) {
-            events.push({ type: 'NO_ROUTE', to: action.hex })
+            events.push({ type: 'NO_ROUTE', to: action.place })
             break
           }
           if (state.route?.[1] !== route[1]) state.progress = 0
-          state.destination = action.hex
+          state.destination = action.place
           state.route = route
           events.push({ type: 'ROUTE_PLANNED', route, strategy })
           break

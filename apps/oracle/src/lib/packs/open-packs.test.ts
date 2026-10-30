@@ -65,8 +65,8 @@ describe('bundled open packs', () => {
   function row(cells: Record<string, unknown>[], road = false): TravelWorld {
     const n = cells.length
     return {
-      hexKm: 10,
-      cell: (hex) => (cells[Number(hex)] as ReturnType<TravelWorld['cell']>) ?? null,
+      km: () => 10,
+      place: (hex) => (cells[Number(hex)] as ReturnType<TravelWorld['place']>) ?? null,
       neighbors: (hex) =>
         [Number(hex) - 1, Number(hex) + 1].filter((i) => i >= 0 && i < n).map(String),
       distance: (x, y) => Math.abs(Number(x) - Number(y)),
@@ -167,7 +167,7 @@ describe('bundled open packs', () => {
       locale: 'en',
     }
     let { session } = startTrip({ system, location: '0', season: 'summer' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: '2' }).state
+    session = stepTrip(options, session, { type: 'setDestination', place: '2' }).state
     const { state, entries } = stepTrip(options, session, { type: 'travel' })
     const toll = entries.find((e) => e.data?.event === 'TOLL_CHECK_REQUIRED')
     expect(toll?.code).toBe('ORACLE_RESULT')
@@ -209,7 +209,7 @@ describe('bundled open packs', () => {
       }
       let { session } = startTrip({ system, location: '0', season })
       if (weather) session = { ...session, travel: { ...session.travel, weather } }
-      return stepTrip(options, session, { type: 'setDestination', hex: '2' }).state.travel.route
+      return stepTrip(options, session, { type: 'setDestination', place: '2' }).state.travel.route
     }
     const peaks = [{ terrain: 'plains' }, { terrain: 'peaks' }, { terrain: 'plains' }]
     expect(route(peaks, 'summer')).toEqual(['0', '1', '2'])
@@ -394,7 +394,7 @@ describe('bundled open packs', () => {
       const { session } = startTrip({ system, location: '0', time: calendar.at(100, '20:30') })
       const travelled = {
         ...session,
-        travel: { ...session.travel, totals: { ...session.travel.totals!, hexes: 6 } },
+        travel: { ...session.travel, totals: { ...session.travel.totals!, places: 6, km: 60 } },
       }
       const { state, entries } = stepTrip(options([{ terrain: 'plains' }]), travelled, {
         type: 'action',
@@ -432,7 +432,7 @@ describe('bundled open packs', () => {
         { terrain: 'plains', region: 'Ashford Vale' },
       ]
       const { session } = startTrip({ system, location: '0', season: 'summer', members })
-      let s = stepTrip(options(cells), session, { type: 'setDestination', hex: '2' }).state
+      let s = stepTrip(options(cells), session, { type: 'setDestination', place: '2' }).state
       s = { ...s, travel: { ...s.travel, dayChecksDone: true } }
       const { state, entries } = stepTrip(options(cells), s, { type: 'travel' })
       const home = entries.filter((e) => e.data?.event === 'HOMECOMING')
@@ -457,7 +457,7 @@ describe('bundled open packs', () => {
       const cells = Array.from({ length: 12 }, () => ({ terrain: 'plains' }))
       const options = play(cells, true)
       const started = startTrip({ system, location: '0', season: 'summer' }).session
-      const planned = stepTrip(options, started, { type: 'setDestination', hex: '11' }).state
+      const planned = stepTrip(options, started, { type: 'setDestination', place: '11' }).state
       const { entries } = stepTrip(options, planned, {
         type: 'action',
         id: 'march',
@@ -484,7 +484,7 @@ describe('bundled open packs', () => {
       const options = play([{ terrain: 'plains' }, { terrain: 'plains' }])
       let { session } = startTrip({ system, location: '0', season: 'winter' })
       session = stepTrip(options, session, { type: 'setMode', mode: 'horse' }).state
-      session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+      session = stepTrip(options, session, { type: 'setDestination', place: '1' }).state
       session = { ...session, travel: { ...session.travel, today: { snowbound: true } } }
       const mounted = stepTrip(options, session, { type: 'travel' })
       expect(mounted.state.travel.location).toBe('0')
@@ -498,8 +498,8 @@ describe('bundled open packs', () => {
         const options = play(plains, road)
         let { session } = startTrip({ system, location: '0', season: 'summer' })
         session = stepTrip(options, session, { type: 'setMode', mode: 'cart' }).state
-        const route = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state.travel
-          .route
+        const route = stepTrip(options, session, { type: 'setDestination', place: '1' }).state
+          .travel.route
         expect(!!route, `road: ${road}`).toBe(road)
       }
     })
@@ -516,7 +516,7 @@ describe('bundled open packs', () => {
       const options = play(cells, true)
       const trip = (from: string) => {
         const started = startTrip({ system, location: from, season: 'summer' }).session
-        return stepTrip(options, started, { type: 'setDestination', hex: '4' }).state
+        return stepTrip(options, started, { type: 'setDestination', place: '4' }).state
       }
       const one = stepTrip(options, trip('2'), {
         type: 'action',
@@ -532,9 +532,9 @@ describe('bundled open packs', () => {
         with: { until: 3 },
       })
       expect(three.state.travel.location).toBe('1')
-      // The landmark's line says the hex it came up in.
+      // The landmark's line says the place it came up in.
       expect(three.entries.find((e) => e.code === 'CHECK_PENDING')?.data).toMatchObject({
-        hex: '1',
+        place: '1',
       })
       expect(three.state.travel.moving).toMatchObject({ left: 2 })
       // Continue, then Go on: the rest of the three hexes, not a new march.
@@ -553,7 +553,7 @@ describe('bundled open packs', () => {
         true,
       )
       const started = startTrip({ system, location: '0', season: 'summer' }).session
-      const fresh = stepTrip(options, started, { type: 'setDestination', hex: '2' }).state
+      const fresh = stepTrip(options, started, { type: 'setDestination', place: '2' }).state
       const { state, entries } = stepTrip(options, fresh, { type: 'action', id: 'forced-march' })
       expect(took(entries, 'forced-march')).toBe(true)
       expect(state.stats.fatigue).toBe(1)
@@ -623,7 +623,7 @@ describe('bundled open packs', () => {
       expect(refusing.travel.today?.refusing).toBe(true)
       const blocked = stepTrip(
         options,
-        stepTrip(options, refusing, { type: 'setDestination', hex: '1' }).state,
+        stepTrip(options, refusing, { type: 'setDestination', place: '1' }).state,
         {
           type: 'travel',
         },
@@ -660,16 +660,16 @@ describe('bundled open packs', () => {
       const nightfall = () => calendar.at(session.travel.day, '20:00')
       const tale = () => stepTrip(options, session, { type: 'action', id: 'tale' })
       // The first day's march, by road: 30 km by nightfall, not far enough yet.
-      session = stepTrip(options, session, { type: 'setDestination', hex: '7' }).state
+      session = stepTrip(options, session, { type: 'setDestination', place: '7' }).state
       session = stepTrip(options, session, { type: 'travel', by: nightfall() }).state
-      expect(session.travel.totals?.hexes).toBe(3)
+      expect(session.travel.totals?.places).toBe(3)
       expect(took(tale().entries, 'tale')).toBe(false)
       // Two more days along the road: past 50 km, it can be told once, by night only.
       session = stepTrip(options, session, {
         type: 'travel',
         by: calendar.at(session.travel.day + 2, '20:00'),
       }).state
-      expect(session.travel.totals!.hexes * 10).toBeGreaterThanOrEqual(50)
+      expect(session.travel.totals!.km).toBeGreaterThanOrEqual(50)
       const told = tale()
       expect(took(told.entries, 'tale')).toBe(true)
       expect(told.state.stats.morale).toBe(session.stats.morale + 1)
@@ -759,7 +759,7 @@ describe('bundled open packs', () => {
           season: 'summer',
           stats: { stealth, navigation: 20 },
         })
-        session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+        session = stepTrip(options, session, { type: 'setDestination', place: '1' }).state
         return checked(
           stepTrip(options, session, { type: 'travel' }).entries,
           'ENCOUNTER_CHECK_REQUIRED',
@@ -843,7 +843,7 @@ describe('bundled open packs', () => {
           entries.push(...out.entries)
           session = out.state
         }
-        step({ type: 'setDestination', hex: '11' })
+        step({ type: 'setDestination', place: '11' })
         step({ type: 'travel', by: calendar.at(session.travel.day, '20:00') })
         if (nightMarch) {
           step({ type: 'action', id: 'night-march' })
@@ -884,7 +884,7 @@ describe('bundled open packs', () => {
       for (let move = 1; move <= 4; move++) {
         session = stepTrip(options, session, {
           type: 'setDestination',
-          hex: move % 2 ? '1' : '0',
+          place: move % 2 ? '1' : '0',
         }).state
         const out = stepTrip(options, session, { type: 'travel' })
         session = out.state
@@ -905,7 +905,7 @@ describe('bundled open packs', () => {
       const leave = (cells: Record<string, unknown>[]) => {
         const options = play(cells, true)
         let { session } = startTrip({ system, location: '0', season: 'summer' })
-        session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+        session = stepTrip(options, session, { type: 'setDestination', place: '1' }).state
         const { entries } = stepTrip(options, session, { type: 'travel' })
         return entries.filter((e) => e.code === 'SAID' && e.data?.action === 'out-of-the-wood')
           .length
@@ -969,19 +969,19 @@ describe('bundled open packs', () => {
     it('a carter takes the party two hexes along the road in two hours (an advance step)', () => {
       const options = play(plains(5), true)
       let { session } = startTrip({ system, location: '0', season: 'summer' })
-      session = stepTrip(options, session, { type: 'setDestination', hex: '4' }).state
+      session = stepTrip(options, session, { type: 'setDestination', place: '4' }).state
       const { state, entries } = stepTrip(options, session, { type: 'action', id: 'carter' })
       expect(took(entries, 'carter')).toBe(true)
       expect(state.travel.location).toBe('2')
       expect(state.travel.time).toBe(session.travel.time + 120)
-      expect(state.travel.totals?.hexes).toBe(2)
+      expect(state.travel.totals?.places).toBe(2)
       expect(
         took(stepTrip(options, state, { type: 'action', id: 'carter' }).entries, 'carter'),
       ).toBe(false)
       // Off the road there's no carter.
       const wild = play(plains(5))
       let off = startTrip({ system, location: '0', season: 'summer' }).session
-      off = stepTrip(wild, off, { type: 'setDestination', hex: '4' }).state
+      off = stepTrip(wild, off, { type: 'setDestination', place: '4' }).state
       expect(took(stepTrip(wild, off, { type: 'action', id: 'carter' }).entries, 'carter')).toBe(
         false,
       )
@@ -1014,7 +1014,7 @@ describe('bundled open packs', () => {
       locale: 'en',
     }
     let { session } = startTrip({ system, location: '0', season: 'summer' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+    session = stepTrip(options, session, { type: 'setDestination', place: '1' }).state
     const { entries } = stepTrip(options, session, { type: 'travel' })
     const ford = entries.find((e) => e.data?.event === 'FORD_CHECK_REQUIRED')
     expect(ford?.data?.value).toMatchObject({ odds: 'even' })
@@ -1045,7 +1045,7 @@ describe('bundled open packs', () => {
       }
       let { session } = startTrip({ system, location: '0', season: 'summer', members: [kael] })
       expect(session.stats.roped).toBe(roped ? 1 : 0)
-      session = stepTrip(options, session, { type: 'setDestination', hex: '1' }).state
+      session = stepTrip(options, session, { type: 'setDestination', place: '1' }).state
       const { entries } = stepTrip(options, session, { type: 'travel' })
       const rolled = entries.find(
         (e) => e.code === 'ROLLED' && e.data?.check === 'FORD_CHECK_REQUIRED',
@@ -1298,7 +1298,7 @@ describe('bundled open packs', () => {
 
     it('travelling on hungry passes the night in the open and marches at dawn', () => {
       let state = trip(0, 2)
-      state = stepTrip(options, state, { type: 'setDestination', hex: '29' }).state
+      state = stepTrip(options, state, { type: 'setDestination', place: '29' }).state
       // March the first day until night falls (the party can't camp).
       const day = state.travel.day
       for (let i = 0; i < 10 && state.travel.day === day; i++) {
@@ -1320,7 +1320,7 @@ describe('bundled open packs', () => {
       // On the way again the next day (unless the hungry hirelings refuse: a value; or the
       // day's storm stops the march).
       const where = state.travel.location
-      const next = stepTrip(options, state, { type: 'travel', until: 'hex' })
+      const next = stepTrip(options, state, { type: 'travel', until: 'place' })
       const refused = next.state.journal.some(
         (e) =>
           e.code === 'TRAVEL_STOPPED' &&
@@ -1488,7 +1488,7 @@ describe('bundled open packs', () => {
       discover: 'neighbors' as const,
     }
     for (const action of [
-      { type: 'setDestination', hex: '11' },
+      { type: 'setDestination', place: '11' },
       { type: 'travel' },
       { type: 'action', id: 'camp' },
       { type: 'travel' },

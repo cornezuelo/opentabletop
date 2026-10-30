@@ -18,7 +18,7 @@
   } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
   import { mapPlace } from '../lib/play/roster'
-  import { mapWorld } from '../lib/play/world'
+  import { mapWorld } from '@open-tabletop/map'
   import { answerWorld, worldFactsNow, worldWaiting as waitingNow } from '../lib/play/world.svelte'
   import {
     activeSystem,

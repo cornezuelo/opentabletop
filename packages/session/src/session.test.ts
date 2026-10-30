@@ -42,8 +42,8 @@ import {
 const shape: GridShape = { orientation: 'flat', width: 6, height: 6 }
 const key = (h: string) => parseKey(h as `${number},${number}`)
 const world: TravelWorld = {
-  hexKm: 30,
-  cell: () => ({ terrain: 'steppe' }),
+  km: () => 30,
+  place: () => ({ terrain: 'steppe' }),
   neighbors: (h) => neighborCells(key(h), shape).map(keyOf),
   distance: (a, b) => distance(toAxial(key(a), 'flat'), toAxial(key(b), 'flat')),
   edges: () => [],
@@ -214,7 +214,7 @@ describe('session', () => {
       rules,
       now: () => 'T',
     })
-    let { state } = session.step(start(), { type: 'setDestination', hex: '2,0' })
+    let { state } = session.step(start(), { type: 'setDestination', place: '2,0' })
     const result = session.step(state, { type: 'travel' })
     state = result.state
     const texts = result.entries.filter((e) => e.code === 'ORACLE_RESULT').map((e) => e.text)
@@ -224,7 +224,7 @@ describe('session', () => {
     // The modifier lasts the day because the system declares it (a value of the day).
     expect(state.dayVars).toEqual({ weather: 'clear', lostModifier: 1 })
     expect(state.travel.today).toMatchObject({ lostModifier: 1 })
-    const entered = result.entries.filter((e) => e.code === 'HEX_ENTERED')
+    const entered = result.entries.filter((e) => e.code === 'PLACE_ENTERED')
     expect(entered).toHaveLength(1)
     // Each entry keeps the time of its own event, not the end of the step.
     expect(entered[0].time).toBe(defaultCalendar.at(1, '14:00'))
@@ -248,7 +248,7 @@ describe('session', () => {
       now: () => 'T',
     })
     expect(lastStepEntries(start())).toEqual([])
-    const first = session.step(start(), { type: 'setDestination', hex: '2,0' }).state
+    const first = session.step(start(), { type: 'setDestination', place: '2,0' }).state
     const travelled = session.step(first, { type: 'travel' })
     expect(lastStepEntries(travelled.state)).toEqual(travelled.entries)
     expect(travelled.entries.map((e) => e.text).filter(Boolean)).toEqual([
@@ -298,7 +298,7 @@ entries:
         now: () => 'T',
       })
     const go = (session: ReturnType<typeof run>) =>
-      session.step(session.step(start(), { type: 'setDestination', hex: '2,0' }).state, {
+      session.step(session.step(start(), { type: 'setDestination', place: '2,0' }).state, {
         type: 'travel',
       })
     // Neither pauses: the trip goes on.
@@ -436,7 +436,7 @@ entries:
       bindings,
     })
     const { state } = session.step(
-      session.step(start(), { type: 'setDestination', hex: '2,0' }).state,
+      session.step(start(), { type: 'setDestination', place: '2,0' }).state,
       { type: 'travel' },
     )
     expect(state.travel.today).toEqual({ lost: true, lostModifier: -1 })
@@ -458,7 +458,7 @@ entries:
       bindings,
     })
     const { state } = session.step(
-      session.step(start(), { type: 'setDestination', hex: '2,0' }).state,
+      session.step(start(), { type: 'setDestination', place: '2,0' }).state,
       { type: 'travel' },
     )
     const failed = state.journal.find((e) => e.code === 'CHECK_FAILED')
@@ -496,7 +496,7 @@ entries:
     })
     // A stat called "terrain" must not hide the hex's terrain.
     const hungry = { ...start(), stats: { terrain: 9, morale: 3 }, party: fed(0) }
-    const planned = session.step(hungry, { type: 'setDestination', hex: '1,0' }).state
+    const planned = session.step(hungry, { type: 'setDestination', place: '1,0' }).state
     const { state, entries } = session.step(planned, { type: 'travel' })
     expect(entries.find((e) => e.code === 'ORACLE_RESULT')?.text).toBe('Starving (0 food, steppe)')
     expect(state.stats).toEqual({ terrain: 9, morale: 2 })
@@ -512,7 +512,7 @@ entries:
       travel: createTravelEngine({ world, rules, calendar: core.calendar }),
     })
     const go = (s: ReturnType<typeof session.step>['state']) =>
-      session.step(session.step(s, { type: 'setDestination', hex: '2,0' }).state, {
+      session.step(session.step(s, { type: 'setDestination', place: '2,0' }).state, {
         type: 'travel',
       }).state
     let state = go(start())
@@ -526,14 +526,14 @@ entries:
       }),
     })
     const waiting = pausing.step(
-      pausing.step(start(), { type: 'setDestination', hex: '2,0' }).state,
+      pausing.step(start(), { type: 'setDestination', place: '2,0' }).state,
       { type: 'travel' },
     ).state
     expect(waiting.travel.pendingChecks.map((c) => c.event)).toEqual(['LANDMARK'])
     // It says the hex it came up in.
     expect(waiting.journal.at(-1)).toMatchObject({
       code: 'CHECK_PENDING',
-      data: { event: 'LANDMARK', hex: waiting.travel.location },
+      data: { event: 'LANDMARK', place: waiting.travel.location },
     })
     state = session.note(state, 'Acampamos junto al pozo')
     expect(state.journal.at(-1)).toMatchObject({
@@ -683,17 +683,19 @@ entries:
 })
 
 describe('older trips without totals', () => {
-  it('rebuild hexes and actions from the journal', () => {
+  it('rebuild places and actions from the journal', () => {
     const travel = initialTravelState({ location: 'a', mode: 'walk' })
     delete travel.totals
     const journal = [
       { code: 'HEX_ENTERED', data: { hex: 'b' } },
+      { code: 'PLACE_ENTERED', data: { place: 'c' } },
       { code: 'ACTION_TAKEN', data: { action: 'camp' } },
       { code: 'NOTE' },
     ]
-    const migrated = migrateTotals({ travel, journal })
+    const migrated = migrateTotals({ travel, journal }, 6)
     expect(migrated.travel.totals).toEqual({
-      hexes: 1,
+      places: 2,
+      km: 12,
       marched: 0,
       taken: { camp: 1 },
       checks: 0,
@@ -782,7 +784,7 @@ describe('skipping pauses', () => {
       rules: paused,
       now: () => 'T',
     })
-    const planned = session.step(start(), { type: 'setDestination', hex: '2,0' }).state
+    const planned = session.step(start(), { type: 'setDestination', place: '2,0' }).state
     const stops = session.step(planned, { type: 'travel' }).state
     expect(stops.travel.pendingChecks.map((c) => c.event)).toEqual(['SIGHT'])
     const goes = session.step({ ...planned, skipPauses: true }, { type: 'travel' }).state

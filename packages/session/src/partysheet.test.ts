@@ -71,8 +71,8 @@ const { registry, diagnostics } = loadPacks(PACK)
 const { systems, problems } = travelSystems(registry)
 const band = systems.find((s) => s.id === 'band')!
 const world: TravelWorld = {
-  hexKm: 24,
-  cell: () => ({ terrain: 'plains' }),
+  km: () => 24,
+  place: () => ({ terrain: 'plains' }),
   neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
   distance: (x, y) => (x === y ? 0 : 1),
   edges: () => [],

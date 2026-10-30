@@ -41,7 +41,7 @@ it.skipIf(!OUT)('writes the old maps of this version', { timeout: 120_000 }, asy
   clickHex('4,2')
   for (let i = 0; i < 200 && !trip().travel.pendingChecks.length; i++) {
     const before = trip().travel.time
-    step({ type: 'travel', until: 'hex' })
+    step({ type: 'travel', until: 'place' })
     // The day's march is done: wait for the next day, as the player would.
     if (trip().travel.time === before && !trip().travel.pendingChecks.length)
       step({ type: 'wait', until: before + 18 * 60 })
@@ -51,7 +51,7 @@ it.skipIf(!OUT)('writes the old maps of this version', { timeout: 120_000 }, asy
   // Checks resolved, marched on and camped, with the factions brought and a world turn taken.
   resolve()
   for (let i = 0; i < 4; i++) {
-    step({ type: 'travel', until: 'hex' })
+    step({ type: 'travel', until: 'place' })
     resolve()
   }
   step({ type: 'action', id: 'camp' })

@@ -700,8 +700,8 @@ export function relatedWorld(
   if (!relations.length) return world
   return {
     ...world,
-    cell(hex) {
-      const cell = world.cell(hex)
+    place(hex) {
+      const cell = world.place(hex)
       if (!cell) return cell
       const pois = Array.isArray(cell.pois) ? (cell.pois as unknown[]) : []
       const here = relations.filter(

@@ -19,7 +19,7 @@ import {
   waitingForRoom,
   type SessionState,
 } from '@open-tabletop/session'
-import { mapWorld } from './world'
+import { mapWorld } from '@open-tabletop/map'
 import { applyCharacter, lookupItems, shownAgainst, toneOf } from '@open-tabletop/character-engine'
 import { entryText, memberNamer, translator } from '@open-tabletop/travel-ui'
 import {
@@ -438,7 +438,7 @@ describe('playing on the map', () => {
       expect(asked).toContain('0808')
       expect(asked).toMatch(/travel on/i)
       const after = trip()
-      expect(after.journal.some((e) => e.code === 'HEX_ENTERED')).toBe(true)
+      expect(after.journal.some((e) => e.code === 'PLACE_ENTERED')).toBe(true)
       expect(partyLocation()).not.toBe('5,7')
       expect(after.travel.time).toBeGreaterThan(start)
       expect(editor.campaign.world!.time).toBe(after.travel.time)
@@ -593,7 +593,7 @@ describe('playing on the map', () => {
       for (let i = 0; i < 200 && !landmark(); i++) {
         for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
         const before = trip().travel.time
-        step({ type: 'travel', until: 'hex' })
+        step({ type: 'travel', until: 'place' })
         // The day's march is done: wait for the next day, as the player would.
         if (trip().travel.time === before && !trip().travel.pendingChecks.length)
           step({ type: 'wait', until: before + 18 * 60 })
@@ -645,7 +645,7 @@ describe('playing on the map', () => {
       const after = trip()
       expect(partyLocation()).toBe('5,7')
       expect(after.journal.some((e) => e.code === 'WAIT')).toBe(true)
-      expect(after.journal.some((e) => e.code === 'HEX_ENTERED')).toBe(false)
+      expect(after.journal.some((e) => e.code === 'PLACE_ENTERED')).toBe(false)
       expect(food(after)).toBeLessThan(before)
       expect(editor.campaign.world!.time).toBe(after.travel.time)
     })
@@ -1370,7 +1370,7 @@ describe('the powers of the Marches: factions on the map', () => {
     expect(own.territories['fort-keld']).toEqual(['15,9'])
     expect(own.territories['iron-clans']).not.toContain('15,9')
     // Who holds a hex, for trips and hand rolls; every faction by id.
-    expect(mapWorld(editor.map).cell('15,9')).toMatchObject({ faction: 'fort-keld' })
+    expect(mapWorld(editor.map).place('15,9')).toMatchObject({ faction: 'fort-keld' })
     expect(rollContext()).toMatchObject({
       factions: {
         'the-vale': { name: 'The Vale of Ashford', values: { strength: 3 } },

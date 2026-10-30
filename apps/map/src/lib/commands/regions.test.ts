@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { RemoveRegionCommand, regionSizes } from './regions'
 import { bundleToMap, mapToBundle } from '../io/otd'
-import { mapWorld } from '../play/world'
+import { mapWorld } from '@open-tabletop/map'
 import { SetRegionStyleCommand } from './settings'
 import {
   createMap,
@@ -70,7 +70,7 @@ describe('regions', () => {
   })
 
   it('travel checks see the region by name', () => {
-    expect(mapWorld(mapWithRegion()).cell('1,1')).toMatchObject({ region: 'Black Marches' })
+    expect(mapWorld(mapWithRegion()).place('1,1')).toMatchObject({ region: 'Black Marches' })
   })
 })
 
@@ -134,8 +134,8 @@ describe('names per element', () => {
 describe('the scale trips are played at', () => {
   it('is the map’s, else its system’s, else 10 km', () => {
     const map = mapWithRegion()
-    expect(mapWorld({ ...map, scale: {} }).hexKm).toBe(10)
-    expect(mapWorld({ ...map, scale: {} }, 30).hexKm).toBe(30)
-    expect(mapWorld({ ...map, scale: { hexKm: 5 } }, 30).hexKm).toBe(5)
+    expect(mapWorld({ ...map, scale: {} }).km('', '')).toBe(10)
+    expect(mapWorld({ ...map, scale: {} }, 30).km('', '')).toBe(30)
+    expect(mapWorld({ ...map, scale: { hexKm: 5 } }, 30).km('', '')).toBe(5)
   })
 })

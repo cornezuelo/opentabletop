@@ -7,7 +7,7 @@ import { fieldValues, type HexKey, newId } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 import { editSession, partyLocation, sessionOf } from './play'
-import { mapWorld } from './world'
+import { mapWorld } from '@open-tabletop/map'
 import { worldFactsNow } from './world.svelte'
 
 /**
@@ -71,8 +71,9 @@ export function rollContext(): Record<string, unknown> {
   const play = editor.map.play
   const session = play ? sessionOf(play) : null
   const hex = rollHex()
-  const cell = hex ? mapWorld(editor.map).cell(hex) : null
-  const facts: Record<string, unknown> = hex && cell ? { ...cell, place: { ...cell, id: hex } } : {}
+  const place = hex ? mapWorld(editor.map).place(hex) : null
+  const facts: Record<string, unknown> =
+    hex && place ? { ...place, place: { ...place, id: hex } } : {}
   const world = worldFactsNow()
   // What the trip's checks would see (the moment, the trip, the party, today's values, the
   // world clock), with the selected hex's facts in place of the party's.

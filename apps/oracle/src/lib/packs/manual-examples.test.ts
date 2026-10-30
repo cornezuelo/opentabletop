@@ -159,8 +159,8 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
   // Three 30 km hexes: plains, forest, plains.
   const terrains = ['plains', 'forest', 'plains']
   const world: TravelWorld = {
-    hexKm: 30,
-    cell: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
+    km: () => 30,
+    place: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
     neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => terrains[i]).map(String),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
     edges: () => [],
@@ -210,7 +210,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
       // One roller for the whole trip, as an app keeps.
       const opts = options(seed)
       let s = start(9)
-      s = stepTrip(opts, s, { type: 'setDestination', hex: '2' }).state
+      s = stepTrip(opts, s, { type: 'setDestination', place: '2' }).state
       // Day 1 on the plains: no roll; then dawn in the forest.
       for (let i = 0; i < 40 && s.travel.location !== '2'; i++) {
         const day = s.travel.day
@@ -221,7 +221,7 @@ describe('Systems → Your first system: the step-by-step system plays as the ma
       const lost = rolled(s)
       expect(lost.length).toBeGreaterThan(0)
       // Never on the plains: the first roll comes after entering the forest (hex 1).
-      const forest = s.journal.find((e) => e.code === 'HEX_ENTERED' && e.data?.hex === '1')!
+      const forest = s.journal.find((e) => e.code === 'PLACE_ENTERED' && e.data?.place === '1')!
       expect(lost[0].time).toBeGreaterThan(forest.time)
       // A lost day stops the march that day, and the journal says why.
       if (lost.some((e) => (e.data?.value as { lost?: boolean })?.lost))
@@ -242,8 +242,8 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
   ])
   const system = travelSystems(registry).systems.find((s) => s.id === 'river')!
   const world: TravelWorld = {
-    hexKm: 30,
-    cell: (hex) => (['0', '1'].includes(hex) ? { terrain: 'plains' } : null),
+    km: () => 30,
+    place: (hex) => (['0', '1'].includes(hex) ? { terrain: 'plains' } : null),
     neighbors: (hex) => (hex === '0' ? ['1'] : ['0']),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
     edges: () => [],
@@ -344,8 +344,8 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
   /** Step 8's row: plains, three swamps, then three plains with a road along them. */
   const terrain = ['plains', 'swamp', 'swamp', 'swamp', 'plains', 'plains', 'plains']
   const world: TravelWorld = {
-    hexKm: 10,
-    cell: (hex) => {
+    km: () => 10,
+    place: (hex) => {
       const [col, row] = hex.split(',').map(Number)
       return row === 0 && terrain[col] ? { terrain: terrain[col] } : null
     },
@@ -393,7 +393,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
       }
     }
     const travelTo = (hex: string) => {
-      step({ type: 'setDestination', hex })
+      step({ type: 'setDestination', place: hex })
       for (
         let day = 0;
         day < 8 && s.travel.location !== hex && !s.travel.pendingChecks.length;
@@ -469,7 +469,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     game.travelTo('6,0')
     expect(game.s.travel.location).toBe('5,0')
     const barrier = game.s.journal.find((e) => e.code === 'CHECK_PENDING')!
-    expect(barrier.data).toMatchObject({ event: 'BARRIER', hex: '5,0' })
+    expect(barrier.data).toMatchObject({ event: 'BARRIER', place: '5,0' })
   })
 })
 describe('Systems → World: market day in the Fever Marshes plays as the page says', () => {
@@ -611,8 +611,8 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
   const skies = parse(model) as WeatherModel
   // A long row of plains.
   const world: TravelWorld = {
-    hexKm: 10,
-    cell: (hex) => (Number(hex) >= 0 && Number(hex) < 200 ? { terrain: 'plains' } : null),
+    km: () => 10,
+    place: (hex) => (Number(hex) >= 0 && Number(hex) < 200 ? { terrain: 'plains' } : null),
     neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => i >= 0).map(String),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
     edges: () => [],
@@ -631,7 +631,7 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
     const opts = options(seed)
     let s = startTrip({ system, location: '0', season }).session
     s = { ...s, party: { ...s.party!, values: { ...s.party!.values, food: 99 } } }
-    s = stepTrip(opts, s, { type: 'setDestination', hex: '199' }).state
+    s = stepTrip(opts, s, { type: 'setDestination', place: '199' }).state
     const seen: { weather: string; wet: boolean; travel: unknown; horse: unknown }[] = []
     for (let day = 0; day < days; day++) {
       const at = s.journal.length
@@ -739,8 +739,8 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
     'oasis',
   ]
   const world: TravelWorld = {
-    hexKm: 10,
-    cell: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
+    km: () => 10,
+    place: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
     neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => terrains[i]).map(String),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
     edges: (a, b) => ([a, b].sort().join() === '1,2' ? ['road'] : []),
@@ -762,7 +762,7 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
   function setOut(season: string) {
     let s = startTrip({ system, location: '0', season }).session
     s = stepTrip(options, s, { type: 'setMode', mode: 'camel' }).state
-    return stepTrip(options, s, { type: 'setDestination', hex: '9' }).state
+    return stepTrip(options, s, { type: 'setDestination', place: '9' }).state
   }
   /** A day's march: the hexes entered (1 is the first) at their clocks, and where it stopped. */
   function march(s: SessionState) {
@@ -770,8 +770,8 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
     s = stepTrip(options, s, { type: 'travel' }).state
     const lines = s.journal.slice(at)
     const entered = lines
-      .filter((e) => e.code === 'HEX_ENTERED')
-      .map((e) => `${Number(e.data?.hex) + 1} ${clock(s, e.time)}`)
+      .filter((e) => e.code === 'PLACE_ENTERED')
+      .map((e) => `${Number(e.data?.place) + 1} ${clock(s, e.time)}`)
     return { s, entered, stopped: lines.find((e) => e.code === 'TRAVEL_STOPPED')?.data, lines }
   }
 
@@ -858,8 +858,8 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
   // Step 8's way: the stones on hex 5, a road from hex 3 to hex 4.
   const terrains = ['plains', 'forest', 'forest', 'hills', 'plains', 'plains']
   const world: TravelWorld = {
-    hexKm: 10,
-    cell: (hex) =>
+    km: () => 10,
+    place: (hex) =>
       terrains[Number(hex)]
         ? { terrain: terrains[Number(hex)], tags: hex === '4' ? ['landmark'] : [] }
         : null,
@@ -884,7 +884,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
   function setOut(opts: ReturnType<typeof options>) {
     let s = startTrip({ system, location: '0', season: 'summer' }).session
     s = { ...s, party: { ...s.party!, values: { ...s.party!.values, food: 1 } } }
-    return stepTrip(opts, s, { type: 'setDestination', hex: '5' }).state
+    return stepTrip(opts, s, { type: 'setDestination', place: '5' }).state
   }
   /** Goes on from every check that waits, as Continue does. */
   const goOn = (opts: ReturnType<typeof options>, s: SessionState) => {
@@ -932,7 +932,7 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
       day2.find((e) => e.code === 'CHECK_SKIPPED' && e.data?.check === 'WOLVES'),
     ).toMatchObject({ data: { condition: 'unless', failed: [{ path: 'trip.edges' }] } })
     const stones = day2.find((e) => e.code === 'CHECK_PENDING')!
-    expect(stones.data).toMatchObject({ event: 'OLD_STONES', hex: '4' })
+    expect(stones.data).toMatchObject({ event: 'OLD_STONES', place: '4' })
     expect(clock(stones.time)).toBe('13:06')
     expect(s.travel.location).toBe('4')
     // Continue, then Go on (the march it stopped): it stops at 14:00.
@@ -1006,8 +1006,8 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   // Step 8's way: plains, three hexes of hills, plains.
   const terrains = ['plains', 'hills', 'hills', 'hills', 'plains', 'plains']
   const world: TravelWorld = {
-    hexKm: 10,
-    cell: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
+    km: () => 10,
+    place: (hex) => (terrains[Number(hex)] ? { terrain: terrains[Number(hex)] } : null),
     neighbors: (hex) => [Number(hex) - 1, Number(hex) + 1].filter((i) => terrains[i]).map(String),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
     edges: () => [],
@@ -1031,7 +1031,7 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
     let s = startTrip({ system, location: '0', season: 'summer', members }).session
     // The Company's Food set to 1 on its card.
     s = { ...s, acting: 'kael', party: { ...s.party!, values: { ...s.party!.values, food: 1 } } }
-    return stepTrip(opts, s, { type: 'setDestination', hex: '5' }).state
+    return stepTrip(opts, s, { type: 'setDestination', place: '5' }).state
   }
   const of = (s: SessionState, code: string, check?: string) =>
     s.journal.filter(
@@ -1088,8 +1088,8 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
       }
       // Scree comes up only on the hills.
       for (const e of of(s, 'CHECK_EFFECTS', 'SCREE')) {
-        const entered = of(s, 'HEX_ENTERED').find((h) => h.time === e.time)!
-        expect(terrains[Number(entered.data?.hex)]).toBe('hills')
+        const entered = of(s, 'PLACE_ENTERED').find((h) => h.time === e.time)!
+        expect(terrains[Number(entered.data?.place)]).toBe('hills')
       }
     }
     expect(lamed).toBeGreaterThan(0)
@@ -1285,8 +1285,8 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
       let place = broughtIn(`trip-${seed}`, s.travel.time)
       // Step 9: along row 2, from the fells across the moor to the east.
       const world: TravelWorld = {
-        hexKm: 10,
-        cell: (hex) => {
+        km: () => 10,
+        place: (hex) => {
           const holder = Object.entries(place.map!.territories ?? {}).find(([, h]) =>
             h.includes(hex),
           )?.[0]
@@ -1329,8 +1329,8 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
         )
         for (const e of robberies) {
           // Only on their land.
-          const entered = fresh.find((x) => x.code === 'HEX_ENTERED' && x.time === e.time)!
-          expect(land(place, 'the-reavers')).toContain(entered.data?.hex)
+          const entered = fresh.find((x) => x.code === 'PLACE_ENTERED' && x.time === e.time)!
+          expect(land(place, 'the-reavers')).toContain(entered.data?.place)
         }
         // Each robbery makes the Reavers one stronger, up to their Max.
         expect(sheet(place, 'the-reavers').values.strength).toBe(
@@ -1338,7 +1338,7 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
         )
         robbed += robberies.length
       }
-      step({ type: 'setDestination', hex: '9,2' })
+      step({ type: 'setDestination', place: '9,2' })
       for (let day = 0; day < 4 && s.travel.location !== '9,2'; day++) {
         step({ type: 'travel' })
         step({

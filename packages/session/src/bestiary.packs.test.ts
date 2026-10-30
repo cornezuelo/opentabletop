@@ -12,8 +12,8 @@ const { systems, problems } = travelSystems(registry)
 const marches = systems.find((s) => s.id === 'grey-marches')!
 const core = systems.find((s) => s.id === 'core')!
 const heath: TravelWorld = {
-  hexKm: 10,
-  cell: () => ({ terrain: 'heath', fields: { danger: '4' } }),
+  km: () => 10,
+  place: () => ({ terrain: 'heath', fields: { danger: '4' } }),
   neighbors: () => [],
   distance: () => 0,
   edges: () => [],
@@ -90,7 +90,7 @@ describe('the bundled packs make foes from their bestiaries', () => {
     const rules = partyOf(marches)
     const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
     const { session } = startTrip({ system: marches, location: 'a', members, seed: 'x' })
-    const hills = { ...heath, cell: () => ({ terrain: 'hills', fields: { danger: '4' } }) }
+    const hills = { ...heath, place: () => ({ terrain: 'hills', fields: { danger: '4' } }) }
     const facts = tripFacts({ system: marches, world: hills }, session)
     const bandits = rollUntil('grey-marches/table.encounter', 'bandits', facts)
     let s = applyResult(session, bandits.value, marches.bindings?.stats, rules)

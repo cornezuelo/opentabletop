@@ -98,8 +98,8 @@ const { registry, diagnostics } = loadPacks(PACK)
 const { systems, problems } = travelSystems(registry)
 const wilds = systems.find((s) => s.id === 'wilds')!
 const world: TravelWorld = {
-  hexKm: 24,
-  cell: () => ({ terrain: 'plains' }),
+  km: () => 24,
+  place: () => ({ terrain: 'plains' }),
   neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
   distance: (x, y) => (x === y ? 0 : 1),
   edges: () => [],
@@ -194,7 +194,7 @@ describe('those present: copies of templates in a trip', () => {
     )
     expect(leader.character.values.health).toBeGreaterThan(0)
     // Marching on: the leader goes (left behind, `behind: leave`), the bandits stay there.
-    done = stepTrip(options, done.state, { type: 'setDestination', hex: 'b' })
+    done = stepTrip(options, done.state, { type: 'setDestination', place: 'b' })
     done = stepTrip(options, done.state, { type: 'travel' })
     expect(done.state.travel.location).toBe('b')
     expect(done.state.present!.map((p) => [p.character.id, p.at])).toEqual([
@@ -208,7 +208,7 @@ describe('those present: copies of templates in a trip', () => {
     // Not here: nobody is present, and the action that needs someone isn't open.
     expect(tripFacts({ system: wilds, world }, done.state).present).toMatchObject({ count: 0 })
     // Back at a: the bandits are there again; scared off, they leave.
-    done = stepTrip(options, done.state, { type: 'setDestination', hex: 'a' })
+    done = stepTrip(options, done.state, { type: 'setDestination', place: 'a' })
     done = stepTrip(options, done.state, { type: 'travel' })
     expect(tripFacts({ system: wilds, world }, done.state).present).toMatchObject({ count: 2 })
     done = stepTrip(options, done.state, { type: 'action', id: 'scare' })

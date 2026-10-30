@@ -59,7 +59,8 @@ describe('the trip’s totals (v16)', () => {
     const play = { rules: { system: 'generic', session: { travel: { day: 3 }, journal } } }
     const data = migrate({ version: 15, play }) as { play: typeof play }
     expect((data.play.rules.session.travel as Record<string, unknown>).totals).toEqual({
-      hexes: 2,
+      places: 2,
+      km: 20,
       marched: 0,
       taken: { camp: 2, eat: 1 },
       checks: 0,
@@ -118,5 +119,26 @@ describe('the trip’s totals (v16)', () => {
         { id: 'n', kind: 'npc', fields: fare },
       ],
     })
+  })
+  it('v28 says places where a trip said hexes: journal, actions, routes and totals', () => {
+    const journal = [
+      { code: 'HEX_ENTERED', data: { hex: '1,0', time: 5 } },
+      { code: 'ACTION_TAKEN', data: { action: 'camp', hex: '1,0' } },
+      { code: 'ROUTE_PLANNED', data: { to: '3,0', hexes: 2 } },
+      { code: 'DESTINATION_REACHED', data: { hex: '3,0' } },
+      { code: 'NOTE', text: 'by the hex' },
+    ]
+    const totals = { hexes: 3, marched: 60, taken: {}, checks: 0, spent: {}, gained: {} }
+    const play = { rules: { session: { travel: { totals }, journal } } }
+    const data = migrate({ version: 27, scale: { hexKm: 6 }, play }) as { play: typeof play }
+    const session = data.play.rules.session
+    expect(session.journal).toEqual([
+      { code: 'PLACE_ENTERED', data: { place: '1,0', time: 5 } },
+      { code: 'ACTION_TAKEN', data: { action: 'camp', place: '1,0' } },
+      { code: 'ROUTE_PLANNED', data: { to: '3,0', places: 2 } },
+      { code: 'DESTINATION_REACHED', data: { place: '3,0' } },
+      { code: 'NOTE', text: 'by the hex' },
+    ])
+    expect(session.travel.totals).toEqual({ ...totals, hexes: undefined, places: 3, km: 18 })
   })
 })

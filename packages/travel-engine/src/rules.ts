@@ -145,7 +145,7 @@ const effects = z.record(
 
 /**
  * Whether a terrain can be entered: `false` never, `true` (or missing) always, or `{ when,
- * unless }`: only while `when` holds and `unless` doesn't, seen from the hex entered (its
+ * unless }`: only while `when` holds and `unless` doesn't, seen from the place entered (its
  * terrain, tags, region, fields, the roads or rivers of the step, the mode, the weather,
  * the season and calendar, today's values), e.g. a pass closed `unless: { season: winter }`.
  */
@@ -196,7 +196,7 @@ const step = z
     /** Multiplies the speed of the rest of today's moving (`0.5`: half as fast). */
     'travel.speed': z.number().nonnegative().optional(),
     /**
-     * Moves the party along its route this many hexes (legs of a way) at once, without
+     * Moves the party along its route this many places (hexes, legs of a way) at once, without
      * time passing: progress made by a move, not by marching. A number or a variable
      * (`'{{party.stats.rank}}'`).
      */
@@ -299,7 +299,7 @@ const action = z
     description: text.optional(),
     /**
      * What the journal says when none of its checks come up where the party is, e.g.
-     * "Nothing to forage on {terrain}" (`{terrain}` is the hex's terrain).
+     * "Nothing to forage on {terrain}" (`{terrain}` is the place's terrain).
      */
     nothing: text.optional(),
     /**
@@ -414,7 +414,7 @@ export const travelRulesSchema = z
         .strict(),
     ),
     /**
-     * Water hexes (the map marks their terrain as water) whose terrain isn't listed above,
+     * Water places (the map marks their terrain as water) whose terrain isn't listed above,
      * e.g. `{ passable: false }`; a mode whose `through` holds on water still sails them.
      */
     water: z
@@ -439,7 +439,7 @@ export const travelRulesSchema = z
           description: text.optional(),
           kmPerDay: z.number().positive(),
           /**
-           * Where it can go: a condition on each hex it enters (its terrain, water, tags,
+           * Where it can go: a condition on each place it enters (its terrain, water, tags,
            * region, fields, the roads or rivers of the step…), e.g. a boat on water or coast.
            * Where it holds, the terrain's own `passable: false` doesn't stop it.
            */
@@ -844,7 +844,7 @@ export function modeThrough(mode: { through?: unknown }): Condition | undefined 
 
 export type Passable = z.infer<typeof passable>
 
-/** Whether a terrain's `passable` lets the party in, given what it sees of the hex entered. */
+/** Whether a terrain's `passable` lets the party in, given what it sees of the place entered. */
 export function isPassable(
   rule: Passable | undefined,
   context: () => Record<string, unknown>,

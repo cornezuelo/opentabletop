@@ -7,7 +7,7 @@ import { bundleToMap, mapToBundle, parseMapFile } from '../io/otd'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 import { activeSystem } from './systems'
-import { mapWorld } from './world'
+import { mapWorld } from '@open-tabletop/map'
 
 /**
  * Places from results on the map: the Grey Marches' discovery makes ruins from their
@@ -32,7 +32,7 @@ describe('places made in play', () => {
       }
       // From the Hollow Hills' edge into the unmapped east.
       const { session } = startTrip({ system, location: '18,9', season: 'summer' })
-      const planned = stepTrip(options, session, { type: 'setDestination', hex: '19,9' })
+      const planned = stepTrip(options, session, { type: 'setDestination', place: '19,9' })
       const marched = stepTrip(options, planned.state, {
         type: 'action',
         id: 'march',

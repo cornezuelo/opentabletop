@@ -14,6 +14,7 @@
   "dependencies": {
     "@open-tabletop/character-engine": "*",
     "@open-tabletop/hex": "*",
-    "@open-tabletop/session": "*"
+    "@open-tabletop/session": "*",
+    "@open-tabletop/travel-engine": "*"
   }
 }

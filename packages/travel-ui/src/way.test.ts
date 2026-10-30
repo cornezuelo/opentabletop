@@ -12,11 +12,11 @@ describe('abstract trips', () => {
   )
 
   it('is a line of hexes joined by their edges', () => {
-    expect(world.cell('1')).toEqual({ terrain: 'forest', tags: ['haunted'] })
-    expect(world.cell('3')).toBeNull()
+    expect(world.place('1')).toEqual({ terrain: 'forest', tags: ['haunted'] })
+    expect(world.place('3')).toBeNull()
     expect(world.neighbors('0')).toEqual(['1'])
     expect(world.neighbors('1')).toEqual(['0', '2'])
-    expect(world.distance('0', '2')).toBe(2)
+    expect(world.distance('0', '2')).toBe(20)
     expect(world.edges('0', '1')).toEqual(['road'])
     expect(world.edges('1', '0')).toEqual(['road'])
     expect(world.edges('1', '2')).toEqual([])

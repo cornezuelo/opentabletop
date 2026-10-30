@@ -56,8 +56,8 @@ const oracle = () => createOracleEngine({ registry, random: seeded('discovery') 
 /** A line of hexes "0"…"9"; only "0" is painted (forest); the rest wait to be discovered. */
 function line(painted: Record<string, { terrain: string; tags?: string[]; name?: string }>) {
   const world: TravelWorld = {
-    hexKm: 10,
-    cell: (hex) => {
+    km: () => 10,
+    place: (hex) => {
       const n = Number(hex)
       if (!(n >= 0 && n < 10)) return null
       return painted[hex] ?? { tags: [] }
@@ -75,7 +75,7 @@ function travel(reveal: 'neighbors' | 'entered', to = '3') {
   const world = line(painted)
   const options = { system, world, oracle: oracle(), locale: 'en', discover: reveal } as const
   let { session } = startTrip({ system, location: '0' })
-  const planned = stepTrip(options, session, { type: 'setDestination', hex: to })
+  const planned = stepTrip(options, session, { type: 'setDestination', place: to })
   session = planned.state
   const trip = stepTrip(options, session, { type: 'travel' })
   return { planned, trip }
@@ -140,7 +140,7 @@ describe('discovery', () => {
       session,
       {
         type: 'setDestination',
-        hex: '2',
+        place: '2',
       },
     )
     expect(step.entries.find((e) => e.code === 'DISCOVERY_FAILED')).toMatchObject({
@@ -155,7 +155,7 @@ describe('discovery', () => {
     const { session } = startTrip({ system, location: '0' })
     const on = stepTrip({ system, world, oracle: oracle(), discover: 'neighbors' }, session, {
       type: 'setDestination',
-      hex: '2',
+      place: '2',
     })
     expect(on.discovered).toEqual({})
     const off = stepTrip(
@@ -240,8 +240,8 @@ entries:
     }
     const ring: Record<string, string[]> = { a: ['c'], b: ['c'], c: ['a', 'b', 'd'], d: ['c'] }
     const world: TravelWorld = {
-      hexKm: 10,
-      cell: (hex) => cells[hex] ?? null,
+      km: () => 10,
+      place: (hex) => cells[hex] ?? null,
       neighbors: (hex) => ring[hex] ?? [],
       distance: (x, y) => (x === y ? 0 : 1),
       edges: () => [],
@@ -255,7 +255,7 @@ entries:
         discover: 'neighbors',
       },
       session,
-      { type: 'setDestination', hex: 'c' },
+      { type: 'setDestination', place: 'c' },
     )
     expect(step.discovered.c).toEqual({ terrain: 'lake' })
   })
@@ -307,11 +307,11 @@ entries: [{ result: forest, set: { terrain: forest, poi: false } }]
       discover: 'neighbors',
     } as const
     let { session } = startTrip({ system, location: '0' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: '5' }).state
+    session = stepTrip(options, session, { type: 'setDestination', place: '5' }).state
     const until = session.travel.time + 3 * 1440
     const { state, entries } = stepTrip(options, session, { type: 'wait', until })
     expect(state.travel.location).toBe('0')
-    expect(entries.some((e) => e.code === 'HEX_ENTERED')).toBe(false)
+    expect(entries.some((e) => e.code === 'PLACE_ENTERED')).toBe(false)
     expect(state.travel.time).toBeGreaterThanOrEqual(until)
   })
 })
@@ -368,7 +368,7 @@ ${extra}`,
       discover: 'neighbors',
     } as const
     let { session } = startTrip({ system, location: '0' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: '3' }).state
+    session = stepTrip(options, session, { type: 'setDestination', place: '3' }).state
     return stepTrip(options, session, { type: 'travel' }).discovered
   }
 

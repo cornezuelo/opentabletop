@@ -294,7 +294,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const terrain =
         typeof d.terrain === 'string'
           ? (context.terrainName?.(d.terrain) ?? d.terrain.replaceAll('-', ' '))
-          : hexLabel(String(d.hex))
+          : hexLabel(String(d.place))
       const nothing = own
         ? own.replaceAll('{terrain}', terrain)
         : t('journal.actionNothing', { terrain })
@@ -357,19 +357,19 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     // A check that would have stopped the trip, with the player's pauses skipped.
     case 'PAUSE_SKIPPED': {
       const name = eventName(t, d.event, checkName, d.named)
-      const event = d.hex
-        ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.hex)) })
+      const event = d.place
+        ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.place)) })
         : name
       return t('journal.pauseSkipped', { event })
     }
-    // A check that waits for the player, and the hex it came up in.
+    // A check that waits for the player, and the place it came up in.
     case 'CHECK_PENDING':
     case 'CHECK_PAUSED':
     case 'CHECK_ASKS': {
       const key = { CHECK_PENDING: 'pending', CHECK_PAUSED: 'paused', CHECK_ASKS: 'asks' }[e.code]
       const name = eventName(t, d.event, checkName, d.named)
-      const event = d.hex
-        ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.hex)) })
+      const event = d.place
+        ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.place)) })
         : name
       return t(`journal.${key}` as TravelUiKey, { event })
     }
@@ -409,8 +409,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         event: eventName(t, d.event, checkName, d.named),
         error: e.text ?? '',
       })
-    case 'HEX_ENTERED':
-      return t('journal.entered', { hex: hexLabel(String(d.hex)) })
+    case 'PLACE_ENTERED':
+      return t('journal.entered', { hex: hexLabel(String(d.place)) })
     case 'HEX_DISCOVERED':
       return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
     case 'DAY_STARTED':
@@ -635,7 +635,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'MOMENT_REACHED':
       return t('journal.moment', { moment: momentText(String(d.at), context) })
     case 'ROUTE_PLANNED':
-      return t('journal.route', { hex: hexLabel(String(d.to)), hexes: Number(d.hexes) })
+      return t('journal.route', { hex: hexLabel(String(d.to)), hexes: Number(d.places) })
     default:
       return idText(t, `journal.${e.code}`, e.code)
   }
@@ -734,7 +734,9 @@ export function highlightText(
 ): string | undefined {
   const t = translator(() => context.locale)
   const d = (e.data ?? {}) as Record<string, unknown>
-  const hex = d.hex !== undefined ? context.hexLabel(String(d.hex)) : undefined
+  // Where it happened: the place reached (`place`), or the hex discovery decided (`hex`).
+  const at = d.place ?? d.hex
+  const hex = at !== undefined ? context.hexLabel(String(at)) : undefined
   switch (e.code) {
     case 'DESTINATION_REACHED':
       return hex && t('highlights.arrived', { hex })

@@ -192,8 +192,7 @@
   /** What the trip has done so far (`trip.*` for conditions and tables). */
   const totals = $derived.by(() => {
     const all = travel.totals ?? noTotals()
-    const hexKm = world?.hexKm ?? system.rules.travel.hexKm
-    const km = hexKm === undefined ? '' : Math.round(all.hexes * hexKm * 10) / 10
+    const km = Math.round(all.km * 10) / 10
     const list = (counts: Record<string, number>, name: (id: string) => string) =>
       Object.entries(counts)
         .filter(([, n]) => n)
@@ -201,8 +200,8 @@
         .join(' · ')
     return {
       line: t('totals.line', {
-        hexes: all.hexes,
-        km: km === '' ? '' : t('totals.km', { km }),
+        places: all.places,
+        km: t('totals.km', { km }),
         hours: `${Math.floor(all.marched / 60)} h ${String(Math.round(all.marched % 60)).padStart(2, '0')}`,
       }),
       checks: all.checks,

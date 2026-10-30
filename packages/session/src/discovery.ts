@@ -99,7 +99,7 @@ export function parseDiscover(
 
 /** A hex the map leaves open to discovery: inside the map, with no terrain yet. */
 const isEmpty = (world: TravelWorld, hex: string) => {
-  const cell = world.cell(hex)
+  const cell = world.place(hex)
   return cell !== null && !cell.terrain
 }
 
@@ -133,8 +133,8 @@ export function createDiscovery(options: {
 
   const world: TravelWorld = {
     ...base,
-    cell(hex) {
-      const cell = base.cell(hex)
+    place(hex) {
+      const cell = base.place(hex)
       const extra = found.get(hex)
       if (!cell || !extra) return cell
       return {
@@ -157,7 +157,7 @@ export function createDiscovery(options: {
   function surroundings(hex: string, here: { terrain?: unknown }): Record<string, unknown> {
     const around: Record<string, number> = {}
     for (const next of base.neighbors(hex)) {
-      const t = world.cell(next)?.terrain
+      const t = world.place(next)?.terrain
       if (typeof t === 'string' && t) around[t] = (around[t] ?? 0) + 1
     }
     const counts = Object.entries(around)
@@ -185,10 +185,10 @@ export function createDiscovery(options: {
     const model = options.land?.[definitionId(ref, pack)]
     if (!model) return undefined
     const known = base.neighbors(hex).flatMap((next) => {
-      const t = world.cell(next)?.terrain
+      const t = world.place(next)?.terrain
       return typeof t === 'string' && t ? [t] : []
     })
-    const seen = world.cell(from)?.terrain
+    const seen = world.place(from)?.terrain
     return nextTerrain(model, known, random, typeof seen === 'string' ? seen : undefined).terrain
   }
 
@@ -202,7 +202,7 @@ export function createDiscovery(options: {
       record(hex, { terrain: chosen })
       return true
     }
-    const here = world.cell(from) ?? {}
+    const here = world.place(from) ?? {}
     const { value } = roll(binding, {
       ...here,
       from: { ...here, id: from },
@@ -256,13 +256,13 @@ export function createDiscovery(options: {
       if (pending.has(hex) && discover.contents) {
         pending.delete(hex)
         const { text, value } = roll(discover.contents, {
-          ...world.cell(hex),
-          place: { ...world.cell(hex), id: hex },
+          ...world.place(hex),
+          place: { ...world.place(hex), id: hex },
         })
         // Places named by template (`effects: { place.pois.shrine: 1 }`) instead of the text.
         const context = {
-          ...world.cell(hex),
-          place: { ...world.cell(hex), id: hex },
+          ...world.place(hex),
+          place: { ...world.place(hex), id: hex },
           ...value,
           result: text,
         }

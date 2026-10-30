@@ -10,6 +10,7 @@ import {
   migrateFatigue,
   migrateGenericSheets,
   migrateLost,
+  migratePlaces,
   migrateSupplies,
   migrateTotals,
 } from '@open-tabletop/session'
@@ -148,7 +149,7 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     if (!session?.travel || !Array.isArray(session.journal)) return data
     return {
       ...data,
-      play: { ...play, rules: { ...play!.rules, session: migrateTotals(session) } },
+      play: { ...play, rules: { ...play!.rules, session: migrateTotals(session, kmOf(data)) } },
     }
   },
   /**
@@ -293,6 +294,26 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
       play: { ...play, rules: { ...play!.rules, session: migrateSupplies(session) } },
     }
   },
+  /**
+   * v28: a trip says places where it said hexes: its journal's `HEX_ENTERED` lines are
+   * `PLACE_ENTERED`, an action's or a destination's `hex` is its `place`, and its totals
+   * count places entered and their km (at the map's scale, else 10).
+   */
+  27(data) {
+    const play = data.play as { rules?: { session?: unknown } } | undefined
+    const session = play?.rules?.session as Parameters<typeof migratePlaces>[0] | undefined
+    if (!session?.travel || !Array.isArray(session.journal)) return data
+    return {
+      ...data,
+      play: { ...play, rules: { ...play!.rules, session: migratePlaces(session, kmOf(data)) } },
+    }
+  },
+}
+
+/** The km a hex of an older map measures: its own scale, else the default's 10. */
+const kmOf = (data: Record<string, unknown>): number => {
+  const km = (data.scale as { hexKm?: unknown } | undefined)?.hexKm
+  return typeof km === 'number' && km > 0 ? km : 10
 }
 
 export function migrate(data: Record<string, unknown>): Record<string, unknown> {

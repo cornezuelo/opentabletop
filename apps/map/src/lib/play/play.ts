@@ -27,7 +27,7 @@ import {
 } from '@open-tabletop/campaign'
 import { chooseSystem } from '../io/actions.svelte'
 import { getSystem, mapSystemId, oracle } from './systems'
-import { mapWorld } from './world'
+import { mapWorld } from '@open-tabletop/map'
 import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
@@ -156,7 +156,7 @@ export function clickHex(key: HexKey): void {
     // A system without travel rules plays no trips (Play says so).
     if (!travels(getSystem(mapSystemId()))) return
     save(newSession(play, location, mapSystemId()))
-    if (location !== key) step({ type: 'setDestination', hex: key })
+    if (location !== key) step({ type: 'setDestination', place: key })
     return
   }
   if (play.mode === 'simple' || !location || !sessionOf(play)) {
@@ -166,7 +166,7 @@ export function clickHex(key: HexKey): void {
     if (play.mode === 'rules') return save(newSession(play, key, mapSystemId()))
     return save(play)
   }
-  step({ type: 'setDestination', hex: key })
+  step({ type: 'setDestination', place: key })
 }
 
 export function setMode(mode: PlayState['mode']): void {
@@ -293,7 +293,9 @@ function stepOnly(action: TravelAction): void {
   }
   const { state, entries, discovered } = result
   editor.applyDiscovery(discovered)
-  const entered = entries.flatMap((e) => (e.code === 'HEX_ENTERED' ? [e.data?.hex as HexKey] : []))
+  const entered = entries.flatMap((e) =>
+    e.code === 'PLACE_ENTERED' ? [e.data?.place as HexKey] : [],
+  )
   placeParty(state.travel.location as HexKey)
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.

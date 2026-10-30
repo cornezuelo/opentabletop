@@ -23,7 +23,7 @@ it.skipIf(!OUT)('writes the old trips of this version', { timeout: 120_000 }, as
   /** Marches on, waiting for the next day when this one's march is done. */
   const march = async () => {
     const before = session().travel.time
-    await trip.step({ type: 'travel', until: 'hex' })
+    await trip.step({ type: 'travel', until: 'place' })
     if (session().travel.time === before && !session().travel.pendingChecks.length)
       await trip.step({ type: 'wait', until: before + 18 * 60 })
   }

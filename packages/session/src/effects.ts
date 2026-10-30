@@ -7,6 +7,7 @@ import {
   upgradeTravelState,
   type Bounds,
   type TravelState,
+  type TripTotals,
 } from '@open-tabletop/travel-engine'
 
 /**
@@ -151,21 +152,82 @@ export function migrateLost<S extends { travel: TravelState }>(session: S): S {
 
 /**
  * Older saved trips had no totals (`travel.totals`): rebuilt from their journal what it
- * says (hexes entered, actions taken); the rest (hours marched, checks, supplies spent)
- * counts from then on (returns a copy).
+ * says (places entered, at `km` each; actions taken); the rest (hours marched, checks,
+ * supplies spent) counts from then on (returns a copy).
  */
 export function migrateTotals<
   S extends { travel: TravelState; journal: { code: string; data?: Record<string, unknown> }[] },
->(session: S): S {
+>(session: S, km = 10): S {
   if (session.travel.totals) return session
   const totals = noTotals()
   for (const entry of session.journal) {
-    if (entry.code === 'HEX_ENTERED') totals.hexes++
+    if (entry.code === 'PLACE_ENTERED' || entry.code === 'HEX_ENTERED') {
+      totals.places++
+      totals.km += km
+    }
     const action = entry.data?.action
     if (entry.code === 'ACTION_TAKEN' && typeof action === 'string')
       totals.taken[action] = (totals.taken[action] ?? 0) + 1
   }
   return { ...session, travel: { ...session.travel, totals } }
+}
+
+/** The journal's lines that said where they happened as `hex` (now `place`). */
+const PLACED = [
+  'HEX_ENTERED',
+  'DESTINATION_REACHED',
+  'ACTION_TAKEN',
+  'CHECK_PENDING',
+  'CHECK_PAUSED',
+  'CHECK_ASKS',
+  'PAUSE_SKIPPED',
+]
+
+/** A journal line's data with a key renamed (`hex` → `place`), when it has it. */
+const renamed = (data: Record<string, unknown> | undefined, from: string, to: string) => {
+  if (!data || !(from in data)) return data
+  const { [from]: value, ...rest } = data
+  return { ...rest, [to]: value }
+}
+
+/**
+ * Older saved trips said hexes where they meant places: the journal's `HEX_ENTERED` lines
+ * (now `PLACE_ENTERED`), the place an action was taken, a destination reached or a check
+ * came up (`hex` → `place`; discovery's lines keep the hex they decided), a route's length (`hexes` → `places`), and the totals' hexes entered (now
+ * `places`, and their km at `km` each). Returns a copy, or the same session when there's
+ * nothing to change.
+ */
+export function migratePlaces<
+  S extends { travel: TravelState; journal: { code: string; data?: Record<string, unknown> }[] },
+>(session: S, km = 10): S {
+  const old = session.travel.totals as (TripTotals & { hexes?: number }) | undefined
+  const oldTotals = old && typeof old.hexes === 'number'
+  const oldJournal = session.journal.some(
+    (e) =>
+      e.code === 'HEX_ENTERED' ||
+      (e.data &&
+        ((PLACED.includes(e.code) && 'hex' in e.data) ||
+          (e.code === 'ROUTE_PLANNED' && 'hexes' in e.data))),
+  )
+  if (!oldTotals && !oldJournal) return session
+  const journal = !oldJournal
+    ? session.journal
+    : session.journal.map((e) => {
+        const code = e.code === 'HEX_ENTERED' ? 'PLACE_ENTERED' : e.code
+        const data =
+          e.code === 'ROUTE_PLANNED'
+            ? renamed(e.data, 'hexes', 'places')
+            : PLACED.includes(e.code)
+              ? renamed(e.data, 'hex', 'place')
+              : e.data
+        return code === e.code && data === e.data ? e : { ...e, code, ...(data && { data }) }
+      })
+  let travel = session.travel
+  if (oldTotals) {
+    const { hexes, ...rest } = old
+    travel = { ...travel, totals: { ...rest, places: hexes!, km: hexes! * km } }
+  }
+  return { ...session, journal, travel }
 }
 
 /**

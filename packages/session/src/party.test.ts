@@ -106,8 +106,8 @@ const band = travelSystems(registry).systems.find((s) => s.id === 'band')!
 const party = partyOf(band)
 
 const world: TravelWorld = {
-  hexKm: 24,
-  cell: () => ({ terrain: 'plains' }),
+  km: () => 24,
+  place: () => ({ terrain: 'plains' }),
   neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
   distance: (x, y) => (x === y ? 0 : 1),
   edges: () => [],
@@ -177,7 +177,10 @@ describe('the party is its members', () => {
       },
     )
     expect(marched.state.members![0].conditions).not.toHaveProperty('footsore')
-    const moved = stepTrip({ system: band, world, oracle }, s, { type: 'setDestination', hex: 'b' })
+    const moved = stepTrip({ system: band, world, oracle }, s, {
+      type: 'setDestination',
+      place: 'b',
+    })
     const walked = stepTrip({ system: band, world, oracle }, moved.state, { type: 'travel' })
     expect(walked.state.travel.travelledToday).toBeGreaterThanOrEqual(60)
     expect(walked.state.members!.every((m) => 'footsore' in m.conditions)).toBe(true)
@@ -336,7 +339,7 @@ describe('the party is its members', () => {
 
     // Marching stops for it, and says who.
     const oracle = createOracleEngine({ registry, random: sequence([0]) })
-    const planned = stepTrip({ system: band, world }, hurt, { type: 'setDestination', hex: 'b' })
+    const planned = stepTrip({ system: band, world }, hurt, { type: 'setDestination', place: 'b' })
     const { entries } = stepTrip({ system: band, world, oracle }, planned.state, { type: 'travel' })
     expect(entries.find((e) => e.code === 'TRAVEL_STOPPED')?.data).toMatchObject({
       reason: 'value',
@@ -381,7 +384,7 @@ describe('the party is its members', () => {
   it('reads where the characters are related: a hex, its region, a place in it', () => {
     const regionWorld: TravelWorld = {
       ...world,
-      cell: (h) => ({ terrain: 'plains', region: h === 'b' ? 'Vale' : undefined, pois: ['inn'] }),
+      place: (h) => ({ terrain: 'plains', region: h === 'b' ? 'Vale' : undefined, pois: ['inn'] }),
     }
     const company = members()
     company[0].relations = [{ to: 'hex:a', kind: 'home' }]

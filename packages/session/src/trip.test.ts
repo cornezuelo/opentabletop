@@ -75,8 +75,8 @@ entries:
 
 /** Two hexes in a row: a → b. */
 const world: TravelWorld = {
-  hexKm: 24,
-  cell: () => ({ terrain: 'plains' }),
+  km: () => 24,
+  place: () => ({ terrain: 'plains' }),
   neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
   distance: (x, y) => (x === y ? 0 : 1),
   edges: () => [],
@@ -387,7 +387,7 @@ divisions:
     const oracle = createOracleEngine({ registry, random: sequence([0.9]) })
     const { session } = startTrip({ system: sys, location: 'a' })
     const options = { system: sys, world, oracle, locale: 'en' }
-    const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+    const planned = stepTrip(options, session, { type: 'setDestination', place: 'b' }).state
     const { state, entries } = stepTrip(options, planned, { type: 'travel' })
     expect(entries.find((e) => e.code === 'ORACLE_RESULT')?.text).toBe('Rain')
     expect(state.travel.location).toBe('b')
@@ -454,7 +454,7 @@ values: { lost: { blocks: [travel.move] } }
     const { session } = startTrip({ system, location: 'a' })
     const go = (facts: Record<string, unknown>) => {
       const options = { system, world, facts }
-      const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+      const planned = stepTrip(options, session, { type: 'setDestination', place: 'b' }).state
       return stepTrip(options, planned, { type: 'travel' }).state
     }
     const calm = { clocks: { 'the-wyrm-wakes': 3 }, events: [] }
@@ -542,7 +542,7 @@ entries:
   const system = travelSystems(mouths).systems.find((s) => s.id === 'm')!
   const danger = (d: number): TravelWorld => ({
     ...world,
-    cell: () => ({ terrain: 'plains', danger: d }),
+    place: () => ({ terrain: 'plains', danger: d }),
   })
 
   it('in conditions: a check against a stat', () => {
@@ -553,7 +553,7 @@ entries:
         world: danger(d),
         oracle: createOracleEngine({ registry: mouths, random: sequence([0.5]) }),
       }
-      const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+      const planned = stepTrip(options, session, { type: 'setDestination', place: 'b' }).state
       return stepTrip(options, planned, { type: 'travel' })
     }
     // Under the stat it doesn't come up: only the journal's detail says so, and why.
@@ -574,11 +574,11 @@ entries:
       world: danger(2),
       oracle: createOracleEngine({ registry: mouths, random: sequence([0.5]) }),
     }
-    const planned = stepTrip(options, session, { type: 'setDestination', hex: 'b' }).state
+    const planned = stepTrip(options, session, { type: 'setDestination', place: 'b' }).state
     const { state } = stepTrip(options, planned, { type: 'travel' })
     // The ambush's 2, from its table.
     expect(state.travel.totals).toMatchObject({
-      hexes: 1,
+      places: 1,
       checks: 1,
       spent: { 'party.values.food': 2 },
     })
@@ -586,7 +586,7 @@ entries:
     expect(tripFacts(options, state)).toMatchObject({
       trip: {
         places: 1,
-        km: state.travel.totals!.hexes * world.hexKm,
+        km: state.travel.totals!.km,
         spent: { party: { values: { food: 2 } } },
       },
     })
@@ -638,8 +638,8 @@ describe('the system of a pack', () => {
 describe("Core's system: the Generic rules as data", () => {
   /** A long road of plains: 0 → 1 → 2 … */
   const road: TravelWorld = {
-    hexKm: 10,
-    cell: () => ({ terrain: 'plains' }),
+    km: () => 10,
+    place: () => ({ terrain: 'plains' }),
     neighbors: (h) => [String(Number(h) - 1), String(Number(h) + 1)],
     distance: (a, b) => Math.abs(Number(a) - Number(b)),
     edges: () => [],
@@ -709,7 +709,7 @@ describe("Core's system: the Generic rules as data", () => {
     const { registry } = loadPacks(corePack())
     const oracle = createOracleEngine({ registry, random: seeded(1) })
     const options = { system, world: road, oracle }
-    const planned = stepTrip(options, session, { type: 'setDestination', hex: '9' }).state
+    const planned = stepTrip(options, session, { type: 'setDestination', place: '9' }).state
     const day = stepTrip(options, planned, {
       type: 'action',
       id: 'march',

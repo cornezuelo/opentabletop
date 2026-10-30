@@ -8,11 +8,14 @@ import {
   type HexKey,
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
-import { DEFAULT_HEX_KM, fieldValues, type HexMap, TRAVEL_PATH_KINDS } from '@open-tabletop/map'
+import { DEFAULT_HEX_KM } from './defaults'
+import { fieldValues } from './hex'
+import { type HexMap, TRAVEL_PATH_KINDS } from './types'
 
 /**
- * The map as the Travel Engine sees it: terrain, neighbors and road/river edges, at the
- * map's scale, else the system's (`systemHexKm`), else the default.
+ * The map as the Travel Engine sees it: each hex a place (its terrain, tags, region, values,
+ * icon, faction and places in it), its neighbours, and the roads and rivers between them,
+ * a step a hex at the map's scale, else the system's (`systemHexKm`), else the default.
  */
 export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
   const { grid } = map
@@ -30,9 +33,10 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
   const holder = (hex: string) =>
     Object.keys(territories).find((id) => territories[id].includes(hex))
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
+  const km = map.scale.hexKm ?? systemHexKm ?? DEFAULT_HEX_KM
   return {
-    hexKm: map.scale.hexKm ?? systemHexKm ?? DEFAULT_HEX_KM,
-    cell(hex) {
+    km: () => km,
+    place(hex) {
       if (!inBounds(cell(hex), grid)) return null
       const data = map.hexes[hex as HexKey]
       const inRegion = data?.region ? map.regions.find((r) => r.id === data.region) : undefined
@@ -58,7 +62,7 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
     },
     neighbors: (hex) => neighborCells(cell(hex), grid).map(keyOf),
     distance: (a, b) =>
-      distance(toAxial(cell(a), grid.orientation), toAxial(cell(b), grid.orientation)),
+      km * distance(toAxial(cell(a), grid.orientation), toAxial(cell(b), grid.orientation)),
     edges: (a, b) => [...(edges.get(`${a}|${b}`) ?? [])],
   }
 }

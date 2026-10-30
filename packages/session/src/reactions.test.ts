@@ -56,8 +56,8 @@ kind: bindings
 ]
 
 const world: TravelWorld = {
-  hexKm: 24,
-  cell: () => ({ terrain: 'plains' }),
+  km: () => 24,
+  place: () => ({ terrain: 'plains' }),
   neighbors: (h) => (h === 'a' ? ['b'] : ['a']),
   distance: (x, y) => (x === y ? 0 : 1),
   edges: () => [],

@@ -3,6 +3,7 @@ import {
   migrateFatigue,
   migrateGenericSheets,
   migrateLost,
+  migratePlaces,
   migrateSupplies,
   migrateTotals,
   missingSystem,
@@ -173,8 +174,13 @@ export function readTrips(
           system: systemIdOf(t.system),
           session:
             t.session &&
-            migrateSupplies(
-              migrateGenericSheets(migrateTotals(migrateLost(migrateFatigue(t.session)))),
+            migratePlaces(
+              migrateSupplies(
+                migrateGenericSheets(
+                  migrateTotals(migrateLost(migrateFatigue(t.session)), t.hexKm),
+                ),
+              ),
+              t.hexKm,
             ),
         }))
       if (trips.length)
@@ -561,7 +567,7 @@ export class TripStore {
       this.save()
       return
     }
-    this.step({ type: 'setDestination', hex: last })
+    this.step({ type: 'setDestination', place: last })
   }
 
   /**
@@ -825,7 +831,7 @@ export class TripStore {
     }
     // The route is re-planned so new terrain or roads count.
     if (this.saved.session)
-      this.step({ type: 'setDestination', hex: String(this.saved.way.length - 1) })
+      this.step({ type: 'setDestination', place: String(this.saved.way.length - 1) })
     else this.save()
   }
 
@@ -834,7 +840,7 @@ export class TripStore {
     if (index <= this.location || this.saved.way.length <= 1) return
     this.saved = { ...this.saved, way: this.saved.way.filter((_, i) => i !== index) }
     if (this.saved.session)
-      this.step({ type: 'setDestination', hex: String(this.saved.way.length - 1) })
+      this.step({ type: 'setDestination', place: String(this.saved.way.length - 1) })
     else this.save()
   }
 

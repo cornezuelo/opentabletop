@@ -27,7 +27,7 @@ const entry = (time: number, code: string, rest: Partial<JournalEntry> = {}): Jo
 describe('journal export', () => {
   it('writes Markdown by day, oldest first, with the host’s names', () => {
     const journal = [
-      entry(at(1, '06:00'), 'HEX_ENTERED', { data: { hex: '3' } }),
+      entry(at(1, '06:00'), 'PLACE_ENTERED', { data: { place: '3' } }),
       entry(at(1, '07:30'), 'ORACLE_RESULT', {
         source: 'oracle',
         text: 'Rain\nall day',
@@ -68,7 +68,7 @@ describe('journal export', () => {
     )
     // A check that waits says the hex it came up in, by its name (as Entered … lines do).
     const there = entry(at(1, '06:00'), 'CHECK_PAUSED', {
-      data: { event: 'X_REQUIRED', hex: '5,3' },
+      data: { event: 'X_REQUIRED', place: '5,3' },
     })
     const named = { ...context, checkName: () => 'Landmark', hexLabel: () => 'The Grey Stones' }
     expect(journalMarkdown([there], named, 'T')).toContain(
@@ -165,7 +165,7 @@ describe('journal lines', () => {
   })
 
   it('say when an action rolled nothing, in the system’s words or the generic ones', () => {
-    const taken = { action: 'forage', minutes: 180, checks: 0, hex: '4', terrain: 'hills' }
+    const taken = { action: 'forage', minutes: 180, checks: 0, place: '4', terrain: 'hills' }
     expect(line('ACTION_TAKEN', taken)).toBe(
       'Forage for food (3 h): none of its rolls apply on Hills, so nothing happens',
     )
@@ -378,7 +378,7 @@ describe('the journal’s detail, and its filter', () => {
       source: 'oracle',
       data: { check: 'WEATHER_CHECK_REQUIRED', weather: 'light-rain', total: 7, move: 'se' },
     }),
-    entry(at(1, '09:00'), 'HEX_ENTERED', { data: { hex: '3' } }),
+    entry(at(1, '09:00'), 'PLACE_ENTERED', { data: { place: '3' } }),
     entry(at(1, '09:00'), 'NOTE', { source: 'user', text: 'Wolves again' }),
   ]
 
@@ -399,7 +399,7 @@ describe('the journal’s detail, and its filter', () => {
     const codes = (filter: Parameters<typeof filterJournal>[1]) =>
       filterJournal(journal, filter, context).map((e) => e.code)
     // As the journal always was: the story and the rules.
-    expect(codes({ level: 'mechanics' })).toEqual(['ORACLE_RESULT', 'HEX_ENTERED', 'NOTE'])
+    expect(codes({ level: 'mechanics' })).toEqual(['ORACLE_RESULT', 'PLACE_ENTERED', 'NOTE'])
     expect(codes({ level: 'story' })).toEqual(['ORACLE_RESULT', 'NOTE'])
     expect(codes({ level: 'detail' })).toHaveLength(journal.length)
     expect(codes({ level: 'detail', topics: ['oracle'] })).toEqual([

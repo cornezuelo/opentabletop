@@ -21,8 +21,8 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
   const { registry, diagnostics } = loadPacks(engineFiles(bundledPacks))
   const system = () => travelSystems(registry).systems.find((s) => s.id === 'kal-arath')!
   const plains: TravelWorld = {
-    hexKm: 30,
-    cell: (hex) => (['0', '1', '2'].includes(hex) ? { terrain: 'grassland' } : null),
+    km: () => 30,
+    place: (hex) => (['0', '1', '2'].includes(hex) ? { terrain: 'grassland' } : null),
     neighbors: (hex) =>
       [String(Number(hex) - 1), String(Number(hex) + 1)].filter((h) => +h >= 0 && +h < 3),
     distance: (a, b) => Math.abs(Number(a) - Number(b)),

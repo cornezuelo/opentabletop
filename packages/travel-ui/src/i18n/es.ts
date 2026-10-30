@@ -18,7 +18,7 @@ export const es: Messages<typeof en> = {
     stats: 'Características',
   },
   totals: {
-    line: '{hexes} hexes{km} · {hours} de marcha',
+    line: '{places} hexes{km} · {hours} de marcha',
     km: ' · {km} km',
     checks: 'Comprobaciones: {count}',
     taken: 'Acciones: {list}',

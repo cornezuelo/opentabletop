@@ -55,8 +55,8 @@ entries:
 const { registry } = loadPacks(PACK)
 const band = travelSystems(registry).systems.find((s) => s.id === 'band')!
 const world: TravelWorld = {
-  hexKm: 24,
-  cell: () => ({ terrain: 'plains' }),
+  km: () => 24,
+  place: () => ({ terrain: 'plains' }),
   neighbors: () => [],
   distance: () => 0,
   edges: () => [],

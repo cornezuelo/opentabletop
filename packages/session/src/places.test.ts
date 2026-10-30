@@ -12,8 +12,8 @@ const { systems, problems } = travelSystems(registry)
 const core = systems.find((s) => s.id === 'core')!
 const marches = systems.find((s) => s.id === 'grey-marches')!
 const plain: TravelWorld = {
-  hexKm: 10,
-  cell: () => ({ terrain: 'plains' }),
+  km: () => 10,
+  place: () => ({ terrain: 'plains' }),
   neighbors: () => [],
   distance: () => 0,
   edges: () => [],
@@ -124,7 +124,7 @@ describe('results that make places', () => {
     const made: Record<string, unknown> = {}
     for (let seed = 1; seed < 300 && Object.keys(made).length < 3; seed++) {
       const discovery = createDiscovery({
-        world: { ...plain, cell: () => ({}) },
+        world: { ...plain, place: () => ({}) },
         oracle: createOracleEngine({ registry, random: seeded(seed) }),
         discover: marches.bindings!.discover!,
         reveal: 'entered',

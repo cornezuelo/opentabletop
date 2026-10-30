@@ -44,12 +44,12 @@ function marchOn() {
   clickHex(trip().travel.location === '7,7' ? '4,2' : '7,7')
   for (let i = 0; i < 4; i++) {
     const before = trip().travel.time
-    step({ type: 'travel', until: 'hex' })
+    step({ type: 'travel', until: 'place' })
     if (trip().travel.time === before) step({ type: 'wait', until: before + 18 * 60 })
   }
   expect(trip().travel.time).toBeGreaterThan(start)
   expect(
-    trip().journal.some((e) => e.code === 'HEX_ENTERED' && (e.data?.time as number) > start),
+    trip().journal.some((e) => e.code === 'PLACE_ENTERED' && (e.data?.time as number) > start),
   ).toBe(true)
 }
 

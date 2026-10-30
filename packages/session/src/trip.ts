@@ -1502,8 +1502,8 @@ function withPartyBounds(bindings: Bindings, partySheet?: Sheet): Bindings {
 
 /** A world that knows nothing (for questions that don't need the map). */
 const NO_WORLD: TravelWorld = {
-  hexKm: 1,
-  cell: () => null,
+  km: () => 1,
+  place: () => null,
   neighbors: () => [],
   distance: () => 0,
   edges: () => [],

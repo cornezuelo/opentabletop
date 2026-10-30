@@ -51,12 +51,12 @@ async function playOn({ trip, text }: Travel) {
   const start = session().travel.time
   for (let i = 0; i < 4 && !session().travel.pendingChecks.length; i++) {
     const before = session().travel.time
-    await trip.step({ type: 'travel', until: 'hex' })
+    await trip.step({ type: 'travel', until: 'place' })
     if (session().travel.time === before) await trip.step({ type: 'wait', until: before + 18 * 60 })
   }
   expect(session().travel.time).toBeGreaterThan(start)
   expect(
-    session().journal.some((e) => e.code === 'HEX_ENTERED' && (e.data?.time as number) > start),
+    session().journal.some((e) => e.code === 'PLACE_ENTERED' && (e.data?.time as number) > start),
   ).toBe(true)
   expect(text()).toMatch(/Day \d+ · \d\d:\d\d/)
   // What the last step did, under the buttons; the rest a tab at a time.
@@ -78,6 +78,11 @@ describe('old saved trips', () => {
       const played = travel.trip.trips.filter((t) => t.session)
       expect(played.map((t) => t.name)).toEqual(['Pending', 'Camped', 'Generic'])
       expect(played[0].session!.travel.pendingChecks).not.toEqual([])
+      // Read as today's trips say it: places where older ones said hexes.
+      for (const { session } of played) {
+        expect(session!.journal.some((e) => e.code === 'HEX_ENTERED')).toBe(false)
+        expect(session!.travel.totals?.km ?? 0).toBe((session!.travel.totals?.places ?? 0) * 10)
+      }
       for (const { id } of played) {
         travel.trip.open(id)
         await playOn(travel)

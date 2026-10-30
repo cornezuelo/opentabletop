@@ -220,7 +220,7 @@ export interface JournalEntry {
   /** Real-world ISO timestamp. */
   at: string
   source: 'travel' | 'oracle' | 'user'
-  /** Language-neutral code; the UI translates it (DAY_STARTED, HEX_ENTERED, ORACLE_RESULT…). */
+  /** Language-neutral code; the UI translates it (DAY_STARTED, PLACE_ENTERED, ORACLE_RESULT…). */
   code: string
   /** Free text (e.g. a rendered table result, already in the pack's language). */
   text?: string
@@ -324,9 +324,9 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 /** The hex and moment a context is about (for its rolls). */
 const hexOf = (seen: Record<string, unknown>) => placeIdOf(seen)
 /** Where a check came up (`hex`: the hex it's about), for its journal lines. */
-const whereOf = (check: { context: Record<string, unknown> }): { hex?: string } => {
-  const hex = placeIdOf(check.context)
-  return hex ? { hex } : {}
+const whereOf = (check: { context: Record<string, unknown> }): { place?: string } => {
+  const place = placeIdOf(check.context)
+  return place ? { place } : {}
 }
 const momentOf = (seen: Record<string, unknown>) =>
   typeof seen.moment === 'string' ? seen.moment : undefined
@@ -416,13 +416,13 @@ export interface Session {
   ): { state: SessionState; entries: JournalEntry[] }
 }
 
-const QUIET_STOPS = new Set(['check', 'destination', 'hex', 'waited', 'held'])
+const QUIET_STOPS = new Set(['check', 'destination', 'place', 'waited', 'held'])
 /** The journal line of an action, which its steps' effects are added to. */
 const isActionLine = (e: JournalEntry, action: string) =>
   e.code === 'ACTION_TAKEN' && e.data?.action === action
 const JOURNALED: TravelEvent['type'][] = [
   'DAY_STARTED',
-  'HEX_ENTERED',
+  'PLACE_ENTERED',
   'ACTION_TAKEN',
   'LIMIT_REACHED',
   'HALT_WITHOUT',
@@ -554,12 +554,12 @@ export function createSession(options: {
     add(s, entries, {
       source: 'travel',
       code: type,
-      // A route by where it goes and how long it is (re-planned at each hex, discovering);
+      // A route by where it goes and how long it is (re-planned at each place, discovering);
       // the detail without its time twice (there may be many of them), and naming its check
       // `check` (the lines of the check itself name it `event`).
       data:
         e.type === 'ROUTE_PLANNED'
-          ? { to: e.route.at(-1), hexes: e.route.length - 1, strategy: e.strategy }
+          ? { to: e.route.at(-1), places: e.route.length - 1, strategy: e.strategy }
           : e.type === 'CHECK_SKIPPED'
             ? { check: e.event, at: e.at, condition: e.condition, failed: e.failed }
             : e.type === 'MOMENT_REACHED'
@@ -818,19 +818,19 @@ export function createSession(options: {
       const by = action.type === 'travel' ? action.by : undefined
       /**
        * Going on with the move under way (or the trip by itself until a moment): discovering,
-       * hex by hex.
+       * place by place.
        */
       const goOn: TravelAction = {
         type: 'travel',
-        ...(discovery && { until: 'hex' as const }),
+        ...(discovery && { until: 'place' as const }),
         ...(by !== undefined && { by }),
       }
-      // Discovering, a move goes hex by hex, still under way at each.
+      // Discovering, a move goes place by place, still under way at each.
       const first: TravelAction =
         discovery &&
         travelling &&
         (action.type === 'travel' || action.type === 'action' || action.type === 'resume')
-          ? { ...action, until: 'hex' }
+          ? { ...action, until: 'place' }
           : action
       let act = first
       // A wait goes on after each check it stops for, like a travel order.
@@ -936,7 +936,7 @@ export function createSession(options: {
               }
             continue
           }
-          if (event.type === 'HEX_ENTERED') found = arrive(event.hex, from, event.time) || found
+          if (event.type === 'PLACE_ENTERED') found = arrive(event.place, from, event.time) || found
           if (event.type !== 'CHECK_REQUIRED') continue
           // A step's roll of something the Oracle rolls (`roll: table.ruins`) has no binding:
           // it names what it rolls, found from the rules' pack.
@@ -1165,20 +1165,20 @@ export function createSession(options: {
           !found
         // A travel order keeps going once its checks are resolved…
         let keepGoing = clear && reason === 'check'
-        // …and, discovering, from hex to hex while the move is under way, with the route
+        // …and, discovering, from place to place while the move is under way, with the route
         // re-planned over what was found (a wait goes on waiting where the party is).
         if (
           travelling &&
           discovery &&
           clear &&
-          (reason === 'hex' || reason === 'check') &&
+          (reason === 'place' || reason === 'check') &&
           (s.travel.moving || by !== undefined)
         ) {
           const destination = s.travel.destination
           if (!destination) break
           const planned = options.travel.apply(s.travel, {
             type: 'setDestination',
-            hex: destination,
+            place: destination,
           })
           s.travel = planned.state
           for (const event of planned.events) journalEvent(s, entries, event)

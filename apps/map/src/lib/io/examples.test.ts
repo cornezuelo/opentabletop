@@ -13,7 +13,7 @@ import {
 } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import { createTravelEngine } from '@open-tabletop/travel-engine'
-import { mapWorld } from '../play/world'
+import { mapWorld } from '@open-tabletop/map'
 import { exampleMaps, exampleState, forgetExample, rememberExample } from './examples'
 import { parseMapFile } from './otd'
 
@@ -99,7 +99,7 @@ describe('example maps', () => {
       locale: 'en',
     }
     let { session } = startTrip({ system, location: '5,7', season: 'summer' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: '15,9' }).state
+    session = stepTrip(options, session, { type: 'setDestination', place: '15,9' }).state
     expect(session.travel.route).toContain('8,8')
     const events: string[] = []
     for (let i = 0; i < 12 && session.travel.location !== '15,9'; i++) {
@@ -138,7 +138,7 @@ describe('example maps', () => {
     expect(map.hexes['18,9']).toMatchObject({ terrain: 'hills' })
     expect(map.hexes['19,9']?.terrain).toBeUndefined()
     const { session } = startTrip({ system, location: '18,9', season: 'summer' })
-    const planned = stepTrip(options, session, { type: 'setDestination', hex: '19,9' })
+    const planned = stepTrip(options, session, { type: 'setDestination', place: '19,9' })
     // Seen from the Hills, the land ahead hands over to the model: every hex east of the
     // edge gets one of its terrains, from the land around it.
     const east = Object.entries(planned.discovered).filter(([hex]) => hex.startsWith('19,'))
@@ -152,7 +152,7 @@ describe('example maps', () => {
         random: seeded('the-east-land'),
       },
       startTrip({ system, location: '18,9', season: 'summer' }).session,
-      { type: 'setDestination', hex: '19,9' },
+      { type: 'setDestination', place: '19,9' },
     )
     expect(again.discovered).toEqual(planned.discovered)
   })
@@ -172,7 +172,7 @@ describe('example maps', () => {
     )
     const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
     const world = mapWorld(map, system.rules.travel.hexKm)
-    expect(world.hexKm).toBe(3)
+    expect(world.km('', '')).toBe(3)
     const options = {
       system,
       world,
@@ -181,7 +181,7 @@ describe('example maps', () => {
     }
     // From the way out of Fort Keld to the Barrow-halls, by the watch-cairn and the ford.
     let { session } = startTrip({ system, location: '0,6', season: 'summer' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: '10,8' }).state
+    session = stepTrip(options, session, { type: 'setDestination', place: '10,8' }).state
     expect(session.travel.route).toEqual(expect.arrayContaining(['4,6', '6,8']))
     const events: string[] = []
     for (let i = 0; i < 20 && session.travel.location !== '10,8'; i++) {
@@ -199,7 +199,7 @@ describe('example maps', () => {
     )
     // 3 km a hex: more hexes a day than on the Marches' map (10 km).
     const marches = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json).map
-    expect(mapWorld(marches, system.rules.travel.hexKm).hexKm).toBe(10)
+    expect(mapWorld(marches, system.rules.travel.hexKm).km('', '')).toBe(10)
   })
 
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {
@@ -219,7 +219,7 @@ describe('example maps', () => {
     }
     // From the trail next to the shrine, heading for it.
     let { session } = startTrip({ system, location: '9,3', season: 'summer' })
-    session = stepTrip(options, session, { type: 'setDestination', hex: '10,3' }).state
+    session = stepTrip(options, session, { type: 'setDestination', place: '10,3' }).state
     for (let i = 0; i < 4 && session.travel.location !== '10,3'; i++) {
       for (const id of session.travel.pendingChecks.map((c) => c.id))
         session = stepTrip(options, session, { type: 'resolveCheck', id }).state
@@ -390,7 +390,7 @@ describe('example maps', () => {
     expect(system.rules.actions?.['night-march']).toMatchObject({ hideWhenUnavailable: true })
     // At nightfall a travel order goes nowhere; after a night march it goes on, up to
     // four hours more (never past midnight), at +1 fatigue.
-    const planned = stepTrip(options, night, { type: 'setDestination', hex: '9,7' }).state
+    const planned = stepTrip(options, night, { type: 'setDestination', place: '9,7' }).state
     expect(stepTrip(options, planned, { type: 'travel' }).state.travel.time).toBe(nightfall)
     const marching = stepTrip(options, planned, { type: 'action', id: 'night-march' }).state
     expect(marching.stats.fatigue).toBe(session.stats.fatigue + 1)
@@ -473,7 +473,7 @@ describe('example maps', () => {
       rules: system.rules,
       calendar: system.calendar,
     })
-    const planned = engine.apply(session.travel, { type: 'setDestination', hex: '7,7' }).state
+    const planned = engine.apply(session.travel, { type: 'setDestination', place: '7,7' }).state
     const { events } = engine.apply(planned, { type: 'travel' })
     const check = events.find((e) => e.type === 'CHECK_REQUIRED')
     expect(check?.type === 'CHECK_REQUIRED' && check.check.context).toMatchObject({
@@ -510,7 +510,7 @@ describe('example maps', () => {
     let woke: { data?: Record<string, unknown> }[] = []
     for (let day = 0; day < 3; day++) {
       // Far away (Fort Keld): every day starts with its weather check, and a march.
-      session = stepTrip(options, session, { type: 'setDestination', hex: '15,9' }).state
+      session = stepTrip(options, session, { type: 'setDestination', place: '15,9' }).state
       const step = stepTrip(options, session, { type: 'travel' })
       const weather = [...woke, ...step.entries].find(
         (e) => e.data?.event === 'WEATHER_CHECK_REQUIRED',
@@ -542,7 +542,7 @@ describe('example maps', () => {
       oracle: createOracleEngine({ registry, random: seeded('boat') }),
     }
     const { session } = startTrip({ system, location: '9,10' })
-    const onFoot = stepTrip(options, session, { type: 'setDestination', hex: '12,11' }).state
+    const onFoot = stepTrip(options, session, { type: 'setDestination', place: '12,11' }).state
     expect(onFoot.travel.route).toBeUndefined()
     // The boat is only boarded at the water's edge or the ferry (a condition of the mode).
     const inland = startTrip({ system, location: '5,7' }).session
@@ -550,23 +550,23 @@ describe('example maps', () => {
     expect(tripAvailability(options, session)['mode.boat']).toBeUndefined()
     const boat = stepTrip(options, session, { type: 'setMode', mode: 'boat' }).state
     expect(boat.travel.mode).toBe('boat')
-    const sailing = stepTrip(options, boat, { type: 'setDestination', hex: '12,11' }).state
+    const sailing = stepTrip(options, boat, { type: 'setDestination', place: '12,11' }).state
     expect(sailing.travel.route?.at(-1)).toBe('12,11')
   })
 
   it('values: a region gives danger to its hexes, a hex can override it, icons add theirs', () => {
     const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const world = mapWorld(map)
-    expect(world.cell('10,7')).toMatchObject({ region: 'The Greywood', danger: 2 })
-    expect(world.cell('14,3')).toMatchObject({ region: 'The Greywood', danger: 5 })
+    expect(world.place('10,7')).toMatchObject({ region: 'The Greywood', danger: 2 })
+    expect(world.place('14,3')).toMatchObject({ region: 'The Greywood', danger: 5 })
     // Danger grows towards the heart: edge 2, dense forest 3, around the middle 4.
-    expect([world.cell('12,1')?.danger, world.cell('13,2')?.danger]).toEqual([3, 4])
-    expect(world.cell('5,7')).toMatchObject({
+    expect([world.place('12,1')?.danger, world.place('13,2')?.danger]).toEqual([3, 4])
+    expect(world.place('5,7')).toMatchObject({
       name: 'Ashford',
       region: 'Ashford Vale',
       icon: { id: 'game:village', guards: 0 },
     })
-    expect(world.cell('5,7')).not.toHaveProperty('danger')
+    expect(world.place('5,7')).not.toHaveProperty('danger')
     expect(map.tokens.find((t) => t.name === 'Brenna')?.fields).toEqual([
       { key: 'fare', value: '2' },
     ])

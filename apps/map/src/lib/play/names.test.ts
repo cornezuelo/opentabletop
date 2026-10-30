@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { rollContext } from './oracle'
-import { mapWorld } from './world'
+import { mapWorld } from '@open-tabletop/map'
 
 describe('values named like what the map already says', () => {
   it('never hide the built-in facts: the hex, its icon and the token keep theirs', () => {
@@ -30,7 +30,7 @@ describe('values named like what the map already says', () => {
         ],
       },
     }
-    const cell = mapWorld(map).cell('1,1')!
+    const cell = mapWorld(map).place('1,1')!
     expect(cell).toMatchObject({
       danger: 3,
       terrain: 'forest',

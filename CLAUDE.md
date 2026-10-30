@@ -38,7 +38,7 @@ packages/                   # libraries, scope @open-tabletop/*
   land-engine/              # terrain with memory: an empty hex's terrain from the land around it, as data (`kind: land`)
   faction-engine/           # factions as data (`kind: factions`): territory claimed, grown and lost hex by hex, world turns due
   character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations; items and their catalogues (`kind: items`)
-  map/                      # the map model: types, format, migrations and serializing, shared by the apps that read maps
+  map/                      # the map model: types, format, migrations and serializing, the map as a graph for trips (`mapWorld`), shared by the apps that read maps
   campaign/                 # campaigns: the world shared by maps (clock, weather, factions' sheets, Oracle); format, factions' land per map, the world clock played (turns, full clocks, a trip's effects)
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
@@ -102,7 +102,7 @@ Details in [`docs/otd.md`](docs/otd.md). In short:
 - **Pack definitions:** every `kind` a pack can hold (tables, oracles, generators, decks, roll modes, travel rules, bindings, calendars, weather…), in versioned, namespaced packs (`kal-arath/reaction`). Each kind is documented in `docs/manual/*/technical/07-kinds.md` (and briefly where it's used); a new kind adds itself there.
 - **`ext.<namespace>`** holds app- or system-specific data without polluting the core, e.g. `ext.map` (rendering, printing) or `ext.kal-arath`.
 - **References** are `type:id` strings, never nested objects.
-- **Runtime events** (`HEX_ENTERED`, `TABLE_RESOLVED`…) are messages between engines and are not persisted. What matters for the session is saved as `LogEntry`.
+- **Runtime events** (`PLACE_ENTERED`, `TABLE_RESOLVED`…) are messages between engines and are not persisted. What matters for the session is saved as `LogEntry`.
 - **File extension:** `.otd.json` (Map saves and opens OTD bundles only).
 
 ## Packs, sources and licensing
