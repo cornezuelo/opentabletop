@@ -194,6 +194,13 @@
         },
         { field: 'kmPerDay', label: t('rules.kmPerDay'), type: 'number', min: 0 },
         {
+          field: 'minutes',
+          label: t('rules.stepMinutes'),
+          help: t('rules.stepMinutesHelp'),
+          type: 'number',
+          min: 0,
+        },
+        {
           field: 'when',
           label: t('actions.when'),
           help: t('rules.modeWhenHelp'),
@@ -347,12 +354,45 @@
       nameOf={connectionName}
       template={{ multiplier: 1.5 }}
       columns={[
+        { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
         {
           field: 'multiplier',
           label: t('rules.multiplier'),
           help: t('rules.connectionMultiplierHelp'),
           type: 'number',
           min: 0,
+        },
+        {
+          field: 'minutes',
+          label: t('rules.connectionMinutes'),
+          help: t('rules.connectionMinutesHelp'),
+          type: 'number',
+          min: 0,
+        },
+        {
+          field: 'passable.when',
+          label: t('rules.openWhen'),
+          help: t('rules.connectionWhenHelp'),
+          type: 'condition',
+          placeholder: t('checks.always'),
+          hints: passableHints,
+          off: (row) => row.passable === false,
+        },
+        {
+          field: 'passable.unless',
+          label: t('rules.closedWhen'),
+          help: t('rules.connectionWhenHelp'),
+          type: 'condition',
+          placeholder: t('checks.never'),
+          hints: passableHints,
+          off: (row) => row.passable === false,
+        },
+        {
+          field: 'passable',
+          label: t('rules.passable'),
+          help: t('rules.connectionPassableHelp'),
+          type: 'check',
+          default: true,
         },
       ]}
     />

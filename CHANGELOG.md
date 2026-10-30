@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Travel, Map and Systems: **what a kind of connection does** is the system's: `minutes` (a step through it takes that long whatever the speed: a door, a turn), `passable` with **Open when** / **Closed when** (a locked door: the route goes round it, or up to it and stops there), and its `name`. Conditions read the step's connection as `connection.*` (its kind, tags, values and its state in this trip); an effect `connection.state: open` changes it in the trip, never on the map, and the journal says so. A way of travelling may take `minutes` a step instead of `kmPerDay` (rooms, points).
 - Map: a **Connections** tool (**C**) joins two places with a connection of a kind the system names (a bridge, a gate, a tunnel between two far hexes, which become neighbours), with a name, tags and values; trips read its kind as `trip.connections`. Connections have their own layer in Layers. Maps v29.
 - Every app: the apps' names are in the interface's language (in Spanish: Mapa, Campaña, Personajes, Oráculo, Viajes, Sistemas, Manual), in the switcher, each app's bar, the window's title, the texts and the manual; the Hexmapper is called **Map**.
 - Map: its address is `…/map/` (`…/hexmapper/` sends you on, keeping the link to a map or hex; a Hexmapper installed for offline use opens Map once online: install Map again for its own icon).

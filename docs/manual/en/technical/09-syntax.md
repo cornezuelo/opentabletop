@@ -220,7 +220,7 @@ In bindings, when the system has a sheet: a stat made of the characters' values,
 
 ## Speeds
 
-Travel rules multiply speeds: a terrain's or road's `multiplier` (`0.5` half, `1` normal, `1.5` faster), a weather's `speed` (`0` no travel), a way of travelling's `kmPerDay`, and `defaultTerrain` for terrains not listed. Clock times are written `'06:00'` (quoted), durations in minutes.
+Travel rules multiply speeds: a terrain's or road's `multiplier` (`0.5` half, `1` normal, `1.5` faster), a weather's `speed` (`0` no travel), a way of travelling's `kmPerDay` (or its `minutes` a step), a connection's own `minutes`, and `defaultTerrain` for terrains not listed. Clock times are written `'06:00'` (quoted), durations in minutes.
 
 ## Limits and stops
 

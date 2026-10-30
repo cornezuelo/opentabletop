@@ -19,6 +19,7 @@
     'yesterday',
     'from',
     'around',
+    'connection',
     ...FACT_GROUPS,
     ...Object.keys(FACT_PATHS),
   ])

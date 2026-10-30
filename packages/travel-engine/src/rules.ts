@@ -427,11 +427,25 @@ export const travelRulesSchema = z
     /** Multiplier for terrains not listed (default 1). */
     defaultTerrain: z.object({ multiplier: z.number().nonnegative() }).strict().optional(),
     /**
-     * Kinds of connection between places (road, river, door…); one with a multiplier
-     * replaces the terrain's.
+     * Kinds of connection between places (road, river, door…): what crossing one does. A
+     * multiplier replaces the terrain's; `minutes`, a step through it takes that long
+     * whatever the speed ("a door takes a turn"); `passable`, whether it can be crossed (a
+     * condition that sees the step and the connection: `connection.state`…).
      */
     connections: z
-      .record(z.string(), z.object({ multiplier: z.number().positive().optional() }).strict())
+      .record(
+        z.string(),
+        z
+          .object({
+            /** What players read: "Ford" (translated in locales/). */
+            name: text.optional(),
+            description: text.optional(),
+            multiplier: z.number().positive().optional(),
+            minutes: z.number().nonnegative().optional(),
+            passable: passable.optional(),
+          })
+          .strict(),
+      )
       .optional(),
     modes: z.record(
       z.string(),
@@ -440,7 +454,13 @@ export const travelRulesSchema = z
           /** What players read: "On horseback" (translated in locales/). */
           name: text.optional(),
           description: text.optional(),
-          kmPerDay: z.number().positive(),
+          /** How far it goes in a day's marching hours (`travel.hoursPerDay`). */
+          kmPerDay: z.number().positive().optional(),
+          /**
+           * Instead of a distance a day, how long each step takes (a dungeon's turn: `10`),
+           * slowed by the terrain's multiplier like a distance.
+           */
+          minutes: z.number().positive().optional(),
           /**
            * Where it can go: a condition on each place it enters (its terrain, water, tags,
            * region, fields, the roads or rivers of the step…), e.g. a boat on water or coast.
@@ -452,7 +472,10 @@ export const travelRulesSchema = z
           /** It can't be chosen when this holds. */
           unless: condition.optional(),
         })
-        .strict(),
+        .strict()
+        .refine((m) => (m.kmPerDay === undefined) !== (m.minutes === undefined), {
+          message: 'expected kmPerDay or minutes (one of them)',
+        }),
     ),
     /** Effect of weather states on movement (0 = no travel). */
     weather: z
@@ -881,6 +904,9 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
     ...[
       ...Object.entries(parsed.data.terrains).map(([id, t]) => [`terrains.${id}`, t] as const),
       ...(parsed.data.water ? [['water', parsed.data.water] as const] : []),
+      ...Object.entries(parsed.data.connections ?? {}).map(
+        ([id, c]) => [`connections.${id}`, c] as const,
+      ),
     ].flatMap(([at, t]) =>
       typeof t.passable === 'object' ? conditions(t.passable, `${at}.passable`) : [],
     ),

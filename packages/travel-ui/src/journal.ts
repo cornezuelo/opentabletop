@@ -567,6 +567,13 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       })
     case 'UNKNOWN_PLACE':
       return t('journal.unknownPlace', { name: String(d.template ?? '') })
+    // A value of the connection the step takes changed in play (a door opened).
+    case 'CONNECTION_CHANGED':
+      return t('journal.connectionChanged', {
+        name: String(d.name ?? '').replaceAll('-', ' '),
+        key: String(d.key ?? ''),
+        value: String(d.value ?? ''),
+      })
     case 'ROSTER_UPDATED':
       return t('journal.rosterUpdated', {
         names: Array.isArray(d.names) ? d.names.join(', ') : '',

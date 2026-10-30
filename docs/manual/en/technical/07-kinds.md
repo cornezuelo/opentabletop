@@ -165,7 +165,10 @@ terrains:
   lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # frozen in deep winter
 defaultTerrain: { multiplier: 1 } # speed × for terrains not listed
 water: { passable: false } # water hexes without a rule of their own
-connections: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # along a road or river
+connections: # along a road or river; through a door drawn on the map
+  road: { multiplier: 1.5 }
+  river: { multiplier: 1 }
+  door: { name: Door, minutes: 10, passable: { unless: { connection.state: locked } } }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # values of the day tables and actions set
   lost: { name: Lost, blocks: [travel.move] }

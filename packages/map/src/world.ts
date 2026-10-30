@@ -10,7 +10,7 @@ import {
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { DEFAULT_HEX_KM } from './defaults'
 import { fieldValues } from './hex'
-import { type HexMap, TRAVEL_PATH_KINDS } from './types'
+import { type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
 
 /**
  * The map as the Travel Engine sees it: each hex a place (its terrain, tags, region, values,
@@ -35,10 +35,14 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
     distance(toAxial(cell(a), grid.orientation), toAxial(cell(b), grid.orientation))
   /** Drawn connections between hexes that aren't next to each other: more neighbours. */
   const far = new Map<string, string[]>()
-  for (const { between, kind } of map.connections ?? []) {
+  /** The connection drawn between two places, both ways. */
+  const drawn = new Map<string, MapConnection>()
+  for (const { between, kind, ...rest } of map.connections ?? []) {
     const [a, b] = between
     if (!inBounds(cell(a), grid) || !inBounds(cell(b), grid)) continue
     join(a, b, kind)
+    if (!drawn.has(`${a}|${b}`))
+      for (const pair of [`${a}|${b}`, `${b}|${a}`]) drawn.set(pair, { between, kind, ...rest })
     if (hexDistance(a, b) <= 1) continue
     far.set(a, [...(far.get(a) ?? []), b])
     far.set(b, [...(far.get(b) ?? []), a])
@@ -78,5 +82,17 @@ export function mapWorld(map: HexMap, systemHexKm?: number): TravelWorld {
     // A far connection is a shortcut: with any, no distance is sure to be a lower bound.
     distance: (a, b) => (far.size ? 0 : km * hexDistance(a, b)),
     connections: (a, b) => [...(connections.get(`${a}|${b}`) ?? [])],
+    // Its values (`fields`) as `connection.<key>`, beside its id, kind, name and tags.
+    connectionOf(a, b) {
+      const c = drawn.get(`${a}|${b}`)
+      if (!c) return undefined
+      return {
+        ...fieldValues(c.fields),
+        id: c.id,
+        kind: c.kind,
+        tags: c.tags ?? [],
+        ...(c.name && { name: c.name }),
+      }
+    },
   }
 }

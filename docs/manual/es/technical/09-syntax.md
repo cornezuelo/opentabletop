@@ -220,7 +220,7 @@ En los bindings, cuando el sistema tiene hoja: una característica que sale de l
 
 ## Velocidades
 
-Las reglas de viaje multiplican velocidades: el `multiplier` de un terreno o camino (`0.5` la mitad, `1` normal, `1.5` más rápido), el `speed` de un clima (`0` no se viaja), el `kmPerDay` de una forma de viajar, y `defaultTerrain` para los terrenos que no están en la lista. Las horas se escriben `'06:00'` (entre comillas); las duraciones, en minutos.
+Las reglas de viaje multiplican velocidades: el `multiplier` de un terreno o camino (`0.5` la mitad, `1` normal, `1.5` más rápido), el `speed` de un clima (`0` no se viaja), el `kmPerDay` de una forma de viajar (o sus `minutes` por paso), los `minutes` propios de una conexión, y `defaultTerrain` para los terrenos que no están en la lista. Las horas se escriben `'06:00'` (entre comillas); las duraciones, en minutos.
 
 ## Límites y paradas
 

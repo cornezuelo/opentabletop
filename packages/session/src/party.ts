@@ -17,7 +17,10 @@ import {
 } from '@open-tabletop/character-engine'
 import {
   placeIdOf,
+  changeConnection,
   changeValue,
+  CONNECTION_EFFECT,
+  type ConnectionChange,
   momentRolls,
   resolveChange,
   tallyChange,
@@ -76,7 +79,9 @@ export interface PartyTarget {
   /** What was shared out by the system's rule and waits for that answer, the first first. */
   sharing?: Sharing[]
   stats: Record<string, number>
-  travel: Partial<Pick<TravelState, 'seed' | 'day' | 'location' | 'totals' | 'reached'>>
+  travel: Partial<
+    Pick<TravelState, 'seed' | 'day' | 'location' | 'totals' | 'reached' | 'connections'>
+  >
 }
 
 /**
@@ -359,6 +364,8 @@ export function applyMemberEffects(
   /** Places made on the party's place (`place.pois.<template>`), and the templates nobody has. */
   places: { at: string; place: MadePlace }[]
   unknownPlaces: string[]
+  /** What changed of the step's connection (`connection.state: open`), by its id. */
+  connections: ConnectionChange[]
 } {
   const limits: LimitReached[] = []
   const events: CharacterEvent[] = []
@@ -367,6 +374,7 @@ export function applyMemberEffects(
   const present: PresentEvent[] = []
   const places: { at: string; place: MadePlace }[] = []
   const unknownPlaces: string[] = []
+  const connections: ConnectionChange[] = []
   // A party played as a whole, without a sheet of its own: only those present are changed.
   const whole = !s.members?.length && !s.party
   /** One copy by its id (`characters.wolf-2.…`), which a party played as a whole may change. */
@@ -379,9 +387,11 @@ export function applyMemberEffects(
   }
   if (
     whole &&
-    !Object.keys(effects).some((p) => PRESENT_PATH.test(p) || PLACE_PATH.test(p) || copyPath(p))
+    !Object.keys(effects).some(
+      (p) => PRESENT_PATH.test(p) || PLACE_PATH.test(p) || CONNECTION_EFFECT.test(p) || copyPath(p),
+    )
   )
-    return { limits, events, nobody, unknown, present, places, unknownPlaces }
+    return { limits, events, nobody, unknown, present, places, unknownPlaces, connections }
   const { travel } = s
   const roller =
     travel.day !== undefined
@@ -476,6 +486,18 @@ export function applyMemberEffects(
       ]
   }
   for (const [path, change] of Object.entries(effects)) {
+    // The step's connection (a door opened, a bridge burnt): its value in play changes.
+    const connectionKey = CONNECTION_EFFECT.exec(path)?.[1]
+    if (connectionKey !== undefined) {
+      const done = changeConnection(
+        s.travel,
+        context.connection as Record<string, unknown> | undefined,
+        connectionKey,
+        typeof change === 'boolean' ? change : resolveChange(change, context, roller),
+      )
+      if (done) connections.push(done)
+      continue
+    }
     // Places made on the party's place: as many as the change says (the host writes them).
     const placeId = PLACE_PATH.exec(path)?.[1]
     if (placeId !== undefined) {
@@ -571,7 +593,7 @@ export function applyMemberEffects(
   const after = partyNumbers(s, rules)
   for (const path of new Set([...Object.keys(before), ...Object.keys(after)]))
     tallyChange(travel, path, before[path] ?? 0, after[path] ?? 0)
-  return { limits, events, nobody, unknown, present, places, unknownPlaces }
+  return { limits, events, nobody, unknown, present, places, unknownPlaces, connections }
 }
 
 /**

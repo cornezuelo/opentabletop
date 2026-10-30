@@ -105,7 +105,7 @@ On a trip (Map Play, Travel), for its checks and actions, and in hand rolls duri
 | `trip.doing`                              | `doing`          | id            | The action under way (`camp`; at `time.day-end`, the one the day ended in). Missing when none.                                                                                                                                                                                                                                                                            |
 | `trip.below`, `trip.above`                | `below`, `above` | list of names | What an effect tried to take past its `min` (`trip.below: party.values.food`) or `max` today, by full name: the party's stats, its sheet's values and items (`party.items.ration`), the characters' values (`characters.kael.values.health`).                                                                                                                             |
 | `trip.places`                             | —                | number        | Hexes entered during the trip.                                                                                                                                                                                                                                                                                                                                            |
-| `trip.km`                                 | —                | number        | Those hexes in km, at the map's scale (Map settings), else the system's (`travel.hexKm`).                                                                                                                                                                                                                                                                                 |
+| `trip.km`                                 | —                | number        | The km of those steps, each at the map's scale (Map settings), else the system's (`travel.hexKm`).                                                                                                                                                                                                                                                                        |
 | `trip.hours`                              | —                | number        | Hours marched since the trip started.                                                                                                                                                                                                                                                                                                                                     |
 | `trip.checks`                             | —                | number        | Checks that have come up during the trip.                                                                                                                                                                                                                                                                                                                                 |
 | `trip.taken.<action>`                     | —                | number        | Times each action was taken during the trip, by the player or the system itself; every action the system declares is there, 0 until taken (`trip.taken.camp: { gte: 7 }`).                                                                                                                                                                                                |
@@ -125,6 +125,22 @@ The trip panel's **So far** line (open it for the rest) shows these counts as th
 | `around.water`                 | yes/no      | Whether any of them is water.                                                                                                                      |
 
 In Travel, a hex's neighbours are the ones before and after it on the way.
+
+## The connection of the step, `connection.*`
+
+The connection of the stretch the party is on (the one just crossed entering a place, else the one ahead on the route), as a terrain's or a connection's **Open when** / **Closed when**, a way of travelling's **Only through**, checks, actions and tables read it:
+
+| Name               | Kind       | Values                                                                                                                                                                      |
+| ------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `connection.kind`  | id         | Its kind: a connection drawn with Map's **Connections** (`bridge`, `door`…), else the road or river followed (`road`). Missing off them.                                    |
+| `connection.id`    | id         | A drawn connection's id (missing on roads and rivers).                                                                                                                      |
+| `connection.name`  | text       | A drawn connection's name, if it has one.                                                                                                                                   |
+| `connection.tags`  | list       | A drawn connection's tags (`connection.tags: hidden`).                                                                                                                      |
+| `connection.<key>` | as written | A drawn connection's values (`connection.dc`), and what the trip changed of them: `connection.state: open` once an effect opened it. The trip's change wins over the map's. |
+
+In Travel, the connection to the next hex is the leg's: its first kind, with an id of its own (`leg-0`, `leg-1`…) for what the trip changes.
+
+An effect `connection.<key>` changes the connection of the stretch in this trip, never on the map: a word sets it (`connection.state: open`), a number adds to it (`connection.uses: -1`; `'=3'` sets it). An action's step changes it at once, so its next steps see it; a table's or check's result too. The journal says it (`Oak door: state open`).
 
 ## The party, `party.*`
 

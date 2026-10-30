@@ -694,6 +694,9 @@ export const es: Messages<typeof en> = {
     modesHelp:
       'Formas de viajar: a pie, a caballo, en barca… Cada una tiene una velocidad en **km por día de marcha** en terreno fácil (los terrenos y caminos la cambian) y puede limitarse a algunos sitios y momentos.\n• `foot` — 24 km al día\n• `horse` — 40 km al día, **Salvo si** `trip.weather: snow`\n• `boat` — 50 km al día, **Solo por** `place.water: true`\nEl panel del viaje deja al jugador cambiar de una a otra.\nSu orden cuenta: la primera es la de un viaje nuevo. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.',
     kmPerDay: 'km por día',
+    stepMinutes: 'Minutos por paso',
+    stepMinutesHelp:
+      'En lugar de **km por día**, cuánto tarda cada paso en terreno fácil, sea cual sea su distancia (lo uno o lo otro, no ambos): para mapas de salas o puntos donde la distancia no importa.\n• `10` — un turno por sala\n• `60` — una hora de un punto al siguiente\nLos terrenos lo frenan como frenarían una distancia (`0.5`: el doble de tiempo); una conexión con sus propios **Minutos** tarda esos.',
     name: 'Nombre',
     nameHelp:
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id:\n• `horse` → _A caballo_\n• `food` → _Raciones_\nSe escribe en el idioma actual: el del pack, o su fichero de traducción (`locales/<idioma>/`) si la interfaz está en otro. Vacío: el id (o el nombre de la aplicación para los habituales: foot, horse, food…).',
@@ -722,6 +725,14 @@ export const es: Messages<typeof en> = {
     connectionsHelp:
       'Seguir un camino, sendero o río, o cruzar cualquier otra conexión que dibuje un mapa, **de un lugar al siguiente**: su velocidad sustituye a la del terreno.\n• `road` × `1.5` — la mitad más rápido que a campo abierto\n• `trail` × `1` — como a campo abierto, aunque cruce un bosque\n• `river` × `2` — río abajo en barca\nLos tipos no listados no hacen nada. Las comprobaciones también las distinguen: `trip.connections: road` en una condición.',
     connection: 'Tipo',
+    connectionMinutes: 'Minutos',
+    connectionMinutesHelp:
+      'Cuánto se tarda en cruzar este tipo de conexión, sea cual sea la velocidad, el terreno o la distancia (el mayor, si un paso tiene varios):\n• `10` — una puerta que se tarda un turno en abrir\n• `60` — una hora para vadear un río\nVacío: el paso tarda lo que digan su distancia y el terreno.',
+    connectionWhenHelp:
+      'Cuándo se puede cruzar este tipo de conexión, como condición sobre **el paso**: la conexión misma (`connection.state`, `connection.tags`, sus valores), el lugar en el que se entra, la forma de viajar, el clima, el calendario, los valores del día.\n• **Cerrado cuando** `connection.state: locked` — una puerta, hasta que algo la abra\n• **Abierto cuando** `time.season: [summer, autumn]` — un vado\n• **Cerrado cuando** `trip.weather: storm` — un puente de cuerda\nMientras no se puede cruzar, las rutas la rodean; si no hay otro camino, llegan hasta ella y se paran allí.',
+    connectionPassableHelp:
+      'Si este tipo de conexión se puede cruzar. **Sin marcar**: nunca (las rutas la rodean, o se paran antes); **Marcada**: mientras se cumpla **Abierto cuando** (vacío: siempre) y no **Cerrado cuando** (vacío: nunca).',
+
     connectionMultiplierHelp:
       'Velocidad por este tipo de conexión, en lugar de la del terreno:\n• `1.5` — la mitad más rápido que a campo abierto\n• `1` — velocidad de campo abierto, sea cual sea el terreno\nUn camino a `1.5` por un terreno a `0.5` es el triple de rápido que ese terreno.',
     weather: vocabulary.es.terms.weather,

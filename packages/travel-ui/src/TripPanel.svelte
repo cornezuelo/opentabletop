@@ -189,6 +189,12 @@
     }
   })
 
+  /** A way of travelling's speed: its km a day, or its minutes a step. */
+  const speedOf = (mode: string): string => {
+    const { kmPerDay, minutes } = system.rules.modes[mode]
+    return minutes !== undefined ? t('stepSpeed', { minutes }) : `${kmPerDay} km/${t('dayUnit')}`
+  }
+
   /** What the trip has done so far (`trip.*` for conditions and tables). */
   const totals = $derived.by(() => {
     const all = travel.totals ?? noTotals()
@@ -832,9 +838,7 @@
         {#each Object.keys(system.rules.modes) as mode (mode)}
           {@const because = mode === travel.mode ? '' : why(blocked[`mode.${mode}`])}
           <option value={mode} disabled={!!because}
-            >{modeName(mode)} ({system.rules.modes[mode].kmPerDay} km/{t('dayUnit')}){because
-              ? ` — ${because}`
-              : ''}</option
+            >{modeName(mode)} ({speedOf(mode)}){because ? ` — ${because}` : ''}</option
           >
         {/each}
       </select>

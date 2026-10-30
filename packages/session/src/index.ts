@@ -63,6 +63,7 @@ import {
 import {
   declaredValues,
   placeIdOf,
+  CONNECTION_EFFECT,
   momentRolls,
   qualify,
   reactionsOf,
@@ -435,6 +436,7 @@ const JOURNALED: TravelEvent['type'][] = [
   'HELD',
   'RESUMED',
   'MODE_CHANGED',
+  'CONNECTION_CHANGED',
   // What happened behind (the journal's detail).
   'MOMENT_REACHED',
   'CHECK_SKIPPED',
@@ -776,6 +778,14 @@ export function createSession(options: {
           })
         for (const template of done.unknownPlaces)
           add(s, entries, { source: 'travel', code: 'UNKNOWN_PLACE', time, data: { template } })
+        // A connection's value changed in play (a door opened).
+        for (const { id, name, key, value } of done.connections)
+          add(s, entries, {
+            source: 'travel',
+            code: 'CONNECTION_CHANGED',
+            time,
+            data: { id, name, key, value },
+          })
         return done.limits
       }
       /** Discovers at the party's hex; true when it found something to stop for. */
@@ -908,8 +918,12 @@ export function createSession(options: {
           if (event.type === 'EFFECTS') {
             const { applied } = applyEffects({ stats: s.stats, travel: {} }, event.effects, stats)
             changed(s, entries, applied, event.time)
+            // The step's connection was changed by the engine, as the step happened.
+            const own = Object.fromEntries(
+              Object.entries(event.effects).filter(([path]) => !CONNECTION_EFFECT.test(path)),
+            )
             for (const limit of memberEffects(
-              event.effects,
+              own,
               tripContext(s, host, {}, party),
               event.time,
               false,

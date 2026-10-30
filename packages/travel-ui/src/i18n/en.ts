@@ -34,6 +34,7 @@ export const en = {
     help: 'The journal lines of your last step (a march, an action, a check you went on from), and of the tables you rolled by hand after it, newest first: what stopped the trip is on top. The next step replaces them; the whole trip is in the **Journal** tab.',
   },
   dayUnit: 'day',
+  stepSpeed: '{minutes} min a step',
   journalDay: 'Day {day}',
   /** After a waiting check that came up on another day (its line is in that day's journal). */
   cameUp: ' (it came up on day {day}, {clock})',
@@ -267,6 +268,7 @@ export const en = {
     presentCame: 'Here now: {names}',
     placeMade: 'A place here: {name}{what}',
     unknownPlace: 'No catalogue of places of the system has “{name}”, so nothing is made',
+    connectionChanged: '{name}: {key} {value}',
     presentLeft: '{name} is gone',
     presentLeftCondition: '{name} is gone ({condition})',
     presentLeftBehind: '{name} stays behind, and is gone',

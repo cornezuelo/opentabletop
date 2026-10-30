@@ -35,5 +35,12 @@ export function wayWorld(way: readonly WayHex[], hexKm: number): TravelWorld {
       const [i, j] = [index(a), index(b)].sort((x, y) => x - y)
       return j === i + 1 ? (way[i]?.connections ?? []) : []
     },
+    // The connection to the next hex is the leg's (`leg-<n>`, its first kind): its state
+    // in play is kept by that id.
+    connectionOf(a, b) {
+      const [i, j] = [index(a), index(b)].sort((x, y) => x - y)
+      const kind = j === i + 1 ? way[i]?.connections[0] : undefined
+      return kind === undefined ? undefined : { id: `leg-${i}`, kind }
+    },
   }
 }

@@ -58,8 +58,63 @@ export interface TravelWorld {
   distance(a: string, b: string): number
   /** The kinds of the connections between two neighbouring places, e.g. ['road'] or ['river']. */
   connections(a: string, b: string): string[]
+  /**
+   * The connection drawn between two neighbouring places, if any (a bridge, a door, a
+   * tunnel): its id, kind, tags and values, read as `connection.*` with its state in play.
+   */
+  connectionOf?(a: string, b: string): Connection | undefined
   /** The km a step from `a` into its neighbour `b` measures, at the map's scale. */
   km(a: string, b: string): number
+}
+
+/** An effect on the connection of the step (`connection.state: open`, `connection.uses: -1`). */
+export const CONNECTION_EFFECT = /^connection\.([^.]+)$/
+
+/** A value of a connection changed in play. */
+export interface ConnectionChange {
+  /** The connection's id (the drawn one the step takes). */
+  id: string
+  /** What it's called, for the journal: its name, else its kind. */
+  name: string
+  key: string
+  value: unknown
+}
+
+/**
+ * Changes a value of the connection a step takes (`connection`: its facts, a drawn one with
+ * an id), kept in the trip (`connections`), never on the map: a number, or a number written
+ * as text, adds to it (`uses: -1`; `'=3'` sets it), anything else sets it (`state: open`).
+ * Undefined when the step has no drawn connection, or for its `id` and `kind`.
+ */
+export function changeConnection(
+  travel: { connections?: Record<string, Record<string, unknown>> },
+  connection: Record<string, unknown> | undefined,
+  key: string,
+  change: number | string | boolean,
+): ConnectionChange | undefined {
+  const id = connection?.id
+  if (typeof id !== 'string' || key === 'id' || key === 'kind') return undefined
+  const now = travel.connections?.[id]?.[key] ?? connection![key]
+  const numeric = typeof change === 'number' || /^=?\s*[+-]?\d+(\.\d+)?$/.test(change as string)
+  const value =
+    typeof change !== 'boolean' && numeric
+      ? changeValue(typeof now === 'number' ? now : Number(now) || 0, change).to
+      : change
+  travel.connections = {
+    ...travel.connections,
+    [id]: { ...travel.connections?.[id], [key]: value },
+  }
+  const name = typeof connection!.name === 'string' ? connection!.name : String(connection!.kind)
+  return { id, name, key, value }
+}
+
+/** A connection drawn between two places, as the world gives it. */
+export interface Connection {
+  id: string
+  kind: string
+  tags?: string[]
+  /** Its values (`key` = `value`), read as `connection.<key>`. */
+  [key: string]: unknown
 }
 
 export interface PendingCheck {
@@ -242,6 +297,11 @@ export interface TravelState {
   speedToday?: number
   /** The day the trip started (`tripDay` counts from it; absent in older trips). */
   firstDay?: number
+  /**
+   * What changed in the connections drawn on the way, by id, while playing (`state: open`,
+   * `uses: 2`): read as `connection.<key>` over the map's values, set by effects.
+   */
+  connections?: Record<string, Record<string, unknown>>
   /** Times the party has been in each place this trip, the one it starts in included. */
   visits?: Record<string, number>
   /** The system's own actions done today (for `oncePerDay`). */
@@ -416,6 +476,8 @@ export type TravelEvent =
   | { type: 'NIGHT_WITHOUT'; action: string; because: Unavailable; time: GameTime }
   /** An action's step changes the party (applied by whoever keeps the party's values). */
   | { type: 'EFFECTS'; action: string; effects: Record<string, number | string>; time: GameTime }
+  /** A step changed a value of the connection ahead or just crossed (`connection.state: open`). */
+  | ({ type: 'CONNECTION_CHANGED'; time: GameTime } & ConnectionChange)
   /**
    * `checks`: how many of its checks came up here (0: nothing to roll, e.g. foraging on
    * hills); `on`: the moment or action that took it by itself (`on:` in the rules).
@@ -826,6 +888,22 @@ export function createTravelEngine(options: {
   }
 
   /**
+   * The connection of a step as conditions read it (`connection.kind`, `connection.tags`,
+   * `connection.state`…): the one drawn there with its values and what changed in play,
+   * else the kind of road or river followed; undefined off them.
+   */
+  const connectionFacts = (
+    state: TravelState,
+    a: string,
+    b: string,
+  ): Record<string, unknown> | undefined => {
+    const drawn = world.connectionOf?.(a, b)
+    if (drawn) return { ...drawn, tags: drawn.tags ?? [], ...state.connections?.[drawn.id] }
+    const kind = world.connections(a, b)[0]
+    return kind === undefined ? undefined : { kind, tags: [] }
+  }
+
+  /**
    * What a way of travelling's "only through" and a terrain's `passable` see when stepping
    * from `a` into `b`: the place entered (everything the map knows of it), the roads or
    * rivers of the step, the mode, the weather, the calendar (season, moons…) and today's
@@ -845,13 +923,20 @@ export function createTravelEngine(options: {
       water: !!place?.water,
       tags: place?.tags ?? [],
       connections: world.connections(a, b),
+      connection: connectionFacts(state, a, b),
       mode: state.mode,
       weather: state.weather,
     }
   }
 
   /** Terrain/connection multiplier for entering `b` from `a` (0 or Infinity-safe). */
-  const multiplier = (state: TravelState, a: string, b: string): number => {
+  const multiplier = (
+    state: TravelState,
+    a: string,
+    b: string,
+    /** Connections that can't be crossed now are crossed anyway (planning up to a shut door). */
+    shutToo = false,
+  ): number => {
     const mode = rules.modes[state.mode]
     const place = world.place(b)
     if (!mode || !place) return 0
@@ -871,8 +956,21 @@ export function createTravelEngine(options: {
       )
     )
       return 0
-    const edgeMultipliers = world
-      .connections(a, b)
+    // A kind of connection the step takes that can't be crossed now (a locked door) stops it.
+    const kinds = world.connections(a, b)
+    if (
+      !shutToo &&
+      kinds.some(
+        (k) =>
+          !isPassable(
+            rules.connections?.[k]?.passable,
+            () => qualify(throughContext(state, a, b)),
+            momentRolls(state, b),
+          ),
+      )
+    )
+      return 0
+    const edgeMultipliers = kinds
       .map((e) => rules.connections?.[e]?.multiplier)
       .filter((m): m is number => m !== undefined)
     // Roads and similar connections replace the terrain penalty.
@@ -884,11 +982,22 @@ export function createTravelEngine(options: {
   const dayFactor = (state: TravelState): number =>
     (state.weather ? (rules.weather?.[state.weather]?.speed ?? 1) : 1) * (state.speedToday ?? 1)
 
-  const baseMinutes = (state: TravelState, a: string, b: string): number => {
+  /**
+   * How long a step takes at today's normal pace: a connection's own time (`minutes`, the
+   * longest of the step's), else the way of travelling's time a step (`minutes`) or its
+   * distance a day over the step's km, slowed by the terrain or sped by a road.
+   */
+  const baseMinutes = (state: TravelState, a: string, b: string, shutToo = false): number => {
     const mode = rules.modes[state.mode]
-    const m = multiplier(state, a, b)
+    const m = multiplier(state, a, b, shutToo)
     if (!mode || m <= 0) return Infinity
-    const kmPerHour = mode.kmPerDay / rules.travel.hoursPerDay
+    const fixed = world
+      .connections(a, b)
+      .map((k) => rules.connections?.[k]?.minutes)
+      .filter((n): n is number => n !== undefined)
+    if (fixed.length) return Math.max(...fixed)
+    if (mode.minutes !== undefined) return mode.minutes / m
+    const kmPerHour = mode.kmPerDay! / rules.travel.hoursPerDay
     return (world.km(a, b) / (kmPerHour * m)) * 60
   }
 
@@ -911,17 +1020,25 @@ export function createTravelEngine(options: {
       rules.water?.multiplier ?? 0,
       ...Object.values(rules.connections ?? {}).map((e) => e.multiplier ?? 0),
     )
-    const minPerKm = 60 / ((mode.kmPerDay / rules.travel.hoursPerDay) * best)
-    const result = findPath<string>(state.location, to, {
-      neighbors: world.neighbors,
-      cost: (a, b) => {
-        const minutes = baseMinutes(state, a, b)
-        if (!Number.isFinite(minutes)) return Infinity
-        return strategy === 'shortest' ? world.km(a, b) : minutes
-      },
-      heuristic: (a, b) => world.distance(a, b) * (strategy === 'shortest' ? 1 : minPerKm),
-    })
-    return result?.path ?? null
+    // A time a step that isn't a distance (a door's minutes, a turn a step) can be shorter
+    // than any guess from the km left: no guess then.
+    const timed =
+      mode.minutes !== undefined ||
+      Object.values(rules.connections ?? {}).some((c) => c.minutes !== undefined)
+    const minPerKm = timed ? 0 : 60 / ((mode.kmPerDay! / rules.travel.hoursPerDay) * best)
+    const search = (shutToo: boolean) =>
+      findPath<string>(state.location, to, {
+        neighbors: world.neighbors,
+        cost: (a, b) => {
+          const minutes = baseMinutes(state, a, b, shutToo)
+          if (!Number.isFinite(minutes)) return Infinity
+          return strategy === 'shortest' ? world.km(a, b) : minutes
+        },
+        heuristic: (a, b) => world.distance(a, b) * (strategy === 'shortest' ? 1 : minPerKm),
+      })
+    // No way round a connection that can't be crossed now (a locked door): the route goes up
+    // to it, where the move stops (`ROUTE_BLOCKED`) and what's ahead reads it.
+    return (search(false) ?? search(true))?.path ?? null
   }
 
   /**
@@ -935,6 +1052,8 @@ export function createTravelEngine(options: {
   ): Record<string, unknown> => {
     const place = world.place(state.location)
     const host = facts.party as Record<string, unknown> | undefined
+    const stretch: [string, string] | undefined =
+      a && b ? [a, b] : state.route?.[1] ? [state.location, state.route[1]] : undefined
     return {
       ...facts,
       ...state.today,
@@ -945,12 +1064,9 @@ export function createTravelEngine(options: {
       terrain: place?.terrain,
       tags: place?.tags ?? [],
       // The stretch given (the one just walked entering a place), or else the one ahead.
-      connections:
-        a && b
-          ? world.connections(a, b)
-          : state.route?.[1]
-            ? world.connections(state.location, state.route[1])
-            : [],
+      connections: stretch ? world.connections(...stretch) : [],
+      // The connection of that stretch: a drawn one with its values and state, or the road.
+      connection: stretch && connectionFacts(state, ...stretch),
       weather: state.weather,
       mode: state.mode,
       ...clockFacts(state),
@@ -1024,7 +1140,13 @@ export function createTravelEngine(options: {
       if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
       // The actions the system takes at this moment come first (their checks too), seeing
       // what its checks see.
-      const walked = from ? { ...left, connections: world.connections(from, state.location) } : {}
+      const walked = from
+        ? {
+            ...left,
+            connections: world.connections(from, state.location),
+            connection: connectionFacts(state, from, state.location),
+          }
+        : {}
       for (const id of triggered.get(at) ?? []) {
         const still = takeAction(state, id, events, {
           on: at,
@@ -1745,6 +1867,13 @@ export function createTravelEngine(options: {
       Object.entries(written).map(([path, change]) => [path, resolveChange(change, now, roller)]),
     )
     for (const [path, change] of Object.entries(effects)) {
+      // The step's connection: changed now, so the steps after it see it (a door opened).
+      const key = CONNECTION_EFFECT.exec(path)?.[1]
+      if (key !== undefined) {
+        const done = changeConnection(state, now.connection as Record<string, unknown>, key, change)
+        if (done) limits.push({ type: 'CONNECTION_CHANGED', ...done, time: state.time })
+        continue
+      }
       const stat = /^party\.stats\.(.+)$/.exec(path)?.[1]
       const own = kept[path]
       if (stat === undefined && !own) continue

@@ -3279,3 +3279,86 @@ describe('the numbers the host keeps', () => {
     })
   })
 })
+
+describe('connections: what crossing one does', () => {
+  /** A corridor of rooms a–b–c: a door between a and b, a far tunnel from a to c. */
+  const rooms: TravelWorld = {
+    km: () => 3,
+    place: (id) => (['a', 'b', 'c'].includes(id) ? { terrain: 'floor' } : null),
+    neighbors: (id) => ({ a: ['b', 'c'], b: ['a', 'c'], c: ['b', 'a'] })[id] ?? [],
+    distance: () => 0,
+    connections: (x, y) => {
+      const pair = [x, y].sort().join('')
+      return pair === 'ab' ? ['door'] : pair === 'ac' ? ['tunnel'] : []
+    },
+    connectionOf: (x, y) =>
+      [x, y].sort().join('') === 'ab'
+        ? { id: 'oak-door', kind: 'door', tags: ['old'], state: 'locked' }
+        : undefined,
+  }
+  const dungeon = (more: Record<string, unknown> = {}) =>
+    parseTravelRules({
+      kind: 'travel-rules',
+      travel: DAY,
+      actions: DAY_ACTIONS,
+      terrains: { floor: { multiplier: 1 } },
+      modes: { careful: { minutes: 10 } },
+      connections: {
+        door: { minutes: 1, passable: { unless: { 'connection.state': 'locked' } } },
+        tunnel: { minutes: 60 },
+      },
+      ...more,
+    }).rules!
+  const at = (location: string): TravelState =>
+    initialTravelState({ location, mode: 'careful', time: defaultCalendar.at(1, '06:00') })
+
+  it('a way of travelling may take a time a step instead of a distance a day', () => {
+    const { errors } = parseTravelRules({
+      kind: 'travel-rules',
+      travel: DAY,
+      terrains: {},
+      modes: { both: { kmPerDay: 30, minutes: 10 }, neither: {} },
+    })
+    expect(errors.join('\n')).toMatch(/modes\.both.*kmPerDay or minutes/)
+    expect(errors.join('\n')).toMatch(/modes\.neither.*kmPerDay or minutes/)
+    const eng = createTravelEngine({ world: rooms, rules: dungeon() })
+    // b–c has no kind: the way of travelling's ten minutes a step.
+    expect(eng.stepMinutes(at('b'), 'b', 'c')).toBe(10)
+  })
+
+  it('a kind with minutes takes them whatever the speed, and passable reads the connection', () => {
+    const eng = createTravelEngine({ world: rooms, rules: dungeon() })
+    expect(eng.stepMinutes(at('a'), 'a', 'c')).toBe(60)
+    // The door is locked (its value on the map): it can't be crossed…
+    expect(eng.stepMinutes(at('a'), 'a', 'b')).toBe(Infinity)
+    // …until the trip says it's open: its state in play wins over the map's.
+    const opened = { ...at('a'), connections: { 'oak-door': { state: 'open' } } }
+    expect(eng.stepMinutes(opened, 'a', 'b')).toBe(1)
+    // The route finds the way round through the tunnel while it's locked.
+    expect(eng.plan(at('a'), 'b')).toEqual(['a', 'c', 'b'])
+    expect(eng.plan(opened, 'b')).toEqual(['a', 'b'])
+  })
+
+  it('checks and actions read the connection of the step as connection.*', () => {
+    const eng = createTravelEngine({
+      world: rooms,
+      rules: dungeon({
+        checks: [
+          {
+            event: 'CREAK',
+            at: 'trip.place-enter',
+            when: { 'connection.kind': 'door', 'connection.tags': 'old' },
+          },
+        ],
+      }),
+    })
+    const opened = { ...at('a'), connections: { 'oak-door': { state: 'open' } } }
+    const planned = eng.apply(opened, { type: 'setDestination', place: 'b' }).state
+    const { events } = eng.apply(planned, { type: 'action', id: 'march' })
+    const check = events.find((e) => e.type === 'CHECK_REQUIRED')
+    expect(check).toMatchObject({ check: { event: 'CREAK' } })
+    expect(
+      (check as { check: { context: Record<string, unknown> } }).check.context.connection,
+    ).toMatchObject({ id: 'oak-door', kind: 'door', state: 'open' })
+  })
+})

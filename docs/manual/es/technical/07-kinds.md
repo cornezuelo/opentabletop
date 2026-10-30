@@ -164,7 +164,10 @@ terrains:
   lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # helado en pleno invierno
 defaultTerrain: { multiplier: 1 } # velocidad × de los terrenos no listados
 water: { passable: false } # hexes de agua sin regla propia
-connections: { road: { multiplier: 1.5 }, river: { multiplier: 1 } } # por un camino o río
+connections: # por un camino o río; por una puerta dibujada en el mapa
+  road: { multiplier: 1.5 }
+  river: { multiplier: 1 }
+  door: { name: Puerta, minutes: 10, passable: { unless: { connection.state: locked } } }
 weather: { storm: { speed: 0 }, heavy-rain: { speed: 0.5 } }
 values: # valores del día que ponen tablas y acciones
   lost: { name: Perdidos, blocks: [travel.move] }

@@ -83,6 +83,12 @@ export function contextSuggestions(
   add('above')
   add('doing')
   add('connections', 'road', 'trail', 'river')
+  // The connection of the step: a drawn one (its id, tags, values and state in play) or the
+  // road followed.
+  add('connection.kind', 'road', 'trail', 'river')
+  add('connection.tags')
+  add('connection.id')
+  add('connection.state')
   // The terrains are the systems' (below) and the map's (the host's `extra`).
   add('terrain')
   add('tags')
@@ -193,6 +199,7 @@ export function contextSuggestions(
     add('mode', ...Object.keys(rules.modes))
     add('party.mode', ...Object.keys(rules.modes))
     add('connections', ...Object.keys(rules.connections ?? {}))
+    add('connection.kind', ...Object.keys(rules.connections ?? {}))
     // The party's own sheet, and its items with its members': what they spent and gained,
     // and what hit a bound, by full name.
     const numbers = [
@@ -370,10 +377,12 @@ export function setSuggestions(registry: Registry): Record<string, string[]> {
 /**
  * Paths effects can change (`effects: { party.stats.morale: -1 }`): the party's declared
  * stats, its sheet and items, its characters' values and conditions, and places made on the
- * party's hex (`place.pois.<id>`), in every loaded system.
+ * party's hex (`place.pois.<id>`), in every loaded system; and the step's connection's values
+ * in play (`connection.state`).
  */
 export function effectSuggestions(registry: Registry): Record<string, string[]> {
-  const out: Record<string, string[]> = {}
+  // The connection of the step (a door opened): a value of it in play, any the system reads.
+  const out: Record<string, string[]> = { 'connection.state': ['open', 'shut'] }
   for (const {
     bindings,
     sheet,
