@@ -202,6 +202,48 @@ describe('example maps', () => {
     expect(mapWorld(marches, system.rules.travel.hexKm).km('', '')).toBe(10)
   })
 
+  it('the Hollow Hills: Stonewater Ford takes an hour, and a storm day shuts it', () => {
+    const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'hollowhills1')!.json)
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const world = mapWorld(map, system.rules.travel.hexKm)
+    // Drawn on the trail's step into the ford hex: the trail and the ford, by name.
+    expect(world.connections('5,7', '6,8')).toEqual(['trail', 'ford'])
+    expect(world.connectionOf!('6,8', '5,7')).toMatchObject({
+      kind: 'ford',
+      name: 'Stonewater Ford',
+    })
+    const engine = createTravelEngine({ world, rules: system.rules, calendar: system.calendar })
+    const { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    // An hour, whatever the trail and the hills would make it.
+    expect(engine.stepMinutes(session.travel, '5,7', '6,8')).toBe(60)
+    // A storm day (the weather's `fordImpossible`): it can't be crossed; the route goes round.
+    const storm = { ...session.travel, today: { fordImpossible: true } }
+    expect(engine.stepMinutes(storm, '5,7', '6,8')).toBe(Infinity)
+    const around = engine.plan(storm, '6,8')!
+    expect(around[1]).not.toBe('6,8')
+    expect(around.at(-1)).toBe('6,8')
+    // Crossing it rolls the ford, read from the step's connection.
+    const planned = engine.apply(session.travel, { type: 'setDestination', place: '6,8' }).state
+    const ready = { ...planned, momentsDue: undefined }
+    const { events } = engine.apply(ready, {
+      type: 'action',
+      id: 'march',
+      with: { until: 'place' },
+    })
+    const ford = events.find(
+      (e) => e.type === 'CHECK_REQUIRED' && e.check.event === 'FORD_CHECK_REQUIRED',
+    )
+    expect(ford && ford.type === 'CHECK_REQUIRED' && ford.check.context.connection).toMatchObject({
+      kind: 'ford',
+    })
+  })
+
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {
     const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const { registry } = loadPacks(

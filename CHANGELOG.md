@@ -11,6 +11,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Every app: the apps' names are in the interface's language (in Spanish: Mapa, Campaña, Personajes, Oráculo, Viajes, Sistemas, Manual), in the switcher, each app's bar, the window's title, the texts and the manual; the Hexmapper is called **Map**.
 - Map: its address is `…/map/` (`…/hexmapper/` sends you on, keeping the link to a map or hex; a Hexmapper installed for offline use opens Map once online: install Map again for its own icon).
 
+### Packs
+
+- Core: a **gate** (`connections: gate`, ten minutes, shut while its state says so) and **Open the gate**. The Grey Marches: a **ford** kind (an hour, impassable on a storm day), drawn as Stonewater Ford on the Hollow Hills map; the ford's check also comes up crossing a drawn ford.
+
 ### Formats
 
 - Pack format 11: where the party is is a **place**, whatever the map: `place.*` in conditions and tables (`place.terrain`, `place.tags`, `{{place.danger}}`), `place.pois.<id>` in effects, the moment `trip.place-enter`, `travel.move: place` and `trip.places` (in format 10, `hex.*`, `hex.pois.<id>`, `trip.hex-enter`, `hex`, `trip.hexes`). Packs of format 10 aren't read: rewrite those names. Core, the Grey Marches and the manual are moved.

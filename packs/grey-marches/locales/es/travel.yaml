@@ -185,7 +185,7 @@ travel-rules/default:
       description: Keld Bridge, llegando por el camino.
     FORD_CHECK_REQUIRED:
       name: Vado
-      description: Cruzar el río a pie o a caballo.
+      description: Cruzar el río a pie o a caballo, en un vado.
     SHRINE_CHECK_REQUIRED:
       name: Santuario
       description: Un santuario junto al camino, la primera vez que el viaje pasa por él. El viaje se detiene tras la tirada; pulsa Continuar para seguir.
@@ -228,6 +228,10 @@ travel-rules/default:
     IN_CIRCLES:
       name: Dando vueltas
       description: Entrar por tercera vez en un mismo hex durante un viaje. Moral −1.
+  connections:
+    ford:
+      name: Vado
+      description: Una hora para cruzarlo; infranqueable un día de tormenta.
   modes:
     foot:
       name: A pie

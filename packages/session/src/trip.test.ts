@@ -671,6 +671,7 @@ describe("Core's system: the Generic rules as data", () => {
       'rest',
       'eat',
       'explore',
+      'open-gate',
       'despair',
     ])
     expect(core.sheet?.id).toBe('core/character')

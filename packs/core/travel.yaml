@@ -61,6 +61,13 @@ water: { passable: false }
 connections:
   road: { multiplier: 1.5 }
   trail: { multiplier: 1.2 }
+  # A gate drawn on a map (Map's Connections), shut unless its state in the trip says
+  # otherwise (`state: shut` among its values on the map): Open the gate, below, opens it.
+  gate:
+    name: Gate
+    description: Ten minutes to pass; can't be passed while it's shut.
+    minutes: 10
+    passable: { unless: { connection.state: shut } }
 modes:
   foot: { name: On foot, kmPerDay: 30 }
   horse: { name: On horseback, kmPerDay: 50 }
@@ -128,6 +135,15 @@ actions:
       - { time: 60 }
       - { roll: generator.prompt }
       - { roll: table.place-found }
+  # The gate ahead (the connection of the step, `connection.*`), while it's shut: ten
+  # minutes, and it's open for the rest of the trip (an effect on it, never on the map).
+  open-gate:
+    name: Open the gate
+    description: Ten minutes to open a shut gate on the way.
+    when: { connection.kind: gate, connection.state: shut }
+    do:
+      - { time: 10 }
+      - { effects: { connection.state: open } }
   # A moment written as a condition (a reaction): once, as morale reaches 0.
   despair:
     name: Despair

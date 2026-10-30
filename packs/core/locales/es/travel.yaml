@@ -1,4 +1,8 @@
 travel-rules/default:
+  connections:
+    gate:
+      name: Verja
+      description: Diez minutos para pasarla; no se puede pasar mientras está cerrada.
   modes:
     foot:
       name: A pie
@@ -36,6 +40,9 @@ travel-rules/default:
       do:
         broken:
           pause: El grupo ha perdido el ánimo.
+    open-gate:
+      name: Abrir la verja
+      description: Diez minutos para abrir una verja cerrada del camino.
     explore:
       name: Explorar
       description: 'Una hora mirando alrededor, de día: una idea de lo que encontráis (una acción y un tema, la Inspiración de Core) y, con un 6, un hito que merece la pena marcar.'

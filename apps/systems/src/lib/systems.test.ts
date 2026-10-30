@@ -172,6 +172,7 @@ describe('systems in the Systems app', () => {
       'rest',
       'eat',
       'explore',
+      'open-gate',
       'despair',
     ])
     // …and the calendar whose parts of the day they name (Core's, a dependency).

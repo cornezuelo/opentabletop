@@ -18,19 +18,8 @@ const rooms: TravelWorld = {
 }
 
 describe('a connection’s state in play', () => {
-  const rules = {
-    ...core.rules,
-    // No checks to stop for: what's tested is the gate.
-    checks: [],
-    connections: { gate: { minutes: 5, passable: { unless: { 'connection.state': 'shut' } } } },
-    actions: {
-      ...core.rules.actions,
-      open: {
-        when: { 'connection.kind': 'gate', 'connection.state': 'shut' },
-        do: [{ time: 10 }, { effects: { 'connection.state': 'open', 'connection.uses': -1 } }],
-      },
-    },
-  }
+  // Core's gate and its action, Open the gate; no checks to stop for: what's tested is the gate.
+  const rules = { ...core.rules, checks: [] }
   const system = { ...core, rules }
   const options = { system, world: rooms }
 
@@ -49,16 +38,13 @@ describe('a connection’s state in play', () => {
     })
     expect(stopped.state.travel.location).toBe('a')
     expect(stopped.entries.some((e) => e.code === 'ROUTE_BLOCKED')).toBe(true)
-    const opened = stepTrip(options, session, { type: 'action', id: 'open' })
-    expect(opened.state.travel.connections).toEqual({ 'the-gate': { state: 'open', uses: 1 } })
+    const opened = stepTrip(options, session, { type: 'action', id: 'open-gate' })
+    expect(opened.state.travel.connections).toEqual({ 'the-gate': { state: 'open' } })
     // Said in the journal when it happened (the action's line comes first).
     expect(
       opened.entries.flatMap((e) => (e.code === 'CONNECTION_CHANGED' ? [e.data] : [])),
-    ).toEqual([
-      { id: 'the-gate', name: 'gate', key: 'state', value: 'open', time: 370 },
-      { id: 'the-gate', name: 'gate', key: 'uses', value: 1, time: 370 },
-    ])
-    // Open now: the action no longer applies, and a march crosses it in its 5 minutes.
+    ).toEqual([{ id: 'the-gate', name: 'gate', key: 'state', value: 'open', time: 370 }])
+    // Open now: the action no longer applies, and a march crosses it in its 10 minutes.
     expect(tripFacts(options, opened.state)).toMatchObject({ connection: { state: 'open' } })
     const crossed = stepTrip(options, opened.state, {
       type: 'action',
@@ -66,6 +52,34 @@ describe('a connection’s state in play', () => {
       with: { until: 'place' },
     })
     expect(crossed.state.travel.location).toBe('b')
-    expect(crossed.state.travel.time - opened.state.travel.time).toBe(5)
+    expect(crossed.state.travel.time - opened.state.travel.time).toBe(10)
+  })
+
+  it('a check’s effects change the connection just crossed: a number adds to it', () => {
+    const creaks = {
+      ...system,
+      rules: {
+        ...rules,
+        checks: [
+          {
+            event: 'CREAK',
+            at: 'trip.place-enter',
+            when: { 'connection.kind': 'gate' },
+            effects: { 'connection.uses': -1 },
+          },
+        ],
+      },
+    }
+    const open = { ...rooms, connectionOf: () => ({ id: 'the-gate', kind: 'gate', uses: 2 }) }
+    const opts = { system: creaks, world: open }
+    let { session } = startTrip({ system: creaks, location: 'a', seed: 's' })
+    session = stepTrip(opts, session, { type: 'setDestination', place: 'b' }).state
+    const crossed = stepTrip(opts, session, {
+      type: 'action',
+      id: 'march',
+      with: { until: 'place' },
+    })
+    expect(crossed.state.travel.location).toBe('b')
+    expect(crossed.state.travel.connections).toEqual({ 'the-gate': { uses: 1 } })
   })
 })

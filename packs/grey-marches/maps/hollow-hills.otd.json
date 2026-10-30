@@ -1578,7 +1578,16 @@
           "system": "grey-marches",
           "packs": []
         }
-      }
+      },
+      "connections": [
+        {
+          "id": "stonewater01",
+          "between": ["5,7", "6,8"],
+          "kind": "ford",
+          "name": "Stonewater Ford",
+          "tags": ["ford"]
+        }
+      ]
     }
   ],
   "pois": [

@@ -46,6 +46,14 @@ defaultTerrain: { multiplier: 1 }
 connections:
   road: { multiplier: 1.5 }
   trail: { multiplier: 1.2 }
+  # A ford drawn on the map (Map's Connections: Stonewater Ford in the Hollow Hills): an hour
+  # to cross whatever the speed (minutes), and shut on a day a storm makes it impassable
+  # (passable reads today's value the weather set): routes go round, or stop before it.
+  ford:
+    name: Ford
+    description: An hour to cross; impassable on a day of storm.
+    minutes: 60
+    passable: { unless: { today.fordImpossible: true } }
 modes:
   foot: { name: On foot, kmPerDay: 25 }
   # Horses go twice as fast and eat fodder (the eat action below, at the end of each day).
@@ -576,12 +584,15 @@ checks:
     description: Keld Bridge, arriving by road.
     at: trip.place-enter
     when: { all: [{ place.tags: toll }, { trip.connections: road }] }
-  # Fords are rolled on an oracle, except by boat: not.
+  # Fords are rolled on an oracle, except by boat: not. Entering a hex tagged `ford`, or
+  # crossing a ford drawn on the map (the kind of the step's connection, `connection.kind`).
   - event: FORD_CHECK_REQUIRED
     name: Ford
-    description: Crossing the river on foot or horseback.
+    description: Crossing the river on foot or horseback, at a ford.
     at: trip.place-enter
-    when: { all: [{ place.tags: ford }, { not: { trip.mode: boat } }] }
+    when:
+      all:
+        [{ any: [{ place.tags: ford }, { connection.kind: ford }] }, { not: { trip.mode: boat } }]
   # Rolled on a table, then the trip pauses (pause) so you can describe the shrine. Only the
   # first time the trip comes by (`trip.visits`: 1 the first time in a hex).
   - event: SHRINE_CHECK_REQUIRED
