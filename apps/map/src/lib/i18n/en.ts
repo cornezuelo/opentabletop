@@ -139,6 +139,14 @@ export const en = {
     name: 'Name',
     untitled: 'Untitled',
     orientation: 'Orientation',
+    cells: 'Cells',
+    cellsHelp:
+      "The shape of the map's cells. Each cell is a place a trip steps through, with its terrain, name and values.\n• **Hexes** — six neighbours each: overland maps, hexcrawls\n• **Squares** — four neighbours (eight with **Diagonals**): dungeons, buildings, a town's streets, battle maps\nChanging it keeps every cell's data under the same column and row, so the drawing moves a little; roads and rivers keep the cells they pass through.",
+    cellsHex: 'Hexes',
+    cellsSquare: 'Squares',
+    diagonals: 'Diagonals',
+    diagonalsHelp:
+      'Whether a square touching only at a corner is a neighbour too: eight neighbours instead of four. A step on the diagonal counts as one step, as long as one along a side.\n• off — moving and painting go along the sides only: corridors and rooms\n• on — moving across corners: open ground, battle maps',
     hexKm: 'World scale (km per hex)',
     hexKmHelp:
       "How many km a hex measures across, for trips: travel times depend on it. **Empty: the system's scale** (`travel.hexKm` in its rules; 10 if it sets none), shown faded in the box; write a number only if this map is drawn at another scale.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
@@ -580,7 +588,7 @@ export const en = {
   },
   submap: {
     title: 'Ways into other maps',
-    help: "A place can lead into a map of its own, a **sub-map**: the dungeon under a hill, a town, the caves below. It belongs to this map's campaign, and may have sub-maps of its own.\n• **Open** opens it to draw it; the bar above it says where it hangs (_The Hollow Hills › The Barrow-halls_)\n• **Go in**, on a trip with the party here: the way in becomes the destination, and the march takes it; the trip goes on in the sub-map (the same party, journal and time), and leaving brings it back here\n• **New sub-map here** makes an empty one under this hex (its name is the hex's), kept in Maps; its way in and entrance are in its **Map settings**\nWhat going in costs and does is the system's: the kind of connection the way is (`extra` minutes, **Open when**, checks on `connection.kind`).",
+    help: "A place can lead into a map of its own, a **sub-map**: the dungeon under a hill, a town, the caves below. It belongs to this map's campaign, and may have sub-maps of its own.\n• **Open** opens it to draw it; the bar above it says where it hangs (_The Hollow Hills › The Barrow-halls_)\n• **Go in**, on a trip with the party here: the way in becomes the destination, and the march takes it; the trip goes on in the sub-map (the same party, journal and time), and leaving brings it back here\n• **New sub-map here** makes an empty one under this hex (its name is the hex's), of squares, kept in Maps; its way in, entrance and cells are in its **Map settings**\nWhat going in costs and does is the system's: the kind of connection the way is (`extra` minutes, **Open when**, checks on `connection.kind`).",
     open: 'Open',
     goIn: 'Go in ↗',
     goOut: 'Go out ↗',

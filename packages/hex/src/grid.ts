@@ -1,9 +1,8 @@
-import { line, neighbors, spiral } from './axial'
-import { toAxial, toOffset, type Offset, type Orientation } from './offset'
+import { cellNeighbors, cellsAround, type CellLayout } from './cells'
+import { toAxial, type Offset } from './offset'
 
-/** Bounds and orientation of a rectangular hex map. */
-export interface GridShape {
-  orientation: Orientation
+/** Bounds and cells of a rectangular map (hexes or squares). */
+export interface GridShape extends CellLayout {
   width: number
   height: number
 }
@@ -29,16 +28,12 @@ export function* allCells(shape: GridShape): Generator<Offset> {
 }
 
 export function neighborCells(cell: Offset, shape: GridShape): Offset[] {
-  return neighbors(toAxial(cell, shape.orientation))
-    .map((h) => toOffset(h, shape.orientation))
-    .filter((c) => inBounds(c, shape))
+  return cellNeighbors(cell, shape).filter((c) => inBounds(c, shape))
 }
 
 /** Cells within `radius` steps of `center` that lie inside the map. */
 export function cellsInRadius(center: Offset, radius: number, shape: GridShape): Offset[] {
-  return spiral(toAxial(center, shape.orientation), radius)
-    .map((h) => toOffset(h, shape.orientation))
-    .filter((c) => inBounds(c, shape))
+  return cellsAround(center, radius, shape).filter((c) => inBounds(c, shape))
 }
 
 /** Contiguous region around `start` whose cells satisfy `matches` (start included if it does). */
@@ -68,6 +63,8 @@ export type CoordFormat = 'CCRR' | 'axial'
 
 /** Human-facing label: CCRR is 1-based and zero-padded (0101, 0102, ...). */
 export function formatCoord(cell: Offset, format: CoordFormat, shape: GridShape): string {
+  // Squares have no axial coordinates: their column and row.
+  if (format === 'axial' && shape.kind === 'square') return `${cell.col},${cell.row}`
   if (format === 'axial') {
     const { q, r } = toAxial(cell, shape.orientation)
     return `${q},${r}`
@@ -75,9 +72,4 @@ export function formatCoord(cell: Offset, format: CoordFormat, shape: GridShape)
   const digits = Math.max(2, String(Math.max(shape.width, shape.height)).length)
   const pad = (n: number) => String(n + 1).padStart(digits, '0')
   return pad(cell.col) + pad(cell.row)
-}
-
-/** Cells on the straight line between two cells (may leave the map; callers filter). */
-export function cellLine(a: Offset, b: Offset, orientation: Orientation): Offset[] {
-  return line(toAxial(a, orientation), toAxial(b, orientation)).map((h) => toOffset(h, orientation))
 }

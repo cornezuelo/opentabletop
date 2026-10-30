@@ -1,4 +1,5 @@
 export * from './axial'
+export * from './cells'
 export * from './grid'
 export * from './hatch'
 export * from './layout'

@@ -25,7 +25,7 @@
 
   const mm = $derived(new Intl.NumberFormat(getLocale(), { maximumFractionDigits: 1 }))
   const printed = $derived(
-    mapSizeMm(editor.grid.width, editor.grid.height, editor.grid.orientation, editor.print.hexMm),
+    mapSizeMm(editor.grid.width, editor.grid.height, editor.grid, editor.print.hexMm),
   )
   const fitsOn = $derived(smallestPaper(printed, editor.print.marginMm))
 

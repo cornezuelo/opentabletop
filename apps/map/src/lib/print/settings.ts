@@ -1,3 +1,4 @@
+import type { CellLayout } from '@open-tabletop/hex'
 import type { SettingsPatch } from '../commands/settings'
 import {
   fitGrid,
@@ -10,10 +11,7 @@ import {
 } from '@open-tabletop/map'
 
 /** Cols × rows that fit on the configured paper, or null when sized by hex count. */
-export function sizeForPaper(
-  orientation: GridSettings['orientation'],
-  print: PrintSettings,
-): Size | null {
+export function sizeForPaper(layout: CellLayout, print: PrintSettings): Size | null {
   if (!print.paper) return null
   const paper = paperSize(print.paper, print.landscape, print.customPaper)
   const area = {
@@ -21,7 +19,7 @@ export function sizeForPaper(
     height: paper.height - 2 * print.marginMm,
   }
   if (area.width <= 0 || area.height <= 0) return { width: 1, height: 1 }
-  const fit = fitGrid(area, orientation, print.hexMm)
+  const fit = fitGrid(area, layout, print.hexMm)
   return { width: Math.min(fit.width, MAX_MAP_SIZE), height: Math.min(fit.height, MAX_MAP_SIZE) }
 }
 
@@ -36,7 +34,7 @@ export function resolveSettingsPatch(map: HexMap, patch: SettingsPatch): Setting
     print.paper = null
 
   const nextPrint = { ...map.print, ...print }
-  const fit = sizeForPaper(grid.orientation ?? map.grid.orientation, nextPrint)
+  const fit = sizeForPaper({ ...map.grid, ...grid }, nextPrint)
   if (fit) Object.assign(grid, fit)
 
   const changedGrid = pickChanged(map.grid, grid)

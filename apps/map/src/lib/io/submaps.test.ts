@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cellDistance, parseKey } from '@open-tabletop/hex'
 import type { LibraryEntry } from '@open-tabletop/storage'
 
 /**
@@ -69,15 +70,17 @@ describe('sub-maps', () => {
     play.editSession((s) => ({ ...s, stats: { ...s.stats, navigation: 6 } }))
     const trip = play.sessionOf(editor.map.play!)!
     const journal = trip.journal.length
-    /** Marches on (resolving what comes up) until the map `id` is the one open. */
-    const marchTo = async (id: string) => {
-      for (let i = 0; i < 12 && editor.map.meta.id !== id; i++) {
+    /** Marches on (resolving what comes up) until `done`. */
+    const marchUntil = async (done: () => boolean) => {
+      for (let i = 0; i < 20 && !done(); i++) {
         for (const c of play.sessionOf(editor.map.play!)?.travel.pendingChecks ?? [])
           play.resolvePending(c.id)
         play.step({ type: 'action', id: 'march', with: { until: 'place' } })
         await settle()
       }
     }
+    /** Marches on until the map `id` is the one open. */
+    const marchTo = (id: string) => marchUntil(() => editor.map.meta.id === id)
 
     // Go in: the way's other end is the destination, and the march takes it.
     play.step({ type: 'setDestination', place: placeOn('barrowhalls1', '0,3') })
@@ -97,6 +100,18 @@ describe('sub-maps', () => {
     await loadLinks()
     expect(editor.linked.ancestors).toEqual([{ id: 'hollowhills1', name: 'The Hollow Hills' }])
 
+    // The halls are squares, side by side: the march to the chief's tomb goes square to square.
+    expect(editor.map.grid.kind).toBe('square')
+    const trail = editor.map.play!.trail.length
+    play.step({ type: 'setDestination', place: '7,3' })
+    await marchUntil(() => play.sessionOf(editor.map.play!)?.travel.location === '7,3')
+    expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('7,3')
+    const walked = editor.map.play!.trail.slice(trail - 1).map(parseKey)
+    expect(walked).toHaveLength(8)
+    expect(walked.at(-1)).toEqual({ col: 7, row: 3 })
+    for (let i = 1; i < walked.length; i++)
+      expect(cellDistance(walked[i - 1], walked[i], editor.map.grid)).toBe(1)
+
     // And back out, the same trip, to the hex it went down from.
     play.step({ type: 'setDestination', place: placeOn('hollowhills1', '10,8') })
     await marchTo('hollowhills1')
@@ -110,6 +125,7 @@ describe('sub-maps', () => {
     const made = await newSubMap('4,6', 'The cairn’s cellar', 'way-in')
     expect(maps.get(made.meta.id)).toMatchObject({ parent: 'hollowhills1' })
     expect(made.meta.parent).toMatchObject({ map: 'hollowhills1', place: '4,6', kind: 'way-in' })
+    expect(made.grid.kind).toBe('square')
     expect(subMapsAt('4,6').map((m) => m.meta.id)).toEqual([made.meta.id])
   })
 })

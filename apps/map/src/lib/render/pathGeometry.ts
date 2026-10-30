@@ -1,4 +1,4 @@
-import { cornerOffsets, type Orientation, type Point } from '@open-tabletop/hex'
+import { cellCorners, type CellLayout, type Point } from '@open-tabletop/hex'
 
 export interface PathVertex {
   /** Hex center in world units. */
@@ -40,15 +40,16 @@ export function pathRuns(vertices: PathVertex[]): Point[][] {
 }
 
 /**
- * Snap targets inside a hex, relative to its center: the center, the six edge
- * midpoints and the six corners (pulled slightly inwards so they stay in this hex).
+ * Snap targets inside a cell, relative to its center: the center, the sides' midpoints and
+ * the corners (pulled slightly inwards so they stay in this cell).
  */
-export function snapTargets(orientation: Orientation, size: number): Point[] {
-  const corners = cornerOffsets(orientation, size * 0.92)
+export function snapTargets(layout: CellLayout, size: number): Point[] {
+  const corners = cellCorners(layout, size * 0.92)
+  const n = corners.length / 2
   const targets: Point[] = [{ x: 0, y: 0 }]
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < n; i++) {
     const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
-    const j = (i + 1) % 6
+    const j = (i + 1) % n
     const b = { x: corners[j * 2], y: corners[j * 2 + 1] }
     targets.push(a, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
   }
@@ -56,16 +57,11 @@ export function snapTargets(orientation: Orientation, size: number): Point[] {
 }
 
 /** Nearest snap target to `offset`, or `offset` clamped inside the hex when not snapping. */
-export function placeInHex(
-  offset: Point,
-  orientation: Orientation,
-  size: number,
-  snap: boolean,
-): Point {
+export function placeInHex(offset: Point, layout: CellLayout, size: number, snap: boolean): Point {
   if (snap) {
     let best = { x: 0, y: 0 }
     let bestDistance = Infinity
-    for (const target of snapTargets(orientation, size)) {
+    for (const target of snapTargets(layout, size)) {
       const d = Math.hypot(target.x - offset.x, target.y - offset.y)
       if (d < bestDistance) {
         best = target
@@ -74,7 +70,7 @@ export function placeInHex(
     }
     return best
   }
-  // Keep free placement within the inscribed circle so the point can't leave the hex.
+  // Keep free placement within the inscribed circle so the point can't leave the cell.
   const max = ((size * Math.sqrt(3)) / 2) * 0.95
   const length = Math.hypot(offset.x, offset.y)
   return length <= max ? offset : { x: (offset.x / length) * max, y: (offset.y / length) * max }

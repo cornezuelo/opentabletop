@@ -1,12 +1,10 @@
 import {
   allCells,
-  cornerOffsets,
+  cellCenter,
+  cellCorners,
+  cellSides,
   hatchSegments,
-  hexToPixel,
   keyOf,
-  pixelToHex,
-  toAxial,
-  toOffset,
   type HexKey,
 } from '@open-tabletop/hex'
 import type { HexMap } from '@open-tabletop/map'
@@ -34,8 +32,8 @@ const FRONTIER_INSET = 0.08
  * mix. One SVG path per colour, so a big map stays light. `size` is a hex's radius.
  */
 export function drawLand(map: HexMap, size = 10): LandDrawing {
-  const { orientation } = map.grid
-  const corners = cornerOffsets(orientation, size)
+  const { grid } = map
+  const corners = cellCorners(grid, size)
   const terrainColor = new Map(map.terrains.map((t) => [t.id, t.color]))
   const holder = new Map<string, string>()
   for (const [faction, hexes] of Object.entries(map.territories ?? {}))
@@ -48,14 +46,15 @@ export function drawLand(map: HexMap, size = 10): LandDrawing {
   let maxX = -Infinity
   let maxY = -Infinity
   for (const cell of allCells(map.grid)) {
-    const { x, y } = hexToPixel(toAxial(cell, orientation), orientation, size)
+    const { x, y } = cellCenter(cell, grid, size)
     minX = Math.min(minX, x)
     minY = Math.min(minY, y)
     maxX = Math.max(maxX, x)
     maxY = Math.max(maxY, y)
     const around = corners.map((v, i) => v + (i % 2 ? y : x))
     let d = ''
-    for (let i = 0; i < 12; i += 2) d += `${i ? 'L' : 'M'}${at(around[i], around[i + 1])}`
+    for (let i = 0; i < around.length; i += 2)
+      d += `${i ? 'L' : 'M'}${at(around[i], around[i + 1])}`
     d += 'Z'
     const key: HexKey = keyOf(cell)
     const fill = terrainColor.get(map.hexes[key]?.terrain ?? '') ?? ''
@@ -66,16 +65,11 @@ export function drawLand(map: HexMap, size = 10): LandDrawing {
     land.set(faction, drawn)
     for (const [p, q] of hatchSegments(around, size * HATCH_SPACING))
       drawn.hatch.push(`M${at(p.x, p.y)}L${at(q.x, q.y)}`)
-    for (let i = 0; i < 12; i += 2) {
-      const j = (i + 2) % 12
-      const [ax, ay, bx, by] = [around[i], around[i + 1], around[j], around[j + 1]]
-      // The hex across this edge: as far beyond it as the centre is inside.
-      const across = { x: ax + bx - x, y: ay + by - y }
-      const neighbour = toOffset(pixelToHex(across, orientation, size), orientation)
-      if (holder.get(keyOf(neighbour)) === faction) continue
+    for (const { a, b, across } of cellSides(cell, grid, size)) {
+      if (holder.get(keyOf(across)) === faction) continue
       const inset = (px: number, py: number) =>
         at(px + (x - px) * FRONTIER_INSET, py + (y - py) * FRONTIER_INSET)
-      drawn.frontier.push(`M${inset(ax, ay)}L${inset(bx, by)}`)
+      drawn.frontier.push(`M${inset(a.x, a.y)}L${inset(b.x, b.y)}`)
     }
   }
   if (minX === Infinity) return { box: '0 0 0 0', fills: [], land: [] }

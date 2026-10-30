@@ -109,18 +109,43 @@
 </label>
 
 <label class="field">
-  <span>{t('map.orientation')}</span>
+  <span>{t('map.cells')}<InfoTip text={t('map.cellsHelp')} /></span>
   <select
-    value={editor.grid.orientation}
+    value={editor.grid.kind ?? 'hex'}
     onchange={(e) =>
       applySettings({
-        grid: { orientation: e.currentTarget.value as GridSettings['orientation'] },
+        grid: { kind: e.currentTarget.value === 'square' ? 'square' : undefined },
       })}
   >
-    <option value="flat">{t('map.flat')}</option>
-    <option value="pointy">{t('map.pointy')}</option>
+    <option value="hex">{t('map.cellsHex')}</option>
+    <option value="square">{t('map.cellsSquare')}</option>
   </select>
 </label>
+
+{#if editor.grid.kind === 'square'}
+  <label class="check">
+    <input
+      type="checkbox"
+      checked={!!editor.grid.diagonals}
+      onchange={(e) => applySettings({ grid: { diagonals: e.currentTarget.checked || undefined } })}
+    />
+    <span>{t('map.diagonals')}<InfoTip text={t('map.diagonalsHelp')} /></span>
+  </label>
+{:else}
+  <label class="field">
+    <span>{t('map.orientation')}</span>
+    <select
+      value={editor.grid.orientation}
+      onchange={(e) =>
+        applySettings({
+          grid: { orientation: e.currentTarget.value as GridSettings['orientation'] },
+        })}
+    >
+      <option value="flat">{t('map.flat')}</option>
+      <option value="pointy">{t('map.pointy')}</option>
+    </select>
+  </label>
+{/if}
 
 <label class="field">
   <span>{t('map.coordFormat')}<InfoTip text={t('map.coordFormatHelp')} /></span>
@@ -137,6 +162,14 @@
 </label>
 
 <style>
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
   .inside p {
     margin: 0;
     color: var(--text);

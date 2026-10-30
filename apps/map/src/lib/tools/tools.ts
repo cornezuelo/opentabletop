@@ -19,11 +19,9 @@ import { paintTerritory } from '../play/factions'
 import { drawnTokens, isCopy, tokenFromBestiary } from '../play/present'
 import { placeInHex } from '../render/pathGeometry'
 import {
-  hexToPixel,
-  pixelToHex,
-  toOffset,
+  cellAt,
+  cellCenter as centerOn,
   type Point,
-  toAxial,
   inBounds,
   parseKey,
   cellLine,
@@ -95,7 +93,7 @@ class RegionTool implements Tool {
   move(cell: Offset): void {
     if (!this.batch || !this.last) return
     if (cell.col === this.last.col && cell.row === this.last.row) return
-    this.paint(cellLine(this.last, cell, editor.map.grid.orientation).slice(1))
+    this.paint(cellLine(this.last, cell, editor.map.grid).slice(1))
     this.last = cell
   }
 
@@ -267,7 +265,7 @@ class TerrainTool implements Tool {
   move(cell: Offset): void {
     if (!this.batch || !this.last) return
     if (cell.col === this.last.col && cell.row === this.last.row) return
-    this.paint(cellLine(this.last, cell, editor.map.grid.orientation).slice(1))
+    this.paint(cellLine(this.last, cell, editor.map.grid).slice(1))
     this.last = cell
   }
 
@@ -413,7 +411,7 @@ class PathTool implements Tool {
       return
     }
     const last = parseKey(draft.hexes.at(-1)!)
-    const added = cellLine(last, cell, grid.orientation)
+    const added = cellLine(last, cell, grid)
       .slice(1)
       .filter((c) => inBounds(c, grid))
       .map(keyOf)
@@ -437,19 +435,14 @@ class PathTool implements Tool {
     if (!path) return
     const { grid } = editor.map
     const world = { x: info.world.x + drag.grab.x, y: info.world.y + drag.grab.y }
-    const target = toOffset(pixelToHex(world, grid.orientation, grid.hexSize), grid.orientation)
+    const target = cellAt(world, grid, grid.hexSize)
     const original = parseKey(drag.before.hexes[drag.index])
     let { hexes } = drag.before
     let offsets = drag.before.hexes.map((_, i) => drag.before.offsets?.[i] ?? null)
     let nodes = drag.before.nodes
     let index = drag.index
     if (inBounds(target, grid) && keyOf(target) !== keyOf(original)) {
-      ;({ hexes, offsets, nodes, index } = rerouteVertex(
-        drag.before,
-        drag.index,
-        target,
-        grid.orientation,
-      ))
+      ;({ hexes, offsets, nodes, index } = rerouteVertex(drag.before, drag.index, target, grid))
     }
     offsets[index] = offsetInHex(parseKey(hexes[index]), { ...info, world })
     path.hexes = hexes
@@ -483,18 +476,19 @@ function continueFrom(path: MapPath, index: number): void {
 
 /** World position of a path vertex (hex center plus its offset). */
 export function pathVertexPoint(path: MapPath, index: number): Point {
-  const { orientation, hexSize } = editor.map.grid
-  const center = hexToPixel(toAxial(parseKey(path.hexes[index]), orientation), orientation, hexSize)
+  const { hexSize } = editor.map.grid
+  const center = cellCenter(parseKey(path.hexes[index]))
   const offset = path.offsets?.[index]
   return offset ? { x: center.x + offset[0] * hexSize, y: center.y + offset[1] * hexSize } : center
 }
 
 /** Offset (hex-size units) of the pointer inside `cell`, snapped unless Ctrl is held. */
 function offsetInHex(cell: Offset, info: PointerInfo): [number, number] | null {
-  const { orientation, hexSize } = editor.map.grid
-  const center = hexToPixel(toAxial(cell, orientation), orientation, hexSize)
+  const { grid } = editor.map
+  const { hexSize } = grid
+  const center = cellCenter(cell)
   const local = { x: info.world.x - center.x, y: info.world.y - center.y }
-  const placed = placeInHex(local, orientation, hexSize, !info.ctrl)
+  const placed = placeInHex(local, grid, hexSize, !info.ctrl)
   if (placed.x === 0 && placed.y === 0) return null
   return [placed.x / hexSize, placed.y / hexSize]
 }
@@ -675,7 +669,7 @@ class IconTool implements Tool {
   private moveIcon(info: PointerInfo): void {
     const drag = this.drag!
     const { grid, hexes } = editor.map
-    let cell = toOffset(pixelToHex(info.world, grid.orientation, grid.hexSize), grid.orientation)
+    let cell = cellAt(info.world, grid, grid.hexSize)
     let key = keyOf(cell)
     // Only empty hexes (or its own) can receive the icon.
     if (!inBounds(cell, grid) || (key !== drag.source && hexes[key]?.icon && key !== drag.target)) {
@@ -724,8 +718,8 @@ function selectIconHex(key: HexKey): void {
 }
 
 function cellCenter(cell: Offset): Point {
-  const { orientation, hexSize } = editor.map.grid
-  return hexToPixel(toAxial(cell, orientation), orientation, hexSize)
+  const { grid } = editor.map
+  return centerOn(cell, grid, grid.hexSize)
 }
 
 export function deleteSelectedIcon(): void {
@@ -850,7 +844,7 @@ class FactionTool implements Tool {
   move(cell: Offset): void {
     if (!this.last || !editor.factionBrush) return
     if (cell.col === this.last.col && cell.row === this.last.row) return
-    const line = cellLine(this.last, cell, editor.map.grid.orientation).slice(1)
+    const line = cellLine(this.last, cell, editor.map.grid).slice(1)
     paintTerritory(editor.factionBrush, line.map(keyOf), this.claiming)
     this.last = cell
   }

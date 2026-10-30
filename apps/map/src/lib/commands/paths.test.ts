@@ -126,7 +126,7 @@ describe('rerouteVertex', () => {
   }
 
   it('moves a middle vertex and keeps the path contiguous', () => {
-    const result = rerouteVertex(path, 1, { col: 1, row: 2 }, 'flat')
+    const result = rerouteVertex(path, 1, { col: 1, row: 2 }, { orientation: 'flat' })
     expect(result.hexes[0]).toBe('0,0')
     expect(result.hexes.at(-1)).toBe('3,0')
     expect(result.hexes[result.index]).toBe('1,2')
@@ -141,25 +141,30 @@ describe('rerouteVertex', () => {
   })
 
   it('keeps user nodes and marks only the moved vertex as a new node', () => {
-    const result = rerouteVertex({ ...path, nodes: [0, 3] }, 3, { col: 3, row: 3 }, 'flat')
+    const result = rerouteVertex(
+      { ...path, nodes: [0, 3] },
+      3,
+      { col: 3, row: 3 },
+      { orientation: 'flat' },
+    )
     expect(result.nodes[0]).toBe(0)
     expect(result.nodes.at(-1)).toBe(result.index)
     expect(result.nodes).toHaveLength(2)
   })
 
   it('moves endpoints', () => {
-    const start = rerouteVertex(path, 0, { col: 0, row: 2 }, 'flat')
+    const start = rerouteVertex(path, 0, { col: 0, row: 2 }, { orientation: 'flat' })
     expect(start.hexes[0]).toBe('0,2')
     expect(start.index).toBe(0)
-    const end = rerouteVertex(path, 3, { col: 5, row: 0 }, 'flat')
+    const end = rerouteVertex(path, 3, { col: 5, row: 0 }, { orientation: 'flat' })
     expect(end.hexes.at(-1)).toBe('5,0')
     expect(end.index).toBe(end.hexes.length - 1)
   })
 
   it('merges into a neighbor when dropped on it, without duplicates', () => {
-    const onPrev = rerouteVertex(path, 1, { col: 0, row: 0 }, 'flat')
+    const onPrev = rerouteVertex(path, 1, { col: 0, row: 0 }, { orientation: 'flat' })
     expect(onPrev.hexes[onPrev.index]).toBe('0,0')
-    const onNext = rerouteVertex(path, 1, { col: 2, row: 0 }, 'flat')
+    const onNext = rerouteVertex(path, 1, { col: 2, row: 0 }, { orientation: 'flat' })
     expect(onNext.hexes[onNext.index]).toBe('2,0')
     for (let i = 1; i < onNext.hexes.length; i++) {
       expect(onNext.hexes[i]).not.toBe(onNext.hexes[i - 1])

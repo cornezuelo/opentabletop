@@ -79,6 +79,8 @@ export const subMapsAt = (hex: string): HexMap[] =>
  */
 export async function newSubMap(place: HexKey, name: string, kind?: string): Promise<HexMap> {
   const map = createMap()
+  // A site under a place (a dungeon, a town) is drawn on squares; Map settings changes it.
+  map.grid = { ...map.grid, kind: 'square' }
   const { width, height } = map.grid
   const parent: MapParent = {
     map: editor.map.meta.id,

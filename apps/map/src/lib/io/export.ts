@@ -97,7 +97,7 @@ function mmPerUnit(): number {
 /** Approximate printed size of the grid alone, for the UI before exporting. */
 export function gridSizeMm(): Size {
   const { grid, print } = editor.map
-  return mapSizeMm(grid.width, grid.height, grid.orientation, print.hexMm)
+  return mapSizeMm(grid.width, grid.height, grid, print.hexMm)
 }
 
 export interface PdfExport extends PdfLayout {

@@ -59,7 +59,10 @@ export function resolveHexLabel(label: string, shape: GridShape): Offset | null 
   }
   const axial = /^(-?\d+),(-?\d+)$/.exec(label)
   if (axial) {
-    const cell = toOffset({ q: Number(axial[1]), r: Number(axial[2]) }, shape.orientation)
+    const [x, y] = [Number(axial[1]), Number(axial[2])]
+    // Squares' "axial" coordinates are their column and row (`formatCoord`).
+    const cell =
+      shape.kind === 'square' ? { col: x, row: y } : toOffset({ q: x, r: y }, shape.orientation)
     return inBounds(cell, shape) ? cell : null
   }
   return null

@@ -236,7 +236,9 @@ export function mapToBundle(
     type: 'map',
     name: map.meta.name,
     grid: {
+      ...(map.grid.kind && { kind: map.grid.kind }),
       orientation: map.grid.orientation,
+      ...(map.grid.diagonals && { diagonals: true }),
       width: map.grid.width,
       height: map.grid.height,
       coordFormat: map.grid.coordFormat,
@@ -663,7 +665,9 @@ export function bundleToMap(raw: unknown): OpenedMap {
       ...(otdMap.parent && { parent: otdMap.parent }),
     },
     grid: {
+      ...(otdMap.grid.kind === 'square' && { kind: 'square' as const }),
       orientation: otdMap.grid.orientation,
+      ...(otdMap.grid.kind === 'square' && otdMap.grid.diagonals && { diagonals: true }),
       width: otdMap.grid.width,
       height: otdMap.grid.height,
       coordFormat: otdMap.grid.coordFormat,

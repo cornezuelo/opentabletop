@@ -1,8 +1,8 @@
 import type { CharacterState } from '@open-tabletop/character-engine'
-import { type CoordFormat, type HexKey, type Orientation } from '@open-tabletop/hex'
+import { type CoordFormat, type GridKind, type HexKey, type Orientation } from '@open-tabletop/hex'
 import type { PaperId, Size } from './paper'
 
-export type { CoordFormat, HexKey, Orientation }
+export type { CoordFormat, GridKind, HexKey, Orientation }
 
 export interface TerrainType {
   id: string
@@ -90,8 +90,13 @@ export interface HexIcon {
 export type IconStyle = Omit<HexIcon, 'id'>
 
 export interface GridSettings {
+  /** Its cells: hexes (absent) or squares. */
+  kind?: GridKind
+  /** Hexes only: flat or pointy tops. */
   orientation: Orientation
-  /** Center-to-corner radius in world units. */
+  /** Squares only: diagonal squares are neighbours too (8 instead of 4). */
+  diagonals?: boolean
+  /** Center-to-corner radius in world units (a square measures a hex's flat-to-flat across). */
   hexSize: number
   width: number
   height: number

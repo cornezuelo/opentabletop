@@ -36,20 +36,19 @@ import { setLabelHitTest, setTokenHitTest } from './hitTest'
 import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
 import {
   allCells,
+  cellAt,
+  cellCenter,
+  cellCorners,
+  cellSides,
   cellsInRadius,
-  cornerOffsets,
   formatCoord,
   hatchSegments,
   type HexKey,
-  hexToPixel,
   inBounds,
   keyOf,
   type Offset,
   parseKey,
-  pixelToHex,
   type Point,
-  toAxial,
-  toOffset,
 } from '@open-tabletop/hex'
 import { editor } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
@@ -505,8 +504,8 @@ export class MapRenderer {
 
   private rebuild(): void {
     const { grid, terrains } = editor.map
-    this.corners = cornerOffsets(grid.orientation, grid.hexSize)
-    this.shapeSignature = `${grid.orientation}:${grid.width}x${grid.height}:${grid.hexSize}`
+    this.corners = cellCorners(grid, grid.hexSize)
+    this.shapeSignature = `${grid.kind ?? 'hex'}:${grid.orientation}:${grid.width}x${grid.height}:${grid.hexSize}`
 
     for (const child of this.terrainLayer.removeChildren()) child.destroy()
     for (const child of this.coordLayer.removeChildren()) child.destroy()
@@ -522,7 +521,8 @@ export class MapRenderer {
 
     this.gridLines.clear()
     const coordSize = grid.hexSize * 0.3
-    const coordOffset = grid.hexSize * (grid.orientation === 'flat' ? 0.8 : 0.72)
+    const coordOffset =
+      grid.hexSize * (grid.kind === 'square' ? 0.78 : grid.orientation === 'flat' ? 0.8 : 0.72)
 
     for (const cell of allCells(grid)) {
       const key = keyOf(cell)
@@ -586,16 +586,8 @@ export class MapRenderer {
       const held = new Set(hexes)
       for (const cell of cells) {
         const c = this.centerOf(cell)
-        const corners = this.cornersAt(cell)
-        for (let i = 0; i < 6; i++) {
-          const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
-          const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
-          const across = {
-            x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
-            y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
-          }
-          const neighbor = toOffset(pixelToHex(across, grid.orientation, hs), grid.orientation)
-          if (held.has(keyOf(neighbor))) continue
+        for (const { a, b, across } of cellSides(cell, grid, hs)) {
+          if (held.has(keyOf(across))) continue
           // On the inner side, so two factions side by side both show.
           const inset = (p: { x: number; y: number }) => ({
             x: p.x + (c.x - p.x) * 0.08,
@@ -645,20 +637,9 @@ export class MapRenderer {
     // Its outline: the edges of its hexes that face a hex outside it.
     const hs = grid.hexSize
     const edges: [Point, Point][] = []
-    for (const cell of cells) {
-      const c = this.centerOf(cell)
-      const corners = this.cornersAt(cell)
-      for (let i = 0; i < 6; i++) {
-        const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
-        const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
-        const across = {
-          x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
-          y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
-        }
-        const neighbor = toOffset(pixelToHex(across, grid.orientation, hs), grid.orientation)
-        if (!chosen.has(keyOf(neighbor))) edges.push([a, b])
-      }
-    }
+    for (const cell of cells)
+      for (const { a, b, across } of cellSides(cell, grid, hs))
+        if (!chosen.has(keyOf(across))) edges.push([a, b])
     const minimum = 1 / this.world.scale.x
     for (const [width, color, alpha] of [
       [Math.max(hs * 0.2, 6 * minimum), 0x000000, 0.55],
@@ -699,17 +680,8 @@ export class MapRenderer {
       if (style.border > 0 && style.borderOpacity > 0)
         for (const cell of cells) {
           const c = this.centerOf(cell)
-          const corners = this.cornersAt(cell)
-          for (let i = 0; i < 6; i++) {
-            const a = { x: corners[i * 2], y: corners[i * 2 + 1] }
-            const b = { x: corners[((i + 1) % 6) * 2], y: corners[((i + 1) % 6) * 2 + 1] }
-            const across = {
-              x: c.x + ((a.x + b.x) / 2 - c.x) * 2,
-              y: c.y + ((a.y + b.y) / 2 - c.y) * 2,
-            }
-            const { orientation } = grid
-            const neighbor = toOffset(pixelToHex(across, orientation, hs), orientation)
-            const inside = inBounds(neighbor, grid) && hexes[keyOf(neighbor)]?.region === region.id
+          for (const { a, b, across } of cellSides(cell, grid, hs)) {
+            const inside = inBounds(across, grid) && hexes[keyOf(across)]?.region === region.id
             if (inside) continue
             // Inset by half the border, so it stays inside the region.
             const k = 1 - Math.min(0.4, style.border / 2 + 0.055)
@@ -1312,8 +1284,8 @@ export class MapRenderer {
   }
 
   private centerOf(cell: Offset): Point {
-    const { orientation, hexSize } = editor.map.grid
-    return hexToPixel(toAxial(cell, orientation), orientation, hexSize)
+    const { grid } = editor.map
+    return cellCenter(cell, grid, grid.hexSize)
   }
 
   private cornersAt(cell: Offset): number[] {
@@ -1376,8 +1348,8 @@ export class MapRenderer {
     const { x, y } = this.screenPoint(e)
     const scale = this.world.scale.x
     const world = { x: (x - this.world.x) / scale, y: (y - this.world.y) / scale }
-    const { orientation, hexSize } = editor.map.grid
-    return toOffset(pixelToHex(world, orientation, hexSize), orientation)
+    const { grid } = editor.map
+    return cellAt(world, grid, grid.hexSize)
   }
 
   private zoomAt(screen: Point, factor: number): void {

@@ -1,4 +1,4 @@
-import { type Orientation } from '@open-tabletop/hex'
+import { type CellLayout } from '@open-tabletop/hex'
 
 export const PAPERS = {
   A5: { width: 148, height: 210 },
@@ -31,29 +31,25 @@ export function paperSize(paper: PaperId, landscape: boolean, custom: Size): Siz
 }
 
 /**
- * Printed size in mm of a cols × rows map whose hexes measure `hexMm` flat-to-flat.
- * Accounts for the half-hex stagger of odd columns (flat) or rows (pointy).
+ * Printed size in mm of a cols × rows map whose hexes measure `hexMm` flat-to-flat (squares,
+ * that across). Accounts for the half-hex stagger of odd columns (flat) or rows (pointy).
  */
-export function mapSizeMm(
-  cols: number,
-  rows: number,
-  orientation: Orientation,
-  hexMm: number,
-): Size {
+export function mapSizeMm(cols: number, rows: number, layout: CellLayout, hexMm: number): Size {
+  if (layout.kind === 'square') return { width: hexMm * cols, height: hexMm * rows }
   const r = hexMm / SQRT3 // center-to-corner
-  if (orientation === 'flat') {
+  if (layout.orientation === 'flat') {
     return { width: r * (1.5 * cols + 0.5), height: hexMm * (rows + (cols > 1 ? 0.5 : 0)) }
   }
   return { width: hexMm * (cols + (rows > 1 ? 0.5 : 0)), height: r * (1.5 * rows + 0.5) }
 }
 
 /** Largest cols × rows that fits in `area` (mm). Always at least 1 × 1. */
-export function fitGrid(area: Size, orientation: Orientation, hexMm: number): Size {
+export function fitGrid(area: Size, layout: CellLayout, hexMm: number): Size {
   let cols = 1
   let rows = 1
   // Grow greedily; sizes are small (≤ a few hundred) so this stays cheap and exact.
   const fits = (c: number, r: number) => {
-    const size = mapSizeMm(c, r, orientation, hexMm)
+    const size = mapSizeMm(c, r, layout, hexMm)
     return size.width <= area.width + 1e-9 && size.height <= area.height + 1e-9
   }
   while (fits(cols + 1, rows)) cols++

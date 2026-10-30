@@ -1,10 +1,9 @@
 import {
-  distance,
+  cellDistance,
   inBounds,
   keyOf,
   neighborCells,
   parseKey,
-  toAxial,
   type HexKey,
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
@@ -96,8 +95,7 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
     for (let i = 0; i < path.hexes.length - 1; i++)
       join(path.hexes[i], path.hexes[i + 1], path.kind)
   const cell = (hex: string) => parseKey(hex as HexKey)
-  const hexDistance = (a: string, b: string) =>
-    distance(toAxial(cell(a), grid.orientation), toAxial(cell(b), grid.orientation))
+  const hexDistance = (a: string, b: string) => cellDistance(cell(a), cell(b), grid)
   /** Drawn connections between hexes that aren't next to each other: more neighbours. */
   const far = new Map<string, string[]>()
   /** The connection drawn between two places, both ways. */

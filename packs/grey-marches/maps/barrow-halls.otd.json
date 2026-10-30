@@ -16,6 +16,7 @@
       "type": "map",
       "name": "The Barrow-halls",
       "grid": {
+        "kind": "square",
         "orientation": "flat",
         "width": 9,
         "height": 7,
@@ -174,7 +175,7 @@
       "paths": [],
       "ext": {
         "map": {
-          "version": 30,
+          "version": 31,
           "created": "2026-10-30T12:00:00.000Z",
           "modified": "2026-10-30T12:00:00.000Z",
           "hexSize": 40,

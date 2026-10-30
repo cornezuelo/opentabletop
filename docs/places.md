@@ -121,3 +121,15 @@ Built while the user was away, on §6 and §8 as decided; the details below were
 - **New sub-map here** makes an empty map (the default size, its middle hex the entrance, the system's `way-in` kind if it has one, the hex's name), kept in the library, not opened. Its scale is left to Map settings (a hex of 10 m is `0.01`).
 - **Examples**: a sub-map example (`maps:` of a system) is kept beside its parent example when the parent is opened, so its way in leads somewhere.
 - Left for later: routes across maps (a destination inside a sub-map from outside), sub-maps made by discovery (phase 4), square grids for dungeons (phase 3), a sub-map from a POI or an area (today a hex), and moving a sub-map to hang elsewhere (its place in the parent is only set when it's made).
+
+## 13. Phase 3a, squares: built (2026-10-30), details to review
+
+Phase 3 is split in two: (3a) square grids, (3b) areas (rooms painted as floor, walls drawn from its edge, one place each, §8 B and §9). 3a was built on autopilot; Claude's details, **to review with the user**:
+
+- **One geometry for both shapes** in `@open-tabletop/hex` (`cells.ts`): `cellCenter`, `cellAt`, `cellCorners`, `cellSides` (each side with the cell across it), `cellNeighbors`, `cellDistance`, `cellsAround`, `cellLine`, all taking the grid (`CellLayout`: `kind`, `orientation`, `diagonals`). Everything that drew or walked hexes (Map's renderer and tools, the paths, the factions' frontiers, Campaign's little maps, printing, `mapWorld`) goes through them, so a third shape later is one more case there.
+- **A square measures a hex's flat-to-flat width** across, so `hexSize`, printing's `hexMm` and PNG export's pixels per hex mean the same on both.
+- **Diagonals**: off by default (four neighbours: corridors and rooms); on, a diagonal step counts as one step and one cell's km, as most games simplify it (no 1-2-1 counting). A system wanting more could make diagonal steps cost through a value later.
+- **Names kept**: `scale.hexKm` (and the system's `travel.hexKm`) is a cell's km on squares too, and the UI and manual say "hex" for a square ("in this manual, hex stands for a square too"). Renaming them (`cellKm`, "cell" in texts on square maps) is a question for the user: a pack syntax rename (`travel.hexKm`) and many UI texts.
+- **Axial coordinates** on squares are the column and row (`5,3`); CCRR as on hexes.
+- **A new sub-map is made of squares** (a site inside a place), changeable in Map settings; the Grey Marches' Barrow-halls are squares now (maps v31).
+- Not done: `place.kind` (`hex`, `square`, `area`) as a fact for conditions (nothing needs it yet; areas will), New map asking for the kind of map (§10's presets), Core has no example map to show squares on.

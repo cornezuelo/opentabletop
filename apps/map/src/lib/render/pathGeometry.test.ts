@@ -75,20 +75,20 @@ describe('nodes', () => {
 
 describe('snapping', () => {
   it('has the center, six corners and six edge midpoints', () => {
-    expect(snapTargets('flat', 10)).toHaveLength(13)
+    expect(snapTargets({ orientation: 'flat' }, 10)).toHaveLength(13)
   })
 
   it('snaps to the nearest target', () => {
-    expect(placeInHex({ x: 1, y: -1 }, 'flat', 10, true)).toEqual({ x: 0, y: 0 })
-    const corner = placeInHex({ x: 9, y: 0.5 }, 'flat', 10, true)
+    expect(placeInHex({ x: 1, y: -1 }, { orientation: 'flat' }, 10, true)).toEqual({ x: 0, y: 0 })
+    const corner = placeInHex({ x: 9, y: 0.5 }, { orientation: 'flat' }, 10, true)
     expect(corner.x).toBeCloseTo(9.2)
     expect(corner.y).toBeCloseTo(0)
   })
 
   it('keeps free placement inside the hex', () => {
-    const p = placeInHex({ x: 100, y: 0 }, 'pointy', 10, false)
+    const p = placeInHex({ x: 100, y: 0 }, { orientation: 'pointy' }, 10, false)
     expect(Math.hypot(p.x, p.y)).toBeLessThan(10 * 0.87)
-    expect(placeInHex({ x: 2, y: 3 }, 'pointy', 10, false)).toEqual({ x: 2, y: 3 })
+    expect(placeInHex({ x: 2, y: 3 }, { orientation: 'pointy' }, 10, false)).toEqual({ x: 2, y: 3 })
   })
 })
 

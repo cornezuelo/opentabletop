@@ -138,6 +138,14 @@ export const es: Messages = {
     name: 'Nombre',
     untitled: 'Sin título',
     orientation: 'Orientación',
+    cells: 'Casillas',
+    cellsHelp:
+      'La forma de las casillas del mapa. Cada casilla es un lugar por el que pasa un viaje, con su terreno, su nombre y sus valores.\n• **Hexes** — seis vecinas cada una: mapas de la tierra, hexcrawls\n• **Cuadradas** — cuatro vecinas (ocho con **Diagonales**): mazmorras, edificios, las calles de una ciudad, mapas de batalla\nAl cambiarla cada casilla conserva sus datos en la misma columna y fila, así que el dibujo se mueve un poco; los caminos y ríos conservan las casillas por las que pasan.',
+    cellsHex: 'Hexes',
+    cellsSquare: 'Cuadradas',
+    diagonals: 'Diagonales',
+    diagonalsHelp:
+      'Si una casilla que solo toca por una esquina también es vecina: ocho vecinas en vez de cuatro. Un paso en diagonal cuenta como un paso, igual que uno por un lado.\n• sin marcar — moverse y pintar van solo por los lados: pasillos y salas\n• marcada — moverse cruzando esquinas: campo abierto, mapas de batalla',
     hexKm: 'Escala del mundo (km por hex)',
     hexKmOf: '{km}: la del sistema',
     hexKmHelp:
@@ -585,7 +593,7 @@ export const es: Messages = {
   },
   submap: {
     title: 'Caminos a otros mapas',
-    help: 'Un lugar puede llevar a un mapa propio, un **submapa**: la mazmorra bajo una colina, una ciudad, las cuevas de debajo. Es de la campaña de este mapa y puede tener submapas propios.\n• **Abrir** lo abre para dibujarlo; la barra de arriba dice de dónde cuelga (_The Hollow Hills › The Barrow-halls_)\n• **Entrar**, en un viaje con el grupo aquí: la entrada pasa a ser el destino y la marcha la toma; el viaje sigue en el submapa (el mismo grupo, diario y tiempo), y al salir vuelve aquí\n• **Nuevo submapa aquí** hace uno vacío bajo este hex (con el nombre del hex), guardado en Mapas; su entrada y su camino de entrada están en sus **Ajustes del mapa**\nLo que cuesta y hace entrar es cosa del sistema: el tipo de conexión que es el camino (minutos `extra`, **Abierto cuando**, comprobaciones sobre `connection.kind`).',
+    help: 'Un lugar puede llevar a un mapa propio, un **submapa**: la mazmorra bajo una colina, una ciudad, las cuevas de debajo. Es de la campaña de este mapa y puede tener submapas propios.\n• **Abrir** lo abre para dibujarlo; la barra de arriba dice de dónde cuelga (_The Hollow Hills › The Barrow-halls_)\n• **Entrar**, en un viaje con el grupo aquí: la entrada pasa a ser el destino y la marcha la toma; el viaje sigue en el submapa (el mismo grupo, diario y tiempo), y al salir vuelve aquí\n• **Nuevo submapa aquí** hace uno vacío bajo este hex (con el nombre del hex), de casillas cuadradas, guardado en Mapas; su entrada, su camino de entrada y sus casillas están en sus **Ajustes del mapa**\nLo que cuesta y hace entrar es cosa del sistema: el tipo de conexión que es el camino (minutos `extra`, **Abierto cuando**, comprobaciones sobre `connection.kind`).',
     open: 'Abrir',
     goIn: 'Entrar ↗',
     goOut: 'Salir ↗',

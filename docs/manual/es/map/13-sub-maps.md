@@ -4,8 +4,8 @@ Un lugar de un mapa puede llevar a un mapa propio, un **submapa**: la mazmorra b
 
 ## Hacer uno
 
-- Selecciona un hex y, en su panel, en **Caminos a otros mapas**, pulsa **Nuevo submapa aquí**. Se guarda en **Mapas** un mapa vacío, con el nombre del hex (o _Bajo el hex_), en la misma campaña. El hex muestra ahora un pequeño círculo con una punta hacia abajo, su entrada.
-- Ábrelo con **Abrir** en el mismo sitio. Es un mapa como cualquier otro: dibújalo con las mismas herramientas, a la escala que elijas en **Ajustes del mapa** (**km por hex**: `0.01` es un hex de diez metros, una sala o un pasillo).
+- Selecciona un hex y, en su panel, en **Caminos a otros mapas**, pulsa **Nuevo submapa aquí**. Se guarda en **Mapas** un mapa vacío de [casillas cuadradas](01-getting-started.md#hexes-o-cuadradas), con el nombre del hex (o _Bajo el hex_), en la misma campaña (**Ajustes del mapa → Casillas** lo pasa a hexes). El hex muestra ahora un pequeño círculo con una punta hacia abajo, su entrada.
+- Ábrelo con **Abrir** en el mismo sitio. Es un mapa como cualquier otro: dibújalo con las mismas herramientas, a la escala que elijas en **Ajustes del mapa** (**km por hex**, el lado de una casilla en un mapa de cuadradas: `0.01` son diez metros, una sala o un pasillo).
 - Sus **Ajustes del mapa** dicen de dónde cuelga, en **Dentro de**: el mapa de arriba (púlsalo para abrirlo) y su lugar en él. Su **Entrada** es donde llega y de donde sale el camino, al principio su hex del centro: selecciona otro hex y pulsa **Hacer … la entrada** para moverla; muestra un círculo con una punta hacia arriba. **Tipo del camino de entrada** es el tipo de conexión que es entrar y salir, como lo nombra el sistema (abajo).
 - En **Mapas**, los submapas salen bajo el mapa del que cuelgan, un paso hacia dentro (↳). La barra de arriba de un submapa dice de dónde cuelga: _The Hollow Hills › The Barrow-halls_, y cada nombre abre su mapa.
 

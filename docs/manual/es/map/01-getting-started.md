@@ -30,7 +30,11 @@ Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan e
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace y <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> rehace cada cambio (una pincelada entera es un paso). Jugar un viaje no forma parte de deshacer: tiene su propio diario.
 
-**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (hexes planos o en punta, coordenadas), su tamaño (por número de hexes o por papel), la escala del mundo (km por hex, que usa el viaje; vacía, el mapa se juega a la escala de su sistema, y solo escribes una para un mapa dibujado a otra) y su [campaña](#campañas), con el sistema con el que se juega. Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
+**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (sus [casillas](#hexes-o-cuadradas), coordenadas), su tamaño (por número de hexes o por papel), la escala del mundo (km por hex, que usa el viaje; vacía, el mapa se juega a la escala de su sistema, y solo escribes una para un mapa dibujado a otra) y su [campaña](#campañas), con el sistema con el que se juega. Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
+
+## Hexes o cuadradas
+
+Las casillas de un mapa son hexes o cuadradas (**Ajustes del mapa → Casillas**). Los hexes, con seis vecinas cada uno, van bien para la tierra: mapas de viaje y hexcrawls. Las **cuadradas** van bien para sitios: una mazmorra, un edificio, las calles de una ciudad, un mapa de batalla; cada una tiene cuatro vecinas, u ocho con **Diagonales** (una casilla que solo toca por una esquina también es vecina, a un paso como las demás). Todo funciona igual en las dos: terreno, regiones, caminos y ríos, iconos, fichas, conexiones, viajes (un viaje pasa de una casilla a una vecina), impresión. Los hexes tienen además su **Orientación** (lado plano o punta arriba). Al cambiar las casillas cada una conserva sus datos en la misma columna y fila, así que el dibujo se mueve un poco. Un [submapa](13-sub-maps.md) se hace de casillas cuadradas, porque suele ser un sitio dentro de un lugar; las Barrow-halls de las Grey Marches son uno. En este manual, «hex» vale también por una casilla cuadrada en un mapa de cuadradas.
 
 ## Campañas
 

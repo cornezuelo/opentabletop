@@ -1,4 +1,4 @@
-import { cellLine, keyOf, parseKey, type Offset, type Orientation } from '@open-tabletop/hex'
+import { cellLine, keyOf, parseKey, type CellLayout, type Offset } from '@open-tabletop/hex'
 import {
   type HexKey,
   type HexMap,
@@ -74,7 +74,7 @@ export function rerouteVertex(
   path: Pick<MapPath, 'hexes' | 'offsets' | 'nodes'>,
   index: number,
   target: Offset,
-  orientation: Orientation,
+  layout: CellLayout,
 ): { hexes: HexKey[]; offsets: ([number, number] | null)[]; nodes: number[]; index: number } {
   const cells = path.hexes.map(parseKey)
   const offsets = path.hexes.map((_, i) => path.offsets?.[i] ?? null)
@@ -83,8 +83,8 @@ export function rerouteVertex(
   const after = cells.slice(index + 1)
   const prev = before.at(-1)
   const next = after[0]
-  const toTarget = prev ? cellLine(prev, target, orientation).slice(1) : [target]
-  const toNext = next ? cellLine(target, next, orientation).slice(1, -1) : []
+  const toTarget = prev ? cellLine(prev, target, layout).slice(1) : [target]
+  const toNext = next ? cellLine(target, next, layout).slice(1, -1) : []
   const middle = [...toTarget, ...toNext]
   const allHexes = [...before, ...middle, ...after].map(keyOf)
   const allOffsets = [

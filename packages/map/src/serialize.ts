@@ -121,7 +121,9 @@ function validate(data: Record<string, unknown>): HexMap {
       ...(parseParent(meta.parent) && { parent: parseParent(meta.parent) }),
     },
     grid: {
+      ...(grid.kind === 'square' && { kind: 'square' as const }),
       orientation: grid.orientation === 'pointy' ? 'pointy' : 'flat',
+      ...(grid.kind === 'square' && grid.diagonals === true && { diagonals: true }),
       hexSize: positiveNumber(grid.hexSize, DEFAULT_GRID.hexSize),
       width: mapSize(grid.width, DEFAULT_GRID.width),
       height: mapSize(grid.height, DEFAULT_GRID.height),

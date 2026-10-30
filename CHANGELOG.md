@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: **maps of squares**. **Map settings → Cells** chooses hexes or squares, with **Diagonals** for eight neighbours instead of four; everything works on both (terrain, regions, roads and rivers, icons, tokens, connections, trips, printing and export). A new sub-map is made of squares. Maps v31.
+
+### Packs
+
+- The Grey Marches: the Barrow-halls are drawn on squares; a trip walks them square to square.
+
 ## [0.26.0] - 2026-10-30
 
 ### Apps

@@ -30,7 +30,11 @@ An example you open becomes **your map**: your changes and your trip are kept in
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redoes every edit (a whole brush stroke is one step). Playing a trip is not part of undo: it has its own journal.
 
-**Map settings** (the folded map) holds the map name, the grid (flat or pointy hexes, coordinates), its size (by number of hexes or by paper), the world scale (km per hex, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another) and its [campaign](#campaigns), with the system it's played with. Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+**Map settings** (the folded map) holds the map name, the grid (its [cells](#hexes-or-squares), coordinates), its size (by number of hexes or by paper), the world scale (km per hex, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another) and its [campaign](#campaigns), with the system it's played with. Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+
+## Hexes or squares
+
+A map's cells are hexes or squares (**Map settings → Cells**). Hexes, six neighbours each, suit the land: overland maps and hexcrawls. **Squares** suit sites: a dungeon, a building, a town's streets, a battle map; each has four neighbours, or eight with **Diagonals** (a square touching only at a corner is a neighbour too, one step away like the others). Everything works the same on both: terrain, regions, roads and rivers, icons, tokens, connections, trips (a trip steps from a cell to a neighbour), printing. Hexes also have their **Orientation** (flat or pointy tops). Changing the cells keeps each cell's data under the same column and row, so the drawing shifts a little. A [sub-map](13-sub-maps.md) is made of squares, since it's usually a site inside a place; the Grey Marches' Barrow-halls are one. In this manual, “hex” stands for a square too on a map of squares.
 
 ## Campaigns
 

@@ -90,7 +90,10 @@ export const map = z
     ...entity,
     type: z.literal('map'),
     grid: z.object({
+      /** Its cells: hexes (absent) or squares, with `diagonals` 8 neighbours instead of 4. */
+      kind: z.enum(['hex', 'square']).optional(),
       orientation: z.enum(['flat', 'pointy']),
+      diagonals: z.boolean().optional(),
       width: z.number().int().positive(),
       height: z.number().int().positive(),
       coordFormat: z.enum(['CCRR', 'axial']).optional(),
