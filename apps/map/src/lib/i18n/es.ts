@@ -140,16 +140,13 @@ export const es: Messages = {
     orientation: 'Orientación',
     cells: 'Casillas',
     cellsHelp:
-      'La forma de las casillas del mapa. Cada casilla es un lugar por el que pasa un viaje, con su terreno, su nombre y sus valores.\n• **Hexes** — seis vecinas cada una: mapas de la tierra, hexcrawls\n• **Cuadradas** — cuatro vecinas (ocho con **Diagonales**): mazmorras, edificios, las calles de una ciudad, mapas de batalla\nAl cambiarla cada casilla conserva sus datos en la misma columna y fila, así que el dibujo se mueve un poco; los caminos y ríos conservan las casillas por las que pasan.',
+      'La forma de las casillas del mapa. Cada casilla es un lugar por el que pasa un viaje, con su terreno, su nombre y sus valores.\n• **Hexes** — seis vecinas cada una: mapas de la tierra, hexcrawls\n• **Cuadradas** — cuatro vecinas, u ocho si el sistema deja a los viajes pasar por las esquinas (`travel.diagonals`): mazmorras, edificios, las calles de una ciudad, mapas de batalla\nAl cambiarla cada casilla conserva sus datos en la misma columna y fila, así que el dibujo se mueve un poco; los caminos y ríos conservan las casillas por las que pasan.',
     cellsHex: 'Hexes',
     cellsSquare: 'Cuadradas',
-    diagonals: 'Diagonales',
-    diagonalsHelp:
-      'Si una casilla que solo toca por una esquina también es vecina: ocho vecinas en vez de cuatro. Un paso en diagonal cuenta como un paso, igual que uno por un lado.\n• sin marcar — moverse y pintar van solo por los lados: pasillos y salas\n• marcada — moverse cruzando esquinas: campo abierto, mapas de batalla',
-    hexKm: 'Escala del mundo (km por hex)',
-    hexKmOf: '{km}: la del sistema',
-    hexKmHelp:
-      'Cuántos km mide un hex de lado a lado, para los viajes: los tiempos de viaje dependen de ello. **Vacío: la escala del sistema** (`travel.hexKm` en sus reglas; 10 si no fija ninguna), que se ve en gris en la caja; escribe un número solo si este mapa está dibujado a otra escala.\n• `10` — hexes pequeños: varios por día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\nCuántos se cruzan al día depende de las velocidades del sistema.\nNo cambia el dibujo ni la impresión.',
+    cellKm: 'Escala del mundo (km por casilla)',
+    cellKmOf: '{km}: la del sistema',
+    cellKmHelp:
+      'Cuántos km mide una casilla (un hex, un cuadrado) de lado a lado, para los viajes: los tiempos de viaje dependen de ello. **Vacío: la escala del sistema** (`travel.cellKm` en sus reglas; 10 si no fija ninguna), que se ve en gris en la caja; escribe un número solo si este mapa está dibujado a otra escala.\n• `10` — hexes pequeños: varios por día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\nCuántos se cruzan al día depende de las velocidades del sistema.\nNo cambia el dibujo ni la impresión.',
     flat: 'Lado plano arriba',
     pointy: 'Punta arriba',
     coordFormat: 'Coordenadas',

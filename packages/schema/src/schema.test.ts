@@ -9,7 +9,7 @@ const sample = {
       type: 'map',
       name: 'Kal-Arath',
       grid: { orientation: 'flat', width: 10, height: 8, coordFormat: 'CCRR' },
-      scale: { hexKm: 30 },
+      scale: { cellKm: 30 },
       terrains: [{ id: 'steppe', color: '#c9b977' }],
       hexes: {
         '1,2': {

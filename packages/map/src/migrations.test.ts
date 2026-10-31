@@ -40,10 +40,17 @@ describe('trip migrations', () => {
   })
 })
 
+describe('a cell’s km (v32)', () => {
+  it('the scale’s `hexKm` is `cellKm`', () => {
+    expect(migrate({ version: 31, scale: { hexKm: 3 } }).scale).toEqual({ cellKm: 3 })
+    expect(migrate({ version: 31, scale: {} }).scale).toEqual({})
+  })
+})
+
 describe('the map’s scale (v15)', () => {
   it('the old default, 10 km, becomes the system’s; a scale chosen stays', () => {
     expect(migrate({ version: 14, scale: { hexKm: 10 } }).scale).toEqual({})
-    expect(migrate({ version: 14, scale: { hexKm: 30 } }).scale).toEqual({ hexKm: 30 })
+    expect(migrate({ version: 14, scale: { hexKm: 30 } }).scale).toEqual({ cellKm: 30 })
   })
 })
 

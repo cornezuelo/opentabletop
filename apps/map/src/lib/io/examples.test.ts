@@ -174,7 +174,7 @@ describe('example maps', () => {
       })),
     )
     const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
-    const world = mapWorld(map, system.rules.travel.hexKm)
+    const world = mapWorld(map, system.rules.travel.cellKm)
     expect(world.km('', '')).toBe(3)
     const options = {
       system,
@@ -202,7 +202,7 @@ describe('example maps', () => {
     )
     // 3 km a hex: more hexes a day than on the Marches' map (10 km).
     const marches = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json).map
-    expect(mapWorld(marches, system.rules.travel.hexKm).km('', '')).toBe(10)
+    expect(mapWorld(marches, system.rules.travel.cellKm).km('', '')).toBe(10)
   })
 
   it('the Hollow Hills: Stonewater Ford takes an hour more, and a storm day shuts it', () => {
@@ -214,7 +214,7 @@ describe('example maps', () => {
       })),
     )
     const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
-    const world = mapWorld(map, system.rules.travel.hexKm)
+    const world = mapWorld(map, system.rules.travel.cellKm)
     // Drawn on the trail's step into the ford hex: the trail and the ford, by name.
     expect(world.connections('5,7', '6,8')).toEqual(['trail', 'ford'])
     expect(world.connectionOf!('6,8', '5,7')).toMatchObject({
@@ -225,7 +225,7 @@ describe('example maps', () => {
     const { session } = startTrip({ system, location: '5,7', season: 'summer' })
     // The step along the trail, and an hour more for the ford.
     const unforded = createTravelEngine({
-      world: mapWorld({ ...map, connections: [] }, system.rules.travel.hexKm),
+      world: mapWorld({ ...map, connections: [] }, system.rules.travel.cellKm),
       rules: system.rules,
       calendar: system.calendar,
     })
@@ -263,7 +263,7 @@ describe('example maps', () => {
       })),
     )
     const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
-    const world = mapWorld(map, system.rules.travel.hexKm)
+    const world = mapWorld(map, system.rules.travel.cellKm)
     const options = {
       system,
       world,
@@ -321,7 +321,7 @@ describe('example maps', () => {
       })),
     )
     const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
-    const km = system.rules.travel.hexKm
+    const km = system.rules.travel.cellKm
     const oracle = createOracleEngine({ registry, random: seeded('barrow-halls') })
     const above = {
       system,

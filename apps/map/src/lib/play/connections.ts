@@ -18,7 +18,7 @@ export function connectionsNow(): Map<string, ConnectionNow> {
   const out = new Map<string, ConnectionNow>()
   if (!session?.travel || !play?.rules || !editor.map.connections.length) return out
   const system = getSystem(play.rules.system)
-  const world = mapWorld(editor.map, system.rules.travel.hexKm)
+  const world = mapWorld(editor.map, system.rules.travel.cellKm)
   const { connections } = editor.map
   const open = connectionsOpen(
     { system, world },

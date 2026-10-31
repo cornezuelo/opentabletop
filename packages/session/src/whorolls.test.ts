@@ -7,7 +7,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripFacts } from './trip'
 
 /** A party whose Talk is one character's Charisma: whoever the player chooses, or the best. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 13\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
   {
     path: 'band/system.yaml',
     content:

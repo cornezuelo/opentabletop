@@ -5,16 +5,19 @@
 # without a map in the Travel app, or edit it in Systems.
 kind: travel-rules
 id: default
-# The scale it's played at (travel.hexKm): 10 km a hex, so a day on foot (25 km) crosses
+# The scale it's played at (travel.cellKm): 10 km a hex, so a day on foot (25 km) crosses
 # two or three; maps with this system take it unless they set their own. Its day is named
 # by parts of its calendar's (calendar.yaml): trips start as the morning begins (06:00),
 # and from the night (20:00) a party that can't march camps (the halt; the night is
 # tagged `dark`, as is the grey hour before the morning). Going on by itself (the world
 # clock, a travel order), the party marches to its destination whenever it can (onward:
-# the action march, with its parameter).
+# the action march, with its parameter). On maps of squares (the Barrow-halls), a step
+# across a corner costs a step and a half (diagonals: 1.5, the 1-2-1 count on average),
+# and never squeezes past a corner it can't enter (no cutCorners).
 travel:
   hoursPerDay: 8
-  hexKm: 10
+  cellKm: 10
+  diagonals: 1.5
   start: time.part.morning
   onward: { do: actions.march, with: { until: destination } }
   halt: { at: time.part.night, do: actions.camp }

@@ -380,8 +380,16 @@ export const travelRulesSchema = z
       .object({
         /** The hours a way of travelling's `kmPerDay` is marched in (its speed's scale). */
         hoursPerDay: z.number().positive().max(24),
-        /** The scale the system is played at: km a hex measures (maps may set their own). */
-        hexKm: z.number().positive().optional(),
+        /** The scale the system is played at: km a cell (a hex, a square) measures (maps may set their own). */
+        cellKm: z.number().positive().optional(),
+        /**
+         * On maps of squares, a step to a square touching only at a corner: what it costs, as a
+         * multiple of a step along a side (`1`, `1.5` for the 1-2-1 count on average). Absent:
+         * no diagonal steps.
+         */
+        diagonals: z.number().positive().optional(),
+        /** A diagonal step may pass a corner whose squares beside it can't be entered (default: no). */
+        cutCorners: z.boolean().optional(),
         /** When a new trip starts on its first day: a clock or a part (default: midnight). */
         start: dayMoment.optional(),
         /**

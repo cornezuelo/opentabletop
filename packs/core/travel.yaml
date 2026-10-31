@@ -2,12 +2,14 @@
 # named by the parts of its calendar's (calendar.yaml): trips start as the morning begins,
 # the party marches while it isn't dark, and from the night a party that can't march camps
 # (the halt). Going on by itself (the world clock, a travel order), it marches to its
-# destination whenever it can (onward). New system starts from a copy of these rules.
+# destination whenever it can (onward). On maps of squares, a step across a corner costs
+# as much as any other (diagonals: 1). New system starts from a copy of these rules.
 kind: travel-rules
 id: default
 travel:
   hoursPerDay: 8
-  hexKm: 10
+  cellKm: 10
+  diagonals: 1
   start: time.part.morning
   onward: { do: actions.march, with: { until: destination } }
   halt: { at: time.part.night, do: actions.camp }

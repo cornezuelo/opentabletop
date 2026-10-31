@@ -213,8 +213,9 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    door…) and `trip.connections` (in 11: `edges:` and `trip.edges`).
  * 13. A kind of connection's time adds to the step, `extra` minutes (in 12, `minutes`
  *    replaced the step's time).
+ * 14. A cell's km, a hex's or a square's, is `travel.cellKm` (in 13: `travel.hexKm`).
  */
-export const PACK_FORMAT = 13
+export const PACK_FORMAT = 14
 
 export const manifestSchema = z
   .object({

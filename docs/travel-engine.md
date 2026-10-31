@@ -13,7 +13,7 @@
 | `Map.paths` with crossed hexes                     | Roads, trails and rivers as edges between consecutive hexes (already in Map).                                           |
 | Command pattern / immutable state                  | The engine is `(state, action) → { state, events }`, so Map can undo a travel step by keeping snapshots.                |
 
-**Still missing in Map:** the world scale (`scale.hexKm`) and a party token.
+**Still missing in Map:** the world scale (`scale.cellKm`) and a party token.
 
 ## 2. Domain model
 
@@ -46,7 +46,7 @@ interface TravelState {
 ```
 TravelEngine (facade: applies actions, composes the rest)
  ├─ GameClock        @open-tabletop/time: advance, watches, day/night, season (pluggable calendar)
- ├─ MovementModel    minutes to cross A→B = hexKm / effective speed
+ ├─ MovementModel    minutes to cross A→B = cellKm / effective speed
  ├─ RoutePlanner     A* over TravelWorld with a RouteStrategy (per-step cost)
  ├─ ResourceTracker  generic consumption per time/activity, warnings when depleted
  ├─ FatigueModel     rises with marching hours beyond the limit, drops when resting
@@ -59,7 +59,7 @@ TravelEngine (facade: applies actions, composes the rest)
 ```ts
 interface TravelWorld {
   // Map implements it over its model; a standalone app with a terrain picker
-  hexKm: number
+  cellKm: number
   cell(hex: string): {
     terrain?: string
     elevation?: number
@@ -166,7 +166,7 @@ on:
 | The engine reads Map model directly                   | Only through the `TravelWorld` port.                                                                 |
 | Duplicating terrain or POIs in travel state           | State only stores hex keys; data is queried when needed.                                             |
 | The route breaks when the map changes (size, terrain) | Re-validated at every step; if a hex becomes impassable, `ROUTE_BLOCKED` is emitted and it re-plans. |
-| Confusing print scale (mm) with world scale (km)      | Separate fields (`ext.map.print.hexMm` vs `Map.scale.hexKm`).                                        |
+| Confusing print scale (mm) with world scale (km)      | Separate fields (`ext.map.print.hexMm` vs `Map.scale.cellKm`).                                       |
 | Calling the Oracle from the engine                    | Events + `resolveCheck`; bindings live in `session`.                                                 |
 | A system's rules in the core                          | Rules as data; hooks are generic and named.                                                          |
 | Messages in one language from the core                | Events carry `code` + parameters; the UI translates.                                                 |
@@ -177,7 +177,7 @@ on:
 
 | Kal-Arath rule                                          | How it's expressed                                                                                                |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| 1 hex = 30 km = 1 day on foot; double on horseback      | `hexKm: 30`, `foot.kmPerDay: 30`, `horse.kmPerDay: 60`.                                                           |
+| 1 hex = 30 km = 1 day on foot; double on horseback      | `cellKm: 30`, `foot.kmPerDay: 30`, `horse.kmPerDay: 60`.                                                          |
 | Rolls are per travel day, not per hex                   | `checks` with `at: day-start` and `every: day`.                                                                   |
 | Storm: no travel that day; heavy rain: half speed       | `weather.storm.speed: 0`, `weather.heavy-rain.speed: 0.5`.                                                        |
 | Lost on 1–2 on 1d6; no roll on a road or river          | `NAVIGATION_CHECK_REQUIRED` with `unless: { edge: [road, river] }`; outcome `lost` keeps the party in the hex.    |

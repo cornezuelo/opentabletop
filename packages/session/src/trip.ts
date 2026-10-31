@@ -222,7 +222,7 @@ export const systemIdOf = (id: string | undefined): string =>
  */
 export const NO_TRAVEL: TravelRules = {
   id: 'none',
-  travel: { hoursPerDay: 0, hexKm: 10 },
+  travel: { hoursPerDay: 0, cellKm: 10 },
   terrains: {},
   water: { passable: false },
   connections: {},

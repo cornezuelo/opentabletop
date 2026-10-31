@@ -38,7 +38,7 @@ export { SEASON_START_DAYS, type Season }
  * sub-maps and out of it (the maps the library keeps).
  */
 export function playWorld(system: TravelSystem) {
-  return mapWorld(editor.map, system.rules.travel.hexKm, editor.linked)
+  return mapWorld(editor.map, system.rules.travel.cellKm, editor.linked)
 }
 
 function current(): PlayState {

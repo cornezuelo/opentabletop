@@ -141,16 +141,13 @@ export const en = {
     orientation: 'Orientation',
     cells: 'Cells',
     cellsHelp:
-      "The shape of the map's cells. Each cell is a place a trip steps through, with its terrain, name and values.\n• **Hexes** — six neighbours each: overland maps, hexcrawls\n• **Squares** — four neighbours (eight with **Diagonals**): dungeons, buildings, a town's streets, battle maps\nChanging it keeps every cell's data under the same column and row, so the drawing moves a little; roads and rivers keep the cells they pass through.",
+      "The shape of the map's cells. Each cell is a place a trip steps through, with its terrain, name and values.\n• **Hexes** — six neighbours each: overland maps, hexcrawls\n• **Squares** — four neighbours, or eight when the system lets trips step across corners (`travel.diagonals`): dungeons, buildings, a town's streets, battle maps\nChanging it keeps every cell's data under the same column and row, so the drawing moves a little; roads and rivers keep the cells they pass through.",
     cellsHex: 'Hexes',
     cellsSquare: 'Squares',
-    diagonals: 'Diagonals',
-    diagonalsHelp:
-      'Whether a square touching only at a corner is a neighbour too: eight neighbours instead of four. A step on the diagonal counts as one step, as long as one along a side.\n• off — moving and painting go along the sides only: corridors and rooms\n• on — moving across corners: open ground, battle maps',
-    hexKm: 'World scale (km per hex)',
-    hexKmHelp:
-      "How many km a hex measures across, for trips: travel times depend on it. **Empty: the system's scale** (`travel.hexKm` in its rules; 10 if it sets none), shown faded in the box; write a number only if this map is drawn at another scale.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
-    hexKmOf: "{km}: the system's",
+    cellKm: 'World scale (km per cell)',
+    cellKmHelp:
+      "How many km a cell (a hex, a square) measures across, for trips: travel times depend on it. **Empty: the system's scale** (`travel.cellKm` in its rules; 10 if it sets none), shown faded in the box; write a number only if this map is drawn at another scale.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\nHow many a day crosses depends on the system's speeds.\nIt doesn't change the drawing or printing.",
+    cellKmOf: "{km}: the system's",
     flat: 'Flat top',
     pointy: 'Pointy top',
     coordFormat: 'Coordinates',

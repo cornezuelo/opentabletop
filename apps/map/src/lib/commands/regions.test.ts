@@ -136,6 +136,6 @@ describe('the scale trips are played at', () => {
     const map = mapWithRegion()
     expect(mapWorld({ ...map, scale: {} }).km('', '')).toBe(10)
     expect(mapWorld({ ...map, scale: {} }, 30).km('', '')).toBe(30)
-    expect(mapWorld({ ...map, scale: { hexKm: 5 } }, 30).km('', '')).toBe(5)
+    expect(mapWorld({ ...map, scale: { cellKm: 5 } }, 30).km('', '')).toBe(5)
   })
 })

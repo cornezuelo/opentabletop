@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SetMetaCommand } from '../lib/commands/settings'
   import { t } from '../lib/i18n/index.svelte'
-  import { DEFAULT_HEX_KM, type GridSettings } from '@open-tabletop/map'
+  import { DEFAULT_CELL_KM, type GridSettings } from '@open-tabletop/map'
   import { mapSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
@@ -90,20 +90,20 @@
 {/if}
 
 <label class="field">
-  <span>{t('map.hexKm')}<InfoTip text={t('map.hexKmHelp')} /></span>
+  <span>{t('map.cellKm')}<InfoTip text={t('map.cellKmHelp')} /></span>
   <input
     type="number"
     min="0.1"
     step="any"
-    value={editor.scale.hexKm ?? ''}
-    placeholder={t('map.hexKmOf', { km: mapSystem().rules.travel.hexKm ?? DEFAULT_HEX_KM })}
+    value={editor.scale.cellKm ?? ''}
+    placeholder={t('map.cellKmOf', { km: mapSystem().rules.travel.cellKm ?? DEFAULT_CELL_KM })}
     onchange={(e) => {
       const text = e.currentTarget.value.trim()
       const value = Number(text)
       // Empty: the system's scale.
-      if (!text) applySettings({ scale: { hexKm: undefined } })
-      else if (Number.isFinite(value) && value > 0) applySettings({ scale: { hexKm: value } })
-      else e.currentTarget.value = String(editor.scale.hexKm ?? '')
+      if (!text) applySettings({ scale: { cellKm: undefined } })
+      else if (Number.isFinite(value) && value > 0) applySettings({ scale: { cellKm: value } })
+      else e.currentTarget.value = String(editor.scale.cellKm ?? '')
     }}
   />
 </label>
@@ -122,16 +122,7 @@
   </select>
 </label>
 
-{#if editor.grid.kind === 'square'}
-  <label class="check">
-    <input
-      type="checkbox"
-      checked={!!editor.grid.diagonals}
-      onchange={(e) => applySettings({ grid: { diagonals: e.currentTarget.checked || undefined } })}
-    />
-    <span>{t('map.diagonals')}<InfoTip text={t('map.diagonalsHelp')} /></span>
-  </label>
-{:else}
+{#if editor.grid.kind !== 'square'}
   <label class="field">
     <span>{t('map.orientation')}</span>
     <select
@@ -162,14 +153,6 @@
 </label>
 
 <style>
-  .check {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 10px;
-    font-size: 13px;
-  }
-
   .inside p {
     margin: 0;
     color: var(--text);

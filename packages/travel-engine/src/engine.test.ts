@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   distance,
+  inBounds,
   keyOf,
   neighborCells,
   parseKey,
@@ -3433,5 +3434,58 @@ describe('connections: what crossing one does', () => {
     expect(
       (check as { check: { context: Record<string, unknown> } }).check.context.connection,
     ).toMatchObject({ id: 'oak-door', kind: 'door', state: 'open' })
+  })
+})
+
+describe('diagonal steps on a map of squares', () => {
+  const squares: GridShape = { kind: 'square', orientation: 'flat', width: 5, height: 5 }
+  const cell = (key: string) => parseKey(key as `${number},${number}`)
+  /** Floor everywhere but a pillar at 1,1. */
+  const squareWorld: TravelWorld = {
+    km: () => 3,
+    place: (key) =>
+      inBounds(cell(key), squares) ? { terrain: key === '1,1' ? 'pillar' : 'floor' } : null,
+    neighbors: (key) => neighborCells(cell(key), { ...squares, diagonals: true }).map(keyOf),
+    distance: () => 0,
+    connections: () => [],
+    diagonal: (a, b) => {
+      const [p, q] = [cell(a), cell(b)]
+      if (Math.abs(p.col - q.col) !== 1 || Math.abs(p.row - q.row) !== 1) return undefined
+      return [keyOf({ col: q.col, row: p.row }), keyOf({ col: p.col, row: q.row })]
+    },
+  }
+  const withTravel = (travel: Record<string, unknown>) =>
+    createTravelEngine({
+      world: squareWorld,
+      rules: parseTravelRules({
+        kind: 'travel-rules',
+        travel: { hoursPerDay: 8, ...travel },
+        terrains: { floor: { multiplier: 1 }, pillar: { passable: false } },
+        modes: { foot: { minutes: 10 } },
+        actions: DAY_ACTIONS,
+      }).rules!,
+    })
+  const at = (location: string) =>
+    initialTravelState({ location, mode: 'foot', time: defaultCalendar.at(1, '06:00') })
+
+  it('none unless the system has them: four neighbours', () => {
+    const engine = withTravel({})
+    expect(engine.plan(at('2,2'), '4,4')).toHaveLength(5)
+    expect(engine.stepMinutes(at('2,2'), '2,2', '3,3')).toBe(Infinity)
+  })
+
+  it('cost what the system says, in steps along a side', () => {
+    const engine = withTravel({ diagonals: 1.5 })
+    expect(engine.plan(at('2,2'), '4,4')).toEqual(['2,2', '3,3', '4,4'])
+    expect(engine.stepMinutes(at('2,2'), '2,2', '3,3')).toBe(15)
+    expect(engine.stepMinutes(at('2,2'), '2,2', '3,2')).toBe(10)
+  })
+
+  it('never squeeze past a corner that can’t be entered, unless the system lets them', () => {
+    expect(withTravel({ diagonals: 1 }).stepMinutes(at('0,2'), '0,2', '1,3')).toBe(10)
+    expect(withTravel({ diagonals: 1 }).stepMinutes(at('1,0'), '1,0', '2,1')).toBe(Infinity)
+    expect(
+      withTravel({ diagonals: 1, cutCorners: true }).stepMinutes(at('1,0'), '1,0', '2,1'),
+    ).toBe(10)
   })
 })

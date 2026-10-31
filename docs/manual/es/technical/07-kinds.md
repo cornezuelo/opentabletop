@@ -144,7 +144,9 @@ kind: travel-rules
 id: default
 travel:
   hoursPerDay: 8 # las horas en que una forma de viajar hace su kmPerDay (la escala de su velocidad)
-  hexKm: 10 # km por hex (la escala)
+  cellKm: 10 # km por casilla, hex o cuadrada (la escala)
+  diagonals: 1.5 # en cuadradas, un paso por una esquina cuesta 1,5 pasos (vacío: ninguno)
+  cutCorners: false # un paso en diagonal nunca pasa por una esquina que no puede pisar (lo de siempre)
   start: '06:00' # cuándo empieza un viaje nuevo (una hora o una parte del día; vacío: medianoche)
   onward: { do: actions.march, with: { until: destination } } # cómo sigue el viaje por sí solo
   halt: { at: '20:00', do: actions.camp } # desde entonces, un grupo que no puede marchar acampa por sí solo

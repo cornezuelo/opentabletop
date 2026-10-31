@@ -70,6 +70,12 @@ export interface TravelWorld {
    * between far hexes): it goes at its connection's multiplier, not the terrain's.
    */
   far?(a: string, b: string): boolean
+  /**
+   * For a diagonal step (on a map of squares, to a square touching only at a corner), the two
+   * places beside it, which it passes between; undefined for any other step. The system's
+   * `travel.diagonals` says whether such steps exist and what they cost.
+   */
+  diagonal?(a: string, b: string): [string, string] | undefined
 }
 
 /** An effect on the connection of the step (`connection.state: open`, `connection.uses: -1`). */
@@ -737,6 +743,21 @@ const halted = (state: TravelState): boolean => state.pendingChecks.length > 0 |
 /** Why the trip waits for the player, as a move's stop. */
 const haltReason = (state: TravelState): StopReason =>
   state.pendingChecks.length ? 'check' : 'held'
+/**
+ * The world as a system's rules walk it: on a map of squares, a diagonal step only when the
+ * system has them (`travel.diagonals`), measuring its cost in steps along a side.
+ */
+function rulesWorld(world: TravelWorld, rules: TravelRules): TravelWorld {
+  const diagonal = world.diagonal
+  if (!diagonal) return world
+  const cost = rules.travel.diagonals
+  return {
+    ...world,
+    neighbors: (id) => world.neighbors(id).filter((n) => cost !== undefined || !diagonal(id, n)),
+    km: (a, b) => world.km(a, b) * (diagonal(a, b) ? (cost ?? 1) : 1),
+  }
+}
+
 /** What `first` holds, then `later` (what was stopped after it). */
 const chain = (first: MoveUnderWay, later: MoveUnderWay): MoveUnderWay => ({
   ...first,
@@ -761,8 +782,8 @@ export function createTravelEngine(options: {
    */
   kept?: Record<string, Bounds & { read?: string }>
 }): TravelEngine {
-  const world = options.world
   const rules = options.rules
+  const world = rulesWorld(options.world, rules)
   const calendar = options.calendar ?? defaultCalendar
   const actions = availableActions(rules)
   /** The calendar's divisions of the day (meals, watches…). */
@@ -1042,6 +1063,11 @@ export function createTravelEngine(options: {
       )
     )
       return 0
+    // A diagonal step doesn't pass a corner whose squares beside it can't be entered, unless
+    // the system lets it (`travel.cutCorners`).
+    const beside = world.diagonal?.(a, b)
+    if (beside && !rules.travel.cutCorners && beside.some((s) => multiplier(state, a, s) <= 0))
+      return 0
     // A kind of connection the step takes that can't be crossed now (a locked door) stops it.
     const kinds = world.connections(a, b)
     if (!shutToo && !connectionOpen(state, a, b)) return 0
@@ -1071,7 +1097,11 @@ export function createTravelEngine(options: {
       0,
       ...world.connections(a, b).map((k) => rules.connections?.[k]?.extra ?? 0),
     )
-    if (mode.minutes !== undefined) return mode.minutes / m + extra
+    // A diagonal step takes its cost in steps along a side (`travel.diagonals`); none without.
+    const diagonal = !!world.diagonal?.(a, b)
+    if (diagonal && rules.travel.diagonals === undefined) return Infinity
+    const steps = diagonal ? rules.travel.diagonals! : 1
+    if (mode.minutes !== undefined) return (mode.minutes * steps) / m + extra
     const kmPerHour = mode.kmPerDay! / rules.travel.hoursPerDay
     return (world.km(a, b) / (kmPerHour * m)) * 60 + extra
   }

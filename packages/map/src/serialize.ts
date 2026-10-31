@@ -123,7 +123,6 @@ function validate(data: Record<string, unknown>): HexMap {
     grid: {
       ...(grid.kind === 'square' && { kind: 'square' as const }),
       orientation: grid.orientation === 'pointy' ? 'pointy' : 'flat',
-      ...(grid.kind === 'square' && grid.diagonals === true && { diagonals: true }),
       hexSize: positiveNumber(grid.hexSize, DEFAULT_GRID.hexSize),
       width: mapSize(grid.width, DEFAULT_GRID.width),
       height: mapSize(grid.height, DEFAULT_GRID.height),
@@ -136,8 +135,8 @@ function validate(data: Record<string, unknown>): HexMap {
     },
     // The map's own scale; absent, the system's (or the default).
     scale: (() => {
-      const km = isRecord(data.scale) ? data.scale.hexKm : undefined
-      return typeof km === 'number' && Number.isFinite(km) && km > 0 ? { hexKm: km } : {}
+      const km = isRecord(data.scale) ? data.scale.cellKm : undefined
+      return typeof km === 'number' && Number.isFinite(km) && km > 0 ? { cellKm: km } : {}
     })(),
     print: parsePrint(data.print),
     terrains: validTerrains,

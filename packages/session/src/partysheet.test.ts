@@ -8,7 +8,7 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 
 /** A system with a sheet for the party itself (morale, routed) beside its characters'. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 13\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
   {
     path: 'band/system.yaml',
     content:

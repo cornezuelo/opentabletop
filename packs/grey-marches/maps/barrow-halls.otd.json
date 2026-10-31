@@ -23,7 +23,7 @@
         "coordFormat": "CCRR"
       },
       "scale": {
-        "hexKm": 0.01
+        "cellKm": 0.01
       },
       "parent": {
         "map": "hollowhills1",
@@ -175,7 +175,7 @@
       "paths": [],
       "ext": {
         "map": {
-          "version": 31,
+          "version": 32,
           "created": "2026-10-30T12:00:00.000Z",
           "modified": "2026-10-30T12:00:00.000Z",
           "hexSize": 40,

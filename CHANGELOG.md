@@ -6,11 +6,17 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
-- Map: **maps of squares**. **Map settings → Cells** chooses hexes or squares, with **Diagonals** for eight neighbours instead of four; everything works on both (terrain, regions, roads and rivers, icons, tokens, connections, trips, printing and export). A new sub-map is made of squares. Maps v31.
+- Map: **maps of squares**. **Map settings → Cells** chooses hexes or squares, and everything works on both (terrain, regions, roads and rivers, icons, tokens, connections, trips, printing and export). A new sub-map is made of squares. Maps v32.
+- Systems and every trip: **diagonal steps** on maps of squares are the system's rule: **Diagonal step** in Systems' Rules (`travel.diagonals`: none when empty, or what a step across a corner costs in steps along a side: `1`, `1.5`, `1.41`) and **Cut corners** (`travel.cutCorners`: may it pass a corner it can't enter).
 
 ### Packs
 
+- Core: diagonal steps cost one step (`diagonals: 1`); the Grey Marches: a step and a half (`diagonals: 1.5`), never cutting corners.
 - The Grey Marches: the Barrow-halls are drawn on squares; a trip walks them square to square.
+
+### Formats
+
+- Pack format 14: the travel rules' scale is `travel.cellKm`, the km a cell measures, a hex or a square (`travel.hexKm` in format 13). Packs of format 13 aren't read: rename it. Core, the Grey Marches and the manual are moved. A map's scale is `cellKm` too (maps v32, Travel's trips v12: moved by themselves).
 
 ## [0.26.0] - 2026-10-30
 

@@ -238,12 +238,11 @@ export function mapToBundle(
     grid: {
       ...(map.grid.kind && { kind: map.grid.kind }),
       orientation: map.grid.orientation,
-      ...(map.grid.diagonals && { diagonals: true }),
       width: map.grid.width,
       height: map.grid.height,
       coordFormat: map.grid.coordFormat,
     },
-    ...(map.scale.hexKm !== undefined && { scale: { hexKm: map.scale.hexKm } }),
+    ...(map.scale.cellKm !== undefined && { scale: { cellKm: map.scale.cellKm } }),
     // A sub-map: the place of another map that leads into it.
     ...(map.meta.parent && { parent: { ...map.meta.parent } }),
     terrains: map.terrains.map((t) => ({ ...t })),
@@ -667,7 +666,6 @@ export function bundleToMap(raw: unknown): OpenedMap {
     grid: {
       ...(otdMap.grid.kind === 'square' && { kind: 'square' as const }),
       orientation: otdMap.grid.orientation,
-      ...(otdMap.grid.kind === 'square' && otdMap.grid.diagonals && { diagonals: true }),
       width: otdMap.grid.width,
       height: otdMap.grid.height,
       coordFormat: otdMap.grid.coordFormat,

@@ -394,11 +394,11 @@ export const es: Messages<typeof en> = {
     way: 'El camino',
     wayHelp:
       'Un viaje sin mapa: lista los hexes que tienes por delante, cada uno con su terreno y etiquetas y si un camino o un río lo une con el siguiente. El grupo se dirige al último.\n• `plains`, luego `forest` con etiqueta `haunted`, luego `hills` por `road`\nAñade más hexes al final para seguir.',
-    hexKm: 'km por hex',
-    hexKmHelp:
+    cellKm: 'km por hex',
+    cellKmHelp:
       'Cuántos km mide un hex del camino, cuando el sistema no lo fija: con las velocidades del sistema, dice cuánto se tarda en cada hex.\n• `10` — hexes pequeños: varios en un día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km',
-    hexKmSystem:
-      'El sistema fija la escala (`travel.hexKm` en sus reglas): todos los viajes con él se juegan a esos km por hex. Se cambia en el sistema (Sistemas → Reglas).',
+    cellKmSystem:
+      'El sistema fija la escala (`travel.cellKm` en sus reglas): todos los viajes con él se juegan a esos km por hex. Se cambia en el sistema (Sistemas → Reglas).',
     hex: 'Hex {n}',
     here: 'aquí',
     terrain: vocabulary.es.terms.terrain,

@@ -120,7 +120,7 @@ describe('playing on the map', () => {
       files: [
         {
           path: 'pack.yaml',
-          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 13\n',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 14\n',
         },
         { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
       ],

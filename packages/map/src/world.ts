@@ -7,7 +7,7 @@ import {
   type HexKey,
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
-import { DEFAULT_HEX_KM } from './defaults'
+import { DEFAULT_CELL_KM } from './defaults'
 import { fieldValues } from './hex'
 import { type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
 
@@ -96,6 +96,10 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
       join(path.hexes[i], path.hexes[i + 1], path.kind)
   const cell = (hex: string) => parseKey(hex as HexKey)
   const hexDistance = (a: string, b: string) => cellDistance(cell(a), cell(b), grid)
+  // On squares, the ones touching at a corner are neighbours too: the system's rules say
+  // whether a trip may step there (`travel.diagonals`).
+  const square = grid.kind === 'square'
+  const around = square ? { ...grid, diagonals: true } : grid
   /** Drawn connections between hexes that aren't next to each other: more neighbours. */
   const far = new Map<string, string[]>()
   /** The connection drawn between two places, both ways. */
@@ -114,7 +118,7 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
   const holder = (hex: string) =>
     Object.keys(territories).find((id) => territories[id].includes(hex))
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
-  const km = map.scale.hexKm ?? systemHexKm ?? DEFAULT_HEX_KM
+  const km = map.scale.cellKm ?? systemHexKm ?? DEFAULT_CELL_KM
   const isFar = (a: string, b: string) =>
     !!wayOf(a, b) || (drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1)
   return {
@@ -156,13 +160,21 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
       parsePlaceOn(hex)
         ? ways.filter((w) => w.there === hex).map((w) => w.here)
         : [
-            ...neighborCells(cell(hex), grid).map(keyOf),
+            ...neighborCells(cell(hex), around).map(keyOf),
             ...(far.get(hex) ?? []),
             ...ways.filter((w) => w.here === hex).map((w) => w.there),
           ],
     // A far connection is a shortcut: with any, no distance is sure to be a lower bound.
     distance: (a, b) =>
-      far.size || parsePlaceOn(a) || parsePlaceOn(b) ? 0 : km * hexDistance(a, b),
+      far.size || parsePlaceOn(a) || parsePlaceOn(b)
+        ? 0
+        : km * cellDistance(cell(a), cell(b), around),
+    diagonal(a, b) {
+      if (!square || parsePlaceOn(a) || parsePlaceOn(b)) return undefined
+      const [p, q] = [cell(a), cell(b)]
+      if (Math.abs(p.col - q.col) !== 1 || Math.abs(p.row - q.row) !== 1) return undefined
+      return [keyOf({ col: q.col, row: p.row }), keyOf({ col: p.col, row: q.row })]
+    },
     connections: (a, b) => {
       const way = wayOf(a, b)
       if (way) return way.kind ? [way.kind] : []

@@ -30,7 +30,7 @@ import { partyOf, startTrip, travelSystems } from './trip'
 
 /** A system with a party sheet (morale, rations as items) beside its characters'. */
 const PACK = [
-  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 13\n' },
+  { path: 'band/pack.yaml', content: 'id: band\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
   {
     path: 'band/system.yaml',
     content:

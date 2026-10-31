@@ -111,15 +111,41 @@
         />
       </label>
       <label>
-        <span>{t('rules.hexKm')}<InfoTip text={t('rules.hexKmHelp')} /></span>
+        <span>{t('rules.cellKm')}<InfoTip text={t('rules.cellKmHelp')} /></span>
         <input
           type="number"
           min="0.1"
           step="any"
-          value={rules.travel?.hexKm ?? ''}
+          value={rules.travel?.cellKm ?? ''}
           {disabled}
-          onchange={(e) => doc.edit('travel-rules', ['travel', 'hexKm'], num(e.currentTarget))}
+          onchange={(e) => doc.edit('travel-rules', ['travel', 'cellKm'], num(e.currentTarget))}
         />
+      </label>
+      <label>
+        <span>{t('rules.diagonals')}<InfoTip text={t('rules.diagonalsHelp')} /></span>
+        <input
+          type="number"
+          min="0.1"
+          step="any"
+          value={rules.travel?.diagonals ?? ''}
+          placeholder={t('rules.noDiagonals')}
+          {disabled}
+          onchange={(e) => doc.edit('travel-rules', ['travel', 'diagonals'], num(e.currentTarget))}
+        />
+      </label>
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={!!rules.travel?.cutCorners}
+          disabled={disabled || rules.travel?.diagonals === undefined}
+          onchange={(e) =>
+            doc.edit(
+              'travel-rules',
+              ['travel', 'cutCorners'],
+              e.currentTarget.checked || undefined,
+            )}
+        />
+        {t('rules.cutCorners')}<InfoTip text={t('rules.cutCornersHelp')} />
       </label>
     </div>
     <div class="inline">

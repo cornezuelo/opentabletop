@@ -73,9 +73,9 @@ import { campaignTexts, clockFilledText, worldWords } from '@open-tabletop/campa
  * trips one of its own (the trip's id); v10: the party's supplies are its values or items
  * (`travel.resources` moves to the party sheet's values); v11: a way's hexes join the next by
  * `connections` (their `edges` before), and the trip's journal and totals say places where
- * they said hexes. All migrated on reading.
+ * they said hexes; v12: a hex's km is `cellKm` (`hexKm` before). All migrated on reading.
  */
-const VERSION = 11
+const VERSION = 12
 
 /** A trip without a map: its system, its way and the session. */
 export interface Saved {
@@ -84,7 +84,7 @@ export interface Saved {
   name: string
   system: string
   season: Season
-  hexKm: number
+  cellKm: number
   way: WayHex[]
   startDay: number
   session: SessionState | null
@@ -140,7 +140,7 @@ const blank = (system = DEFAULT_SYSTEM, id = newTripId()): Saved => ({
   name: '',
   system,
   season: 'spring',
-  hexKm: 10,
+  cellKm: 10,
   way: [{ terrain: 'plains', tags: [], connections: [] }],
   startDay: SEASON_START_DAYS.spring,
   session: null,
@@ -151,6 +151,12 @@ const isTrip = (raw: unknown): raw is Omit<Saved, 'id' | 'name' | 'campaign'> & 
   raw !== null &&
   Array.isArray((raw as Saved).way) &&
   (raw as Saved).way.length > 0
+
+/** A trip saved before v12 kept its hexes' km as `hexKm`. */
+function withCellKm<T extends Partial<Saved>>(t: T & { hexKm?: number }): T & { cellKm: number } {
+  const { hexKm, ...rest } = t
+  return { ...(rest as T), cellKm: t.cellKm ?? hexKm ?? 10 }
+}
 
 /** A trip saved before campaigns plays in one of its own, named by its id. */
 function withCampaign<T extends Partial<Saved>>(t: T): T & { id: string; campaign: string } {
@@ -177,6 +183,7 @@ export function readTrips(
       const trips = raw.trips
         .filter(isTrip)
         .map(withCampaign)
+        .map(withCellKm)
         .map((t) => ({
           ...t,
           name: t.name ?? '',
@@ -187,10 +194,10 @@ export function readTrips(
             migratePlaces(
               migrateSupplies(
                 migrateGenericSheets(
-                  migrateTotals(migrateLost(migrateFatigue(t.session)), t.hexKm),
+                  migrateTotals(migrateLost(migrateFatigue(t.session)), t.cellKm),
                 ),
               ),
-              t.hexKm,
+              t.cellKm,
             ),
         }))
       if (trips.length)
@@ -203,7 +210,7 @@ export function readTrips(
     const old: unknown = oldKey ? JSON.parse(storage.getItem(oldKey) ?? 'null') : null
     if (isTrip(old)) {
       const id = newTripId()
-      const trip = { ...old, id, name: '', campaign: id }
+      const trip = withCellKm({ ...old, id, name: '', campaign: id })
       return { version: VERSION, current: trip.id, trips: [trip] }
     }
   } catch {
@@ -731,7 +738,7 @@ export class TripStore {
     try {
       const options = {
         system: this.system,
-        world: wayWorld(this.saved.way, this.hexKm),
+        world: wayWorld(this.saved.way, this.cellKm),
         oracle: this.options.oracle(),
         locale: this.options.locale(),
         ...(campaign && host && { facts: worldFactsOf({ campaign }, host) }),
@@ -778,7 +785,7 @@ export class TripStore {
     const next = settleTrip(
       {
         system: this.system,
-        world: wayWorld(this.saved.way, this.hexKm),
+        world: wayWorld(this.saved.way, this.cellKm),
         locale: this.options.locale(),
         ...(campaign && world && { facts: worldFactsOf({ campaign }, world) }),
       },
@@ -804,7 +811,7 @@ export class TripStore {
     const next = shareTrip(
       {
         system: this.system,
-        world: wayWorld(this.saved.way, this.hexKm),
+        world: wayWorld(this.saved.way, this.cellKm),
         locale: this.options.locale(),
         ...(campaign && world && { facts: worldFactsOf({ campaign }, world) }),
       },
@@ -816,12 +823,12 @@ export class TripStore {
   }
 
   /** The scale trips are played at: the system's, if it sets one; else the way's own. */
-  get hexKm(): number {
-    return this.system.rules.travel.hexKm ?? this.saved.hexKm
+  get cellKm(): number {
+    return this.system.rules.travel.cellKm ?? this.saved.cellKm
   }
 
   setHexKm(km: number): void {
-    this.saved = { ...this.saved, hexKm: Math.max(0.1, km) }
+    this.saved = { ...this.saved, cellKm: Math.max(0.1, km) }
     this.save()
   }
 

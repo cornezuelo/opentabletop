@@ -1512,7 +1512,7 @@ describe('bundled open packs', () => {
       {
         path: 'mine/pack.yaml',
         content:
-          "id: mine\nversion: 0.1.0\nlocale: en\nformat: 13\ndependencies: { core: '>=0.1.0' }\n",
+          "id: mine\nversion: 0.1.0\nlocale: en\nformat: 14\ndependencies: { core: '>=0.1.0' }\n",
       },
       {
         path: 'mine/system.yaml',

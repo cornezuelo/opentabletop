@@ -12,7 +12,7 @@ import type {
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 31
+export const CURRENT_VERSION = 32
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -197,7 +197,7 @@ export const DEFAULT_GRID: GridSettings = {
 }
 
 /** A common hexcrawl scale (6 miles ≈ 10 km), when neither the map nor its system sets one. */
-export const DEFAULT_HEX_KM = 10
+export const DEFAULT_CELL_KM = 10
 
 export const DEFAULT_PRINT: PrintSettings = {
   hexMm: 25,

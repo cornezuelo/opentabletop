@@ -268,7 +268,7 @@ describe('a map’s campaign', () => {
     await settle()
     expect(editor.map.meta.campaign).toBe('grey-marches')
     expect(editor.campaign.world!.time).toBe(start + 60)
-    expect(editor.map.scale.hexKm).toBe(3)
+    expect(editor.map.scale.cellKm).toBe(3)
     expect(editor.map.hexes['8,4']).toMatchObject({ name: 'The Moot-stone', tags: ['landmark'] })
     const clans = editor.map.territories!['iron-clans']
     expect(clans).toEqual(expect.arrayContaining(['3,6', '4,6', '8,4']))

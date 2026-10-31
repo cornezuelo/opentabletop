@@ -90,15 +90,14 @@ export const map = z
     ...entity,
     type: z.literal('map'),
     grid: z.object({
-      /** Its cells: hexes (absent) or squares, with `diagonals` 8 neighbours instead of 4. */
+      /** Its cells: hexes (absent) or squares. */
       kind: z.enum(['hex', 'square']).optional(),
       orientation: z.enum(['flat', 'pointy']),
-      diagonals: z.boolean().optional(),
       width: z.number().int().positive(),
       height: z.number().int().positive(),
       coordFormat: z.enum(['CCRR', 'axial']).optional(),
     }),
-    scale: z.object({ hexKm: z.number().positive() }).optional(),
+    scale: z.object({ cellKm: z.number().positive() }).optional(),
     terrains: z.array(terrain),
     hexes: z.record(hexKey, hex),
     paths: z.array(path).optional(),

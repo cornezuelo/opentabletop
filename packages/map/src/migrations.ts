@@ -319,9 +319,22 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   29(data) {
     return data
   },
-  /** v31: square grids (`grid.kind: square`, `grid.diagonals`); older maps are hexes. */
+  /** v31: square grids (`grid.kind: square`); older maps are hexes. */
   30(data) {
     return data
+  },
+  /**
+   * v32: a cell's km, hexes or squares, is the scale's `cellKm` (`hexKm` before); whether
+   * diagonal squares are neighbours is the system's (`travel.diagonals`), no longer the grid's.
+   */
+  31(data) {
+    const scale = data.scale as { hexKm?: unknown } | undefined
+    const grid = { ...(data.grid as Record<string, unknown> | undefined) }
+    delete grid.diagonals
+    const moved = { ...data, ...(data.grid !== undefined && { grid }) }
+    if (!scale || !('hexKm' in scale)) return moved
+    const { hexKm, ...rest } = scale
+    return { ...moved, scale: { ...rest, cellKm: hexKm } }
   },
 }
 

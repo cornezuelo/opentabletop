@@ -687,9 +687,16 @@ export const es: Messages<typeof en> = {
     hoursPerDay: 'Horas de marcha al día',
     hoursPerDayHelp:
       "Las horas en que una forma de viajar hace sus **km al día**: la escala de su velocidad (km por hora). Cuánto puede marchar el grupo cada día lo dice la acción **Marchar** (`trip.marched: { lt: '{{system.hoursPerDay}}' }` lee este número).\n• `8` — 24 km al día son 3 km por hora\n• `10` — los mismos 24 km a 2,4 km por hora",
-    hexKm: 'km por hex',
-    hexKmHelp:
-      'La escala a la que se juega el sistema: cuántos km mide un hex. Con las velocidades de sus formas de viajar, dice cuánto se tarda en un hex.\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\n• `10` — hexes pequeños: varios al día\nLos viajes sin mapa (Viajes, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Mapa: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
+    cellKm: 'km por casilla',
+    cellKmHelp:
+      'La escala a la que se juega el sistema: cuántos km mide una casilla (un hex, un cuadrado). Con las velocidades de sus formas de viajar, dice cuánto se tarda en un hex.\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\n• `10` — hexes pequeños: varios al día\nLos viajes sin mapa (Viajes, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Mapa: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
+    diagonals: 'Paso en diagonal',
+    noDiagonals: 'ninguno',
+    diagonalsHelp:
+      'En mapas de casillas cuadradas, si un viaje puede pasar a una casilla que solo toca por una esquina, y cuánto cuesta ese paso en pasos por un lado. **Vacío: sin pasos en diagonal** (cuatro vecinas).\n• `1` — una diagonal cuesta lo que cualquier paso: ocho vecinas, todas iguales\n• `1.5` — la cuenta de 1, 2, 1, 2… casillas, en promedio\n• `1.41` — la distancia real\nMultiplica el tiempo del paso y sus km. Los hexes no tienen diagonales.',
+    cutCorners: 'Cortar esquinas',
+    cutCornersHelp:
+      'Si un paso en diagonal puede pasar por una esquina donde una de las dos casillas de al lado no se puede pisar (un muro, agua profunda, un terreno que la forma de viajar no cruza). **Sin marcar**: no puede, así que nadie se cuela entre dos columnas ni dobla la esquina de un muro.',
     modes: 'Formas de viajar',
     modesHelp:
       'Formas de viajar: a pie, a caballo, en barca… Cada una tiene una velocidad en **km por día de marcha** en terreno fácil (los terrenos y caminos la cambian) y puede limitarse a algunos sitios y momentos.\n• `foot` — 24 km al día\n• `horse` — 40 km al día, **Salvo si** `trip.weather: snow`\n• `boat` — 50 km al día, **Solo por** `place.water: true`\nEl panel del viaje deja al jugador cambiar de una a otra.\nSu orden cuenta: la primera es la de un viaje nuevo. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.',

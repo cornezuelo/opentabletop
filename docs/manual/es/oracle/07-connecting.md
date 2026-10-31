@@ -90,8 +90,8 @@ Un pack se convierte en un **sistema** con el que se puede jugar un mapa (Mapa: 
 kind: travel-rules
 id: default
 travel:
-  hoursPerDay: 8 # las horas en que una forma de viajar hace su kmPerDay; km por hex abajo
-  hexKm: 10
+  hoursPerDay: 8 # las horas en que una forma de viajar hace su kmPerDay; km por casilla abajo
+  cellKm: 10
   start: '06:00' # los viajes nuevos empiezan a las 06:00
   onward: { do: actions.march, with: { until: destination } } # siguiendo por sí solo, marcha
   halt: { at: '20:00', do: actions.camp } # desde las 20:00, un grupo que no puede marchar acampa
@@ -167,7 +167,7 @@ El resto de esta sección repasa cada parte de ese ejemplo: para qué sirve, qu�
 
 ### El día y la velocidad
 
-No hay un día ni una marcha integrados: el grupo se mueve con las acciones que tienen un paso `travel.move` (su **march**, abajo), el viaje sigue por sí solo con la que nombra su `onward`, y lo que hace cuando no puede moverse es su **parada**. **travel** dice cuándo empiezan los viajes nuevos (`start`: una hora o una parte del día del calendario; vacío, medianoche) y cuántas horas lleva el día de marcha de una forma de viajar (`hoursPerDay`, la escala de su velocidad); las acciones también gastan horas. Su `hexKm` es la escala a la que se juega el sistema, cuántos km mide un hex (`hexKm: 30`: un hex es un día de marcha a 30 km al día): la usan los viajes sin mapa, y también un mapa con el sistema salvo que el mapa fije su propia escala (Mapa: Ajustes del mapa → Mapa). Sin ella, la del mapa o la del camino de Viajes, 10 por defecto. El `kmPerDay` de una forma de viajar es lo que recorre en esas horas por terreno fácil, y todo lo demás lo multiplica:
+No hay un día ni una marcha integrados: el grupo se mueve con las acciones que tienen un paso `travel.move` (su **march**, abajo), el viaje sigue por sí solo con la que nombra su `onward`, y lo que hace cuando no puede moverse es su **parada**. **travel** dice cuándo empiezan los viajes nuevos (`start`: una hora o una parte del día del calendario; vacío, medianoche) y cuántas horas lleva el día de marcha de una forma de viajar (`hoursPerDay`, la escala de su velocidad); las acciones también gastan horas. Su `cellKm` es la escala a la que se juega el sistema, cuántos km mide un hex (`cellKm: 30`: un hex es un día de marcha a 30 km al día): la usan los viajes sin mapa, y también un mapa con el sistema salvo que el mapa fije su propia escala (Mapa: Ajustes del mapa → Mapa). Sin ella, la del mapa o la del camino de Viajes, 10 por defecto. El `kmPerDay` de una forma de viajar es lo que recorre en esas horas por terreno fácil, y todo lo demás lo multiplica:
 
 - **terrains**: la velocidad en cada terreno (`multiplier`: 0.5 es la mitad, 2 el doble), por los ids de la paleta de Mapa. `defaultTerrain: { multiplier: 1 }` cubre los terrenos que usa el mapa y la lista no nombra.
 - **connections**: los tipos de conexión entre lugares: los caminos, senderos y ríos que sigue el grupo, y los dibujados con las **Conexiones** de Mapa (un puente, una puerta, un túnel). Siguiendo uno, su `multiplier` sustituye al del terreno (`road: { multiplier: 1.5 }`); con `extra`, un paso por él tarda esos minutos además de lo de siempre (`door: { extra: 10 }`); uno dibujado entre lugares lejanos va al `multiplier` de su tipo (1 si no tiene) por su longitud, nunca al del terreno; `passable`, como el de un terreno, dice cuándo se puede cruzar, viendo la conexión misma (`passable: { unless: { connection.state: locked } }`). Una conexión que no se puede cruzar se rodea; si no hay otro camino, la ruta llega hasta ella y el grupo se para allí, donde las acciones la leen como `connection.*` y sus efectos la cambian (`connection.state: open`): [Qué ven las tablas](../technical/04-what-tables-see.md#la-conexión-del-paso-connection).

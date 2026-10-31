@@ -28,7 +28,7 @@ import {
 
 /** Two factions: the clans in the hills (a region), the vale on one hex. */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 13\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
   { path: 'marks/system.yaml', content: 'kind: system\nname: Marks\nfactions: factions.default\n' },
   {
     path: 'marks/factions.yaml',

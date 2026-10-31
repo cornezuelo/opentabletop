@@ -5,6 +5,6 @@ id: names
 name: { en: Names, es: Nombres }
 version: 0.1.0
 # The pack format it is written for (what its syntax means; see the manual: Packs).
-format: 13
+format: 14
 locale: en
 license: MIT

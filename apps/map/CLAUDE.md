@@ -48,7 +48,7 @@ See `@open-tabletop/map` (`packages/map/src/types.ts`; its format, migrations an
 **Two different scales, not to be confused:**
 
 - **Print:** `print.hexMm`, the physical hex size on paper (flat-to-flat, like mini bases).
-- **World:** `scale.hexKm`, km per hex, for travel (default 10; Kal-Arath uses 30). Set in Settings → Map.
+- **World:** `scale.cellKm`, km per hex, for travel (default 10; Kal-Arath uses 30). Set in Settings → Map.
 
 ## Features
 

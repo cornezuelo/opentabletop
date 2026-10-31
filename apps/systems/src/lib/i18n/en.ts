@@ -677,9 +677,16 @@ export const en = {
     hoursPerDay: 'Marching hours a day',
     hoursPerDayHelp:
       "The hours a way of travelling's **km a day** are marched in: the scale of its speed (km an hour). How long the party may march each day is the **March** action's (`trip.marched: { lt: '{{system.hoursPerDay}}' }` reads this number).\n• `8` — 24 km a day is 3 km an hour\n• `10` — the same 24 km at 2.4 km an hour",
-    hexKm: 'km per hex',
-    hexKmHelp:
-      "The scale the system is played at: how many km a hex measures. With the speeds of its ways of travelling, it says how long a hex takes.\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\n• `10` — small hexes: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Map: Map settings → Map). Empty: the map's or the way's, 10 by default.",
+    cellKm: 'km per cell',
+    cellKmHelp:
+      "The scale the system is played at: how many km a cell (a hex, a square) measures. With the speeds of its ways of travelling, it says how long a hex takes.\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\n• `10` — small hexes: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Map: Map settings → Map). Empty: the map's or the way's, 10 by default.",
+    diagonals: 'Diagonal step',
+    noDiagonals: 'none',
+    diagonalsHelp:
+      "On maps of squares, whether a trip may step to a square touching only at a corner, and what that step costs as a number of steps along a side. **Empty: no diagonal steps** (four neighbours).\n• `1` — a diagonal costs as much as any step: eight neighbours, all alike\n• `1.5` — the count of 1, 2, 1, 2… squares on average\n• `1.41` — the true distance\nIt multiplies the step's time and its km. Hexes have no diagonals.",
+    cutCorners: 'Cut corners',
+    cutCornersHelp:
+      "Whether a diagonal step may pass a corner where one of the two squares beside it can't be entered (a wall, deep water, a terrain the way of travelling can't cross). **Unticked**: it can't, so nobody slips between two pillars or round a wall's corner.",
     modes: 'Ways of travelling',
     modesHelp:
       'Ways of travelling: on foot, on horseback, by boat… Each has a speed in **km per marching day** on easy ground (terrains and roads change it), and can be limited to some places and moments.\n• `foot` — 24 km a day\n• `horse` — 40 km a day, **Not when** `trip.weather: snow`\n• `boat` — 50 km a day, **Only through** `place.water: true`\nThe trip panel lets the player switch between them.\nTheir order counts: the first is a new trip’s way. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.',

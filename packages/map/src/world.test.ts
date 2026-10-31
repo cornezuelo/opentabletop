@@ -4,7 +4,7 @@ import { mapWorld, parsePlaceOn, placeOn } from './world'
 
 describe('the map as the travel engine sees it', () => {
   const map = createMap()
-  map.scale = { hexKm: 6 }
+  map.scale = { cellKm: 6 }
   map.hexes['1,1'] = { terrain: 'forest', tags: ['haunted'] }
   map.paths = [{ id: 'r', kind: 'road', hexes: ['1,1', '2,1'] }]
 
@@ -22,6 +22,20 @@ describe('the map as the travel engine sees it', () => {
     expect(world.km('1,1', '2,1')).toBe(6)
     expect(world.distance('1,1', '3,1')).toBe(12)
     expect(mapWorld({ ...map, scale: {} }, 30).km('1,1', '2,1')).toBe(30)
+  })
+})
+
+describe('a map of squares', () => {
+  const map = createMap()
+  map.grid = { ...map.grid, kind: 'square' }
+
+  it('offers the squares at its corners too, saying which two each passes between', () => {
+    const world = mapWorld(map, 1)
+    expect(world.neighbors('2,2')).toHaveLength(8)
+    expect(world.diagonal?.('2,2', '3,3')).toEqual(['3,2', '2,3'])
+    expect(world.diagonal?.('2,2', '3,2')).toBeUndefined()
+    // A diagonal as one step: never more than any way there.
+    expect(world.distance('0,0', '3,2')).toBe(3)
   })
 })
 

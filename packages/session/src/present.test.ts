@@ -22,7 +22,7 @@ import { addPresent, removePresent, templateCopy } from './present'
  * named by a generator; actions that fight them and read who's here.
  */
 const PACK = [
-  { path: 'wilds/pack.yaml', content: 'id: wilds\nversion: 0.1.0\nlocale: en\nformat: 13\n' },
+  { path: 'wilds/pack.yaml', content: 'id: wilds\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
   {
     path: 'wilds/system.yaml',
     content:
@@ -250,7 +250,7 @@ describe('those present: copies of templates in a trip', () => {
       {
         path: 'mine/pack.yaml',
         content:
-          'id: mine\nversion: 0.1.0\nlocale: en\nformat: 13\ndependencies: { wilds: ^0.1.0 }\n',
+          'id: mine\nversion: 0.1.0\nlocale: en\nformat: 14\ndependencies: { wilds: ^0.1.0 }\n',
       },
       {
         path: 'mine/bestiary.yaml',

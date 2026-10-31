@@ -34,12 +34,14 @@
         type="number"
         min="0.1"
         step="any"
-        value={trip.hexKm}
-        disabled={system.rules.travel.hexKm !== undefined}
+        value={trip.cellKm}
+        disabled={system.rules.travel.cellKm !== undefined}
         onchange={(e) => trip.setHexKm(Number(e.currentTarget.value) || 10)}
       />
-      {t('play.hexKm')}<InfoTip
-        text={system.rules.travel.hexKm !== undefined ? t('play.hexKmSystem') : t('play.hexKmHelp')}
+      {t('play.cellKm')}<InfoTip
+        text={system.rules.travel.cellKm !== undefined
+          ? t('play.cellKmSystem')
+          : t('play.cellKmHelp')}
       />
     </label>
   </div>

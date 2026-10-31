@@ -145,7 +145,9 @@ kind: travel-rules
 id: default
 travel:
   hoursPerDay: 8 # the hours a way's kmPerDay is marched in (the speed's scale)
-  hexKm: 10 # km a hex (the scale)
+  cellKm: 10 # km a cell, a hex or a square (the scale)
+  diagonals: 1.5 # on squares, a step across a corner costs 1.5 steps (empty: none)
+  cutCorners: false # a diagonal step never passes a corner it can't enter (the default)
   start: '06:00' # when a new trip starts (a clock or a part of the day; empty: midnight)
   onward: { do: actions.march, with: { until: destination } } # how the trip goes on by itself
   halt: { at: '20:00', do: actions.camp } # from then on, a party that can't march camps by itself

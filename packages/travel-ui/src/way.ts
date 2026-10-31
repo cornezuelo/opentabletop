@@ -15,11 +15,11 @@ export interface WayHex {
  * A trip without a map: a line of hexes ("0", "1", "2"…) the party walks along. Each hex
  * has the terrain and tags you give it; roads and rivers join it to the next one.
  */
-export function wayWorld(way: readonly WayHex[], hexKm: number): TravelWorld {
+export function wayWorld(way: readonly WayHex[], cellKm: number): TravelWorld {
   const index = (hex: string) => Number(hex)
   const valid = (i: number) => Number.isInteger(i) && i >= 0 && i < way.length
   return {
-    km: () => hexKm,
+    km: () => cellKm,
     place(hex) {
       const h = way[index(hex)]
       return h
@@ -30,7 +30,7 @@ export function wayWorld(way: readonly WayHex[], hexKm: number): TravelWorld {
       const i = index(hex)
       return [i - 1, i + 1].filter(valid).map(String)
     },
-    distance: (a, b) => hexKm * Math.abs(index(a) - index(b)),
+    distance: (a, b) => cellKm * Math.abs(index(a) - index(b)),
     connections(a, b) {
       const [i, j] = [index(a), index(b)].sort((x, y) => x - y)
       return j === i + 1 ? (way[i]?.connections ?? []) : []

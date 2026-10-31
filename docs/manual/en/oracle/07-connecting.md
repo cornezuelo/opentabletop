@@ -95,8 +95,8 @@ A pack becomes a **system** a map can play (Map: **Map settings → Campaign →
 kind: travel-rules
 id: default
 travel:
-  hoursPerDay: 8 # the hours a way's kmPerDay is marched in; km a hex below
-  hexKm: 10
+  hoursPerDay: 8 # the hours a way's kmPerDay is marched in; km a cell below
+  cellKm: 10
   start: '06:00' # new trips start at 06:00
   onward: { do: actions.march, with: { until: destination } } # going on by itself, it marches
   halt: { at: '20:00', do: actions.camp } # from 20:00, a party that can't march camps
@@ -172,7 +172,7 @@ The rest of this section goes over each part of that example: what it's for, wha
 
 ### The day and the speed
 
-There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (its **march**, below), the trip goes on by itself with the one its `onward` names, and what it does when it can't move is its **halt**. **travel** says when new trips start (`start`: a clock or a part of the calendar's day; empty, midnight) and how many hours a way's day of marching takes (`hoursPerDay`, the scale of its speed); actions spend hours too. Its `hexKm` is the scale the system is played at, how many km a hex measures (`hexKm: 30`: a hex is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Map: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
+There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (its **march**, below), the trip goes on by itself with the one its `onward` names, and what it does when it can't move is its **halt**. **travel** says when new trips start (`start`: a clock or a part of the calendar's day; empty, midnight) and how many hours a way's day of marching takes (`hoursPerDay`, the scale of its speed); actions spend hours too. Its `cellKm` is the scale the system is played at, how many km a hex measures (`cellKm: 30`: a hex is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Map: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
 
 - **terrains**: the speed on each terrain (`multiplier`: 0.5 is half speed, 2 double), by the ids of Map's palette. `defaultTerrain: { multiplier: 1 }` covers the terrains the map uses and the list doesn't name.
 - **connections**: the kinds of connection between places: the roads, trails and rivers the party follows, and those drawn with Map's **Connections** (a bridge, a door, a tunnel). Following one, its `multiplier` replaces the terrain's (`road: { multiplier: 1.5 }`); with `extra`, a step through it takes those minutes on top of its usual time (`door: { extra: 10 }`); one drawn between far places goes at its kind's `multiplier` (1 if it has none) over its length, never the terrain's; `passable`, as a terrain's, says when it can be crossed, seeing the connection itself (`passable: { unless: { connection.state: locked } }`). A connection that can't be crossed is gone round; with no other way, the route leads up to it and the party stops there, where actions read it as `connection.*` and their effects change it (`connection.state: open`): [What tables see](../technical/04-what-tables-see.md#the-connection-of-the-step-connection).

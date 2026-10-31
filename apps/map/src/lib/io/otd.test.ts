@@ -6,7 +6,7 @@ import { bundleToMap, mapToBundle, parseMapFile } from './otd'
 
 function sampleMap() {
   const map = createMap('Kal-Arath')
-  map.scale.hexKm = 30
+  map.scale.cellKm = 30
   map.hexes['1,2'] = {
     terrain: 'forest',
     name: 'Bosque viejo',
@@ -55,7 +55,7 @@ describe('OTD conversion', () => {
     const bundle = mapToBundle(sampleMap())
     expect(validateBundle(bundle).errors).toEqual([])
     const map = bundle.maps[0]
-    expect(map.scale).toEqual({ hexKm: 30 })
+    expect(map.scale).toEqual({ cellKm: 30 })
     expect(map.hexes['1,2']).toEqual({
       terrain: 'forest',
       name: 'Bosque viejo',

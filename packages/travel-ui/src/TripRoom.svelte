@@ -226,7 +226,7 @@
             label: hexLabel(String(i)),
           }))}
           terrainName={(id) => terrainName(t, id)}
-          world={wayWorld(trip.saved.way, trip.hexKm)}
+          world={wayWorld(trip.saved.way, trip.cellKm)}
           title={tripLabel(trip.saved)}
           {nameOf}
           destinationHint={t('play.destinationHint')}

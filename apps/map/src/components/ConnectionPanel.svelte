@@ -34,7 +34,7 @@
   const measured = $derived.by(() => {
     if (!selected) return undefined
     const plain = { ...($state.snapshot(selected) as MapConnection), km: undefined }
-    const world = mapWorld({ ...editor.map, connections: [plain] }, mapSystem().rules.travel.hexKm)
+    const world = mapWorld({ ...editor.map, connections: [plain] }, mapSystem().rules.travel.cellKm)
     const [a, b] = selected.between
     return world.far?.(a, b) ? world.km(a, b) : undefined
   })

@@ -17,7 +17,7 @@ describe('saved trips', () => {
     const old = {
       system: 'grey-marches',
       season: 'autumn',
-      hexKm: 10,
+      cellKm: 10,
       way,
       startDay: 181,
       session: null,
@@ -34,7 +34,7 @@ describe('saved trips', () => {
       name: 'North',
       system: 'generic',
       season: 'spring',
-      hexKm: 10,
+      cellKm: 10,
       way,
       startDay: 1,
       session: null,
@@ -120,9 +120,9 @@ describe('a trip store', () => {
       locale: () => 'en',
     })
     store.setHexKm(25)
-    expect(store.hexKm).toBe(25)
-    system = { ...system, rules: { ...rules, travel: { hoursPerDay: 8, hexKm: 30 } } }
-    expect(store.hexKm).toBe(30)
+    expect(store.cellKm).toBe(25)
+    system = { ...system, rules: { ...rules, travel: { hoursPerDay: 8, cellKm: 30 } } }
+    expect(store.cellKm).toBe(30)
     // A day on foot (30 km in the generic rules) crosses at most one 30 km hex.
     for (let i = 0; i < 5; i++) store.addHex()
     store.start('core', 'spring')

@@ -94,8 +94,6 @@ export interface GridSettings {
   kind?: GridKind
   /** Hexes only: flat or pointy tops. */
   orientation: Orientation
-  /** Squares only: diagonal squares are neighbours too (8 instead of 4). */
-  diagonals?: boolean
   /** Center-to-corner radius in world units (a square measures a hex's flat-to-flat across). */
   hexSize: number
   width: number
@@ -397,9 +395,9 @@ export interface HexMap {
   grid: GridSettings
   /**
    * World scale for travel: kilometres per hex (not to be confused with print.hexMm).
-   * Absent: the system's (`travel.hexKm` in its rules), else DEFAULT_HEX_KM.
+   * Absent: the system's (`travel.cellKm` in its rules), else DEFAULT_CELL_KM.
    */
-  scale: { hexKm?: number }
+  scale: { cellKm?: number }
   print: PrintSettings
   terrains: TerrainType[]
   /** Keyed by offset coordinates "col,row". */
