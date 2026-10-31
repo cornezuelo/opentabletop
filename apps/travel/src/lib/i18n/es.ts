@@ -24,7 +24,7 @@ export const es: Messages<typeof en> = {
   },
   welcome: {
     title: vocabulary.es.apps.travel,
-    body: 'Elige un sistema a la izquierda para jugar un viaje con él. Aquí los viajes no tienen mapa: describes el camino hex a hex, y el sistema decide a qué velocidad se va por cada terreno y camino, qué se lleva encima y qué comprobaciones se tiran por el camino. Los sistemas se crean y editan en la aplicación Sistemas; para viajar sobre un mapa, usa Mapa (modo Jugar) con los mismos sistemas.',
+    body: 'Elige un sistema a la izquierda para jugar un viaje con él. Aquí los viajes no tienen mapa: describes el camino casilla a casilla, y el sistema decide a qué velocidad se va por cada terreno y camino, qué se lleva encima y qué comprobaciones se tiran por el camino. Los sistemas se crean y editan en la aplicación Sistemas; para viajar sobre un mapa, usa Mapa (modo Jugar) con los mismos sistemas.',
   },
   inCampaign: { missing: 'El viaje {id} no está en este navegador.' },
   storage: {

@@ -18,7 +18,7 @@ export const es: Messages<typeof en> = {
     stats: 'Características',
   },
   totals: {
-    line: '{places} hexes{km} · {hours} de marcha',
+    line: '{places} casillas{km} · {hours} de marcha',
     km: ' · {km} km',
     checks: 'Comprobaciones: {count}',
     taken: 'Acciones: {list}',
@@ -50,7 +50,7 @@ export const es: Messages<typeof en> = {
   travel: 'Viajar',
   goOn: 'Seguir',
   waitOnward: 'Esperar para seguir',
-  choices: { destination: 'hasta el destino', place: 'un sitio', hexes: '{n} hexes' },
+  choices: { destination: 'hasta el destino', place: 'un sitio', hexes: '{n} casillas' },
   continue: 'Continuar',
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
@@ -58,7 +58,7 @@ export const es: Messages<typeof en> = {
   filter: {
     level: 'Mostrar',
     levelHelp:
-      'Cuánto de lo que ha pasado muestra el diario. Todo se guarda siempre: esto solo elige qué ves y qué escribe **Exportar**.\n• **La historia** — lo que ha pasado en la partida: resultados de las tablas, descubrimientos, llegadas, lo que dice el sistema, tus notas\n• **Y las reglas** — también lo que han hecho las reglas: hexes en los que se entra, acciones, comprobaciones, cambios en el grupo y sus personajes, valores que llegan a su límite (lo que el diario mostraba siempre)\n• **Todo** — también lo que ha pasado por detrás: los dados de cada tirada y la fila o carta que ha salido (`Tirada de Encuentro: Encuentros salvajes: 2d6 → 7  [3, 4] → 7`), la tirada del clima, las comprobaciones que no han salido y por qué (`Emboscada no sale: el peligro del hex es 1: necesita 2 o más`), cada momento del día que nombra alguna comprobación o acción, cada valor antes y después (`Comida: 5 → 3`) y las rutas planeadas\nPara saber por qué ha pasado algo, o por qué no, elige **Todo** y busca su nombre.',
+      'Cuánto de lo que ha pasado muestra el diario. Todo se guarda siempre: esto solo elige qué ves y qué escribe **Exportar**.\n• **La historia** — lo que ha pasado en la partida: resultados de las tablas, descubrimientos, llegadas, lo que dice el sistema, tus notas\n• **Y las reglas** — también lo que han hecho las reglas: casillas en las que se entra, acciones, comprobaciones, cambios en el grupo y sus personajes, valores que llegan a su límite (lo que el diario mostraba siempre)\n• **Todo** — también lo que ha pasado por detrás: los dados de cada tirada y la fila o carta que ha salido (`Tirada de Encuentro: Encuentros salvajes: 2d6 → 7  [3, 4] → 7`), la tirada del clima, las comprobaciones que no han salido y por qué (`Emboscada no sale: el peligro del sitio es 1: necesita 2 o más`), cada momento del día que nombra alguna comprobación o acción, cada valor antes y después (`Comida: 5 → 3`) y las rutas planeadas\nPara saber por qué ha pasado algo, o por qué no, elige **Todo** y busca su nombre.',
     levels: { story: 'La historia', mechanics: 'Y las reglas', detail: 'Todo' },
     topics: {
       travel: 'Viaje',
@@ -82,13 +82,13 @@ export const es: Messages<typeof en> = {
     readBy: '**Lo leen:** {names}.',
     changedBy: '**Lo cambian:** {names}.',
     totals:
-      'Lo que lleva hecho el viaje desde que empezó: hexes en los que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido sus acciones, comprobaciones y tablas a los valores y objetos del grupo (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.places`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
+      'Lo que lleva hecho el viaje desde que empezó: casillas en las que ha entrado (y sus km a la escala del mapa), horas de marcha, comprobaciones que han salido, cuántas veces se ha hecho cada acción (por ti o por el propio sistema) y cuánto han quitado o añadido sus acciones, comprobaciones y tablas a los valores y objetos del grupo (lo que cambias tú a mano no cuenta). Las condiciones y las tablas también lo leen, por ejemplo:\n• `trip.km: { gte: 100 }` — cuando el grupo lleva 100 km\n• `trip.hours: { gt: 40 }` — tras 40 horas de camino\n• `trip.taken.camp: { gte: 7 }` — a partir del séptimo campamento\n• `trip.spent.food: { gte: 10 }` y `trip.gained.food`, `trip.places`, `trip.checks`\n• en un texto: `{{trip.km}} km hasta ahora`',
     actionChecks: 'Tira {checks} donde se aplica; el diario dice cuándo no se aplica nada.',
     exportJournal:
       'Descarga el diario en Markdown, con un título por día y las líneas que muestra el filtro: para tu aplicación de notas (SilverBullet, Obsidian…) o para imprimir.',
     newTrip: 'Reinicia el tiempo, la hoja del grupo y el diario, dejando al grupo donde está.',
     marched:
-      'Horas de marcha permitidas al día; cuando se acaban, la marcha sigue mañana. Lo que tarda un hex depende de la escala del mundo (km por hex), el terreno, el camino y la forma de viajar, según los fije el sistema. Por ejemplo, si una forma de viajar hace 24 km en 8 h y los hexes son de 12 km:\n• campo abierto (× 1): 4 h por hex\n• un terreno a × 0.5: 8 h por hex\n• un camino a × 1.5: menos de 3 h por hex',
+      'Horas de marcha permitidas al día; cuando se acaban, la marcha sigue mañana. Lo que tarda una casilla depende de la escala del mundo (km por casilla), el terreno, el camino y la forma de viajar, según los fije el sistema. Por ejemplo, si una forma de viajar hace 24 km en 8 h y las casillas son de 12 km:\n• campo abierto (× 1): 4 h por casilla\n• un terreno a × 0.5: 8 h por casilla\n• un camino a × 1.5: menos de 3 h por casilla',
     goOn: 'Sigue con «{action}», que se detuvo por el camino por una comprobación: el resto de su movimiento y después el resto de lo que hace. Hacer otra acción o esperar lo deja.',
     waitOnward:
       'El tiempo pasa donde está el grupo hasta que pueda volver a hacer «{action}» (cómo sigue el viaje por sí solo, según diga el sistema), viviéndolo: si ahora pudiera, primero deja pasar esa ocasión. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede seguir, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
@@ -301,14 +301,14 @@ export const es: Messages<typeof en> = {
     skippedBy: { when: 'su «solo si» no se cumple', unless: 'su «salvo si» se cumple' },
     moment: 'Momento: {moment}',
     moments: {
-      hexEnter: 'al entrar en un hex',
+      hexEnter: 'al entrar en una casilla',
       dayEnd: 'el final del día',
       action: 'tras «{action}»',
       done: 'al acabar «{action}»',
       check: 'tras «{check}»',
       reaction: 'al cumplirse su condición',
     },
-    route: 'Ruta hasta {hex} · hexes: {hexes}',
+    route: 'Ruta hasta {hex} · casillas: {hexes}',
   },
   why: {
     op: {
@@ -393,30 +393,30 @@ export const es: Messages<typeof en> = {
     switchConfirm: '¿Empezar este viaje de nuevo con {system}? Se descarta su diario.',
     way: 'El camino',
     wayHelp:
-      'Un viaje sin mapa: lista los hexes que tienes por delante, cada uno con su terreno y etiquetas y si un camino o un río lo une con el siguiente. El grupo se dirige al último.\n• `plains`, luego `forest` con etiqueta `haunted`, luego `hills` por `road`\nAñade más hexes al final para seguir.',
-    cellKm: 'km por hex',
+      'Un viaje sin mapa: lista las casillas que tienes por delante, cada una con su terreno y etiquetas y si un camino o un río la une con la siguiente. El grupo se dirige al último.\n• `plains`, luego `forest` con etiqueta `haunted`, luego `hills` por `road`\nAñade más casillas al final para seguir.',
+    cellKm: 'km por casilla',
     cellKmHelp:
-      'Cuántos km mide un hex del camino, cuando el sistema no lo fija: con las velocidades del sistema, dice cuánto se tarda en cada hex.\n• `10` — hexes pequeños: varios en un día de marcha\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km',
+      'Cuántos km mide una casilla del camino, cuando el sistema no lo fija: con las velocidades del sistema, dice cuánto se tarda en cada casilla.\n• `10` — casillas pequeñas: varias en un día de marcha\n• `30` — casillas grandes: más o menos una al día para una forma de viajar que hace 30 km',
     cellKmSystem:
-      'El sistema fija la escala (`travel.cellKm` en sus reglas): todos los viajes con él se juegan a esos km por hex. Se cambia en el sistema (Sistemas → Reglas).',
-    hex: 'Hex {n}',
+      'El sistema fija la escala (`travel.cellKm` en sus reglas): todos los viajes con él se juegan a esos km por casilla. Se cambia en el sistema (Sistemas → Reglas).',
+    hex: 'Casilla {n}',
     here: 'aquí',
     terrain: vocabulary.es.terms.terrain,
     tags: vocabulary.es.terms.tags,
     tagsPlaceholder: 'landmark, haunted…',
-    connections: 'Al siguiente hex',
+    connections: 'A la siguiente casilla',
     numberHelp:
-      'Los hexes en orden: el grupo empieza en el 1 y va hacia el último. Los hexes ya recorridos no se pueden cambiar; añade más al final para seguir.',
+      'Las casillas en orden: el grupo empieza en el 1 y va hacia el último. Las casillas ya recorridas no se pueden cambiar; añade más al final para seguir.',
     terrainHelp:
-      'Lo rápido que se cruza el hex (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno:\n• `forest` — las tablas y condiciones leen `place.terrain: forest`\nSu velocidad, y si se puede cruzar, son cosa del sistema: lo dicen sus reglas de viaje.',
+      'Lo rápido que se cruza la casilla (la velocidad que da el sistema a ese terreno, y si se puede cruzar) y lo que las tablas ven como terreno:\n• `forest` — las tablas y condiciones leen `place.terrain: forest`\nSu velocidad, y si se puede cruzar, son cosa del sistema: lo dicen sus reglas de viaje.',
     tagsHelp:
-      'Palabras que marcan el hex, cada una una pastilla (Intro o una coma la añade, × la quita), para las comprobaciones y tablas que las buscan:\n• `landmark` — `place.tags: landmark` en una condición\n• `shrine, haunted`\nLas sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
+      'Palabras que marcan la casilla, cada una una pastilla (Intro o una coma la añade, × la quita), para las comprobaciones y tablas que las buscan:\n• `landmark` — `place.tags: landmark` en una condición\n• `shrine, haunted`\nLas sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
     connectionsHelp:
-      'Si un camino, sendero o río une este hex con el siguiente. Lo que eso hace depende del sistema:\n• los caminos suelen ser más rápidos (`road` × `1.5`)\n• un sistema puede saltarse algunas comprobaciones en ellos (**Salvo si** `trip.connections: road`)',
-    addHex: 'Añadir un hex',
+      'Si un camino, sendero o río une esta casilla con la siguiente. Lo que eso hace depende del sistema:\n• los caminos suelen ser más rápidos (`road` × `1.5`)\n• un sistema puede saltarse algunas comprobaciones en ellos (**Salvo si** `trip.connections: road`)',
+    addHex: 'Añadir una casilla',
     remove: 'Quitar',
-    destinationHint: 'Añade hexes al camino para ponerte en marcha.',
-    arrivedHint: 'Añade más hexes para seguir.',
+    destinationHint: 'Añade casillas al camino para ponerte en marcha.',
+    arrivedHint: 'Añade más casillas para seguir.',
   },
   terrains: vocabulary.es.terrains,
   connectionKinds: vocabulary.es.pathKinds,

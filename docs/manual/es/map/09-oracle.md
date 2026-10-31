@@ -10,15 +10,15 @@ Un mapa puede trabajar solo con algunos packs, que se eligen para toda su campa�
 
 Las tiradas reciben lo que sabe el mapa, así que las tablas pueden depender de dónde estás:
 
-- Del **hex seleccionado** (o el del grupo, si no hay ninguno): `terrain` (su id: `forest`, `hills`…), `water`, `tags`, `name`, `region` (por nombre), los campos de la región y del hex por clave (ganan los del hex), el icono como `icon.*` y `hex`.
+- De la **casilla seleccionada** (o la del grupo, si no hay ninguna): `terrain` (su id: `forest`, `hills`…), `water`, `tags`, `name`, `region` (por nombre), los campos de la región y de la casilla por clave (ganan los de la casilla), el icono como `icon.*` y `hex`.
 - Del **token seleccionado**: `token.name`, `token.kind` y sus campos como `token.*`.
 - Durante un **viaje con reglas**: `season`, `weather`, `mode`, `day`, las estadísticas del grupo y los valores del día.
 
-Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores. La lista completa, y qué valor gana, está en [Lo que ven las tablas](../technical/04-what-tables-see.md). Arriba del panel se indica qué hex leen las tiradas. **Tirar aquí** (junto a las coordenadas en el panel del hex) abre Oráculo con el hex seleccionado.
+Aparecen en gris en el **Contexto** del panel de tirada; escribe encima para probar otros valores. La lista completa, y qué valor gana, está en [Lo que ven las tablas](../technical/04-what-tables-see.md). Arriba del panel se indica qué casilla leen las tiradas. **Tirar aquí** (junto a las coordenadas en el panel de la casilla) abre Oráculo con la casilla seleccionada.
 
 ## Guardar un resultado en el mapa
 
-Bajo cada resultado, **Añadir a … como punto de interés** lo añade a los puntos de interés del hex: un resultado corto pasa a ser su nombre; uno largo se queda con el nombre de la tabla como nombre y el texto como descripción. Edítalo en el panel del hex como cualquier otro punto de interés; <kbd>Ctrl</kbd>+<kbd>Z</kbd> lo deshace. Para ponerle nombre así a un pueblo, una posada o un paraje, tira _¿Cómo se llama el sitio?_ del pack incluido [Nombres](../packs/03-names.md) sobre su hex.
+Bajo cada resultado, **Añadir a … como punto de interés** lo añade a los puntos de interés de la casilla: un resultado corto pasa a ser su nombre; uno largo se queda con el nombre de la tabla como nombre y el texto como descripción. Edítalo en el panel de la casilla como cualquier otro punto de interés; <kbd>Ctrl</kbd>+<kbd>Z</kbd> lo deshace. Para ponerle nombre así a un pueblo, una posada o un paraje, tira _¿Cómo se llama el sitio?_ del pack incluido [Nombres](../packs/03-names.md) sobre su casilla.
 
 Durante un viaje con reglas, un resultado que cambia las características del grupo, su hoja, sus objetos o sus personajes (`effects: { party.items.ration: -2, party.stats.morale: 2 }`) muestra además **Aplicar al viaje** con lo que cambia: púlsalo para aplicar esos cambios como se aplicaría el de una comprobación (una vez por resultado). Las comprobaciones del viaje aplican los suyos por sí solas; las tiradas a mano, solo cuando tú lo dices. Pruébalo en Ashford con _En El Hurón Mojado_ de las Marcas Grises.
 
@@ -44,7 +44,7 @@ entries:
 
 Más ejemplos, hasta un sistema de viaje completo: [Conectar tablas con mapas y viajes](../oracle/07-connecting.md).
 
-Después selecciona un hex de bosque, pulsa <kbd>O</kbd>, busca «Qué encontramos» y tira. Gana la primera entrada cuya condición se cumple.
+Después selecciona una casilla de bosque, pulsa <kbd>O</kbd>, busca «Qué encontramos» y tira. Gana la primera entrada cuya condición se cumple.
 
 ## Diario, historial y tus packs
 

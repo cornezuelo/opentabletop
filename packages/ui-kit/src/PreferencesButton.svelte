@@ -36,7 +36,7 @@
       language: 'Language',
       notes: 'Notes app',
       notesHelp:
-        'Hexes, places and other things can link to a note in your notes app; the link only stores the note’s path, and this turns it into an address.',
+        'Cells, places and other things can link to a note in your notes app; the link only stores the note’s path, and this turns it into an address.',
       settings: {
         silverbullet: { baseUrl: 'SilverBullet URL' },
         obsidian: { vault: 'Vault name' },
@@ -52,7 +52,7 @@
       language: 'Idioma',
       notes: 'Aplicación de notas',
       notesHelp:
-        'Los hexes, los lugares y otras cosas pueden enlazar con una nota de tu aplicación de notas; el enlace solo guarda la ruta de la nota, y esto la convierte en una dirección.',
+        'Las casillas, los lugares y otras cosas pueden enlazar con una nota de tu aplicación de notas; el enlace solo guarda la ruta de la nota, y esto la convierte en una dirección.',
       settings: {
         silverbullet: { baseUrl: 'URL de SilverBullet' },
         obsidian: { vault: 'Nombre de la bóveda' },

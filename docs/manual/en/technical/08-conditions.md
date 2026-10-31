@@ -26,7 +26,7 @@ Nothing in a condition is run as code: packs from anyone are safe to load.
 Several comparisons on the same value must all hold: `place.danger: { gte: 2, lte: 4 }` is 2, 3 or 4.
 
 - **Numbers** only compare with numbers: `place.danger: { gte: 3 }` doesn't hold where there's no danger, or where it was written as text.
-- **Lists** in the context, like a hex's `tags` or the day's `holidays`, hold when they **contain** the value: `place.tags: landmark` holds for a hex tagged `ford, landmark`; `place.tags: [ford, toll]` for one with either.
+- **Lists** in the context, like a cell's `tags` or the day's `holidays`, hold when they **contain** the value: `place.tags: landmark` holds for a cell tagged `ford, landmark`; `place.tags: [ford, toll]` for one with either.
 - **Groups by name**, like the connections leaving a place by kind, hold when they have that name: `place.connections: door` holds where a door leaves the place; `place.connections.door.state: locked` reads inside it.
 - **Missing values** don't match, except with `not` and `exists: false`.
 - **Dotted names** read inside a value: `party.stats.survival`, `icon.guards`, `time.moons.pale`, `yesterday.lost`.
@@ -36,21 +36,21 @@ Several comparisons on the same value must all hold: `place.danger: { gte: 2, lt
 
 A value written as `'{{name}}'` is a **variable**: another value of the context, read when the condition is checked, instead of a fixed one. Written as `'{{dice}}'` it's a **roll**. Either goes wherever a value goes: after `gte`, `lt`…, in a list, after `not`. In YAML, **quote them** (`'{{system.hoursPerDay}}'`): without quotes, braces start a list of pairs (see [Syntax](09-syntax.md#values-key-value)).
 
-| Write                                                       | Holds when                                          |
-| ----------------------------------------------------------- | --------------------------------------------------- |
-| `place.danger: { gt: '{{party.stats.stealth}}' }`           | the danger is over the party's stealth              |
-| `time.hour: { gte: '{{system.part.night}}' }`               | it's when the calendar's night starts, or later     |
-| `party.stats.fatigue: { gte: '{{party.stats.endurance}}' }` | fatigue has reached endurance                       |
-| `place.faction: '{{rival}}'`                                | the hex's faction is the one in the value `rival`   |
-| `place.tags: '{{wanted}}'`                                  | the hex has any of the tags the list `wanted` holds |
-| `party.stats.wits: { gte: '{{1d20}}' }`                     | a d20 rolls the party's wits or under               |
-| `place.danger: { gt: '{{1d6}}' }`                           | a d6 rolls under the danger                         |
+| Write                                                       | Holds when                                           |
+| ----------------------------------------------------------- | ---------------------------------------------------- |
+| `place.danger: { gt: '{{party.stats.stealth}}' }`           | the danger is over the party's stealth               |
+| `time.hour: { gte: '{{system.part.night}}' }`               | it's when the calendar's night starts, or later      |
+| `party.stats.fatigue: { gte: '{{party.stats.endurance}}' }` | fatigue has reached endurance                        |
+| `place.faction: '{{rival}}'`                                | the cell's faction is the one in the value `rival`   |
+| `place.tags: '{{wanted}}'`                                  | the cell has any of the tags the list `wanted` holds |
+| `party.stats.wits: { gte: '{{1d20}}' }`                     | a d20 rolls the party's wits or under                |
+| `place.danger: { gt: '{{1d6}}' }`                           | a d6 rolls under the danger                          |
 
 A variable that isn't there (or isn't a number, after `gte`…) never holds. Only a whole value is a variable: `'the {{rival}}'` is that text, as written.
 
 **A roll is the same all through a moment.** Wherever it's read again in the same moment, the same dice give the same total, so what it decides doesn't change when you look again:
 
-- In a **trip** (checks, actions and their steps, marching, ways of travelling, terrains and `through`), a moment is the day, the hex and what's happening: a moment like `trip.place-enter` or `time.day-end`, or the action being taken (`march` for marching). An action whose `when` rolls `'{{1d20}}'` is available or not for the whole day in that hex, the route doesn't change as you plan it, and the action's effects see the same roll. Each trip rolls its own.
+- In a **trip** (checks, actions and their steps, marching, ways of travelling, terrains and `through`), a moment is the day, the cell and what's happening: a moment like `trip.place-enter` or `time.day-end`, or the action being taken (`march` for marching). An action whose `when` rolls `'{{1d20}}'` is available or not for the whole day in that cell, the route doesn't change as you plan it, and the action's effects see the same roll. Each trip rolls its own.
 - In a **table** (entries, generator fields, `modeWhen` / `modeUnless`), a moment is one roll of the table, with what it rolls next: an entry with `when` and another with `unless` on the same `'{{1d20}}'` see the same d20, so one of them comes up (a roll-under). The result card shows the roll. A table with a roll of its own also gives its entries that total as `'{{roll}}'`: `party.stats.survival: { gte: '{{roll}}' }` is a roll-under on the table's own die (see [Dice and variables](../oracle/08-dice-and-templates.md)).
 
 **A check's conditions are read just before it's rolled.** The checks of one moment come one by one, in the order the rules list them: each one's `when` / `unless` see what the ones before it set (the weather just rolled, a value of the day, their `effects`). At dawn, after the weather's, `when: { trip.weather: storm }` reads today's storm.
@@ -66,7 +66,7 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 | `any: [ … ]`  | at least one of them         | `any: [{ trip.connections: road }, { trip.connections: river }, { trip.mode: boat }]` |
 | `not: { … }`  | the condition inside doesn't | `not: { timeOfDay: night }`                                                           |
 
-`all`, `any` and `not` count as one more pair beside the others: `{ place.tags: market, any: [{ time.weekday: marketday }, { world.events: market-day }] }` is a market town on either day. They nest: `{ all: [{ time.moons.ember: full }, { not: { place.tags: haunted } }] }`. `all` is needed when one value appears twice, since a pair can only be written once (`{ all: [{ place.tags: ford }, { place.tags: toll }] }`: a hex with both tags).
+`all`, `any` and `not` count as one more pair beside the others: `{ place.tags: market, any: [{ time.weekday: marketday }, { world.events: market-day }] }` is a market town on either day. They nest: `{ all: [{ time.moons.ember: full }, { not: { place.tags: haunted } }] }`. `all` is needed when one value appears twice, since a pair can only be written once (`{ all: [{ place.tags: ford }, { place.tags: toll }] }`: a cell with both tags).
 
 `not` has two meanings by what follows it: `time.season: { not: summer }` compares one value; `not: { time.season: summer }`, at the top, turns a whole condition around. Both hold in the same cases here; with more pairs inside, the second says "not all of these".
 
@@ -84,7 +84,7 @@ Everything a condition can read is in [What tables see](04-what-tables-see.md); 
 - Checks: encounters `at: [trip.place-enter, actions.rest]`, `when: { any: [{ trip.moment: trip.place-enter, time.tags: { not: dark }, place.danger: { gt: '{{party.stats.stealth}}' } }, { trip.moment: actions.rest, place.danger: { gte: 3 } }] }`, `unless: { trip.connections: road }`; getting lost, `unless: { any: [{ trip.connections: [road, river] }, { trip.mode: boat }] }`; the ford, `when: { all: [{ place.tags: ford }, { not: { trip.mode: boat } }] }`.
 - Actions and steps: foraging, `unless: { trip.weather: storm }`; camp's fed night, `unless: { trip.below: party.items.ration }`; eating fodder, `when: { trip.mode: horse }`; the ferry's steps after it asks, `when: { params.fare: wait }`, and its wait for Brenna, `wait: { time.part: [afternoon, evening] }` (a step that waits until its condition holds: see [Actions and steps](10-actions-and-steps.md#waiting-for-something-wait-and-limit)).
 - Ways of travelling: the boat goes `through: { any: [{ place.water: true }, { place.terrain: coast }] }` and is boarded `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }` (chosen only at the water's edge or the ferry; otherwise disabled in the trip panel, saying why).
-- Terrains: the peaks are `passable: { when: { time.season: summer }, unless: { trip.weather: [snow, storm] } }`; lakes, `passable: { when: { time.month: [deepwinter, wolfmoon] } }` (frozen). They see the hex entered and the moment, like `through`.
+- Terrains: the peaks are `passable: { when: { time.season: summer }, unless: { trip.weather: [snow, storm] } }`; lakes, `passable: { when: { time.month: [deepwinter, wolfmoon] } }` (frozen). They see the cell entered and the moment, like `through`.
 - Sheets: a condition that holds by itself while its `when` does, never set by effects. A companion is _Terrified_ `when: { self.values.dread: { gte: 6 } }` (the character's own, as `self.*`) and _Seasick_ `when: { trip.mode: boat, self.values.nerve: { lte: 1 } }` (the world too, on a trip); a faction is _Broken_ `when: { self.values.strength: { lte: 0 } }`. See [Sheets](07-kinds.md#sheets).
 - Items: where an item **fits**, a condition on the place (the mail shirt `fits: { place.tags: worn }`), and which items a value made of them counts (`where`: the armour worn, `{ max: items.armour, where: { place.tags: worn } }`, reading `item.*` and `place.*`); a companion is _Burdened_ `when: { self.values.load: { gt: '{{self.values.capacity}}' } }`, and the ford counts who carries a rope, `when: { items.tags: climbing }`. See [Items](../systems/08-items.md).
 

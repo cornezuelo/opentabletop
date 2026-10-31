@@ -10,15 +10,15 @@ A map can work with only some packs, chosen for its whole campaign: **Map settin
 
 Rolls receive what the map knows, so tables can depend on where you are:
 
-- From the **selected hex** (or the party's, if none is selected): `terrain` (its id: `forest`, `hills`…), `water`, `tags`, `name`, `region` (by name), the region's and the hex's fields by key (the hex's win), the icon as `icon.*` and `hex`.
+- From the **selected cell** (or the party's, if none is selected): `terrain` (its id: `forest`, `hills`…), `water`, `tags`, `name`, `region` (by name), the region's and the cell's fields by key (the cell's win), the icon as `icon.*` and `hex`.
 - From the **selected token**: `token.name`, `token.kind` and its fields as `token.*`.
 - During a **trip with rules**: `season`, `weather`, `mode`, `day`, the party stats and today's values.
 
-They appear in grey in the roll panel's **Context**; type over them to try other values. The full list, and which value wins, is in [What tables see](../technical/04-what-tables-see.md). The top of the panel says which hex the rolls read. **Roll here** (next to the coordinates in the hex panel) opens the Oracle on the selected hex.
+They appear in grey in the roll panel's **Context**; type over them to try other values. The full list, and which value wins, is in [What tables see](../technical/04-what-tables-see.md). The top of the panel says which cell the rolls read. **Roll here** (next to the coordinates in the cell panel) opens the Oracle on the selected cell.
 
 ## Keeping a result on the map
 
-Under each result, **Add to … as a point of interest** adds it to the hex's points of interest: a short result becomes its name; a long one keeps the table's name as the name and the text as its description. Edit it in the hex panel like any other point of interest; <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it. To name a village, an inn or a landmark this way, roll the bundled [Names](../packs/03-names.md) pack's _What's it called?_ on its hex.
+Under each result, **Add to … as a point of interest** adds it to the cell's points of interest: a short result becomes its name; a long one keeps the table's name as the name and the text as its description. Edit it in the cell panel like any other point of interest; <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it. To name a village, an inn or a landmark this way, roll the bundled [Names](../packs/03-names.md) pack's _What's it called?_ on its cell.
 
 During a trip with rules, a result that changes the party's stats, its sheet, its items or its characters (`effects: { party.items.ration: -2, party.stats.morale: 2 }`) also shows **Apply to the trip** with what it changes: press it to apply those changes as a check's result would be (once per result). Checks rolled by the trip apply theirs by themselves; hand rolls only when you say so. Try it at Ashford with the Grey Marches' _At The Wet Ferret_.
 
@@ -49,7 +49,7 @@ entries:
 
 More examples, up to a whole travel system: [Connecting tables to maps and trips](../oracle/07-connecting.md).
 
-Then select a forest hex, press <kbd>O</kbd>, search "What do we find" and roll. The first entry whose condition holds wins.
+Then select a forest cell, press <kbd>O</kbd>, search "What do we find" and roll. The first entry whose condition holds wins.
 
 ## Journal, history and your packs
 

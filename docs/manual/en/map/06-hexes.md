@@ -1,10 +1,10 @@
-# Hex details
+# Cell details
 
-Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel. Beside its coordinates is its **id** (`4,2`: column and row counted from 0, whatever the map's coordinate labels), and beside its terrain the terrain's id (`heath`): what tables and conditions read as `place.id` and `place.terrain`.
+Select a cell with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel. Beside its coordinates is its **id** (`4,2`: column and row counted from 0, whatever the map's coordinate labels), and beside its terrain the terrain's id (`heath`): what tables and conditions read as `place.id` and `place.terrain`.
 
-## What a hex can hold
+## What a cell can hold
 
-- **Name**: shown under the hex on the map; you can hide it or give it its own style.
+- **Name**: shown under the cell on the map; you can hide it or give it its own style.
 - **Region**: when the map has regions.
 - **Notes**: short GM notes in Markdown. The lore of the place belongs in your notes app (see below).
 - **POIs**: points of interest, each with a name, a description, its own linked note and, optionally, an icon to tell them apart in the panel (it isn't drawn on the map).
@@ -13,13 +13,13 @@ Select a hex with the **Select** tool (<kbd>V</kbd>) to see and edit its details
 - **Fields** of a point of interest: each point of interest has its own (`rooms: 3`), kept with it; tables don't read them.
 - **Made from**, on a point of interest a trip made from a system's [place template](../technical/07-kinds.md#places) (a discovered ruin): which one. It's edited like any other; changing the template later doesn't touch it.
 - **Linked note**: a page of your notes app.
-- The icon and the lines crossing the hex.
+- The icon and the lines crossing the cell.
 - **Ways into other maps**: the [sub-maps](13-sub-maps.md) under it (**Open**; **Go in ↗** on a trip with the party there), the way out at a sub-map's entrance, and **New sub-map here**.
 
-A gold dot marks hexes with details you can't see on the map.
+A gold dot marks cells with details you can't see on the map.
 
 ## Linked notes
 
-Map doesn't store lore: it links to it. In **Preferences** (the gear at the top of any app) choose your notes app: SilverBullet (with its address) or Obsidian (with the vault name); a hex's or a POI's note is then a path like `My campaign/Hexes/0203` that opens there.
+Map doesn't store lore: it links to it. In **Preferences** (the gear at the top of any app) choose your notes app: SilverBullet (with its address) or Obsidian (with the vault name); a cell's or a POI's note is then a path like `My campaign/Hexes/0203` that opens there.
 
-Going the other way, the hex link (the chain icon) pasted in a note opens the map on that hex.
+Going the other way, the cell link (the chain icon) pasted in a note opens the map on that cell.

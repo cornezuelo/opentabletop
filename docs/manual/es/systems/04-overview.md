@@ -13,7 +13,7 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 - **Modelos de tierra**: los que pueden usar **Generar tierra** de Mapa y el descubrimiento (`land: [land.default]`), cada uno con su nombre y su id. Se editan en [Tierra](14-land.md).
 - **Catálogos de objetos** (`items:`, una lista): lo que pueden llevar sus personajes; se crean, se eligen y se editan en [Objetos](08-items.md), cuyo **Nuevo catálogo** añade uno aquí.
 - **Bestiarios** (`bestiary:`, una lista): las criaturas y clases de gente que puede crear; se crean, se eligen y se editan en [Bestiario](18-bestiary.md), cuyo **Nuevo bestiario** añade uno aquí.
-- **Catálogos de lugares** (`places:`, una lista): los lugares que sus resultados pueden crear en el hex del grupo; se crean, se eligen y se editan en [Lugares](19-places.md), cuyo **Nuevo catálogo de lugares** añade uno aquí.
+- **Catálogos de lugares** (`places:`, una lista): los lugares que sus resultados pueden crear en la casilla del grupo; se crean, se eligen y se editan en [Lugares](19-places.md), cuyo **Nuevo catálogo de lugares** añade uno aquí.
 
 ## Packs que trae
 
@@ -42,7 +42,7 @@ Cada línea dice cómo lo usa el sitio, luego qué sitio es y qué parte de él:
 
 Una acción o una comprobación abre su pestaña aquí; una tabla, oráculo, generador o mazo se abre en el Oráculo (↗). Un nombre que nada del sistema declara, y que tampoco dan las aplicaciones (`hex.…`, `trip.…`, `time.…`), lo dice, con los nombres a los que se parece: suele ser una errata (`pathfindng` por `pathfinding`).
 
-Lo que no ve: lo que da un mapa (los valores propios de un hex o de un icono), lo que las aplicaciones leen por su cuenta (las horas de marcha, para la marcha del día) y los ids de acciones, formas de viajar o terrenos usados como valores.
+Lo que no ve: lo que da un mapa (los valores propios de una casilla o de un icono), lo que las aplicaciones leen por su cuenta (las horas de marcha, para la marcha del día) y los ids de acciones, formas de viajar o terrenos usados como valores.
 
 ## Usado en
 

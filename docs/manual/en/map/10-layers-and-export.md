@@ -18,21 +18,21 @@ Many clicks on the map could change more than one thing: a click near a river ca
 
 A locked layer is still drawn and exported. Trying to change it shows a notice saying which layer is locked. Terrain, regions, roads and rivers, connections, icons, text and tokens can be locked; the grid, coordinates, markers and the trail can only be hidden. Playing a trip still moves the party: the lock is for editing, not for play.
 
-**Highlight a tag**, at the bottom of Layers, outlines every hex with that tag (`landmark`, `haunted`, `shrine`: the box suggests the map's own) and says how many there are; **Dim the other hexes** shades the rest so they stand out. It's only a view while you look: nothing is saved, and **Stop highlighting** clears it.
+**Highlight a tag**, at the bottom of Layers, outlines every cell with that tag (`landmark`, `haunted`, `shrine`: the box suggests the map's own) and says how many there are; **Dim the other cells** shades the rest so they stand out. It's only a view while you look: nothing is saved, and **Stop highlighting** clears it.
 
-Hex, region and token names are set in **Map settings → Map texts**.
+Cell, region and token names are set in **Map settings → Map texts**.
 
 ## Size and printing
 
-In **Map settings → Size**, size the map by number of hexes, or by paper: choose the paper (A5 to A1, Letter, Legal, Tabloid or custom), the margins and the hex size in millimetres, and the grid is fitted to it. The panel shows the printed size and the smallest paper that fits.
+In **Map settings → Size**, size the map by number of cells, or by paper: choose the paper (A5 to A1, Letter, Legal, Tabloid or custom), the margins and the cell size in millimetres, and the grid is fitted to it. The panel shows the printed size and the smallest paper that fits.
 
 ## Export
 
 **Export** (the arrow in the top bar):
 
-- **PNG** by pixels per hex, for virtual tabletops, optionally with a transparent background.
-- **PDF** at real scale (150 or 300 dpi) to print: hexes come out at the size you chose.
-- **Split into pages** (PDF): a map too big for one sheet is printed on several pages of the paper you pick (A4, Letter…, upright or **Landscape**), still at real scale. Before exporting it says how many: "6 page(s): 3 across, 2 down, overlapping 10 mm". Neighbouring pages repeat 10 mm of the map, to trim and glue them, and each page says in its corner where it goes (**B3**: second row, third column). The Grey Marches' example map at 25 mm hexes takes six A4 pages.
-- **Empty hexes in white** (PNG and PDF): hexes without terrain print white instead of dark, with dark coordinates and icons on them, to save ink (a map still being explored, or one to fill in by hand). The editor keeps showing them as before.
+- **PNG** by pixels per cell, for virtual tabletops, optionally with a transparent background.
+- **PDF** at real scale (150 or 300 dpi) to print: cells come out at the size you chose.
+- **Split into pages** (PDF): a map too big for one sheet is printed on several pages of the paper you pick (A4, Letter…, upright or **Landscape**), still at real scale. Before exporting it says how many: "6 page(s): 3 across, 2 down, overlapping 10 mm". Neighbouring pages repeat 10 mm of the map, to trim and glue them, and each page says in its corner where it goes (**B3**: second row, third column). The Grey Marches' example map at 25 mm cells takes six A4 pages.
+- **Empty cells in white** (PNG and PDF): cells without terrain print white instead of dark, with dark coordinates and icons on them, to save ink (a map still being explored, or one to fill in by hand). The editor keeps showing them as before.
 
 Only visible layers are exported.

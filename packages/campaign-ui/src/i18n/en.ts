@@ -82,7 +82,7 @@ export const en = {
     },
     timeline: 'Timeline',
     timelineHelp:
-      "What happened in the **world**, newest first: events that came due, holidays, moons, full clocks, the factions' turns.\n• An event comes due on its day **wherever the party is**: _Market day in Ashford_ is there whether you're in Ashford or not\n• What the party does on a trip (hexes, checks, encounters, what it found) goes to the trip's **journal**, not here; only its highlights come here too, a line each: arrivals, places found, checks that stopped the trip (an encounter), characters who left the party\nAdd your own notes (\"The baron was overthrown\").",
+      "What happened in the **world**, newest first: events that came due, holidays, moons, full clocks, the factions' turns.\n• An event comes due on its day **wherever the party is**: _Market day in Ashford_ is there whether you're in Ashford or not\n• What the party does on a trip (cells, checks, encounters, what it found) goes to the trip's **journal**, not here; only its highlights come here too, a line each: arrivals, places found, checks that stopped the trip (an encounter), characters who left the party\nAdd your own notes (\"The baron was overthrown\").",
     noTimeline: 'Nothing yet.',
     note: 'A note for the timeline',
     addNote: 'Add',
@@ -117,13 +117,13 @@ export const en = {
   },
   factions: {
     title: 'Factions',
-    help: "The factions of the campaign's system (`kind: factions` in its pack): each with its colour, its sheet (its values, conditions and relations, like a character's), kept by the campaign, and the hexes it holds on each of its maps. On a **world turn** each one rolls its turn table, and what comes up changes them, their land on the map it's played on and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `place.faction: iron-clans` — who holds the hex\n• `factions.iron-clans.territory: { gt: 10 }` — how many hexes it holds on the map being played",
+    help: "The factions of the campaign's system (`kind: factions` in its pack): each with its colour, its sheet (its values, conditions and relations, like a character's), kept by the campaign, and the cells it holds on each of its maps. On a **world turn** each one rolls its turn table, and what comes up changes them, their land on the map it's played on and the world clock's progress clocks; the timeline says what each did. Tables and conditions read them everywhere:\n• `factions.the-vale.values.strength: { gte: 3 }`\n• `place.faction: iron-clans` — who holds the cell\n• `factions.iron-clans.territory: { gt: 10 }` — how many cells it holds on the map being played",
     bring: 'Bring in its factions',
-    territory: '{n} hexes',
-    territoryOne: '1 hex',
+    territory: '{n} cells',
+    territoryOne: '1 cell',
     turn: 'World turn',
     turnHelp:
-      'Every faction takes its turn now, in order, each seeing what the ones before it did: it rolls its table and applies what comes up (its values, another faction’s, its land on the map being played growing or shrinking hex by hex, the world clock’s progress clocks). Each result goes to the timeline.',
+      'Every faction takes its turn now, in order, each seeing what the ones before it did: it rolls its table and applies what comes up (its values, another faction’s, its land on the map being played growing or shrinking cell by cell, the world clock’s progress clocks). Each result goes to the timeline.',
     auto: 'Turns by themselves, every {days} days',
     autoHelp:
       'As the world clock moves on (by hand, or with a trip), a world turn comes every so many days, as the system says. Untick to take them only with **World turn**.',

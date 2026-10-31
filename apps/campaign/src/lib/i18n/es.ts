@@ -83,7 +83,7 @@ export const es: Messages<typeof en> = {
     minimap: 'La tierra de las facciones en {map}',
     bringLand: 'Darles aquí su tierra inicial',
     bringLandHelp:
-      'Ninguna facción tiene aún tierra en este mapa (entró en la campaña después de que llegaran): cada una recibe la tierra con la que su sistema dice que empieza aquí, todos los hexes de sus regiones iniciales por nombre (y sus hexes iniciales, si este es el mapa para el que son). Sus hojas no cambian.',
+      'Ninguna facción tiene aún tierra en este mapa (entró en la campaña después de que llegaran): cada una recibe la tierra con la que su sistema dice que empieza aquí, todas las casillas de sus regiones iniciales por nombre (y sus casillas iniciales, si este es el mapa para el que son). Sus hojas no cambian.',
     noMaps:
       'No hay ningún mapa en esta campaña: los turnos del mundo cambian las hojas de las facciones y los relojes de progreso, pero no la tierra. Añade un mapa desde Mapa (**Ajustes del mapa → Campaña**).',
     none: 'El sistema de la campaña tiene facciones, aún no en esta campaña: tráelas, cada una con la tierra con la que el sistema dice que empieza en el mapa elegido.',

@@ -69,7 +69,7 @@ export const APP_NAMES = {
 /** What each app is for, in each interface language. */
 export const APP_BLURBS = {
   en: {
-    map: 'Draw hex maps: terrain, roads, rivers, regions, icons and tokens; play trips on them.',
+    map: 'Draw maps of hexes or squares: terrain, roads, rivers, regions, icons and tokens; play trips on them.',
     campaign: 'What is going on in your world: its date, events and clocks, its maps and trips.',
     oracle: 'Roll and edit tables, oracles, generators and decks from your packs.',
     travel: 'Run trips without a map, with any system.',
@@ -78,7 +78,7 @@ export const APP_BLURBS = {
     manual: 'How to use every app, with search.',
   },
   es: {
-    map: 'Dibuja mapas de hexágonos: terreno, caminos, ríos, regiones, iconos y tokens; juega viajes sobre ellos.',
+    map: 'Dibuja mapas de hexágonos o cuadrados: terreno, caminos, ríos, regiones, iconos y tokens; juega viajes sobre ellos.',
     campaign: 'Lo que pasa en tu mundo: su fecha, eventos y relojes, sus mapas y viajes.',
     oracle: 'Tira y edita tablas, oráculos, generadores y mazos de tus packs.',
     travel: 'Juega viajes sin mapa, con cualquier sistema.',

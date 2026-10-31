@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" font-family="system-ui, sans-serif">
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e8e2d6"/></marker></defs>
 <rect width="640" height="400" rx="10" fill="#23211e"/>
-<text x="30" y="32" font-size="13" font-weight="bold" fill="#f08a4b">Al entrar en un hex: un momento, una cosa tras otra</text>
+<text x="30" y="32" font-size="13" font-weight="bold" fill="#f08a4b">Al entrar en una casilla: un momento, una cosa tras otra</text>
 <rect x="30" y="48" width="132" height="46" rx="6" fill="#3a3631" stroke="#e8e2d6" stroke-width="1.5"/>
 <text x="96" y="67" text-anchor="middle" font-size="11" font-weight="bold" fill="#e8e2d6">Acciones automáticas</text>
 <text x="96" y="83" text-anchor="middle" font-size="10" fill="#e8e2d6">sus pasos</text>

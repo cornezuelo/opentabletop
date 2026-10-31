@@ -51,7 +51,7 @@ travel-rules/default:
     grumble: { do: { sulk: { say: Los mercenarios se sientan junto al fuego apagado… } } }
     march:
       params:
-        until: { name: Hasta dónde, choices: { destination: Hasta el destino, '3': Tres hexes } }
+        until: { name: Hasta dónde, choices: { destination: Hasta el destino, '3': Tres casillas } }
   checks:
     FORAGE_CHECK_REQUIRED: { name: Buscar comida }
 bindings/default:

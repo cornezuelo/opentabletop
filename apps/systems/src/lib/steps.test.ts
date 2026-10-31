@@ -33,7 +33,7 @@ describe('steps as cards', () => {
       'Pass time until Part of the day: Morning begins',
     )
     expect(said({ 'travel.move': 'destination' })).toBe('Move to the destination')
-    expect(said({ 'travel.move': 3 })).toBe('Move 3 hexes')
+    expect(said({ 'travel.move': 3 })).toBe('Move 3 cells')
     expect(said({ 'travel.move': '{{params.until}}' })).toBe('Move: {{params.until}}')
     expect(said({ 'travel.speed': 0.5 })).toBe('Speed ×0.5 the rest of the day')
     expect(said({ 'travel.mode': 'modes.boat' })).toBe('Travel: By boat')

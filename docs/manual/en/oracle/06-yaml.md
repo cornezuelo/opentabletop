@@ -42,7 +42,7 @@ when: { place.danger: { gte: 4 }, time.season: { not: winter } }
 when: { any: [{ trip.weather: storm }, { today.lost: true }] } # all / any / not
 ```
 
-Comparisons: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. List values in the context (like a hex's tags) match when they contain the value. A value can be a variable or a roll, in quotes: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (the same d20 for every entry of the roll; see [Conditions](../technical/08-conditions.md#variables-and-rolls)). The first entry that matches and fits the roll wins.
+Comparisons: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. List values in the context (like a cell's tags) match when they contain the value. A value can be a variable or a roll, in quotes: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (the same d20 for every entry of the roll; see [Conditions](../technical/08-conditions.md#variables-and-rolls)). The first entry that matches and fits the roll wins.
 
 ## Oracles, generators and decks
 

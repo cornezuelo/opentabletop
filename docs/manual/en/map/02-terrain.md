@@ -4,7 +4,7 @@ Paint the land with the **Terrain** tool (<kbd>B</kbd>).
 
 ## Painting
 
-- **Brush** (<kbd>B</kbd>): click or drag to paint the selected terrain. The **Brush size** slider paints several hexes at once (<kbd>[</kbd> and <kbd>]</kbd> change it).
+- **Brush** (<kbd>B</kbd>): click or drag to paint the selected terrain. The **Brush size** slider paints several cells at once (<kbd>[</kbd> and <kbd>]</kbd> change it).
 - <kbd>Shift</kbd>+drag (with the brush or the right button): paints (or erases) a **rectangle**, from where you pressed to where you let go; the quickest way to draw a room.
 - **Fill** (<kbd>G</kbd>): paints a whole connected area of the same terrain.
 - **Erase** (<kbd>E</kbd>), or the right mouse button with any mode: removes the terrain.
@@ -39,25 +39,25 @@ Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a w
 Lava fields, space, nebulae and asteroid fields are closed to walking in the Generic rules: a system of your own gives ships a way of travelling that only goes there (`through: { place.terrain: [space, nebula] }`), like the Grey Marches' boat on water. **Edit palette** lets you change each one:
 
 - **Color** and **name** (empty name = the translated default).
-- **Symbol**: the small drawing on its hexes (see below).
-- **Water**: marks the terrain as water. On the map, roads, trails and rivers stop at its shore (walls and borders cross it). It changes nothing else on the map. On a trip, water hexes follow the travel rules' **water** rule unless their terrain has its own: the Generic rules and the Grey Marches make them impassable on foot (except lakes in winter, crossed on the ice: a terrain can open or close on a condition), and a system can have boats that only sail water (the Grey Marches' boat crosses the Saltmere). Tables see `water: true` on those hexes.
+- **Symbol**: the small drawing on its cells (see below).
+- **Water**: marks the terrain as water. On the map, roads, trails and rivers stop at its shore (walls and borders cross it). It changes nothing else on the map. On a trip, water cells follow the travel rules' **water** rule unless their terrain has its own: the Generic rules and the Grey Marches make them impassable on foot (except lakes in winter, crossed on the ice: a terrain can open or close on a condition), and a system can have boats that only sail water (the Grey Marches' boat crosses the Saltmere). Tables see `water: true` on those cells.
 - **Floor**: marks the terrain as a structure's floor (a room's, a corridor's, a building's inside). Wherever floor meets a cell that isn't floor (solid rock, the ground outside, the map's edge), a **wall** is drawn by itself; paint two rooms side by side and they merge, paint a corridor into a room and it opens. A trip never crosses a wall: draw a [connection](04-roads-and-rivers.md#connections) across it for a door or an arch. Walls also stand between two rooms that touch ([regions played as one place](03-regions.md#rooms)). Tables see `place.floor: true`. Leave it off for open ground (grass, streets) and for the rock around a dungeon. The Grey Marches' Barrow-halls are drawn this way.
-- Add your own terrains or delete them (hexes painted with a deleted terrain become empty).
+- Add your own terrains or delete them (cells painted with a deleted terrain become empty).
 
 Terrain ids (`forest`, `hills`…) are what travel rules and tables read, so a table can say `when: { place.terrain: forest }`.
 
 ## Terrain symbols
 
-Each terrain can draw a subtle symbol on its hexes (a tree, a mountain, waves…) in a lighter or darker shade of its color. Pick it in **Edit palette** with the button next to the color: the Terrain set, any image of the map, or **Import an image…** for your own. The **Terrain symbols** slider fades them; at 0 they're hidden. Hexes with an icon show the icon instead.
+Each terrain can draw a subtle symbol on its cells (a tree, a mountain, waves…) in a lighter or darker shade of its color. Pick it in **Edit palette** with the button next to the color: the Terrain set, any image of the map, or **Import an image…** for your own. The **Terrain symbols** slider fades them; at 0 they're hidden. Cells with an icon show the icon instead.
 
 ## Generating land
 
-**Generate land**, at the bottom of the Terrain tool, fills the map's **empty** hexes with a **land model** of the map's system (its `land:`, see [Land models](../technical/07-kinds.md#land-models)): for each terrain, how likely a hex next to it is to be each terrain. Each empty hex adds up the land of all its known neighbours, so forests, ranges and lakes grow together instead of a patchwork.
+**Generate land**, at the bottom of the Terrain tool, fills the map's **empty** cells with a **land model** of the map's system (its `land:`, see [Land models](../technical/07-kinds.md#land-models)): for each terrain, how likely a cell next to it is to be each terrain. Each empty cell adds up the land of all its known neighbours, so forests, ranges and lakes grow together instead of a patchwork.
 
-- Paint the land you care about first (a coast, a range, a lake): the land grows outwards from it, the hexes with most painted neighbours first. Painted hexes never change.
+- Paint the land you care about first (a coast, a range, a lake): the land grows outwards from it, the cells with most painted neighbours first. Painted cells never change.
 - **Seed**: the same seed draws the same land (note it to draw it again); 🎲 gives another. **Land model** chooses one when the system has several.
-- **Fill the empty hexes** fills every empty hex of the map; ↶ takes it all back in one step, so try another seed and fill again.
-- To fill only one region, paint the region on the empty hexes and use its panel's **Generate its empty hexes** ([Regions](03-regions.md)).
+- **Fill the empty cells** fills every empty cell of the map; ↶ takes it all back in one step, so try another seed and fill again.
+- To fill only one region, paint the region on the empty cells and use its panel's **Generate its empty cells** ([Regions](03-regions.md)).
 - A terrain the model draws that the map's palette lacks is said in a message: add it with **Edit palette**.
 
-With the Generic rules, _The plain land_ grows plains, farmland, forests, hills, mountains, lakes and marshes. The Grey Marches' example map leaves its east blank: **Fill the empty hexes** draws it with _The lie of the Marches_ (hills that rise into ranges east of the Hollow Hills), or leave it blank to discover it as you travel ([Play](08-play.md)).
+With the Generic rules, _The plain land_ grows plains, farmland, forests, hills, mountains, lakes and marshes. The Grey Marches' example map leaves its east blank: **Fill the empty cells** draws it with _The lie of the Marches_ (hills that rise into ranges east of the Hollow Hills), or leave it blank to discover it as you travel ([Play](08-play.md)).

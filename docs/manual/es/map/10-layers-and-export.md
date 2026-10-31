@@ -18,21 +18,21 @@ Muchos clics en el mapa podrían cambiar más de una cosa: un clic cerca de un r
 
 Una capa bloqueada se sigue dibujando y exportando. Si intentas cambiarla, un aviso te dice qué capa está bloqueada. Se pueden bloquear el terreno, las regiones, los caminos y ríos, las conexiones, los iconos, el texto y los tokens; la rejilla, las coordenadas, las marcas y el rastro solo se pueden ocultar. Jugar un viaje sigue moviendo al grupo: el candado es para editar, no para jugar.
 
-**Resaltar una etiqueta**, abajo en Capas, marca cada hex con esa etiqueta (`landmark`, `haunted`, `shrine`: la casilla sugiere las del mapa) y dice cuántos hay; **Oscurecer los demás hexes** apaga el resto para que destaquen. Es solo una vista mientras miras: no se guarda nada, y **Dejar de resaltar** la quita.
+**Resaltar una etiqueta**, abajo en Capas, marca cada casilla con esa etiqueta (`landmark`, `haunted`, `shrine`: la casilla sugiere las del mapa) y dice cuántos hay; **Oscurecer las demás casillas** apaga el resto para que destaquen. Es solo una vista mientras miras: no se guarda nada, y **Dejar de resaltar** la quita.
 
-Los nombres de hex, de región y de token se configuran en **Ajustes del mapa → Textos del mapa**.
+Los nombres de casilla, de región y de token se configuran en **Ajustes del mapa → Textos del mapa**.
 
 ## Tamaño e impresión
 
-En **Ajustes del mapa → Tamaño**, dimensiona el mapa por número de hexes o por papel: elige el papel (de A5 a A1, Carta, Legal, Tabloide o personalizado), los márgenes y el tamaño del hex en milímetros, y la rejilla se ajusta. El panel muestra el tamaño impreso y el papel más pequeño en el que cabe.
+En **Ajustes del mapa → Tamaño**, dimensiona el mapa por número de casillas o por papel: elige el papel (de A5 a A1, Carta, Legal, Tabloide o personalizado), los márgenes y el tamaño de la casilla en milímetros, y la rejilla se ajusta. El panel muestra el tamaño impreso y el papel más pequeño en el que cabe.
 
 ## Exportar
 
 **Exportar** (la flecha de la barra superior):
 
-- **PNG** por píxeles por hex, para mesas virtuales, opcionalmente con fondo transparente.
-- **PDF** a escala real (150 o 300 ppp) para imprimir: los hexes salen del tamaño que elegiste.
-- **Dividir en páginas** (PDF): un mapa demasiado grande para una hoja se imprime en varias páginas del papel que elijas (A4, Carta…, vertical o **Apaisado**), igual a escala real. Antes de exportar dice cuántas: «6 página(s): 3 de ancho, 2 de alto, solapadas 10 mm». Las páginas vecinas repiten 10 mm del mapa, para recortarlas y pegarlas, y cada página dice en su esquina dónde va (**B3**: segunda fila, tercera columna). El mapa de ejemplo de las Marcas Grises con hexes de 25 mm ocupa seis páginas A4.
-- **Hexes vacíos en blanco** (PNG y PDF): los hexes sin terreno se imprimen en blanco en vez de oscuros, con las coordenadas y los iconos en oscuro, para ahorrar tinta (un mapa que aún se explora, o uno para rellenar a mano). El editor los sigue mostrando como antes.
+- **PNG** por píxeles por casilla, para mesas virtuales, opcionalmente con fondo transparente.
+- **PDF** a escala real (150 o 300 ppp) para imprimir: las casillas salen del tamaño que elegiste.
+- **Dividir en páginas** (PDF): un mapa demasiado grande para una hoja se imprime en varias páginas del papel que elijas (A4, Carta…, vertical o **Apaisado**), igual a escala real. Antes de exportar dice cuántas: «6 página(s): 3 de ancho, 2 de alto, solapadas 10 mm». Las páginas vecinas repiten 10 mm del mapa, para recortarlas y pegarlas, y cada página dice en su esquina dónde va (**B3**: segunda fila, tercera columna). El mapa de ejemplo de las Marcas Grises con casillas de 25 mm ocupa seis páginas A4.
+- **Casillas vacías en blanco** (PNG y PDF): las casillas sin terreno se imprimen en blanco en vez de oscuras, con las coordenadas y los iconos en oscuro, para ahorrar tinta (un mapa que aún se explora, o uno para rellenar a mano). El editor los sigue mostrando como antes.
 
 Solo se exportan las capas visibles.

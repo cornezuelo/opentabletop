@@ -11,7 +11,7 @@ export const en = {
   removeTag: 'Remove',
   relations: 'Relations',
   relationsHelp:
-    "What this character is tied to: another character, a place, a region, a hex, as the sheet's kinds of relation say (a bond, a home…), some with a number. Conditions read them:\n• `{path}.relations.home: region:The Vale` — this character's home\n• `place.related: kael` — entering a hex Kael is tied to (it, its region or a place in it)\n• `place.relations.home: kael` — Kael's home, by kind\nType a name from the list, or a reference: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.",
+    "What this character is tied to: another character, a place, a region, a cell, as the sheet's kinds of relation say (a bond, a home…), some with a number. Conditions read them:\n• `{path}.relations.home: region:The Vale` — this character's home\n• `place.related: kael` — entering a cell Kael is tied to (it, its region or a place in it)\n• `place.relations.home: kael` — Kael's home, by kind\nType a name from the list, or a reference: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.",
   relationKind: 'Kind of relation',
   relationTo: 'Tied to',
   relationToPlaceholder: 'a character, place, region…',
@@ -25,7 +25,7 @@ export const en = {
   madeOf: 'Made of other values, never set by hand nor by effects: {from}.',
   holdsWhen: 'Holds by itself while {when}; never set or cleared by hand nor by effects.',
   lastSeen:
-    'It reads the world (the trip, the time, the hex…), so it follows it while the character travels; away from a trip (in the roster) it stays as it was last seen.',
+    'It reads the world (the trip, the time, the cell…), so it follows it while the character travels; away from a trip (in the roster) it stays as it was last seen.',
   blocks: 'While someone has it, the party can’t: {list}.',
   less: 'Less {name}',
   more: 'More {name}',

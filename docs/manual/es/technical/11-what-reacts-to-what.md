@@ -1,10 +1,10 @@
 # Qué reacciona a qué
 
-Las reglas de un sistema reaccionan a lo que pasa: una comprobación se tira al amanecer, una acción se hace al entrar el grupo en un hex, el mundo reacciona cuando se llena un reloj, un viaje se entera de un turno del mundo. Cada una de esas cosas es un **momento**, y una definición que reacciona a uno lo nombra (`at:` en una comprobación, `on:` en una acción o en una reacción del mundo). Esta página reúne todos los momentos de todas las partes del sistema, dice **quién los oye** (un viaje, el mundo, o los dos) y **en qué orden** se juega todo cuando pasan varias cosas a la vez. Cómo se escribe cada uno está en [Sintaxis](09-syntax.md#momentos), [Acciones y pasos](10-actions-and-steps.md) y [Las reglas del mundo](07-kinds.md#las-reglas-del-mundo).
+Las reglas de un sistema reaccionan a lo que pasa: una comprobación se tira al amanecer, una acción se hace al entrar el grupo en una casilla, el mundo reacciona cuando se llena un reloj, un viaje se entera de un turno del mundo. Cada una de esas cosas es un **momento**, y una definición que reacciona a uno lo nombra (`at:` en una comprobación, `on:` en una acción o en una reacción del mundo). Esta página reúne todos los momentos de todas las partes del sistema, dice **quién los oye** (un viaje, el mundo, o los dos) y **en qué orden** se juega todo cuando pasan varias cosas a la vez. Cómo se escribe cada uno está en [Sintaxis](09-syntax.md#momentos), [Acciones y pasos](10-actions-and-steps.md) y [Las reglas del mundo](07-kinds.md#las-reglas-del-mundo).
 
 ## Dos sitios que reaccionan
 
-- **El viaje** (sus reglas de viaje): sus comprobaciones (`at:`) y las acciones que hace por sí mismo (`on:`). Reacciona mientras el viaje avanza, en el modo Jugar de Mapa o en Viajes. Conoce al grupo, el hex en el que está y los valores del día.
+- **El viaje** (sus reglas de viaje): sus comprobaciones (`at:`) y las acciones que hace por sí mismo (`on:`). Reacciona mientras el viaje avanza, en el modo Jugar de Mapa o en Viajes. Conoce al grupo, la casilla en la que está y los valores del día.
 - **El mundo** (el `kind: world` del sistema): sus reacciones (`on:`). Reacciona cuando se mueve el reloj del mundo, se mueva donde se mueva: la aplicación Campaña, el panel Mundo de Mapa, y bajo un viaje en marcha (el mundo es uno). Conoce el reloj del mundo, los relojes de progreso, las facciones, los eventos de hoy y el clima del mundo; no tiene grupo.
 
 No se llaman entre sí: cada uno oye los momentos del otro a través de la campaña (abajo, [Entre el viaje y el mundo](#entre-el-viaje-y-el-mundo)).
@@ -15,7 +15,7 @@ No se llaman entre sí: cada uno oye los momentos del otro a través de la campa
 | ---------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------- |
 | una hora (`'06:00'`)                                       | viaje         | cuando suena, marchando, esperando o durmiendo en el campamento                                                  |
 | una parte del día (`time.part.morning`)                    | viaje         | cuando empieza esa parte del calendario                                                                          |
-| `trip.place-enter`                                         | viaje         | al entrar en cada hex                                                                                            |
+| `trip.place-enter`                                         | viaje         | al entrar en cada casilla                                                                                        |
 | `time.day-end`                                             | viaje         | al acabar cada día del viaje, a medianoche                                                                       |
 | una acción (`actions.camp`)                                | viaje         | cuando el grupo la hace, antes de sus pasos                                                                      |
 | el final de una acción (`actions.camp.done`)               | viaje         | cuando acaban sus pasos                                                                                          |
@@ -37,7 +37,7 @@ Un paso de un viaje (un clic: **Marchar**, **Acampar**, una acción, **Continuar
 3. **El paso en sí.** Según pasa el tiempo, cada momento que llega se juega en su minuto. Cuando llegan varios en el mismo minuto:
    - **Un día que acaba** va primero: el fin del día a medianoche, después empieza el nuevo día (los valores de hoy pasan a ser `yesterday.*`), y luego los momentos del primer minuto del nuevo día.
    - **Una hora y una parte del día** que coinciden llegan en el orden en que las reglas las nombran por primera vez (primero las comprobaciones, en su orden, y luego las acciones).
-   - **Entrar en un hex** llega cuando el grupo entra, una vez hecho el movimiento hasta él.
+   - **Entrar en una casilla** llega cuando el grupo entra, una vez hecho el movimiento hasta ella.
 4. **Cada momento** se juega en este orden:
    1. las **acciones** que hace el propio sistema en él (`on:`), en el orden en que las declaran las reglas, cada una con sus pasos; una acción que espera (al jugador, una comprobación, una tirada) retiene el resto del momento hasta que acaba;
    2. las **comprobaciones** del momento (`at:`), en el orden de las reglas, cada una decidida justo antes de tirarse, así que ve lo que pusieron las anteriores (una comprobación cuyas condiciones no se cumplen se salta);

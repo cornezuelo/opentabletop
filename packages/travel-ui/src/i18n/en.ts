@@ -15,7 +15,7 @@ export const en = {
     stats: 'Stats',
   },
   totals: {
-    line: '{places} hexes{km} · {hours} marched',
+    line: '{places} cells{km} · {hours} marched',
     km: ' · {km} km',
     checks: 'Checks: {count}',
     taken: 'Actions: {list}',
@@ -51,7 +51,7 @@ export const en = {
   goOn: 'Go on',
   waitOnward: 'Wait to go on',
   // A move's targets, when a choice of a parameter has no name of its own.
-  choices: { destination: 'to the destination', place: 'one place', hexes: '{n} hexes' },
+  choices: { destination: 'to the destination', place: 'one place', hexes: '{n} cells' },
   continue: 'Continue',
   journalTitle: 'Journal',
   exportJournal: 'Export',
@@ -60,7 +60,7 @@ export const en = {
   filter: {
     level: 'Show',
     levelHelp:
-      'How much of what happened the journal shows. Everything is always kept: this only chooses what you see and what **Export** writes.\n• **The story** — what happened in the game: results of the tables, discoveries, arrivals, what the system says, your notes\n• **And the rules** — also what the rules did: hexes entered, actions taken, checks, changes to the party and its characters, values that hit a bound (as the journal always showed)\n• **Everything** — also what happened behind: each roll’s dice and the row or card it chose (`Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7`), the weather’s roll, checks that didn’t come up and why (`Ambush doesn’t come up: the hex’s danger is 1: it needs 2 or more`), each moment of the day that some check or action names, each value before and after (`Food: 5 → 3`) and the routes planned\nTo find out why something happened, or didn’t, choose **Everything** and search for its name.',
+      'How much of what happened the journal shows. Everything is always kept: this only chooses what you see and what **Export** writes.\n• **The story** — what happened in the game: results of the tables, discoveries, arrivals, what the system says, your notes\n• **And the rules** — also what the rules did: cells entered, actions taken, checks, changes to the party and its characters, values that hit a bound (as the journal always showed)\n• **Everything** — also what happened behind: each roll’s dice and the row or card it chose (`Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7`), the weather’s roll, checks that didn’t come up and why (`Ambush doesn’t come up: the place’s danger is 1: it needs 2 or more`), each moment of the day that some check or action names, each value before and after (`Food: 5 → 3`) and the routes planned\nTo find out why something happened, or didn’t, choose **Everything** and search for its name.',
     levels: { story: 'The story', mechanics: 'And the rules', detail: 'Everything' },
     topics: {
       travel: 'Trip',
@@ -84,13 +84,13 @@ export const en = {
     readBy: '**Read by:** {names}.',
     changedBy: '**Changed by:** {names}.',
     totals:
-      'What the trip has done since it started: hexes entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from the party’s values and items or added to them (your own edits don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.places`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
+      'What the trip has done since it started: cells entered (and their km at the map’s scale), hours marched, checks that came up, how many times each action was taken (by you or by the system itself) and how much its actions, checks and tables took from the party’s values and items or added to them (your own edits don’t count). Conditions and tables read them too, for example:\n• `trip.km: { gte: 100 }` — once the party has covered 100 km\n• `trip.hours: { gt: 40 }` — after 40 hours on the road\n• `trip.taken.camp: { gte: 7 }` — from the seventh camp on\n• `trip.spent.food: { gte: 10 }` and `trip.gained.food`, `trip.places`, `trip.checks`\n• in a text: `{{trip.km}} km so far`',
     actionChecks: 'Rolls {checks} where it applies; the journal says when nothing does.',
     exportJournal:
       'Download the journal as Markdown, a heading per day, with the lines the filter shows: for your notes app (SilverBullet, Obsidian…) or to print.',
     newTrip: 'Restart time, the party’s sheet and journal, keeping the party where it is.',
     marched:
-      'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a hex takes depends on the world scale (km per hex), the terrain, the road and the way of travelling, as the system sets them. For example, if a way of travelling makes 24 km in 8 h and hexes are 12 km:\n• open ground (× 1): 4 h a hex\n• a terrain at × 0.5: 8 h a hex\n• a road at × 1.5: under 3 h a hex',
+      'Hours of marching allowed per day; when they run out, the march goes on tomorrow. How long a cell takes depends on the world scale (km per cell), the terrain, the road and the way of travelling, as the system sets them. For example, if a way of travelling makes 24 km in 8 h and cells are 12 km:\n• open ground (× 1): 4 h a cell\n• a terrain at × 0.5: 8 h a cell\n• a road at × 1.5: under 3 h a cell',
     goOn: 'Goes on with “{action}”, which stopped on the way for a check: the rest of its move, then the rest of what it does. Taking another action or waiting leaves it.',
     waitOnward:
       'Time passes where the party is until it can take “{action}” again (how the trip goes on by itself, as the system says), living it: if it could now, that chance goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t go on, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
@@ -307,14 +307,14 @@ export const en = {
     skippedBy: { when: 'its “when” doesn’t hold', unless: 'its “unless” holds' },
     moment: 'Moment: {moment}',
     moments: {
-      hexEnter: 'entering a hex',
+      hexEnter: 'entering a cell',
       dayEnd: 'the day’s end',
       action: 'after “{action}”',
       done: 'once “{action}” is done',
       check: 'after “{check}”',
       reaction: 'as its condition turned true',
     },
-    route: 'Route to {hex} · hexes: {hexes}',
+    route: 'Route to {hex} · cells: {hexes}',
   },
   // Why a rule stopped something: each pair of its condition that didn't hold.
   why: {
@@ -400,30 +400,30 @@ export const en = {
     switchConfirm: 'Start this trip again with {system}? Its journal is discarded.',
     way: 'The way',
     wayHelp:
-      'A trip without a map: list the hexes ahead, each with its terrain and tags and whether a road or river joins it to the next. The party heads for the last one.\n• `plains`, then `forest` with tags `haunted`, then `hills` by `road`\nAdd more hexes at the end to keep going.',
-    cellKm: 'km per hex',
+      'A trip without a map: list the cells ahead, each with its terrain and tags and whether a road or river joins it to the next. The party heads for the last one.\n• `plains`, then `forest` with tags `haunted`, then `hills` by `road`\nAdd more cells at the end to keep going.',
+    cellKm: 'km per cell',
     cellKmHelp:
-      "How many km a hex of the way measures, when the system doesn't set it: with the system's speeds, it says how long each hex takes.\n• `10` — small hexes: several to a day's march\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km",
+      "How many km a cell of the way measures, when the system doesn't set it: with the system's speeds, it says how long each cell takes.\n• `10` — small cells: several to a day's march\n• `30` — large cells: about one a day for a way of travelling that makes 30 km",
     cellKmSystem:
-      'The system sets the scale (`travel.cellKm` in its rules): every trip with it is played at that many km a hex. Change it in the system (Systems → Rules).',
-    hex: 'Hex {n}',
+      'The system sets the scale (`travel.cellKm` in its rules): every trip with it is played at that many km a cell. Change it in the system (Systems → Rules).',
+    hex: 'Cell {n}',
     here: 'here',
     terrain: vocabulary.en.terms.terrain,
     tags: vocabulary.en.terms.tags,
     tagsPlaceholder: 'landmark, haunted…',
-    connections: 'To the next hex',
+    connections: 'To the next cell',
     numberHelp:
-      "The hexes in order: the party starts at 1 and heads for the last one. Hexes already passed can't be changed; add more at the end to keep going.",
+      "The cells in order: the party starts at 1 and heads for the last one. Cells already passed can't be changed; add more at the end to keep going.",
     terrainHelp:
-      "How fast the hex is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — tables and conditions read `place.terrain: forest`\nIts speed, and whether it can be crossed, are the system's: its travel rules say them.",
+      "How fast the cell is crossed (the system's speed for that terrain, and whether it can be crossed at all) and what tables see as terrain:\n• `forest` — tables and conditions read `place.terrain: forest`\nIts speed, and whether it can be crossed, are the system's: its travel rules say them.",
     tagsHelp:
-      'Words that mark the hex, each one a pill (Enter or a comma adds it, × takes it out), for the checks and tables that look for them:\n• `landmark` — `place.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
+      'Words that mark the cell, each one a pill (Enter or a comma adds it, × takes it out), for the checks and tables that look for them:\n• `landmark` — `place.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
     connectionsHelp:
-      'Whether a road, trail or river joins this hex to the next one. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.connections: road`)',
-    addHex: 'Add a hex',
+      'Whether a road, trail or river joins this cell to the next one. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.connections: road`)',
+    addHex: 'Add a cell',
     remove: 'Remove',
-    destinationHint: 'Add hexes to the way to set off.',
-    arrivedHint: 'Add more hexes to keep going.',
+    destinationHint: 'Add cells to the way to set off.',
+    arrivedHint: 'Add more cells to keep going.',
   },
   terrains: vocabulary.en.terrains,
   connectionKinds: vocabulary.en.pathKinds,

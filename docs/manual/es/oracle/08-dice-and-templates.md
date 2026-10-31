@@ -87,7 +87,7 @@ Las dos entradas cubren todos los totales; sale la primera cuya condición se cu
 Cuando se tira una definición recibe un **contexto**: un conjunto de valores con nombre. Salen de, en este orden:
 
 1. **Lo que escribes** en el recuadro **Contexto** del panel de tirada (la aplicación Oráculo lista los valores que lee una definición, con sugerencias sacadas de sus condiciones).
-2. **Mapa**, cuando tiras desde su panel de Oráculo o en un viaje: `hex`, `terrain`, `water`, `tags`, `name`, `region`, los campos de la región y del hex, el icono (`icon.*`) y el token seleccionado (`token.*`); durante un viaje, `season`, `weather`, `mode`, `day`, las estadísticas del grupo, los valores del día (`weather`, `…Modifier`, `…Impossible` fijados antes ese mismo día) y `edges` (el camino o río que se sigue).
+2. **Mapa**, cuando tiras desde su panel de Oráculo o en un viaje: `hex`, `terrain`, `water`, `tags`, `name`, `region`, los campos de la región y de la casilla, el icono (`icon.*`) y el token seleccionado (`token.*`); durante un viaje, `season`, `weather`, `mode`, `day`, las estadísticas del grupo, los valores del día (`weather`, `…Modifier`, `…Impossible` fijados antes ese mismo día) y `edges` (el camino o río que se sigue).
 3. **Los bindings** de un sistema de viaje: `context: { … }` añade valores fijos para una comprobación.
 4. **Dentro de la propia tirada**:
    - La **entrada** de un oráculo es un valor con su nombre (`odds: even`).
@@ -105,8 +105,8 @@ name: Encuentro
 fields:
   who: { table: table.wilderness-creatures } # lee terrain, season… del contexto
   mood: { table: table.reaction, context: { bonus: 1 } }
-  count: { roll: '1d6 + {{place.danger}}' } # un campo del hex en la aplicación Mapa
+  count: { roll: '1d6 + {{place.danger}}' } # un campo de la casilla en la aplicación Mapa
 template: '{{count}} × {{who}}, {{mood}}'
 ```
 
-Tirado en un hex de bosque con `danger: 2`, podría dar «5 × lobos, curiosos».
+Tirado en una casilla de bosque con `danger: 2`, podría dar «5 × lobos, curiosos».

@@ -13,7 +13,7 @@ El mundo tiene reacciones propias, escritas igual pero sin grupo: sus pasos son 
 | `time: 180`                                      | pasan tres horas (o hasta una hora del reloj, o una parte del día)            | sí              | no                                         |
 | `travel.move: destination`                       | avanza por la ruta mientras se cumplen las condiciones de la acción           | sí              | una comprobación puede pararlo en camino   |
 | `travel.speed: 0.5`                              | lo que queda de movimiento hoy, a media velocidad                             | no              | no                                         |
-| `travel.advance: 1`                              | un hex por la ruta de golpe                                                   | no              | una comprobación puede pararlo             |
+| `travel.advance: 1`                              | una casilla por la ruta de golpe                                              | no              | una comprobación puede pararlo             |
 | `travel.mode: modes.boat`                        | viajar de otra forma desde ahora                                              | no              | no                                         |
 | `effects: { party.stats.fatigue: 1 }`            | cambia el grupo, sus personajes, el mundo                                     | no              | no                                         |
 | `set: { lost: true }`                            | da un valor del día                                                           | no              | no                                         |
@@ -33,9 +33,9 @@ Cada paso puede tener su propio `when` / `unless` (solo ocurre cuando se cumplen
 
 ## Moverse
 
-- `travel.move: destination` mueve al grupo por su ruta, minuto a minuto, mientras se sigan cumpliendo el `when` / `unless` de la propia acción: una marcha de día se para al caer la noche. Llega tan lejos como dice: `destination`, `hex` (el siguiente), un número de hexes (`3`) o una variable (`'{{params.until}}'`: lo que diga su parámetro). Una comprobación que necesita al jugador lo detiene por el camino; **Seguir** sigue con él, y luego con los pasos de después.
+- `travel.move: destination` mueve al grupo por su ruta, minuto a minuto, mientras se sigan cumpliendo el `when` / `unless` de la propia acción: una marcha de día se para al caer la noche. Llega tan lejos como dice: `destination`, `place` (el siguiente), un número de casillas (`3`) o una variable (`'{{params.until}}'`: lo que diga su parámetro). Una comprobación que necesita al jugador lo detiene por el camino; **Seguir** sigue con él, y luego con los pasos de después.
 - `travel.speed: 0.5` hace que lo que queda de movimiento hoy vaya a la mitad (`1.5`: más rápido; `0`: no más movimiento hoy). Multiplica la velocidad del clima y cualquier `travel.speed` anterior del día (un clima a `0.5` y este: a un cuarto).
-- `travel.advance: 2` mueve al grupo dos hexes (o tramos de un camino) por su ruta de golpe, sin que pase el tiempo: progreso por movimientos en vez de marchando. También una variable: `'{{party.stats.rank}}'`. Mira _Viajes por movimientos_ en [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
+- `travel.advance: 2` mueve al grupo dos casillas (o tramos de un camino) por su ruta de golpe, sin que pase el tiempo: progreso por movimientos en vez de marchando. También una variable: `'{{party.stats.rank}}'`. Mira _Viajes por movimientos_ en [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 - `travel.mode: modes.boat` cambia la forma de viajar (uno de los `modes` del sistema, o una variable: `'{{params.by}}'`), si se puede elegir ahora: se cumplen su `when` / `unless` y ningún valor del día la bloquea. Si no, no cambia nada. Con un destino, la ruta se vuelve a planear para la nueva forma (la más rápida), y el diario lo dice («Ahora viajáis así: En barca»).
 
 ## Cambiar cosas: `effects` y `set`
@@ -71,7 +71,7 @@ do:
 … # un fragmento de una acción
 ```
 
-**Una pausa por el camino.** Cuando una acción que el sistema hace por sí solo pausa, pregunta o espera una tirada (una con `on: trip.place-enter`, por ejemplo un peaje en un puente, u `on: '23:00'` en mitad de una acampada), detiene también lo que estaba en marcha: la marcha que entró en el hex queda a medias, la noche de la acampada espera. Las comprobaciones de su momento llegan cuando acaba, así que ven lo que cambió. **Continuar** (o la elección) sigue con los pasos del peaje, y luego con la marcha, hasta donde iba. Cuando dos pasos fueran a esperar a la vez (dos acciones en el mismo momento), espera el primero, y el segundo pregunta después.
+**Una pausa por el camino.** Cuando una acción que el sistema hace por sí solo pausa, pregunta o espera una tirada (una con `on: trip.place-enter`, por ejemplo un peaje en un puente, u `on: '23:00'` en mitad de una acampada), detiene también lo que estaba en marcha: la marcha que entró en la casilla queda a medias, la noche de la acampada espera. Las comprobaciones de su momento llegan cuando acaba, así que ven lo que cambió. **Continuar** (o la elección) sigue con los pasos del peaje, y luego con la marcha, hasta donde iba. Cuando dos pasos fueran a esperar a la vez (dos acciones en el mismo momento), espera el primero, y el segundo pregunta después.
 
 ## Esperar algo: `wait` y `limit`
 

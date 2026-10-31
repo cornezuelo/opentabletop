@@ -34,7 +34,7 @@ The built script, `apps/cli/dist/opentabletop.mjs`, runs anywhere Node.js does: 
 
 ## Maps by hand
 
-An `.otd.json` map can be edited with a text editor — renaming hexes in bulk, moving data between maps, or writing a script that generates a map. Keep the structure valid: Map rejects files that don't match the schema and says why. Other tools can read the same files and add their own `ext.<tool>` data.
+An `.otd.json` map can be edited with a text editor — renaming cells in bulk, moving data between maps, or writing a script that generates a map. Keep the structure valid: Map rejects files that don't match the schema and says why. Other tools can read the same files and add their own `ext.<tool>` data.
 
 ## Useful commands
 

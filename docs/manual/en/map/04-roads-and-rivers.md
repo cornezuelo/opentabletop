@@ -1,6 +1,6 @@
 # Roads, rivers, walls, borders and connections
 
-The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from hex to hex.
+The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from cell to cell.
 
 ## Kinds
 
@@ -19,13 +19,13 @@ The map only says where each line goes. What it means for a trip is decided by t
 - **Speed**: each kind of line can have a speed multiplier. With the **Generic rules** a road is ×1.5 and a trail ×1.2, and a river changes nothing. With the **Grey Marches**, a road is ×1.5 and a trail ×1.2; another system may make them no faster at all.
 - **Checks**: a system can skip a check while you follow a line. In the **Grey Marches** you don't roll to get lost when following a road or a river, nor meet encounters arriving by road; the Generic rules have no getting-lost roll at all.
 
-Following a line means the route goes from hex to hex along it. To see or change what a system does, open its pack in the Oracle app (`connections` and `checks` in its travel rules); [Connecting tables to maps and trips](../oracle/07-connecting.md) explains them.
+Following a line means the route goes from cell to cell along it. To see or change what a system does, open its pack in the Oracle app (`connections` and `checks` in its travel rules); [Connecting tables to maps and trips](../oracle/07-connecting.md) explains them.
 
 ## Drawing
 
-- Click hexes one after another; hexes in between are filled in with a straight line. Dragging draws freehand.
-- <kbd>Shift</kbd>+click places the point where you click inside the hex (snapped to the center, edges or corners); add <kbd>Ctrl</kbd> for free placement.
-- Click the last hex again, right-click or press <kbd>Enter</kbd> to finish. <kbd>Backspace</kbd> removes the last point, <kbd>Esc</kbd> cancels.
+- Click cells one after another; cells in between are filled in with a straight line. Dragging draws freehand.
+- <kbd>Shift</kbd>+click places the point where you click inside the cell (snapped to the center, edges or corners); add <kbd>Ctrl</kbd> for free placement.
+- Click the last cell again, right-click or press <kbd>Enter</kbd> to finish. <kbd>Backspace</kbd> removes the last point, <kbd>Esc</kbd> cancels.
 - **Straight segments** draws straight lines instead of curves; **Closed loop** joins the end to the start (handy for borders).
 
 Roads, trails and rivers stop at the shore of lakes and seas; borders cross them.
@@ -34,15 +34,15 @@ Roads, trails and rivers stop at the shore of lakes and seas; borders cross them
 
 With no line in progress, the white handles are the points you placed:
 
-- Drag a handle to move it, even to another hex (the line is re-routed).
+- Drag a handle to move it, even to another cell (the line is re-routed).
 - Click a handle to keep drawing from it: from an end it extends the line, from the middle it starts a branch.
-- Right-click a handle to center it in its hex.
+- Right-click a handle to center it in its cell.
 
-The hex panel lists the lines crossing the selected hex: switch them between curved and straight, open and closed, or delete them.
+The cell panel lists the lines crossing the selected cell: switch them between curved and straight, open and closed, or delete them.
 
 ## Connections
 
-The **Connections** tool (<kbd>C</kbd>, **⇄**) joins two places with something that isn't a line you follow: a bridge, a gate, a pass, a ford, or a way between two far hexes (a tunnel, a ferry, a hidden path). Two far places joined by a connection become neighbours: a trip may go straight from one to the other in one step, as long as the hexes between its ends at the map's scale (or its own **Length**), at its kind's speed and never the terrain's (it crosses none of the land between).
+The **Connections** tool (<kbd>C</kbd>, **⇄**) joins two places with something that isn't a line you follow: a bridge, a gate, a pass, a ford, or a way between two far cells (a tunnel, a ferry, a hidden path). Two far places joined by a connection become neighbours: a trip may go straight from one to the other in one step, as long as the cells between its ends at the map's scale (or its own **Length**), at its kind's speed and never the terrain's (it crosses none of the land between).
 
 - Choose its **Kind** first: what the connection is, as the map's system names it. The box suggests the kinds the system declares and those the map already uses; a new word works too, and does nothing until a system says what it does.
 - Click a place, then another: the connection joins them, drawn as a dashed line with a diamond in its middle. <kbd>Esc</kbd> or a right click drops one you've started.

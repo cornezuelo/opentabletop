@@ -4,13 +4,13 @@ Tokens are pieces you move around the map: the party, player characters, NPCs an
 
 ## Placing and moving
 
-- Choose the kind of the new tokens (PC, NPC or Enemy), their icon (the **Suggested** ones are characters and creatures; the chips filter by category as in Icons, and searching looks through them all; or **Import an image…**) and color, then click an empty hex.
-- Click a token (or anywhere on its hex) to edit it. Drag it to another hex: it lands centered.
-- Several tokens can share a hex: they're arranged around the center. <kbd>Shift</kbd>+click always adds a new token, even on a hex that already has tokens (or right on one).
+- Choose the kind of the new tokens (PC, NPC or Enemy), their icon (the **Suggested** ones are characters and creatures; the chips filter by category as in Icons, and searching looks through them all; or **Import an image…**) and color, then click an empty cell.
+- Click a token (or anywhere on its cell) to edit it. Drag it to another cell: it lands centered.
+- Several tokens can share a cell: they're arranged around the center. <kbd>Shift</kbd>+click always adds a new token, even on a cell that already has tokens (or right on one).
 - **Place from the bestiary** (in the new-token options, when the map's system or its campaign's packs have a bestiary): new tokens are copies of a template, with its look, its name and a sheet with its values rolled for each one. They are the map's, like any token: a guard at a bridge, a lair. The copies a trip makes are something else: see [Playing a trip](08-play.md).
-- Right-click or <kbd>Delete</kbd> removes a token. **Take off the map** keeps it in the list without a hex.
+- Right-click or <kbd>Delete</kbd> removes a token. **Take off the map** keeps it in the list without a cell.
 
-Tokens can also be dragged with the Select and Play tools (in Play, a click on one is a click on its hex too: [Play](08-play.md)).
+Tokens can also be dragged with the Select and Play tools (in Play, a click on one is a click on its cell too: [Play](08-play.md)).
 
 With the color on **Auto**, each token gets its own color from its kind's family — PCs in cool colors, enemies in warm ones, NPCs in earthy ones — so tokens of one kind look alike but can be told apart. Pick a color to fix it.
 

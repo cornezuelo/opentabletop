@@ -61,8 +61,8 @@ export const es: Messages<typeof en> = {
     places: {
       title: 'Sus lugares',
       intro:
-        'Lugares que un resultado puede crear en el hex del grupo (`kind: places`): plantillas de puntos de interés, cada una con su nombre, texto, icono, campos y las etiquetas que da al hex. Una tabla, una acción o el contenido de un hex descubierto crea uno con un efecto (`place.pois.ruins: 1`); sobre un mapa en la aplicación Mapa se escribe en el mapa, en un viaje sin mapa lo anota el diario. Un lugar conserva con lo que se hizo: cambiar una plantilla solo afecta a los lugares hechos después.',
-      help: 'Catálogos de lugares, tantos como quiera el sistema, nombrados en su **Resumen** (`places:`), y los de los paquetes que añade un mapa o una campaña. Los efectos los crean en el hex del grupo:\n• `place.pois.ruins: 1` — unas **Ruinas**\n• En el contenido del descubrimiento, `effects: { place.pois.shrine: 1 }` — el hex encontrado tiene un santuario, en vez de un punto de interés hecho con el texto del resultado',
+        'Lugares que un resultado puede crear en la casilla del grupo (`kind: places`): plantillas de puntos de interés, cada una con su nombre, texto, icono, campos y las etiquetas que da a la casilla. Una tabla, una acción o el contenido de una casilla descubierta crea uno con un efecto (`place.pois.ruins: 1`); sobre un mapa en la aplicación Mapa se escribe en el mapa, en un viaje sin mapa lo anota el diario. Un lugar conserva con lo que se hizo: cambiar una plantilla solo afecta a los lugares hechos después.',
+      help: 'Catálogos de lugares, tantos como quiera el sistema, nombrados en su **Resumen** (`places:`), y los de los paquetes que añade un mapa o una campaña. Los efectos los crean en la casilla del grupo:\n• `place.pois.ruins: 1` — unas **Ruinas**\n• En el contenido del descubrimiento, `effects: { place.pois.shrine: 1 }` — la casilla encontrada tiene un santuario, en vez de un punto de interés hecho con el texto del resultado',
       none: 'Este sistema no tiene catálogo de lugares: los resultados aún pueden crear puntos de interés simples con su texto al descubrir.',
       create: 'Nuevo catálogo de lugares',
     },
@@ -93,8 +93,8 @@ export const es: Messages<typeof en> = {
     factions: {
       title: 'Sus facciones',
       intro:
-        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. Su tierra son los hexes que tienen en un mapa: cada uno empieza con las regiones escritas aquí (en cualquier mapa que las tenga) y los hexes (solo en el mapa en el que están) cuando un mapa las trae (el panel Mundo de Mapa); desde entonces es del mapa, se pinta a mano allí y se gana o se pierde hex a hex en los turnos del mundo.',
-      help: 'Una definición de facciones por sistema, nombrada en su **Resumen** (`factions:`). Las tablas y condiciones las leen en todas partes:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `place.faction: the-crown` — quién tiene el hex\nSus tablas de turno las cambian con efectos:\n• `faction.values.strength: 1` — la facción a la que le toca\n• `factions.the-rebels.values.strength: -1` — otra\n• `faction.territory: 1` — un hex más, desde su frontera\n• `world.clocks.the-siege: 1` — un reloj de progreso del reloj del mundo',
+        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. Su tierra son las casillas que tienen en un mapa: cada uno empieza con las regiones escritas aquí (en cualquier mapa que las tenga) y las casillas (solo en el mapa en el que están) cuando un mapa las trae (el panel Mundo de Mapa); desde entonces es del mapa, se pinta a mano allí y se gana o se pierde casilla a casilla en los turnos del mundo.',
+      help: 'Una definición de facciones por sistema, nombrada en su **Resumen** (`factions:`). Las tablas y condiciones las leen en todas partes:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `place.faction: the-crown` — quién tiene la casilla\nSus tablas de turno las cambian con efectos:\n• `faction.values.strength: 1` — la facción a la que le toca\n• `factions.the-rebels.values.strength: -1` — otra\n• `faction.territory: 1` — una casilla más, desde su frontera\n• `world.clocks.the-siege: 1` — un reloj de progreso del reloj del mundo',
       none: 'Este sistema no tiene facciones.',
       create: 'Nuevas facciones',
     },
@@ -131,8 +131,8 @@ export const es: Messages<typeof en> = {
     land: {
       title: 'Sus modelos de tierra',
       intro:
-        'Terreno con memoria: para cada terreno, lo probable que es que un hex junto a él sea cada terreno, así la tierra sale coherente (los bosques siguen siendo bosques, las colinas se juntan en cordilleras). **Generar tierra** de Mapa rellena con uno los hexes vacíos, y el descubrimiento puede decidir con uno los hexes vacíos (`discover.terrain: { land: land.default }`).',
-      help: 'Modelos de tierra (`kind: land`), listados en su **Resumen** (`land:`). Un hex vacío suma las filas de los terrenos de sus vecinos conocidos y elige con esos pesos:\n• dos vecinos de bosque cuentan dos veces la fila del bosque\n• sin ninguno conocido: **Donde no se conoce nada**\nEl descubrimiento usa uno por sus bindings (`discover.terrain: { land: land.default }`), o una tabla de terreno le pasa la decisión (`set: { land: land.default }` en una entrada).',
+        'Terreno con memoria: para cada terreno, lo probable que es que una casilla junto a él sea cada terreno, así la tierra sale coherente (los bosques siguen siendo bosques, las colinas se juntan en cordilleras). **Generar tierra** de Mapa rellena con uno las casillas vacías, y el descubrimiento puede decidir con uno las casillas vacías (`discover.terrain: { land: land.default }`).',
+      help: 'Modelos de tierra (`kind: land`), listados en su **Resumen** (`land:`). Una casilla vacía suma las filas de los terrenos de sus vecinas conocidas y elige con esos pesos:\n• dos vecinos de bosque cuentan dos veces la fila del bosque\n• sin ninguno conocido: **Donde no se conoce nada**\nEl descubrimiento usa uno por sus bindings (`discover.terrain: { land: land.default }`), o una tabla de terreno le pasa la decisión (`set: { land: land.default }` en una entrada).',
       none: 'Este sistema no nombra modelos de tierra.',
       create: 'Nuevo modelo de tierra',
     },
@@ -174,16 +174,16 @@ export const es: Messages<typeof en> = {
     nameHelp: 'Cómo se llama este catálogo.\n• **Lugares de las marcas**',
     places: 'Lugares',
     placesHelp:
-      'Cada lugar, con un id por el que lo nombran los efectos (`place.pois.<id>`): su nombre y texto, su icono, las etiquetas que recibe su hex y sus campos.\n• `ruins` — icono `game:castle-ruins`, etiquetas `ruins`\n• `shrine` — etiquetas `shrine`, leídas por una acción que solo funciona allí (`place.tags: shrine`)',
+      'Cada lugar, con un id por el que lo nombran los efectos (`place.pois.<id>`): su nombre y texto, su icono, las etiquetas que recibe su casilla y sus campos.\n• `ruins` — icono `game:castle-ruins`, etiquetas `ruins`\n• `shrine` — etiquetas `shrine`, leídas por una acción que solo funciona allí (`place.tags: shrine`)',
     placeName: 'Nombre',
     descriptionHelp:
       'Lo que dice el punto de interés. Las variables y las tiradas se leen del resultado que lo crea:\n• `{{result}}` — el texto del propio resultado\n• `Un campamento de {{1d6+2}} viajeros`',
     icon: 'Icono',
     iconHelp:
-      'Un icono del mapa, por su id, para distinguirlo entre los puntos de interés del hex:\n• `game:castle-ruins`\n• `game:totem`\nVacío: ninguno.',
-    tags: 'Etiquetas del hex',
+      'Un icono del mapa, por su id, para distinguirlo entre los puntos de interés de la casilla:\n• `game:castle-ruins`\n• `game:totem`\nVacío: ninguno.',
+    tags: 'Etiquetas de la casilla',
     tagsHelp:
-      'Etiquetas que recibe el hex cuando el lugar se crea en él, como el `set: { tags }` del descubrimiento: lo que leen las reglas.\n• `ruins` — `place.tags: ruins`\n• `danger`, `landmark`',
+      'Etiquetas que recibe la casilla cuando el lugar se crea en ella, como el `set: { tags }` del descubrimiento: lo que leen las reglas.\n• `ruins` — `place.tags: ruins`\n• `danger`, `landmark`',
     fields: 'Campos',
     fieldsHelp:
       'Los campos del punto de interés, pares `clave: valor`; los valores pueden llevar variables y tiradas, que se leen al crearlo:\n• `skulls: {{1d6+2}}`\n• `god: forgotten`',
@@ -308,13 +308,13 @@ export const es: Messages<typeof en> = {
       'Valores iniciales de su hoja, una fila cada uno (valor · con cuánto empieza); el resto, los de por defecto de la hoja.\n• `strength` · `4`\n• `reputation` · `-1`',
     regions: 'Regiones',
     regionsHelp:
-      'Empieza teniendo todos los hexes de estas regiones del mapa (por su nombre), cada una una pastilla (Intro o una coma la añade): la tierra que recibe cuando un mapa trae las facciones. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `The Hollow Hills`',
+      'Empieza teniendo todas las casillas de estas regiones del mapa (por su nombre), cada una una pastilla (Intro o una coma la añade): la tierra que recibe cuando un mapa trae las facciones. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `The Hollow Hills`',
     map: 'En el mapa',
     mapHelp:
-      'El mapa de ejemplo de este pack (`maps:` en su sistema) en el que están sus **Hexes**: solo se dan ahí, porque las mismas coordenadas son otro sitio en otro mapa. Sus regiones se dan en cualquier mapa que las tenga.\n• `maps/frontier.otd.json`',
-    hexes: 'Hexes',
+      'El mapa de ejemplo de este pack (`maps:` en su sistema) en el que están sus **Casillas**: solo se dan ahí, porque las mismas coordenadas son otro sitio en otro mapa. Sus regiones se dan en cualquier mapa que las tenga.\n• `maps/frontier.otd.json`',
+    hexes: 'Casillas',
     hexesHelp:
-      'Y estos hexes (columna,fila) del mapa elegido en **En el mapa**, cada uno una pastilla (Intro o un espacio lo añade); lo necesitan.\n• `15,9`',
+      'Y estas casillas (columna,fila) del mapa elegido en **En el mapa**, cada una una pastilla (Intro o un espacio lo añade); lo necesitan.\n• `15,9`',
     ownTurn: 'Turno propio',
     ownTurnHelp: 'Una tabla de turno propia, en vez de la de las facciones.\n• `clan-turn`',
   },
@@ -497,17 +497,17 @@ export const es: Messages<typeof en> = {
     name: 'Nombre',
     nameHelp:
       'El nombre del modelo.\n• **La forma de la tierra**\n• **Tierras salvajes del norte**',
-    from: 'El hex desde el que se ve cuenta',
+    from: 'La casilla desde la que se ve cuenta',
     fromHelp:
-      'Al descubrir, cuántas veces cuenta el hex que pisa el grupo entre los vecinos del hex que se decide (vacío: una, como cualquier otro). Al generar tierra no hay tal hex.\n• `2` — la tierra de la que vienes cuenta doble: un viaje hacia lo desconocido sigue su propia tierra\n• `0` — solo cuentan los demás vecinos',
+      'Al descubrir, cuántas veces cuenta la casilla que pisa el grupo entre las vecinas de la casilla que se decide (vacío: una, como cualquier otra). Al generar tierra no hay tal casilla.\n• `2` — la tierra de la que vienes cuenta doble: un viaje hacia lo desconocido sigue su propia tierra\n• `0` — solo cuentan las demás vecinas',
     rows: 'Junto a cada terreno',
     rowsHelp:
-      'Para cada terreno (filas), lo probable que es que un hex junto a él sea cada terreno (columnas): pesos, no porcentajes; vacío es 0. Un hex vacío suma las filas de todos sus vecinos conocidos.\n• Fila **Bosque**: `forest 6`, `hills 2`, `plains 2` — los bosques tienden a seguir siendo bosque\n• Fila **Colinas**: `hills 4`, `mountains 2` — las colinas se juntan en cordilleras\nUn terreno sin fila no suma nada; una columna sin fila nunca es un vecino que tire.',
+      'Para cada terreno (filas), lo probable que es que una casilla junto a él sea cada terreno (columnas): pesos, no porcentajes; vacío es 0. Una casilla vacía suma las filas de todas sus vecinas conocidas.\n• Fila **Bosque**: `forest 6`, `hills 2`, `plains 2` — los bosques tienden a seguir siendo bosque\n• Fila **Colinas**: `hills 4`, `mountains 2` — las colinas se juntan en cordilleras\nUn terreno sin fila no suma nada; una columna sin fila nunca es un vecino que tire.',
     fromTo: 'Junto a ↓ / se vuelve →',
     start: 'Donde no se conoce nada',
     startHelp:
-      'Los pesos de un hex sin ningún vecino conocido con fila en el modelo: el primer hex de un mapa en blanco, un hex en mitad de la nada.\n• `plains 3`, `forest 2` — sobre todo tierra abierta',
-    shares: 'A lo largo de muchos hexes',
+      'Los pesos de una casilla sin ningún vecina conocida con fila en el modelo: la primera casilla de un mapa en blanco, una casilla en mitad de la nada.\n• `plains 3`, `forest 2` — sobre todo tierra abierta',
+    shares: 'A lo largo de muchas casillas',
     sharesHelp:
       'Cuánto de cada terreno tiene una extensión grande que crece desde la nada con estos pesos: una comprobación de que la tierra se siente bien.',
     newTerrain: 'Terreno',
@@ -612,7 +612,7 @@ export const es: Messages<typeof en> = {
     noWeather: 'No hay modelos de clima en este pack ni en sus dependencias.',
     land: 'Modelos de tierra',
     landHelp:
-      'Los modelos de tierra (`kind: land`) con los que **Generar tierra** de Mapa rellena los hexes vacíos, y que el descubrimiento puede usar: los de este pack y sus dependencias.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`',
+      'Los modelos de tierra (`kind: land`) con los que **Generar tierra** de Mapa rellena las casillas vacías, y que el descubrimiento puede usar: los de este pack y sus dependencias.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`',
     noLand: 'No hay modelos de tierra en este pack ni en sus dependencias.',
     packs: 'Packs que trae',
     packsHelp:
@@ -662,9 +662,9 @@ export const es: Messages<typeof en> = {
     problems: 'Este fichero tiene {count} problemas: abre el YAML para verlos.',
   },
   rules: {
-    water: 'Hexes de agua',
+    water: 'Casillas de agua',
     waterHelp:
-      'Hexes cuyo terreno el mapa marca como **agua** (Mapa: Editar paleta → Agua) y que no tienen regla propia en Terrenos.\nA menudo **no se cruzan**; una forma de viajar cuyo **Solo por** se cumple en el agua sí puede navegarlos:\n• una barca: `place.water: true`\n• una barca que además bordea la costa: `any: [{ place.water: true }, { place.terrain: coast }]`\nUn terreno listado en Terrenos (un `lake` helado con **Abierto cuando** `time.season: winter`) usa su propia regla.',
+      'Casillas cuyo terreno el mapa marca como **agua** (Mapa: Editar paleta → Agua) y que no tienen regla propia en Terrenos.\nA menudo **no se cruzan**; una forma de viajar cuyo **Solo por** se cumple en el agua sí puede navegarlos:\n• una barca: `place.water: true`\n• una barca que además bordea la costa: `any: [{ place.water: true }, { place.terrain: coast }]`\nUn terreno listado en Terrenos (un `lake` helado con **Abierto cuando** `time.season: winter`) usa su propia regla.',
     day: 'El día',
     dayHelp:
       'Cuándo empiezan los viajes, la escala de sus velocidades y qué hace el grupo cuando no puede marchar. Cuándo y hasta dónde marcha el grupo lo dicen sus acciones (Acciones, abajo: una acción con un paso `travel.move`, como **Marchar**), y cómo sigue el viaje por sí solo es una de ellas (**Sigue por sí solo con**).\n• **Los viajes empiezan** `06:00` o `time.part.morning` — el primer momento de un viaje nuevo\n• **Parada** `time.part.night` → `camp` — desde entonces, un grupo que no puede marchar acampa por sí solo',
@@ -679,21 +679,21 @@ export const es: Messages<typeof en> = {
     haltNone: 'nada: el grupo espera',
     onwardDo: 'Sigue por sí solo con',
     onwardHelp:
-      'La acción que hace el viaje **cuando sigue por sí solo**: el reloj del mundo avanzando con un viaje en marcha, o una orden de viajar. La hace siempre que puede (su **Solo si** / **Salvo si**) y espera si no (con la **Parada**). Suele ser la acción que mueve al grupo, con hasta dónde:\n• **acción** `march`, **con** `until: destination` — sigue marchando hasta el destino, día tras día\n• **acción** `sail`, **con** `until: place` — de hex en hex\nNada: el viaje solo espera; el jugador lo mueve con los botones de las acciones.',
+      'La acción que hace el viaje **cuando sigue por sí solo**: el reloj del mundo avanzando con un viaje en marcha, o una orden de viajar. La hace siempre que puede (su **Solo si** / **Salvo si**) y espera si no (con la **Parada**). Suele ser la acción que mueve al grupo, con hasta dónde:\n• **acción** `march`, **con** `until: destination` — sigue marchando hasta el destino, día tras día\n• **acción** `sail`, **con** `until: place` — de casilla en casilla\nNada: el viaje solo espera; el jugador lo mueve con los botones de las acciones.',
     onwardNone: 'nada: el viaje solo espera',
     onwardWith: 'Con',
     onwardWithHelp:
-      'Los valores de los **Parámetros** de esa acción, como pares `parámetro: opción`; los que no se ponen toman el suyo por defecto.\n• `until: destination`\n• `until: 3` — tres hexes\nVacío: cada parámetro con su valor por defecto.',
+      'Los valores de los **Parámetros** de esa acción, como pares `parámetro: opción`; los que no se ponen toman el suyo por defecto.\n• `until: destination`\n• `until: 3` — tres casillas\nVacío: cada parámetro con su valor por defecto.',
     hoursPerDay: 'Horas de marcha al día',
     hoursPerDayHelp:
       "Las horas en que una forma de viajar hace sus **km al día**: la escala de su velocidad (km por hora). Cuánto puede marchar el grupo cada día lo dice la acción **Marchar** (`trip.marched: { lt: '{{system.hoursPerDay}}' }` lee este número).\n• `8` — 24 km al día son 3 km por hora\n• `10` — los mismos 24 km a 2,4 km por hora",
     cellKm: 'km por casilla',
     cellKmHelp:
-      'La escala a la que se juega el sistema: cuántos km mide una casilla (un hex, un cuadrado). Con las velocidades de sus formas de viajar, dice cuánto se tarda en un hex.\n• `30` — hexes grandes: más o menos uno al día para una forma de viajar que hace 30 km\n• `10` — hexes pequeños: varios al día\nLos viajes sin mapa (Viajes, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Mapa: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
+      'La escala a la que se juega el sistema: cuántos km mide una casilla (un hexágono, un cuadrado). Con las velocidades de sus formas de viajar, dice cuánto se tarda en una casilla.\n• `30` — casillas grandes: más o menos una al día para una forma de viajar que hace 30 km\n• `10` — casillas pequeñas: varias al día\nLos viajes sin mapa (Viajes, **Pruébalo**) se juegan a ella; un mapa con este sistema la toma, salvo que el mapa fije la suya (Mapa: Ajustes del mapa → Mapa). Vacío: la del mapa o la del camino, 10 por defecto.',
     diagonals: 'Paso en diagonal',
     noDiagonals: 'ninguno',
     diagonalsHelp:
-      'En mapas de casillas cuadradas, si un viaje puede pasar a una casilla que solo toca por una esquina, y cuánto cuesta ese paso en pasos por un lado. **Vacío: sin pasos en diagonal** (cuatro vecinas).\n• `1` — una diagonal cuesta lo que cualquier paso: ocho vecinas, todas iguales\n• `1.5` — la cuenta de 1, 2, 1, 2… casillas, en promedio\n• `1.41` — la distancia real\nMultiplica el tiempo del paso y sus km. Los hexes no tienen diagonales.',
+      'En mapas de casillas cuadradas, si un viaje puede pasar a una casilla que solo toca por una esquina, y cuánto cuesta ese paso en pasos por un lado. **Vacío: sin pasos en diagonal** (cuatro vecinas).\n• `1` — una diagonal cuesta lo que cualquier paso: ocho vecinas, todas iguales\n• `1.5` — la cuenta de 1, 2, 1, 2… casillas, en promedio\n• `1.41` — la distancia real\nMultiplica el tiempo del paso y sus km. Los hexágonos no tienen diagonales.',
     cutCorners: 'Cortar esquinas',
     cutCornersHelp:
       'Si un paso en diagonal puede pasar por una esquina donde una de las dos casillas de al lado no se puede pisar (un muro, agua profunda, un terreno que la forma de viajar no cruza). **Sin marcar**: no puede, así que nadie se cuela entre dos columnas ni dobla la esquina de un muro.',
@@ -709,7 +709,7 @@ export const es: Messages<typeof en> = {
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id:\n• `horse` → _A caballo_\n• `food` → _Raciones_\nSe escribe en el idioma actual: el del pack, o su fichero de traducción (`locales/<idioma>/`) si la interfaz está en otro. Vacío: el id (o el nombre de la aplicación para los habituales: foot, horse, food…).',
     allowedTerrains: 'Solo por',
     allowedTerrainsHelp:
-      'Por dónde puede ir esta forma de viajar: una condición sobre **cada hex en el que entra** (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso).\n• una barca: `place.water: true`\n• una barca que además sigue la costa: `any: [{ place.water: true }, { place.terrain: coast }]`\n• un carro solo por camino: `trip.connections: road`\n• una montura que evita los bosques: `not: { place.terrain: [forest, dense-forest] }`\nDonde se cumple, ni los terrenos cerrados la paran; donde no, no puede ir, diga lo que diga el terreno (mira **Transitable** en Terrenos). Vacío: por donde dejen los terrenos.',
+      'Por dónde puede ir esta forma de viajar: una condición sobre **cada casilla en la que entra** (su terreno, agua, etiquetas, región, campos, los caminos o ríos del paso).\n• una barca: `place.water: true`\n• una barca que además sigue la costa: `any: [{ place.water: true }, { place.terrain: coast }]`\n• un carro solo por camino: `trip.connections: road`\n• una montura que evita los bosques: `not: { place.terrain: [forest, dense-forest] }`\nDonde se cumple, ni los terrenos cerrados la paran; donde no, no puede ir, diga lo que diga el terreno (mira **Transitable** en Terrenos). Vacío: por donde dejen los terrenos.',
     anyTerrain: 'por donde dejen los terrenos',
     terrains: vocabulary.es.terms.terrains,
     terrainsHelp:
@@ -717,14 +717,14 @@ export const es: Messages<typeof en> = {
     terrain: vocabulary.es.terms.terrain,
     multiplier: 'Velocidad ×',
     multiplierHelp:
-      'Lo rápido que se cruza este terreno, comparado con el terreno fácil:\n• `1` — velocidad normal\n• `0.5` — a la mitad\n• `0.25` — a un cuarto\n• `2` — el doble de rápido\nPor ejemplo, con una forma de viajar de 24 km al día y hexes de 12 km, un hex a `0.5` lleva un día entero de marcha.',
+      'Lo rápido que se cruza este terreno, comparado con el terreno fácil:\n• `1` — velocidad normal\n• `0.5` — a la mitad\n• `0.25` — a un cuarto\n• `2` — el doble de rápido\nPor ejemplo, con una forma de viajar de 24 km al día y casillas de 12 km, una casilla a `0.5` lleva un día entero de marcha.',
     passable: 'Transitable',
     passableHelp:
-      'Si se puede entrar en un hex de este terreno. Cómo encaja con lo demás:\n• Una forma de viajar con **Solo por** (Formas de viajar) va solo por eso: donde se cumple su condición entra, abierto o cerrado (una barca en un lago); donde no, no entra\n• Cualquier otra: **Sin marcar**, nadie entra (las rutas lo rodean); **Marcado**, entra mientras se cumpla **Abierto cuando** (vacío: siempre) y no **Cerrado cuando** (vacío: nunca)\nPor ejemplo:\n• **Abierto cuando** `time.season: winter` — un lago que se cruza sobre el hielo\n• **Cerrado cuando** `trip.weather: [snow, storm]` — un paso cerrado por el clima',
+      'Si se puede entrar en una casilla de este terreno. Cómo encaja con lo demás:\n• Una forma de viajar con **Solo por** (Formas de viajar) va solo por eso: donde se cumple su condición entra, abierto o cerrado (una barca en un lago); donde no, no entra\n• Cualquier otra: **Sin marcar**, nadie entra (las rutas lo rodean); **Marcado**, entra mientras se cumpla **Abierto cuando** (vacío: siempre) y no **Cerrado cuando** (vacío: nunca)\nPor ejemplo:\n• **Abierto cuando** `time.season: winter` — un lago que se cruza sobre el hielo\n• **Cerrado cuando** `trip.weather: [snow, storm]` — un paso cerrado por el clima',
     openWhen: 'Abierto cuando',
     closedWhen: 'Cerrado cuando',
     passableWhenHelp:
-      'Cuándo se puede entrar en el terreno, como condición sobre **el hex al que se entra y el momento**: su terreno, etiquetas, región, campos, los caminos o ríos del paso, la forma de viajar, el clima, la estación y el calendario, los valores del día.\n• **Abierto cuando** `time.season: winter` — solo mientras se cumple: un lago que se cruza sobre el hielo\n• **Abierto cuando** `time.month: [1, 12]` — los dos meses más fríos del calendario\n• **Cerrado cuando** `any: [{ time.season: winter }, { trip.weather: snow }]` — un paso de montaña\n• **Cerrado cuando** `trip.mode: horse` — no para jinetes\nVacío: siempre abierto / nunca cerrado.',
+      'Cuándo se puede entrar en el terreno, como condición sobre **la casilla a la que se entra y el momento**: su terreno, etiquetas, región, campos, los caminos o ríos del paso, la forma de viajar, el clima, la estación y el calendario, los valores del día.\n• **Abierto cuando** `time.season: winter` — solo mientras se cumple: un lago que se cruza sobre el hielo\n• **Abierto cuando** `time.month: [1, 12]` — los dos meses más fríos del calendario\n• **Cerrado cuando** `any: [{ time.season: winter }, { trip.weather: snow }]` — un paso de montaña\n• **Cerrado cuando** `trip.mode: horse` — no para jinetes\nVacío: siempre abierto / nunca cerrado.',
     defaultTerrain: 'Velocidad × de los terrenos no listados',
     defaultTerrainHelp:
       'La velocidad de cualquier terreno que no esté arriba:\n• `1` — normal (lo que vale si está vacío)\n• `0.75` — el terreno desconocido es algo más lento\nUn mapa con un terreno que el sistema no conoce (`badlands`) usa esto.',
@@ -751,7 +751,7 @@ export const es: Messages<typeof en> = {
       'A qué velocidad marcha el grupo con este clima:\n• `0` — ese día no se viaja (es un día perdido)\n• `0.5` — a media velocidad\n• `1` — como siempre',
     actions: 'Acciones',
     actionsHelp:
-      "Lo que puede hacer el grupo: **marchar**, **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los porteadores…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Automática en**). Nada viene de serie: marchar es una acción como las demás.\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• marchar: `travel.move: '{{params.until}}'`, con un parámetro `until` (hasta el destino o un hex)\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `travel.speed: 0.5`, su comprobación en `forage`\n• comer, automática en `time.day-end`: `effects: { party.values.food: -1 }`\nSu orden cuenta: es el de los botones del panel del viaje, y el orden en que el sistema hace por sí solo las de un mismo momento. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.",
+      "Lo que puede hacer el grupo: **marchar**, **acampar**, **descansar** y las propias del sistema (buscar comida, rezar, hablar con los porteadores…), cada una un botón en el panel del viaje, o hecha por el propio sistema (**Automática en**). Nada viene de serie: marchar es una acción como las demás.\nCada una dice cuándo se puede hacer (**Solo si** / **Salvo si**, **Una vez al día**) y qué hace, **paso a paso**:\n• marchar: `travel.move: '{{params.until}}'`, con un parámetro `until` (hasta el destino o una casilla)\n• descansar: `time: 120`, luego `effects: { party.stats.fatigue: -1 }`\n• buscar comida: `time: 180`, `travel.speed: 0.5`, su comprobación en `forage`\n• comer, automática en `time.day-end`: `effects: { party.values.food: -1 }`\nSu orden cuenta: es el de los botones del panel del viaje, y el orden en que el sistema hace por sí solo las de un mismo momento. Arrastra una ficha por su asa (⠿) sobre otra, o ↑ ↓, para cambiarlo.",
     oncePerDay: 'Una vez al día',
     modeWhenHelp:
       'Cuándo se puede elegir (**Solo si**) o no (**Salvo si**), como condición sobre dónde está el grupo y el momento.\n• una barca solo a la orilla: `any: [{ place.water: true }, { place.tags: ferry }]`\n• sin caballos con nieve: **Salvo si** `trip.weather: snow`\n• un carro solo en verano: **Solo si** `time.season: summer`\nVacío: siempre. Un valor del día también puede bloquearla (**Bloquea** `modes.<id>`).',
@@ -769,10 +769,10 @@ export const es: Messages<typeof en> = {
     when: 'Solo si',
     unless: 'Salvo si',
     whenHelp:
-      "Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `trip.weather: storm` — el clima de hoy\n• `place.terrain: [forest, hills]` — el hex donde está el grupo\n• `place.tags: shrine` — una etiqueta de ese hex\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.values.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `time.moons.silver: full` — el calendario\n• `time.hour: { gte: 6, lt: 20 }` — solo de día, de 06:00 a 20:00; `time.part: night`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `trip.visits: 1` — la primera vez aquí; `around.terrain: lake` — junto a un lago\n• `trip.doneToday: forage` — si hoy se buscó comida; `trip.marched: { gte: 6 }` — tras 6 horas de marcha\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.party.values.food: { gte: 10 }` — lo que lleva hecho el viaje\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — una variable: comparado con otro valor (entre comillas)\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada: la misma durante todo el momento\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\nSi no, su botón sale desactivado y dice por qué (o se oculta, con **Oculta si no se puede hacer**); la acción de la parada que no se puede hacer deja pasar el tiempo sin ella.",
+      "Cuándo se puede hacer la acción (**Solo si**) o no (**Salvo si**), con condiciones como las de las tablas:\n• `trip.weather: storm` — el clima de hoy\n• `place.terrain: [forest, hills]` — la casilla donde está el grupo\n• `place.tags: shrine` — una etiqueta de esa casilla\n• `party.stats.fatigue: { lt: 2 }` — el grupo\n• `party.values.food: { gte: 1 }` — queda comida\n• `mutinous: true` — un valor del día\n• `time.moons.silver: full` — el calendario\n• `time.hour: { gte: 6, lt: 20 }` — solo de día, de 06:00 a 20:00; `time.part: night`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `trip.visits: 1` — la primera vez aquí; `around.terrain: lake` — junto a un lago\n• `trip.doneToday: forage` — si hoy se buscó comida; `trip.marched: { gte: 6 }` — tras 6 horas de marcha\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.party.values.food: { gte: 10 }` — lo que lleva hecho el viaje\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — una variable: comparado con otro valor (entre comillas)\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada: la misma durante todo el momento\nCada valor por su **nombre completo**, que dice de dónde sale (`place.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\nSi no, su botón sale desactivado y dice por qué (o se oculta, con **Oculta si no se puede hacer**); la acción de la parada que no se puede hacer deja pasar el tiempo sin ella.",
     params: 'Parámetros',
     paramsHelp:
-      "Lo que elige el jugador al hacerla (junto a su botón, una elección por cada uno), y lo que le da un paso `do:` o **Sigue por sí solo con**. Cada parámetro tiene sus **opciones** (la primera es la de por defecto, salvo que `default` diga otra); sus pasos y condiciones leen la elegida como `{{params.<id>}}`.\n• `until: { choices: [destination, place, 3] }` — hasta dónde va una marcha: con el paso `travel.move: '{{params.until}}'`\n• `pace: { choices: [steady, quick], default: steady }` — con **Solo si** `params.pace: quick` en un paso\nUna opción puede llevar un nombre que mostrar: `{ id: 3, name: Three hexes }` (traducido en los locales del pack). Vacío: sin elecciones, solo el botón.\nCada parámetro es una fila: su id, su **Nombre**, sus **Opciones** como píldoras (arrastra una sobre otra para cambiar su orden: la primera es la de por defecto) y su **Por defecto** cuando no es la primera. **YAML** los escribe todos de una vez, para el nombre de una opción.",
+      "Lo que elige el jugador al hacerla (junto a su botón, una elección por cada uno), y lo que le da un paso `do:` o **Sigue por sí solo con**. Cada parámetro tiene sus **opciones** (la primera es la de por defecto, salvo que `default` diga otra); sus pasos y condiciones leen la elegida como `{{params.<id>}}`.\n• `until: { choices: [destination, place, 3] }` — hasta dónde va una marcha: con el paso `travel.move: '{{params.until}}'`\n• `pace: { choices: [steady, quick], default: steady }` — con **Solo si** `params.pace: quick` en un paso\nUna opción puede llevar un nombre que mostrar: `{ id: 3, name: Three cells }` (traducido en los locales del pack). Vacío: sin elecciones, solo el botón.\nCada parámetro es una fila: su id, su **Nombre**, sus **Opciones** como píldoras (arrastra una sobre otra para cambiar su orden: la primera es la de por defecto) y su **Por defecto** cuando no es la primera. **YAML** los escribe todos de una vez, para el nombre de una opción.",
     paramName: 'Nombre',
     paramChoices: 'Opciones',
     paramDefault: 'Por defecto',
@@ -786,14 +786,14 @@ export const es: Messages<typeof en> = {
       '**Sin marcar**: su botón siempre está, desactivado (diciendo por qué) mientras no se puede hacer, así los botones no cambian de sitio.\n**Marcada**: su botón solo aparece mientras se puede hacer. Para acciones que solo tienen sentido de vez en cuando:\n• un rito solo en un santuario con luna llena\n• convencer a los porteadores solo mientras se niegan a marchar',
     nothing: 'Cuando no se aplica nada',
     nothingHelp:
-      'Lo que dice el diario cuando **no se aplica ninguna de sus comprobaciones** donde está el grupo; `{terrain}` es el terreno del hex.\n• `no hay nada que buscar en {terrain}` → «no hay nada que buscar en Colinas»\nVacío: una frase genérica. Una acción sin comprobaciones no dice nada más.',
+      'Lo que dice el diario cuando **no se aplica ninguna de sus comprobaciones** donde está el grupo; `{terrain}` es el terreno de la casilla.\n• `no hay nada que buscar en {terrain}` → «no hay nada que buscar en Colinas»\nVacío: una frase genérica. Una acción sin comprobaciones no dice nada más.',
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',
     steps: 'Qué hace',
     stepsHelp:
       'Lo que hace la acción, **un paso por tarjeta, en orden**: elige qué hace cada uno en su primera caja y rellena sus campos (cada uno se explica solo). Pulsa el título de una tarjeta para plegarla o abrirla; plegada, se lee en palabras (_Pasan 3 h_, _Hacer Marchar (until: place)_). Arrastra una por su asa (⠿) sobre otra para llevarla ahí, o usa ↑ y ↓.\n**Solo si** / **Salvo si** en un paso: solo ocurre cuando se cumplen, construidas en filas (qué lee · comparación · valor). Además de lo que ven las condiciones de la propia acción, ven:\n• `params.how` — los parámetros de la acción\n• `trip.below` es `food` — la comida llegó a su mínimo durante la acción (`trip.above`: a un máximo)\n• `trip.moment` es `trip.place-enter` — cuándo la hizo el sistema\n• `trip.doing` — la acción en curso\n**Editar como YAML** en una tarjeta muestra el paso como lo escribe el pack (`time: 180`, `do: actions.march, with: { until: place }`), para lo que el formulario no cubre; nada de lo escrito ahí se pierde por el formulario. Ahí un paso puede tener un `id` (`id: song`), que nombran sus traducciones.\nLas acciones que siguen a esta, y sus comprobaciones (Comprobaciones → **Cuándo**: esta acción), van primero.',
     on: 'Automática en',
     onHelp:
-      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• una hora, p. ej. `06:00` — al dar esa hora\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.place-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día, se acampe o no\n• una acción, p. ej. `actions.camp` — justo al empezar esa acción\n• el final de una acción, p. ej. `actions.forage.done` — cuando acaban sus pasos\n• una comprobación, p. ej. `checks.WEATHER` — justo después de resolverse (tras **Continuar**, si pausó), antes de las siguientes comprobaciones de su momento, que ven lo que cambió esta acción: el clima de hoy recién tirado, por ejemplo\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — en cuanto acaba el paso que lo llenó, o al momento si se llena a mano o en otra aplicación (allí, en el siguiente paso del viaje); uno hecho a mano se nombra por su nombre en minúsculas con guiones\n• `world.turn` — tras un turno del mundo de la campaña (los turnos de sus facciones), lo traiga lo que lo traiga: el tiempo que avanza, una mano en el panel Mundo o un paso `do: world.turn`; en el siguiente paso del viaje\nVarios, cada uno una pastilla (Intro o una coma lo añade): `06:00` y `trip.place-enter`. Sus condiciones ven cuál es como `trip.moment` (`when: { trip.moment: trip.place-enter }`).\nEjemplos:\n• comer al acabar cada día: `time.day-end`\n• los porteadores refunfuñan por la mañana tras un día de hambre: `time.part.morning` (o `06:00`) con **Solo si** `yesterday.hungry: true`',
+      '**Vacío**: la hace el jugador, con un botón.\nSi no, los **momentos en que la hace el propio sistema**, si se cumplen sus condiciones; entonces no es un botón, y va antes de las comprobaciones de ese momento:\n• una hora, p. ej. `06:00` — al dar esa hora\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.place-enter` — al entrar en cada casilla\n• `time.day-end` — al acabar cada día, se acampe o no\n• una acción, p. ej. `actions.camp` — justo al empezar esa acción\n• el final de una acción, p. ej. `actions.forage.done` — cuando acaban sus pasos\n• una comprobación, p. ej. `checks.WEATHER` — justo después de resolverse (tras **Continuar**, si pausó), antes de las siguientes comprobaciones de su momento, que ven lo que cambió esta acción: el clima de hoy recién tirado, por ejemplo\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — en cuanto acaba el paso que lo llenó, o al momento si se llena a mano o en otra aplicación (allí, en el siguiente paso del viaje); uno hecho a mano se nombra por su nombre en minúsculas con guiones\n• `world.turn` — tras un turno del mundo de la campaña (los turnos de sus facciones), lo traiga lo que lo traiga: el tiempo que avanza, una mano en el panel Mundo o un paso `do: world.turn`; en el siguiente paso del viaje\nVarios, cada uno una pastilla (Intro o una coma lo añade): `06:00` y `trip.place-enter`. Sus condiciones ven cuál es como `trip.moment` (`when: { trip.moment: trip.place-enter }`).\nEjemplos:\n• comer al acabar cada día: `time.day-end`\n• los porteadores refunfuñan por la mañana tras un día de hambre: `time.part.morning` (o `06:00`) con **Solo si** `yesterday.hungry: true`',
     onButton: 'nada: un botón para el jugador',
     onAfter: 'Tras: {action}',
     step: 'Paso',
@@ -816,12 +816,12 @@ export const es: Messages<typeof en> = {
   steps: {
     kind: 'Qué hace',
     kindHelp:
-      'Lo que hace este paso: una cosa, elegida aquí; sus campos cambian con ella.\n• **Pasar el tiempo** — minutos, o hasta una hora o una parte del día\n• **Moverse** — por la ruta mientras pasa el tiempo\n• **Cambiar la velocidad**, **Avanzar hexes**, **Cambiar la forma de viajar** — el resto del movimiento del viaje\n• **Cambiar valores** — el grupo, sus personajes, facciones, relojes\n• **Dar un valor del día** — uno que declara el sistema\n• **Hacer otra acción**, **Tirar una comprobación o una tabla** — las del propio sistema, o las del Oráculo\n• **Decir**, **Pausar**, **Preguntar al jugador** — hablarle al jugador\n• **Esperar algo** — pasa el tiempo hasta que se cumple una condición\nCambiarlo conserva las condiciones del paso.',
+      'Lo que hace este paso: una cosa, elegida aquí; sus campos cambian con ella.\n• **Pasar el tiempo** — minutos, o hasta una hora o una parte del día\n• **Moverse** — por la ruta mientras pasa el tiempo\n• **Cambiar la velocidad**, **Avanzar casillas**, **Cambiar la forma de viajar** — el resto del movimiento del viaje\n• **Cambiar valores** — el grupo, sus personajes, facciones, relojes\n• **Dar un valor del día** — uno que declara el sistema\n• **Hacer otra acción**, **Tirar una comprobación o una tabla** — las del propio sistema, o las del Oráculo\n• **Decir**, **Pausar**, **Preguntar al jugador** — hablarle al jugador\n• **Esperar algo** — pasa el tiempo hasta que se cumple una condición\nCambiarlo conserva las condiciones del paso.',
     kinds: {
       time: 'Pasar el tiempo',
       'travel-move': 'Moverse',
       'travel-speed': 'Cambiar la velocidad',
-      'travel-advance': 'Avanzar hexes',
+      'travel-advance': 'Avanzar casillas',
       'travel-mode': 'Cambiar la forma de viajar',
       effects: 'Cambiar valores',
       set: 'Dar un valor del día',
@@ -852,17 +852,17 @@ export const es: Messages<typeof en> = {
     help: {
       time: "Minutos que pasan, o hasta cuándo pasa el tiempo, viviendo todo lo que hay por el camino (las comprobaciones y acciones de cada momento, el final del día):\n• `180` — tres horas\n• `'14:00'` — hasta que el reloj vuelva a dar las 14:00\n• `time.part.morning` — hasta que vuelva a empezar esa parte del día del calendario",
       'travel-move':
-        "Hasta dónde se mueve el grupo por su ruta, minuto a minuto, mientras se cumplen el **Solo si** / **Salvo si** de la acción (una marcha de día se para al caer la noche):\n• `destination` — hasta el final de la ruta\n• `hex` — el siguiente hex\n• `3` — tres hexes\n• `'{{params.until}}'` — lo que diga el parámetro de la acción\nUna comprobación que necesita al jugador la para por el camino; **Seguir** sigue con ella.",
+        "Hasta dónde se mueve el grupo por su ruta, minuto a minuto, mientras se cumplen el **Solo si** / **Salvo si** de la acción (una marcha de día se para al caer la noche):\n• `destination` — hasta el final de la ruta\n• `place` — el siguiente lugar\n• `3` — tres casillas\n• `'{{params.until}}'` — lo que diga el parámetro de la acción\nUna comprobación que necesita al jugador la para por el camino; **Seguir** sigue con ella.",
       'travel-speed':
         'A qué velocidad va el resto del movimiento de hoy, multiplicada por la del clima:\n• `0.5` — a mitad de velocidad\n• `1.5` — más rápido\n• `0` — hoy ya no se mueve más',
       'travel-advance':
-        "Hexes (o tramos de un camino) que avanza el grupo por su ruta de golpe, sin que pase el tiempo: progreso por movimientos en vez de marchas.\n• `1` — un hex\n• `'{{party.stats.rank}}'` — tantos como diga un valor",
+        "Casillas (o tramos de un camino) que avanza el grupo por su ruta de golpe, sin que pase el tiempo: progreso por movimientos en vez de marchas.\n• `1` — una casilla\n• `'{{party.stats.rank}}'` — tantos como diga un valor",
       'travel-mode':
         "La forma de viajar desde ahora, si se puede elegir en ese momento (se cumplen sus propias condiciones y nada la bloquea); si no, no cambia nada. Con destino, la ruta se vuelve a planear para ella.\n• `modes.boat` — una de las formas del sistema\n• `'{{params.by}}'` — lo que diga el parámetro de la acción",
       effects:
         'Lo que cambia, una fila por cosa: un número suma o resta.\n• `party.stats.fatigue` · `1` — suma 1\n• `party.values.food` · `-1` — resta 1\n• `party.stats.fatigue` · `=0` — lo fija\n• `party.items.ration` · `-{{party.stats.mouths}}` — tanto como otro valor\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — sus personajes\nUn cambio que pasa del **Mín** o el **Máx** de un valor se queda ahí, y los pasos siguientes ven `trip.below` / `trip.above`.',
       set: 'Valores del día que declara el sistema (**Reglas → Valores del día**), una fila por valor; duran hasta que acaba el día.\n• `lost` · `true`\n• `ferry` · `true` — lo que puede esperar un paso **Esperar algo**',
-      do: 'Otra acción del sistema, que se hace ahora si se cumplen sus condiciones (si no, no pasa nada). **Con** le da sus parámetros; vacío, cada uno toma el suyo por defecto.\n• **Marchar**, con **until** `hex` — un hex de marcha\n• una marcha forzada: **Cambiar la velocidad** `1.5`, y luego **Hacer otra acción** Marchar\nO **Un turno del mundo** (`do: world.turn`): en una campaña, sus facciones juegan su turno ahora y el mundo reacciona, como con un turno que toca al avanzar el tiempo; el diario dice qué hicieron. Sin una campaña cuyo sistema declare facciones no pasa nada, y el diario lo dice.\n• noticias llevadas a un fuerte: **Decir** `La guarnición se entera de las incursiones.`, y luego **Un turno del mundo**',
+      do: 'Otra acción del sistema, que se hace ahora si se cumplen sus condiciones (si no, no pasa nada). **Con** le da sus parámetros; vacío, cada uno toma el suyo por defecto.\n• **Marchar**, con **until** `place` — un lugar de marcha\n• una marcha forzada: **Cambiar la velocidad** `1.5`, y luego **Hacer otra acción** Marchar\nO **Un turno del mundo** (`do: world.turn`): en una campaña, sus facciones juegan su turno ahora y el mundo reacciona, como con un turno que toca al avanzar el tiempo; el diario dice qué hicieron. Sin una campaña cuyo sistema declare facciones no pasa nada, y el diario lo dice.\n• noticias llevadas a un fuerte: **Decir** `La guarnición se entera de las incursiones.`, y luego **Un turno del mundo**',
       roll: 'Lo que se tira ahora; los pasos siguientes esperan su resultado y lo ven (los `today.<valor>` que da), y a **Continuar** si pausa:\n• una comprobación del sistema (**Comprobaciones**), sea cual sea su **Cuándo**\n• una tabla, oráculo, generador o mazo de los packs del sistema, p. ej. `table.ruins`: sin comprobación alrededor, su resultado en el diario con su nombre, sus valores y cambios llegan al viaje, y una entrada con pausa lo detiene',
       say: 'Una línea propia del sistema en el diario. Los valores que lleve se leen en ese momento:\n• `Los porteadores cantan mientras caminan.`\n• `Al otro lado, con {{party.values.food}} de comida.`',
       pause:
@@ -894,8 +894,8 @@ export const es: Messages<typeof en> = {
       time: 'Pasan {time}',
       timeUntil: 'Pasa el tiempo hasta {time}',
       moveDestination: 'Moverse hasta el destino',
-      moveHex: 'Moverse un hex',
-      moveHexes: 'Moverse {count} hexes',
+      moveHex: 'Moverse una casilla',
+      moveHexes: 'Moverse {count} casillas',
       move: 'Moverse: {value}',
       speed: 'Velocidad ×{value} el resto del día',
       advance: 'Avanzar {value} por la ruta',
@@ -927,7 +927,7 @@ export const es: Messages<typeof en> = {
       'Lo que leen los jugadores en el panel del viaje y el diario en lugar del id del evento:\n• `NAVIGATION_CHECK_REQUIRED` → _Perderse_\n• `HUNGER_CHECK_REQUIRED` → _Hambre_\nEsta caja lo edita en el idioma actual: el del pack, o su fichero de traducción si la interfaz está en otro.',
     at: 'Cuándo',
     atOptions: {
-      'hex-enter': 'Al entrar en un hex',
+      'hex-enter': 'Al entrar en una casilla',
       camp: 'Al acampar',
       'day-end': 'Al final del día',
     },
@@ -938,12 +938,12 @@ export const es: Messages<typeof en> = {
     atDone: 'Al acabar {action}',
     atCheck: 'Tras la comprobación {check}',
     atHelp:
-      'Cuándo se tira:\n• una hora, p. ej. `06:00` — al dar esa hora, marchando, esperando o durmiendo\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.place-enter` — al entrar en cada hex\n• `time.day-end` — al acabar cada día (tras las acciones day-end del sistema)\n• una acción, p. ej. `actions.camp` o `actions.forage` — cuando el grupo la hace, antes de sus pasos (que la esperan)\n• el final de una acción, p. ej. `actions.forage.done` — cuando acaban sus pasos (tras tres horas buscando comida, por ejemplo)\n• otra comprobación, p. ej. `checks.WEATHER` — justo después de resolverse\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — lo llene lo que lo llene: el viaje, el turno de una facción o una mano en el panel Mundo; uno hecho a mano se nombra por su nombre en minúsculas con guiones\n• `world.turn` — tras un turno del mundo de la campaña (los turnos de sus facciones), lo traiga lo que lo traiga, en el siguiente paso del viaje\nVarios, cada uno una pastilla (Intro o una coma lo añade): `trip.place-enter` y `actions.rest`. Sus condiciones y su tabla ven cuál es como `trip.moment` (`when: { trip.moment: actions.rest }`).\nVacío: solo cuando la tira un paso de una acción (`roll: checks.<su evento>`).',
+      'Cuándo se tira:\n• una hora, p. ej. `06:00` — al dar esa hora, marchando, esperando o durmiendo\n• una parte del día del calendario, p. ej. `time.part.morning` — al empezar\n• `trip.place-enter` — al entrar en cada casilla\n• `time.day-end` — al acabar cada día (tras las acciones day-end del sistema)\n• una acción, p. ej. `actions.camp` o `actions.forage` — cuando el grupo la hace, antes de sus pasos (que la esperan)\n• el final de una acción, p. ej. `actions.forage.done` — cuando acaban sus pasos (tras tres horas buscando comida, por ejemplo)\n• otra comprobación, p. ej. `checks.WEATHER` — justo después de resolverse\n• un reloj de progreso al llenarse, p. ej. `world.clocks.the-threat.full` — lo llene lo que lo llene: el viaje, el turno de una facción o una mano en el panel Mundo; uno hecho a mano se nombra por su nombre en minúsculas con guiones\n• `world.turn` — tras un turno del mundo de la campaña (los turnos de sus facciones), lo traiga lo que lo traiga, en el siguiente paso del viaje\nVarios, cada uno una pastilla (Intro o una coma lo añade): `trip.place-enter` y `actions.rest`. Sus condiciones y su tabla ven cuál es como `trip.moment` (`when: { trip.moment: actions.rest }`).\nVacío: solo cuando la tira un paso de una acción (`roll: checks.<su evento>`).',
     atAction: 'Acción: {action}',
     when: 'Solo si',
     unless: 'Salvo si',
     conditionHelp:
-      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), con condiciones como las de las tablas, una fila cada una (qué lee · comparación · valor), o como YAML:\n• `place.terrain: forest` — el hex\n• `place.tags: landmark` — una etiqueta del hex\n• `trip.connections: [road, river]` — el camino o río del paso\n• `place.danger: { gte: 2 }` — un valor del hex o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.values.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: party.values.food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
+      "Cuándo se tira la comprobación (**Solo si**) o se salta (**Salvo si**), con condiciones como las de las tablas, una fila cada una (qué lee · comparación · valor), o como YAML:\n• `place.terrain: forest` — la casilla\n• `place.tags: landmark` — una etiqueta de la casilla\n• `trip.connections: [road, river]` — el camino o río del paso\n• `place.danger: { gte: 2 }` — un valor de la casilla o de su región\n• `time.season: winter`, `trip.weather: storm` — el momento\n• `time.hour: { gte: 20 }` — desde las 20:00; `time.watch: 3` — la tercera guardia\n• `time.meal: elevenses`, `time.tags: dark` — una parte del día del calendario, o sus etiquetas\n• `from.terrain: forest` — saliendo de un bosque; `trip.visits: { gte: 2 }` — de vuelta\n• `world.clocks.the-flood: { gte: 4 }` — un reloj del reloj del mundo; `world.events: market-day` — el evento de hoy\n• `danger: { gt: '{{party.stats.stealth}}' }` — una variable: comparado con otro valor\n• `party.stats.wits: { gte: '{{1d20}}' }` — una tirada bajo una característica\nCada valor por su **nombre completo**, que dice de dónde sale (`place.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): nunca lo tapa una característica con el mismo nombre\n• `party.values.food: { lt: 1 }` — el grupo\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — sus personajes, cuando el sistema tiene hoja\n• `trip.below: party.values.food` — la comida llegó hoy a su mínimo (en `time.day-end`)\n• `trip.moment: actions.rest` — cuál de sus momentos es (si tiene varios)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — cualquiera de los dos\nSe leen justo antes de tirar la comprobación: las de un mismo momento llegan una a una, en el orden de la lista, y cada una ve lo que fijaron las anteriores (al alba, después de la del clima, `trip.weather: storm` es el de hoy)",
     always: 'siempre',
     never: 'nunca',
     resolve: 'Se tira en',
@@ -961,7 +961,7 @@ export const es: Messages<typeof en> = {
     context: 'Contexto extra',
     contextKey: 'Qué ve la tabla',
     contextHelp:
-      'Valores que la tabla ve **solo en esta comprobación**, una fila cada uno (qué ve la tabla · valor):\n• `timeOfDay` · `night` — un encuentro nocturno tirado en la tabla de día\n• `danger` · `3` — como si el hex fuera más peligroso',
+      'Valores que la tabla ve **solo en esta comprobación**, una fila cada uno (qué ve la tabla · valor):\n• `timeOfDay` · `night` — un encuentro nocturno tirado en la tabla de día\n• `danger` · `3` — como si la casilla fuera más peligrosa',
     none: 'Sin comprobaciones: los viajes solo pasan el tiempo y hacen lo que hagan sus acciones.',
     add: 'Añadir una comprobación',
     orphans: 'Tablas asociadas a comprobaciones que estas reglas no tienen: {events}.',
@@ -1009,11 +1009,11 @@ export const es: Messages<typeof en> = {
   },
   try: {
     intro:
-      'Un viaje sin mapa para probar el sistema mientras lo haces: describe un camino hex a hex y recórrelo. Juega las reglas tal como están ahora, así que un cambio en otra pestaña cuenta desde el siguiente paso; **Nuevo viaje** empieza de nuevo con los cambios también en el primer día. Estos viajes de prueba se guardan aparte de los de la aplicación Viajes.',
+      'Un viaje sin mapa para probar el sistema mientras lo haces: describe un camino casilla a casilla y recórrelo. Juega las reglas tal como están ahora, así que un cambio en otra pestaña cuenta desde el siguiente paso; **Nuevo viaje** empieza de nuevo con los cambios también en el primer día. Estos viajes de prueba se guardan aparte de los de la aplicación Viajes.',
   },
   uses: {
     title: 'Usado en',
-    help: 'Dónde se usa esto en los packs del sistema: las acciones y comprobaciones de las reglas de viaje, los bindings, las hojas, los relojes y facciones, y las tablas, oráculos, generadores y mazos. Cada sitio dice si lo **lee** (una condición, un `{{…}}`), lo **cambia** (efectos), lo **fija** (`set`), **sale de** él (el `from` de una característica) o lo **nombra** (`do: actions.march`, `blocks: [modes.horse]`, `roll: table.ruins`, la tabla siguiente de una entrada).\n• El número es en cuántos sitios se usa; púlsalo para verlos debajo de la fila, cada uno con un enlace a donde se edita (las tablas se abren en el Oráculo).\n• **–** quiere decir que nada lo usa aún: a menudo está bien (un valor que lee el jugador), a veces es un error (una característica que no lee ninguna tabla, un nombre escrito de otra manera).\nNo se listan lo que da el mapa (los valores propios de un hex) ni lo que los motores leen por su cuenta.',
+    help: 'Dónde se usa esto en los packs del sistema: las acciones y comprobaciones de las reglas de viaje, los bindings, las hojas, los relojes y facciones, y las tablas, oráculos, generadores y mazos. Cada sitio dice si lo **lee** (una condición, un `{{…}}`), lo **cambia** (efectos), lo **fija** (`set`), **sale de** él (el `from` de una característica) o lo **nombra** (`do: actions.march`, `blocks: [modes.horse]`, `roll: table.ruins`, la tabla siguiente de una entrada).\n• El número es en cuántos sitios se usa; púlsalo para verlos debajo de la fila, cada uno con un enlace a donde se edita (las tablas se abren en el Oráculo).\n• **–** quiere decir que nada lo usa aún: a menudo está bien (un valor que lee el jugador), a veces es un error (una característica que no lee ninguna tabla, un nombre escrito de otra manera).\nNo se listan lo que da el mapa (los valores propios de una casilla) ni lo que los motores leen por su cuenta.',
     count: 'Se usa en {n} sitios',
     find: 'Buscar un nombre',
     findHelp:

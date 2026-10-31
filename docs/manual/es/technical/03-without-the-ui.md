@@ -34,7 +34,7 @@ El script construido, `apps/cli/dist/opentabletop.mjs`, funciona donde haya Node
 
 ## Mapas a mano
 
-Un mapa `.otd.json` se puede editar con un editor de texto: renombrar hexes en bloque, pasar datos entre mapas o escribir un script que genere un mapa. Mantén la estructura válida: Mapa rechaza los ficheros que no encajan con el esquema y dice por qué. Otras herramientas pueden leer los mismos ficheros y añadir sus propios datos en `ext.<herramienta>`.
+Un mapa `.otd.json` se puede editar con un editor de texto: renombrar casillas en bloque, pasar datos entre mapas o escribir un script que genere un mapa. Mantén la estructura válida: Mapa rechaza los ficheros que no encajan con el esquema y dice por qué. Otras herramientas pueden leer los mismos ficheros y añadir sus propios datos en `ext.<herramienta>`.
 
 ## Comandos útiles
 

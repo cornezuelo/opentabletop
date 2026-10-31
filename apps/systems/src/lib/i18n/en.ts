@@ -59,8 +59,8 @@ export const en = {
     places: {
       title: 'Its places',
       intro:
-        "Places a result can make on the party's hex (`kind: places`): templates of points of interest, each with its name, text, icon, fields and the tags it gives the hex. A table, an action or a discovered hex's contents makes one with an effect (`place.pois.ruins: 1`); on a map in the Map app it's written into the map, in a trip without one the journal notes it. A place keeps what it was made with: changing a template touches only places made after.",
-      help: 'Catalogues of places, as many as the system wants, named in its **Overview** (`places:`), and those of the packs a map or campaign adds. Effects make them on the party’s hex:\n• `place.pois.ruins: 1` — one **Ruins**\n• In discovery’s contents, `effects: { place.pois.shrine: 1 }` — the hex found holds a shrine, instead of a point of interest made of the result’s text',
+        "Places a result can make on the party's cell (`kind: places`): templates of points of interest, each with its name, text, icon, fields and the tags it gives the cell. A table, an action or a discovered cell's contents makes one with an effect (`place.pois.ruins: 1`); on a map in the Map app it's written into the map, in a trip without one the journal notes it. A place keeps what it was made with: changing a template touches only places made after.",
+      help: 'Catalogues of places, as many as the system wants, named in its **Overview** (`places:`), and those of the packs a map or campaign adds. Effects make them on the party’s cell:\n• `place.pois.ruins: 1` — one **Ruins**\n• In discovery’s contents, `effects: { place.pois.shrine: 1 }` — the cell found holds a shrine, instead of a point of interest made of the result’s text',
       none: 'This system has no catalogue of places: results may still make plain points of interest from their text in discovery.',
       create: 'New catalogue of places',
     },
@@ -91,8 +91,8 @@ export const en = {
     factions: {
       title: 'Its factions',
       intro:
-        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. Their land is the hexes they hold on a map: each starts with the regions written here (on any map that has them) and the hexes (only on the map they're on) when a map brings them in (Map's World panel); from then on it's the map's, painted by hand there and won or lost hex by hex on world turns.",
-      help: 'One factions definition per system, named in its **Overview** (`factions:`). Tables and conditions read them anywhere:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `place.faction: the-crown` — who holds the hex\nTheir turn tables change them with effects:\n• `faction.values.strength: 1` — the faction whose turn it is\n• `factions.the-rebels.values.strength: -1` — another\n• `faction.territory: 1` — a hex more, from its border\n• `world.clocks.the-siege: 1` — a progress clock of the world clock',
+        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. Their land is the cells they hold on a map: each starts with the regions written here (on any map that has them) and the cells (only on the map they're on) when a map brings them in (Map's World panel); from then on it's the map's, painted by hand there and won or lost cell by cell on world turns.",
+      help: 'One factions definition per system, named in its **Overview** (`factions:`). Tables and conditions read them anywhere:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `place.faction: the-crown` — who holds the cell\nTheir turn tables change them with effects:\n• `faction.values.strength: 1` — the faction whose turn it is\n• `factions.the-rebels.values.strength: -1` — another\n• `faction.territory: 1` — a cell more, from its border\n• `world.clocks.the-siege: 1` — a progress clock of the world clock',
       none: 'This system has no factions.',
       create: 'New factions',
     },
@@ -128,8 +128,8 @@ export const en = {
     land: {
       title: 'Its land models',
       intro:
-        "Terrain with memory: for each terrain, how likely a hex next to it is to be each terrain, so land grows coherent (forests stay forests, hills gather into ranges). Map's **Generate land** fills empty hexes with one, and discovery may decide empty hexes with one (`discover.terrain: { land: land.default }`).",
-      help: "Land models (`kind: land`), listed in its **Overview** (`land:`). An empty hex adds up the rows of its known neighbours' terrains and picks by those weights:\n• two forest neighbours count the forest row twice\n• none known: **Where nothing is known**\nDiscovery uses one by its bindings (`discover.terrain: { land: land.default }`), or a terrain table hands over to one (`set: { land: land.default }` on an entry).",
+        "Terrain with memory: for each terrain, how likely a cell next to it is to be each terrain, so land grows coherent (forests stay forests, hills gather into ranges). Map's **Generate land** fills empty cells with one, and discovery may decide empty cells with one (`discover.terrain: { land: land.default }`).",
+      help: "Land models (`kind: land`), listed in its **Overview** (`land:`). An empty cell adds up the rows of its known neighbours' terrains and picks by those weights:\n• two forest neighbours count the forest row twice\n• none known: **Where nothing is known**\nDiscovery uses one by its bindings (`discover.terrain: { land: land.default }`), or a terrain table hands over to one (`set: { land: land.default }` on an entry).",
       none: 'This system names no land models.',
       create: 'New land model',
     },
@@ -171,16 +171,16 @@ export const en = {
     nameHelp: 'What this catalogue is called.\n• **Places of the marches**',
     places: 'Places',
     placesHelp:
-      'Each place, by an id effects name it with (`place.pois.<id>`): its name and text, its icon, the tags its hex gets and its fields.\n• `ruins` — icon `game:castle-ruins`, tags `ruins`\n• `shrine` — tags `shrine`, read by an action that only works there (`place.tags: shrine`)',
+      'Each place, by an id effects name it with (`place.pois.<id>`): its name and text, its icon, the tags its cell gets and its fields.\n• `ruins` — icon `game:castle-ruins`, tags `ruins`\n• `shrine` — tags `shrine`, read by an action that only works there (`place.tags: shrine`)',
     placeName: 'Name',
     descriptionHelp:
       'What the point of interest says. Variables and rolls are read from the result that makes it:\n• `{{result}}` — the result’s own text\n• `A camp of {{1d6+2}} travellers`',
     icon: 'Icon',
     iconHelp:
-      'An icon of the map’s, by id, to tell it apart in the hex’s points of interest:\n• `game:castle-ruins`\n• `game:totem`\nEmpty: none.',
-    tags: 'Tags of the hex',
+      'An icon of the map’s, by id, to tell it apart in the cell’s points of interest:\n• `game:castle-ruins`\n• `game:totem`\nEmpty: none.',
+    tags: 'Tags of the cell',
     tagsHelp:
-      'Tags the hex gets when the place is made there, as discovery’s `set: { tags }`: what rules read.\n• `ruins` — `place.tags: ruins`\n• `danger`, `landmark`',
+      'Tags the cell gets when the place is made there, as discovery’s `set: { tags }`: what rules read.\n• `ruins` — `place.tags: ruins`\n• `danger`, `landmark`',
     fields: 'Fields',
     fieldsHelp:
       'The point of interest’s fields, `key: value` pairs; values may hold variables and rolls, read when it’s made:\n• `skulls: {{1d6+2}}`\n• `god: forgotten`',
@@ -299,13 +299,13 @@ export const en = {
       "Starting values of its sheet, one row each (value · what it starts at); the rest are the sheet's defaults.\n• `strength` · `4`\n• `reputation` · `-1`",
     regions: 'Regions',
     regionsHelp:
-      "It starts holding every hex of these regions of the map (by name), each one a pill (Enter or a comma adds it): the land it gets when a map brings the factions in. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `The Hollow Hills`",
+      "It starts holding every cell of these regions of the map (by name), each one a pill (Enter or a comma adds it): the land it gets when a map brings the factions in. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `The Hollow Hills`",
     map: 'On the map',
     mapHelp:
-      "The example map of this pack (`maps:` in its system) its **Hexes** are on: they're given only there, since the same coordinates are somewhere else on another map. Its regions are given on any map that has them.\n• `maps/frontier.otd.json`",
-    hexes: 'Hexes',
+      "The example map of this pack (`maps:` in its system) its **Cells** are on: they're given only there, since the same coordinates are somewhere else on another map. Its regions are given on any map that has them.\n• `maps/frontier.otd.json`",
+    hexes: 'Cells',
     hexesHelp:
-      'And these hexes (column,row) of the map chosen in **On the map**, each one a pill (Enter or a space adds it); they need it.\n• `15,9`',
+      'And these cells (column,row) of the map chosen in **On the map**, each one a pill (Enter or a space adds it); they need it.\n• `15,9`',
     ownTurn: 'Own turn',
     ownTurnHelp: "A turn table of its own, instead of the factions' one.\n• `clan-turn`",
   },
@@ -487,17 +487,17 @@ export const en = {
   land: {
     name: 'Name',
     nameHelp: "The model's name.\n• **The lie of the land**\n• **Northern wilds**",
-    from: 'The hex it’s seen from counts',
+    from: 'The cell it’s seen from counts',
     fromHelp:
-      'In discovery, how many times the hex the party stands on counts among the neighbours of the hex being decided (empty: once, as any other). Generating land has no such hex.\n• `2` — the land you come from counts twice: a trip into the unknown follows its own land\n• `0` — only the other neighbours count',
+      'In discovery, how many times the cell the party stands on counts among the neighbours of the cell being decided (empty: once, as any other). Generating land has no such cell.\n• `2` — the land you come from counts twice: a trip into the unknown follows its own land\n• `0` — only the other neighbours count',
     rows: 'Next to each terrain',
     rowsHelp:
-      'For each terrain (rows), how likely a hex next to it is to be each terrain (columns): weights, not percentages; empty is 0. An empty hex adds up the rows of all its known neighbours.\n• **Forest** row: `forest 6`, `hills 2`, `plains 2` — forests tend to go on as forest\n• **Hills** row: `hills 4`, `mountains 2` — hills gather into ranges\nA terrain with no row adds nothing; a column with no row is never a neighbour that pulls.',
+      'For each terrain (rows), how likely a cell next to it is to be each terrain (columns): weights, not percentages; empty is 0. An empty cell adds up the rows of all its known neighbours.\n• **Forest** row: `forest 6`, `hills 2`, `plains 2` — forests tend to go on as forest\n• **Hills** row: `hills 4`, `mountains 2` — hills gather into ranges\nA terrain with no row adds nothing; a column with no row is never a neighbour that pulls.',
     fromTo: 'Next to ↓ / becomes →',
     start: 'Where nothing is known',
     startHelp:
-      'The weights of a hex with no known neighbour the model has a row for: the first hex of a blank map, a hex in the middle of nowhere.\n• `plains 3`, `forest 2` — mostly open land',
-    shares: 'Over many hexes',
+      'The weights of a cell with no known neighbour the model has a row for: the first cell of a blank map, a cell in the middle of nowhere.\n• `plains 3`, `forest 2` — mostly open land',
+    shares: 'Over many cells',
     sharesHelp:
       'How much of each terrain a large patch grown from nothing with these weights has: a check that the land feels right.',
     newTerrain: 'Terrain',
@@ -602,7 +602,7 @@ export const en = {
     noWeather: 'No weather models in this pack or its dependencies.',
     land: 'Land models',
     landHelp:
-      "The land models (`kind: land`) Map's **Generate land** fills empty hexes with, and discovery may use: this pack's and its dependencies'.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`",
+      "The land models (`kind: land`) Map's **Generate land** fills empty cells with, and discovery may use: this pack's and its dependencies'.\n• `land: [land.default]`\n• `land: [land.hills, core/land.default]`",
     noLand: 'No land models in this pack or its dependencies.',
     packs: 'Packs it brings',
     packsHelp:
@@ -652,9 +652,9 @@ export const en = {
     problems: 'This file has {count} problems: open the YAML to see them.',
   },
   rules: {
-    water: 'Water hexes',
+    water: 'Water cells',
     waterHelp:
-      'Hexes whose terrain the map marks as **water** (Map: Edit palette → Water) and that have no rule of their own in Terrains.\nOften **not passable**; a way of travelling whose **Only through** holds on water can still sail them:\n• a boat: `place.water: true`\n• a boat that also hugs the shore: `any: [{ place.water: true }, { place.terrain: coast }]`\nA terrain listed in Terrains (a frozen `lake` with **Open when** `time.season: winter`) uses its own rule instead.',
+      'Cells whose terrain the map marks as **water** (Map: Edit palette → Water) and that have no rule of their own in Terrains.\nOften **not passable**; a way of travelling whose **Only through** holds on water can still sail them:\n• a boat: `place.water: true`\n• a boat that also hugs the shore: `any: [{ place.water: true }, { place.terrain: coast }]`\nA terrain listed in Terrains (a frozen `lake` with **Open when** `time.season: winter`) uses its own rule instead.',
     day: 'The day',
     dayHelp:
       "When trips start, the scale of their speeds and what the party does when it can't march. When and how far the party marches is its actions' (Actions below: an action with a `travel.move` step, like **March**), and how the trip goes on by itself is one of them (**Goes on by itself with**).\n• **Trips start** `06:00` or `time.part.morning` — a new trip's first moment\n• **Halt** `time.part.night` → `camp` — from then on, a party that can't march camps by itself",
@@ -669,17 +669,17 @@ export const en = {
     haltNone: 'nothing: the party waits',
     onwardDo: 'Goes on by itself with',
     onwardHelp:
-      "The action the trip takes **when it goes on by itself**: the world clock moving with a trip on, or a travel order. It takes it whenever it can (its **Only when** / **Not when**) and waits otherwise (with the **Halt**). It's usually the action that moves the party, with how far:\n• **action** `march`, **with** `until: destination` — marches on to the destination, day after day\n• **action** `sail`, **with** `until: place` — one hex at a time\nNothing: the trip only waits; the player moves it with the action buttons.",
+      "The action the trip takes **when it goes on by itself**: the world clock moving with a trip on, or a travel order. It takes it whenever it can (its **Only when** / **Not when**) and waits otherwise (with the **Halt**). It's usually the action that moves the party, with how far:\n• **action** `march`, **with** `until: destination` — marches on to the destination, day after day\n• **action** `sail`, **with** `until: place` — one cell at a time\nNothing: the trip only waits; the player moves it with the action buttons.",
     onwardNone: 'nothing: the trip only waits',
     onwardWith: 'With',
     onwardWithHelp:
-      "The values of that action's **Parameters**, as `parameter: choice` pairs; the ones left out take their default.\n• `until: destination`\n• `until: 3` — three hexes\nEmpty: every parameter at its default.",
+      "The values of that action's **Parameters**, as `parameter: choice` pairs; the ones left out take their default.\n• `until: destination`\n• `until: 3` — three cells\nEmpty: every parameter at its default.",
     hoursPerDay: 'Marching hours a day',
     hoursPerDayHelp:
       "The hours a way of travelling's **km a day** are marched in: the scale of its speed (km an hour). How long the party may march each day is the **March** action's (`trip.marched: { lt: '{{system.hoursPerDay}}' }` reads this number).\n• `8` — 24 km a day is 3 km an hour\n• `10` — the same 24 km at 2.4 km an hour",
     cellKm: 'km per cell',
     cellKmHelp:
-      "The scale the system is played at: how many km a cell (a hex, a square) measures. With the speeds of its ways of travelling, it says how long a hex takes.\n• `30` — large hexes: about one a day for a way of travelling that makes 30 km\n• `10` — small hexes: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Map: Map settings → Map). Empty: the map's or the way's, 10 by default.",
+      "The scale the system is played at: how many km a cell (a hex, a square) measures. With the speeds of its ways of travelling, it says how long a cell takes.\n• `30` — large cells: about one a day for a way of travelling that makes 30 km\n• `10` — small cells: several a day\nTrips without a map (Travel, **Try it**) are played at it; a map with this system takes it, unless the map sets its own scale (Map: Map settings → Map). Empty: the map's or the way's, 10 by default.",
     diagonals: 'Diagonal step',
     noDiagonals: 'none',
     diagonalsHelp:
@@ -699,7 +699,7 @@ export const en = {
       "What players read in the trip panel and the journal instead of the id:\n• `horse` → _On horseback_\n• `food` → _Rations_\nWritten in the current language: the pack's own, or its translation file (`locales/<language>/`) when the interface is in another one. Empty: the id (or the app's name for the usual ones: foot, horse, food…).",
     allowedTerrains: 'Only through',
     allowedTerrainsHelp:
-      "Where this way of travelling can go: a condition on **each hex it enters** (its terrain, water, tags, region, fields, the roads or rivers of the step).\n• a boat: `place.water: true`\n• a boat that also follows the coast: `any: [{ place.water: true }, { place.terrain: coast }]`\n• a cart only by road: `trip.connections: road`\n• a mount that avoids forests: `not: { place.terrain: [forest, dense-forest] }`\nWhere it holds, even closed terrains are open to it; where it doesn't, it can't go, whatever the terrain says (see **Passable** in Terrains). Empty: wherever terrains allow.",
+      "Where this way of travelling can go: a condition on **each cell it enters** (its terrain, water, tags, region, fields, the roads or rivers of the step).\n• a boat: `place.water: true`\n• a boat that also follows the coast: `any: [{ place.water: true }, { place.terrain: coast }]`\n• a cart only by road: `trip.connections: road`\n• a mount that avoids forests: `not: { place.terrain: [forest, dense-forest] }`\nWhere it holds, even closed terrains are open to it; where it doesn't, it can't go, whatever the terrain says (see **Passable** in Terrains). Empty: wherever terrains allow.",
     anyTerrain: 'wherever terrains allow',
     terrains: vocabulary.en.terms.terrains,
     terrainsHelp:
@@ -707,14 +707,14 @@ export const en = {
     terrain: vocabulary.en.terms.terrain,
     multiplier: 'Speed ×',
     multiplierHelp:
-      'How fast this terrain is crossed, compared with easy ground:\n• `1` — normal speed\n• `0.5` — half as fast\n• `0.25` — a quarter\n• `2` — twice as fast\nFor example, with a way of travelling of 24 km a day and 12 km hexes, a hex at `0.5` takes a whole marching day.',
+      'How fast this terrain is crossed, compared with easy ground:\n• `1` — normal speed\n• `0.5` — half as fast\n• `0.25` — a quarter\n• `2` — twice as fast\nFor example, with a way of travelling of 24 km a day and 12 km cells, a cell at `0.5` takes a whole marching day.',
     passable: 'Passable',
     passableHelp:
-      "Whether a hex of this terrain can be entered. How it meets the rest:\n• A way of travelling with **Only through** (Ways of travelling) goes by that alone: where its condition holds it enters, open or closed (a boat on a lake); where it doesn't, it can't\n• Any other way: **Unticked**, nobody enters (routes go around); **Ticked**, it enters while **Open when** holds (empty: always) and **Closed when** doesn't (empty: never)\nFor example:\n• **Open when** `time.season: winter` — a lake crossed on the ice\n• **Closed when** `trip.weather: [snow, storm]` — a pass shut by the weather",
+      "Whether a cell of this terrain can be entered. How it meets the rest:\n• A way of travelling with **Only through** (Ways of travelling) goes by that alone: where its condition holds it enters, open or closed (a boat on a lake); where it doesn't, it can't\n• Any other way: **Unticked**, nobody enters (routes go around); **Ticked**, it enters while **Open when** holds (empty: always) and **Closed when** doesn't (empty: never)\nFor example:\n• **Open when** `time.season: winter` — a lake crossed on the ice\n• **Closed when** `trip.weather: [snow, storm]` — a pass shut by the weather",
     openWhen: 'Open when',
     closedWhen: 'Closed when',
     passableWhenHelp:
-      "When the terrain can be entered, as a condition on **the hex entered and the moment**: its terrain, tags, region, fields, the roads or rivers of the step, the way of travelling, the weather, the season and calendar, today's values.\n• **Open when** `time.season: winter` — only while it holds: a lake crossed on the ice\n• **Open when** `time.month: [1, 12]` — the two coldest months of the calendar\n• **Closed when** `any: [{ time.season: winter }, { trip.weather: snow }]` — a mountain pass\n• **Closed when** `trip.mode: horse` — not for riders\nEmpty: always open / never closed.",
+      "When the terrain can be entered, as a condition on **the cell entered and the moment**: its terrain, tags, region, fields, the roads or rivers of the step, the way of travelling, the weather, the season and calendar, today's values.\n• **Open when** `time.season: winter` — only while it holds: a lake crossed on the ice\n• **Open when** `time.month: [1, 12]` — the two coldest months of the calendar\n• **Closed when** `any: [{ time.season: winter }, { trip.weather: snow }]` — a mountain pass\n• **Closed when** `trip.mode: horse` — not for riders\nEmpty: always open / never closed.",
     defaultTerrain: 'Speed × for terrains not listed',
     defaultTerrainHelp:
       "The speed for any terrain missing above:\n• `1` — normal (the default when empty)\n• `0.75` — unknown ground is a bit slower\nA map with a terrain the system doesn't know (`badlands`) uses this.",
@@ -741,7 +741,7 @@ export const en = {
       'How fast the party marches in this weather:\n• `0` — no travel that day (the day is lost)\n• `0.5` — half speed\n• `1` — as usual',
     actions: 'Actions',
     actionsHelp:
-      "What the party can do: **march**, **camp**, **rest** and the system's own (forage, pray, talk to the porters…), each a button in the trip panel, or taken by the system itself (**By itself at**). Nothing is built in: marching is an action like the rest.\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• march: `travel.move: '{{params.until}}'`, with a parameter `until` (to the destination or one hex)\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `travel.speed: 0.5`, its check at `forage`\n• eat, by itself at `time.day-end`: `effects: { party.values.food: -1 }`\nTheir order counts: it's the order of the trip panel's buttons, and the order the system takes those of one moment by itself. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.",
+      "What the party can do: **march**, **camp**, **rest** and the system's own (forage, pray, talk to the porters…), each a button in the trip panel, or taken by the system itself (**By itself at**). Nothing is built in: marching is an action like the rest.\nEach one says when it can be taken (**Only when** / **Not when**, **Once a day**) and what it does, **step by step**:\n• march: `travel.move: '{{params.until}}'`, with a parameter `until` (to the destination or one cell)\n• rest: `time: 120`, then `effects: { party.stats.fatigue: -1 }`\n• forage: `time: 180`, `travel.speed: 0.5`, its check at `forage`\n• eat, by itself at `time.day-end`: `effects: { party.values.food: -1 }`\nTheir order counts: it's the order of the trip panel's buttons, and the order the system takes those of one moment by itself. Drag a card by its handle (⠿) onto another, or ↑ ↓, to change it.",
     oncePerDay: 'Once a day',
     modeWhenHelp:
       "When it can be chosen (**Only when**) or not (**Not when**), as a condition on where the party is and the moment.\n• a boat only at the water's edge: `any: [{ place.water: true }, { place.tags: ferry }]`\n• no horses in the snow: **Not when** `trip.weather: snow`\n• a cart only in summer: **Only when** `time.season: summer`\nEmpty: always. A value of the day can block it too (**Blocks** `modes.<id>`).",
@@ -759,10 +759,10 @@ export const en = {
     when: 'Only when',
     unless: 'Not when',
     whenHelp:
-      "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `trip.weather: storm` — today's weather\n• `place.terrain: [forest, hills]` — the hex the party is in\n• `place.tags: shrine` — a tag of that hex\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.values.food: { gte: 1 }` — food left\n• `mutinous: true` — a value of the day\n• `time.moons.silver: full` — the calendar\n• `time.hour: { gte: 6, lt: 20 }` — only by day, from 06:00 to 20:00; `time.part: night`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `trip.visits: 1` — the first time here; `around.terrain: lake` — next to a lake\n• `trip.doneToday: forage` — after foraging today; `trip.marched: { gte: 6 }` — after 6 hours of marching\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.party.values.food: { gte: 10 }` — what the trip has done so far\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — a variable: compared with another value (quoted)\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll: the same all the moment long\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\nOtherwise its button stays disabled and says why (or hides, with **Hidden when it can't be taken**); the halt's action that can't be taken lets the time pass without it.",
+      "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `trip.weather: storm` — today's weather\n• `place.terrain: [forest, hills]` — the cell the party is in\n• `place.tags: shrine` — a tag of that cell\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.values.food: { gte: 1 }` — food left\n• `mutinous: true` — a value of the day\n• `time.moons.silver: full` — the calendar\n• `time.hour: { gte: 6, lt: 20 }` — only by day, from 06:00 to 20:00; `time.part: night`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `trip.visits: 1` — the first time here; `around.terrain: lake` — next to a lake\n• `trip.doneToday: forage` — after foraging today; `trip.marched: { gte: 6 }` — after 6 hours of marching\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.party.values.food: { gte: 10 }` — what the trip has done so far\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — a variable: compared with another value (quoted)\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll: the same all the moment long\nEach value by its **full name**, which says where it comes from (`place.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\nOtherwise its button stays disabled and says why (or hides, with **Hidden when it can't be taken**); the halt's action that can't be taken lets the time pass without it.",
     params: 'Parameters',
     paramsHelp:
-      "What the player chooses when taking it (beside its button, a choice for each), and what a `do:` step or **Goes on by itself with** gives it. Each parameter has its **choices** (the first is its default, unless `default` says another); its steps and conditions read the one chosen as `{{params.<id>}}`.\n• `until: { choices: [destination, place, 3] }` — how far a march goes: with the step `travel.move: '{{params.until}}'`\n• `pace: { choices: [steady, quick], default: steady }` — with **Only when** `params.pace: quick` on a step\nA choice may have a name to show: `{ id: 3, name: Three hexes }` (translated in the pack's locales). Empty: no choices, just the button.\nEach parameter is a row: its id, its **Name**, its **Choices** as pills (drag one onto another to change their order: the first is the default) and its **Default** when it isn’t the first. **YAML** writes them all at once, for a choice’s name.",
+      "What the player chooses when taking it (beside its button, a choice for each), and what a `do:` step or **Goes on by itself with** gives it. Each parameter has its **choices** (the first is its default, unless `default` says another); its steps and conditions read the one chosen as `{{params.<id>}}`.\n• `until: { choices: [destination, place, 3] }` — how far a march goes: with the step `travel.move: '{{params.until}}'`\n• `pace: { choices: [steady, quick], default: steady }` — with **Only when** `params.pace: quick` on a step\nA choice may have a name to show: `{ id: 3, name: Three cells }` (translated in the pack's locales). Empty: no choices, just the button.\nEach parameter is a row: its id, its **Name**, its **Choices** as pills (drag one onto another to change their order: the first is the default) and its **Default** when it isn’t the first. **YAML** writes them all at once, for a choice’s name.",
     noParams: 'none: just the button',
     paramName: 'Name',
     paramChoices: 'Choices',
@@ -776,14 +776,14 @@ export const en = {
       "**Unticked**: its button is always there, disabled (saying why) while it can't be taken, so the buttons don't move around.\n**Ticked**: its button only appears while it can be taken. For actions that only make sense now and then:\n• a rite only at a shrine under a full moon\n• talking round porters only while they refuse to march",
     nothing: 'When nothing applies',
     nothingHelp:
-      'What the journal says when **none of its checks apply** where the party is; `{terrain}` is the hex\'s terrain.\n• `nothing to forage on {terrain}` → "nothing to forage on Hills"\nEmpty: a generic sentence. An action without checks says nothing more.',
+      'What the journal says when **none of its checks apply** where the party is; `{terrain}` is the cell\'s terrain.\n• `nothing to forage on {terrain}` → "nothing to forage on Hills"\nEmpty: a generic sentence. An action without checks says nothing more.',
     nothingPlaceholder: 'nothing to find on {terrain}',
     steps: 'What it does',
     stepsHelp:
       "What the action does, **one step per card, in order**: choose what each one does in its first box, then fill in its fields (each explains itself). Click a card's title to fold or open it; folded, it reads in words (_Pass 3 h_, _Take March (until: place)_). Drag one by its handle (⠿) onto another to move it there, or use ↑ and ↓.\n**Only when** / **Not when** on a step: it only happens when they hold, built as rows (what it reads · comparison · value). Besides what the action's own conditions see, they see:\n• `params.how` — the action's parameters\n• `trip.below` is `food` — food hit its minimum during the action (`trip.above`: a maximum)\n• `trip.moment` is `trip.place-enter` — when the system took it\n• `trip.doing` — the action under way\n**Edit as YAML** on a card shows the step as the pack writes it (`time: 180`, `do: actions.march, with: { until: place }`), for what the form doesn't cover; nothing written there is lost by the form. A step may have an `id` there (`id: song`), which its translations name.\nThe actions that follow this one, and its checks (Checks → **When**: this action), come first.",
     on: 'By itself at',
     onHelp:
-      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• a clock, e.g. `06:00` — as it strikes\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.place-enter` — entering each hex\n• `time.day-end` — as each day ends, camping or not\n• an action, e.g. `actions.camp` — right after that action starts\n• an action's end, e.g. `actions.forage.done` — once its steps are done\n• a check, e.g. `checks.WEATHER` — right after it's resolved (after **Continue**, if it paused), before the next checks of its moment, which see what this action changed: today's weather just rolled, for instance\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — once the step that filled it is done, or at once when it fills by hand or in another app (on the trip's next step there); one made by hand is named by its name in lowercase with dashes\n• `world.turn` — after a world turn of the campaign (its factions' turns), whatever brought it: time moving on, a hand on the World panel, or a step `do: world.turn`; on the trip's next step\nSeveral, each one a pill (Enter or a comma adds it): `06:00` and `trip.place-enter`. Its conditions see which one it is as `trip.moment` (`when: { trip.moment: trip.place-enter }`).\nExamples:\n• eating as each day ends: `time.day-end`\n• porters grumbling in the morning after a hungry day: `time.part.morning` (or `06:00`) with **Only when** `yesterday.hungry: true`",
+      "**Empty**: the player takes it, with a button.\nOtherwise the **moments the system takes it by itself**, if its conditions hold; it isn't a button then, and it comes before that moment's checks:\n• a clock, e.g. `06:00` — as it strikes\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.place-enter` — entering each cell\n• `time.day-end` — as each day ends, camping or not\n• an action, e.g. `actions.camp` — right after that action starts\n• an action's end, e.g. `actions.forage.done` — once its steps are done\n• a check, e.g. `checks.WEATHER` — right after it's resolved (after **Continue**, if it paused), before the next checks of its moment, which see what this action changed: today's weather just rolled, for instance\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — once the step that filled it is done, or at once when it fills by hand or in another app (on the trip's next step there); one made by hand is named by its name in lowercase with dashes\n• `world.turn` — after a world turn of the campaign (its factions' turns), whatever brought it: time moving on, a hand on the World panel, or a step `do: world.turn`; on the trip's next step\nSeveral, each one a pill (Enter or a comma adds it): `06:00` and `trip.place-enter`. Its conditions see which one it is as `trip.moment` (`when: { trip.moment: trip.place-enter }`).\nExamples:\n• eating as each day ends: `time.day-end`\n• porters grumbling in the morning after a hungry day: `time.part.morning` (or `06:00`) with **Only when** `yesterday.hungry: true`",
     onButton: 'nothing: a button for the player',
     onAfter: 'After: {action}',
     step: 'Step',
@@ -806,12 +806,12 @@ export const en = {
   steps: {
     kind: 'What it does',
     kindHelp:
-      "What this step does: one thing, chosen here; its fields change with it.\n• **Pass time** — minutes, or until a clock or a part of the day\n• **Move** — along the route while time passes\n• **Change speed**, **Advance hexes**, **Change way of travelling** — the rest of the trip's moving\n• **Change values** — the party, its characters, factions, clocks\n• **Set a value of the day** — one the system declares\n• **Take another action**, **Roll a check or a table** — the system's own, or the Oracle's\n• **Say**, **Pause**, **Ask the player** — talk to the player\n• **Wait for something** — time passes until a condition holds\nChanging it keeps the step's conditions.",
+      "What this step does: one thing, chosen here; its fields change with it.\n• **Pass time** — minutes, or until a clock or a part of the day\n• **Move** — along the route while time passes\n• **Change speed**, **Advance cells**, **Change way of travelling** — the rest of the trip's moving\n• **Change values** — the party, its characters, factions, clocks\n• **Set a value of the day** — one the system declares\n• **Take another action**, **Roll a check or a table** — the system's own, or the Oracle's\n• **Say**, **Pause**, **Ask the player** — talk to the player\n• **Wait for something** — time passes until a condition holds\nChanging it keeps the step's conditions.",
     kinds: {
       time: 'Pass time',
       'travel-move': 'Move',
       'travel-speed': 'Change speed',
-      'travel-advance': 'Advance hexes',
+      'travel-advance': 'Advance cells',
       'travel-mode': 'Change way of travelling',
       effects: 'Change values',
       set: 'Set a value of the day',
@@ -842,17 +842,17 @@ export const en = {
     help: {
       time: "Minutes that pass, or until when time passes, living everything on the way (each moment's checks and actions, the day ending):\n• `180` — three hours\n• `'14:00'` — until the clock next strikes 14:00\n• `time.part.morning` — until that part of the calendar's day next begins",
       'travel-move':
-        "How far the party moves along its route, minute by minute, while the action's **Only when** / **Not when** hold (a march by day stops as night falls):\n• `destination` — to the end of the route\n• `hex` — the next hex\n• `3` — three hexes\n• `'{{params.until}}'` — as the action's parameter says\nA check that needs the player stops it on the way; **Go on** goes on with it.",
+        "How far the party moves along its route, minute by minute, while the action's **Only when** / **Not when** hold (a march by day stops as night falls):\n• `destination` — to the end of the route\n• `place` — the next place\n• `3` — three cells\n• `'{{params.until}}'` — as the action's parameter says\nA check that needs the player stops it on the way; **Go on** goes on with it.",
       'travel-speed':
         "How fast the rest of today's moving goes, multiplied with the weather's:\n• `0.5` — half speed\n• `1.5` — faster\n• `0` — no more moving today",
       'travel-advance':
-        "Hexes (or legs of a way) the party moves along its route at once, no time passing: progress by moves instead of marching.\n• `1` — one hex\n• `'{{party.stats.rank}}'` — as many as a value says",
+        "Cells (or legs of a way) the party moves along its route at once, no time passing: progress by moves instead of marching.\n• `1` — one cell\n• `'{{party.stats.rank}}'` — as many as a value says",
       'travel-mode':
         "The way of travelling from now on, if it can be chosen now (its own conditions hold and nothing blocks it); otherwise nothing changes. With a destination, the route is planned again for it.\n• `modes.boat` — one of the system's ways\n• `'{{params.by}}'` — as the action's parameter says",
       effects:
         "What changes, one row each: a number adds or takes away.\n• `party.stats.fatigue` · `1` — adds 1\n• `party.values.food` · `-1` — takes 1 away\n• `party.stats.fatigue` · `=0` — sets it\n• `party.items.ration` · `-{{party.stats.mouths}}` — as many as another value\n• `party.members.values.health` · `1`, `acting.conditions.wounded` · `false` — its characters\nA change past a value's **Min** or **Max** stops there, and later steps see `trip.below` / `trip.above`.",
       set: 'Values of the day the system declares (**Rules → Values of the day**), one row each; they last until the day ends.\n• `lost` · `true`\n• `ferry` · `true` — what a **Wait for something** step may wait for',
-      do: 'Another action of the system, taken now if its conditions hold (otherwise nothing happens). **With** gives its parameters; empty, each takes its default.\n• **March**, with **until** `hex` — one hex of marching\n• a forced march: **Change speed** `1.5`, then **Take another action** March\nOr **A world turn** (`do: world.turn`): in a campaign, its factions take their turn now and the world reacts, as with a turn due as time moves on; the journal says what they did. Without a campaign whose system declares factions, nothing happens, and the journal says so.\n• news carried to a fort: **Say** `The garrison hears of the raids.`, then **A world turn**',
+      do: 'Another action of the system, taken now if its conditions hold (otherwise nothing happens). **With** gives its parameters; empty, each takes its default.\n• **March**, with **until** `place` — one place of marching\n• a forced march: **Change speed** `1.5`, then **Take another action** March\nOr **A world turn** (`do: world.turn`): in a campaign, its factions take their turn now and the world reacts, as with a turn due as time moves on; the journal says what they did. Without a campaign whose system declares factions, nothing happens, and the journal says so.\n• news carried to a fort: **Say** `The garrison hears of the raids.`, then **A world turn**',
       roll: 'What is rolled now; the steps after it wait for its result and see it (`today.<value>` it sets), and for **Continue** if it pauses:\n• a check of the system (**Checks**), whatever its **When**\n• a table, oracle, generator or deck of the system’s packs, e.g. `table.ruins`: no check around it, its result in the journal by its name, its values and changes reach the trip, and an entry with a pause stops it',
       say: "A line of the system's own in the journal. Values in it are read then:\n• `The porters sing as they walk.`\n• `Across, with {{party.values.food}} food left.`",
       pause:
@@ -884,8 +884,8 @@ export const en = {
       time: 'Pass {time}',
       timeUntil: 'Pass time until {time}',
       moveDestination: 'Move to the destination',
-      moveHex: 'Move one hex',
-      moveHexes: 'Move {count} hexes',
+      moveHex: 'Move one cell',
+      moveHexes: 'Move {count} cells',
       move: 'Move: {value}',
       speed: 'Speed ×{value} the rest of the day',
       advance: 'Advance {value} along the route',
@@ -917,7 +917,7 @@ export const en = {
       "What players read in the trip panel and the journal instead of the event id:\n• `NAVIGATION_CHECK_REQUIRED` → _Getting lost_\n• `HUNGER_CHECK_REQUIRED` → _Hunger_\nThis box edits it in the current language: the pack's own, or its translation file when the interface is in another one.",
     at: 'When',
     atOptions: {
-      'hex-enter': 'Entering a hex',
+      'hex-enter': 'Entering a cell',
       camp: 'In camp',
       'day-end': 'At the end of the day',
     },
@@ -928,12 +928,12 @@ export const en = {
     atDone: 'When {action} is done',
     atCheck: 'After the check {check}',
     atHelp:
-      "When it is rolled:\n• a clock, e.g. `06:00` — as it strikes, marching, waiting or asleep\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.place-enter` — entering each hex\n• `time.day-end` — as each day ends (after the system's day-end actions)\n• an action, e.g. `actions.camp` or `actions.forage` — when the party takes it, before its steps (they wait for it)\n• an action's end, e.g. `actions.forage.done` — once its steps are done (after three hours foraging, say)\n• another check, e.g. `checks.WEATHER` — right after it's resolved\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — whatever fills it: the trip, a faction's turn, or a hand on the World panel; one made by hand is named by its name in lowercase with dashes\n• `world.turn` — after a world turn of the campaign (its factions' turns), whatever brought it, on the trip's next step\nSeveral, each one a pill (Enter or a comma adds it): `trip.place-enter` and `actions.rest`. Its conditions and its table see which one it is as `trip.moment` (`when: { trip.moment: actions.rest }`).\nEmpty: only when an action's step rolls it (`roll: checks.<its event>`).",
+      "When it is rolled:\n• a clock, e.g. `06:00` — as it strikes, marching, waiting or asleep\n• a part of the calendar's day, e.g. `time.part.morning` — as it begins\n• `trip.place-enter` — entering each cell\n• `time.day-end` — as each day ends (after the system's day-end actions)\n• an action, e.g. `actions.camp` or `actions.forage` — when the party takes it, before its steps (they wait for it)\n• an action's end, e.g. `actions.forage.done` — once its steps are done (after three hours foraging, say)\n• another check, e.g. `checks.WEATHER` — right after it's resolved\n• a progress clock filling, e.g. `world.clocks.the-threat.full` — whatever fills it: the trip, a faction's turn, or a hand on the World panel; one made by hand is named by its name in lowercase with dashes\n• `world.turn` — after a world turn of the campaign (its factions' turns), whatever brought it, on the trip's next step\nSeveral, each one a pill (Enter or a comma adds it): `trip.place-enter` and `actions.rest`. Its conditions and its table see which one it is as `trip.moment` (`when: { trip.moment: actions.rest }`).\nEmpty: only when an action's step rolls it (`roll: checks.<its event>`).",
     atAction: 'Action: {action}',
     when: 'Only if',
     unless: 'Skip if',
     conditionHelp:
-      "When the check is rolled (**Only if**) or skipped (**Skip if**), with conditions like the tables', one row each (what it reads · comparison · value), or as YAML:\n• `place.terrain: forest` — the hex\n• `place.tags: landmark` — a tag of the hex\n• `trip.connections: [road, river]` — the road or river of the step\n• `place.danger: { gte: 2 }` — a value of the hex or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`hex.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.values.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: party.values.food` — the party's food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
+      "When the check is rolled (**Only if**) or skipped (**Skip if**), with conditions like the tables', one row each (what it reads · comparison · value), or as YAML:\n• `place.terrain: forest` — the cell\n• `place.tags: landmark` — a tag of the cell\n• `trip.connections: [road, river]` — the road or river of the step\n• `place.danger: { gte: 2 }` — a value of the cell or its region\n• `time.season: winter`, `trip.weather: storm` — the moment\n• `time.hour: { gte: 20 }` — from 20:00; `time.watch: 3` — the third watch\n• `time.meal: elevenses`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `from.terrain: forest` — coming out of a forest; `trip.visits: { gte: 2 }` — back again\n• `world.clocks.the-flood: { gte: 4 }` — a clock of the world clock; `world.events: market-day` — today’s event\n• `danger: { gt: '{{party.stats.stealth}}' }` — a variable: compared with another value\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll under a stat\nEach value by its **full name**, which says where it comes from (`place.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\n• `party.values.food: { lt: 1 }` — the party\n• `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`, `party.members: kael` — its characters, when the system has a sheet\n• `trip.below: party.values.food` — the party's food hit its minimum today (at `time.day-end`)\n• `trip.moment: actions.rest` — which of its moments it is (when it has several)\n• `any: [{ place.terrain: forest }, { danger: { gte: 3 } }]` — either\nRead just before the check is rolled: the checks of one moment come one by one, in the list's order, each seeing what the ones before it set (at dawn, after the weather's, `trip.weather: storm` is today's)",
     always: 'always',
     never: 'never',
     resolve: 'Rolled on',
@@ -951,7 +951,7 @@ export const en = {
     context: 'Extra context',
     contextKey: 'What the table sees',
     contextHelp:
-      'Values the table sees **only for this check**, one row each (what the table sees · value):\n• `timeOfDay` · `night` — a night encounter rolled on the day table\n• `danger` · `3` — as if the hex were more dangerous',
+      'Values the table sees **only for this check**, one row each (what the table sees · value):\n• `timeOfDay` · `night` — a night encounter rolled on the day table\n• `danger` · `3` — as if the cell were more dangerous',
     none: 'No checks: trips only pass time and do what their actions do.',
     add: 'Add a check',
     orphans: 'Tables bound to checks these rules don’t have: {events}.',
@@ -999,11 +999,11 @@ export const en = {
   },
   try: {
     intro:
-      "A trip without a map to try the system while you make it: describe a way hex by hex and travel it. It plays the rules as they are now, so a change in another tab counts from the next step; **New trip** starts over with the changes in the first day too. These test trips are kept apart from the Travel app's.",
+      "A trip without a map to try the system while you make it: describe a way cell by cell and travel it. It plays the rules as they are now, so a change in another tab counts from the next step; **New trip** starts over with the changes in the first day too. These test trips are kept apart from the Travel app's.",
   },
   uses: {
     title: 'Used by',
-    help: "Where this is used in the system's packs: the travel rules' actions and checks, the bindings, the sheets, the clocks and factions, and the tables, oracles, generators and decks. Each place says whether it **reads** it (a condition, a `{{…}}`), **changes** it (effects), **sets** it (`set`), **is made of** it (a stat's `from`) or **names** it (`do: actions.march`, `blocks: [modes.horse]`, `roll: table.ruins`, a table entry's next table).\n• The number is how many places use it; press it to see them below the row, each with a link to where it's edited (tables open in the Oracle).\n• **–** means nothing uses it yet: often fine (a value the player reads), sometimes a mistake (a stat no table reads, a name written differently).\nWhat the map gives (a hex's own values) and what the engines read by themselves aren't listed.",
+    help: "Where this is used in the system's packs: the travel rules' actions and checks, the bindings, the sheets, the clocks and factions, and the tables, oracles, generators and decks. Each place says whether it **reads** it (a condition, a `{{…}}`), **changes** it (effects), **sets** it (`set`), **is made of** it (a stat's `from`) or **names** it (`do: actions.march`, `blocks: [modes.horse]`, `roll: table.ruins`, a table entry's next table).\n• The number is how many places use it; press it to see them below the row, each with a link to where it's edited (tables open in the Oracle).\n• **–** means nothing uses it yet: often fine (a value the player reads), sometimes a mistake (a stat no table reads, a name written differently).\nWhat the map gives (a cell's own values) and what the engines read by themselves aren't listed.",
     count: 'Used in {n} places',
     find: 'Find a name',
     findHelp:

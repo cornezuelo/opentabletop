@@ -12,7 +12,7 @@ export const es: Messages<typeof en> = {
   removeTag: 'Quitar',
   relations: 'Relaciones',
   relationsHelp:
-    'A qué está unido este personaje: otro personaje, un lugar, una región, un hex, según los tipos de relación de la hoja (un vínculo, un hogar…), algunos con un número. Las condiciones las leen:\n• `{path}.relations.home: region:The Vale` — el hogar de este personaje\n• `place.related: kael` — al entrar en un hex al que Kael está unido (él, su región o un lugar en él)\n• `place.relations.home: kael` — el hogar de Kael, por tipo\nEscribe un nombre de la lista, o una referencia: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.',
+    'A qué está unido este personaje: otro personaje, un lugar, una región, una casilla, según los tipos de relación de la hoja (un vínculo, un hogar…), algunos con un número. Las condiciones las leen:\n• `{path}.relations.home: region:The Vale` — el hogar de este personaje\n• `place.related: kael` — al entrar en una casilla a la que Kael está unido (ella, su región o un lugar en ella)\n• `place.relations.home: kael` — el hogar de Kael, por tipo\nEscribe un nombre de la lista, o una referencia: `character:mara`, `poi:inn`, `region:The Vale`, `hex:5,7`.',
   relationKind: 'Tipo de relación',
   relationTo: 'Unido a',
   relationToPlaceholder: 'un personaje, lugar, región…',
@@ -26,7 +26,7 @@ export const es: Messages<typeof en> = {
   madeOf: 'Sale de otros valores; no se cambia a mano ni con efectos: {from}.',
   holdsWhen: 'Se cumple por sí solo mientras {when}; no se pone ni se quita a mano ni con efectos.',
   lastSeen:
-    'Lee el mundo (el viaje, la hora, el hex…), así que lo sigue mientras el personaje viaja; fuera de un viaje (en el roster) se queda como estaba la última vez.',
+    'Lee el mundo (el viaje, la hora, la casilla…), así que lo sigue mientras el personaje viaja; fuera de un viaje (en el roster) se queda como estaba la última vez.',
   blocks: 'Mientras alguien lo tenga, el grupo no puede: {list}.',
   less: 'Menos {name}',
   more: 'Más {name}',

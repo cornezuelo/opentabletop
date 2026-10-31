@@ -13,7 +13,7 @@ The world has reactions of its own, written the same way but without a party: th
 | `time: 180`                             | three hours pass (or until a clock, or a part of the day)         | yes            | no                               |
 | `travel.move: destination`              | moves along the route while the action's conditions hold          | yes            | a check may stop it on the way   |
 | `travel.speed: 0.5`                     | the rest of today's moving at half speed                          | no             | no                               |
-| `travel.advance: 1`                     | one hex along the route at once                                   | no             | a check may stop it              |
+| `travel.advance: 1`                     | one cell along the route at once                                  | no             | a check may stop it              |
 | `travel.mode: modes.boat`               | travel another way from now on                                    | no             | no                               |
 | `effects: { party.stats.fatigue: 1 }`   | changes the party, its characters, the world                      | no             | no                               |
 | `set: { lost: true }`                   | gives a value of the day                                          | no             | no                               |
@@ -33,9 +33,9 @@ Every step may have its own `when` / `unless` (it only happens when they hold) a
 
 ## Moving
 
-- `travel.move: destination` moves the party along its route, minute by minute, while the action's own `when` / `unless` still hold: a march by day stops as night falls. It goes as far as it says: `destination`, `hex` (the next one), a number of hexes (`3`), or a variable (`'{{params.until}}'`: what its parameter says). A check that needs the player stops it on the way; **Go on** goes on with it, then with the steps after it.
+- `travel.move: destination` moves the party along its route, minute by minute, while the action's own `when` / `unless` still hold: a march by day stops as night falls. It goes as far as it says: `destination`, `hex` (the next one), a number of cells (`3`), or a variable (`'{{params.until}}'`: what its parameter says). A check that needs the player stops it on the way; **Go on** goes on with it, then with the steps after it.
 - `travel.speed: 0.5` makes the rest of today's moving half as fast (`1.5`: faster; `0`: no more moving today). It multiplies the weather's speed and any earlier `travel.speed` of the day (a weather at `0.5` and this: a quarter).
-- `travel.advance: 2` moves the party two hexes (or legs of a way) along its route at once, no time passing: progress by moves instead of marching. A variable too: `'{{party.stats.rank}}'`. See _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
+- `travel.advance: 2` moves the party two cells (or legs of a way) along its route at once, no time passing: progress by moves instead of marching. A variable too: `'{{party.stats.rank}}'`. See _Journeys by moves_ in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system).
 - `travel.mode: modes.boat` changes the way of travelling (one of the system's `modes`, or a variable: `'{{params.by}}'`), if it can be chosen now: its own `when` / `unless` hold and no value of the day blocks it. Otherwise nothing changes. With a destination, the route is planned again for the new way (the fastest), and the journal says so ("Now travelling: By boat").
 
 ## Changing things: `effects` and `set`
@@ -71,7 +71,7 @@ do:
 … # an excerpt of an action
 ```
 
-**A pause on the way.** When an action the system takes by itself pauses, asks or waits for a roll (one with `on: trip.place-enter`, say a toll at a bridge, or `on: '23:00'` in the middle of a camp), it stops whatever was going on as well: the march that entered the hex stays under way, the camp's night waits. The checks of its moment come once it's done, so they see what it changed. **Continue** (or the choice) goes on with the toll's steps, then with the march, as far as it was going. When two steps would wait at once (two actions at the same moment), the first waits, and the second asks after it.
+**A pause on the way.** When an action the system takes by itself pauses, asks or waits for a roll (one with `on: trip.place-enter`, say a toll at a bridge, or `on: '23:00'` in the middle of a camp), it stops whatever was going on as well: the march that entered the cell stays under way, the camp's night waits. The checks of its moment come once it's done, so they see what it changed. **Continue** (or the choice) goes on with the toll's steps, then with the march, as far as it was going. When two steps would wait at once (two actions at the same moment), the first waits, and the second asks after it.
 
 ## Waiting for something: `wait` and `limit`
 

@@ -1,6 +1,6 @@
 # Playing a trip
 
-Trips here have **no map**: you describe the way ahead hex by hex. It's quick for a journey you only need in broad strokes, or to try out a system while you write it. To travel on a map, use Map's [Play mode](../map/08-play.md): it's the same engine and the same systems.
+Trips here have **no map**: you describe the way ahead cell by cell. It's quick for a journey you only need in broad strokes, or to try out a system while you write it. To travel on a map, use Map's [Play mode](../map/08-play.md): it's the same engine and the same systems.
 
 ## Starting
 
@@ -26,21 +26,21 @@ The [Campaign](../campaign/01-getting-started.md) app shows every campaign, with
 
 ## The way
 
-The list on the left is the way. The party starts on hex 1 and heads for the last one. Its column headers are underlined with dots: click one to read what it is.
+The list on the left is the way. The party starts on cell 1 and heads for the last one. Its column headers are underlined with dots: click one to read what it is.
 
-- **Terrain** of each hex: Map's terrains plus any the system's rules name.
-- **Tags**, each one a pill: Enter or a comma adds one, × takes it out. Tables and checks read them: the Grey Marches stop at `landmark` hexes, charge a toll on `toll` ones and have night lights in `haunted` ones.
-- Under each hex, **To the next hex**: whether a road, trail or river joins it to the next one. What that does depends on the system (in the Grey Marches, roads are faster and keep you from getting lost or meeting anything).
-- **km per hex**: the scale. Speeds in the rules are in km per day. A system that sets its own scale (`travel.cellKm`) is always played at it: the box shows it and can't be changed here (change it in Systems → Rules).
-- **Add a hex** extends the way; **×** removes one the party hasn't reached. Hexes already walked are greyed out and can't change.
+- **Terrain** of each cell: Map's terrains plus any the system's rules name.
+- **Tags**, each one a pill: Enter or a comma adds one, × takes it out. Tables and checks read them: the Grey Marches stop at `landmark` cells, charge a toll on `toll` ones and have night lights in `haunted` ones.
+- Under each cell, **To the next cell**: whether a road, trail or river joins it to the next one. What that does depends on the system (in the Grey Marches, roads are faster and keep you from getting lost or meeting anything).
+- **km per cell**: the scale. Speeds in the rules are in km per day. A system that sets its own scale (`travel.cellKm`) is always played at it: the box shows it and can't be changed here (change it in Systems → Rules).
+- **Add a cell** extends the way; **×** removes one the party hasn't reached. Cells already walked are greyed out and can't change.
 
 Changing the way re-plans the route right away.
 
 ## The trip
 
-The panel on the right is the same as in Map. At the top, where the party is: day, time and season, what it is in each division of the calendar's day (“Part of the day: evening · Watches: 5”), the weather, the marching hours used; right under it, a check that waits for you (**Continue**), the buttons to play and the way of travelling; then **What just happened** and the tabs. The buttons are the actions the system declares, the ones that move the party first: its march (the Grey Marches' **March**) goes along the route until it gets as far as you chose beside it (to the destination, one hex…, as the system offers), something happens, or the system's rule for it stops holding (at night, when the day's hours are spent…); the rest come after (the Grey Marches: **Camp**, **Rest**, **Forage for food**, **Forced march**, and only when they can be taken **Night march**, **Rite of the Ember Moon**, **Talk to the hirelings** and **Tales of the road**). When a check stops a march on the way, **Go on** goes on with it once you've read it (the rest of the way, then the rest of what the action does); pressing another button leaves it. **Wait to go on** lets the time pass until the trip can go on the way the system says (its march, by day). A system without an action that moves has no march button at all. Actions the system takes by itself (eating as each day ends) are not buttons: they just happen, and the journal says so.
+The panel on the right is the same as in Map. At the top, where the party is: day, time and season, what it is in each division of the calendar's day (“Part of the day: evening · Watches: 5”), the weather, the marching hours used; right under it, a check that waits for you (**Continue**), the buttons to play and the way of travelling; then **What just happened** and the tabs. The buttons are the actions the system declares, the ones that move the party first: its march (the Grey Marches' **March**) goes along the route until it gets as far as you chose beside it (to the destination, one cell…, as the system offers), something happens, or the system's rule for it stops holding (at night, when the day's hours are spent…); the rest come after (the Grey Marches: **Camp**, **Rest**, **Forage for food**, **Forced march**, and only when they can be taken **Night march**, **Rite of the Ember Moon**, **Talk to the hirelings** and **Tales of the road**). When a check stops a march on the way, **Go on** goes on with it once you've read it (the rest of the way, then the rest of what the action does); pressing another button leaves it. **Wait to go on** lets the time pass until the trip can go on the way the system says (its march, by day). A system without an action that moves has no march button at all. Actions the system takes by itself (eating as each day ends) are not buttons: they just happen, and the journal says so.
 
-**What just happened.** Right under the buttons, a box shows the journal lines of your last step: a march with every hex it entered and every check it rolled, an action and what it changed, a check you went on from with **Continue**. Newest first, as in the **Journal**: what stopped the trip is on top, right under the buttons. Tables you roll by hand afterwards are added on top. The next step replaces them, so what you just did is always beside the buttons that did it; the whole trip stays in the **Journal** tab.
+**What just happened.** Right under the buttons, a box shows the journal lines of your last step: a march with every cell it entered and every check it rolled, an action and what it changed, a check you went on from with **Continue**. Newest first, as in the **Journal**: what stopped the trip is on top, right under the buttons. Tables you roll by hand afterwards are added on top. The next step replaces them, so what you just did is always beside the buttons that did it; the whole trip stays in the **Journal** tab.
 
 **The tabs.** Under it, the rest of the trip is shown a tab at a time; this browser remembers the one you chose, in every app that shows a trip. When the panel is too narrow for the tabs side by side (Map's side panel, a small window), they become a choice of the same tabs, never a second row:
 
@@ -48,9 +48,9 @@ The panel on the right is the same as in Map. At the top, where the party is: da
 - **Journal**: the whole trip, newest first, grouped by day; at the top, what it shows ([the journal's filter](#the-journal-everything-or-the-story)) and **Export**.
 - **So far**: what the trip has done.
 
-**So far** sums up the trip: hexes and km travelled, hours marched, the checks that came up, how many times each action was taken and what the party's values and items spent and gained (the Grey Marches' rations, its own and its characters' together). The system's rules and tables can read them too (`trip.km: { gte: 100 }`, `trip.taken.camp`, `trip.spent.party.items.ration`: see [What tables see](../technical/04-what-tables-see.md#the-trip-trip)). Trips saved before they existed get their hexes and actions from the journal; the rest counts from then on.
+**So far** sums up the trip: cells and km travelled, hours marched, the checks that came up, how many times each action was taken and what the party's values and items spent and gained (the Grey Marches' rations, its own and its characters' together). The system's rules and tables can read them too (`trip.km: { gte: 100 }`, `trip.taken.camp`, `trip.spent.party.items.ration`: see [What tables see](../technical/04-what-tables-see.md#the-trip-trip)). Trips saved before they existed get their cells and actions from the journal; the rest counts from then on.
 
-Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the journal as Markdown (a heading per day, named after the trip, with the lines the filter shows) for your notes app or to print. A check with no table is only written in the journal (with what it changes, if anything) and the trip goes on, unless it says to pause. The trip stops and shows **Continue** in three cases (a check that waits says the hex it came up in, by its name or else its coordinates: _Landmark at The Grey Stones: waiting for you_; something that comes up while time passes, in camp or waiting, stops it there: a night encounter at 23:00 waits at 23:00, and the rest of the night passes after **Continue**):
+Checks are rolled on their tables and written in the **journal**, grouped by day. **Export** downloads the journal as Markdown (a heading per day, named after the trip, with the lines the filter shows) for your notes app or to print. A check with no table is only written in the journal (with what it changes, if anything) and the trip goes on, unless it says to pause. The trip stops and shows **Continue** in three cases (a check that waits says the cell it came up in, by its name or else its coordinates: _Landmark at The Grey Stones: waiting for you_; something that comes up while time passes, in camp or waiting, stops it there: a night encounter at 23:00 waits at 23:00, and the rest of the night passes after **Continue**):
 
 - a check that says **Pause after it** (`pause: true`): it's rolled if a table resolves it, and the trip waits so you can describe the place, resolve it yourself or decide something (the Grey Marches' shrine, rolled; their landmarks, with no table). One that came up as an action began (a night encounter as the camp begins) holds that action: **Continue**, and the rest of it goes on (the night passes);
 - a table entry or deck card with `pause: true` that comes up (the Grey Marches' Greywood Wyrm): only when that result comes up;
@@ -79,20 +79,20 @@ The journal keeps **everything** that happens, also what happens behind, and the
 **Show** chooses how much:
 
 - **The story**: what happened in the game. Results of the tables, discoveries, arriving, what the system says (`say:`), what an action asked you, your notes. Good for reading the trip back as a tale, or exporting it for your notes.
-- **And the rules** (the journal as it always was): also what the rules did. Hexes entered, actions taken, checks that wait for you, what checks and actions changed, values that hit their minimum or maximum.
+- **And the rules** (the journal as it always was): also what the rules did. Cells entered, actions taken, checks that wait for you, what checks and actions changed, values that hit their minimum or maximum.
 - **Everything**: also what happened behind, in smaller grey lines:
   - each roll on a table, its dice and the row or card it chose: _Encounter rolled: Wild encounters: 2d6 → 7 [3, 4] → 7; Wolves: 1d6 → 3 [3]_ (a die not kept is struck through as `~2~`; the totals a roll mode didn't keep go in brackets);
   - the weather's roll: _Weather: 2d6 = 7, south-east → light rain_ on a hex flower, _from yesterday's rain → storm_ with chance tables;
-  - every check that **didn't** come up, and why: _Ambush doesn't come up: the hex's danger is 1: it needs 2 or more_. This is the line to look for when a check you expected never shows;
+  - every check that **didn't** come up, and why: _Ambush doesn't come up: the cell's danger is 1: it needs 2 or more_. This is the line to look for when a check you expected never shows;
   - each moment of the day some check or action names, as it comes: _Moment: entering a hex_, _Moment: after "Camp"_, _Moment: Watches: middle_;
   - each value before and after: _Food: 5 → 3_, _Kael: Health: 3 → 2_, and a condition set or cleared;
-  - each route planned: _Route to Ashford · hexes: 4_.
+  - each route planned: _Route to Ashford · cells: 4_.
 
-**What about** (when the journal has lines of more than one kind) leaves kinds out: the **Trip** (hexes, actions, the rules), the **Oracle** (tables and weather), the **World** (events, holidays and full clocks of the world clock), the **Characters** (what changed in them, the roster) and your **Notes**. **Search** keeps the lines with those words, in any case: with **Everything**, search a check's name to see each time it was rolled, or didn't come up and why.
+**What about** (when the journal has lines of more than one kind) leaves kinds out: the **Trip** (cells, actions, the rules), the **Oracle** (tables and weather), the **World** (events, holidays and full clocks of the world clock), the **Characters** (what changed in them, the roster) and your **Notes**. **Search** keeps the lines with those words, in any case: with **Everything**, search a check's name to see each time it was rolled, or didn't come up and why.
 
 **What just happened** shows the story and the rules of your last step, never what happened behind: that is in the **Journal** tab.
 
-For example, to see where the Grey Marches' **Landmark** stops a trip and where it doesn't: choose **Everything** and search `Landmark`. Each hex without the tag says why: _Landmark doesn't come up: the hex's tags is nothing, not landmark_.
+For example, to see where the Grey Marches' **Landmark** stops a trip and where it doesn't: choose **Everything** and search `Landmark`. Each cell without the tag says why: _Landmark doesn't come up: the cell's tags is nothing, not landmark_.
 
 ## Who rolls
 
@@ -120,7 +120,7 @@ When the system has a sheet for its characters (the Grey Marches' companions; th
 
 **The roster.** Characters can also come from the [Characters app](../characters/01-getting-started.md), where this browser keeps them, of any system. Under the list, **From the roster** lists the roster's characters made with this system's sheet: choosing one brings it into the party with its values. A character of the trip that isn't in the roster has **Keep in the roster** on its card, which puts it there; one that is has **Open in Characters ↗**, for its notes and the rest. Either way it's **linked**: what happens to it on the trip is written back to the roster after every step and edit, and what you change in the Characters app reaches the trip (the journal says "Kael: brought up to date from the roster"). A character travels in one place at a time: bringing one that travels elsewhere (another trip, a map, a token) asks first, and that place keeps its copy, no longer linked. Removing it from the party, or deleting the trip, leaves it in the roster, travelling nowhere. A new trip with the same system keeps the party and its links.
 
-Each character also has **Relations**: what they're tied to, as the sheet's kinds say (a bond with another character, a home): pick the kind, type a name from the list (the other characters; on a map, its places, regions and named hexes; in Travel, the way's hexes) and **Add**; a kind with a number shows it beside, to change. The system's checks read them where the party is (the Grey Marches: coming into a companion's home lifts morale).
+Each character also has **Relations**: what they're tied to, as the sheet's kinds say (a bond with another character, a home): pick the kind, type a name from the list (the other characters; on a map, its places, regions and named cells; in Travel, the way's cells) and **Add**; a kind with a number shows it beside, to change. The system's checks read them where the party is (the Grey Marches: coming into a companion's home lifts morale).
 
 **Items**, when the system gives characters items: what each one carries, by place (hands, body, pack…) with how much room is taken, each with how many and its numbers (a torch's uses as dots). **Add an item** offers the system's catalogues; rules and tables use them up and give them (the Grey Marches' night march burns an hour of everyone's torch, the ford is easier with a rope, a hoard may give the Sword of Keld), and the journal says so (_Kael: Torch: one is used up_; where the sheet takes no more than its room, _no room left for 2, left behind_ for what's found with nowhere to go). Where the sheet says to ask (**When it doesn't fit** `ask`), what has no room waits on the card instead, marked, and the trip waits (its buttons held, a line saying who) until you drop something or move it to a place. Drag an item's handle (⠿) onto another place to move it, with Shift only one. See [Items](../systems/08-items.md).
 
@@ -145,7 +145,7 @@ The **Here** box, in the **Party** tab under the characters, shows them: those a
 
 ### Places made on the way
 
-A system with [catalogues of places](../technical/07-kinds.md#places) can make a place where the party is (Core's **Explore**, on a 6: a _Landmark_). A trip without a map has no hexes to write it on, so the journal notes it (_A place here: Landmark — Something worth finding again._); played on a map in the Map app, it becomes a point of interest of the hex.
+A system with [catalogues of places](../technical/07-kinds.md#places) can make a place where the party is (Core's **Explore**, on a 6: a _Landmark_). A trip without a map has no cells to write it on, so the journal notes it (_A place here: Landmark — Something worth finding again._); played on a map in the Map app, it becomes a point of interest of the cell.
 
 ## Ways of travelling
 
@@ -156,11 +156,11 @@ The list in the panel has the ways of travelling the system declares, each with 
 What happens and when, with the Grey Marches as the example (other systems roll other things, at the same moments):
 
 1. **Dawn**: the checks of the day start are rolled, one after another: the weather (the sky follows yesterday's), a stormy dawn if today's weather is a storm (it already sees it), an omen drawn from _Omens of the road_ while the party hasn't arrived and, off roads and rivers, getting lost. The actions the system takes at dawn go first (the hirelings grumble if yesterday went hungry).
-2. **Marching**: each hex entered rolls its own checks: an encounter where the map says there's danger, the toll at Keld Bridge by road, the ford, the shrine (which pauses), a landmark (no table, but it pauses).
+2. **Marching**: each cell entered rolls its own checks: an encounter where the map says there's danger, the toll at Keld Bridge by road, the ford, the shrine (which pauses), a landmark (no table, but it pauses).
 3. **Nightfall**: nobody marches after dark. Asleep in camp, the night's watches still come: in the middle watch, where danger is 3 or more and nobody keeps watch, the haunted lights fill everyone's Dread. **Camp** (the system's halt: what the party does when it can't march) rolls the night's checks: a night encounter where danger is 2 or more. Camp needs food left and fatigue under the party's Endurance (10): without, the button is off, and **Wait to go on** passes the night in the open ("“Camp” isn't possible (…): the time passes without it"), with no fed night's relief, until the party can march in the morning. It lets the time pass where the party is until it can march again, whatever happens: lost and hungry, the day is gone and the party wakes on the next.
 4. **The end of the day** (midnight): the system's day-end actions (eating: 1 food, 1 more per hireling, and 1 fodder on horseback) and checks (a day without enough food: fatigue +1; ending it with no food left, hunger, where morale decides how it goes). Today's values end; tomorrow's tables read them as `yesterday.…`.
 
-Your own actions fit in between: **Rest** two hours, **Forage for food** (three hours, the march halved), a **Forced march** (faster, more tired, and off at once to the destination), all by day; in the Grey Marches resting where danger is 3 or more may bring an encounter too. At nightfall, instead of camping, a **Night march** lights the torches and the party may keep going until midnight (+1 fatigue); each hex entered in the dark off the road may get you lost or bring a night encounter.
+Your own actions fit in between: **Rest** two hours, **Forage for food** (three hours, the march halved), a **Forced march** (faster, more tired, and off at once to the destination), all by day; in the Grey Marches resting where danger is 3 or more may bring an encounter too. At nightfall, instead of camping, a **Night march** lights the torches and the party may keep going until midnight (+1 fatigue); each cell entered in the dark off the road may get you lost or bring a night encounter.
 
 ## Saved as you play
 

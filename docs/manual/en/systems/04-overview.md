@@ -13,7 +13,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 - **Land models**: the ones Map's **Generate land** and discovery can use (`land: [land.default]`), each with its name and id. They're edited in [Land](14-land.md).
 - **Item catalogues** (`items:`, a list): what its characters may carry; made, chosen and edited in [Items](08-items.md), whose **New catalogue** adds one here.
 - **Bestiaries** (`bestiary:`, a list): the creatures and kinds of people it can make; made, chosen and edited in [Bestiary](18-bestiary.md), whose **New bestiary** adds one here.
-- **Catalogues of places** (`places:`, a list): the places its results can make on the party's hex; made, chosen and edited in [Places](19-places.md), whose **New catalogue of places** adds one here.
+- **Catalogues of places** (`places:`, a list): the places its results can make on the party's cell; made, chosen and edited in [Places](19-places.md), whose **New catalogue of places** adds one here.
 
 ## Packs it brings
 
@@ -42,7 +42,7 @@ Each line says how the place uses it, then which place it is and the part of it:
 
 An action or a check opens its tab here; a table, oracle, generator or deck opens in the Oracle (↗). A name that nothing in the system declares, and that the apps don't give either (`hex.…`, `trip.…`, `time.…`), says so, with the names it looks like: often a typo (`pathfindng` for `pathfinding`).
 
-What it doesn't see: what a map gives (a hex's or an icon's own values), what the apps read by themselves (the hours marched, for the day's march), and the ids of actions, ways of travelling or terrains used as values.
+What it doesn't see: what a map gives (a cell's or an icon's own values), what the apps read by themselves (the hours marched, for the day's march), and the ids of actions, ways of travelling or terrains used as values.
 
 ## Used by
 

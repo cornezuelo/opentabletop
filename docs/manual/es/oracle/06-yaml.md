@@ -42,7 +42,7 @@ when: { place.danger: { gte: 4 }, time.season: { not: winter } }
 when: { any: [{ trip.weather: storm }, { today.lost: true }] } # all / any / not
 ```
 
-Comparaciones: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. Los valores de lista del contexto (como las etiquetas de un hex) coinciden cuando contienen el valor. Un valor puede ser una variable o una tirada, entre comillas: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (el mismo d20 para todas las entradas de la tirada; ver [Condiciones](../technical/08-conditions.md#variables-y-tiradas)). Gana la primera entrada que cumple y encaja con la tirada.
+Comparaciones: `eq`, `not`, `in`, `gt`, `gte`, `lt`, `lte`, `exists`. Los valores de lista del contexto (como las etiquetas de una casilla) coinciden cuando contienen el valor. Un valor puede ser una variable o una tirada, entre comillas: `danger: { gt: '{{party.stats.stealth}}' }`, `party.stats.str: { gte: '{{1d20}}' }` (el mismo d20 para todas las entradas de la tirada; ver [Condiciones](../technical/08-conditions.md#variables-y-tiradas)). Gana la primera entrada que cumple y encaja con la tirada.
 
 ## Oráculos, generadores y mazos
 

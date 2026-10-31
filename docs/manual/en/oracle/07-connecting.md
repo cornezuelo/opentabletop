@@ -6,7 +6,7 @@ You don't need to program to make tables that react to the map, or a whole trave
 
 ## 1. A table that depends on the terrain
 
-When you roll from Map (the Oracle panel, or a trip), the table receives what the map knows about the hex. `when` keeps an entry only if it matches:
+When you roll from Map (the Oracle panel, or a trip), the table receives what the map knows about the cell. `when` keeps an entry only if it matches:
 
 ```yaml
 kind: table
@@ -31,11 +31,11 @@ entries:
 
 All the entries cover 1–6: the **first one whose condition holds** wins, and the last one, without a condition, catches the rest. Terrains are written by their id (`forest`, `hills`, `swamp`…), as in Map's palette.
 
-What a table can read from the map: `terrain`, `tags` (the hex's tags), `region` (the region's name), each **field** of the hex by its key (a hex with the field `danger: 3` gives `danger`), and `hex`. During a trip also `season`, `weather`, `mode` (on foot, on horseback…), `day` and the party stats. Every value, and which one wins when two share a name: [What tables see](../technical/04-what-tables-see.md).
+What a table can read from the map: `terrain`, `tags` (the cell's tags), `region` (the region's name), each **field** of the cell by its key (a cell with the field `danger: 3` gives `danger`), and `hex`. During a trip also `season`, `weather`, `mode` (on foot, on horseback…), `day` and the party stats. Every value, and which one wins when two share a name: [What tables see](../technical/04-what-tables-see.md).
 
 ## 2. Tags and fields
 
-Tag hexes in Map (`haunted`, `ruins`…) and give them fields (`danger: 3`). Then:
+Tag cells in Map (`haunted`, `ruins`…) and give them fields (`danger: 3`). Then:
 
 ```yaml
 entries:
@@ -43,7 +43,7 @@ entries:
   - { id: ambush, range: 1-6, when: { place.danger: { gte: 3 } }, result: 'Ambush!' }
 ```
 
-`place.tags: haunted` holds when the hex has that tag among others. `{ gte: 3 }` means "3 or more"; also `gt`, `lt`, `lte`, `not`.
+`place.tags: haunted` holds when the cell has that tag among others. `{ gte: 3 }` means "3 or more"; also `gt`, `lt`, `lte`, `not`.
 
 A field can also change the dice: `roll: '1d6 + {{place.danger}}'`.
 
@@ -114,7 +114,7 @@ weather:
 values:
   lost: { name: Lost, blocks: [travel.move] } # set by the getting-lost table: no more travel today
 actions:
-  march: # by day, for the day's 8 hours: to the destination or one hex
+  march: # by day, for the day's 8 hours: to the destination or one place
     params: { until: { choices: [destination, place] } }
     when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
     do: [{ travel.move: '{{params.until}}' }]
@@ -172,13 +172,13 @@ The rest of this section goes over each part of that example: what it's for, wha
 
 ### The day and the speed
 
-There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (its **march**, below), the trip goes on by itself with the one its `onward` names, and what it does when it can't move is its **halt**. **travel** says when new trips start (`start`: a clock or a part of the calendar's day; empty, midnight) and how many hours a way's day of marching takes (`hoursPerDay`, the scale of its speed); actions spend hours too. Its `cellKm` is the scale the system is played at, how many km a hex measures (`cellKm: 30`: a hex is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Map: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
+There's no built-in day and no built-in march: the party moves with the actions that have a `travel.move` step (its **march**, below), the trip goes on by itself with the one its `onward` names, and what it does when it can't move is its **halt**. **travel** says when new trips start (`start`: a clock or a part of the calendar's day; empty, midnight) and how many hours a way's day of marching takes (`hoursPerDay`, the scale of its speed); actions spend hours too. Its `cellKm` is the scale the system is played at, how many km a cell measures (`cellKm: 30`: a cell is a day's march at 30 km a day): trips without a map use it, and so does a map with the system unless the map sets its own scale (Map: Map settings → Map). Without it, the map's or the Travel way's, 10 by default. A way of travelling's `kmPerDay` is what it covers in those hours on easy ground, and everything else multiplies it:
 
 - **terrains**: the speed on each terrain (`multiplier`: 0.5 is half speed, 2 double), by the ids of Map's palette. `defaultTerrain: { multiplier: 1 }` covers the terrains the map uses and the list doesn't name.
 - **connections**: the kinds of connection between places: the roads, trails and rivers the party follows, and those drawn with Map's **Connections** (a bridge, a door, a tunnel). Following one, its `multiplier` replaces the terrain's (`road: { multiplier: 1.5 }`); with `extra`, a step through it takes those minutes on top of its usual time (`door: { extra: 10 }`); one drawn between far places goes at its kind's `multiplier` (1 if it has none) over its length, never the terrain's; `passable`, as a terrain's, says when it can be crossed, seeing the connection itself (`passable: { unless: { connection.state: locked } }`). A connection that can't be crossed is gone round; with no other way, the route leads up to it and the party stops there, where actions read it as `connection.*` and their effects change it (`connection.state: open`): [What tables see](../technical/04-what-tables-see.md#the-connection-of-the-step-connection).
 - **weather**: today's weather (by the id a table or weather model sets) slows everyone down: `storm: { speed: 0 }` (nobody travels), `heavy-rain: { speed: 0.5 }`.
 
-A terrain can be **closed**: `passable: false`, always, or on a [condition](../technical/08-conditions.md) about the hex entered and the moment. Routes go around what's closed.
+A terrain can be **closed**: `passable: false`, always, or on a [condition](../technical/08-conditions.md) about the cell entered and the moment. Routes go around what's closed.
 
 ```yaml
 terrains:
@@ -186,16 +186,16 @@ terrains:
   peaks: { multiplier: 0.25, passable: { when: { time.season: summer } } } # open only in summer
   pass: { multiplier: 0.5, passable: { unless: { trip.weather: [snow, storm] } } } # closed in snow
   lake: { passable: { when: { time.month: [deepwinter, wolfmoon] } } } # crossed on the ice
-water: { passable: false } # water hexes whose terrain isn't listed
+water: { passable: false } # water cells whose terrain isn't listed
 ```
 
-**water** does the same for water hexes whose terrain isn't listed (the map's Edit palette → Water). Tables see `water: true` on water hexes.
+**water** does the same for water cells whose terrain isn't listed (the map's Edit palette → Water). Tables see `water: true` on water cells.
 
 ### Ways of travelling
 
 **modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` (or, for rooms and points, `minutes` a step: `turn: { minutes: 10 }`) and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, the id is shown, made readable (`on-foot`: on foot). Two conditions shape each one:
 
-- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each hex it enters. It sees the hex (`terrain`, `water`, `tags`, `region`, its fields), `connections` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { place.water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; a cart only by road: `through: { trip.connections: road }`.
+- `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each cell it enters. It sees the cell (`terrain`, `water`, `tags`, `region`, its fields), `connections` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { place.water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; a cart only by road: `through: { trip.connections: road }`.
 - `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }`; a horse not in snow: `unless: { trip.weather: snow }`.
 
 A value of the day can block one too (`blocks: [modes.horse]`, below): it can't be chosen, and a party already travelling that way stops until it changes.
@@ -236,9 +236,9 @@ Blocked buttons stay visible, disabled, and say why with the value's name ("Lost
 
 **actions** are what the party does, only the ones the system declares. March, camp and rest are actions like any other: an id, conditions, steps; the trip panel shows each one as a button, by its `name` (and its `description` as help). A system without `camp` has no camp, and **a system without an action that moves doesn't move**: nothing is built in.
 
-**Marching is an action too.** What moves the party is the step `travel.move`: along the route while time passes, minute by minute, **while the action's `when` / `unless` hold** (checked as it goes: it stops the moment they don't, said in the journal), up to the destination (`travel.move: destination`), the next hex (`hex`) or a number of hexes (`3`). A march without `when` marches whenever nothing else stops it, day and night; by day for 8 hours is `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`, or with the parts of the calendar's day, `time.tags: { not: dark }`. Its id is the system's own: a ship may `sail`, a caravan `ride`.
+**Marching is an action too.** What moves the party is the step `travel.move`: along the route while time passes, minute by minute, **while the action's `when` / `unless` hold** (checked as it goes: it stops the moment they don't, said in the journal), up to the destination (`travel.move: destination`), the next cell (`hex`) or a number of cells (`3`). A march without `when` marches whenever nothing else stops it, day and night; by day for 8 hours is `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`, or with the parts of the calendar's day, `time.tags: { not: dark }`. Its id is the system's own: a ship may `sail`, a caravan `ride`.
 
-**How far is a parameter.** An action may declare `params`, each with its `choices` (the first is the default, unless `default` says another); its steps and conditions read the one chosen as `{{params.<id>}}`. Its button offers the choices beside it (_March_ · to the destination / one hex), a `do:` step gives them with `with:`, and so does `travel.onward`. A choice may have a name to show (`{ id: 3, name: Three hexes }`, translated in the pack's `locales/`).
+**How far is a parameter.** An action may declare `params`, each with its `choices` (the first is the default, unless `default` says another); its steps and conditions read the one chosen as `{{params.<id>}}`. Its button offers the choices beside it (_March_ · to the destination / one cell), a `do:` step gives them with `with:`, and so does `travel.onward`. A choice may have a name to show (`{ id: 3, name: Three hexes }`, translated in the pack's `locales/`).
 
 **When the trip goes on by itself** (the world clock moving with a trip on, a travel order), it takes the action `travel.onward` names, with its parameters, whenever it can, and waits (with the halt) while it can't: `onward: { do: actions.march, with: { until: destination } }`. Without it, the trip only waits.
 
@@ -276,7 +276,7 @@ When the button can be pressed:
 
 A button that can't be pressed stays visible, disabled, saying why, so the buttons don't move around. `hideWhenUnavailable: true` hides it instead while it can't be taken: for actions that only make sense now and then, like the Grey Marches' rite (at a shrine under the full Ember Moon), talking round the hirelings (only while they refuse) or the night march (only at night).
 
-**Actions the system takes by itself.** With `on:` an action isn't a button: the system takes it at that moment, when its `when` / `unless` hold. The moments are a clock (`on: '06:00'`, as it strikes) or a part of the calendar's day (`on: time.part.morning`, as it begins), marching, waiting or asleep in camp, `trip.place-enter` (entering each hex), `time.day-end` (as each day ends, camping or not), another action (right after that action starts: `on: actions.camp`), an action's end (once its steps are done: `on: actions.forage.done`), a check (right after it's resolved, after **Continue** if it paused: `on: checks.WEATHER_CHECK_REQUIRED`; the Grey Marches' _A stormy dawn_ reads the weather just rolled, and the next checks of that dawn see what it changed) or a moment of the world (below: `on: world.turn`, `on: world.clocks.<id>.full`), or several as a list (`on: [time.part.morning, trip.place-enter]`). It comes before that moment's checks, so they see what it changed; its conditions see which moment it is as `trip.moment`, and at `time.day-end` the action under way as `trip.doing` (`trip.doing: camp`).
+**Actions the system takes by itself.** With `on:` an action isn't a button: the system takes it at that moment, when its `when` / `unless` hold. The moments are a clock (`on: '06:00'`, as it strikes) or a part of the calendar's day (`on: time.part.morning`, as it begins), marching, waiting or asleep in camp, `trip.place-enter` (entering each cell), `time.day-end` (as each day ends, camping or not), another action (right after that action starts: `on: actions.camp`), an action's end (once its steps are done: `on: actions.forage.done`), a check (right after it's resolved, after **Continue** if it paused: `on: checks.WEATHER_CHECK_REQUIRED`; the Grey Marches' _A stormy dawn_ reads the weather just rolled, and the next checks of that dawn see what it changed) or a moment of the world (below: `on: world.turn`, `on: world.clocks.<id>.full`), or several as a list (`on: [time.part.morning, trip.place-enter]`). It comes before that moment's checks, so they see what it changed; its conditions see which moment it is as `trip.moment`, and at `time.day-end` the action under way as `trip.doing` (`trip.doing: camp`).
 
 ```yaml
 actions:
@@ -292,13 +292,13 @@ actions:
 | Step                                  | What it does                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `time: 180`                           | Three hours pass. `time: '14:00'` or a part of the calendar's day (`time: time.meal.luncheon`): until it next comes. The moments on the way happen, and every day that ends on the way ends with its `time.day-end` actions and checks.                                                                                                                                                                                              |
-| `travel.move: destination`            | Moves the party along its route while time passes and the action's `when` / `unless` hold: to the destination, the next `hex` or a number of hexes (`3`), or as a variable says (`'{{params.until}}'`). A check that needs the player stops it under way (**Go on** goes on with it).                                                                                                                                                |
+| `travel.move: destination`            | Moves the party along its route while time passes and the action's `when` / `unless` hold: to the destination, the next `place` or a number of cells (`3`), or as a variable says (`'{{params.until}}'`). A check that needs the player stops it under way (**Go on** goes on with it).                                                                                                                                              |
 | `travel.speed: 0.5`                   | The rest of today's moving goes at half speed (`1.5`: faster).                                                                                                                                                                                                                                                                                                                                                                       |
 | `effects: { party.stats.fatigue: 1 }` | Changes the party, like a table's effects. A change past a value's `min` / `max` stops there, and later steps see it in `trip.below` / `trip.above` by its full name, and the new values (the party's stats, sheet and items).                                                                                                                                                                                                       |
 | `set: { lost: true }`                 | Sets values of the day the system declares (`values`).                                                                                                                                                                                                                                                                                                                                                                               |
 | `do: actions.forage`                  | Takes another action, if its conditions hold (otherwise nothing happens). With `with:`, its parameters: `{ do: actions.march, with: { until: place } }`.                                                                                                                                                                                                                                                                             |
 | `roll: checks.ENCOUNTER`              | Rolls a check now: every check with that event whose `when` / `unless` hold, whatever its `at`. The steps after it wait until it's resolved, and see its result. `roll: table.ruins` (or `generator.`, `oracle.`, `deck.`, another pack's `core/table.twists`) rolls that instead, with no check or binding: its result goes to the journal by its name, its `set` and `effects` reach the trip, and an entry with `pause` stops it. |
-| `travel.advance: 1`                   | Moves the party that many hexes along its route at once, no time passing: each hex is entered as by marching (its `trip.place-enter` checks, its visit, the trip's totals); it stops at the destination, at a way it can't take or at a check. A variable too: `'{{party.stats.rank}}'`.                                                                                                                                             |
+| `travel.advance: 1`                   | Moves the party that many cells along its route at once, no time passing: each cell is entered as by marching (its `trip.place-enter` checks, its visit, the trip's totals); it stops at the destination, at a way it can't take or at a check. A variable too: `'{{party.stats.rank}}'`.                                                                                                                                            |
 | `travel.mode: modes.boat`             | Travels another way from now on, if that way can be chosen now (its `when` / `unless`, what blocks it); the route is planned again for it.                                                                                                                                                                                                                                                                                           |
 | `say: The porters sing`               | Writes a line of the system's own in the journal; `{{…}}` in it read then.                                                                                                                                                                                                                                                                                                                                                           |
 | `pause: true`                         | The trip waits there until the player presses **Continue** (with a text, it says it); then the rest goes on.                                                                                                                                                                                                                                                                                                                         |
@@ -322,13 +322,13 @@ actions:
     do: [{ roll: checks.NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
 ```
 
-What an action **rolls** are the checks with `at: actions.<its id>` (camp's: `at: actions.camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the hex's terrain); without it the journal says that none of its rolls apply there. In the Systems app's forms each step is written the same way, one box per step, with suggestions. Every step, with examples and a whole system that uses them: [Actions and steps](../technical/10-actions-and-steps.md). The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
+What an action **rolls** are the checks with `at: actions.<its id>` (camp's: `at: actions.camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the cell's terrain); without it the journal says that none of its rolls apply there. In the Systems app's forms each step is written the same way, one box per step, with suggestions. Every step, with examples and a whole system that uses them: [Actions and steps](../technical/10-actions-and-steps.md). The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
 
 **The halt.** `travel: { halt: { at: '20:00', do: actions.camp } }` says what the party does when it can't march while the time moves on by itself (the world clock, **Wait to go on**, a travel order while its way on can't be taken): from that moment (a clock or a part of the day, `at: time.part.night`) until the day ends, a party that isn't marching takes that action, once a day. When the action can't be taken (a value blocks it, or its `when` / `unless` don't hold), the journal says why and the time passes without it, until the trip can go on. Without a halt, the party just waits.
 
 ### Journeys by moves
 
-Some games don't march hour by hour: a journey is made of **moves**, each one bringing the party closer by some progress, and arriving may need a roll. The `travel.advance` step is that progress: the party moves along its route as many hexes (or legs of a way, in the Travel app) as it says, at once.
+Some games don't march hour by hour: a journey is made of **moves**, each one bringing the party closer by some progress, and arriving may need a roll. The `travel.advance` step is that progress: the party moves along its route as many cells (or legs of a way, in the Travel app) as it says, at once.
 
 - **No marching**: declare no action with a `travel.move` step, and only the moves bring the party forward.
 - **A move**: an action whose steps pass time, spend what the party carries and advance (`do: [{ time: 240 }, { effects: { party.values.food: -1 } }, { travel.advance: 1 }]`); with a check (`roll:` or `at:` its id) whose table decides how it went.
@@ -354,7 +354,7 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 **checks** are what the trip rolls, and when. Each one has an `event` (any name you like: the bindings use it to pick its table), a `name` and `description` for players (shown in the trip panel and the journal instead of the event; translated in `locales/`, see [Translations](05-translations.md#rules-calendars-weather-and-roll-modes)) and an `at`:
 
 - a clock or a part of the calendar's day: `at: '06:00'`, `at: time.part.morning`, as it comes, marching, waiting or asleep in camp (the weather, getting lost each morning); a new trip has the moments of its first minute as it first marches or waits;
-- `trip.place-enter`: entering each hex (encounters, a toll, a landmark);
+- `trip.place-enter`: entering each cell (encounters, a toll, a landmark);
 - `time.day-end`: as each day ends, after the system's `time.day-end` actions (hunger). They see `trip.below` / `trip.above`, what hit a bound that day, and `trip.doing`, the action under way when it ended;
 - an action (`actions.<id>`): with that action, before its steps, which wait for it (`at: actions.camp`, `at: actions.rest`);
 - an action's end (`actions.<id>.done`): once its steps are done (the Grey Marches' foraging, `at: actions.forage.done`, after its three hours);
@@ -374,9 +374,9 @@ The journal says it first (**In the world: The Wyrm wakes filled**), and then it
 
 **World turns.** A world turn of the campaign (every faction's turn, then the world's reactions to it) is a moment of the world too: `world.turn`, for an action's `on:` or a check's `at:`, heard as a clock filling is, whatever brought it (a turn due as time moves on, **World turn** by hand, another app, the trip itself). The trip's journal tells each turn played while it goes on: **World turn:** and what each faction did. A step brings one: `do: world.turn` (it takes no `with:`). The travel rules don't know the world, so the app the trip plays in plays the turn on the campaign's world, as one due with time; without a campaign whose system declares factions there's no turn to play, and the journal says **World turn: nothing happens**. A turn heard that brings another (`on: world.turn` doing `do: world.turn`) is refused when the pack loads, and the Systems app warns of `on: world.turn` in a system without factions. The Grey Marches' _Carry the news_ (in a market town, once a trip) brings one; their _Word on the road_ hears every one.
 
-**Moments written as conditions** (reactions). Some things happen once, when something becomes true, whatever made it true: _when morale reaches 0, the hirelings desert_. Write the moment as a condition, `on: { when: { party.values.morale: { lte: 0 } } }` (with `unless` too), for an action's `on:` or a check's `at:`, alone or in a list beside named moments (`at: [time.part.morning, { when: … }]`). It comes **once, as the condition turns true**, and again only after it has stopped holding: a table that lowers morale, an action, a hand on the party's card, a faction's turn all count. It's looked at after every change of the trip, reading what tables see (the trip, the hex, the time, the party, the characters, the world's clocks), and what comes is played there and then, as any moment's actions and checks (a pause stops the trip). What already holds when a trip starts comes on its first step (a trip that starts with morale 0 sees its hirelings desert); a trip saved before reactions existed takes what holds when it's next played as already seen. With `for: party.members`, it's looked at for each member, read with that member as `acting` (`on: { when: { acting.values.health: { lte: 0 } }, for: party.members }`), and played with them acting (the journal says _For Mara, a rule of the system comes into play_), each member once. Reactions that set each other off (directly or in a chain) stop after 10 in a row, with a line in the journal. A clock filling (`world.clocks.<id>.full`, above) is one case of it, heard even when filled away from the trip. **A state is not a reaction**: what should hold all the while (encumbered, weary) is a sheet's condition with `when:` ([Sheets](../technical/07-kinds.md#sheets)); a reaction is for something that happens. The Grey Marches: the hirelings desert as morale reaches 0, a companion falls as their health does (`for: party.members`), and an omen is drawn as the Wyrm's clock reaches 4 (`at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]`); Core's _Despair_ stops the trip as morale reaches 0.
+**Moments written as conditions** (reactions). Some things happen once, when something becomes true, whatever made it true: _when morale reaches 0, the hirelings desert_. Write the moment as a condition, `on: { when: { party.values.morale: { lte: 0 } } }` (with `unless` too), for an action's `on:` or a check's `at:`, alone or in a list beside named moments (`at: [time.part.morning, { when: … }]`). It comes **once, as the condition turns true**, and again only after it has stopped holding: a table that lowers morale, an action, a hand on the party's card, a faction's turn all count. It's looked at after every change of the trip, reading what tables see (the trip, the cell, the time, the party, the characters, the world's clocks), and what comes is played there and then, as any moment's actions and checks (a pause stops the trip). What already holds when a trip starts comes on its first step (a trip that starts with morale 0 sees its hirelings desert); a trip saved before reactions existed takes what holds when it's next played as already seen. With `for: party.members`, it's looked at for each member, read with that member as `acting` (`on: { when: { acting.values.health: { lte: 0 } }, for: party.members }`), and played with them acting (the journal says _For Mara, a rule of the system comes into play_), each member once. Reactions that set each other off (directly or in a chain) stop after 10 in a row, with a line in the journal. A clock filling (`world.clocks.<id>.full`, above) is one case of it, heard even when filled away from the trip. **A state is not a reaction**: what should hold all the while (encumbered, weary) is a sheet's condition with `when:` ([Sheets](../technical/07-kinds.md#sheets)); a reaction is for something that happens. The Grey Marches: the hirelings desert as morale reaches 0, a companion falls as their health does (`for: party.members`), and an omen is drawn as the Wyrm's clock reaches 4 (`at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]`); Core's _Despair_ stops the trip as morale reaches 0.
 
-`when` / `unless` decide where and when it applies, with the same [conditions](../technical/08-conditions.md) as tables; `connections` are the roads or rivers of the stretch (the one just walked when entering a hex, the one ahead at a moment of the day and in camp).
+`when` / `unless` decide where and when it applies, with the same [conditions](../technical/08-conditions.md) as tables; `connections` are the roads or rivers of the stretch (the one just walked when entering a cell, the one ahead at a moment of the day and in camp).
 
 ```yaml
 checks:
@@ -425,7 +425,7 @@ stats:
   morale:
     { name: Morale, description: Falls with hunger and bad news., default: 2, min: -3, max: 3 }
 reads:
-  danger: { name: Danger, description: How dangerous the hex is. }
+  danger: { name: Danger, description: How dangerous the cell is. }
 ```
 
 ### Naming the system
@@ -463,7 +463,7 @@ Then the bindings say what the party takes from them:
 
 Effects reach them: `party.members.values.health: 1` (every character), `acting.conditions.wounded: true` (whoever acts), `roles.lookout.values.health: -1` (a role's holder), `characters.kael.values.health: -1` (one). Conditions read `party.members: kael`, `acting.values.survival: { gte: 2 }`, `characters.kael.conditions: wounded`.
 
-**Relations** tie a character to another, a place, a region or a hex (the sheet's kinds: a bond, a home…). Where the party goes, `place.related` says who is tied to the hex (it, its region or a place in it) and `place.relations.home` who has it as home: a check `when: { place.relations.home: { exists: true } }, unless: { from.relations.home: { exists: true } }` comes up when the party comes home.
+**Relations** tie a character to another, a place, a region or a cell (the sheet's kinds: a bond, a home…). Where the party goes, `place.related` says who is tied to the cell (it, its region or a place in it) and `place.relations.home` who has it as home: a check `when: { place.relations.home: { exists: true } }, unless: { from.relations.home: { exists: true } }` comes up when the party comes home.
 
 ```yaml
 kind: sheet
@@ -551,21 +551,21 @@ The Grey Marches' `sky.yaml` is the full example (their tables in `weather.yaml`
 
 ## 7. Discovering the map
 
-Bindings can also say how empty hexes are decided while travelling (Map's **Discover the map as you travel**):
+Bindings can also say how empty cells are decided while travelling (Map's **Discover the map as you travel**):
 
 ```yaml
 kind: bindings
 discover:
-  terrain: { resolve: table.next-terrain } # an empty hex's terrain
-  contents: { resolve: table.hex-contents } # what a hex holds, the first time you enter it
-  reveal: neighbors # or: entered (only the hex you walk into)
+  terrain: { resolve: table.next-terrain } # an empty cell's terrain
+  contents: { resolve: table.hex-contents } # what a cell holds, the first time you enter it
+  reveal: neighbors # or: entered (only the cell you walk into)
 on: { … }
 ```
 
-- The **terrain** table sees the hex you stand on: `terrain`, its tags, fields and region, plus `place` (the hex being decided) and the land around it: `around.<terrain>` (how many of its known neighbours have it), `common` (the most frequent). It answers with `set: { terrain: hills }`; `set: { terrain: '{{common}}' }` makes the land around grow, so lakes, forests and ranges come out whole instead of a patchwork; `when: { around.lake: { gte: 2 } }` gathers water.
-- **A land model instead** (`kind: land`, [Land models](../technical/07-kinds.md#land-models)): `terrain: { land: land.default }` decides each empty hex from the rows of all its known neighbours added up, with no table. The system must list it (`land: [land.default]` in its `kind: system`).
-- **A table that hands over to a model:** an entry with `set: { land: land.<id> }` (and no `terrain`) lets the model decide that hex. The table keeps the special cases and the model the rest; an entry whose `when` reads the region gives a region its own land: `{ id: north, range: 1-6, when: { from.region: The North }, set: { land: land.north } }`. A model the system doesn't list decides nothing.
-- The **contents** table sees the entered hex. Its text becomes a point of interest; `set: { poi: false }` means nothing worth noting, `set: { poi: 'A name' }` names it differently. `tags` (one or a list) and `name` are written on the hex too. An entry may make a **place from a template** instead (`effects: { place.pois.ruins: 1 }`, from the system's [catalogues of places](../technical/07-kinds.md#places)): the point of interest is the template's (its name, text, icon and fields, `{{result}}` reading the entry's text) and its tags go on the hex, in place of one made of the text.
+- The **terrain** table sees the cell you stand on: `terrain`, its tags, fields and region, plus `place` (the cell being decided) and the land around it: `around.<terrain>` (how many of its known neighbours have it), `common` (the most frequent). It answers with `set: { terrain: hills }`; `set: { terrain: '{{common}}' }` makes the land around grow, so lakes, forests and ranges come out whole instead of a patchwork; `when: { around.lake: { gte: 2 } }` gathers water.
+- **A land model instead** (`kind: land`, [Land models](../technical/07-kinds.md#land-models)): `terrain: { land: land.default }` decides each empty cell from the rows of all its known neighbours added up, with no table. The system must list it (`land: [land.default]` in its `kind: system`).
+- **A table that hands over to a model:** an entry with `set: { land: land.<id> }` (and no `terrain`) lets the model decide that cell. The table keeps the special cases and the model the rest; an entry whose `when` reads the region gives a region its own land: `{ id: north, range: 1-6, when: { from.region: The North }, set: { land: land.north } }`. A model the system doesn't list decides nothing.
+- The **contents** table sees the entered cell. Its text becomes a point of interest; `set: { poi: false }` means nothing worth noting, `set: { poi: 'A name' }` names it differently. `tags` (one or a list) and `name` are written on the cell too. An entry may make a **place from a template** instead (`effects: { place.pois.ruins: 1 }`, from the system's [catalogues of places](../technical/07-kinds.md#places)): the point of interest is the template's (its name, text, icon and fields, `{{result}}` reading the entry's text) and its tags go on the cell, in place of one made of the text.
 - Party stats and today's values are in the context of both, as in checks.
 
 The Grey Marches' `discovery.yaml` is a full example: terrain that tends to go on, families of land, a landmark found only once, and east of the Hollow Hills a hand-over to their land model (`land.yaml`).

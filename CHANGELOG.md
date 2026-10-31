@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Every app and the manual say **cell** (in Spanish, **casilla**) for a map's cell, on maps of hexes and of squares alike; "hex" is left only for the shape (a hexcrawl, Map settings → Cells → **Hexes**, orientation, hex flowers).
+
 ## [0.27.0] - 2026-10-31
 
 ### Apps

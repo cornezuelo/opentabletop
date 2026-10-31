@@ -82,7 +82,7 @@ export const en = {
     minimap: 'The factions’ land on {map}',
     bringLand: 'Give them their starting land here',
     bringLandHelp:
-      'No faction holds land on this map yet (it joined the campaign after they came): each gets the land its system says it starts with here, every hex of its starting regions by name (and its starting hexes, if this is the map they’re for). Their sheets don’t change.',
+      'No faction holds land on this map yet (it joined the campaign after they came): each gets the land its system says it starts with here, every cell of its starting regions by name (and its starting cells, if this is the map they’re for). Their sheets don’t change.',
     noMaps:
       'No map is in this campaign: world turns change the factions’ sheets and the progress clocks, but no land. Add a map from the Map app (**Map settings → Campaign**).',
     none: 'The campaign’s system has factions, not yet in this campaign: bring them in, each holding the land the system says it starts with on the map chosen.',

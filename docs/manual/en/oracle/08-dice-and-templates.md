@@ -87,7 +87,7 @@ Both entries cover every total; the first whose condition holds comes up. The Gr
 When a definition is rolled it receives a **context**: a set of named values. They come from, in order:
 
 1. **What you type** in the roll panel's **Context** box (the Oracle app lists the values a definition reads, with suggestions taken from its conditions).
-2. **Map**, when you roll from its Oracle panel or a trip: `hex`, `terrain`, `water`, `tags`, `name`, `region`, the fields of the region and the hex, the icon (`icon.*`) and the selected token (`token.*`); during a trip, `season`, `weather`, `mode`, `day`, the party stats, today's values (`weather`, `…Modifier`, `…Impossible` set earlier the same day) and `edges` (the road or river being followed).
+2. **Map**, when you roll from its Oracle panel or a trip: `hex`, `terrain`, `water`, `tags`, `name`, `region`, the fields of the region and the cell, the icon (`icon.*`) and the selected token (`token.*`); during a trip, `season`, `weather`, `mode`, `day`, the party stats, today's values (`weather`, `…Modifier`, `…Impossible` set earlier the same day) and `edges` (the road or river being followed).
 3. **The bindings** of a travel system: `context: { … }` adds fixed values for one check.
 4. **Inside the roll itself**:
    - An oracle's **input** is a value with its name (`odds: even`).
@@ -105,8 +105,8 @@ name: Encounter
 fields:
   who: { table: table.wilderness-creatures } # reads terrain, season… from the context
   mood: { table: table.reaction, context: { bonus: 1 } }
-  count: { roll: '1d6 + {{place.danger}}' } # a hex field from the Map app
+  count: { roll: '1d6 + {{place.danger}}' } # a cell's field from the Map app
 template: '{{count}} × {{who}}, {{mood}}'
 ```
 
-Rolled in a forest hex with `danger: 2`, this could give "5 × wolves, curious".
+Rolled in a forest cell with `danger: 2`, this could give "5 × wolves, curious".

@@ -1,13 +1,13 @@
 # Getting started
 
-Map draws hex maps for hexcrawls and sandbox campaigns, and lets you play trips on them. Everything stays in your browser: no account, no server. It can be installed and works offline: see [Installing and playing offline](../technical/06-install-and-offline.md).
+Map draws maps of hexes or squares for hexcrawls and sandbox campaigns, and lets you play trips on them. Everything stays in your browser: no account, no server. It can be installed and works offline: see [Installing and playing offline](../technical/06-install-and-offline.md).
 
 ## The screen
 
 - **Top bar**, like in every app: on the left the app (the open map's name is in the window's title, "Map - The Grey Marches") and the button with nine dots that opens the other OpenTabletop apps; on the right Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings, the gear (**Preferences**, shared by every app: language and notes app) and Help (?).
 - **Toolbar** (left): the tools — Select, Terrain, Regions, Roads and rivers, Connections, Icons, Text, Tokens, Play, the World clock and the Oracle. The small tab on the map's left edge folds it away for more room (the tools' keys still work) and brings it back.
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
-- **Side panel** (right): what the active tool edits — the selected hex with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected. The tab on the map's right edge folds it away and brings it back.
+- **Side panel** (right): what the active tool edits — the selected cell with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected. The tab on the map's right edge folds it away and brings it back.
 - **Help column** (far right, opened with **?**): this manual, or the explanation of a field, beside the side panel so you see both.
 
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
@@ -32,11 +32,11 @@ An example you open becomes **your map**: your changes and your trip are kept in
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redoes every edit (a whole brush stroke is one step). Playing a trip is not part of undo: it has its own journal.
 
-**Map settings** (the folded map) holds the map name, the grid (its [cells](#hexes-or-squares), coordinates), its size (by number of hexes or by paper), the world scale (km per hex, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another) and its [campaign](#campaigns), with the system it's played with. Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+**Map settings** (the folded map) holds the map name, the grid (its [cells](#hexes-or-squares), coordinates), its size (by number of cells or by paper), the world scale (km per cell, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another) and its [campaign](#campaigns), with the system it's played with. Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
 
 ## Hexes or squares
 
-A map's cells are hexes or squares (**Map settings → Cells**). Hexes, six neighbours each, suit the land: overland maps and hexcrawls. **Squares** suit sites: a dungeon, a building, a town's streets, a battle map; each has four neighbours, or eight when the system lets trips step across corners ([Diagonal step](../systems/05-rules.md)). Everything works the same on both: terrain, regions, roads and rivers, icons, tokens, connections, trips (a trip steps from a cell to a neighbour), printing. Hexes also have their **Orientation** (flat or pointy tops). Changing the cells keeps each cell's data under the same column and row, so the drawing shifts a little. A [sub-map](13-sub-maps.md) is made of squares, since it's usually a site inside a place; the Grey Marches' Barrow-halls are one. In this manual, “hex” stands for a square too on a map of squares.
+A map's cells are hexes or squares (**Map settings → Cells**). Hexes, six neighbours each, suit the land: overland maps and hexcrawls. **Squares** suit sites: a dungeon, a building, a town's streets, a battle map; each has four neighbours, or eight when the system lets trips step across corners ([Diagonal step](../systems/05-rules.md)). Everything works the same on both: terrain, regions, roads and rivers, icons, tokens, connections, trips (a trip steps from a cell to a neighbour), printing. Hexes also have their **Orientation** (flat or pointy tops). Changing the cells keeps each cell's data under the same column and row, so the drawing shifts a little. A [sub-map](13-sub-maps.md) is made of squares, since it's usually a site inside a place; the Grey Marches' Barrow-halls are one. In this manual, a “cell” is a hex or a square, whichever the map has.
 
 ## Campaigns
 
@@ -50,8 +50,8 @@ A map is the **place**; the world it's played in is its **campaign**: the game s
 
 Moving a map to another campaign, renaming the campaign and changing its system are not part of Undo. One trip goes on in a campaign at a time ([With a trip going on](12-world.md#with-a-trip-going-on)).
 
-## Links to hexes
+## Links to cells
 
-Every hex has a link (the chain icon next to its coordinate). Paste it in your notes: opening it shows the map with that hex selected.
+Every cell has a link (the chain icon next to its coordinate). Paste it in your notes: opening it shows the map with that cell selected.
 
-The link carries the map's id. If this browser doesn't have the map (another device, or its data was cleared), Map tells you which file it needs — `<map id>.otd.json`, the name **Save** gives it — and offers to open it; once it's loaded you land on the hex.
+The link carries the map's id. If this browser doesn't have the map (another device, or its data was cleared), Map tells you which file it needs — `<map id>.otd.json`, the name **Save** gives it — and offers to open it; once it's loaded you land on the cell.

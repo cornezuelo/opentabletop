@@ -1,10 +1,10 @@
 # What reacts to what
 
-A system's rules react to things happening: a check is rolled at dawn, an action is taken as the party enters a hex, the world reacts when a clock fills, a trip hears a world turn. Each of these is a **moment**, and a definition that reacts to one names it (`at:` on a check, `on:` on an action or a world reaction). This page gathers every moment of every part of the system, says **who hears it** (a trip, the world, or both) and **in which order** everything is played when several things happen at once. How to write each one is in [Syntax](09-syntax.md#moments), [Actions and steps](10-actions-and-steps.md) and [The world's rules](07-kinds.md#the-world-s-rules).
+A system's rules react to things happening: a check is rolled at dawn, an action is taken as the party enters a cell, the world reacts when a clock fills, a trip hears a world turn. Each of these is a **moment**, and a definition that reacts to one names it (`at:` on a check, `on:` on an action or a world reaction). This page gathers every moment of every part of the system, says **who hears it** (a trip, the world, or both) and **in which order** everything is played when several things happen at once. How to write each one is in [Syntax](09-syntax.md#moments), [Actions and steps](10-actions-and-steps.md) and [The world's rules](07-kinds.md#the-world-s-rules).
 
 ## Two places that react
 
-- **The trip** (its travel rules): its checks (`at:`) and the actions it takes by itself (`on:`). It reacts as the trip goes on, in Map's Play or in Travel. It knows the party, the hex it's in, the day's values.
+- **The trip** (its travel rules): its checks (`at:`) and the actions it takes by itself (`on:`). It reacts as the trip goes on, in Map's Play or in Travel. It knows the party, the cell it's in, the day's values.
 - **The world** (the system's `kind: world`): its reactions (`on:`). It reacts as the world clock moves, wherever it moves: the Campaign app, Map's World panel, and under a trip going on (the world is one). It knows the world clock, the progress clocks, the factions, today's events and the world's weather; it has no party.
 
 They don't call each other: each hears the other's moments through the campaign (below, [Between the trip and the world](#between-the-trip-and-the-world)).
@@ -15,7 +15,7 @@ They don't call each other: each hears the other's moments through the campaign 
 | ------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
 | a clock (`'06:00'`)                                     | trip           | as it strikes, marching, waiting or asleep in camp                                                   |
 | a part of the day (`time.part.morning`)                 | trip           | as the calendar's part begins                                                                        |
-| `trip.place-enter`                                      | trip           | entering each hex                                                                                    |
+| `trip.place-enter`                                      | trip           | entering each cell                                                                                   |
 | `time.day-end`                                          | trip           | as each day of the trip ends, at midnight                                                            |
 | an action (`actions.camp`)                              | trip           | as the party takes it, before its steps                                                              |
 | an action's end (`actions.camp.done`)                   | trip           | once its steps are done                                                                              |
@@ -37,7 +37,7 @@ One step of a trip (a click: **March**, **Camp**, an action, **Continue**) plays
 3. **The step itself.** As time passes, each moment that comes is played at its minute. When several come in the same minute:
    - **A day that ends** comes first: the day-end moment at midnight, then the new day begins (today's values become `yesterday.*`), then the moments of the new day's first minute.
    - **A clock and a part of the day** that strike together come in the order the rules first name them (checks first, in their order, then actions).
-   - **Entering a hex** comes as the party enters it, once the move to it is done.
+   - **Entering a cell** comes as the party enters it, once the move to it is done.
 4. **Each moment** plays, in this order:
    1. the **actions** the system takes by itself at it (`on:`), in the order the rules declare them, each with its own steps; an action that waits (for the player, a check, a roll) holds the rest of the moment until it's done;
    2. the **checks** of the moment (`at:`), in the rules' order, each decided just before it's rolled, so it sees what the checks before it set (a check whose conditions don't hold is skipped);
