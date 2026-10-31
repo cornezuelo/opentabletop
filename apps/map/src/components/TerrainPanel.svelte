@@ -116,6 +116,8 @@
 
 <GenerateLand />
 
+<p class="help">{t('terrainMode.help')}</p>
+
 <style>
   .modes {
     display: grid;
@@ -179,5 +181,11 @@
     height: 16px;
     border: 1px solid rgb(0 0 0 / 0.4);
     border-radius: 3px;
+  }
+
+  .help {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 </style>

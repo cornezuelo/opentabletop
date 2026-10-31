@@ -29,6 +29,7 @@ export const en = {
     brush: 'Brush (B)',
     fill: 'Fill (G)',
     erase: 'Erase (E)',
+    help: 'Click or drag to paint; Shift+drag paints a rectangle (a room at once). Right-click erases, Ctrl+click picks the terrain under the cursor, [ and ] change the brush size.',
   },
   actions: {
     help: 'Help and manual (?)',

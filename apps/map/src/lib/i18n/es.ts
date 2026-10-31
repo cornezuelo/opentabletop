@@ -29,6 +29,7 @@ export const es: Messages = {
     brush: 'Pincel (B)',
     fill: 'Relleno (G)',
     erase: 'Borrar (E)',
+    help: 'Haz clic o arrastra para pintar; Mayús+arrastrar pinta un rectángulo (una sala de una vez). El clic derecho borra, Ctrl+clic coge el terreno bajo el cursor, [ y ] cambian el tamaño del pincel.',
   },
   actions: {
     help: 'Ayuda y manual (?)',
