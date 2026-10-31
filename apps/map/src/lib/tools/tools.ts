@@ -4,6 +4,7 @@ import { hitTestLabel, hitTestToken } from '../render/hitTest'
 import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../commands/tokens'
 import { AddConnectionCommand, RemoveConnectionCommand } from '../commands/connections'
 import {
+  type HexData,
   type HexIcon,
   type LayerId,
   type MapConnection,
@@ -26,6 +27,7 @@ import {
   parseKey,
   cellLine,
   cellsInRadius,
+  cellsInRect,
   floodFill,
   type HexKey,
   keyOf,
@@ -65,14 +67,67 @@ export interface Tool {
 }
 
 /**
+ * Paints hexes with the brush (drag), or a rectangle of them (Shift+drag, from where the
+ * press was to where it's let go), as one step of the history.
+ */
+abstract class PaintTool implements Tool {
+  private batch: HexEditBatch | null = null
+  private last: Offset | null = null
+  /** The corner a rectangle reaches (where the pointer is). */
+  private to: Offset | null = null
+  protected erasing = false
+
+  /** The hex painted (or, `erasing`, cleared). */
+  protected abstract paintHex(hex: HexData): HexData
+
+  abstract down(cell: Offset, info: PointerInfo): void
+
+  protected start(cell: Offset, info: PointerInfo, erasing: boolean): void {
+    this.erasing = erasing
+    this.batch = new HexEditBatch(editor.map)
+    if (info.shift) {
+      editor.paintFrom = this.to = cell
+      return
+    }
+    this.last = cell
+    this.paint([cell], editor.brushRadius)
+  }
+
+  move(cell: Offset): void {
+    if (editor.paintFrom) this.to = cell
+    if (!this.batch || !this.last) return
+    if (cell.col === this.last.col && cell.row === this.last.row) return
+    this.paint(cellLine(this.last, cell, editor.map.grid).slice(1), editor.brushRadius)
+    this.last = cell
+  }
+
+  up(): void {
+    const from = editor.paintFrom
+    if (from && this.batch && this.to) this.paint(cellsInRect(from, this.to, editor.map.grid), 0)
+    editor.paintFrom = null
+    const command = this.batch?.finish()
+    if (command) editor.record(command)
+    this.batch = null
+    this.last = null
+  }
+
+  private paint(centers: Offset[], radius: number): void {
+    const batch = this.batch!
+    const changed: HexKey[] = []
+    for (const center of centers)
+      for (const cell of cellsInRadius(center, radius, editor.map.grid)) {
+        const key = keyOf(cell)
+        if (batch.edit(key, (hex) => this.paintHex(hex))) changed.push(key)
+      }
+    if (changed.length > 0) editor.notify({ kind: 'hexes', keys: changed })
+  }
+}
+
+/**
  * Regions: paint hexes into the active region with the brush (left), take them out
  * (right click), Ctrl+click picks the region under the cursor.
  */
-class RegionTool implements Tool {
-  private batch: HexEditBatch | null = null
-  private last: Offset | null = null
-  private erasing = false
-
+class RegionTool extends PaintTool {
   down(cell: Offset, info: PointerInfo): void {
     if (info.alt || info.ctrl) {
       const region = editor.map.hexes[keyOf(cell)]?.region
@@ -80,40 +135,16 @@ class RegionTool implements Tool {
       return
     }
     if (blockedByLock('regions')) return
-    this.erasing = info.button === 2
-    if (!this.erasing && !editor.regionId) {
+    const erasing = info.button === 2
+    if (!erasing && !editor.regionId) {
       showToast(t('regions.pickFirst'))
       return
     }
-    this.batch = new HexEditBatch(editor.map)
-    this.last = cell
-    this.paint([cell])
+    this.start(cell, info, erasing)
   }
 
-  move(cell: Offset): void {
-    if (!this.batch || !this.last) return
-    if (cell.col === this.last.col && cell.row === this.last.row) return
-    this.paint(cellLine(this.last, cell, editor.map.grid).slice(1))
-    this.last = cell
-  }
-
-  up(): void {
-    const command = this.batch?.finish()
-    if (command) editor.record(command)
-    this.batch = null
-    this.last = null
-  }
-
-  private paint(centers: Offset[]): void {
-    const batch = this.batch!
-    const region = this.erasing ? undefined : (editor.regionId ?? undefined)
-    const changed: HexKey[] = []
-    for (const center of centers)
-      for (const cell of cellsInRadius(center, editor.brushRadius, editor.map.grid)) {
-        const key = keyOf(cell)
-        if (batch.edit(key, (hex) => ({ ...hex, region }))) changed.push(key)
-      }
-    if (changed.length > 0) editor.notify({ kind: 'hexes', keys: changed })
+  protected paintHex(hex: HexData): HexData {
+    return { ...hex, region: this.erasing ? undefined : (editor.regionId ?? undefined) }
   }
 }
 
@@ -246,46 +277,17 @@ const selectTool: Tool = {
   },
 }
 
-class TerrainTool implements Tool {
-  private batch: HexEditBatch | null = null
-  private last: Offset | null = null
-  private erasing = false
-
+class TerrainTool extends PaintTool {
   down(cell: Offset, info: PointerInfo): void {
     if (info.alt || info.ctrl) return this.pick(cell)
     if (blockedByLock('terrain')) return
     const erase = editor.terrainMode === 'erase' || info.button === 2
     if (editor.terrainMode === 'fill') return this.fill(cell, erase)
-    this.erasing = erase
-    this.batch = new HexEditBatch(editor.map)
-    this.last = cell
-    this.paint([cell])
+    this.start(cell, info, erase)
   }
 
-  move(cell: Offset): void {
-    if (!this.batch || !this.last) return
-    if (cell.col === this.last.col && cell.row === this.last.row) return
-    this.paint(cellLine(this.last, cell, editor.map.grid).slice(1))
-    this.last = cell
-  }
-
-  up(): void {
-    const command = this.batch?.finish()
-    if (command) editor.record(command)
-    this.batch = null
-    this.last = null
-  }
-
-  private paint(centers: Offset[]): void {
-    const batch = this.batch!
-    const terrain = this.erasing ? undefined : editor.terrainId
-    const changed: HexKey[] = []
-    for (const center of centers)
-      for (const cell of cellsInRadius(center, editor.brushRadius, editor.map.grid)) {
-        const key = keyOf(cell)
-        if (batch.edit(key, (hex) => ({ ...hex, terrain }))) changed.push(key)
-      }
-    if (changed.length > 0) editor.notify({ kind: 'hexes', keys: changed })
+  protected paintHex(hex: HexData): HexData {
+    return { ...hex, terrain: this.erasing ? undefined : editor.terrainId }
   }
 
   private fill(start: Offset, erase: boolean): void {

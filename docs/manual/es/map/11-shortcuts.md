@@ -23,3 +23,4 @@
 | <kbd>Esc</kbd>                                                               | Deseleccionar, cancelar una línea                      |
 | <kbd>Intro</kbd> / <kbd>Retroceso</kbd>                                      | Terminar una línea / quitar su último punto            |
 | <kbd>Ctrl</kbd>+clic                                                         | Coger el terreno, la región o el icono bajo el cursor  |
+| <kbd>Mayús</kbd>+arrastrar                                                   | Pintar un rectángulo de terreno o región               |

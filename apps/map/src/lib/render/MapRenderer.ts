@@ -43,6 +43,7 @@ import {
   cellCorners,
   cellSides,
   cellsInRadius,
+  cellsInRect,
   formatCoord,
   hatchSegments,
   type HexKey,
@@ -391,7 +392,12 @@ export class MapRenderer {
 
     if (this.hovered && inBounds(this.hovered, grid)) {
       const brush = editor.tool === 'terrain' && editor.terrainMode !== 'fill'
-      const cells = brush ? cellsInRadius(this.hovered, editor.brushRadius, grid) : [this.hovered]
+      // A rectangle being painted (Shift+drag), or the brush under the pointer.
+      const cells = editor.paintFrom
+        ? cellsInRect(editor.paintFrom, this.hovered, grid)
+        : brush
+          ? cellsInRadius(this.hovered, editor.brushRadius, grid)
+          : [this.hovered]
       for (const cell of cells) g.poly(this.cornersAt(cell))
       g.stroke({ width: 2 / scale, color: HOVER_COLOR, alpha: 0.8 })
     }

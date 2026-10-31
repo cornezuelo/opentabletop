@@ -10,7 +10,14 @@ import {
   cellsAround,
   type CellLayout,
 } from './cells'
-import { cellsInRadius, floodFill, formatCoord, neighborCells, type GridShape } from './grid'
+import {
+  cellsInRadius,
+  cellsInRect,
+  floodFill,
+  formatCoord,
+  neighborCells,
+  type GridShape,
+} from './grid'
 
 const square: CellLayout = { kind: 'square', orientation: 'flat' }
 const kings: CellLayout = { ...square, diagonals: true }
@@ -83,5 +90,7 @@ describe('cells', () => {
     expect(floodFill({ col: 0, row: 0 }, shape, () => true)).toHaveLength(25)
     expect(formatCoord({ col: 2, row: 4 }, 'axial', shape)).toBe('2,4')
     expect(formatCoord({ col: 2, row: 4 }, 'CCRR', shape)).toBe('0305')
+    expect(cellsInRect({ col: 3, row: 1 }, { col: 1, row: 2 }, shape)).toHaveLength(6)
+    expect(cellsInRect({ col: 3, row: 3 }, { col: 9, row: 9 }, shape)).toHaveLength(4)
   })
 })

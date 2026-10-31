@@ -22,6 +22,15 @@ export function inBounds({ col, row }: Offset, shape: GridShape): boolean {
   return col >= 0 && row >= 0 && col < shape.width && row < shape.height
 }
 
+/** The cells of the rectangle of columns and rows between two cells (both corners included). */
+export function cellsInRect(a: Offset, b: Offset, shape: GridShape): Offset[] {
+  const cells: Offset[] = []
+  for (let row = Math.min(a.row, b.row); row <= Math.max(a.row, b.row); row++)
+    for (let col = Math.min(a.col, b.col); col <= Math.max(a.col, b.col); col++)
+      if (inBounds({ col, row }, shape)) cells.push({ col, row })
+  return cells
+}
+
 export function* allCells(shape: GridShape): Generator<Offset> {
   for (let row = 0; row < shape.height; row++)
     for (let col = 0; col < shape.width; col++) yield { col, row }

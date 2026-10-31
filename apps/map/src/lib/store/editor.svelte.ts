@@ -1,3 +1,4 @@
+import type { Offset } from '@open-tabletop/hex'
 import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand } from '../commands/paths'
@@ -159,6 +160,8 @@ class Editor {
   terrainMode = $state<TerrainMode>('brush')
   terrainId = $state('steppe')
   brushRadius = $state(0)
+  /** Where a rectangle being painted (Shift+drag with terrain or regions) started. */
+  paintFrom = $state<Offset | null>(null)
   selected = $state<HexKey | null>(null)
   /** Hexes with this tag are highlighted on the map (a view setting, not saved). */
   highlightTag = $state('')

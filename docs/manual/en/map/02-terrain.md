@@ -5,6 +5,7 @@ Paint the land with the **Terrain** tool (<kbd>B</kbd>).
 ## Painting
 
 - **Brush** (<kbd>B</kbd>): click or drag to paint the selected terrain. The **Brush size** slider paints several hexes at once (<kbd>[</kbd> and <kbd>]</kbd> change it).
+- <kbd>Shift</kbd>+drag (with the brush or the right button): paints (or erases) a **rectangle**, from where you pressed to where you let go; the quickest way to draw a room.
 - **Fill** (<kbd>G</kbd>): paints a whole connected area of the same terrain.
 - **Erase** (<kbd>E</kbd>), or the right mouse button with any mode: removes the terrain.
 - <kbd>Ctrl</kbd>+click picks the terrain under the cursor (eyedropper).

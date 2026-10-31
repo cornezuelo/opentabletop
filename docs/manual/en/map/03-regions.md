@@ -5,7 +5,7 @@ Regions name areas of the map: kingdoms, territories, danger zones. Use the **Re
 ## Creating and painting
 
 1. **New region** creates one and selects it.
-2. Paint its hexes with the brush (same **Brush size** as terrain). Right-click takes hexes out of their region; <kbd>Ctrl</kbd>+click picks the region of a hex.
+2. Paint its hexes with the brush (same **Brush size** as terrain). <kbd>Shift</kbd>+drag paints a rectangle. Right-click takes hexes out of their region; <kbd>Ctrl</kbd>+click picks the region of a hex.
 3. In the region's settings: **Name**, colour, **Show the name on the map** with its **Style** (the map's, or its own) and a **Linked note**.
 
 **Generate its empty hexes**, in its settings, fills the region's hexes that have no terrain yet with the system's land model, as the Terrain tool's **Generate land** does for the whole map (its seed and model): a region of empty hexes painted east of a range grows from the range ([Terrain](02-terrain.md#generating-land)).

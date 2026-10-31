@@ -429,7 +429,7 @@ export const es: Messages = {
     color: 'Color (Auto: tinta oscura; en regiones, su color)',
   },
   regions: {
-    help: 'Pinta hexes en la región seleccionada con el pincel; clic derecho los saca y Ctrl+clic coge la región del hex. Las tablas y las reglas de viaje pueden leer la región de un hex.',
+    help: 'Pinta hexes en la región seleccionada con el pincel (Mayús+arrastrar: un rectángulo); clic derecho los saca y Ctrl+clic coge la región del hex. Las tablas y las reglas de viaje pueden leer la región de un hex.',
     add: 'Nueva región',
     newName: 'Región {n}',
     empty: 'Aún no hay regiones: añade una y píntala.',

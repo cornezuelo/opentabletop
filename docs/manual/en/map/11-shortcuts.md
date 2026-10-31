@@ -23,3 +23,4 @@
 | <kbd>Esc</kbd>                                                               | Deselect, cancel a line                              |
 | <kbd>Enter</kbd> / <kbd>Backspace</kbd>                                      | Finish a line / remove its last point                |
 | <kbd>Ctrl</kbd>+click                                                        | Pick the terrain, region or icon under the cursor    |
+| <kbd>Shift</kbd>+drag                                                        | Paint a rectangle of terrain or region               |

@@ -424,7 +424,7 @@ export const en = {
     color: 'Color (Auto: dark ink; for regions, their color)',
   },
   regions: {
-    help: 'Paint hexes into the selected region with the brush; right-click takes them out, Ctrl+click picks the region under the cursor. Tables and travel rules can read a hex’s region.',
+    help: 'Paint hexes into the selected region with the brush (Shift+drag: a rectangle); right-click takes them out, Ctrl+click picks the region under the cursor. Tables and travel rules can read a hex’s region.',
     add: 'New region',
     newName: 'Region {n}',
     empty: 'No regions yet: add one, then paint it.',
