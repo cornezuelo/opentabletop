@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: **those present on the map are picked**: in Play a click on one's token opens the trip's **Party** tab with its card unfolded in **Here**, and a drag moves it in the trip, to another cell or room (the journal says so; put away from the party it stays there). Travel's and Map's **Here** unfold those left behind elsewhere into their cards too.
+
+### Fixes
+
+- Map: those present made in a room (a region played as one place) weren't drawn on the map; they're drawn where the party stands in it, or on the room's cell.
+
 ## [0.28.0] - 2026-10-31
 
 ### Apps

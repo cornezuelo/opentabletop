@@ -14,7 +14,14 @@ import {
   tripFacts,
   withAddedPacks,
 } from './trip'
-import { addPresent, removePresent, templateCopy } from './present'
+import {
+  addPresent,
+  movePresent,
+  presentHere,
+  removePresent,
+  settlePresent,
+  templateCopy,
+} from './present'
 
 /**
  * A made-up system played as a whole: a check at dawn whose table brings wolves (as many as
@@ -242,6 +249,22 @@ describe('those present: copies of templates in a trip', () => {
     expect(s.present!.map((p) => p.character.id)).toEqual(['wolf-2'])
     s = applyResult(s, { effects: { 'present.wolf': '=0' } }, {}, rules)
     expect(s.present).toEqual([])
+  })
+
+  it('the player moves a copy to another place, and back to the party', () => {
+    const { session } = startTrip({ system: wilds, location: 'a', time: 8 * 60 })
+    const s = applyResult(session, { effects: { 'present.wolf': 2 } }, {}, partyOf(wilds))
+    expect(movePresent(s, 'wolf-2', 'b')).toEqual([
+      { type: 'PRESENT_MOVED', id: 'wolf-2', name: 'Wolf 2', at: 'b' },
+    ])
+    expect(presentHere(s).map((p) => p.character.id)).toEqual(['wolf'])
+    // Placed there by the player, not left behind by the party: it stays when settled.
+    expect(settlePresent(s, partyOf(wilds)).present).toEqual([])
+    expect(s.present).toHaveLength(2)
+    expect(movePresent(s, 'wolf-2', 'b')).toEqual([])
+    expect(movePresent(s, 'nobody', 'a')).toEqual([])
+    movePresent(s, 'wolf-2', 'a')
+    expect(presentHere(s)).toHaveLength(2)
   })
 
   it("a pack a map adds brings its bestiary to a system that hasn't it", () => {

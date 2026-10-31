@@ -421,3 +421,20 @@ describe('the journal’s detail, and its filter', () => {
     expect(markdown).not.toContain('Wolves')
   })
 })
+
+describe('those present in the journal', () => {
+  it('says who the player moved by hand, and where', () => {
+    const context = (locale: string): JournalContext => ({
+      t: translator(() => locale),
+      startDay: 1,
+      hexLabel: (h) => `Hex ${h}`,
+      nameOf: (id) => id,
+    })
+    const moved = entry(0, 'PRESENT_MOVED', {
+      source: 'user',
+      data: { id: 'wolf-2', name: 'Wolf 2', at: '0507' },
+    })
+    expect(entryText(moved, context('en'))).toBe('Wolf 2 moved to Hex 0507 by hand')
+    expect(entryText(moved, context('es'))).toBe('Se lleva a mano a Wolf 2 hasta Hex 0507')
+  })
+})

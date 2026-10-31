@@ -17,7 +17,8 @@ import {
 } from '@open-tabletop/map'
 import { clickHex, partyMoved } from '../play/play'
 import { paintTerritory } from '../play/factions'
-import { drawnTokens, isCopy, tokenFromBestiary } from '../play/present'
+import { copyOf, dragCopy, drawnTokens, isCopy, moveCopy, tokenFromBestiary } from '../play/present'
+import { showPresent } from '@open-tabletop/travel-ui'
 import { placeInHex } from '../render/pathGeometry'
 import {
   cellAt,
@@ -808,20 +809,69 @@ export function deleteSelectedLabel(): void {
 }
 
 /**
+ * Those present in Play: a click on one shows its sheet in the trip's **Here**, a drag
+ * moves it to another place in the trip (drawn there while it's dragged).
+ */
+class CopyDragger {
+  private pressed: { id: string; at: Point; threshold: number; hex?: HexKey } | null = null
+
+  /** Handles the press if it hits one of those present. */
+  down(info: PointerInfo): boolean {
+    const hit = hitTestToken(info.world, true)
+    const id = hit && copyOf(hit)
+    if (!id) return false
+    this.pressed = { id, at: info.world, threshold: info.pickRadius / 3 }
+    return true
+  }
+
+  move(cell: Offset, info: PointerInfo): void {
+    const pressed = this.pressed
+    if (!pressed) return
+    if (!pressed.hex) {
+      if (Math.hypot(info.world.x - pressed.at.x, info.world.y - pressed.at.y) < pressed.threshold)
+        return
+      if (blockedByLock('tokens')) return void (this.pressed = null)
+    }
+    if (!inBounds(cell, editor.map.grid) || pressed.hex === keyOf(cell)) return
+    pressed.hex = keyOf(cell)
+    dragCopy({ id: pressed.id, hex: pressed.hex })
+  }
+
+  /** Ends a press: moves the copy dragged, or shows the one clicked. */
+  up(): void {
+    const pressed = this.pressed
+    this.pressed = null
+    if (!pressed) return
+    if (!pressed.hex) return showPresent(pressed.id)
+    dragCopy(null)
+    moveCopy(pressed.id, pressed.hex)
+  }
+
+  get busy(): boolean {
+    return !!this.pressed
+  }
+}
+const copyDragger = new CopyDragger()
+
+/**
  * Play: place the party, then move it (simple mode) or pick its destination (rules mode).
  * Dragging the party (or any token) puts it somewhere else by hand; a click on a token
- * selects it and is a click on its hex too (travel to the dragon's lair).
+ * selects it and is a click on its hex too (travel to the dragon's lair). Those present
+ * are clicked and dragged too (`CopyDragger`).
  */
 const playTool: Tool = {
   down(cell, info) {
+    if (info.button === 0 && copyDragger.down(info)) return
     if (info.button === 0 && playDragger.down(cell, info)) return
     if (info.button !== 0 || !inBounds(cell, editor.map.grid)) return
     clickHex(keyOf(cell))
   },
   move(cell, info) {
+    if (copyDragger.busy) return copyDragger.move(cell, info)
     playDragger.move(cell, info)
   },
   up() {
+    if (copyDragger.busy) return copyDragger.up()
     const clicked = playDragger.up()
     const hex = clicked && editor.getToken(clicked)?.hex
     if (hex) clickHex(hex as HexKey)

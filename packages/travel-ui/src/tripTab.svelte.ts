@@ -10,6 +10,11 @@ export type TripTab = 'party' | 'journal' | 'totals'
 class Tab {
   /** The tab chosen last (absent: the panel's first). */
   chosen = $state<TripTab | undefined>(readTab())
+  /**
+   * One of those present to show (a token clicked on the map): its card unfolded and
+   * scrolled to in the Party tab; `n` counts the asks, so the same one can be asked again.
+   */
+  shown = $state<{ id: string; n: number } | undefined>()
 
   choose(tab: TripTab): void {
     this.chosen = tab
@@ -19,6 +24,12 @@ class Tab {
       // No storage: it stays until the page reloads.
     }
   }
+}
+
+/** Shows one of those present in the Party tab (its card unfolded, scrolled to). */
+export function showPresent(id: string): void {
+  tripTab.choose('party')
+  tripTab.shown = { id, n: (tripTab.shown?.n ?? 0) + 1 }
 }
 
 function readTab(): TripTab | undefined {

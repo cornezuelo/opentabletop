@@ -14,13 +14,14 @@ export function hitTestLabel(world: Point): string | null {
   return labelAt(world)
 }
 
-let tokenAt: (world: Point) => string | null = () => null
+type TokenAt = (world: Point, copies?: boolean) => string | null
+let tokenAt: TokenAt = () => null
 
-export function setTokenHitTest(fn: (world: Point) => string | null): void {
+export function setTokenHitTest(fn: TokenAt): void {
   tokenAt = fn
 }
 
-/** Id of the topmost token under a world point. */
-export function hitTestToken(world: Point): string | null {
-  return tokenAt(world)
+/** Id of the topmost token under a world point; with `copies`, those present too. */
+export function hitTestToken(world: Point, copies = false): string | null {
+  return tokenAt(world, copies)
 }

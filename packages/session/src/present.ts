@@ -63,6 +63,7 @@ export type PresentEvent =
       /** That condition's name, in the language copies are named in. */
       conditionName?: string
     }
+  | { type: 'PRESENT_MOVED'; id: string; name: string; at: string }
   | { type: 'UNKNOWN_TEMPLATE'; template: string }
 
 interface PresentTarget {
@@ -244,6 +245,20 @@ export function removePresent(s: PresentTarget, id: string): PresentEvent[] {
   if (!p) return []
   s.present = (s.present ?? []).filter((c) => c !== p)
   return [left(p, 'hand')]
+}
+
+/**
+ * Moves one copy to another place by hand (in place: a token dragged on the map), with
+ * its line; nothing when it's already there. Put away from the party, it stays there
+ * (`behind: leave` is for the party leaving it, not the player placing it).
+ */
+export function movePresent(s: PresentTarget, id: string, at: string): PresentEvent[] {
+  const p = (s.present ?? []).find((c) => c.character.id === id)
+  if (!p || p.at === at) return []
+  const moved: Present = { ...p, at }
+  if (at !== s.travel.location) delete moved.behind
+  s.present = (s.present ?? []).map((c) => (c === p ? moved : c))
+  return [{ type: 'PRESENT_MOVED', id, name: p.character.name ?? id, at }]
 }
 
 /**

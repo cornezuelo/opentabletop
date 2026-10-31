@@ -183,7 +183,7 @@ export const en = {
   /** Those present: copies of the system's templates the trip made. */
   present: {
     title: 'Here',
-    help: "Those present: who the trip meets, made from the templates of the system's bestiary (an encounter that brings three wolves makes three copies, each with its own rolled values). The ones at the party's place are here; tables, checks and actions read them and their effects reach them, depending on the system:\n• `present.wolf: 3` — three wolves come\n• `present.count: { gte: 1 }` — whether anyone is here\n• `present.wolf.values.health: -2` — every wolf here\n• `characters.wolf-2.values.health: -2` — one of them\nA copy whose sheet has a condition that takes it off (a foe down at 0 health) leaves by itself when it holds.",
+    help: "Those present: who the trip meets, made from the templates of the system's bestiary (an encounter that brings three wolves makes three copies, each with its own rolled values). The ones at the party's place are here; tables, checks and actions read them and their effects reach them, depending on the system:\n• `present.wolf: 3` — three wolves come\n• `present.count: { gte: 1 }` — whether anyone is here\n• `present.wolf.values.health: -2` — every wolf here\n• `characters.wolf-2.values.health: -2` — one of them\nA copy whose sheet has a condition that takes it off (a foe down at 0 health) leaves by itself when it holds.\nOn a map, a click on one's token opens its card here, and a drag moves it in the trip.",
     none: 'Nobody here.',
     add: 'Add from the bestiary',
     addHelp:
@@ -273,6 +273,7 @@ export const en = {
     presentLeftCondition: '{name} is gone ({condition})',
     presentLeftBehind: '{name} stays behind, and is gone',
     presentLeftHand: '{name} taken off by hand',
+    presentMoved: '{name} moved to {hex} by hand',
     unknownTemplate: 'No bestiary of the system has the template “{name}”, so nobody comes',
     rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
     itemSpent: '{name}: one is used up',

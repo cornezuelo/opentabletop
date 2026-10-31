@@ -254,7 +254,7 @@ export class MapRenderer {
     this.disposers.push(editor.onChange((change) => this.handleChange(change)))
     this.bindInput()
     setLabelHitTest((world) => this.labelAt(world))
-    setTokenHitTest((world) => this.tokenAt(world))
+    setTokenHitTest((world, copies) => this.tokenAt(world, copies))
     this.rebuild()
     this.fit()
     // Web fonts may arrive after the first draw; redraw labels with them.
@@ -1134,13 +1134,16 @@ export class MapRenderer {
     }
   }
 
-  /** Topmost token of the map under a world point (those present and chips aren't picked). */
-  private tokenAt(world: Point): string | null {
+  /**
+   * Topmost token under a world point: the map's, and with `copies` those present (Play);
+   * chips (+N) aren't picked.
+   */
+  private tokenAt(world: Point, copies = false): string | null {
     const hs = editor.map.grid.hexSize
     const placed = drawnTokens()
     for (let i = placed.length - 1; i >= 0; i--) {
       const p = placed[i]
-      if (p.more || isCopy(p.token)) continue
+      if (p.more || (!copies && isCopy(p.token))) continue
       const c = this.centerOf(parseKey(p.hex))
       const d = Math.hypot(world.x - (c.x + p.dx * hs), world.y - (c.y + p.dy * hs))
       if (d <= p.radius * hs) return p.token.id

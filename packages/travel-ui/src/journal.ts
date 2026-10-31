@@ -557,6 +557,11 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         { name },
       )
     }
+    case 'PRESENT_MOVED':
+      return t('journal.presentMoved', {
+        name: String(d.name ?? d.id ?? ''),
+        hex: hexLabel(String(d.at)),
+      })
     case 'UNKNOWN_TEMPLATE':
       return t('journal.unknownTemplate', { name: String(d.template ?? '') })
     // A place made on the party's place (`place.pois.<template>`): on a map, written into it.

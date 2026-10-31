@@ -1508,6 +1508,17 @@ export function addEntry(
   return s
 }
 
+/** What the player did by hand (those present added, taken off or moved), as journal lines. */
+export function addHandEntries(
+  input: SessionState,
+  events: readonly { type: string }[],
+  at?: string,
+): SessionState {
+  let s = input
+  for (const { type, ...data } of events) s = addEntry(s, { source: 'user', code: type, data }, at)
+  return s
+}
+
 /**
  * Table values that the travel engine understands as a check outcome (its effects on the
  * party are applied by the session: `effectsOf`).
