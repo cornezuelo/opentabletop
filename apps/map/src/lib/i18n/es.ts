@@ -361,6 +361,10 @@ export const es: Messages = {
   },
   newMap: {
     title: 'Nuevo mapa',
+    kindMessage:
+      '¿Qué tipo de mapa? Un hexcrawl: hexes y los terrenos de la tierra, a la escala del sistema. Una mazmorra: casillas cuadradas de 3 m y una paleta de suelos (los muros se dibujan solos a su alrededor) y roca. Todo se puede cambiar después en Ajustes del mapa y Editar paleta.',
+    hexcrawl: 'Hexcrawl',
+    dungeon: 'Mazmorra',
     message:
       'El mapa actual se queda en Mapas (este navegador). ¿Quieres además guardarlo en un fichero antes de crear uno nuevo?',
     cancel: 'Cancelar',
@@ -597,7 +601,7 @@ export const es: Messages = {
   },
   submap: {
     title: 'Caminos a otros mapas',
-    help: 'Un lugar puede llevar a un mapa propio, un **submapa**: la mazmorra bajo una colina, una ciudad, las cuevas de debajo. Es de la campaña de este mapa y puede tener submapas propios.\n• **Abrir** lo abre para dibujarlo; la barra de arriba dice de dónde cuelga (_The Hollow Hills › The Barrow-halls_)\n• **Entrar**, en un viaje con el grupo aquí: la entrada pasa a ser el destino y la marcha la toma; el viaje sigue en el submapa (el mismo grupo, diario y tiempo), y al salir vuelve aquí\n• **Nuevo submapa aquí** hace uno vacío bajo este hex (con el nombre del hex), de casillas cuadradas, guardado en Mapas; su entrada, su camino de entrada y sus casillas están en sus **Ajustes del mapa**\nLo que cuesta y hace entrar es cosa del sistema: el tipo de conexión que es el camino (minutos `extra`, **Abierto cuando**, comprobaciones sobre `connection.kind`).',
+    help: 'Un lugar puede llevar a un mapa propio, un **submapa**: la mazmorra bajo una colina, una ciudad, las cuevas de debajo. Es de la campaña de este mapa y puede tener submapas propios.\n• **Abrir** lo abre para dibujarlo; la barra de arriba dice de dónde cuelga (_The Hollow Hills › The Barrow-halls_)\n• **Entrar**, en un viaje con el grupo aquí: la entrada pasa a ser el destino y la marcha la toma; el viaje sigue en el submapa (el mismo grupo, diario y tiempo), y al salir vuelve aquí\n• **Nuevo submapa aquí** hace una mazmorra vacía bajo este hex (con el nombre del hex; casillas cuadradas, suelos y roca), guardada en Mapas; su entrada, su camino de entrada y sus casillas están en sus **Ajustes del mapa**\nLo que cuesta y hace entrar es cosa del sistema: el tipo de conexión que es el camino (minutos `extra`, **Abierto cuando**, comprobaciones sobre `connection.kind`).',
     open: 'Abrir',
     goIn: 'Entrar ↗',
     goOut: 'Salir ↗',
@@ -740,6 +744,7 @@ export const es: Messages = {
     natural: 'Natural (la paleta por defecto)',
     modern: 'Moderno',
     wasteland: 'Postapocalíptico',
+    dungeon: 'Mazmorra (suelos y roca)',
     scifi: 'Ciencia ficción y espacio',
   },
   terrainGroups: {
@@ -751,6 +756,7 @@ export const es: Messages = {
     cold: 'Frío',
     water: 'Agua y costa',
     urban: 'Pueblos y ciudades',
+    dungeon: 'Mazmorra',
     wasteland: 'Páramo',
     alien: 'Mundos alienígenas',
     space: 'Espacio',

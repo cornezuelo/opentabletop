@@ -97,6 +97,14 @@ export const TERRAIN_SETS = {
     { id: 'toxic-swamp', color: '#5c6a30', glyph: 'game:biohazard' },
     { id: 'crater', color: '#6a5d55', glyph: 'game:meteor-impact' },
   ],
+  // A dungeon's: floors walls are drawn round (Floor), and the rock they're cut in.
+  dungeon: [
+    { id: 'stone-floor', color: '#cfc6b4', glyph: 'game:broken-wall', floor: true },
+    { id: 'cave-floor', color: '#a89a82', glyph: 'game:mountain-cave', floor: true },
+    { id: 'rubble', color: '#8a8172', glyph: 'game:falling-rocks', floor: true },
+    { id: 'pool', color: '#3f6e8c', glyph: 'game:waves', floor: true, water: true },
+    { id: 'rock', color: '#2b2824', glyph: 'game:rock' },
+  ],
   scifi: [
     { id: 'alien-jungle', color: '#3c7c6d', glyph: 'game:alien-bug' },
     { id: 'crystal-field', color: '#9db6d8', glyph: 'game:crystal-growth' },
@@ -118,6 +126,7 @@ export const TERRAIN_GROUPS = [
   'cold',
   'water',
   'urban',
+  'dungeon',
   'wasteland',
   'alien',
   'space',
@@ -161,6 +170,11 @@ const GROUP_OF: Readonly<Record<string, TerrainGroup>> = {
   irradiated: 'wasteland',
   'toxic-swamp': 'wasteland',
   crater: 'wasteland',
+  'stone-floor': 'dungeon',
+  'cave-floor': 'dungeon',
+  rubble: 'dungeon',
+  pool: 'dungeon',
+  rock: 'dungeon',
   'alien-jungle': 'alien',
   'crystal-field': 'alien',
   'lava-field': 'alien',
@@ -268,17 +282,26 @@ export function defaultLayers(): Record<LayerId, LayerState> {
   ) as Record<LayerId, LayerState>
 }
 
-export function createMap(name = ''): HexMap {
+/**
+ * The kinds of map a new one starts as (docs/places.md §10), presets of one model, all
+ * changeable after: a **hexcrawl** (hexes, the natural palette, the system's scale) or a
+ * **dungeon** (squares of 3 m, the dungeon palette of floors and rock, faint glyphs).
+ */
+export const MAP_KINDS = ['hexcrawl', 'dungeon'] as const
+export type MapKind = (typeof MAP_KINDS)[number]
+
+export function createMap(name = '', kind: MapKind = 'hexcrawl'): HexMap {
   const now = new Date().toISOString()
   const id = newId()
+  const dungeon = kind === 'dungeon'
   return {
     version: CURRENT_VERSION,
     // A new map makes a campaign of its own.
     meta: { id, name, created: now, modified: now, campaign: id },
-    grid: { ...DEFAULT_GRID },
-    scale: {},
+    grid: dungeon ? { ...DEFAULT_GRID, kind: 'square', glyphs: 0.2 } : { ...DEFAULT_GRID },
+    scale: dungeon ? { cellKm: 0.003 } : {},
     print: structuredClone(DEFAULT_PRINT),
-    terrains: DEFAULT_TERRAINS.map((t) => ({ ...t })),
+    terrains: (dungeon ? TERRAIN_SETS.dungeon : DEFAULT_TERRAINS).map((t) => ({ ...t })),
     hexes: {},
     paths: [],
     connections: [],

@@ -173,8 +173,14 @@ function asCopy(opening: Opening): Opening {
   return { map, ...(campaign && { campaign }) }
 }
 
-/** Asks first: save the current map to a file, just create, or cancel. */
+/** Asks what kind of map (a hexcrawl, a dungeon), then whether to save the current one to a file. */
 export async function newMap(): Promise<void> {
+  const kind = await ask(t('newMap.title'), t('newMap.kindMessage'), [
+    { value: 'cancel', label: t('newMap.cancel') },
+    { value: 'dungeon', label: t('newMap.dungeon') },
+    { value: 'hexcrawl', label: t('newMap.hexcrawl'), kind: 'primary' },
+  ])
+  if (kind !== 'hexcrawl' && kind !== 'dungeon') return
   const choice = await ask(t('newMap.title'), t('newMap.message'), [
     { value: 'cancel', label: t('newMap.cancel') },
     { value: 'create', label: t('newMap.create') },
@@ -182,7 +188,7 @@ export async function newMap(): Promise<void> {
   ])
   if (choice !== 'create' && choice !== 'save') return
   if (choice === 'save') saveMap()
-  await switchTo({ map: createMap() })
+  await switchTo({ map: createMap('', kind) })
 }
 
 /**

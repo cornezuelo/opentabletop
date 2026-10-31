@@ -28,12 +28,13 @@ Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que s
 
 No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un conjunto entero de una vez (solo los terrenos que le faltan al mapa), cada uno con su símbolo y una velocidad en las reglas genéricas (las de Core):
 
-| Conjunto                  | Terrenos                                                                                                                                  |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Natural (por defecto)     | la paleta de arriba; pone al día los mapas antiguos                                                                                       |
-| Moderno                   | ciudad, afueras, industrial (grupo _Pueblos y ciudades_)                                                                                  |
-| Postapocalíptico          | ruinas, páramo, irradiado, ciénaga tóxica, cráter (grupo _Páramo_)                                                                        |
-| Ciencia ficción y espacio | jungla alienígena, campo de cristales, campo de lava, regolito (_Mundos alienígenas_); espacio, nebulosa, campo de asteroides (_Espacio_) |
+| Conjunto                  | Terrenos                                                                                                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Natural (por defecto)     | la paleta de arriba; pone al día los mapas antiguos                                                                                                                        |
+| Moderno                   | ciudad, afueras, industrial (grupo _Pueblos y ciudades_)                                                                                                                   |
+| Postapocalíptico          | ruinas, páramo, irradiado, ciénaga tóxica, cráter (grupo _Páramo_)                                                                                                         |
+| Mazmorra (suelos y roca)  | suelo de piedra, suelo de cueva, escombros, charca (todos **Suelo**: los muros se dibujan solos a su alrededor; la charca también es agua), roca maciza (grupo _Mazmorra_) |
+| Ciencia ficción y espacio | jungla alienígena, campo de cristales, campo de lava, regolito (_Mundos alienígenas_); espacio, nebulosa, campo de asteroides (_Espacio_)                                  |
 
 Los campos de lava, el espacio, las nebulosas y los campos de asteroides están cerrados a pie en las reglas genéricas: un sistema propio da a las naves una forma de viajar que solo va por ahí (`through: { place.terrain: [space, nebula] }`), como la barca de las Marcas Grises por el agua. **Editar paleta** permite cambiar cada uno:
 

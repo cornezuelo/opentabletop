@@ -8,6 +8,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Map: **maps of squares**. **Map settings → Cells** chooses hexes or squares, and everything works on both (terrain, regions, roads and rivers, icons, tokens, connections, trips, printing and export). A new sub-map is made of squares. Maps v32.
 - Map: **dungeons**. A terrain marked **Floor** in the palette is a structure's floor: walls are drawn by themselves wherever it meets what isn't floor, and trips never cross them; a connection drawn across a wall is a door. A region marked **One place (a room)** is played as one place (`area:<id>`: one step in, its name, values and tags), with a wall between rooms that touch.
+- Map: **New** asks what kind of map: a **hexcrawl** or a **dungeon** (squares of 3 m and a new **Dungeon** palette: stone and cave floors, rubble, pools, solid rock); a new sub-map is a dungeon too. The Generic rules walk the dungeon terrains.
 - Map: <kbd>Shift</kbd>+drag with the terrain brush or regions paints a rectangle (a room at once).
 - Systems and every trip: **diagonal steps** on maps of squares are the system's rule: **Diagonal step** in Systems' Rules (`travel.diagonals`: none when empty, or what a step across a corner costs in steps along a side: `1`, `1.5`, `1.41`) and **Cut corners** (`travel.cutCorners`: may it pass a corner it can't enter).
 

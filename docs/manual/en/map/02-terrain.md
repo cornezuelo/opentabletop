@@ -28,12 +28,13 @@ Your own terrains go under **Other**. Each map keeps the palette it was made wit
 
 Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a whole set at once (only the terrains the map lacks), each with its symbol and a speed in the Generic rules (Core's):
 
-| Set               | Terrains                                                                                                    |
-| ----------------- | ----------------------------------------------------------------------------------------------------------- |
-| Natural (default) | the palette above; brings older maps up to date                                                             |
-| Modern            | city, suburbs, industrial (group _Towns and cities_)                                                        |
-| Post-apocalyptic  | ruins, wasteland, irradiated, toxic swamp, crater (group _Wasteland_)                                       |
-| Sci-fi and space  | alien jungle, crystal field, lava field, regolith (_Alien worlds_); space, nebula, asteroid field (_Space_) |
+| Set                       | Terrains                                                                                                                                     |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Natural (default)         | the palette above; brings older maps up to date                                                                                              |
+| Modern                    | city, suburbs, industrial (group _Towns and cities_)                                                                                         |
+| Post-apocalyptic          | ruins, wasteland, irradiated, toxic swamp, crater (group _Wasteland_)                                                                        |
+| Dungeon (floors and rock) | stone floor, cave floor, rubble, pool (all **Floor**: walls draw themselves round them; the pool is water too), solid rock (group _Dungeon_) |
+| Sci-fi and space          | alien jungle, crystal field, lava field, regolith (_Alien worlds_); space, nebula, asteroid field (_Space_)                                  |
 
 Lava fields, space, nebulae and asteroid fields are closed to walking in the Generic rules: a system of your own gives ships a way of travelling that only goes there (`through: { place.terrain: [space, nebula] }`), like the Grey Marches' boat on water. **Edit palette** lets you change each one:
 

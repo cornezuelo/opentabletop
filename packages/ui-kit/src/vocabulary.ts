@@ -136,6 +136,11 @@ export const vocabulary = {
       space: 'Space',
       nebula: 'Nebula',
       'asteroid-field': 'Asteroid field',
+      'stone-floor': 'Stone floor',
+      'cave-floor': 'Cave floor',
+      rubble: 'Rubble',
+      pool: 'Pool',
+      rock: 'Solid rock',
     },
   },
   es: {
@@ -256,6 +261,11 @@ export const vocabulary = {
       space: 'Espacio',
       nebula: 'Nebulosa',
       'asteroid-field': 'Campo de asteroides',
+      'stone-floor': 'Suelo de piedra',
+      'cave-floor': 'Suelo de cueva',
+      rubble: 'Escombros',
+      pool: 'Charca',
+      rock: 'Roca maciza',
     },
   },
 } as const

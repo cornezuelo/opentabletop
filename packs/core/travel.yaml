@@ -56,6 +56,12 @@ terrains:
   space: { passable: false }
   nebula: { passable: false }
   asteroid-field: { passable: false }
+  # A dungeon's (Map's Dungeon palette): its floors walked, rubble slow, solid rock never.
+  stone-floor: { multiplier: 1 }
+  cave-floor: { multiplier: 1 }
+  rubble: { multiplier: 0.5 }
+  pool: { passable: false }
+  rock: { passable: false }
   lake: { passable: { when: { time.season: winter } } }
   sea: { passable: false }
   deep-sea: { passable: false }

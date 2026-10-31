@@ -360,6 +360,10 @@ export const en = {
   },
   newMap: {
     title: 'New map',
+    kindMessage:
+      'What kind of map? A hexcrawl: hexes and the land’s terrains, at the system’s scale. A dungeon: squares of 3 m and a palette of floors (walls draw themselves round them) and rock. Everything can be changed later in Map settings and Edit palette.',
+    hexcrawl: 'Hexcrawl',
+    dungeon: 'Dungeon',
     message:
       'The current map stays in Maps (this browser). Do you also want to save it to a file before creating a new one?',
     cancel: 'Cancel',
@@ -592,7 +596,7 @@ export const en = {
   },
   submap: {
     title: 'Ways into other maps',
-    help: "A place can lead into a map of its own, a **sub-map**: the dungeon under a hill, a town, the caves below. It belongs to this map's campaign, and may have sub-maps of its own.\n• **Open** opens it to draw it; the bar above it says where it hangs (_The Hollow Hills › The Barrow-halls_)\n• **Go in**, on a trip with the party here: the way in becomes the destination, and the march takes it; the trip goes on in the sub-map (the same party, journal and time), and leaving brings it back here\n• **New sub-map here** makes an empty one under this hex (its name is the hex's), of squares, kept in Maps; its way in, entrance and cells are in its **Map settings**\nWhat going in costs and does is the system's: the kind of connection the way is (`extra` minutes, **Open when**, checks on `connection.kind`).",
+    help: "A place can lead into a map of its own, a **sub-map**: the dungeon under a hill, a town, the caves below. It belongs to this map's campaign, and may have sub-maps of its own.\n• **Open** opens it to draw it; the bar above it says where it hangs (_The Hollow Hills › The Barrow-halls_)\n• **Go in**, on a trip with the party here: the way in becomes the destination, and the march takes it; the trip goes on in the sub-map (the same party, journal and time), and leaving brings it back here\n• **New sub-map here** makes an empty dungeon under this hex (its name is the hex's; squares, floors and rock), kept in Maps; its way in, entrance and cells are in its **Map settings**\nWhat going in costs and does is the system's: the kind of connection the way is (`extra` minutes, **Open when**, checks on `connection.kind`).",
     open: 'Open',
     goIn: 'Go in ↗',
     goOut: 'Go out ↗',
@@ -734,6 +738,7 @@ export const en = {
     natural: 'Natural (the default palette)',
     modern: 'Modern',
     wasteland: 'Post-apocalyptic',
+    dungeon: 'Dungeon (floors and rock)',
     scifi: 'Sci-fi and space',
   },
   terrainGroups: {
@@ -745,6 +750,7 @@ export const en = {
     cold: 'Cold',
     water: 'Water and coast',
     urban: 'Towns and cities',
+    dungeon: 'Dungeon',
     wasteland: 'Wasteland',
     alien: 'Alien worlds',
     space: 'Space',

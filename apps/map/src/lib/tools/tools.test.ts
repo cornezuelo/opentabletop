@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createMap, mapWalls, mapWorld } from '@open-tabletop/map'
+import { createTravelEngine, initialTravelState } from '@open-tabletop/travel-engine'
+import { coreSystem } from '../../../../../packages/session/src/core.testing'
 import { editor } from '../store/editor.svelte'
 import { currentTool, type PointerInfo } from './tools'
 
@@ -65,5 +67,36 @@ describe('painting a dungeon', () => {
     )
     expect(world.connections('area:hallroom01', 'area:cellroom01')).toEqual(['door'])
     expect(world.place('2,1')).toMatchObject({ name: 'Hall', floor: true })
+  })
+
+  it('a new dungeon is squares of floors and rock, walked with the Generic rules round its walls', () => {
+    const map = createMap('Crypt', 'dungeon')
+    expect(map.grid.kind).toBe('square')
+    expect(map.scale.cellKm).toBe(0.003)
+    expect(map.terrains.filter((t) => t.floor).map((t) => t.id)).toEqual([
+      'stone-floor',
+      'cave-floor',
+      'rubble',
+      'pool',
+    ])
+    // Two rooms joined by a corridor that bends: row 1 and row 3, the corridor down column 4.
+    for (const key of ['1,1', '2,1', '3,1', '4,1', '4,2', '4,3', '3,3', '2,3', '1,3'] as const)
+      map.hexes[key] = { terrain: 'stone-floor' }
+    const { rules, calendar } = coreSystem()
+    const world = mapWorld(map, rules.travel.cellKm)
+    const engine = createTravelEngine({ world, rules, calendar })
+    const at = initialTravelState({ location: '1,1', mode: 'foot', time: calendar!.at(1, '06:00') })
+    // Rock between the rows: the way goes round by the corridor, never across the wall.
+    expect(engine.plan(at, '1,3')).toEqual([
+      '1,1',
+      '2,1',
+      '3,1',
+      '4,1',
+      '4,2',
+      '4,3',
+      '3,3',
+      '2,3',
+      '1,3',
+    ])
   })
 })
