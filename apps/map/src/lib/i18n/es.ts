@@ -19,6 +19,7 @@ export const es: Messages = {
     terrain: 'Terreno (B)',
     path: 'Caminos y ríos (R)',
     connection: 'Conexiones (C)',
+    wall: 'Muros (W)',
     icon: 'Iconos (I)',
     text: 'Texto (T)',
     play: 'Jugar (P)',
@@ -88,6 +89,7 @@ export const es: Messages = {
     terrain: vocabulary.es.terms.terrain,
     paths: 'Caminos y ríos',
     connections: 'Conexiones',
+    walls: 'Muros',
     icons: 'Iconos',
     text: 'Texto',
     play: 'Jugar',
@@ -259,6 +261,7 @@ export const es: Messages = {
       grid: 'Rejilla',
       paths: 'Caminos y ríos',
       connections: 'Conexiones',
+      walls: 'Muros',
       icons: 'Iconos',
       labels: 'Texto',
       party: 'Rastro y ruta',
@@ -578,6 +581,11 @@ export const es: Messages = {
     newDestination: 'Haz clic en una casilla para fijar otro destino.',
   },
   pathKinds: vocabulary.es.pathKinds,
+  walls: {
+    help: 'Un muro en un lado de una casilla: los viajes nunca lo cruzan, como los muros que el suelo dibuja por sí solo, salvo que se dibuje una conexión que lo atraviese (una puerta, un arco). Los muros van en cualquier mapa, de hexágonos o de cuadrados.\n• **Clic** cerca de un lado de una casilla: un muro en él\n• **Arrastrar** por los lados: un muro en cada uno\n• **Clic derecho** o arrastrar con el derecho: los quita\nCada trazo se deshace con Ctrl+Z.',
+    count: '{count} muros dibujados a mano',
+    clear: 'Quitar todos los muros dibujados a mano',
+  },
   connection: {
     kind: 'Tipo',
     kindHelp:

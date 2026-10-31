@@ -280,6 +280,7 @@ export interface PlayState {
 export const LAYER_IDS = [
   'terrain',
   'grid',
+  'walls',
   'regions',
   'factions',
   'paths',
@@ -296,6 +297,7 @@ export type LayerId = (typeof LAYER_IDS)[number]
 /** Layers that tools edit, and so can be locked. */
 export const LOCKABLE_LAYERS: readonly LayerId[] = [
   'terrain',
+  'walls',
   'regions',
   'paths',
   'connections',
@@ -428,6 +430,11 @@ export interface HexMap {
   paths: MapPath[]
   /** Connections drawn between places (bridges, gates, tunnels…). */
   connections: MapConnection[]
+  /**
+   * Walls drawn by hand on cells' sides, each the two cells it stands between: never crossed,
+   * as those floor draws by itself, but where a connection is drawn across (a door).
+   */
+  walls: [HexKey, HexKey][]
   assets: MapAsset[]
   labels: MapLabel[]
   tokens: MapToken[]

@@ -2,7 +2,7 @@
 
 ## Capas
 
-**Capas** (el botón ▤ de la barra superior) lista las partes del mapa en el orden en que se dibujan, la de arriba por encima del resto: marcas de notas, tokens, relaciones (los hilos desde el grupo hasta aquello a lo que están unidos sus personajes; ocultas en un mapa nuevo, se muestran con su ojo), rastro y ruta, texto, coordenadas, iconos, caminos y ríos, facciones (las tierras de cada una en su color: rayas y una frontera discontinua), regiones, rejilla y terreno.
+**Capas** (el botón ▤ de la barra superior) lista las partes del mapa en el orden en que se dibujan, la de arriba por encima del resto: marcas de notas, tokens, relaciones (los hilos desde el grupo hasta aquello a lo que están unidos sus personajes; ocultas en un mapa nuevo, se muestran con su ojo), rastro y ruta, texto, coordenadas, iconos, caminos y ríos, facciones (las tierras de cada una en su color: rayas y una frontera discontinua), regiones, muros (los que dibuja el suelo y los dibujados a mano), rejilla y terreno.
 
 - El **ojo** muestra u oculta una capa mientras trabajas. Las capas ocultas tampoco se exportan.
 - El **candado** protege una capa de tus propios clics: ninguna herramienta puede cambiarla hasta que la desbloquees.
@@ -16,7 +16,7 @@ Muchos clics en el mapa podrían cambiar más de una cosa: un clic cerca de un r
 - Bloquea los **iconos** y el **texto** cuando el mapa esté terminado y solo juegues en él.
 - Bloquea los **tokens** para que las piezas no se muevan mientras editas el mapa de debajo.
 
-Una capa bloqueada se sigue dibujando y exportando. Si intentas cambiarla, un aviso te dice qué capa está bloqueada. Se pueden bloquear el terreno, las regiones, los caminos y ríos, las conexiones, los iconos, el texto y los tokens; la rejilla, las coordenadas, las marcas y el rastro solo se pueden ocultar. Jugar un viaje sigue moviendo al grupo: el candado es para editar, no para jugar.
+Una capa bloqueada se sigue dibujando y exportando. Si intentas cambiarla, un aviso te dice qué capa está bloqueada. Se pueden bloquear el terreno, los muros, las regiones, los caminos y ríos, las conexiones, los iconos, el texto y los tokens; la rejilla, las coordenadas, las marcas y el rastro solo se pueden ocultar. Jugar un viaje sigue moviendo al grupo: el candado es para editar, no para jugar.
 
 **Resaltar una etiqueta**, abajo en Capas, marca cada casilla con esa etiqueta (`landmark`, `haunted`, `shrine`: la casilla sugiere las del mapa) y dice cuántos hay; **Oscurecer las demás casillas** apaga el resto para que destaquen. Es solo una vista mientras miras: no se guarda nada, y **Dejar de resaltar** la quita.
 

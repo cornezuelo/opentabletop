@@ -348,6 +348,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     const { map, ...way } = parent
     return { ...data, meta: { ...meta, parent: { map, ways: [way] } } }
   },
+  /** v35: walls drawn by hand on cells' sides (`walls`); older maps have none. */
+  34(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

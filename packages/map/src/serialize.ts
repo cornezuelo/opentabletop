@@ -145,6 +145,7 @@ function validate(data: Record<string, unknown>): HexMap {
     hexes: validHexes,
     paths: parsePaths(data.paths),
     connections: parseConnections(data.connections),
+    walls: parseWalls(data.walls),
     assets: parseAssets(data.assets),
     labels: parseLabels(data.labels),
     tokens: parseTokens(data.tokens),
@@ -272,6 +273,21 @@ function parseConnections(value: unknown): MapConnection[] {
         ...(typeof c.km === 'number' && c.km > 0 && { km: c.km }),
       },
     ]
+  })
+}
+
+/** Walls on cells' sides: pairs of two different cells, each once. */
+export function parseWalls(value: unknown): [HexKey, HexKey][] {
+  if (!Array.isArray(value)) return []
+  const key = (k: unknown): k is HexKey => typeof k === 'string' && /^\d+,\d+$/.test(k)
+  const seen = new Set<string>()
+  return value.flatMap((w): [HexKey, HexKey][] => {
+    const [a, b] = Array.isArray(w) ? w : []
+    if (!key(a) || !key(b) || a === b) return []
+    const id = [a, b].sort().join('|')
+    if (seen.has(id)) return []
+    seen.add(id)
+    return [[a, b]]
   })
 }
 

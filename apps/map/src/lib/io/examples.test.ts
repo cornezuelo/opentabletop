@@ -340,6 +340,13 @@ describe('example maps', () => {
       locale: 'en',
     }
     const below = { system, world: mapWorld(halls, km, { parent: hills }), oracle, locale: 'en' }
+    // The corridor's two side-niches are bricked up (walls drawn by hand): no step into them.
+    expect(halls.walls).toEqual([
+      ['3,2', '3,3'],
+      ['3,3', '3,4'],
+    ])
+    expect(below.world.neighbors('3,3')).not.toContain('3,2')
+    expect(below.world.neighbors('3,3')).not.toContain('3,4')
     /** Steps until the party stands at `place`, resolving whatever checks come up. */
     const reach = (options: typeof above, session: SessionState, place: string) => {
       session = stepTrip(options, session, { type: 'setDestination', place }).state

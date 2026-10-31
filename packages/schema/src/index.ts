@@ -103,6 +103,8 @@ export const map = z
     hexes: z.record(hexKey, hex),
     paths: z.array(path).optional(),
     connections: z.array(connection).optional(),
+    /** Walls drawn on cells' sides, each the two cells it stands between. */
+    walls: z.array(z.tuple([hexKey, hexKey])).optional(),
     /**
      * A sub-map: its parent map, and its ways to it (each the parent's place that leads in,
      * its own entrance and the kind of the way); with several, it's crossed.

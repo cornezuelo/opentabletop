@@ -29,6 +29,7 @@ import {
   type HexKey,
   type HexMap,
   MapFormatError,
+  parseWalls,
   type MapToken,
   partyToken,
   type Poi,
@@ -255,6 +256,7 @@ export function mapToBundle(
         ...(fields?.length && { stats: fields }),
       })),
     }),
+    ...(map.walls.length && { walls: map.walls.map(([a, b]) => [a, b]) }),
     ext: { ...foreign.mapExt, map: ext },
   }
   const extra = foreign.bundle ?? {}
@@ -682,6 +684,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
       ...c,
       ...(stats && { fields: stats }),
     })),
+    walls: parseWalls(otdMap.walls),
     assets: ext.assets ?? [],
     labels: ext.labels ?? [],
     regions: ext.regions ?? [],

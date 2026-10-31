@@ -12,7 +12,7 @@ import type {
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 34
+export const CURRENT_VERSION = 35
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -305,6 +305,7 @@ export function createMap(name = '', kind: MapKind = 'hexcrawl'): HexMap {
     hexes: {},
     paths: [],
     connections: [],
+    walls: [],
     assets: [],
     labels: [],
     tokens: [],

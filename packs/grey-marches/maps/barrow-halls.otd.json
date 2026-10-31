@@ -150,7 +150,7 @@
       "paths": [],
       "ext": {
         "map": {
-          "version": 34,
+          "version": 35,
           "created": "2026-10-30T12:00:00.000Z",
           "modified": "2026-10-30T12:00:00.000Z",
           "hexSize": 40,
@@ -321,6 +321,10 @@
           "kind": "door",
           "name": "The sealed slab"
         }
+      ],
+      "walls": [
+        ["3,2", "3,3"],
+        ["3,3", "3,4"]
       ]
     }
   ],

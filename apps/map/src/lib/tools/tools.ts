@@ -3,6 +3,7 @@ import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../comma
 import { hitTestLabel, hitTestToken } from '../render/hitTest'
 import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../commands/tokens'
 import { AddConnectionCommand, RemoveConnectionCommand } from '../commands/connections'
+import { ReplaceWallsCommand } from '../commands/walls'
 import {
   type HexData,
   type HexIcon,
@@ -27,6 +28,7 @@ import {
   inBounds,
   parseKey,
   cellLine,
+  cellSides,
   cellsInRadius,
   cellsInRect,
   floodFill,
@@ -982,6 +984,71 @@ const connectionTool: Tool = {
   up() {},
 }
 
+/** A wall on a side: the two cells it stands between, in a fixed order. */
+const wallId = (a: string, b: string) => [a, b].sort().join('|')
+
+/**
+ * The side of a cell nearest a point, with the cell across it and how far the point is from
+ * the side; none when it faces the map's edge.
+ */
+function nearestSide(cell: Offset, world: Point) {
+  const { grid } = editor.map
+  let best: { across: Offset; d: number } | null = null
+  for (const { a, b, across } of cellSides(cell, grid, grid.hexSize)) {
+    // Distance from the point to the side's segment.
+    const [dx, dy] = [b.x - a.x, b.y - a.y]
+    const k = Math.max(
+      0,
+      Math.min(1, ((world.x - a.x) * dx + (world.y - a.y) * dy) / (dx * dx + dy * dy)),
+    )
+    const d = Math.hypot(world.x - (a.x + k * dx), world.y - (a.y + k * dy))
+    if (!best || d < best.d) best = { across, d }
+  }
+  return best && inBounds(best.across, grid) ? { across: keyOf(best.across), d: best.d } : null
+}
+
+/**
+ * Walls: a click puts a wall on the side of the cell nearest the pointer, a drag one on each
+ * side it runs along; a right click (or drag) takes them away. A stroke is one undo step.
+ */
+class WallTool implements Tool {
+  private stroke: { before: [HexKey, HexKey][]; adding: boolean } | null = null
+
+  down(cell: Offset, info: PointerInfo): void {
+    if (info.button !== 0 && info.button !== 2) return
+    if (!inBounds(cell, editor.map.grid) || blockedByLock('walls')) return
+    this.stroke = { before: structuredClone(editor.map.walls), adding: info.button === 0 }
+    this.mark(cell, info.world, true)
+  }
+
+  move(cell: Offset, info: PointerInfo): void {
+    if (this.stroke && inBounds(cell, editor.map.grid)) this.mark(cell, info.world, false)
+  }
+
+  up(): void {
+    const stroke = this.stroke
+    this.stroke = null
+    if (!stroke) return
+    const ids = (walls: [HexKey, HexKey][]) => walls.map(([a, b]) => wallId(a, b)).join()
+    if (ids(stroke.before) !== ids(editor.map.walls))
+      editor.record(new ReplaceWallsCommand(stroke.before, structuredClone(editor.map.walls)))
+  }
+
+  /** The side nearest the pointer: always on a click, while dragging only close to it. */
+  private mark(cell: Offset, world: Point, click: boolean): void {
+    const side = nearestSide(cell, world)
+    if (!side || (!click && side.d > editor.map.grid.hexSize * 0.25)) return
+    const key = keyOf(cell)
+    const id = wallId(key, side.across)
+    const has = editor.map.walls.some(([a, b]) => wallId(a, b) === id)
+    if (this.stroke!.adding === has) return
+    editor.map.walls = this.stroke!.adding
+      ? [...editor.map.walls, [key, side.across]]
+      : editor.map.walls.filter(([a, b]) => wallId(a, b) !== id)
+    editor.notify({ kind: 'walls' })
+  }
+}
+
 const tools: Record<ToolId, Tool> = {
   play: playTool,
   region: new RegionTool(),
@@ -996,6 +1063,7 @@ const tools: Record<ToolId, Tool> = {
   terrain: new TerrainTool(),
   path: new PathTool(),
   connection: connectionTool,
+  wall: new WallTool(),
 }
 
 export function getTool(id: ToolId): Tool {

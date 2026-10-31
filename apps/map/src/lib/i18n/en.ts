@@ -19,6 +19,7 @@ export const en = {
     terrain: 'Terrain (B)',
     path: 'Roads and rivers (R)',
     connection: 'Connections (C)',
+    wall: 'Walls (W)',
     icon: 'Icons (I)',
     text: 'Text (T)',
     play: 'Play (P)',
@@ -89,6 +90,7 @@ export const en = {
     terrain: vocabulary.en.terms.terrain,
     paths: 'Roads and rivers',
     connections: 'Connections',
+    walls: 'Walls',
     icons: 'Icons',
     text: 'Text',
     play: 'Play',
@@ -260,6 +262,7 @@ export const en = {
       grid: 'Grid',
       paths: 'Roads and rivers',
       connections: 'Connections',
+      walls: 'Walls',
       icons: 'Icons',
       labels: 'Text',
       party: 'Trail and route',
@@ -573,6 +576,11 @@ export const en = {
     newDestination: 'Click a cell to set a new destination.',
   },
   pathKinds: vocabulary.en.pathKinds,
+  walls: {
+    help: 'A wall on a side of a cell: trips never cross it, like the walls floor draws by itself, unless a connection is drawn across it (a door, an arch). Walls stand on any map, of hexes or squares.\n• **Click** near a side of a cell: a wall on it\n• **Drag** along the sides: a wall on each\n• **Right click** or right drag: takes them off\nA stroke is undone with Ctrl+Z.',
+    count: '{count} walls drawn by hand',
+    clear: 'Remove every wall drawn by hand',
+  },
   connection: {
     kind: 'Kind',
     kindHelp:

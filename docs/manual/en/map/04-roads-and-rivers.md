@@ -4,13 +4,13 @@ The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from cell to cell.
 
 ## Kinds
 
-| Kind   | Looks like                            | In a trip with rules             |
-| ------ | ------------------------------------- | -------------------------------- |
-| Road   | solid brown                           | what the system says (see below) |
-| Trail  | dashed brown                          | what the system says             |
-| River  | blue                                  | what the system says             |
-| Wall   | thick, with stones, also across water | nothing: only drawn              |
-| Border | dashed red, also across water         | nothing: only drawn              |
+| Kind   | Looks like                            | In a trip with rules                             |
+| ------ | ------------------------------------- | ------------------------------------------------ |
+| Road   | solid brown                           | what the system says (see below)                 |
+| Trail  | dashed brown                          | what the system says                             |
+| River  | blue                                  | what the system says                             |
+| Wall   | thick, with stones, also across water | nothing: only drawn ([Walls](#walls) stop trips) |
+| Border | dashed red, also across water         | nothing: only drawn                              |
 
 ## What roads and rivers do when you travel
 
@@ -53,3 +53,14 @@ The **Connections** tool (<kbd>C</kbd>, **⇄**) joins two places with something
 - While a trip is going on, one it can't cross now is greyed with its diamond crossed out, and its panel says what the trip made of it: [Connections in play](08-play.md).
 
 What a kind of connection does in a trip is the system's, like roads: a speed, or skipping a check (`trip.connections: ford` in a condition reads the kinds of the step taken). Connections have a layer of their own in **Layers**, to show, hide or lock them.
+
+## Walls
+
+The **Walls** tool (<kbd>W</kbd>, **▥**) puts walls on the sides of cells, on any map, of hexes or squares: a city wall round a town, a cliff, the wall that bricks up a dungeon's passage. A trip never crosses one, like the walls [floor](02-terrain.md) draws by itself round a structure, and a [connection](#connections) drawn across it opens it (a gate, a door, a breach).
+
+- **Click** near a side of a cell: a wall on that side, between that cell and the one across.
+- **Drag** along the sides: a wall on each side the pointer runs along (passing through a cell's middle adds nothing).
+- **Right click**, or a right drag, takes them off.
+- Each stroke is one step of <kbd>Ctrl</kbd>+<kbd>Z</kbd>. The panel says how many walls are drawn and **Removes every wall drawn by hand** at once (undone the same way).
+
+Walls are drawn as a thick dark line, as floor's; their layer in **Layers** (**Walls**) shows, hides or locks both. Routes go round a wall; with no way round, a destination behind one can't be reached. The **Wall** line of the Roads and rivers tool is only a drawing: it stops nothing. The Grey Marches' Barrow-halls brick up two side-niches of their corridor with walls drawn by hand.

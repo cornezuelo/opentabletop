@@ -39,7 +39,16 @@ import { History } from '../commands/history'
 import { ReplaceTokenCommand } from '../commands/tokens'
 
 export type ToolId =
-  'select' | 'terrain' | 'region' | 'path' | 'connection' | 'icon' | 'text' | 'token' | 'play'
+  | 'select'
+  | 'terrain'
+  | 'region'
+  | 'path'
+  | 'connection'
+  | 'wall'
+  | 'icon'
+  | 'text'
+  | 'token'
+  | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 /** What the side panel shows besides the active tool's view. */
 export type PanelView = 'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'layers'

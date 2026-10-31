@@ -19,6 +19,7 @@ function sampleMap() {
   }
   map.hexes['2,2'] = { icon: { id: 'game:tipi' } }
   map.paths = [{ id: 'road00000001', kind: 'road', hexes: ['1,2', '2,2', '3,2'], nodes: [0, 2] }]
+  map.walls = [['3,3', '4,3']]
   map.connections = [
     {
       id: 'conn00000001',
@@ -98,6 +99,7 @@ describe('OTD conversion', () => {
     expect(back.hexes).toEqual(original.hexes)
     expect(back.paths).toEqual(original.paths)
     expect(back.connections).toEqual(original.connections)
+    expect(back.walls).toEqual([['3,3', '4,3']])
     expect(back.labels).toEqual(original.labels)
     expect(back.scale).toEqual(original.scale)
     expect(back.meta).toEqual(original.meta)

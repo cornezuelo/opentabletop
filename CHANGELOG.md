@@ -7,10 +7,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Map: **those present on the map are picked**: in Play a click on one's token opens the trip's **Party** tab with its card unfolded in **Here**, and a drag moves it in the trip, to another cell or room (the journal says so; put away from the party it stays there). Travel's and Map's **Here** unfold those left behind elsewhere into their cards too.
+- Map: a **Walls** tool (<kbd>W</kbd>) draws walls by hand on cells' sides, on any map of hexes or squares: a click near a side, a drag along several, a right click takes them off. Trips never cross them, as floor's walls, unless a connection is drawn across (a gate, a door); a **Walls** layer shows, hides or locks them. Maps v35.
 - Map, Systems and every trip: **rivers that are crossed**. A step into a river's cell from off it, where no road, trail or connection (a ford, a bridge) takes the party over, crosses the river: what that does is the system's, a kind of connection's **crossing** (Systems → Rules → Connections: **Crossing it**, **Crossing: extra minutes**, **Crossing closed when**; `connections.river.crossing` in a pack), and conditions read it as `trip.crossing: river`. Routes go by a bridge or ford when that's quicker.
 
 ### Packs
 
+- The Grey Marches: the Barrow-halls' corridor has its two side-niches bricked up by walls drawn by hand.
 - Core: wading a river takes an hour more. The Grey Marches: half a day, impossible on a day of storm, and a **Wading** check on the ford's oracle in deep water; a trip from Ashford eastwards now goes by Keld Bridge or the ford.
 
 ### Fixes

@@ -120,6 +120,9 @@ export function bindShortcuts(): () => void {
       case 'c':
         editor.tool = 'connection'
         break
+      case 'w':
+        editor.tool = 'wall'
+        break
       case 'i':
         editor.tool = 'icon'
         break

@@ -2,7 +2,7 @@
 
 ## Layers
 
-**Layers** (the ▤ button in the top bar) lists the parts of the map in the order they're drawn, the top one above the rest: note markers, tokens, relations (the threads from the party to what its characters are tied to; hidden on a new map, shown with its eye), trail and route, text, coordinates, icons, roads and rivers, factions (each one's land in its colour: stripes and a dashed frontier), regions, grid and terrain.
+**Layers** (the ▤ button in the top bar) lists the parts of the map in the order they're drawn, the top one above the rest: note markers, tokens, relations (the threads from the party to what its characters are tied to; hidden on a new map, shown with its eye), trail and route, text, coordinates, icons, roads and rivers, factions (each one's land in its colour: stripes and a dashed frontier), regions, walls (those floor draws and those drawn by hand), grid and terrain.
 
 - The **eye** shows or hides a layer while you work. Hidden layers aren't exported either.
 - The **lock** protects a layer from your own clicks: no tool can change it until you unlock it.
@@ -16,7 +16,7 @@ Many clicks on the map could change more than one thing: a click near a river ca
 - Lock **icons** and **text** when the map is finished and you only play on it.
 - Lock **tokens** to keep the pieces where they are while you edit the map under them.
 
-A locked layer is still drawn and exported. Trying to change it shows a notice saying which layer is locked. Terrain, regions, roads and rivers, connections, icons, text and tokens can be locked; the grid, coordinates, markers and the trail can only be hidden. Playing a trip still moves the party: the lock is for editing, not for play.
+A locked layer is still drawn and exported. Trying to change it shows a notice saying which layer is locked. Terrain, walls, regions, roads and rivers, connections, icons, text and tokens can be locked; the grid, coordinates, markers and the trail can only be hidden. Playing a trip still moves the party: the lock is for editing, not for play.
 
 **Highlight a tag**, at the bottom of Layers, outlines every cell with that tag (`landmark`, `haunted`, `shrine`: the box suggests the map's own) and says how many there are; **Dim the other cells** shades the rest so they stand out. It's only a view while you look: nothing is saved, and **Stop highlighting** clears it.
 

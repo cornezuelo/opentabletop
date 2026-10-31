@@ -169,3 +169,15 @@ Built on autopilot from the user's play-testing (backlog, "from the user's play-
 - **Systems**: three more columns in Rules → Connections (**Crossing it**, **Crossing: extra minutes**, **Crossing closed when**).
 - **The packs**: Core wades a river in an hour more; the Grey Marches in half a day, shut on a day of storm (`today.fordImpossible`, as the ford), with a **Wading** check on the ford's oracle in deep water (`odds: high`), so the route from Ashford eastwards goes by Keld Bridge or the ford.
 - Left for later: rivers along cells' sides (with the beautiful-map work); Travel's way without a map has no crossings yet (a stop could say what it crosses, like its connection to the next); a river's crossing drawn on the map (where a route wades).
+
+## 17. The walls tool: built (2026-10-31), details to review
+
+Decided with the user (backlog, "Decided with the user (2026-10-31), after 3b", b); built on autopilot. What Claude decided:
+
+- **Data**: the map's `walls`, a list of sides, each the two cells it stands between (`[["3,2", "3,3"]]`), in the OTD map beside `connections` (maps v35, nothing to migrate). On any map, with or without floor.
+- **What it does**: `mapWalls` stands a drawn wall between its two cells (`between`), so `mapWorld` drops that neighbour, as for floor's walls; a connection drawn across opens it, as a door does floor's.
+- **The tool** (**W**, ▥): a click walls the side of the cell nearest the pointer; a drag walls each side it runs along (within a quarter of a cell of it); a right click or drag takes them off; a stroke is one undo step. Its panel: help, the count, **Remove every wall drawn by hand**. A side on the map's edge takes none.
+- **The layer**: a new **Walls** layer (after the grid), for floor's walls and those drawn: before, floor's walls followed the terrain layer.
+- **The Roads and rivers tool's Wall line** stays as it was, a drawing that stops nothing; the manual says so. To review: whether it should go (or become this) now that walls exist.
+- **Example**: the Barrow-halls' corridor has its two side-niches bricked up.
+- Left for later: walls drawn in the styles of the redesign (stone, palisade), a wall's own name or tags, and the trip's facts saying a wall is beside the party.

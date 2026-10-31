@@ -8,6 +8,8 @@ export type MapChange =
   | { kind: 'paths' }
   /** The connections drawn between places. */
   | { kind: 'connections' }
+  /** The walls drawn by hand on cells' sides. */
+  | { kind: 'walls' }
   | { kind: 'assets' }
   | { kind: 'layers' }
   | { kind: 'labels' }

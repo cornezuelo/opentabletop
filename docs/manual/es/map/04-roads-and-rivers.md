@@ -4,13 +4,13 @@ La herramienta **Caminos y ríos** (<kbd>R</kbd>) dibuja líneas de casilla a ca
 
 ## Tipos
 
-| Tipo     | Aspecto                                    | En un viaje con reglas             |
-| -------- | ------------------------------------------ | ---------------------------------- |
-| Camino   | marrón continuo                            | lo que diga el sistema (ver abajo) |
-| Sendero  | marrón discontinuo                         | lo que diga el sistema             |
-| Río      | azul                                       | lo que diga el sistema             |
-| Muro     | grueso, con piedras, también sobre el agua | nada: solo se dibuja               |
-| Frontera | rojo discontinuo, también sobre el agua    | nada: solo se dibuja               |
+| Tipo     | Aspecto                                    | En un viaje con reglas                                    |
+| -------- | ------------------------------------------ | --------------------------------------------------------- |
+| Camino   | marrón continuo                            | lo que diga el sistema (ver abajo)                        |
+| Sendero  | marrón discontinuo                         | lo que diga el sistema                                    |
+| Río      | azul                                       | lo que diga el sistema                                    |
+| Muro     | grueso, con piedras, también sobre el agua | nada: solo se dibuja ([Muros](#muros) detiene los viajes) |
+| Frontera | rojo discontinuo, también sobre el agua    | nada: solo se dibuja                                      |
 
 ## Qué hacen los caminos y ríos al viajar
 
@@ -53,3 +53,14 @@ La herramienta **Conexiones** (<kbd>C</kbd>, **⇄**) une dos lugares con algo q
 - Mientras hay un viaje en curso, la que no puede cruzar ahora sale en gris con el rombo tachado, y su panel dice qué ha hecho el viaje de ella: [Las conexiones al jugar](08-play.md).
 
 Lo que hace un tipo de conexión en un viaje lo decide el sistema, como con los caminos: una velocidad, o saltarse una comprobación (`trip.connections: ford` en una condición lee los tipos del paso dado). Las conexiones tienen su propia capa en **Capas**, para mostrarlas, ocultarlas o bloquearlas.
+
+## Muros
+
+La herramienta **Muros** (<kbd>W</kbd>, **▥**) pone muros en los lados de las casillas, en cualquier mapa, de hexágonos o de cuadrados: la muralla de un pueblo, un acantilado, el muro que tapia un pasadizo de una mazmorra. Un viaje nunca lo cruza, igual que los muros que el [suelo](02-terrain.md) dibuja por sí solo alrededor de una estructura, y una [conexión](#conexiones) dibujada que lo atraviese lo abre (una puerta, un portón, una brecha).
+
+- **Clic** cerca de un lado de una casilla: un muro en ese lado, entre esa casilla y la de enfrente.
+- **Arrastrar** por los lados: un muro en cada lado por el que pasa el puntero (cruzar el centro de una casilla no añade nada).
+- **Clic derecho**, o arrastrar con el derecho, los quita.
+- Cada trazo es un paso de <kbd>Ctrl</kbd>+<kbd>Z</kbd>. El panel dice cuántos muros hay dibujados y **Quita todos los muros dibujados a mano** de una vez (se deshace igual).
+
+Los muros se dibujan como una línea gruesa oscura, como los del suelo; su capa en **Capas** (**Muros**) muestra, oculta o bloquea ambos. Las rutas rodean un muro; si no hay forma de rodearlo, un destino detrás de él no se alcanza. La línea **Muro** de la herramienta Caminos y ríos es solo un dibujo: no detiene nada. Las Barrow-halls de las Marcas Grises tapian dos hornacinas laterales de su pasillo con muros dibujados a mano.

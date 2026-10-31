@@ -484,6 +484,8 @@ export class MapRenderer {
       if (editor.map.paths.length > 0) this.drawPaths()
     } else if (change.kind === 'paths') {
       this.drawPaths()
+    } else if (change.kind === 'walls') {
+      this.drawWalls()
     } else if (change.kind === 'connections') {
       this.drawConnections()
       // A connection across a wall opens it (a door).
@@ -587,19 +589,27 @@ export class MapRenderer {
 
   /**
    * The walls: every side of a floor cell facing a cell that isn't floor (or the map's edge),
-   * but where a connection is drawn across it (a door, an arch), as a thick dark line. Rooms
-   * painted side by side merge; a corridor painted into a room opens it.
+   * and every side a wall is drawn on by hand, but where a connection is drawn across it (a
+   * door, an arch), as a thick dark line. Rooms painted side by side merge; a corridor
+   * painted into a room opens it.
    */
   private drawWalls(): void {
     const g = this.wallLines.clear()
     const { grid } = editor.map
     const walls = mapWalls(editor.map)
+    const drawn = new Set<string>(editor.map.walls.flat())
+    // The cells a wall may stand beside: floor, and the ends of walls drawn by hand.
+    const beside = (key: string) => walls.floor(key) || drawn.has(key)
     let any = false
     for (const cell of allCells(grid)) {
       const key = keyOf(cell)
-      if (!walls.floor(key)) continue
+      if (!beside(key)) continue
       for (const { a, b, across } of cellSides(cell, grid, grid.hexSize)) {
-        if (inBounds(across, grid) && !walls.between(key, keyOf(across))) continue
+        const there = keyOf(across)
+        if (!inBounds(across, grid)) {
+          if (!walls.floor(key)) continue
+        } else if (!walls.between(key, there) || (beside(there) && there < key)) continue
+        // A side between two such cells is drawn once, from the first.
         g.moveTo(a.x, a.y).lineTo(b.x, b.y)
         any = true
       }
@@ -1381,7 +1391,7 @@ export class MapRenderer {
     this.factionShapes.visible = layers.factions?.visible ?? true
     this.drawSelection()
     this.gridLines.visible = layers.grid.visible
-    this.wallLines.visible = layers.terrain.visible
+    this.wallLines.visible = layers.walls?.visible ?? true
     this.pathsLayer.visible = layers.paths.visible
     this.connectionLayer.visible = layers.connections?.visible ?? true
     this.iconLayer.visible = layers.icons.visible

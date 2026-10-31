@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { cellCenter } from '@open-tabletop/hex'
 import { createMap, mapWalls, mapWorld } from '@open-tabletop/map'
 import { createTravelEngine, initialTravelState } from '@open-tabletop/travel-engine'
 import { coreSystem } from '../../../../../packages/session/src/core.testing'
@@ -98,5 +99,66 @@ describe('painting a dungeon', () => {
       '2,3',
       '1,3',
     ])
+  })
+})
+
+describe('walls drawn by hand', () => {
+  /** A map of squares 10 wide: a cell's centre and the middle of its east side. */
+  const squares = () => {
+    const map = createMap()
+    map.grid = { ...map.grid, kind: 'square', hexSize: 10 }
+    editor.load(map)
+    editor.tool = 'wall'
+  }
+  const centre = (col: number, row: number) =>
+    cellCenter({ col, row }, editor.map.grid, editor.map.grid.hexSize)
+
+  it('a click walls the nearest side, a drag the sides it runs along, a right click takes one off', () => {
+    squares()
+    const tool = currentTool()
+    const at = (col: number, row: number, dx: number, dy: number) =>
+      press({ world: { x: centre(col, row).x + dx, y: centre(col, row).y + dy } })
+    // Near the east side of 2,2: a wall between it and 3,2.
+    tool.down({ col: 2, row: 2 }, at(2, 2, 8, 1))
+    tool.up()
+    expect(editor.map.walls).toEqual([['2,2', '3,2']])
+    // Trips no longer step across it, on a map with no floor at all.
+    const world = mapWorld(editor.map, 1)
+    expect(world.neighbors('2,2')).not.toContain('3,2')
+    expect(mapWalls(editor.map).drawn('3,2', '2,2')).toBe(true)
+    // A drag along the south sides of 4,4 and 5,4: two walls, one undo step.
+    tool.down({ col: 4, row: 4 }, at(4, 4, 0, 9))
+    tool.move({ col: 5, row: 4 }, at(5, 4, 0, 9))
+    // Through a cell's middle, far from any side: nothing.
+    tool.move({ col: 6, row: 4 }, at(6, 4, 0, 0))
+    tool.up()
+    expect(editor.map.walls).toEqual([
+      ['2,2', '3,2'],
+      ['4,4', '4,5'],
+      ['5,4', '5,5'],
+    ])
+    editor.undo()
+    expect(editor.map.walls).toHaveLength(1)
+    editor.redo()
+    // A right click near the same side, from the other cell, takes it off.
+    tool.down({ col: 3, row: 2 }, { ...at(3, 2, -8, 0), button: 2 })
+    tool.up()
+    expect(editor.map.walls).toHaveLength(2)
+    // A side on the map's edge takes no wall; a locked layer, none at all.
+    tool.down({ col: 0, row: 0 }, at(0, 0, -9, 0))
+    tool.up()
+    expect(editor.map.walls).toHaveLength(2)
+    editor.setLayer('walls', { locked: true })
+    tool.down({ col: 7, row: 7 }, at(7, 7, 9, 0))
+    tool.up()
+    expect(editor.map.walls).toHaveLength(2)
+  })
+
+  it('a connection drawn across a wall opens it', () => {
+    squares()
+    editor.map.walls = [['2,2', '3,2']]
+    editor.map.connections = [{ id: 'd', between: ['2,2', '3,2'], kind: 'door' }]
+    expect(mapWorld(editor.map, 1).neighbors('2,2')).toContain('3,2')
+    expect(mapWalls(editor.map).between('2,2', '3,2')).toBe(false)
   })
 })

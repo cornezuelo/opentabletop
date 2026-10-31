@@ -8,6 +8,7 @@
 | <kbd>N</kbd>                                                                 | Regions                                              |
 | <kbd>R</kbd>                                                                 | Roads and rivers                                     |
 | <kbd>C</kbd>                                                                 | Connections                                          |
+| <kbd>W</kbd>                                                                 | Walls                                                |
 | <kbd>I</kbd>                                                                 | Icons                                                |
 | <kbd>T</kbd>                                                                 | Text                                                 |
 | <kbd>K</kbd>                                                                 | Tokens                                               |
