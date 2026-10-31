@@ -7,12 +7,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Map: **maps of squares**. **Map settings → Cells** chooses hexes or squares, and everything works on both (terrain, regions, roads and rivers, icons, tokens, connections, trips, printing and export). A new sub-map is made of squares. Maps v32.
+- Map: **dungeons**. A terrain marked **Floor** in the palette is a structure's floor: walls are drawn by themselves wherever it meets what isn't floor, and trips never cross them; a connection drawn across a wall is a door. A region marked **One place (a room)** is played as one place (`area:<id>`: one step in, its name, values and tags), with a wall between rooms that touch.
 - Systems and every trip: **diagonal steps** on maps of squares are the system's rule: **Diagonal step** in Systems' Rules (`travel.diagonals`: none when empty, or what a step across a corner costs in steps along a side: `1`, `1.5`, `1.41`) and **Cut corners** (`travel.cutCorners`: may it pass a corner it can't enter).
 
 ### Packs
 
 - Core: diagonal steps cost one step (`diagonals: 1`); the Grey Marches: a step and a half (`diagonals: 1.5`), never cutting corners.
-- The Grey Marches: the Barrow-halls are drawn on squares; a trip walks them square to square.
+- The Grey Marches: the Barrow-halls are a dungeon on squares: floor with its walls, three rooms (the barrow stair, the long barrow, the chief's tomb) and a bronze door (`door`, a minute more, shut while `barred`).
 
 ### Formats
 

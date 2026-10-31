@@ -137,6 +137,14 @@
     <label class="check">
       <input
         type="checkbox"
+        checked={!!active.onePlace}
+        onchange={(e) => update((r) => ({ ...r, onePlace: e.currentTarget.checked || undefined }))}
+      />
+      {t('regions.onePlace')}<InfoTip text={t('regions.onePlaceHelp')} />
+    </label>
+    <label class="check">
+      <input
+        type="checkbox"
         checked={!!active.style}
         onchange={(e) => {
           const own = e.currentTarget.checked

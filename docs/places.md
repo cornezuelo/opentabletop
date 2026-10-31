@@ -134,14 +134,14 @@ Phase 3 is split in two: (3a) square grids, (3b) areas (rooms painted as floor, 
 - **A new sub-map is made of squares** (a site inside a place), changeable in Map settings; the Grey Marches' Barrow-halls are squares now (maps v31).
 - Not done: `place.kind` (`hex`, `square`, `area`) as a fact for conditions (nothing needs it yet; areas will), New map asking for the kind of map (§10's presets), Core has no example map to show squares on.
 
-## 14. Phase 3b, areas: proposed (2026-10-30), to decide with the user
+## 14. Phase 3b, areas: built (2026-10-31)
 
-What §8 B and §9 leave open, with Claude's proposal for each:
+Proposed 2026-10-30; the user chose floor as a terrain's flag (point 1, the alternative) and left the rest to Claude ("si no hace falta diseñarlo afróntalo"). As built:
 
-1. **What floor is.** Proposal: on a map of squares, a cell with a terrain is floor and a cell without one is solid (rock, earth), so painting a room is painting its terrain as today, and walls are drawn by themselves wherever floor meets no floor (and at the map's edge). Alternative: a terrain says it's floor (`floor: true` in the palette, as `water`), so painted rock is possible.
-2. **An area** is a named group of cells (a room, a cave, a yard), painted with an **Areas** tool as regions are, with a name, tags, values and a note (`areas: [{ id, name, tags, fields, note }]`, each cell's `area`). Played as **one place**: a trip is "in the guardroom", its place `area:<id>`; its facts are the area's (`place.name`, `place.tags`, its values) beside the cells' terrain (the most common one). Cells in no area stay places of their own (a corridor square by square).
-3. **Between areas.** Proposal: two areas whose cells touch are joined (an open arch) unless a **wall** is drawn on the sides between them; a **door** is a connection drawn on a side (its kind the system's, as today's connections, with its state in play), which also cuts the wall there. So walls come from the floor's edge, and only walls between two floors are drawn by hand. Alternative: touching areas are closed unless a door or opening is drawn.
-4. **Where the party stands** in an area: its token on the cell it came in by (tokens keep cells), the area outlined while it's there.
-5. **The look**: one plain style first (a thick dark wall line on the floor's edge, doors as a gap with a bar), styles later (§9).
+1. **Floor** is a terrain's flag in the palette (`floor: true`, as `water`), so the ground outside and painted rock aren't floor. Walls are never kept: `mapWalls` (in `@open-tabletop/map`) says where they stand, the renderer draws them (a thick dark line, `drawWalls`) and `mapWorld` drops the steps across them.
+2. **Areas are regions** (principle 1: no second painter): a region with **One place (a room)** (`onePlace: true`) is played as one place, `area:<region id>`; its facts are its region's values with its cells' most common terrain, every tag and place, and `floor`; a step into it measures one cell, wherever you come in. Map draws it on the cell the party came in by (`cellOfPlace`: across a door drawn there, else beside with no wall), and a click on any of its cells heads for it (`placeOfCell`). A cell can't be in a kingdom and a room at once: a dungeon's regions are its rooms.
+3. **Between rooms** (the proposal's alternative, needed for doors to mean anything): a wall stands where floor meets what isn't floor **and between two rooms that touch**; a corridor's floor in no room joins rooms openly. A connection across a wall opens it (a door: its kind's `extra`, `passable`, state in play). Drawn walls between two floors of one room aren't possible yet.
+4. **Where the party stands**: its token on the cell it came in by. Splitting the party character by character goes with point 9.
+5. **The look**: walls as one plain line; styles later (§9).
 
-Then the Grey Marches' Barrow-halls redrawn as rooms (the stair, the long barrow, the chief's tomb as areas, a door to the tomb) and Core's smallest example, with a test that plays them.
+Not done yet: rooms in Discovery (a room found as you go: phase 4), a rectangle to paint rooms faster, Core's own example (Core has no maps), the token of each character in a room.

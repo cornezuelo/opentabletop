@@ -98,6 +98,7 @@ function validate(data: Record<string, unknown>): HexMap {
       color: t.color as string,
       ...(typeof t.name === 'string' ? { name: t.name } : {}),
       ...(t.water === true ? { water: true } : {}),
+      ...(t.floor === true ? { floor: true } : {}),
       ...(typeof t.glyph === 'string' && t.glyph ? { glyph: t.glyph } : {}),
     }))
 
@@ -402,6 +403,7 @@ function parseRegions(value: unknown): MapRegion[] {
         name: typeof r.name === 'string' ? r.name : '',
         color: typeof r.color === 'string' && COLOR.test(r.color) ? r.color : '#8b1e1e',
         ...(r.showName === false && { showName: false }),
+        ...(r.onePlace === true && { onePlace: true }),
         ...(isRecord(r.nameStyle) && {
           nameStyle: parseCaptionOverride(r.nameStyle, DEFAULT_CAPTIONS.regionNames),
         }),

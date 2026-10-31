@@ -1063,10 +1063,14 @@ export function createTravelEngine(options: {
       )
     )
       return 0
-    // A diagonal step doesn't pass a corner whose squares beside it can't be entered, unless
-    // the system lets it (`travel.cutCorners`).
+    // A diagonal step doesn't pass a corner whose squares beside it can't be entered (or are
+    // behind a wall), unless the system lets it (`travel.cutCorners`).
     const beside = world.diagonal?.(a, b)
-    if (beside && !rules.travel.cutCorners && beside.some((s) => multiplier(state, a, s) <= 0))
+    if (
+      beside &&
+      !rules.travel.cutCorners &&
+      beside.some((s) => !world.neighbors(a).includes(s) || multiplier(state, a, s) <= 0)
+    )
       return 0
     // A kind of connection the step takes that can't be crossed now (a locked door) stops it.
     const kinds = world.connections(a, b)

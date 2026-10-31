@@ -31,6 +31,7 @@
       if (!merged.name?.trim() || merged.name.trim() === defaultName(merged)) delete merged.name
       else merged.name = merged.name.trim()
       if (!merged.water) delete merged.water
+      if (!merged.floor) delete merged.floor
       if (!merged.glyph) delete merged.glyph
       return merged
     })
@@ -110,6 +111,14 @@
           onchange={(e) => update(terrain.id, { water: e.currentTarget.checked })}
         />
         {t('terrainEditor.water')}
+      </label>
+      <label class="water" use:tooltip={{ markdown: helpMarkdown(t('terrainEditor.floorHelp')) }}>
+        <input
+          type="checkbox"
+          checked={!!terrain.floor}
+          onchange={(e) => update(terrain.id, { floor: e.currentTarget.checked })}
+        />
+        {t('terrainEditor.floor')}
       </label>
       <button
         class="icon"

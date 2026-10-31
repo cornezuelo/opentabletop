@@ -87,7 +87,7 @@ describe('sub-maps', () => {
     await marchTo('barrowhalls1')
     expect(editor.map.meta.id).toBe('barrowhalls1')
     const below = play.sessionOf(editor.map.play!)!
-    expect(below.travel.location).toBe('0,3')
+    expect(below.travel.location).toBe('area:barrowstair1')
     expect(below.journal.length).toBeGreaterThan(journal)
     expect(partyToken(editor.map)?.hex).toBe('0,3')
     expect(editor.campaign.playing).toMatchObject({ app: 'map', id: 'barrowhalls1' })
@@ -100,16 +100,26 @@ describe('sub-maps', () => {
     await loadLinks()
     expect(editor.linked.ancestors).toEqual([{ id: 'hollowhills1', name: 'The Hollow Hills' }])
 
-    // The halls are squares, side by side: the march to the chief's tomb goes square to square.
+    // The halls are squares with rooms: clicking a cell of the chief's tomb heads for the
+    // tomb, and the march goes square to square along the corridor, then room to room, the
+    // party's token on the cell it came in by.
     expect(editor.map.grid.kind).toBe('square')
+    expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('area:barrowstair1')
     const trail = editor.map.play!.trail.length
-    play.step({ type: 'setDestination', place: '7,3' })
-    await marchUntil(() => play.sessionOf(editor.map.play!)?.travel.location === '7,3')
-    expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('7,3')
+    play.clickHex('8,4')
+    await marchUntil(() => play.sessionOf(editor.map.play!)?.travel.location === 'area:chieftomb1')
+    expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('area:chieftomb1')
     const walked = editor.map.play!.trail.slice(trail - 1).map(parseKey)
-    expect(walked).toHaveLength(8)
-    expect(walked.at(-1)).toEqual({ col: 7, row: 3 })
-    for (let i = 1; i < walked.length; i++)
+    expect(walked.map((c) => `${c.col},${c.row}`)).toEqual([
+      '0,3',
+      '1,3',
+      '2,3',
+      '3,3',
+      '4,3',
+      '7,3',
+    ])
+    expect(partyToken(editor.map)?.hex).toBe('7,3')
+    for (let i = 1; i < walked.length - 1; i++)
       expect(cellDistance(walked[i - 1], walked[i], editor.map.grid)).toBe(1)
 
     // And back out, the same trip, to the hex it went down from.

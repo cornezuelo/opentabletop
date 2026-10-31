@@ -16,7 +16,7 @@ import {
 } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import { createTravelEngine } from '@open-tabletop/travel-engine'
-import { mapWorld, placeOn } from '@open-tabletop/map'
+import { mapWorld, placeOfCell, placeOn } from '@open-tabletop/map'
 import { exampleMaps, exampleState, forgetExample, rememberExample } from './examples'
 import { parseMapFile } from './otd'
 
@@ -362,20 +362,32 @@ describe('example maps', () => {
     expect(session.travel.location).toBe('0,3')
     expect(session.travel.visits?.['@hollowhills1/10,8']).toBe(visitsAbove)
     expect(session.travel.route).toBeUndefined()
-    // On to the chief's tomb (a landmark: the trip pauses there), through the barrow's halls.
-    session = reach(below, session, '7,3')
-    expect(session.travel.location).toBe('7,3')
+    // On to the chief's tomb (a room, a landmark: the trip pauses there), through the long
+    // barrow (a room too, one step however big) and the bronze door between them (a minute more).
+    const tomb = placeOfCell(halls, '8,3')
+    expect(tomb).toBe('area:chieftomb1')
+    expect(below.world.connections('area:longbarrow1', tomb)).toEqual(['door'])
+    expect(below.world.place(tomb)).toMatchObject({
+      name: "The chief's tomb",
+      tags: ['landmark'],
+      danger: 4,
+      floor: true,
+    })
+    session = reach(below, session, tomb)
+    expect(session.travel.location).toBe(tomb)
     const entered = session.journal.flatMap((e) =>
       e.code === 'PLACE_ENTERED' ? [String(e.data?.place)] : [],
     )
-    expect(entered).toContain('6,3')
+    expect(entered).toEqual(['0,3', '1,3', '2,3', '3,3', 'area:longbarrow1', tomb])
     // Coming down the way is the halls' first place entered (it was `@barrowhalls1/0,3`).
     expect(entered[0]).toBe('0,3')
     // And back up the way out, to the hex it came down from.
     session = reach(below, session, placeOn('hollowhills1', '10,8'))
     session = moveTrip(session, 'barrowhalls1', 'hollowhills1')
     expect(session.travel.location).toBe('10,8')
-    expect(session.journal.some((e) => e.data?.place === '@barrowhalls1/7,3')).toBe(true)
+    expect(session.journal.some((e) => e.data?.place === '@barrowhalls1/area:chieftomb1')).toBe(
+      true,
+    )
   })
 
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {

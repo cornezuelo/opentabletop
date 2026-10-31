@@ -16,7 +16,14 @@ import {
 } from '@open-tabletop/session'
 import type { TravelAction } from '@open-tabletop/travel-engine'
 import { getLocale, t } from '../i18n/index.svelte'
-import { DEFAULT_TOKEN_ICONS, newId, partyToken, type PlayState } from '@open-tabletop/map'
+import {
+  cellOfPlace,
+  DEFAULT_TOKEN_ICONS,
+  newId,
+  partyToken,
+  placeOfCell,
+  type PlayState,
+} from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
@@ -98,7 +105,7 @@ export function partyMoved(hex: HexKey | undefined): void {
 function jump(play: PlayState, hex: HexKey): PlayState {
   const session = sessionOf(play)
   if (!session || !play.rules) return play
-  const travel = { ...session.travel, location: hex, progress: 0 }
+  const travel = { ...session.travel, location: placeOfCell(editor.map, hex), progress: 0 }
   delete travel.destination
   delete travel.route
   return { ...play, rules: { ...play.rules, session: { ...session, travel } } }
@@ -136,7 +143,8 @@ function newSession(
   // Keep stats the user already set with this system; its declared defaults fill the rest.
   const { startDay, session } = startTrip({
     system: getSystem(system),
-    location,
+    // A cell of a room starts the trip in the room.
+    location: placeOfCell(editor.map, location),
     season,
     stats: play.rules?.system === system ? sessionOf(play)?.stats : undefined,
     // …and its characters: the same party goes on to the next trip.
@@ -167,7 +175,8 @@ export function clickHex(key: HexKey): void {
     // A system without travel rules plays no trips (Play says so).
     if (!travels(getSystem(mapSystemId()))) return
     save(newSession(play, location, mapSystemId()))
-    if (location !== key) step({ type: 'setDestination', place: key })
+    const to = placeOfCell(editor.map, key)
+    if (placeOfCell(editor.map, location) !== to) step({ type: 'setDestination', place: to })
     return
   }
   if (play.mode === 'simple' || !location || !sessionOf(play)) {
@@ -177,7 +186,8 @@ export function clickHex(key: HexKey): void {
     if (play.mode === 'rules') return save(newSession(play, key, mapSystemId()))
     return save(play)
   }
-  step({ type: 'setDestination', place: key })
+  // A cell of a room is the room.
+  step({ type: 'setDestination', place: placeOfCell(editor.map, key) })
 }
 
 export function setMode(mode: PlayState['mode']): void {
@@ -304,14 +314,18 @@ function stepOnly(action: TravelAction): void {
   }
   const { state, entries, discovered } = result
   editor.applyDiscovery(discovered)
-  // Places of another map (a way in or out) are that map's trail, not this one's.
-  const entered = entries.flatMap((e) =>
-    e.code === 'PLACE_ENTERED' && !parsePlaceOn(String(e.data?.place))
-      ? [e.data?.place as HexKey]
-      : [],
-  )
+  // Places of another map (a way in or out) are that map's trail, not this one's; a room is
+  // drawn on its cell where the party came in.
+  let near: string | undefined = partyLocation()
+  const entered = entries.flatMap((e) => {
+    const place = String(e.data?.place)
+    if (e.code !== 'PLACE_ENTERED' || parsePlaceOn(place)) return []
+    const at = cellOfPlace(editor.map, place, near)
+    near = at ?? near
+    return at ? [at] : []
+  })
   const into = parsePlaceOn(state.travel.location)
-  if (!into) placeParty(state.travel.location as HexKey)
+  if (!into) placeParty(cellOfPlace(editor.map, state.travel.location, near))
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
@@ -354,12 +368,14 @@ export async function goOnIn(map: string): Promise<boolean> {
   }
   const here = current()
   delete here.away
-  const location = moved.travel.location as HexKey
+  // An entrance in a room is the room.
+  moved.travel = { ...moved.travel, location: placeOfCell(editor.map, moved.travel.location) }
+  const location = cellOfPlace(editor.map, moved.travel.location, editor.map.meta.parent?.entrance)
   placeParty(location)
   save({
     ...here,
     mode: 'rules',
-    trail: here.trail.at(-1) === location ? here.trail : [...here.trail, location],
+    trail: !location || here.trail.at(-1) === location ? here.trail : [...here.trail, location],
     rules: { system: rules.system, startDay: rules.startDay, session: moved },
     ...(discover && { discover }),
   })

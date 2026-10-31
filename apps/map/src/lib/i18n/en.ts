@@ -376,6 +376,9 @@ export const en = {
     edit: 'Edit palette',
     name: 'Name',
     color: 'Color',
+    floor: 'Floor',
+    floorHelp:
+      "A structure's floor (a room's, a corridor's, a building's inside):\n• where it meets a cell that isn't floor, a wall is drawn by itself; paint two rooms side by side and they merge, paint a corridor into a room and it opens\n• trips never cross a wall; draw a connection across it (**Connections**, **C**) for a door or an arch\n• tables see `place.floor: true`\nLeave it off for the ground outside (grass, streets) and for solid rock.",
     water: 'Water',
     waterHelp:
       "Water hexes (lake, sea…):\n• roads, trails and rivers stop at their shore (walls and borders cross them)\n• on trips they follow the system's rule for water: whether they can be crossed, and by which ways of travelling\n• tables see `place.water: true` (a condition: `place.water: true`)",
@@ -429,6 +432,9 @@ export const en = {
     name: 'Name',
     note: 'Linked note',
     notePlaceholder: 'Places/The Black Marches',
+    onePlace: 'One place (a room)',
+    onePlaceHelp:
+      "The region is played as one place: a room, a cave, a yard, a hall. A trip is **in it**, not in one of its cells: stepping in is one step, wherever you come in; tables see its name (`place.name`), its values and every tag of its cells.\n• its cells may be any shape; the party's token stands on the cell it came in by\n• on floor, a wall stands by itself between two such regions that touch: draw a connection across it (**Connections**, **C**) for a door\n• a corridor's floor that's in no such region joins them openly\nLeave it off for regions that only name land (a kingdom, a forest).",
     delete: 'Delete region',
     confirmDelete: 'Delete "{name}"? Its {count} hexes will belong to no region.',
     pickFirst: 'Add or pick a region first.',

@@ -16,8 +16,10 @@ import {
   type CaptionKind,
   type CaptionOverride,
   hasMetadata,
+  cellOfPlace,
   hexesWithTag,
   ICON_DEFAULTS,
+  mapWalls,
   type MapPath,
   nodeFlags,
   partyToken,
@@ -56,6 +58,8 @@ import { drawnTokens, isCopy } from '../play/present'
 import { currentTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 const EMPTY_FILL = 0x2a2823
+/** Walls round a structure's floor. */
+const WALL_COLOR = 0x15130f
 /** Empty hexes on paper, when exporting to print. */
 const PAPER_FILL = 0xffffff
 const GRID_COLOR = 0x000000
@@ -149,6 +153,8 @@ export class MapRenderer {
   private world = new Container()
   private terrainLayer = new Container()
   private gridLines = new Graphics()
+  /** Walls, drawn by themselves where floor meets what isn't floor. */
+  private wallLines = new Graphics()
   private coordLayer = new Container()
   /** Small dots on hexes that have notes, POIs, tags or fields. */
   private pathsLayer = new Graphics()
@@ -217,6 +223,7 @@ export class MapRenderer {
       this.terrainLayer,
       this.glyphLayer,
       this.gridLines,
+      this.wallLines,
       this.regionLayer,
       this.factionShapes,
       this.selection,
@@ -457,6 +464,7 @@ export class MapRenderer {
         if (label) this.styleCoord(label, key)
       }
       for (const key of change.keys) this.updateGlyph(key)
+      this.drawWalls()
       if (editor.map.regions.length > 0) this.drawRegions()
       this.drawMarkers()
       if (editor.highlightTag) this.drawHighlight()
@@ -466,6 +474,8 @@ export class MapRenderer {
       this.drawPaths()
     } else if (change.kind === 'connections') {
       this.drawConnections()
+      // A connection across a wall opens it (a door).
+      this.drawWalls()
     } else if (change.kind === 'assets') {
       this.drawGlyphs()
       this.drawIcons()
@@ -548,6 +558,7 @@ export class MapRenderer {
       }
     }
     this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
+    this.drawWalls()
     this.drawGlyphs()
     this.drawRegions()
     // The map's factions (none on a new map: the last map's land mustn't stay drawn).
@@ -560,6 +571,29 @@ export class MapRenderer {
     this.drawTokens()
     this.drawHighlight()
     this.onViewChanged()
+  }
+
+  /**
+   * The walls: every side of a floor cell facing a cell that isn't floor (or the map's edge),
+   * but where a connection is drawn across it (a door, an arch), as a thick dark line. Rooms
+   * painted side by side merge; a corridor painted into a room opens it.
+   */
+  private drawWalls(): void {
+    const g = this.wallLines.clear()
+    const { grid } = editor.map
+    const walls = mapWalls(editor.map)
+    let any = false
+    for (const cell of allCells(grid)) {
+      const key = keyOf(cell)
+      if (!walls.floor(key)) continue
+      for (const { a, b, across } of cellSides(cell, grid, grid.hexSize)) {
+        if (inBounds(across, grid) && !walls.between(key, keyOf(across))) continue
+        g.moveTo(a.x, a.y).lineTo(b.x, b.y)
+        any = true
+      }
+    }
+    if (any)
+      g.stroke({ width: grid.hexSize * 0.16, color: WALL_COLOR, cap: 'square', join: 'miter' })
   }
 
   /**
@@ -710,7 +744,10 @@ export class MapRenderer {
           x: 0,
           y: 0,
         })
-      const size = hs * Math.min(1.1, 0.4 + Math.sqrt(cells.length) * 0.08)
+      // A room's name is a room's, not a kingdom's: small, whatever its size.
+      const size = region.onePlace
+        ? hs * 0.32
+        : hs * Math.min(1.1, 0.4 + Math.sqrt(cells.length) * 0.08)
       const text = this.caption(
         'regionNames',
         region.name.toUpperCase(),
@@ -970,7 +1007,13 @@ export class MapRenderer {
       play.mode === 'rules'
         ? (play.rules?.session as { travel?: { route?: string[]; destination?: string } } | null)
         : null
-    const route = session?.travel?.route
+    // A room on the route is drawn on its cell next to the step before.
+    let near: string | undefined = party?.hex
+    const route = session?.travel?.route?.flatMap((place) => {
+      const at = cellOfPlace(editor.map, place, near)
+      near = at ?? near
+      return at ? [at] : []
+    })
     if (route && route.length > 1) {
       const points = line(route, 1)
       for (const piece of dashes(points, hs * 0.3, hs * 0.18)) this.strokePolyline(lines, piece)
@@ -1302,6 +1345,7 @@ export class MapRenderer {
     this.factionShapes.visible = layers.factions?.visible ?? true
     this.drawSelection()
     this.gridLines.visible = layers.grid.visible
+    this.wallLines.visible = layers.terrain.visible
     this.pathsLayer.visible = layers.paths.visible
     this.connectionLayer.visible = layers.connections?.visible ?? true
     this.iconLayer.visible = layers.icons.visible

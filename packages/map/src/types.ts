@@ -12,6 +12,11 @@ export interface TerrainType {
   /** Water (lake, sea…): roads and rivers stop at its shore. */
   water?: boolean
   /**
+   * Floor (a room's, a corridor's): where it meets a cell that isn't floor a wall is drawn by
+   * itself, and trips don't cross it unless a connection is drawn there (a door).
+   */
+  floor?: boolean
+  /**
    * Small symbol drawn on its hexes (`game:<name>` or an imported `asset:<id>`), in a
    * lighter or darker shade of `color`. Absent = none.
    */
@@ -154,6 +159,12 @@ export interface MapRegion {
   note?: string
   /** Its own look; what it leaves out comes from the map's region style. */
   style?: Partial<RegionStyle>
+  /**
+   * Played as one place (a room, a cave, a yard): a trip is in it, not in one of its cells.
+   * On floor, a wall stands between it and another such region it touches, unless a
+   * connection is drawn there (a door).
+   */
+  onePlace?: boolean
 }
 
 /** How regions are drawn (map-wide, and per region as an override). */

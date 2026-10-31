@@ -1,0 +1,47 @@
+import { inBounds, parseKey, type HexKey } from '@open-tabletop/hex'
+import type { HexMap } from './types'
+
+/**
+ * Floor and walls (§9 of docs/places.md): a terrain the palette marks as floor (`floor`) is a
+ * structure's inside, a room or a corridor. A wall stands, drawn by itself and never crossed,
+ * wherever floor meets a cell that isn't floor, and between two rooms (regions played as one
+ * place, `onePlace`) that touch; a corridor's floor (in no room) joins any floor openly. A
+ * connection drawn across a wall opens it (a door, an arch). The map keeps only the floor,
+ * the rooms and the connections.
+ */
+export interface Walls {
+  /** Whether a cell is floor. */
+  floor(key: string): boolean
+  /** Whether a wall stands between two neighbouring cells (none where a connection is drawn). */
+  between(a: string, b: string): boolean
+}
+
+export function mapWalls(
+  map: Pick<HexMap, 'grid' | 'terrains' | 'hexes' | 'connections' | 'regions'>,
+): Walls {
+  const floors = new Set(map.terrains.filter((t) => t.floor).map((t) => t.id))
+  const floor = (key: string) => {
+    if (!floors.size || !inBounds(parseKey(key as HexKey), map.grid)) return false
+    const terrain = map.hexes[key as HexKey]?.terrain
+    return !!terrain && floors.has(terrain)
+  }
+  const rooms = new Set(map.regions.filter((r) => r.onePlace).map((r) => r.id))
+  const room = (key: string) => {
+    const region = map.hexes[key as HexKey]?.region
+    return region && rooms.has(region) ? region : undefined
+  }
+  const open = new Set<string>()
+  for (const {
+    between: [a, b],
+  } of map.connections ?? [])
+    open.add(`${a}|${b}`).add(`${b}|${a}`)
+  return {
+    floor,
+    between(a, b) {
+      if (!floors.size || open.has(`${a}|${b}`)) return false
+      if (floor(a) !== floor(b)) return true
+      const [ra, rb] = [room(a), room(b)]
+      return floor(a) && !!ra && !!rb && ra !== rb
+    },
+  }
+}

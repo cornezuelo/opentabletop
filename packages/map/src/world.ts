@@ -8,6 +8,7 @@ import {
 } from '@open-tabletop/hex'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { DEFAULT_CELL_KM } from './defaults'
+import { mapWalls } from './walls'
 import { fieldValues } from './hex'
 import { type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
 
@@ -70,17 +71,158 @@ function waysOf(map: HexMap, links: MapLinks): Way[] {
  * The map as the Travel Engine sees it: each hex a place (its terrain, tags, region, values,
  * icon, faction and places in it), its neighbours, and the roads, rivers and drawn
  * connections between them (one drawn between far hexes makes them neighbours), a step a
- * hex at the map's scale, else the system's (`systemHexKm`), else the default. With its
+ * hex at the map's scale, else the system's (`systemCellKm`), else the default. With its
  * `links`, the ways into its sub-maps and out of it are steps too: to a place of the other
  * map (`@<map>/<hex>`, what it knows of it), of the way's kind, no distance.
  */
-export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}): TravelWorld {
+export function mapWorld(map: HexMap, systemCellKm?: number, links: MapLinks = {}): TravelWorld {
+  return withRooms(map, cellWorld(map, systemCellKm, links))
+}
+
+/** A region played as one place (a room), as the rules name it: `area:<id>`. */
+export const areaPlace = (region: string): string => `area:${region}`
+
+/** The region of a place that is a room (`area:<id>`); undefined for any other place. */
+export function parseAreaPlace(place: string): string | undefined {
+  return /^area:(.+)$/.exec(place)?.[1]
+}
+
+/** The rooms of a map (regions played as one place) and the cells of each. */
+function roomsOf(map: Pick<HexMap, 'regions' | 'hexes' | 'grid'>): Map<string, HexKey[]> {
+  const rooms = new Map<string, HexKey[]>(
+    map.regions.filter((r) => r.onePlace).map((r) => [r.id, []]),
+  )
+  if (!rooms.size) return rooms
+  for (const [key, hex] of Object.entries(map.hexes) as [HexKey, HexMap['hexes'][HexKey]][])
+    if (hex.region && inBounds(parseKey(key), map.grid)) rooms.get(hex.region)?.push(key)
+  for (const [id, cells] of rooms) if (!cells.length) rooms.delete(id)
+  return rooms
+}
+
+/** The place a cell is to the rules: its room's (`area:<id>`), or the cell itself. */
+export function placeOfCell(map: Pick<HexMap, 'regions' | 'hexes'>, key: string): string {
+  const region = map.hexes[key as HexKey]?.region
+  return region && map.regions.some((r) => r.id === region && r.onePlace) ? areaPlace(region) : key
+}
+
+/**
+ * The cell a place is drawn on: the cell itself, or for a room the cell `near` if it's in it,
+ * else where the party came in from `near` (a cell, or the room it's in): its cell across a
+ * door drawn there, else beside it with no wall between, else its first.
+ */
+export function cellOfPlace(
+  map: Pick<HexMap, 'regions' | 'hexes' | 'grid' | 'terrains' | 'connections'>,
+  place: string,
+  near?: string,
+): HexKey | undefined {
+  const region = parseAreaPlace(place)
+  if (!region) return parsePlaceOn(place) ? undefined : (place as HexKey)
+  const rooms = roomsOf(map)
+  const cells = rooms.get(region)
+  if (!cells) return undefined
+  if (!near || parsePlaceOn(near) || parseAreaPlace(near)) return cells[0]
+  if (cells.includes(near as HexKey)) return near as HexKey
+  const before = parseAreaPlace(placeOfCell(map, near))
+  const from = [near, ...(before ? (rooms.get(before) ?? []) : [])]
+  const walls = mapWalls(map)
+  const doors = new Set(
+    (map.connections ?? []).flatMap(({ between: [a, b] }) => [`${a}|${b}`, `${b}|${a}`]),
+  )
+  const beside = (x: string, y: string) =>
+    cellDistance(parseKey(x as HexKey), parseKey(y as HexKey), map.grid) === 1 &&
+    !walls.between(x, y)
+  for (const test of [(x: string, y: string) => doors.has(`${x}|${y}`), beside])
+    for (const x of from) {
+      const found = cells.find((y) => test(x, y))
+      if (found) return found
+    }
+  return cells[0]
+}
+
+/**
+ * The cells' world seen with its rooms as one place each: a room's facts are its region's
+ * (its name, values) with its cells' (their most common terrain, every tag, place and
+ * floor), its neighbours every place next to any of its cells, and a step into it one cell's.
+ */
+function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
+  const rooms = roomsOf(map)
+  if (!rooms.size) return cells
+  const node = (id: string) => (parsePlaceOn(id) ? id : placeOfCell(map, id))
+  const cellsOf = (id: string): string[] => {
+    const region = parseAreaPlace(id)
+    return region ? (rooms.get(region) ?? []) : [id]
+  }
+  /** Each cell of `a` with each cell of `b` it's next to. */
+  const pairs = (a: string, b: string): [string, string][] => {
+    const bs = new Set(cellsOf(b))
+    return cellsOf(a).flatMap((x) =>
+      cells
+        .neighbors(x)
+        .filter((y) => bs.has(y))
+        .map((y): [string, string] => [x, y]),
+    )
+  }
+  const unique = <T>(list: T[]) => [...new Set(list)]
+  const firstPair = (a: string, b: string): [string, string] => pairs(a, b)[0] ?? [a, b]
+  return {
+    // A cell of a room (a way in arriving there) is the room.
+    place(cellOrPlace) {
+      const id = node(cellOrPlace)
+      const region = parseAreaPlace(id)
+      if (!region) return cells.place(id)
+      const inside = cellsOf(id).flatMap((c) => {
+        const p = cells.place(c)
+        return p ? [p] : []
+      })
+      if (!inside.length) return null
+      const count = new Map<string, number>()
+      for (const p of inside) if (p.terrain) count.set(p.terrain, (count.get(p.terrain) ?? 0) + 1)
+      const terrain = [...count].sort((x, y) => y[1] - x[1])[0]?.[0]
+      const pois = unique(inside.flatMap((p) => (p.pois as string[] | undefined) ?? []))
+      const first = { ...inside[0] }
+      delete first.name
+      delete first.water
+      return {
+        // The room's values are its region's, which every cell has.
+        ...first,
+        terrain,
+        tags: unique(inside.flatMap((p) => p.tags ?? [])),
+        name: map.regions.find((r) => r.id === region)?.name,
+        ...(pois.length && { pois }),
+        ...(inside.some((p) => p.floor) && { floor: true }),
+        ...(inside.every((p) => p.water) && { water: true }),
+      }
+    },
+    neighbors(cellOrPlace) {
+      const id = node(cellOrPlace)
+      return unique(cellsOf(id).flatMap((c) => cells.neighbors(c).map(node))).filter(
+        (n) => n !== id,
+      )
+    },
+    distance: () => 0,
+    connections: (a, b) => unique(pairs(a, b).flatMap(([x, y]) => cells.connections(x, y))),
+    connectionOf(a, b) {
+      for (const [x, y] of pairs(a, b)) {
+        const found = cells.connectionOf?.(x, y)
+        if (found) return found
+      }
+      return undefined
+    },
+    km: (a, b) => cells.km(...firstPair(a, b)),
+    far: (a, b) => !!cells.far?.(...firstPair(a, b)),
+    // A step into or out of a room is a step between places, never across a corner.
+    diagonal: (a, b) =>
+      parseAreaPlace(a) || parseAreaPlace(b) ? undefined : cells.diagonal?.(a, b),
+  }
+}
+
+function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLinks): TravelWorld {
   const ways = waysOf(map, links)
   const wayOf = (a: string, b: string) =>
     ways.find((w) => (w.here === a && w.there === b) || (w.here === b && w.there === a))
   const others = new Map<string, TravelWorld>()
   const otherWorld = (other: HexMap) => {
-    if (!others.has(other.meta.id)) others.set(other.meta.id, mapWorld(other, systemHexKm))
+    if (!others.has(other.meta.id)) others.set(other.meta.id, mapWorld(other, systemCellKm))
     return others.get(other.meta.id)!
   }
   const { grid } = map
@@ -100,6 +242,8 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
   // whether a trip may step there (`travel.diagonals`).
   const square = grid.kind === 'square'
   const around = square ? { ...grid, diagonals: true } : grid
+  // Where floor meets what isn't floor a wall stands: no step crosses it but by a connection.
+  const walls = mapWalls(map)
   /** Drawn connections between hexes that aren't next to each other: more neighbours. */
   const far = new Map<string, string[]>()
   /** The connection drawn between two places, both ways. */
@@ -118,7 +262,7 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
   const holder = (hex: string) =>
     Object.keys(territories).find((id) => territories[id].includes(hex))
   const water = new Set(map.terrains.filter((t) => t.water).map((t) => t.id))
-  const km = map.scale.cellKm ?? systemHexKm ?? DEFAULT_CELL_KM
+  const km = map.scale.cellKm ?? systemCellKm ?? DEFAULT_CELL_KM
   const isFar = (a: string, b: string) =>
     !!wayOf(a, b) || (drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1)
   return {
@@ -148,6 +292,8 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
         ...(data?.name && { name: data.name }),
         // Water as the palette says (Edit palette → Water): travel rules' `water` applies.
         ...(data?.terrain && water.has(data.terrain) && { water: true }),
+        // A structure's floor (a room, a corridor), as the palette says (`place.floor`).
+        ...(walls.floor(hex) && { floor: true }),
         // The hex's icon (a village, a bridge…) and its values: {{icon.guards}}.
         ...(data?.icon && { icon: { ...fieldValues(data.icon.fields), id: data.icon.id } }),
         // The faction that holds it, if any (`place.faction`).
@@ -160,7 +306,9 @@ export function mapWorld(map: HexMap, systemHexKm?: number, links: MapLinks = {}
       parsePlaceOn(hex)
         ? ways.filter((w) => w.there === hex).map((w) => w.here)
         : [
-            ...neighborCells(cell(hex), around).map(keyOf),
+            ...neighborCells(cell(hex), around)
+              .map(keyOf)
+              .filter((n) => !walls.between(hex, n)),
             ...(far.get(hex) ?? []),
             ...ways.filter((w) => w.here === hex).map((w) => w.there),
           ],

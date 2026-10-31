@@ -27,3 +27,9 @@ A region is drawn as a light tint, a border along the inside of its outline (so 
 ## In play
 
 Travel checks and Oracle rolls see the hex's region by its **name**, so a table can say `when: { place.region: Black Marches }`. See [The Oracle in the map](09-oracle.md).
+
+## Rooms
+
+Tick **One place (a room)** in a region's panel and the region is played as **one place**: a room, a cave, a yard, a hall. A trip is _in_ it, not in one of its cells: stepping in is one step wherever you come in, whatever its size, and the party's token stands on the cell it came in by. Clicking any of its cells in Play heads for the room. Tables see the room as the place: its name (`place.name`), its values (`{{place.danger}}`), every tag of its cells (`place.tags: landmark`), their most common terrain and whether it's floor. In the journal and the file it's `area:<the region's id>`.
+
+On [floor](02-terrain.md), a wall stands by itself between two rooms that touch; draw a [connection](04-roads-and-rivers.md#connections) across it for a door (a kind the system names: its time, whether it's shut now). A corridor's floor in no room joins rooms openly. The Grey Marches' Barrow-halls have three rooms (the barrow stair, the long barrow, the chief's tomb) and a bronze door into the tomb.

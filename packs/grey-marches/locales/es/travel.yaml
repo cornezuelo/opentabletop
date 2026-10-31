@@ -238,6 +238,9 @@ travel-rules/default:
     way-in:
       name: Bajada
       description: Diez minutos para bajar a lo que hay debajo, o para volver a subir.
+    door:
+      name: Puerta
+      description: Un minuto más para empujarla; cerrada mientras esté atrancada.
     hidden-path:
       name: Senda oculta
       description: Un camino por las colinas que solo conocen los clanes; no se puede seguir hasta encontrarlo.

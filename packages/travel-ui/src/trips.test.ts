@@ -119,7 +119,7 @@ describe('a trip store', () => {
       oracle: () => undefined,
       locale: () => 'en',
     })
-    store.setHexKm(25)
+    store.setCellKm(25)
     expect(store.cellKm).toBe(25)
     system = { ...system, rules: { ...rules, travel: { hoursPerDay: 8, cellKm: 30 } } }
     expect(store.cellKm).toBe(30)

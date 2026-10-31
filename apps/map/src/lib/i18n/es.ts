@@ -377,6 +377,9 @@ export const es: Messages = {
     edit: 'Editar paleta',
     name: 'Nombre',
     color: 'Color',
+    floor: 'Suelo',
+    floorHelp:
+      'El suelo de una estructura (el de una sala, un pasillo, el interior de un edificio):\n• donde toca una casilla que no es suelo se dibuja un muro solo; pinta dos salas juntas y se unen, pinta un pasillo hasta una sala y se abre\n• los viajes nunca cruzan un muro; dibuja una conexión a través de él (**Conexiones**, **C**) para una puerta o un arco\n• las tablas ven `place.floor: true`\nDéjalo sin marcar para el terreno de fuera (hierba, calles) y para la roca maciza.',
     water: 'Agua',
     waterHelp:
       'Hexes de agua (lago, mar…):\n• los caminos, senderos y ríos se paran en su orilla (los muros y fronteras los cruzan)\n• en los viajes siguen la regla del agua del sistema: si se pueden cruzar, y con qué formas de viajar\n• las tablas ven `place.water: true` (una condición: `place.water: true`)',
@@ -434,6 +437,9 @@ export const es: Messages = {
     name: 'Nombre',
     note: 'Nota enlazada',
     notePlaceholder: 'Lugares/Las Marcas Negras',
+    onePlace: 'Un solo lugar (una sala)',
+    onePlaceHelp:
+      'La región se juega como un solo lugar: una sala, una cueva, un patio, un salón. Un viaje está **en ella**, no en una de sus casillas: entrar es un paso, se entre por donde se entre; las tablas ven su nombre (`place.name`), sus valores y todas las etiquetas de sus casillas.\n• sus casillas pueden tener cualquier forma; la ficha del grupo queda en la casilla por la que entró\n• sobre suelo, entre dos regiones así que se tocan se levanta un muro solo: dibuja una conexión a través de él (**Conexiones**, **C**) para una puerta\n• el suelo de un pasillo que no está en ninguna región así las une sin muro\nDéjalo sin marcar para las regiones que solo nombran tierra (un reino, un bosque).',
     delete: 'Borrar región',
     confirmDelete: '¿Borrar «{name}»? Sus {count} hexes quedarán sin región.',
     pickFirst: 'Añade o elige una región primero.',

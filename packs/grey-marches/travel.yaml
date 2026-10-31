@@ -70,6 +70,13 @@ connections:
     name: Way down
     description: Ten minutes to go down into what lies below, or to climb back out.
     extra: 10
+  # A door drawn across a wall (the bronze door of the chief's tomb, in the Barrow-halls):
+  # a minute more to heave it open, and shut while its state in the trip says so.
+  door:
+    name: Door
+    description: A minute more to heave it open; shut while it's barred.
+    extra: 1
+    passable: { unless: { connection.state: barred } }
   hidden-path:
     name: Hidden path
     description: A way over the hills only the clans know; it can't be followed until found.

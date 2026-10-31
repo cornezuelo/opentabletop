@@ -27,3 +27,9 @@ Una región se dibuja como un tinte suave, un borde por el interior de su contor
 ## Al jugar
 
 Las comprobaciones de viaje y las tiradas de Oráculo ven la región del hex por su **nombre**, así que una tabla puede decir `when: { place.region: Las Marcas Negras }`. Consulta [Oráculo en el mapa](09-oracle.md).
+
+## Salas
+
+Marca **Un solo lugar (una sala)** en el panel de una región y la región se juega como **un solo lugar**: una sala, una cueva, un patio, un salón. Un viaje está _en_ ella, no en una de sus casillas: entrar es un paso se entre por donde se entre, sea del tamaño que sea, y la ficha del grupo queda en la casilla por la que entró. Pulsar cualquiera de sus casillas en Jugar pone rumbo a la sala. Las tablas ven la sala como el lugar: su nombre (`place.name`), sus valores (`{{place.danger}}`), todas las etiquetas de sus casillas (`place.tags: landmark`), su terreno más común y si es suelo. En el diario y el fichero es `area:<el id de la región>`.
+
+Sobre [suelo](02-terrain.md), entre dos salas que se tocan se levanta un muro solo; dibuja una [conexión](04-roads-and-rivers.md#conexiones) a través de él para una puerta (un tipo que nombra el sistema: su tiempo, si está cerrada ahora). El suelo de un pasillo que no está en ninguna sala une las salas sin muro. Las Barrow-halls de las Grey Marches tienen tres salas (la escalera del túmulo, el túmulo largo, la tumba del jefe) y una puerta de bronce a la tumba.

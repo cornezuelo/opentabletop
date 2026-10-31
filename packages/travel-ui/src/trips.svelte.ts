@@ -827,7 +827,7 @@ export class TripStore {
     return this.system.rules.travel.cellKm ?? this.saved.cellKm
   }
 
-  setHexKm(km: number): void {
+  setCellKm(km: number): void {
     this.saved = { ...this.saved, cellKm: Math.max(0.1, km) }
     this.save()
   }

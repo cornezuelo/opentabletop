@@ -36,7 +36,7 @@
         step="any"
         value={trip.cellKm}
         disabled={system.rules.travel.cellKm !== undefined}
-        onchange={(e) => trip.setHexKm(Number(e.currentTarget.value) || 10)}
+        onchange={(e) => trip.setCellKm(Number(e.currentTarget.value) || 10)}
       />
       {t('play.cellKm')}<InfoTip
         text={system.rules.travel.cellKm !== undefined

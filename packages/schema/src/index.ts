@@ -46,6 +46,7 @@ export const terrain = z
     name: z.string().optional(),
     color: z.string(),
     water: z.boolean().optional(),
+    floor: z.boolean().optional(),
     biome: z.string().optional(),
     tags: z.array(z.string()).optional(),
   })

@@ -36,26 +36,29 @@
           "id": "barrow-floor",
           "name": "Barrow floor",
           "color": "#8a7f6a",
-          "glyph": "game:tombstone"
+          "glyph": "game:tombstone",
+          "floor": true
         },
         {
           "id": "rubble",
           "name": "Rubble",
           "color": "#6b6355",
-          "glyph": "game:stone-pile"
+          "glyph": "game:stone-pile",
+          "floor": true
         },
         {
           "id": "black-water",
           "name": "Black water",
           "color": "#1f2a33",
           "glyph": "game:wave-crest",
-          "water": true
+          "water": true,
+          "floor": true
         }
       ],
       "hexes": {
         "0,3": {
           "terrain": "barrow-floor",
-          "name": "The barrow stair"
+          "region": "barrowstair1"
         },
         "1,3": {
           "terrain": "barrow-floor"
@@ -74,102 +77,70 @@
         },
         "4,2": {
           "terrain": "barrow-floor",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "4,3": {
           "terrain": "barrow-floor",
-          "name": "The long barrow",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "4,4": {
           "terrain": "barrow-floor",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "5,2": {
           "terrain": "barrow-floor",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "5,3": {
           "terrain": "barrow-floor",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "5,4": {
           "terrain": "barrow-floor",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "6,2": {
           "terrain": "rubble",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "6,4": {
           "terrain": "rubble",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "2"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "6,3": {
           "terrain": "barrow-floor",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
-        },
-        "7,3": {
-          "terrain": "barrow-floor",
-          "name": "The chief's tomb",
-          "tags": ["landmark"],
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "longbarrow1"
         },
         "4,5": {
           "terrain": "black-water"
         },
         "5,5": {
           "terrain": "black-water"
+        },
+        "7,2": {
+          "terrain": "barrow-floor",
+          "region": "chieftomb1"
+        },
+        "7,3": {
+          "terrain": "barrow-floor",
+          "region": "chieftomb1"
+        },
+        "7,4": {
+          "terrain": "barrow-floor",
+          "region": "chieftomb1"
+        },
+        "8,2": {
+          "terrain": "barrow-floor",
+          "region": "chieftomb1"
+        },
+        "8,3": {
+          "terrain": "barrow-floor",
+          "region": "chieftomb1",
+          "tags": ["landmark"]
+        },
+        "8,4": {
+          "terrain": "barrow-floor",
+          "region": "chieftomb1"
         }
       },
       "paths": [],
@@ -246,7 +217,44 @@
             }
           },
           "labels": [],
-          "regions": [],
+          "regions": [
+            {
+              "id": "barrowstair1",
+              "name": "The barrow stair",
+              "color": "#b5734a",
+              "onePlace": true,
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "1"
+                }
+              ]
+            },
+            {
+              "id": "longbarrow1",
+              "name": "The long barrow",
+              "color": "#5b3a6e",
+              "onePlace": true,
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "2"
+                }
+              ]
+            },
+            {
+              "id": "chieftomb1",
+              "name": "The chief's tomb",
+              "color": "#8b1e1e",
+              "onePlace": true,
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "4"
+                }
+              ]
+            }
+          ],
           "captions": {
             "hexNames": {
               "show": true,
@@ -282,7 +290,15 @@
           "assets": [],
           "icons": {}
         }
-      }
+      },
+      "connections": [
+        {
+          "id": "tombdoor1",
+          "between": ["6,3", "7,3"],
+          "kind": "door",
+          "name": "The bronze door"
+        }
+      ]
     }
   ],
   "pois": [],
