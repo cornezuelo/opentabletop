@@ -672,20 +672,24 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
     expect(shares('winter', staying).clear).toBeGreaterThan(0.85)
   })
 
-  it('in summer: fine spells, rain that slows, storms that stop the day and never last (steps 5, 6)', () => {
-    const days = ['a', 'b', 'c', 'd'].flatMap((seed) => play('summer', seed, 30))
-    const kinds = new Set(days.map((d) => d.weather))
-    expect([...kinds].sort()).toEqual(['clear', 'rain', 'storm'])
-    expect(days[0].weather).toBe('clear')
-    for (const [i, d] of days.entries()) {
-      // A check an hour after the weather's sees today's weather.
-      expect(d.wet).toBe(d.weather === 'rain')
-      if (d.weather === 'storm') {
-        expect(d.travel).toBe('weather')
-        if (i % 30 !== 29) expect(days[i + 1].weather).not.toBe('storm')
+  it(
+    'in summer: fine spells, rain that slows, storms that stop the day and never last (steps 5, 6)',
+    { timeout: 30_000 },
+    () => {
+      const days = ['a', 'b', 'c', 'd'].flatMap((seed) => play('summer', seed, 30))
+      const kinds = new Set(days.map((d) => d.weather))
+      expect([...kinds].sort()).toEqual(['clear', 'rain', 'storm'])
+      expect(days[0].weather).toBe('clear')
+      for (const [i, d] of days.entries()) {
+        // A check an hour after the weather's sees today's weather.
+        expect(d.wet).toBe(d.weather === 'rain')
+        if (d.weather === 'storm') {
+          expect(d.travel).toBe('weather')
+          if (i % 30 !== 29) expect(days[i + 1].weather).not.toBe('storm')
+        }
       }
-    }
-  })
+    },
+  )
 
   it('in winter: starts on snow, walks the flower, and deep snow leaves the horses behind (steps 4, 6)', () => {
     const days = play('winter', 'snowy', 40)

@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-10-31
+
 ### Apps
 
 - Map: **maps of squares**. **Map settings → Cells** chooses hexes or squares, and everything works on both (terrain, regions, roads and rivers, icons, tokens, connections, trips, printing and export). A new sub-map is made of squares. Maps v32.
