@@ -1,6 +1,6 @@
 <script lang="ts">
   import { WorldClock, WorldTimeline, type WorldControls } from '@open-tabletop/campaign-ui'
-  import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
+  import { placeLabel } from '../lib/io/submaps'
   import { campaignUrl, Tabs } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { sessionOf } from '../lib/play/play'
@@ -45,11 +45,7 @@
   const tripNow = $derived(
     trip && {
       travelling,
-      hex: formatCoord(
-        parseKey(((travelling ? trip.travel.destination : null) ?? trip.travel.location) as HexKey),
-        editor.grid.coordFormat,
-        editor.grid,
-      ),
+      hex: placeLabel((travelling ? trip.travel.destination : null) ?? trip.travel.location),
     },
   )
   const weather = $derived.by(() => {

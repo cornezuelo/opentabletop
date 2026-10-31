@@ -1,4 +1,4 @@
-import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
+import { placeLabel } from '../io/submaps'
 import {
   bringClocks as bringClocksOn,
   tripHighlights as tripHighlightsOn,
@@ -260,8 +260,7 @@ export async function advanceWorld(how: { minutes: number } | { until: Until }):
       night &&
       rules &&
       (localize(availableActions(rules).all[night]?.name, getLocale(), 'en') ?? night)
-    const hex = (key: string | undefined) =>
-      key ? formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid) : ''
+    const hex = (key: string | undefined) => (key ? placeLabel(key) : '')
     const question = travelling
       ? t(nightName ? 'world.confirmTravel' : 'world.confirmTravelNoNight', {
           days,

@@ -21,6 +21,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Pack format 14: the travel rules' scale is `travel.cellKm`, the km a cell measures, a hex or a square (`travel.hexKm` in format 13). Packs of format 13 aren't read: rename it. Core, the Grey Marches and the manual are moved. A map's scale is `cellKm` too (maps v32, Travel's trips v12: moved by themselves).
 
+### Fixes
+
+- Map: the journal, the checks waiting and the world clock named a place by its coordinates only (_Landmark at 0507: waiting_); they say its name too (_Landmark at The clan watch-cairn (0507)_), and a room by its name.
+
 ## [0.26.0] - 2026-10-30
 
 ### Apps

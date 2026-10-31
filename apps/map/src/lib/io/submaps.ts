@@ -3,6 +3,7 @@ import {
   createMap,
   deserializeMap,
   newId,
+  parseAreaPlace,
   parsePlaceOn,
   type HexKey,
   type HexMap,
@@ -53,12 +54,19 @@ export async function loadLinks(): Promise<void> {
 }
 
 /**
- * A place as the journal and panels name it: a hex of the open map by its coordinates, one
- * of another map of its tree (`@<map>/<hex>`) by that map's name too.
+ * A place as the journal and panels name it: a cell of the open map by its name and its
+ * coordinates (`The clan watch-cairn (0507)`), a room by its name, one of another map of its
+ * tree (`@<map>/<hex>`) by that map's name too.
  */
 export function placeLabel(key: string): string {
-  const coord = (map: HexMap, hex: string) =>
-    formatCoord(parseKey(hex as HexKey), map.grid.coordFormat, map.grid)
+  // A room by its name; a cell by its name and coordinates, or its coordinates alone.
+  const coord = (map: HexMap, hex: string) => {
+    const room = parseAreaPlace(hex)
+    if (room) return map.regions.find((r) => r.id === room)?.name || room
+    const at = formatCoord(parseKey(hex as HexKey), map.grid.coordFormat, map.grid)
+    const name = map.hexes[hex as HexKey]?.name
+    return name ? `${name} (${at})` : at
+  }
   const there = parsePlaceOn(key)
   if (!there) return coord(editor.map, key)
   const other = [editor.linked.parent, ...(editor.linked.children ?? [])].find(

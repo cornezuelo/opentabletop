@@ -1,4 +1,5 @@
-import { formatCoord, parseKey, type HexKey } from '@open-tabletop/hex'
+import { type HexKey } from '@open-tabletop/hex'
+import { placeLabel } from '../io/submaps'
 import { highlightText } from '@open-tabletop/travel-ui'
 import {
   addEntry,
@@ -446,8 +447,7 @@ function highlightsOf(
   entries: SessionState['journal'],
   system: ReturnType<typeof getSystem>,
 ): { time: number; text: string }[] {
-  const hexLabel = (key: string) =>
-    formatCoord(parseKey(key as HexKey), editor.grid.coordFormat, editor.grid)
+  const hexLabel = placeLabel
   return entries.flatMap((e) => {
     const text = highlightText(e, { rules: system.rules, locale: getLocale(), hexLabel })
     return text ? [{ time: e.time, text }] : []
