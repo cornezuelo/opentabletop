@@ -407,7 +407,7 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       match = (u) => TERRAIN_FACTS.includes(u.name) && has(u)
       break
     case 'connection':
-      match = (u) => u.name === 'trip.connections' && has(u)
+      match = (u) => (u.name === 'trip.connections' || u.name === 'trip.crossing') && has(u)
       break
     case 'weather':
       // Read as the day's weather, or set by a table (`set: { weather: storm }`).

@@ -227,6 +227,11 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
     },
     distance: () => 0,
     connections: (a, b) => unique(pairs(a, b).flatMap(([x, y]) => cells.connections(x, y))),
+    // What every way between them crosses (one that avoids the river doesn't wade it).
+    crossings(a, b) {
+      const each = pairs(a, b).map(([x, y]) => cells.crossings?.(x, y) ?? [])
+      return each.length ? each.reduce((all, kinds) => all.filter((k) => kinds.includes(k))) : []
+    },
     connectionOf(a, b) {
       for (const [x, y] of pairs(a, b)) {
         const found = cells.connectionOf?.(x, y)
@@ -271,9 +276,14 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       connections.get(pair)!.add(kind)
     }
   }
-  for (const path of map.paths.filter((p) => TRAVEL_PATH_KINDS.includes(p.kind)))
+  /** The cells each kind of road or river runs through, which a step may cross. */
+  const runs = new Map<string, Set<string>>()
+  for (const path of map.paths.filter((p) => TRAVEL_PATH_KINDS.includes(p.kind))) {
     for (let i = 0; i < path.hexes.length - 1; i++)
       join(path.hexes[i], path.hexes[i + 1], path.kind)
+    if (!runs.has(path.kind)) runs.set(path.kind, new Set())
+    for (const hex of path.hexes) runs.get(path.kind)!.add(hex)
+  }
   const cell = (hex: string) => parseKey(hex as HexKey)
   const hexDistance = (a: string, b: string) => cellDistance(cell(a), cell(b), grid)
   // On squares, the ones touching at a corner are neighbours too: the system's rules say
@@ -386,6 +396,14 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       const other = within(a, b)
       if (other) return other.world.connections(other.a, other.b)
       return [...(connections.get(`${a}|${b}`) ?? [])]
+    },
+    // A step into a river's cell from off it, by no road, ford or connection, crosses it.
+    crossings(a, b) {
+      if (wayOf(a, b)) return []
+      const other = within(a, b)
+      if (other) return other.world.crossings?.(other.a, other.b) ?? []
+      if (connections.has(`${a}|${b}`)) return []
+      return [...runs].filter(([, at]) => at.has(b) && !at.has(a)).map(([kind]) => kind)
     },
     // Its values (`fields`) as `connection.<key>`, beside its id, kind, name and tags.
     connectionOf(a, b) {

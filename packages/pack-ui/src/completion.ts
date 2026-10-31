@@ -187,6 +187,7 @@ const KEYS = [
   'water',
   'defaultTerrain',
   'connections',
+  'crossing',
   'kmPerDay',
   'through',
   'min',

@@ -334,6 +334,7 @@ export const es: Messages<typeof en> = {
       trip_weather: 'el clima',
       trip_mode: 'la forma de viajar',
       trip_connections: 'el camino tomado',
+      trip_crossing: 'lo que se cruza',
       time_hour: 'la hora',
       time_tags: 'el momento del día',
       time_part: 'la parte del día',

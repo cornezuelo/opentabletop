@@ -729,6 +729,13 @@ export const en = {
       "When this kind of connection can be crossed, as a condition on **the step**: the connection itself (`connection.state`, `connection.tags`, its values), the place entered, the way of travelling, the weather, the calendar, today's values.\n• **Closed when** `connection.state: locked` — a door, until something opens it\n• **Open when** `time.season: [summer, autumn]` — a ford\n• **Closed when** `trip.weather: storm` — a rope bridge\nWhile it can't be crossed, routes go round it; with no other way, they lead up to it and stop there.",
     connectionPassableHelp:
       "Whether this kind of connection can be crossed at all. **Unticked**: never (routes go round, or stop before it); **Ticked**: while **Open when** holds (empty: always) and **Closed when** doesn't (empty: never).",
+    crossingName: 'Crossing it',
+    crossingExtra: 'Crossing: extra minutes',
+    crossingClosedWhen: 'Crossing closed when',
+    crossingHelp:
+      "What a step does that **crosses** this kind without following it: on a map, one that enters a river's cell from off it where no road, trail or connection takes it over. Conditions read it as `trip.crossing`. Empty: crossing it is a step like any other.\n• **Crossing it** `Wading the river` — its name for players\n• `60` — if wading takes an hour more than the step\n• `trip.crossing: river` in a check's **Only if** — a roll each time it's waded\nRoutes go by a bridge, a ford or a road when that's quicker.",
+    crossingWhenHelp:
+      "When this kind **can't be crossed** where nothing takes the party over it, as a condition on the step, like **Closed when** above:\n• `today.flood: true` — if a value of the day says the river is in flood\n• `time.season: winter` — if it can't be waded in winter\nWhile it holds, routes go round by a bridge, ford or road; with none, they lead up to it and stop.",
 
     connectionMultiplierHelp:
       "Speed along this kind of connection, replacing the terrain's:\n• `1.5` — half again as fast as open ground\n• `1` — open-ground speed, whatever the terrain\nA road at `1.5` through a terrain at `0.5` is three times as fast as that terrain. A connection drawn between far places (a tunnel) crosses none of the land between: it goes at this speed, `1` if empty.",

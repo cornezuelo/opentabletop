@@ -341,6 +341,7 @@ export const en = {
       trip_weather: 'the weather',
       trip_mode: 'the way of travelling',
       trip_connections: 'the way taken',
+      trip_crossing: 'what is crossed',
       time_hour: 'the hour',
       time_tags: 'the time of day',
       time_part: 'the part of the day',

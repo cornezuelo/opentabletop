@@ -25,6 +25,29 @@ describe('the map as the travel engine sees it', () => {
   })
 })
 
+describe('rivers crossed', () => {
+  // A river down column 2 (rows 0–4), a road over it on row 1, a bridge drawn on row 3.
+  const map = createMap()
+  map.paths = [
+    { id: 'r', kind: 'river', hexes: ['2,0', '2,1', '2,2', '2,3', '2,4'] },
+    { id: 'w', kind: 'road', hexes: ['1,1', '2,1', '3,1'] },
+  ]
+  map.connections = [{ id: 'b', between: ['1,3', '2,3'], kind: 'bridge' }]
+  const world = mapWorld(map)
+
+  it('a step into its cell from off it crosses it, unless a road or connection takes it over', () => {
+    expect(world.crossings?.('1,2', '2,2')).toEqual(['river'])
+    // Along it, or out of it, nothing is crossed.
+    expect(world.crossings?.('2,1', '2,2')).toEqual([])
+    expect(world.crossings?.('2,2', '3,2')).toEqual([])
+    // Over the road, or the bridge: it's taken over.
+    expect(world.crossings?.('1,1', '2,1')).toEqual([])
+    expect(world.crossings?.('1,3', '2,3')).toEqual([])
+    // A road is crossed too where a step enters it from off it (the system says whether that matters).
+    expect(world.crossings?.('1,0', '1,1')).toEqual(['road'])
+  })
+})
+
 describe('a map of squares', () => {
   const map = createMap()
   map.grid = { ...map.grid, kind: 'square' }

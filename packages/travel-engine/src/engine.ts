@@ -59,6 +59,11 @@ export interface TravelWorld {
   /** The kinds of the connections between two neighbouring places, e.g. ['road'] or ['river']. */
   connections(a: string, b: string): string[]
   /**
+   * The kinds of connection a step crosses without following it (a river whose cell it
+   * enters across, where no road, ford or bridge takes it over), e.g. ['river'].
+   */
+  crossings?(a: string, b: string): string[]
+  /**
    * The connection drawn between two neighbouring places, if any (a bridge, a door, a
    * tunnel): its id, kind, tags and values, read as `connection.*` with its state in play.
    */
@@ -1019,22 +1024,26 @@ export function createTravelEngine(options: {
       water: !!place?.water,
       tags: place?.tags ?? [],
       connections: world.connections(a, b),
+      crossing: crossed(a, b),
       connection: connectionFacts(state, a, b),
       mode: state.mode,
       weather: state.weather,
     }
   }
 
+  /** The kinds of connection the step crosses without following them (`trip.crossing`). */
+  const crossed = (a: string, b: string): string[] => world.crossings?.(a, b) ?? []
+
+  /** What a step's connections and crossings say: each kind's rule, and each crossing's. */
+  const stepRules = (a: string, b: string) => [
+    ...world.connections(a, b).map((k) => rules.connections?.[k]),
+    ...crossed(a, b).map((k) => rules.connections?.[k]?.crossing),
+  ]
+
   const connectionOpen = (state: TravelState, a: string, b: string): boolean =>
-    world
-      .connections(a, b)
-      .every((k) =>
-        isPassable(
-          rules.connections?.[k]?.passable,
-          () => qualify(throughContext(state, a, b)),
-          momentRolls(state, b),
-        ),
-      )
+    stepRules(a, b).every((rule) =>
+      isPassable(rule?.passable, () => qualify(throughContext(state, a, b)), momentRolls(state, b)),
+    )
 
   /** Terrain/connection multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (
@@ -1091,16 +1100,14 @@ export function createTravelEngine(options: {
   /**
    * How long a step takes at today's normal pace: the way of travelling's time a step
    * (`minutes`) or its distance a day over the step's km, slowed by the terrain or sped by a
-   * road, plus the `extra` minutes of its connection (a ford's hour; the longest of the step's).
+   * road, plus the `extra` minutes of its connection (a ford's hour; the longest of the step's)
+   * or of what it crosses (a river waded).
    */
   const baseMinutes = (state: TravelState, a: string, b: string, shutToo = false): number => {
     const mode = rules.modes[state.mode]
     const m = multiplier(state, a, b, shutToo)
     if (!mode || m <= 0) return Infinity
-    const extra = Math.max(
-      0,
-      ...world.connections(a, b).map((k) => rules.connections?.[k]?.extra ?? 0),
-    )
+    const extra = Math.max(0, ...stepRules(a, b).map((rule) => rule?.extra ?? 0))
     // A diagonal step takes its cost in steps along a side (`travel.diagonals`); none without.
     const diagonal = !!world.diagonal?.(a, b)
     if (diagonal && rules.travel.diagonals === undefined) return Infinity
@@ -1172,6 +1179,7 @@ export function createTravelEngine(options: {
       tags: place?.tags ?? [],
       // The stretch given (the one just walked entering a place), or else the one ahead.
       connections: stretch ? world.connections(...stretch) : [],
+      crossing: stretch ? crossed(...stretch) : [],
       // The connection of that stretch: a drawn one with its values and state, or the road.
       connection: stretch && connectionFacts(state, ...stretch),
       weather: state.weather,
@@ -1251,6 +1259,10 @@ export function createTravelEngine(options: {
         ? {
             ...left,
             connections: world.connections(from, state.location),
+            // Kept with the moment when it waits: only when the step crossed something.
+            ...(crossed(from, state.location).length && {
+              crossing: crossed(from, state.location),
+            }),
             connection: connectionFacts(state, from, state.location),
           }
         : {}

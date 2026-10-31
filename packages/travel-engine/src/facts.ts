@@ -42,6 +42,7 @@ export const FACT_PATHS: Readonly<Record<string, string>> = {
   mode: 'trip.mode',
   weather: 'trip.weather',
   connections: 'trip.connections',
+  crossing: 'trip.crossing',
   moment: 'trip.moment',
   below: 'trip.below',
   above: 'trip.above',

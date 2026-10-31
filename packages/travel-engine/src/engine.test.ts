@@ -3437,6 +3437,77 @@ describe('connections: what crossing one does', () => {
   })
 })
 
+describe('crossing a river where nothing crosses it', () => {
+  /**
+   * a, then b on a river; c beyond it. The short way (a–b–c) wades the river at b; the
+   * long one (a–f–g–c) crosses it at f by a ford.
+   */
+  const river: TravelWorld = {
+    km: () => 10,
+    place: (id) => (['a', 'b', 'c', 'f', 'g'].includes(id) ? { terrain: 'plain' } : null),
+    neighbors: (id) =>
+      ({ a: ['b', 'f'], b: ['a', 'c'], c: ['b', 'g'], f: ['a', 'g'], g: ['f', 'c'] })[id] ?? [],
+    distance: () => 0,
+    connections: (x, y) => ([x, y].sort().join('') === 'af' ? ['ford'] : []),
+    crossings: (x, y) => (y === 'b' && x !== 'b' ? ['river'] : []),
+  }
+  const rules = (crossing?: Record<string, unknown>) =>
+    parseTravelRules({
+      kind: 'travel-rules',
+      travel: DAY,
+      actions: DAY_ACTIONS,
+      terrains: { plain: { multiplier: 1 } },
+      modes: { foot: { kmPerDay: 30 } },
+      connections: { ford: { extra: 10 }, river: { multiplier: 1, ...(crossing && { crossing }) } },
+      checks: [{ event: 'WADE', at: 'trip.place-enter', when: { 'trip.crossing': 'river' } }],
+    }).rules!
+  const at = (location: string, today: Record<string, unknown> = {}): TravelState => ({
+    ...initialTravelState({ location, mode: 'foot', time: defaultCalendar.at(1, '06:00') }),
+    today,
+  })
+  const step = (hours: number) => (hours * 60 * 10) / 30
+
+  it('costs what the kind’s crossing says, is shut when it says, and the route goes round', () => {
+    const hours = DAY.hoursPerDay
+    // Without a crossing rule, wading is a step like any other: the short way.
+    let eng = createTravelEngine({ world: river, rules: rules() })
+    expect(eng.stepMinutes(at('a'), 'a', 'b')).toBe(step(hours))
+    expect(eng.plan(at('a'), 'c')).toEqual(['a', 'b', 'c'])
+    // Three hours more to wade it: the ford's way round is quicker.
+    eng = createTravelEngine({
+      world: river,
+      rules: rules({ extra: 180, passable: { unless: { 'today.flood': true } } }),
+    })
+    expect(eng.stepMinutes(at('a'), 'a', 'b')).toBe(step(hours) + 180)
+    expect(eng.stepMinutes(at('b'), 'b', 'c')).toBe(step(hours))
+    expect(eng.plan(at('a'), 'c')).toEqual(['a', 'f', 'g', 'c'])
+    // In flood it can't be waded at all.
+    expect(eng.stepMinutes(at('a', { flood: true }), 'a', 'b')).toBe(Infinity)
+    expect(eng.connectionOpen(at('a', { flood: true }), 'a', 'b')).toBe(false)
+    const errors = parseTravelRules({
+      kind: 'travel-rules',
+      travel: DAY,
+      terrains: {},
+      modes: { foot: { kmPerDay: 30 } },
+      connections: { river: { crossing: { extra: -1, depth: 2 } } },
+    }).errors
+    expect(errors.join('\n')).toMatch(/crossing/)
+  })
+
+  it('checks read what the step crossed as trip.crossing', () => {
+    const eng = createTravelEngine({ world: river, rules: rules() })
+    const planned = eng.apply(at('a'), { type: 'setDestination', place: 'b' }).state
+    const { events } = eng.apply(planned, { type: 'action', id: 'march' })
+    expect(events.find((e) => e.type === 'CHECK_REQUIRED')).toMatchObject({
+      check: { event: 'WADE' },
+    })
+    // By the ford, nothing is waded.
+    const round = eng.apply(at('a'), { type: 'setDestination', place: 'f' }).state
+    const quiet = eng.apply(round, { type: 'action', id: 'march' }).events
+    expect(quiet.some((e) => e.type === 'CHECK_REQUIRED')).toBe(false)
+  })
+})
+
 describe('diagonal steps on a map of squares', () => {
   const squares: GridShape = { kind: 'square', orientation: 'flat', width: 5, height: 5 }
   const cell = (key: string) => parseKey(key as `${number},${number}`)

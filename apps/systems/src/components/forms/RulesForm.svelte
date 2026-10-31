@@ -420,6 +420,27 @@
           type: 'check',
           default: true,
         },
+        {
+          field: 'crossing.name',
+          label: t('rules.crossingName'),
+          help: t('rules.crossingHelp'),
+          type: 'text',
+        },
+        {
+          field: 'crossing.extra',
+          label: t('rules.crossingExtra'),
+          help: t('rules.crossingHelp'),
+          type: 'number',
+          min: 0,
+        },
+        {
+          field: 'crossing.passable.unless',
+          label: t('rules.crossingClosedWhen'),
+          help: t('rules.crossingWhenHelp'),
+          type: 'condition',
+          placeholder: t('checks.never'),
+          hints: passableHints,
+        },
       ]}
     />
   </section>

@@ -186,6 +186,9 @@ travel-rules/default:
     FORD_CHECK_REQUIRED:
       name: Vado
       description: Cruzar el río a pie o a caballo, en un vado.
+    WADE_CHECK_REQUIRED:
+      name: Vadear
+      description: Cruzar un río donde no lo cruza un camino ni un vado, a pie o a caballo.
     HIDDEN_PATH_CHECK_REQUIRED:
       name: Senda oculta
       description: Donde empieza una senda oculta, hasta encontrarla; la Supervivencia ayuda.
@@ -247,6 +250,10 @@ travel-rules/default:
     hidden-path:
       name: Senda oculta
       description: Un camino por las colinas que solo conocen los clanes; no se puede seguir hasta encontrarlo.
+    river:
+      crossing:
+        name: Vadear el río
+        description: Medio día buscando por dónde cruzar donde no lo cruza un camino ni un vado; imposible un día de tormenta.
   modes:
     foot:
       name: A pie

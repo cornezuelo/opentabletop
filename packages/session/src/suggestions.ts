@@ -83,6 +83,8 @@ export function contextSuggestions(
   add('above')
   add('doing')
   add('connections', 'road', 'trail', 'river')
+  // What the step crosses without following it (a river waded).
+  add('trip.crossing', 'river')
   // The connection of the step: a drawn one (its id, tags, values and state in play) or the
   // road followed.
   add('connection.kind', 'road', 'trail', 'river')
@@ -202,6 +204,10 @@ export function contextSuggestions(
     add('party.mode', ...Object.keys(rules.modes))
     add('connections', ...Object.keys(rules.connections ?? {}))
     add('connection.kind', ...Object.keys(rules.connections ?? {}))
+    add(
+      'trip.crossing',
+      ...Object.entries(rules.connections ?? {}).flatMap(([k, c]) => (c.crossing ? [k] : [])),
+    )
     add('place.connections', ...Object.keys(rules.connections ?? {}))
     for (const kind of Object.keys(rules.connections ?? {})) add(`place.connections.${kind}.state`)
     // The party's own sheet, and its items with its members': what they spent and gained,

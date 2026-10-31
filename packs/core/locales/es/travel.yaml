@@ -6,6 +6,10 @@ travel-rules/default:
     way-in:
       name: Entrada
       description: Cinco minutos para entrar, o para volver a salir.
+    river:
+      crossing:
+        name: Vadear el río
+        description: Una hora más para cruzar un río donde no lo cruza un camino ni un puente.
   modes:
     foot:
       name: A pie

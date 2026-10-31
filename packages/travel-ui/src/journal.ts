@@ -104,6 +104,7 @@ const FACT_NAMES = new Set([
   'trip.weather',
   'trip.mode',
   'trip.connections',
+  'trip.crossing',
   'time.hour',
   'time.tags',
   'time.part',

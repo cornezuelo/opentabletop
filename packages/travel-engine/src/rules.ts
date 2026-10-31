@@ -439,7 +439,9 @@ export const travelRulesSchema = z
      * multiplier replaces the terrain's (and is the speed through one drawn between far
      * places, default 1); `extra`, minutes a step through it takes on top of its usual time
      * ("a ford takes an hour more"); `passable`, whether it can be crossed (a condition that
-     * sees the step and the connection: `connection.state`…).
+     * sees the step and the connection: `connection.state`…). `crossing`, what a step that
+     * crosses one without following it does (a river waded where no ford, bridge or road
+     * crosses it: `trip.crossing: river`): its own `extra` minutes and `passable`.
      */
     connections: z
       .record(
@@ -452,6 +454,16 @@ export const travelRulesSchema = z
             multiplier: z.number().positive().optional(),
             extra: z.number().nonnegative().optional(),
             passable: passable.optional(),
+            crossing: z
+              .object({
+                /** What players read: "Wading the river". */
+                name: text.optional(),
+                description: text.optional(),
+                extra: z.number().nonnegative().optional(),
+                passable: passable.optional(),
+              })
+              .strict()
+              .optional(),
           })
           .strict(),
       )
@@ -913,9 +925,10 @@ export function parseTravelRules(raw: unknown): { rules?: TravelRules; errors: s
     ...[
       ...Object.entries(parsed.data.terrains).map(([id, t]) => [`terrains.${id}`, t] as const),
       ...(parsed.data.water ? [['water', parsed.data.water] as const] : []),
-      ...Object.entries(parsed.data.connections ?? {}).map(
-        ([id, c]) => [`connections.${id}`, c] as const,
-      ),
+      ...Object.entries(parsed.data.connections ?? {}).flatMap(([id, c]) => [
+        [`connections.${id}`, c] as const,
+        ...(c.crossing ? [[`connections.${id}.crossing`, c.crossing] as const] : []),
+      ]),
     ].flatMap(([at, t]) =>
       typeof t.passable === 'object' ? conditions(t.passable, `${at}.passable`) : [],
     ),

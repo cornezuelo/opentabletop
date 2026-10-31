@@ -16,8 +16,9 @@ The **Roads and rivers** tool (<kbd>R</kbd>) draws lines from cell to cell.
 
 The map only says where each line goes. What it means for a trip is decided by the **travel rules of the system** the map plays (**Map settings → Campaign → System**), in its pack:
 
-- **Speed**: each kind of line can have a speed multiplier. With the **Generic rules** a road is ×1.5 and a trail ×1.2, and a river changes nothing. With the **Grey Marches**, a road is ×1.5 and a trail ×1.2; another system may make them no faster at all.
+- **Speed**: each kind of line can have a speed multiplier. With the **Generic rules** a road is ×1.5 and a trail ×1.2, and following a river changes nothing. With the **Grey Marches**, a road is ×1.5 and a trail ×1.2; another system may make them no faster at all.
 - **Checks**: a system can skip a check while you follow a line. In the **Grey Marches** you don't roll to get lost when following a road or a river, nor meet encounters arriving by road; the Generic rules have no getting-lost roll at all.
+- **Crossing**: a step into a river's cell from a cell off it **crosses** the river, unless a road or trail takes it over there (a bridge, a ford on the trail) or a [connection](#connections) joins the two cells (a ford or a bridge drawn). What crossing costs is the system's: more time, a roll, or shut while the river is in flood; routes then go round by a bridge or ford when that's quicker. With the **Generic rules**, wading a river takes an hour more; with the **Grey Marches**, half a day and a roll on the ford's oracle, and it can't be done on a day of storm, so a trip from Ashford eastwards goes by Keld Bridge or the ford. Conditions read it as `trip.crossing: river` ([What tables see](../technical/04-what-tables-see.md#the-trip-trip)). Roads and trails are crossed the same way, which matters only if a system says what crossing them does.
 
 Following a line means the route goes from cell to cell along it. To see or change what a system does, open its pack in the Oracle app (`connections` and `checks` in its travel rules); [Connecting tables to maps and trips](../oracle/07-connecting.md) explains them.
 

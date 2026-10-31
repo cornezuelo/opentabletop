@@ -739,6 +739,13 @@ export const es: Messages<typeof en> = {
       'Cuándo se puede cruzar este tipo de conexión, como condición sobre **el paso**: la conexión misma (`connection.state`, `connection.tags`, sus valores), el lugar en el que se entra, la forma de viajar, el clima, el calendario, los valores del día.\n• **Cerrado cuando** `connection.state: locked` — una puerta, hasta que algo la abra\n• **Abierto cuando** `time.season: [summer, autumn]` — un vado\n• **Cerrado cuando** `trip.weather: storm` — un puente de cuerda\nMientras no se puede cruzar, las rutas la rodean; si no hay otro camino, llegan hasta ella y se paran allí.',
     connectionPassableHelp:
       'Si este tipo de conexión se puede cruzar. **Sin marcar**: nunca (las rutas la rodean, o se paran antes); **Marcada**: mientras se cumpla **Abierto cuando** (vacío: siempre) y no **Cerrado cuando** (vacío: nunca).',
+    crossingName: 'Al cruzarlo',
+    crossingExtra: 'Cruzarlo: minutos de más',
+    crossingClosedWhen: 'Cruzarlo, cerrado cuando',
+    crossingHelp:
+      'Lo que hace un paso que **cruza** este tipo sin seguirlo: en un mapa, uno que entra en la casilla de un río desde fuera de él donde no lo cruza un camino, un sendero ni una conexión. Las condiciones lo leen como `trip.crossing`. Vacío: cruzarlo es un paso como cualquier otro.\n• **Al cruzarlo** `Vadear el río` — su nombre para los jugadores\n• `60` — si vadearlo lleva una hora más que el paso\n• `trip.crossing: river` en el **Solo si** de una comprobación — una tirada cada vez que se vadea\nLas rutas van por un puente, un vado o un camino cuando es más rápido.',
+    crossingWhenHelp:
+      'Cuándo **no se puede cruzar** este tipo donde nada lleva al grupo al otro lado, como condición sobre el paso, igual que **Cerrado cuando** arriba:\n• `today.flood: true` — si un valor del día dice que el río va crecido\n• `time.season: winter` — si en invierno no se puede vadear\nMientras se cumple, las rutas rodean por un puente, vado o camino; si no hay ninguno, llegan hasta él y se paran.',
 
     connectionMultiplierHelp:
       'Velocidad por este tipo de conexión, en lugar de la del terreno:\n• `1.5` — la mitad más rápido que a campo abierto\n• `1` — velocidad de campo abierto, sea cual sea el terreno\nUn camino a `1.5` por un terreno a `0.5` es el triple de rápido que ese terreno. Una conexión dibujada entre lugares lejanos (un túnel) no cruza las tierras de en medio: va a esta velocidad, `1` si está vacía.',

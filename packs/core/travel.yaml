@@ -82,6 +82,13 @@ connections:
     name: Way in
     description: Five minutes to go in, or to come back out.
     extra: 5
+  # A river drawn on a map, crossed where no road or bridge takes the party over it
+  # (`trip.crossing: river`): an hour more to wade it.
+  river:
+    crossing:
+      name: Wading the river
+      description: An hour more to cross a river where no road or bridge does.
+      extra: 60
 modes:
   foot: { name: On foot, kmPerDay: 30 }
   horse: { name: On horseback, kmPerDay: 50 }
