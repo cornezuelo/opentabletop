@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-10-31
+
 ### Apps
 
 - Map: **regions inside regions**. A region's **Inside** chooses the region it lies inside (the Deepwood inside the Greywood, an altar inside a chapel): its cells are in both, the outer one's values hold inside unless the inner one sets its own, and `place.region` names every region a cell is in, innermost first, so `place.region: The Greywood` holds in its heart too. A room inside a room is a place of its own, with a wall between them unless a door is drawn. The Regions panel lists each region under its own, the line under the map names them all, and deleting a region hands its cells to the one it lay inside. Maps v33.

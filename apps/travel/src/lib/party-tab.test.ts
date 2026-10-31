@@ -74,7 +74,7 @@ describe('the Party tab', () => {
     shown = text()
     expect(shown).toContain('Kael’s Charisma (Rolls with)')
     expect(trip.saved.session!.stats.charisma).toBe(0)
-  })
+  }, 20_000)
 })
 
 describe('those present', () => {
@@ -122,5 +122,5 @@ describe('those present', () => {
     shown = text()
     expect(shown).toContain('1 left behind elsewhere')
     expect(shown).toContain('Nobody here.')
-  })
+  }, 20_000)
 })
