@@ -4,7 +4,7 @@ A place on a map can lead into a map of its own, a **sub-map**: the dungeon unde
 
 ## Making one
 
-- Select a hex and, in its panel, under **Ways into other maps**, click **New sub-map here**. An empty dungeon ([squares](01-getting-started.md#hexes-or-squares) of 3 m and the dungeon palette, as **New → Dungeon**) is kept in **Maps**, named after the hex (or _Under the hex_), in the same campaign (**Map settings → Cells** turns it into hexes). The hex now shows a small ring with a point down, its way in.
+- Select a hex and, in its panel, under **Ways into other maps**, click **New sub-map here**. An empty dungeon ([squares](01-getting-started.md#hexes-or-squares) of 3 m and the dungeon palette, as **New map → Dungeon**) is kept in **Maps**, named after the hex (or _Under the hex_), in the same campaign (**Map settings → Cells** turns it into hexes). The hex now shows a small ring with a point down, its way in.
 - Open it with **Open** in the same place. It's a map like any other: draw it with the same tools, at the scale you choose in **Map settings** (**km per hex**, a square's side on a map of squares: `0.01` is ten metres, a room or a passage).
 - Its **Map settings** say where it hangs, under **Inside**: the map above (click it to open it) and its place there. Its **Entrance** is where the way in arrives and leaves from, its middle hex at first: select another hex and click **Make … the entrance** to move it; it shows a ring with a point up. **Kind of the way in** is the kind of connection going in and out is, as the system names it (below).
 - In **Maps**, sub-maps are listed under the map they hang from, one step in (↳). The bar at the top of a sub-map says where it hangs: _The Hollow Hills › The Barrow-halls_, each name opening its map.
