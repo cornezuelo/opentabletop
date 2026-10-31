@@ -131,12 +131,12 @@
         },
         "8,2": {
           "terrain": "barrow-floor",
-          "region": "chieftomb1"
+          "region": "chieftomb1",
+          "tags": ["landmark"]
         },
         "8,3": {
           "terrain": "barrow-floor",
-          "region": "chieftomb1",
-          "tags": ["landmark"]
+          "region": "graveniche1"
         },
         "8,4": {
           "terrain": "barrow-floor",
@@ -146,7 +146,7 @@
       "paths": [],
       "ext": {
         "map": {
-          "version": 32,
+          "version": 33,
           "created": "2026-10-30T12:00:00.000Z",
           "modified": "2026-10-30T12:00:00.000Z",
           "hexSize": 40,
@@ -253,6 +253,19 @@
                   "value": "4"
                 }
               ]
+            },
+            {
+              "id": "graveniche1",
+              "name": "The grave-niche",
+              "color": "#3a0d0d",
+              "onePlace": true,
+              "parent": "chieftomb1",
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "5"
+                }
+              ]
             }
           ],
           "captions": {
@@ -297,6 +310,12 @@
           "between": ["6,3", "7,3"],
           "kind": "door",
           "name": "The bronze door"
+        },
+        {
+          "id": "nicheslab1",
+          "between": ["7,3", "8,3"],
+          "kind": "door",
+          "name": "The sealed slab"
         }
       ]
     }

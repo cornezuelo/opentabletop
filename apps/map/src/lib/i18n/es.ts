@@ -442,11 +442,17 @@ export const es: Messages = {
     name: 'Nombre',
     note: 'Nota enlazada',
     notePlaceholder: 'Lugares/Las Marcas Negras',
-    onePlace: 'Un solo lugar (una sala)',
+    onePlace: 'Se juega como un solo lugar (una sala)',
     onePlaceHelp:
-      'La región se juega como un solo lugar: una sala, una cueva, un patio, un salón. Un viaje está **en ella**, no en una de sus casillas: entrar es un paso, se entre por donde se entre; las tablas ven su nombre (`place.name`), sus valores y todas las etiquetas de sus casillas.\n• sus casillas pueden tener cualquier forma; la ficha del grupo queda en la casilla por la que entró\n• sobre suelo, entre dos regiones así que se tocan se levanta un muro solo: dibuja una conexión a través de él (**Conexiones**, **C**) para una puerta\n• el suelo de un pasillo que no está en ninguna región así las une sin muro\nDéjalo sin marcar para las regiones que solo nombran tierra (un reino, un bosque).',
+      'Marcada, un viaje toma toda la región como **un solo lugar**, como una sala en una mazmorra; sin marcar, cada una de sus casillas es un lugar propio, como en cualquier mapa.\n**Qué cambia al jugar**, para una sala de 12 casillas:\n• **sin marcar** — cruzarla lleva hasta 12 pasos, cada casilla en la que se entra es un momento (`trip.place-enter`), así que sus comprobaciones pueden salir en cada casilla, y las tablas leen la casilla que pisa el grupo\n• **marcada** — entrar es **un paso**, se entre por donde se entre, sus comprobaciones salen **una vez**, y las tablas leen la sala: su nombre (`place.name`), sus valores y todas las etiquetas de sus casillas; la ficha del grupo queda en la casilla por la que entró\nSobre suelo, entre dos salas que se tocan se levanta un muro automáticamente: dibuja una conexión a través de él (**Conexiones**, **C**) para una puerta; el suelo de un pasillo que no está en ninguna sala las une sin muro. Una región dentro de una sala sigue siendo esa sala (un estrado, un foso: nombra una parte de ella, y las tablas leen la sala), salvo que también se juegue como un solo lugar.\nDéjalo sin marcar para las regiones que solo nombran tierra (un reino, un bosque).',
+    parent: 'Dentro de',
+    parentNone: 'Ninguna (la más exterior)',
+    parentHelp:
+      'La región dentro de la que está esta. Sus casillas están en las dos: una condición sobre la de fuera se cumple también aquí, y los valores de la de fuera valen aquí salvo que esta fije los suyos.\n• **The Heart of the Greywood** dentro de **The Greywood** — `place.region: The Greywood` se cumple también en el corazón; `danger` = `2` en el bosque, `5` en su corazón\n• **El altar** dentro de **La capilla**, una sala — las casillas del altar siguen siendo la capilla: un viaje allí está en la capilla\n• una sala dentro de otra es un lugar propio, con un muro entre ellas salvo que se dibuje una puerta\nPinta sus casillas con el pincel como las de cualquier región: una casilla se queda con la región más interior en la que la pintas. Las tablas leen `place.region` como todas las regiones en las que está, de la más interior hacia fuera.',
     delete: 'Borrar región',
     confirmDelete: '¿Borrar «{name}»? Sus {count} casillas quedarán sin región.',
+    confirmDeleteInside:
+      '¿Borrar «{name}»? Sus {count} casillas, y las regiones que tiene dentro, pasan a «{parent}».',
     pickFirst: 'Añade o elige una región primero.',
     none: 'Sin región',
   },
@@ -686,7 +692,7 @@ export const es: Messages = {
       'Valores de esta casilla que las tablas y comprobaciones de viaje leen por clave; los números se leen como números.\n• `danger` = `3` → `{{place.danger}}` en una tirada, `place.danger: { gte: 2 }` en una condición\n• `guards` = `6` → `2d6 + {{place.guards}}`\n• `name` = `El Viejo Molino`\nUn campo propio gana al de su región.',
     fromRegion: 'De su región ({region}): {values}. Un campo propio con la misma clave gana.',
     regionHelp:
-      'Valores que tiene cada casilla de la región (un campo propio de la casilla con la misma clave gana):\n• `danger` = `2` para todo un bosque, `4` en las casillas de su corazón\nLas tablas los leen como los de la casilla: `{{place.danger}}`.',
+      'Valores que tiene cada casilla de la región (gana una región que tenga dentro, y luego un campo propio de la casilla con la misma clave):\n• `danger` = `2` para todo un bosque, `4` en las casillas de su corazón\nLas tablas los leen como los de la casilla: `{{place.danger}}`.',
     iconHelp:
       'Valores de este icono (un pueblo, un puente…). Las tablas tiradas en su casilla los leen como `{{icon.<clave>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:

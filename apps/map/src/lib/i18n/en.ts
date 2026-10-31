@@ -437,11 +437,17 @@ export const en = {
     name: 'Name',
     note: 'Linked note',
     notePlaceholder: 'Places/The Black Marches',
-    onePlace: 'One place (a room)',
+    onePlace: 'Played as one place (a room)',
     onePlaceHelp:
-      "The region is played as one place: a room, a cave, a yard, a hall. A trip is **in it**, not in one of its cells: stepping in is one step, wherever you come in; tables see its name (`place.name`), its values and every tag of its cells.\n• its cells may be any shape; the party's token stands on the cell it came in by\n• on floor, a wall stands by itself between two such regions that touch: draw a connection across it (**Connections**, **C**) for a door\n• a corridor's floor that's in no such region joins them openly\nLeave it off for regions that only name land (a kingdom, a forest).",
+      "Ticked, a trip takes the whole region as **one place**, as a room is in a dungeon; unticked, each of its cells is a place of its own, as on any map.\n**What changes in play**, for a room of 12 squares:\n• **unticked** — crossing it takes up to 12 steps, each square entered is a moment (`trip.place-enter`), so its checks may come up on every square, and tables read the square the party stands on\n• **ticked** — going in is **one step**, wherever you come in, its checks come up **once**, and tables read the room: its name (`place.name`), its values and every tag of its cells; the party's token stands on the cell it came in by\nOn floor, a wall stands by itself between two rooms that touch: draw a connection across it (**Connections**, **C**) for a door; a corridor's floor in no room joins them openly. A region inside a room is still that room (a dais, a pit: it names part of it, and tables read the room), unless it's played as one place too.\nLeave it off for regions that only name land (a kingdom, a forest).",
+    parent: 'Inside',
+    parentNone: 'No region (outermost)',
+    parentHelp:
+      "The region this one lies inside. Its cells are in both: a condition on the outer one holds here too, and the outer one's values hold here unless this one sets its own.\n• **The Heart of the Greywood** inside **The Greywood** — `place.region: The Greywood` holds in the heart too; `danger` = `2` on the forest, `5` on its heart\n• **The altar** inside **The chapel**, a room — the altar's cells are still the chapel: a trip there is in the chapel\n• a room inside a room is a place of its own, with a wall between them unless a door is drawn\nPaint its cells with the brush as any region's: a cell keeps the innermost region it's painted into. Tables read `place.region` as every region it's in, innermost first.",
     delete: 'Delete region',
     confirmDelete: 'Delete "{name}"? Its {count} cells will belong to no region.',
+    confirmDeleteInside:
+      'Delete "{name}"? Its {count} cells, and the regions inside it, go to "{parent}".',
     pickFirst: 'Add or pick a region first.',
     none: 'No region',
   },
@@ -681,7 +687,7 @@ export const en = {
       "Values of this cell that tables and travel checks read by key; numbers are read as numbers.\n• `danger` = `3` → `{{place.danger}}` in a roll, `place.danger: { gte: 2 }` in a condition\n• `guards` = `6` → `2d6 + {{place.guards}}`\n• `name` = `The Old Mill`\nA field of its own wins over its region's.",
     fromRegion: 'From its region ({region}): {values}. A field of its own with the same key wins.',
     regionHelp:
-      "Values every cell of the region has (a cell's own field with the same key wins):\n• `danger` = `2` for a whole forest, `4` on its heart's cells\nTables read them like the cell's: `{{place.danger}}`.",
+      "Values every cell of the region has (a region inside it, then a cell's own field with the same key, wins):\n• `danger` = `2` for a whole forest, `4` on its heart's cells\nTables read them like the cell's: `{{place.danger}}`.",
     iconHelp:
       'Values of this icon (a village, a bridge…). Tables rolled on its cell read them as `{{icon.<key>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:

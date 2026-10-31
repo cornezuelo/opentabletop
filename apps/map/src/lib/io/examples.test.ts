@@ -62,7 +62,17 @@ describe('example maps', () => {
     expect(map.regions.map((r) => r.name)).toEqual([
       'Ashford Vale',
       'The Greywood',
+      'The Deepwood',
+      'The Heart of the Greywood',
       'The Hollow Hills',
+    ])
+    // Regions inside regions: the Deepwood in the Greywood, its heart in the Deepwood.
+    expect(map.regions.map((r) => r.parent)).toEqual([
+      undefined,
+      undefined,
+      'greywood',
+      'deepwood',
+      undefined,
     ])
     expect(Object.values(map.hexes).filter((h) => h.region).length).toBe(224)
     // The world clock is running: events to come and progress clocks.
@@ -72,10 +82,12 @@ describe('example maps', () => {
       'Fort Keld’s unpaid garrison mutinies 3/8',
       'The Iron Clans march 1/6',
     ])
-    // Region styles: the map's, and two regions with their own.
+    // Region styles: the map's, and the others with their own.
     expect(map.regions.map((r) => r.style)).toEqual([
       undefined,
       { fill: 0.22 },
+      { fill: 0.12, border: 0.04, dashed: true },
+      { fill: 0.14, border: 0.04, dashed: true },
       { fill: 0, dashed: true, border: 0.07 },
     ])
     // It opens ready to play with its own system and discovery on, the party in Ashford.
@@ -364,9 +376,19 @@ describe('example maps', () => {
     expect(session.travel.route).toBeUndefined()
     // On to the chief's tomb (a room, a landmark: the trip pauses there), through the long
     // barrow (a room too, one step however big) and the bronze door between them (a minute more).
-    const tomb = placeOfCell(halls, '8,3')
+    const tomb = placeOfCell(halls, '8,2')
     expect(tomb).toBe('area:chieftomb1')
     expect(below.world.connections('area:longbarrow1', tomb)).toEqual(['door'])
+    // A room inside the tomb is a place of its own, behind a door of its own: the grave-niche,
+    // in the tomb too (`place.region` names both) and more dangerous.
+    const niche = placeOfCell(halls, '8,3')
+    expect(niche).toBe('area:graveniche1')
+    expect(below.world.connections(tomb, niche)).toEqual(['door'])
+    expect(below.world.place(niche)).toMatchObject({
+      name: 'The grave-niche',
+      region: ['The grave-niche', "The chief's tomb"],
+      danger: 5,
+    })
     expect(below.world.place(tomb)).toMatchObject({
       name: "The chief's tomb",
       tags: ['landmark'],
@@ -746,9 +768,17 @@ describe('example maps', () => {
     const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
     const world = mapWorld(map)
     expect(world.place('10,7')).toMatchObject({ region: 'The Greywood', danger: 2 })
-    expect(world.place('14,3')).toMatchObject({ region: 'The Greywood', danger: 5 })
-    // Danger grows towards the heart: edge 2, dense forest 3, around the middle 4.
-    expect([world.place('12,1')?.danger, world.place('13,2')?.danger]).toEqual([3, 4])
+    // Danger grows towards the heart, region inside region: the Greywood's edge 2, the
+    // Deepwood 3, its heart 4, and one hex of its own 5.
+    expect(world.place('12,1')).toMatchObject({
+      region: ['The Deepwood', 'The Greywood'],
+      danger: 3,
+    })
+    expect(world.place('13,2')).toMatchObject({
+      region: ['The Heart of the Greywood', 'The Deepwood', 'The Greywood'],
+      danger: 4,
+    })
+    expect(world.place('14,3')).toMatchObject({ danger: 5 })
     expect(world.place('5,7')).toMatchObject({
       name: 'Ashford',
       region: 'Ashford Vale',

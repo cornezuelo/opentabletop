@@ -236,12 +236,14 @@ function numeric(v: unknown): number | undefined {
 
 /**
  * A text with each `{{…}}` written in its place. Nothing (a missing value) writes nothing;
- * a result (an object with a `text`) writes its text.
+ * a result (an object with a `text`) writes its text, a list its items with commas.
  */
 export function render(template: string, lookup: Lookup): string {
   return template.replace(VARIABLE, (_, expression: string) => {
     const value = lookup(expression)
     if (value === undefined || value === null) return ''
+    // A list (tags, the regions a place is in) writes its items, comma-separated.
+    if (Array.isArray(value)) return value.filter((v) => typeof v !== 'object').join(', ')
     if (typeof value === 'object') {
       const text = (value as Record<string, unknown>).text
       return typeof text === 'string' ? text : ''

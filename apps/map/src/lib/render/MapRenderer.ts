@@ -18,6 +18,10 @@ import {
   hasMetadata,
   cellOfPlace,
   hexesWithTag,
+  isInside,
+  regionCells,
+  regionChain,
+  regionTree,
   ICON_DEFAULTS,
   mapWalls,
   type MapPath,
@@ -659,7 +663,7 @@ export class MapRenderer {
       panelView: editor.panelView,
       regionId: editor.regionId,
       factionBrush: editor.factionBrush,
-      regionOf: (key) => hexes[key]?.region,
+      regionsOf: (key) => regionChain(editor.map.regions, hexes[key]?.region).map((r) => r.id),
       hexes: [...allCells(grid)].map(keyOf),
       territories: own?.territories ?? {},
     })
@@ -700,15 +704,19 @@ export class MapRenderer {
     if (!regions.length) return
     const hs = grid.hexSize
     const members = new Map<string, Offset[]>()
+    // A cell is in its region and in every region that one lies inside.
     for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
       if (!hex.region) continue
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
-      const list = members.get(hex.region) ?? []
-      list.push(cell)
-      members.set(hex.region, list)
+      for (const { id } of regionChain(regions, hex.region)) {
+        const list = members.get(id) ?? []
+        list.push(cell)
+        members.set(id, list)
+      }
     }
-    for (const region of regions) {
+    // Outer regions first, so those inside them are drawn over.
+    for (const { region } of regionTree(regions)) {
       const cells = members.get(region.id)
       if (!cells?.length) continue
       const style = { ...editor.map.regionStyle, ...region.style }
@@ -721,7 +729,8 @@ export class MapRenderer {
         for (const cell of cells) {
           const c = this.centerOf(cell)
           for (const { a, b, across } of cellSides(cell, grid, hs)) {
-            const inside = inBounds(across, grid) && hexes[keyOf(across)]?.region === region.id
+            const inside =
+              inBounds(across, grid) && isInside(regions, hexes[keyOf(across)]?.region, region.id)
             if (inside) continue
             // Inset by half the border, so it stays inside the region.
             const k = 1 - Math.min(0.4, style.border / 2 + 0.055)
@@ -1611,9 +1620,7 @@ function relationTargets(play: NonNullable<typeof editor.map.play>): HexKey[][] 
     }
     if (kind === 'region') {
       const region = regions.find((r) => r.name === id)
-      const keys = region
-        ? (Object.keys(hexes) as HexKey[]).filter((k) => hexes[k]?.region === region.id)
-        : []
+      const keys = region ? regionCells(editor.map, region.id) : []
       return keys.length ? [keys] : []
     }
     return []

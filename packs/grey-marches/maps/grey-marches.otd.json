@@ -1347,53 +1347,23 @@
         },
         "12,1": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "12,2": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "12,3": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "12,4": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "12,5": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "12,6": {
           "terrain": "forest",
@@ -1409,54 +1379,24 @@
         },
         "13,1": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "13,2": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart"
         },
         "13,3": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "tags": ["haunted"],
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart",
+          "tags": ["haunted"]
         },
         "13,4": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart"
         },
         "13,5": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "13,6": {
           "terrain": "forest",
@@ -1472,27 +1412,15 @@
         },
         "14,1": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "14,2": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart"
         },
         "14,3": {
           "terrain": "dense-forest",
-          "region": "greywood",
+          "region": "greywoodheart",
           "stats": [
             {
               "key": "danger",
@@ -1502,24 +1430,12 @@
         },
         "14,4": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "tags": ["haunted"],
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart",
+          "tags": ["haunted"]
         },
         "14,5": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "14,6": {
           "terrain": "forest",
@@ -1535,54 +1451,24 @@
         },
         "15,1": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "15,2": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "tags": ["haunted"],
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart",
+          "tags": ["haunted"]
         },
         "15,3": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart"
         },
         "15,4": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "4"
-            }
-          ]
+          "region": "greywoodheart"
         },
         "15,5": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "15,6": {
           "terrain": "forest",
@@ -1598,53 +1484,23 @@
         },
         "16,1": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "16,2": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "16,3": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "16,4": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "16,5": {
           "terrain": "dense-forest",
-          "region": "greywood",
-          "stats": [
-            {
-              "key": "danger",
-              "value": "3"
-            }
-          ]
+          "region": "deepwood"
         },
         "16,6": {
           "terrain": "forest",
@@ -2052,7 +1908,7 @@
       ],
       "ext": {
         "map": {
-          "version": 32,
+          "version": 33,
           "created": "2026-10-06T21:35:43.748Z",
           "modified": "2026-10-06T21:35:43.748Z",
           "hexSize": 40,
@@ -2180,6 +2036,42 @@
               ],
               "style": {
                 "fill": 0.22
+              }
+            },
+            {
+              "id": "deepwood",
+              "name": "The Deepwood",
+              "color": "#14291c",
+              "showName": false,
+              "parent": "greywood",
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "3"
+                }
+              ],
+              "style": {
+                "fill": 0.12,
+                "border": 0.04,
+                "dashed": true
+              }
+            },
+            {
+              "id": "greywoodheart",
+              "name": "The Heart of the Greywood",
+              "color": "#0b1710",
+              "showName": false,
+              "parent": "deepwood",
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "4"
+                }
+              ],
+              "style": {
+                "fill": 0.14,
+                "border": 0.04,
+                "dashed": true
               }
             },
             {

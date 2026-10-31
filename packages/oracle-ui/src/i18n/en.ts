@@ -67,7 +67,8 @@ export const en = {
     terrain: 'The cell’s terrain, by its id (forest, hills…).',
     water: 'true on water cells (lakes, seas…).',
     tags: 'The cell’s tags, a list: a condition holds if the list has the tag.',
-    region: 'The name of the cell’s region.',
+    region:
+      'The name of the cell’s region; a list, innermost first, when that region lies inside others (a condition holds if any is the one written).',
     name: 'The cell’s name, when it has one.',
     icon: 'A value of the cell’s icon on the map (select the cell before rolling).',
     icon_id: 'The cell’s icon, by its id.',

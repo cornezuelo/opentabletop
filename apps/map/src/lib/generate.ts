@@ -1,6 +1,6 @@
 import { allCells, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
 import { generateLand, type LandModel } from '@open-tabletop/land-engine'
-import type { HexMap } from '@open-tabletop/map'
+import { isInside, type HexMap } from '@open-tabletop/map'
 import { seeded } from '@open-tabletop/random'
 import type { Command } from './commands/command'
 import { HexEditBatch } from './commands/hexes'
@@ -15,7 +15,7 @@ export function emptyHexes(map: HexMap, area: GenerateArea = {}): HexKey[] {
     const key = keyOf(cell)
     const hex = map.hexes[key]
     if (hex?.terrain) continue
-    if (area.region !== undefined && hex?.region !== area.region) continue
+    if (area.region !== undefined && !isInside(map.regions, hex?.region, area.region)) continue
     out.push(key)
   }
   return out

@@ -10,6 +10,7 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { DEFAULT_CELL_KM } from './defaults'
 import { mapWalls } from './walls'
 import { fieldValues } from './hex'
+import { cellRegions, regionFields, roomOfCell } from './regions'
 import { type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
 
 /** A place of another map of the tree, as the world of this one names it: `@<map>/<hex>`. */
@@ -93,16 +94,21 @@ function roomsOf(map: Pick<HexMap, 'regions' | 'hexes' | 'grid'>): Map<string, H
     map.regions.filter((r) => r.onePlace).map((r) => [r.id, []]),
   )
   if (!rooms.size) return rooms
-  for (const [key, hex] of Object.entries(map.hexes) as [HexKey, HexMap['hexes'][HexKey]][])
-    if (hex.region && inBounds(parseKey(key), map.grid)) rooms.get(hex.region)?.push(key)
+  for (const key of Object.keys(map.hexes) as HexKey[]) {
+    const room = roomOfCell(map, key)
+    if (room && inBounds(parseKey(key), map.grid)) rooms.get(room)?.push(key)
+  }
   for (const [id, cells] of rooms) if (!cells.length) rooms.delete(id)
   return rooms
 }
 
-/** The place a cell is to the rules: its room's (`area:<id>`), or the cell itself. */
+/**
+ * The place a cell is to the rules: its room's (`area:<id>`, the nearest region up the tree
+ * played as one place), or the cell itself.
+ */
 export function placeOfCell(map: Pick<HexMap, 'regions' | 'hexes'>, key: string): string {
-  const region = map.hexes[key as HexKey]?.region
-  return region && map.regions.some((r) => r.id === region && r.onePlace) ? areaPlace(region) : key
+  const room = roomOfCell(map, key)
+  return room ? areaPlace(room) : key
 }
 
 /**
@@ -170,10 +176,14 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
       const id = node(cellOrPlace)
       const region = parseAreaPlace(id)
       if (!region) return cells.place(id)
-      const inside = cellsOf(id).flatMap((c) => {
-        const p = cells.place(c)
-        return p ? [p] : []
-      })
+      // The room's own cells first (not those of a region inside it), whose values are its.
+      const own = (c: string) => map.hexes[c as HexKey]?.region === region
+      const inside = [...cellsOf(id).filter(own), ...cellsOf(id).filter((c) => !own(c))].flatMap(
+        (c) => {
+          const p = cells.place(c)
+          return p ? [p] : []
+        },
+      )
       if (!inside.length) return null
       const count = new Map<string, number>()
       for (const p of inside) if (p.terrain) count.set(p.terrain, (count.get(p.terrain) ?? 0) + 1)
@@ -279,11 +289,14 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       }
       if (!inBounds(cell(hex), grid)) return null
       const data = map.hexes[hex as HexKey]
-      const inRegion = data?.region ? map.regions.find((r) => r.id === data.region) : undefined
-      // The region's values hold for all its hexes; a hex's own values win.
-      const stats = { ...fieldValues(inRegion?.fields), ...fieldValues(data?.fields) }
-      // Regions by name: what tables and travel rules would write in a condition.
-      const region = inRegion?.name
+      const regions = cellRegions(map, hex)
+      // A region's values hold for all its cells, those of a region inside it winning, and a
+      // cell's own values win over all.
+      const stats = { ...fieldValues(regionFields(regions)), ...fieldValues(data?.fields) }
+      // Regions by name, what tables and travel rules write in a condition: the one region,
+      // or every region it's in, innermost first (`place.region: The Greywood` holds in its heart).
+      const names = regions.map((r) => r.name).filter(Boolean)
+      const region = names.length > 1 ? names : names[0]
       return {
         ...stats,
         terrain: data?.terrain,

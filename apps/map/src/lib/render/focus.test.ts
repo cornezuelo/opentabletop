@@ -7,7 +7,7 @@ const base: MapFocusInput = {
   panelView: 'tool',
   regionId: 'vale',
   factionBrush: null,
-  regionOf: (k) => (k === '1,1' || k === '1,2' ? 'vale' : undefined),
+  regionsOf: (k) => (k === '1,1' || k === '1,2' ? ['vale'] : []),
   hexes: ['1,1', '1,2', '3,3'] as HexKey[],
   territories: { clans: ['3,3'] },
 }

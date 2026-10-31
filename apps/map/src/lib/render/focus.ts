@@ -8,8 +8,8 @@ export interface MapFocusInput {
   regionId: string | null
   /** The faction whose land a click paints (the World panel's brush). */
   factionBrush: string | null
-  /** Each hex's region, by hex. */
-  regionOf: (key: HexKey) => string | undefined
+  /** The regions each hex is in (its own and those it lies inside), by hex. */
+  regionsOf: (key: HexKey) => readonly string[]
   hexes: readonly HexKey[]
   /** The factions' land on this map, by faction. */
   territories: Readonly<Record<string, readonly string[]>>
@@ -37,7 +37,7 @@ export function mapFocus(input: MapFocusInput): MapFocus {
     return {
       regionsAlpha: 1,
       factionsAlpha: FADED,
-      selected: id ? input.hexes.filter((k) => input.regionOf(k) === id) : [],
+      selected: id ? input.hexes.filter((k) => input.regionsOf(k).includes(id)) : [],
     }
   }
   if (input.panelView === 'world') {

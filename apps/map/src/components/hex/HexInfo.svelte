@@ -13,7 +13,13 @@
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { t } from '../../lib/i18n/index.svelte'
   import { deepLinkUrl } from '../../lib/io/deepLinkSync.svelte'
-  import { collectSuggestions, type HexData, type HexKey } from '@open-tabletop/map'
+  import {
+    collectSuggestions,
+    regionChain,
+    regionTree,
+    type HexData,
+    type HexKey,
+  } from '@open-tabletop/map'
   import {
     appIconUrl,
     confirmAction,
@@ -38,16 +44,28 @@
     }
   })
 
-  /** Values the hex gets from its region (those it doesn't set itself), e.g. danger 2. */
+  /**
+   * Values the hex gets from its regions (those it doesn't set itself), e.g. danger 2: from
+   * the innermost that sets each, named after the regions they come from.
+   */
   const inherited = $derived.by(() => {
     if (!selected) return null
     const { hex } = selected
-    const region = editor.regions.find((r) => r.id === hex.region)
-    const own = new Set((hex.fields ?? []).map((f) => f.key))
-    const fields = (region?.fields ?? []).filter((f) => f.key && !own.has(f.key))
-    if (!region || !fields.length) return null
+    const chain = regionChain(editor.regions, hex.region)
+    const seen = (hex.fields ?? []).map((f) => f.key)
+    const fields: { key: string; value: string; from: string }[] = []
+    for (const region of chain)
+      for (const f of region.fields ?? [])
+        if (f.key && !seen.includes(f.key)) {
+          seen.push(f.key)
+          fields.push({ key: f.key, value: f.value, from: region.name || '—' })
+        }
+    if (!fields.length) return null
     return {
-      region: region.name || '—',
+      region: fields
+        .map((f) => f.from)
+        .filter((r, i, all) => all.indexOf(r) === i)
+        .join(', '),
       values: fields.map((f) => `${f.key} = ${f.value}`).join(', '),
     }
   })
@@ -138,8 +156,8 @@
           }}
         >
           <option value="">{t('regions.none')}</option>
-          {#each editor.regions as region (region.id)}
-            <option value={region.id}>{region.name || '—'}</option>
+          {#each regionTree(editor.regions) as { region, depth } (region.id)}
+            <option value={region.id}>{'\u2003'.repeat(depth)}{region.name || '—'}</option>
           {/each}
         </select>
       </label>

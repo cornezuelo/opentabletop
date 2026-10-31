@@ -4,7 +4,13 @@
   import RegionStyleControls from './RegionStyleControls.svelte'
   import { RemoveRegionCommand, SetRegionsCommand, regionSizes } from '../lib/commands/regions'
   import { getLocale, t } from '../lib/i18n/index.svelte'
-  import { type MapRegion, newId, type RegionStyle } from '@open-tabletop/map'
+  import {
+    type MapRegion,
+    newId,
+    possibleParents,
+    regionTree,
+    type RegionStyle,
+  } from '@open-tabletop/map'
   import { editor, MAX_BRUSH_RADIUS } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
   import { NoteRefInput } from '@open-tabletop/ui-kit'
@@ -76,11 +82,11 @@
   async function remove() {
     if (!active) return
     const count = sizes.get(active.id) ?? 0
-    if (
-      count > 0 &&
-      !(await confirmAction(t('regions.confirmDelete', { name: active.name, count })))
-    )
-      return
+    const parent = editor.regions.find((r) => r.id === active.parent)
+    const question = parent
+      ? t('regions.confirmDeleteInside', { name: active.name, count, parent: parent.name || '—' })
+      : t('regions.confirmDelete', { name: active.name, count })
+    if (count > 0 && !(await confirmAction(question))) return
     editor.execute(new RemoveRegionCommand(structuredClone(active)))
   }
 </script>
@@ -91,8 +97,8 @@
 </label>
 
 <ul role="radiogroup" aria-label={t('panel.regions')}>
-  {#each editor.regions as region (region.id)}
-    <li>
+  {#each regionTree(editor.regions) as { region, depth } (region.id)}
+    <li style:padding-left="{depth * 14}px">
       <button
         role="radio"
         aria-checked={region.id === editor.regionId}
@@ -122,6 +128,21 @@
           update((r) => ({ ...r, name }))
         }}
       />
+    </label>
+    <label class="field">
+      <span>{t('regions.parent')}<InfoTip text={t('regions.parentHelp')} /></span>
+      <select
+        value={active.parent ?? ''}
+        onchange={(e) => {
+          const parent = e.currentTarget.value || undefined
+          update((r) => ({ ...r, parent }))
+        }}
+      >
+        <option value="">{t('regions.parentNone')}</option>
+        {#each regionTree(possibleParents(editor.regions, active.id)) as { region, depth } (region.id)}
+          <option value={region.id}>{'\u2003'.repeat(depth)}{region.name || '—'}</option>
+        {/each}
+      </select>
     </label>
     <ColorPicker
       value={active.color}

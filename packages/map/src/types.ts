@@ -165,6 +165,11 @@ export interface MapRegion {
    * connection is drawn there (a door).
    */
   onePlace?: boolean
+  /**
+   * The region it lies inside (a forest's heart inside the forest, a tomb inside a hall): its
+   * cells are in that one too, and its values hold here unless this one sets its own.
+   */
+  parent?: string
 }
 
 /** How regions are drawn (map-wide, and per region as an override). */

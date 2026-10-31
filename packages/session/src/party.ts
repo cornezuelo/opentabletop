@@ -746,7 +746,7 @@ export function relatedWorld(
       const here = relations.filter(
         (r) =>
           r.to === `hex:${hex}` ||
-          (typeof cell.region === 'string' && r.to === `region:${cell.region}`) ||
+          [cell.region].flat().some((name) => r.to === `region:${name}`) ||
           (r.to.startsWith('poi:') && pois.includes(r.to.slice(4))),
       )
       if (!here.length) return cell

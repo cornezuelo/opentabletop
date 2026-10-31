@@ -1,4 +1,5 @@
 import { inBounds, parseKey, type HexKey } from '@open-tabletop/hex'
+import { roomOfCell } from './regions'
 import type { HexMap } from './types'
 
 /**
@@ -25,11 +26,8 @@ export function mapWalls(
     const terrain = map.hexes[key as HexKey]?.terrain
     return !!terrain && floors.has(terrain)
   }
-  const rooms = new Set(map.regions.filter((r) => r.onePlace).map((r) => r.id))
-  const room = (key: string) => {
-    const region = map.hexes[key as HexKey]?.region
-    return region && rooms.has(region) ? region : undefined
-  }
+  // A cell's room: its nearest region up the tree played as one place.
+  const room = (key: string) => roomOfCell(map, key)
   const open = new Set<string>()
   for (const {
     between: [a, b],

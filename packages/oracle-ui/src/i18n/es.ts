@@ -70,7 +70,8 @@ export const es: Messages<typeof en> = {
     terrain: 'El terreno de la casilla, por su id (forest, hills…).',
     water: 'true en las casillas de agua (lagos, mares…).',
     tags: 'Las etiquetas de la casilla, una lista: una condición se cumple si la lista tiene la etiqueta.',
-    region: 'El nombre de la región de la casilla.',
+    region:
+      'El nombre de la región de la casilla; una lista, de la más interior hacia fuera, si esa región está dentro de otras (una condición se cumple si alguna es la escrita).',
     name: 'El nombre de la casilla, si tiene.',
     icon: 'Un valor del icono de la casilla en el mapa (selecciona la casilla antes de tirar).',
     icon_id: 'El icono de la casilla, por su id.',

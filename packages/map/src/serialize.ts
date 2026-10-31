@@ -404,6 +404,7 @@ function parseRegions(value: unknown): MapRegion[] {
         color: typeof r.color === 'string' && COLOR.test(r.color) ? r.color : '#8b1e1e',
         ...(r.showName === false && { showName: false }),
         ...(r.onePlace === true && { onePlace: true }),
+        ...(isValidId(r.parent) && r.parent !== r.id && { parent: r.parent }),
         ...(isRecord(r.nameStyle) && {
           nameStyle: parseCaptionOverride(r.nameStyle, DEFAULT_CAPTIONS.regionNames),
         }),

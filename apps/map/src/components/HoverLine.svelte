@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { regionChain } from '@open-tabletop/map'
   import { factionName } from '@open-tabletop/session'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { getSystem } from '../lib/play/systems'
@@ -8,8 +9,11 @@
   const line = $derived.by(() => {
     const key = editor.hoveredHex
     if (!key) return ''
-    const regionId = editor.map.hexes[key]?.region
-    const region = regionId && editor.regions.find((r) => r.id === regionId)?.name
+    // Its regions from the outermost in: The Greywood › The Heart of the Greywood.
+    const region = regionChain(editor.regions, editor.map.hexes[key]?.region)
+      .map((r) => r.name || '—')
+      .reverse()
+      .join(' › ')
     const own = editor.factions
     const holder =
       own && Object.keys(own.territories).find((id) => own.territories[id].includes(key))

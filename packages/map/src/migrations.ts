@@ -336,6 +336,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
     const { hexKm, ...rest } = scale
     return { ...moved, scale: { ...rest, cellKm: hexKm } }
   },
+  /** v33: regions inside regions (a region's `parent`); older maps' regions are all outermost. */
+  32(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

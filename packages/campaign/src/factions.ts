@@ -1,6 +1,6 @@
 import { inBounds, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
 import { claim, type TerritoryWorld } from '@open-tabletop/faction-engine'
-import type { HexMap } from '@open-tabletop/map'
+import { regionCells, type HexMap } from '@open-tabletop/map'
 import { emptyState } from '@open-tabletop/oracle-engine'
 import { startFactions, worldTurn, type SystemFactions } from '@open-tabletop/session'
 import type { Campaign, CampaignFactions, FactionsOnMap } from './types'
@@ -72,12 +72,9 @@ export function bringFactions(
     map
       ? {
           regionHexes: (name) => {
+            // Its cells with those of the regions inside it.
             const region = map.regions.find((r) => r.name === name)
-            return region
-              ? (Object.keys(map.hexes) as HexKey[]).filter(
-                  (k) => map.hexes[k]?.region === region.id,
-                )
-              : []
+            return region ? regionCells(map, region.id) : []
           },
           exists: (hex) => /^\d+,\d+$/.test(hex) && inBounds(parseKey(hex as HexKey), map.grid),
           is: (path) => from?.pack === system.pack && from.path === path,
