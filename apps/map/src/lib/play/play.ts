@@ -1,5 +1,5 @@
 import { type HexKey } from '@open-tabletop/hex'
-import { placeLabel } from '../io/submaps'
+import { loadLinks, placeLabel } from '../io/submaps'
 import { highlightText } from '@open-tabletop/travel-ui'
 import {
   addEntry,
@@ -369,9 +369,12 @@ export async function goOnIn(map: string): Promise<boolean> {
   }
   const here = current()
   delete here.away
-  // An entrance in a room is the room.
+  // An entrance in a room is the room, drawn on the entrance of the way taken.
   moved.travel = { ...moved.travel, location: placeOfCell(editor.map, moved.travel.location) }
-  const location = cellOfPlace(editor.map, moved.travel.location, editor.map.meta.parent?.entrance)
+  const entrance = editor.map.meta.parent?.ways
+    .map((w) => w.entrance)
+    .find((e) => placeOfCell(editor.map, e) === moved.travel.location)
+  const location = cellOfPlace(editor.map, moved.travel.location, entrance)
   placeParty(location)
   save({
     ...here,
@@ -381,6 +384,19 @@ export async function goOnIn(map: string): Promise<boolean> {
     ...(discover && { discover }),
   })
   editor.setPlaying(mapTrip())
+  // Heading on beyond (out by another way of a tunnel): the route is planned again here, or
+  // the destination given up if this map's ways don't reach it.
+  const destination = moved.travel.destination
+  if (destination && destination !== moved.travel.location) {
+    await loadLinks()
+    step({ type: 'setDestination', place: destination })
+    if (!sessionOf(current())?.travel.route)
+      editSession((s) => {
+        const travel = { ...s.travel }
+        delete travel.destination
+        return { ...s, travel }
+      })
+  }
   return true
 }
 

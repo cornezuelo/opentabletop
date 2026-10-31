@@ -340,6 +340,14 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   32(data) {
     return data
   },
+  /** v34: a sub-map's ways to its parent are a list (`meta.parent.ways`); older ones had one. */
+  33(data) {
+    const meta = data.meta as { parent?: Record<string, unknown> } | undefined
+    const parent = meta?.parent
+    if (!parent || 'ways' in parent) return data
+    const { map, ...way } = parent
+    return { ...data, meta: { ...meta, parent: { map, ways: [way] } } }
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

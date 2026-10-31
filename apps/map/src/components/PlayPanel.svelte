@@ -1,5 +1,6 @@
 <script lang="ts">
   import { placeLabel } from '../lib/io/submaps'
+  import HexSubMaps from './hex/HexSubMaps.svelte'
   import { openLibraryMap } from '../lib/io/actions.svelte'
   import { systemName, travels } from '@open-tabletop/session'
   import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
@@ -195,6 +196,10 @@
     </div>
   {/if}
   {#if session && play.rules && travels(system)}
+    {#if party?.hex}
+      <!-- Where the party stands leads into another map: Go in / Go out from here. -->
+      <HexSubMaps key={party.hex} editing={false} />
+    {/if}
     <TripPanel
       {system}
       {session}

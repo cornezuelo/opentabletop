@@ -22,7 +22,7 @@ Un viaje sigue con el sistema con el que empezó. Si después cambia el sistema 
 
 **Las conexiones al jugar**: una conexión dibujada en el mapa (una verja, un vado, una senda oculta: [Conexiones](04-roads-and-rivers.md#conexiones)) que el viaje no puede cruzar ahora, según el **Abierto cuando** / **Cerrado cuando** de su tipo en el sistema y su estado en el viaje, sale en gris con el rombo tachado; las rutas la rodean, o llegan hasta ella y se paran. Lo que las acciones y los resultados cambian de ella (una verja abierta, una senda encontrada) es del viaje, nunca del mapa: seleccionada con la herramienta **Conexiones**, su panel dice en **En el viaje en curso** si se puede cruzar ahora y qué valores suyos ha cambiado el viaje. El diario cuenta cada cambio.
 
-**A un submapa**: en una casilla que lleva a un [submapa](13-sub-maps.md), **Entrar ↗** en su panel hace de la entrada el destino; al pasar, el viaje sigue en el submapa, que se abre (el mismo viaje), y el mapa que deja lo dice en Jugar.
+**A un submapa**: en una casilla que lleva a un [submapa](13-sub-maps.md), **Entrar ↗** en el panel Jugar (o en el de la casilla) hace de la entrada el destino; al pasar, el viaje sigue en el submapa, que se abre (el mismo viaje), y el mapa que deja lo dice en Jugar. Un submapa con varios caminos (un túnel) se cruza: a un destino más allá se puede llegar atravesándolo, entrando por un camino y saliendo por otro.
 
 ## Comprobaciones y diario
 

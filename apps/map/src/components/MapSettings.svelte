@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SetMetaCommand } from '../lib/commands/settings'
   import { t } from '../lib/i18n/index.svelte'
-  import { DEFAULT_CELL_KM, type GridSettings } from '@open-tabletop/map'
+  import { DEFAULT_CELL_KM, type GridSettings, type HexKey, type MapWay } from '@open-tabletop/map'
   import { mapSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { applySettings } from '../lib/store/settings'
@@ -18,22 +18,29 @@
     }
   }
 
-  /** A sub-map's way in: the parent's place, this map's entrance and the kind of the way. */
+  /** A sub-map's ways: each the parent's place, this map's entrance and the kind of the way. */
   const parent = $derived(editor.meta.parent)
   const parentName = $derived(
     editor.linked.parent?.meta.name || editor.linked.ancestors.at(-1)?.name || parent?.map || '',
   )
-  const parentPlace = $derived.by(() => {
+  /** A place of the parent, by its name and coordinates. */
+  const parentPlace = (key: HexKey) => {
     const other = editor.linked.parent
-    if (!parent) return ''
-    return other
-      ? formatCoord(parseKey(parent.place), other.grid.coordFormat, other.grid)
-      : parent.place
-  })
+    if (!other) return key
+    const at = formatCoord(parseKey(key), other.grid.coordFormat, other.grid)
+    const name = other.hexes[key]?.name
+    return name ? `${name} (${at})` : at
+  }
   const coord = (key: string) =>
     formatCoord(parseKey(key as `${number},${number}`), editor.grid.coordFormat, editor.grid)
-  const setParent = (patch: Partial<NonNullable<typeof parent>>) =>
-    parent && editor.execute(new SetMetaCommand({ parent: { ...parent, ...patch } }))
+  /** Changes one way (`patch`), or removes it (`null`). */
+  const setWay = (index: number, patch: Partial<MapWay> | null) => {
+    if (!parent) return
+    const ways = parent.ways.flatMap((w, i) =>
+      i !== index ? [w] : patch ? [{ ...w, ...patch }] : [],
+    )
+    editor.execute(new SetMetaCommand({ parent: { ...parent, ways } }))
+  }
 
   function setName(input: HTMLInputElement) {
     const name = input.value.trim()
@@ -66,27 +73,37 @@
     <span>{t('submap.inside')}<InfoTip text={t('submap.insideHelp')} /></span>
     <p>
       <button class="link" onclick={() => openLibraryMap(parent.map)}>{parentName}</button>
-      · {parentPlace}
-    </p>
-    <p>
-      {t('submap.entrance')}: <strong>{coord(parent.entrance)}</strong>
-      {#if editor.selected && editor.selected !== parent.entrance}
-        <button class="link" onclick={() => setParent({ entrance: editor.selected! })}
-          >{t('submap.entranceHere', { hex: coord(editor.selected) })}</button
-        >
-      {/if}
     </p>
   </div>
-  <div class="field">
-    <span>{t('submap.kind')}<InfoTip text={t('submap.kindHelp')} /></span>
-    <SuggestInput
-      value={parent.kind ?? ''}
-      list={Object.keys(mapSystem().rules.connections ?? {})}
-      label={t('submap.kind')}
-      placeholder="way-in"
-      onchange={(kind) => setParent({ kind: kind.trim() || undefined })}
-    />
-  </div>
+  {#each parent.ways as way, i (i)}
+    <div class="field way">
+      <span>{t('submap.way', { n: i + 1 })}</span>
+      <div class="way-body">
+        <p>{t('submap.from')}: <strong>{parentPlace(way.place)}</strong></p>
+        <p>
+          {t('submap.entrance')}: <strong>{coord(way.entrance)}</strong>
+          {#if editor.selected && editor.selected !== way.entrance}
+            <button class="link" onclick={() => setWay(i, { entrance: editor.selected! })}
+              >{t('submap.entranceHere', { hex: coord(editor.selected) })}</button
+            >
+          {/if}
+        </p>
+        <div class="way-kind">
+          <span>{t('submap.kind')}<InfoTip text={t('submap.kindHelp')} /></span>
+          <SuggestInput
+            value={way.kind ?? ''}
+            list={Object.keys(mapSystem().rules.connections ?? {})}
+            label={t('submap.kind')}
+            placeholder="way-in"
+            onchange={(kind) => setWay(i, { kind: kind.trim() || undefined })}
+          />
+        </div>
+        {#if parent.ways.length > 1}
+          <button class="link" onclick={() => setWay(i, null)}>{t('submap.removeWay')}</button>
+        {/if}
+      </div>
+    </div>
+  {/each}
 {/if}
 
 <label class="field">
@@ -153,10 +170,25 @@
 </label>
 
 <style>
-  .inside p {
+  .inside p,
+  .way p {
     margin: 0;
     color: var(--text);
     font-size: 13px;
+  }
+
+  .way-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .way-kind {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
   }
 
   .link {

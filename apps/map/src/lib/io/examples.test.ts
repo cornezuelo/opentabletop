@@ -322,9 +322,7 @@ describe('example maps', () => {
     const halls = open('barrowhalls1')
     expect(halls.meta.parent).toEqual({
       map: 'hollowhills1',
-      place: '10,8',
-      entrance: '0,3',
-      kind: 'way-in',
+      ways: [{ place: '10,8', entrance: '0,3', kind: 'way-in' }],
     })
     const { registry } = loadPacks(
       Object.entries(packFiles).map(([path, content]) => ({
@@ -363,15 +361,16 @@ describe('example maps', () => {
     // A party that knows the hills: it doesn't get lost on the way.
     session.stats.navigation = 6
     const start = session.travel.time
-    // Down the way: a step of its kind, ten minutes more, onto the halls' entrance.
-    const way = placeOn('barrowhalls1', '0,3')
+    // Down the way: a step of its kind, ten minutes more, onto the halls' entrance (the stair,
+    // a room: the way arrives at the room its entrance is in).
+    const way = placeOn('barrowhalls1', 'area:barrowstair1')
     session = reach(above, session, way)
     expect(session.travel.location).toBe(way)
     expect(session.travel.time - start).toBeGreaterThanOrEqual(10)
     // The trip goes on in the halls: the same trip, its places now theirs.
     const visitsAbove = session.travel.visits?.['10,8']
     session = moveTrip(session, 'hollowhills1', 'barrowhalls1')
-    expect(session.travel.location).toBe('0,3')
+    expect(session.travel.location).toBe('area:barrowstair1')
     expect(session.travel.visits?.['@hollowhills1/10,8']).toBe(visitsAbove)
     expect(session.travel.route).toBeUndefined()
     // On to the chief's tomb (a room, a landmark: the trip pauses there), through the long
@@ -400,9 +399,10 @@ describe('example maps', () => {
     const entered = session.journal.flatMap((e) =>
       e.code === 'PLACE_ENTERED' ? [String(e.data?.place)] : [],
     )
-    expect(entered).toEqual(['0,3', '1,3', '2,3', '3,3', 'area:longbarrow1', tomb])
-    // Coming down the way is the halls' first place entered (it was `@barrowhalls1/0,3`).
-    expect(entered[0]).toBe('0,3')
+    expect(entered).toEqual(['area:barrowstair1', '1,3', '2,3', '3,3', 'area:longbarrow1', tomb])
+    // Coming down the way is the halls' first place entered (it was
+    // `@barrowhalls1/area:barrowstair1`).
+    expect(entered[0]).toBe('area:barrowstair1')
     // And back up the way out, to the hex it came down from.
     session = reach(below, session, placeOn('hollowhills1', '10,8'))
     session = moveTrip(session, 'barrowhalls1', 'hollowhills1')
@@ -410,6 +410,86 @@ describe('example maps', () => {
     expect(session.journal.some((e) => e.data?.place === '@barrowhalls1/area:chieftomb1')).toBe(
       true,
     )
+  })
+
+  it('the old clan mine: a route to Hollow Gate goes under the mountains, in and out', () => {
+    const open = (id: string) => parseMapFile(EXAMPLE_MAPS.find((m) => m.id === id)!.json).map
+    const hills = open('hollowhills1')
+    const mine = open('oldmine1')
+    // Three ways, each its own kind: the mouth, the Windhole's shaft and the east adit.
+    expect(mine.meta.parent?.ways.map((w) => [w.place, w.kind])).toEqual([
+      ['11,7', 'way-in'],
+      ['12,9', 'shaft'],
+      ['12,11', 'way-in'],
+    ])
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const km = system.rules.travel.cellKm
+    const oracle = createOracleEngine({ registry, random: seeded('old-mine') })
+    const above = {
+      system,
+      world: mapWorld(hills, km, { children: [mine] }),
+      oracle,
+      locale: 'en',
+    }
+    const below = { system, world: mapWorld(mine, km, { parent: hills }), oracle, locale: 'en' }
+    /** Marches place by place until `done`, resolving whatever checks come up. */
+    const marchUntil = (
+      options: typeof above,
+      session: SessionState,
+      done: (s: SessionState) => boolean,
+    ) => {
+      for (let i = 0; i < 30 && !done(session); i++) {
+        for (const id of session.travel.pendingChecks.map((c) => c.id))
+          session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+        session = stepTrip(options, session, {
+          type: 'action',
+          id: 'march',
+          with: { until: 'place' },
+        }).state
+      }
+      return session
+    }
+    let { session } = startTrip({ system, location: '11,7', season: 'summer' })
+    session.stats.navigation = 6
+    // Heading for Hollow Gate from the mine's mouth: the route goes in and along the galleries,
+    // quicker than the hills and mountains above (the Barrow-road not found yet).
+    session = stepTrip(above, session, { type: 'setDestination', place: '12,11' }).state
+    const route = session.travel.route ?? []
+    expect(route[1]).toBe(placeOn('oldmine1', '0,3'))
+    expect(route.at(-2)).toBe(placeOn('oldmine1', '13,3'))
+    expect(route).toContain(placeOn('oldmine1', 'area:clanhall1'))
+    // Into the mine: the trip goes on there, still heading for Hollow Gate, planned again.
+    session = marchUntil(above, session, (s) => s.travel.location.startsWith('@oldmine1/'))
+    expect(session.travel.location).toBe(placeOn('oldmine1', '0,3'))
+    session = moveTrip(session, 'hollowhills1', 'oldmine1')
+    expect(session.travel.destination).toBe(placeOn('hollowhills1', '12,11'))
+    session = stepTrip(below, session, {
+      type: 'setDestination',
+      place: session.travel.destination!,
+    }).state
+    expect(session.travel.route?.at(-2)).toBe('13,3')
+    // Along the galleries, through the clans' hall (a room, more dangerous), out by the adit.
+    session = marchUntil(below, session, (s) => s.travel.location.startsWith('@hollowhills1/'))
+    expect(session.travel.location).toBe(placeOn('hollowhills1', '12,11'))
+    session = moveTrip(session, 'oldmine1', 'hollowhills1')
+    expect(session.travel.location).toBe('12,11')
+    const entered = session.journal.flatMap((e) =>
+      e.code === 'PLACE_ENTERED' ? [String(e.data?.place)] : [],
+    )
+    expect(entered).toContain('@oldmine1/area:clanhall1')
+    expect(entered.at(-1)).toBe('12,11')
+    // The Windhole's way is of its own kind, a shaft: what the system says of shafts (half an
+    // hour on a rope, no horses) holds on that step.
+    const shaft = mine.meta.parent!.ways[1]
+    expect(below.world.connections(shaft.entrance, placeOn('hollowhills1', '12,9'))).toEqual([
+      'shaft',
+    ])
   })
 
   it('the Grey Marches: the trip pauses at the shrine until Continue', () => {

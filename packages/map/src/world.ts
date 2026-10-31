@@ -16,9 +16,12 @@ import { type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
 /** A place of another map of the tree, as the world of this one names it: `@<map>/<hex>`. */
 export const placeOn = (map: string, hex: string): string => `@${map}/${hex}`
 
-/** The map and place of a place of another map (`@<map>/<hex>`); undefined for this map's. */
+/**
+ * The map and place of a place of another map (`@<map>/<place>`: a cell, or a room
+ * `area:<id>`); undefined for this map's.
+ */
 export function parsePlaceOn(id: string): { map: string; place: HexKey } | undefined {
-  const match = /^@(.+)\/(\d+,\d+)$/.exec(id)
+  const match = /^@([^/]+)\/(.+)$/.exec(id)
   return match ? { map: match[1], place: match[2] as HexKey } : undefined
 }
 
@@ -40,31 +43,42 @@ interface Way {
   name: string
 }
 
-/** This map's ways: into each of its sub-maps (from their parent place), and out of it. */
+/** A sub-map's way, as the journal and checks name it: `way-<map>`, `way-<map>-2`… */
+const wayId = (sub: string, index: number) => (index ? `way-${sub}-${index + 1}` : `way-${sub}`)
+
+/**
+ * This map's ways: into each of its sub-maps (from their parent places), and out of it (from
+ * each of its entrances). A place of the other map is its room if the cell is in one.
+ */
 function waysOf(map: HexMap, links: MapLinks): Way[] {
   const ways: Way[] = []
   for (const child of links.children ?? []) {
     const p = child.meta.parent
     if (!p || p.map !== map.meta.id) continue
-    ways.push({
-      here: p.place,
-      there: placeOn(child.meta.id, p.entrance),
-      other: child,
-      ...(p.kind && { kind: p.kind }),
-      id: `way-${child.meta.id}`,
-      name: child.meta.name,
-    })
+    p.ways.forEach((way, i) =>
+      ways.push({
+        here: way.place,
+        there: placeOn(child.meta.id, placeOfCell(child, way.entrance)),
+        other: child,
+        ...(way.kind && { kind: way.kind }),
+        id: wayId(child.meta.id, i),
+        name: child.meta.name,
+      }),
+    )
   }
   const own = map.meta.parent
-  if (own && links.parent?.meta.id === own.map)
-    ways.push({
-      here: own.entrance,
-      there: placeOn(own.map, own.place),
-      other: links.parent,
-      ...(own.kind && { kind: own.kind }),
-      id: `way-${map.meta.id}`,
-      name: map.meta.name,
-    })
+  const parent = links.parent
+  if (own && parent?.meta.id === own.map)
+    own.ways.forEach((way, i) =>
+      ways.push({
+        here: way.entrance,
+        there: placeOn(own.map, placeOfCell(parent, way.place)),
+        other: parent,
+        ...(way.kind && { kind: way.kind }),
+        id: wayId(map.meta.id, i),
+        name: map.meta.name,
+      }),
+    )
   return ways
 }
 
@@ -74,7 +88,9 @@ function waysOf(map: HexMap, links: MapLinks): Way[] {
  * connections between them (one drawn between far hexes makes them neighbours), a step a
  * hex at the map's scale, else the system's (`systemCellKm`), else the default. With its
  * `links`, the ways into its sub-maps and out of it are steps too: to a place of the other
- * map (`@<map>/<hex>`, what it knows of it), of the way's kind, no distance.
+ * map (`@<map>/<hex>`, what it knows of it), of the way's kind, no distance; and the other
+ * maps' places are walked as theirs, so a route may go through a sub-map (in by one way,
+ * out by another) or out and back in.
  */
 export function mapWorld(map: HexMap, systemCellKm?: number, links: MapLinks = {}): TravelWorld {
   return withRooms(map, cellWorld(map, systemCellKm, links))
@@ -230,10 +246,22 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
   const ways = waysOf(map, links)
   const wayOf = (a: string, b: string) =>
     ways.find((w) => (w.here === a && w.there === b) || (w.here === b && w.there === a))
+  // The maps at the other end of its ways, walked as their own worlds (without their links:
+  // one map away, no further).
+  const linked = new Map(ways.map((w) => [w.other.meta.id, w.other]))
   const others = new Map<string, TravelWorld>()
-  const otherWorld = (other: HexMap) => {
-    if (!others.has(other.meta.id)) others.set(other.meta.id, mapWorld(other, systemCellKm))
-    return others.get(other.meta.id)!
+  const otherWorld = (id: string): TravelWorld | undefined => {
+    const other = linked.get(id)
+    if (!other) return undefined
+    if (!others.has(id)) others.set(id, mapWorld(other, systemCellKm))
+    return others.get(id)!
+  }
+  /** Two places of the same other map (not a way): that map's world and their own names. */
+  const within = (a: string, b: string) => {
+    const [x, y] = [parsePlaceOn(a), parsePlaceOn(b)]
+    if (!x || !y || x.map !== y.map) return undefined
+    const world = otherWorld(x.map)
+    return world && { world, map: x.map, a: x.place as string, b: y.place as string }
   }
   const { grid } = map
   const connections = new Map<string, Set<string>>()
@@ -278,15 +306,19 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
   return {
     // A connection between far hexes measures its own `km`, else the hexes between its ends;
     // a way into another map, none.
-    km: (a, b) =>
-      wayOf(a, b) ? 0 : isFar(a, b) ? (drawn.get(`${a}|${b}`)!.km ?? km * hexDistance(a, b)) : km,
-    far: isFar,
+    km(a, b) {
+      if (wayOf(a, b)) return 0
+      const other = within(a, b)
+      if (other) return other.world.km(other.a, other.b)
+      return isFar(a, b) ? (drawn.get(`${a}|${b}`)!.km ?? km * hexDistance(a, b)) : km
+    },
+    far(a, b) {
+      const other = within(a, b)
+      return other ? !!other.world.far?.(other.a, other.b) : isFar(a, b)
+    },
     place(hex) {
       const there = parsePlaceOn(hex)
-      if (there) {
-        const way = ways.find((w) => w.there === hex)
-        return way ? otherWorld(way.other).place(there.place) : null
-      }
+      if (there) return otherWorld(there.map)?.place(there.place) ?? null
       if (!inBounds(cell(hex), grid)) return null
       const data = map.hexes[hex as HexKey]
       const regions = cellRegions(map, hex)
@@ -315,22 +347,34 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
         ...(data?.pois?.length && { pois: data.pois.map((p) => p.id) }),
       }
     },
-    neighbors: (hex) =>
-      parsePlaceOn(hex)
-        ? ways.filter((w) => w.there === hex).map((w) => w.here)
-        : [
-            ...neighborCells(cell(hex), around)
-              .map(keyOf)
-              .filter((n) => !walls.between(hex, n)),
-            ...(far.get(hex) ?? []),
-            ...ways.filter((w) => w.here === hex).map((w) => w.there),
-          ],
+    neighbors: (hex) => {
+      const there = parsePlaceOn(hex)
+      if (there)
+        return [
+          ...(otherWorld(there.map)
+            ?.neighbors(there.place)
+            .map((n) => placeOn(there.map, n)) ?? []),
+          ...ways.filter((w) => w.there === hex).map((w) => w.here),
+        ]
+      return [
+        ...neighborCells(cell(hex), around)
+          .map(keyOf)
+          .filter((n) => !walls.between(hex, n)),
+        ...(far.get(hex) ?? []),
+        ...ways.filter((w) => w.here === hex).map((w) => w.there),
+      ]
+    },
     // A far connection is a shortcut: with any, no distance is sure to be a lower bound.
     distance: (a, b) =>
       far.size || parsePlaceOn(a) || parsePlaceOn(b)
         ? 0
         : km * cellDistance(cell(a), cell(b), around),
     diagonal(a, b) {
+      const other = within(a, b)
+      if (other) {
+        const beside = other.world.diagonal?.(other.a, other.b)
+        return beside && [placeOn(other.map, beside[0]), placeOn(other.map, beside[1])]
+      }
       if (!square || parsePlaceOn(a) || parsePlaceOn(b)) return undefined
       const [p, q] = [cell(a), cell(b)]
       if (Math.abs(p.col - q.col) !== 1 || Math.abs(p.row - q.row) !== 1) return undefined
@@ -339,6 +383,8 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
     connections: (a, b) => {
       const way = wayOf(a, b)
       if (way) return way.kind ? [way.kind] : []
+      const other = within(a, b)
+      if (other) return other.world.connections(other.a, other.b)
       return [...(connections.get(`${a}|${b}`) ?? [])]
     },
     // Its values (`fields`) as `connection.<key>`, beside its id, kind, name and tags.
@@ -346,6 +392,8 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       const way = wayOf(a, b)
       if (way)
         return way.kind ? { id: way.id, kind: way.kind, tags: [], name: way.name } : undefined
+      const other = within(a, b)
+      if (other) return other.world.connectionOf?.(other.a, other.b)
       const c = drawn.get(`${a}|${b}`)
       if (!c) return undefined
       return {

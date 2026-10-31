@@ -238,6 +238,9 @@ travel-rules/default:
     way-in:
       name: Bajada
       description: Diez minutos para bajar a lo que hay debajo, o para volver a subir.
+    shaft:
+      name: Pozo
+      description: Media hora de cuerda; ni para bajar ni para subir con caballos o carros.
     door:
       name: Puerta
       description: Un minuto más para empujarla; cerrada mientras esté atrancada.

@@ -14,7 +14,7 @@ Select a cell with the **Select** tool (<kbd>V</kbd>) to see and edit its detail
 - **Made from**, on a point of interest a trip made from a system's [place template](../technical/07-kinds.md#places) (a discovered ruin): which one. It's edited like any other; changing the template later doesn't touch it.
 - **Linked note**: a page of your notes app.
 - The icon and the lines crossing the cell.
-- **Ways into other maps**: the [sub-maps](13-sub-maps.md) under it (**Open**; **Go in ↗** on a trip with the party there), the way out at a sub-map's entrance, and **New sub-map here**.
+- **Ways into other maps**: the [sub-maps](13-sub-maps.md) under it (**Open**; **Go in ↗** on a trip with the party there), the way out at each of a sub-map's entrances (**Go out ↗**), **New sub-map here** and **Another way into…** a sub-map of this map (a tunnel's other mouth).
 
 A gold dot marks cells with details you can't see on the map.
 

@@ -103,13 +103,16 @@ export const map = z
     hexes: z.record(hexKey, hex),
     paths: z.array(path).optional(),
     connections: z.array(connection).optional(),
-    /** A sub-map: the place of its parent map that leads into it, and its own entrance. */
+    /**
+     * A sub-map: its parent map, and its ways to it (each the parent's place that leads in,
+     * its own entrance and the kind of the way); with several, it's crossed.
+     */
     parent: z
       .object({
         map: z.string().min(1),
-        place: hexKey,
-        entrance: hexKey,
-        kind: z.string().optional(),
+        ways: z
+          .array(z.object({ place: hexKey, entrance: hexKey, kind: z.string().optional() }))
+          .min(1),
       })
       .optional(),
   })

@@ -5,6 +5,8 @@ import {
   newId,
   parseAreaPlace,
   parsePlaceOn,
+  placeOfCell,
+  placeOn,
   type HexKey,
   type HexMap,
   type MapParent,
@@ -79,7 +81,72 @@ export function placeLabel(key: string): string {
 
 /** The sub-maps of the open map that a place leads into. */
 export const subMapsAt = (hex: string): HexMap[] =>
-  (editor.linked.children ?? []).filter((c) => c.meta.parent?.place === hex)
+  (editor.linked.children ?? []).filter((c) => c.meta.parent?.ways.some((w) => w.place === hex))
+
+/** A way at a cell of the open map: into one of its sub-maps, or out of this one. */
+export interface WayHere {
+  /** Into a sub-map, or out to the parent. */
+  dir: 'in' | 'out'
+  /** The map at the other end. */
+  map: string
+  /** Its name. */
+  name: string
+  /** Where the way arrives there, as this map's world names it (`@<map>/<place>`). */
+  there: string
+}
+
+/** The ways at a cell of the open map, into its sub-maps and out of it. */
+export function waysAt(hex: string): WayHere[] {
+  const end = (map: HexMap | undefined, id: string, cell: HexKey) =>
+    placeOn(id, map ? placeOfCell(map, cell) : cell)
+  const into = (editor.linked.children ?? []).flatMap((child) =>
+    (child.meta.parent?.ways ?? [])
+      .filter((w) => w.place === hex)
+      .map((w): WayHere => ({
+        dir: 'in',
+        map: child.meta.id,
+        name: child.meta.name,
+        there: end(child, child.meta.id, w.entrance),
+      })),
+  )
+  const own = editor.map.meta.parent
+  const parent = editor.linked.parent
+  const name = editor.linked.ancestors.at(-1)?.name || parent?.meta.name || (own?.map ?? '')
+  const out = (own?.ways ?? [])
+    .filter((w) => w.entrance === hex)
+    .map((w): WayHere => ({
+      dir: 'out',
+      map: own!.map,
+      name,
+      there: end(parent, own!.map, w.place),
+    }))
+  return [...into, ...out]
+}
+
+/**
+ * One more way into a sub-map of the open map, from a place of it (a tunnel's other mouth):
+ * its entrance the sub-map's first way's, moved in its Map settings. The sub-map is kept.
+ */
+export async function addWayInto(id: string, place: HexKey): Promise<void> {
+  const child = await kept(id)
+  const parent = child?.meta.parent
+  if (!child || !parent || parent.map !== editor.map.meta.id) return
+  const [first] = parent.ways
+  child.meta = {
+    ...child.meta,
+    parent: { ...parent, ways: [...parent.ways, { ...first, place }] },
+    modified: new Date().toISOString(),
+  }
+  await putLibraryMap({
+    id,
+    name: child.meta.name,
+    modified: child.meta.modified,
+    json: serializeMap(child),
+    parent: parent.map,
+  })
+  library.version++
+  await loadLinks()
+}
 
 /**
  * Makes a new sub-map under a place of the open map, in its campaign, and keeps it in the
@@ -92,9 +159,13 @@ export async function newSubMap(place: HexKey, name: string, kind?: string): Pro
   const { width, height } = map.grid
   const parent: MapParent = {
     map: editor.map.meta.id,
-    place,
-    entrance: `${Math.floor(width / 2)},${Math.floor(height / 2)}` as HexKey,
-    ...(kind && { kind }),
+    ways: [
+      {
+        place,
+        entrance: `${Math.floor(width / 2)},${Math.floor(height / 2)}` as HexKey,
+        ...(kind && { kind }),
+      },
+    ],
   }
   const id = newId()
   map.meta = { ...map.meta, id, name, campaign: editor.map.meta.campaign, parent }

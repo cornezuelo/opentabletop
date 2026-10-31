@@ -10,8 +10,9 @@ const PLACE_KEYS = ['place', 'hex', 'from', 'to']
  * A trip carried from one map to another of its tree (into a sub-map, or out of it): the
  * same trip, members, journal and time. Places of the map it leaves become that map's
  * (`@<from>/<place>`), and those of the map it enters (`@<to>/<place>`) plain again, in
- * where the party is, what it visited, those present, discovery and the journal; the
- * route and destination are dropped. Returns a copy.
+ * where the party is, where it's heading, what it visited, those present, discovery and the
+ * journal; the route is dropped, for the map entered to plan it again (a destination beyond
+ * the map, out by another of its ways). Returns a copy.
  */
 export function moveTrip(session: SessionState, from: string, to: string): SessionState {
   const prefix = `@${to}/`
@@ -24,10 +25,10 @@ export function moveTrip(session: SessionState, from: string, to: string): Sessi
   const s = structuredClone(session)
   const travel = { ...s.travel }
   delete travel.route
-  delete travel.destination
   s.travel = {
     ...travel,
     location: rename(travel.location),
+    ...(travel.destination && { destination: rename(travel.destination) }),
     ...(travel.visits && {
       visits: Object.fromEntries(Object.entries(travel.visits).map(([p, n]) => [rename(p), n])),
     }),

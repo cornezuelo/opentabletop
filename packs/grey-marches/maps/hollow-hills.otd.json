@@ -1123,7 +1123,8 @@
         },
         "11,7": {
           "terrain": "hills",
-          "region": "hollowhills"
+          "region": "hollowhills",
+          "name": "The old mine-mouth"
         },
         "11,8": {
           "terrain": "hills",
@@ -1187,7 +1188,8 @@
         },
         "12,9": {
           "terrain": "mountains",
-          "region": "hollowhills"
+          "region": "hollowhills",
+          "name": "The Windhole"
         },
         "12,10": {
           "terrain": "peaks",

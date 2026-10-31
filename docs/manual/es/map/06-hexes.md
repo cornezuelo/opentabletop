@@ -14,7 +14,7 @@ Selecciona una casilla con la herramienta **Seleccionar** (<kbd>V</kbd>) para ve
 - **Hecho a partir de**, en un punto de interés que un viaje creó con una [plantilla de lugar](../technical/07-kinds.md#lugares) del sistema (una ruina descubierta): cuál. Se edita como cualquier otro; que la plantilla cambie después no lo toca.
 - **Nota enlazada**: una página de tu aplicación de notas.
 - El icono y las líneas que cruzan la casilla.
-- **Caminos a otros mapas**: los [submapas](13-sub-maps.md) que hay bajo él (**Abrir**; **Entrar ↗** en un viaje con el grupo allí), la salida en la entrada de un submapa, y **Nuevo submapa aquí**.
+- **Caminos a otros mapas**: los [submapas](13-sub-maps.md) que hay bajo él (**Abrir**; **Entrar ↗** en un viaje con el grupo allí), la salida en cada una de las entradas de un submapa (**Salir ↗**), **Nuevo submapa aquí** y **Otro camino a…** un submapa de este mapa (la otra boca de un túnel).
 
 Un punto dorado marca las casillas con detalles que no se ven en el mapa.
 

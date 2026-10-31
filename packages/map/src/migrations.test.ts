@@ -47,6 +47,18 @@ describe('a cell’s km (v32)', () => {
   })
 })
 
+describe('a sub-map’s ways (v34)', () => {
+  it('its one way in becomes a list of one', () => {
+    const parent = { map: 'up', place: '3,3', entrance: '0,1', kind: 'way-in' }
+    const meta = migrate({ version: 33, meta: { id: 'down', parent } }).meta
+    expect(meta).toEqual({
+      id: 'down',
+      parent: { map: 'up', ways: [{ place: '3,3', entrance: '0,1', kind: 'way-in' }] },
+    })
+    expect(migrate({ version: 33, meta: { id: 'top' } }).meta).toEqual({ id: 'top' })
+  })
+})
+
 describe('the map’s scale (v15)', () => {
   it('the old default, 10 km, becomes the system’s; a scale chosen stays', () => {
     expect(migrate({ version: 14, scale: { hexKm: 10 } }).scale).toEqual({})

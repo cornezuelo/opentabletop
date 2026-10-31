@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its three example maps in one campaign (one of them a sub-map), the sheet its companions are made with and the Company's own, its gear, the bestiary its encounters make foes from, the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, its gear, the bestiary its encounters make foes from, the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -34,7 +34,12 @@ weather: [weather.sky]
 # The lie of the Marches (land.yaml): Generate's land, and discovery's east of the Hills.
 land: [land.default]
 packs: [core]
-# Listed in Map's Maps → Example maps: the Marches, the Hollow Hills up close (3 km a hex)
-# and the Barrow-halls under one of their hexes (a sub-map, 10 m a hex), maps of one
+# Listed in Map's Maps → Example maps: the Marches, the Hollow Hills up close (3 km a hex),
+# the Barrow-halls under one of their hexes (a sub-map, 10 m a hex) and the clans' old mine
+# under their mountains (a sub-map with three ways, crossed: 500 m a square), maps of one
 # campaign (every file names it: The Grey Marches).
-maps: [maps/grey-marches.otd.json, maps/hollow-hills.otd.json, maps/barrow-halls.otd.json]
+maps:
+  - maps/grey-marches.otd.json
+  - maps/hollow-hills.otd.json
+  - maps/barrow-halls.otd.json
+  - maps/old-mine.otd.json

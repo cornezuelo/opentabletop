@@ -48,7 +48,7 @@ describe('sub-maps', () => {
     const actions = await import('./actions.svelte')
     const { exampleMaps } = await import('./examples')
     const { editor } = await import('../store/editor.svelte')
-    const { loadLinks, subMapsAt, newSubMap } = await import('./submaps')
+    const { loadLinks, subMapsAt, newSubMap, waysAt, addWayInto } = await import('./submaps')
     const play = await import('../play/play')
     const { deserializeMap, placeOn, partyToken } = await import('@open-tabletop/map')
     const hills = exampleMaps().find((m) => m.id === 'hollowhills1')!
@@ -82,8 +82,11 @@ describe('sub-maps', () => {
     /** Marches on until the map `id` is the one open. */
     const marchTo = (id: string) => marchUntil(() => editor.map.meta.id === id)
 
-    // Go in: the way's other end is the destination, and the march takes it.
-    play.step({ type: 'setDestination', place: placeOn('barrowhalls1', '0,3') })
+    // Go in: the way's other end (the stair, a room) is the destination, and the march takes it.
+    const [way] = waysAt('10,8')
+    expect(way).toMatchObject({ dir: 'in', map: 'barrowhalls1' })
+    expect(way.there).toBe(placeOn('barrowhalls1', 'area:barrowstair1'))
+    play.step({ type: 'setDestination', place: way.there })
     await marchTo('barrowhalls1')
     expect(editor.map.meta.id).toBe('barrowhalls1')
     const below = play.sessionOf(editor.map.play!)!
@@ -134,8 +137,57 @@ describe('sub-maps', () => {
     // A new sub-map under another hex: kept, in the campaign, its way in on the hex.
     const made = await newSubMap('4,6', 'The cairn’s cellar', 'way-in')
     expect(maps.get(made.meta.id)).toMatchObject({ parent: 'hollowhills1' })
-    expect(made.meta.parent).toMatchObject({ map: 'hollowhills1', place: '4,6', kind: 'way-in' })
+    expect(made.meta.parent).toMatchObject({
+      map: 'hollowhills1',
+      ways: [{ place: '4,6', kind: 'way-in' }],
+    })
     expect(made.grid.kind).toBe('square')
     expect(subMapsAt('4,6').map((m) => m.meta.id)).toEqual([made.meta.id])
+    // Another way into it, from another cell: one more mouth, its entrance the first's.
+    await addWayInto(made.meta.id, '6,8')
+    expect(subMapsAt('6,8').map((m) => m.meta.id)).toEqual([made.meta.id])
+    expect(deserializeMap(maps.get(made.meta.id)!.json).meta.parent?.ways).toEqual([
+      { place: '4,6', entrance: made.meta.parent!.ways[0].entrance, kind: 'way-in' },
+      { place: '6,8', entrance: made.meta.parent!.ways[0].entrance, kind: 'way-in' },
+    ])
+  })
+
+  it('the trip crosses the old clan mine, in at its mouth and out at Hollow Gate', async () => {
+    vi.resetModules()
+    const actions = await import('./actions.svelte')
+    const { exampleMaps } = await import('./examples')
+    const { editor } = await import('../store/editor.svelte')
+    const { loadLinks, waysAt } = await import('./submaps')
+    const play = await import('../play/play')
+    const { partyToken } = await import('@open-tabletop/map')
+    await actions.openExampleMap(exampleMaps().find((m) => m.id === 'hollowhills1')!)
+    await settle()
+    await loadLinks()
+    // The mine's three mouths on the hills, each a way in.
+    for (const cell of ['11,7', '12,9', '12,11'])
+      expect(waysAt(cell).map((w) => w.map)).toContain('oldmine1')
+
+    editor.tool = 'play'
+    play.setMode('rules')
+    play.partyMoved('11,7')
+    play.editSession((s) => ({ ...s, stats: { ...s.stats, navigation: 6 } }))
+    // A click on Hollow Gate: the route goes through the mine.
+    play.step({ type: 'setDestination', place: '12,11' })
+    expect(play.sessionOf(editor.map.play!)?.travel.route?.[1]).toBe('@oldmine1/0,3')
+    const visited = new Set<string>()
+    for (let i = 0; i < 40; i++) {
+      for (const c of play.sessionOf(editor.map.play!)?.travel.pendingChecks ?? [])
+        play.resolvePending(c.id)
+      play.step({ type: 'action', id: 'march', with: { until: 'place' } })
+      await settle()
+      visited.add(editor.map.meta.id)
+      const at = play.sessionOf(editor.map.play!)?.travel.location
+      if (editor.map.meta.id === 'hollowhills1' && at === '12,11') break
+    }
+    // It went on in the mine (the same trip, heading on) and came out at Hollow Gate.
+    expect(visited).toContain('oldmine1')
+    expect(editor.map.meta.id).toBe('hollowhills1')
+    expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('12,11')
+    expect(partyToken(editor.map)?.hex).toBe('12,11')
   })
 })

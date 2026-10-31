@@ -387,19 +387,26 @@ export interface MapMeta {
 }
 
 /**
- * Where a sub-map hangs (a dungeon under a hex, a city on a map of the land): the place of
- * its parent map that leads into it, and the way in, a step between that place and its own
- * `entrance` the trip takes like any other.
+ * Where a sub-map hangs (a dungeon under a hex, a city on a map of the land, a tunnel under
+ * the mountains): its parent map, and its ways to it, each a step between a place of the
+ * parent and a cell of its own the trip takes like any other. A sub-map with several ways
+ * is crossed: in by one, out by another.
  */
 export interface MapParent {
   /** The parent map's id. */
   map: string
-  /** The parent's place that leads into it. */
+  /** Its ways in and out (one at least). */
+  ways: MapWay[]
+}
+
+/** A way between a sub-map and its parent: the parent's place and its own cell, both ways. */
+export interface MapWay {
+  /** The parent's place that leads in. */
   place: HexKey
-  /** Its place the way in arrives at, and leaves from. */
+  /** Its cell the way arrives at, and leaves from. */
   entrance: HexKey
   /**
-   * The kind of connection the way in is, as the system names it (`way-in`): what the step
+   * The kind of connection the way is, as the system names it (`way-in`): what the step
    * costs and does (`extra`, `passable`, `connection.kind` in checks). Absent: none.
    */
   kind?: string

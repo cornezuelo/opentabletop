@@ -1,34 +1,45 @@
 <script lang="ts">
-  import { placeOn, type HexKey } from '@open-tabletop/map'
+  import { placeOfCell, type HexKey } from '@open-tabletop/map'
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n/index.svelte'
   import { openLibraryMap } from '../../lib/io/actions.svelte'
-  import { newSubMap, subMapsAt } from '../../lib/io/submaps'
+  import { addWayInto, newSubMap, waysAt, type WayHere } from '../../lib/io/submaps'
   import { partyLocation, sessionOf, step } from '../../lib/play/play'
   import { mapSystem } from '../../lib/play/systems'
   import { editor } from '../../lib/store/editor.svelte'
 
   /**
-   * The ways a hex leads into other maps: the sub-maps under it (Open; Go in while the
-   * party is there on a trip), the way out of this sub-map at its entrance, and New sub-map.
+   * The ways a cell leads into other maps: into the sub-maps under it and out of this
+   * sub-map (Open; Go in or out while the party is there on a trip), and, while editing,
+   * New sub-map and another way into a sub-map of this map. In Play, only the ways.
    */
-  let { key, name }: { key: HexKey; name: string } = $props()
+  let {
+    key,
+    name = '',
+    editing = true,
+  }: { key: HexKey; name?: string; editing?: boolean } = $props()
 
-  const children = $derived((void editor.linked, subMapsAt(key)))
-  const parent = $derived(editor.meta.parent?.entrance === key ? editor.meta.parent : undefined)
-  const parentName = $derived(
-    editor.linked.ancestors.at(-1)?.name || editor.linked.parent?.meta.name || t('map.untitled'),
+  const ways = $derived((void editor.linked, waysAt(key)))
+  /** This map's sub-maps without a way from this cell: another way into one (a tunnel's mouth). */
+  const others = $derived(
+    (editor.linked.children ?? []).filter((c) => !ways.some((w) => w.map === c.meta.id)),
   )
-  /** The party is here on a trip: it can head through the way. */
+  let another = $state('')
+  /** The party is here on a trip (in the room the cell is in, too): it can head through the way. */
   const here = $derived.by(() => {
     void editor.revision
     const play = editor.play
-    return !!play && play.mode === 'rules' && !!sessionOf(play) && partyLocation() === key
+    return (
+      !!play &&
+      play.mode === 'rules' &&
+      !!sessionOf(play) &&
+      partyLocation() === placeOfCell(editor.map, key)
+    )
   })
 
   /** The way's other end becomes the destination: the trip's march takes it. */
-  function head(map: string, place: string) {
-    step({ type: 'setDestination', place: placeOn(map, place) })
+  function head(way: WayHere) {
+    step({ type: 'setDestination', place: way.there })
     showToast(t('submap.headed'), 'info', 6000)
   }
 
@@ -41,34 +52,50 @@
     )
     showToast(t('submap.created', { name: made.meta.name }))
   }
+
+  async function addWay() {
+    const child = others.find((c) => c.meta.id === another)
+    if (!child) return
+    await addWayInto(child.meta.id, key)
+    another = ''
+    showToast(t('submap.wayAdded', { name: child.meta.name || t('map.untitled') }))
+  }
 </script>
 
-<div class="submaps">
-  <span class="title">{t('submap.title')}<InfoTip text={t('submap.help')} /></span>
-  {#each children as child (child.meta.id)}
-    <div class="way">
-      <span class="name">↳ {child.meta.name || t('map.untitled')}</span>
-      <button onclick={() => openLibraryMap(child.meta.id)}>{t('submap.open')}</button>
-      {#if here}
-        <button class="primary" onclick={() => head(child.meta.id, child.meta.parent!.entrance)}
-          >{t('submap.goIn')}</button
+{#if editing || ways.length}
+  <div class="submaps">
+    <span class="title">{t('submap.title')}<InfoTip text={t('submap.help')} /></span>
+    {#each ways as way (way.dir + way.there)}
+      <div class="way">
+        <span class="name"
+          >{way.dir === 'in'
+            ? `↳ ${way.name || t('map.untitled')}`
+            : `↰ ${t('submap.wayOut', { name: way.name || t('map.untitled') })}`}</span
         >
+        <button onclick={() => openLibraryMap(way.map)}>{t('submap.open')}</button>
+        {#if here}
+          <button class="primary" onclick={() => head(way)}
+            >{way.dir === 'in' ? t('submap.goIn') : t('submap.goOut')}</button
+          >
+        {/if}
+      </div>
+    {/each}
+    {#if editing}
+      <button class="new" onclick={create}>{t('submap.new')}</button>
+      {#if others.length}
+        <div class="way">
+          <select bind:value={another} aria-label={t('submap.anotherWay')}>
+            <option value="">{t('submap.anotherWay')}</option>
+            {#each others as child (child.meta.id)}
+              <option value={child.meta.id}>{child.meta.name || t('map.untitled')}</option>
+            {/each}
+          </select>
+          <button disabled={!another} onclick={addWay}>{t('submap.addWay')}</button>
+        </div>
       {/if}
-    </div>
-  {/each}
-  {#if parent}
-    <div class="way">
-      <span class="name">↰ {t('submap.wayOut', { name: parentName })}</span>
-      <button onclick={() => openLibraryMap(parent.map)}>{t('submap.open')}</button>
-      {#if here}
-        <button class="primary" onclick={() => head(parent.map, parent.place)}
-          >{t('submap.goOut')}</button
-        >
-      {/if}
-    </div>
-  {/if}
-  <button class="new" onclick={create}>{t('submap.new')}</button>
-</div>
+    {/if}
+  </div>
+{/if}
 
 <style>
   .submaps {
@@ -106,8 +133,14 @@
     cursor: pointer;
   }
 
-  button:hover {
+  button:hover:not(:disabled) {
     border-color: var(--accent);
+  }
+
+  select {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
   }
 
   button.primary {

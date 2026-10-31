@@ -104,6 +104,8 @@ const CONNECTION_COLOR = 0x5b3a8c
 /** One the trip going on can't cross now: greyed, its diamond crossed out. */
 const SHUT_COLOR = 0x8a8478
 const CONNECTION_OUTLINE = 0xf4efe2
+/** The dark inside of a way into another map, a mouth in the ground. */
+const WAY_MOUTH = 0x1d1726
 const DRAFT_COLOR = 0xffffff
 const HANDLE_COLOR = 0xffffff
 const HANDLE_OUTLINE = 0x1b1a17
@@ -885,27 +887,43 @@ export class MapRenderer {
         g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round' })
       }
     }
-    // The ways into sub-maps (a ring with a point down) and, on a sub-map, out of it (up).
+    // The ways into sub-maps and, on a sub-map, out of it, drawn as a mouth in the ground: a
+    // dark arch with steps going down into it, or a chevron up to the daylight.
     const ways: [HexKey, 'in' | 'out'][] = [
-      ...(editor.linked.children ?? []).flatMap((c): [HexKey, 'in'][] =>
-        c.meta.parent ? [[c.meta.parent.place, 'in']] : [],
+      ...(editor.linked.children ?? []).flatMap((c) =>
+        (c.meta.parent?.ways ?? []).map((w): [HexKey, 'in'] => [w.place, 'in']),
       ),
-      ...(editor.map.meta.parent
-        ? ([[editor.map.meta.parent.entrance, 'out']] as [HexKey, 'out'][])
-        : []),
+      ...(editor.map.meta.parent?.ways ?? []).map((w): [HexKey, 'out'] => [w.entrance, 'out']),
     ]
     for (const [key, way] of ways) {
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
-      const at = { x: c.x - 0.42 * hexSize, y: c.y + 0.42 * hexSize }
-      const r = 0.2 * hexSize
-      g.circle(at.x, at.y, r).fill({ color: CONNECTION_COLOR })
-      g.circle(at.x, at.y, r).stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
-      const d = way === 'in' ? 1 : -1
-      const s = r * 0.55
-      g.poly([at.x - s, at.y - (s * d) / 2, at.x + s, at.y - (s * d) / 2, at.x, at.y + s * d])
-      g.fill({ color: CONNECTION_OUTLINE })
+      const at = { x: c.x - 0.4 * hexSize, y: c.y + 0.38 * hexSize }
+      const r = 0.22 * hexSize
+      const w = r * 0.95
+      const top = at.y - r * 0.15
+      g.moveTo(at.x - w, at.y + r)
+        .lineTo(at.x - w, top)
+        .arc(at.x, top, w, Math.PI, 0)
+        .lineTo(at.x + w, at.y + r)
+        .closePath()
+      g.fill({ color: WAY_MOUTH })
+      g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE, join: 'round' })
+      if (way === 'in')
+        // Steps narrowing as they go down, deeper the higher in the arch.
+        for (let i = 0; i < 3; i++) {
+          const y = at.y + r * (0.7 - i * 0.42)
+          const half = w * (0.7 - i * 0.18)
+          g.moveTo(at.x - half, y).lineTo(at.x + half, y)
+        }
+      else {
+        const s = w * 0.55
+        g.moveTo(at.x - s, at.y + s * 0.5)
+          .lineTo(at.x, at.y - s * 0.5)
+          .lineTo(at.x + s, at.y + s * 0.5)
+      }
+      g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', join: 'round' })
     }
     const start = editor.connectionStart
     if (start && inBounds(parseKey(start), grid)) {

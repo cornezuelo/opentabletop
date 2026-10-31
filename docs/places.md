@@ -145,3 +145,16 @@ Proposed 2026-10-30; the user chose floor as a terrain's flag (point 1, the alte
 5. **The look**: walls as one plain line; styles later (§9).
 
 Not done yet: rooms in Discovery (a room found as you go: phase 4), a rectangle to paint rooms faster, Core's own example (Core has no maps), the token of each character in a room.
+
+## 15. Ways into sub-maps you can find, and a sub-map that crosses: built (2026-10-31)
+
+From the user's play-testing (backlog: _ways into a sub-map you can find_, _a sub-map that crosses_). Built on autopilot; Claude's details, **to review with the user**:
+
+- **Several ways**: `meta.parent: { map, ways: [{ place, entrance, kind? }] }` (maps v34, OTD `parent.ways`; an older map's one way becomes a list of one). Each way is the step between its parent place and its own entrance, of its own kind (`way-in` at one end, a `shaft` at another). The journal's id of a way is `way-<map>` for the first, `way-<map>-2`… for the others.
+- **A way arrives in a room**: when an entrance is in a room (a region played as one place), the place at that end is the room (`@barrowhalls1/area:barrowstair1`), so a destination there is reachable; `@<map>/<place>` takes any place, not only cells.
+- **Routes through**: a map's world (`mapWorld` with its links) walks the places of the maps at the other end of its ways as their own (one map away, at their scale and with their rooms, without their further links), so a route may go in by one way and out by another, or out and back in. The trip still moves to the other map on reaching it: `moveTrip` keeps the destination (renamed) and drops the route, and Map plans it again there; if that map's world doesn't reach it, the destination is given up.
+- **In Play**: the ways at the party's cell show in the Play panel (**Go in ↗** / **Go out ↗**), as in the cell's panel (a room's cell counts when the party is in the room).
+- **Drawn** as a dark arch in the cell's lower corner, with steps going down (a way in) or a chevron up (a way out); one look for every kind, until connection styles (§9, the redesign).
+- **Adding a way**: **Another way into…** in the parent's cell panel, choosing among its sub-maps; the new way's entrance starts at the first's, moved in the sub-map's Map settings, where each way is listed (From, Entrance, Kind of way, **Remove this way** while there are two or more). A sub-map can't yet be moved to hang from another map, and a way's place above can only be set from the map above.
+- **Example**: the Grey Marches' **old clan mine** under the Hollow Hills' mountains (squares of 500 m), three ways (the mouth, a `shaft` at the Windhole closed to horses and carts, the east adit at Hollow Gate), its galleries quicker than the hills, so a route from the mouth to Hollow Gate goes through it, beside the Barrow-road over land.
+- Left for later: a destination inside a sub-map chosen from the map above (a click there; routes can already reach it), the trail drawn on the other map for the stretch walked from here in one march.

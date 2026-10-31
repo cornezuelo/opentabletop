@@ -1,0 +1,318 @@
+{
+  "parties": [],
+  "factions": [],
+  "clocks": [],
+  "log": [],
+  "otd": "0.2.0",
+  "campaign": {
+    "id": "grey-marches",
+    "type": "campaign",
+    "name": "The Grey Marches"
+  },
+  "characters": [],
+  "maps": [
+    {
+      "id": "oldmine1",
+      "type": "map",
+      "name": "The old clan mine",
+      "grid": {
+        "kind": "square",
+        "orientation": "flat",
+        "width": 14,
+        "height": 7,
+        "coordFormat": "CCRR"
+      },
+      "scale": {
+        "cellKm": 0.5
+      },
+      "parent": {
+        "map": "hollowhills1",
+        "ways": [
+          {
+            "place": "11,7",
+            "entrance": "0,3",
+            "kind": "way-in"
+          },
+          {
+            "place": "12,9",
+            "entrance": "5,0",
+            "kind": "shaft"
+          },
+          {
+            "place": "12,11",
+            "entrance": "13,3",
+            "kind": "way-in"
+          }
+        ]
+      },
+      "terrains": [
+        {
+          "id": "mine-gallery",
+          "name": "Mine gallery",
+          "color": "#7d7462",
+          "glyph": "game:mining",
+          "floor": true
+        },
+        {
+          "id": "rubble",
+          "name": "Rubble",
+          "color": "#6b6355",
+          "glyph": "game:stone-pile",
+          "floor": true
+        },
+        {
+          "id": "black-water",
+          "name": "Black water",
+          "color": "#1f2a33",
+          "glyph": "game:wave-crest",
+          "water": true,
+          "floor": true
+        }
+      ],
+      "hexes": {
+        "0,3": {
+          "terrain": "mine-gallery",
+          "name": "The mine-mouth",
+          "region": "gallery1"
+        },
+        "1,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "2,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "3,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "4,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "5,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "6,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "7,3": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "8,3": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "9,3": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "10,3": {
+          "terrain": "rubble",
+          "region": "gallery1"
+        },
+        "11,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "12,3": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "13,3": {
+          "terrain": "mine-gallery",
+          "name": "The east adit",
+          "region": "gallery1"
+        },
+        "5,0": {
+          "terrain": "mine-gallery",
+          "name": "The Windhole",
+          "region": "gallery1"
+        },
+        "5,1": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "5,2": {
+          "terrain": "mine-gallery",
+          "region": "gallery1"
+        },
+        "7,2": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "7,4": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "8,2": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "8,4": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "9,2": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "9,4": {
+          "terrain": "mine-gallery",
+          "region": "clanhall1"
+        },
+        "8,5": {
+          "terrain": "black-water",
+          "region": "clanhall1"
+        },
+        "8,6": {
+          "terrain": "black-water",
+          "region": "clanhall1"
+        }
+      },
+      "paths": [],
+      "ext": {
+        "map": {
+          "version": 34,
+          "created": "2026-10-30T12:00:00.000Z",
+          "modified": "2026-10-30T12:00:00.000Z",
+          "hexSize": 40,
+          "showCoords": true,
+          "glyphs": 0.45,
+          "print": {
+            "hexMm": 25,
+            "paper": null,
+            "landscape": false,
+            "marginMm": 10,
+            "customPaper": {
+              "width": 500,
+              "height": 700
+            }
+          },
+          "layers": {
+            "terrain": {
+              "visible": true,
+              "locked": false
+            },
+            "grid": {
+              "visible": true,
+              "locked": false
+            },
+            "regions": {
+              "visible": true,
+              "locked": false
+            },
+            "factions": {
+              "visible": true,
+              "locked": false
+            },
+            "paths": {
+              "visible": true,
+              "locked": false
+            },
+            "connections": {
+              "visible": true,
+              "locked": false
+            },
+            "icons": {
+              "visible": true,
+              "locked": false
+            },
+            "coords": {
+              "visible": true,
+              "locked": false
+            },
+            "labels": {
+              "visible": true,
+              "locked": false
+            },
+            "party": {
+              "visible": true,
+              "locked": false
+            },
+            "relations": {
+              "visible": false,
+              "locked": false
+            },
+            "tokens": {
+              "visible": true,
+              "locked": false
+            },
+            "markers": {
+              "visible": true,
+              "locked": false
+            }
+          },
+          "labels": [],
+          "regions": [
+            {
+              "id": "gallery1",
+              "name": "The old galleries",
+              "color": "#9a7b4f",
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "1"
+                }
+              ]
+            },
+            {
+              "id": "clanhall1",
+              "name": "The clans’ hall",
+              "color": "#5b3a6e",
+              "onePlace": true,
+              "parent": "gallery1",
+              "fields": [
+                {
+                  "key": "danger",
+                  "value": "3"
+                }
+              ]
+            }
+          ],
+          "captions": {
+            "hexNames": {
+              "show": true,
+              "font": "fell",
+              "size": 1,
+              "italic": false,
+              "halo": true,
+              "haloColor": "#f4eedd"
+            },
+            "regionNames": {
+              "show": true,
+              "font": "fell",
+              "size": 1,
+              "italic": true,
+              "halo": true,
+              "haloColor": "#f4eedd"
+            },
+            "tokenNames": {
+              "show": true,
+              "font": "fell",
+              "size": 1,
+              "italic": false,
+              "halo": true,
+              "haloColor": "#f4eedd"
+            }
+          },
+          "regionStyle": {
+            "fill": 0.14,
+            "border": 0.09,
+            "dashed": false,
+            "borderOpacity": 0.85
+          },
+          "assets": [],
+          "icons": {}
+        }
+      },
+      "connections": []
+    }
+  ],
+  "pois": [],
+  "state": {}
+}

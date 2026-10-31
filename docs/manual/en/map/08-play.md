@@ -22,7 +22,7 @@ A trip keeps the system it started with. If its campaign's system changes later 
 
 **Connections in play**: a connection drawn on the map (a gate, a ford, a hidden path: [Connections](04-roads-and-rivers.md#connections)) that the trip can't cross now, by its kind's **Open when** / **Closed when** in the system and its state in the trip, is drawn greyed with its diamond crossed out; routes go round it, or up to it and stop. What actions and results change of it (a gate opened, a path found) is the trip's, never the map's: selected with the **Connections** tool, its panel says under **In the trip going on** whether it can be crossed now and which of its values the trip changed. The journal says each change.
 
-**Into a sub-map**: on a cell that leads into a [sub-map](13-sub-maps.md), **Go in ↗** in its panel makes the way in the destination; once through, the trip goes on in the sub-map, which opens (the same trip), and the map it left says so in Play.
+**Into a sub-map**: on a cell that leads into a [sub-map](13-sub-maps.md), **Go in ↗** in the Play panel (or the cell's) makes the way in the destination; once through, the trip goes on in the sub-map, which opens (the same trip), and the map it left says so in Play. A sub-map with several ways (a tunnel) is crossed: a destination beyond it may be reached through it, in by one way and out by another.
 
 ## Checks and the journal
 

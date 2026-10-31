@@ -28,6 +28,7 @@ import type {
   LabelStyle,
   MapConnection,
   MapParent,
+  MapWay,
   MapAsset,
   MapLabel,
   CaptionOverride,
@@ -475,19 +476,25 @@ function parseTokens(value: unknown): MapToken[] {
   return tokens
 }
 
-/** A sub-map's parent: its map, the place leading in and the entrance (absent if broken). */
+/** A sub-map's parent: its map and its ways to it (absent if broken, or with no way). */
 function parseParent(value: unknown): MapParent | undefined {
   if (!isRecord(value)) return undefined
-  const { map, place, entrance, kind } = value
+  const { map, ways } = value
   if (typeof map !== 'string' || !map) return undefined
-  if (typeof place !== 'string' || !HEX_KEY.test(place)) return undefined
-  if (typeof entrance !== 'string' || !HEX_KEY.test(entrance)) return undefined
-  return {
-    map,
-    place: place as HexKey,
-    entrance: entrance as HexKey,
-    ...(typeof kind === 'string' && kind.trim() && { kind: kind.trim() }),
-  }
+  const parsed = (Array.isArray(ways) ? ways : []).flatMap((way): MapWay[] => {
+    if (!isRecord(way)) return []
+    const { place, entrance, kind } = way
+    if (typeof place !== 'string' || !HEX_KEY.test(place)) return []
+    if (typeof entrance !== 'string' || !HEX_KEY.test(entrance)) return []
+    return [
+      {
+        place: place as HexKey,
+        entrance: entrance as HexKey,
+        ...(typeof kind === 'string' && kind.trim() && { kind: kind.trim() }),
+      },
+    ]
+  })
+  return parsed.length ? { map, ways: parsed } : undefined
 }
 
 function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {

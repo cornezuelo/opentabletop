@@ -79,7 +79,7 @@ describe('ways into sub-maps', () => {
     ...child.meta,
     id: 'down',
     name: 'Below',
-    parent: { map: 'up', place: '3,3', entrance: '1,1', kind: 'way-in' },
+    parent: { map: 'up', ways: [{ place: '3,3', entrance: '1,1', kind: 'way-in' }] },
   }
   child.hexes['1,1'] = { terrain: 'plains', name: 'The stair' }
 
@@ -87,7 +87,7 @@ describe('ways into sub-maps', () => {
     const world = mapWorld(parent, undefined, { children: [child] })
     const inside = placeOn('down', '1,1')
     expect(world.neighbors('3,3')).toContain(inside)
-    expect(world.neighbors(inside)).toEqual(['3,3'])
+    expect(world.neighbors(inside)).toContain('3,3')
     expect(world.connections('3,3', inside)).toEqual(['way-in'])
     expect(world.connectionOf?.(inside, '3,3')).toMatchObject({ kind: 'way-in', name: 'Below' })
     expect(world.km('3,3', inside)).toBe(0)
@@ -101,5 +101,57 @@ describe('ways into sub-maps', () => {
     expect(below.neighbors('1,1')).toContain(placeOn('up', '3,3'))
     // Without its links, a map has no ways.
     expect(mapWorld(parent).neighbors('3,3')).not.toContain(inside)
+  })
+})
+
+describe('a sub-map that crosses', () => {
+  // A tunnel under a ridge: in at 2,2 of the land, along its gallery, out at 6,2.
+  const land = createMap()
+  land.meta = { ...land.meta, id: 'land' }
+  const tunnel = createMap()
+  tunnel.meta = {
+    ...tunnel.meta,
+    id: 'tunnel',
+    name: 'The tunnel',
+    parent: {
+      map: 'land',
+      ways: [
+        { place: '2,2', entrance: '0,0', kind: 'way-in' },
+        { place: '6,2', entrance: '3,0' },
+      ],
+    },
+  }
+  tunnel.scale = { cellKm: 0.5 }
+
+  it('has a way at each of its entrances, each to its own place', () => {
+    const world = mapWorld(land, undefined, { children: [tunnel] })
+    expect(world.neighbors('2,2')).toContain(placeOn('tunnel', '0,0'))
+    expect(world.neighbors('6,2')).toContain(placeOn('tunnel', '3,0'))
+    expect(world.connections('2,2', placeOn('tunnel', '0,0'))).toEqual(['way-in'])
+    expect(world.connections('6,2', placeOn('tunnel', '3,0'))).toEqual([])
+    expect(world.connectionOf?.('2,2', placeOn('tunnel', '0,0'))).toMatchObject({
+      id: 'way-tunnel',
+    })
+    // From inside, out by either.
+    const inside = mapWorld(tunnel, undefined, { parent: land })
+    expect(inside.neighbors('0,0')).toContain(placeOn('land', '2,2'))
+    expect(inside.neighbors('3,0')).toContain(placeOn('land', '6,2'))
+  })
+
+  it('is walked as its own map from the other, so a route may go through it', () => {
+    const world = mapWorld(land, 10, { children: [tunnel] })
+    const gallery = placeOn('tunnel', '1,0')
+    expect(world.neighbors(placeOn('tunnel', '0,0'))).toEqual(
+      expect.arrayContaining([gallery, '2,2']),
+    )
+    // At its own scale, with its own steps.
+    expect(world.km(placeOn('tunnel', '0,0'), gallery)).toBe(0.5)
+    expect(world.place(gallery)).not.toBeNull()
+    // And from inside, the land beyond its ways is walked too.
+    const inside = mapWorld(tunnel, 10, { parent: land })
+    expect(inside.neighbors(placeOn('land', '6,2'))).toEqual(
+      expect.arrayContaining([placeOn('land', '7,2'), '3,0']),
+    )
+    expect(inside.km(placeOn('land', '6,2'), placeOn('land', '7,2'))).toBe(land.scale.cellKm ?? 10)
   })
 })

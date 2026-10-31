@@ -9,11 +9,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Map: **regions inside regions**. A region's **Inside** chooses the region it lies inside (the Deepwood inside the Greywood, an altar inside a chapel): its cells are in both, the outer one's values hold inside unless the inner one sets its own, and `place.region` names every region a cell is in, innermost first, so `place.region: The Greywood` holds in its heart too. A room inside a room is a place of its own, with a wall between them unless a door is drawn. The Regions panel lists each region under its own, the line under the map names them all, and deleting a region hands its cells to the one it lay inside. Maps v33.
 - Map: **Played as one place (a room)** (it was **One place**) says what it changes on a trip, with an example: one step in, its checks once, tables reading the room.
 - Every app: `{{…}}` of a list writes its items with commas.
+- Map: **sub-maps with several ways**, crossed in by one and out by another (a tunnel, a mine under the mountains). **Another way into…** in a cell's panel adds one from there; each way has its own entrance and kind in the sub-map's **Map settings**, and **Remove this way**. A route to a place beyond goes through a sub-map when that's quicker, walking it cell by cell; the trip keeps heading there when it goes on in the other map. **Go in ↗** / **Go out ↗** show in the Play panel too where the party stands, and a way is drawn as a dark arch with steps (down, or a chevron up) instead of a small ring. Maps v34.
 - Every app and the manual say **cell** (in Spanish, **casilla**) for a map's cell, on maps of hexes and of squares alike; "hex" is left only for the shape (a hexcrawl, Map settings → Cells → **Hexes**, orientation, hex flowers).
 
 ### Packs
 
 - The Grey Marches: the Greywood's danger is regions inside regions, the Deepwood (3) inside it and its heart (4) inside the Deepwood, instead of each cell's own value; the Barrow-halls' chief's tomb has a room inside it, the grave-niche (danger 5), behind a sealed slab.
+- The Grey Marches: **the old clan mine**, a fourth example map, a sub-map under the Hollow Hills' mountains with three ways (its mouth, a shaft on the mountainside, the Windhole, and the east adit at Hollow Gate): galleries quicker than the hills above, so a trip to Hollow Gate from the mouth goes through it, beside the Barrow-road over land. New `shaft` connections (half an hour on a rope, no horses or carts) and `mine-gallery` terrain.
 
 ## [0.27.0] - 2026-10-31
 
