@@ -305,7 +305,9 @@ async function keepSubMaps(parent: string): Promise<void> {
 /**
  * An example whose campaign other maps or trips here are in (another example map of it):
  * it joins that campaign, its world kept (the map keeps the land of the factions it has).
- * Alone in it, the example's campaign starts fresh with it. Not kept here, while other
+ * Alone in it, the example's campaign starts fresh with it. Another example of it joined
+ * one of this browser's campaigns before (`joinedBefore`): it joins that one too. Not kept
+ * here, while other
  * campaigns are (`closeCampaigns`): asks whether to join one of them or start its own.
  * Null on cancel.
  */
@@ -314,7 +316,16 @@ async function inExampleCampaign(
 ): Promise<Opening | null> {
   const id = opening.campaign.id
   await saveCurrent().catch(console.error)
-  const kept = await keptCampaign(id)
+  const kept = (await keptCampaign(id)) ?? (await joinedBefore(id, opening.map.meta.id))
+  if (kept && kept.id !== id) {
+    const map: HexMap = {
+      ...opening.map,
+      meta: { ...opening.map.meta, campaign: kept.id },
+      territories: landIn(kept, opening.map.territories),
+    }
+    if (!map.territories) delete map.territories
+    return { map }
+  }
   if (!kept) return joinOrOwn(opening)
   const others = (await campaignPlaces(id)).filter(
     (p) => p.app !== 'map' || p.id !== opening.map.meta.id,
@@ -323,6 +334,28 @@ async function inExampleCampaign(
   const map = { ...opening.map, territories: landIn(kept, opening.map.territories) }
   if (!map.territories) delete map.territories
   return { map }
+}
+
+/**
+ * The campaign kept here that another example of the same campaign joined when it was
+ * opened (its map, kept in the library under the example's id, plays in it), so the
+ * examples of one campaign stay together without asking again. Null if none did.
+ */
+async function joinedBefore(campaign: string, opening: string): Promise<Campaign | null> {
+  for (const example of exampleMaps()) {
+    if (example.id === opening) continue
+    try {
+      const bundle = JSON.parse(example.json) as { campaign?: { id?: string } }
+      if (bundle.campaign?.id !== campaign) continue
+      const entry = await getLibraryMap(example.id)
+      const joined = entry && safeOpen(entry.json)?.map.meta.campaign
+      const kept = joined && (await keptCampaign(joined))
+      if (kept) return kept
+    } catch {
+      // Not readable: it can't say where it went.
+    }
+  }
+  return null
 }
 
 /** How many campaigns an example offers to join, at most (the latest changed). */

@@ -13,6 +13,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - The Grey Marches: the Barrow-halls' and the old mine's terrains (barrow floor, mine gallery, rubble, black water) were named in English inside the maps, and stayed so in Spanish; now the system names them, in both languages.
 
+### Fixes
+
+- Map: once an example map joined one of your campaigns (a campaign of the same system, such as the one a trip in Travel plays in), every other example of its campaign asked again; now they join the same one without asking.
+
 ## [0.29.0] - 2026-11-04
 
 ### Apps

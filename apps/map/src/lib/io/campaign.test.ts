@@ -177,13 +177,28 @@ describe('a map’s campaign', () => {
     expect(editor.campaign.id).toBe('mine')
     expect(toasts.at(-1)?.message).toMatch(/campaign “The Grey Marches”, with “My Marches”/)
 
-    // Started apart instead: the example's campaign, numbered so the two can be told apart.
-    await actions.removeLibraryMap('hollowhills1')
+    // Another example of the same campaign joins it too, without asking again (the example's
+    // own campaign, never kept, would otherwise ask at every one).
+    const marches = exampleMaps().find((m) => m.id === 'greymarches1')!
+    await actions.openExampleMap(marches)
+    await settle()
+    expect(dialog.current).toBeNull()
+    expect(editor.map.meta.id).toBe('greymarches1')
+    expect(editor.campaign.id).toBe('mine')
+    expect(kept.has('grey-marches')).toBe(false)
+    await actions.removeLibraryMap('greymarches1')
+
+    // Started apart instead (none of its examples kept, its sub-maps neither, or they'd say
+    // where the campaign went): the example's campaign, numbered so the two can be told apart.
+    for (const id of ['hollowhills1', 'barrowhalls1', 'oldmine1'])
+      await actions.removeLibraryMap(id)
     opening = actions.openExampleMap(hills)
     await answer(dialog, 'own')
     await opening
     expect(editor.campaign).toMatchObject({ id: 'grey-marches', name: 'The Grey Marches (2)' })
-    expect(toasts.at(-1)?.message).toMatch(/“The Grey Marches \(2\)”, with no other maps/)
+    expect(toasts.at(-1)?.message).toMatch(
+      /“The Grey Marches \(2\)”, with “The Barrow-halls”, “The old clan mine”/,
+    )
   })
 
   it('a file whose campaign is here: join it, replace it, or keep it apart', async () => {
