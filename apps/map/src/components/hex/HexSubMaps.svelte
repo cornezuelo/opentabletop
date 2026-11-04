@@ -1,7 +1,8 @@
 <script lang="ts">
   import { placeOfCell, type HexKey } from '@open-tabletop/map'
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n/index.svelte'
+  import { localize } from '@open-tabletop/session'
+  import { getLocale, t } from '../../lib/i18n/index.svelte'
   import { openLibraryMap } from '../../lib/io/actions.svelte'
   import { addWayInto, newSubMap, waysAt, type WayHere } from '../../lib/io/submaps'
   import { partyLocation, sessionOf, step } from '../../lib/play/play'
@@ -43,6 +44,10 @@
     showToast(t('submap.headed'), 'info', 6000)
   }
 
+  /** A kind of way as the system names it for players, else its id. */
+  const kindName = (kind: string) =>
+    localize(mapSystem().rules.connections?.[kind]?.name, getLocale(), 'en') ?? kind
+
   async function create() {
     const kinds = Object.keys(mapSystem().rules.connections ?? {})
     const made = await newSubMap(
@@ -68,9 +73,15 @@
     {#each ways as way (way.dir + way.there)}
       <div class="way">
         <span class="name"
-          >{way.dir === 'in'
-            ? `↳ ${way.name || t('map.untitled')}`
-            : `↰ ${t('submap.wayOut', { name: way.name || t('map.untitled') })}`}</span
+          ><span class="arrow {way.dir}">{way.dir === 'in' ? '↓' : '↑'}</span>
+          {way.dir === 'in'
+            ? way.name || t('map.untitled')
+            : t('submap.wayOut', { name: way.name || t('map.untitled') })}
+          <small
+            >{t('submap.arrives', { cell: way.cell })}{#if way.kind}{` · ${kindName(
+                way.kind,
+              )}`}{/if}</small
+          ></span
         >
         <button onclick={() => openLibraryMap(way.map)}>{t('submap.open')}</button>
         {#if here}
@@ -113,6 +124,36 @@
     display: flex;
     align-items: center;
     gap: 6px;
+  }
+
+  .arrow {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+    border-radius: 50%;
+    font-size: 11px;
+    line-height: 16px;
+    color: #f4efe2;
+    text-align: center;
+  }
+
+  /* The colours of the ways' badges on the map. */
+  .arrow.in {
+    background: #c4561c;
+  }
+
+  .arrow.out {
+    background: #1f7a8c;
+  }
+
+  /* Where it arrives and its kind, on a line of their own under the map's name. */
+  small {
+    display: block;
+    margin-left: 18px;
+    overflow: hidden;
+    color: var(--text-muted);
+    text-overflow: ellipsis;
   }
 
   .name {

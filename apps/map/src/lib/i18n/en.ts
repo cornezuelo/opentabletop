@@ -616,6 +616,7 @@ export const en = {
     open: 'Open',
     goIn: 'Go in ↗',
     goOut: 'Go out ↗',
+    arrives: 'at {cell}',
     wayOut: 'Way out to {name}',
     new: 'New sub-map here',
     defaultName: 'Under the cell',

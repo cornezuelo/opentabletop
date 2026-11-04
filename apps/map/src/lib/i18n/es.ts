@@ -621,6 +621,7 @@ export const es: Messages = {
     open: 'Abrir',
     goIn: 'Entrar ↗',
     goOut: 'Salir ↗',
+    arrives: 'a {cell}',
     wayOut: 'Salida a {name}',
     new: 'Nuevo submapa aquí',
     defaultName: 'Bajo la casilla',

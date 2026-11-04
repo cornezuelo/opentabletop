@@ -93,12 +93,18 @@ export interface WayHere {
   name: string
   /** Where the way arrives there, as this map's world names it (`@<map>/<place>`). */
   there: string
+  /** The cell it arrives at there, as that map writes its coordinates (`0104`). */
+  cell: string
+  /** The kind of connection it is, as the system names it (`way-in`), if any. */
+  kind?: string
 }
 
 /** The ways at a cell of the open map, into its sub-maps and out of it. */
 export function waysAt(hex: string): WayHere[] {
   const end = (map: HexMap | undefined, id: string, cell: HexKey) =>
     placeOn(id, map ? placeOfCell(map, cell) : cell)
+  const coord = (map: HexMap | undefined, cell: HexKey) =>
+    map ? formatCoord(parseKey(cell), map.grid.coordFormat, map.grid) : cell
   const into = (editor.linked.children ?? []).flatMap((child) =>
     (child.meta.parent?.ways ?? [])
       .filter((w) => w.place === hex)
@@ -107,6 +113,8 @@ export function waysAt(hex: string): WayHere[] {
         map: child.meta.id,
         name: child.meta.name,
         there: end(child, child.meta.id, w.entrance),
+        cell: coord(child, w.entrance),
+        ...(w.kind && { kind: w.kind }),
       })),
   )
   const own = editor.map.meta.parent
@@ -119,6 +127,8 @@ export function waysAt(hex: string): WayHere[] {
       map: own!.map,
       name,
       there: end(parent, own!.map, w.place),
+      cell: coord(parent, w.place),
+      ...(w.kind && { kind: w.kind }),
     }))
   return [...into, ...out]
 }
