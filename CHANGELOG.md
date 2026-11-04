@@ -13,6 +13,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- The Grey Marches' manual page says what every piece of its four example maps is for (each region, place, point of interest, connection, way, token and creature) and what it sets moving in play.
+
 - The Grey Marches: the Barrow-halls' and the old mine's terrains (barrow floor, mine gallery, rubble, black water) were named in English inside the maps, and stayed so in Spanish; now the system names them, in both languages.
 
 ### Fixes
