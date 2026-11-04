@@ -191,6 +191,8 @@ export class MapRenderer {
   private regionNames: { text: Text; spots: Point[]; cells: Set<HexKey> }[] = []
   /** What region names keep clear of besides other names: connections' diamonds, ways. */
   private marks: { x: number; y: number; w: number; h: number }[] = []
+  /** …and the places' icons. */
+  private iconMarks: { x: number; y: number; w: number; h: number }[] = []
   /** The factions' territory: hatching in each one's colour, and a dashed frontier. */
   private factionShapes = new Graphics()
   /** The land of the region or faction being worked on, outlined, and the rest dimmed. */
@@ -829,7 +831,8 @@ export class MapRenderer {
   /**
    * Places the regions' names, the smallest regions' first (they have the fewest spots): each
    * on the first of its spots (moved inside the map) where it overlaps no name placed before,
-   * no cell's name and no connection's diamond or way, and lies over its own region; where none
+   * no cell's name, free label, icon, connection's diamond or way, and lies over its own region;
+   * where none
    * is, the one that overlaps least and lies most over the region.
    */
   private placeRegionNames(): void {
@@ -838,12 +841,14 @@ export class MapRenderer {
     const overlap = (a: Rect, b: Rect) =>
       Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) *
       Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y))
-    // Cells' names hang centred under a point (`caption`).
+    // Cells' names and free labels, each where its anchor puts it.
+    const placed = (c: Text) =>
+      rect(c.x - c.width * c.anchor.x, c.y - c.height * c.anchor.y, c.width, c.height)
     const taken: Rect[] = [
-      ...(this.nameLayer.children as Text[]).map((c) =>
-        rect(c.x - c.width / 2, c.y, c.width, c.height),
-      ),
+      ...(this.nameLayer.children as Text[]).map(placed),
+      ...(this.labelLayer.children as Text[]).filter((c) => c instanceof Text).map(placed),
       ...this.marks,
+      ...this.iconMarks,
     ]
     // A name near the map's edge is moved in, so none is cut off by it.
     const map = this.gridLines.getLocalBounds()
@@ -1072,6 +1077,7 @@ export class MapRenderer {
       this.labelTexts.set(label.id, text)
     }
     this.updateLabelResolution()
+    this.placeRegionNames()
   }
 
   /** Trail and route of the party (play mode); the party itself is a token. */
@@ -1313,6 +1319,7 @@ export class MapRenderer {
 
   private drawIcons(): void {
     for (const child of this.iconLayer.removeChildren()) child.destroy()
+    this.iconMarks = []
     const { grid, hexes, assets } = editor.map
     const halos = new Graphics()
     this.iconLayer.addChild(halos)
@@ -1328,6 +1335,7 @@ export class MapRenderer {
       const center = this.centerOf(cell)
       const x = center.x + (icon.offset?.[0] ?? 0) * grid.hexSize
       const cy = center.y + grid.hexSize * ((icon.offset?.[1] ?? 0) + ICON_OFFSET_Y)
+      this.iconMarks.push({ x: x - size / 2, y: cy - size / 2, w: size, h: size })
       if (icon.halo)
         halos
           .circle(x, cy, size * (icon.haloSize ?? ICON_DEFAULTS.haloSize))
