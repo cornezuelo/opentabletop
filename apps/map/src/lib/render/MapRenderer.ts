@@ -104,8 +104,12 @@ const CONNECTION_COLOR = 0x5b3a8c
 /** One the trip going on can't cross now: greyed, its diamond crossed out. */
 const SHUT_COLOR = 0x8a8478
 const CONNECTION_OUTLINE = 0xf4efe2
-/** The dark inside of a way into another map, a mouth in the ground. */
-const WAY_MOUTH = 0x1d1726
+/**
+ * Ways between maps, drawn as a badge with an arrow, in colours no terrain or connection
+ * has: down into a sub-map, up out to the parent map.
+ */
+const WAY_IN = 0xc4561c
+const WAY_OUT = 0x1f7a8c
 const DRAFT_COLOR = 0xffffff
 const HANDLE_COLOR = 0xffffff
 const HANDLE_OUTLINE = 0x1b1a17
@@ -168,6 +172,8 @@ export class MapRenderer {
   /** Connections drawn between places (bridges, gates, tunnels…). */
   private connectionLayer = new Graphics()
   private iconLayer = new Container()
+  /** The ways into sub-maps and out to the parent map, above the places' icons. */
+  private wayLayer = new Graphics()
   private iconTextures = new IconTextures(() => {
     this.drawGlyphs()
     this.drawIcons()
@@ -237,6 +243,7 @@ export class MapRenderer {
       this.pathsLayer,
       this.connectionLayer,
       this.iconLayer,
+      this.wayLayer,
       this.nameLayer,
       this.coordLayer,
       this.labelLayer,
@@ -897,8 +904,22 @@ export class MapRenderer {
         g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round' })
       }
     }
-    // The ways into sub-maps and, on a sub-map, out of it, drawn as a mouth in the ground: a
-    // dark arch with steps going down into it, or a chevron up to the daylight.
+    this.drawWays()
+    const start = editor.connectionStart
+    if (start && inBounds(parseKey(start), grid)) {
+      g.poly(this.cornersAt(parseKey(start)))
+      g.stroke({ width: 0.08 * hexSize, color: CONNECTION_COLOR })
+    }
+  }
+
+  /**
+   * The ways into sub-maps and, on a sub-map, out of it, drawn above the places' icons as a
+   * badge in the cell's lower left: an arrow down into the sub-map, or up out to its parent.
+   */
+  private drawWays(): void {
+    const g = this.wayLayer.clear()
+    const { grid } = editor.map
+    const { hexSize } = grid
     const ways: [HexKey, 'in' | 'out'][] = [
       ...(editor.linked.children ?? []).flatMap((c) =>
         (c.meta.parent?.ways ?? []).map((w): [HexKey, 'in'] => [w.place, 'in']),
@@ -909,36 +930,19 @@ export class MapRenderer {
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
-      const at = { x: c.x - 0.4 * hexSize, y: c.y + 0.38 * hexSize }
-      const r = 0.22 * hexSize
-      const w = r * 0.95
-      const top = at.y - r * 0.15
-      g.moveTo(at.x - w, at.y + r)
-        .lineTo(at.x - w, top)
-        .arc(at.x, top, w, Math.PI, 0)
-        .lineTo(at.x + w, at.y + r)
-        .closePath()
-      g.fill({ color: WAY_MOUTH })
-      g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE, join: 'round' })
-      if (way === 'in')
-        // Steps narrowing as they go down, deeper the higher in the arch.
-        for (let i = 0; i < 3; i++) {
-          const y = at.y + r * (0.7 - i * 0.42)
-          const half = w * (0.7 - i * 0.18)
-          g.moveTo(at.x - half, y).lineTo(at.x + half, y)
-        }
-      else {
-        const s = w * 0.55
-        g.moveTo(at.x - s, at.y + s * 0.5)
-          .lineTo(at.x, at.y - s * 0.5)
-          .lineTo(at.x + s, at.y + s * 0.5)
-      }
-      g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', join: 'round' })
-    }
-    const start = editor.connectionStart
-    if (start && inBounds(parseKey(start), grid)) {
-      g.poly(this.cornersAt(parseKey(start)))
-      g.stroke({ width: 0.08 * hexSize, color: CONNECTION_COLOR })
+      const at = { x: c.x - 0.42 * hexSize, y: c.y + 0.36 * hexSize }
+      const r = 0.25 * hexSize
+      g.circle(at.x, at.y, r)
+      g.fill({ color: way === 'in' ? WAY_IN : WAY_OUT })
+      g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE })
+      // The arrow: a shaft and its head, pointing down (in) or up (out).
+      const d = way === 'in' ? 1 : -1
+      const len = r * 0.55
+      const head = r * 0.4
+      g.moveTo(at.x, at.y - d * len).lineTo(at.x, at.y + d * len)
+      g.moveTo(at.x - head, at.y + d * (len - head)).lineTo(at.x, at.y + d * len)
+      g.lineTo(at.x + head, at.y + d * (len - head))
+      g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', join: 'round' })
     }
   }
 
@@ -1394,6 +1398,7 @@ export class MapRenderer {
     this.wallLines.visible = layers.walls?.visible ?? true
     this.pathsLayer.visible = layers.paths.visible
     this.connectionLayer.visible = layers.connections?.visible ?? true
+    this.wayLayer.visible = this.connectionLayer.visible
     this.iconLayer.visible = layers.icons.visible
     this.labelLayer.visible = layers.labels.visible
     this.nameLayer.visible = editor.map.captions.hexNames.show

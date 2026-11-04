@@ -5,7 +5,10 @@
   import { getSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
 
-  /** Under the map: what holds the hex under the pointer, its region and its faction. */
+  /**
+   * Under the map: what holds the cell under the pointer, its region and its faction, and
+   * where its ways lead (down into a sub-map, up out to the map above).
+   */
   const line = $derived.by(() => {
     const key = editor.hoveredHex
     if (!key) return ''
@@ -19,9 +22,20 @@
       own && Object.keys(own.territories).find((id) => own.territories[id].includes(key))
     const system = own && getSystem(own.system).factions
     const faction = holder && (system ? factionName(system, holder, getLocale()) : holder)
+    const untitled = t('map.untitled')
+    const into = (editor.linked.children ?? [])
+      .filter((c) => c.meta.parent?.ways?.some((w) => w.place === key))
+      .map((c) => t('hover.into', { name: c.meta.name || untitled }))
+    const parent = editor.linked.parent
+    const out =
+      parent && editor.map.meta.parent?.ways?.some((w) => w.entrance === key)
+        ? t('hover.out', { name: parent.meta.name || untitled })
+        : ''
     return [
       region && t('hover.region', { name: region }),
       faction && t('hover.faction', { name: faction }),
+      ...into,
+      out,
     ]
       .filter(Boolean)
       .join(' · ')

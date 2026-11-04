@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Map opens with the **Select** tool, so a first click on the map shows a cell instead of painting it.
+- Map: **ways between maps read at a glance**: drawn above the places' icons as an orange badge with an arrow down (into a sub-map) or a blue one with an arrow up (out to the map above), instead of a dark arch hidden behind the icon; the line under the map says where the cell under the pointer leads (_↓ Into The Barrow-halls_).
 - Systems, Map and Travel: a system **names its own terrains** (Systems → Rules → Terrains: **Name**; `terrains.<id>.name` in a pack, translated in `locales/`), shown in Map's palette, the cell's panel, the journal and Travel's way unless the map's palette names the terrain itself. Travel's way also shows the names a system gives its kinds of connection.
 
 ### Packs

@@ -10,6 +10,8 @@ export const es: Messages = {
   hover: {
     region: `${vocabulary.es.terms.region}: {name}`,
     faction: 'Facción: {name}',
+    into: '↓ Hacia {name}',
+    out: '↑ Sale a {name}',
   },
   tools: {
     label: 'Herramientas',
