@@ -182,6 +182,15 @@ export class MapRenderer {
   /** Regions: tint, inner border along the outline, and the name. */
   private regionLayer = new Container()
   private regionShapes = new Graphics()
+  /**
+   * Regions' names, above connections and ways, each placed where it overlaps no other
+   * name (`placeRegionNames`).
+   */
+  private regionNameLayer = new Container()
+  /** Each region name and the points it may stand on, the best first. */
+  private regionNames: { text: Text; spots: Point[]; cells: Set<HexKey> }[] = []
+  /** What region names keep clear of besides other names: connections' diamonds, ways. */
+  private marks: { x: number; y: number; w: number; h: number }[] = []
   /** The factions' territory: hatching in each one's colour, and a dashed frontier. */
   private factionShapes = new Graphics()
   /** The land of the region or faction being worked on, outlined, and the rest dimmed. */
@@ -245,6 +254,7 @@ export class MapRenderer {
       this.iconLayer,
       this.wayLayer,
       this.nameLayer,
+      this.regionNameLayer,
       this.coordLayer,
       this.labelLayer,
       this.partyLayer,
@@ -687,6 +697,7 @@ export class MapRenderer {
       territories: own?.territories ?? {},
     })
     this.regionLayer.alpha = focus.regionsAlpha
+    this.regionNameLayer.alpha = focus.regionsAlpha
     this.factionShapes.alpha = focus.factionsAlpha
     // A hidden layer (Layers) shows nothing chosen on it either.
     const hidden =
@@ -717,6 +728,8 @@ export class MapRenderer {
     for (const child of this.regionLayer.removeChildren())
       if (child !== this.regionShapes) child.destroy()
     this.regionLayer.addChild(this.regionShapes)
+    for (const child of this.regionNameLayer.removeChildren()) child.destroy()
+    this.regionNames = []
     const g = this.regionShapes.clear()
     const { grid, hexes, regions } = editor.map
     this.drawSelection()
@@ -791,7 +804,85 @@ export class MapRenderer {
         region.nameStyle,
       )
       text.alpha = 0.9
-      this.regionLayer.addChild(text)
+      // Never wider than the region (and a cell): a long name in a small room shrinks.
+      const xs = cells.map((cell) => this.centerOf(cell).x)
+      const room = Math.max(...xs) - Math.min(...xs) + this.cellWidth(cells[0])
+      if (text.width > room) text.scale.set(Math.max(0.55, room / text.width))
+      // Where it may stand: its middle, then its own cells (not those of regions inside it)
+      // from the nearest to the middle.
+      const own = cells.filter((cell) => hexes[keyOf(cell)]?.region === region.id)
+      const spots = [center, ...(own.length ? own : cells).map((cell) => this.centerOf(cell))]
+      const far = (p: Point) => Math.hypot(p.x - center.x, p.y - center.y)
+      spots.sort((a, b) => far(a) - far(b))
+      this.regionNames.push({ text, spots, cells: new Set(cells.map(keyOf)) })
+      this.regionNameLayer.addChild(text)
+    }
+    this.placeRegionNames()
+  }
+
+  /** A cell's width on screen, from its corners. */
+  private cellWidth(cell: Offset): number {
+    const xs = this.cornersAt(cell).filter((_, i) => i % 2 === 0)
+    return Math.max(...xs) - Math.min(...xs)
+  }
+
+  /**
+   * Places the regions' names, the smallest regions' first (they have the fewest spots): each
+   * on the first of its spots (moved inside the map) where it overlaps no name placed before,
+   * no cell's name and no connection's diamond or way, and lies over its own region; where none
+   * is, the one that overlaps least and lies most over the region.
+   */
+  private placeRegionNames(): void {
+    const rect = (x: number, y: number, w: number, h: number) => ({ x, y, w, h })
+    type Rect = ReturnType<typeof rect>
+    const overlap = (a: Rect, b: Rect) =>
+      Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) *
+      Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y))
+    // Cells' names hang centred under a point (`caption`).
+    const taken: Rect[] = [
+      ...(this.nameLayer.children as Text[]).map((c) =>
+        rect(c.x - c.width / 2, c.y, c.width, c.height),
+      ),
+      ...this.marks,
+    ]
+    // A name near the map's edge is moved in, so none is cut off by it.
+    const map = this.gridLines.getLocalBounds()
+    const within = (v: number, half: number, from: number, size: number) =>
+      size <= 2 * half ? from + size / 2 : Math.min(Math.max(v, from + half), from + size - half)
+    const names = [...this.regionNames].sort((a, b) => a.spots.length - b.spots.length)
+    const { grid } = editor.map
+    /** How much of a name standing at a point lies over its region's cells, from 0 to 1. */
+    const over = (at: Point, w: number, cells: Set<HexKey>) => {
+      let n = 0
+      for (let i = 0; i <= 8; i++) {
+        const p = { x: at.x - w / 2 + (w * i) / 8, y: at.y }
+        if (cells.has(keyOf(cellAt(p, grid, grid.hexSize)))) n++
+      }
+      return n / 9
+    }
+    for (const { text, spots, cells } of names) {
+      const { width: w, height: h } = text
+      let best: { at: Point; cost: number } | null = null
+      // Then each spot a line above or below, for a room too small to hold it elsewhere.
+      const shifted = [-1, 1].flatMap((d) => spots.map((p) => ({ x: p.x, y: p.y + d * h })))
+      for (const spot of [...spots, ...shifted]) {
+        const at =
+          map.width > 0
+            ? {
+                x: within(spot.x, w / 2, map.x, map.width),
+                y: within(spot.y, h / 2, map.y, map.height),
+              }
+            : spot
+        const r = rect(at.x - w / 2, at.y - h / 2, w, h)
+        // Overlapping something costs most; standing off its region, less.
+        const cost =
+          taken.reduce((sum, t) => sum + overlap(r, t), 0) + ((1 - over(at, w, cells)) * w * h) / 3
+        if (!best || cost < best.cost) best = { at, cost }
+        if (cost === 0) break
+      }
+      if (!best) continue
+      text.position.set(best.at.x, best.at.y)
+      taken.push(rect(best.at.x - w / 2, best.at.y - h / 2, w, h))
     }
   }
 
@@ -875,6 +966,7 @@ export class MapRenderer {
     const { grid } = editor.map
     const { hexSize } = grid
     const now = connectionsNow()
+    this.marks = []
     for (const connection of editor.map.connections) {
       const [a, b] = connection.between.map(parseKey)
       if (!inBounds(a, grid) || !inBounds(b, grid)) continue
@@ -894,6 +986,7 @@ export class MapRenderer {
       g.stroke({ width: 0.13 * hexSize, color, cap: 'round' })
       const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 }
       const r = 0.26 * hexSize
+      this.marks.push({ x: mid.x - r, y: mid.y - r, w: 2 * r, h: 2 * r })
       g.poly([mid.x, mid.y - r, mid.x + r, mid.y, mid.x, mid.y + r, mid.x - r, mid.y])
       g.fill({ color })
       g.stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
@@ -905,6 +998,7 @@ export class MapRenderer {
       }
     }
     this.drawWays()
+    this.placeRegionNames()
     const start = editor.connectionStart
     if (start && inBounds(parseKey(start), grid)) {
       g.poly(this.cornersAt(parseKey(start)))
@@ -932,6 +1026,7 @@ export class MapRenderer {
       const c = this.centerOf(cell)
       const at = { x: c.x - 0.42 * hexSize, y: c.y + 0.36 * hexSize }
       const r = 0.25 * hexSize
+      this.marks.push({ x: at.x - r, y: at.y - r, w: 2 * r, h: 2 * r })
       g.circle(at.x, at.y, r)
       g.fill({ color: way === 'in' ? WAY_IN : WAY_OUT })
       g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE })
@@ -1280,6 +1375,7 @@ export class MapRenderer {
         this.caption('hexNames', hex.name, c.x, c.y + hs * 0.5, {}, hex.nameStyle),
       )
     }
+    this.placeRegionNames()
   }
 
   /**
@@ -1392,6 +1488,7 @@ export class MapRenderer {
     this.terrainLayer.visible = layers.terrain.visible
     this.glyphLayer.visible = layers.terrain.visible
     this.regionLayer.visible = layers.regions.visible
+    this.regionNameLayer.visible = layers.regions.visible
     this.factionShapes.visible = layers.factions?.visible ?? true
     this.drawSelection()
     this.gridLines.visible = layers.grid.visible
