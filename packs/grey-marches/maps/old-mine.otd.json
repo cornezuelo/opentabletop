@@ -48,21 +48,18 @@
       "terrains": [
         {
           "id": "mine-gallery",
-          "name": "Mine gallery",
           "color": "#7d7462",
           "glyph": "game:mining",
           "floor": true
         },
         {
           "id": "rubble",
-          "name": "Rubble",
           "color": "#6b6355",
           "glyph": "game:stone-pile",
           "floor": true
         },
         {
           "id": "black-water",
-          "name": "Black water",
           "color": "#1f2a33",
           "glyph": "game:wave-crest",
           "water": true,

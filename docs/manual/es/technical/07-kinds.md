@@ -164,6 +164,7 @@ terrains:
   forest: { multiplier: 0.5 }
   peaks: { multiplier: 0.25, passable: { when: { time.season: summer } } }
   lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # helado en pleno invierno
+  crypt-floor: { name: Crypt floor, multiplier: 1 } # un terreno propio, con nombre para los jugadores
 defaultTerrain: { multiplier: 1 } # velocidad × de los terrenos no listados
 water: { passable: false } # casillas de agua sin regla propia
 connections: # por un camino o río; por una puerta dibujada en el mapa

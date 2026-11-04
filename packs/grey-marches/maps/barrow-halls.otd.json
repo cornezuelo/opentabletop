@@ -38,21 +38,18 @@
       "terrains": [
         {
           "id": "barrow-floor",
-          "name": "Barrow floor",
           "color": "#8a7f6a",
           "glyph": "game:tombstone",
           "floor": true
         },
         {
           "id": "rubble",
-          "name": "Rubble",
           "color": "#6b6355",
           "glyph": "game:stone-pile",
           "floor": true
         },
         {
           "id": "black-water",
-          "name": "Black water",
           "color": "#1f2a33",
           "glyph": "game:wave-crest",
           "water": true,

@@ -140,7 +140,7 @@
 
   const hexLabel = (hex: string) => {
     const h = trip.saved.way[Number(hex)]
-    return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain)})` : ''}`
+    return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain, { system, locale })})` : ''}`
   }
 </script>
 
@@ -225,7 +225,7 @@
             ref: `hex:${i}`,
             label: hexLabel(String(i)),
           }))}
-          terrainName={(id) => terrainName(t, id)}
+          terrainName={(id) => terrainName(t, id, { system, locale })}
           world={wayWorld(trip.saved.way, trip.cellKm)}
           title={tripLabel(trip.saved)}
           {nameOf}

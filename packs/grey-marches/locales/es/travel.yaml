@@ -234,6 +234,13 @@ travel-rules/default:
     IN_CIRCLES:
       name: Dando vueltas
       description: Entrar por tercera vez en un mismo hex durante un viaje. Moral −1.
+  terrains:
+    barrow-floor:
+      name: Suelo del túmulo
+    mine-gallery:
+      name: Galería de mina
+    black-water:
+      name: Agua negra
   connections:
     ford:
       name: Vado

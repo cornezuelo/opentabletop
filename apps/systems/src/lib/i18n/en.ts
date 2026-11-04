@@ -705,6 +705,8 @@ export const en = {
     terrainsHelp:
       'How each terrain changes the speed, and whether it can be entered. Terrain ids are the ones the map uses:\n• `forest` × `0.5` — half as fast\n• `plains` × `1` — normal speed\n• `peaks` × `0.25`, **Open when** `time.season: summer`\nTerrains not listed use **Speed × for terrains not listed**.',
     terrain: vocabulary.en.terms.terrain,
+    terrainNameHelp:
+      "What players read for this terrain in Map's palette, the cell's panel and the journal, for a terrain of the system's own:\n• `mine-gallery` → _Mine gallery_\n• `black-water` → _Black water_\nWritten in the current language: the pack's own, or its translation file (`locales/<language>/`) when the interface is in another one. A map's palette may still name it its own way (**Edit palette**). Empty: the app's name for the usual ones (forest, hills…), or the id.",
     multiplier: 'Speed ×',
     multiplierHelp:
       'How fast this terrain is crossed, compared with easy ground:\n• `1` — normal speed\n• `0.5` — half as fast\n• `0.25` — a quarter\n• `2` — twice as fast\nFor example, with a way of travelling of 24 km a day and 12 km cells, a cell at `0.5` takes a whole marching day.',

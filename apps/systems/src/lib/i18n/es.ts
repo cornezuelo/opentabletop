@@ -715,6 +715,8 @@ export const es: Messages<typeof en> = {
     terrainsHelp:
       'Cómo cambia la velocidad cada terreno, y si se puede entrar. Los ids son los que usa el mapa:\n• `forest` × `0.5` — a la mitad\n• `plains` × `1` — velocidad normal\n• `peaks` × `0.25`, **Abierto cuando** `time.season: summer`\nLos terrenos no listados usan **Velocidad × de los terrenos no listados**.',
     terrain: vocabulary.es.terms.terrain,
+    terrainNameHelp:
+      'Lo que leen los jugadores de este terreno en la paleta de Map, el panel de la casilla y el diario, para un terreno propio del sistema:\n• `mine-gallery` → _Galería de mina_\n• `black-water` → _Agua negra_\nSe escribe en el idioma actual: el del pack, o su fichero de traducción (`locales/<idioma>/`) si la interfaz está en otro. La paleta de un mapa aún puede llamarlo a su manera (**Editar paleta**). Vacío: el nombre de la aplicación para los habituales (bosque, colinas…), o el id.',
     multiplier: 'Velocidad ×',
     multiplierHelp:
       'Lo rápido que se cruza este terreno, comparado con el terreno fácil:\n• `1` — velocidad normal\n• `0.5` — a la mitad\n• `0.25` — a un cuarto\n• `2` — el doble de rápido\nPor ejemplo, con una forma de viajar de 24 km al día y casillas de 12 km, una casilla a `0.5` lleva un día entero de marcha.',

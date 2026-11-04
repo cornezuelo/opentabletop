@@ -45,10 +45,13 @@ terrains:
     passable: { when: { time.month: [deepwinter, wolfmoon] } }
   # Underground, in the Barrow-halls (a sub-map of the Hollow Hills): halls and fallen stone;
   # and the clans' old mine under the mountains (a sub-map crossed, with three ways): its
-  # galleries, quicker than the hills above.
-  barrow-floor: { multiplier: 1 }
-  mine-gallery: { multiplier: 1 }
+  # galleries, quicker than the hills above. The system names its own terrains (translated in
+  # locales/), so the maps' palettes don't; black water is water, but listed here for its
+  # name, so it says itself that nobody crosses it (a listed terrain's rule wins over water's).
+  barrow-floor: { name: Barrow floor, multiplier: 1 }
+  mine-gallery: { name: Mine gallery, multiplier: 1 }
   rubble: { multiplier: 0.5 }
+  black-water: { name: Black water, passable: false }
 # Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…
 water: { passable: false }
 defaultTerrain: { multiplier: 1 }

@@ -720,7 +720,7 @@ export class TripStore {
     const t = translator(this.options.locale)
     const hexLabel = (hex: string) => {
       const h = this.saved.way[Number(hex)]
-      return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain)})` : ''}`
+      return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain, { system: this.system, locale: this.options.locale() })})` : ''}`
     }
     const context = { rules: this.system.rules, locale: this.options.locale(), hexLabel }
     return entries.flatMap((e) => {

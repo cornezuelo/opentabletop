@@ -133,7 +133,7 @@ class Editor {
   canUndo = $state(false)
   canRedo = $state(false)
 
-  #tool = $state<ToolId>('terrain')
+  #tool = $state<ToolId>('select')
   /**
    * The active tool. Changing it drops what the previous tool had selected (hex, icon,
    * label, token), so no outline or panel is left for something you can't edit now.

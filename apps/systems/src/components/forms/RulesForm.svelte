@@ -265,6 +265,7 @@
       nameOf={terrainName}
       template={{ multiplier: 1 }}
       columns={[
+        { field: 'name', label: t('rules.name'), help: t('rules.terrainNameHelp'), type: 'text' },
         {
           field: 'multiplier',
           label: t('rules.multiplier'),

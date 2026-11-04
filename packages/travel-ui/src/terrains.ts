@@ -1,4 +1,4 @@
-import type { TravelSystem } from '@open-tabletop/session'
+import { localize, type TravelSystem } from '@open-tabletop/session'
 import { vocabulary } from '@open-tabletop/ui-kit'
 import { idText, type Translate } from './i18n'
 
@@ -15,7 +15,15 @@ export function connectionChoices(system: TravelSystem): string[] {
   return [...new Set(['road', 'trail', 'river', ...Object.keys(system.rules.connections ?? {})])]
 }
 
-export const terrainName = (t: Translate, id: string): string => idText(t, `terrains.${id}`, id)
+/** Where a system's own names are read: the system and the language shown. */
+export type NamedBy = { system: TravelSystem; locale: string }
 
-export const connectionName = (t: Translate, id: string): string =>
+/** The name the system gives a terrain, then the app's for the usual ones, then the id. */
+export const terrainName = (t: Translate, id: string, by?: NamedBy): string =>
+  (by && localize(by.system.rules.terrains[id]?.name, by.locale, 'en')) ||
+  idText(t, `terrains.${id}`, id)
+
+/** The name the system gives a kind of connection, then the app's, then the id. */
+export const connectionName = (t: Translate, id: string, by?: NamedBy): string =>
+  (by && localize(by.system.rules.connections?.[id]?.name, by.locale, 'en')) ||
   idText(t, `connectionKinds.${id}`, id)

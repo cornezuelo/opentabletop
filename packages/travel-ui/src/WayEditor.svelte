@@ -65,7 +65,9 @@
             trip.updateHex(i, (h) => ({ ...h, terrain }))
           }}
         >
-          {#each terrains as id (id)}<option value={id}>{terrainName(t, id)}</option>{/each}
+          {#each terrains as id (id)}<option value={id}
+              >{terrainName(t, id, { system, locale })}</option
+            >{/each}
         </select>
         <TagInput
           label={t('play.tags')}
@@ -106,7 +108,7 @@
                     }))
                   }}
                 />
-                {connectionName(t, kind)}
+                {connectionName(t, kind, { system, locale })}
               </label>
             {/each}
           </div>

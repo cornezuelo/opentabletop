@@ -4,6 +4,15 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map opens with the **Select** tool, so a first click on the map shows a cell instead of painting it.
+- Systems, Map and Travel: a system **names its own terrains** (Systems → Rules → Terrains: **Name**; `terrains.<id>.name` in a pack, translated in `locales/`), shown in Map's palette, the cell's panel, the journal and Travel's way unless the map's palette names the terrain itself. Travel's way also shows the names a system gives its kinds of connection.
+
+### Packs
+
+- The Grey Marches: the Barrow-halls' and the old mine's terrains (barrow floor, mine gallery, rubble, black water) were named in English inside the maps, and stayed so in Spanish; now the system names them, in both languages.
+
 ## [0.29.0] - 2026-11-04
 
 ### Apps

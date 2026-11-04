@@ -1,13 +1,13 @@
 <script lang="ts">
   import { confirmAction, helpMarkdown, tooltip } from '@open-tabletop/ui-kit'
   import { SetTerrainsCommand, terrainUsage } from '../lib/commands/terrains'
-  import { en } from '../lib/i18n/en'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { newId, TERRAIN_SETS, type TerrainSet, type TerrainType } from '@open-tabletop/map'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { editor } from '../lib/store/editor.svelte'
   import { builtinSvg, getBuiltinIcon } from '../lib/icons/registry'
   import GlyphPicker from './GlyphPicker.svelte'
+  import { terrainName } from '../lib/terrainName'
 
   /** Terrain whose glyph picker is open. */
   let picking = $state<string | null>(null)
@@ -19,8 +19,10 @@
     return terrainUsage(editor.map)
   })
 
+  /** The name without the map's own: the system's, the app's for built-in ids, or none. */
   function defaultName(terrain: TerrainType): string {
-    return terrain.id in en.terrains ? t(`terrains.${terrain.id}` as MessageKey) : ''
+    const name = terrainName({ ...terrain, name: undefined })
+    return name === terrain.id ? '' : name
   }
 
   function update(id: string, patch: Partial<TerrainType>) {

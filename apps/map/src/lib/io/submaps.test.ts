@@ -190,4 +190,30 @@ describe('sub-maps', () => {
     expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('12,11')
     expect(partyToken(editor.map)?.hex).toBe('12,11')
   })
+
+  it("the examples' own terrains are called what the system names them, in each language", async () => {
+    vi.resetModules()
+    const actions = await import('./actions.svelte')
+    const { exampleMaps } = await import('./examples')
+    const { editor } = await import('../store/editor.svelte')
+    const { setLocale } = await import('../i18n/index.svelte')
+    const { terrainName } = await import('../terrainName')
+    await actions.openExampleMap(exampleMaps().find((m) => m.id === 'hollowhills1')!)
+    await settle()
+    await actions.openLibraryMap('oldmine1')
+    await settle()
+    expect(editor.map.meta.id).toBe('oldmine1')
+    // The map's palette names none of them: the system does, or the app for the usual ones.
+    expect(editor.map.terrains.every((x) => !x.name)).toBe(true)
+    const names = () => editor.map.terrains.map(terrainName)
+    expect(names()).toEqual(['Mine gallery', 'Rubble', 'Black water'])
+    // The language is set on the page too: a bare one is enough here.
+    vi.stubGlobal('document', { documentElement: {} })
+    setLocale('es')
+    expect(names()).toEqual(['Galería de mina', 'Escombros', 'Agua negra'])
+    setLocale('en')
+    vi.unstubAllGlobals()
+    // A name written in the map's palette still wins.
+    expect(terrainName({ ...editor.map.terrains[0], name: 'Old drift' })).toBe('Old drift')
+  })
 })

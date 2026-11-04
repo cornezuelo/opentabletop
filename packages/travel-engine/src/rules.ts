@@ -416,6 +416,9 @@ export const travelRulesSchema = z
       z.string(),
       z
         .object({
+          /** What players read: "Mine gallery" (translated in locales/), over the app's name. */
+          name: text.optional(),
+          description: text.optional(),
           multiplier: z.number().nonnegative().optional(),
           passable: passable.optional(),
         })

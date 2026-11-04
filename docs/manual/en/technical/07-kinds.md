@@ -165,6 +165,7 @@ terrains:
   forest: { multiplier: 0.5 }
   peaks: { multiplier: 0.25, passable: { when: { time.season: summer } } }
   lake: { multiplier: 0.5, passable: { when: { time.month: [1, 12] } } } # frozen in deep winter
+  crypt-floor: { name: Crypt floor, multiplier: 1 } # a terrain of its own, named for players
 defaultTerrain: { multiplier: 1 } # speed × for terrains not listed
 water: { passable: false } # water cells without a rule of their own
 connections: # along a road or river; through a door drawn on the map
