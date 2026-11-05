@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-11-05
+
 ### Apps
 
 - Systems: where a faction **starts** is a condition on the cell (**Starts on**: `place.region: The Vale`, `place.tags: fort`, `any: […]`), on any map its factions are brought to, instead of regions by name and cells on one example map; a cell two factions want goes to the later one.
