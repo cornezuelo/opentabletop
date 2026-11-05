@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-11-05
+
 ### Apps
 
 - Map: **styles**. How a map is drawn is its style, chosen in **Map settings → Style** from every loaded pack's (`kind: style`): the grid's line, the terrains' glyphs, the cells' coordinates, the names and the regions. Choosing one copies its settings into the map, which changes them freely after (Ctrl+Z puts the previous look back). Maps v36.
