@@ -667,6 +667,7 @@ export const es: Messages = {
     away: 'El viaje sigue en {name}.',
     awayHere: 'El viaje sigue en otro mapa (Jugar dice cuál): ábrelo para seguir jugando.',
     openAway: 'Abrirlo',
+    confirmNewTrip: '¿Empezar un viaje nuevo aquí? El viaje de {name} se queda allí, donde está.',
   },
   path: {
     help: 'Haz clic o arrastra por las casillas. Clic en la última casilla, clic derecho o Enter para terminar.',

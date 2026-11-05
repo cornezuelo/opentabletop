@@ -72,6 +72,12 @@ export function partyLocation(): HexKey | undefined {
   return partyToken(editor.map)?.hex
 }
 
+/** Whether the party stands at this cell's place: on it, or anywhere in its room. */
+export function partyAt(key: HexKey): boolean {
+  const location = partyLocation()
+  return !!location && placeOfCell(editor.map, location) === placeOfCell(editor.map, key)
+}
+
 /**
  * Moves the party token (creating it the first time). Like the rest of play, outside
  * the editor's undo history.
@@ -211,7 +217,8 @@ export async function restartRules(system: string, season: Season): Promise<bool
 }
 
 function newTrip(system: string, season: Season): void {
-  const play = current()
+  // A new trip here: the one gone to another map stays there, and this map plays again.
+  const { away: _, ...play } = current()
   const location = partyLocation()
   if (!location)
     return save({

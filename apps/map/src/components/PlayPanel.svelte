@@ -152,7 +152,9 @@
     startNote={editor.world ? t('play.worldStart') : undefined}
     systemNote={t('play.systemNote')}
     onrestart={async (system, season) =>
-      (!session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
+      (play?.away
+        ? await confirmAction(t('submap.confirmNewTrip', { name: awayName(play.away) }))
+        : !session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
       restartRules(system, season)}
   />
   {#if !travels(system)}

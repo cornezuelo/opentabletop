@@ -197,6 +197,57 @@ describe('sub-maps', () => {
     expect(partyToken(editor.map)?.hex).toBe('12,11')
   })
 
+  it('the trip goes down the Barrow-halls’ stair and back out by it', async () => {
+    vi.resetModules()
+    const actions = await import('./actions.svelte')
+    const { exampleMaps } = await import('./examples')
+    const { editor } = await import('../store/editor.svelte')
+    const { loadLinks, waysAt } = await import('./submaps')
+    const play = await import('../play/play')
+    await actions.openExampleMap(exampleMaps().find((m) => m.id === 'hollowhills1')!)
+    await settle()
+    await loadLinks()
+    editor.tool = 'play'
+    play.setMode('rules')
+    play.partyMoved('10,8')
+    const trip = () => play.sessionOf(editor.map.play!)!
+    const march = async (done: () => boolean) => {
+      for (let i = 0; i < 20 && !done(); i++) {
+        for (const c of trip().travel.pendingChecks) play.resolvePending(c.id)
+        play.step({ type: 'action', id: 'march', with: { until: 'place' } })
+        await settle()
+      }
+    }
+    play.step({ type: 'setDestination', place: waysAt('10,8')[0]!.there })
+    await march(() => editor.map.meta.id === 'barrowhalls1')
+    expect(editor.map.meta.id).toBe('barrowhalls1')
+    await loadLinks()
+
+    // The stair is a room: the party stands in it, and the way out is offered from it.
+    expect(trip().travel.location).toBe('area:barrowstair1')
+    const [out] = waysAt('0,3')
+    expect(out).toMatchObject({ dir: 'out', map: 'hollowhills1' })
+    expect(play.partyAt('0,3')).toBe(true)
+    expect(play.partyAt('1,3')).toBe(false)
+
+    play.step({ type: 'setDestination', place: out!.there })
+    await march(() => editor.map.meta.id === 'hollowhills1')
+    expect(editor.map.meta.id).toBe('hollowhills1')
+    expect(trip().travel.location).toBe('10,8')
+
+    // Down again and back to the hills by hand: the trip is below, a new one starts here.
+    await loadLinks()
+    play.step({ type: 'setDestination', place: waysAt('10,8')[0]!.there })
+    await march(() => editor.map.meta.id === 'barrowhalls1')
+    await actions.openLibraryMap('hollowhills1')
+    await settle()
+    expect(editor.map.play?.away).toBe('barrowhalls1')
+    expect(await play.restartRules('grey-marches', 'spring')).toBe(true)
+    expect(editor.map.play?.away).toBeUndefined()
+    play.clickHex('9,8')
+    expect(trip().travel.destination).toBe('9,8')
+  })
+
   it('the Hollow Hills are the Marches up close: in at Fort Keld, on to the watch-cairn', async () => {
     vi.resetModules()
     const actions = await import('./actions.svelte')

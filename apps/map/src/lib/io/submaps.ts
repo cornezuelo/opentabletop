@@ -107,9 +107,12 @@ export function waysAt(hex: string): WayHere[] {
     placeOn(id, map ? placeOfCell(map, cell) : cell)
   const coord = (map: HexMap | undefined, cell: HexKey) =>
     map ? formatCoord(parseKey(cell), map.grid.coordFormat, map.grid) : cell
+  /** Whether a way's cell is at the same place: a way in a room is taken from all of it. */
+  const here = placeOfCell(editor.map, hex)
+  const at = (cell: HexKey) => placeOfCell(editor.map, cell) === here
   const into = (editor.linked.children ?? []).flatMap((child) =>
     (child.meta.parent?.ways ?? [])
-      .filter((w) => w.place === hex)
+      .filter((w) => at(w.place))
       .map((w): WayHere => ({
         dir: 'in',
         map: child.meta.id,
@@ -124,7 +127,7 @@ export function waysAt(hex: string): WayHere[] {
   const parent = editor.linked.parent
   const name = editor.linked.ancestors.at(-1)?.name || parent?.meta.name || (own?.map ?? '')
   const out = (own?.ways ?? [])
-    .filter((w) => w.entrance === hex)
+    .filter((w) => at(w.entrance))
     .map((w): WayHere => ({
       dir: 'out',
       map: own!.map,

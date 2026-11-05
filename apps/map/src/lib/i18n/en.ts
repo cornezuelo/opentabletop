@@ -662,6 +662,7 @@ export const en = {
     away: 'The trip goes on in {name}.',
     awayHere: 'The trip goes on in another map (Play says which): open it to play on.',
     openAway: 'Open it',
+    confirmNewTrip: 'Start a new trip here? The trip in {name} stays there, where it is.',
   },
   path: {
     help: 'Click or drag across cells. Click the last cell, right-click or press Enter to finish.',

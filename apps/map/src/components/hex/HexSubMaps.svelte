@@ -1,12 +1,12 @@
 <script lang="ts">
   import { parseKey } from '@open-tabletop/hex'
-  import { placeOfCell, type HexKey } from '@open-tabletop/map'
+  import type { HexKey } from '@open-tabletop/map'
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
   import { localize } from '@open-tabletop/session'
   import { getLocale, t } from '../../lib/i18n/index.svelte'
   import { openLibraryMap } from '../../lib/io/actions.svelte'
   import { addWayInto, newSubMap, waysAt, type WayHere } from '../../lib/io/submaps'
-  import { partyLocation, sessionOf, step } from '../../lib/play/play'
+  import { partyAt, sessionOf, step } from '../../lib/play/play'
   import { mapSystem } from '../../lib/play/systems'
   import { editor } from '../../lib/store/editor.svelte'
   import { view } from '../../lib/store/view'
@@ -32,12 +32,7 @@
   const here = $derived.by(() => {
     void editor.revision
     const play = editor.play
-    return (
-      !!play &&
-      play.mode === 'rules' &&
-      !!sessionOf(play) &&
-      partyLocation() === placeOfCell(editor.map, key)
-    )
+    return !!play && play.mode === 'rules' && !!sessionOf(play) && partyAt(key)
   })
 
   /** The map at the way's other end, with the cell it arrives at selected and in view. */
