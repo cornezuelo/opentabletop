@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-11-05
+
 ### Apps
 
 - Map: **dungeons drawn as dungeons**. A style decides how floor and walls look: the floor's own colour with a grid on it alone, the walls' colour and width, and what lies beyond them (hatching, a shadow or a cave's stipple); walls follow a style's ragged borders. Core brings **Classic dungeon** (white floor, black walls, the rock hatched by hand) and **Cave** (rough walls, stippled rock).
