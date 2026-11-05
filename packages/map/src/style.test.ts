@@ -63,19 +63,27 @@ describe('map styles', () => {
         'glyphs: yes',
         'captions: { hexNames: { font: comic }, cellNames: {} }',
         'paper: white',
+        'shade: 1',
+        'art: { mode: oil, terrains: { forest: trees, hills: { painter: hills, size: 9 } } }',
       ].join('\n'),
     )
     const { styles, problems } = mapStyles(registry)
     expect(styles).toEqual([])
-    expect(problems.map((p) => `${p.at}: ${p.message}`)).toEqual([
-      '@style/broken.paper: unknown key in a style',
-      "@style/broken.grid.lines: unknown key in a style's grid",
-      "@style/broken.captions.cellNames: unknown key in a style's names (hexNames, regionNames, tokenNames)",
-      '@style/broken.grid.color: expected a colour (#rrggbb)',
-      '@style/broken.grid.opacity: expected a number from 0 to 1',
-      '@style/broken.glyphs: expected a number from 0 to 1',
-      '@style/broken.captions.hexNames.font: expected one of fell, cinzel, sans',
-    ])
+    expect(problems.map((p) => `${p.at}: ${p.message}`).sort()).toEqual(
+      [
+        '@style/broken.shade: unknown key in a style',
+        "@style/broken.grid.lines: unknown key in a style's grid",
+        "@style/broken.captions.cellNames: unknown key in a style's names (hexNames, regionNames, tokenNames)",
+        '@style/broken.grid.color: expected a colour (#rrggbb)',
+        '@style/broken.grid.opacity: expected a number from 0 to 1',
+        '@style/broken.glyphs: expected a number from 0 to 1',
+        '@style/broken.art.mode: expected one of ink, painted',
+        '@style/broken.art.terrains.forest.painter: expected one of grass, farmland, conifers, broadleaf, forest, reeds, hills, mountains, peaks, volcano, dunes, rocks, waves, dots',
+        '@style/broken.art.terrains.hills.size: expected a number from 0 to 3',
+        '@style/broken.captions.hexNames.font: expected one of fell, cinzel, sans',
+        '@style/broken.paper: expected a colour (#rrggbb)',
+      ].sort(),
+    )
     expect(problems.every((p) => p.pack === 'p' && p.file === 'p/styles.yaml')).toBe(true)
   })
 

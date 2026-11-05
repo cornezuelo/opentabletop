@@ -36,7 +36,15 @@ An example you open becomes **your map**: your changes and your trip are kept in
 
 ## Styles
 
-How a map is drawn is its **style**, chosen in **Map settings → Style**; it never changes what the map holds, its rules or a trip. Styles come from packs: Core brings **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map that hasn't chosen another, and a system may bring its own. Choosing one copies its settings into the map: the names (**Map texts**), the **Regions**, the cells' **Coordinates** and the terrains' glyphs (the Terrain panel), which you then change as you like; Ctrl+Z puts the previous look back. What only a style decides, such as the grid's line, comes from it while the map is drawn. A map whose style isn't loaded in this browser is drawn in the Schematic one, and Map settings says so. To write a style of your own, see [Kinds of definition](../technical/07-kinds.md#map-styles).
+How a map is drawn is its **style**, chosen in **Map settings → Style**; it never changes what the map holds, its rules or a trip. Styles come from packs, and a system may bring its own. Core brings three:
+
+- **Schematic**: flat colours and a glyph per terrain, every cell with its coordinates. The look of every map that hasn't chosen another; plain and clear, for planning and printing.
+- **Parchment**: a hexcrawl drawn in ink on old paper. Each terrain a light wash of its colour, with its mountains, trees, hills, reeds or waves drawn in ink; borders that wander and blend; the coast inked with ripples along it; roads and rivers that wobble as if drawn by hand. The Grey Marches' frontier is drawn in it.
+- **Painted**: rich colours melting into each other, mountains and trees lit on one side and shaded on the other, pale shallows along the shores, a paper grain over all. The Hollow Hills are drawn in it.
+
+Parchment and Painted hide the cells' coordinates: the cell's panel and the line under the map still say them, and **Map settings → Show coordinates** shows them again. What is drawn on each terrain comes from its id (the natural palette's terrains all have their art; a terrain of your own has only its colour, unless a style names it). Each cell's drawing is its own, and the same every time you open the map.
+
+Choosing a style copies its settings into the map: the names (**Map texts**), the **Regions**, the cells' **Coordinates** and the terrains' glyphs (the Terrain panel), which you then change as you like; Ctrl+Z puts the previous look back. The rest (the paper, the ground, the art, the shores, how roads and rivers are drawn, the grid's line) comes from the style while the map is drawn. A map whose style isn't loaded in this browser is drawn in the Schematic one, and Map settings says so. To write a style of your own, see [Kinds of definition](../technical/07-kinds.md#map-styles).
 
 ## Hexes or squares
 

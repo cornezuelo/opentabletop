@@ -30,6 +30,72 @@ export interface MapStyle {
   captions: Record<CaptionKind, CaptionStyle>
   /** How regions are drawn. */
   regions: RegionStyle
+  /** The colour of cells nothing is painted on (and of the map's paper, when exported). */
+  paper: string
+  /** How terrains fill their cells. */
+  ground: {
+    /** Each terrain's colour mixed towards the paper's: 0 as painted, 1 the paper. */
+    wash: number
+    /** Soft borders between terrains: how far they blend, in cells (0 hard). */
+    blend: number
+    /** Borders that wander off the cells' edges, in cells (0 straight). */
+    ragged: number
+    /** Paper grain over the ground: 0 none, 1 strong. */
+    grain: number
+  }
+  /** What is drawn on each terrain's cells (mountains, trees…), and how. */
+  art: {
+    /** `ink`: lines over the terrain's colour; `painted`: shapes lit on one side, shaded on the other. */
+    mode: ArtMode
+    /** The colour of the lines. */
+    ink: string
+    /** By terrain id: the painter that draws it. A terrain not named has no art. */
+    terrains: Record<string, TerrainArt>
+  }
+  /** Where water meets land: lines along the shore on the water's side, and a shallow band. */
+  shores: { lines: number; color: string; band: number }
+  /** Roads, trails and rivers: a hand's wobble, and each kind's colour and width. */
+  paths: { wobble: number; kinds: Partial<Record<StyledPath, PathLook>> }
+}
+
+/** Painters: how the art of a terrain is drawn (code, not data: a style picks one by name). */
+export const PAINTERS = [
+  'grass',
+  'farmland',
+  'conifers',
+  'broadleaf',
+  'forest',
+  'reeds',
+  'hills',
+  'mountains',
+  'peaks',
+  'volcano',
+  'dunes',
+  'rocks',
+  'waves',
+  'dots',
+] as const
+export type Painter = (typeof PAINTERS)[number]
+
+export const ART_MODES = ['ink', 'painted'] as const
+export type ArtMode = (typeof ART_MODES)[number]
+
+/** A terrain's art: its painter, how many things it draws and how big (1 the usual). */
+export interface TerrainArt {
+  painter: Painter
+  density: number
+  size: number
+  /** The art's own colour; absent, the terrain's. */
+  color?: string
+}
+
+/** The kinds of path a style draws its own way. */
+export const STYLED_PATHS = ['river', 'road', 'trail'] as const
+export type StyledPath = (typeof STYLED_PATHS)[number]
+/** A path's colour, and its width in cells. */
+export interface PathLook {
+  color?: string
+  width?: number
 }
 
 /** The Schematic style: today's look (flat colours and glyphs), and what any style leaves out. */
@@ -40,12 +106,37 @@ export const SCHEMATIC_STYLE: MapStyle = {
   glyphs: DEFAULT_GLYPH_OPACITY,
   captions: structuredClone(DEFAULT_CAPTIONS) as Record<CaptionKind, CaptionStyle>,
   regions: { ...DEFAULT_REGION_STYLE },
+  paper: '#2a2823',
+  ground: { wash: 0, blend: 0, ragged: 0, grain: 0 },
+  art: { mode: 'ink', ink: '#2b2118', terrains: {} },
+  shores: { lines: 0, color: '#2b2118', band: 0 },
+  paths: { wobble: 0, kinds: {} },
 }
 
 /** The style a map without one is drawn in: Core's Schematic. */
 export const DEFAULT_STYLE_REF = 'core/schematic'
 
-const STYLE_KEYS = ['kind', 'id', 'name', 'description', 'grid', 'glyphs', 'captions', 'regions']
+const STYLE_KEYS = [
+  'kind',
+  'id',
+  'name',
+  'description',
+  'grid',
+  'glyphs',
+  'captions',
+  'regions',
+  'paper',
+  'ground',
+  'art',
+  'shores',
+  'paths',
+]
+const GROUND_KEYS = ['wash', 'blend', 'ragged', 'grain']
+const ART_KEYS = ['mode', 'ink', 'terrains']
+const TERRAIN_ART_KEYS = ['painter', 'density', 'size', 'color']
+const SHORE_KEYS = ['lines', 'color', 'band']
+const PATH_KEYS = ['wobble', ...STYLED_PATHS]
+const PATH_LOOK_KEYS = ['color', 'width']
 const GRID_KEYS = ['color', 'opacity', 'coords']
 const CAPTION_KEYS = ['show', 'font', 'size', 'color', 'italic', 'halo', 'haloColor']
 const REGION_KEYS = ['fill', 'border', 'dashed', 'borderOpacity']
@@ -91,6 +182,13 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
     errors.push(`${at}: expected a colour (#rrggbb)`)
     return fallback
   }
+  const lineCount = (value: unknown): number => {
+    if (value === undefined) return base.shores.lines
+    if (Number.isInteger(value) && (value as number) >= 0 && (value as number) <= 5)
+      return value as number
+    errors.push('shores.lines: expected a whole number from 0 to 5')
+    return base.shores.lines
+  }
   const part = (value: unknown, at: string): Record<string, unknown> => {
     if (value === undefined) return {}
     if (isRecord(value)) return value
@@ -109,6 +207,47 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
     'captions.',
     "a style's names (hexNames, regionNames, tokenNames)",
   )
+
+  const ground = part(raw.ground, 'ground')
+  unknown(ground, GROUND_KEYS, 'ground.', "a style's ground")
+  const art = part(raw.art, 'art')
+  unknown(art, ART_KEYS, 'art.', "a style's art")
+  const shores = part(raw.shores, 'shores')
+  unknown(shores, SHORE_KEYS, 'shores.', "a style's shores")
+  const paths = part(raw.paths, 'paths')
+  unknown(paths, PATH_KEYS, 'paths.', "a style's paths (wobble, river, road, trail)")
+  let mode: ArtMode = base.art.mode
+  if (art.mode !== undefined) {
+    if (ART_MODES.includes(art.mode as ArtMode)) mode = art.mode as ArtMode
+    else errors.push(`art.mode: expected one of ${ART_MODES.join(', ')}`)
+  }
+  const terrainArt: Record<string, TerrainArt> = {}
+  for (const [id, value] of Object.entries(part(art.terrains, 'art.terrains'))) {
+    const at = `art.terrains.${id}`
+    // `forest: conifers` says the painter alone.
+    const own = typeof value === 'string' ? { painter: value } : part(value, at)
+    unknown(own, TERRAIN_ART_KEYS, `${at}.`, "a terrain's art")
+    if (!PAINTERS.includes(own.painter as Painter)) {
+      errors.push(`${at}.painter: expected one of ${PAINTERS.join(', ')}`)
+      continue
+    }
+    terrainArt[id] = {
+      painter: own.painter as Painter,
+      density: fraction(own.density, `${at}.density`, 1, 3),
+      size: fraction(own.size, `${at}.size`, 1, 3),
+      ...(own.color !== undefined && { color: color(own.color, `${at}.color`, '') }),
+    }
+  }
+  const pathKinds: Partial<Record<StyledPath, PathLook>> = {}
+  for (const kind of STYLED_PATHS) {
+    if (paths[kind] === undefined) continue
+    const own = part(paths[kind], `paths.${kind}`)
+    unknown(own, PATH_LOOK_KEYS, `paths.${kind}.`, "a path's look")
+    pathKinds[kind] = {
+      ...(own.color !== undefined && { color: color(own.color, `paths.${kind}.color`, '') }),
+      ...(own.width !== undefined && { width: fraction(own.width, `paths.${kind}.width`, 0.1) }),
+    }
+  }
 
   const style: MapStyle = {
     kind: 'style',
@@ -156,6 +295,20 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
         base.regions.borderOpacity,
       ),
     },
+    paper: color(raw.paper, 'paper', base.paper),
+    ground: {
+      wash: fraction(ground.wash, 'ground.wash', base.ground.wash),
+      blend: fraction(ground.blend, 'ground.blend', base.ground.blend),
+      ragged: fraction(ground.ragged, 'ground.ragged', base.ground.ragged),
+      grain: fraction(ground.grain, 'ground.grain', base.ground.grain),
+    },
+    art: { mode, ink: color(art.ink, 'art.ink', base.art.ink), terrains: terrainArt },
+    shores: {
+      lines: lineCount(shores.lines),
+      color: color(shores.color, 'shores.color', base.shores.color),
+      band: fraction(shores.band, 'shores.band', base.shores.band),
+    },
+    paths: { wobble: fraction(paths.wobble, 'paths.wobble', base.paths.wobble), kinds: pathKinds },
   }
   return errors.length ? { errors } : { style, errors }
 }

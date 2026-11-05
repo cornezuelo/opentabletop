@@ -22,7 +22,7 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 | `items`        | Lo que pueden llevar sus personajes: objetos con etiquetas, números y lugares             | Las tarjetas de los personajes (viajes, fichas, la aplicación Personajes), los efectos, la aplicación Sistemas | Cualquiera       |
 | `bestiary`     | Plantillas de personajes (criaturas, tipos de PNJ) de las que los resultados hacen copias | Los viajes (los presentes: efectos `present.<plantilla>`)                                                      | Cualquiera       |
 | `places`       | Plantillas de puntos de interés que los resultados crean en la casilla del grupo          | Los viajes (efectos `place.pois.<lugar>`), escritos en el mapa por Mapa                                        | Cualquiera       |
-| `style`        | Cómo se dibuja un mapa: la línea de la rejilla, los símbolos, los nombres, las regiones   | Mapa (**Ajustes del mapa → Estilo**)                                                                           | Cualquiera       |
+| `style`        | Cómo se dibuja un mapa: papel, terreno, arte, costas, caminos, nombres                    | Mapa (**Ajustes del mapa → Estilo**)                                                                           | Cualquiera       |
 | `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs                            | Cada aplicación que juega con un sistema: Mapa, Viajes, Campaña, Personajes, Sistemas                          | Los que quieras  |
 
 **Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oráculo a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: deck.omens` roba una carta), el paso `roll:` de una acción (`roll: table.ruins`), una entrada o carta que tira otra (`table:`), el campo de un generador, un reloj de progreso al llenarse (`resolve:`) y el turno del mundo de una facción (`turn:`). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario, hoja: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
@@ -703,15 +703,26 @@ La aplicación Sistemas escribe uno en cada sistema nuevo, lo edita en el **Resu
 
 ## Estilos de mapa
 
-Cómo se dibuja un mapa, nunca lo que contiene: **Ajustes del mapa → Estilo** en Mapa ofrece los estilos de todos los packs cargados, y el mapa nombra aquel en el que se dibuja. Core trae **Esquemático** (colores planos y un símbolo por terreno, cada casilla con sus coordenadas), el aspecto de todo mapa sin estilo. Elegir un estilo **copia** sus ajustes al mapa (los de sus nombres, regiones, coordenadas y símbolos), que luego cambias a tu gusto en Ajustes del mapa y en el panel Terreno; lo que solo decide un estilo (la línea de la rejilla) se lee de él mientras se dibuja el mapa, así que un cambio en el estilo se ve enseguida.
+Cómo se dibuja un mapa, nunca lo que contiene: **Ajustes del mapa → Estilo** en Mapa ofrece los estilos de todos los packs cargados, y el mapa nombra aquel en el que se dibuja. Core trae tres: **Esquemático** (colores planos y un símbolo por terreno, cada casilla con sus coordenadas), el aspecto de todo mapa sin estilo; **Pergamino** (tinta sobre papel viejo) y **Pintado** (colores que se funden entre sí, dibujos con luz y sombra). Elegir un estilo **copia** parte de sus ajustes al mapa (los de sus nombres, regiones, coordenadas y símbolos), que luego cambias a tu gusto en Ajustes del mapa y en el panel Terreno; el resto (la línea de la rejilla, el papel, el terreno, el arte, las costas y el aspecto de los caminos) se lee del estilo mientras se dibuja el mapa, así que un cambio en el estilo se ve enseguida.
 
 ```yaml
 kind: style
 id: ink
 name: Tinta
-description: Una rejilla tenue y sin coordenadas, nombres en Cinzel.
+description: Una rejilla tenue, sin coordenadas, árboles y colinas a tinta.
 grid: { color: '#3a2a1a', opacity: 0.15, coords: false } # la línea de la rejilla; ¿se ven las coordenadas?
-glyphs: 0.3 # los símbolos de los terrenos, de 0 (ocultos) a 1
+glyphs: 0 # los símbolos de los terrenos, de 0 (ocultos) a 1
+paper: '#efe3c4' # las casillas sin nada pintado
+ground: { wash: 0.6, blend: 0.2, ragged: 0.3, grain: 0.3 }
+art:
+  mode: ink # o painted
+  ink: '#3b2a1a'
+  terrains: # por id de terreno: el pintor que lo dibuja
+    forest: conifers
+    dense-forest: { painter: forest, density: 1.3 }
+    hills: { painter: hills, size: 1.2 }
+shores: { lines: 3, color: '#3b2a1a' }
+paths: { wobble: 0.5, river: { color: '#3d6f96', width: 0.15 } }
 captions: # cómo se dibuja cada clase de nombre
   hexNames: { font: cinzel, size: 0.9 }
   regionNames: { font: cinzel, italic: false, color: '#5a3a1a', halo: true, haloColor: '#f4eedd' }
@@ -721,6 +732,11 @@ regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
 
 - Cualquier clave puede faltar: lo que un estilo no dice es lo del Esquemático.
 - `grid`: `color` (`#rrggbb`), `opacity` (de 0 a 1) y `coords` (`true` / `false`: las **Coordenadas** del mapa).
+- `paper`: el color de las casillas sin nada pintado, y de la hoja bajo un mapa cuyos bordes serpentean o se funden.
+- `ground`, cada uno de 0 a 1: `wash` mezcla el color de cada terreno hacia el del papel (0 tal cual, `0.6` una aguada suave); `blend` suaviza los bordes entre terrenos; `ragged` los hace serpentear fuera de los lados de las casillas (igual a ambos lados, así que nunca abren un hueco); `grain` pone el grano del papel sobre todo.
+- `art`: lo que se dibuja en las casillas de cada terreno. `mode`: `ink` (líneas sobre el color del terreno) o `painted` (formas con un lado iluminado y otro en sombra); `ink`: el color de las líneas; `terrains`: por id de terreno, un **pintor** (`forest: conifers`) o un pintor con `density` (cuántos, 1 lo normal, de 0 a 3), `size` (de qué tamaño, de 0 a 3) y `color` (uno propio, en vez del del terreno). Un terreno que no se nombra no tiene arte. Los pintores: `grass`, `farmland`, `conifers`, `broadleaf`, `forest` (las dos clases de árbol, apretados), `reeds`, `hills`, `mountains`, `peaks` (nieve en la cima), `volcano`, `dunes`, `rocks`, `waves`, `dots`. El dibujo de cada casilla es suyo, y el mismo cada vez.
+- `shores`: donde el agua (un terreno con **Agua**) se junta con la tierra, del lado del agua: `lines` (de 0 a 5 líneas a lo largo de la costa, más tenues cuanto más lejos; en modo `ink`, la costa entintada también), `color` y `band` (de 0 a 1: una franja clara de aguas someras).
+- `paths`: `wobble` (de 0 a 1: caminos, sendas y ríos dibujados a mano) y, para `river`, `road` y `trail`, su `color` y su `width` (en casillas).
 - `captions`, por clase (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` o `sans`), `size` (1 el normal), `color` (sin él: automático), `italic`, `halo` y `haloColor`, como **Ajustes del mapa → Textos del mapa**.
 - `regions`: `fill` y `borderOpacity` (de 0 a 1), `border` (en tamaños de casilla, 0 para ninguno) y `dashed`, como **Ajustes del mapa → Regiones**.
 - Un mapa cuyo estilo no está cargado se dibuja en el Esquemático, y sigue nombrando el suyo.

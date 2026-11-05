@@ -131,7 +131,7 @@ export const en = {
   mapStyle: {
     title: 'Style',
     label: 'Style',
-    help: "How the map is drawn, never what it holds: the grid's line, the terrains' glyphs, whether cells show their coordinates, how names and regions look. Styles come from packs (`kind: style`): Core brings **Schematic**, and a system may bring its own.\nChoosing one copies its settings into the map (names, regions, coordinates and glyphs, below and in the Terrain panel), which you then change freely; Ctrl+Z puts the previous look back.\n• **Schematic** — flat colours and a glyph per terrain, every cell with its coordinates\nThe technical page **Kinds of definition** says how to write one.",
+    help: "How the map is drawn, never what it holds: the paper, each terrain's colour and what is drawn on it (mountains, trees, waves…), the shores, how roads and rivers are drawn, the grid, names and regions. Styles come from packs (`kind: style`), and a system may bring its own. Core brings:\n• **Schematic** — flat colours and a glyph per terrain, every cell with its coordinates\n• **Parchment** — ink on old paper: washed colours, art in ink, rippled shores, roads and rivers drawn by hand\n• **Painted** — colours melting into each other, art lit and shaded, pale shallows\nChoosing one copies its names, regions, coordinates and glyphs into the map (below and in the Terrain panel), which you then change freely; Ctrl+Z puts the previous look back. The rest comes from the style as the map is drawn.\nThe technical page **Kinds of definition** says how to write one.",
     missing:
       'The style “{style}” is not loaded in this browser: the map is drawn in the Schematic one.',
   },

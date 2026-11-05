@@ -1913,8 +1913,8 @@
           "created": "2026-10-06T21:35:43.748Z",
           "modified": "2026-10-06T21:35:43.748Z",
           "hexSize": 40,
-          "showCoords": true,
-          "glyphs": 0.45,
+          "showCoords": false,
+          "glyphs": 0,
           "print": {
             "hexMm": 25,
             "paper": null,
@@ -2098,9 +2098,10 @@
               "show": true,
               "font": "fell",
               "size": 1,
+              "color": "#3b2a1a",
               "italic": false,
               "halo": true,
-              "haloColor": "#f4eedd"
+              "haloColor": "#efe3c4"
             },
             "regionNames": {
               "show": true,
@@ -2108,7 +2109,7 @@
               "size": 1,
               "italic": true,
               "halo": true,
-              "haloColor": "#f4eedd"
+              "haloColor": "#efe3c4"
             },
             "tokenNames": {
               "show": true,
@@ -2116,7 +2117,7 @@
               "size": 1,
               "italic": false,
               "halo": true,
-              "haloColor": "#f4eedd"
+              "haloColor": "#efe3c4"
             }
           },
           "assets": [],
@@ -2156,13 +2157,14 @@
             }
           },
           "regionStyle": {
-            "fill": 0.14,
-            "border": 0.09,
-            "dashed": false,
-            "borderOpacity": 0.85
+            "fill": 0.05,
+            "border": 0.06,
+            "dashed": true,
+            "borderOpacity": 0.7
           },
           "system": "grey-marches",
-          "packs": []
+          "packs": [],
+          "style": "core/parchment"
         }
       }
     }

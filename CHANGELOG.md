@@ -6,15 +6,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
-- Map: **styles**. How a map is drawn is its style, chosen in **Map settings → Style** from every loaded pack's (`kind: style`): the grid's line, the terrains' glyphs, the cells' coordinates, the names and the regions. Choosing one copies its settings into the map, which changes them freely after (Ctrl+Z puts the previous look back). Maps v36. The first step of the map's redesign: more styles (a parchment one, a painted one) come next.
+- Map: **styles**. How a map is drawn is its style, chosen in **Map settings → Style** from every loaded pack's (`kind: style`): the grid's line, the terrains' glyphs, the cells' coordinates, the names and the regions. Choosing one copies its settings into the map, which changes them freely after (Ctrl+Z puts the previous look back). Maps v36.
+
+- Map: **beautiful maps**. Core brings two new styles besides Schematic: **Parchment** (a hexcrawl in ink on old paper: washed colours, mountains, trees, hills, reeds and waves drawn in ink, borders that wander and blend, the coast inked with ripples, roads and rivers that wobble) and **Painted** (colours melting into each other, art lit on one side and shaded on the other, pale shallows along the shores, a paper grain). Each cell's drawing is its own and the same every time; both hide the cells' coordinates, still in the cell's panel and the line under the map.
 
 ### Packs
 
-- Core: the **Schematic** style, today's look, the one a map without a style is drawn in.
+- Core: the **Schematic** style, today's look, the one a map without a style is drawn in; **Parchment** and **Painted**, with art for every terrain of the natural palette.
+- The Grey Marches: the frontier is drawn in **Parchment**, the Hollow Hills in **Painted**.
 
 ### Formats
 
-- Packs: a new kind, `kind: style` (Kinds of definition: **Map styles**).
+- Packs: a new kind, `kind: style` (Kinds of definition: **Map styles**): the grid, glyphs, names and regions, the paper, the ground (`wash`, `blend`, `ragged`, `grain`), the art by terrain (a painter per terrain id, in `ink` or `painted`), the shores and the paths.
 
 ## [0.31.0] - 2026-11-05
 

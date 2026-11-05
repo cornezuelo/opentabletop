@@ -1434,8 +1434,8 @@
           "created": "2026-10-19T10:00:00.000Z",
           "modified": "2026-10-19T10:00:00.000Z",
           "hexSize": 40,
-          "showCoords": true,
-          "glyphs": 0.45,
+          "showCoords": false,
+          "glyphs": 0,
           "print": {
             "hexMm": 25,
             "paper": null,
@@ -1534,9 +1534,9 @@
             },
             "regionNames": {
               "show": true,
-              "font": "fell",
+              "font": "cinzel",
               "size": 1,
-              "italic": true,
+              "italic": false,
               "halo": true,
               "haloColor": "#f4eedd"
             },
@@ -1586,13 +1586,14 @@
             }
           },
           "regionStyle": {
-            "fill": 0.14,
-            "border": 0.09,
+            "fill": 0.06,
+            "border": 0.05,
             "dashed": false,
-            "borderOpacity": 0.85
+            "borderOpacity": 0.6
           },
           "system": "grey-marches",
-          "packs": []
+          "packs": [],
+          "style": "core/painted"
         }
       },
       "connections": [

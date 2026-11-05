@@ -94,8 +94,8 @@ If a second app ever draws maps (Travel's way, Campaign's overview), the resolve
 
 ## 8. Phases
 
-1. **Styles as data**: `kind: style`, the Schematic style, today's settings moved into it with a migration (maps look the same); Map settings' **Style**.
-2. **Illustrated cells**: the painters, blended borders, shores, hand-drawn paths; **Parchment** (the Grey Marches' default) and **Painted**; coordinates hidden in both.
+1. ✅ (2026-11-05) **Styles as data**: `kind: style`, the Schematic style, today's settings moved into it with a migration (maps look the same); Map settings' **Style**.
+2. ✅ (2026-11-05: ragged borders are geometry, each side cut and moved by a noise of the plane, the same for both cells, since Pixi's displacement filter hid the layers under it; shallows are blurred with the ground, the shores' lines aren't) **Illustrated cells**: the painters, blended borders, shores, hand-drawn paths; **Parchment** (the Grey Marches' default) and **Painted**; coordinates hidden in both.
 3. **Images**: fills and stamps from images, a first bundled set once its licence is checked.
 4. **Dungeons, towns and connections**: floors, walls' outside bands, roofs (§6b), connection and way symbols; **Classic dungeon**, **Cave** and **Village**; the Barrow-halls and the mine in them, and the hybrid example.
 5. **Names moved by hand** (fourth round's (8)), with the texts' layer.

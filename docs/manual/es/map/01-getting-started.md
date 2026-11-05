@@ -36,7 +36,15 @@ Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan e
 
 ## Estilos
 
-Cómo se dibuja un mapa es su **estilo**, que se elige en **Ajustes del mapa → Estilo**; nunca cambia lo que contiene el mapa, sus reglas ni un viaje. Los estilos vienen de los packs: Core trae **Esquemático** (colores planos y un símbolo por terreno, cada casilla con sus coordenadas), el aspecto de todo mapa que no haya elegido otro, y un sistema puede traer el suyo. Elegir uno copia sus ajustes al mapa: los nombres (**Textos del mapa**), las **Regiones**, las **Coordenadas** de las casillas y los símbolos de los terrenos (el panel Terreno), que luego cambias a tu gusto; Ctrl+Z devuelve el aspecto anterior. Lo que solo decide un estilo, como la línea de la rejilla, sale de él mientras se dibuja el mapa. Un mapa cuyo estilo no está cargado en este navegador se dibuja en el Esquemático, y Ajustes del mapa lo dice. Para escribir un estilo propio, mira [Clases de definición](../technical/07-kinds.md#estilos-de-mapa).
+Cómo se dibuja un mapa es su **estilo**, que se elige en **Ajustes del mapa → Estilo**; nunca cambia lo que contiene el mapa, sus reglas ni un viaje. Los estilos vienen de los packs, y un sistema puede traer el suyo. Core trae tres:
+
+- **Esquemático**: colores planos y un símbolo por terreno, cada casilla con sus coordenadas. El aspecto de todo mapa que no haya elegido otro; sencillo y claro, para preparar y para imprimir.
+- **Pergamino**: un hexcrawl dibujado a tinta sobre papel viejo. Cada terreno una aguada suave de su color, con sus montañas, árboles, colinas, juncos u olas dibujados a tinta; bordes que serpentean y se funden; la costa entintada con ondas a lo largo; caminos y ríos que tiemblan como dibujados a mano. La frontera de las Marcas Grises se dibuja en él.
+- **Pintado**: colores intensos que se funden entre sí, montañas y árboles iluminados por un lado y en sombra por el otro, aguas someras claras junto a las costas, un grano de papel sobre todo. Las Hollow Hills se dibujan en él.
+
+Pergamino y Pintado ocultan las coordenadas de las casillas: siguen diciéndolas el panel de la casilla y la línea bajo el mapa, y **Ajustes del mapa → Mostrar coordenadas** las vuelve a mostrar. Lo que se dibuja en cada terreno sale de su id (todos los terrenos de la paleta natural tienen su arte; un terreno tuyo solo tiene su color, salvo que un estilo lo nombre). El dibujo de cada casilla es suyo, y el mismo cada vez que abres el mapa.
+
+Elegir un estilo copia sus ajustes al mapa: los nombres (**Textos del mapa**), las **Regiones**, las **Coordenadas** de las casillas y los símbolos de los terrenos (el panel Terreno), que luego cambias a tu gusto; Ctrl+Z devuelve el aspecto anterior. El resto (el papel, el terreno, el arte, las costas, cómo se dibujan caminos y ríos, la línea de la rejilla) sale del estilo mientras se dibuja el mapa. Un mapa cuyo estilo no está cargado en este navegador se dibuja en el Esquemático, y Ajustes del mapa lo dice. Para escribir un estilo propio, mira [Clases de definición](../technical/07-kinds.md#estilos-de-mapa).
 
 ## Hexagonales o cuadradas
 

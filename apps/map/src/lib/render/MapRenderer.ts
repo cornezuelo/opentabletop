@@ -3,6 +3,7 @@ import {
   Application,
   BitmapFont,
   BitmapText,
+  BlurFilter,
   ColorMatrixFilter,
   Container,
   Graphics,
@@ -10,6 +11,8 @@ import {
   Rectangle,
   Sprite,
   Text,
+  Texture,
+  TilingSprite,
 } from 'pixi.js'
 import type { MapChange } from '../commands/command'
 import {
@@ -32,7 +35,9 @@ import {
   TRAVEL_PATH_KINDS,
 } from '@open-tabletop/map'
 import { iconImage } from '../icons/registry'
-import { catmullRom, catmullRomClosed, dashes, offsetPolyline } from './curves'
+import { catmullRom, catmullRomClosed, dashes, densify, offsetPolyline, wobble } from './curves'
+import { colorOf, mix, paint, seedOf, shade } from './painters'
+import { displace, noiseCanvas, raggedPolygon } from './noise'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { connectionsNow } from '../play/connections'
 import { IconTextures } from './IconTextures'
@@ -63,7 +68,6 @@ import { getSystem } from '../play/systems'
 import { drawnTokens, isCopy } from '../play/present'
 import { currentTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
-const EMPTY_FILL = 0x2a2823
 /** Walls round a structure's floor. */
 const WALL_COLOR = 0x15130f
 /** Empty hexes on paper, when exporting to print. */
@@ -162,6 +166,19 @@ function installCoordFont(): void {
 export class MapRenderer {
   private world = new Container()
   private terrainLayer = new Container()
+  /** Where water meets land: the style's lines along the shore, not blurred with the ground. */
+  private shoreLines = new Graphics()
+  /** …and its shallows, in the terrain layer, so they blend into the water. */
+  private shallows = new Graphics()
+  /** The paper under a map whose borders wander or blend, so its edge melts into paper, not the dark. */
+  private sheet = new Graphics()
+  /** The paper's grain over the ground (the style's `ground.grain`). */
+  private grainLayer = new Container()
+  /** What the style draws on each terrain's cells (mountains, trees…), the lower over the higher. */
+  private artLayer = new Container({ sortableChildren: true })
+  private artCells = new Map<HexKey, Graphics>()
+  /** The blur the terrains' borders blend by (the style's `ground.blend`). */
+  private groundBlur: BlurFilter | null = null
   private gridLines = new Graphics()
   /** Walls, drawn by themselves where floor meets what isn't floor. */
   private wallLines = new Graphics()
@@ -243,9 +260,13 @@ export class MapRenderer {
   ) {
     installCoordFont()
     this.world.addChild(
+      this.sheet,
       this.terrainLayer,
+      this.shoreLines,
+      this.grainLayer,
       this.glyphLayer,
       this.gridLines,
+      this.artLayer,
       this.wallLines,
       this.regionLayer,
       this.factionShapes,
@@ -375,7 +396,7 @@ export class MapRenderer {
     this.emptyContext
       .clear()
       .poly(this.corners)
-      .fill(on ? PAPER_FILL : EMPTY_FILL)
+      .fill(on ? PAPER_FILL : this.emptyFill())
     for (const [key, label] of this.coordLabels) this.styleCoord(label, key)
     this.drawIcons()
   }
@@ -489,11 +510,14 @@ export class MapRenderer {
     if (change.kind === 'hexes') {
       for (const key of change.keys) {
         const hex = this.hexes.get(key)
-        if (hex) hex.context = this.contextFor(key)
+        if (hex && this.ragged()) this.raggedCell(hex, parseKey(key))
+        else if (hex) hex.context = this.contextFor(key)
         const label = this.coordLabels.get(key)
         if (label) this.styleCoord(label, key)
       }
       for (const key of change.keys) this.updateGlyph(key)
+      for (const key of change.keys) this.updateArt(key)
+      this.drawShores()
       this.drawWalls()
       if (editor.map.regions.length > 0) this.drawRegions()
       this.drawMarkers()
@@ -557,9 +581,12 @@ export class MapRenderer {
 
     this.emptyContext = new GraphicsContext()
       .poly(this.corners)
-      .fill(this.paper ? PAPER_FILL : EMPTY_FILL)
+      .fill(this.paper ? PAPER_FILL : this.emptyFill())
     for (const terrain of terrains)
-      this.contexts.set(terrain.id, new GraphicsContext().poly(this.corners).fill(terrain.color))
+      this.contexts.set(
+        terrain.id,
+        new GraphicsContext().poly(this.corners).fill(this.groundColor(terrain.color)),
+      )
 
     this.gridLines.clear()
     const coordSize = grid.hexSize * 0.3
@@ -570,8 +597,10 @@ export class MapRenderer {
       const key = keyOf(cell)
       const center = this.centerOf(cell)
 
-      const hex = new Graphics(this.contextFor(key))
-      hex.position.set(center.x, center.y)
+      const hex = this.ragged()
+        ? this.raggedCell(new Graphics(), cell)
+        : new Graphics(this.contextFor(key))
+      if (!this.ragged()) hex.position.set(center.x, center.y)
       this.terrainLayer.addChild(hex)
       this.hexes.set(key, hex)
 
@@ -592,6 +621,11 @@ export class MapRenderer {
     // The grid's line is the style's (Map settings → Style).
     const line = mapStyle().grid
     this.gridLines.stroke({ width: 1, color: line.color, alpha: line.opacity, pixelLine: true })
+    this.shallows = new Graphics()
+    this.terrainLayer.addChild(this.shallows)
+    this.drawShores()
+    this.applyGround()
+    this.drawArt()
     this.drawWalls()
     this.drawGlyphs()
     this.drawRegions()
@@ -931,22 +965,40 @@ export class MapRenderer {
   private drawPaths(): void {
     const g = this.pathsLayer.clear()
     const { hexSize } = editor.map.grid
+    const look = mapStyle().paths
     for (const kind of PATH_ORDER) {
-      const style = PATH_STYLES[kind]
+      const own = look.kinds[kind as keyof typeof look.kinds]
+      const style: PathStyle = {
+        ...PATH_STYLES[kind],
+        ...(own?.color && { color: colorOf(own.color) }),
+        ...(own?.width !== undefined && { width: own.width }),
+      }
       for (const path of editor.map.paths) {
         if (path.kind !== kind) continue
         const runs = pathRuns(this.pathVertices(path, style.crossesWater))
         // A closed loop stays closed unless water cut it into pieces.
         const loop = path.closed && runs.length === 1 && runs[0].length >= 3
-        const lines = runs.map((run) =>
-          loop
-            ? path.straight
-              ? [...run, run[0]]
-              : catmullRomClosed(run)
-            : path.straight
-              ? run
-              : catmullRom(run),
-        )
+        const lines = runs
+          .map((run) =>
+            loop
+              ? path.straight
+                ? [...run, run[0]]
+                : catmullRomClosed(run)
+              : path.straight
+                ? run
+                : catmullRom(run),
+          )
+          // A hand's wobble (the style's), the same for a path every time.
+          .map((line) =>
+            look.wobble > 0 && !path.straight
+              ? wobble(
+                  densify(line, hexSize * 0.1),
+                  look.wobble * hexSize * 0.12,
+                  hexSize * 1.3,
+                  seedOf(path.id),
+                )
+              : line,
+          )
         const stroke = (s: { color: number; width: number; dash?: [number, number] }) => {
           for (const line of lines) {
             const pieces = s.dash ? dashes(line, s.dash[0] * hexSize, s.dash[1] * hexSize) : [line]
@@ -1470,6 +1522,212 @@ export class MapRenderer {
     label.alpha = painted ? 0.7 : 0.35
   }
 
+  /** The colour of cells nothing is painted on: the style's paper. */
+  private emptyFill(): number {
+    return colorOf(mapStyle().paper)
+  }
+
+  /** A terrain's colour as the ground shows it: washed towards the paper by the style. */
+  private groundColor(color: string): number {
+    const style = mapStyle()
+    return mix(colorOf(color), colorOf(style.paper), style.ground.wash)
+  }
+
+  /**
+   * Where water meets land, on the water's side: the coast's ink line (in ink), lines along
+   * the shore, fainter further out, and a shallow band (painted), as the style says.
+   */
+  private drawShores(): void {
+    const g = this.shoreLines.clear()
+    const shallows = this.shallows.clear()
+    const style = mapStyle()
+    const { lines, band, color } = style.shores
+    if (!lines && !band) return
+    const { grid, hexes, terrains } = editor.map
+    const water = new Set(terrains.filter((t) => t.water).map((t) => t.id))
+    const r = grid.hexSize
+    const ink = colorOf(color)
+    for (const [key, hex] of Object.entries(hexes)) {
+      if (!hex.terrain || !water.has(hex.terrain)) continue
+      const cell = parseKey(key as HexKey)
+      if (!inBounds(cell, grid)) continue
+      const c = this.centerOf(cell)
+      const own = terrains.find((t) => t.id === hex.terrain)
+      for (const { a, b, across } of cellSides(cell, grid, r)) {
+        const other = inBounds(across, grid) ? hexes[keyOf(across)]?.terrain : undefined
+        if (!other || water.has(other)) continue
+        const mx = (a.x + b.x) / 2
+        const my = (a.y + b.y) / 2
+        const len = Math.hypot(c.x - mx, c.y - my) || 1
+        const nx = (c.x - mx) / len
+        const ny = (c.y - my) / len
+        const at = (d: number, cut: number) => [
+          a.x + nx * d + (b.x - a.x) * cut,
+          a.y + ny * d + (b.y - a.y) * cut,
+          b.x + nx * d - (b.x - a.x) * cut,
+          b.y + ny * d - (b.y - a.y) * cut,
+        ]
+        // Each line follows the ground's ragged border (the same noise).
+        const { amplitude, scale } = this.raggedness()
+        const stroke = (x1: number, y1: number, x2: number, y2: number, on = g) => {
+          const pts = raggedPolygon([x1, y1, x2, y2], 5, this.ragged() ? amplitude : 0, scale)
+          // A polygon of two points is its side there and back: keep the way there.
+          const way = this.ragged()
+            ? pts.slice(0, 12).concat(displace(x2, y2, amplitude, scale))
+            : pts
+          on.moveTo(way[0], way[1])
+          for (let i = 2; i < way.length; i += 2) on.lineTo(way[i], way[i + 1])
+        }
+        if (band > 0 && own) {
+          const [x1, y1, x2, y2] = at(r * band * 0.12, 0)
+          stroke(x1, y1, x2, y2, shallows)
+          shallows.stroke({
+            width: r * band * 0.24,
+            color: shade(this.groundColor(own.color), 0.35),
+            alpha: 0.7,
+            cap: 'butt',
+          })
+        }
+        if (style.art.mode === 'ink' && lines > 0) {
+          stroke(a.x, a.y, b.x, b.y)
+          g.stroke({ width: r * 0.035, color: ink, alpha: 0.9, cap: 'round' })
+        }
+        for (let k = 1; k <= lines; k++) {
+          const [x1, y1, x2, y2] = at(r * 0.11 * k, 0.06 * k)
+          stroke(x1, y1, x2, y2)
+          g.stroke({ width: r * 0.018, color: ink, alpha: 0.6 - k * 0.1, cap: 'round' })
+        }
+      }
+    }
+  }
+
+  /** Whether the style's terrains' borders wander off the cells' edges. */
+  private ragged(): boolean {
+    return mapStyle().ground.ragged > 0
+  }
+
+  /** How far the ground's borders wander (world units), and the noise's size. */
+  private raggedness(): { amplitude: number; scale: number } {
+    const hs = editor.map.grid.hexSize
+    return { amplitude: mapStyle().ground.ragged * hs * 0.45, scale: hs * 1.4 }
+  }
+
+  /** A cell drawn with its border wandering (the style's `ground.ragged`), in its ground colour. */
+  private raggedCell(g: Graphics, cell: Offset): Graphics {
+    const { amplitude, scale } = this.raggedness()
+    const terrain = editor.map.hexes[keyOf(cell)]?.terrain
+    const color = editor.map.terrains.find((t) => t.id === terrain)?.color
+    g.clear()
+      .poly(raggedPolygon(this.cornersAt(cell), 5, amplitude, scale))
+      .fill(this.paper && !color ? PAPER_FILL : color ? this.groundColor(color) : this.emptyFill())
+    return g
+  }
+
+  /**
+   * The ground's look besides ragged borders: borders blending into each other (a blur,
+   * sized to the zoom), a sheet of paper under it, and the paper's grain over it.
+   */
+  private applyGround(): void {
+    const { ground } = mapStyle()
+    this.groundBlur = ground.blend > 0 ? new BlurFilter({ strength: 0, quality: 3 }) : null
+    this.terrainLayer.filters = this.groundBlur ? [this.groundBlur] : null
+    this.sizeGroundFilters()
+
+    const sheet = this.sheet.clear()
+    if (ground.ragged > 0 || ground.blend > 0) {
+      const b = this.gridLines.getLocalBounds()
+      const pad = editor.map.grid.hexSize * 0.8
+      sheet
+        .rect(b.minX - pad, b.minY - pad, b.width + pad * 2, b.height + pad * 2)
+        .fill(this.emptyFill())
+    }
+
+    for (const child of this.grainLayer.removeChildren()) child.destroy()
+    if (ground.grain > 0) {
+      const b = this.gridLines.getLocalBounds()
+      const pad = editor.map.grid.hexSize * 0.8
+      const texture = Texture.from(noiseCanvas('grain'))
+      texture.source.addressMode = 'repeat'
+      const grain = new TilingSprite({
+        texture,
+        width: b.width + pad * 2,
+        height: b.height + pad * 2,
+      })
+      grain.position.set(b.minX - pad, b.minY - pad)
+      grain.tileScale.set(editor.map.grid.hexSize / 128)
+      grain.alpha = ground.grain
+      grain.blendMode = 'multiply'
+      this.grainLayer.addChild(grain)
+    }
+  }
+
+  /** The blur works in screen pixels: sized to the zoom so a cell looks the same. */
+  private sizeGroundFilters(): void {
+    if (!this.groundBlur) return
+    const px = editor.map.grid.hexSize * this.world.scale.x
+    this.groundBlur.strength = mapStyle().ground.blend * px * 0.15
+  }
+
+  private drawArt(): void {
+    for (const child of this.artLayer.removeChildren()) child.destroy()
+    this.artCells.clear()
+    for (const key of Object.keys(editor.map.hexes) as HexKey[]) this.updateArt(key)
+  }
+
+  /**
+   * The style's art on one cell: its terrain's painter (mountains, trees…), drawn in the
+   * order of the cells' heights so lower cells overlap higher ones. Cells with an icon show
+   * the icon instead, as glyphs do.
+   */
+  private updateArt(key: HexKey): void {
+    const old = this.artCells.get(key)
+    if (old) {
+      this.artCells.delete(key)
+      old.destroy()
+    }
+    const style = mapStyle()
+    const { grid, hexes, terrains } = editor.map
+    const hex = hexes[key]
+    const art = hex?.terrain ? style.art.terrains[hex.terrain] : undefined
+    if (!art || hex?.icon) return
+    const cell = parseKey(key)
+    const terrain = terrains.find((t) => t.id === hex?.terrain)
+    if (!terrain || !inBounds(cell, grid)) return
+    const center = this.centerOf(cell)
+    const g = new Graphics()
+    const shapes = paint(art.painter, {
+      x: center.x,
+      y: center.y,
+      r: grid.hexSize,
+      seed: seedOf(key),
+      mode: style.art.mode,
+      ink: colorOf(style.art.ink),
+      base: art.color ? colorOf(art.color) : this.groundColor(terrain.color),
+      density: art.density,
+      size: art.size,
+    })
+    for (const shape of shapes) {
+      if (shape.closed) g.poly(shape.points)
+      else {
+        g.moveTo(shape.points[0], shape.points[1])
+        for (let i = 2; i < shape.points.length; i += 2)
+          g.lineTo(shape.points[i], shape.points[i + 1])
+      }
+      if (shape.fill !== undefined) g.fill({ color: shape.fill, alpha: shape.fillAlpha ?? 1 })
+      if (shape.stroke !== undefined)
+        g.stroke({
+          width: shape.width ?? 1,
+          color: shape.stroke,
+          alpha: shape.strokeAlpha ?? 1,
+          cap: 'round',
+          join: 'round',
+        })
+    }
+    g.zIndex = center.y
+    this.artLayer.addChild(g)
+    this.artCells.set(key, g)
+  }
+
   private contextFor(key: HexKey): GraphicsContext {
     const terrain = editor.map.hexes[key]?.terrain
     return (terrain && this.contexts.get(terrain)) || this.emptyContext
@@ -1495,6 +1753,10 @@ export class MapRenderer {
   private applyLayers(): void {
     const { layers, grid } = editor.map
     this.terrainLayer.visible = layers.terrain.visible
+    this.grainLayer.visible = layers.terrain.visible
+    this.shoreLines.visible = layers.terrain.visible
+    this.sheet.visible = layers.terrain.visible
+    this.artLayer.visible = layers.terrain.visible
     this.glyphLayer.visible = layers.terrain.visible
     this.regionLayer.visible = layers.regions.visible
     this.regionNameLayer.visible = layers.regions.visible
@@ -1519,6 +1781,7 @@ export class MapRenderer {
   }
 
   private onViewChanged(): void {
+    this.sizeGroundFilters()
     this.applyLayers()
     this.updateLabelResolution()
     this.drawMarkers()

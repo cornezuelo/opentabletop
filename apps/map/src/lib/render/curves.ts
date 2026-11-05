@@ -103,3 +103,55 @@ export function offsetPolyline(points: Point[], distance: number, ramp = 0): Poi
     return { x: p.x - (dy / length) * d, y: p.y + (dx / length) * d }
   })
 }
+
+/**
+ * A line drawn by hand: each point moved sideways by a wave that wanders along the line
+ * (`amplitude` world units, about one turn every `wavelength`), the same for a seed. Ends
+ * stay put, so paths still meet their places.
+ */
+export function wobble(
+  points: Point[],
+  amplitude: number,
+  wavelength: number,
+  seed: number,
+): Point[] {
+  if (amplitude <= 0 || points.length < 2) return points
+  const phase = [(seed % 997) / 997, (seed % 991) / 991, (seed % 983) / 983].map(
+    (p) => p * Math.PI * 2,
+  )
+  let along = 0
+  const total = points
+    .slice(1)
+    .reduce((sum, p, i) => sum + Math.hypot(p.x - points[i].x, p.y - points[i].y), 0)
+  return points.map((p, i) => {
+    if (i > 0) along += Math.hypot(p.x - points[i - 1].x, p.y - points[i - 1].y)
+    const prev = points[Math.max(0, i - 1)]
+    const next = points[Math.min(points.length - 1, i + 1)]
+    const dx = next.x - prev.x
+    const dy = next.y - prev.y
+    const len = Math.hypot(dx, dy) || 1
+    const t = along / wavelength
+    const wave =
+      Math.sin(t * Math.PI * 2 + phase[0]) * 0.6 +
+      Math.sin(t * Math.PI * 4.7 + phase[1]) * 0.3 +
+      Math.sin(t * Math.PI * 9.3 + phase[2]) * 0.1
+    // Fades out at both ends.
+    const ends = Math.min(1, along / wavelength, (total - along) / wavelength)
+    const off = wave * amplitude * Math.max(0, ends)
+    return { x: p.x - (dy / len) * off, y: p.y + (dx / len) * off }
+  })
+}
+
+/** The same line with points no further apart than `step`, so it can bend between them. */
+export function densify(points: Point[], step: number): Point[] {
+  if (points.length < 2 || step <= 0) return points
+  const out: Point[] = [{ ...points[0] }]
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1]
+    const b = points[i]
+    const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / step))
+    for (let k = 1; k <= n; k++)
+      out.push({ x: a.x + ((b.x - a.x) * k) / n, y: a.y + ((b.y - a.y) * k) / n })
+  }
+  return out
+}

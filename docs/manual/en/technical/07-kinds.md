@@ -22,7 +22,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `items`        | What its characters may carry: items with tags, numbers, places            | Characters' cards (trips, tokens, the Characters app), effects, the Systems app | Any               |
 | `bestiary`     | Templates of characters (creatures, NPC types) that results make copies of | Trips (those present: effects `present.<template>`)                             | Any               |
 | `places`       | Templates of points of interest that results make on the party's cell      | Trips (effects `place.pois.<place>`), written on the map by Map                 | Any               |
-| `style`        | How a map is drawn: the grid's line, glyphs, names, regions                | Map (**Map settings → Style**)                                                  | Any               |
+| `style`        | How a map is drawn: paper, ground, art, shores, paths, names               | Map (**Map settings → Style**)                                                  | Any               |
 | `system`       | A game system: which of the above it uses, and which packs                 | Every app that plays with a system: Map, Travel, Campaign, Characters, Systems  | Any               |
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card), an action's `roll:` step (`roll: table.ruins`), an entry or card that rolls another (`table:`), a generator's field, a progress clock as it fills (`resolve:`) and a faction's world turn (`turn:`). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
@@ -702,15 +702,26 @@ The Systems app writes one for every new system, edits it in the system's **Over
 
 ## Map styles
 
-How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style. Choosing a style **copies** its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; what only a style decides (the grid's line) is read from it while the map is drawn, so a change to the style shows at once.
+How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings three: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores and the paths' look) is read from the style while the map is drawn, so a change to the style shows at once.
 
 ```yaml
 kind: style
 id: ink
 name: Ink
-description: A faint grid and no coordinates, names in Cinzel.
+description: A faint grid, no coordinates, trees and hills in ink.
 grid: { color: '#3a2a1a', opacity: 0.15, coords: false } # the grid's line; cells' coordinates shown?
-glyphs: 0.3 # terrains' glyphs, 0 (hidden) to 1
+glyphs: 0 # terrains' glyphs, 0 (hidden) to 1
+paper: '#efe3c4' # cells nothing is painted on
+ground: { wash: 0.6, blend: 0.2, ragged: 0.3, grain: 0.3 }
+art:
+  mode: ink # or painted
+  ink: '#3b2a1a'
+  terrains: # by terrain id: the painter that draws it
+    forest: conifers
+    dense-forest: { painter: forest, density: 1.3 }
+    hills: { painter: hills, size: 1.2 }
+shores: { lines: 3, color: '#3b2a1a' }
+paths: { wobble: 0.5, river: { color: '#3d6f96', width: 0.15 } }
 captions: # how each kind of name is drawn
   hexNames: { font: cinzel, size: 0.9 }
   regionNames: { font: cinzel, italic: false, color: '#5a3a1a', halo: true, haloColor: '#f4eedd' }
@@ -720,6 +731,11 @@ regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
 
 - Every key may be left out: what a style leaves out is the Schematic style's.
 - `grid`: `color` (`#rrggbb`), `opacity` (0 to 1) and `coords` (`true` / `false`: the map's **Coordinates**).
+- `paper`: the colour of cells nothing is painted on, and of the sheet under a map whose borders wander or blend.
+- `ground`, each from 0 to 1: `wash` mixes each terrain's colour towards the paper's (0 as painted, `0.6` a light wash); `blend` softens the borders between terrains; `ragged` makes them wander off the cells' edges (the same way on both sides, so they never open a gap); `grain` lays the paper's grain over it all.
+- `art`: what is drawn on each terrain's cells. `mode`: `ink` (lines over the terrain's colour) or `painted` (shapes lit on one side and shaded on the other); `ink`: the lines' colour; `terrains`: by terrain id, a **painter** (`forest: conifers`) or a painter with `density` (how many, 1 the usual, 0 to 3), `size` (how big, 0 to 3) and `color` (its own, instead of the terrain's). A terrain not named has no art. The painters: `grass`, `farmland`, `conifers`, `broadleaf`, `forest` (both kinds of tree, packed), `reeds`, `hills`, `mountains`, `peaks` (snow on top), `volcano`, `dunes`, `rocks`, `waves`, `dots`. Each cell's drawing is its own, and the same every time.
+- `shores`: where water (a terrain with **Water**) meets land, on the water's side: `lines` (0 to 5 lines along the shore, fainter further out; in `ink` mode, the coast inked too), `color` and `band` (0 to 1: a pale band of shallows).
+- `paths`: `wobble` (0 to 1: roads, trails and rivers drawn by hand) and, for `river`, `road` and `trail`, their `color` and `width` (in cells).
 - `captions`, by kind (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` or `sans`), `size` (1 the usual), `color` (absent: automatic), `italic`, `halo` and `haloColor`, as **Map settings → Map texts**.
 - `regions`: `fill` and `borderOpacity` (0 to 1), `border` (in cells' sizes, 0 for none) and `dashed`, as **Map settings → Regions**.
 - A map whose style isn't loaded is drawn in the Schematic one, and keeps naming its own.

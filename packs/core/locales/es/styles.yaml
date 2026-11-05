@@ -4,3 +4,15 @@ style/schematic:
     Colores planos y un pequeño símbolo por terreno, cada casilla con sus coordenadas: sencillo y claro, para preparar y para imprimir.
 
     **Enseña:** un estilo de mapa (`kind: style`): la línea de la rejilla (`grid`), los símbolos de los terrenos, cómo se dibuja cada clase de nombre (`captions`) y las regiones (`regions`).
+style/parchment:
+  name: Pergamino
+  description: |-
+    Un hexcrawl dibujado a tinta sobre papel viejo: una aguada suave del color de cada terreno, montañas, árboles, colinas y olas dibujadas a mano, costas con ondas, bordes que serpentean, caminos y ríos que tiemblan. Sin coordenadas (las dicen el panel de la casilla y la línea bajo el mapa).
+
+    **Enseña:** el papel y el terreno de un estilo (`paper`, `ground`: aguada, fundido, bordes irregulares, grano), arte por terreno a tinta (`art.mode: ink`, un pintor por id de terreno), costas (`shores.lines`) y caminos dibujados a mano (`paths.wobble`, el color y el grosor de cada clase).
+style/painted:
+  name: Pintado
+  description: |-
+    Un mapa pintado: colores intensos que se funden entre sí, montañas y árboles iluminados por un lado y en sombra por el otro, aguas someras claras junto a las costas, un grano de papel sobre todo. Sin coordenadas.
+
+    **Enseña:** arte pintado por terreno (`art.mode: painted`), los colores del terreno fundidos (`ground.blend`) con poca aguada, costas como una franja somera (`shores.band`).

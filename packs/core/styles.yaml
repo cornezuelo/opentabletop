@@ -16,3 +16,111 @@ captions:
   regionNames: { font: fell, size: 1, italic: true, halo: true, haloColor: '#f4eedd' }
   tokenNames: { font: fell, size: 1, italic: false, halo: true, haloColor: '#f4eedd' }
 regions: { fill: 0.14, border: 0.09, dashed: false, borderOpacity: 0.85 }
+---
+# Ink on paper: each terrain a light wash of its colour, its art drawn in ink by the
+# painters (by terrain id: the natural palette's), borders that wander and blend, rippled
+# shores, roads and rivers drawn by hand. No coordinates or glyphs.
+kind: style
+id: parchment
+name: Parchment
+description: |-
+  A hexcrawl drawn in ink on old paper: a light wash of each terrain's colour, mountains, trees, hills and waves drawn by hand, rippled shores, wandering borders, roads and rivers that wobble. No coordinates (the cell's panel and the line under the map say them).
+
+  **Shows:** a style's paper and ground (`paper`, `ground`: wash, blend, ragged borders, grain), art by terrain in ink (`art.mode: ink`, a painter per terrain id), shores (`shores.lines`) and paths drawn by hand (`paths.wobble`, each kind's colour and width).
+paper: '#efe3c4'
+grid: { color: '#5a4630', opacity: 0.12, coords: false }
+glyphs: 0
+ground: { wash: 0.62, blend: 0.2, ragged: 0.3, grain: 0.35 }
+art:
+  mode: ink
+  ink: '#3b2a1a'
+  terrains:
+    steppe: { painter: grass, density: 0.8 }
+    plains: grass
+    farmland: farmland
+    heath: { painter: grass, density: 0.6 }
+    savanna: { painter: broadleaf, density: 0.35 }
+    forest: conifers
+    dense-forest: { painter: forest, density: 1.2 }
+    jungle: { painter: broadleaf, density: 1.4 }
+    taiga: { painter: conifers, density: 0.8 }
+    swamp: { painter: reeds, density: 1.2 }
+    marsh: reeds
+    hills: { painter: hills, size: 1.15 }
+    mountains: { painter: mountains, size: 1.3 }
+    peaks: { painter: peaks, size: 1.3 }
+    volcanic: volcano
+    desert: dunes
+    badlands: rocks
+    canyon: { painter: rocks, density: 1.5 }
+    oasis: { painter: broadleaf, density: 0.4 }
+    tundra: { painter: grass, density: 0.4 }
+    glacier: { painter: rocks, density: 0.4 }
+    coast: dots
+    lake: { painter: waves, density: 0.4 }
+    sea: { painter: waves, density: 0.6 }
+    deep-sea: { painter: waves, density: 0.4 }
+shores: { lines: 3, color: '#3b2a1a' }
+paths:
+  wobble: 0.5
+  river: { color: '#3d6f96', width: 0.15 }
+  road: { color: '#6b4a2a', width: 0.09 }
+  trail: { color: '#6b4a2a', width: 0.07 }
+captions:
+  hexNames: { font: fell, color: '#3b2a1a', halo: true, haloColor: '#efe3c4' }
+  regionNames: { font: fell, italic: true, halo: true, haloColor: '#efe3c4' }
+  tokenNames: { font: fell, halo: true, haloColor: '#efe3c4' }
+regions: { fill: 0.05, border: 0.06, dashed: true, borderOpacity: 0.7 }
+---
+# Painted: the terrains' own colours blended into each other, art lit on one side and shaded
+# on the other, shallows along the shores, no grid lines to speak of.
+kind: style
+id: painted
+name: Painted
+description: |-
+  A painted map: rich colours that melt into each other, mountains and trees lit on one side and shaded on the other, pale shallows along the shores, a paper grain over all. No coordinates.
+
+  **Shows:** art painted by terrain (`art.mode: painted`), the ground's colours blended (`ground.blend`) with a little wash, shores as a shallow band (`shores.band`).
+paper: '#d9cba6'
+grid: { color: '#000000', opacity: 0.06, coords: false }
+glyphs: 0
+ground: { wash: 0.08, blend: 0.55, ragged: 0.4, grain: 0.22 }
+art:
+  mode: painted
+  terrains:
+    steppe: { painter: grass, density: 0.8 }
+    plains: grass
+    farmland: farmland
+    heath: { painter: grass, density: 0.6 }
+    savanna: { painter: broadleaf, density: 0.35 }
+    forest: { painter: conifers, size: 1.25 }
+    dense-forest: { painter: forest, density: 1.3, size: 1.2 }
+    jungle: { painter: broadleaf, density: 1.4 }
+    taiga: { painter: conifers, density: 0.8, size: 1.25 }
+    swamp: { painter: reeds, density: 1.2 }
+    marsh: reeds
+    hills: { painter: hills, size: 1.15 }
+    mountains: { painter: mountains, size: 1.3 }
+    peaks: { painter: peaks, size: 1.3 }
+    volcanic: volcano
+    desert: dunes
+    badlands: rocks
+    canyon: { painter: rocks, density: 1.5 }
+    oasis: { painter: broadleaf, density: 0.4 }
+    tundra: { painter: grass, density: 0.4 }
+    glacier: { painter: rocks, density: 0.4 }
+    coast: dots
+    lake: { painter: waves, density: 0.4 }
+    sea: { painter: waves, density: 0.6 }
+    deep-sea: { painter: waves, density: 0.4 }
+shores: { band: 0.8 }
+paths:
+  wobble: 0.35
+  river: { color: '#4f8fc0', width: 0.17 }
+  road: { color: '#8a6a44', width: 0.09 }
+  trail: { color: '#8a6a44', width: 0.07 }
+captions:
+  hexNames: { font: fell, halo: true, haloColor: '#f4eedd' }
+  regionNames: { font: cinzel, italic: false, halo: true, haloColor: '#f4eedd' }
+  tokenNames: { font: fell, halo: true, haloColor: '#f4eedd' }
+regions: { fill: 0.06, border: 0.05, dashed: false, borderOpacity: 0.6 }
