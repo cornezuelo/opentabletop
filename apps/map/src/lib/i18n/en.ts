@@ -469,7 +469,7 @@ export const en = {
       'The powers of this world, each holding land on the map in its colour. Open one to see its sheet; ✎ paints its land.',
     land: 'Their land',
     landHelp:
-      "Which cells each faction holds (`place.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the regions and cells the system names for it (Systems → **Factions**), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes cells away\n• **world turns** — its turn table may win or lose ground cell by cell (`faction.territory: 1` takes a cell from its border, `-1` gives one up)\nA cell has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
+      "Which cells each faction holds (`place.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the cells that hold the condition the system gives it (Systems → **Factions** → **Starts on**: a region, a tag…), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes cells away\n• **world turns** — its turn table may win or lose ground cell by cell (`faction.territory: 1` takes a cell from its border, `-1` gives one up)\nA cell has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
     help: campaignTexts.en.factions.help,
     none: "The map's system has factions, not yet on this map: bring them in, each holding the land the system says it starts with.",
     bring: campaignTexts.en.factions.bring,

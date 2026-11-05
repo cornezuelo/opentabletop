@@ -8,6 +8,7 @@
  *
  * Pure functions; randomness comes from the `RandomSource` the caller gives.
  */
+import { validateCondition } from '@open-tabletop/conditions'
 import type { RandomSource } from '@open-tabletop/random'
 import { z } from 'zod'
 
@@ -26,23 +27,11 @@ const faction = z
     values: z.record(z.string(), z.number()).optional(),
     tags: z.array(z.string()).optional(),
     /**
-     * Where it starts: every hex of these regions (by name), on any map that has them; and
-     * these hexes, only on `map` (an example map of the pack, by its path in it), since the
-     * same coordinates are somewhere else on another map.
+     * Where it starts: every cell of a map that holds this condition, read as the cell's
+     * place (`place.region`, `place.tags`, `place.terrain`…), on any map the factions are
+     * brought to.
      */
-    territory: z
-      .object({
-        regions: z.array(z.string().min(1)).optional(),
-        map: z.string().min(1).optional(),
-        hexes: z.array(z.string().min(1)).optional(),
-      })
-      .strict()
-      .refine((t) => !t.hexes?.length || t.map, {
-        message:
-          'Hexes are on a map: say which with `map:` (its path in the pack, e.g. maps/frontier.otd.json)',
-        path: ['hexes'],
-      })
-      .optional(),
+    territory: z.record(z.string(), z.unknown()).optional(),
     /** What it rolls on its turn, instead of the definition's `turn`. */
     turn: z.string().min(1).optional(),
     noteRef: z.string().optional(),
@@ -76,9 +65,11 @@ export function parseFactions(raw: unknown): { factions?: FactionsDef; errors: s
       errors: parsed.error.issues.map((i) => `${i.path.join('.') || 'factions'}: ${i.message}`),
     }
   const errors: string[] = []
-  for (const [id, f] of Object.entries(parsed.data.factions))
+  for (const [id, f] of Object.entries(parsed.data.factions)) {
     if (!f.turn && !parsed.data.turn)
       errors.push(`factions.${id}.turn: nothing to roll on its turn`)
+    if (f.territory) errors.push(...validateCondition(f.territory, `factions.${id}.territory`))
+  }
   return errors.length ? { errors } : { factions: parsed.data, errors }
 }
 

@@ -681,7 +681,8 @@
           "terrain": "heath"
         },
         "3,6": {
-          "terrain": "heath"
+          "terrain": "heath",
+          "tags": ["clan-watch"]
         },
         "3,7": {
           "terrain": "heath"
@@ -727,7 +728,7 @@
         "4,6": {
           "terrain": "heath",
           "name": "The clan watch-cairn",
-          "tags": ["landmark"]
+          "tags": ["clan-watch", "landmark"]
         },
         "4,7": {
           "terrain": "heath"

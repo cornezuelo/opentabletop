@@ -159,7 +159,7 @@ describe('the Campaign app', () => {
     const id = await app.newCampaign('The Marches at war', greyMarches.id)
 
     // The Grey Marches' example map (its id is the bundle's), in the campaign: its Hills and
-    // Vale by name, and Fort Keld's hex.
+    // Vale by name, and Fort Keld's cell by its tag.
     const example = (): ReturnType<typeof createMap> => {
       const map = createMap('The Grey Marches')
       map.meta = { ...map.meta, id: 'greymarches1', campaign: id }
@@ -170,6 +170,7 @@ describe('the Campaign app', () => {
       ]
       for (let col = 1; col <= 4; col++) map.hexes[`${col},2`] = { region: 'hollowhills' }
       for (let col = 8; col <= 11; col++) map.hexes[`${col},6`] = { region: 'ashfordvale' }
+      map.hexes['15,9'] = { tags: ['garrison'] }
       return map
     }
     const keep = (map: ReturnType<typeof createMap>) =>
@@ -216,9 +217,10 @@ describe('the Campaign app', () => {
       week.factions!.lastTurn,
     )
 
-    // A second map joins, with no land of theirs: given here, by region (no Fort Keld: its
-    // hex is for the example map only). It's the one chosen now.
+    // A second map joins, with no land of theirs: given here, by region (no Fort Keld: no
+    // cell is tagged for it there). It's the one chosen now.
     const second = example()
+    delete second.hexes['15,9']
     second.meta = { ...second.meta, id: 'secondmap1', name: 'A second map' }
     keep(second)
     await app.open.open('elsewhere')

@@ -1,6 +1,6 @@
-import { inBounds, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
+import { allCells, inBounds, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
 import { claim, type TerritoryWorld } from '@open-tabletop/faction-engine'
-import { regionCells, type HexMap } from '@open-tabletop/map'
+import { mapWorld, type HexMap } from '@open-tabletop/map'
 import { emptyState } from '@open-tabletop/oracle-engine'
 import { startFactions, worldTurn, type SystemFactions } from '@open-tabletop/session'
 import type { Campaign, CampaignFactions, FactionsOnMap } from './types'
@@ -54,10 +54,8 @@ export function territoryWorld(map: HexMap): TerritoryWorld {
 /**
  * Brings a system's factions to a map of the campaign: the campaign gets their sheets as
  * they start (unless it has them already, from this system), and the map the land each
- * starts with on it (every hex of its regions, by name, and, when the map is the one of the
- * factions' pack they're on (`from`: the map's path in that pack, if it's one of its example
- * maps), the hexes it lists). Without a map, only their sheets come (no land). `time` is
- * the moment they come (their last turn).
+ * starts with on it (every cell whose place holds its `territory`). Without a map, only
+ * their sheets come (no land). `time` is the moment they come (their last turn).
  */
 export function bringFactions(
   campaign: Campaign,
@@ -65,23 +63,8 @@ export function bringFactions(
   system: SystemFactions,
   systemId: string,
   time: number,
-  from?: { pack: string; path: string },
 ): FactionsOnMap {
-  const start = startFactions(
-    system,
-    map
-      ? {
-          regionHexes: (name) => {
-            // Its cells with those of the regions inside it.
-            const region = map.regions.find((r) => r.name === name)
-            return region ? regionCells(map, region.id) : []
-          },
-          exists: (hex) => /^\d+,\d+$/.test(hex) && inBounds(parseKey(hex as HexKey), map.grid),
-          is: (path) => from?.pack === system.pack && from.path === path,
-        }
-      : { regionHexes: () => [], exists: () => false },
-    time,
-  )
+  const start = startFactions(system, { cells: () => (map ? cellPlaces(map) : []) }, time)
   const own = campaign.factions
   if (!own || own.system !== systemId) return { system: systemId, ...start }
   if (!map) return { ...own, territories: {} }
@@ -92,6 +75,15 @@ export function bringFactions(
     if (!territories[f.id]?.length && start.territories[f.id]?.length)
       territories = claim(territories, f.id, start.territories[f.id])
   return { ...own, territories }
+}
+
+/** Each cell of a map with what conditions read of it as a place (its region, tags…). */
+function* cellPlaces(map: HexMap): Generator<{ id: string; place: Record<string, unknown> }> {
+  const world = mapWorld(map)
+  for (const cell of allCells(map.grid)) {
+    const id = keyOf(cell)
+    yield { id, place: { ...world.place(id), id } }
+  }
 }
 
 /** Where no map is played: no land to hold. */

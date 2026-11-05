@@ -575,9 +575,10 @@ factions:
     name: The Crown
     color: '#c9a227' # its land on the map
     values: { strength: 4 } # starting values (the rest: the sheet's defaults)
-    # Where it starts: the regions on any map that has them; the cells only on this map of
-    # the pack (its path in it, one of its system's `maps:`).
-    territory: { regions: [The Royal Vale], map: maps/realm.otd.json, hexes: ['12,4'] }
+    # Where it starts: every cell whose place holds this condition, on any map (a later
+    # faction in the list takes a cell an earlier one wants).
+    territory:
+      any: [{ place.region: The Royal Vale }, { place.tags: royal-castle }]
   the-rebels:
     name: The Rebels
     color: '#8b1e1e'

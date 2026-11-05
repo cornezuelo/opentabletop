@@ -28,7 +28,7 @@ import {
 
 /** Two factions: the clans in the hills (a region), the vale on one hex. */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 15\n' },
   { path: 'marks/system.yaml', content: 'kind: system\nname: Marks\nfactions: factions.default\n' },
   {
     path: 'marks/factions.yaml',
@@ -45,9 +45,9 @@ turn: table.turn
 factions:
   clans:
     values: { strength: 4 }
-    territory: { regions: [Hills] }
+    territory: { place.region: Hills }
   vale:
-    territory: { map: maps/north.otd.json, hexes: ['1,1'] }
+    territory: { place.tags: vale }
 ---
 kind: table
 id: turn
@@ -72,6 +72,7 @@ function hillsMap(campaign?: string): HexMap {
   map.regions = [{ id: 'r1', name: 'Hills', color: '#888888' }]
   map.hexes['4,4'] = { region: 'r1' }
   map.hexes['4,5'] = { region: 'r1' }
+  map.hexes['1,1'] = { tags: ['vale'] }
   if (campaign) map.meta.campaign = campaign
   return map
 }
@@ -236,13 +237,9 @@ describe('campaigns', () => {
   it('keep the factions’ sheets, and each map the land they hold on it', () => {
     const map = hillsMap('c1')
     const campaign = createCampaign('c1')
-    const north = { pack: 'marks', path: 'maps/north.otd.json' }
-    const here = bringFactions(campaign, map, marks.factions!, 'marks', 60, north)
+    const here = bringFactions(campaign, map, marks.factions!, 'marks', 60)
+    // Every cell whose place holds each one's condition: the Hills' region, the vale's tag.
     expect(here.territories).toEqual({ clans: ['4,4', '4,5'], vale: ['1,1'] })
-    // On a map that isn't the one the vale's hexes are on, only the regions.
-    expect(bringFactions(campaign, map, marks.factions!, 'marks', 60).territories).toEqual({
-      clans: ['4,4', '4,5'],
-    })
     expect(here.lastTurn).toBe(60)
     const split = splitFactions(here)
     expect(split.factions).toEqual({
@@ -251,8 +248,8 @@ describe('campaigns', () => {
       lastTurn: 60,
     })
     const withThem = { ...campaign, factions: split.factions }
-    // A second map of the campaign: the same sheets, its own land (none for the vale, whose
-    // hex it doesn't have).
+    // A second map of the campaign: the same sheets, its own land (none for the vale, with no
+    // cell tagged for it).
     const south = hillsMap('c1')
     south.grid = { ...south.grid, width: 1, height: 1 }
     south.hexes = { '0,0': { region: 'r1' } }
@@ -275,10 +272,7 @@ describe('campaigns', () => {
 
   it('play a world turn on a map: sheets and Oracle in the campaign, land on the map', () => {
     const map = hillsMap('c1')
-    const start = bringFactions(createCampaign('c1'), map, marks.factions!, 'marks', 0, {
-      pack: 'marks',
-      path: 'maps/north.otd.json',
-    })
+    const start = bringFactions(createCampaign('c1'), map, marks.factions!, 'marks', 0)
     const split = splitFactions(start)
     const done = worldTurnOn(
       {

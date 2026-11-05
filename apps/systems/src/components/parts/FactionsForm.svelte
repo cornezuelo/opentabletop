@@ -1,7 +1,7 @@
 <script lang="ts">
   import { usesFor } from '../../lib/usage'
   import { writeRef } from '@open-tabletop/oracle-engine'
-  import type { TravelSystem } from '@open-tabletop/session'
+  import { contextSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { InfoTip, SuggestInput } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import { library } from '../../lib/packs.svelte'
@@ -33,8 +33,12 @@
     ),
   )
   const values = $derived(Object.keys(system.factions?.sheet.def.values ?? {}))
-  /** The maps of this pack, where a faction's starting hexes can be. */
-  const maps = $derived(library.registry.packs.get(pack)?.bundles ?? [])
+  /** What a cell's place gives conditions (`place.region`, `place.tags`…), for its territory. */
+  const placeHints = $derived(
+    Object.fromEntries(
+      Object.entries(contextSuggestions(library.registry)).filter(([k]) => k.startsWith('place.')),
+    ),
+  )
 </script>
 
 <div class="form">
@@ -124,25 +128,12 @@
           hints: Object.fromEntries(values.map((v) => [v, []])),
         },
         {
-          field: 'territory.map',
-          label: t('factionsForm.map'),
-          help: t('factionsForm.mapHelp'),
-          type: 'select',
-          choices: maps,
-        },
-        {
-          field: 'territory.hexes',
-          label: t('factionsForm.hexes'),
-          help: t('factionsForm.hexesHelp'),
-          type: 'list',
-          separator: 'space',
-          placeholder: '15,9',
-        },
-        {
-          field: 'territory.regions',
-          label: t('factionsForm.regions'),
-          help: t('factionsForm.regionsHelp'),
-          type: 'list',
+          field: 'territory',
+          label: t('factionsForm.territory'),
+          help: t('factionsForm.territoryHelp'),
+          type: 'condition',
+          placeholder: t('factionsForm.nowhere'),
+          hints: placeHints,
         },
       ]}
     />

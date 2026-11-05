@@ -22,7 +22,7 @@ A faction is two things: **a sheet**, like a character's (its Strength, its Weal
 - **Every (days)**: how often a world turn comes by itself; empty, only by hand.
 - Each faction, by its id (`the-wardens`: how tables name it, `factions.the-wardens.…`), with its **Name**, **Description (its help**, shown when it's opened in the World view), **Colour**, what it **Starts with** (values of its sheet, `strength: 4`; the rest, the sheet's), where it starts (below) and its **Own turn** table, rolled instead of theirs. Their order is the world turn's: each card shows its place, and its handle (⠿) drags it onto another (or ↑ / ↓ one place).
 
-**Where they start.** Here you say where each **starts**: the **Regions** (by the names the map gives them), on any map that has them, and **Cells** it holds when a map brings the factions in. Cells are coordinates, and the same coordinates are somewhere else on another map, so they're given only **On the map** you choose: one of the pack's example maps (`maps:` in its system), the map you get by opening it from Map's **Example maps**; `territory: { map: maps/frontier.otd.json, hexes: ['15,9'] }`. From then on the land is the map's: painted by hand in Map's World view and won or lost cell by cell on world turns. Changing where they start doesn't move the land of a map that already has them.
+**Where they start.** Each one's **Starts on** is a [condition](../technical/08-conditions.md) on the cell: when a map brings the factions in, it holds every cell of that map whose place holds it (its region, tags, terrain…), on any map: `territory: { place.region: The Low Fells }` (every cell of a region, and of the regions inside it), `{ place.tags: fort }` (the cells tagged so: tag a cell on the map to give it to a faction), `any: [{ place.region: The Low Fells }, { place.tags: watchtower }]` (both). A cell two factions want goes to the later one in the list. From then on the land is the map's: painted by hand in Map's World view and won or lost cell by cell on world turns. Changing where they start doesn't move the land of a map that already has them.
 
 ## Step by step: a border feud
 
@@ -57,12 +57,12 @@ factions:
     name: The Wardens
     color: '#3a6ea5'
     values: { strength: 4 }
-    territory: { regions: [The Low Fells] }
+    territory: { place.region: The Low Fells }
   the-reavers:
     name: The Reavers
     color: '#8b1e1e'
     values: { strength: 3 }
-    territory: { regions: [The High Moor] }
+    territory: { place.region: The High Moor }
     turn: table.reaver-raid # step 5
 ---
 kind: sheet
@@ -113,8 +113,7 @@ The Grey Marches play with all of this and more (the Iron Clans, the Vale of Ash
 ## Common mistakes
 
 - **Nothing to roll.** A faction needs a turn table: **Their turn**, or its **Own turn**. Without either, the system's problems say _nothing to roll on its turn_.
-- **A faction that never grows.** Its land starts from the **Regions** named exactly as the map names them (_The High Moor_, not _high moor_); a faction brought in with no land has nowhere to grow from, and `faction.territory: 1` does nothing. Paint it a cell by hand (**✎** in the World panel), and it grows from there.
-- **Cells that don't come.** **Cells** are given only **On the map** chosen, one of the pack's example maps; on any other map only the regions are. Without **On the map**, the system's problems say so.
+- **A faction that never grows.** Its **Starts on** must match the map's names exactly (`place.region: The High Moor`, not _high moor_); a faction brought in with no land has nowhere to grow from, and `faction.territory: 1` does nothing. Paint it a cell by hand (**✎** in the World panel), and it grows from there.
 - **Starting land changed, map unchanged.** Where they start is read once, when a map brings them in. To see a change, paint the land by hand, or take the factions off the map and bring them in again.
 - **`faction.` outside a turn table.** Only a turn table knows whose turn it is. In a trip's check, a hand roll or a world reaction's effects, name the faction: `factions.the-reavers.values.strength: 1`.
 - **Effects a turn ignores.** A turn changes factions and progress clocks only: `party.…` or `trip.…` in a turn table change nothing (there's no trip in a world turn).

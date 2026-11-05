@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Systems: where a faction **starts** is a condition on the cell (**Starts on**: `place.region: The Vale`, `place.tags: fort`, `any: […]`), on any map its factions are brought to, instead of regions by name and cells on one example map; a cell two factions want goes to the later one.
+
+### Packs
+
+- The Grey Marches: Fort Keld's garrison starts on the cell tagged `garrison`, the Iron Clans on the Hollow Hills and the cells tagged `clan-watch` (their watch-cairn), on any map.
+
+### Formats
+
+- Pack format 15: a faction's `territory` is a condition on the cell (`{ place.region: The Vale }`), instead of `regions:`, `map:` and `hexes:` (File formats says how to rewrite it).
+
 ## [0.30.0] - 2026-11-05
 
 ### Apps

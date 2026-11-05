@@ -13,6 +13,7 @@ import {
   type TerritoryEvent,
   type TerritoryWorld,
 } from '@open-tabletop/faction-engine'
+import { matches, type Condition } from '@open-tabletop/conditions'
 import { OracleError, type OracleEngine, type OracleState } from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
 import { onceRoller, resolveChange } from '@open-tabletop/variables'
@@ -53,27 +54,28 @@ export function factionName(
 
 /**
  * The factions as they start: each with the sheet's defaults and its starting values and
- * tags, holding its starting territory on this map (every hex of its regions, by name,
- * and, if this map is the one its hexes are on (`is`, by its path in the factions' pack),
- * the hexes it lists that `exists` says the map has).
+ * tags, holding its starting territory on this map: every cell whose place holds its
+ * `territory` condition (`place.region`, `place.tags`…; short names read too). Later
+ * factions take a cell from earlier ones, in the pack's order.
  */
 export function startFactions(
   system: SystemFactions,
   map: {
-    regionHexes(name: string): string[]
-    exists?(hex: string): boolean
-    /** Whether this map is the pack's map at this path (`maps/frontier.otd.json`). */
-    is?(path: string): boolean
+    /** The map's cells, each with what conditions read of it as a place. */
+    cells(): Iterable<{ id: string; place: Record<string, unknown> }>
   },
   time: number,
 ): FactionsState {
+  const cells = [...map.cells()].map(({ id, place }) => ({
+    id,
+    context: { ...place, place: { ...place, id } },
+  }))
   let territories: Territories = {}
   const factions = Object.entries(system.def.factions).map(([id, f]) => {
-    const here = !!f.territory?.map && !!map.is?.(f.territory.map)
-    const hexes = [
-      ...(f.territory?.regions ?? []).flatMap((r) => map.regionHexes(r)),
-      ...(here ? (f.territory?.hexes ?? []) : []).filter((h) => map.exists?.(h) ?? true),
-    ]
+    const territory = f.territory as Condition | undefined
+    const hexes = territory
+      ? cells.filter((c) => matches(territory, c.context)).map((c) => c.id)
+      : []
     if (hexes.length) territories = claim(territories, id, hexes)
     return createCharacter(system.sheet.def, system.sheet.id, {
       id,

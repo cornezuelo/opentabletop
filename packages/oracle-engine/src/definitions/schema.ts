@@ -215,7 +215,7 @@ export const definitionSchema = z.discriminatedUnion('kind', [
  *    replaced the step's time).
  * 14. A cell's km, a hex's or a square's, is `travel.cellKm` (in 13: `travel.hexKm`).
  */
-export const PACK_FORMAT = 14
+export const PACK_FORMAT = 15
 
 export const manifestSchema = z
   .object({

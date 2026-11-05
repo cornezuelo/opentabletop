@@ -8,7 +8,7 @@ import { travelSystems } from './trip'
 
 /** Two factions on a row of hexes: the clans in the hills, the vale in the vale. */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 15\n' },
   {
     path: 'marks/system.yaml',
     content: 'kind: system\nname: Marks\nfactions: factions.default\n',
@@ -34,10 +34,10 @@ factions:
     name: The Clans
     color: '#8b1e1e'
     values: { strength: 4 }
-    territory: { regions: [Hills] }
+    territory: { place.region: Hills }
   vale:
     name: { en: The Vale, es: El Valle }
-    territory: { map: maps/marks.otd.json, hexes: ['1', '99'] }
+    territory: { any: [{ place.tags: vale }, { place.terrain: farmland }] }
     turn: table.vale-turn
 ---
 kind: table
@@ -69,11 +69,16 @@ const marks = travelSystems(registry).systems.find((s) => s.id === 'marks')!
 const row: TerritoryWorld = {
   neighbors: (h) => [Number(h) - 1, Number(h) + 1].filter((i) => i >= 0 && i < 6).map(String),
 }
-const map = {
-  regionHexes: (name: string) => (name === 'Hills' ? ['4', '5'] : []),
-  exists: (h: string) => Number(h) < 6,
-  is: (path: string) => path === 'maps/marks.otd.json',
-}
+/** Six cells in a row: the Hills' two, and a farm tagged for the vale. */
+const cells = [
+  { id: '0', place: {} },
+  { id: '1', place: { tags: ['vale'] } },
+  { id: '2', place: {} },
+  { id: '3', place: {} },
+  { id: '4', place: { region: ['Hills'] } },
+  { id: '5', place: { region: ['Hills'] } },
+]
+const map = { cells: () => cells }
 
 describe('factions in a world', () => {
   it('reads the factions a system names, with their sheet', () => {
@@ -97,10 +102,15 @@ describe('factions in a world', () => {
     )
   })
 
-  it('give starting hexes only on the map they are on, which must be one of the pack', () => {
-    // Another map: the regions it has, none of the hexes.
-    const other = startFactions(marks.factions!, { ...map, is: () => false }, 0)
-    expect(other.territories).toEqual({ clans: ['4', '5'] })
+  it('start where their condition holds on the cell, whatever the map', () => {
+    // Another map: a farm, and no tag for the vale (short names are read too).
+    const other = startFactions(
+      marks.factions!,
+      { cells: () => [{ id: 'a', place: { terrain: 'farmland', region: ['Hills'] } }] },
+      0,
+    )
+    // A cell both want goes to the later one in the list.
+    expect(other.territories).toEqual({ clans: [], vale: ['a'] })
     const problems = (territory: string) =>
       travelSystems(
         loadPacks([
@@ -111,12 +121,7 @@ describe('factions in a world', () => {
           },
         ]).registry,
       ).problems.map((p) => p.message)
-    expect(problems("{ hexes: ['1,1'] }")).toEqual(
-      expect.arrayContaining([expect.stringMatching(/^Hexes are on a map: say which with `map:`/)]),
-    )
-    expect(problems("{ map: maps/x.otd.json, hexes: ['1,1'] }")).toEqual(
-      expect.arrayContaining(['No map "maps/x.otd.json" in this pack']),
-    )
+    expect(problems('{ any: [] }')).toEqual(expect.arrayContaining(['must be a non-empty list']))
   })
 
   it('start with their values and their territory on the map', () => {

@@ -576,9 +576,10 @@ factions:
     name: La Corona
     color: '#c9a227' # sus tierras en el mapa
     values: { strength: 4 } # valores iniciales (el resto: los de la hoja)
-    # Dónde empieza: las regiones en cualquier mapa que las tenga; las casillas solo en este
-    # mapa del pack (su ruta en él, uno de los `maps:` de su sistema).
-    territory: { regions: [The Royal Vale], map: maps/realm.otd.json, hexes: ['12,4'] }
+    # Dónde empieza: todas las casillas cuyo lugar cumple esta condición, en cualquier mapa
+    # (una facción posterior en la lista se queda la casilla que quiere una anterior).
+    territory:
+      any: [{ place.region: The Royal Vale }, { place.tags: royal-castle }]
   the-rebels:
     name: Los Rebeldes
     color: '#8b1e1e'

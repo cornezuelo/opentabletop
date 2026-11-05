@@ -158,27 +158,6 @@ async function keepMap(map: HexMap): Promise<void> {
 const sameLand = (a: HexMap['territories'], b: HexMap['territories']) =>
   JSON.stringify(a ?? {}) === JSON.stringify(b ?? {})
 
-/**
- * The example map of a loaded pack a map is (opened from a system's `maps:`, it keeps the
- * bundle's id), if any: the factions' starting hexes go only on the map they're for.
- */
-function exampleOf(map: HexMap): { pack: string; path: string } | undefined {
-  for (const system of systems.list) {
-    const root = system.pack ? library.rootOf(system.pack) : undefined
-    if (root === undefined) continue
-    for (const path of system.maps ?? []) {
-      try {
-        const json = library.readFile(root, path)
-        const ids = (JSON.parse(json ?? '{}') as { maps?: { id?: string }[] }).maps
-        if (ids?.[0]?.id === map.meta.id) return { pack: system.pack!, path }
-      } catch {
-        // Not a map: the system's page in Systems says what's wrong with it.
-      }
-    }
-  }
-  return undefined
-}
-
 /** The campaign open in the app. */
 class OpenCampaign {
   private readonly keeper = new CampaignKeeper()
@@ -365,9 +344,7 @@ class OpenCampaign {
     const system = systems.get(systemId ?? campaign.system)
     if (!system.factions) return
     const time = campaign.world?.time ?? 0
-    const split = splitFactions(
-      bringFactions(campaign, map, system.factions, system.id, time, map && exampleOf(map)),
-    )
+    const split = splitFactions(bringFactions(campaign, map, system.factions, system.id, time))
     this.set({ ...campaign, factions: split.factions })
     if (map && !sameLand(map.territories, split.territories))
       this.putMap({ ...map, territories: split.territories })

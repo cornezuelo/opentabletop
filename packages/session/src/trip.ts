@@ -628,11 +628,6 @@ export function travelSystems(registry: Registry): {
               : ''
           report(`${at}: ${message}${older}`)
         }
-        // The map a faction's starting hexes are on must be one of the pack's.
-        const bundles = registry.packs.get(owner)?.bundles ?? []
-        for (const [id, f] of Object.entries(parsed.factions.factions))
-          if (f.territory?.map && !bundles.includes(f.territory.map))
-            report(`factions.${id}.territory.map: No map "${f.territory.map}" in this pack`)
         if (read?.sheet)
           factions = {
             id: `${owner}/${parts.factions.id ?? 'default'}`,

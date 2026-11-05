@@ -91,7 +91,7 @@ export const en = {
     factions: {
       title: 'Its factions',
       intro:
-        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. Their land is the cells they hold on a map: each starts with the regions written here (on any map that has them) and the cells (only on the map they're on) when a map brings them in (Map's World panel); from then on it's the map's, painted by hand there and won or lost cell by cell on world turns.",
+        "The powers of its world (`kind: factions`): each a character of a sheet (its values, conditions and relations) holding land on a map. On every world turn each one rolls a table, and what comes up changes it, another faction, its territory or the world clock's progress clocks. Their land is the cells they hold on a map: each starts with the cells that hold its **Starts on** (a region, a tag…, on any map) when a map brings them in (Map's World panel); from then on it's the map's, painted by hand there and won or lost cell by cell on world turns.",
       help: 'One factions definition per system, named in its **Overview** (`factions:`). Tables and conditions read them anywhere:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `place.faction: the-crown` — who holds the cell\nTheir turn tables change them with effects:\n• `faction.values.strength: 1` — the faction whose turn it is\n• `factions.the-rebels.values.strength: -1` — another\n• `faction.territory: 1` — a cell more, from its border\n• `world.clocks.the-siege: 1` — a progress clock of the world clock',
       none: 'This system has no factions.',
       create: 'New factions',
@@ -297,15 +297,10 @@ export const en = {
     values: 'Starts with',
     valuesHelp:
       "Starting values of its sheet, one row each (value · what it starts at); the rest are the sheet's defaults.\n• `strength` · `4`\n• `reputation` · `-1`",
-    regions: 'Regions',
-    regionsHelp:
-      "It starts holding every cell of these regions of the map (by name), each one a pill (Enter or a comma adds it): the land it gets when a map brings the factions in. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `The Hollow Hills`",
-    map: 'On the map',
-    mapHelp:
-      "The example map of this pack (`maps:` in its system) its **Cells** are on: they're given only there, since the same coordinates are somewhere else on another map. Its regions are given on any map that has them.\n• `maps/frontier.otd.json`",
-    hexes: 'Cells',
-    hexesHelp:
-      'And these cells (column,row) of the map chosen in **On the map**, each one a pill (Enter or a space adds it); they need it.\n• `15,9`',
+    territory: 'Starts on',
+    territoryHelp:
+      "Where it starts: every cell of a map that holds this condition, read as the cell's place (its region, tags, terrain…), on any map the factions are brought to (Map's World panel). Each holder is the last faction in the list that wants a cell. From then on its land is the map's (painted by hand, won and lost on world turns): changing this doesn't move it.\n• `place.region: The Vale` — every cell of a region (and of the regions inside it)\n• `place.tags: fort` — the cells tagged so on the map\n• `any: [{ place.region: The Hills }, { place.tags: watchtower }]` — both\n• `place.terrain: [hills, mountains]` — by terrain",
+    nowhere: 'Nowhere',
     ownTurn: 'Own turn',
     ownTurnHelp: "A turn table of its own, instead of the factions' one.\n• `clan-turn`",
   },

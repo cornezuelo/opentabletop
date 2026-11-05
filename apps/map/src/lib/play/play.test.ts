@@ -120,7 +120,7 @@ describe('playing on the map', () => {
       files: [
         {
           path: 'pack.yaml',
-          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 14\n',
+          content: 'id: still\nname: Still\nversion: 0.1.0\nlocale: en\nformat: 15\n',
         },
         { path: 'system.yaml', content: 'kind: system\nname: Still\n' },
       ],
@@ -1558,17 +1558,37 @@ describe('the powers of the Marches: factions on the map', () => {
     expect(editor.factionsOnMap).toBeUndefined()
     bringFactions()
     expect(editor.factionsOnMap!.territories['the-vale'].length).toBeGreaterThan(10)
-    // Fort Keld's hex is on the example map (`map:` in the pack): it's given here…
+    // Fort Keld's cell is tagged `garrison` on the map: the Garrison starts there, taken from
+    // the Clans' Hills (it comes after them).
     expect(editor.factionsOnMap!.territories['fort-keld']).toEqual(['15,9'])
-    // …and not on another map with the same regions: its 15,9 is somewhere else.
+    expect(editor.factionsOnMap!.territories['iron-clans']).not.toContain('15,9')
+    // On another map, wherever its cells hold the same conditions: a cell tagged there.
     const { map } = parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json)
+    const hexes = {
+      ...map.hexes,
+      '15,9': { ...map.hexes['15,9'], tags: [] },
+      '2,2': { tags: ['garrison'] },
+    }
     editor.load(
-      { ...map, meta: { ...map.meta, id: 'othermap0001', campaign: 'othermap0001' } },
+      { ...map, hexes, meta: { ...map.meta, id: 'othermap0001', campaign: 'othermap0001' } },
       { ...createCampaign('othermap0001'), system: 'grey-marches' },
     )
     bringFactions()
     expect(editor.factionsOnMap!.territories['the-vale'].length).toBeGreaterThan(10)
-    expect(editor.factionsOnMap!.territories['fort-keld']).toBeUndefined()
+    expect(editor.factionsOnMap!.territories['fort-keld']).toEqual(['2,2'])
+  })
+
+  it('start on the Hollow Hills where their conditions hold: the Hills and the watch-cairn', () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'hollowhills1')!.json))
+    removeFactions()
+    bringFactions()
+    const land = editor.factionsOnMap!.territories
+    // The Clans: their region and the two cells tagged `clan-watch` outside it.
+    expect(land['iron-clans']).toEqual(expect.arrayContaining(['3,6', '4,6', '8,4']))
+    expect(editor.map.hexes['3,6']?.region).toBeUndefined()
+    // No cell here is the Vale's region or tagged `garrison`.
+    expect(land['the-vale'] ?? []).toEqual([])
+    expect(land['fort-keld'] ?? []).toEqual([])
   })
 })
 

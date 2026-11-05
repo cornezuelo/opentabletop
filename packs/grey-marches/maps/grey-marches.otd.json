@@ -1744,7 +1744,8 @@
         "15,9": {
           "terrain": "hills",
           "region": "hollowhills",
-          "name": "Fort Keld"
+          "name": "Fort Keld",
+          "tags": ["garrison"]
         },
         "15,10": {
           "terrain": "hills",

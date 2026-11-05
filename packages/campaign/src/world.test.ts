@@ -31,7 +31,7 @@ import {
  * turn every two days, and a weather model of one kind of sky.
  */
 const PACK = [
-  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 14\n' },
+  { path: 'marks/pack.yaml', content: 'id: marks\nversion: 0.1.0\nlocale: en\nformat: 15\n' },
   {
     path: 'marks/system.yaml',
     content:
@@ -54,7 +54,7 @@ turn: table.turn
 every: 2
 factions:
   clans:
-    territory: { regions: [Hills] }
+    territory: { place.region: Hills }
 ---
 kind: table
 id: turn

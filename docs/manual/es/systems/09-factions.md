@@ -22,7 +22,7 @@ Una facción son dos cosas: **una hoja**, como la de un personaje (su Fuerza, su
 - **Cada (días)**: cada cuánto llega un turno del mundo por sí solo; vacío, solo a mano.
 - Cada facción, por su id (`the-wardens`: como la nombran las tablas, `factions.the-wardens.…`), con su **Nombre**, **Descripción (su ayuda**, que se ve al abrirla en la vista Mundo), **Color**, con qué **Empieza** (valores de su hoja, `strength: 4`; el resto, los de la hoja), dónde empieza (abajo) y su tabla de **Turno propio**, que tira en vez de la común. Su orden es el del turno del mundo: cada ficha enseña su puesto, y su asa (⠿) la arrastra sobre otra (o ↑ / ↓ un puesto).
 
-**Dónde empiezan.** Aquí dices dónde **empieza** cada una: las **Regiones** (por los nombres que les da el mapa), en cualquier mapa que las tenga, y las **Casillas** que tiene cuando un mapa trae las facciones. Las casillas son coordenadas, y las mismas coordenadas son otro sitio en otro mapa, así que solo se dan **En el mapa** que elijas: uno de los mapas de ejemplo del pack (`maps:` en su sistema), el mapa que tienes al abrirlo desde los **Mapas de ejemplo** de Mapa; `territory: { map: maps/frontier.otd.json, hexes: ['15,9'] }`. Desde entonces la tierra es del mapa: se pinta a mano en la vista Mundo de Mapa y se gana o se pierde casilla a casilla en los turnos del mundo. Cambiar dónde empiezan no mueve la tierra de un mapa que ya las tiene.
+**Dónde empiezan.** El **Empieza en** de cada una es una [condición](../technical/08-conditions.md) sobre la casilla: cuando un mapa trae las facciones, tiene todas las casillas de ese mapa cuyo lugar la cumple (su región, etiquetas, terreno…), en cualquier mapa: `territory: { place.region: Los Cerros Bajos }` (todas las casillas de una región, y de las regiones dentro de ella), `{ place.tags: fort }` (las casillas con esa etiqueta: etiqueta una casilla en el mapa para dársela a una facción), `any: [{ place.region: Los Cerros Bajos }, { place.tags: watchtower }]` (las dos). Una casilla que quieren dos facciones es de la última de la lista. Desde entonces la tierra es del mapa: se pinta a mano en la vista Mundo de Mapa y se gana o se pierde casilla a casilla en los turnos del mundo. Cambiar dónde empiezan no mueve la tierra de un mapa que ya las tiene.
 
 ## Paso a paso: una enemistad de frontera
 
@@ -57,12 +57,12 @@ factions:
     name: Los Guardianes
     color: '#3a6ea5'
     values: { strength: 4 }
-    territory: { regions: [Los Cerros Bajos] }
+    territory: { place.region: Los Cerros Bajos }
   the-reavers:
     name: Los Saqueadores
     color: '#8b1e1e'
     values: { strength: 3 }
-    territory: { regions: [El Páramo Alto] }
+    territory: { place.region: El Páramo Alto }
     turn: table.reaver-raid # paso 5
 ---
 kind: sheet
@@ -113,8 +113,7 @@ Las Marcas Grises juegan con todo esto y más (los Clanes de Hierro, el Valle de
 ## Errores habituales
 
 - **Nada que tirar.** Una facción necesita una tabla de turno: **Su turno**, o su **Turno propio**. Sin ninguna, los problemas del sistema dicen _nothing to roll on its turn_.
-- **Una facción que nunca crece.** Su tierra empieza por las **Regiones** escritas exactamente como las llama el mapa (_El Páramo Alto_, no _páramo alto_); una facción traída sin tierra no tiene desde dónde crecer, y `faction.territory: 1` no hace nada. Píntale una casilla a mano (**✎** en el panel Mundo) y crecerá desde ahí.
-- **Casillas que no llegan.** Las **Casillas** solo se dan **En el mapa** elegido, uno de los mapas de ejemplo del pack; en cualquier otro mapa solo se dan las regiones. Sin **En el mapa**, los problemas del sistema lo dicen.
+- **Una facción que nunca crece.** Su **Empieza en** tiene que escribir los nombres exactamente como los llama el mapa (`place.region: El Páramo Alto`, no _páramo alto_); una facción traída sin tierra no tiene desde dónde crecer, y `faction.territory: 1` no hace nada. Píntale una casilla a mano (**✎** en el panel Mundo) y crecerá desde ahí.
 - **Cambias dónde empiezan y el mapa no cambia.** Dónde empiezan se lee una vez, cuando un mapa las trae. Para ver un cambio, pinta la tierra a mano, o quita las facciones del mapa y tráelas otra vez.
 - **`faction.` fuera de una tabla de turno.** Solo una tabla de turno sabe de quién es el turno. En la comprobación de un viaje, una tirada a mano o los efectos de una reacción del mundo, nombra la facción: `factions.the-reavers.values.strength: 1`.
 - **Efectos que un turno no hace.** Un turno solo cambia facciones y relojes de progreso: `party.…` o `trip.…` en una tabla de turno no cambian nada (en un turno del mundo no hay viaje).

@@ -93,7 +93,7 @@ export const es: Messages<typeof en> = {
     factions: {
       title: 'Sus facciones',
       intro:
-        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. Su tierra son las casillas que tienen en un mapa: cada uno empieza con las regiones escritas aquí (en cualquier mapa que las tenga) y las casillas (solo en el mapa en el que están) cuando un mapa las trae (el panel Mundo de Mapa); desde entonces es del mapa, se pinta a mano allí y se gana o se pierde casilla a casilla en los turnos del mundo.',
+        'Los poderes de su mundo (`kind: factions`): cada uno, un personaje de una hoja (sus valores, estados y relaciones) que tiene tierras en un mapa. En cada turno del mundo cada uno tira una tabla, y lo que sale lo cambia a él, a otra facción, su territorio o los relojes de progreso del reloj del mundo. Su tierra son las casillas que tienen en un mapa: cada uno empieza con las casillas que cumplen su **Empieza en** (una región, una etiqueta…, en cualquier mapa) cuando un mapa las trae (el panel Mundo de Mapa); desde entonces es del mapa, se pinta a mano allí y se gana o se pierde casilla a casilla en los turnos del mundo.',
       help: 'Una definición de facciones por sistema, nombrada en su **Resumen** (`factions:`). Las tablas y condiciones las leen en todas partes:\n• `factions.the-crown.values.strength: { gte: 3 }`\n• `place.faction: the-crown` — quién tiene la casilla\nSus tablas de turno las cambian con efectos:\n• `faction.values.strength: 1` — la facción a la que le toca\n• `factions.the-rebels.values.strength: -1` — otra\n• `faction.territory: 1` — una casilla más, desde su frontera\n• `world.clocks.the-siege: 1` — un reloj de progreso del reloj del mundo',
       none: 'Este sistema no tiene facciones.',
       create: 'Nuevas facciones',
@@ -306,15 +306,10 @@ export const es: Messages<typeof en> = {
     values: 'Empieza con',
     valuesHelp:
       'Valores iniciales de su hoja, una fila cada uno (valor · con cuánto empieza); el resto, los de por defecto de la hoja.\n• `strength` · `4`\n• `reputation` · `-1`',
-    regions: 'Regiones',
-    regionsHelp:
-      'Empieza teniendo todas las casillas de estas regiones del mapa (por su nombre), cada una una pastilla (Intro o una coma la añade): la tierra que recibe cuando un mapa trae las facciones. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `The Hollow Hills`',
-    map: 'En el mapa',
-    mapHelp:
-      'El mapa de ejemplo de este pack (`maps:` en su sistema) en el que están sus **Casillas**: solo se dan ahí, porque las mismas coordenadas son otro sitio en otro mapa. Sus regiones se dan en cualquier mapa que las tenga.\n• `maps/frontier.otd.json`',
-    hexes: 'Casillas',
-    hexesHelp:
-      'Y estas casillas (columna,fila) del mapa elegido en **En el mapa**, cada una una pastilla (Intro o un espacio lo añade); lo necesitan.\n• `15,9`',
+    territory: 'Empieza en',
+    territoryHelp:
+      'Dónde empieza: todas las casillas de un mapa que cumplen esta condición, leída como el lugar de la casilla (su región, etiquetas, terreno…), en cualquier mapa al que se traigan las facciones (panel Mundo de Mapa). Cada casilla es de la última facción de la lista que la quiere. Desde entonces su tierra es del mapa (se pinta a mano y se gana y se pierde en los turnos del mundo): cambiar esto no la mueve.\n• `place.region: El Valle` — todas las casillas de una región (y de las regiones dentro de ella)\n• `place.tags: fort` — las casillas con esa etiqueta en el mapa\n• `any: [{ place.region: Las Colinas }, { place.tags: watchtower }]` — las dos\n• `place.terrain: [hills, mountains]` — por terreno',
+    nowhere: 'En ningún sitio',
     ownTurn: 'Turno propio',
     ownTurnHelp: 'Una tabla de turno propia, en vez de la de las facciones.\n• `clan-turn`',
   },
