@@ -20,6 +20,8 @@ import {
   type CaptionOverride,
   hasMetadata,
   cellOfPlace,
+  connectionLook,
+  type ConnectionSymbol,
   hexesWithTag,
   isInside,
   regionCells,
@@ -39,6 +41,7 @@ import { catmullRom, catmullRomClosed, dashes, densify, offsetPolyline, wobble }
 import { colorOf, mix, paint, seedOf, shade } from './painters'
 import { displace, noiseCanvas, raggedPolygon } from './noise'
 import { hatchStrokes, shadowStrips, stippleDots, type WallSide } from './dungeon'
+import { placeBetween, placeOnCell, symbolShapes, type Placement } from './symbols'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { connectionsNow } from '../play/connections'
 import { IconTextures } from './IconTextures'
@@ -1091,45 +1094,70 @@ export class MapRenderer {
   }
 
   /**
-   * Each connection: a dashed line from one place's centre to the other's, outlined so it
-   * shows on any terrain, and a diamond at its middle; the selected one in the selection's
-   * colour, one the trip going on can't cross now greyed with its diamond crossed out, and
-   * the place a connection being drawn starts at.
+   * Each connection, as the style draws its kind (`connectionLook`): by default a dashed line
+   * from one place's centre to the other's, outlined so it shows on any terrain, and a diamond
+   * at its middle; or a symbol (a door in its wall, a bridge, a ford) on the side the two
+   * cells share, with a line or none. The selected one in the selection's colour, one the trip
+   * going on can't cross now greyed (a diamond crossed out, a symbol barred), and the place a
+   * connection being drawn starts at.
    */
   drawConnections(): void {
     const g = this.connectionLayer.clear()
     const { grid } = editor.map
     const { hexSize } = grid
+    const style = mapStyle()
     const now = connectionsNow()
     this.marks = []
     for (const connection of editor.map.connections) {
       const [a, b] = connection.between.map(parseKey)
       if (!inBounds(a, grid) || !inBounds(b, grid)) continue
       const [from, to] = [this.centerOf(a), this.centerOf(b)]
+      const look = connectionLook(style, connection.kind)
       const shut = now.get(connection.id)?.open === false
       const color =
         connection.id === editor.selectedConnection
           ? SELECT_COLOR
           : shut
             ? SHUT_COLOR
-            : CONNECTION_COLOR
-      const line = [from, to]
-      const pieces = dashes(line, 0.3 * hexSize, 0.16 * hexSize)
-      for (const piece of pieces) this.strokePolyline(g, piece)
-      g.stroke({ width: 0.22 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', alpha: 0.85 })
-      for (const piece of pieces) this.strokePolyline(g, piece)
-      g.stroke({ width: 0.13 * hexSize, color, cap: 'round' })
-      const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 }
-      const r = 0.26 * hexSize
-      this.marks.push({ x: mid.x - r, y: mid.y - r, w: 2 * r, h: 2 * r })
-      g.poly([mid.x, mid.y - r, mid.x + r, mid.y, mid.x, mid.y + r, mid.x - r, mid.y])
-      g.fill({ color })
-      g.stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
-      if (shut) {
-        const x = r * 0.45
-        g.moveTo(mid.x - x, mid.y - x).lineTo(mid.x + x, mid.y + x)
-        g.moveTo(mid.x + x, mid.y - x).lineTo(mid.x - x, mid.y + x)
-        g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round' })
+            : look.color
+              ? colorOf(look.color)
+              : look.symbol === 'diamond'
+                ? CONNECTION_COLOR
+                : colorOf(style.art.ink)
+      if (look.line !== 'none') {
+        const line = [from, to]
+        const pieces = look.line === 'dashed' ? dashes(line, 0.3 * hexSize, 0.16 * hexSize) : [line]
+        for (const piece of pieces) this.strokePolyline(g, piece)
+        g.stroke({ width: 0.22 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', alpha: 0.85 })
+        for (const piece of pieces) this.strokePolyline(g, piece)
+        g.stroke({ width: 0.13 * hexSize, color, cap: 'round' })
+      }
+      if (look.symbol === 'diamond') {
+        const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 }
+        const r = 0.26 * hexSize
+        this.marks.push({ x: mid.x - r, y: mid.y - r, w: 2 * r, h: 2 * r })
+        g.poly([mid.x, mid.y - r, mid.x + r, mid.y, mid.x, mid.y + r, mid.x - r, mid.y])
+        g.fill({ color })
+        g.stroke({ width: 0.04 * hexSize, color: CONNECTION_OUTLINE })
+        if (shut) {
+          const x = r * 0.45
+          g.moveTo(mid.x - x, mid.y - x).lineTo(mid.x + x, mid.y + x)
+          g.moveTo(mid.x + x, mid.y - x).lineTo(mid.x - x, mid.y + x)
+          g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round' })
+        }
+        continue
+      }
+      const shared = cellSides(a, grid, hexSize).find((side) => keyOf(side.across) === keyOf(b))
+      const place = placeBetween(from, to, shared, hexSize)
+      if (look.symbol === 'badge') this.drawBadge(g, place.at, 'in')
+      else this.drawSymbol(g, look.symbol, place, color)
+      if (shut && look.symbol !== 'none') {
+        // Barred: a line across the symbol, from one place towards the other.
+        const { at, across } = place
+        const h = 0.3 * hexSize
+        g.moveTo(at.x - across.x * h, at.y - across.y * h)
+        g.lineTo(at.x + across.x * h, at.y + across.y * h)
+        g.stroke({ width: 0.07 * hexSize, color, cap: 'round' })
       }
     }
     this.drawWays()
@@ -1142,37 +1170,89 @@ export class MapRenderer {
   }
 
   /**
-   * The ways into sub-maps and, on a sub-map, out of it, drawn above the places' icons as a
-   * badge in the cell's lower left: an arrow down into the sub-map, or up out to its parent.
+   * A connection's or a way's symbol (`symbolShapes`): its light parts in the floor's colour
+   * (on floor) or the paper's, its lines and outlines in `color`.
+   */
+  private drawSymbol(g: Graphics, symbol: ConnectionSymbol, place: Placement, color: number) {
+    const { hexSize } = editor.map.grid
+    const style = mapStyle()
+    const onFloor = mapWalls(editor.map).floor(keyOf(cellAt(place.at, editor.map.grid, hexSize)))
+    const light = colorOf(onFloor ? style.floors.color : style.paper)
+    const fills = { light, ink: color, dark: shade(color, 0.35) }
+    const width = 0.045 * hexSize
+    const r = 0.4 * hexSize
+    this.marks.push({ x: place.at.x - r, y: place.at.y - r, w: 2 * r, h: 2 * r })
+    for (const shape of symbolShapes(symbol, place, hexSize)) {
+      if ('line' in shape) {
+        const [p, q] = shape.line
+        g.moveTo(p.x, p.y).lineTo(q.x, q.y)
+        g.stroke({ width, color, cap: 'round' })
+        continue
+      }
+      if ('poly' in shape) g.poly(shape.poly)
+      else g.circle(shape.circle.x, shape.circle.y, shape.r)
+      g.fill({ color: fills[shape.fill] })
+      if (shape.outline) g.stroke({ width, color, join: 'round' })
+    }
+  }
+
+  /** A way's badge: a disc with an arrow down (in, to a sub-map) or up (out, to the parent). */
+  private drawBadge(g: Graphics, at: Point, way: 'in' | 'out'): void {
+    const { hexSize } = editor.map.grid
+    const r = 0.25 * hexSize
+    this.marks.push({ x: at.x - r, y: at.y - r, w: 2 * r, h: 2 * r })
+    g.circle(at.x, at.y, r)
+    g.fill({ color: way === 'in' ? WAY_IN : WAY_OUT })
+    g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE })
+    // The arrow: a shaft and its head, pointing down (in) or up (out).
+    const d = way === 'in' ? 1 : -1
+    const len = r * 0.55
+    const head = r * 0.4
+    g.moveTo(at.x, at.y - d * len).lineTo(at.x, at.y + d * len)
+    g.moveTo(at.x - head, at.y + d * (len - head)).lineTo(at.x, at.y + d * len)
+    g.lineTo(at.x + head, at.y + d * (len - head))
+    g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', join: 'round' })
+  }
+
+  /**
+   * The ways into sub-maps and, on a sub-map, out of it, drawn above the places' icons as the
+   * style draws their kind: by default a badge in the cell's lower left, an arrow down into
+   * the sub-map or up out to its parent; or a symbol (a stair, a ladder, a cave's mouth) on
+   * the cell.
    */
   private drawWays(): void {
     const g = this.wayLayer.clear()
     const { grid } = editor.map
     const { hexSize } = grid
-    const ways: [HexKey, 'in' | 'out'][] = [
+    const style = mapStyle()
+    const ways: [HexKey, 'in' | 'out', string | undefined][] = [
       ...(editor.linked.children ?? []).flatMap((c) =>
-        (c.meta.parent?.ways ?? []).map((w): [HexKey, 'in'] => [w.place, 'in']),
+        (c.meta.parent?.ways ?? []).map((w): [HexKey, 'in', string | undefined] => [
+          w.place,
+          'in',
+          w.kind,
+        ]),
       ),
-      ...(editor.map.meta.parent?.ways ?? []).map((w): [HexKey, 'out'] => [w.entrance, 'out']),
+      ...(editor.map.meta.parent?.ways ?? []).map((w): [HexKey, 'out', string | undefined] => [
+        w.entrance,
+        'out',
+        w.kind,
+      ]),
     ]
-    for (const [key, way] of ways) {
+    for (const [key, way, kind] of ways) {
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
-      const at = { x: c.x - 0.42 * hexSize, y: c.y + 0.36 * hexSize }
-      const r = 0.25 * hexSize
-      this.marks.push({ x: at.x - r, y: at.y - r, w: 2 * r, h: 2 * r })
-      g.circle(at.x, at.y, r)
-      g.fill({ color: way === 'in' ? WAY_IN : WAY_OUT })
-      g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE })
-      // The arrow: a shaft and its head, pointing down (in) or up (out).
-      const d = way === 'in' ? 1 : -1
-      const len = r * 0.55
-      const head = r * 0.4
-      g.moveTo(at.x, at.y - d * len).lineTo(at.x, at.y + d * len)
-      g.moveTo(at.x - head, at.y + d * (len - head)).lineTo(at.x, at.y + d * len)
-      g.lineTo(at.x + head, at.y + d * (len - head))
-      g.stroke({ width: 0.06 * hexSize, color: CONNECTION_OUTLINE, cap: 'round', join: 'round' })
+      const look = connectionLook(style, kind, true)
+      if (look.symbol === 'badge' || look.symbol === 'diamond')
+        this.drawBadge(g, { x: c.x - 0.42 * hexSize, y: c.y + 0.36 * hexSize }, way)
+      else if (look.symbol !== 'none')
+        this.drawSymbol(
+          g,
+          look.symbol,
+          placeOnCell(c, hexSize),
+          look.color ? colorOf(look.color) : colorOf(style.art.ink),
+        )
     }
   }
 

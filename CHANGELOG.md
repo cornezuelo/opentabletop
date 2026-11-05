@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: **connections and ways drawn as what they are**. A style says how each kind of connection or way between maps is drawn: a door in its wall, an arch, a bridge, a ford's stepping stones, a stair, a ladder, a cave's mouth (or the usual dashed line with a diamond, and the badge). Core's Classic dungeon draws doors and stairs, Cave a cave's mouth, Parchment and Painted bridges and fords; one a trip can't cross now is barred.
+
+### Packs
+
+- The Grey Marches: the Barrow-halls' doors drawn in their walls and the stair down, the old mine's mouths and its shaft's ladder, Stonewater Ford's stepping stones.
+
+### Formats
+
+- Packs: a style's `connections`, by kind: `symbol` (`diamond`, `door`, `arch`, `bridge`, `ford`, `stair`, `ladder`, `mouth`, `badge`, `none`), `line` (`dashed`, `solid`, `none`) and `color`.
+
 ## [0.33.0] - 2026-11-05
 
 ### Apps

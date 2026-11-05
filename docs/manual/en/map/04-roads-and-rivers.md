@@ -46,11 +46,11 @@ The cell panel lists the lines crossing the selected cell: switch them between c
 The **Connections** tool (<kbd>C</kbd>, **⇄**) joins two places with something that isn't a line you follow: a bridge, a gate, a pass, a ford, or a way between two far cells (a tunnel, a ferry, a hidden path). Two far places joined by a connection become neighbours: a trip may go straight from one to the other in one step, as long as the cells between its ends at the map's scale (or its own **Length**), at its kind's speed and never the terrain's (it crosses none of the land between).
 
 - Choose its **Kind** first: what the connection is, as the map's system names it. The box suggests the kinds the system declares and those the map already uses; a new word works too, and does nothing until a system says what it does.
-- Click a place, then another: the connection joins them, drawn as a dashed line with a diamond in its middle. <kbd>Esc</kbd> or a right click drops one you've started.
+- Click a place, then another: the connection joins them, drawn as a dashed line with a diamond in its middle, or as the map's [style](01-getting-started.md#styles) draws its kind (a door in its wall, a bridge, a ford's stepping stones: in Classic dungeon a `door` is a door). <kbd>Esc</kbd> or a right click drops one you've started.
 - Click a connection to select it: its panel edits its **Kind**, **Name**, **Length (km)** when it joins far places (empty: measured on the grid, the number shown), **Tags** and values (`key` = `value`), and **Delete connection** removes it (or <kbd>Delete</kbd>). A right click on a connection deletes it too. Everything is undone with <kbd>Ctrl</kbd>+<kbd>Z</kbd>.
 - The panel lists every connection on the map; clicking one selects it.
 - On [floor](02-terrain.md), a connection between two neighbouring cells with a wall between them opens the wall: a **door** or an arch (its kind says what it costs and when it's shut). The wall is drawn with a gap where it is.
-- While a trip is going on, one it can't cross now is greyed with its diamond crossed out, and its panel says what the trip made of it: [Connections in play](08-play.md).
+- While a trip is going on, one it can't cross now is greyed with its diamond crossed out (a symbol, barred), and its panel says what the trip made of it: [Connections in play](08-play.md).
 
 What a kind of connection does in a trip is the system's, like roads: a speed, or skipping a check (`trip.connections: ford` in a condition reads the kinds of the step taken). Connections have a layer of their own in **Layers**, to show, hide or lock them.
 

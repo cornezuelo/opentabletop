@@ -1,4 +1,4 @@
-import { DEFAULT_TERRAINS, mapStyles, styleOf } from '@open-tabletop/map'
+import { connectionLook, DEFAULT_TERRAINS, mapStyles, styleOf } from '@open-tabletop/map'
 import { loadPacks } from '@open-tabletop/oracle-engine'
 import { describe, expect, it } from 'vitest'
 import { corePack } from '../../../../packages/session/src/core.testing'
@@ -85,5 +85,31 @@ describe('the bundled map styles', () => {
     const mine = at('old-mine.otd.json')
     expect(styleOf(mine, styles)).toBe(style('core/cave'))
     expect(mine.regionStyle.dashed).toBe(true)
+  })
+
+  it("draws the examples' connections and ways as what they are, by their kinds", () => {
+    const at = (file: string) =>
+      parseMapFile(exampleMaps().find((m) => m.path.endsWith(file))!.json).map
+    const halls = at('barrow-halls.otd.json')
+    const dungeon = styleOf(halls, styles)
+    // The bronze door and the sealed slab: doors in their walls.
+    for (const c of halls.connections)
+      expect(connectionLook(dungeon, c.kind)).toEqual({ symbol: 'door', line: 'none' })
+    // The way down arrives on a stair.
+    expect(connectionLook(dungeon, halls.meta.parent!.ways[0].kind, true).symbol).toBe('stair')
+    // The old mine: its mouths a cave's, the Windhole's shaft a ladder.
+    const mine = at('old-mine.otd.json')
+    const cave = styleOf(mine, styles)
+    expect(
+      mine.meta.parent!.ways.map((w) => connectionLook(cave, w.kind, true).symbol).sort(),
+    ).toEqual(['ladder', 'mouth', 'mouth'])
+    // Stonewater Ford, on the Hollow Hills: stepping stones where it crosses; the Barrow-road
+    // (a kind no style names) keeps the dashed line with a diamond.
+    const hills = at('hollow-hills.otd.json')
+    const painted = styleOf(hills, styles)
+    const look = (kind: string) =>
+      connectionLook(painted, hills.connections.find((c) => c.kind === kind)!.kind)
+    expect(look('ford').symbol).toBe('ford')
+    expect(look('hidden-path')).toEqual({ symbol: 'diamond', line: 'dashed' })
   })
 })

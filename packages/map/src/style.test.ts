@@ -7,6 +7,7 @@ import { migrate } from './migrations'
 import { serializeMap, deserializeMap } from './serialize'
 import {
   applyStyle,
+  connectionLook,
   mapStyles,
   parseStyle,
   SCHEMATIC_STYLE,
@@ -106,6 +107,42 @@ describe('map styles', () => {
     // The Schematic style draws floor and walls as before: the terrain's colour, no band.
     expect(SCHEMATIC_STYLE.floors.wash).toBe(0)
     expect(SCHEMATIC_STYLE.walls.outside).toBe('none')
+  })
+
+  it('reads how each kind of connection and way is drawn, the usual look for the rest', () => {
+    const { style, errors } = parseStyle({
+      kind: 'style',
+      id: 'dungeon',
+      connections: {
+        door: 'door',
+        ford: { symbol: 'ford', line: 'dashed', color: '#3366aa' },
+        'way-in': { symbol: 'stair' },
+      },
+    })
+    expect(errors).toEqual([])
+    // A symbol alone, or on its own place, has no line unless the style gives it one.
+    expect(connectionLook(style!, 'door')).toEqual({ symbol: 'door', line: 'none' })
+    expect(connectionLook(style!, 'ford')).toEqual({
+      symbol: 'ford',
+      line: 'dashed',
+      color: '#3366aa',
+    })
+    expect(connectionLook(style!, 'way-in', true)).toEqual({ symbol: 'stair', line: 'none' })
+    // Kinds the style doesn't name: a dashed line with a diamond, a way a badge.
+    expect(connectionLook(style!, 'gate')).toEqual({ symbol: 'diamond', line: 'dashed' })
+    expect(connectionLook(style!, undefined, true)).toEqual({ symbol: 'badge', line: 'none' })
+    expect(SCHEMATIC_STYLE.connections).toEqual({})
+    expect(
+      parseStyle({
+        kind: 'style',
+        id: 'x',
+        connections: { door: 'portal', gate: { symbol: 'door', line: 'wavy', size: 2 } },
+      }).errors,
+    ).toEqual([
+      'connections.door.symbol: expected one of diamond, door, arch, bridge, ford, stair, ladder, mouth, badge, none',
+      "connections.gate.size: unknown key in a connection's look",
+      'connections.gate.line: expected one of dashed, solid, none',
+    ])
   })
 
   it("draws a map in its style, or in the Schematic one when it has none or it isn't loaded", () => {

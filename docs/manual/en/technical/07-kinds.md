@@ -702,7 +702,7 @@ The Systems app writes one for every new system, edits it in the system's **Over
 
 ## Map styles
 
-How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings five: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded); and, for maps with floor, **Classic dungeon** (white floor, black walls, the rock hatched) and **Cave** (rough walls, stippled rock). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores, the paths' look, the floors and the walls) is read from the style while the map is drawn, so a change to the style shows at once.
+How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings five: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded); and, for maps with floor, **Classic dungeon** (white floor, black walls, the rock hatched) and **Cave** (rough walls, stippled rock). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores, the paths' look, the floors, the walls and how connections are drawn) is read from the style while the map is drawn, so a change to the style shows at once.
 
 ```yaml
 kind: style
@@ -724,6 +724,10 @@ shores: { lines: 3, color: '#3b2a1a' }
 paths: { wobble: 0.5, river: { color: '#3d6f96', width: 0.15 } }
 floors: { color: '#ffffff', wash: 1, grid: 0.25 } # floor: white flagstones with a faint grid
 walls: { color: '#1b1b1b', width: 0.14, outside: hatch, band: 0.4 } # the rock beyond hatched
+connections: # by the kind of connection or way, as the system names it
+  door: door # a door in its wall
+  ford: { symbol: ford, line: dashed, color: '#3d6f96' }
+  way-in: stair # a way into or out of a sub-map, drawn as a stair on its cell
 captions: # how each kind of name is drawn
   hexNames: { font: cinzel, size: 0.9 }
   regionNames: { font: cinzel, italic: false, color: '#5a3a1a', halo: true, haloColor: '#f4eedd' }
@@ -740,6 +744,7 @@ regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
 - `paths`: `wobble` (0 to 1: roads, trails and rivers drawn by hand) and, for `river`, `road` and `trail`, their `color` and `width` (in cells).
 - `floors`: cells of a terrain marked **Floor** (rooms, corridors): `color`, `wash` (0 to 1: how far the terrains' own colours give way to it, `1` all the floor's colour; water keeps its own) and `grid` (0 to 1: a grid drawn on floor alone, in the grid's colour; a style may hide the grid elsewhere with `grid.opacity: 0`).
 - `walls`: the walls round floor and the ones drawn by hand: `color`, `width` (in cells, up to `0.5`), `outside` (what is drawn beyond them, on the side away from the floor: `none`, `hatch` (clusters of short strokes, as old modules draw rock), `shadow` (a shade fading away) or `stipple` (dots thick by the wall and thinning out, a cave's rock)) and `band` (0 to 1: how deep, in cells). Nothing is drawn on floor (the next room) or off the map. With `ground.ragged`, walls follow the same wandering edges: a cave.
+- `connections`: by the kind of a [connection](../map/04-roads-and-rivers.md#connections) or a [way between maps](../map/13-sub-maps.md) (its id, as the system names it: `door`, `ford`, `way-in`), how it's drawn: a `symbol` alone (`door: door`) or with `line` and `color`. The symbols: `diamond` (a connection's usual look, in the middle of its line), `door` (a leaf in its wall, the wall going on to it), `arch` (an opening between two jambs), `bridge`, `ford` (stepping stones), `stair`, `ladder`, `mouth` (a cave's), `badge` (a way's usual look: a disc with an arrow down in, or up out) and `none`. `line`: `dashed` (the usual with a diamond), `solid` or `none` (the usual with any other symbol). A connection's symbol sits on the side its two cells share (a door in its wall), or midway between far places; a way's on its cell. `color`: absent, the art's ink (a diamond's usual purple). A kind the style doesn't name keeps the usual looks.
 - `captions`, by kind (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` or `sans`), `size` (1 the usual), `color` (absent: automatic), `italic`, `halo` and `haloColor`, as **Map settings → Map texts**.
 - `regions`: `fill` and `borderOpacity` (0 to 1), `border` (in cells' sizes, 0 for none) and `dashed`, as **Map settings → Regions**.
 - A map whose style isn't loaded is drawn in the Schematic one, and keeps naming its own.

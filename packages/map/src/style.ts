@@ -63,6 +63,60 @@ export interface MapStyle {
   floors: { color: string; wash: number; grid: number }
   /** The walls round floor: colour, width (in cells), and what is drawn outside them, how deep. */
   walls: { color: string; width: number; outside: WallOutside; band: number }
+  /**
+   * By connection kind (as the system names it: `door`, `ford`, `way-in`), how a connection
+   * of that kind, or a way into or out of a sub-map, is drawn. A kind not named keeps the
+   * usual look (`connectionLook`).
+   */
+  connections: Record<string, ConnectionLook>
+}
+
+/**
+ * What a connection or a way is drawn as: `diamond` (a dashed line's middle), `door` (in its
+ * wall), `arch` (an opening in it), `bridge`, `ford` (stepping stones), `stair`, `ladder`,
+ * `mouth` (a cave's), `badge` (a way's arrow in a disc), `none` (the line alone).
+ */
+export const CONNECTION_SYMBOLS = [
+  'diamond',
+  'door',
+  'arch',
+  'bridge',
+  'ford',
+  'stair',
+  'ladder',
+  'mouth',
+  'badge',
+  'none',
+] as const
+export type ConnectionSymbol = (typeof CONNECTION_SYMBOLS)[number]
+/** The line between a connection's places: dashed, solid, or none. */
+export const CONNECTION_LINES = ['dashed', 'solid', 'none'] as const
+export type ConnectionLine = (typeof CONNECTION_LINES)[number]
+
+/** How a kind of connection is drawn: its symbol, its line, and their colour (absent: the usual). */
+export interface ConnectionLook {
+  symbol: ConnectionSymbol
+  line: ConnectionLine
+  color?: string
+}
+
+/** The usual looks: a connection a dashed line with a diamond, a way a badge. */
+export const DEFAULT_CONNECTION_LOOK: ConnectionLook = { symbol: 'diamond', line: 'dashed' }
+export const DEFAULT_WAY_LOOK: ConnectionLook = { symbol: 'badge', line: 'none' }
+
+/**
+ * How a connection (or, with `way`, a way between maps) of a kind is drawn in a style: the
+ * style's look for its kind, else the usual one.
+ */
+export function connectionLook(
+  style: MapStyle,
+  kind: string | undefined,
+  way = false,
+): ConnectionLook {
+  return (
+    (kind !== undefined && style.connections[kind]) ||
+    (way ? DEFAULT_WAY_LOOK : DEFAULT_CONNECTION_LOOK)
+  )
 }
 
 /** What is drawn outside a dungeon's walls: nothing, hatching, a shadow, or a cave's stipple. */
@@ -124,6 +178,7 @@ export const SCHEMATIC_STYLE: MapStyle = {
   paths: { wobble: 0, kinds: {} },
   floors: { color: '#ffffff', wash: 0, grid: 0 },
   walls: { color: '#15130f', width: 0.16, outside: 'none', band: 0.4 },
+  connections: {},
 }
 
 /** The style a map without one is drawn in: Core's Schematic. */
@@ -145,9 +200,11 @@ const STYLE_KEYS = [
   'paths',
   'floors',
   'walls',
+  'connections',
 ]
 const FLOOR_KEYS = ['color', 'wash', 'grid']
 const WALL_KEYS = ['color', 'width', 'outside', 'band']
+const CONNECTION_LOOK_KEYS = ['symbol', 'line', 'color']
 const GROUND_KEYS = ['wash', 'blend', 'ragged', 'grain']
 const ART_KEYS = ['mode', 'ink', 'terrains']
 const TERRAIN_ART_KEYS = ['painter', 'density', 'size', 'color']
@@ -264,6 +321,29 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
       ...(own.color !== undefined && { color: color(own.color, `${at}.color`, '') }),
     }
   }
+  const connections: Record<string, ConnectionLook> = {}
+  for (const [kind, value] of Object.entries(part(raw.connections, 'connections'))) {
+    const at = `connections.${kind}`
+    // `door: door` says the symbol alone.
+    const own = typeof value === 'string' ? { symbol: value } : part(value, at)
+    unknown(own, CONNECTION_LOOK_KEYS, `${at}.`, "a connection's look")
+    const symbol = own.symbol ?? DEFAULT_CONNECTION_LOOK.symbol
+    if (!CONNECTION_SYMBOLS.includes(symbol as ConnectionSymbol)) {
+      errors.push(`${at}.symbol: expected one of ${CONNECTION_SYMBOLS.join(', ')}`)
+      continue
+    }
+    // A symbol drawn on its own place (a door in its wall, a stair) has no line by default.
+    const line = own.line ?? (symbol === 'diamond' ? 'dashed' : 'none')
+    if (!CONNECTION_LINES.includes(line as ConnectionLine)) {
+      errors.push(`${at}.line: expected one of ${CONNECTION_LINES.join(', ')}`)
+      continue
+    }
+    connections[kind] = {
+      symbol: symbol as ConnectionSymbol,
+      line: line as ConnectionLine,
+      ...(own.color !== undefined && { color: color(own.color, `${at}.color`, '') }),
+    }
+  }
   const pathKinds: Partial<Record<StyledPath, PathLook>> = {}
   for (const kind of STYLED_PATHS) {
     if (paths[kind] === undefined) continue
@@ -346,6 +426,7 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
       outside,
       band: fraction(walls.band, 'walls.band', base.walls.band),
     },
+    connections,
   }
   return errors.length ? { errors } : { style, errors }
 }

@@ -9,6 +9,7 @@ A place on a map can lead into a map of its own, a **sub-map**: the dungeon unde
 - Its **Map settings** say where it hangs, under **Inside**: the map above (click it to open it), and then each of its **ways**: **From**, the place above that leads in; its **Entrance**, where the way arrives and leaves from, the sub-map's middle cell at first (select another cell and click **Make … the entrance** to move it; it shows the blue badge with the arrow up); and its **Kind of way**, the kind of connection going in and out by it is, as the system names it (below). Each way has its own kind: a stair at one end, a shaft at the other.
 - **More ways in**: on the map above, select another cell and, under **Ways into other maps**, choose the sub-map in **Another way into…** and click **Add**. The cell is one more way in; its entrance starts at the first way's, to be moved in the sub-map's **Map settings**. **Remove this way** there takes one away (a sub-map keeps one at least).
 - In **Maps**, sub-maps are listed under the map they hang from, one step in (↳). The bar at the top of a sub-map says where it hangs: _The Hollow Hills › The Barrow-halls_, each name opening its map.
+- On both maps a way is drawn on its cell: by default an orange badge with an arrow down where it goes in, a blue one with an arrow up where it comes out; the map's [style](01-getting-started.md#styles) may draw a way's kind as what it is (in Classic dungeon a `way-in` is a stair, a `shaft` a ladder; in Cave a `way-in` is a cave's mouth).
 
 ## Going in on a trip
 
