@@ -1,7 +1,14 @@
 <script lang="ts">
   import { systemName } from '@open-tabletop/session'
   import { sheetText } from '@open-tabletop/character-ui'
-  import { appUrl, InfoTip, Markdown, NewForm, readLastSystem } from '@open-tabletop/ui-kit'
+  import {
+    appUrl,
+    InfoTip,
+    Markdown,
+    NewForm,
+    readLastSystem,
+    rememberSystem,
+  } from '@open-tabletop/ui-kit'
   import { createCharacter } from '../lib/actions'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -17,6 +24,7 @@
 
   function create() {
     if (!chosen || !name.trim()) return
+    rememberSystem(chosen.id)
     go({
       name: 'character',
       id: createCharacter(chosen, name.trim(), party && !!chosen.partySheet),

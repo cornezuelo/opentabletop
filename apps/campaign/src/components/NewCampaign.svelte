@@ -1,7 +1,14 @@
 <script lang="ts">
   import { DateInput } from '@open-tabletop/campaign-ui'
   import { calendarOf, systemName } from '@open-tabletop/session'
-  import { appUrl, InfoTip, Markdown, NewForm, readLastSystem } from '@open-tabletop/ui-kit'
+  import {
+    appUrl,
+    InfoTip,
+    Markdown,
+    NewForm,
+    readLastSystem,
+    rememberSystem,
+  } from '@open-tabletop/ui-kit'
   import { newCampaign } from '../lib/campaign.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
@@ -30,6 +37,7 @@
     if (!name.trim() || busy) return
     busy = true
     try {
+      rememberSystem(system)
       const id = await newCampaign(name, system, {
         ...(clock && { start }),
         factions: bring && factions > 0,
