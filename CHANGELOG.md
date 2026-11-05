@@ -10,6 +10,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Map and Travel: waiting at the journey's end no longer tells the arrival again every day, and an arrival is stamped when the party got there.
 - Map: a way out in a room is offered from the room, so a trip can leave the Barrow-halls by its stair. **New trip** on a map whose trip went on elsewhere starts one there, after asking.
 - Map: an example sub-map opened alone (the Barrow-halls, the old mine, Ashford) plays the Grey Marches and has the maps above it, so its ways out lead somewhere and name them. An example left as it came opens without asking.
+- Map and Travel: a duration a moment short of the hour no longer reads "1 h 60".
 - Campaign and Map: the Timeline is newest first by when things happened.
 
 ## [0.37.0] - 2026-11-05

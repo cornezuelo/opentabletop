@@ -83,8 +83,9 @@ const isMemberPath = (path: string) =>
 
 /** Minutes as "3 h", "1 h 30" or "45 min". */
 export function durationText(minutes: number): string {
-  const h = Math.floor(minutes / 60)
-  const m = Math.round(minutes % 60)
+  const whole = Math.round(minutes)
+  const h = Math.floor(whole / 60)
+  const m = whole % 60
   if (!h) return `${m} min`
   return m ? `${h} h ${String(m).padStart(2, '0')}` : `${h} h`
 }

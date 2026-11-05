@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
 import {
   actionNothingOf,
+  durationText,
   entryText,
   filterJournal,
   journalByDay,
@@ -461,5 +462,14 @@ describe('the journal by day', () => {
     expect(journalByDay(lines, 1, undefined, 2).flatMap((d) => d.entries.map((e) => e.id))).toEqual(
       ['j4', 'j2'],
     )
+  })
+})
+
+describe('durations', () => {
+  it('round to the minute before counting hours', () => {
+    expect(durationText(119.6)).toBe('2 h')
+    expect(durationText(59.7)).toBe('1 h')
+    expect(durationText(90)).toBe('1 h 30')
+    expect(durationText(45)).toBe('45 min')
   })
 })
