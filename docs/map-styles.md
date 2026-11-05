@@ -78,7 +78,7 @@ A hybrid map (a square map with ground outside and buildings inside, places.md �
 - In Map's editing, a **See inside** switch shows floors and walls to draw them; in play, a building shows its roof unless the party is in it (or, a system's choice, has been in it), so the village reads as a village and a house opens when entered.
 - The Grey Marches' village (the backlog's _hybrid example_) is drawn in the **Village** style with phase 4.
 
-To confirm with the user: the roofs, and whether a visited house stays open.
+Agreed with the user (2026-11-05: "lo de los tejados es un buen toque! con que haya un interruptor para mostrarlos siempre abiertos además de ese comportamiento, listo"): roofs from outside, the inside while the party is in the building (a house left shows its roof again), and a switch (Map's view, kept with the map's view settings) that shows every building open, in editing and in play.
 
 Each shows in the manual's Map pages with screenshots, and the Grey Marches' page says which map uses which.
 
@@ -109,4 +109,4 @@ Each phase with its manual pages (Map's settings, the technical **Kinds** page f
 3. **Coordinates** (left to Claude): hidden by default in Parchment and Painted, shown in the cell's panel and the line under the map; a style's grid setting shows them always.
 4. **Which first**: the user doesn't mind; illustrated cells first, as proposed.
 5. **The look**: both an ink hexcrawl (**Parchment**) and an Inkarnate-like painted one (**Painted**) ("inkarnate es lo que tenía pensado… no descarto esa tinta clásica"; "voy a querer ambos"). Hextml's look is roughly today's.
-6. **Hybrid maps**: roofs from outside, the inside when entered (§6b), proposed, to confirm.
+6. **Hybrid maps**: roofs from outside, the inside while the party is in, and a switch to show them all open (§6b).
