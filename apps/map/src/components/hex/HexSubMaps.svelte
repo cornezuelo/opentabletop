@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { parseKey } from '@open-tabletop/hex'
   import { placeOfCell, type HexKey } from '@open-tabletop/map'
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
   import { localize } from '@open-tabletop/session'
@@ -8,6 +9,7 @@
   import { partyLocation, sessionOf, step } from '../../lib/play/play'
   import { mapSystem } from '../../lib/play/systems'
   import { editor } from '../../lib/store/editor.svelte'
+  import { view } from '../../lib/store/view'
 
   /**
    * The ways a cell leads into other maps: into the sub-maps under it and out of this
@@ -37,6 +39,15 @@
       partyLocation() === placeOfCell(editor.map, key)
     )
   })
+
+  /** The map at the way's other end, with the cell it arrives at selected and in view. */
+  async function open(way: WayHere) {
+    if (!(await openLibraryMap(way.map))) return
+    if (editor.tool !== 'play') editor.tool = 'select'
+    editor.panelView = 'tool'
+    editor.selected = way.at
+    view.centerOn(parseKey(way.at))
+  }
 
   /** The way's other end becomes the destination: the trip's march takes it. */
   function head(way: WayHere) {
@@ -83,7 +94,7 @@
               )}`}{/if}</small
           ></span
         >
-        <button onclick={() => openLibraryMap(way.map)}>{t('submap.open')}</button>
+        <button onclick={() => open(way)}>{t('submap.open')}</button>
         {#if here}
           <button class="primary" onclick={() => head(way)}
             >{way.dir === 'in' ? t('submap.goIn') : t('submap.goOut')}</button

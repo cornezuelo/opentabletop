@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Fixes
 
 - Map: the **Fit the map** and **Regions** buttons showed as empty squares where the font lacked their symbols; now drawn as line icons like the others.
+- Map: **Open** on a way into or out of a sub-map selects and centres the cell it arrives at on the other map, instead of only opening it.
 
 ## [0.32.0] - 2026-11-05
 

@@ -95,6 +95,8 @@ export interface WayHere {
   there: string
   /** The cell it arrives at there, as that map writes its coordinates (`0104`). */
   cell: string
+  /** …and as its key (`1,4`). */
+  at: HexKey
   /** The kind of connection it is, as the system names it (`way-in`), if any. */
   kind?: string
 }
@@ -114,6 +116,7 @@ export function waysAt(hex: string): WayHere[] {
         name: child.meta.name,
         there: end(child, child.meta.id, w.entrance),
         cell: coord(child, w.entrance),
+        at: w.entrance,
         ...(w.kind && { kind: w.kind }),
       })),
   )
@@ -128,6 +131,7 @@ export function waysAt(hex: string): WayHere[] {
       name,
       there: end(parent, own!.map, w.place),
       cell: coord(parent, w.place),
+      at: w.place,
       ...(w.kind && { kind: w.kind }),
     }))
   return [...into, ...out]
