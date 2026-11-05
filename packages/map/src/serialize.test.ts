@@ -20,6 +20,19 @@ describe('serialize', () => {
     expect(deserializeMap(serializeMap(map))).toEqual(map)
   })
 
+  it('keeps names moved by hand, and drops offsets that are not two numbers', () => {
+    const map = createMap('Test')
+    map.hexes['1,1'] = { name: 'Ashford', nameOffset: [0.5, 2.25] }
+    map.regions = [{ id: 'wood000001', name: 'Old Wood', color: '#225522', nameOffset: [-4, 1] }]
+    expect(deserializeMap(serializeMap(map))).toEqual(map)
+    const raw = JSON.parse(serializeMap(map))
+    raw.hexes['1,1'].nameOffset = [1, 'x']
+    raw.regions[0].nameOffset = 3
+    const read = deserializeMap(JSON.stringify(raw))
+    expect(read.hexes['1,1'].nameOffset).toBeUndefined()
+    expect(read.regions[0].nameOffset).toBeUndefined()
+  })
+
   it('gives maps without a valid id a fresh one', () => {
     const map = createMap() as unknown as { meta: Record<string, unknown> }
     map.meta.id = '../../etc'

@@ -25,3 +25,35 @@ export function setTokenHitTest(fn: TokenAt): void {
 export function hitTestToken(world: Point, copies = false): string | null {
   return tokenAt(world, copies)
 }
+
+/** A name drawn on the map: a cell's or a region's. */
+export type NameTarget = { kind: 'cell'; key: string } | { kind: 'region'; id: string }
+
+export interface NameHit {
+  target: NameTarget
+  /** Where its middle stands now. */
+  at: Point
+  /** What its `nameOffset` counts from: its cell's centre, or the middle of its region's cells. */
+  from: Point
+}
+
+let nameAt: (world: Point) => NameHit | null = () => null
+let nameMover: (target: NameTarget, at: Point) => void = () => {}
+
+export function setNameHitTest(
+  find: (world: Point) => NameHit | null,
+  move: (target: NameTarget, at: Point) => void,
+): void {
+  nameAt = find
+  nameMover = move
+}
+
+/** The name under a world point (the topmost: a cell's before a region's). */
+export function hitTestName(world: Point): NameHit | null {
+  return nameAt(world)
+}
+
+/** Shows a name with its middle at a point while it's dragged, before the map keeps it there. */
+export function moveNameTo(target: NameTarget, at: Point): void {
+  nameMover(target, at)
+}

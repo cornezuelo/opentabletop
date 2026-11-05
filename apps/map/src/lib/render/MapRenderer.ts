@@ -52,7 +52,14 @@ import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
 import { mapStyle } from '../styles'
 import { mapFocus } from './focus'
-import { setLabelHitTest, setTokenHitTest } from './hitTest'
+import {
+  type NameHit,
+  type NameTarget,
+  setLabelHitTest,
+  setNameHitTest,
+  setTokenHitTest,
+} from './hitTest'
+import { type Box, boxAt, overlap, placeNames } from './names'
 import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
 import {
   allCells,
@@ -210,15 +217,26 @@ export class MapRenderer {
   private regionShapes = new Graphics()
   /**
    * Regions' names, above connections and ways, each placed where it overlaps no other
-   * name (`placeRegionNames`).
+   * name (`placeAllNames`).
    */
   private regionNameLayer = new Container()
-  /** Each region name and the points it may stand on, the best first. */
-  private regionNames: { text: Text; spots: Point[]; cells: Set<HexKey> }[] = []
-  /** What region names keep clear of besides other names: connections' diamonds, ways. */
-  private marks: { x: number; y: number; w: number; h: number }[] = []
-  /** …and the places' icons. */
-  private iconMarks: { x: number; y: number; w: number; h: number }[] = []
+  /**
+   * Each region name, the middle of its cells (its `nameOffset` counts from there) and, unless
+   * it was moved by hand, the points it may stand on, the best first.
+   */
+  private regionNames: {
+    text: Text
+    id: string
+    from: Point
+    spots: Point[] | null
+    cells: Set<HexKey>
+  }[] = []
+  /** Each cell name, its cell's centre and, unless moved by hand, where it may stand. */
+  private cellNames: { text: Text; key: HexKey; from: Point; spots: Point[] | null }[] = []
+  /** What names keep clear of besides other names: connections' diamonds, ways. */
+  private marks: Box[] = []
+  /** …and the places' icons, by cell (a cell's name stands over its own icon). */
+  private iconMarks = new Map<HexKey, Box>()
   /** The factions' territory: hatching in each one's colour, and a dashed frontier. */
   private factionShapes = new Graphics()
   /** The land of the region or faction being worked on, outlined, and the rest dimmed. */
@@ -305,6 +323,10 @@ export class MapRenderer {
     this.bindInput()
     setLabelHitTest((world) => this.labelAt(world))
     setTokenHitTest((world, copies) => this.tokenAt(world, copies))
+    setNameHitTest(
+      (world) => this.nameAt(world),
+      (target, at) => this.nameText(target)?.position.set(at.x, at.y),
+    )
     this.rebuild()
     this.fit()
     // Web fonts may arrive after the first draw; redraw labels with them.
@@ -1023,16 +1045,22 @@ export class MapRenderer {
       const xs = cells.map((cell) => this.centerOf(cell).x)
       const room = Math.max(...xs) - Math.min(...xs) + this.cellWidth(cells[0])
       if (text.width > room) text.scale.set(Math.max(0.55, room / text.width))
+      const entry = { text, id: region.id, from: center, cells: new Set(cells.map(keyOf)) }
+      this.regionNameLayer.addChild(text)
+      if (region.nameOffset) {
+        text.position.set(...this.offsetFrom(center, region.nameOffset))
+        this.regionNames.push({ ...entry, spots: null })
+        continue
+      }
       // Where it may stand: its middle, then its own cells (not those of regions inside it)
       // from the nearest to the middle.
       const own = cells.filter((cell) => hexes[keyOf(cell)]?.region === region.id)
       const spots = [center, ...(own.length ? own : cells).map((cell) => this.centerOf(cell))]
       const far = (p: Point) => Math.hypot(p.x - center.x, p.y - center.y)
       spots.sort((a, b) => far(a) - far(b))
-      this.regionNames.push({ text, spots, cells: new Set(cells.map(keyOf)) })
-      this.regionNameLayer.addChild(text)
+      this.regionNames.push({ ...entry, spots })
     }
-    this.placeRegionNames()
+    this.placeAllNames()
   }
 
   /** A cell's width on screen, from its corners. */
@@ -1041,33 +1069,54 @@ export class MapRenderer {
     return Math.max(...xs) - Math.min(...xs)
   }
 
+  /** A point `offset` hex sizes from another (a name moved by hand). */
+  private offsetFrom(from: Point, offset: [number, number]): [number, number] {
+    const hs = editor.map.grid.hexSize
+    return [from.x + offset[0] * hs, from.y + offset[1] * hs]
+  }
+
   /**
-   * Places the regions' names, the smallest regions' first (they have the fewest spots): each
-   * on the first of its spots (moved inside the map) where it overlaps no name placed before,
-   * no cell's name, free label, icon, connection's diamond or way, and lies over its own region;
-   * where none
-   * is, the one that overlaps least and lies most over the region.
+   * Places the names that place themselves, those moved by hand staying where they were put:
+   * first the cells' names, each under its cell or else above it, where it covers no other
+   * name, free label, icon (but its own cell's), connection's diamond or way; then the regions'
+   * names, the smallest regions' first (they have the fewest spots), each on its middle or one
+   * of its cells (or a line above or below one) where it covers none of those nor a cell's
+   * name, and lies over its own region. Where no spot is free, the one that covers least.
+   * Every name is kept inside the map.
    */
-  private placeRegionNames(): void {
-    const rect = (x: number, y: number, w: number, h: number) => ({ x, y, w, h })
-    type Rect = ReturnType<typeof rect>
-    const overlap = (a: Rect, b: Rect) =>
-      Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) *
-      Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y))
-    // Cells' names and free labels, each where its anchor puts it.
-    const placed = (c: Text) =>
-      rect(c.x - c.width * c.anchor.x, c.y - c.height * c.anchor.y, c.width, c.height)
-    const taken: Rect[] = [
-      ...(this.nameLayer.children as Text[]).map(placed),
-      ...(this.labelLayer.children as Text[]).filter((c) => c instanceof Text).map(placed),
+  private placeAllNames(): void {
+    const drawn = (c: Text): Box =>
+      boxAt(
+        { x: c.x + c.width * (0.5 - c.anchor.x), y: c.y + c.height * (0.5 - c.anchor.y) },
+        c.width,
+        c.height,
+      )
+    const byHand = [...this.cellNames, ...this.regionNames].filter((n) => !n.spots)
+    const taken: Box[] = [
+      ...byHand.map((n) => drawn(n.text)),
+      ...(this.labelLayer.children as Text[]).filter((c) => c instanceof Text).map(drawn),
       ...this.marks,
-      ...this.iconMarks,
     ]
-    // A name near the map's edge is moved in, so none is cut off by it.
     const map = this.gridLines.getLocalBounds()
-    const within = (v: number, half: number, from: number, size: number) =>
-      size <= 2 * half ? from + size / 2 : Math.min(Math.max(v, from + half), from + size - half)
-    const names = [...this.regionNames].sort((a, b) => a.spots.length - b.spots.length)
+    const bounds = { x: map.x, y: map.y, w: map.width, h: map.height }
+    const icons = [...this.iconMarks]
+    const cells = this.cellNames.flatMap((n) => (n.spots ? [{ ...n, spots: n.spots }] : []))
+    const cellsAt = placeNames(
+      cells.map(({ text, key, spots }) => ({
+        w: text.width,
+        h: text.height,
+        spots,
+        off: (at: Point) => {
+          const box = boxAt(at, text.width, text.height)
+          return icons.reduce((sum, [k, icon]) => (k === key ? sum : sum + overlap(box, icon)), 0)
+        },
+      })),
+      taken,
+      bounds,
+    )
+    cells.forEach(({ text }, i) => text.position.set(cellsAt[i].x, cellsAt[i].y))
+
+    taken.push(...this.iconMarks.values())
     const { grid } = editor.map
     /** How much of a name standing at a point lies over its region's cells, from 0 to 1. */
     const over = (at: Point, w: number, cells: Set<HexKey>) => {
@@ -1078,30 +1127,52 @@ export class MapRenderer {
       }
       return n / 9
     }
-    for (const { text, spots, cells } of names) {
-      const { width: w, height: h } = text
-      let best: { at: Point; cost: number } | null = null
-      // Then each spot a line above or below, for a room too small to hold it elsewhere.
-      const shifted = [-1, 1].flatMap((d) => spots.map((p) => ({ x: p.x, y: p.y + d * h })))
-      for (const spot of [...spots, ...shifted]) {
-        const at =
-          map.width > 0
-            ? {
-                x: within(spot.x, w / 2, map.x, map.width),
-                y: within(spot.y, h / 2, map.y, map.height),
-              }
-            : spot
-        const r = rect(at.x - w / 2, at.y - h / 2, w, h)
-        // Overlapping something costs most; standing off its region, less.
-        const cost =
-          taken.reduce((sum, t) => sum + overlap(r, t), 0) + ((1 - over(at, w, cells)) * w * h) / 3
-        if (!best || cost < best.cost) best = { at, cost }
-        if (cost === 0) break
-      }
-      if (!best) continue
-      text.position.set(best.at.x, best.at.y)
-      taken.push(rect(best.at.x - w / 2, best.at.y - h / 2, w, h))
+    const regions = this.regionNames
+      .flatMap((n) => (n.spots ? [{ ...n, spots: n.spots }] : []))
+      .sort((a, b) => a.spots.length - b.spots.length)
+    const regionsAt = placeNames(
+      regions.map(({ text, spots, cells }) => {
+        const { width: w, height: h } = text
+        return {
+          w,
+          h,
+          // Then each spot a line above or below, for a room too small to hold it elsewhere.
+          spots: [
+            ...spots,
+            ...[-1, 1].flatMap((d) => spots.map((p) => ({ x: p.x, y: p.y + d * h }))),
+          ],
+          // Standing off its region costs, less than covering something.
+          off: (at: Point) => ((1 - over(at, w, cells)) * w * h) / 3,
+        }
+      }),
+      taken,
+      bounds,
+    )
+    regions.forEach(({ text }, i) => text.position.set(regionsAt[i].x, regionsAt[i].y))
+  }
+
+  /** The text of a cell's or a region's name, if drawn. */
+  private nameText(target: NameTarget): Text | undefined {
+    return target.kind === 'cell'
+      ? this.cellNames.find((n) => n.key === target.key)?.text
+      : this.regionNames.find((n) => n.id === target.id)?.text
+  }
+
+  /** The name under a world point: a cell's (drawn above) before a region's. */
+  private nameAt(world: Point): NameHit | null {
+    const hit = (text: Text) => {
+      if (!text.parent?.visible) return false
+      const box = boxAt(text.position, text.width, text.height)
+      return (
+        world.x >= box.x && world.x <= box.x + box.w && world.y >= box.y && world.y <= box.y + box.h
+      )
     }
+    const at = (text: Text) => ({ x: text.x, y: text.y })
+    for (const n of [...this.cellNames].reverse())
+      if (hit(n.text)) return { target: { kind: 'cell', key: n.key }, at: at(n.text), from: n.from }
+    for (const n of [...this.regionNames].reverse())
+      if (hit(n.text)) return { target: { kind: 'region', id: n.id }, at: at(n.text), from: n.from }
+    return null
   }
 
   private drawGlyphs(): void {
@@ -1261,7 +1332,7 @@ export class MapRenderer {
       }
     }
     this.drawWays()
-    this.placeRegionNames()
+    this.placeAllNames()
     const start = editor.connectionStart
     if (start && inBounds(parseKey(start), grid)) {
       g.poly(this.cornersAt(parseKey(start)))
@@ -1387,7 +1458,7 @@ export class MapRenderer {
       this.labelTexts.set(label.id, text)
     }
     this.updateLabelResolution()
-    this.placeRegionNames()
+    this.placeAllNames()
   }
 
   /** Trail and route of the party (play mode); the party itself is a token. */
@@ -1638,7 +1709,7 @@ export class MapRenderer {
 
   private drawIcons(): void {
     for (const child of this.iconLayer.removeChildren()) child.destroy()
-    this.iconMarks = []
+    this.iconMarks.clear()
     const { grid, hexes, assets } = editor.map
     const halos = new Graphics()
     this.iconLayer.addChild(halos)
@@ -1655,7 +1726,7 @@ export class MapRenderer {
       const center = this.centerOf(cell)
       const x = center.x + (icon.offset?.[0] ?? 0) * grid.hexSize
       const cy = center.y + grid.hexSize * ((icon.offset?.[1] ?? 0) + ICON_OFFSET_Y)
-      this.iconMarks.push({ x: x - size / 2, y: cy - size / 2, w: size, h: size })
+      this.iconMarks.set(key, { x: x - size / 2, y: cy - size / 2, w: size, h: size })
       if (icon.halo)
         halos
           .circle(x, cy, size * (icon.haloSize ?? ICON_DEFAULTS.haloSize))
@@ -1689,9 +1760,13 @@ export class MapRenderer {
     this.drawNames()
   }
 
-  /** Hex names, under the hex. */
+  /**
+   * Cells' names: where they were moved by hand, or under their cell (else above it, or a line
+   * further) as `placeAllNames` finds room.
+   */
   private drawNames(): void {
     for (const child of this.nameLayer.removeChildren()) child.destroy()
+    this.cellNames = []
     const { grid, hexes } = editor.map
     const hs = grid.hexSize
     for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
@@ -1699,11 +1774,24 @@ export class MapRenderer {
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
-      this.nameLayer.addChild(
-        this.caption('hexNames', hex.name, c.x, c.y + hs * 0.5, {}, hex.nameStyle),
-      )
+      const text = this.caption('hexNames', hex.name, c.x, c.y, {}, hex.nameStyle)
+      text.anchor.set(0.5)
+      this.nameLayer.addChild(text)
+      if (hex.nameOffset) {
+        text.position.set(...this.offsetFrom(c, hex.nameOffset))
+        this.cellNames.push({ text, key, from: c, spots: null })
+        continue
+      }
+      const below = c.y + hs * 0.5 + text.height / 2
+      const above = c.y - hs * 0.5 - text.height / 2
+      const spots = [below, above, below + text.height, above - text.height].map((y) => ({
+        x: c.x,
+        y,
+      }))
+      text.position.set(spots[0].x, spots[0].y)
+      this.cellNames.push({ text, key, from: c, spots })
     }
-    this.placeRegionNames()
+    this.placeAllNames()
   }
 
   /**

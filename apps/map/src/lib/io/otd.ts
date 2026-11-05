@@ -151,7 +151,7 @@ interface MapExt {
   assets: HexMap['assets']
   icons: Record<string, HexIcon>
   /** How hex names are shown, per hex (only hexes that differ from the map's style). */
-  names?: Record<string, Partial<Pick<HexData, 'showName' | 'nameStyle'>>>
+  names?: Record<string, Partial<Pick<HexData, 'showName' | 'nameStyle' | 'nameOffset'>>>
   /** The campaign's hand rolls (the Oracle state itself is the bundle's state.oracle). */
   oracleHistory?: NonNullable<Campaign['oracle']>['history']
 }
@@ -188,10 +188,11 @@ export function mapToBundle(
   const pois: OtdPoi[] = []
   for (const [key, hex] of Object.entries(map.hexes) as [HexKey, HexMap['hexes'][HexKey]][]) {
     if (hex.icon) icons[key] = hex.icon
-    if (hex.showName === false || hex.nameStyle)
+    if (hex.showName === false || hex.nameStyle || hex.nameOffset)
       names[key] = {
         ...(hex.showName === false && { showName: false }),
         ...(hex.nameStyle && { nameStyle: hex.nameStyle }),
+        ...(hex.nameOffset && { nameOffset: hex.nameOffset }),
       }
     const out: OtdHex = {}
     if (hex.terrain) out.terrain = hex.terrain

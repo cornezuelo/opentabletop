@@ -142,6 +142,8 @@
           editor.previewHex(key, (h) => ({ ...h, nameStyle }))
           if (!live) editor.commitHex(key)
         }}
+        moved={!!hex.nameOffset}
+        onplace={() => editor.editHex(key, (h) => ({ ...h, nameOffset: undefined }))}
       />
     {/if}
 

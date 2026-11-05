@@ -4,6 +4,15 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: **names moved by hand**. With **Select**, drag a cell's or a region's name where you want it: it stays there and stops placing itself; its panel says **Moved by hand**, and **Place by itself** puts it back. Free labels are dragged with Select too. Maps v38.
+- Map: **cells' names place themselves**: under their cell, or above it when another name, a free label, an icon, a connection's diamond or a way is already there.
+
+### Formats
+
+- Maps v38: a cell's or a region's `nameOffset`, where its name was moved by hand.
+
 ## [0.35.0] - 2026-11-05
 
 ### Apps

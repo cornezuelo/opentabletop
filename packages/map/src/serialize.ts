@@ -190,6 +190,7 @@ function parseHex(value: Record<string, unknown>): HexData {
     icon: parseIcon(value.icon),
     ...(value.showName === false && { showName: false }),
     nameStyle: parseCaptionOverride(value.nameStyle, DEFAULT_CAPTIONS.hexNames),
+    nameOffset: parseNameOffset(value.nameOffset),
   })
 }
 
@@ -318,6 +319,14 @@ function parseOffset(value: unknown): [number, number] | null {
   return Math.hypot(x, y) <= 1 ? [x, y] : null
 }
 
+/** A name moved by hand: anywhere on the map, in hex sizes from where it stands by itself. */
+function parseNameOffset(value: unknown): [number, number] | undefined {
+  if (!Array.isArray(value) || value.length !== 2) return undefined
+  const [x, y] = value
+  if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x + y)) return undefined
+  return [x, y]
+}
+
 const DATA_URL = /^data:image\/(png|svg\+xml|jpeg|webp);base64,[a-z0-9+/=]+$/i
 
 function parseAssets(value: unknown): MapAsset[] {
@@ -426,6 +435,7 @@ function parseRegions(value: unknown): MapRegion[] {
         ...(isRecord(r.nameStyle) && {
           nameStyle: parseCaptionOverride(r.nameStyle, DEFAULT_CAPTIONS.regionNames),
         }),
+        ...(parseNameOffset(r.nameOffset) && { nameOffset: parseNameOffset(r.nameOffset) }),
         ...(typeof r.note === 'string' && r.note && { note: r.note }),
         ...(parseFields(r.fields) && { fields: parseFields(r.fields) }),
         ...(Object.keys(parseRegionStyle(r.style)).length && { style: parseRegionStyle(r.style) }),

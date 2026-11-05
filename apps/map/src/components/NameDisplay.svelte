@@ -10,10 +10,12 @@
   } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
+  import { InfoTip } from '@open-tabletop/ui-kit'
 
   /**
    * How one element's name is shown on the map (a hex, a region, a token): shown or not,
-   * and either the map's style for its kind or its own.
+   * and either the map's style for its kind or its own; moved by hand, a way back to where it
+   * places itself.
    */
   let {
     kind,
@@ -21,6 +23,8 @@
     style,
     onshow,
     onstyle,
+    moved = false,
+    onplace,
   }: {
     kind: CaptionKind
     show: boolean
@@ -29,6 +33,10 @@
     onshow: (show: boolean) => void
     /** `live` while a slider is dragged (preview); undefined = back to the map's style. */
     onstyle: (style: CaptionOverride | undefined, live: boolean) => void
+    /** Its name was moved by hand (dragged with Select). */
+    moved?: boolean
+    /** Puts the name back where it places itself. */
+    onplace?: () => void
   } = $props()
 
   let open = $state(false)
@@ -49,6 +57,12 @@
     >{open ? t('hex.done') : t('captions.style')}</button
   >
 </div>
+{#if moved && onplace}
+  <div class="names">
+    <span class="note">{t('captions.moved')}<InfoTip text={t('captions.movedHelp')} /></span>
+    <button class="link" onclick={onplace}>{t('captions.placeItself')}</button>
+  </div>
+{/if}
 {#if hiddenByMap && show}
   <p class="note">{t(`captions.hiddenByMap.${kind}` as MessageKey)}</p>
 {/if}
@@ -127,6 +141,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
   }
 
   .check,

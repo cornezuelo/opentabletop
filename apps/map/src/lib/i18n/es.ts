@@ -435,6 +435,10 @@ export const es: Messages = {
   },
   captions: {
     showOnMap: 'Mostrar el nombre en el mapa',
+    moved: 'Movido a mano',
+    movedHelp:
+      'Los nombres se colocan solos donde no tapan nada (otro nombre, un icono, una conexión), bajo su casilla o en su región. Con **Seleccionar**, arrastra un nombre para ponerlo en otro sitio: se queda ahí, aunque el mapa cambie a su alrededor.\n• **Colocar automáticamente** lo devuelve a donde se coloca solo.\n• Los textos libres (**Texto**) también se arrastran con **Seleccionar**; siempre se quedan donde los pones.',
+    placeItself: 'Colocar automáticamente',
     mapStyle: 'El estilo del mapa',
     ownStyle: 'Estilo propio',
     mapStyleHelp:

@@ -17,13 +17,19 @@ Selecciona un icono colocado (haz clic en él con la herramienta Iconos) para da
 
 ## Texto
 
-La herramienta **Texto** (<kbd>T</kbd>) escribe rótulos libres en cualquier sitio, incluso fuera de la rejilla: nombres de mares, cordilleras, caminos… Haz clic en un espacio vacío para añadir uno, haz clic en un rótulo para editarlo y arrástralo para moverlo. Fuente (IM Fell English, Cinzel o sans), tamaño, color, rotación, cursiva y halo.
+La herramienta **Texto** (<kbd>T</kbd>) escribe rótulos libres en cualquier sitio, incluso fuera de la rejilla: nombres de mares, cordilleras, caminos… Haz clic en un espacio vacío para añadir uno, haz clic en un rótulo para editarlo y arrástralo para moverlo (también con **Seleccionar**, sin cambiar de herramienta). Fuente (IM Fell English, Cinzel o sans), tamaño, color, rotación, cursiva y halo.
 
 **Textos del mapa**, debajo, lista todos los rótulos con su fuente y tamaño; un clic en uno lo selecciona y centra el mapa en él, útil para rótulos lejanos, pequeños o tapados por otros (el mapa de ejemplo de las Marcas Grises: The Grey Sea, Saltmere, Unknown lands).
 
 ## Nombres de casilla
 
-El nombre de una casilla (se pone en el panel de la casilla) se dibuja debajo de ella. Los nombres se configuran en dos sitios:
+El nombre de una casilla (se pone en el panel de la casilla) se dibuja debajo de ella, o encima cuando debajo ya hay algo (el nombre de otra casilla, un rótulo libre, un icono, el rombo de una conexión o un camino). Los nombres se configuran en dos sitios:
 
 - **Ajustes del mapa → Textos del mapa**: si se muestran los nombres de casilla, de región y de token, y el estilo de cada tipo (fuente, tamaño, color, cursiva y halo); elegir un [estilo](01-getting-started.md#estilos) para el mapa los fija todos de una vez.
 - **El panel de cada elemento** (la casilla, la región, el token): **Mostrar el nombre en el mapa** para ese en concreto, y **Estilo**: el del mapa o uno propio.
+
+## Mover nombres a mano
+
+Los nombres de casilla y de región se colocan solos, pero puedes poner uno donde quieras: con **Seleccionar** (<kbd>V</kbd>), arrastra el nombre. Se queda ahí, cambie lo que cambie el mapa a su alrededor, y ya no se mueve por sí solo; su panel (el de la casilla o el de la región) dice **Movido a mano**, y **Colocar automáticamente** lo devuelve. Un clic en el nombre de una casilla sin arrastrarlo selecciona su casilla. Los rótulos libres se arrastran igual, y siempre se quedan donde los pones.
+
+Por ejemplo, para escribir _The Greywood_ a lo largo del borde norte del bosque en vez de en su centro, arrástralo allí; si luego pintas más bosque, el nombre sigue donde lo dejaste.

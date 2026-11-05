@@ -1,6 +1,12 @@
 import { HexEditBatch } from '../commands/hexes'
 import { ReplaceLabelCommand, ReplacePathCommand, rerouteVertex } from '../commands/paths'
-import { hitTestLabel, hitTestToken } from '../render/hitTest'
+import {
+  hitTestLabel,
+  hitTestName,
+  hitTestToken,
+  moveNameTo,
+  type NameHit,
+} from '../render/hitTest'
 import { AddTokenCommand, RemoveTokenCommand, ReplaceTokenCommand } from '../commands/tokens'
 import { AddConnectionCommand, RemoveConnectionCommand } from '../commands/connections'
 import { ReplaceWallsCommand } from '../commands/walls'
@@ -266,17 +272,105 @@ const tokenTool = new TokenTool(true)
 const tokenDragger = new TokenTool(false)
 const playDragger = new TokenTool(false, true)
 
-/** Select: picks a hex; tokens can be selected and dragged here too. */
+/**
+ * Drags names with Select: a free label moves where it's dropped; a cell's or a region's name
+ * is kept there (`nameOffset`) and stops placing itself. A press that doesn't move is a click.
+ */
+class NameDragger {
+  private pressed:
+    | { hit: NameHit; grab: Point; at: Point; threshold: number }
+    | { label: string; grab: Point; at: Point; threshold: number }
+    | null = null
+  private moved = false
+  private dropAt: Point | null = null
+
+  /**
+   * Starts a press on a name or free label; returns the cell whose name it pressed (a click
+   * selects that one), true for another name or label, false if there's none under the pointer.
+   */
+  down(info: PointerInfo): HexKey | boolean {
+    if (info.button !== 0) return false
+    const { hexSize } = editor.map.grid
+    const threshold = info.pickRadius / 3
+    const label = hitTestLabel(info.world)
+    if (label) {
+      const { x, y } = editor.getLabel(label)!
+      const grab = { x: x * hexSize - info.world.x, y: y * hexSize - info.world.y }
+      this.pressed = { label, grab, at: info.world, threshold }
+      return true
+    }
+    const hit = hitTestName(info.world)
+    if (!hit) return false
+    const grab = { x: hit.at.x - info.world.x, y: hit.at.y - info.world.y }
+    this.pressed = { hit, grab, at: info.world, threshold }
+    return hit.target.kind === 'cell' ? (hit.target.key as HexKey) : true
+  }
+
+  move(info: PointerInfo): void {
+    const pressed = this.pressed
+    if (!pressed) return
+    if (!this.moved) {
+      const far = Math.hypot(info.world.x - pressed.at.x, info.world.y - pressed.at.y)
+      if (far < pressed.threshold) return
+      const layer =
+        'label' in pressed ? 'labels' : pressed.hit.target.kind === 'region' ? 'regions' : null
+      if (layer && blockedByLock(layer)) return void (this.pressed = null)
+      this.moved = true
+    }
+    const at = { x: info.world.x + pressed.grab.x, y: info.world.y + pressed.grab.y }
+    if ('label' in pressed) {
+      const { hexSize } = editor.map.grid
+      editor.previewLabel(pressed.label, (l) => ({ ...l, x: at.x / hexSize, y: at.y / hexSize }))
+    } else {
+      moveNameTo(pressed.hit.target, at)
+      this.dropAt = at
+    }
+  }
+
+  /** Ends a press; true if it moved something (so it wasn't a click). */
+  up(): boolean {
+    const { pressed, moved, dropAt } = this
+    this.pressed = null
+    this.moved = false
+    this.dropAt = null
+    if (!pressed || !moved) return false
+    if ('label' in pressed) {
+      editor.commitLabel(pressed.label)
+      return true
+    }
+    if (!dropAt) return true
+    const { hexSize } = editor.map.grid
+    const { target, from } = pressed.hit
+    const round = (v: number) => Math.round(v * 1000) / 1000
+    const nameOffset: [number, number] = [
+      round((dropAt.x - from.x) / hexSize),
+      round((dropAt.y - from.y) / hexSize),
+    ]
+    if (target.kind === 'cell') editor.editHex(target.key as HexKey, (h) => ({ ...h, nameOffset }))
+    else editor.editRegion(target.id, (r) => ({ ...r, nameOffset }))
+    return true
+  }
+}
+
+const nameDragger = new NameDragger()
+
+/**
+ * Select: picks a cell; tokens are selected and dragged here too, and names (cells', regions',
+ * free labels) dragged where they should stand.
+ */
 const selectTool: Tool = {
   down(cell, info) {
     if (tokenDragger.down(cell, info)) return
-    editor.selected = keyOf(cell)
+    const name = nameDragger.down(info)
+    editor.selected = typeof name === 'string' ? name : keyOf(cell)
   },
   move(cell, info) {
     tokenDragger.move(cell, info)
+    nameDragger.move(info)
   },
   up() {
     tokenDragger.up()
+    nameDragger.up()
   },
 }
 

@@ -17,13 +17,19 @@ Select a placed icon (click it with the Icons tool) to give it **fields**: a vil
 
 ## Text
 
-The **Text** tool (<kbd>T</kbd>) writes free labels anywhere, even outside the grid: names of seas, mountain ranges, roads… Click empty space to add one, click a label to edit it and drag it to move it. Font (IM Fell English, Cinzel or sans), size, color, rotation, italic and halo.
+The **Text** tool (<kbd>T</kbd>) writes free labels anywhere, even outside the grid: names of seas, mountain ranges, roads… Click empty space to add one, click a label to edit it and drag it to move it (with **Select** too, without changing tools). Font (IM Fell English, Cinzel or sans), size, color, rotation, italic and halo.
 
 **Texts on the map**, below, lists every label with its font and size; clicking one selects it and centres the map on it, handy for labels far away, small or hidden under others (the Grey Marches' example map: The Grey Sea, Saltmere, Unknown lands).
 
 ## Cell names
 
-A cell's name (set in the cell panel) is drawn under it. Names are styled in two places:
+A cell's name (set in the cell panel) is drawn under it, or above it when something is already under it (another cell's name, a free label, an icon, a connection's diamond or a way). Names are styled in two places:
 
 - **Map settings → Map texts**: whether cell, region and token names are shown at all, and the style of each kind (font, size, color, italic and halo); choosing a [style](01-getting-started.md#styles) for the map sets them all at once.
 - **Each element's panel** (the cell, the region, the token): **Show the name on the map** for that one, and **Style**: the map's style, or its own.
+
+## Moving names by hand
+
+Cell and region names place themselves, but you can put one where you want it: with **Select** (<kbd>V</kbd>), drag the name. It stays there, wherever the map changes around it, and no longer moves by itself; its panel (the cell's or the region's) says **Moved by hand**, and **Place by itself** puts it back. A click on a cell's name without dragging it selects its cell. Free labels are dragged the same way, and always stay where you put them.
+
+For example, to write _The Greywood_ along the forest's northern edge instead of in its middle, drag it there; if you later paint more forest, the name stays where you left it.

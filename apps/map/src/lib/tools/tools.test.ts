@@ -5,6 +5,7 @@ import { createTravelEngine, initialTravelState } from '@open-tabletop/travel-en
 import { coreSystem } from '../../../../../packages/session/src/core.testing'
 import { editor } from '../store/editor.svelte'
 import { currentTool, type PointerInfo } from './tools'
+import { setNameHitTest } from '../render/hitTest'
 
 const press = (more: Partial<PointerInfo> = {}): PointerInfo => ({
   button: 0,
@@ -160,5 +161,59 @@ describe('walls drawn by hand', () => {
     editor.map.connections = [{ id: 'd', between: ['2,2', '3,2'], kind: 'door' }]
     expect(mapWorld(editor.map, 1).neighbors('2,2')).toContain('3,2')
     expect(mapWalls(editor.map).between('2,2', '3,2')).toBe(false)
+  })
+})
+
+describe('names moved by hand', () => {
+  const at = (x: number, y: number) => press({ world: { x, y }, pickRadius: 3 })
+
+  it('Select drags a cell name and a region name, kept where dropped; undo puts them back', () => {
+    const map = createMap()
+    map.regions = [{ id: 'forest0001', name: 'Old Wood', color: '#225522' }]
+    map.hexes['1,1'] = { name: 'Ashford', region: 'forest0001' }
+    editor.load(map)
+    editor.tool = 'select'
+    const hs = editor.map.grid.hexSize
+    setNameHitTest(
+      (world) =>
+        world.x < 0
+          ? { target: { kind: 'region', id: 'forest0001' }, at: world, from: { x: -10, y: 0 } }
+          : { target: { kind: 'cell', key: '1,1' }, at: world, from: { x: 0, y: 0 } },
+      () => {},
+    )
+    const tool = currentTool()
+    tool.down({ col: 1, row: 1 }, at(0, 0))
+    tool.move({ col: 1, row: 1 }, at(hs / 2, hs))
+    tool.up()
+    expect(editor.map.hexes['1,1'].nameOffset).toEqual([0.5, 1])
+    tool.down({ col: 0, row: 0 }, at(-10, 0))
+    tool.move({ col: 0, row: 0 }, at(-10, -hs * 2))
+    tool.up()
+    expect(editor.map.regions[0].nameOffset).toEqual([0, -2])
+    editor.undo()
+    expect(editor.map.regions[0].nameOffset).toBeUndefined()
+    editor.undo()
+    expect(editor.map.hexes['1,1'].nameOffset).toBeUndefined()
+  })
+
+  it('a press on a cell name that does not move selects its own cell', () => {
+    const map = createMap()
+    map.hexes['2,2'] = { name: 'Ashford' }
+    editor.load(map)
+    editor.tool = 'select'
+    setNameHitTest(
+      (world) => ({ target: { kind: 'cell', key: '2,2' }, at: world, from: world }),
+      () => {},
+    )
+    const tool = currentTool()
+    tool.down({ col: 5, row: 5 }, at(0, 0))
+    tool.move({ col: 2, row: 2 }, at(0.5, 0))
+    tool.up()
+    expect(editor.selected).toBe('2,2')
+    expect(editor.map.hexes['2,2'].nameOffset).toBeUndefined()
+    setNameHitTest(
+      () => null,
+      () => {},
+    )
   })
 })

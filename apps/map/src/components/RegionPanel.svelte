@@ -36,12 +36,7 @@
   }
 
   function update(change: (region: MapRegion) => MapRegion) {
-    if (!active) return
-    editor.execute(
-      new SetRegionsCommand(
-        editor.map.regions.map((r) => (r.id === active.id ? change({ ...r }) : r)),
-      ),
-    )
+    if (active) editor.editRegion(active.id, change)
   }
 
   /** Regions before a slider drag: the drag previews live and is recorded once on release. */
@@ -154,6 +149,8 @@
       style={active.nameStyle}
       onshow={(show) => update((r) => ({ ...r, showName: show ? undefined : false }))}
       onstyle={(nameStyle, live) => restyle(nameStyle, live)}
+      moved={!!active.nameOffset}
+      onplace={() => update((r) => ({ ...r, nameOffset: undefined }))}
     />
     <label class="check">
       <input

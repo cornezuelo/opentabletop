@@ -63,6 +63,11 @@ export interface HexData {
   /** False hides the name on the map (it's still the hex's name). */
   showName?: boolean
   nameStyle?: CaptionOverride
+  /**
+   * Where its name was moved by hand: its middle, in hex sizes from the cell's centre. Absent,
+   * the name places itself (under the cell, or where it covers nothing else).
+   */
+  nameOffset?: [number, number]
 }
 
 /** Icon placed on a hex. Only non-default style values are stored. */
@@ -155,6 +160,11 @@ export interface MapRegion {
   /** Show the name on the map (default on). */
   showName?: boolean
   nameStyle?: CaptionOverride
+  /**
+   * Where its name was moved by hand: its middle, in hex sizes from the middle of its cells.
+   * Absent, the name places itself where it covers nothing else.
+   */
+  nameOffset?: [number, number]
   /** External note path (same providers as hexes). */
   note?: string
   /** Its own look; what it leaves out comes from the map's region style. */

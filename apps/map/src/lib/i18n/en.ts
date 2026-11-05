@@ -434,6 +434,10 @@ export const en = {
   },
   captions: {
     showOnMap: 'Show the name on the map',
+    moved: 'Moved by hand',
+    movedHelp:
+      'Names place themselves where they cover nothing else (another name, an icon, a connection), under their cell or in their region. With **Select**, drag a name to put it elsewhere: it stays there, even when the map changes around it.\n• **Place by itself** puts it back where it places itself.\n• Free texts (**Text**) are dragged with **Select** too; they always stay where you put them.',
+    placeItself: 'Place by itself',
     mapStyle: "The map's style",
     ownStyle: 'Its own style',
     mapStyleHelp:

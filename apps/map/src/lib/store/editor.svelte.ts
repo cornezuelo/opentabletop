@@ -1,6 +1,7 @@
 import type { Offset } from '@open-tabletop/hex'
 import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
+import { SetRegionsCommand } from '../commands/regions'
 import { ReplaceLabelCommand } from '../commands/paths'
 import { DEFAULT_SYSTEM, systemIdOf, type DiscoveredHex } from '@open-tabletop/session'
 import {
@@ -414,6 +415,13 @@ class Editor {
     const command = this.hexPreviews.get(key)?.finish()
     this.hexPreviews.delete(key)
     if (command) this.record(command)
+  }
+
+  /** Edits one region as a single undoable step. */
+  editRegion(id: string, change: (region: MapRegion) => MapRegion): void {
+    this.execute(
+      new SetRegionsCommand(this.map.regions.map((r) => (r.id === id ? change({ ...r }) : r))),
+    )
   }
 
   /** Edits one hex as a single undoable step. No-op if nothing changes. */

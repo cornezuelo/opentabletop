@@ -360,6 +360,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   36(data) {
     return data
   },
+  /** v38: names moved by hand (`nameOffset` of cells and regions); older ones place themselves. */
+  37(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

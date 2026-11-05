@@ -107,6 +107,17 @@ describe('OTD conversion', () => {
     expect(back.print).toEqual(original.print)
   })
 
+  it('keeps names moved by hand, of cells and regions', () => {
+    const original = sampleMap()
+    original.hexes['2,2'] = { ...original.hexes['2,2'], name: 'Ashford', nameOffset: [0.4, -1.2] }
+    original.regions = [
+      { id: 'wood000001', name: 'Old Wood', color: '#225522', nameOffset: [3, 1] },
+    ]
+    const back = bundleToMap(JSON.parse(JSON.stringify(mapToBundle(original)))).map
+    expect(back.hexes['2,2'].nameOffset).toEqual([0.4, -1.2])
+    expect(back.regions[0].nameOffset).toEqual([3, 1])
+  })
+
   it("keeps other tools' data intact across a load/save cycle", () => {
     const bundle = mapToBundle(sampleMap()) as Record<string, unknown>
     const maps = bundle.maps as Record<string, unknown>[]
