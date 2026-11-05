@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { SideCount, SideItem, SideList, SideTag, Sidebar } from '@open-tabletop/ui-kit'
+  import { InfoTip, SideCount, SideItem, SideList, SideTag, Sidebar } from '@open-tabletop/ui-kit'
   import { OlderPacks } from '@open-tabletop/pack-ui'
-  import { systemName } from '@open-tabletop/session'
+  import { mapStyles } from '@open-tabletop/map'
+  import { localize, systemName } from '@open-tabletop/session'
   import { getLocale, t } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
   import { createSystem } from '../lib/newSystem'
@@ -10,6 +11,13 @@
 
   let name = $state('')
   const selected = $derived(nav.view.name === 'system' ? nav.view.id : undefined)
+  /** Every loaded pack's map styles (`kind: style`), by name. */
+  const styles = $derived(
+    mapStyles(library.registry)
+      .styles.map((s) => ({ ref: s.ref, name: localize(s.style.name, getLocale(), 'en') || s.ref }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  )
+  const packOf = (ref: string) => library.pack(library.rootOf(ref.split('/')[0]) ?? '')
 
   function origin(id: string) {
     const pack = library.pack(library.rootOf(id) ?? '')
@@ -72,9 +80,32 @@
     <button type="submit" class="icon" aria-label={t('nav.newSystem')}>+</button>
   </form>
   <button class="import" onclick={importOne}>{t('nav.import')}</button>
+  <h2 class="part">{t('nav.styles')}<InfoTip text={t('nav.stylesHelp')} /></h2>
+  <SideList>
+    {#each styles as s (s.ref)}
+      {@const pack = packOf(s.ref)}
+      <SideItem
+        name={s.name}
+        selected={nav.view.name === 'style' && nav.view.ref === s.ref}
+        onclick={() => go({ name: 'style', ref: s.ref })}
+      >
+        {#if pack}<SideTag
+            >{t(
+              `origin.${pack.overrides ? 'edited' : pack.origin === 'user' ? 'user' : 'bundled'}`,
+            )}</SideTag
+          >{/if}
+      </SideItem>
+    {/each}
+  </SideList>
 </Sidebar>
 
 <style>
+  .part {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
   form {
     display: flex;
     gap: 4px;

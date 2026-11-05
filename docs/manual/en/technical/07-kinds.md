@@ -748,4 +748,5 @@ regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
 - `captions`, by kind (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` or `sans`), `size` (1 the usual), `color` (absent: automatic), `italic`, `halo` and `haloColor`, as **Map settings → Map texts**.
 - `regions`: `fill` and `borderOpacity` (0 to 1), `border` (in cells' sizes, 0 for none) and `dashed`, as **Map settings → Regions**.
 - A map whose style isn't loaded is drawn in the Schematic one, and keeps naming its own.
+- Edited in forms in the Systems app ([Map styles](../systems/20-map-styles.md)) and beside the map in **Map settings → Style → Edit**; **Make a copy** there makes a style of yours (in the pack `my-styles`) from a bundled one.
 - Translated keyed `style/<id>` (`name`, `description`).

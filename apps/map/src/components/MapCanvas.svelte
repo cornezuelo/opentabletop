@@ -3,6 +3,7 @@
   import { MapRenderer } from '../lib/render/MapRenderer'
   import { editor } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
+  import { mapStyle } from '../lib/styles'
   import { finishPath } from '../lib/tools/tools'
 
   let container: HTMLDivElement
@@ -62,6 +63,16 @@
       renderer = null
       if (ready) app.destroy()
     }
+  })
+
+  // Redraw everything when the style the map is drawn in changes in the packs (edited in
+  // Map settings, or in Systems in another tab); not when other packs change.
+  let drawnStyle = ''
+  $effect(() => {
+    void editor.meta.style
+    const style = JSON.stringify(mapStyle())
+    if (drawnStyle && style !== drawnStyle) editor.redraw({ kind: 'all' })
+    drawnStyle = style
   })
 
   // Redraw outlines when UI state that affects them changes.

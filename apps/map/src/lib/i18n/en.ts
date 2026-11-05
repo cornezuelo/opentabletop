@@ -134,6 +134,12 @@ export const en = {
     help: "How the map is drawn, never what it holds: the paper, each terrain's colour and what is drawn on it (mountains, trees, waves…), the shores, how roads and rivers are drawn, the grid, names and regions. Styles come from packs (`kind: style`), and a system may bring its own. Core brings:\n• **Schematic** — flat colours and a glyph per terrain, every cell with its coordinates\n• **Parchment** — ink on old paper: washed colours, art in ink, rippled shores, roads and rivers drawn by hand\n• **Painted** — colours melting into each other, art lit and shaded, pale shallows\nChoosing one copies its names, regions, coordinates and glyphs into the map (below and in the Terrain panel), which you then change freely; Ctrl+Z puts the previous look back. The rest comes from the style as the map is drawn.\nThe technical page **Kinds of definition** says how to write one.",
     missing:
       'The style “{style}” is not loaded in this browser: the map is drawn in the Schematic one.',
+    copy: 'Make a copy',
+    edit: 'Edit',
+    done: 'Close the editor',
+    retake: 'Take its names and regions again',
+    editHelp:
+      "**Make a copy** makes a new style of yours from this one (in your pack **My map styles**) and draws the map in it: **Edit** then changes it in forms, part by part, and the map shows each change at once. A bundled style can't change; a copy of it can, and every map drawn in it follows.\n**Take its names and regions again** copies the style's names, regions, coordinates and glyphs into this map once more (choosing a style copies them, and the map changes them freely after).\nStyles are also edited in **Systems → Map styles**.",
   },
   map: {
     system: vocabulary.en.terms.system,

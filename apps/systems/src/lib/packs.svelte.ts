@@ -1,3 +1,4 @@
+import { mapStyles } from '@open-tabletop/map'
 import { groupBundled, PackLibrary } from '@open-tabletop/pack-ui'
 import { travelSystems, type TravelSystem } from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
@@ -23,7 +24,10 @@ export const library = new PackLibrary(
   [...groupBundled(open, 'packs'), ...groupBundled(personal, 'packs-private', true)],
   {
     onStorageFull: () => showToast(t('storage.full'), 'error', 8000),
-    extraDiagnostics: (registry) => travelSystems(registry).problems,
+    extraDiagnostics: (registry) => [
+      ...travelSystems(registry).problems,
+      ...mapStyles(registry).problems,
+    ],
   },
 )
 

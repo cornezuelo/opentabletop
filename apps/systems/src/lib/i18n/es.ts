@@ -19,6 +19,18 @@ export const es: Messages<typeof en> = {
     newSystem: 'Nuevo sistema',
     import: 'Importar un sistema (.zip)…',
     problems: '{count} problemas',
+    styles: 'Estilos de mapa',
+    stylesHelp:
+      'Cómo se dibujan los mapas (`kind: style`), de todos los packs: el papel, el terreno, el arte de cada terreno, costas, caminos y ríos, suelos y muros, cómo se ven las conexiones, nombres y regiones. Elige uno para verlo en formularios; uno incluido se copia para cambiarlo. Ajustes del mapa → Estilo elige el de un mapa.',
+  },
+  styles: {
+    copy: 'Hacer una copia',
+    remove: 'Quitar',
+    confirmRemove:
+      '¿Quitar el estilo «{name}»? Los mapas dibujados con él se dibujan con el Esquemático hasta que vuelva (↶ lo deshace).',
+    readOnly: 'Este estilo viene incluido y es de solo lectura: haz una copia para cambiarlo.',
+    missing: 'El estilo «{style}» no está cargado.',
+    help: '**Hacer una copia** crea un estilo tuyo a partir de este, en tu pack **Mis estilos de mapa**, para cambiarlo en formularios (un estilo incluido nunca cambia). Su id es el de la copia; elígelo para un mapa en [Mapa]({map}) (**Ajustes del mapa → Estilo**, donde **Editar** abre este mismo formulario junto al mapa).\nMientras un mapa dibujado con un estilo está abierto en Mapa, en otra pestaña, cada cambio aquí se ve en él al momento (sus nombres, regiones, coordenadas y símbolos se copian en un mapa al elegir el estilo, así que le llegan cuando se vuelve a elegir).',
   },
   origin: {
     bundled: 'incluido',

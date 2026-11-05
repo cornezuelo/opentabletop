@@ -133,6 +133,12 @@ export const es: Messages = {
     help: 'Cómo se dibuja el mapa, nunca lo que contiene: el papel, el color de cada terreno y lo que se dibuja en él (montañas, árboles, olas…), las costas, cómo se dibujan caminos y ríos, la rejilla, los nombres y las regiones. Los estilos vienen de los packs (`kind: style`), y un sistema puede traer el suyo. Core trae:\n• **Esquemático** — colores planos y un símbolo por terreno, cada casilla con sus coordenadas\n• **Pergamino** — tinta sobre papel viejo: colores en aguada, arte a tinta, costas con ondas, caminos y ríos dibujados a mano\n• **Pintado** — colores que se funden entre sí, arte con luz y sombra, aguas someras claras\nElegir uno copia al mapa sus nombres, regiones, coordenadas y símbolos (más abajo y en el panel Terreno), que luego cambias a tu gusto; Ctrl+Z devuelve el aspecto anterior. El resto sale del estilo mientras se dibuja el mapa.\nLa página técnica **Clases de definición** explica cómo escribir uno.',
     missing:
       'El estilo «{style}» no está cargado en este navegador: el mapa se dibuja en el Esquemático.',
+    copy: 'Hacer una copia',
+    edit: 'Editar',
+    done: 'Cerrar el editor',
+    retake: 'Volver a tomar sus nombres y regiones',
+    editHelp:
+      '**Hacer una copia** crea un estilo tuyo a partir de este (en tu pack **Mis estilos de mapa**) y dibuja el mapa con él: **Editar** lo cambia entonces en formularios, parte por parte, y el mapa muestra cada cambio al momento. Un estilo incluido no puede cambiar; una copia sí, y todos los mapas dibujados con ella la siguen.\n**Volver a tomar sus nombres y regiones** copia otra vez en este mapa los nombres, regiones, coordenadas y símbolos del estilo (elegir un estilo los copia, y luego el mapa los cambia a su gusto).\nLos estilos también se editan en **Sistemas → Estilos de mapa**.',
   },
   map: {
     system: vocabulary.es.terms.system,

@@ -749,4 +749,5 @@ regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
 - `captions`, por clase (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` o `sans`), `size` (1 el normal), `color` (sin él: automático), `italic`, `halo` y `haloColor`, como **Ajustes del mapa → Textos del mapa**.
 - `regions`: `fill` y `borderOpacity` (de 0 a 1), `border` (en tamaños de casilla, 0 para ninguno) y `dashed`, como **Ajustes del mapa → Regiones**.
 - Un mapa cuyo estilo no está cargado se dibuja en el Esquemático, y sigue nombrando el suyo.
+- Se edita en formularios en la aplicación Sistemas ([Estilos de mapa](../systems/20-map-styles.md)) y junto al mapa en **Ajustes del mapa → Estilo → Editar**; **Hacer una copia** crea allí un estilo tuyo (en el pack `my-styles`) a partir de uno incluido.
 - Se traduce con la clave `style/<id>` (`name`, `description`).

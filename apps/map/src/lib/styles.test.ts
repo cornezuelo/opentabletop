@@ -1,6 +1,8 @@
 import { connectionLook, DEFAULT_TERRAINS, mapStyles, styleOf } from '@open-tabletop/map'
 import { loadPacks } from '@open-tabletop/oracle-engine'
-import { describe, expect, it } from 'vitest'
+import { copyStyle, styleSource } from '@open-tabletop/pack-ui'
+import { setIn } from '@open-tabletop/pack-ui/yaml'
+import { describe, expect, it, vi } from 'vitest'
 import { corePack } from '../../../../packages/session/src/core.testing'
 import { exampleMaps } from './io/examples'
 import { parseMapFile } from './io/otd'
@@ -111,5 +113,55 @@ describe('the bundled map styles', () => {
       connectionLook(painted, hills.connections.find((c) => c.kind === kind)!.kind)
     expect(look('ford').symbol).toBe('ford')
     expect(look('hidden-path')).toEqual({ symbol: 'diamond', line: 'dashed' })
+  })
+})
+
+describe('a style of the user’s, edited while a map is drawn in it', () => {
+  it('copies the frontier’s Parchment, draws the map in the copy, and draws each change to it', async () => {
+    const data = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => data.get(k) ?? null,
+      setItem: (k: string, v: string) => void data.set(k, v),
+      removeItem: (k: string) => void data.delete(k),
+    })
+    try {
+      const { library } = await import('./play/packs')
+      const { editor } = await import('./store/editor.svelte')
+      const { mapStyle } = await import('./styles')
+      const { SetStyleCommand } = await import('./commands/settings')
+      editor.load(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json).map)
+      expect(mapStyle().paper).toBe('#efe3c4')
+
+      // Map settings → Style → Make a copy: a style of the user's, the map drawn in it.
+      const ref = copyStyle(library, 'core/parchment', 'en')!
+      expect(ref).toBe('my-styles/parchment-copy')
+      const copy = mapStyles(library.registry).styles.find((s) => s.ref === ref)!
+      expect(copy.style.name).toBe('Parchment (copy)')
+      editor.execute(new SetStyleCommand(ref, copy.style))
+      expect(editor.meta.style).toBe(ref)
+      expect(mapStyle()).toEqual(copy.style)
+
+      // Edit: the form writes the style's file, and the map is drawn in what it says now.
+      const source = styleSource(library, ref)!
+      const edit = (at: (string | number)[], value: unknown) =>
+        library.writeFile(
+          source.root,
+          source.path,
+          setIn(library.readFile(source.root, source.path)!, '@style/parchment-copy', at, value),
+        )
+      edit(['paper'], '#203040')
+      edit(['ground', 'wash'], 0)
+      edit(['art', 'terrains', 'forest'], { painter: 'broadleaf', density: 2 })
+      expect(mapStyle().paper).toBe('#203040')
+      expect(mapStyle().ground.wash).toBe(0)
+      expect(mapStyle().art.terrains.forest).toEqual({ painter: 'broadleaf', density: 2, size: 1 })
+      // The bundled one never changed.
+      expect(
+        styleOf({ meta: { style: 'core/parchment' } } as never, mapStyles(library.registry).styles)
+          .paper,
+      ).toBe('#efe3c4')
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 })

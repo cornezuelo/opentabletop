@@ -1,0 +1,24 @@
+# Map styles
+
+How a map is drawn is its **style** (`kind: style`): the paper, the ground, what is drawn on each terrain, the shores, roads and rivers, floors and walls, how each kind of connection looks, the names and the regions. It never changes what the map holds or how a trip plays. Map chooses one per map (**Map settings → Style**, see [Styles](../map/01-getting-started.md#styles)); here, under **Map styles** in the left column, every loaded pack's styles are seen and changed in forms, whatever system they serve.
+
+## A style of your own
+
+A bundled style (Core's Schematic, Parchment, Painted, Classic dungeon and Cave) can't change. **Make a copy** makes a new style of yours from the one shown, named after it (_Parchment (copy)_), in your pack **My map styles** (made with your first copy, in this browser), and opens it. **Remove** takes one of yours away: maps drawn in it are drawn in the Schematic style until it's back (↶ brings it back).
+
+Map does the same beside the map itself: **Map settings → Style → Make a copy** copies the map's style and draws the map in the copy, and **Edit** opens this same form under it, so each change shows on the map at once. A map open in Map, in another tab, also shows the changes made here as they're made.
+
+## The form
+
+Its **Name** and **Description** (what **Map settings → Style** shows under it; basic Markdown), then each part of the style as a folded card, its key in YAML beside its title. A field left empty is the Schematic style's, shown greyed as its placeholder; a colour's **×** goes back to it.
+
+- **Paper and grid** (`paper`, `grid`, `glyphs`): the colour of cells nothing is painted on, the grid's colour and opacity, whether cells show their coordinates, and how strong the terrains' small glyphs are.
+- **Ground** (`ground`): **Wash** mixes each terrain's colour towards the paper's (`0.6` a light wash); **Blend** softens the borders between terrains; **Ragged borders** makes them wander off the cells' edges (walls follow them: a cave); **Grain** lays the paper's grain over it all.
+- **Art** (`art`): the **Way of drawing** (**Ink**, lines over the terrain's colour, or **Painted**, shapes lit on one side and shaded on the other), the **Ink**'s colour, and **By terrain** a row for each terrain id that has art: its **Painter** (grass, conifers, mountains, waves…), its **Density** and **Size** (1 the usual) and its own **Colour**. **+ Terrain** adds one (the map's terrains are suggested); a terrain without a row has no art.
+- **Shores** (`shores`): the lines along a shore on the water's side (0 to 5), their colour, and a pale band of **Shallows**.
+- **Roads and rivers** (`paths`): the hand's **Wobble**, and the colour and width of rivers, roads and trails.
+- **Floors** (`floors`) and **Walls** (`walls`): for maps with rooms and corridors: the floor's colour, how far the terrains' colours give way to it, a grid on floor alone; the walls' colour and width, and what is drawn **Outside** them (hatching, a shadow, a cave's stipple) and how deep.
+- **Connections** (`connections`): a row for each kind of connection or way between maps, by the kind's id as the system names it (`door`, `ford`, `way-in`): its **Symbol** (a door, an arch, a bridge, a ford's stones, a stair, a ladder, a cave's mouth…), its **Line** and its **Colour**. **+ Kind** adds one (the systems' kinds are suggested); a kind without a row keeps the usual look.
+- **Names** (`captions`) and **Regions** (`regions`): how cells', regions' and tokens' names are drawn, and the regions' fill and borders. These are **copied into a map** when the style is chosen, and the map changes them freely after: a change here reaches a map when the style is chosen again (**Take its names and regions again** in Map settings).
+
+If the style has a problem (a value out of its range, written in YAML), the form says which, and maps draw it as the Schematic style until it's fixed. Every key, its values and the YAML: [Kinds of definition → Map styles](../technical/07-kinds.md#map-styles).

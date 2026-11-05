@@ -17,6 +17,18 @@ export const en = {
     newSystem: 'New system',
     import: 'Import a system (.zip)…',
     problems: '{count} problems',
+    styles: 'Map styles',
+    stylesHelp:
+      'How maps are drawn (`kind: style`), from every pack: the paper, the ground, the art of each terrain, shores, roads and rivers, floors and walls, how connections look, names and regions. Pick one to see it in forms; a bundled one is copied to change it. Map settings → Style chooses a map’s.',
+  },
+  styles: {
+    copy: 'Make a copy',
+    remove: 'Remove',
+    confirmRemove:
+      'Remove the style “{name}”? Maps drawn in it are drawn in the Schematic one until it’s back (↶ undoes it).',
+    readOnly: 'This style comes bundled and is read-only: make a copy to change it.',
+    missing: 'The style “{style}” is not loaded.',
+    help: '**Make a copy** makes a new style of yours from this one, in your pack **My map styles**, to change in forms (a bundled style never changes). Its id is the copy’s; choose it for a map in [Map]({map}) (**Map settings → Style**, where **Edit** opens this same form beside the map).\nWhile a map drawn in a style is open in Map, in another tab, each change here shows on it at once (its names, regions, coordinates and glyphs are copied into a map when the style is chosen, so they reach it when it’s chosen again).',
   },
   origin: {
     bundled: 'bundled',

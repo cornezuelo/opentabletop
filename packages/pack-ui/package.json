@@ -11,7 +11,9 @@
     "./yaml": "./src/yaml.ts",
     "./flow": "./src/flow.ts",
     "./completion": "./src/completion.ts",
-    "./conditions": "./src/conditionRows.ts"
+    "./conditions": "./src/conditionRows.ts",
+    "./definitionDoc": "./src/definitionDoc.svelte.ts",
+    "./styles": "./src/styles.ts"
   },
   "scripts": {
     "check": "svelte-check --tsconfig ./tsconfig.json"

@@ -9,6 +9,7 @@
     Toasts,
     Welcome,
   } from '@open-tabletop/ui-kit'
+  import StyleView from './components/StyleView.svelte'
   import SystemView from './components/SystemView.svelte'
   import { library, systems } from './lib/packs.svelte'
   import Sidebar from './components/Sidebar.svelte'
@@ -47,6 +48,8 @@
   {#snippet help()}<HelpPanel app="systems" locale={getLocale()} />{/snippet}
   {#if nav.view.name === 'system'}
     {#key nav.view.id}<SystemView id={nav.view.id} tab={nav.view.tab} item={nav.view.item} />{/key}
+  {:else if nav.view.name === 'style'}
+    {#key nav.view.ref}<StyleView ref={nav.view.ref} />{/key}
   {:else}
     <Welcome title={t('welcome.title')} tagline={t('app.tagline')} body={t('welcome.body')} />
   {/if}

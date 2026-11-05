@@ -235,6 +235,11 @@ class Editor {
     this.touch()
   }
 
+  /** Draws the map again without changing it: something it's drawn with changed (its style). */
+  redraw(change: MapChange): void {
+    for (const listener of this.listeners) listener(change)
+  }
+
   /** Announces a change applied outside a command (live stroke preview). */
   notify(change: MapChange): void {
     this.syncSnapshots(change)
