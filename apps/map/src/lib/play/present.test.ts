@@ -7,7 +7,7 @@ import { parseMapFile } from '../io/otd'
 import { setTokenHitTest } from '../render/hitTest'
 import { editor } from '../store/editor.svelte'
 import { currentTool } from '../tools/tools'
-import { clickHex, editSession, sessionOf, setMode, step, updatePlay } from './play'
+import { clickHex, editSession, restartRules, sessionOf, setMode, step, updatePlay } from './play'
 import { copyTokens, drawnTokens, isCopy, tokenFromBestiary } from './present'
 import { activeSystem } from './systems'
 
@@ -127,14 +127,15 @@ describe('those present on the map', () => {
     setTokenHitTest(() => null)
   })
 
-  it('draws a copy in a room on the party’s cell, or the room’s', () => {
+  it('draws a copy in a room on the party’s cell, or the room’s', async () => {
     editor.open(example('barrowhalls1'))
     const room = 'longbarrow1'
     const cells = regionCells(editor.map, room)
-    // The party placed in the long barrow, then a trip with the rules (Core's: the
-    // sub-map opened by itself has no campaign), and a foe comes.
+    // The party placed in the long barrow, then a trip with Core's rules (in the Marches
+    // those left behind are gone), and a foe comes.
     clickHex(cells[1])
     setMode('rules')
+    await restartRules('core', 'spring')
     const s = sessionOf(editor.map.play!)!
     expect(s.travel.location).toBe(`area:${room}`)
     editSession((s) =>

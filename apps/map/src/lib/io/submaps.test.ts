@@ -204,7 +204,6 @@ describe('sub-maps', () => {
     vi.resetModules()
     const actions = await import('./actions.svelte')
     const { exampleMaps } = await import('./examples')
-    const { editor } = await import('../store/editor.svelte')
     const { loadLinks, waysAt } = await import('./submaps')
     const { mapSystemId } = await import('../play/systems')
     await actions.openExampleMap(exampleMaps().find((m) => m.id === 'barrowhalls1')!)

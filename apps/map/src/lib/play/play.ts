@@ -218,7 +218,8 @@ export async function restartRules(system: string, season: Season): Promise<bool
 
 function newTrip(system: string, season: Season): void {
   // A new trip here: the one gone to another map stays there, and this map plays again.
-  const { away: _, ...play } = current()
+  const play = { ...current() }
+  delete play.away
   const location = partyLocation()
   if (!location)
     return save({
