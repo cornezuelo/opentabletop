@@ -1,4 +1,10 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
+import {
+  bytesToDataUrl,
+  dataUrlToBytes,
+  isImageFile,
+  isRasterFile,
+} from '@open-tabletop/oracle-engine'
 import { manifestOf, MANIFEST_FILE, type PackSource, type WorkspacePack } from './packs'
 
 /** Packs as one .zip, each in its own folder at the top, ready to drop into packs/. */
@@ -6,7 +12,13 @@ export function packsToZip(packs: PackSource[]): Uint8Array {
   return zipSync(
     Object.fromEntries(
       packs.flatMap((pack) =>
-        pack.files.map((f) => [`${pack.root}/${f.path}`, strToU8(f.content)] as const),
+        pack.files.map(
+          (f) =>
+            [
+              `${pack.root}/${f.path}`,
+              isRasterFile(f.path) ? dataUrlToBytes(f.content) : strToU8(f.content),
+            ] as const,
+        ),
       ),
     ),
   )
@@ -15,7 +27,8 @@ export function packsToZip(packs: PackSource[]): Uint8Array {
 /**
  * Reads the packs of a .zip: every folder holding a pack.yaml (a pack exported alone, or a
  * system with the packs it brings). A file belongs to the deepest pack folder it is in;
- * only YAML and JSON files are read. Each pack's folder is its manifest id.
+ * only YAML, JSON and image files are read (images as packs keep them, `images.ts`). Each
+ * pack's folder is its manifest id.
  */
 export function zipToPacks(data: Uint8Array): PackSource[] {
   const entries = unzipSync(data)
@@ -27,10 +40,13 @@ export function zipToPacks(data: Uint8Array): PackSource[] {
   const deepest = [...bases].sort((a, b) => b.length - a.length)
   const files = new Map<string, PackSource['files']>(bases.map((b) => [b, []]))
   for (const [path, bytes] of Object.entries(entries)) {
-    if (path.endsWith('/') || !/\.(ya?ml|json)$/.test(path)) continue
+    if (path.endsWith('/') || !(/\.(ya?ml|json)$/.test(path) || isImageFile(path))) continue
     const base = deepest.find((b) => path.startsWith(b))
     if (base !== undefined)
-      files.get(base)!.push({ path: path.slice(base.length), content: strFromU8(bytes) })
+      files.get(base)!.push({
+        path: path.slice(base.length),
+        content: isRasterFile(path) ? bytesToDataUrl(bytes, path) : strFromU8(bytes),
+      })
   }
   return bases.map((base): PackSource => {
     const folder = base.replace(/\/$/, '').split('/').at(-1) || 'pack'

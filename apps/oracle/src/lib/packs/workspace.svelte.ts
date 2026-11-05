@@ -2,7 +2,7 @@ import { PackLibrary } from '@open-tabletop/pack-ui'
 import { travelSystems } from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
 import { t } from '../i18n'
-import { bundledPacks } from './bundled'
+import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 
 /** Bundled packs plus the user's, with the editing operations on user packs. */
 export const workspace = new PackLibrary(bundledPacks, {

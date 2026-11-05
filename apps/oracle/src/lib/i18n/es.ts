@@ -218,6 +218,13 @@ export const es: Messages<typeof en> = {
   pack: {
     files: 'Ficheros',
     addFile: 'Añadir fichero',
+    addImage: '+ Imagen',
+    addImageHelp:
+      'Añade imágenes al pack (SVG, PNG, WebP o JPEG, de hasta 512 KB cada una), que dibujan los estilos de mapa: el arte de un terreno, una textura sobre el mapa. Cada una conserva el nombre de su fichero; escribe antes en la casilla una carpeta acabada en `/` para ponerlas ahí.\n• `relieve/` y luego **+ Imagen** — `relieve/colina.svg`\n• un estilo la nombra por el id del pack y su ruta: `mi-arte/relieve/colina.svg`',
+    imageRef: 'En los estilos se nombra {ref}',
+    notImage: '{file} no es una imagen que admita un pack (SVG, PNG, WebP, JPEG).',
+    imageTooBig:
+      '{file} pasa de {kb} KB: hazla más pequeña antes (el navegador guarda los packs en poco espacio).',
     fileName: 'Nombre del fichero, p. ej. tablas/clima.yaml',
     rename: 'Renombrar',
     renamePrompt: 'Nuevo nombre para {file}',

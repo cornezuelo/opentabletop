@@ -133,6 +133,91 @@ connections:
   bridge: bridge
   ford: ford
 ---
+# Painted's ground with pictures for the land's relief: mountains, hills, trees and dunes
+# drawn by images (Azgaar's colored relief icons, the azgaar-relief pack), each cell one of
+# its list; water and grass keep their painters.
+kind: style
+id: relief
+name: Relief
+description: |-
+  A painted map whose mountains, hills, forests, dunes, swamps and volcanoes are pictures: a mountain or a hill to a cell, trees in groups. Rich colours that melt into each other, a paper grain over all. No coordinates.
+
+  **Shows:** art by images of a pack (`art.terrains.<terrain>.images`, a list each cell picks one of, `count` of them a cell), beside painters for the rest; images from another pack (Azgaar's relief icons), named `<pack>/<path>`.
+paper: '#d9cba6'
+grid: { color: '#000000', opacity: 0.06, coords: false }
+glyphs: 0
+ground: { wash: 0.08, blend: 0.55, ragged: 0.4, grain: 0.22 }
+art:
+  mode: painted
+  terrains:
+    steppe: { painter: grass, density: 0.8 }
+    plains: grass
+    farmland: farmland
+    heath: { painter: grass, density: 0.6 }
+    savanna: { images: azgaar-relief/colored/acacia-1.svg, count: 2, size: 0.9 }
+    forest: { images: azgaar-relief/colored/conifer-1.svg, count: 3, size: 0.9 }
+    dense-forest:
+      images: [azgaar-relief/colored/deciduous-1.svg, azgaar-relief/colored/deciduous-2.svg]
+      count: 4
+    jungle: { images: azgaar-relief/colored/palm-1.svg, count: 4 }
+    taiga: { images: azgaar-relief/colored/coniferSnow-1.svg, count: 3, size: 0.9 }
+    swamp:
+      images: [azgaar-relief/colored/swamp-1.svg, azgaar-relief/colored/swamp-2.svg]
+      count: 3
+      size: 0.8
+    marsh: reeds
+    hills:
+      images:
+        - azgaar-relief/colored/hill-1.svg
+        - azgaar-relief/colored/hill-2.svg
+        - azgaar-relief/colored/hill-3.svg
+        - azgaar-relief/colored/hill-4.svg
+    mountains:
+      images:
+        - azgaar-relief/colored/mount-1.svg
+        - azgaar-relief/colored/mount-2.svg
+        - azgaar-relief/colored/mount-3.svg
+        - azgaar-relief/colored/mount-4.svg
+        - azgaar-relief/colored/mount-5.svg
+        - azgaar-relief/colored/mount-6.svg
+      size: 1.15
+    peaks:
+      images:
+        - azgaar-relief/colored/mountSnow-1.svg
+        - azgaar-relief/colored/mountSnow-2.svg
+        - azgaar-relief/colored/mountSnow-3.svg
+        - azgaar-relief/colored/mountSnow-4.svg
+        - azgaar-relief/colored/mountSnow-5.svg
+        - azgaar-relief/colored/mountSnow-6.svg
+      size: 1.15
+    volcanic:
+      images: [azgaar-relief/colored/vulcan-1.svg, azgaar-relief/colored/vulcan-2.svg]
+      size: 1.15
+    desert: { images: azgaar-relief/colored/dune-1.svg, count: 2 }
+    badlands: rocks
+    canyon: { painter: rocks, density: 1.5 }
+    oasis: { images: azgaar-relief/colored/palm-1.svg, count: 2, size: 0.9 }
+    tundra: { painter: grass, density: 0.4 }
+    glacier: { painter: rocks, density: 0.4 }
+    coast: dots
+    lake: { painter: waves, density: 0.4 }
+    sea: { painter: waves, density: 0.6 }
+    deep-sea: { painter: waves, density: 0.4 }
+shores: { band: 0.8 }
+paths:
+  wobble: 0.35
+  river: { color: '#4f8fc0', width: 0.17 }
+  road: { color: '#8a6a44', width: 0.09 }
+  trail: { color: '#8a6a44', width: 0.07 }
+captions:
+  hexNames: { font: fell, halo: true, haloColor: '#f4eedd' }
+  regionNames: { font: cinzel, italic: false, halo: true, haloColor: '#f4eedd' }
+  tokenNames: { font: fell, halo: true, haloColor: '#f4eedd' }
+regions: { fill: 0.06, border: 0.05, dashed: false, borderOpacity: 0.6 }
+connections:
+  bridge: bridge
+  ford: ford
+---
 # A dungeon as old modules and Dungeon Scrawl draw it: white floor with a faint grid, thick
 # black walls, the rock beyond them hatched by hand. For maps with floor (rooms, corridors).
 kind: style

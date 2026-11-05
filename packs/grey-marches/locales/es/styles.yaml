@@ -1,0 +1,6 @@
+style/engraved:
+  name: Atlas grabado
+  description: |-
+    Las Marcas como un atlas antiguo: una aguada de tinta sobre vitela, las colinas, montañas y bosques grabados como pequeños dibujos, una colina o una montaña por casilla y árboles en grupos, el grano de la vitela sobre todo. Las Hollow Hills se dibujan en él.
+
+    **Enseña:** arte con imágenes de otros packs (`art.terrains.<terreno>.images`: los iconos de relieve ilustrados de Azgaar, una lista de la que cada casilla toma una, `count` por casilla, teñidas con `color`), junto a pintores para el resto; una textura sobre el mapa (`texture`) que es una imagen rasterizada del propio pack (`grey-marches/art/vellum.webp`), con su intensidad y su repetición (`opacity`, `scale`).

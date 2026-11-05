@@ -15,7 +15,15 @@
   import KindBadge from './KindBadge.svelte'
   import { dialogs } from '../lib/dialogs.svelte'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
-  import { BundledUpdates, download, packsToZip } from '@open-tabletop/pack-ui'
+  import {
+    BundledUpdates,
+    download,
+    ImageThumb,
+    MAX_IMAGE_BYTES,
+    packsToZip,
+    readImageFile,
+  } from '@open-tabletop/pack-ui'
+  import { imageUrl, isImageFile } from '@open-tabletop/oracle-engine'
   import { getLocale } from '../lib/i18n'
 
   let { root }: { root: string } = $props()
@@ -39,7 +47,7 @@
   const dataFiles = $derived(
     (pack?.files ?? [])
       .map((f) => f.path)
-      .filter((p) => p !== MANIFEST_FILE && !p.startsWith('locales/')),
+      .filter((p) => p !== MANIFEST_FILE && !p.startsWith('locales/') && !isImageFile(p)),
   )
   const translations = $derived(pack ? overlayLocales(pack) : [])
   /** Files of the pack itself; translation files are listed under their language. */
@@ -58,6 +66,37 @@
     workspace.writeFile(root, path, '')
     newFileName = ''
     go({ name: 'file', root, path })
+  }
+
+  /**
+   * Asks for images (SVG, PNG, WebP, JPEG) and adds them to the pack, each by its name, in
+   * the folder written in the file name's box when it ends in `/` (`relief/`).
+   */
+  function addImages() {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.multiple = true
+    input.accept = '.svg,.png,.webp,.jpg,.jpeg,image/svg+xml,image/png,image/webp,image/jpeg'
+    input.onchange = async () => {
+      const folder = newFileName.trim().endsWith('/') ? cleanFilePath(newFileName) : ''
+      for (const file of input.files ?? []) {
+        const path = cleanFilePath(`${folder ? `${folder}/` : ''}${file.name}`)
+        if (!path || !isImageFile(path)) {
+          showToast(t('pack.notImage', { file: file.name }), 'error')
+          continue
+        }
+        if (file.size > MAX_IMAGE_BYTES) {
+          showToast(t('pack.imageTooBig', { file: file.name, kb: MAX_IMAGE_BYTES / 1024 }), 'error')
+          continue
+        }
+        if (pack?.files.some((f) => f.path === path)) {
+          showToast(t('pack.fileExists', { file: path }), 'error')
+          continue
+        }
+        workspace.writeFile(root, path, await readImageFile(file))
+      }
+    }
+    input.click()
   }
 
   function rename(path: string) {
@@ -102,9 +141,17 @@
   <ul class="files">
     {#each files as f (f.path)}
       <li>
-        <button class="link" onclick={() => go({ name: 'file', root, path: f.path })}
-          >{label(f.path)}</button
-        >
+        {#if isImageFile(f.path)}
+          <!-- An image isn't edited as text: it shows, under its name in the styles that use it. -->
+          <ImageThumb src={imageUrl(workspace.readFile(root, f.path) ?? '')} size="28px" />
+          <span use:tooltip={t('pack.imageRef', { ref: `${manifest.id ?? root}/${f.path}` })}
+            >{label(f.path)}</span
+          >
+        {:else}
+          <button class="link" onclick={() => go({ name: 'file', root, path: f.path })}
+            >{label(f.path)}</button
+          >
+        {/if}
         {#if editable && f.path !== MANIFEST_FILE}
           <button class="icon" use:tooltip={t('pack.rename')} onclick={() => rename(f.path)}
             >✎</button
@@ -221,6 +268,8 @@
         >
           <input type="text" placeholder={t('pack.fileName')} bind:value={newFileName} />
           <button type="submit">{t('pack.addFile')}</button>
+          <button type="button" onclick={addImages}>{t('pack.addImage')}</button>
+          <InfoTip text={t('pack.addImageHelp')} />
         </form>
       {/if}
     </section>

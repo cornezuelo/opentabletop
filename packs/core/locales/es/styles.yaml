@@ -16,6 +16,12 @@ style/painted:
     Un mapa pintado: colores intensos que se funden entre sí, montañas y árboles iluminados por un lado y en sombra por el otro, aguas someras claras junto a las costas, un grano de papel sobre todo. Sin coordenadas.
 
     **Enseña:** arte pintado por terreno (`art.mode: painted`), los colores del terreno fundidos (`ground.blend`) con poca aguada, costas como una franja somera (`shores.band`), un vado dibujado como piedras para cruzar (`connections`).
+style/relief:
+  name: Relieve
+  description: |-
+    Un mapa pintado cuyas montañas, colinas, bosques, dunas, ciénagas y volcanes son dibujos: una montaña o una colina por casilla, árboles en grupos. Colores intensos que se funden entre sí, un grano de papel sobre todo. Sin coordenadas.
+
+    **Enseña:** arte con imágenes de un pack (`art.terrains.<terreno>.images`, una lista de la que cada casilla toma una, `count` por casilla), junto a pintores para el resto; imágenes de otro pack (los iconos de relieve de Azgaar), nombradas `<pack>/<ruta>`.
 style/classic-dungeon:
   name: Mazmorra clásica
   description: |-

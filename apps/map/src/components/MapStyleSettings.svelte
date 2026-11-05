@@ -77,7 +77,7 @@
     <InfoTip text={t('mapStyle.editHelp')} />
   </div>
   {#if editing && editable}
-    <StyleForm {doc} locale={getLocale()} {terrains} {kinds} />
+    <StyleForm {doc} locale={getLocale()} {terrains} {kinds} registry={library.registry} />
   {/if}
 {/if}
 

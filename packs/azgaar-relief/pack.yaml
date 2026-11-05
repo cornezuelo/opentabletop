@@ -1,0 +1,15 @@
+# Relief icons from Azgaar's Fantasy Map Generator, as images for map styles to draw:
+# mountains with and without snow, hills, trees, dunes, grass, swamps, volcanoes.
+# Two of its sets: colored/ (flat colours) and illustrated/ (drawn, in earth tones).
+# Taken from https://github.com/Azgaar/Fantasy-Map-Generator (src/assets/icons/relief,
+# commit 83838f14); MIT, see LICENSE. The illustrated set's lines take their colour from the
+# generator's CSS, which an image doesn't have: here each has it on its root (stroke="#5a4630").
+# Otherwise unchanged. No definitions: only images.
+id: azgaar-relief
+name: { en: Azgaar's relief icons, es: Iconos de relieve de Azgaar }
+version: 0.1.0
+# The pack format it is written for (what its syntax means; see the manual: Packs).
+format: 15
+locale: en
+license: MIT
+attribution: Relief icons by Max Haniyeu (Azgaar), from Azgaar's Fantasy Map Generator (https://github.com/Azgaar/Fantasy-Map-Generator), MIT.

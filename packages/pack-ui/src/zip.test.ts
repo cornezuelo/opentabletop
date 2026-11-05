@@ -1,4 +1,4 @@
-import { strToU8, zipSync } from 'fflate'
+import { strToU8, unzipSync, zipSync } from 'fflate'
 import { describe, expect, it } from 'vitest'
 import { packsToZip, planImport, zipToPacks } from './zip'
 
@@ -28,6 +28,26 @@ describe('packs in a .zip', () => {
     }
     expect(zipToPacks(packsToZip([pack]))).toEqual([pack])
     expect(zipToPacks(zipSync({ 'a.yaml': strToU8('x: 1') }))).toEqual([])
+  })
+
+  it('writes images as their bytes and reads them back as a pack keeps them', () => {
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 255, 128])
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg"/>'
+    const pack = {
+      root: 'art',
+      origin: 'user' as const,
+      files: [
+        { path: 'pack.yaml', content: manifest('art') },
+        {
+          path: 'paper.png',
+          content: `data:image/png;base64,${btoa(String.fromCharCode(...png))}`,
+        },
+        { path: 'relief/hill.svg', content: svg },
+      ],
+    }
+    const zip = packsToZip([pack])
+    expect(unzipSync(zip)['art/paper.png']).toEqual(png)
+    expect(zipToPacks(zip)).toEqual([pack])
   })
 
   it('tells new packs from replaced ones and from those already there unchanged', () => {

@@ -1528,17 +1528,18 @@
               "show": true,
               "font": "fell",
               "size": 1,
+              "color": "#3b2a1a",
               "italic": false,
               "halo": true,
-              "haloColor": "#f4eedd"
+              "haloColor": "#efe3c4"
             },
             "regionNames": {
               "show": true,
-              "font": "cinzel",
+              "font": "fell",
               "size": 1,
-              "italic": false,
+              "italic": true,
               "halo": true,
-              "haloColor": "#f4eedd"
+              "haloColor": "#efe3c4"
             },
             "tokenNames": {
               "show": true,
@@ -1546,7 +1547,7 @@
               "size": 1,
               "italic": false,
               "halo": true,
-              "haloColor": "#f4eedd"
+              "haloColor": "#efe3c4"
             }
           },
           "assets": [],
@@ -1586,14 +1587,14 @@
             }
           },
           "regionStyle": {
-            "fill": 0.06,
-            "border": 0.05,
-            "dashed": false,
-            "borderOpacity": 0.6
+            "fill": 0.05,
+            "border": 0.06,
+            "dashed": true,
+            "borderOpacity": 0.7
           },
           "system": "grey-marches",
           "packs": [],
-          "style": "core/painted"
+          "style": "grey-marches/engraved"
         }
       },
       "connections": [

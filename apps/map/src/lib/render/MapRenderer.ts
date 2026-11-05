@@ -41,7 +41,7 @@ import {
 } from '@open-tabletop/map'
 import { iconImage } from '../icons/registry'
 import { catmullRom, catmullRomClosed, dashes, densify, offsetPolyline, wobble } from './curves'
-import { colorOf, mix, paint, seedOf, shade } from './painters'
+import { colorOf, generator, mix, paint, seedOf, shade, stampSpots } from './painters'
 import { roofPlan } from './roofs'
 import { displace, noiseCanvas, raggedPolygon } from './noise'
 import { hatchStrokes, shadowStrips, stippleDots, type WallSide } from './dungeon'
@@ -50,7 +50,7 @@ import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pat
 import { connectionsNow } from '../play/connections'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
-import { mapStyle } from '../styles'
+import { mapStyle, styleImage } from '../styles'
 import { mapFocus } from './focus'
 import {
   type NameHit,
@@ -191,7 +191,9 @@ export class MapRenderer {
   private grainLayer = new Container()
   /** What the style draws on each terrain's cells (mountains, trees…), the lower over the higher. */
   private artLayer = new Container({ sortableChildren: true })
-  private artCells = new Map<HexKey, Graphics>()
+  private artCells = new Map<HexKey, Container>()
+  /** The style's texture over the ground (`texture`), with the grain. */
+  private textureLayer = new Container()
   /** The blur the terrains' borders blend by (the style's `ground.blend`). */
   private groundBlur: BlurFilter | null = null
   private gridLines = new Graphics()
@@ -208,6 +210,8 @@ export class MapRenderer {
   /** The ways into sub-maps and out to the parent map, above the places' icons. */
   private wayLayer = new Graphics()
   private iconTextures = new IconTextures(() => {
+    this.drawArt()
+    this.drawTexture()
     this.drawGlyphs()
     this.drawIcons()
     this.drawTokens()
@@ -292,6 +296,7 @@ export class MapRenderer {
       this.terrainLayer,
       this.shoreLines,
       this.grainLayer,
+      this.textureLayer,
       this.glyphLayer,
       this.gridLines,
       this.artLayer,
@@ -2031,6 +2036,29 @@ export class MapRenderer {
       grain.blendMode = 'multiply'
       this.grainLayer.addChild(grain)
     }
+    this.drawTexture()
+  }
+
+  /** The style's texture (an image of the packs) repeated over the map, multiplied into it. */
+  private drawTexture(): void {
+    for (const child of this.textureLayer.removeChildren()) child.destroy()
+    const own = mapStyle().texture
+    const url = own && styleImage(own.image)
+    const texture = own && url && this.iconTextures.get(`texture:${own.image}`, url, true)
+    if (!own || !texture) return
+    const b = this.gridLines.getLocalBounds()
+    const pad = editor.map.grid.hexSize * 0.8
+    const sprite = new TilingSprite({
+      texture,
+      width: b.width + pad * 2,
+      height: b.height + pad * 2,
+    })
+    sprite.position.set(b.minX - pad, b.minY - pad)
+    // A repeat is `scale` cells wide (a cell two radii across).
+    sprite.tileScale.set((own.scale * editor.map.grid.hexSize * 2) / texture.width)
+    sprite.alpha = own.opacity
+    sprite.blendMode = 'multiply'
+    this.textureLayer.addChild(sprite)
   }
 
   /** The blur works in screen pixels: sized to the zoom so a cell looks the same. */
@@ -2047,9 +2075,9 @@ export class MapRenderer {
   }
 
   /**
-   * The style's art on one cell: its terrain's painter (mountains, trees…), drawn in the
-   * order of the cells' heights so lower cells overlap higher ones. Cells with an icon show
-   * the icon instead, as glyphs do.
+   * The style's art on one cell: its terrain's painter (mountains, trees…) or images, drawn
+   * in the order of the cells' heights so lower cells overlap higher ones. Cells with an icon
+   * show the icon instead, as glyphs do.
    */
   private updateArt(key: HexKey): void {
     const old = this.artCells.get(key)
@@ -2066,6 +2094,30 @@ export class MapRenderer {
     const terrain = terrains.find((t) => t.id === hex?.terrain)
     if (!terrain || !inBounds(cell, grid)) return
     const center = this.centerOf(cell)
+    if (art.images) {
+      const stamps = new Container()
+      const seed = seedOf(key)
+      const pick = generator(seed ^ 0x5bd1e995)
+      const count = art.count ?? 1
+      const width = (grid.hexSize * 1.5 * art.size) / Math.sqrt(count)
+      for (const spot of stampSpots(seed, count, grid.hexSize, center.x, center.y)) {
+        const ref = art.images[Math.floor(pick() * art.images.length)]
+        const url = styleImage(ref)
+        const texture = url && this.iconTextures.get(`art:${ref}`, url)
+        if (!texture) continue
+        const sprite = new Sprite(texture)
+        sprite.anchor.set(0.5)
+        sprite.setSize(width, width)
+        sprite.position.set(spot.x, spot.y)
+        if (art.color) sprite.tint = colorOf(art.color)
+        stamps.addChild(sprite)
+      }
+      stamps.zIndex = center.y
+      this.artLayer.addChild(stamps)
+      this.artCells.set(key, stamps)
+      return
+    }
+    if (!art.painter) return
     const g = new Graphics()
     const shapes = paint(art.painter, {
       x: center.x,
@@ -2126,6 +2178,7 @@ export class MapRenderer {
     const { layers, grid } = editor.map
     this.terrainLayer.visible = layers.terrain.visible
     this.grainLayer.visible = layers.terrain.visible
+    this.textureLayer.visible = layers.terrain.visible
     this.shoreLines.visible = layers.terrain.visible
     this.sheet.visible = layers.terrain.visible
     this.artLayer.visible = layers.terrain.visible

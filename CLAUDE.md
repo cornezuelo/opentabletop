@@ -44,7 +44,7 @@ packages/                   # libraries, scope @open-tabletop/*
   storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
   transfer/                 # export and import some of it: what's kept as a tree with what each needs, the export .zip
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
-  pack-ui/                  # pack library (bundled + user packs), editing, YAML helpers, YAML editor, conditions as rows (ConditionEditor)
+  pack-ui/                  # pack library (bundled + user packs; `bundled` globs packs/ for every app), editing, YAML helpers, YAML editor, conditions as rows (ConditionEditor)
   oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
   character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags); the roster in the browser
   travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)
@@ -63,6 +63,7 @@ packs/                      # open data packs
   core/                     # generic content for any game (oracles, inspiration, scene twists); no travel system
   grey-marches/             # showcase setting: a travel system and tables using every feature, with an example map (maps/)
   names/                    # name generators for any game (people, villages, inns, landmarks, ships, worlds); no rules
+  azgaar-relief/            # images alone: Azgaar's relief icons (MIT), for map styles to draw with
   kal-arath/                # README only (the pack is personal use: see below)
 packs-private/              # (git-ignored) checkout of the private packs repo
 docs/

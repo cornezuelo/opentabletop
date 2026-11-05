@@ -8,6 +8,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./packs": "./src/packs.ts",
+    "./bundled": "./src/bundled.ts",
     "./yaml": "./src/yaml.ts",
     "./flow": "./src/flow.ts",
     "./completion": "./src/completion.ts",

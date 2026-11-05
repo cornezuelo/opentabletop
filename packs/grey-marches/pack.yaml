@@ -3,11 +3,12 @@
 # Open the example map in the Map app: Maps → Example maps.
 id: grey-marches
 name: The Grey Marches
-version: 0.3.0
+version: 0.4.0
 # The pack format it is written for (what its syntax means; see the manual: Packs).
 format: 15
 locale: en
 license: MIT
 # Tables of other packs: Core must be loaded, and `table.twist` is a short name for one of its tables.
-dependencies: { core: '>=0.3.0' }
+# Its Engraved atlas style draws with Azgaar's relief icons.
+dependencies: { core: '>=0.3.0', azgaar-relief: '>=0.1.0' }
 aliases: { table.twist: core/table.twists }

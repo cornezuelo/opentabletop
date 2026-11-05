@@ -13,9 +13,13 @@ my-pack/
   travel.yaml
   maps/
     frontier.otd.json    # mapas de ejemplo que lista un sistema (maps:), no definiciones
+  art/
+    hill.svg             # imágenes con las que dibujan los estilos de mapa (SVG, PNG, WebP, JPEG)
   locales/
     es/tables.yaml       # traducciones, con la misma estructura que los ficheros que traducen
 ```
+
+Las **imágenes** de un pack (`.svg`, `.png`, `.webp`, `.jpg`, `.jpeg`, en cualquier carpeta suya) son aquello con lo que dibujan los [estilos de mapa](07-kinds.md#estilos-de-mapa): el arte de un terreno, una textura sobre el mapa. Un estilo nombra una por el id de su pack y su ruta en el pack (`my-pack/art/hill.svg`), y puede usar las de otro pack (decláralo en `dependencies`, para que no pueda faltar). Añádelas en la vista del pack de la Oráculo (**+ Imagen**, de hasta 512 KB cada una, porque el navegador guarda tus packs en poco espacio), o pon los ficheros en la carpeta. En el navegador un SVG se guarda como su texto y las demás como sus bytes en una URL `data:`; un .zip o una carpeta las tienen como ficheros de imagen normales. Un SVG solo se muestra como imagen, así que un script que lleve nunca se ejecuta; un fichero con nombre de imagen que no lo es es un problema de su pack.
 
 `pack.yaml`:
 
@@ -54,7 +58,7 @@ Un fichero contiene una definición, varias separadas por `---`, o una lista. Ca
 
 Las reglas exactas (qué campos, qué valores) están definidas en el código, en `packages/oracle-engine/src/definitions/schema.ts` y `packages/travel-engine/src/rules.ts`; las aplicaciones comprueban cada fichero contra ellas al cargarlo e indican los problemas con su línea.
 
-Un **.zip de packs** (el **Exportar .zip** de la Oráculo para un pack, el **Exportar como .zip** de la aplicación Sistemas para un sistema y todos los packs que necesita) tiene cada pack en su carpeta en la raíz (`grey-marches/pack.yaml`, `core/pack.yaml`…), primero el pack propio del sistema. Al importarlo se lee cada carpeta con un `pack.yaml`, a cualquier profundidad, cada fichero va a la carpeta de pack más cercana por encima, y solo los ficheros `.yaml`, `.yml` y `.json`; cada pack toma el nombre del `id` de su manifiesto, se llame como se llame su carpeta. Así que una carpeta de pack que comprimas a mano también se importa.
+Un **.zip de packs** (el **Exportar .zip** de la Oráculo para un pack, el **Exportar como .zip** de la aplicación Sistemas para un sistema y todos los packs que necesita) tiene cada pack en su carpeta en la raíz (`grey-marches/pack.yaml`, `core/pack.yaml`…), primero el pack propio del sistema. Al importarlo se lee cada carpeta con un `pack.yaml`, a cualquier profundidad, cada fichero va a la carpeta de pack más cercana por encima, y solo los ficheros `.yaml`, `.yml`, `.json` y de imagen; cada pack toma el nombre del `id` de su manifiesto, se llame como se llame su carpeta. Así que una carpeta de pack que comprimas a mano también se importa.
 
 Una **exportación** (el **Exportar…** del selector de aplicaciones: packs, campañas con sus mapas y viajes, personajes, elegidos uno a uno) es un .zip con sus packs en `packs/<id>/` y lo demás al lado; importarla en la Oráculo toma solo sus packs. Ver [Copias de seguridad y exportaciones](05-backups.md#el-fichero-de-una-exportación).
 

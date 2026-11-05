@@ -154,6 +154,19 @@ export const en = {
       'Borders that wander off the cells’ edges, from 0 (straight) to 1. Both cells move the same way, so no gap opens; walls follow them too (a cave).\n• `0.3` — a hand-drawn edge\n• `0.6` — a cave’s rough rock',
     grain: 'Grain',
     grainHelp: 'The paper’s grain over everything, from 0 (none) to 1 (strong).',
+    texture: {
+      title: 'Texture',
+      said: 'An image repeated over the whole map: paper, canvas, parchment',
+    },
+    textureImage: 'Image',
+    textureImageHelp:
+      'An image of a pack, repeated over the whole map and blended into it (multiplied: its light parts leave the map as it is, its dark ones darken it). Named by its pack’s id and its path in the pack; empty, no texture.\n• `my-art/paper.webp` — a paper of your pack\n• a pack’s images are added in the Oracle’s pack library (**+ Image**)',
+    textureOpacity: 'Strength',
+    textureOpacityHelp:
+      'How strongly the texture shows, from 0 (not at all) to 1.\n• `0.5` — the usual\n• `0.25` — a faint grain',
+    textureScale: 'Repeat',
+    textureScaleHelp:
+      'How many cells wide each repeat of the image is (above 0, up to 40).\n• `4` — the usual\n• `12` — a large sheet, repeated less',
     art: {
       title: 'Art',
       said: 'What is drawn on each terrain: mountains, trees, waves…',
@@ -166,7 +179,7 @@ export const en = {
     inkHelp: 'The colour of the lines (art, shores in ink, symbols of connections).',
     artTerrains: 'By terrain',
     artTerrainsHelp:
-      'For each terrain (by its id), the **painter** that draws its cells; a terrain not listed has no art. **Density** is how many things it draws and **Size** how big (1 the usual, up to 3); **Colour** its own instead of the terrain’s.\n• `forest` — conifers, density 1.2\n• `mountains` — mountains, size 1.3\n• `lake` — waves, density 0.4',
+      'For each terrain (by its id), the **painter** that draws its cells, or **images** of a pack; a terrain not listed has no art. **Density** is how many things a painter draws, **Size** how big (1 the usual, up to 3); **Colour** its own instead of the terrain’s. Drawn by images, each cell takes one of the list (always the same for that cell), the column says **how many** a cell shows (1 to 12) and **Colour** tints them.\n• `forest` — conifers, density 1.2\n• `mountains` — mountains, size 1.3\n• `hills` — images `my-art/hill-1.svg` and `my-art/hill-2.svg`, 1 a cell\n• `woods` — images `my-art/tree.png`, 3 a cell, size 0.8',
     terrain: 'Terrain',
     painter: 'Painter',
     painters: {
@@ -187,6 +200,12 @@ export const en = {
       dots: 'dots',
     },
     density: 'Density',
+    amount: 'Density / how many',
+    count: 'How many',
+    byImages: 'images (below)',
+    imageRef: 'Image (pack/path)',
+    addImage: '+ Image',
+    noImage: 'No loaded pack has this image: nothing is drawn in its place.',
     size: 'Size',
     color: 'Colour',
     addTerrain: '+ Terrain',

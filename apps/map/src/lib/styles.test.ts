@@ -3,7 +3,7 @@ import { loadPacks } from '@open-tabletop/oracle-engine'
 import { copyStyle, styleSource } from '@open-tabletop/pack-ui'
 import { setIn } from '@open-tabletop/pack-ui/yaml'
 import { describe, expect, it, vi } from 'vitest'
-import { corePack } from '../../../../packages/session/src/core.testing'
+import { corePack, greyMarchesPack } from '../../../../packages/session/src/core.testing'
 import { exampleMaps } from './io/examples'
 import { parseMapFile } from './io/otd'
 import { paint, seedOf } from './render/painters'
@@ -11,13 +11,16 @@ import { paint, seedOf } from './render/painters'
 describe('the bundled map styles', () => {
   const { styles, problems } = mapStyles(loadPacks(corePack()).registry)
   const style = (ref: string) => styles.find((s) => s.ref === ref)!.style
+  const gm = mapStyles(loadPacks([...corePack(), ...greyMarchesPack()]).registry)
+  const gmStyles = gm.styles
 
-  it('Core brings Schematic, Parchment, Painted, Classic dungeon, Cave and Village, with no problem', () => {
+  it('Core brings Schematic, Parchment, Painted, Relief, Classic dungeon, Cave and Village, with no problem', () => {
     expect(problems).toEqual([])
     expect(styles.map((s) => s.ref)).toEqual([
       'core/schematic',
       'core/parchment',
       'core/painted',
+      'core/relief',
       'core/classic-dungeon',
       'core/cave',
       'core/village',
@@ -61,24 +64,46 @@ describe('the bundled map styles', () => {
       expect(s.glyphs).toBe(0)
       // Every painter it names draws something on a cell.
       for (const [id, art] of Object.entries(s.art.terrains))
-        expect(
-          paint(art.painter, {
-            x: 0,
-            y: 0,
-            r: 40,
-            seed: seedOf(id),
-            mode: s.art.mode,
-            ink: 0,
-            base: 0x808080,
-            density: art.density,
-            size: art.size,
-          }).length,
-          id,
-        ).toBeGreaterThan(0)
+        if (art.painter)
+          expect(
+            paint(art.painter, {
+              x: 0,
+              y: 0,
+              r: 40,
+              seed: seedOf(id),
+              mode: s.art.mode,
+              ink: 0,
+              base: 0x808080,
+              density: art.density,
+              size: art.size,
+            }).length,
+            id,
+          ).toBeGreaterThan(0)
     },
   )
 
-  it("the Grey Marches' frontier is drawn in Parchment, the Hollow Hills in Painted, as they were chosen", () => {
+  it('Relief draws the relief by Azgaar’s images, and every image it names is loaded', () => {
+    const s = style('core/relief')
+    expect(s.art.terrains.mountains.images).toHaveLength(6)
+    expect(s.art.terrains.forest).toMatchObject({ count: 3 })
+    expect(s.art.terrains.lake.painter).toBe('waves')
+    // No "No image" problem: Azgaar's pack is loaded with Core.
+    expect(problems).toEqual([])
+  })
+
+  it('the Grey Marches’ Engraved atlas draws with images of another pack and a texture of its own', () => {
+    expect(gm.problems).toEqual([])
+    const s = gmStyles.find((x) => x.ref === 'grey-marches/engraved')!.style
+    expect(s.texture).toEqual({ image: 'grey-marches/art/vellum.webp', opacity: 0.55, scale: 5 })
+    expect(s.art.terrains.hills.images![0]).toBe('azgaar-relief/illustrated/hill-1.svg')
+    expect(s.art.terrains.peaks.color).toBe('#d8d2c8')
+    // The texture is a raster image of the pack, kept as a data: URL.
+    expect(
+      greyMarchesPack().find((f) => f.path === 'grey-marches/art/vellum.webp')!.content,
+    ).toMatch(/^data:image\/webp;base64,/)
+  })
+
+  it("the Grey Marches' frontier is drawn in Parchment, the Hollow Hills in the Engraved atlas, as they were chosen", () => {
     const open = (id: string) => parseMapFile(exampleMaps().find((m) => m.id === id)!.json).map
     const marches = open('greymarches1')
     expect(marches.meta.style).toBe('core/parchment')
@@ -88,7 +113,9 @@ describe('the bundled map styles', () => {
     expect(marches.grid.glyphs).toBe(0)
     expect(marches.captions.hexNames.haloColor).toBe('#efe3c4')
     const hills = exampleMaps().find((m) => m.path.endsWith('hollow-hills.otd.json'))!
-    expect(styleOf(parseMapFile(hills.json).map, styles)).toBe(style('core/painted'))
+    const drawn = parseMapFile(hills.json).map
+    expect(styleOf(drawn, gmStyles).id).toBe('engraved')
+    expect(drawn.captions.hexNames.haloColor).toBe('#efe3c4')
   })
 
   it('the Barrow-halls are a Classic dungeon, the old mine a Cave, as they were chosen', () => {
@@ -122,9 +149,9 @@ describe('the bundled map styles', () => {
     // Stonewater Ford, on the Hollow Hills: stepping stones where it crosses; the Barrow-road
     // (a kind no style names) keeps the dashed line with a diamond.
     const hills = at('hollow-hills.otd.json')
-    const painted = styleOf(hills, styles)
+    const engraved = styleOf(hills, gmStyles)
     const look = (kind: string) =>
-      connectionLook(painted, hills.connections.find((c) => c.kind === kind)!.kind)
+      connectionLook(engraved, hills.connections.find((c) => c.kind === kind)!.kind)
     expect(look('ford').symbol).toBe('ford')
     expect(look('hidden-path')).toEqual({ symbol: 'diamond', line: 'dashed' })
   })
@@ -169,6 +196,17 @@ describe('a style of the user’s, edited while a map is drawn in it', () => {
       expect(mapStyle().paper).toBe('#203040')
       expect(mapStyle().ground.wash).toBe(0)
       expect(mapStyle().art.terrains.forest).toEqual({ painter: 'broadleaf', density: 2, size: 1 })
+      // Drawn by images instead: the images of a pack, by full name.
+      edit(['art', 'terrains', 'forest'], {
+        images: ['azgaar-relief/colored/conifer-1.svg'],
+        count: 3,
+      })
+      expect(mapStyle().art.terrains.forest).toEqual({
+        images: ['azgaar-relief/colored/conifer-1.svg'],
+        count: 3,
+        density: 1,
+        size: 1,
+      })
       // The bundled one never changed.
       expect(
         styleOf({ meta: { style: 'core/parchment' } } as never, mapStyles(library.registry).styles)

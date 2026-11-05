@@ -7,7 +7,7 @@ import {
   type TravelWorld,
 } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { bundledPacks } from './bundled'
+import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 import { engineFiles } from './workspace'
 
 /**

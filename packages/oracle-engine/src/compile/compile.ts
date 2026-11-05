@@ -8,7 +8,7 @@ import {
   type Manifest,
   type Overlay,
 } from '../definitions/schema'
-import type { Diagnostic, LoadedPack } from '../loader/load'
+import { imageUrl, type Diagnostic, type LoadedPack } from '../loader/load'
 import {
   dynamicKind,
   findRef,
@@ -151,6 +151,8 @@ export interface Registry {
       aliases: Record<string, string>
       /** Its OTD bundles (`*.otd.json`) by path in the pack, e.g. a system's maps. */
       bundles: string[]
+      /** Its images by path in the pack (an SVG's text or a `data:` URL), see `packImage`. */
+      images: Record<string, string>
     }
   >
   /** locale → full definition id → overlay. */
@@ -183,6 +185,7 @@ export function compilePacks(loaded: LoadedPack[], diagnostics: Diagnostic[] = [
       dependencies: deps,
       aliases: pack.manifest.aliases ?? {},
       bundles: pack.bundles,
+      images: pack.images,
     })
   }
   for (const pack of loaded) {
@@ -728,4 +731,23 @@ function entryKeysWithoutId(def: Compiled): number {
       .flatMap((v) => v.entries)
       .filter((e) => !e.explicitId).length
   return 0
+}
+
+/**
+ * An image of the loaded packs by its full name, `<pack id>/<path in the pack>`
+ * (`my-art/relief/mountain.svg`), as a URL an `<img>` or a texture can load; undefined when
+ * no loaded pack has it.
+ */
+export function packImage(registry: Pick<Registry, 'packs'>, ref: string): string | undefined {
+  const cut = ref.indexOf('/')
+  if (cut < 0) return undefined
+  const content = registry.packs.get(ref.slice(0, cut))?.images?.[ref.slice(cut + 1)]
+  return content === undefined ? undefined : imageUrl(content)
+}
+
+/** Every image of the loaded packs by its full name (`<pack id>/<path>`), sorted. */
+export function packImages(registry: Pick<Registry, 'packs'>): string[] {
+  return [...registry.packs]
+    .flatMap(([id, pack]) => Object.keys(pack.images ?? {}).map((path) => `${id}/${path}`))
+    .sort()
 }

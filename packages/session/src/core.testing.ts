@@ -1,7 +1,6 @@
 import { loadPacks, type PackFile } from '@open-tabletop/oracle-engine'
 import { travelSystems, type TravelSystem } from './trip'
 
-/** For tests: the bundled Core pack's files (`packs/core`), as an app loads them. */
 // Vite's glob (Vitest's too): typed where an app has vite/client, not in this core.
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore -- `import.meta.glob` is Vite's; this file only runs under Vitest.
@@ -11,11 +10,28 @@ const core: Record<string, unknown> = import.meta.glob('../../../packs/core/**/*
   eager: true,
 })
 
-export const corePack = (): PackFile[] =>
-  Object.entries(core).map(([path, content]) => ({
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore -- as above.
+const relief: Record<string, unknown> = import.meta.glob(
+  '../../../packs/azgaar-relief/**/*.{yaml,svg}',
+  {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  },
+)
+
+/** For tests: the bundled Core pack's files (`packs/core`) and the images it draws with (`packs/azgaar-relief`), as an app loads them. */
+export const corePack = (): PackFile[] => [
+  ...Object.entries(core).map(([path, content]) => ({
     path: path.slice(path.indexOf('core/')),
     content: content as string,
-  }))
+  })),
+  ...Object.entries(relief).map(([path, content]) => ({
+    path: path.slice(path.indexOf('azgaar-relief/')),
+    content: content as string,
+  })),
+]
 
 /** For tests: Core's system, the Generic rules, as the apps load it. */
 export function coreSystem(): TravelSystem {
@@ -34,9 +50,16 @@ const greyMarches: Record<string, unknown> = import.meta.glob(
   },
 )
 
-/** For tests: the bundled Grey Marches pack's files (`packs/grey-marches`), without its maps. */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore -- as above.
+const greyMarchesImages: Record<string, unknown> = import.meta.glob(
+  '../../../packs/grey-marches/**/*.webp',
+  { query: '?inline', import: 'default', eager: true },
+)
+
+/** For tests: the bundled Grey Marches pack's files (`packs/grey-marches`), its images too, without its maps. */
 export const greyMarchesPack = (): PackFile[] =>
-  Object.entries(greyMarches).map(([path, content]) => ({
+  Object.entries({ ...greyMarches, ...greyMarchesImages }).map(([path, content]) => ({
     path: path.slice(path.indexOf('grey-marches/')),
     content: content as string,
   }))

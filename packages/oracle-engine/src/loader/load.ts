@@ -47,6 +47,11 @@ export interface LoadedPack {
    * relative to its folder: not definitions, so they're only listed, never parsed here.
    */
   bundles: string[]
+  /**
+   * Its images (`*.svg`, `*.png`, `*.webp`, `*.jpg`) by path relative to its folder: an SVG's
+   * text, or a raster image as a `data:` URL. Styles name them `<pack id>/<path>`.
+   */
+  images: Record<string, string>
 }
 
 /** Kinds this engine owns; anything else is kept as an extra for other engines. */
@@ -61,6 +66,8 @@ const MANIFEST = /(^|\/)pack\.(ya?ml|json)$/
 const DATA_FILE = /\.(ya?ml|json)$/
 /** OTD bundles (maps and the like) a pack may carry besides its definitions. */
 export const BUNDLE_FILE = /\.otd\.json$/
+/** Images a pack may carry (map styles' art and textures): SVG as text, the others as `data:` URLs. */
+export const IMAGE_FILE = /\.(svg|png|webp|jpe?g)$/i
 
 /** Groups files into packs and parses + structurally validates every document. */
 export function loadPackFiles(files: PackFile[]): LoadResult {
@@ -112,12 +119,17 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       systemTexts: {},
       extras: [],
       bundles: [],
+      images: {},
     }
     packs.push(pack)
     byRoot.set(root, pack)
   }
 
   for (const file of files) {
+    if (IMAGE_FILE.test(file.path)) {
+      readImage(file, roots, byRoot, diagnostics)
+      continue
+    }
     if (MANIFEST.test(file.path) || !DATA_FILE.test(file.path)) continue
     const root = roots.find(({ root }) => root === '' || file.path.startsWith(`${root}/`))?.root
     const pack = root === undefined ? undefined : byRoot.get(root)
@@ -171,6 +183,40 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       })
   }
   return { packs, diagnostics }
+}
+
+/** An image file kept in its pack, checked to be what its name says. */
+function readImage(
+  file: PackFile,
+  roots: { root: string }[],
+  byRoot: Map<string, LoadedPack>,
+  diagnostics: Diagnostic[],
+): void {
+  const root = roots.find(({ root }) => root === '' || file.path.startsWith(`${root}/`))?.root
+  const pack = root === undefined ? undefined : byRoot.get(root)
+  if (!pack) return
+  const relative = root ? file.path.slice(root.length + 1) : file.path
+  const svg = /\.svg$/i.test(relative)
+  const ok = svg
+    ? /<svg[\s>]/.test(file.content)
+    : /^data:image\/[a-z+]+;base64,/.test(file.content)
+  if (!ok) {
+    diagnostics.push({
+      severity: 'error',
+      message: svg ? 'Not an SVG image' : 'Not an image (expected its bytes as a data: URL)',
+      pack: pack.manifest.id,
+      file: file.path,
+    })
+    return
+  }
+  pack.images[relative] = file.content
+}
+
+/** An image's content (an SVG's text or a `data:` URL) as a URL an `<img>` can show. */
+export function imageUrl(content: string): string {
+  return content.startsWith('data:')
+    ? content
+    : `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content)}`
 }
 
 function parseDocuments(file: PackFile, diagnostics: Diagnostic[], pack?: string): unknown[] {

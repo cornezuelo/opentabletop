@@ -2,7 +2,7 @@ import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { passesFilter } from '@open-tabletop/oracle-ui'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
-import { bundledPacks } from './bundled'
+import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 import { engineFiles } from './workspace'
 
 describe('the Names pack', () => {

@@ -434,21 +434,27 @@ describe('systems in the Systems app', () => {
   it('a system goes elsewhere whole: its .zip holds every pack it needs', () => {
     const marches = systems.get('grey-marches')!
     const packs = systemZipPacks(marches)
-    // Its own pack first, then Core (it brings Core's tables and depends on it).
-    expect(packs.map((p) => p.root)).toEqual(['grey-marches', 'core'])
+    // Its own pack first, then Core (it brings Core's tables and depends on it), then the
+    // images both styles draw with (a dependency of both), its images written as bytes.
+    expect(packs.map((p) => p.root)).toEqual(['grey-marches', 'core', 'azgaar-relief'])
     const read = zipToPacks(packsToZip(packs))
-    expect(read.map((p) => p.root)).toEqual(['grey-marches', 'core'])
-    expect(read[0].files).toEqual(packs[0].files)
-    // A browser without them gets both, and plays the same system, maps included.
-    expect(planImport([], read).added.map((p) => p.root)).toEqual(['grey-marches', 'core'])
+    expect(read.map((p) => p.root)).toEqual(['grey-marches', 'core', 'azgaar-relief'])
+    // Every file comes back as it went, the vellum's WebP and Azgaar's SVGs too.
+    for (const [i, pack] of packs.entries()) expect(read[i].files).toEqual(pack.files)
+    // A browser without them gets all three, and plays the same system, maps included.
+    expect(planImport([], read).added.map((p) => p.root)).toEqual([
+      'grey-marches',
+      'core',
+      'azgaar-relief',
+    ])
     const elsewhere = travelSystems(loadPacks(engineFiles(read)).registry).systems
     const there = elsewhere.find((s) => s.id === 'grey-marches')!
     expect(there.packs).toEqual(marches.packs)
     expect(there.maps).toEqual(marches.maps)
     expect(there.rules).toEqual(marches.rules)
     expect(importedSystem(read)?.id).toBe('grey-marches')
-    // Here, both are already there unchanged.
-    expect(planImport(library.packs, read).same).toHaveLength(2)
+    // Here, all three are already there unchanged.
+    expect(planImport(library.packs, read).same).toHaveLength(3)
     // An edited copy brought back replaces only what differs; ↶ undoes it in one step.
     const edited = read.map((p) =>
       p.root === 'grey-marches'
@@ -466,7 +472,7 @@ describe('systems in the Systems app', () => {
     )
     const plan = planImport(library.packs, edited)
     expect(plan.replaced.map((p) => p.root)).toEqual(['grey-marches'])
-    expect(plan.same.map((p) => p.root)).toEqual(['core'])
+    expect(plan.same.map((p) => p.root)).toEqual(['core', 'azgaar-relief'])
     library.addPacks(plan.replaced)
     expect(library.pack('grey-marches')?.overrides).toBe(true)
     expect(library.registry.definitions.has('grey-marches/x')).toBe(true)

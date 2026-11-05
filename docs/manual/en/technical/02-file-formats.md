@@ -13,9 +13,13 @@ my-pack/
   travel.yaml
   maps/
     frontier.otd.json    # example maps a system lists (maps:), not definitions
+  art/
+    hill.svg             # images map styles draw with (SVG, PNG, WebP, JPEG)
   locales/
     es/tables.yaml       # translations, mirroring the files they translate
 ```
+
+**Images** in a pack (`.svg`, `.png`, `.webp`, `.jpg`, `.jpeg`, in any folder of it) are what [map styles](07-kinds.md#map-styles) draw with: a terrain's art, a texture over the map. A style names one by its pack's id and its path in the pack (`my-pack/art/hill.svg`), and may use another pack's (declare it in `dependencies`, so it can't be missing). Add them in the Oracle's pack view (**+ Image**, up to 512 KB each, since the browser keeps your packs in little room), or put the files in the folder. In the browser an SVG is kept as its text and the others as their bytes in a `data:` URL; a .zip or a folder holds them as plain image files. An SVG is only ever shown as an image, so a script in it never runs; a file named as an image that isn't one is a problem of its pack.
 
 `pack.yaml`:
 
@@ -54,7 +58,7 @@ A file holds one definition, several separated by `---`, or a list. Each definit
 
 The exact rules (which fields, which values) are defined in code, in `packages/oracle-engine/src/definitions/schema.ts` and `packages/travel-engine/src/rules.ts`; the apps check every file against them when it loads and report problems with their line.
 
-A **.zip of packs** (the Oracle's **Export .zip** for one pack, the Systems app's **Export as .zip** for a system and every pack it needs) has each pack in its own folder at the top (`grey-marches/pack.yaml`, `core/pack.yaml`…), the system's own pack first. Importing one reads every folder with a `pack.yaml`, however deep, each file going to the closest pack folder above it, and only `.yaml`, `.yml` and `.json` files; each pack is named by its manifest `id`, whatever its folder is called. So a pack folder you zipped by hand imports too.
+A **.zip of packs** (the Oracle's **Export .zip** for one pack, the Systems app's **Export as .zip** for a system and every pack it needs) has each pack in its own folder at the top (`grey-marches/pack.yaml`, `core/pack.yaml`…), the system's own pack first. Importing one reads every folder with a `pack.yaml`, however deep, each file going to the closest pack folder above it, and only `.yaml`, `.yml`, `.json` and image files; each pack is named by its manifest `id`, whatever its folder is called. So a pack folder you zipped by hand imports too.
 
 An **export** (the app switcher's **Export…**: packs, campaigns with their maps and trips, characters, chosen one by one) is a .zip with its packs in `packs/<id>/` and the rest beside them; importing it in the Oracle takes only its packs. See [Backups and exports](05-backups.md#the-export-file).
 

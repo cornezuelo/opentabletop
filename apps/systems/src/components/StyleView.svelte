@@ -75,7 +75,7 @@
     >
       {#snippet copy()}{/snippet}
     </PackNotice>
-    <StyleForm {doc} locale={getLocale()} {terrains} {kinds} />
+    <StyleForm {doc} locale={getLocale()} {terrains} {kinds} registry={library.registry} />
   {/if}
 </div>
 

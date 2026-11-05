@@ -702,7 +702,7 @@ The Systems app writes one for every new system, edits it in the system's **Over
 
 ## Map styles
 
-How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings six: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded); and, for maps with floor, **Classic dungeon** (white floor, black walls, the rock hatched) and **Cave** (rough walls, stippled rock); and, for towns, **Village** (cobbled streets, buildings under tiled roofs). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores, the paths' look, the floors, the walls, the roofs and how connections are drawn) is read from the style while the map is drawn, so a change to the style shows at once.
+How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings seven: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded) and **Relief** (Painted's ground with mountains, hills and trees as pictures); and, for maps with floor, **Classic dungeon** (white floor, black walls, the rock hatched) and **Cave** (rough walls, stippled rock); and, for towns, **Village** (cobbled streets, buildings under tiled roofs). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores, the paths' look, the floors, the walls, the roofs and how connections are drawn) is read from the style while the map is drawn, so a change to the style shows at once.
 
 ```yaml
 kind: style
@@ -713,13 +713,16 @@ grid: { color: '#3a2a1a', opacity: 0.15, coords: false } # the grid's line; cell
 glyphs: 0 # terrains' glyphs, 0 (hidden) to 1
 paper: '#efe3c4' # cells nothing is painted on
 ground: { wash: 0.6, blend: 0.2, ragged: 0.3, grain: 0.3 }
+texture: { image: my-art/paper.webp, opacity: 0.4, scale: 4 } # an image of a pack over the map
 art:
   mode: ink # or painted
   ink: '#3b2a1a'
-  terrains: # by terrain id: the painter that draws it
+  terrains: # by terrain id: the painter that draws it, or images
     forest: conifers
     dense-forest: { painter: forest, density: 1.3 }
     hills: { painter: hills, size: 1.2 }
+    mountains: { images: [my-art/mountain-1.svg, my-art/mountain-2.svg], size: 1.3 } # one a cell
+    woods: { images: my-art/tree.png, count: 3, color: '#556b2f' } # three a cell, tinted
 shores: { lines: 3, color: '#3b2a1a' }
 paths: { wobble: 0.5, river: { color: '#3d6f96', width: 0.15 } }
 floors: { color: '#ffffff', wash: 1, grid: 0.25 } # floor: white flagstones with a faint grid
@@ -740,7 +743,8 @@ regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
 - `grid`: `color` (`#rrggbb`), `opacity` (0 to 1) and `coords` (`true` / `false`: the map's **Coordinates**).
 - `paper`: the colour of cells nothing is painted on, and of the sheet under a map whose borders wander or blend.
 - `ground`, each from 0 to 1: `wash` mixes each terrain's colour towards the paper's (0 as painted, `0.6` a light wash); `blend` softens the borders between terrains; `ragged` makes them wander off the cells' edges (the same way on both sides, so they never open a gap); `grain` lays the paper's grain over it all.
-- `art`: what is drawn on each terrain's cells. `mode`: `ink` (lines over the terrain's colour) or `painted` (shapes lit on one side and shaded on the other); `ink`: the lines' colour; `terrains`: by terrain id, a **painter** (`forest: conifers`) or a painter with `density` (how many, 1 the usual, 0 to 3), `size` (how big, 0 to 3) and `color` (its own, instead of the terrain's). A terrain not named has no art. The painters: `grass`, `farmland`, `conifers`, `broadleaf`, `forest` (both kinds of tree, packed), `reeds`, `hills`, `mountains`, `peaks` (snow on top), `volcano`, `dunes`, `rocks`, `waves`, `cobbles` (rounded stones in rows, a paved street), `dots`. Each cell's drawing is its own, and the same every time.
+- `art`: what is drawn on each terrain's cells. `mode`: `ink` (lines over the terrain's colour) or `painted` (shapes lit on one side and shaded on the other); `ink`: the lines' colour; `terrains`: by terrain id, a **painter** (`forest: conifers`) or a painter with `density` (how many, 1 the usual, 0 to 3), `size` (how big, 0 to 3) and `color` (its own, instead of the terrain's). A terrain not named has no art. The painters: `grass`, `farmland`, `conifers`, `broadleaf`, `forest` (both kinds of tree, packed), `reeds`, `hills`, `mountains`, `peaks` (snow on top), `volcano`, `dunes`, `rocks`, `waves`, `cobbles` (rounded stones in rows, a paved street), `dots`. Or **images** of a pack instead of a painter: `images` (one, or a list: each cell takes one of them, always the same for that cell), named by the pack's id and the image's path in it (`my-art/hill.svg`, see [File formats → Images](02-file-formats.md#packs)), with `count` (how many a cell shows, 1 to 12, spread over it), `size` (1 about a cell wide) and `color` (a tint: the image's colours multiplied by it); a terrain has a painter or images, not both. Each cell's drawing is its own, and the same every time. An image no loaded pack has is a problem of the style, and nothing is drawn in its place.
+- `texture`: an image of a pack laid over the whole map, repeated, and blended into it (multiplied: its light parts leave the map as it is, its dark ones darken it): a paper's, a canvas's or a parchment's texture. `image` (by its full name, as the art's), `opacity` (0 to 1, `0.5` the usual) and `scale` (how many cells wide a repeat is, above 0 up to 40, `4` the usual). An image that repeats without seams looks best.
 - `shores`: where water (a terrain with **Water**) meets land, on the water's side: `lines` (0 to 5 lines along the shore, fainter further out; in `ink` mode, the coast inked too), `color` and `band` (0 to 1: a pale band of shallows).
 - `paths`: `wobble` (0 to 1: roads, trails and rivers drawn by hand) and, for `river`, `road` and `trail`, their `color` and `width` (in cells).
 - `floors`: cells of a terrain marked **Floor** (rooms, corridors): `color`, `wash` (0 to 1: how far the terrains' own colours give way to it, `1` all the floor's colour; water keeps its own) and `grid` (0 to 1: a grid drawn on floor alone, in the grid's colour; a style may hide the grid elsewhere with `grid.opacity: 0`).

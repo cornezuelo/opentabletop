@@ -25,7 +25,7 @@ import {
 } from '@open-tabletop/campaign'
 import { describe, expect, it } from 'vitest'
 import { parseAllDocuments } from 'yaml'
-import { bundledPacks } from './bundled'
+import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 import { engineFiles } from './workspace'
 
 describe('bundled open packs', () => {

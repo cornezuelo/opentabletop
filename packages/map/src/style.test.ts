@@ -1,4 +1,4 @@
-import { loadPacks } from '@open-tabletop/oracle-engine'
+import { loadPacks, PACK_FORMAT } from '@open-tabletop/oracle-engine'
 import { localize } from '@open-tabletop/session'
 import { corePack } from '../../session/src/core.testing'
 import { describe, expect, it } from 'vitest'
@@ -11,6 +11,7 @@ import {
   mapStyles,
   parseStyle,
   SCHEMATIC_STYLE,
+  styleImages,
   styleOf,
   type NamedStyle,
 } from './style'
@@ -81,7 +82,7 @@ describe('map styles', () => {
         '@style/broken.grid.opacity: expected a number from 0 to 1',
         '@style/broken.glyphs: expected a number from 0 to 1',
         '@style/broken.art.mode: expected one of ink, painted',
-        '@style/broken.art.terrains.forest.painter: expected one of grass, farmland, conifers, broadleaf, forest, reeds, hills, mountains, peaks, volcano, dunes, rocks, waves, cobbles, dots',
+        '@style/broken.art.terrains.forest.painter: expected one of grass, farmland, conifers, broadleaf, forest, reeds, hills, mountains, peaks, volcano, dunes, rocks, waves, cobbles, dots, or images',
         '@style/broken.art.terrains.hills.size: expected a number from 0 to 3',
         '@style/broken.captions.hexNames.font: expected one of fell, cinzel, sans',
         '@style/broken.paper: expected a colour (#rrggbb)',
@@ -92,6 +93,72 @@ describe('map styles', () => {
       ].sort(),
     )
     expect(problems.every((p) => p.pack === 'p' && p.file === 'p/styles.yaml')).toBe(true)
+  })
+
+  it('draws terrains with images of the packs and lays a texture over the map, and says when one is missing', () => {
+    const { registry } = loadPacks([
+      {
+        path: 'art/pack.yaml',
+        content: `id: art\nversion: 0.1.0\nlocale: en\nformat: ${PACK_FORMAT}\n`,
+      },
+      { path: 'art/relief/hill.svg', content: '<svg xmlns="http://www.w3.org/2000/svg"/>' },
+      { path: 'art/paper.webp', content: 'data:image/webp;base64,UklGRg==' },
+      {
+        path: 'art/styles.yaml',
+        content: [
+          'kind: style',
+          'id: atlas',
+          'art:',
+          '  terrains:',
+          '    hills: { images: [art/relief/hill.svg, art/relief/hill-2.svg], count: 2, size: 1.5 }',
+          '    forest: { images: art/relief/hill.svg, color: "#336633" }',
+          '    swamp: reeds',
+          'texture: { image: art/paper.webp, opacity: 0.3 }',
+        ].join('\n'),
+      },
+    ])
+    const { styles, problems } = mapStyles(registry)
+    const atlas = styles[0].style
+    expect(atlas.art.terrains.hills).toEqual({
+      images: ['art/relief/hill.svg', 'art/relief/hill-2.svg'],
+      count: 2,
+      density: 1,
+      size: 1.5,
+    })
+    expect(atlas.art.terrains.forest.images).toEqual(['art/relief/hill.svg'])
+    expect(atlas.art.terrains.swamp.painter).toBe('reeds')
+    expect(atlas.texture).toEqual({ image: 'art/paper.webp', opacity: 0.3, scale: 4 })
+    expect(styleImages(atlas)).toEqual([
+      'art/relief/hill.svg',
+      'art/relief/hill-2.svg',
+      'art/paper.webp',
+    ])
+    expect(problems.map((p) => p.message)).toEqual([
+      'No image "art/relief/hill-2.svg" in the loaded packs (the style draws nothing in its place)',
+    ])
+    const broken = parseStyle({
+      kind: 'style',
+      id: 'x',
+      art: {
+        terrains: {
+          a: { painter: 'hills', images: ['art/h.svg'] },
+          b: { images: ['hill.svg'] },
+          c: { images: ['art/h.svg'], count: 0 },
+          d: { painter: 'hills', count: 2 },
+        },
+      },
+      texture: { image: 'paper', scale: 0 },
+    })
+    expect(broken.errors.sort()).toEqual(
+      [
+        'art.terrains.a: either a painter or images, not both',
+        "art.terrains.b.images: expected images by full name (a pack's id, then the image's path in it: my-art/relief/hill.svg)",
+        'art.terrains.c.count: expected a whole number from 1 to 12',
+        'art.terrains.d.count: only for images (a painter has density)',
+        "texture.image: expected an image by full name (a pack's id, then its path in it: my-art/paper.webp)",
+        'texture.scale: expected a number of cells above 0, up to 40',
+      ].sort(),
+    )
   })
 
   it("reads a dungeon's floors and walls, the rest the Schematic one's", () => {

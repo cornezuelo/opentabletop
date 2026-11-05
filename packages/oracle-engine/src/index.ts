@@ -1,7 +1,7 @@
 import { compilePacks, type Registry } from './compile/compile'
 import { loadPackFiles, type Diagnostic, type PackFile } from './loader/load'
 
-export { compilePacks, refScope, resolveRef } from './compile/compile'
+export { compilePacks, packImage, packImages, refScope, resolveRef } from './compile/compile'
 export {
   dynamicKind,
   findRef,
@@ -29,7 +29,8 @@ export type {
   WithRollModes,
 } from './compile/compile'
 export * from './definitions/schema'
-export { BUNDLE_FILE, loadPackFiles } from './loader/load'
+export { BUNDLE_FILE, IMAGE_FILE, imageUrl, loadPackFiles } from './loader/load'
+export * from './images'
 export type { Diagnostic, LoadedPack, LoadResult, PackFile } from './loader/load'
 export {
   createOracleEngine,

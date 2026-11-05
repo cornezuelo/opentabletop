@@ -92,8 +92,9 @@ function problems(files: string[]): string[] {
           p,
         ) &&
         !/"[\w-]+" isn't a dependency of this pack$/.test(p) &&
-        // A page can't bring the map files its example names.
-        !/No map "[\w/.-]+" in this pack$/.test(p),
+        // A page can't bring the map files its example names, nor its images.
+        !/No map "[\w/.-]+" in this pack$/.test(p) &&
+        !/No image "[\w/.-]+" in the loaded packs/.test(p),
     )
 }
 
@@ -305,6 +306,8 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
   }
   const { registry, diagnostics } = loadPacks([
     { path: 'core/pack.yaml', content: coreFile('pack.yaml') },
+    // Core's dependency (the images its Relief style draws with), its manifest alone.
+    { path: 'azgaar-relief/pack.yaml', content: reliefManifest },
     { path: 'core/scenes.yaml', content: coreFile('scenes.yaml') },
     { path: 'core/roll-modes.yaml', content: coreFile('roll-modes.yaml') },
     {
@@ -483,6 +486,8 @@ describe('Systems → World: market day in the Fever Marshes plays as the page s
       .find((y) => y.includes(`kind: ${kind}`))!
   const { registry } = loadPacks([
     { path: 'core/pack.yaml', content: coreFile('pack.yaml') },
+    // Core's dependency (the images its Relief style draws with), its manifest alone.
+    { path: 'azgaar-relief/pack.yaml', content: reliefManifest },
     { path: 'core/scenes.yaml', content: coreFile('scenes.yaml') },
     { path: 'core/roll-modes.yaml', content: coreFile('roll-modes.yaml') },
     {
@@ -571,6 +576,14 @@ describe('Systems → World: market day in the Fever Marshes plays as the page s
   })
 })
 /** A file of Core, as bundled (`travel.yaml`): what a new system starts from. */
+const reliefManifest = (
+  import.meta.glob('../../../../../packs/azgaar-relief/pack.yaml', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }) as Record<string, string>
+)['../../../../../packs/azgaar-relief/pack.yaml']
+
 const coreFile = (file: string) =>
   (
     import.meta.glob('../../../../../packs/core/*.yaml', {
@@ -1130,6 +1143,8 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
   const rules = { ...parseAllDocuments(coreFile('travel.yaml'))[0].toJS(), checks: added.checks }
   const { registry, diagnostics } = loadPacks([
     { path: 'core/pack.yaml', content: coreFile('pack.yaml') },
+    // Core's dependency (the images its Relief style draws with), its manifest alone.
+    { path: 'azgaar-relief/pack.yaml', content: reliefManifest },
     { path: 'core/factions.yaml', content: coreFile('factions.yaml') },
     {
       path: 'border/pack.yaml',

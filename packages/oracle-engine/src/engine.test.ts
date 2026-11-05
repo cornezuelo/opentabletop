@@ -7,6 +7,8 @@ import {
   loadPackFiles,
   loadPacks,
   OracleError,
+  packImage,
+  packImages,
   PACK_FORMAT,
   parseRef,
   writeRef,
@@ -315,6 +317,31 @@ cards: []
           `pack format ${PACK_FORMAT - 1}, which this version no longer reads`,
         ),
       }),
+    ])
+  })
+  it("keeps a pack's images, SVG as text and the others as data: URLs, and refuses what isn't one", () => {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg"><circle r="1"/></svg>'
+    const png = 'data:image/png;base64,iVBORw0KGgo='
+    const { registry, diagnostics } = loadPacks([
+      {
+        path: 'art/pack.yaml',
+        content: `id: art\nversion: 0.1.0\nlocale: en\nformat: ${PACK_FORMAT}\n`,
+      },
+      { path: 'art/relief/hill.svg', content: svg },
+      { path: 'art/paper.png', content: png },
+      { path: 'art/broken.webp', content: 'not an image' },
+      { path: 'art/fake.svg', content: 'hello' },
+    ])
+    expect(packImages(registry)).toEqual(['art/paper.png', 'art/relief/hill.svg'])
+    expect(packImage(registry, 'art/paper.png')).toBe(png)
+    expect(packImage(registry, 'art/relief/hill.svg')).toBe(
+      `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
+    )
+    expect(packImage(registry, 'art/missing.svg')).toBeUndefined()
+    expect(packImage(registry, 'other/relief/hill.svg')).toBeUndefined()
+    expect(diagnostics.map((d) => `${d.file}: ${d.message}`)).toEqual([
+      'art/broken.webp: Not an image (expected its bytes as a data: URL)',
+      'art/fake.svg: Not an SVG image',
     ])
   })
 })

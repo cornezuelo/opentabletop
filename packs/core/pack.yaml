@@ -1,7 +1,9 @@
 id: core
 name: Core
-version: 0.10.0
+version: 0.11.0
 # The pack format it is written for (what its syntax means; see the manual: Packs).
 format: 15
 locale: en
 license: MIT
+# Its Relief style draws with this pack's images.
+dependencies: { azgaar-relief: '>=0.1.0' }

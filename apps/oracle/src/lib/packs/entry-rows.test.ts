@@ -1,7 +1,7 @@
 import { conditionRows, pairRows, rowsCondition, rowsPairs } from '@open-tabletop/pack-ui'
 import { parseAllDocuments } from 'yaml'
 import { describe, expect, it } from 'vitest'
-import { bundledPacks } from './bundled'
+import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 
 /** Every list of entries in a definition (a table's, an oracle variant's), however deep. */
 function entryLists(node: unknown, out: Record<string, unknown>[][] = []) {

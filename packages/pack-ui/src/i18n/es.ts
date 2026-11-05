@@ -158,6 +158,19 @@ export const es: Messages<typeof en> = {
       'Bordes que se salen de los lados de las casillas, de 0 (rectos) a 1. Las dos casillas se mueven igual, así que no se abre ningún hueco; los muros también los siguen (una cueva).\n• `0.3` — un borde dibujado a mano\n• `0.6` — la roca tosca de una cueva',
     grain: 'Grano',
     grainHelp: 'El grano del papel sobre todo, de 0 (nada) a 1 (fuerte).',
+    texture: {
+      title: 'Textura',
+      said: 'Una imagen repetida sobre todo el mapa: papel, lienzo, pergamino',
+    },
+    textureImage: 'Imagen',
+    textureImageHelp:
+      'Una imagen de un pack, repetida sobre todo el mapa y fundida con él (multiplicada: sus partes claras dejan el mapa como está, las oscuras lo oscurecen). Se nombra por el id de su pack y su ruta en el pack; vacía, sin textura.\n• `mi-arte/papel.webp` — un papel de tu pack\n• las imágenes de un pack se añaden en la biblioteca de packs del Oráculo (**+ Imagen**)',
+    textureOpacity: 'Intensidad',
+    textureOpacityHelp:
+      'Cuánto se nota la textura, de 0 (nada) a 1.\n• `0.5` — lo de siempre\n• `0.25` — un grano tenue',
+    textureScale: 'Repetición',
+    textureScaleHelp:
+      'Cuántas casillas de ancho ocupa cada repetición de la imagen (más de 0, hasta 40).\n• `4` — lo de siempre\n• `12` — una hoja grande, que se repite menos',
     art: {
       title: 'Arte',
       said: 'Lo que se dibuja en cada terreno: montañas, árboles, olas…',
@@ -171,7 +184,7 @@ export const es: Messages<typeof en> = {
       'El color de las líneas (el arte, las costas a tinta, los símbolos de las conexiones).',
     artTerrains: 'Por terreno',
     artTerrainsHelp:
-      'Para cada terreno (por su id), el **pintor** que dibuja sus casillas; un terreno que no está en la lista no tiene arte. **Densidad** es cuántas cosas dibuja y **Tamaño** lo grandes que son (1 lo de siempre, hasta 3); **Color**, uno propio en vez del del terreno.\n• `forest` — coníferas, densidad 1.2\n• `mountains` — montañas, tamaño 1.3\n• `lake` — olas, densidad 0.4',
+      'Para cada terreno (por su id), el **pintor** que dibuja sus casillas, o **imágenes** de un pack; un terreno que no está en la lista no tiene arte. **Densidad** es cuántas cosas dibuja un pintor y **Tamaño** lo grandes que son (1 lo de siempre, hasta 3); **Color**, uno propio en vez del del terreno. Con imágenes, cada casilla toma una de la lista (siempre la misma para esa casilla), la columna dice **cuántas** muestra una casilla (de 1 a 12) y **Color** las tiñe.\n• `forest` — coníferas, densidad 1.2\n• `mountains` — montañas, tamaño 1.3\n• `hills` — imágenes `mi-arte/colina-1.svg` y `mi-arte/colina-2.svg`, 1 por casilla\n• `woods` — imágenes `mi-arte/arbol.png`, 3 por casilla, tamaño 0.8',
     terrain: 'Terreno',
     painter: 'Pintor',
     painters: {
@@ -192,6 +205,12 @@ export const es: Messages<typeof en> = {
       dots: 'puntos',
     },
     density: 'Densidad',
+    amount: 'Densidad / cuántas',
+    count: 'Cuántas',
+    byImages: 'imágenes (debajo)',
+    imageRef: 'Imagen (pack/ruta)',
+    addImage: '+ Imagen',
+    noImage: 'Ningún pack cargado tiene esta imagen: no se dibuja nada en su lugar.',
     size: 'Tamaño',
     color: 'Color',
     addTerrain: '+ Terreno',

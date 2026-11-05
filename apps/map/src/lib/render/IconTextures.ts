@@ -13,12 +13,16 @@ export class IconTextures {
 
   constructor(private onLoad: () => void) {}
 
-  get(key: string, url: string): Texture | null {
+  /**
+   * `natural`: at the image's own size (up to 1024 px a side) and repeatable, for an image
+   * laid over the map as a texture; else fitted in a square, for icons and art.
+   */
+  get(key: string, url: string, natural = false): Texture | null {
     const texture = this.textures.get(key)
     if (texture) return texture
     if (!this.loading.has(key)) {
       this.loading.add(key)
-      rasterize(url)
+      rasterize(url, natural)
         .then((t) => {
           this.textures.set(key, t)
           this.onLoad()
@@ -35,11 +39,20 @@ export class IconTextures {
   }
 }
 
-async function rasterize(url: string): Promise<Texture> {
+async function rasterize(url: string, natural: boolean): Promise<Texture> {
   const image = new Image()
   image.src = url
   await image.decode()
   const canvas = document.createElement('canvas')
+  if (natural) {
+    const fit = Math.min(1, 1024 / Math.max(image.naturalWidth || 1, image.naturalHeight || 1))
+    canvas.width = Math.max(1, Math.round((image.naturalWidth || RASTER_SIZE) * fit))
+    canvas.height = Math.max(1, Math.round((image.naturalHeight || RASTER_SIZE) * fit))
+    canvas.getContext('2d')!.drawImage(image, 0, 0, canvas.width, canvas.height)
+    const texture = Texture.from(canvas)
+    texture.source.addressMode = 'repeat'
+    return texture
+  }
   canvas.width = canvas.height = RASTER_SIZE
   const ctx = canvas.getContext('2d')!
   // Contain: keep aspect ratio, centered.

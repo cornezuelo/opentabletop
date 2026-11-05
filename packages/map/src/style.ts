@@ -43,13 +43,19 @@ export interface MapStyle {
     /** Paper grain over the ground: 0 none, 1 strong. */
     grain: number
   }
+  /**
+   * An image laid over the whole map, repeated (a paper's or a canvas's texture): its full
+   * name in the packs (`my-art/paper.webp`), how strongly it shows, and a repeat's width in
+   * cells. Absent, none.
+   */
+  texture?: { image: string; opacity: number; scale: number }
   /** What is drawn on each terrain's cells (mountains, trees…), and how. */
   art: {
     /** `ink`: lines over the terrain's colour; `painted`: shapes lit on one side, shaded on the other. */
     mode: ArtMode
     /** The colour of the lines. */
     ink: string
-    /** By terrain id: the painter that draws it. A terrain not named has no art. */
+    /** By terrain id: the painter or the images that draw it. A terrain not named has no art. */
     terrains: Record<string, TerrainArt>
   }
   /** Where water meets land: lines along the shore on the water's side, and a shallow band. */
@@ -155,13 +161,31 @@ export type Painter = (typeof PAINTERS)[number]
 export const ART_MODES = ['ink', 'painted'] as const
 export type ArtMode = (typeof ART_MODES)[number]
 
-/** A terrain's art: its painter, how many things it draws and how big (1 the usual). */
+/**
+ * A terrain's art: drawn by a painter (how many things, how big: 1 the usual), or by images
+ * of the packs (`images`, each cell taking one of them by its seed, `count` of them a cell).
+ */
 export interface TerrainArt {
-  painter: Painter
+  /** Absent when it's drawn by images. */
+  painter?: Painter
+  /** Images by full name (`my-art/relief/hill.svg`); absent when a painter draws it. */
+  images?: string[]
   density: number
+  /** How many images a cell shows (1 to 12): images only. */
+  count?: number
   size: number
-  /** The art's own colour; absent, the terrain's. */
+  /** The art's own colour (images: their tint); absent, the terrain's (images: their own). */
   color?: string
+}
+
+/** The images a style names (its art's and its texture's), each once. */
+export function styleImages(style: MapStyle): string[] {
+  return [
+    ...new Set([
+      ...Object.values(style.art.terrains).flatMap((art) => art.images ?? []),
+      ...(style.texture ? [style.texture.image] : []),
+    ]),
+  ]
 }
 
 /** The kinds of path a style draws its own way. */
@@ -213,14 +237,19 @@ const STYLE_KEYS = [
   'walls',
   'connections',
   'roofs',
+  'texture',
 ]
+const TEXTURE_KEYS = ['image', 'opacity', 'scale']
 const ROOF_KEYS = ['kind', 'color', 'shadow']
 const FLOOR_KEYS = ['color', 'wash', 'grid']
 const WALL_KEYS = ['color', 'width', 'outside', 'band']
 const CONNECTION_LOOK_KEYS = ['symbol', 'line', 'color']
 const GROUND_KEYS = ['wash', 'blend', 'ragged', 'grain']
 const ART_KEYS = ['mode', 'ink', 'terrains']
-const TERRAIN_ART_KEYS = ['painter', 'density', 'size', 'color']
+const TERRAIN_ART_KEYS = ['painter', 'images', 'density', 'count', 'size', 'color']
+/** An image's full name: a pack id, then its path in the pack. */
+const isImageRef = (v: unknown): v is string =>
+  typeof v === 'string' && /^[^/\s]+\/[^\s]+\.(svg|png|webp|jpe?g)$/i.test(v)
 const SHORE_KEYS = ['lines', 'color', 'band']
 const PATH_KEYS = ['wobble', ...STYLED_PATHS]
 const PATH_LOOK_KEYS = ['color', 'width']
@@ -309,6 +338,22 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
   unknown(walls, WALL_KEYS, 'walls.', "a style's walls")
   const roofs = part(raw.roofs, 'roofs')
   unknown(roofs, ROOF_KEYS, 'roofs.', "a style's roofs")
+  let texture: MapStyle['texture']
+  if (raw.texture !== undefined) {
+    const own = part(raw.texture, 'texture')
+    unknown(own, TEXTURE_KEYS, 'texture.', "a style's texture")
+    if (!isImageRef(own.image))
+      errors.push(
+        "texture.image: expected an image by full name (a pack's id, then its path in it: my-art/paper.webp)",
+      )
+    let scale = 4
+    if (own.scale !== undefined) {
+      if (isNumber(own.scale) && own.scale > 0 && own.scale <= 40) scale = own.scale
+      else errors.push('texture.scale: expected a number of cells above 0, up to 40')
+    }
+    if (isImageRef(own.image))
+      texture = { image: own.image, opacity: fraction(own.opacity, 'texture.opacity', 0.5), scale }
+  }
   let roofKind: RoofKind = base.roofs.kind
   if (roofs.kind !== undefined) {
     if (ROOF_KINDS.includes(roofs.kind as RoofKind)) roofKind = roofs.kind as RoofKind
@@ -330,16 +375,40 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
     // `forest: conifers` says the painter alone.
     const own = typeof value === 'string' ? { painter: value } : part(value, at)
     unknown(own, TERRAIN_ART_KEYS, `${at}.`, "a terrain's art")
-    if (!PAINTERS.includes(own.painter as Painter)) {
-      errors.push(`${at}.painter: expected one of ${PAINTERS.join(', ')}`)
-      continue
-    }
-    terrainArt[id] = {
-      painter: own.painter as Painter,
+    const look = {
       density: fraction(own.density, `${at}.density`, 1, 3),
       size: fraction(own.size, `${at}.size`, 1, 3),
       ...(own.color !== undefined && { color: color(own.color, `${at}.color`, '') }),
     }
+    if (own.images !== undefined) {
+      // `images: my-art/hill.svg` says one alone.
+      const images = typeof own.images === 'string' ? [own.images] : own.images
+      if (own.painter !== undefined) errors.push(`${at}: either a painter or images, not both`)
+      else if (!Array.isArray(images) || !images.length || !images.every(isImageRef))
+        errors.push(
+          `${at}.images: expected images by full name (a pack's id, then the image's path in it: my-art/relief/hill.svg)`,
+        )
+      else {
+        let count = 1
+        if (own.count !== undefined) {
+          if (
+            Number.isInteger(own.count) &&
+            (own.count as number) >= 1 &&
+            (own.count as number) <= 12
+          )
+            count = own.count as number
+          else errors.push(`${at}.count: expected a whole number from 1 to 12`)
+        }
+        terrainArt[id] = { images: images as string[], count, ...look }
+      }
+      continue
+    }
+    if (own.count !== undefined) errors.push(`${at}.count: only for images (a painter has density)`)
+    if (!PAINTERS.includes(own.painter as Painter)) {
+      errors.push(`${at}.painter: expected one of ${PAINTERS.join(', ')}, or images`)
+      continue
+    }
+    terrainArt[id] = { painter: own.painter as Painter, ...look }
   }
   const connections: Record<string, ConnectionLook> = {}
   for (const [kind, value] of Object.entries(part(raw.connections, 'connections'))) {
@@ -428,6 +497,7 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
       ragged: fraction(ground.ragged, 'ground.ragged', base.ground.ragged),
       grain: fraction(ground.grain, 'ground.grain', base.ground.grain),
     },
+    ...(texture && { texture }),
     art: { mode, ink: color(art.ink, 'art.ink', base.art.ink), terrains: terrainArt },
     shores: {
       lines: lineCount(shores.lines),
@@ -456,9 +526,13 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
   return errors.length ? { errors } : { style, errors }
 }
 
-/** The definitions a pack library keeps besides tables (its `extras`), as `mapStyles` reads them. */
+/**
+ * The definitions a pack library keeps besides tables (its `extras`), as `mapStyles` reads
+ * them, and its packs' images (to tell a style naming one that isn't there).
+ */
 interface Extras {
   extras: Map<string, { kind: string; id?: string; data: Record<string, unknown>; file: string }[]>
+  packs?: Map<string, { images?: Record<string, string> }>
 }
 
 /** A style of the loaded packs, by its full id (`core/schematic`). */
@@ -486,7 +560,20 @@ export function mapStyles(registry: Extras): { styles: NamedStyle[]; problems: D
           at: `@style/${id}${cut > 0 ? `.${error.slice(0, cut)}` : ''}`,
         })
       }
-      if (parsed.style) styles.push({ ref: `${pack}/${id}`, style: parsed.style })
+      if (!parsed.style) continue
+      if (registry.packs)
+        for (const image of styleImages(parsed.style)) {
+          const cut = image.indexOf('/')
+          if (registry.packs.get(image.slice(0, cut))?.images?.[image.slice(cut + 1)] === undefined)
+            problems.push({
+              severity: 'error',
+              message: `No image "${image}" in the loaded packs (the style draws nothing in its place)`,
+              pack,
+              file: extra.file,
+              at: `@style/${id}`,
+            })
+        }
+      styles.push({ ref: `${pack}/${id}`, style: parsed.style })
     }
   return { styles, problems }
 }

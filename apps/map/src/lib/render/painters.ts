@@ -79,6 +79,14 @@ export function mix(a: number, b: number, t: number): number {
 }
 
 /**
+ * Where a cell's `n` images stand (a style drawing a terrain with images): one in the
+ * middle, more spread over the cell like a painter's things, the higher first.
+ */
+export function stampSpots(seed: number, n: number, r: number, x: number, y: number) {
+  return n <= 1 ? [{ x, y }] : spots(generator(seed), n, r, x, y, 0.55)
+}
+
+/**
  * Up to `n` points inside the cell (a circle of `reach` radii), kept apart from each other,
  * the higher ones first so the lower are drawn over them.
  */

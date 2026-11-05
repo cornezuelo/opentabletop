@@ -14,8 +14,10 @@
     type CaptionKind,
     type MapStyle,
   } from '@open-tabletop/map'
+  import { packImage, packImages, type Registry } from '@open-tabletop/oracle-engine'
   import { confirmAction, InfoTip, Markdown, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import CardHead from './CardHead.svelte'
+  import ImageThumb from './ImageThumb.svelte'
   import type { DefinitionDoc } from './definitionDoc.svelte'
   import { translator } from './i18n'
   import type { Path } from './yaml'
@@ -31,6 +33,7 @@
     locale,
     terrains = [],
     kinds = [],
+    registry,
   }: {
     doc: DefinitionDoc
     /** The UI language. */
@@ -39,6 +42,8 @@
     terrains?: string[]
     /** Kinds of connection and way to suggest. */
     kinds?: string[]
+    /** The loaded packs, whose images the art and the texture may use (shown and suggested). */
+    registry?: Pick<Registry, 'packs'>
   } = $props()
 
   const t = translator(() => locale)
@@ -49,6 +54,9 @@
   /** What the style comes to (Schematic's where it's broken), the placeholders' values. */
   const style: MapStyle = $derived(parsed.style ?? SCHEMATIC_STYLE)
   const base = SCHEMATIC_STYLE
+  /** Every image of the loaded packs, by full name, and one's URL to show it. */
+  const images = $derived(registry ? packImages(registry) : [])
+  const imageSrc = (ref: string) => (registry ? packImage(registry, ref) : undefined)
 
   const get = (at: Path): unknown =>
     at.reduce<unknown>((node, key) => (node as Raw | undefined)?.[key], data)
@@ -69,6 +77,7 @@
   type Part =
     | 'sheet'
     | 'ground'
+    | 'texture'
     | 'art'
     | 'shores'
     | 'paths'
@@ -85,6 +94,8 @@
   const artTerrains = $derived(Object.entries((get(['art', 'terrains']) ?? {}) as Raw))
   const connections = $derived(Object.entries((get(['connections']) ?? {}) as Raw))
   let newTerrain = $state('')
+  /** The image being added to each terrain's images, by terrain. */
+  let newImage = $state<Record<string, string>>({})
   let newKind = $state('')
   const freeTerrains = $derived(terrains.filter((id) => !artTerrains.some(([k]) => k === id)))
   const freeKinds = $derived(kinds.filter((id) => !connections.some(([k]) => k === id)))
@@ -92,6 +103,19 @@
   function setArt(id: string, patch: Raw) {
     const current = entry(get(['art', 'terrains', id]), 'painter')
     set(['art', 'terrains', id], shorten({ ...current, ...patch }, 'painter'))
+  }
+  /** A terrain drawn by images (`images:`) or by a painter, switched. */
+  function drawWith(id: string, value: string) {
+    if (value !== IMAGES) return setArt(id, { painter: value, images: undefined, count: undefined })
+    setArt(id, { painter: undefined, density: undefined, images: images.slice(0, 1) })
+  }
+  const imagesOf = (own: Raw): string[] =>
+    typeof own.images === 'string' ? [own.images] : ((own.images as string[] | undefined) ?? [])
+  function addImage(id: string, own: Raw) {
+    const ref = (newImage[id] ?? '').trim()
+    if (!ref || imagesOf(own).includes(ref)) return
+    setArt(id, { images: [...imagesOf(own), ref] })
+    newImage[id] = ''
   }
   function addTerrain() {
     const id = newTerrain.trim()
@@ -113,7 +137,13 @@
     if (await confirmAction(`${t('style.remove')}: ${name}?`)) set(at, undefined)
   }
   const fallback = (value: unknown) => t('style.fallback', { value: String(value) })
+  /** The painter select's value for a terrain drawn by images. */
+  const IMAGES = '@images'
 </script>
+
+{#snippet thumb(ref: string)}
+  <ImageThumb src={imageSrc(ref)} alt={ref} missing={t('style.noImage')} />
+{/snippet}
 
 {#snippet numberField(label: string, help: string, at: Path, shown: number, max = 1, step = 0.05)}
   <label class="field">
@@ -305,6 +335,47 @@
   {/snippet}
   {@render card('ground', ground)}
 
+  {#snippet texture()}
+    {@const image = get(['texture', 'image']) as string | undefined}
+    <div class="fields">
+      <div class="field">
+        <span>{t('style.textureImage')}<InfoTip text={t('style.textureImageHelp')} /></span>
+        <span class="image-pick">
+          {#if image}{@render thumb(image)}{/if}
+          <SuggestInput
+            label={t('style.textureImage')}
+            placeholder={t('style.imageRef')}
+            value={image ?? ''}
+            list={images}
+            {disabled}
+            onchange={(text) =>
+              set(
+                ['texture'],
+                text.trim()
+                  ? { ...((get(['texture']) as Raw) ?? {}), image: text.trim() }
+                  : undefined,
+              )}
+          />
+        </span>
+      </div>
+      {@render numberField(
+        t('style.textureOpacity'),
+        t('style.textureOpacityHelp'),
+        ['texture', 'opacity'],
+        0.5,
+      )}
+      {@render numberField(
+        t('style.textureScale'),
+        t('style.textureScaleHelp'),
+        ['texture', 'scale'],
+        4,
+        40,
+        0.5,
+      )}
+    </div>
+  {/snippet}
+  {@render card('texture', texture)}
+
   {#snippet art()}
     <div class="fields">
       {@render choiceField(
@@ -324,7 +395,7 @@
           <tr>
             <th>{t('style.terrain')}</th>
             <th>{t('style.painter')}</th>
-            <th>{t('style.density')}</th>
+            <th>{t('style.amount')}</th>
             <th>{t('style.size')}</th>
             <th>{t('style.color')}</th>
             <th></th>
@@ -338,26 +409,41 @@
               <td>
                 <select
                   aria-label={`${id}: ${t('style.painter')}`}
-                  value={own.painter}
+                  value={own.images !== undefined ? IMAGES : own.painter}
                   {disabled}
-                  onchange={(e) => setArt(id, { painter: e.currentTarget.value })}
+                  onchange={(e) => drawWith(id, e.currentTarget.value)}
                 >
                   {#each PAINTERS as p (p)}<option value={p}>{t(`style.painters.${p}`)}</option
                     >{/each}
+                  <option value={IMAGES}>{t('style.byImages')}</option>
                 </select>
               </td>
               <td>
-                <input
-                  type="number"
-                  min="0"
-                  max="3"
-                  step="0.1"
-                  placeholder="1"
-                  aria-label={`${id}: ${t('style.density')}`}
-                  value={(own.density as number | undefined) ?? ''}
-                  {disabled}
-                  onchange={(e) => setArt(id, { density: number(e.currentTarget.value) })}
-                />
+                {#if own.images !== undefined}
+                  <input
+                    type="number"
+                    min="1"
+                    max="12"
+                    step="1"
+                    placeholder="1"
+                    aria-label={`${id}: ${t('style.count')}`}
+                    value={(own.count as number | undefined) ?? ''}
+                    {disabled}
+                    onchange={(e) => setArt(id, { count: number(e.currentTarget.value) })}
+                  />
+                {:else}
+                  <input
+                    type="number"
+                    min="0"
+                    max="3"
+                    step="0.1"
+                    placeholder="1"
+                    aria-label={`${id}: ${t('style.density')}`}
+                    value={(own.density as number | undefined) ?? ''}
+                    {disabled}
+                    onchange={(e) => setArt(id, { density: number(e.currentTarget.value) })}
+                  />
+                {/if}
               </td>
               <td>
                 <input
@@ -403,6 +489,48 @@
                 {/if}
               </td>
             </tr>
+            {#if own.images !== undefined}
+              <tr class="images-row">
+                <td></td>
+                <td colspan="5">
+                  <div class="image-list">
+                    {#each imagesOf(own) as ref (ref)}
+                      <span class="image" use:tooltip={ref}>
+                        {@render thumb(ref)}
+                        {#if !disabled}
+                          <button
+                            type="button"
+                            class="icon"
+                            aria-label={`${t('style.remove')}: ${ref}`}
+                            onclick={() =>
+                              setArt(id, { images: imagesOf(own).filter((r) => r !== ref) })}
+                            >×</button
+                          >
+                        {/if}
+                      </span>
+                    {/each}
+                    {#if !disabled}
+                      <form
+                        class="add"
+                        onsubmit={(e) => {
+                          e.preventDefault()
+                          addImage(id, own)
+                        }}
+                      >
+                        <SuggestInput
+                          label={`${id}: ${t('style.imageRef')}`}
+                          placeholder={t('style.imageRef')}
+                          value={newImage[id] ?? ''}
+                          list={images.filter((r) => !imagesOf(own).includes(r))}
+                          onchange={(text) => (newImage[id] = text)}
+                        />
+                        <button type="submit" class="button">{t('style.addImage')}</button>
+                      </form>
+                    {/if}
+                  </div>
+                </td>
+              </tr>
+            {/if}
           {/each}
         </tbody>
       </table>
@@ -858,6 +986,21 @@
     width: 5.5em;
   }
 
+  .image-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .image {
+    display: inline-flex;
+    align-items: center;
+  }
+  .image-pick {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
   .add {
     display: flex;
     gap: 6px;

@@ -4,6 +4,21 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map and Systems: **map styles drawn with images**. A style may draw a terrain with images of a pack instead of a painter (several for one terrain, each cell taking one; how many a cell shows, their size and a tint), and lay an image over the whole map as a **texture** (a paper's, a vellum's), with its strength and repeat. The style form has both: **images (below)** among the painters, with the loaded packs' images suggested and shown small, and the **Texture** card.
+- Oracle: **images in packs**. **+ Image** adds SVG, PNG, WebP or JPEG files to a pack of yours (up to 512 KB each), listed with its files, each small; a pack's .zip carries them as image files, and importing one reads them back. The command line's `validate` reads them too.
+
+### Packs
+
+- **Azgaar's relief icons**, a new bundled pack of images alone: the relief icons of Azgaar's Fantasy Map Generator (MIT), its _colored_ and _illustrated_ sets (mountains, hills, trees, dunes, swamps, volcanoes).
+- Core: the **Relief** style, Painted's ground with the land's relief as Azgaar's pictures. Core now depends on Azgaar's relief icons.
+- The Grey Marches: their own **Engraved atlas** style (an ink wash on vellum, the relief engraved as Azgaar's illustrated icons, a vellum's texture of the pack's own over the map); the Hollow Hills are drawn in it.
+
+### Formats
+
+- Packs: images (`.svg`, `.png`, `.webp`, `.jpg`, `.jpeg`) as files of a pack, named in styles by the pack's id and their path (`my-art/relief/hill.svg`); a style's `art.terrains.<terrain>.images` and `count`, and its `texture` (`image`, `opacity`, `scale`).
+
 ## [0.36.0] - 2026-11-05
 
 ### Apps
