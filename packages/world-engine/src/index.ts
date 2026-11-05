@@ -66,6 +66,13 @@ export interface WorldState {
   nextId: number
 }
 
+/**
+ * The timeline newest first, by when things happened: lines are written as they're heard,
+ * and a trip catching up with the world brings earlier ones after later ones.
+ */
+export const newestFirst = (timeline: readonly TimelineEntry[]): TimelineEntry[] =>
+  [...timeline].reverse().sort((a, b) => b.time - a.time)
+
 export function initialWorld(time: GameTime = 0): WorldState {
   return { time, events: [], clocks: [], timeline: [], nextId: 1 }
 }

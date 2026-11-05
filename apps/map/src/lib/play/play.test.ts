@@ -20,6 +20,7 @@ import {
   type SessionState,
 } from '@open-tabletop/session'
 import { mapWorld } from '@open-tabletop/map'
+import { journalByDay } from '@open-tabletop/travel-ui'
 import { applyCharacter, lookupItems, shownAgainst, toneOf } from '@open-tabletop/character-engine'
 import { entryText, memberNamer, translator } from '@open-tabletop/travel-ui'
 import {
@@ -392,6 +393,27 @@ describe('playing on the map', () => {
       clickHex(partyLocation() as HexKey)
       expect(trip().travel.route?.length ?? 0).toBeLessThan(2)
     }
+
+    it('waiting at the journey’s end, day after day: one arrival, and each day once', async () => {
+      grey()
+      startWorld()
+      clickHex('5,7')
+      clickHex('6,7')
+      vi.spyOn(Math, 'random').mockReturnValue(0.5)
+      await advance({ minutes: 6 * 1440 })
+      const journal = trip().journal
+      const arrivals = journal.filter((e) => e.code === 'DESTINATION_REACHED')
+      expect(arrivals).toHaveLength(1)
+      // Stamped when the party got there, not when the step that brought it ended.
+      expect(arrivals[0]!.time).toBe(
+        journal.find((e) => e.code === 'PLACE_ENTERED' && e.data?.place === '6,7')?.time,
+      )
+      const days = journalByDay(journal, trip().travel.firstDay ?? 0, worldCalendar()).map(
+        (d) => d.day,
+      )
+      expect(new Set(days).size).toBe(days.length)
+      expect(days.length).toBeGreaterThan(3)
+    })
 
     it('the Grey Marches’ calendar divides the day: the clock waits until a part of it', async () => {
       grey()

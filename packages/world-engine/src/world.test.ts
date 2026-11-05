@@ -9,6 +9,7 @@ import {
   factId,
   findClock,
   initialWorld,
+  newestFirst,
   parseClocks,
   parseWorldRules,
   reactionsAt,
@@ -240,6 +241,11 @@ describe('events with ids, and putting the clock back', () => {
       event: { id: 'fair', name: 'The Great Fair', at: defaultCalendar.at(1, '12:00') },
     })
     expect(worldFacts(state, defaultCalendar).events).toEqual(['fair', 'the-great-fair'])
+  })
+
+  it('reads newest first by when things happened, not by when they were written', () => {
+    const lines = [30, 10, 20, 20].map((time, i) => ({ id: `w${i}`, time, code: 'NOTE' as const }))
+    expect(newestFirst(lines).map((l) => l.id)).toEqual(['w0', 'w3', 'w2', 'w1'])
   })
 
   it('put back, the clock goes to an earlier moment and the timeline says so', () => {

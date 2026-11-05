@@ -8,6 +8,7 @@ import {
   actionNothingOf,
   entryText,
   filterJournal,
+  journalByDay,
   journalMarkdown,
   whyText,
   type JournalContext,
@@ -436,5 +437,29 @@ describe('those present in the journal', () => {
     })
     expect(entryText(moved, context('en'))).toBe('Wolf 2 moved to Hex 0507 by hand')
     expect(entryText(moved, context('es'))).toBe('Se lleva a mano a Wolf 2 hasta Hex 0507')
+  })
+})
+
+describe('the journal by day', () => {
+  // As a saved trip has them: a camp's line, stamped when it began, written after the dawn.
+  const lines = [
+    at(2, '06:00'),
+    at(1, '20:00'),
+    at(2, '12:00'),
+    at(1, '21:00'),
+    at(3, '06:00'),
+  ].map((time, i) => ({ ...entry(time, 'NOTE'), id: `j${i}` }))
+
+  it('has each day once, newest first, whatever the order the lines were written in', () => {
+    const days = journalByDay(lines, 1)
+    expect(days.map((d) => d.day)).toEqual([3, 2, 1])
+    expect(days[1]!.entries.map((e) => e.id)).toEqual(['j2', 'j0'])
+    expect(days[2]!.entries.map((e) => e.id)).toEqual(['j3', 'j1'])
+  })
+
+  it('keeps the latest lines of a long journal', () => {
+    expect(journalByDay(lines, 1, undefined, 2).flatMap((d) => d.entries.map((e) => e.id))).toEqual(
+      ['j4', 'j2'],
+    )
   })
 })

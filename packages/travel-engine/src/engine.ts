@@ -472,7 +472,7 @@ export type TravelEvent =
       time: GameTime
     }
   | { type: 'CHECK_RESOLVED'; id: string; outcome: CheckOutcome }
-  | { type: 'DESTINATION_REACHED'; place: string }
+  | { type: 'DESTINATION_REACHED'; place: string; time: GameTime }
   | { type: 'ROUTE_BLOCKED'; from: string; to: string }
   | {
       type: 'TRAVEL_STOPPED'
@@ -1595,7 +1595,7 @@ export function createTravelEngine(options: {
     if (halted(state)) return suspend(haltReason(state))
     if (!state.route || state.route.length < 2) {
       if (state.destination && state.destination === state.location)
-        events.push({ type: 'DESTINATION_REACHED', place: state.location })
+        events.push({ type: 'DESTINATION_REACHED', place: state.location, time: state.time })
       return stop(state.route ? 'destination' : 'no-route')
     }
     // A value that blocks moving on, or the way the party is travelling (`modes.horse`).
@@ -1606,7 +1606,7 @@ export function createTravelEngine(options: {
     for (;;) {
       const next = state.route[1]
       if (!next) {
-        events.push({ type: 'DESTINATION_REACHED', place: state.location })
+        events.push({ type: 'DESTINATION_REACHED', place: state.location, time: state.time })
         return stop('destination')
       }
       const cost = stepMinutes(state, state.location, next)
@@ -1671,7 +1671,7 @@ export function createTravelEngine(options: {
       schedule(state, PLACE_ENTER, events, from)
       if (left !== undefined) left--
       if (state.route.length < 2) {
-        events.push({ type: 'DESTINATION_REACHED', place: next })
+        events.push({ type: 'DESTINATION_REACHED', place: next, time: state.time })
         return stop('destination')
       }
       if (left === 0) return stop('place')
@@ -1793,11 +1793,9 @@ export function createTravelEngine(options: {
       syncDay(state, events)
       if (halted(state)) return stop(haltReason(state))
       if (state.time >= by) return stop('waited')
-      if (!state.moving && (!onward || !state.route || state.route.length < 2)) {
-        if (state.destination && state.destination === state.location)
-          events.push({ type: 'DESTINATION_REACHED', place: state.location })
+      // Already there: the arrival was told when the party got there, the time just passes.
+      if (!state.moving && (!onward || !state.route || state.route.length < 2))
         return wait(state, by, events)
-      }
       if (!state.moving && !canGoOn(state, state.time)) {
         // A value that blocks travel today (lost…): said in the journal.
         const value = moveBlocker(state)
@@ -2382,7 +2380,7 @@ export function createTravelEngine(options: {
       enter(state, next, events)
       schedule(state, PLACE_ENTER, events, from)
       if (state.route.length < 2)
-        return void events.push({ type: 'DESTINATION_REACHED', place: next })
+        return void events.push({ type: 'DESTINATION_REACHED', place: next, time: state.time })
       if (halted(state)) return
     }
   }

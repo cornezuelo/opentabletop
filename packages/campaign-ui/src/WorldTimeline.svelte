@@ -1,7 +1,7 @@
 <script lang="ts">
   import { localize } from '@open-tabletop/session'
   import type { Calendar, GameTime } from '@open-tabletop/time'
-  import type { WorldState } from '@open-tabletop/world-engine'
+  import { newestFirst, type WorldState } from '@open-tabletop/world-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { translator, type CampaignUiKey } from './i18n'
   import type { WorldControls } from './controls'
@@ -53,7 +53,7 @@
     <button type="submit" disabled={!note.trim()}>{t('world.addNote')}</button>
   </form>
   <ol class="list" class:timeline={scroll}>
-    {#each [...world.timeline].reverse().slice(0, limit) as entry (entry.id)}
+    {#each newestFirst(world.timeline).slice(0, limit) as entry (entry.id)}
       <li>
         <span class="when">{short(entry.time)}</span>
         <span class="what"

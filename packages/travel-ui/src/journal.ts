@@ -707,6 +707,30 @@ export function filterJournal(
 export const tripDay = (e: JournalEntry, startDay: number, calendar: Calendar = defaultCalendar) =>
   calendar.describe(e.time).day - startDay + 1
 
+/**
+ * Entries by game time, oldest first. The journal is in the order lines were written, and a
+ * line can be stamped earlier than the one before it: an action's own line, or a camp's that
+ * ends in a new day, says when it began.
+ */
+export const inTimeOrder = (entries: readonly JournalEntry[]): JournalEntry[] =>
+  [...entries].sort((a, b) => a.time - b.time)
+
+/** Entries grouped by day ("Day N" headers), newest first; `limit` keeps the latest lines. */
+export function journalByDay(
+  entries: readonly JournalEntry[],
+  startDay: number,
+  calendar: Calendar = defaultCalendar,
+  limit = Infinity,
+): { day: number; entries: JournalEntry[] }[] {
+  const groups: { day: number; entries: JournalEntry[] }[] = []
+  for (const entry of inTimeOrder(entries).reverse().slice(0, limit)) {
+    const day = tripDay(entry, startDay, calendar)
+    if (groups.at(-1)?.day !== day) groups.push({ day, entries: [] })
+    groups.at(-1)!.entries.push(entry)
+  }
+  return groups
+}
+
 export const entryClock = (e: JournalEntry, calendar: Calendar = defaultCalendar) =>
   formatClock(calendar.describe(e.time))
 
@@ -721,7 +745,7 @@ export function journalMarkdown(
 ): string {
   const lines = [`# ${title}`]
   let day: number | undefined
-  for (const entry of journal) {
+  for (const entry of inTimeOrder(journal)) {
     if (entry.code === 'DAY_STARTED') continue
     const today = tripDay(entry, context.startDay, context.calendar)
     if (today !== day) {

@@ -288,7 +288,9 @@ describe('travel', () => {
     const { state: after, events } = run(state, { type: 'travel' })
     expect(after.location).toBe('2,0')
     expect(events.filter((e) => e.type === 'PLACE_ENTERED')).toHaveLength(2)
-    expect(events).toContainEqual({ type: 'DESTINATION_REACHED', place: '2,0' })
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: 'DESTINATION_REACHED', place: '2,0' }),
+    )
   })
 
   it('skips the navigation check when following a road', () => {

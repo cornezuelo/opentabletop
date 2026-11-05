@@ -4,6 +4,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- Map and Travel: a trip that camped through a wait from the World panel could leave Play unable to open for good. The journal and its export now read in time order, on trips already saved too.
+- Map and Travel: waiting at the journey's end no longer tells the arrival again every day, and an arrival is stamped when the party got there.
+- Campaign and Map: the Timeline is newest first by when things happened.
+
 ## [0.37.0] - 2026-11-05
 
 ### Apps

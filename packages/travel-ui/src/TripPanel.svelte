@@ -28,6 +28,7 @@
     eventName,
     filterJournal,
     journalMarkdown,
+    journalByDay,
     tripDay,
     whyText,
   } from './journal'
@@ -500,7 +501,6 @@
   const text = (e: JournalEntry) => entryText(e, context)
   const pendingName = (event: unknown) => eventName(t, event, checkName)
 
-  /** Entries grouped by day ("Day N" headers), in the order given. */
   /**
    * When a waiting check came up, if on another day than now: an action that goes on past
    * it (a camp till dawn) leaves its line in the day before, which the box then names.
@@ -514,19 +514,10 @@
       : t('cameUp', { day, clock: formatClock(calendar.describe(line.time)) })
   }
 
-  function byDay(entries: JournalEntry[]) {
-    const groups: { day: number; entries: JournalEntry[] }[] = []
-    for (const entry of entries) {
-      const day = tripDay(entry, startDay, calendar)
-      if (groups.at(-1)?.day !== day) groups.push({ day, entries: [] })
-      groups.at(-1)!.entries.push(entry)
-    }
-    return groups
-  }
   /** The lines the Journal tab's filter lets through, oldest first (what Export writes). */
   const filtered = $derived(filterJournal(session.journal, journalFilter.current, context))
   /** Newest first. */
-  const journalDays = $derived(byDay([...filtered].reverse().slice(0, 200)))
+  const journalDays = $derived(journalByDay(filtered, startDay, calendar, 200))
   /** The topics this journal has lines of: those the filter offers. */
   const topics = $derived(
     JOURNAL_TOPICS.filter((topic) => session.journal.some((e) => entryTopic(e) === topic)),
@@ -536,10 +527,10 @@
    * story and the rules: what happened behind is in the Journal tab).
    */
   const lastDays = $derived(
-    byDay(
-      lastStepEntries(session)
-        .filter((e) => shownAt(e, { level: 'mechanics' }))
-        .reverse(),
+    journalByDay(
+      lastStepEntries(session).filter((e) => shownAt(e, { level: 'mechanics' })),
+      startDay,
+      calendar,
     ),
   )
 
