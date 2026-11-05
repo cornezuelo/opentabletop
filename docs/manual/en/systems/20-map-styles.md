@@ -4,7 +4,7 @@ How a map is drawn is its **style** (`kind: style`): the paper, the ground, what
 
 ## A style of your own
 
-A bundled style (Core's Schematic, Parchment, Painted, Classic dungeon and Cave) can't change. **Make a copy** makes a new style of yours from the one shown, named after it (_Parchment (copy)_), in your pack **My map styles** (made with your first copy, in this browser), and opens it. **Remove** takes one of yours away: maps drawn in it are drawn in the Schematic style until it's back (↶ brings it back).
+A bundled style (Core's Schematic, Parchment, Painted, Classic dungeon, Cave and Village) can't change. **Make a copy** makes a new style of yours from the one shown, named after it (_Parchment (copy)_), in your pack **My map styles** (made with your first copy, in this browser), and opens it. **Remove** takes one of yours away: maps drawn in it are drawn in the Schematic style until it's back (↶ brings it back).
 
 Map does the same beside the map itself: **Map settings → Style → Make a copy** copies the map's style and draws the map in the copy, and **Edit** opens this same form under it, so each change shows on the map at once. A map open in Map, in another tab, also shows the changes made here as they're made.
 
@@ -18,6 +18,7 @@ Its **Name** and **Description** (what **Map settings → Style** shows under it
 - **Shores** (`shores`): the lines along a shore on the water's side (0 to 5), their colour, and a pale band of **Shallows**.
 - **Roads and rivers** (`paths`): the hand's **Wobble**, and the colour and width of rivers, roads and trails.
 - **Floors** (`floors`) and **Walls** (`walls`): for maps with rooms and corridors: the floor's colour, how far the terrains' colours give way to it, a grid on floor alone; the walls' colour and width, and what is drawn **Outside** them (hatching, a shadow, a cave's stipple) and how deep.
+- **Roofs** (`roofs`): buildings seen from outside: their roof (**tiles**, **slate**, **thatch**, **plain**, or **none**: floors and walls always seen, as a dungeon), its colour and the shadow it casts. A building opens while the party is in it or one of its cells is selected, and what's inside (doors, icons, names, tokens) shows only then; Map's **Roofs** layer opens them all.
 - **Connections** (`connections`): a row for each kind of connection or way between maps, by the kind's id as the system names it (`door`, `ford`, `way-in`): its **Symbol** (a door, an arch, a bridge, a ford's stones, a stair, a ladder, a cave's mouth…), its **Line** and its **Colour**. **+ Kind** adds one (the systems' kinds are suggested); a kind without a row keeps the usual look.
 - **Names** (`captions`) and **Regions** (`regions`): how cells', regions' and tokens' names are drawn, and the regions' fill and borders. These are **copied into a map** when the style is chosen, and the map changes them freely after: a change here reaches a map when the style is chosen again (**Take its names and regions again** in Map settings).
 

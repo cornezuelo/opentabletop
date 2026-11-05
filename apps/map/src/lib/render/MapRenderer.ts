@@ -28,6 +28,9 @@ import {
   regionChain,
   regionTree,
   ICON_DEFAULTS,
+  type Building,
+  mapBuildings,
+  roofedBuildings,
   mapWalls,
   type MapPath,
   nodeFlags,
@@ -39,6 +42,7 @@ import {
 import { iconImage } from '../icons/registry'
 import { catmullRom, catmullRomClosed, dashes, densify, offsetPolyline, wobble } from './curves'
 import { colorOf, mix, paint, seedOf, shade } from './painters'
+import { roofPlan } from './roofs'
 import { displace, noiseCanvas, raggedPolygon } from './noise'
 import { hatchStrokes, shadowStrips, stippleDots, type WallSide } from './dungeon'
 import { placeBetween, placeOnCell, symbolShapes, type Placement } from './symbols'
@@ -189,6 +193,8 @@ export class MapRenderer {
   private coordLayer = new Container()
   /** Small dots on hexes that have notes, POIs, tags or fields. */
   private pathsLayer = new Graphics()
+  /** Buildings' roofs, seen from outside: over floor and walls, under connections and icons. */
+  private roofLayer = new Graphics()
   /** Connections drawn between places (bridges, gates, tunnels…). */
   private connectionLayer = new Graphics()
   private iconLayer = new Container()
@@ -276,6 +282,7 @@ export class MapRenderer {
       this.factionShapes,
       this.selection,
       this.pathsLayer,
+      this.roofLayer,
       this.connectionLayer,
       this.iconLayer,
       this.wayLayer,
@@ -523,6 +530,7 @@ export class MapRenderer {
       for (const key of change.keys) this.updateArt(key)
       this.drawShores()
       this.drawWalls()
+      this.drawRoofs()
       if (editor.map.regions.length > 0) this.drawRegions()
       this.drawMarkers()
       if (editor.highlightTag) this.drawHighlight()
@@ -542,12 +550,17 @@ export class MapRenderer {
       this.drawTokens()
     } else if (change.kind === 'play') {
       this.drawParty()
+      // A building opens while the party is in it.
+      this.drawRoofs()
       // What the trip changed of the connections (a gate opened, a path found).
       if (editor.map.connections.length) this.drawConnections()
       // Those present are drawn from the play state.
       this.drawTokens()
     } else if (change.kind === 'regions') {
+      // Rooms split buildings.
+      this.paintRoofs()
       this.drawRegions()
+      this.drawConnections()
     } else if (change.kind === 'factions') {
       this.drawFactions()
     } else if (change.kind === 'style') {
@@ -565,6 +578,7 @@ export class MapRenderer {
       if (editor.selectedLabel) this.drawOverlay()
     } else if (change.kind === 'layers') {
       this.applyLayers()
+      this.drawRoofs()
     } else if (change.kind !== 'meta') {
       const before = this.shapeSignature
       this.rebuild()
@@ -631,6 +645,7 @@ export class MapRenderer {
     this.applyGround()
     this.drawArt()
     this.drawWalls()
+    this.paintRoofs()
     this.drawGlyphs()
     this.drawRegions()
     // The map's factions (none on a new map: the last map's land mustn't stay drawn).
@@ -749,6 +764,87 @@ export class MapRenderer {
         for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i], pts[i + 1])
       }
       g.stroke({ width: hs * style.walls.width, color: ink, cap: 'round', join: 'round' })
+    }
+  }
+
+  /**
+   * Buildings seen from outside, in a style with roofs (`roofs`): each building (`mapBuildings`)
+   * under its roof, a gable over each rectangle of it with the slope away from the light in
+   * shade, the lines of its tiles, slates or thatch, and the shadow it casts. A building is
+   * open (floor and walls seen) while the party stands in it, or a cell of it is selected;
+   * hiding the **Roofs** layer opens them all. What a closed one holds isn't drawn: its inner
+   * doors, rooms' names, cells' icons, names and note markers, and tokens (not the party's).
+   */
+  drawRoofs(): void {
+    const before = [...this.roofed].join(' ')
+    this.paintRoofs()
+    // What a roof hides changed: the doors and rooms' names inside, drawn again.
+    if ([...this.roofed].join(' ') === before) return
+    this.drawConnections()
+    this.drawRegions()
+    this.drawIcons()
+    this.drawNames()
+    this.drawMarkers()
+    this.drawTokens()
+  }
+
+  /** The cells under a closed roof (their doors and rooms' names aren't drawn). */
+  private roofed = new Set<string>()
+
+  private paintRoofs(): void {
+    const g = this.roofLayer.clear()
+    this.roofed = new Set()
+    const style = mapStyle()
+    const { grid, layers } = editor.map
+    // Hiding the Roofs layer opens every building.
+    if (style.roofs.kind === 'none' || layers.roofs?.visible === false) return
+    const buildings = mapBuildings(editor.map)
+    if (!buildings.length) return
+    const hs = grid.hexSize
+    const closed = roofedBuildings(buildings, [partyToken(editor.map)?.hex, editor.selected])
+    for (const b of closed) for (const key of b.cells) this.roofed.add(key)
+    const color = colorOf(style.roofs.color)
+    const line = shade(color, -0.45)
+    /** A rectangle of cells' bounds in pixels. */
+    const bounds = ({ col, row, w, h }: Building['rects'][number]) => {
+      const a = this.cornersAt({ col, row })
+      const b = this.cornersAt({ col: col + w - 1, row: row + h - 1 })
+      const xs = [...a, ...b].filter((_, i) => i % 2 === 0)
+      const ys = [...a, ...b].filter((_, i) => i % 2 === 1)
+      const x = Math.min(...xs)
+      const y = Math.min(...ys)
+      return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y }
+    }
+    // The shadows first, so no roof is under another's.
+    if (style.roofs.shadow > 0) {
+      const off = hs * 0.14
+      for (const b of closed)
+        if (b.rects.length)
+          for (const r of b.rects) {
+            const { x, y, w, h } = bounds(r)
+            g.rect(x + off, y + off, w, h)
+          }
+        else for (const key of b.cells) g.poly(this.cornersAt(parseKey(key)).map((v) => v + off))
+      g.fill({ color: 0x000000, alpha: style.roofs.shadow })
+    }
+    for (const b of closed) {
+      if (!b.rects.length) {
+        // Hexes: each cell under the roof's colour.
+        for (const key of b.cells) g.poly(this.cornersAt(parseKey(key)))
+        g.fill(color).stroke({ width: hs * 0.03, color: line })
+        continue
+      }
+      for (const r of b.rects) {
+        const { x, y, w, h } = bounds(r)
+        const plan = roofPlan(x, y, w, h, style.roofs.kind, hs, seedOf(`${r.col},${r.row}`))
+        g.poly(plan.slopes[0]).fill(shade(color, 0.08))
+        g.poly(plan.slopes[1]).fill(shade(color, -0.22))
+        for (const [p, q] of plan.lines) g.moveTo(p.x, p.y).lineTo(q.x, q.y)
+        if (plan.lines.length) g.stroke({ width: hs * 0.012, color: line, alpha: 0.6 })
+        g.moveTo(plan.ridge[0].x, plan.ridge[0].y).lineTo(plan.ridge[1].x, plan.ridge[1].y)
+        g.stroke({ width: hs * 0.035, color: line, cap: 'round' })
+        g.rect(x, y, w, h).stroke({ width: hs * 0.03, color: line })
+      }
     }
   }
 
@@ -902,6 +998,8 @@ export class MapRenderer {
         })
       if (region.showName === false || !region.name || !editor.map.captions.regionNames.show)
         continue
+      // A room inside a building under its roof: its name shows when the building opens.
+      if (region.parent && cells.every((cell) => this.roofed.has(keyOf(cell)))) continue
       const center = cells
         .map((cell) => this.centerOf(cell))
         .reduce((sum, p) => ({ x: sum.x + p.x / cells.length, y: sum.y + p.y / cells.length }), {
@@ -1111,6 +1209,8 @@ export class MapRenderer {
     for (const connection of editor.map.connections) {
       const [a, b] = connection.between.map(parseKey)
       if (!inBounds(a, grid) || !inBounds(b, grid)) continue
+      // A door inside a building under its roof isn't seen.
+      if (connection.between.every((key) => this.roofed.has(key))) continue
       const [from, to] = [this.centerOf(a), this.centerOf(b)]
       const look = connectionLook(style, connection.kind)
       const shut = now.get(connection.id)?.open === false
@@ -1391,7 +1491,7 @@ export class MapRenderer {
     const hs = grid.hexSize
     const g = new Graphics()
     this.tokenLayer.addChild(g)
-    const drawn = drawnTokens()
+    const drawn = this.seenTokens()
     const all = drawn.map((p) => p.token)
     /** A small count on a token's lower right (×N) or in a chip (+N). */
     const badge = (text: string, x: number, y: number, size: number) => {
@@ -1463,9 +1563,18 @@ export class MapRenderer {
    * Topmost token under a world point: the map's, and with `copies` those present (Play);
    * chips (+N) aren't picked.
    */
+  /**
+   * The tokens drawn, but those inside a building under its roof: they're neither seen nor
+   * clicked until it opens (the party's never is: a building it stands in is open).
+   */
+  private seenTokens(): ReturnType<typeof drawnTokens> {
+    const party = partyToken(editor.map)?.id
+    return drawnTokens().filter((p) => p.token.id === party || !this.roofed.has(p.hex))
+  }
+
   private tokenAt(world: Point, copies = false): string | null {
     const hs = editor.map.grid.hexSize
-    const placed = drawnTokens()
+    const placed = this.seenTokens()
     for (let i = placed.length - 1; i >= 0; i--) {
       const p = placed[i]
       if (p.more || (!copies && isCopy(p.token))) continue
@@ -1535,7 +1644,8 @@ export class MapRenderer {
     this.iconLayer.addChild(halos)
     for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
       const icon = hex.icon
-      if (!icon) continue
+      // What a closed building holds isn't seen from outside.
+      if (!icon || this.roofed.has(key)) continue
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const image = iconImage(icon.id, assets)
@@ -1585,7 +1695,7 @@ export class MapRenderer {
     const { grid, hexes } = editor.map
     const hs = grid.hexSize
     for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
-      if (!hex.name || hex.showName === false) continue
+      if (!hex.name || hex.showName === false || this.roofed.has(key)) continue
       const cell = parseKey(key)
       if (!inBounds(cell, grid)) continue
       const c = this.centerOf(cell)
@@ -1666,7 +1776,7 @@ export class MapRenderer {
     const offset = grid.hexSize * 0.42
     for (const [key, hex] of Object.entries(hexes) as [HexKey, (typeof hexes)[HexKey]][]) {
       const cell = parseKey(key)
-      if (!hasMetadata(hex) || !inBounds(cell, grid)) continue
+      if (!hasMetadata(hex) || !inBounds(cell, grid) || this.roofed.has(key)) continue
       const { x, y } = this.centerOf(cell)
       g.circle(x + offset, y - offset, radius)
     }

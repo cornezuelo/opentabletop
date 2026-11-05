@@ -36,10 +36,13 @@ land: [land.default]
 packs: [core]
 # Listed in Map's Maps → Example maps: the Marches, the Hollow Hills up close (3 km a hex),
 # the Barrow-halls under one of their hexes (a sub-map, 10 m a hex) and the clans' old mine
-# under their mountains (a sub-map with three ways, crossed: 500 m a square), maps of one
-# campaign (every file names it: The Grey Marches).
+# under their mountains (a sub-map with three ways, crossed: 500 m a square), and Ashford,
+# the market village, up close (a town under its hex, 5 m a square: streets outside, its
+# houses' floors under their roofs), maps of one campaign (every file names it: The Grey
+# Marches).
 maps:
   - maps/grey-marches.otd.json
   - maps/hollow-hills.otd.json
   - maps/barrow-halls.otd.json
   - maps/old-mine.otd.json
+  - maps/ashford.otd.json

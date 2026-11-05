@@ -7,6 +7,7 @@
     LABEL_FONTS,
     PAINTERS,
     parseStyle,
+    ROOF_KINDS,
     SCHEMATIC_STYLE,
     STYLED_PATHS,
     WALL_OUTSIDES,
@@ -73,6 +74,7 @@
     | 'paths'
     | 'floors'
     | 'walls'
+    | 'roofs'
     | 'connections'
     | 'captions'
     | 'regions'
@@ -537,6 +539,32 @@
     </div>
   {/snippet}
   {@render card('walls', walls)}
+
+  {#snippet roofs()}
+    <div class="fields">
+      {@render choiceField(
+        t('style.roofKind'),
+        t('style.roofKindHelp'),
+        ['roofs', 'kind'],
+        ROOF_KINDS,
+        (k) => t(`style.roofKinds.${k as 'none'}`),
+        base.roofs.kind,
+      )}
+      {@render colorField(
+        t('style.roofColor'),
+        t('style.roofColorHelp'),
+        ['roofs', 'color'],
+        style.roofs.color,
+      )}
+      {@render numberField(
+        t('style.roofShadow'),
+        t('style.roofShadowHelp'),
+        ['roofs', 'shadow'],
+        base.roofs.shadow,
+      )}
+    </div>
+  {/snippet}
+  {@render card('roofs', roofs)}
 
   {#snippet looks()}
     <p class="help">{t('style.connections.said')}<InfoTip text={t('style.connectionsHelp')} /></p>

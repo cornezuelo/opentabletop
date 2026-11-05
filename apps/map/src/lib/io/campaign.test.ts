@@ -195,7 +195,7 @@ describe('a map’s campaign', () => {
 
     // Started apart instead (none of its examples kept, its sub-maps neither, or they'd say
     // where the campaign went): the example's campaign, numbered so the two can be told apart.
-    for (const id of ['hollowhills1', 'barrowhalls1', 'oldmine1'])
+    for (const id of ['hollowhills1', 'barrowhalls1', 'oldmine1', 'ashford1'])
       await actions.removeLibraryMap(id)
     opening = actions.openExampleMap(hills)
     await answer(dialog, 'own')
@@ -242,7 +242,7 @@ describe('a map’s campaign', () => {
     expect(toasts.at(-1)?.message).toMatch(/joined “Las Marcas Grises”, .* trip “To Keld”/)
 
     // A campaign of the system made by hand too: it asks, as before.
-    for (const id of ['hollowhills1', 'barrowhalls1', 'oldmine1'])
+    for (const id of ['hollowhills1', 'barrowhalls1', 'oldmine1', 'ashford1'])
       await actions.removeLibraryMap(id)
     const mine = { ...c.createCampaign('mine', 'My Marches'), system: 'grey-marches' }
     kept.set('mine', {

@@ -7,6 +7,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Map and Systems: **map styles edited in forms**. **Map settings → Style → Make a copy** makes a style of yours from the map's (in your pack _My map styles_) and draws the map in it; **Edit** opens its form under the picker, every part of it (paper and grid, ground, art by terrain, shores, roads and rivers, floors, walls, connections, names, regions) as a folded card, and the map shows each change at once. Systems lists every pack's styles under **Map styles**, with the same form, **Make a copy** and **Remove**; a map open in another tab follows the changes.
+- Map: **towns, their buildings under their roofs**. **New map → Town**: squares of 3 m, the Town palette (cobbles, yards, gardens, wooden and stone floors) with grass, trees and water, drawn in Core's new **Village** style. In a style with roofs, each building (floor cells joined side by side; two houses wall to wall are two when each is its own room) is seen from outside under its roof, a gable over each rectangle of it, with its shadow; what it holds (inner doors, rooms' names, icons, cells' names, note markers, tokens) isn't seen or clicked until it opens, while the party is in it or one of its cells is selected. The new **Roofs** layer opens them all. Maps v37.
+- Map: editing a map's style redraws the map without moving the view.
+
+### Packs
+
+- Core: the **Village** style, the Town terrains' speeds in the Generic rules.
+- The Grey Marches: **Ashford** up close, the market village as a town under its hex: the Wet Ferret with its kitchen and guest rooms, the smithy, houses wall to wall, the miller's L-shaped house, cottages, the market square and its well.
+
+### Formats
+
+- Packs: a style's `roofs` (`kind`: `tiles`, `slate`, `thatch`, `plain`, `none`; `color`; `shadow`) and the painter `cobbles`.
+- Maps v37: the **Roofs** layer (`layers.roofs`).
 
 ## [0.34.0] - 2026-11-05
 

@@ -1,5 +1,6 @@
 import { getLocale, t } from '../i18n/index.svelte'
 import {
+  applyStyle,
   createMap,
   deserializeMap,
   type HexMap,
@@ -49,6 +50,7 @@ import {
   putLibraryMap,
   type LibraryEntry,
 } from '@open-tabletop/storage'
+import { loadedStyles } from '../styles'
 import { parseDeepLink } from './deepLink'
 import { downloadMap, pickMapFile } from './file'
 import { mapToBundle, parseMapFile } from './otd'
@@ -181,14 +183,18 @@ function asCopy(opening: Opening): Opening {
   return { map, ...(campaign && { campaign }) }
 }
 
-/** Asks what kind of map (a hexcrawl, a dungeon), then whether to save the current one to a file. */
+/**
+ * Asks what kind of map (a hexcrawl, a dungeon, a town), then whether to save the current one
+ * to a file. A town starts drawn in Core's Village style (its roofs), when it's loaded.
+ */
 export async function newMap(): Promise<void> {
   const kind = await ask(t('newMap.title'), t('newMap.kindMessage'), [
     { value: 'cancel', label: t('newMap.cancel') },
+    { value: 'town', label: t('newMap.town') },
     { value: 'dungeon', label: t('newMap.dungeon') },
     { value: 'hexcrawl', label: t('newMap.hexcrawl'), kind: 'primary' },
   ])
-  if (kind !== 'hexcrawl' && kind !== 'dungeon') return
+  if (kind !== 'hexcrawl' && kind !== 'dungeon' && kind !== 'town') return
   const choice = await ask(t('newMap.title'), t('newMap.message'), [
     { value: 'cancel', label: t('newMap.cancel') },
     { value: 'create', label: t('newMap.create') },
@@ -196,8 +202,14 @@ export async function newMap(): Promise<void> {
   ])
   if (choice !== 'create' && choice !== 'save') return
   if (choice === 'save') saveMap()
-  await switchTo({ map: createMap('', kind) })
+  let map = createMap('', kind)
+  const village = kind === 'town' && loadedStyles().find((s) => s.ref === TOWN_STYLE)
+  if (village) map = applyStyle(map, village.ref, village.style)
+  await switchTo({ map })
 }
+
+/** The style a new town starts in. */
+const TOWN_STYLE = 'core/village'
 
 /**
  * A map put in a campaign from the Campaign app (`#/in-campaign/<campaign>[/<map>]`): a new

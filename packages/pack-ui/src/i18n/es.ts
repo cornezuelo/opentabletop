@@ -188,6 +188,7 @@ export const es: Messages<typeof en> = {
       dunes: 'dunas',
       rocks: 'rocas',
       waves: 'olas',
+      cobbles: 'adoquines',
       dots: 'puntos',
     },
     density: 'Densidad',
@@ -244,6 +245,19 @@ export const es: Messages<typeof en> = {
     outsides: { none: 'nada', hatch: 'rayado', shadow: 'una sombra', stipple: 'punteado' },
     wallBand: 'Profundidad',
     wallBandHelp: 'Hasta dónde llega lo de fuera, en casillas, de 0 a 1.',
+    roofs: {
+      title: 'Tejados',
+      said: 'Los edificios vistos desde fuera',
+    },
+    roofKind: 'Tejado',
+    roofKindHelp:
+      'Lo que cubre un edificio visto desde fuera: casillas de suelo unidas por un lado, cada casa aparte de la de al lado cuando es su propia sala. Un tejado a dos aguas sobre cada rectángulo, con la cumbrera a lo largo del lado más largo. Un edificio se abre (se ven su suelo y sus muros) mientras la party está dentro o hay una de sus casillas seleccionada; ocultar la capa **Tejados** los abre todos.\n• **tejas** — hileras de tejas\n• **pizarra** — losas más grandes y menos\n• **paja** — techo de paja\n• **liso** — solo el color\n• **ninguno** — sin tejados: suelos y muros siempre a la vista, como en una mazmorra',
+    roofKinds: { none: 'ninguno', tiles: 'tejas', thatch: 'paja', slate: 'pizarra', plain: 'liso' },
+    roofColor: 'Color',
+    roofColorHelp: 'El color del tejado; la vertiente de espaldas a la luz se dibuja más oscura.',
+    roofShadow: 'Sombra',
+    roofShadowHelp:
+      'La sombra que proyecta un edificio sobre el suelo, de 0 (nada) a 1.\n• `0.3` — una sombra suave',
     connections: {
       title: 'Conexiones',
       said: 'Puertas, puentes, vados, escaleras… por clase, también los caminos entre mapas',

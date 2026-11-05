@@ -286,6 +286,7 @@ export const es: Messages = {
       coords: 'Coordenadas',
       markers: 'Marcadores de notas',
       factions: 'Facciones',
+      roofs: 'Tejados',
       tokens: 'Tokens',
       regions: vocabulary.es.terms.regions,
     },
@@ -382,9 +383,10 @@ export const es: Messages = {
   newMap: {
     title: 'Nuevo mapa',
     kindMessage:
-      '¿Qué tipo de mapa? Un hexcrawl: hexágonos y los terrenos de la tierra, a la escala del sistema. Una mazmorra: casillas cuadradas de 3 m y una paleta de suelos (los muros se dibujan solos a su alrededor) y roca. Todo se puede cambiar después en Ajustes del mapa y Editar paleta.',
+      '¿Qué tipo de mapa? Un hexcrawl: hexágonos y los terrenos de la tierra, a la escala del sistema. Una mazmorra: casillas cuadradas de 3 m y una paleta de suelos (los muros se dibujan solos a su alrededor) y roca. Un pueblo: casillas cuadradas de 3 m, calles, patios, huertos, hierba, árboles y agua fuera y los suelos de sus edificios, dibujado con el estilo Aldea (tejados desde fuera, el interior mientras la party está dentro). Todo se puede cambiar después en Ajustes del mapa y Editar paleta.',
     hexcrawl: 'Hexcrawl',
     dungeon: 'Mazmorra',
+    town: 'Pueblo',
     message:
       'El mapa actual se queda en Mapas (este navegador). ¿Quieres además guardarlo en un fichero antes de crear uno nuevo?',
     cancel: 'Cancelar',
@@ -413,7 +415,7 @@ export const es: Messages = {
     add: 'Añadir terreno',
     sets: 'Añadir terrenos de…',
     setsHelp:
-      'Conjuntos de terrenos para otros tipos de juego, con sus símbolos y velocidades de viaje en las reglas genéricas:\n• la paleta natural por defecto\n• ciudades modernas\n• un páramo postapocalíptico\n• mundos alienígenas y el espacio\nSolo se añaden los que le faltan a este mapa.',
+      'Conjuntos de terrenos para otros tipos de juego, con sus símbolos y velocidades de viaje en las reglas genéricas:\n• la paleta natural por defecto\n• un pueblo o una aldea: calles, patios, huertos y los suelos de sus edificios\n• ciudades modernas\n• un páramo postapocalíptico\n• mundos alienígenas y el espacio\nSolo se añaden los que le faltan a este mapa.',
     missing: '{count} por añadir',
     addSet: 'Añadir',
     newName: 'Terreno nuevo',
@@ -783,6 +785,7 @@ export const es: Messages = {
     modern: 'Moderno',
     wasteland: 'Postapocalíptico',
     dungeon: 'Mazmorra (suelos y roca)',
+    town: 'Pueblo (calles, patios y suelos de edificios)',
     scifi: 'Ciencia ficción y espacio',
   },
   terrainGroups: {

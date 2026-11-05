@@ -289,6 +289,7 @@ export const en = {
       tokens: 'Tokens',
       regions: vocabulary.en.terms.regions,
       factions: 'Factions',
+      roofs: 'Roofs',
     },
   },
   labels: {
@@ -381,9 +382,10 @@ export const en = {
   newMap: {
     title: 'New map',
     kindMessage:
-      'What kind of map? A hexcrawl: hexes and the land’s terrains, at the system’s scale. A dungeon: squares of 3 m and a palette of floors (walls draw themselves round them) and rock. Everything can be changed later in Map settings and Edit palette.',
+      'What kind of map? A hexcrawl: hexes and the land’s terrains, at the system’s scale. A dungeon: squares of 3 m and a palette of floors (walls draw themselves round them) and rock. A town: squares of 3 m, streets, yards, gardens, grass, trees and water outside and the floors of its buildings, drawn in the Village style (roofs from outside, the inside while the party is in). Everything can be changed later in Map settings and Edit palette.',
     hexcrawl: 'Hexcrawl',
     dungeon: 'Dungeon',
+    town: 'Town',
     message:
       'The current map stays in Maps (this browser). Do you also want to save it to a file before creating a new one?',
     cancel: 'Cancel',
@@ -412,7 +414,7 @@ export const en = {
     add: 'Add terrain',
     sets: 'Add terrains for…',
     setsHelp:
-      'Sets of terrains for other kinds of game, with their symbols and travel speeds in the generic rules:\n• the default natural palette\n• modern towns\n• a post-apocalyptic wasteland\n• alien worlds and space\nOnly the ones this map lacks are added.',
+      'Sets of terrains for other kinds of game, with their symbols and travel speeds in the generic rules:\n• the default natural palette\n• a town or village: streets, yards, gardens and the floors of its buildings\n• modern towns\n• a post-apocalyptic wasteland\n• alien worlds and space\nOnly the ones this map lacks are added.',
     missing: '{count} to add',
     addSet: 'Add',
     newName: 'New terrain',
@@ -777,6 +779,7 @@ export const en = {
     modern: 'Modern',
     wasteland: 'Post-apocalyptic',
     dungeon: 'Dungeon (floors and rock)',
+    town: 'Town (streets, yards and buildings’ floors)',
     scifi: 'Sci-fi and space',
   },
   terrainGroups: {

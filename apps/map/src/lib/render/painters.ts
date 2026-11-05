@@ -508,6 +508,37 @@ const PAINT: Record<Painter, Draw> = {
       }
     })
   },
+  cobbles(input, rand) {
+    // Rounded stones in staggered rows across the cell, as a paved street.
+    const { x, y, r } = input
+    if (input.density <= 0) return []
+    const size = ((r * 0.2) / Math.sqrt(input.density)) * input.size
+    const reach = r * 0.66
+    const painted = input.mode === 'painted'
+    const shapes: Shape[] = []
+    let row = 0
+    for (let py = y - reach + size / 2; py <= y + reach; py += size * 0.9, row++)
+      for (let px = x - reach + (row % 2 ? size / 2 : 0); px <= x + reach; px += size) {
+        const pts: number[] = []
+        const k = size * (0.38 + rand() * 0.06)
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2 + rand() * 0.4
+          pts.push(px + Math.cos(a) * k, py + Math.sin(a) * k * 0.85)
+        }
+        shapes.push(
+          painted
+            ? { points: pts, closed: true, fill: shade(input.base, (rand() - 0.5) * 0.24) }
+            : {
+                points: pts,
+                closed: true,
+                stroke: input.ink,
+                width: r * 0.012,
+                strokeAlpha: 0.45,
+              },
+        )
+      }
+    return shapes
+  },
   dots(input, rand) {
     const { x, y, r } = input
     return spots(rand, count(14, input.density), r, x, y, 0.8).map((p) => {

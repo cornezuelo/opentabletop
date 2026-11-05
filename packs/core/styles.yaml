@@ -200,3 +200,47 @@ connections:
   way-in: mouth
   shaft: ladder
   ladder: ladder
+---
+# A town or a village seen from above: streets of cobbles, yards and gardens in ink over a
+# light wash, and the buildings under their roofs; a building opens (its floor and walls)
+# while the party is in it, or the Roofs layer is hidden.
+kind: style
+id: village
+name: Village
+description: |-
+  A town or a village seen from above: cobbled streets, yards and gardens drawn in ink over a light wash, trees and water, and every building under its tiled roof, casting its shadow. A building opens while the party is in it (or a cell of it is selected), showing its wooden floor, its walls and its doors. No coordinates.
+
+  **Shows:** roofs over buildings (`roofs`: tiles, their colour, the shadow cast), floor and walls inside them (`floors`, `walls` with a soft shadow outside), the street's cobbles drawn by their own painter (`art.terrains.cobbles: cobbles`), doors in their walls (`connections`).
+paper: '#ece2c8'
+grid: { color: '#5a4630', opacity: 0.08, coords: false }
+glyphs: 0
+ground: { wash: 0.35, blend: 0.12, grain: 0.25 }
+art:
+  mode: ink
+  ink: '#3b2a1a'
+  terrains:
+    plains: { painter: grass, density: 0.7 }
+    cobbles: cobbles
+    yard: { painter: dots, density: 0.5 }
+    garden: farmland
+    forest: { painter: broadleaf, size: 1.3 }
+    lake: { painter: waves, density: 0.5 }
+shores: { lines: 2, color: '#3b2a1a' }
+paths:
+  wobble: 0.25
+  river: { color: '#3d6f96', width: 0.3 }
+  road: { color: '#8a7860', width: 0.35 }
+  trail: { color: '#8a7860', width: 0.15 }
+floors: { color: '#d8bd90', wash: 0.85, grid: 0.22 }
+walls: { color: '#3a2b1e', width: 0.12, outside: shadow, band: 0.15 }
+roofs: { kind: tiles, color: '#a5563a', shadow: 0.3 }
+captions:
+  hexNames: { font: fell, color: '#3b2a1a', halo: true, haloColor: '#ece2c8' }
+  regionNames: { font: fell, size: 0.75, italic: true, halo: true, haloColor: '#ece2c8' }
+  tokenNames: { font: fell, halo: true, haloColor: '#ece2c8' }
+regions: { fill: 0, border: 0, dashed: false, borderOpacity: 0 }
+connections:
+  door: door
+  gate: door
+  arch: arch
+  way-in: badge

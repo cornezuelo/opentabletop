@@ -71,8 +71,14 @@
   $effect(() => {
     void editor.meta.style
     const style = JSON.stringify(mapStyle())
-    if (drawnStyle && style !== drawnStyle) editor.redraw({ kind: 'all' })
+    if (drawnStyle && style !== drawnStyle) editor.redraw({ kind: 'look' })
     drawnStyle = style
+  })
+
+  // A building opens while one of its cells is selected.
+  $effect(() => {
+    void editor.selected
+    renderer?.drawRoofs()
   })
 
   // Redraw outlines when UI state that affects them changes.

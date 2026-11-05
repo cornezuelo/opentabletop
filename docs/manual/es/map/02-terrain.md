@@ -33,6 +33,7 @@ No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un
 | Natural (por defecto)     | la paleta de arriba; pone al día los mapas antiguos                                                                                                                        |
 | Moderno                   | ciudad, afueras, industrial (grupo _Pueblos y ciudades_)                                                                                                                   |
 | Postapocalíptico          | ruinas, páramo, irradiado, ciénaga tóxica, cráter (grupo _Páramo_)                                                                                                         |
+| Pueblo                    | adoquines, patio, huerto (grupo _Pueblos y ciudades_), suelo de madera y suelo de piedra (**Suelo**: el interior de un edificio, bajo su tejado en un estilo con tejados)  |
 | Mazmorra (suelos y roca)  | suelo de piedra, suelo de cueva, escombros, charca (todos **Suelo**: los muros se dibujan solos a su alrededor; la charca también es agua), roca maciza (grupo _Mazmorra_) |
 | Ciencia ficción y espacio | jungla alienígena, campo de cristales, campo de lava, regolito (_Mundos alienígenas_); espacio, nebulosa, campo de asteroides (_Espacio_)                                  |
 

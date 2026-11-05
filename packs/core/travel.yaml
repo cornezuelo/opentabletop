@@ -62,6 +62,11 @@ terrains:
   rubble: { multiplier: 0.5 }
   pool: { passable: false }
   rock: { passable: false }
+  # A town's (Map's Town palette): streets, yards and floors walked, gardens a little slower.
+  cobbles: { multiplier: 1 }
+  yard: { multiplier: 1 }
+  garden: { multiplier: 0.75 }
+  wood-floor: { multiplier: 1 }
   lake: { passable: { when: { time.season: winter } } }
   sea: { passable: false }
   deep-sea: { passable: false }

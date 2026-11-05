@@ -16,7 +16,14 @@ import {
 } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import { createTravelEngine } from '@open-tabletop/travel-engine'
-import { mapWorld, placeOfCell, placeOn } from '@open-tabletop/map'
+import {
+  buildingAt,
+  mapBuildings,
+  mapWorld,
+  placeOfCell,
+  placeOn,
+  roofedBuildings,
+} from '@open-tabletop/map'
 import { exampleMaps, exampleState, forgetExample, rememberExample } from './examples'
 import { parseMapFile } from './otd'
 
@@ -417,6 +424,96 @@ describe('example maps', () => {
     expect(session.journal.some((e) => e.data?.place === '@barrowhalls1/area:chieftomb1')).toBe(
       true,
     )
+  })
+
+  it('Ashford: a town under its hex, walked from the road into the inn, whose roof opens', () => {
+    const open = (id: string) => parseMapFile(EXAMPLE_MAPS.find((m) => m.id === id)!.json).map
+    const marches = open('greymarches1')
+    const town = open('ashford1')
+    // A town sub-map of the market village's hex, drawn in Core's Village style.
+    expect(town.meta.parent).toEqual({
+      map: 'greymarches1',
+      ways: [{ place: '5,7', entrance: '0,7' }],
+    })
+    expect(town.meta.style).toBe('core/village')
+    expect(town.grid.kind).toBe('square')
+    // Its buildings, each under its roof: the inn (three rooms, one building), the smithy, the
+    // reeve's and the miller's houses side by side (each its own room: two), the miller's an
+    // L (two gables), and three cottages, two of them wall to wall.
+    const buildings = mapBuildings(town)
+    expect(buildings).toHaveLength(7)
+    const inn = buildingAt(buildings, '5,3')!
+    expect(inn.cells).toHaveLength(28)
+    expect(buildingAt(buildings, '9,5')).toBe(inn)
+    expect(buildingAt(buildings, '16,4')).not.toBe(buildingAt(buildings, '17,3'))
+    expect(buildingAt(buildings, '18,5')!.rects).toHaveLength(2)
+    expect(buildingAt(buildings, '20,11')).not.toBe(buildingAt(buildings, '21,11'))
+
+    const { registry } = loadPacks(
+      Object.entries(packFiles).map(([path, content]) => ({
+        path: path.slice(path.indexOf('grey-marches/')),
+        content,
+      })),
+    )
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const km = system.rules.travel.cellKm
+    const oracle = createOracleEngine({ registry, random: seeded('ashford') })
+    const above = {
+      system,
+      world: mapWorld(marches, km, { children: [town] }),
+      oracle,
+      locale: 'en',
+    }
+    const inside = { system, world: mapWorld(town, km, { parent: marches }), oracle, locale: 'en' }
+    // The inn (its common room) is a place of its own, reached from the yard by the inn's
+    // door; its kitchen and guest rooms are rooms inside it, behind doors, in the inn too.
+    const room = placeOfCell(town, '5,3')
+    expect(room).toBe('area:wetferret1')
+    expect(inside.world.connections('6,6', room)).toEqual(['door'])
+    expect(inside.world.connections(room, 'area:kitchen1')).toEqual(['door'])
+    expect(inside.world.place(room)).toMatchObject({ name: 'The Wet Ferret', floor: true })
+    expect(inside.world.place('area:kitchen1')).toMatchObject({
+      region: ['The kitchen', 'The Wet Ferret'],
+    })
+    // No way into a house but by its door: the cottage's wall stands on the street's side.
+    expect(inside.world.neighbors('16,9')).toContain('area:cottage1')
+    expect(inside.world.neighbors('17,9')).not.toContain('area:cottage1')
+
+    /** Steps until the party stands at `place`, resolving whatever checks come up. */
+    const reach = (options: typeof above, session: SessionState, place: string) => {
+      session = stepTrip(options, session, { type: 'setDestination', place }).state
+      for (let i = 0; i < 40 && session.travel.location !== place; i++) {
+        for (const id of session.travel.pendingChecks.map((c) => c.id))
+          session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+        session = stepTrip(options, session, {
+          type: 'action',
+          id: 'march',
+          with: { until: 'place' },
+        }).state
+      }
+      return session
+    }
+    let { session } = startTrip({ system, location: '5,7', season: 'summer' })
+    session.stats.navigation = 6
+    // Into the village by the west road, then up the street to the inn's door and in.
+    session = reach(above, session, placeOn('ashford1', '0,7'))
+    session = moveTrip(session, 'greymarches1', 'ashford1')
+    expect(session.travel.location).toBe('0,7')
+    session = reach(inside, session, room)
+    expect(session.travel.location).toBe(room)
+    const entered = session.journal.flatMap((e) =>
+      e.code === 'PLACE_ENTERED' ? [String(e.data?.place)] : [],
+    )
+    // In by one of its two doors (the front, from the yard at 6,6, or the yard door at 3,4,
+    // nearer the west road), never through a wall.
+    expect(['6,6', '3,4']).toContain(entered.at(-2))
+    expect(inside.world.connections('3,4', room)).toEqual(['door'])
+    // Seen from outside, every building is under its roof; the party in the inn (its token on
+    // the cell it came in by), the inn opens and the rest stay roofed.
+    expect(roofedBuildings(buildings, [undefined])).toHaveLength(7)
+    const roofed = roofedBuildings(buildings, ['6,5'])
+    expect(roofed).toHaveLength(6)
+    expect(roofed).not.toContain(inn)
   })
 
   it('the old clan mine: a route to Hollow Gate goes under the mountains, in and out', () => {

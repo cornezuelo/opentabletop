@@ -356,6 +356,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   35(data) {
     return data
   },
+  /** v37: buildings' roofs are a layer (`layers.roofs`), shown; older maps get it so. */
+  36(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

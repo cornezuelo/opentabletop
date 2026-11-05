@@ -1,4 +1,4 @@
-import { connectionLook, DEFAULT_TERRAINS, mapStyles, styleOf } from '@open-tabletop/map'
+import { connectionLook, createMap, DEFAULT_TERRAINS, mapStyles, styleOf } from '@open-tabletop/map'
 import { loadPacks } from '@open-tabletop/oracle-engine'
 import { copyStyle, styleSource } from '@open-tabletop/pack-ui'
 import { setIn } from '@open-tabletop/pack-ui/yaml'
@@ -12,7 +12,7 @@ describe('the bundled map styles', () => {
   const { styles, problems } = mapStyles(loadPacks(corePack()).registry)
   const style = (ref: string) => styles.find((s) => s.ref === ref)!.style
 
-  it('Core brings Schematic, Parchment, Painted, Classic dungeon and Cave, with no problem', () => {
+  it('Core brings Schematic, Parchment, Painted, Classic dungeon, Cave and Village, with no problem', () => {
     expect(problems).toEqual([])
     expect(styles.map((s) => s.ref)).toEqual([
       'core/schematic',
@@ -20,7 +20,21 @@ describe('the bundled map styles', () => {
       'core/painted',
       'core/classic-dungeon',
       'core/cave',
+      'core/village',
     ])
+  })
+
+  it('Village draws roofs over a town’s buildings and art on every terrain of a new town', () => {
+    const s = style('core/village')
+    expect(s.roofs).toEqual({ kind: 'tiles', color: '#a5563a', shadow: 0.3 })
+    const town = createMap('', 'town')
+    expect(town.grid.kind).toBe('square')
+    for (const t of town.terrains.filter((t) => !t.floor))
+      expect(s.art.terrains[t.id], t.id).toBeDefined()
+    expect(s.art.terrains.cobbles.painter).toBe('cobbles')
+    // Every other style of Core leaves buildings open: no roofs.
+    for (const other of styles.filter((o) => o.ref !== 'core/village'))
+      expect(other.style.roofs.kind).toBe('none')
   })
 
   it.each(['core/classic-dungeon', 'core/cave'])(

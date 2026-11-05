@@ -183,6 +183,7 @@ export const en = {
       dunes: 'dunes',
       rocks: 'rocks',
       waves: 'waves',
+      cobbles: 'cobbles',
       dots: 'dots',
     },
     density: 'Density',
@@ -239,6 +240,19 @@ export const en = {
     outsides: { none: 'nothing', hatch: 'hatching', shadow: 'a shadow', stipple: 'stipple' },
     wallBand: 'Depth',
     wallBandHelp: 'How deep what’s outside goes, in cells, from 0 to 1.',
+    roofs: {
+      title: 'Roofs',
+      said: 'Buildings seen from outside',
+    },
+    roofKind: 'Roof',
+    roofKindHelp:
+      'What covers a building seen from outside: floor cells joined side by side, a house apart from the next when each is its own room. A gable over each rectangle of it, its ridge along the longer side. A building opens (floor and walls seen) while the party is in it or one of its cells is selected; hiding the **Roofs** layer opens them all.\n• **tiles** — courses of tiles\n• **slate** — bigger, fewer slates\n• **thatch** — straw\n• **plain** — the colour alone\n• **none** — no roofs: floors and walls always seen, as a dungeon',
+    roofKinds: { none: 'none', tiles: 'tiles', thatch: 'thatch', slate: 'slate', plain: 'plain' },
+    roofColor: 'Colour',
+    roofColorHelp: 'The roof’s colour; the slope away from the light is drawn darker.',
+    roofShadow: 'Shadow',
+    roofShadowHelp:
+      'The shadow a building casts on the ground, from 0 (none) to 1.\n• `0.3` — a soft shadow',
     connections: {
       title: 'Connections',
       said: 'Doors, bridges, fords, stairs… by kind, ways between maps too',

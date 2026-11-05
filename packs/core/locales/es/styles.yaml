@@ -28,3 +28,9 @@ style/cave:
     Una cueva o una mina: muros de roca tosca que se salen de la rejilla, un suelo arenoso claro y la roca de fuera punteada, densa junto a los muros y cada vez más rala. Sin coordenadas.
 
     **Enseña:** muros que siguen los bordes irregulares del terreno (`ground.ragged`), la roca de fuera punteada (`walls.outside: stipple`) y el suelo que conserva en parte los colores de sus terrenos (`floors.wash` por debajo de 1), los caminos de salida dibujados como la boca de una cueva y un pozo como una escala (`connections`).
+style/village:
+  name: Aldea
+  description: |-
+    Un pueblo o una aldea visto desde arriba: calles empedradas, patios y huertos dibujados a tinta sobre una aguada suave, árboles y agua, y cada edificio bajo su tejado de tejas, con su sombra. Un edificio se abre mientras la party está dentro (o hay una casilla suya seleccionada), y se ven su suelo de madera, sus muros y sus puertas. Sin coordenadas.
+
+    **Enseña:** tejados sobre los edificios (`roofs`: tejas, su color, la sombra que proyectan), suelo y muros dentro (`floors`, `walls` con una sombra suave por fuera), los adoquines de la calle dibujados por su propio pintor (`art.terrains.cobbles: cobbles`), puertas en sus muros (`connections`).

@@ -2,7 +2,7 @@ import { loadPacks } from '@open-tabletop/oracle-engine'
 import { localize } from '@open-tabletop/session'
 import { corePack } from '../../session/src/core.testing'
 import { describe, expect, it } from 'vitest'
-import { createMap } from './defaults'
+import { createMap, CURRENT_VERSION } from './defaults'
 import { migrate } from './migrations'
 import { serializeMap, deserializeMap } from './serialize'
 import {
@@ -81,7 +81,7 @@ describe('map styles', () => {
         '@style/broken.grid.opacity: expected a number from 0 to 1',
         '@style/broken.glyphs: expected a number from 0 to 1',
         '@style/broken.art.mode: expected one of ink, painted',
-        '@style/broken.art.terrains.forest.painter: expected one of grass, farmland, conifers, broadleaf, forest, reeds, hills, mountains, peaks, volcano, dunes, rocks, waves, dots',
+        '@style/broken.art.terrains.forest.painter: expected one of grass, farmland, conifers, broadleaf, forest, reeds, hills, mountains, peaks, volcano, dunes, rocks, waves, cobbles, dots',
         '@style/broken.art.terrains.hills.size: expected a number from 0 to 3',
         '@style/broken.captions.hexNames.font: expected one of fell, cinzel, sans',
         '@style/broken.paper: expected a colour (#rrggbb)',
@@ -176,6 +176,6 @@ describe('map styles', () => {
 
   it('older maps keep their look: no style is Core’s Schematic', () => {
     const old = { version: 35, meta: { id: 'm' } }
-    expect(migrate(old)).toEqual({ ...old, version: 36 })
+    expect(migrate(old)).toEqual({ ...old, version: CURRENT_VERSION })
   })
 })

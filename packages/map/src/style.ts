@@ -69,7 +69,16 @@ export interface MapStyle {
    * usual look (`connectionLook`).
    */
   connections: Record<string, ConnectionLook>
+  /**
+   * Buildings seen from outside (floor that isn't the party's, `mapBuildings`): their roof
+   * (`none`: no roofs, floors and walls always seen), its colour, and the shadow it casts.
+   */
+  roofs: { kind: RoofKind; color: string; shadow: number }
 }
+
+/** What a roof is made of: `tiles`, `thatch`, `slate`, `plain`; `none` draws none. */
+export const ROOF_KINDS = ['none', 'tiles', 'thatch', 'slate', 'plain'] as const
+export type RoofKind = (typeof ROOF_KINDS)[number]
 
 /**
  * What a connection or a way is drawn as: `diamond` (a dashed line's middle), `door` (in its
@@ -138,6 +147,7 @@ export const PAINTERS = [
   'dunes',
   'rocks',
   'waves',
+  'cobbles',
   'dots',
 ] as const
 export type Painter = (typeof PAINTERS)[number]
@@ -179,6 +189,7 @@ export const SCHEMATIC_STYLE: MapStyle = {
   floors: { color: '#ffffff', wash: 0, grid: 0 },
   walls: { color: '#15130f', width: 0.16, outside: 'none', band: 0.4 },
   connections: {},
+  roofs: { kind: 'none', color: '#9a4b33', shadow: 0.3 },
 }
 
 /** The style a map without one is drawn in: Core's Schematic. */
@@ -201,7 +212,9 @@ const STYLE_KEYS = [
   'floors',
   'walls',
   'connections',
+  'roofs',
 ]
+const ROOF_KEYS = ['kind', 'color', 'shadow']
 const FLOOR_KEYS = ['color', 'wash', 'grid']
 const WALL_KEYS = ['color', 'width', 'outside', 'band']
 const CONNECTION_LOOK_KEYS = ['symbol', 'line', 'color']
@@ -294,6 +307,13 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
   unknown(floors, FLOOR_KEYS, 'floors.', "a style's floors")
   const walls = part(raw.walls, 'walls')
   unknown(walls, WALL_KEYS, 'walls.', "a style's walls")
+  const roofs = part(raw.roofs, 'roofs')
+  unknown(roofs, ROOF_KEYS, 'roofs.', "a style's roofs")
+  let roofKind: RoofKind = base.roofs.kind
+  if (roofs.kind !== undefined) {
+    if (ROOF_KINDS.includes(roofs.kind as RoofKind)) roofKind = roofs.kind as RoofKind
+    else errors.push(`roofs.kind: expected one of ${ROOF_KINDS.join(', ')}`)
+  }
   let outside: WallOutside = base.walls.outside
   if (walls.outside !== undefined) {
     if (WALL_OUTSIDES.includes(walls.outside as WallOutside)) outside = walls.outside as WallOutside
@@ -427,6 +447,11 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
       band: fraction(walls.band, 'walls.band', base.walls.band),
     },
     connections,
+    roofs: {
+      kind: roofKind,
+      color: color(roofs.color, 'roofs.color', base.roofs.color),
+      shadow: fraction(roofs.shadow, 'roofs.shadow', base.roofs.shadow),
+    },
   }
   return errors.length ? { errors } : { style, errors }
 }

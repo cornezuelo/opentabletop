@@ -284,6 +284,7 @@ export const LAYER_IDS = [
   'regions',
   'factions',
   'paths',
+  'roofs',
   'connections',
   'icons',
   'coords',

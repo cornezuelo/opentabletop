@@ -12,7 +12,7 @@ import type {
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 36
+export const CURRENT_VERSION = 37
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200
@@ -105,6 +105,15 @@ export const TERRAIN_SETS = {
     { id: 'pool', color: '#3f6e8c', glyph: 'game:waves', floor: true, water: true },
     { id: 'rock', color: '#2b2824', glyph: 'game:rock' },
   ],
+  // A town's or a village's: streets, yards and gardens outside, and the floor of its
+  // buildings (Floor: walls drawn round, a roof over them in a style with roofs).
+  town: [
+    { id: 'cobbles', color: '#a39d92', glyph: 'game:road' },
+    { id: 'yard', color: '#b9a37d', glyph: 'game:footprint' },
+    { id: 'garden', color: '#7f9d58', glyph: 'game:herbs-bundle' },
+    { id: 'wood-floor', color: '#c49a68', glyph: 'game:house', floor: true },
+    { id: 'stone-floor', color: '#cfc6b4', glyph: 'game:broken-wall', floor: true },
+  ],
   scifi: [
     { id: 'alien-jungle', color: '#3c7c6d', glyph: 'game:alien-bug' },
     { id: 'crystal-field', color: '#9db6d8', glyph: 'game:crystal-growth' },
@@ -170,6 +179,10 @@ const GROUP_OF: Readonly<Record<string, TerrainGroup>> = {
   irradiated: 'wasteland',
   'toxic-swamp': 'wasteland',
   crater: 'wasteland',
+  cobbles: 'urban',
+  yard: 'urban',
+  garden: 'urban',
+  'wood-floor': 'urban',
   'stone-floor': 'dungeon',
   'cave-floor': 'dungeon',
   rubble: 'dungeon',
@@ -284,24 +297,34 @@ export function defaultLayers(): Record<LayerId, LayerState> {
 
 /**
  * The kinds of map a new one starts as (docs/places.md §10), presets of one model, all
- * changeable after: a **hexcrawl** (hexes, the natural palette, the system's scale) or a
- * **dungeon** (squares of 3 m, the dungeon palette of floors and rock, faint glyphs).
+ * changeable after: a **hexcrawl** (hexes, the natural palette, the system's scale), a
+ * **dungeon** (squares of 3 m, the dungeon palette of floors and rock, faint glyphs) or a
+ * **town** (squares of 3 m, streets, yards, gardens, grass, trees and water outside and the
+ * floors of its buildings: the hybrid, ground outside and structures in).
  */
-export const MAP_KINDS = ['hexcrawl', 'dungeon'] as const
+export const MAP_KINDS = ['hexcrawl', 'dungeon', 'town'] as const
 export type MapKind = (typeof MAP_KINDS)[number]
 
 export function createMap(name = '', kind: MapKind = 'hexcrawl'): HexMap {
   const now = new Date().toISOString()
   const id = newId()
   const dungeon = kind === 'dungeon'
+  const squares = kind !== 'hexcrawl'
+  const natural = (id: string) => DEFAULT_TERRAINS.find((t) => t.id === id)!
+  const terrains =
+    kind === 'town'
+      ? [natural('plains'), ...TERRAIN_SETS.town, natural('forest'), natural('lake')]
+      : dungeon
+        ? TERRAIN_SETS.dungeon
+        : DEFAULT_TERRAINS
   return {
     version: CURRENT_VERSION,
     // A new map makes a campaign of its own.
     meta: { id, name, created: now, modified: now, campaign: id },
-    grid: dungeon ? { ...DEFAULT_GRID, kind: 'square', glyphs: 0.2 } : { ...DEFAULT_GRID },
-    scale: dungeon ? { cellKm: 0.003 } : {},
+    grid: squares ? { ...DEFAULT_GRID, kind: 'square', glyphs: 0.2 } : { ...DEFAULT_GRID },
+    scale: squares ? { cellKm: 0.003 } : {},
     print: structuredClone(DEFAULT_PRINT),
-    terrains: (dungeon ? TERRAIN_SETS.dungeon : DEFAULT_TERRAINS).map((t) => ({ ...t })),
+    terrains: terrains.map((t) => ({ ...t })),
     hexes: {},
     paths: [],
     connections: [],
