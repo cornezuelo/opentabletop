@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.37.0] - 2026-11-05
+
 ### Apps
 
 - Map and Systems: **map styles drawn with images**. A style may draw a terrain with images of a pack instead of a painter (several for one terrain, each cell taking one; how many a cell shows, their size and a tint), and lay an image over the whole map as a **texture** (a paper's, a vellum's), with its strength and repeat. The style form has both: **images (below)** among the painters, with the loaded packs' images suggested and shown small, and the **Texture** card.
