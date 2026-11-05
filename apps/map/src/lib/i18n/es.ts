@@ -127,6 +127,13 @@ export const es: Messages = {
     adopted: vocabulary.es.campaign.adopted,
     systemShared: vocabulary.es.campaign.systemShared,
   },
+  mapStyle: {
+    title: 'Estilo',
+    label: 'Estilo',
+    help: 'Cómo se dibuja el mapa, nunca lo que contiene: la línea de la rejilla, los símbolos de los terrenos, si las casillas muestran sus coordenadas, cómo se ven los nombres y las regiones. Los estilos vienen de los packs (`kind: style`): Core trae **Esquemático**, y un sistema puede traer el suyo.\nElegir uno copia sus ajustes al mapa (nombres, regiones, coordenadas y símbolos, más abajo y en el panel Terreno), que luego cambias a tu gusto; Ctrl+Z devuelve el aspecto anterior.\n• **Esquemático** — colores planos y un símbolo por terreno, cada casilla con sus coordenadas\nLa página técnica **Clases de definición** explica cómo escribir uno.',
+    missing:
+      'El estilo «{style}» no está cargado en este navegador: el mapa se dibuja en el Esquemático.',
+  },
   map: {
     system: vocabulary.es.terms.system,
     systemHelp:

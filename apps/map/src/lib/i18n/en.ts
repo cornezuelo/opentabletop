@@ -128,6 +128,13 @@ export const en = {
     adopted: vocabulary.en.campaign.adopted,
     systemShared: vocabulary.en.campaign.systemShared,
   },
+  mapStyle: {
+    title: 'Style',
+    label: 'Style',
+    help: "How the map is drawn, never what it holds: the grid's line, the terrains' glyphs, whether cells show their coordinates, how names and regions look. Styles come from packs (`kind: style`): Core brings **Schematic**, and a system may bring its own.\nChoosing one copies its settings into the map (names, regions, coordinates and glyphs, below and in the Terrain panel), which you then change freely; Ctrl+Z puts the previous look back.\n• **Schematic** — flat colours and a glyph per terrain, every cell with its coordinates\nThe technical page **Kinds of definition** says how to write one.",
+    missing:
+      'The style “{style}” is not loaded in this browser: the map is drawn in the Schematic one.',
+  },
   map: {
     system: vocabulary.en.terms.system,
     systemHelp:

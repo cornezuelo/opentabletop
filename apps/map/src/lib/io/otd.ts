@@ -142,6 +142,8 @@ interface MapExt {
   regions: HexMap['regions']
   captions: HexMap['captions']
   regionStyle?: HexMap['regionStyle']
+  /** The style it's drawn in (`meta.style`). */
+  style?: string
   /** Files written before v25: the system the map was played with (now its campaign's). */
   system?: string
   /** Files written before v25: the packs the map added (now its campaign's). */
@@ -227,6 +229,7 @@ export function mapToBundle(
     regions: map.regions,
     captions: map.captions,
     regionStyle: map.regionStyle,
+    ...(map.meta.style && { style: map.meta.style }),
     assets: map.assets,
     icons,
     ...(Object.keys(names).length && { names }),
@@ -664,6 +667,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
       // Files saved before campaigns have none: the map gets one of its own (migrations).
       ...(bundle.campaign && { campaign: bundle.campaign.id }),
       ...(otdMap.parent && { parent: otdMap.parent }),
+      ...(ext.style && { style: ext.style }),
     },
     grid: {
       ...(otdMap.grid.kind === 'square' && { kind: 'square' as const }),

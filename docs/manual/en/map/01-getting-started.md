@@ -32,7 +32,11 @@ An example you open becomes **your map**: your changes and your trip are kept in
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redoes every edit (a whole brush stroke is one step). Playing a trip is not part of undo: it has its own journal.
 
-**Map settings** (the folded map) holds the map name, the grid (its [cells](#hexes-or-squares), coordinates), its size (by number of cells or by paper), the world scale (km per cell, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another) and its [campaign](#campaigns), with the system it's played with. Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+**Map settings** (the folded map) holds the map name, the grid (its [cells](#hexes-or-squares), coordinates), its size (by number of cells or by paper), the world scale (km per cell, used for travel; empty, the map is played at its system's scale, and you only write one for a map drawn at another) its [campaign](#campaigns), with the system it's played with, and its [style](#styles). Your own preferences (language, the notes app you link to) are under the gear, in **Preferences**: they belong to this browser, not to the map.
+
+## Styles
+
+How a map is drawn is its **style**, chosen in **Map settings → Style**; it never changes what the map holds, its rules or a trip. Styles come from packs: Core brings **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map that hasn't chosen another, and a system may bring its own. Choosing one copies its settings into the map: the names (**Map texts**), the **Regions**, the cells' **Coordinates** and the terrains' glyphs (the Terrain panel), which you then change as you like; Ctrl+Z puts the previous look back. What only a style decides, such as the grid's line, comes from it while the map is drawn. A map whose style isn't loaded in this browser is drawn in the Schematic one, and Map settings says so. To write a style of your own, see [Kinds of definition](../technical/07-kinds.md#map-styles).
 
 ## Hexes or squares
 

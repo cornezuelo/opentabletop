@@ -9,6 +9,7 @@ import {
   type Resolution,
 } from '@open-tabletop/oracle-engine'
 import { mathRandom, seeded } from '@open-tabletop/random'
+import { mapStyles } from '@open-tabletop/map'
 import { travelSystems } from '@open-tabletop/session'
 
 /** What the command line touches, so it can be tested without a disk or a terminal. */
@@ -105,7 +106,11 @@ export function run(args: readonly string[], io: Io): number {
   const { registry, diagnostics } = loadPacks(files)
 
   if (command === 'validate') {
-    const problems = [...diagnostics, ...travelSystems(registry).problems]
+    const problems = [
+      ...diagnostics,
+      ...travelSystems(registry).problems,
+      ...mapStyles(registry).problems,
+    ]
     for (const d of problems) io.out(formatDiagnostic(d))
     const errors = problems.filter((d) => d.severity === 'error').length
     io.out(

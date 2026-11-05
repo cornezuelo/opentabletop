@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: **styles**. How a map is drawn is its style, chosen in **Map settings → Style** from every loaded pack's (`kind: style`): the grid's line, the terrains' glyphs, the cells' coordinates, the names and the regions. Choosing one copies its settings into the map, which changes them freely after (Ctrl+Z puts the previous look back). Maps v36. The first step of the map's redesign: more styles (a parchment one, a painted one) come next.
+
+### Packs
+
+- Core: the **Schematic** style, today's look, the one a map without a style is drawn in.
+
+### Formats
+
+- Packs: a new kind, `kind: style` (Kinds of definition: **Map styles**).
+
 ## [0.31.0] - 2026-11-05
 
 ### Apps

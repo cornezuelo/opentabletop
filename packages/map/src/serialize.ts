@@ -121,6 +121,7 @@ function validate(data: Record<string, unknown>): HexMap {
       modified: typeof meta.modified === 'string' ? meta.modified : now,
       campaign: typeof meta.campaign === 'string' && meta.campaign ? meta.campaign : id,
       ...(parseParent(meta.parent) && { parent: parseParent(meta.parent) }),
+      ...(typeof meta.style === 'string' && meta.style && { style: meta.style }),
     },
     grid: {
       ...(grid.kind === 'square' && { kind: 'square' as const }),

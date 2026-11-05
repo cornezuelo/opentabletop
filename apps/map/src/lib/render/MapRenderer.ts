@@ -37,6 +37,7 @@ import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pat
 import { connectionsNow } from '../play/connections'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
+import { mapStyle } from '../styles'
 import { mapFocus } from './focus'
 import { setLabelHitTest, setTokenHitTest } from './hitTest'
 import { FONT_FAMILIES, loadLabelFonts } from '../labels/fonts'
@@ -67,8 +68,6 @@ const EMPTY_FILL = 0x2a2823
 const WALL_COLOR = 0x15130f
 /** Empty hexes on paper, when exporting to print. */
 const PAPER_FILL = 0xffffff
-const GRID_COLOR = 0x000000
-const GRID_ALPHA = 0.35
 const HOVER_COLOR = 0xffffff
 const SELECT_COLOR = 0xc8a24a
 const COORD_COLOR = 0x1b1a17
@@ -590,7 +589,9 @@ export class MapRenderer {
         this.coordLayer.addChild(label)
       }
     }
-    this.gridLines.stroke({ width: 1, color: GRID_COLOR, alpha: GRID_ALPHA, pixelLine: true })
+    // The grid's line is the style's (Map settings → Style).
+    const line = mapStyle().grid
+    this.gridLines.stroke({ width: 1, color: line.color, alpha: line.opacity, pixelLine: true })
     this.drawWalls()
     this.drawGlyphs()
     this.drawRegions()

@@ -51,6 +51,7 @@ import { SYSTEM_TEMPLATES } from '@open-tabletop/pack-ui'
 import { weatherShares, type HexFlower, type WeatherModel } from '@open-tabletop/weather-engine'
 import { describe, expect, it } from 'vitest'
 import { parse, parseAllDocuments, stringify } from 'yaml'
+import { mapStyles } from '@open-tabletop/map'
 
 /**
  * The definitions the manual shows as examples are real: each YAML block with a `kind:`
@@ -83,15 +84,17 @@ function problems(files: string[]): string[] {
     { path: 'ex/pack.yaml', content: 'id: ex\nversion: 0.1.0\nformat: 15\nlocale: en\n' },
     ...files.map((content, i) => ({ path: `ex/defs-${i}.yaml`, content })),
   ])
-  return [...diagnostics, ...travelSystems(registry).problems].map(formatDiagnostic).filter(
-    (p) =>
-      !/Unknown (table|weather model|land model|roll mode|travel rules|bindings|calendar|sheet) "[\w/.-]+"$/.test(
-        p,
-      ) &&
-      !/"[\w-]+" isn't a dependency of this pack$/.test(p) &&
-      // A page can't bring the map files its example names.
-      !/No map "[\w/.-]+" in this pack$/.test(p),
-  )
+  return [...diagnostics, ...travelSystems(registry).problems, ...mapStyles(registry).problems]
+    .map(formatDiagnostic)
+    .filter(
+      (p) =>
+        !/Unknown (table|weather model|land model|roll mode|travel rules|bindings|calendar|sheet) "[\w/.-]+"$/.test(
+          p,
+        ) &&
+        !/"[\w-]+" isn't a dependency of this pack$/.test(p) &&
+        // A page can't bring the map files its example names.
+        !/No map "[\w/.-]+" in this pack$/.test(p),
+    )
 }
 
 describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
@@ -118,6 +121,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'items',
         'bestiary',
         'places',
+        'style',
       ]),
     )
   })

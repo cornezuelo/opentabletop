@@ -1,4 +1,11 @@
-import type { GridSettings, HexMap, MapMeta, PrintSettings } from '@open-tabletop/map'
+import {
+  applyStyle,
+  type GridSettings,
+  type HexMap,
+  type MapMeta,
+  type MapStyle,
+  type PrintSettings,
+} from '@open-tabletop/map'
 import type { Command, MapChange } from './command'
 
 export interface SettingsPatch {
@@ -111,5 +118,34 @@ export class SetRegionStyleCommand implements Command {
   revert(map: HexMap): MapChange {
     map.regionStyle = { ...this.before }
     return { kind: 'regions' }
+  }
+}
+
+/**
+ * Draws the map in another style: the style named in the map, and its texts, regions,
+ * coordinates and glyphs copied into the map's settings, in one undoable step.
+ */
+export class SetStyleCommand implements Command {
+  private before: Pick<HexMap, 'meta' | 'grid' | 'captions' | 'regionStyle'> | null = null
+
+  constructor(
+    private ref: string,
+    private style: MapStyle,
+  ) {}
+
+  apply(map: HexMap): MapChange {
+    this.before = structuredClone({
+      meta: map.meta,
+      grid: map.grid,
+      captions: map.captions,
+      regionStyle: map.regionStyle,
+    })
+    Object.assign(map, applyStyle(map, this.ref, this.style))
+    return { kind: 'all' }
+  }
+
+  revert(map: HexMap): MapChange {
+    if (this.before) Object.assign(map, structuredClone(this.before))
+    return { kind: 'all' }
   }
 }

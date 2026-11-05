@@ -100,6 +100,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'items',
     'bestiary',
     'places',
+    'style',
   ],
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
@@ -108,6 +109,9 @@ const ENUMS: Record<string, readonly string[]> = {
   limit: ['60', '180', '18:00'],
   reveal: ['neighbors', 'entered'],
   clamp: ['true', 'false'],
+  font: ['fell', 'cinzel', 'sans'],
+  coords: ['true', 'false'],
+  dashed: ['true', 'false'],
   once: ['true', 'false'],
   pause: ['true', 'false'],
   then: ['keep', 'reset', 'remove'],
@@ -285,6 +289,24 @@ const KEYS = [
   // Catalogues of places: the places, what each gives its point of interest and its hex.
   'places',
   'fields',
+  // Map styles: the grid, the glyphs, the names and the regions.
+  'grid',
+  'opacity',
+  'coords',
+  'glyphs',
+  'captions',
+  'hexNames',
+  'regionNames',
+  'tokenNames',
+  'font',
+  'italic',
+  'halo',
+  'haloColor',
+  'regions',
+  'fill',
+  'border',
+  'dashed',
+  'borderOpacity',
 ]
 
 export interface Completion {

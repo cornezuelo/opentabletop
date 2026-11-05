@@ -386,6 +386,8 @@ export interface MapMeta {
   campaign: string
   /** A sub-map: the place of another map of its campaign that leads into it. */
   parent?: MapParent
+  /** The style it's drawn in (`core/schematic`, a `kind: style` of a pack); absent: Core's Schematic. */
+  style?: string
 }
 
 /**

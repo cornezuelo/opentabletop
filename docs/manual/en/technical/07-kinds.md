@@ -22,6 +22,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `items`        | What its characters may carry: items with tags, numbers, places            | Characters' cards (trips, tokens, the Characters app), effects, the Systems app | Any               |
 | `bestiary`     | Templates of characters (creatures, NPC types) that results make copies of | Trips (those present: effects `present.<template>`)                             | Any               |
 | `places`       | Templates of points of interest that results make on the party's cell      | Trips (effects `place.pois.<place>`), written on the map by Map                 | Any               |
+| `style`        | How a map is drawn: the grid's line, glyphs, names, regions                | Map (**Map settings → Style**)                                                  | Any               |
 | `system`       | A game system: which of the above it uses, and which packs                 | Every app that plays with a system: Map, Travel, Campaign, Characters, Systems  | Any               |
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card), an action's `roll:` step (`roll: table.ruins`), an entry or card that rolls another (`table:`), a generator's field, a progress clock as it fills (`resolve:`) and a faction's world turn (`turn:`). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
@@ -698,3 +699,28 @@ maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 - A system travels as a whole: the Systems app's **Overview → Export as .zip** writes its pack with every pack it needs (the ones in `packs`, those its parts come from and their dependencies), and **Import a system (.zip)…** reads it back ([Taking it elsewhere](../systems/04-overview.md#taking-it-elsewhere)).
 
 The Systems app writes one for every new system, edits it in the system's **Overview**, and declares an older pack's (**Declare it**). The Grey Marches declare theirs in `system.yaml`.
+
+## Map styles
+
+How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style. Choosing a style **copies** its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; what only a style decides (the grid's line) is read from it while the map is drawn, so a change to the style shows at once.
+
+```yaml
+kind: style
+id: ink
+name: Ink
+description: A faint grid and no coordinates, names in Cinzel.
+grid: { color: '#3a2a1a', opacity: 0.15, coords: false } # the grid's line; cells' coordinates shown?
+glyphs: 0.3 # terrains' glyphs, 0 (hidden) to 1
+captions: # how each kind of name is drawn
+  hexNames: { font: cinzel, size: 0.9 }
+  regionNames: { font: cinzel, italic: false, color: '#5a3a1a', halo: true, haloColor: '#f4eedd' }
+  tokenNames: { show: false } # not shown at all
+regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
+```
+
+- Every key may be left out: what a style leaves out is the Schematic style's.
+- `grid`: `color` (`#rrggbb`), `opacity` (0 to 1) and `coords` (`true` / `false`: the map's **Coordinates**).
+- `captions`, by kind (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` or `sans`), `size` (1 the usual), `color` (absent: automatic), `italic`, `halo` and `haloColor`, as **Map settings → Map texts**.
+- `regions`: `fill` and `borderOpacity` (0 to 1), `border` (in cells' sizes, 0 for none) and `dashed`, as **Map settings → Regions**.
+- A map whose style isn't loaded is drawn in the Schematic one, and keeps naming its own.
+- Translated keyed `style/<id>` (`name`, `description`).

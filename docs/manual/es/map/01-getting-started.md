@@ -32,7 +32,11 @@ Un ejemplo que abres pasa a ser **tu mapa**: tus cambios y tu viaje se guardan e
 
 <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace y <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> rehace cada cambio (una pincelada entera es un paso). Jugar un viaje no forma parte de deshacer: tiene su propio diario.
 
-**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (sus [casillas](#hexagonales-o-cuadradas), coordenadas), su tamaño (por número de casillas o por papel), la escala del mundo (km por casilla, que usa el viaje; vacía, el mapa se juega a la escala de su sistema, y solo escribes una para un mapa dibujado a otra) y su [campaña](#campañas), con el sistema con el que se juega. Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
+**Ajustes del mapa** (el mapa plegado) tiene el nombre del mapa, la rejilla (sus [casillas](#hexagonales-o-cuadradas), coordenadas), su tamaño (por número de casillas o por papel), la escala del mundo (km por casilla, que usa el viaje; vacía, el mapa se juega a la escala de su sistema, y solo escribes una para un mapa dibujado a otra) su [campaña](#campañas), con el sistema con el que se juega, y su [estilo](#estilos). Tus preferencias (idioma, la aplicación de notas que enlazas) están en el engranaje, en **Preferencias**: son de este navegador, no del mapa.
+
+## Estilos
+
+Cómo se dibuja un mapa es su **estilo**, que se elige en **Ajustes del mapa → Estilo**; nunca cambia lo que contiene el mapa, sus reglas ni un viaje. Los estilos vienen de los packs: Core trae **Esquemático** (colores planos y un símbolo por terreno, cada casilla con sus coordenadas), el aspecto de todo mapa que no haya elegido otro, y un sistema puede traer el suyo. Elegir uno copia sus ajustes al mapa: los nombres (**Textos del mapa**), las **Regiones**, las **Coordenadas** de las casillas y los símbolos de los terrenos (el panel Terreno), que luego cambias a tu gusto; Ctrl+Z devuelve el aspecto anterior. Lo que solo decide un estilo, como la línea de la rejilla, sale de él mientras se dibuja el mapa. Un mapa cuyo estilo no está cargado en este navegador se dibuja en el Esquemático, y Ajustes del mapa lo dice. Para escribir un estilo propio, mira [Clases de definición](../technical/07-kinds.md#estilos-de-mapa).
 
 ## Hexagonales o cuadradas
 

@@ -352,6 +352,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   34(data) {
     return data
   },
+  /** v36: the style a map is drawn in (`meta.style`); older maps have none, Core's Schematic. */
+  35(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

@@ -1,0 +1,18 @@
+# Map styles (docs/map-styles.md): how a map is drawn, never what it holds. Map settings →
+# Style offers every loaded pack's; choosing one copies its names', regions', coordinates'
+# and glyphs' settings into the map, which changes them freely after. A key left out is
+# this style's.
+kind: style
+id: schematic
+name: Schematic
+description: |-
+  Flat colours and a small glyph per terrain, every cell with its coordinates: plain and clear, for planning and printing.
+
+  **Shows:** a map style (`kind: style`): the grid's line (`grid`), the terrains' glyphs, how each kind of name is drawn (`captions`) and the regions (`regions`).
+grid: { color: '#000000', opacity: 0.35, coords: true }
+glyphs: 0.45
+captions:
+  hexNames: { font: fell, size: 1, italic: false, halo: true, haloColor: '#f4eedd' }
+  regionNames: { font: fell, size: 1, italic: true, halo: true, haloColor: '#f4eedd' }
+  tokenNames: { font: fell, size: 1, italic: false, halo: true, haloColor: '#f4eedd' }
+regions: { fill: 0.14, border: 0.09, dashed: false, borderOpacity: 0.85 }

@@ -1,0 +1,6 @@
+style/schematic:
+  name: Esquemático
+  description: |-
+    Colores planos y un pequeño símbolo por terreno, cada casilla con sus coordenadas: sencillo y claro, para preparar y para imprimir.
+
+    **Enseña:** un estilo de mapa (`kind: style`): la línea de la rejilla (`grid`), los símbolos de los terrenos, cómo se dibuja cada clase de nombre (`captions`) y las regiones (`regions`).

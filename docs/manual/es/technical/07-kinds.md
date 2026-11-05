@@ -22,6 +22,7 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 | `items`        | Lo que pueden llevar sus personajes: objetos con etiquetas, números y lugares             | Las tarjetas de los personajes (viajes, fichas, la aplicación Personajes), los efectos, la aplicación Sistemas | Cualquiera       |
 | `bestiary`     | Plantillas de personajes (criaturas, tipos de PNJ) de las que los resultados hacen copias | Los viajes (los presentes: efectos `present.<plantilla>`)                                                      | Cualquiera       |
 | `places`       | Plantillas de puntos de interés que los resultados crean en la casilla del grupo          | Los viajes (efectos `place.pois.<lugar>`), escritos en el mapa por Mapa                                        | Cualquiera       |
+| `style`        | Cómo se dibuja un mapa: la línea de la rejilla, los símbolos, los nombres, las regiones   | Mapa (**Ajustes del mapa → Estilo**)                                                                           | Cualquiera       |
 | `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs                            | Cada aplicación que juega con un sistema: Mapa, Viajes, Campaña, Personajes, Sistemas                          | Los que quieras  |
 
 **Quién lee qué.** Las tablas, oráculos, generadores y mazos son todo cosas que se tiran, y cualquier cosa que tira puede tirar cualquiera de ellas: el Oráculo a mano, una comprobación del viaje o el descubrimiento si un binding la nombra (`resolve: deck.omens` roba una carta), el paso `roll:` de una acción (`roll: table.ruins`), una entrada o carta que tira otra (`table:`), el campo de un generador, un reloj de progreso al llenarse (`resolve:`) y el turno del mundo de una facción (`turn:`). **Cuántos:** uno de los tipos que describen el sistema entero (sus modos de tirada, reglas de viaje, bindings, calendario, hoja: un sistema tiene una forma de hacer cada cosa), los que quieras del resto. Un pack con varios [sistemas](#sistemas) tiene un juego de ellos para cada uno, distinguidos por sus ids. Los modelos de clima pueden ser varios porque un sistema puede tener varios climas (la costa y las montañas, cada uno atado a su comprobación).
@@ -699,3 +700,28 @@ maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 - Un sistema viaja entero: el **Resumen → Exportar como .zip** de la aplicación Sistemas escribe su pack con todos los packs que necesita (los de `packs`, de los que vienen sus partes y sus dependencias), e **Importar un sistema (.zip)…** lo vuelve a leer ([Llevarlo a otra parte](../systems/04-overview.md#llevarlo-a-otra-parte)).
 
 La aplicación Sistemas escribe uno en cada sistema nuevo, lo edita en el **Resumen** del sistema y declara el de un pack antiguo (**Declararlo**). Las Marcas Grises declaran el suyo en `system.yaml`.
+
+## Estilos de mapa
+
+Cómo se dibuja un mapa, nunca lo que contiene: **Ajustes del mapa → Estilo** en Mapa ofrece los estilos de todos los packs cargados, y el mapa nombra aquel en el que se dibuja. Core trae **Esquemático** (colores planos y un símbolo por terreno, cada casilla con sus coordenadas), el aspecto de todo mapa sin estilo. Elegir un estilo **copia** sus ajustes al mapa (los de sus nombres, regiones, coordenadas y símbolos), que luego cambias a tu gusto en Ajustes del mapa y en el panel Terreno; lo que solo decide un estilo (la línea de la rejilla) se lee de él mientras se dibuja el mapa, así que un cambio en el estilo se ve enseguida.
+
+```yaml
+kind: style
+id: ink
+name: Tinta
+description: Una rejilla tenue y sin coordenadas, nombres en Cinzel.
+grid: { color: '#3a2a1a', opacity: 0.15, coords: false } # la línea de la rejilla; ¿se ven las coordenadas?
+glyphs: 0.3 # los símbolos de los terrenos, de 0 (ocultos) a 1
+captions: # cómo se dibuja cada clase de nombre
+  hexNames: { font: cinzel, size: 0.9 }
+  regionNames: { font: cinzel, italic: false, color: '#5a3a1a', halo: true, haloColor: '#f4eedd' }
+  tokenNames: { show: false } # no se muestran
+regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
+```
+
+- Cualquier clave puede faltar: lo que un estilo no dice es lo del Esquemático.
+- `grid`: `color` (`#rrggbb`), `opacity` (de 0 a 1) y `coords` (`true` / `false`: las **Coordenadas** del mapa).
+- `captions`, por clase (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` o `sans`), `size` (1 el normal), `color` (sin él: automático), `italic`, `halo` y `haloColor`, como **Ajustes del mapa → Textos del mapa**.
+- `regions`: `fill` y `borderOpacity` (de 0 a 1), `border` (en tamaños de casilla, 0 para ninguno) y `dashed`, como **Ajustes del mapa → Regiones**.
+- Un mapa cuyo estilo no está cargado se dibuja en el Esquemático, y sigue nombrando el suyo.
+- Se traduce con la clave `style/<id>` (`name`, `description`).

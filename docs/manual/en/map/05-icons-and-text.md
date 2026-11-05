@@ -25,5 +25,5 @@ The **Text** tool (<kbd>T</kbd>) writes free labels anywhere, even outside the g
 
 A cell's name (set in the cell panel) is drawn under it. Names are styled in two places:
 
-- **Map settings → Map texts**: whether cell, region and token names are shown at all, and the style of each kind (font, size, color, italic and halo).
+- **Map settings → Map texts**: whether cell, region and token names are shown at all, and the style of each kind (font, size, color, italic and halo); choosing a [style](01-getting-started.md#styles) for the map sets them all at once.
 - **Each element's panel** (the cell, the region, the token): **Show the name on the map** for that one, and **Style**: the map's style, or its own.

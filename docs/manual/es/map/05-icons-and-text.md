@@ -25,5 +25,5 @@ La herramienta **Texto** (<kbd>T</kbd>) escribe rótulos libres en cualquier sit
 
 El nombre de una casilla (se pone en el panel de la casilla) se dibuja debajo de ella. Los nombres se configuran en dos sitios:
 
-- **Ajustes del mapa → Textos del mapa**: si se muestran los nombres de casilla, de región y de token, y el estilo de cada tipo (fuente, tamaño, color, cursiva y halo).
+- **Ajustes del mapa → Textos del mapa**: si se muestran los nombres de casilla, de región y de token, y el estilo de cada tipo (fuente, tamaño, color, cursiva y halo); elegir un [estilo](01-getting-started.md#estilos) para el mapa los fija todos de una vez.
 - **El panel de cada elemento** (la casilla, la región, el token): **Mostrar el nombre en el mapa** para ese en concreto, y **Estilo**: el del mapa o uno propio.
