@@ -12,7 +12,12 @@ const maps = new Map<string, LibraryEntry>()
 const kept = new Map<string, LibraryEntry>()
 let picked: string | null = null
 const list = (store: Map<string, LibraryEntry>) => async () =>
-  [...store.values()].map(({ id, name, modified }) => ({ id, name, modified }))
+  [...store.values()].map(({ id, name, modified, parent }) => ({
+    id,
+    name,
+    modified,
+    ...(parent && { parent }),
+  }))
 vi.mock('@open-tabletop/storage', async (original) => ({
   ...(await original<typeof import('@open-tabletop/storage')>()),
   getLibraryMap: async (id: string) => maps.get(id) ?? null,
@@ -329,9 +334,11 @@ describe('a map’s campaign', () => {
     await advanceWorld({ minutes: 60 })
     keep()
 
-    // The Hollow Hills join it without asking: the same clock, at its own scale, the Clans
-    // holding the Hills there too and their watch-cairn outside them; nobody else.
-    await actions.openExampleMap(hills)
+    // The Hollow Hills came with it, a sub-map of the Marches (Fort Keld and Hollow Gate lead
+    // in), in its campaign: the same clock, at its own scale, the Clans holding the Hills
+    // there too and their watch-cairn outside them; nobody else.
+    expect(maps.get('hollowhills1')).toMatchObject({ parent: 'greymarches1' })
+    await actions.openLibraryMap('hollowhills1')
     await settle()
     expect(editor.map.meta.campaign).toBe('grey-marches')
     expect(editor.campaign.world!.time).toBe(start + 60)

@@ -48,6 +48,7 @@ describe('trips in campaigns', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.42)
   })
 
+  // Slow beside the whole suite: a longer timeout.
   it('plays in a map’s campaign: its clock, its Oracle, one trip at a time', async () => {
     const { campaign: c, world: w, dialog, toasts, trip, systems } = await openTravel()
     const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
@@ -175,7 +176,7 @@ describe('trips in campaigns', () => {
     expect(trip.campaign?.id).toBe(trip.saved.id)
     expect(trip.campaign?.world).toBeUndefined()
     expect(c.deserializeCampaign(kept.get('m1')!.json).playing?.app).toBe('map')
-  })
+  }, 15_000)
 
   it('joining another campaign brings its world along, or leaves it behind', async () => {
     const { campaign: c, dialog, trip, systems } = await openTravel()

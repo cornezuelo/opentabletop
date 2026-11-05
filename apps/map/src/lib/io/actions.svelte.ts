@@ -1,5 +1,12 @@
 import { getLocale, t } from '../i18n/index.svelte'
-import { createMap, type HexMap, MapFormatError, newId, serializeMap } from '@open-tabletop/map'
+import {
+  createMap,
+  deserializeMap,
+  type HexMap,
+  MapFormatError,
+  newId,
+  serializeMap,
+} from '@open-tabletop/map'
 import {
   CampaignFormatError,
   createCampaign,
@@ -40,6 +47,7 @@ import {
   onBeforeRestore,
   putCampaign,
   putLibraryMap,
+  type LibraryEntry,
 } from '@open-tabletop/storage'
 import { parseDeepLink } from './deepLink'
 import { downloadMap, pickMapFile } from './file'
@@ -543,6 +551,22 @@ async function othersInCampaign(campaign = editor.campaign.id): Promise<Campaign
   return (await campaignPlaces(campaign)).filter((p) => p.app !== 'map' || p.id !== id)
 }
 
+/** The maps of the library that hang under one, at any depth (its sub-maps, theirs…). */
+async function subMapsBelow(parent: string): Promise<LibraryEntry[]> {
+  const all = await listLibrary()
+  const out: LibraryEntry[] = []
+  const walk = async (id: string) => {
+    for (const e of all.filter((x) => x.parent === id)) {
+      const full = await getLibraryMap(e.id)
+      if (!full || out.some((o) => o.id === e.id)) continue
+      out.push(full)
+      await walk(e.id)
+    }
+  }
+  await walk(parent)
+  return out
+}
+
 /** Places by name, for a message: “North”, “To Keld”. */
 const placesText = (places: CampaignPlace[]) =>
   places
@@ -647,10 +671,28 @@ export async function moveToCampaign(campaign: string): Promise<boolean> {
   if (editor.campaign !== from || editor.map !== map) return false
   const joined = joinCampaign(from, to, stays)
   const land = stays === 'mine' ? map.territories : landIn(joined, map.territories)
-  // The campaign it leaves: without this map's trip, or gone if nothing else is in it.
+  // The campaign it leaves: without this map's trip, or gone if nothing else is in it. Its
+  // sub-maps (theirs…) go with it: a sub-map is in its parent's campaign.
   const left = leaveTrip(from, { app: 'map', id: map.meta.id })
-  const othersLeft = await othersInCampaign(from.id)
+  const below = await subMapsBelow(map.meta.id)
+  const othersLeft = (await othersInCampaign(from.id)).filter(
+    (p) => p.app !== 'map' || !below.some((e) => e.id === p.id),
+  )
   editor.moveToCampaign(joined, land)
+  for (const entry of below) {
+    try {
+      const sub = deserializeMap(entry.json)
+      if (sub.meta.campaign !== from.id) continue
+      const moved: HexMap = {
+        ...sub,
+        meta: { ...sub.meta, campaign: joined.id },
+        territories: stays === 'mine' ? sub.territories : landIn(joined, sub.territories),
+      }
+      await putLibraryMap({ ...entry, json: serializeMap(moved) })
+    } catch (e) {
+      console.error(e)
+    }
+  }
   // Both are saved now: the map names its new campaign, which may be new here.
   dirty = true
   campaignDirty = true

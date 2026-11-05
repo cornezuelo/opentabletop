@@ -10,11 +10,16 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- The Grey Marches: **the Hollow Hills are a sub-map of the frontier**, entered at Fort Keld and at Hollow Gate (no time of their own: the same land drawn closer); opening the frontier brings them along with their own sub-maps, and a trip goes in and out (routes go through them when quicker). Each map keeps its own factions' land.
 - The Grey Marches: Fort Keld's garrison starts on the cell tagged `garrison`, the Iron Clans on the Hollow Hills and the cells tagged `clan-watch` (their watch-cairn), on any map.
 
 ### Formats
 
 - Pack format 15: a faction's `territory` is a condition on the cell (`{ place.region: The Vale }`), instead of `regions:`, `map:` and `hexes:` (File formats says how to rewrite it).
+
+### Fixes
+
+- Map: moving a map to another campaign takes its sub-maps (theirs too) with it; they stayed in the old campaign, which then was never removed.
 
 ## [0.30.0] - 2026-11-05
 

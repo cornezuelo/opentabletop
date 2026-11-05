@@ -391,6 +391,19 @@
       "scale": {
         "cellKm": 3
       },
+      "parent": {
+        "map": "greymarches1",
+        "ways": [
+          {
+            "place": "15,9",
+            "entrance": "0,6"
+          },
+          {
+            "place": "17,14",
+            "entrance": "12,11"
+          }
+        ]
+      },
       "terrains": [
         {
           "id": "steppe",

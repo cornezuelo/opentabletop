@@ -191,6 +191,45 @@ describe('sub-maps', () => {
     expect(partyToken(editor.map)?.hex).toBe('12,11')
   })
 
+  it('the Hollow Hills are the Marches up close: in at Fort Keld, on to the watch-cairn', async () => {
+    vi.resetModules()
+    const actions = await import('./actions.svelte')
+    const { exampleMaps } = await import('./examples')
+    const { editor } = await import('../store/editor.svelte')
+    const { loadLinks, waysAt } = await import('./submaps')
+    const play = await import('../play/play')
+    const { placeOn, partyToken } = await import('@open-tabletop/map')
+    await actions.openExampleMap(exampleMaps().find((m) => m.id === 'greymarches1')!)
+    await settle()
+    // Its sub-maps came with it, the Hills' own below them, all in its campaign.
+    expect(maps.get('hollowhills1')).toMatchObject({ parent: 'greymarches1' })
+    expect(maps.get('barrowhalls1')).toMatchObject({ parent: 'hollowhills1' })
+    await loadLinks()
+    // Fort Keld and Hollow Gate lead in; a way of no kind takes no time of its own.
+    expect(waysAt('15,9').map((w) => [w.map, w.kind])).toEqual([['hollowhills1', undefined]])
+    expect(waysAt('17,14').map((w) => w.map)).toEqual(['hollowhills1'])
+
+    editor.tool = 'play'
+    play.setMode('rules')
+    play.partyMoved('15,9')
+    play.editSession((s) => ({ ...s, stats: { ...s.stats, navigation: 6 } }))
+    play.step({ type: 'setDestination', place: placeOn('hollowhills1', '4,6') })
+    expect(play.sessionOf(editor.map.play!)?.travel.route?.[1]).toBe('@hollowhills1/0,6')
+    for (let i = 0; i < 40; i++) {
+      for (const c of play.sessionOf(editor.map.play!)?.travel.pendingChecks ?? [])
+        play.resolvePending(c.id)
+      play.step({ type: 'action', id: 'march', with: { until: 'place' } })
+      await settle()
+      const at = play.sessionOf(editor.map.play!)?.travel.location
+      if (editor.map.meta.id === 'hollowhills1' && at === '4,6') break
+    }
+    // The same trip went on in the Hills, from the way out of Fort Keld.
+    expect(editor.map.meta.id).toBe('hollowhills1')
+    expect(editor.map.meta.campaign).toBe('grey-marches')
+    expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('4,6')
+    expect(partyToken(editor.map)?.hex).toBe('4,6')
+  })
+
   it("the examples' own terrains are called what the system names them, in each language", async () => {
     vi.resetModules()
     const actions = await import('./actions.svelte')
