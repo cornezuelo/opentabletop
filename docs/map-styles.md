@@ -19,7 +19,7 @@ What looks schematic in the screenshots of the Grey Marches: every cell a flat h
 
 **A style is data**: how each thing the map holds is drawn, never what it is. Changing style never touches the map's cells, the rules or a trip. It is a **pack kind**, `kind: style`, so a system can bring its own (a parchment hexcrawl, a blueprint dungeon), Core brings the generic ones, the user makes or edits theirs, and its texts are translated in `locales/` as any kind.
 
-A map names one style (`meta.style: core/parchment`) and may **override** any part of it in Map settings, as it overrides the region style today. A system may name the style its new maps start with. With no style, today's look: the **Schematic** style is today's settings moved into a style, so old maps look exactly as now (a migration moves their palette colours and caption styles into the map's overrides).
+A map names one style (`meta.style: core/parchment`). **Choosing a style copies its settings into the map** (built in phase 1, 2026-11-05: simpler than keeping them as overrides, and no migration of the maps' own settings): its names', regions', coordinates' and glyphs' settings become the map's, which it changes freely after, and Ctrl+Z puts the previous look back. What only a style decides (the grid's line; the paper, the ground's art, shores and strokes to come) is read from it while drawing, so a change to the style shows at once. A system may name the style its new maps start with. A map without a style is drawn in Core's **Schematic** one, today's look, so older maps look exactly as before (maps v36, no migration needed).
 
 What a style decides, layer by layer:
 
