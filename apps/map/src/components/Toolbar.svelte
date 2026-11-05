@@ -1,5 +1,6 @@
 <script lang="ts">
   import { appGlyphUrl, tooltip } from '@open-tabletop/ui-kit'
+  import LineIcon, { LINE_ICONS, type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
 
@@ -8,7 +9,7 @@
   const tools: { id: ToolId; label: MessageKey; glyph: string }[] = [
     { id: 'select', label: 'tools.select', glyph: '⬚' },
     { id: 'terrain', label: 'tools.terrain', glyph: '⬢' },
-    { id: 'region', label: 'tools.region', glyph: '⛉' },
+    { id: 'region', label: 'tools.region', glyph: 'region' },
     { id: 'path', label: 'tools.path', glyph: '〰' },
     { id: 'connection', label: 'tools.connection', glyph: '⇄' },
     { id: 'wall', label: 'tools.wall', glyph: '▥' },
@@ -31,7 +32,11 @@
         editor.panelView = 'tool'
       }}
     >
-      {tool.glyph}
+      {#if LINE_ICONS.includes(tool.glyph)}
+        <LineIcon name={tool.glyph as LineIconName} />
+      {:else}
+        {tool.glyph}
+      {/if}
     </button>
   {/each}
   <!-- The world clock (the campaign's date, events and progress clocks), next to Play. -->

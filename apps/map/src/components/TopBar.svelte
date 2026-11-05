@@ -8,7 +8,7 @@
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { getCampaign } from '@open-tabletop/storage'
-  import LineIcon from './LineIcon.svelte'
+  import LineIcon, { LINE_ICONS, type LineIconName } from './LineIcon.svelte'
   import {
     getLocale,
     locales,
@@ -76,7 +76,7 @@
         run: () => editor.redo(),
         enabled: () => editor.canRedo,
       },
-      { label: 'actions.fit', glyph: '⛶', run: () => view.fit() },
+      { label: 'actions.fit', glyph: 'fit', run: () => view.fit() },
     ],
     [
       { label: 'actions.new', glyph: '✚', run: newMap },
@@ -132,8 +132,8 @@
         disabled={action.enabled ? !action.enabled() : false}
         onclick={action.run}
       >
-        {#if action.glyph === 'folder' || action.glyph === 'save' || action.glyph === 'map'}
-          <LineIcon name={action.glyph} />
+        {#if LINE_ICONS.includes(action.glyph)}
+          <LineIcon name={action.glyph as LineIconName} />
         {:else}
           {action.glyph}
         {/if}

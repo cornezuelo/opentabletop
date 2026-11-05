@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- Map: the **Fit the map** and **Regions** buttons showed as empty squares where the font lacked their symbols; now drawn as line icons like the others.
+
 ## [0.32.0] - 2026-11-05
 
 ### Apps

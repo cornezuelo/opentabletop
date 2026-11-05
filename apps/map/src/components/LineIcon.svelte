@@ -1,6 +1,32 @@
 <script lang="ts" module>
   export type LineIconName =
-    'folder' | 'save' | 'map' | 'link' | 'brush' | 'fill' | 'eye' | 'eye-off' | 'lock' | 'unlock'
+    | 'folder'
+    | 'save'
+    | 'map'
+    | 'link'
+    | 'brush'
+    | 'fill'
+    | 'eye'
+    | 'eye-off'
+    | 'lock'
+    | 'unlock'
+    | 'fit'
+    | 'region'
+  /** The names drawn here, so a glyph list can tell them from text glyphs. */
+  export const LINE_ICONS: readonly string[] = [
+    'folder',
+    'save',
+    'map',
+    'link',
+    'brush',
+    'fill',
+    'eye',
+    'eye-off',
+    'lock',
+    'unlock',
+    'fit',
+    'region',
+  ] satisfies LineIconName[]
 </script>
 
 <script lang="ts">
@@ -32,6 +58,13 @@
   {:else if name === 'lock' || name === 'unlock'}
     <rect x="5" y="11" width="14" height="9.5" rx="1.5" />
     <path d={name === 'lock' ? 'M8 11V8a4 4 0 0 1 8 0v3' : 'M8 11V8a4 4 0 0 1 7.7-1.5'} />
+  {:else if name === 'fit'}
+    <path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9" />
+    <path d="M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15" />
+    <rect x="8.5" y="8.5" width="7" height="7" rx="1" />
+  {:else if name === 'region'}
+    <path d="M4.5 8.5 9 4l6.5 2 4 5-2 7.5-7 2-5.5-4z" stroke-dasharray="2.6 2.2" />
+    <circle cx="11.5" cy="12" r="1.6" />
   {:else}
     <path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1" />
     <path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1" />
