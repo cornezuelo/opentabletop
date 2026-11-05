@@ -124,3 +124,56 @@ captions:
   regionNames: { font: cinzel, italic: false, halo: true, haloColor: '#f4eedd' }
   tokenNames: { font: fell, halo: true, haloColor: '#f4eedd' }
 regions: { fill: 0.06, border: 0.05, dashed: false, borderOpacity: 0.6 }
+---
+# A dungeon as old modules and Dungeon Scrawl draw it: white floor with a faint grid, thick
+# black walls, the rock beyond them hatched by hand. For maps with floor (rooms, corridors).
+kind: style
+id: classic-dungeon
+name: Classic dungeon
+description: |-
+  A dungeon as old adventure modules draw it: white floor with a faint grid, thick black walls, the rock around them hatched by hand, water and rubble still shown. No coordinates.
+
+  **Shows:** a style's floors (`floors`: their colour, `wash` giving the terrains' colours way to it, a grid on floor alone) and walls (`walls`: colour, width, `outside: hatch` and how deep the band is).
+paper: '#f7f5ef'
+grid: { color: '#3a3a3a', opacity: 0, coords: false }
+glyphs: 0
+floors: { color: '#ffffff', wash: 1, grid: 0.28 }
+walls: { color: '#1b1b1b', width: 0.14, outside: hatch, band: 0.42 }
+art:
+  mode: ink
+  ink: '#2a2a2a'
+  terrains:
+    rubble: { painter: rocks, density: 0.9, size: 0.8 }
+    pool: { painter: waves, density: 0.5 }
+captions:
+  hexNames: { font: sans, color: '#1b1b1b', halo: true, haloColor: '#ffffff' }
+  regionNames: { font: fell, italic: true, halo: true, haloColor: '#ffffff' }
+  tokenNames: { font: sans, halo: true, haloColor: '#ffffff' }
+regions: { fill: 0.04, border: 0.05, dashed: true, borderOpacity: 0.6 }
+---
+# A cave: rough rock edges that wander off the grid, sandy floor, the rock beyond the walls
+# stippled thick by them and thinning out.
+kind: style
+id: cave
+name: Cave
+description: |-
+  A cave or a mine: walls of rough rock that wander off the grid, a pale sandy floor, the rock beyond them stippled thick by the walls and thinning out. No coordinates.
+
+  **Shows:** walls that follow the ground's ragged borders (`ground.ragged`), the rock outside stippled (`walls.outside: stipple`), floor kept partly in its terrains' colours (`floors.wash` below 1).
+paper: '#cbbfa6'
+grid: { color: '#4a3f30', opacity: 0, coords: false }
+glyphs: 0
+ground: { ragged: 0.45, grain: 0.3 }
+floors: { color: '#f3ead6', wash: 0.75, grid: 0.12 }
+walls: { color: '#3a3026', width: 0.1, outside: stipple, band: 0.5 }
+art:
+  mode: ink
+  ink: '#3a3026'
+  terrains:
+    rubble: { painter: rocks, density: 1.1 }
+    pool: { painter: waves, density: 0.5 }
+captions:
+  hexNames: { font: fell, color: '#3a3026', halo: true, haloColor: '#f3ead6' }
+  regionNames: { font: fell, italic: true, halo: true, haloColor: '#f3ead6' }
+  tokenNames: { font: fell, halo: true, haloColor: '#f3ead6' }
+regions: { fill: 0.04, border: 0.05, dashed: true, borderOpacity: 0.6 }

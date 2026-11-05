@@ -1,4 +1,4 @@
-import { ART_MODES, PAINTERS } from '@open-tabletop/map'
+import { ART_MODES, PAINTERS, WALL_OUTSIDES } from '@open-tabletop/map'
 import { writeRef, type Registry } from '@open-tabletop/oracle-engine'
 import {
   contextSuggestions,
@@ -113,6 +113,7 @@ const ENUMS: Record<string, readonly string[]> = {
   font: ['fell', 'cinzel', 'sans'],
   painter: [...PAINTERS],
   mode: [...ART_MODES],
+  outside: [...WALL_OUTSIDES],
   coords: ['true', 'false'],
   dashed: ['true', 'false'],
   once: ['true', 'false'],
@@ -331,6 +332,9 @@ const KEYS = [
   'road',
   'trail',
   'width',
+  'floors',
+  'walls',
+  'outside',
 ]
 
 export interface Completion {

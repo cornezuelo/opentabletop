@@ -56,7 +56,18 @@ export interface MapStyle {
   shores: { lines: number; color: string; band: number }
   /** Roads, trails and rivers: a hand's wobble, and each kind's colour and width. */
   paths: { wobble: number; kinds: Partial<Record<StyledPath, PathLook>> }
+  /**
+   * Floor (a terrain marked as floor: rooms, corridors): its colour, how far the terrains'
+   * own colours give way to it (water keeps its own), and a grid drawn on it alone.
+   */
+  floors: { color: string; wash: number; grid: number }
+  /** The walls round floor: colour, width (in cells), and what is drawn outside them, how deep. */
+  walls: { color: string; width: number; outside: WallOutside; band: number }
 }
+
+/** What is drawn outside a dungeon's walls: nothing, hatching, a shadow, or a cave's stipple. */
+export const WALL_OUTSIDES = ['none', 'hatch', 'shadow', 'stipple'] as const
+export type WallOutside = (typeof WALL_OUTSIDES)[number]
 
 /** Painters: how the art of a terrain is drawn (code, not data: a style picks one by name). */
 export const PAINTERS = [
@@ -111,6 +122,8 @@ export const SCHEMATIC_STYLE: MapStyle = {
   art: { mode: 'ink', ink: '#2b2118', terrains: {} },
   shores: { lines: 0, color: '#2b2118', band: 0 },
   paths: { wobble: 0, kinds: {} },
+  floors: { color: '#ffffff', wash: 0, grid: 0 },
+  walls: { color: '#15130f', width: 0.16, outside: 'none', band: 0.4 },
 }
 
 /** The style a map without one is drawn in: Core's Schematic. */
@@ -130,7 +143,11 @@ const STYLE_KEYS = [
   'art',
   'shores',
   'paths',
+  'floors',
+  'walls',
 ]
+const FLOOR_KEYS = ['color', 'wash', 'grid']
+const WALL_KEYS = ['color', 'width', 'outside', 'band']
 const GROUND_KEYS = ['wash', 'blend', 'ragged', 'grain']
 const ART_KEYS = ['mode', 'ink', 'terrains']
 const TERRAIN_ART_KEYS = ['painter', 'density', 'size', 'color']
@@ -216,6 +233,15 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
   unknown(shores, SHORE_KEYS, 'shores.', "a style's shores")
   const paths = part(raw.paths, 'paths')
   unknown(paths, PATH_KEYS, 'paths.', "a style's paths (wobble, river, road, trail)")
+  const floors = part(raw.floors, 'floors')
+  unknown(floors, FLOOR_KEYS, 'floors.', "a style's floors")
+  const walls = part(raw.walls, 'walls')
+  unknown(walls, WALL_KEYS, 'walls.', "a style's walls")
+  let outside: WallOutside = base.walls.outside
+  if (walls.outside !== undefined) {
+    if (WALL_OUTSIDES.includes(walls.outside as WallOutside)) outside = walls.outside as WallOutside
+    else errors.push(`walls.outside: expected one of ${WALL_OUTSIDES.join(', ')}`)
+  }
   let mode: ArtMode = base.art.mode
   if (art.mode !== undefined) {
     if (ART_MODES.includes(art.mode as ArtMode)) mode = art.mode as ArtMode
@@ -309,6 +335,17 @@ export function parseStyle(raw: unknown): { style?: MapStyle; errors: string[] }
       band: fraction(shores.band, 'shores.band', base.shores.band),
     },
     paths: { wobble: fraction(paths.wobble, 'paths.wobble', base.paths.wobble), kinds: pathKinds },
+    floors: {
+      color: color(floors.color, 'floors.color', base.floors.color),
+      wash: fraction(floors.wash, 'floors.wash', base.floors.wash),
+      grid: fraction(floors.grid, 'floors.grid', base.floors.grid),
+    },
+    walls: {
+      color: color(walls.color, 'walls.color', base.walls.color),
+      width: fraction(walls.width, 'walls.width', base.walls.width, 0.5),
+      outside,
+      band: fraction(walls.band, 'walls.band', base.walls.band),
+    },
   }
   return errors.length ? { errors } : { style, errors }
 }

@@ -16,3 +16,15 @@ style/painted:
     Un mapa pintado: colores intensos que se funden entre sí, montañas y árboles iluminados por un lado y en sombra por el otro, aguas someras claras junto a las costas, un grano de papel sobre todo. Sin coordenadas.
 
     **Enseña:** arte pintado por terreno (`art.mode: painted`), los colores del terreno fundidos (`ground.blend`) con poca aguada, costas como una franja somera (`shores.band`).
+style/classic-dungeon:
+  name: Mazmorra clásica
+  description: |-
+    Una mazmorra como la dibujan los módulos de aventura de siempre: suelo blanco con una rejilla tenue, muros gruesos y negros, la roca que los rodea rayada a mano, y el agua y los escombros a la vista. Sin coordenadas.
+
+    **Enseña:** los suelos de un estilo (`floors`: su color, `wash`, que lleva los colores de los terrenos hacia él, y una rejilla solo en el suelo) y los muros (`walls`: color, grosor, `outside: hatch` y la profundidad de la franja).
+style/cave:
+  name: Cueva
+  description: |-
+    Una cueva o una mina: muros de roca tosca que se salen de la rejilla, un suelo arenoso claro y la roca de fuera punteada, densa junto a los muros y cada vez más rala. Sin coordenadas.
+
+    **Enseña:** muros que siguen los bordes irregulares del terreno (`ground.ragged`), la roca de fuera punteada (`walls.outside: stipple`) y el suelo que conserva en parte los colores de sus terrenos (`floors.wash` por debajo de 1).

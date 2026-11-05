@@ -75,7 +75,7 @@ La tierra de los Clanes de cerca, **16 × 14 hexágonos de 3 km**, dibujada en e
 
 ### The Barrow-halls
 
-Una mazmorra bajo la casilla 1109 de las Hollow Hills: **9 × 7 casillas cuadradas de 10 m**, suelo cuyos muros se dibujan solos. Un camino: **la bajada** (`way-in`, diez minutos, `extra: 10`) llega a 0104. Un paso en diagonal cuesta paso y medio (`diagonals: 1.5`).
+Una mazmorra bajo la casilla 1109 de las Hollow Hills: **9 × 7 casillas cuadradas de 10 m**, suelo cuyos muros se dibujan solos, dibujada en el [estilo](../map/01-getting-started.md#estilos) **Mazmorra clásica** de Core. Un camino: **la bajada** (`way-in`, diez minutos, `extra: 10`) llega a 0104. Un paso en diagonal cuesta paso y medio (`diagonals: 1.5`).
 
 | Pieza                                         | Dónde                    | Qué enseña                                                                                                               | Qué pone en marcha                                                                                                  |
 | --------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
@@ -90,7 +90,7 @@ Una mazmorra bajo la casilla 1109 de las Hollow Hills: **9 × 7 casillas cuadrad
 
 ### The old clan mine
 
-Galerías bajo las montañas al este de las Hollow Hills, **14 × 7 casillas cuadradas de 500 m**: un **submapa que se cruza**, con tres caminos a las colinas, cada uno de su tipo.
+Galerías bajo las montañas al este de las Hollow Hills, **14 × 7 casillas cuadradas de 500 m**, dibujadas en el [estilo](../map/01-getting-started.md#estilos) **Cueva** de Core: un **submapa que se cruza**, con tres caminos a las colinas, cada uno de su tipo.
 
 | Pieza                                           | Dónde                                 | Qué enseña                                                                                                                 | Qué pone en marcha                                                                    |
 | ----------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |

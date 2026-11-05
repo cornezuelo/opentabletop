@@ -4,26 +4,26 @@ A pack is a folder of YAML (or JSON) files. Each file holds one or more **defini
 
 The kinds are a **fixed set**: each one is read by an engine that knows it, and a pack can't add kinds of its own (one the apps don't know is kept but nothing reads it). What a pack chooses freely is the content: its own tables, calendar, weather, roll modes, travel rules and stats, with the names and rules of its game.
 
-| Kind           | What it is                                                                 | Read by                                                                         | How many per pack |
-| -------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------- |
-| `table`        | A list of results picked by dice or weight                                 | The Oracle; anything that rolls, when it names it (below)                       | Any               |
-| `oracle`       | A table whose answers depend on a question (an input)                      | The Oracle; anything that rolls, when it names it (below)                       | Any               |
-| `generator`    | Several rolls joined in one text                                           | The Oracle; anything that rolls, when it names it (below)                       | Any               |
-| `deck`         | Cards drawn without putting them back                                      | The Oracle; anything that rolls, when it names it (it draws a card)             | Any               |
-| `roll-modes`   | Ways of rolling a table several times and keeping one total                | The Oracle (every roll)                                                         | One               |
-| `travel-rules` | How a trip works: speeds, terrains, actions, checks                        | Map Play, the Travel app                                                        | One per system    |
-| `bindings`     | Which table answers each check of a trip, the party's stats                | Map Play, the Travel app                                                        | One per system    |
-| `calendar`     | Months, seasons, weekdays, moons and holidays                              | Trips, the world clock (Map's World panel, the Campaign app)                    | One per system    |
-| `weather`      | Weather with memory: today's follows from yesterday's, per season          | Trips (a binding with `weather:`)                                               | Any               |
-| `land`         | Terrain with memory: an empty cell's follows from the land around it       | Discovery (a binding with `land:`), Map's **Generate**                          | Any               |
-| `sheet`        | What each of the party's characters has: values, conditions                | Trips (the party's characters), the Systems app                                 | One per system    |
-| `factions`     | The powers of its world: their land and their world turns                  | The world clock (Map's World panel, the Campaign app), the Systems app          | One per system    |
-| `clocks`       | The progress clocks its world starts with, and what each does when full    | The world clock (Map's World panel, the Campaign app), the Systems app          | One per system    |
-| `items`        | What its characters may carry: items with tags, numbers, places            | Characters' cards (trips, tokens, the Characters app), effects, the Systems app | Any               |
-| `bestiary`     | Templates of characters (creatures, NPC types) that results make copies of | Trips (those present: effects `present.<template>`)                             | Any               |
-| `places`       | Templates of points of interest that results make on the party's cell      | Trips (effects `place.pois.<place>`), written on the map by Map                 | Any               |
-| `style`        | How a map is drawn: paper, ground, art, shores, paths, names               | Map (**Map settings → Style**)                                                  | Any               |
-| `system`       | A game system: which of the above it uses, and which packs                 | Every app that plays with a system: Map, Travel, Campaign, Characters, Systems  | Any               |
+| Kind           | What it is                                                                  | Read by                                                                         | How many per pack |
+| -------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------- |
+| `table`        | A list of results picked by dice or weight                                  | The Oracle; anything that rolls, when it names it (below)                       | Any               |
+| `oracle`       | A table whose answers depend on a question (an input)                       | The Oracle; anything that rolls, when it names it (below)                       | Any               |
+| `generator`    | Several rolls joined in one text                                            | The Oracle; anything that rolls, when it names it (below)                       | Any               |
+| `deck`         | Cards drawn without putting them back                                       | The Oracle; anything that rolls, when it names it (it draws a card)             | Any               |
+| `roll-modes`   | Ways of rolling a table several times and keeping one total                 | The Oracle (every roll)                                                         | One               |
+| `travel-rules` | How a trip works: speeds, terrains, actions, checks                         | Map Play, the Travel app                                                        | One per system    |
+| `bindings`     | Which table answers each check of a trip, the party's stats                 | Map Play, the Travel app                                                        | One per system    |
+| `calendar`     | Months, seasons, weekdays, moons and holidays                               | Trips, the world clock (Map's World panel, the Campaign app)                    | One per system    |
+| `weather`      | Weather with memory: today's follows from yesterday's, per season           | Trips (a binding with `weather:`)                                               | Any               |
+| `land`         | Terrain with memory: an empty cell's follows from the land around it        | Discovery (a binding with `land:`), Map's **Generate**                          | Any               |
+| `sheet`        | What each of the party's characters has: values, conditions                 | Trips (the party's characters), the Systems app                                 | One per system    |
+| `factions`     | The powers of its world: their land and their world turns                   | The world clock (Map's World panel, the Campaign app), the Systems app          | One per system    |
+| `clocks`       | The progress clocks its world starts with, and what each does when full     | The world clock (Map's World panel, the Campaign app), the Systems app          | One per system    |
+| `items`        | What its characters may carry: items with tags, numbers, places             | Characters' cards (trips, tokens, the Characters app), effects, the Systems app | Any               |
+| `bestiary`     | Templates of characters (creatures, NPC types) that results make copies of  | Trips (those present: effects `present.<template>`)                             | Any               |
+| `places`       | Templates of points of interest that results make on the party's cell       | Trips (effects `place.pois.<place>`), written on the map by Map                 | Any               |
+| `style`        | How a map is drawn: paper, ground, art, shores, paths, floors, walls, names | Map (**Map settings → Style**)                                                  | Any               |
+| `system`       | A game system: which of the above it uses, and which packs                  | Every app that plays with a system: Map, Travel, Campaign, Characters, Systems  | Any               |
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card), an action's `roll:` step (`roll: table.ruins`), an entry or card that rolls another (`table:`), a generator's field, a progress clock as it fills (`resolve:`) and a faction's world turn (`turn:`). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
@@ -702,7 +702,7 @@ The Systems app writes one for every new system, edits it in the system's **Over
 
 ## Map styles
 
-How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings three: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores and the paths' look) is read from the style while the map is drawn, so a change to the style shows at once.
+How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings five: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded); and, for maps with floor, **Classic dungeon** (white floor, black walls, the rock hatched) and **Cave** (rough walls, stippled rock). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores, the paths' look, the floors and the walls) is read from the style while the map is drawn, so a change to the style shows at once.
 
 ```yaml
 kind: style
@@ -722,6 +722,8 @@ art:
     hills: { painter: hills, size: 1.2 }
 shores: { lines: 3, color: '#3b2a1a' }
 paths: { wobble: 0.5, river: { color: '#3d6f96', width: 0.15 } }
+floors: { color: '#ffffff', wash: 1, grid: 0.25 } # floor: white flagstones with a faint grid
+walls: { color: '#1b1b1b', width: 0.14, outside: hatch, band: 0.4 } # the rock beyond hatched
 captions: # how each kind of name is drawn
   hexNames: { font: cinzel, size: 0.9 }
   regionNames: { font: cinzel, italic: false, color: '#5a3a1a', halo: true, haloColor: '#f4eedd' }
@@ -736,6 +738,8 @@ regions: { fill: 0.08, border: 0.05, dashed: true, borderOpacity: 0.6 }
 - `art`: what is drawn on each terrain's cells. `mode`: `ink` (lines over the terrain's colour) or `painted` (shapes lit on one side and shaded on the other); `ink`: the lines' colour; `terrains`: by terrain id, a **painter** (`forest: conifers`) or a painter with `density` (how many, 1 the usual, 0 to 3), `size` (how big, 0 to 3) and `color` (its own, instead of the terrain's). A terrain not named has no art. The painters: `grass`, `farmland`, `conifers`, `broadleaf`, `forest` (both kinds of tree, packed), `reeds`, `hills`, `mountains`, `peaks` (snow on top), `volcano`, `dunes`, `rocks`, `waves`, `dots`. Each cell's drawing is its own, and the same every time.
 - `shores`: where water (a terrain with **Water**) meets land, on the water's side: `lines` (0 to 5 lines along the shore, fainter further out; in `ink` mode, the coast inked too), `color` and `band` (0 to 1: a pale band of shallows).
 - `paths`: `wobble` (0 to 1: roads, trails and rivers drawn by hand) and, for `river`, `road` and `trail`, their `color` and `width` (in cells).
+- `floors`: cells of a terrain marked **Floor** (rooms, corridors): `color`, `wash` (0 to 1: how far the terrains' own colours give way to it, `1` all the floor's colour; water keeps its own) and `grid` (0 to 1: a grid drawn on floor alone, in the grid's colour; a style may hide the grid elsewhere with `grid.opacity: 0`).
+- `walls`: the walls round floor and the ones drawn by hand: `color`, `width` (in cells, up to `0.5`), `outside` (what is drawn beyond them, on the side away from the floor: `none`, `hatch` (clusters of short strokes, as old modules draw rock), `shadow` (a shade fading away) or `stipple` (dots thick by the wall and thinning out, a cave's rock)) and `band` (0 to 1: how deep, in cells). Nothing is drawn on floor (the next room) or off the map. With `ground.ragged`, walls follow the same wandering edges: a cave.
 - `captions`, by kind (`hexNames`, `regionNames`, `tokenNames`): `show`, `font` (`fell`, `cinzel` or `sans`), `size` (1 the usual), `color` (absent: automatic), `italic`, `halo` and `haloColor`, as **Map settings → Map texts**.
 - `regions`: `fill` and `borderOpacity` (0 to 1), `border` (in cells' sizes, 0 for none) and `dashed`, as **Map settings → Regions**.
 - A map whose style isn't loaded is drawn in the Schematic one, and keeps naming its own.

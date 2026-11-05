@@ -65,6 +65,8 @@ describe('map styles', () => {
         'paper: white',
         'shade: 1',
         'art: { mode: oil, terrains: { forest: trees, hills: { painter: hills, size: 9 } } }',
+        'floors: { color: white, tiles: 1 }',
+        'walls: { outside: moss, width: 2 }',
       ].join('\n'),
     )
     const { styles, problems } = mapStyles(registry)
@@ -82,9 +84,28 @@ describe('map styles', () => {
         '@style/broken.art.terrains.hills.size: expected a number from 0 to 3',
         '@style/broken.captions.hexNames.font: expected one of fell, cinzel, sans',
         '@style/broken.paper: expected a colour (#rrggbb)',
+        '@style/broken.floors.color: expected a colour (#rrggbb)',
+        "@style/broken.floors.tiles: unknown key in a style's floors",
+        '@style/broken.walls.outside: expected one of none, hatch, shadow, stipple',
+        '@style/broken.walls.width: expected a number from 0 to 0.5',
       ].sort(),
     )
     expect(problems.every((p) => p.pack === 'p' && p.file === 'p/styles.yaml')).toBe(true)
+  })
+
+  it("reads a dungeon's floors and walls, the rest the Schematic one's", () => {
+    const { style, errors } = parseStyle({
+      kind: 'style',
+      id: 'crypt',
+      floors: { color: '#fafafa', wash: 1, grid: 0.3 },
+      walls: { outside: 'hatch', band: 0.5 },
+    })
+    expect(errors).toEqual([])
+    expect(style!.floors).toEqual({ color: '#fafafa', wash: 1, grid: 0.3 })
+    expect(style!.walls).toEqual({ ...SCHEMATIC_STYLE.walls, outside: 'hatch', band: 0.5 })
+    // The Schematic style draws floor and walls as before: the terrain's colour, no band.
+    expect(SCHEMATIC_STYLE.floors.wash).toBe(0)
+    expect(SCHEMATIC_STYLE.walls.outside).toBe('none')
   })
 
   it("draws a map in its style, or in the Schematic one when it has none or it isn't loaded", () => {

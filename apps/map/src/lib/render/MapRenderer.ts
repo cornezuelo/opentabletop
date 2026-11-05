@@ -38,6 +38,7 @@ import { iconImage } from '../icons/registry'
 import { catmullRom, catmullRomClosed, dashes, densify, offsetPolyline, wobble } from './curves'
 import { colorOf, mix, paint, seedOf, shade } from './painters'
 import { displace, noiseCanvas, raggedPolygon } from './noise'
+import { hatchStrokes, shadowStrips, stippleDots, type WallSide } from './dungeon'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { connectionsNow } from '../play/connections'
 import { IconTextures } from './IconTextures'
@@ -68,8 +69,8 @@ import { getSystem } from '../play/systems'
 import { drawnTokens, isCopy } from '../play/present'
 import { currentTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
-/** Walls round a structure's floor. */
-const WALL_COLOR = 0x15130f
+/** Each side of a ragged cell is cut in this many pieces (walls follow the same points). */
+const RAGGED_STEPS = 5
 /** Empty hexes on paper, when exporting to print. */
 const PAPER_FILL = 0xffffff
 const HOVER_COLOR = 0xffffff
@@ -585,7 +586,7 @@ export class MapRenderer {
     for (const terrain of terrains)
       this.contexts.set(
         terrain.id,
-        new GraphicsContext().poly(this.corners).fill(this.groundColor(terrain.color)),
+        new GraphicsContext().poly(this.corners).fill(this.terrainFill(terrain)),
       )
 
     this.gridLines.clear()
@@ -644,32 +645,108 @@ export class MapRenderer {
   /**
    * The walls: every side of a floor cell facing a cell that isn't floor (or the map's edge),
    * and every side a wall is drawn on by hand, but where a connection is drawn across it (a
-   * door, an arch), as a thick dark line. Rooms painted side by side merge; a corridor
-   * painted into a room opens it.
+   * door, an arch), as a thick line in the style's colour (`walls`), following the ground's
+   * ragged borders. Rooms painted side by side merge; a corridor painted into a room opens
+   * it. Outside a wall, on the side away from the floor, the style's band (hatching, a
+   * shadow, a cave's stipple); on the floor, its grid (`floors.grid`).
    */
   private drawWalls(): void {
     const g = this.wallLines.clear()
+    const style = mapStyle()
     const { grid } = editor.map
+    const hs = grid.hexSize
     const walls = mapWalls(editor.map)
     const drawn = new Set<string>(editor.map.walls.flat())
     // The cells a wall may stand beside: floor, and the ends of walls drawn by hand.
     const beside = (key: string) => walls.floor(key) || drawn.has(key)
-    let any = false
+    // Where the band may not go: floor (the next room), and off the map.
+    const onFloor = (p: Point) => {
+      const cell = cellAt(p, grid, hs)
+      return !inBounds(cell, grid) || walls.floor(keyOf(cell))
+    }
+    const lines: Point[][] = []
+    const outside: WallSide[] = []
+    const floorGrid: Point[][] = []
     for (const cell of allCells(grid)) {
       const key = keyOf(cell)
       if (!beside(key)) continue
-      for (const { a, b, across } of cellSides(cell, grid, grid.hexSize)) {
+      const center = this.centerOf(cell)
+      cellSides(cell, grid, hs).forEach(({ a, b, across }, i) => {
         const there = keyOf(across)
-        if (!inBounds(across, grid)) {
-          if (!walls.floor(key)) continue
-        } else if (!walls.between(key, there) || (beside(there) && there < key)) continue
+        const off = !inBounds(across, grid)
+        if (off) {
+          if (!walls.floor(key)) return
+        } else if (!walls.between(key, there)) {
+          // An open side between two floor cells: the floor's grid, once.
+          if (walls.floor(key) && walls.floor(there) && key < there) floorGrid.push([a, b])
+          return
+        } else if (beside(there) && there < key) return
         // A side between two such cells is drawn once, from the first.
-        g.moveTo(a.x, a.y).lineTo(b.x, b.y)
-        any = true
-      }
+        lines.push([a, b])
+        // Which side is out: away from the floor; a wall between two floors has no outside.
+        const inside = walls.floor(key)
+        if (inside === (!off && walls.floor(there))) return
+        const mx = (a.x + b.x) / 2 - center.x
+        const my = (a.y + b.y) / 2 - center.y
+        const len = Math.hypot(mx, my) || 1
+        const sign = inside ? 1 : -1
+        outside.push({
+          a,
+          b,
+          out: { x: (mx / len) * sign, y: (my / len) * sign },
+          seed: seedOf(`${key}#${i}`),
+        })
+      })
     }
-    if (any)
-      g.stroke({ width: grid.hexSize * 0.16, color: WALL_COLOR, cap: 'square', join: 'miter' })
+    // Each side follows the ground's ragged border (the same noise, the same points).
+    const { amplitude, scale } = this.raggedness()
+    // (A side as a closed polygon of two corners: its first half is the side, from a to b.)
+    const follow = ([a, b]: Point[]): number[] =>
+      this.ragged()
+        ? raggedPolygon([a.x, a.y, b.x, b.y], RAGGED_STEPS, amplitude, scale).slice(
+            0,
+            (RAGGED_STEPS + 1) * 2,
+          )
+        : [a.x, a.y, b.x, b.y]
+
+    const band = style.walls.band * hs
+    const ink = colorOf(style.walls.color)
+    if (style.walls.outside === 'hatch') {
+      for (const side of outside)
+        for (const [p, q] of hatchStrokes(side, band, onFloor)) g.moveTo(p.x, p.y).lineTo(q.x, q.y)
+      g.stroke({ width: hs * 0.022, color: ink, alpha: 0.85, cap: 'round' })
+    } else if (style.walls.outside === 'shadow') {
+      for (const side of outside)
+        for (const strip of shadowStrips(side, band))
+          g.poly(strip.points).fill({ color: ink, alpha: strip.alpha })
+    } else if (style.walls.outside === 'stipple') {
+      for (const side of outside)
+        for (const dot of stippleDots(side, band, hs * 0.018, onFloor))
+          g.circle(dot.x, dot.y, dot.r).fill({ color: ink, alpha: dot.alpha })
+    }
+
+    if (style.floors.grid > 0 && floorGrid.length) {
+      for (const side of floorGrid) {
+        const pts = follow(side)
+        g.moveTo(pts[0], pts[1])
+        for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i], pts[i + 1])
+      }
+      g.stroke({
+        width: 1,
+        color: colorOf(style.grid.color),
+        alpha: style.floors.grid,
+        pixelLine: true,
+      })
+    }
+
+    if (lines.length) {
+      for (const side of lines) {
+        const pts = follow(side)
+        g.moveTo(pts[0], pts[1])
+        for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i], pts[i + 1])
+      }
+      g.stroke({ width: hs * style.walls.width, color: ink, cap: 'round', join: 'round' })
+    }
   }
 
   /**
@@ -1534,6 +1611,17 @@ export class MapRenderer {
   }
 
   /**
+   * A terrain as its cells are filled: its ground colour, and on floor (not water) given way
+   * to the style's floor colour (`floors.wash`): a dungeon's white flagstones.
+   */
+  private terrainFill(terrain: { color: string; floor?: boolean; water?: boolean }): number {
+    const ground = this.groundColor(terrain.color)
+    const { floors } = mapStyle()
+    if (!terrain.floor || terrain.water || floors.wash <= 0) return ground
+    return mix(ground, colorOf(floors.color), floors.wash)
+  }
+
+  /**
    * Where water meets land, on the water's side: the coast's ink line (in ink), lines along
    * the shore, fainter further out, and a shallow band (painted), as the style says.
    */
@@ -1615,11 +1703,17 @@ export class MapRenderer {
   /** A cell drawn with its border wandering (the style's `ground.ragged`), in its ground colour. */
   private raggedCell(g: Graphics, cell: Offset): Graphics {
     const { amplitude, scale } = this.raggedness()
-    const terrain = editor.map.hexes[keyOf(cell)]?.terrain
-    const color = editor.map.terrains.find((t) => t.id === terrain)?.color
+    const id = editor.map.hexes[keyOf(cell)]?.terrain
+    const terrain = editor.map.terrains.find((t) => t.id === id)
     g.clear()
-      .poly(raggedPolygon(this.cornersAt(cell), 5, amplitude, scale))
-      .fill(this.paper && !color ? PAPER_FILL : color ? this.groundColor(color) : this.emptyFill())
+      .poly(raggedPolygon(this.cornersAt(cell), RAGGED_STEPS, amplitude, scale))
+      .fill(
+        this.paper && !terrain
+          ? PAPER_FILL
+          : terrain
+            ? this.terrainFill(terrain)
+            : this.emptyFill(),
+      )
     return g
   }
 
@@ -1702,7 +1796,7 @@ export class MapRenderer {
       seed: seedOf(key),
       mode: style.art.mode,
       ink: colorOf(style.art.ink),
-      base: art.color ? colorOf(art.color) : this.groundColor(terrain.color),
+      base: art.color ? colorOf(art.color) : this.terrainFill(terrain),
       density: art.density,
       size: art.size,
     })

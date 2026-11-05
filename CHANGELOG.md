@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: **dungeons drawn as dungeons**. A style decides how floor and walls look: the floor's own colour with a grid on it alone, the walls' colour and width, and what lies beyond them (hatching, a shadow or a cave's stipple); walls follow a style's ragged borders. Core brings **Classic dungeon** (white floor, black walls, the rock hatched by hand) and **Cave** (rough walls, stippled rock).
+
+### Packs
+
+- Core: the **Classic dungeon** and **Cave** styles. The Grey Marches: the Barrow-halls drawn as a Classic dungeon, the old clan mine as a Cave.
+
+### Formats
+
+- Packs: a style's `floors` (`color`, `wash`, `grid`) and `walls` (`color`, `width`, `outside`: `none`, `hatch`, `shadow`, `stipple`; `band`).
+
 ### Fixes
 
 - Map: the **Fit the map** and **Regions** buttons showed as empty squares where the font lacked their symbols; now drawn as line icons like the others.

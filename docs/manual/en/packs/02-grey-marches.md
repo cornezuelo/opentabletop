@@ -73,7 +73,7 @@ The Clans' homeland up close, **16 × 14 hexes of 3 km**, drawn in Core's **Pain
 
 ### The Barrow-halls
 
-A dungeon under the Hollow Hills' cell 1109: **9 × 7 squares of 10 m**, floor whose walls draw themselves. One way: **the way down** (`way-in`, ten minutes, `extra: 10`) arrives at 0104. A step across a corner costs a step and a half (`diagonals: 1.5`).
+A dungeon under the Hollow Hills' cell 1109: **9 × 7 squares of 10 m**, floor whose walls draw themselves, drawn in Core's **Classic dungeon** [style](../map/01-getting-started.md#styles). One way: **the way down** (`way-in`, ten minutes, `extra: 10`) arrives at 0104. A step across a corner costs a step and a half (`diagonals: 1.5`).
 
 | Piece                                    | Where                    | What it shows                                                                                             | What it sets moving                                                                                |
 | ---------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -88,7 +88,7 @@ A dungeon under the Hollow Hills' cell 1109: **9 × 7 squares of 10 m**, floor w
 
 ### The old clan mine
 
-Galleries under the mountains east of the Hollow Hills, **14 × 7 squares of 500 m**: a **sub-map crossed**, with three ways to the hills, each of its own kind.
+Galleries under the mountains east of the Hollow Hills, **14 × 7 squares of 500 m**, drawn in Core's **Cave** [style](../map/01-getting-started.md#styles): a **sub-map crossed**, with three ways to the hills, each of its own kind.
 
 | Piece                                      | Where                                     | What it shows                                                                                        | What it sets moving                                                               |
 | ------------------------------------------ | ----------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
