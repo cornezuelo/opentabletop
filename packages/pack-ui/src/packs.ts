@@ -1,4 +1,4 @@
-import { PACK_FORMAT, type PackFile as EngineFile } from '@open-tabletop/oracle-engine'
+import { isImageFile, PACK_FORMAT, type PackFile as EngineFile } from '@open-tabletop/oracle-engine'
 import { parse } from 'yaml'
 
 /** A file inside a pack; `path` is relative to the pack folder (e.g. "tables/weather.yaml"). */
@@ -69,6 +69,10 @@ export function groupBundled(
   }
   return [...packs.values()].filter((p) => p.files.some((f) => f.path === MANIFEST_FILE))
 }
+
+/** A pack of images alone: nothing in it to roll or play, only for styles to draw with. */
+export const imagesOnly = (pack: PackSource): boolean =>
+  pack.files.every((f) => f.path === MANIFEST_FILE || isImageFile(f.path))
 
 /** A short fingerprint of a text (FNV-1a, 32 bits), to tell whether a file changed. */
 export function fingerprint(text: string): string {

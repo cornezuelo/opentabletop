@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  imagesOnly,
   effectivePacks,
   engineFiles,
   groupBundled,
@@ -16,6 +17,16 @@ const pack = (root: string, origin: PackSource['origin']): PackSource => ({
 })
 
 describe('packs', () => {
+  it('tells a pack of images alone from one with something to play', () => {
+    const pack = (...paths: string[]) => ({
+      root: 'p',
+      origin: 'bundled' as const,
+      files: ['pack.yaml', ...paths].map((path) => ({ path, content: '' })),
+    })
+    expect(imagesOnly(pack('relief/hill.svg', 'paper.webp'))).toBe(true)
+    expect(imagesOnly(pack('relief/hill.svg', 'styles.yaml'))).toBe(false)
+  })
+
   it('groups globbed files into packs, skipping folders without a manifest', () => {
     const packs = groupBundled(
       {

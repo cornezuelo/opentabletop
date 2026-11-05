@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { manifestOf } from '@open-tabletop/pack-ui'
+  import { imagesOnly, manifestOf } from '@open-tabletop/pack-ui'
   import { systemName } from '@open-tabletop/session'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { chooseSystem } from '../lib/io/actions.svelte'
@@ -13,9 +13,12 @@
    * own and the ones the campaign adds. Its Oracle panel only shows these.
    */
   const packs = $derived(
+    // What a campaign plays with: a pack of images alone has nothing to choose.
     library.packs.flatMap((pack) => {
       const manifest = manifestOf(pack)
-      return manifest.id ? [{ id: manifest.id, name: manifest.name ?? manifest.id }] : []
+      return manifest.id && !imagesOnly(pack)
+        ? [{ id: manifest.id, name: manifest.name ?? manifest.id }]
+        : []
     }),
   )
   const systems = $derived(playSystems())

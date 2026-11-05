@@ -135,7 +135,8 @@ connections:
 ---
 # Painted's ground with pictures for the land's relief: mountains, hills, trees and dunes
 # drawn by images (Azgaar's colored relief icons, the azgaar-relief pack), each cell one of
-# its list; water and grass keep their painters.
+# its list; water and grass keep their painters. The trees' pictures fill little of their
+# frame, so their sizes are large.
 kind: style
 id: relief
 name: Relief
@@ -154,17 +155,18 @@ art:
     plains: grass
     farmland: farmland
     heath: { painter: grass, density: 0.6 }
-    savanna: { images: azgaar-relief/colored/acacia-1.svg, count: 2, size: 0.9 }
-    forest: { images: azgaar-relief/colored/conifer-1.svg, count: 3, size: 0.9 }
+    savanna: { images: azgaar-relief/colored/acacia-1.svg, count: 2, size: 2 }
+    forest: { images: azgaar-relief/colored/conifer-1.svg, count: 3, size: 2.3 }
     dense-forest:
       images: [azgaar-relief/colored/deciduous-1.svg, azgaar-relief/colored/deciduous-2.svg]
       count: 4
-    jungle: { images: azgaar-relief/colored/palm-1.svg, count: 4 }
-    taiga: { images: azgaar-relief/colored/coniferSnow-1.svg, count: 3, size: 0.9 }
+      size: 2.6
+    jungle: { images: azgaar-relief/colored/palm-1.svg, count: 4, size: 2.6 }
+    taiga: { images: azgaar-relief/colored/coniferSnow-1.svg, count: 3, size: 2.3 }
     swamp:
       images: [azgaar-relief/colored/swamp-1.svg, azgaar-relief/colored/swamp-2.svg]
       count: 3
-      size: 0.8
+      size: 2
     marsh: reeds
     hills:
       images:
@@ -196,7 +198,7 @@ art:
     desert: { images: azgaar-relief/colored/dune-1.svg, count: 2 }
     badlands: rocks
     canyon: { painter: rocks, density: 1.5 }
-    oasis: { images: azgaar-relief/colored/palm-1.svg, count: 2, size: 0.9 }
+    oasis: { images: azgaar-relief/colored/palm-1.svg, count: 2, size: 2 }
     tundra: { painter: grass, density: 0.4 }
     glacier: { painter: rocks, density: 0.4 }
     coast: dots
