@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-11-05
+
 ### Apps
 
 - Map and Systems: **map styles edited in forms**. **Map settings → Style → Make a copy** makes a style of yours from the map's (in your pack _My map styles_) and draws the map in it; **Edit** opens its form under the picker, every part of it (paper and grid, ground, art by terrain, shores, roads and rivers, floors, walls, connections, names, regions) as a folded card, and the map shows each change at once. Systems lists every pack's styles under **Map styles**, with the same form, **Make a copy** and **Remove**; a map open in another tab follows the changes.
