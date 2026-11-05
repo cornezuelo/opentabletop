@@ -125,7 +125,7 @@ export function waysAt(hex: string): WayHere[] {
   )
   const own = editor.map.meta.parent
   const parent = editor.linked.parent
-  const name = editor.linked.ancestors.at(-1)?.name || parent?.meta.name || (own?.map ?? '')
+  const name = editor.linked.ancestors.at(-1)?.name || parent?.meta.name || ''
   const out = (own?.ways ?? [])
     .filter((w) => at(w.entrance))
     .map((w): WayHere => ({

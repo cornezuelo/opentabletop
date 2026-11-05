@@ -104,7 +104,10 @@ describe('sub-maps', () => {
       expect(partyToken(left)?.hex).toBe('10,8')
       // The bar says where the halls hang.
       await loadLinks()
-      expect(editor.linked.ancestors).toEqual([{ id: 'hollowhills1', name: 'The Hollow Hills' }])
+      expect(editor.linked.ancestors).toEqual([
+        { id: 'greymarches1', name: 'The Grey Marches' },
+        { id: 'hollowhills1', name: 'The Hollow Hills' },
+      ])
 
       // The halls are squares with rooms: clicking a cell of the chief's tomb heads for the
       // tomb, and the march goes square to square along the corridor, then room to room, the
@@ -195,6 +198,21 @@ describe('sub-maps', () => {
     expect(editor.map.meta.id).toBe('hollowhills1')
     expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('12,11')
     expect(partyToken(editor.map)?.hex).toBe('12,11')
+  })
+
+  it('a sub-map opened alone has its system, and its way out names the map above', async () => {
+    vi.resetModules()
+    const actions = await import('./actions.svelte')
+    const { exampleMaps } = await import('./examples')
+    const { editor } = await import('../store/editor.svelte')
+    const { loadLinks, waysAt } = await import('./submaps')
+    const { mapSystemId } = await import('../play/systems')
+    await actions.openExampleMap(exampleMaps().find((m) => m.id === 'barrowhalls1')!)
+    await settle()
+    await loadLinks()
+    expect(mapSystemId()).toBe('grey-marches')
+    expect(waysAt('0,3')[0]).toMatchObject({ name: 'The Hollow Hills', cell: '1109' })
+    expect(maps.has('greymarches1')).toBe(true)
   })
 
   it('the trip goes down the Barrow-halls’ stair and back out by it', async () => {

@@ -259,9 +259,15 @@ export async function openMapFile(): Promise<string | null> {
  */
 export async function openExampleMap(example: ExampleMap): Promise<void> {
   let id = example.id
-  if (await getLibraryMap(example.id)) {
+  const entry = await getLibraryMap(example.id)
+  if (entry) {
     // A newer app may bring a newer example than the one this map started from.
     const newer = exampleState(example) === 'newer'
+    // Kept beside another example and left as it came: nothing of the player's to ask about.
+    if (!newer && entry.modified === parseMapFile(example.json).map.meta.modified) {
+      await openLibraryMap(example.id)
+      return
+    }
     const choice = await ask(
       t(newer ? 'library.exampleNewerTitle' : 'library.exampleTitle'),
       t(newer ? 'library.exampleNewer' : 'library.exampleExists'),
@@ -288,12 +294,29 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
     if (!opening) return
     await switchTo(opening)
     rememberExample(id, example)
-    if (id === example.id) await keepSubMaps(id)
+    if (id === example.id) {
+      await keepSubMaps(id)
+      await keepParents(editor.map)
+    }
     if (opening.trip) sayJoinedTrip(opening.trip)
     else await sayCampaign()
   } catch (error) {
     showToast(errorMessage(error), 'error')
   }
+}
+
+/** An example map kept in the library, in the open map's campaign. */
+async function keepExample(example: ExampleMap, map: HexMap): Promise<void> {
+  const kept = { ...map, meta: { ...map.meta, campaign: editor.map.meta.campaign } }
+  await putLibraryMap({
+    id: kept.meta.id,
+    name: kept.meta.name,
+    modified: kept.meta.modified,
+    json: serializeMap(kept),
+    ...(kept.meta.parent && { parent: kept.meta.parent.map }),
+  })
+  rememberExample(kept.meta.id, example)
+  library.version++
 }
 
 /**
@@ -309,18 +332,19 @@ async function keepSubMaps(parent: string): Promise<void> {
       continue
     }
     if (map.meta.parent?.map !== parent || (await getLibraryMap(map.meta.id))) continue
-    map = { ...map, meta: { ...map.meta, campaign: editor.map.meta.campaign } }
-    await putLibraryMap({
-      id: map.meta.id,
-      name: map.meta.name,
-      modified: map.meta.modified,
-      json: serializeMap(map),
-      parent,
-    })
-    rememberExample(map.meta.id, example)
-    library.version++
+    await keepExample(example, map)
     await keepSubMaps(map.meta.id)
   }
+}
+
+/** The example maps above one just opened, kept too, so its ways out lead somewhere. */
+async function keepParents(map: HexMap): Promise<void> {
+  const example = exampleMaps().find((e) => e.id === map.meta.parent?.map)
+  if (!example) return
+  const parent = parseMapFile(example.json).map
+  if (!(await getLibraryMap(parent.meta.id))) await keepExample(example, parent)
+  await keepSubMaps(parent.meta.id)
+  await keepParents(parent)
 }
 
 /**
