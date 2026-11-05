@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-11-05
+
 ### Apps
 
 - Map opens with the **Select** tool, so a first click on the map shows a cell instead of painting it.
