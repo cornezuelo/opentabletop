@@ -19,6 +19,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Map: an example map whose campaign isn't here joins, without asking, the campaign a trip in Travel started by itself when that's the only one of its system here (a message says so); with campaigns you made, it still asks.
 - Map: once an example map joined one of your campaigns (a campaign of the same system, such as the one a trip in Travel plays in), every other example of its campaign asked again; now they join the same one without asking.
 
 ## [0.29.0] - 2026-11-04

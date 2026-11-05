@@ -201,6 +201,58 @@ describe('a map’s campaign', () => {
     )
   })
 
+  it('an example joins, without asking, the only campaign of its system if a trip made it', async () => {
+    const { c, dialog, toasts, actions, editor } = await openMapApp()
+    const { exampleMaps } = await import('./examples')
+    const hills = exampleMaps().find((m) => m.id === 'hollowhills1')!
+    // A trip started in Travel, in a campaign of its own (its id, named after its system).
+    const own = { ...c.createCampaign('trip1', 'Las Marcas Grises'), system: 'grey-marches' }
+    kept.set('trip1', {
+      id: 'trip1',
+      name: own.name,
+      modified: own.modified,
+      json: c.serializeCampaign(own),
+    })
+    const trip = {
+      id: 'trip1',
+      name: 'To Keld',
+      system: 'grey-marches',
+      season: 'spring',
+      cellKm: 10,
+      way: [{ terrain: 'plains', tags: [], connections: [] }],
+      startDay: 1,
+      session: null,
+      campaign: 'trip1',
+    }
+    localStorage.setItem(
+      'opentabletop.travel.trips',
+      JSON.stringify({ version: 1, current: 'trip1', trips: [trip] }),
+    )
+
+    await actions.openExampleMap(hills)
+    await settle()
+    expect(dialog.current).toBeNull()
+    expect(editor.campaign.id).toBe('trip1')
+    expect(kept.has('grey-marches')).toBe(false)
+    expect(toasts.at(-1)?.message).toMatch(/joined “Las Marcas Grises”, .* trip “To Keld”/)
+
+    // A campaign of the system made by hand too: it asks, as before.
+    for (const id of ['hollowhills1', 'barrowhalls1', 'oldmine1'])
+      await actions.removeLibraryMap(id)
+    const mine = { ...c.createCampaign('mine', 'My Marches'), system: 'grey-marches' }
+    kept.set('mine', {
+      id: 'mine',
+      name: mine.name,
+      modified: mine.modified,
+      json: c.serializeCampaign(mine),
+    })
+    const opening = actions.openExampleMap(hills)
+    expect(await answer(dialog, 'cancel')).toMatch(
+      /“My Marches”, “Las Marcas Grises”|“Las Marcas Grises”, “My Marches”/,
+    )
+    await opening
+  })
+
   it('a file whose campaign is here: join it, replace it, or keep it apart', async () => {
     const { c, dialog, actions, example, editor, startWorld } = await openMapApp()
     await actions.openExampleMap(example)

@@ -116,6 +116,8 @@ export const es: Messages = {
     join: vocabulary.es.campaign.whatStaysTitle,
     openedWith: 'Este mapa está en la campaña «{campaign}», con {places}.',
     openedAlone: 'Este mapa está en la campaña «{campaign}», sin otros mapas ni viajes.',
+    joinedTrip:
+      'Este mapa se ha unido a «{campaign}», la campaña que tu viaje «{trip}» de Viajes empezó por sí solo, la única de su sistema aquí: comparte su reloj del mundo, facciones y Oráculo (los del ejemplo se quedan fuera). Para jugarlo aparte, elige «Propia» como su campaña en los Ajustes del mapa.',
     whatStaysTitle: vocabulary.es.campaign.whatStaysTitle,
     whatStays: vocabulary.es.campaign.whatStays,
     bringWorld: vocabulary.es.campaign.bringWorld,

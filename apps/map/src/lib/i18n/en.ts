@@ -117,6 +117,8 @@ export const en = {
     join: vocabulary.en.campaign.whatStaysTitle,
     openedWith: 'This map is in the campaign “{campaign}”, with {places}.',
     openedAlone: 'This map is in the campaign “{campaign}”, with no other maps or trips.',
+    joinedTrip:
+      'This map joined “{campaign}”, the campaign your trip “{trip}” in Travel started by itself, the only one of its system here: it shares its world clock, factions and Oracle (the example’s own are left out). To play it apart, choose “Its own” as its campaign in Map settings.',
     whatStaysTitle: vocabulary.en.campaign.whatStaysTitle,
     whatStays: vocabulary.en.campaign.whatStays,
     bringWorld: vocabulary.en.campaign.bringWorld,

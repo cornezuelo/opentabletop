@@ -261,7 +261,7 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
   }
   try {
     const opened = parseMapFile(example.json)
-    const opening =
+    const opening: (Opening & { trip?: CampaignPlace }) | null =
       id === example.id
         ? await inExampleCampaign(opened)
         : asCopy({ ...opened, map: { ...opened.map, meta: { ...opened.map.meta, id } } })
@@ -269,7 +269,8 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
     await switchTo(opening)
     rememberExample(id, example)
     if (id === example.id) await keepSubMaps(id)
-    await sayCampaign()
+    if (opening.trip) sayJoinedTrip(opening.trip)
+    else await sayCampaign()
   } catch (error) {
     showToast(errorMessage(error), 'error')
   }
@@ -307,25 +308,17 @@ async function keepSubMaps(parent: string): Promise<void> {
  * it joins that campaign, its world kept (the map keeps the land of the factions it has).
  * Alone in it, the example's campaign starts fresh with it. Another example of it joined
  * one of this browser's campaigns before (`joinedBefore`): it joins that one too. Not kept
- * here, while other
- * campaigns are (`closeCampaigns`): asks whether to join one of them or start its own.
- * Null on cancel.
+ * here, while other campaigns are (`closeCampaigns`): asks whether to join one of them or
+ * start its own, unless the only one is a trip's campaign of its own, joined without asking
+ * (`trip`, to say so). Null on cancel.
  */
 async function inExampleCampaign(
   opening: Opening & { campaign: Campaign },
-): Promise<Opening | null> {
+): Promise<(Opening & { trip?: CampaignPlace }) | null> {
   const id = opening.campaign.id
   await saveCurrent().catch(console.error)
   const kept = (await keptCampaign(id)) ?? (await joinedBefore(id, opening.map.meta.id))
-  if (kept && kept.id !== id) {
-    const map: HexMap = {
-      ...opening.map,
-      meta: { ...opening.map.meta, campaign: kept.id },
-      territories: landIn(kept, opening.map.territories),
-    }
-    if (!map.territories) delete map.territories
-    return { map }
-  }
+  if (kept && kept.id !== id) return joining(opening, kept)
   if (!kept) return joinOrOwn(opening)
   const others = (await campaignPlaces(id)).filter(
     (p) => p.app !== 'map' || p.id !== opening.map.meta.id,
@@ -385,12 +378,18 @@ async function closeCampaigns(example: Campaign): Promise<Campaign[]> {
 /**
  * An example whose campaign isn't kept here, while campaigns like it are (another map of
  * the same game, started before): join one of them (the example's world left out; the map
- * keeps the land of the factions it has), or start the example's own campaign. Null on
- * cancel.
+ * keeps the land of the factions it has), or start the example's own campaign. The only one
+ * a trip's campaign of its own, made by itself (decided with the user, 2026-11-05), it joins
+ * that one without asking (`trip`). Null on cancel.
  */
-async function joinOrOwn(opening: Opening & { campaign: Campaign }): Promise<Opening | null> {
+async function joinOrOwn(
+  opening: Opening & { campaign: Campaign },
+): Promise<(Opening & { trip?: CampaignPlace }) | null> {
   const close = await closeCampaigns(opening.campaign)
   if (!close.length) return opening
+  // The only one, a trip's campaign of its own (made by itself, not by hand): no question.
+  const trip = close.length === 1 ? await tripOwning(close[0]!) : undefined
+  if (trip) return { ...joining(opening, close[0]!), trip }
   const name = (c: Campaign) => c.name || t('map.untitled')
   const choice = await ask(
     t('library.exampleCampaignTitle'),
@@ -410,7 +409,14 @@ async function joinOrOwn(opening: Opening & { campaign: Campaign }): Promise<Ope
   )
   if (choice === 'own') return opening
   const to = close.find((c) => c.id === choice)
-  if (!to) return null
+  return to ? joining(opening, to) : null
+}
+
+/**
+ * The opening's map in another campaign kept here, the opening's world left out (the map
+ * keeps the land of the factions it has).
+ */
+function joining(opening: Opening, to: Campaign): Opening {
   const map: HexMap = {
     ...opening.map,
     meta: { ...opening.map.meta, campaign: to.id },
@@ -418,6 +424,14 @@ async function joinOrOwn(opening: Opening & { campaign: Campaign }): Promise<Ope
   }
   if (!map.territories) delete map.territories
   return { map }
+}
+
+/**
+ * The Travel trip a campaign is the campaign of its own of (a trip starts in one made by
+ * itself, with the trip's id), if it is one.
+ */
+async function tripOwning(campaign: Campaign): Promise<CampaignPlace | undefined> {
+  return (await campaignPlaces(campaign.id)).find((p) => p.app === 'travel' && p.id === campaign.id)
 }
 
 /**
@@ -548,6 +562,21 @@ async function sayCampaign(): Promise<void> {
       : t('campaign.openedAlone', { campaign }),
     'info',
     6000,
+  )
+}
+
+/**
+ * Says, in a toast, that the example just opened joined the campaign a trip of Travel made
+ * by itself, without asking (the only one of its system here).
+ */
+function sayJoinedTrip(trip: CampaignPlace): void {
+  showToast(
+    t('campaign.joinedTrip', {
+      campaign: editor.campaign.name || t('map.untitled'),
+      trip: trip.name || t('campaign.trip'),
+    }),
+    'info',
+    8000,
   )
 }
 
