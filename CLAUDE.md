@@ -80,6 +80,7 @@ docs/
   inventory.md              # Inventory design (items, values made of others, conditions that hold by themselves), to review
   world-reactions.md        # The world reacts design (the world's reactions without a trip, world turns as moments), decided
   bestiary.md               # The bestiary and results that make things design (templates, those present), decided
+  map-styles.md             # Map styles design (a beautiful map, the schematic one kept), to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
