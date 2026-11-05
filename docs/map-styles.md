@@ -1,6 +1,6 @@
 # Map styles: a beautiful map, the schematic one kept
 
-Design of the map's redesign (backlog: _Map looks like a beautiful map editor_), **a proposal to review with the user before any code** (2026-11-05). It grows [places.md](places.md) §9 ("simple now, easy to make beautiful later") into a style system.
+Design of the map's redesign (backlog: _Map looks like a beautiful map editor_), proposed 2026-11-05 and **agreed with the user the same day** (§9). It grows [places.md](places.md) §9 ("simple now, easy to make beautiful later") into a style system.
 
 ## 1. What was asked and decided
 
@@ -65,7 +65,20 @@ The style's credits show in Map settings and in the printed map's legend when it
 - **Parchment** (Core): a hexcrawl drawn in ink on paper: art by code in sepia ink with a light wash of each terrain's colour, blended borders, rippled shores, wobbling rivers and roads, a faint grid, Fell captions. The Grey Marches' default.
 - **Classic dungeon** (Core): Dungeon Scrawl's look for floors: white floor with a grid, thick black walls, a hatched band outside, doors and stairs as drawn symbols. The Barrow-halls' and the old mine's default.
 - **Cave** (Core): rough rock edges and a stippled band; the old mine could use it.
-- **Illustrated** (the Grey Marches, later): the same as Parchment but coloured, and with an image set if one fits.
+- **Painted** (Core): an Inkarnate-like painted map (the look the user had in mind): rich colours blended into each other, paper and brush textures from noise, mountains and trees shaded with a lit and a shadowed side, deep and shallow water, soft shores, no grid; drawn by code first, with images from a bundled set where one fits (phase 3). Both it and Parchment are wanted (user, 2026-11-05: "voy a querer ambos").
+- **Village** (Core): for hybrid maps (§6b).
+
+Hextml's look (coloured symbols on flat cells) is close to today's Schematic style, so it isn't a style of its own.
+
+## 6b. Hybrid maps: towns and villages
+
+A hybrid map (a square map with ground outside and buildings inside, places.md §10) uses both halves of a style at once: the **ground** painters outside (cobbles, streets, grass, gardens, water, a well as an icon) and the **floors and walls** inside the buildings. What is new for a town is how a building looks **from outside**: seen from above, a town shows **roofs**, not floors. Proposed:
+
+- A style says how a building (a region played as one place, on floor) is drawn from outside: its **roof** (tiles or thatch, a ridge line, a shadow cast on the street) or its **inside** (floor and walls, as a dungeon).
+- In Map's editing, a **See inside** switch shows floors and walls to draw them; in play, a building shows its roof unless the party is in it (or, a system's choice, has been in it), so the village reads as a village and a house opens when entered.
+- The Grey Marches' village (the backlog's _hybrid example_) is drawn in the **Village** style with phase 4.
+
+To confirm with the user: the roofs, and whether a visited house stays open.
 
 Each shows in the manual's Map pages with screenshots, and the Grey Marches' page says which map uses which.
 
@@ -82,17 +95,18 @@ If a second app ever draws maps (Travel's way, Campaign's overview), the resolve
 ## 8. Phases
 
 1. **Styles as data**: `kind: style`, the Schematic style, today's settings moved into it with a migration (maps look the same); Map settings' **Style**.
-2. **Illustrated cells**: the painters, blended borders, shores, hand-drawn paths; **Parchment**; the Grey Marches' map in it.
+2. **Illustrated cells**: the painters, blended borders, shores, hand-drawn paths; **Parchment** (the Grey Marches' default) and **Painted**; coordinates hidden in both.
 3. **Images**: fills and stamps from images, a first bundled set once its licence is checked.
-4. **Dungeons and connections**: floors, walls' outside bands, connection and way symbols; **Classic dungeon** and **Cave**; the Barrow-halls and the mine in them.
+4. **Dungeons, towns and connections**: floors, walls' outside bands, roofs (§6b), connection and way symbols; **Classic dungeon**, **Cave** and **Village**; the Barrow-halls and the mine in them, and the hybrid example.
 5. **Names moved by hand** (fourth round's (8)), with the texts' layer.
 
 Each phase with its manual pages (Map's settings, the technical **Kinds** page for `kind: style`), its line in the changelog, and the bundled packs using it.
 
-## 9. To decide with the user
+## 9. Decided with the user (2026-11-05)
 
-1. **Styles as a pack kind** (a system brings its own, translated, shareable) rather than settings inside each map only. Proposed: a kind.
-2. **Parchment as the Grey Marches' default**, the Schematic one a click away; or Schematic stays the default for every map and styles are opt-in.
-3. **The grid's coordinates**: today every cell shows its `0101`; in a pretty style, hidden by default and shown on hover and in the panel?
-4. **Which first**: illustrated hexes (phase 2) before dungeons (phase 4), as agreed, or dungeons first since the Barrow-halls show the most schematic.
-5. **Look references**: which maps the user has in mind for the hexes (an old-school hexcrawl in ink, Hextml's coloured symbols, a painted Inkarnate look). Proposed: ink on parchment with a colour wash first, since it is the one code draws best.
+1. **Styles are a pack kind** (`kind: style`).
+2. **Parchment is the Grey Marches' default**, the Schematic one a click away.
+3. **Coordinates** (left to Claude): hidden by default in Parchment and Painted, shown in the cell's panel and the line under the map; a style's grid setting shows them always.
+4. **Which first**: the user doesn't mind; illustrated cells first, as proposed.
+5. **The look**: both an ink hexcrawl (**Parchment**) and an Inkarnate-like painted one (**Painted**) ("inkarnate es lo que tenía pensado… no descarto esa tinta clásica"; "voy a querer ambos"). Hextml's look is roughly today's.
+6. **Hybrid maps**: roofs from outside, the inside when entered (§6b), proposed, to confirm.
