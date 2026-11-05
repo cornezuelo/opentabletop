@@ -151,6 +151,7 @@ export function failedText(
       return formatClock({ hour: Math.floor(minutes / 60), minute: minutes % 60 })
     }
     if (typeof v === 'string' && full(path) === 'place.terrain') return terrainName?.(v) ?? v
+    if (typeof v === 'number' && full(path) === 'trip.marched') return durationText(v * 60)
     // Hours marched and the like, to two decimals at most (8.01, not 8.01111111111095).
     if (typeof v === 'number') return String(Math.round(v * 100) / 100)
     return String(v)
@@ -292,7 +293,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const told = changed ? `${done} (${changed})` : done
       if (d.checks !== 0) return told
       const own = context.actionNothing?.(id)
-      if (own === '') return told
+      // What it changed is what happened: the generic words are for an action that did nothing.
+      if (own === '' || (own === undefined && changed)) return told
       const terrain =
         typeof d.terrain === 'string'
           ? (context.terrainName?.(d.terrain) ?? d.terrain.replaceAll('-', ' '))
@@ -417,6 +419,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
     case 'DAY_STARTED':
       return t('journal.day', { day: Number(d.day) - startDay + 1 })
+    case 'ROUTE_BLOCKED':
+      return d.to === undefined
+        ? t('journal.ROUTE_BLOCKED')
+        : t('journal.routeBlockedAt', { hex: hexLabel(String(d.to)) })
     case 'LIMIT_REACHED': {
       const path = String(d.path)
       const key = path.replace(/^party\.(stats|resources)\./, '')

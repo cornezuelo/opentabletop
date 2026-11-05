@@ -1,5 +1,5 @@
 import { loadPacks } from '@open-tabletop/oracle-engine'
-import { travelSystems, type JournalEntry } from '@open-tabletop/session'
+import { entryLevel, travelSystems, type JournalEntry } from '@open-tabletop/session'
 import { corePack, coreSystem, greyMarchesPack } from '../../session/src/core.testing'
 import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
@@ -126,7 +126,7 @@ describe('journal lines', () => {
     expect(
       line('TRAVEL_STOPPED', { reason: 'conditions', action: 'march', because }, { dayValues }),
     ).toBe(
-      '“Forage for food” stops here: the day’s march (hours) is 8.01: it needs under 8; the hour is 21:30: it needs under 20:00; By torchlight doesn’t hold; Morale is 0: it needs 1 or more.',
+      '“Forage for food” stops here: the day’s march is 8 h 01, and must be under 8 h; the hour is 21:30, and must be under 20:00; “By torchlight” isn’t in effect; Morale is 0, and must be 1 or more.',
     )
     // An `unless` that held: what it read.
     const unless = {
@@ -182,6 +182,16 @@ describe('journal lines', () => {
     const gm = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!.rules
     expect(actionNothingOf(gm, 'forage', 'en')).toMatch(/^nothing to forage on \{terrain\}/)
     expect(actionNothingOf(gm, 'eat', 'en')).toBe('')
+    // No words of its own, and it changed something: that's what happened (a camp's rest).
+    expect(actionNothingOf(gm, 'camp', 'en')).toBeUndefined()
+    expect(
+      line('ACTION_TAKEN', {
+        action: 'forage',
+        checks: 0,
+        terrain: 'hills',
+        effects: { 'party.stats.morale': 1 },
+      }),
+    ).toBe('Forage for food (Morale +1)')
     // What its steps changed is told either way.
     const eaten = { ...taken, minutes: 0, effects: { 'party.values.food': -1 } }
     expect(line('ACTION_TAKEN', eaten, { actionNothing: () => '' })).toBe(
@@ -197,10 +207,10 @@ describe('journal lines', () => {
       'Supplies for the day: Food −1 (4 left)',
     )
     expect(line('LIMIT_REACHED', { path: 'party.values.food', limit: 'min', value: 0 })).toBe(
-      'Food can’t go lower than 0',
+      'Food stops at 0, its minimum',
     )
     expect(line('LIMIT_REACHED', { path: 'party.stats.morale', limit: 'max', value: 5 })).toBe(
-      'Morale can’t go higher than 5',
+      'Morale stops at 5, its maximum',
     )
     expect(
       line('NIGHT_WITHOUT', {
@@ -387,7 +397,7 @@ describe('the journal’s detail, and its filter', () => {
   it('tells what happened behind in words', () => {
     expect(journal.slice(0, 3).map((e) => entryText(e, context))).toEqual([
       'Moment: Day: dusk',
-      'Ambush doesn’t come up: the place’s danger is 1: it needs 2 or more',
+      'Ambush doesn’t come up: the place’s danger is 1, and must be 2 or more',
       'Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7; gm/wolves: 1d6 → 3  [3]',
     ])
     expect(entryText(journal[4], context)).toBe('Food: 5 → 3')
@@ -471,5 +481,33 @@ describe('durations', () => {
     expect(durationText(59.7)).toBe('1 h')
     expect(durationText(90)).toBe('1 h 30')
     expect(durationText(45)).toBe('45 min')
+  })
+})
+
+describe('those present, named', () => {
+  const t = translator(() => 'en')
+  const { registry } = loadPacks([...corePack(), ...greyMarchesPack()])
+  const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+  const name = memberNamer(system, [], 'en', t)
+
+  it('by their template, one of their values, or all of them', () => {
+    expect(name('present.pack-leader')).toBe('Pack leader')
+    expect(name('present.grey-wolf.conditions.routed')).toBe('Grey wolf: Routed')
+    expect(name('present.all.values.health')).toBe('Those here: Health')
+  })
+
+  it('and a blocked way says where, its stop kept for the detail', () => {
+    const blocked = entry(0, 'ROUTE_BLOCKED', { data: { from: '1,0', to: '2,0' } })
+    const context = {
+      t,
+      startDay: 1,
+      hexLabel: (h: string) => `Cell ${h}`,
+      nameOf: (id: string) => id,
+    }
+    expect(entryText(blocked, context)).toMatch(/^The way on to Cell 2,0 is blocked/)
+    const stop = entry(0, 'TRAVEL_STOPPED', { data: { reason: 'blocked' } })
+    expect(entryLevel(stop)).toBe('detail')
+    expect(entryLevel(entry(0, 'LIMIT_REACHED', { data: { limit: 'max' } }))).toBe('detail')
+    expect(entryLevel(entry(0, 'LIMIT_REACHED', { data: { limit: 'min' } }))).toBe('mechanics')
   })
 })

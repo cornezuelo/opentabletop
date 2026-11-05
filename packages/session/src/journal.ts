@@ -67,7 +67,11 @@ const WORLD_CODES = new Set(['WORLD_EVENT', 'HOLIDAY', 'CLOCK_FILLED', 'WORLD_TU
 
 /** A journal line's level (older journals' lines have theirs too: it's read from the code). */
 export function entryLevel(e: Line): JournalLevel {
-  return STORY.has(e.code) ? 'story' : DETAIL.has(e.code) ? 'detail' : 'mechanics'
+  if (STORY.has(e.code)) return 'story'
+  // A healing that finds nothing to heal, and the stop whose reason the line before it told.
+  if (e.code === 'LIMIT_REACHED' && e.data?.limit === 'max') return 'detail'
+  if (e.code === 'TRAVEL_STOPPED' && e.data?.reason === 'blocked') return 'detail'
+  return DETAIL.has(e.code) ? 'detail' : 'mechanics'
 }
 
 /** What a journal line is about. */

@@ -1,4 +1,9 @@
-import { partySource, type CharacterState, type PartyFrom } from '@open-tabletop/character-engine'
+import {
+  lookupTemplates,
+  partySource,
+  type CharacterState,
+  type PartyFrom,
+} from '@open-tabletop/character-engine'
 import { idName, itemName, sheetText } from '@open-tabletop/character-ui'
 import {
   characterId,
@@ -15,7 +20,7 @@ export const memberLabel = (member: CharacterState): string => member.name || me
 /**
  * A member's value or condition in words, for the journal and tooltips:
  * `characters.kael.values.health` → "Kael: Health", `party.members.…` → "Everyone: …",
- * `acting.…` → "Whoever acts: …". Undefined for any other path, and for every path while
+ * `acting.…` → "Whoever acts: …", `present.all.…` → "Those here: …". Undefined for any other path, and for every path while
  * the party has no characters.
  */
 export function memberNamer(
@@ -28,7 +33,22 @@ export function memberNamer(
   /** The party's own character, for its items' names. */
   party?: CharacterState,
 ): (path: string) => string | undefined {
+  const template = system.bestiary && lookupTemplates(system.bestiary)
   return (path) => {
+    // Those present: copies of a template ("Pack leader"), one of their values, or all of them.
+    const [, whom, presentPart, presentWhat] =
+      /^present\.([^.]+)(?:\.(values|conditions)\.(.+))?$/.exec(path) ?? []
+    if (whom) {
+      const found = whom === 'all' ? undefined : template?.(whom)?.template
+      const name =
+        whom === 'all' ? t('members.present') : (sheetText(found?.name, locale) ?? idName(whom))
+      if (!presentPart) return name
+      const sheets = system.templateSheets ?? {}
+      const sheet = sheets[found?.sheet ?? ''] ?? Object.values(sheets)[0]
+      const own =
+        presentPart === 'values' ? sheet?.values[presentWhat] : sheet?.conditions[presentWhat]
+      return `${name}: ${sheetText(own?.name, locale) ?? idName(presentWhat)}`
+    }
     // The world's: a faction's value ("The Vale: Reputation"), a clock of the world clock.
     const [, faction, facPart, facWhat] =
       /^factions\.([^.]+)\.(values|conditions|territory)\.?(.*)$/.exec(path) ?? []
