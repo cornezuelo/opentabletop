@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * The Characters app's Bestiary: a system's templates, shown as they are (edited in
- * Systems), and copies of one as roster characters, each with its own rolls.
+ * Packs), and copies of one as roster characters, each with its own rolls.
  */
 async function open() {
   vi.resetModules()
@@ -30,10 +30,10 @@ describe('the bestiary in Characters', () => {
     expect(leader.tags).toEqual(expect.arrayContaining(['beast', 'pack', 'leader']))
   })
 
-  it('links a template to where it is edited: its system’s Bestiary tab in Systems', async () => {
+  it('links a template to where it is edited: its system’s Bestiary tab in Packs', async () => {
     const { templateUrl } = await open()
     expect(templateUrl({ id: 'grey-marches' }, 'grey-wolf')).toMatch(
-      /systems\/#\/system\/grey-marches\/bestiary\/grey-wolf$/,
+      /packs\/#\/system\/grey-marches\/bestiary\/grey-wolf$/,
     )
     expect(templateUrl({ id: 'grey-marches' })).toMatch(/#\/system\/grey-marches\/bestiary$/)
   })

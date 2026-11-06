@@ -23,7 +23,7 @@ Cada texto visible de las aplicaciones sale de un diccionario; no hay texto escr
 | Aplicación Viajes                                                              | `apps/travel/src/lib/i18n/` (idiomas en `index.ts`)                                     |
 | Aplicación Campaña                                                             | `apps/campaign/src/lib/i18n/` (idiomas en `index.ts`)                                   |
 | Aplicación Personajes                                                          | `apps/characters/src/lib/i18n/` (idiomas en `index.ts`)                                 |
-| Aplicación Sistemas                                                            | `apps/systems/src/lib/i18n/` (idiomas en `index.ts`)                                    |
+| Aplicación Packs                                                               | `apps/packs/src/lib/i18n/` (idiomas en `index.ts`)                                      |
 | Panel de tirada, historial                                                     | `packages/oracle-ui/src/i18n/`                                                          |
 | Biblioteca de packs, editor YAML                                               | `packages/pack-ui/src/i18n/`                                                            |
 | Panel del viaje                                                                | `packages/travel-ui/src/i18n/`                                                          |

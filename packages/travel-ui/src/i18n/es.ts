@@ -411,7 +411,7 @@ export const es: Messages<typeof en> = {
     cellKmHelp:
       'Cuántos km mide una casilla del camino, cuando el sistema no lo fija: con las velocidades del sistema, dice cuánto se tarda en cada casilla.\n• `10` — casillas pequeñas: varias en un día de marcha\n• `30` — casillas grandes: más o menos una al día para una forma de viajar que hace 30 km',
     cellKmSystem:
-      'El sistema fija la escala (`travel.cellKm` en sus reglas): todos los viajes con él se juegan a esos km por casilla. Se cambia en el sistema (Sistemas → Reglas).',
+      'El sistema fija la escala (`travel.cellKm` en sus reglas): todos los viajes con él se juegan a esos km por casilla. Se cambia en el sistema (Packs → Reglas).',
     hex: 'Casilla {n}',
     here: 'aquí',
     terrain: vocabulary.es.terms.terrain,

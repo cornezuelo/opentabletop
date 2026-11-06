@@ -1,6 +1,6 @@
 /**
  * What the main area shows, mirrored in the URL hash so views can be linked:
- * #/system/<id>/play (older links to the editing tabs, now in the Systems app, open play);
+ * #/system/<id>/play (older links to the editing tabs, now in the Packs app, open play);
  * #/trip/<id> opens a saved trip (the Characters app's links), then shows its system.
  */
 export type View =

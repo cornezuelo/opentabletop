@@ -17,7 +17,7 @@ export type PlaySystem = TravelSystem
 
 let loaded: { registry: Registry; systems: TravelSystem[] } | null = null
 
-/** Systems of the loaded packs, recomputed when the packs change (e.g. a user pack). */
+/** Packs of the loaded packs, recomputed when the packs change (e.g. a user pack). */
 function load(): TravelSystem[] {
   const registry = library.registry
   if (loaded?.registry === registry) return loaded.systems

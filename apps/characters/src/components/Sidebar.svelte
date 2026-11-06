@@ -136,8 +136,8 @@
   )
 
   /**
-   * Templates are made in Systems: at the Bestiary tab of the system of the template shown,
-   * else of the first system with one, else Systems itself.
+   * Templates are made in Packs: at the Bestiary tab of the system of the template shown,
+   * else of the first system with one, else Packs itself.
    */
   const newTemplateUrl = $derived.by(() => {
     const shown =
@@ -146,7 +146,7 @@
         s.bestiary?.some((b) => nav.view.name === 'bestiary' && b.id === nav.view.bestiary),
       )
     const system = shown || systems.list.find((s) => s.bestiary?.length)
-    return system ? templateUrl(system) : appUrl('systems')
+    return system ? templateUrl(system) : appUrl('packs')
   })
 
   function open(e: ListEntry) {
@@ -243,7 +243,7 @@
       </p>
     {/each}
   </div>
-  <a class="side-link" href={appUrl('systems')}>{t('nav.makeSystems')}</a>
+  <a class="side-link" href={appUrl('packs')}>{t('nav.makeSystems')}</a>
 </Sidebar>
 
 <style>

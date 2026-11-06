@@ -68,7 +68,7 @@
   })
 
   // Redraw everything when the style the map is drawn in changes in the packs (edited in
-  // Map settings, or in Systems in another tab); not when other packs change.
+  // Map settings, or in Packs in another tab); not when other packs change.
   let drawnStyle = ''
   $effect(() => {
     void editor.meta.style

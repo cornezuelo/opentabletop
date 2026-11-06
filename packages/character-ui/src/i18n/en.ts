@@ -95,7 +95,7 @@ export const en = {
   },
   origin: {
     line: 'Sheet: {sheet} · {system}',
-    help: "What this sheet has (its values, conditions and kinds of relation) is its system's to say: only what it declares is shown. To add or change one, edit the sheet in the Systems app (a bundled system is duplicated first).",
-    edit: 'Edit in Systems ↗',
+    help: "What this sheet has (its values, conditions and kinds of relation) is its system's to say: only what it declares is shown. To add or change one, edit the sheet in the Packs app (a bundled system is duplicated first).",
+    edit: 'Edit in Packs ↗',
   },
 }

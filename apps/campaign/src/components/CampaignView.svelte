@@ -87,7 +87,7 @@
       <dt>{t('campaign.system')}<InfoTip markdown={t('campaign.systemHelp')} /></dt>
       <dd>
         {campaign.system ? systemName(system, getLocale()) : t('campaign.noSystem')}
-        <a href="{appUrl('systems')}#/system/{encodeURIComponent(system.id)}"
+        <a href="{appUrl('packs')}#/system/{encodeURIComponent(system.id)}"
           >{t('campaign.editSystem')}</a
         >
       </dd>

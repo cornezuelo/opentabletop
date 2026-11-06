@@ -39,7 +39,7 @@ export function examplesOf(
         const map = (JSON.parse(json) as { maps?: { id: string; name?: string }[] }).maps?.[0]
         if (map) out.push({ id: map.id, name: map.name ?? map.id, json, pack, path, system })
       } catch {
-        // Not JSON: the system's page in the Systems app says what's wrong with it.
+        // Not JSON: the system's page in the Packs app says what's wrong with it.
       }
     }
   return out

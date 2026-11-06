@@ -23,7 +23,7 @@ export function deepLinkUrl(hexLabel?: string): string {
 async function follow(hash: string): Promise<void> {
   const example = parseExampleLink(hash)
   if (example) {
-    // A system's example map (e.g. from its page in the Systems app).
+    // A system's example map (e.g. from its page in the Packs app).
     const found = exampleMaps().find((m) => m.pack === example.pack && m.path === example.path)
     if (found) await openExampleMap(found)
     else

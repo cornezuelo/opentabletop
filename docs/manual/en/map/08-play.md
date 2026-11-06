@@ -8,7 +8,7 @@ Just the party token and its trail: click a cell to place the party, click anoth
 
 ## With rules
 
-The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app](../travel/01-getting-started.md) plays the same systems without a map, and the [Systems app](../systems/01-getting-started.md) edits them.
+The Travel Engine runs the trip and the Oracle rolls the checks. The [Travel app](../travel/01-getting-started.md) plays the same systems without a map, and the [Packs app](../packs/01-getting-started.md) edits them.
 
 1. Check the **system**: its campaign's (shared by the maps and trips in it), shown here and chosen in **Map settings → Campaign → System**: the Generic rules (Core's, when the campaign chooses none), or another pack's system (e.g. the Grey Marches). A system without travel rules plays no trips: Play says so, and its world, oracle and factions still play. It brings the travel rules, the tables they roll, the calendar and the weather. On one line, the system's name, the season to start in (or, with the world clock running, its date: no season to choose) and **New trip**, which restarts time, the party's sheet and journal, keeping the party where it is.
 2. Click a cell to place the party, then click the **destination**: the route is drawn.
@@ -34,7 +34,7 @@ In Play they are drawn on the cells where they were made, from the trip: they ar
 
 **Click** one of those present on the map to see its sheet: the trip panel's **Party** tab opens with its card unfolded in **Here** (one left behind elsewhere, under _left behind elsewhere_). **Drag** it to move it in the trip, to another cell or room: a wolf that circles round, a guard that steps aside. The journal says so (_Grey wolf moved to The Old Bridge by hand_); dragged onto the party's place it's among those present again, and put somewhere else it stays there until the party comes, even if its template's copies go once left behind (that's for the party leaving them, not you placing them). Dragging is undone by dragging back, not with Ctrl+Z, and does nothing while the **Tokens** layer is locked.
 
-The bundled **Grey Marches** show all of it, on their example map (**Maps → Example maps**): weather by season, getting lost off roads, encounters by terrain, region, danger and time of day, a toll on the bridge, a ford rolled on an oracle, a boat on the lake, and checks with no table — the trip stops at the standing stones (`landmark`) until you describe the place and press **Continue**. See [The Grey Marches](../packs/02-grey-marches.md).
+The bundled **Grey Marches** show all of it, on their example map (**Maps → Example maps**): weather by season, getting lost off roads, encounters by terrain, region, danger and time of day, a toll on the bridge, a ford rolled on an oracle, a boat on the lake, and checks with no table — the trip stops at the standing stones (`landmark`) until you describe the place and press **Continue**. See [The Grey Marches](../bundled/02-grey-marches.md).
 
 Terrain, roads and rivers, the cell's tags, fields and region, the season and today's weather all reach the travel rules and the tables, so a system can make forests slower or roads safe from getting lost. What each system does is in its pack: see [Roads, rivers, walls and borders](04-roads-and-rivers.md#what-roads-and-rivers-do-when-you-travel).
 

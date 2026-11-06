@@ -1,6 +1,6 @@
 /**
  * Starting points for the definitions of a system, valid as soon as they are created: the
- * Oracle's New definition and the Systems app use them.
+ * Oracle's New definition and the Packs app use them.
  */
 /** Rules of a system a pack can hold (one of each): its roll modes, travel rules, bindings. */
 export const SYSTEM_KINDS = [
@@ -17,7 +17,7 @@ export type SystemKind = (typeof SYSTEM_KINDS)[number]
  * Starting points for a travel system: rules like the generic ones with one weather
  * check, and bindings to fill in (which table answers each check).
  */
-/** Each kind's starting point; `factions` only from the Systems app, which writes their sheet too. */
+/** Each kind's starting point; `factions` only from the Packs app, which writes their sheet too. */
 export const SYSTEM_TEMPLATES: Record<
   SystemKind | 'factions' | 'clocks' | 'world' | 'items' | 'bestiary' | 'places' | 'land',
   (id: string) => Record<string, unknown>
@@ -174,7 +174,7 @@ export const SYSTEM_TEMPLATES: Record<
       torch: { name: 'Torch', tags: ['light'] },
     },
   }),
-  // Two templates to rename, on Core's character sheet (the Systems app puts the system's own):
+  // Two templates to rename, on Core's character sheet (the Packs app puts the system's own):
   // rolls in braces are rolled for each copy.
   bestiary: (id) => ({
     kind: 'bestiary',

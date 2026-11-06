@@ -35,7 +35,7 @@
 
   let creating = $state(false)
 
-  // The system last chosen here, in Travel or in Systems: opened without a view, the Oracle
+  // The system last chosen here, in Travel or in Packs: opened without a view, the Oracle
   // starts on its pack; a pack with a system chosen here becomes the last system.
   const systems = $derived(travelSystems(workspace.registry).systems)
   const lastPack = location.hash ? undefined : systems.find((s) => s.id === readLastSystem())?.pack

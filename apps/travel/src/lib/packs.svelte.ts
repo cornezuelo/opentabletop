@@ -14,7 +14,7 @@ export const library = new PackLibrary(bundledPacks, {
  * Travel systems of the loaded packs (Core's Generic rules first), only those with travel
  * rules: a trip without a map is all travel. Recomputed when packs change.
  */
-class Systems {
+class Packs {
   list: TravelSystem[] = $derived(travelSystems(library.registry).systems.filter(travels))
 
   /** A system by id (`generic`, from older links, is Core's). */
@@ -24,4 +24,4 @@ class Systems {
   }
 }
 
-export const systems = new Systems()
+export const systems = new Packs()

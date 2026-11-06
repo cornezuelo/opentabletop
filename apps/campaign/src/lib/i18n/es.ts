@@ -52,7 +52,7 @@ export const es: Messages<typeof en> = {
     systemHelp:
       'El sistema de juego con el que se juegan sus mapas y viajes: su calendario, sus relojes de progreso, su clima y sus facciones. Se elige en los ajustes de un mapa (o al empezar un viaje en ella), ya que también es de ellos.',
     noSystem: 'El de por defecto (el de Core)',
-    editSystem: 'Editar el sistema en la aplicación Sistemas →',
+    editSystem: 'Editar el sistema en la aplicación Packs →',
     notes: 'Notas',
     notesHelp:
       'Su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre. La aplicación de notas se elige en **Preferencias**. Su historia y su trasfondo viven allí: una campaña guarda solo aquello con lo que juegan las reglas.',

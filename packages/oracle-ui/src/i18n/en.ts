@@ -133,7 +133,7 @@ export const en = {
     tagNot: 'Hiding what has the tag {tag}; click to forget the tag',
     noTags: 'No definition here has tags.',
   },
-  /** Where something is used (Systems' Used by, the Oracle's Rolled by). */
+  /** Where something is used (Packs' Used by, the Oracle's Rolled by). */
   uses: {
     how: {
       reads: 'reads it',

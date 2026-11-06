@@ -39,7 +39,7 @@ describe('the Party tab', () => {
     await trip.create('grey-marches', 'spring')
     // A party played as a whole: its stats are plain numbers, said by no one.
     expect(text()).toContain('Sheet: The Company · The Grey Marches')
-    expect(text()).toContain('Edit in Systems ↗')
+    expect(text()).toContain('Edit in Packs ↗')
     expect(text()).not.toContain('the highest')
 
     const rules = s.partyOf(trip.system)

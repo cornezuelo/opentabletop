@@ -8,7 +8,7 @@
   import { library, systems } from '../lib/packs.svelte'
   import { trip } from '../lib/trip.svelte'
 
-  /** One system: a trip with it. Its rules are edited in the Systems app. */
+  /** One system: a trip with it. Its rules are edited in the Packs app. */
   let { id }: { id: string } = $props()
 
   const system = $derived(systems.get(id))
@@ -23,7 +23,7 @@
   <article class="system">
     <header>
       <h1 class="page-title">{systemName(system, getLocale())}</h1>
-      <a class="edit" href={`${appUrl('systems')}#/system/${encodeURIComponent(id)}/rules`}
+      <a class="edit" href={`${appUrl('packs')}#/system/${encodeURIComponent(id)}/rules`}
         >{t('nav.editInSystems')}</a
       >
     </header>

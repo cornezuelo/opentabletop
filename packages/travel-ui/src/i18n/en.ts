@@ -417,7 +417,7 @@ export const en = {
     cellKmHelp:
       "How many km a cell of the way measures, when the system doesn't set it: with the system's speeds, it says how long each cell takes.\n• `10` — small cells: several to a day's march\n• `30` — large cells: about one a day for a way of travelling that makes 30 km",
     cellKmSystem:
-      'The system sets the scale (`travel.cellKm` in its rules): every trip with it is played at that many km a cell. Change it in the system (Systems → Rules).',
+      'The system sets the scale (`travel.cellKm` in its rules): every trip with it is played at that many km a cell. Change it in the system (Packs → Rules).',
     hex: 'Cell {n}',
     here: 'here',
     terrain: vocabulary.en.terms.terrain,

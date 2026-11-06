@@ -2,7 +2,7 @@
 
 The campaigns of this browser. It is one app of the OpenTabletop ecosystem: read the root `CLAUDE.md` first.
 
-**Responsibility:** what is going on in each campaign (the world its maps and trips share): make one (a name, a system, the day it starts, its clock and factions), name it, link its notes, play its world clock (date, moving time on, events, progress clocks, the world's weather), its factions (their sheets, their land on a map of the campaign as a minimap, world turns on that map), its timeline, the maps and trips in it with links to open them, delete it when nothing is in it. Maps join a campaign in Map, trips in Travel; the system is edited in Systems. Design: [`docs/campaigns.md`](../../docs/campaigns.md).
+**Responsibility:** what is going on in each campaign (the world its maps and trips share): make one (a name, a system, the day it starts, its clock and factions), name it, link its notes, play its world clock (date, moving time on, events, progress clocks, the world's weather), its factions (their sheets, their land on a map of the campaign as a minimap, world turns on that map), its timeline, the maps and trips in it with links to open them, delete it when nothing is in it. Maps join a campaign in Map, trips in Travel; the system is edited in Packs. Design: [`docs/campaigns.md`](../../docs/campaigns.md).
 
 ## Architecture
 

@@ -414,7 +414,7 @@
     padding: 2px 4px 10px;
   }
 
-  /* Two columns, as Systems' cards: Only if · Unless, Sets · Changes, then the limits. */
+  /* Two columns, as Packs' cards: Only if · Unless, Sets · Changes, then the limits. */
   .more-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

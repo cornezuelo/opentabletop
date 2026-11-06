@@ -22,7 +22,7 @@ Each app uses it: Campaign opens it; Map opens a map of it when it starts (the l
 ## The screen
 
 - **Header**: the app switcher (nine dots: every app, Campaign first, your data's backups and exports, and links to the source code, to report a problem and to what's new), **Playing** ([above](#the-campaign-you-play-in)), the gear (**Preferences**: language and notes app, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the campaigns list and the help column away, and bring them back.
-- **Campaigns** (left): **New campaign**, a search box and the campaigns this browser keeps, the last changed first, each with its system and, once its world clock goes, its date. Under the list, **Make or edit systems** opens the Systems app.
+- **Campaigns** (left): **New campaign**, a search box and the campaigns this browser keeps, the last changed first, each with its system and, once its world clock goes, its date. Under the list, **Make or edit systems** opens the Packs app.
 - **The campaign** (center): the one chosen in the list, with its tabs.
 
 Labels underlined with dots have an explanation: click one and the help column opens on it.
@@ -61,7 +61,7 @@ When the last map or trip has moved, the campaign it left is deleted.
 
 At the top, its **name** (click it to change it; every app names the campaign with it) and **⋯** with **Delete**. Under them:
 
-- **System**: the game system its maps and trips are played with, with **Edit the system in Systems →**. It's chosen in a map's **Map settings → Campaign** (or when a trip in it starts), since it is theirs too ([Campaigns](../map/01-getting-started.md#campaigns)).
+- **System**: the game system its maps and trips are played with, with **Edit the system in Packs →**. It's chosen in a map's **Map settings → Campaign** (or when a trip in it starts), since it is theirs too ([Campaigns](../map/01-getting-started.md#campaigns)).
 - **Notes**: its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it.
 - With a trip going on in the campaign, a line says which one, with **Open**. One trip goes on in a campaign at a time, since its time is the campaign's ([One trip at a time](../travel/02-playing.md#the-campaign)).
 
@@ -84,7 +84,7 @@ The world clock, the same one Map's **World** panel shows for a map of the campa
 
 Here there is no party, so moving time on only moves the world: its events come due, its weather is rolled day by day, its clocks do what the system says when they fill, and the factions' turns that come due are played, their land changing on the map chosen in [Factions](02-factions.md). A trip going on in the campaign (on a map, or in Travel) asks what its party did on its next step: **Live it** (it waits until the new date, and a clock that filled here or a world turn played here is heard then, the journal saying what each turn did, if its system names them: [Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system)) or **Skip it** (it's there on that date just as it was, and only the world has changed: a way to jump a couple of seasons with the party untouched). While a trip goes on, the clock can't go back, and the world's weather is the trip's (it isn't shown here).
 
-When the world waits for you (a reaction's pause or question, [World](../systems/11-world.md)), **The world waits: …** shows on every tab, with **Go on** or the question's choices; nothing moves the world (here, on a map or in a trip) until you answer, and then the rest goes on.
+When the world waits for you (a reaction's pause or question, [World](../packs/11-world.md)), **The world waits: …** shows on every tab, with **Go on** or the question's choices; nothing moves the world (here, on a map or in a trip) until you answer, and then the rest goes on.
 
 ### Factions
 
@@ -92,7 +92,7 @@ The powers of the campaign's world, their sheets and their land on each of its m
 
 ### Timeline
 
-What happened in the world, newest first: events that came due, holidays and moons, full clocks, the factions' turns, what the world did by itself ([World](../systems/11-world.md)), the clock going back, and your own notes (**Add**). The same timeline as the World panel's, in a page of its own. It's the world's story, not the party's: an event comes due on its day wherever the party is (_Market day in Ashford_ is there whether you're in Ashford or not), and what the party does on a trip (cells, checks, encounters, places found) goes to the trip's **journal** instead. Only a trip's highlights come here too, a short line each: arrivals (_The party reaches 0707_), places found, checks that stopped the trip (an encounter) and characters who left the party.
+What happened in the world, newest first: events that came due, holidays and moons, full clocks, the factions' turns, what the world did by itself ([World](../packs/11-world.md)), the clock going back, and your own notes (**Add**). The same timeline as the World panel's, in a page of its own. It's the world's story, not the party's: an event comes due on its day wherever the party is (_Market day in Ashford_ is there whether you're in Ashford or not), and what the party does on a trip (cells, checks, encounters, places found) goes to the trip's **journal** instead. Only a trip's highlights come here too, a short line each: arrivals (_The party reaches 0707_), places found, checks that stopped the trip (an encounter) and characters who left the party.
 
 ### Maps and trips
 

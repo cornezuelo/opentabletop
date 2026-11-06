@@ -59,7 +59,7 @@ import { mapStyles } from '@open-tabletop/map'
  * that another example (or another pack) holds.
  */
 
-/** The manual's pages, by path from `docs/manual/` (`en/systems/03-your-first-system.md`). */
+/** The manual's pages, by path from `docs/manual/` (`en/packs/03-your-first-system.md`). */
 const files = Object.fromEntries(
   Object.entries(
     import.meta.glob('../../../../../docs/manual/**/*.md', {
@@ -152,8 +152,8 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
   })
 })
 
-describe('Systems → Your first system: the step-by-step system plays as the manual says', () => {
-  const yaml = examples(read('en/systems/03-your-first-system.md')).find((y) =>
+describe('Packs → Your first system: the step-by-step system plays as the manual says', () => {
+  const yaml = examples(read('en/packs/03-your-first-system.md')).find((y) =>
     y.includes('dark-lost'),
   )!
   const { registry } = loadPacks([
@@ -289,8 +289,8 @@ describe('Technical → Actions and steps: the river crossing plays as the page 
   })
 })
 
-describe('Systems → Clocks: the spreading fever plays as the page says', () => {
-  const blocks = [...read('en/systems/10-clocks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+describe('Packs → Clocks: the spreading fever plays as the page says', () => {
+  const blocks = [...read('en/packs/10-clocks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
     (m) => m[1],
   )
   const clocks = blocks.find((y) => y.includes('kind: clocks'))!
@@ -479,7 +479,7 @@ describe('Systems → Clocks: the spreading fever plays as the page says', () =>
     expect(barrier.data).toMatchObject({ event: 'BARRIER', place: '5,0' })
   })
 })
-describe('Systems → World: market day in the Fever Marshes plays as the page says', () => {
+describe('Packs → World: market day in the Fever Marshes plays as the page says', () => {
   const yaml = (page: string, kind: string) =>
     [...read(page).matchAll(/```yaml\n([\s\S]*?)```/g)]
       .map((m) => m[1])
@@ -494,8 +494,8 @@ describe('Systems → World: market day in the Fever Marshes plays as the page s
       path: 'fever/pack.yaml',
       content: "id: fever\nversion: 0.1.0\nformat: 15\nlocale: en\ndependencies: { core: '*' }\n",
     },
-    { path: 'fever/clocks.yaml', content: yaml('en/systems/10-clocks.md', 'clocks') },
-    { path: 'fever/world.yaml', content: yaml('en/systems/11-world.md', 'world') },
+    { path: 'fever/clocks.yaml', content: yaml('en/packs/10-clocks.md', 'clocks') },
+    { path: 'fever/world.yaml', content: yaml('en/packs/11-world.md', 'world') },
     { path: 'fever/calendar.yaml', content: coreFile('calendar.yaml') },
     {
       path: 'fever/system.yaml',
@@ -593,8 +593,8 @@ const coreFile = (file: string) =>
     }) as Record<string, string>
   )[`../../../../../packs/core/${file}`]
 
-describe('Systems → Weather: the valley’s weather plays as the page says', () => {
-  const model = examples(read('en/systems/13-weather.md')).find((y) => y.includes('Valley skies'))!
+describe('Packs → Weather: the valley’s weather plays as the page says', () => {
+  const model = examples(read('en/packs/13-weather.md')).find((y) => y.includes('Valley skies'))!
   // A new system: a copy of the Generic rules and Core's calendar, with what steps 5 and 6
   // add, and a check an hour after the weather's that reads it (Common mistakes).
   const core = coreFile
@@ -718,10 +718,10 @@ describe('Systems → Weather: the valley’s weather plays as the page says', (
   })
 })
 
-describe('Systems → Rules: the caravan plays as the page says', () => {
+describe('Packs → Rules: the caravan plays as the page says', () => {
   // What the steps add to the Generic rules (the page's excerpt), on a copy of them.
   const added = parse(
-    [...read('en/systems/05-rules.md').matchAll(/```yaml\n([\s\S]*?)```/g)]
+    [...read('en/packs/05-rules.md').matchAll(/```yaml\n([\s\S]*?)```/g)]
       .map((m) => m[1])
       .find((y) => y.includes('parched'))!,
   )
@@ -729,7 +729,7 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
   for (const part of ['modes', 'terrains', 'values', 'actions'])
     rules[part] = { ...rules[part], ...added[part] }
   // The party's sheet, with the water of step 4 (the page's second block).
-  const sheet = [...read('en/systems/05-rules.md').matchAll(/```yaml\n([\s\S]*?)```/g)]
+  const sheet = [...read('en/packs/05-rules.md').matchAll(/```yaml\n([\s\S]*?)```/g)]
     .map((m) => m[1])
     .find((y) => y.startsWith('kind: sheet'))!
   const { registry, diagnostics } = loadPacks([
@@ -849,9 +849,9 @@ describe('Systems → Rules: the caravan plays as the page says', () => {
   })
 })
 
-describe('Systems → Checks: wolf country plays as the page says', () => {
+describe('Packs → Checks: wolf country plays as the page says', () => {
   // The page's excerpt (the rules' checks, then the bindings) and its table.
-  const blocks = [...read('en/systems/06-checks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+  const blocks = [...read('en/packs/06-checks.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
     (m) => m[1],
   )
   const [added, bound] = parseAllDocuments(blocks.find((y) => y.includes('WOLVES_AT_NIGHT'))!).map(
@@ -990,8 +990,8 @@ describe('Systems → Checks: wolf country plays as the page says', () => {
   })
 })
 
-describe('Systems → Sheet: the company of three plays as the page says', () => {
-  const blocks = [...read('en/systems/07-sheet.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+describe('Packs → Sheet: the company of three plays as the page says', () => {
+  const blocks = [...read('en/packs/07-sheet.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
     (m) => m[1],
   )
   const sheets = blocks.find((y) => y.includes('kind: sheet'))!
@@ -1131,8 +1131,8 @@ describe('Systems → Sheet: the company of three plays as the page says', () =>
   })
 })
 
-describe('Systems → Factions: the border feud plays as the page says', () => {
-  const blocks = [...read('en/systems/09-factions.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
+describe('Packs → Factions: the border feud plays as the page says', () => {
+  const blocks = [...read('en/packs/09-factions.md').matchAll(/```yaml\n([\s\S]*?)```/g)].map(
     (m) => m[1],
   )
   const factions = blocks.find((y) => y.includes('kind: factions'))!
@@ -1375,8 +1375,8 @@ describe('Systems → Factions: the border feud plays as the page says', () => {
   })
 })
 
-describe("Systems → Items: a delver's kit plays as the manual says", () => {
-  const yaml = examples(read('en/systems/08-items.md')).find((y) => y.includes('kind: items'))!
+describe("Packs → Items: a delver's kit plays as the manual says", () => {
+  const yaml = examples(read('en/packs/08-items.md')).find((y) => y.includes('kind: items'))!
   const docs = parseAllDocuments(yaml).map((d) => d.toJS())
   const sheet = parseSheet(docs.find((d) => d.kind === 'sheet')).sheet!
   const gear = parseCatalogue(docs.find((d) => d.kind === 'items')).catalogue!
@@ -1417,9 +1417,9 @@ describe("Systems → Items: a delver's kit plays as the manual says", () => {
   })
 })
 
-describe('Systems → Land: the step-by-step model is the YAML the page shows', () => {
+describe('Packs → Land: the step-by-step model is the YAML the page shows', () => {
   it.each(['en', 'es'])('%s', (locale) => {
-    const yaml = examples(read(`${locale}/systems/14-land.md`)).find((y) => kindOf(y) === 'land')!
+    const yaml = examples(read(`${locale}/packs/14-land.md`)).find((y) => kindOf(y) === 'land')!
     const page = parse(yaml) as LandModel & Record<string, unknown>
     // Step 1: New land model; steps 2 and 3, the forest's row and the lakes.
     const made = SYSTEM_TEMPLATES.land('land') as unknown as LandModel & Record<string, unknown>

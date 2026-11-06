@@ -147,7 +147,7 @@ export const es: Messages = {
     done: 'Cerrar el editor',
     retake: 'Volver a tomar sus nombres y regiones',
     editHelp:
-      '**Hacer una copia** crea un estilo tuyo a partir de este (en tu pack **Mis estilos de mapa**) y dibuja el mapa con él: **Editar** lo cambia entonces en formularios, parte por parte, y el mapa muestra cada cambio al momento. Un estilo incluido no puede cambiar; una copia sí, y todos los mapas dibujados con ella la siguen.\n**Volver a tomar sus nombres y regiones** copia otra vez en este mapa los nombres, regiones, coordenadas y símbolos del estilo (elegir un estilo los copia, y luego el mapa los cambia a su gusto).\nLos estilos también se editan en **Sistemas → Estilos de mapa**.',
+      '**Hacer una copia** crea un estilo tuyo a partir de este (en tu pack **Mis estilos de mapa**) y dibuja el mapa con él: **Editar** lo cambia entonces en formularios, parte por parte, y el mapa muestra cada cambio al momento. Un estilo incluido no puede cambiar; una copia sí, y todos los mapas dibujados con ella la siguen.\n**Volver a tomar sus nombres y regiones** copia otra vez en este mapa los nombres, regiones, coordenadas y símbolos del estilo (elegir un estilo los copia, y luego el mapa los cambia a su gusto).\nLos estilos también se editan en **Packs → Estilos de mapa**.',
   },
   map: {
     system: vocabulary.es.terms.system,
@@ -351,7 +351,7 @@ export const es: Messages = {
     ownCampaigns: 'Cada uno en una campaña propia',
     playing: 'en juego',
     exampleHelp:
-      'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero. Los ejemplos de una misma campaña se abren en ella y comparten su reloj del mundo y sus facciones.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Sistemas, dicen qué enseña.',
+      'Un mapa que trae un sistema para jugarlo (su `maps:`), listo con ese sistema elegido.\nSe abre como uno de tus mapas: vuelve a abrirlo más tarde para seguir, o empiézalo de cero. Los ejemplos de una misma campaña se abren en ella y comparten su reloj del mundo y sus facciones.\nLas páginas del sistema en el manual, o su **Resumen** en la aplicación Packs, dicen qué enseña.',
     exampleOf: 'con {system}',
     exampleMissing: 'Los packs cargados no tienen el mapa de ejemplo {path}.',
     exampleTitle: 'Abrir el ejemplo',
@@ -510,7 +510,7 @@ export const es: Messages = {
       'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja; ✎ pinta su tierra.',
     land: 'Su tierra',
     landHelp:
-      'Qué casillas tiene cada facción (`place.faction`), dibujadas en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las casillas que cumplen la condición que le da el sistema (Sistemas → **Facciones** → **Empieza en**: una región, una etiqueta…), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita casillas\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno casilla a casilla (`faction.territory: 1` coge una casilla de su frontera, `-1` cede una)\nUna casilla tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
+      'Qué casillas tiene cada facción (`place.faction`), dibujadas en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las casillas que cumplen la condición que le da el sistema (Packs → **Facciones** → **Empieza en**: una región, una etiqueta…), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita casillas\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno casilla a casilla (`faction.territory: 1` coge una casilla de su frontera, `-1` cede una)\nUna casilla tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
     help: campaignTexts.es.factions.help,
     none: 'El sistema del mapa tiene facciones, aún no en este mapa: tráelas, cada una con la tierra con la que el sistema dice que empieza.',
     bring: campaignTexts.es.factions.bring,

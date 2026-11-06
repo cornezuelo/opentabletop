@@ -7,7 +7,7 @@ const files = import.meta.glob('../../../docs/manual/**/*.md', {
   eager: true,
 }) as Record<string, string>
 
-/** Its pictures (`en/systems/hex-flower.svg`, by path from docs/manual/) and their URLs. */
+/** Its pictures (`en/packs/hex-flower.svg`, by path from docs/manual/) and their URLs. */
 export const pictures: Record<string, string> = Object.fromEntries(
   Object.entries(
     import.meta.glob('../../../docs/manual/**/*.svg', {
@@ -24,7 +24,7 @@ export const manual = createManual(files, [
   'oracle',
   'travel',
   'characters',
-  'systems',
   'packs',
+  'bundled',
   'technical',
 ])

@@ -46,11 +46,11 @@ export function templatesOf(system: TravelSystem, locale: string): TemplateEntry
 }
 
 /**
- * Where a template is edited: Systems' **Bestiary** tab of its system, unfolded at it (or the
+ * Where a template is edited: Packs' **Bestiary** tab of its system, unfolded at it (or the
  * tab alone). Templates are definitions of the system, edited there only.
  */
 export function templateUrl(system: Pick<TravelSystem, 'id'>, template?: string): string {
-  const tab = `${appUrl('systems')}#/system/${encodeURIComponent(system.id)}/bestiary`
+  const tab = `${appUrl('packs')}#/system/${encodeURIComponent(system.id)}/bestiary`
   return template ? `${tab}/${encodeURIComponent(template)}` : tab
 }
 

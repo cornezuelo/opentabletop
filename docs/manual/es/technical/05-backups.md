@@ -57,7 +57,7 @@ Cuando algo marcado necesita algo que no lo está, **Se queda fuera** dice qué 
 - `Brenna juega en Viaje «A la costa».`: un personaje del plantel y el mapa o viaje en el que juega, en los dos sentidos.
 - `Brenna está en el grupo La Compañía.`: un grupo del plantel y sus miembros.
 
-**Añadir lo que falta** lo marca todo, y lo que eso necesite a su vez. Puedes exportar igualmente sin ello. Los packs que traen las aplicaciones (Core, las Marcas Grises…) nunca van en el fichero ni se piden: toda copia de OpenTabletop los tiene. Las preferencias, el historial de la aplicación Oráculo y los viajes de prueba de Sistemas solo van en las copias de seguridad.
+**Añadir lo que falta** lo marca todo, y lo que eso necesite a su vez. Puedes exportar igualmente sin ello. Los packs que traen las aplicaciones (Core, las Marcas Grises…) nunca van en el fichero ni se piden: toda copia de OpenTabletop los tiene. Las preferencias, el historial de la aplicación Oráculo y los viajes de prueba de Packs solo van en las copias de seguridad.
 
 Para traer una exportación, pulsa **Importar…** en el selector de aplicaciones y elige el fichero. El mismo árbol muestra lo que trae, cada cosa marcada así:
 

@@ -70,7 +70,7 @@ export const es: Messages<typeof en> = {
   },
   rolledBy: {
     title: 'La tiran',
-    help: 'Dónde la tiran los sistemas que traen este pack: el paso de una acción (`roll: table.ruins`), el binding de una comprobación, un reloj de progreso al llenarse, la entrada de otra tabla o el campo de un generador. Cada sitio enlaza a donde se edita (las reglas en Sistemas, las tablas aquí).\n• **Nada la tira** — se tira a mano, o desde un pack que no trae ningún sistema\nLo que un mapa o un viaje tira por sí solo (las tablas del clima, el descubrimiento) lo dicen los bindings del sistema, que también salen.',
+    help: 'Dónde la tiran los sistemas que traen este pack: el paso de una acción (`roll: table.ruins`), el binding de una comprobación, un reloj de progreso al llenarse, la entrada de otra tabla o el campo de un generador. Cada sitio enlaza a donde se edita (las reglas en Packs, las tablas aquí).\n• **Nada la tira** — se tira a mano, o desde un pack que no trae ningún sistema\nLo que un mapa o un viaje tira por sí solo (las tablas del clima, el descubrimiento) lo dicen los bindings del sistema, que también salen.',
     count: '{n} sitios',
     none: 'Nada la tira',
   },
@@ -272,7 +272,7 @@ export const es: Messages<typeof en> = {
   newDef: {
     forTravel: 'Reglas del sistema',
     forTravelHelp:
-      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en Mapa (Jugar → Con reglas) y en Viajes, y que se edita en la aplicación Sistemas\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\n• **Hoja** — lo que tiene cada personaje del grupo (valores, estados)\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
+      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en Mapa (Jugar → Con reglas) y en Viajes, y que se edita en la aplicación Packs\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\n• **Hoja** — lo que tiene cada personaje del grupo (valores, estados)\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
     system: {
       'roll-modes': 'Modos de tirada',
       'travel-rules': 'Reglas de viaje',

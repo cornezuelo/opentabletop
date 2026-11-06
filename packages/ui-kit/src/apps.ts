@@ -15,7 +15,7 @@ import {
 
 export { REPO }
 
-export type AppId = 'campaign' | 'map' | 'oracle' | 'travel' | 'characters' | 'systems' | 'manual'
+export type AppId = 'campaign' | 'map' | 'oracle' | 'travel' | 'characters' | 'packs' | 'manual'
 
 export interface AppInfo {
   id: AppId

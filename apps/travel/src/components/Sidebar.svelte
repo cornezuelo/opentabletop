@@ -32,5 +32,5 @@
     {/each}
   </SideList>
   <OlderPacks {library} locale={getLocale()} />
-  <a class="side-link" href={appUrl('systems')}>{t('nav.makeSystems')}</a>
+  <a class="side-link" href={appUrl('packs')}>{t('nav.makeSystems')}</a>
 </Sidebar>

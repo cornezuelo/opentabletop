@@ -88,7 +88,7 @@ describe('a trip store', () => {
     expect(store.location).toBeGreaterThan(0)
     const reached = store.location
 
-    // The rules change while the trip goes on (as in the Systems app's Try it tab): plains
+    // The rules change while the trip goes on (as in the Packs app's Try it tab): plains
     // can't be crossed any more, so the next step doesn't move the party.
     const rules = coreSystem().rules
     system = {

@@ -14,7 +14,7 @@ import { appUrl } from '@open-tabletop/ui-kit'
 import { packTexts } from './names'
 
 /**
- * Where a use is, as the apps show it (Systems' **Used by**, the Oracle's **Rolled by**): what
+ * Where a use is, as the apps show it (Packs' **Used by**, the Oracle's **Rolled by**): what
  * the place is, its name in the UI's language, the part of it, and where it's edited.
  */
 
@@ -51,19 +51,19 @@ export interface UsePlaceShown {
   name: string
   /** The rest of the path inside it (`when`, `modeWhen.advantage`, `entries.bandits.effects`). */
   part: string
-  /** A tab of the system's page in Systems (`rules`, `checks`…), or a link to another app. */
+  /** A tab of the system's page in Packs (`rules`, `checks`…), or a link to another app. */
   tab?: SystemTab
   href?: string
 }
 
 const ROLLABLE = ['table', 'oracle', 'generator', 'deck']
 
-/** The tabs of a system's page in Systems that hold a use. */
+/** The tabs of a system's page in Packs that hold a use. */
 export type SystemTab = 'rules' | 'checks' | 'sheet' | 'clocks' | 'factions' | 'weather'
 
-/** A tab of a system's page in Systems, as a link from another app. */
+/** A tab of a system's page in Packs, as a link from another app. */
 export const systemTabUrl = (system: TravelSystem, tab: SystemTab) =>
-  `${appUrl('systems')}#/system/${encodeURIComponent(system.id)}/${tab}`
+  `${appUrl('packs')}#/system/${encodeURIComponent(system.id)}/${tab}`
 
 export function shownPlace(
   system: TravelSystem,

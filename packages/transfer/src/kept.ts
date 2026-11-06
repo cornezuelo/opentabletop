@@ -3,7 +3,7 @@ import { ROSTER_KEY, USER_PACKS_KEY, type LibraryEntry } from '@open-tabletop/st
 /**
  * What the apps keep that can be exported and imported, as they keep it: the user's packs,
  * the map library, the campaigns, Travel's trips and the roster's characters. Everything
- * else (preferences, histories, Systems' test trips) goes only in backups.
+ * else (preferences, histories, Packs' test trips) goes only in backups.
  */
 export interface Kept {
   packs: KeptPack[]

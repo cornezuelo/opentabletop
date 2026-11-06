@@ -14,7 +14,7 @@ It is **game-system agnostic**: the apps know no game's rules. A game comes as a
 | **Oracle**     | Browse, roll and **edit** every table, oracle, generator and deck of your packs, with forms or a YAML editor with live problems; create and share packs.                           |
 | **Travel**     | Play trips without a map, with any system.                                                                                                                                         |
 | **Characters** | Your roster of characters, of any system: make them, keep their notes, and take them on trips on any map.                                                                          |
-| **Systems**    | Make and edit game systems: travel rules, checks and the tables that answer them.                                                                                                  |
+| **Packs**      | Make and edit packs and the game systems they hold: rules, checks, sheets, map styles.                                                                                             |
 | **Manual**     | The user manual of every app, in English and Spanish, with search. Each app also opens it in a side panel.                                                                         |
 | **CLI**        | `opentabletop validate`, `list` and `roll` packs from the command line.                                                                                                            |
 

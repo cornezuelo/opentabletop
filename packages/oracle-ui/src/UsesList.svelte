@@ -7,7 +7,7 @@
   /**
    * The places that use something, one line each: how, where (its name, what it is, the part
    * of it) and a link to where it's edited. A place in a system's tab opens it with `ontab`
-   * (Systems), or links to it in Systems.
+   * (Packs), or links to it in Packs.
    */
   let {
     uses,

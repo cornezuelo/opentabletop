@@ -15,7 +15,7 @@ export const library = new PackLibrary(bundledPacks, {
 export type CharacterSystem = TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
 
 /** The systems that have a sheet for their characters: characters are made with theirs. */
-class Systems {
+class Packs {
   list: CharacterSystem[] = $derived(
     travelSystems(library.registry).systems.filter((s): s is CharacterSystem => !!s.sheet),
   )
@@ -41,4 +41,4 @@ class Systems {
   }
 }
 
-export const systems = new Systems()
+export const systems = new Packs()

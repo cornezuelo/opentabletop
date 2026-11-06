@@ -80,7 +80,7 @@
 {:else}
   <h1>{t('new.title')}</h1>
   <div class="help"><Markdown text={t('new.noSystems')} /></div>
-  <a href={appUrl('systems')}>{t('nav.makeSystems')}</a>
+  <a href={appUrl('packs')}>{t('nav.makeSystems')}</a>
 {/if}
 
 <style>

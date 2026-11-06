@@ -11,7 +11,7 @@ export const library = new PackLibrary(bundledPacks, {
 })
 
 /** The systems of the loaded packs (Core's, the default, first). */
-class Systems {
+class Packs {
   list: TravelSystem[] = $derived(travelSystems(library.registry).systems)
 
   /** A system by id (`generic` is Core's); one that doesn't travel if its pack isn't loaded. */
@@ -21,4 +21,4 @@ class Systems {
   }
 }
 
-export const systems = new Systems()
+export const systems = new Packs()

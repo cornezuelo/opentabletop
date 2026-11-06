@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Systems is now **Packs**, at `/packs/`, on its way to being the app that edits every pack. Its test trips start afresh. The manual's pages of the bundled packs are under **Bundled packs**.
+
 ## [0.39.0] - 2026-11-06
 
 ### Apps

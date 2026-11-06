@@ -500,7 +500,7 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
 }
 
 /**
- * Everything a system declares that gets a "Used by", in the order Systems shows them: its
+ * Everything a system declares that gets a "Used by", in the order Packs shows them: its
  * stats and roles, values of the day, what its tables read, its clocks, and the
  * values and conditions of its sheets.
  */

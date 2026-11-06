@@ -63,4 +63,4 @@ calendar/marcher-reckoning:
   months: { thaw: Deshielo, sowing: Siembra }
 ```
 
-The Systems app's forms write them for you: with the interface in a language that isn't the pack's, a check's or a stat's name and description go to that language's file (the pack's text shows in grey as a hint). A definition writes its texts in the pack's language only: a text in several languages at once in the definition itself (`name: { en: Thaw, es: Deshielo }`) is a problem of the pack; its other languages go in `locales/`. (Only the pack's own name in `pack.yaml` may be written in several languages.)
+The Packs app's forms write them for you: with the interface in a language that isn't the pack's, a check's or a stat's name and description go to that language's file (the pack's text shows in grey as a hint). A definition writes its texts in the pack's language only: a text in several languages at once in the definition itself (`name: { en: Thaw, es: Deshielo }`) is a problem of the pack; its other languages go in `locales/`. (Only the pack's own name in `pack.yaml` may be written in several languages.)

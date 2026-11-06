@@ -11,7 +11,7 @@ const TEXT = {
     title: 'Manual',
     apps: {
       ...vocabulary.en.apps,
-      packs: 'Packs',
+      bundled: 'Bundled packs',
       technical: 'Technical',
     } as Record<string, string>,
     contextHint:
@@ -36,7 +36,7 @@ const TEXT = {
     title: 'Manual',
     apps: {
       ...vocabulary.es.apps,
-      packs: 'Packs',
+      bundled: 'Packs incluidos',
       technical: 'Técnico',
     } as Record<string, string>,
     contextHint:

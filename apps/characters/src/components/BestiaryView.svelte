@@ -10,7 +10,7 @@
   /**
    * A template of a system's bestiary (picked in the left column's **Bestiary**): a character
    * of a sheet whose rolls are made again for every copy, shown as it is (templates are
-   * edited in Systems only). Make one character of it, or many copies, in the roster, and
+   * edited in Packs only). Make one character of it, or many copies, in the roster, and
    * clear them away. With no template given, what the bestiary is.
    */
   let { bestiary, template }: { bestiary?: string; template?: string } = $props()

@@ -24,7 +24,7 @@ The palette lists the map's terrains, grouped:
 | Cold            | tundra, snow, glacier                                             |
 | Water and coast | coast, lake, sea, deep-sea (coast is land: the shore you walk on) |
 
-Your own terrains go under **Other**. Each map keeps the palette it was made with. **Edit palette** shows each terrain's **id** beside its name (`dense-forest`): what tables, conditions and travel rules write (`place.terrain: dense-forest`), whatever the language of its name. A terrain with no name of its own on the map is called what the map's system names it (a terrain of the system's own, in your language: [Rules → Terrains](../systems/05-rules.md#terrains-water-and-roads)), or else what the app calls the usual ones; a name written in **Edit palette** wins over both, but stays in the language it was written in.
+Your own terrains go under **Other**. Each map keeps the palette it was made with. **Edit palette** shows each terrain's **id** beside its name (`dense-forest`): what tables, conditions and travel rules write (`place.terrain: dense-forest`), whatever the language of its name. A terrain with no name of its own on the map is called what the map's system names it (a terrain of the system's own, in your language: [Rules → Terrains](../packs/05-rules.md#terrains-water-and-roads)), or else what the app calls the usual ones; a name written in **Edit palette** wins over both, but stays in the language it was written in.
 
 Not every game is fantasy. In **Edit palette**, **Add terrains for…** adds a whole set at once (only the terrains the map lacks), each with its symbol and a speed in the Generic rules (Core's):
 

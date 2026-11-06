@@ -116,13 +116,13 @@ export interface TripStoreOptions {
   /**
    * The app whose trips take roster characters (`travel`): each trip is a place of the
    * roster, its linked members kept in step with it. Absent: trips don't use the roster
-   * (Systems' Try it).
+   * (Packs' Try it).
    */
   rosterApp?: string
   /**
    * The app whose trips play in campaigns (`travel`): each in one, its time the campaign's
    * world clock, with its factions and Oracle, one trip at a time. Absent: trips keep their
-   * own Oracle and no world (Systems' Try it).
+   * own Oracle and no world (Packs' Try it).
    */
   campaignApp?: string
 }

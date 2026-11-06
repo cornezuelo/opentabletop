@@ -136,7 +136,7 @@ export const es: Messages<typeof en> = {
     tagNot: 'Se oculta lo que tiene la etiqueta {tag}; clic para olvidar la etiqueta',
     noTags: 'Nada de lo que hay aquí tiene etiquetas.',
   },
-  /** Where something is used (Systems' Used by, the Oracle's Rolled by). */
+  /** Where something is used (Packs' Used by, the Oracle's Rolled by). */
   uses: {
     how: {
       reads: 'lo lee',

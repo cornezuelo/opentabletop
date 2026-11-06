@@ -1,5 +1,5 @@
 /**
- * The game system last chosen in Travel, Systems or the Oracle: a preference of this
+ * The game system last chosen in Travel, Packs or the Oracle: a preference of this
  * browser, so the next app opened starts on the same system. Map doesn't use it
  * (each map has its own system).
  */

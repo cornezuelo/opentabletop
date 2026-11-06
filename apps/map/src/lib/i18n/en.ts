@@ -147,7 +147,7 @@ export const en = {
     done: 'Close the editor',
     retake: 'Take its names and regions again',
     editHelp:
-      "**Make a copy** makes a new style of yours from this one (in your pack **My map styles**) and draws the map in it: **Edit** then changes it in forms, part by part, and the map shows each change at once. A bundled style can't change; a copy of it can, and every map drawn in it follows.\n**Take its names and regions again** copies the style's names, regions, coordinates and glyphs into this map once more (choosing a style copies them, and the map changes them freely after).\nStyles are also edited in **Systems → Map styles**.",
+      "**Make a copy** makes a new style of yours from this one (in your pack **My map styles**) and draws the map in it: **Edit** then changes it in forms, part by part, and the map shows each change at once. A bundled style can't change; a copy of it can, and every map drawn in it follows.\n**Take its names and regions again** copies the style's names, regions, coordinates and glyphs into this map once more (choosing a style copies them, and the map changes them freely after).\nStyles are also edited in **Packs → Map styles**.",
   },
   map: {
     system: vocabulary.en.terms.system,
@@ -349,7 +349,7 @@ export const en = {
     ownCampaigns: 'Each in a campaign of its own',
     playing: 'playing',
     exampleHelp:
-      'A map a system brings to be played on (its `maps:`), ready with that system chosen.\nIt opens as one of your maps: open it again later to go on, or start it fresh. Examples of one campaign open in it, sharing its world clock and factions.\nThe system’s pages in the manual, or its **Overview** in the Systems app, say what it shows.',
+      'A map a system brings to be played on (its `maps:`), ready with that system chosen.\nIt opens as one of your maps: open it again later to go on, or start it fresh. Examples of one campaign open in it, sharing its world clock and factions.\nThe system’s pages in the manual, or its **Overview** in the Packs app, say what it shows.',
     exampleOf: 'with {system}',
     exampleMissing: 'The loaded packs have no example map {path}.',
     exampleTitle: 'Open the example',
@@ -503,7 +503,7 @@ export const en = {
       'The powers of this world, each holding land on the map in its colour. Open one to see its sheet; ✎ paints its land.',
     land: 'Their land',
     landHelp:
-      "Which cells each faction holds (`place.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the cells that hold the condition the system gives it (Systems → **Factions** → **Starts on**: a region, a tag…), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes cells away\n• **world turns** — its turn table may win or lose ground cell by cell (`faction.territory: 1` takes a cell from its border, `-1` gives one up)\nA cell has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
+      "Which cells each faction holds (`place.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the cells that hold the condition the system gives it (Packs → **Factions** → **Starts on**: a region, a tag…), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes cells away\n• **world turns** — its turn table may win or lose ground cell by cell (`faction.territory: 1` takes a cell from its border, `-1` gives one up)\nA cell has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
     help: campaignTexts.en.factions.help,
     none: "The map's system has factions, not yet on this map: bring them in, each holding the land the system says it starts with.",
     bring: campaignTexts.en.factions.bring,

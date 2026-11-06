@@ -51,7 +51,7 @@ export const en = {
     systemHelp:
       'The game system its maps and trips are played with: its calendar, its progress clocks, its weather and factions. It is chosen in a map’s settings (or when a trip in it starts), since it is theirs too.',
     noSystem: 'The default one (Core’s)',
-    editSystem: 'Edit the system in Systems →',
+    editSystem: 'Edit the system in Packs →',
     notes: 'Notes',
     notesHelp:
       'Its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it. The notes app is chosen in **Preferences**. Its story and lore live there: a campaign keeps only what the rules play with.',

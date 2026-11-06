@@ -41,7 +41,7 @@
   const character = $derived(entry?.character)
   const found = $derived(character ? systems.sheetOf(character.sheet) : undefined)
   const system = $derived(found?.system)
-  /** The Systems tab its sheet is edited in. */
+  /** The Packs tab its sheet is edited in. */
   const sheetTab = $derived(
     !system || !character
       ? 'sheet'
@@ -188,7 +188,7 @@
             system,
             getLocale(),
           )}
-          <a href="{appUrl('systems')}#/system/{encodeURIComponent(system.id)}/{sheetTab}"
+          <a href="{appUrl('packs')}#/system/{encodeURIComponent(system.id)}/{sheetTab}"
             >{t('character.editSheet')}</a
           >
         {:else}

@@ -2,7 +2,7 @@
 
 You don't need to program to make tables that react to the map, or a whole travel system Map plays for you. Everything is written in the pack's YAML files. This page builds it up step by step; each step works on its own.
 
-> **A complete example to copy from:** the bundled pack **The Grey Marches** uses every feature on this page, and has an example map to play it on (Map: Maps → Example maps). Open its files in the Oracle app, or make a copy (**Edit a copy**) to change them. [The Grey Marches](../packs/02-grey-marches.md) says where each feature is.
+> **A complete example to copy from:** the bundled pack **The Grey Marches** uses every feature on this page, and has an example map to play it on (Map: Maps → Example maps). Open its files in the Oracle app, or make a copy (**Edit a copy**) to change them. [The Grey Marches](../bundled/02-grey-marches.md) says where each feature is.
 
 ## 1. A table that depends on the terrain
 
@@ -89,7 +89,7 @@ Tables read the party back as `party.values.food`, `party.stats.morale`, `party.
 
 ## 5. Your own travel system
 
-A pack becomes a **system** a map can play (Map: **Map settings → Campaign → System**) and the Systems and Travel apps list when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
+A pack becomes a **system** a map can play (Map: **Map settings → Campaign → System**) and the Packs and Travel apps list when it has two more definitions: the **travel rules** (how fast, which checks and when) and the **bindings** (which table answers each check). Put them in any file of the pack, e.g. `travel.yaml`; a `kind: system` can name them, with the calendar, weather and packs that go with them (see [Naming the system](#naming-the-system)):
 
 ```yaml
 kind: travel-rules
@@ -168,7 +168,7 @@ bindings: bindings.default
 partySheet: sheet.party
 ```
 
-The rest of this section goes over each part of that example: what it's for, what it can say, and a few lines that work. To build a system with the forms instead, step by step, see the Systems app's [Your first system](../systems/03-your-first-system.md); [A day, step by step](../travel/02-playing.md#a-day-step-by-step) says in which order a trip does it all.
+The rest of this section goes over each part of that example: what it's for, what it can say, and a few lines that work. To build a system with the forms instead, step by step, see the Packs app's [Your first system](../packs/03-your-first-system.md); [A day, step by step](../travel/02-playing.md#a-day-step-by-step) says in which order a trip does it all.
 
 ### The day and the speed
 
@@ -196,7 +196,7 @@ water: { passable: false } # water cells whose terrain isn't listed
 **modes** are the ways of travelling the player chooses from in the trip panel, each with its `kmPerDay` (or, for rooms and points, `minutes` a step: `turn: { minutes: 10 }`) and a `name` (and `description`) for players: the panel and the journal show _On horseback_ instead of `horse`, translated in `locales/` like the rest. Without a name, the id is shown, made readable (`on-foot`: on foot). Two conditions shape each one:
 
 - `through`: **where it can go**, a [condition](../technical/08-conditions.md) on each cell it enters. It sees the cell (`terrain`, `water`, `tags`, `region`, its fields), `connections` (the roads or rivers of that step), `mode`, `weather` and today's values. Where it holds the mode goes, even over closed terrains; elsewhere it can't, and routes go around. A boat: `through: { place.water: true }` (it sails water where walking can't go); the Grey Marches' boat also hugs the coast, `through: { any: [{ place.water: true }, { place.terrain: coast }] }`; a cart only by road: `through: { trip.connections: road }`.
-- `when` / `unless` (**Only when** / **Not when** in the Systems app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }`; a horse not in snow: `unless: { trip.weather: snow }`.
+- `when` / `unless` (**Only when** / **Not when** in the Packs app): **when it can be chosen**, seen where the party stands. Otherwise it's disabled in the trip panel, saying why. The Grey Marches' boat is only taken at the water's edge or a ferry: `when: { any: [{ place.water: true }, { place.terrain: coast }, { place.tags: ferry }] }`; a horse not in snow: `unless: { trip.weather: snow }`.
 
 A value of the day can block one too (`blocks: [modes.horse]`, below): it can't be chosen, and a party already travelling that way stops until it changes.
 
@@ -324,7 +324,7 @@ actions:
     do: [{ roll: checks.NIGHT_WATCH }, { unless: { party.stats.morale: { gte: 1 } }, time: 60 }]
 ```
 
-What an action **rolls** are the checks with `at: actions.<its id>` (camp's: `at: actions.camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the cell's terrain); without it the journal says that none of its rolls apply there. In the Systems app's forms each step is written the same way, one box per step, with suggestions. Every step, with examples and a whole system that uses them: [Actions and steps](../technical/10-actions-and-steps.md). The Grey Marches use all of it: see [their camp, rest and foraging](../packs/02-grey-marches.md).
+What an action **rolls** are the checks with `at: actions.<its id>` (camp's: `at: actions.camp`), rolled before its steps. `nothing` is what the journal says when none of them apply where the party is (`nothing: 'nothing to forage on {terrain}'`, with `{terrain}` the cell's terrain); without it the journal says that none of its rolls apply there. In the Packs app's forms each step is written the same way, one box per step, with suggestions. Every step, with examples and a whole system that uses them: [Actions and steps](../technical/10-actions-and-steps.md). The Grey Marches use all of it: see [their camp, rest and foraging](../bundled/02-grey-marches.md).
 
 **The halt.** `travel: { halt: { at: '20:00', do: actions.camp } }` says what the party does when it can't march while the time moves on by itself (the world clock, **Wait to go on**, a travel order while its way on can't be taken): from that moment (a clock or a part of the day, `at: time.part.night`) until the day ends, a party that isn't marching takes that action, once a day. When the action can't be taken (a value blocks it, or its `when` / `unless` don't hold), the journal says why and the time passes without it, until the trip can go on. Without a halt, the party just waits.
 
@@ -366,7 +366,7 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 - a condition turning true (below): `at: { when: { world.clocks.the-siege: { gte: 6 } } }`, once as it does;
 - none: only a step's `roll:` rolls it.
 
-**Moments of the world.** A progress clock of the campaign filling is a moment the trip going on in it hears: `world.clocks.<id>.full`, for an action's `on:` or a check's `at:`. A clock the system declares (`clocks:` in `kind: system`) is named by the id it declares; one made by hand on the World panel by its name in lowercase with dashes (_The Wyrm wakes_ is `world.clocks.the-wyrm-wakes.full`), which the Systems app can't check (it warns that the system declares no such clock). Whatever fills it, the trip hears it:
+**Moments of the world.** A progress clock of the campaign filling is a moment the trip going on in it hears: `world.clocks.<id>.full`, for an action's `on:` or a check's `at:`. A clock the system declares (`clocks:` in `kind: system`) is named by the id it declares; one made by hand on the World panel by its name in lowercase with dashes (_The Wyrm wakes_ is `world.clocks.the-wyrm-wakes.full`), which the Packs app can't check (it warns that the system declares no such clock). Whatever fills it, the trip hears it:
 
 - what the trip did (a check's or a table's `effects`, a faction's turn that came due on the way): as soon as the step that filled it is done (a long wait or a night in camp first ends, then the moment comes);
 - a hand on the World panel, a table rolled by hand, a world turn, in the app the trip plays in: at once;
@@ -374,7 +374,7 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 
 The journal says it first (**In the world: The Wyrm wakes filled**), and then its actions and checks happen, where the party is, seeing `trip.moment: world.clocks.<id>.full`; one that fills another clock is heard too (ten in a row at most). Only the trip going on in the campaign hears it (one at a time); a clock that fills while no trip is going on is heard by none. The Grey Marches' _The Wyrm wakes_ (`on: world.clocks.the-greywood-wyrm-wakes.full`) raises every companion's dread when the haunted lights fill the Wyrm's clock, and stops the trip inside the Greywood.
 
-**World turns.** A world turn of the campaign (every faction's turn, then the world's reactions to it) is a moment of the world too: `world.turn`, for an action's `on:` or a check's `at:`, heard as a clock filling is, whatever brought it (a turn due as time moves on, **World turn** by hand, another app, the trip itself). The trip's journal tells each turn played while it goes on: **World turn:** and what each faction did. A step brings one: `do: world.turn` (it takes no `with:`). The travel rules don't know the world, so the app the trip plays in plays the turn on the campaign's world, as one due with time; without a campaign whose system declares factions there's no turn to play, and the journal says **World turn: nothing happens**. A turn heard that brings another (`on: world.turn` doing `do: world.turn`) is refused when the pack loads, and the Systems app warns of `on: world.turn` in a system without factions. The Grey Marches' _Carry the news_ (in a market town, once a trip) brings one; their _Word on the road_ hears every one.
+**World turns.** A world turn of the campaign (every faction's turn, then the world's reactions to it) is a moment of the world too: `world.turn`, for an action's `on:` or a check's `at:`, heard as a clock filling is, whatever brought it (a turn due as time moves on, **World turn** by hand, another app, the trip itself). The trip's journal tells each turn played while it goes on: **World turn:** and what each faction did. A step brings one: `do: world.turn` (it takes no `with:`). The travel rules don't know the world, so the app the trip plays in plays the turn on the campaign's world, as one due with time; without a campaign whose system declares factions there's no turn to play, and the journal says **World turn: nothing happens**. A turn heard that brings another (`on: world.turn` doing `do: world.turn`) is refused when the pack loads, and the Packs app warns of `on: world.turn` in a system without factions. The Grey Marches' _Carry the news_ (in a market town, once a trip) brings one; their _Word on the road_ hears every one.
 
 **Moments written as conditions** (reactions). Some things happen once, when something becomes true, whatever made it true: _when morale reaches 0, the hirelings desert_. Write the moment as a condition, `on: { when: { party.values.morale: { lte: 0 } } }` (with `unless` too), for an action's `on:` or a check's `at:`, alone or in a list beside named moments (`at: [time.part.morning, { when: … }]`). It comes **once, as the condition turns true**, and again only after it has stopped holding: a table that lowers morale, an action, a hand on the party's card, a faction's turn all count. It's looked at after every change of the trip, reading what tables see (the trip, the cell, the time, the party, the characters, the world's clocks), and what comes is played there and then, as any moment's actions and checks (a pause stops the trip). What already holds when a trip starts comes on its first step (a trip that starts with morale 0 sees its hirelings desert); a trip saved before reactions existed takes what holds when it's next played as already seen. With `for: party.members`, it's looked at for each member, read with that member as `acting` (`on: { when: { acting.values.health: { lte: 0 } }, for: party.members }`), and played with them acting (the journal says _For Mara, a rule of the system comes into play_), each member once. Reactions that set each other off (directly or in a chain) stop after 10 in a row, with a line in the journal. A clock filling (`world.clocks.<id>.full`, above) is one case of it, heard even when filled away from the trip. **A state is not a reaction**: what should hold all the while (encumbered, weary) is a sheet's condition with `when:` ([Sheets](../technical/07-kinds.md#sheets)); a reaction is for something that happens. The Grey Marches: the hirelings desert as morale reaches 0, a companion falls as their health does (`for: party.members`), and an omen is drawn as the Wyrm's clock reaches 4 (`at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]`); Core's _Despair_ stops the trip as morale reaches 0.
 
@@ -432,7 +432,7 @@ reads:
 
 ### Naming the system
 
-Travel rules and bindings are enough for a system named after its pack. A `kind: system` says it in one place, with what else it brings: its calendar, the weather models its bindings use, other packs' tables (packs it depends on) and example maps to play it on (`maps:`, map files in the pack, listed in Map's **Maps → Example maps**). A pack may declare several, e.g. a winter variant with its own travel rules: In the Systems app, the system's **Overview** writes it with a form.
+Travel rules and bindings are enough for a system named after its pack. A `kind: system` says it in one place, with what else it brings: its calendar, the weather models its bindings use, other packs' tables (packs it depends on) and example maps to play it on (`maps:`, map files in the pack, listed in Map's **Maps → Example maps**). A pack may declare several, e.g. a winter variant with its own travel rules: In the Packs app, the system's **Overview** writes it with a form.
 
 ```yaml
 kind: system
@@ -448,7 +448,7 @@ travel: travel-rules.winter # another kind: travel-rules, with id: winter
 bindings: bindings.default
 ```
 
-Every key is in [Systems](../technical/07-kinds.md#systems).
+Every key is in [Packs](../technical/07-kinds.md#systems).
 
 ### Characters
 
@@ -459,7 +459,7 @@ Then the bindings say what the party takes from them:
 - **Stats made of theirs:** `navigation: { name: Navigation, from: { max: pathfinding } }` is the best Pathfinding among them; `min` the worst, `sum` all together, `count: true` how many; `when` / `unless` leave some out (`count: true, unless: { conditions: wounded }`: those not wounded). Without characters the stat is kept as usual, so the same system plays both ways.
 - **Whoever the player chooses:** `charisma: { from: { pick: charisma } }` is one character's Charisma, the one chosen in the trip's **Rolls with** (the best by default); **Ask at every roll** makes each check on a table wait for the choice.
 - **Values of the party's own sheet:** with `partySheet:` in the system, a sheet for the party itself (morale, fatigue…, whoever travels), `morale: { from: { party: morale } }` is that value: effects on the stat change the sheet, within its bounds.
-- **What they carry:** items ([Items](../systems/08-items.md)): `party.items.ration` are the party's own and its characters' together; what the trip eats (`party.items.ration: -3`) is taken from the party's own first, then from them, and what it finds is given to them, shared out as their sheet says (`items: { share: even }`, the default: from whoever carries most; `share: order` for the first one first). A new character carries what their sheet's `items.start` says (`start: { ration: 2 }`).
+- **What they carry:** items ([Items](../packs/08-items.md)): `party.items.ration` are the party's own and its characters' together; what the trip eats (`party.items.ration: -3`) is taken from the party's own first, then from them, and what it finds is given to them, shared out as their sheet says (`items: { share: even }`, the default: from whoever carries most; `share: order` for the first one first). A new character carries what their sheet's `items.start` says (`start: { ration: 2 }`).
 
 - **Journey roles:** `roles: { guide: { name: Guide }, lookout: { name: Lookout } }`: in a trip the player gives each to a character, and checks and tables read the holder, `roles.guide.values.pathfinding: { gte: 2 }`.
 
@@ -479,7 +479,7 @@ conditions:
   wounded: { name: Wounded, blocks: [actions.forced-march] }
 ```
 
-The Grey Marches play their Company this way: Survival from the best of those not wounded, Stealth from the clumsiest, a ration per mouth from what they carry, a fed night healing everyone, a ford that sprains the ankle of whoever leads the crossing, **Tend the wounded** for whoever acts with Survival 2 or more, a guide and a lookout, and Home ground when the party comes into a companion's home ([The Grey Marches](../packs/02-grey-marches.md)). Every key is in [Sheets](../technical/07-kinds.md#sheets).
+The Grey Marches play their Company this way: Survival from the best of those not wounded, Stealth from the clumsiest, a ration per mouth from what they carry, a fed night healing everyone, a ford that sprains the ankle of whoever leads the crossing, **Tend the wounded** for whoever acts with Survival 2 or more, a guide and a lookout, and Home ground when the party comes into a companion's home ([The Grey Marches](../bundled/02-grey-marches.md)). Every key is in [Sheets](../technical/07-kinds.md#sheets).
 
 ### Factions
 
@@ -491,7 +491,7 @@ A system can declare the **progress clocks** its world starts with (`kind: clock
 
 ### The world's rules
 
-What the world does by itself is its **reactions** (`kind: world`, named by `world:` in its system), written as a trip's actions are: at a moment of the world (`world.turn`, after every world turn; `world.clocks.<id>.full`, a clock filling) or as a condition turns true (`{ when: { factions.fort-keld.values.strength: { lte: 0 } } }`, `{ when: { world.events: market-day } }`), with steps that say a line on the timeline, roll a table (`roll: table.wyrm-wakes`), change factions and clocks (the Iron Clans' march brings Fort Keld's mutiny closer), or bring another reaction or a world turn (`do: world.turn`). They play wherever the world moves, a trip going on or not; the trip hears a clock filling too. Every key: [The world's rules](../technical/07-kinds.md#the-world-s-rules); the Systems app's [World](../systems/11-world.md).
+What the world does by itself is its **reactions** (`kind: world`, named by `world:` in its system), written as a trip's actions are: at a moment of the world (`world.turn`, after every world turn; `world.clocks.<id>.full`, a clock filling) or as a condition turns true (`{ when: { factions.fort-keld.values.strength: { lte: 0 } } }`, `{ when: { world.events: market-day } }`), with steps that say a line on the timeline, roll a table (`roll: table.wyrm-wakes`), change factions and clocks (the Iron Clans' march brings Fort Keld's mutiny closer), or bring another reaction or a world turn (`do: world.turn`). They play wherever the world moves, a trip going on or not; the trip hears a clock filling too. Every key: [The world's rules](../technical/07-kinds.md#the-world-s-rules); the Packs app's [World](../packs/11-world.md).
 
 ## 6. A calendar of your own
 
@@ -547,7 +547,7 @@ on:
 
 - **states**: each kind of weather, with its name and the values it gives the day (like a table's `set`); its id is what the travel rules' `weather` reads.
 - **seasons**: per season, where the weather starts and, from each kind, the weights of the next day's. Yesterday's weather the season has no row for starts over from `start`.
-- The journal shows the day's weather by its name. In the Systems app's **Checks**, pick the model under _Weather with inertia_.
+- The journal shows the day's weather by its name. In the Packs app's **Checks**, pick the model under _Weather with inertia_.
 
 The Grey Marches' `sky.yaml` is the full example (their tables in `weather.yaml` still roll weather by hand, without memory).
 

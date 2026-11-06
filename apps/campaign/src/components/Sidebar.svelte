@@ -56,5 +56,5 @@
   {:else if campaigns.loaded}
     <p class="side-help">{campaigns.list.length ? t('nav.noMatch') : t('nav.empty')}</p>
   {/if}
-  <a class="side-link" href={appUrl('systems')}>{t('nav.makeSystems')}</a>
+  <a class="side-link" href={appUrl('packs')}>{t('nav.makeSystems')}</a>
 </Sidebar>

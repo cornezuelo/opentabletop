@@ -35,11 +35,11 @@ export const en = {
   },
   welcome: {
     title: vocabulary.en.apps.characters,
-    body: 'Your roster: the characters this browser keeps, of any system. Make one with **New character**, or keep one from a trip (**Keep in the roster** on its card in Travel or Map). A character of the roster can travel on any map or trip played with its system, one at a time, and what happens to it there comes back here. Each one is made with its system’s characters’ sheet, edited in the Systems app.',
+    body: 'Your roster: the characters this browser keeps, of any system. Make one with **New character**, or keep one from a trip (**Keep in the roster** on its card in Travel or Map). A character of the roster can travel on any map or trip played with its system, one at a time, and what happens to it there comes back here. Each one is made with its system’s characters’ sheet, edited in the Packs app.',
   },
   bestiary: {
     title: 'Bestiary',
-    help: 'The creatures and kinds of people a system can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. **Make a character** puts one in the roster, named by the template’s generator if it has one (a recurring NPC); **Make copies** puts several (a fight at the table). Tables and effects make them in a trip (`present.<id>: 3`). Templates are shown here as they are, and edited in the Systems app (**Edit in Systems ↗**): what you change there affects only the copies made afterwards.',
+    help: 'The creatures and kinds of people a system can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. **Make a character** puts one in the roster, named by the template’s generator if it has one (a recurring NPC); **Make copies** puts several (a fight at the table). Tables and effects make them in a trip (`present.<id>: 3`). Templates are shown here as they are, and edited in the Packs app (**Edit in Packs ↗**): what you change there affects only the copies made afterwards.',
     inRoster: 'In the roster',
     inRosterHelp:
       'Characters made from this template, kept in the roster like any other: each with its own rolls (its values rolled again for each), its tags and what it carries, and remembering the template it came from (**Made from**).\n• **Make a character** — one, named by the template’s **Names from** if it has one (Hrolf, a bandit who comes back), and opened to edit\n• **Make copies** — that many at once (four wolves for tonight’s fight), named the same way or numbered (_Grey wolf 1_, _2_…)\nHow many are in the roster shows below, with **Delete them all** to clear them away when the encounter is over.',
@@ -55,10 +55,10 @@ export const en = {
     count: 'How many',
     made: 'Made {count} × {name}.',
     cantMake: 'These copies can’t be made: the template has no sheet.',
-    edit: 'Edit in Systems ↗',
+    edit: 'Edit in Packs ↗',
     editHelp:
-      'Templates are part of their system, like its sheets, so they are edited in the Systems app, at its **Bestiary** tab: this link opens it at this template. Copies already made don’t change with it: each is a character of the roster, edited here like any other.\n• A bundled system is read-only there: **Edit a copy** first',
-    none: 'No system has a bestiary yet. Make one in the Systems app (its **Bestiary** tab): **New template ↗** takes you there.',
+      'Templates are part of their system, like its sheets, so they are edited in the Packs app, at its **Bestiary** tab: this link opens it at this template. Copies already made don’t change with it: each is a character of the roster, edited here like any other.\n• A bundled system is read-only there: **Edit a copy** first',
+    none: 'No system has a bestiary yet. Make one in the Packs app (its **Bestiary** tab): **New template ↗** takes you there.',
     intro:
       'The creatures and kinds of people your systems can make, as **templates**: each a character of a sheet whose rolls (`{{2d4}}`) are made again for every copy. Pick one in **Bestiary** on the left, by system and sheet; search it, or filter it by its tags. From a template you make copies in the roster, and tables and effects make them in a trip (`present.<id>: 3`).',
     notFound:
@@ -77,13 +77,13 @@ export const en = {
       'What to make: a character, with the sheet of its system’s characters, or a **party**, with its party sheet (what belongs to the whole party: morale, provisions…). A party has **members**, characters of the roster you choose after making it; taken on a trip, they go with it.',
     aParty: 'a party',
     create: 'Create',
-    noSystems: 'No system has a characters’ sheet yet: make one in Systems (its **Sheet** tab).',
+    noSystems: 'No system has a characters’ sheet yet: make one in Packs (its **Sheet** tab).',
   },
   character: {
     sheet: 'Sheet',
     sheetHelp:
-      'The sheet it’s made with (`pack/id`): its values, tracks, conditions and kinds of relation. A sheet belongs to its system, and is edited in the Systems app.',
-    editSheet: 'Edit the sheet in Systems →',
+      'The sheet it’s made with (`pack/id`): its values, tracks, conditions and kinds of relation. A sheet belongs to its system, and is edited in the Packs app.',
+    editSheet: 'Edit the sheet in Packs →',
     madeFrom: 'Made from',
     madeFromHelp:
       'The template of a bestiary it was copied from: its numbers were rolled when it was made, and it’s a character like any other from then on. Changing the template later doesn’t change it.',

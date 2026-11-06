@@ -36,7 +36,7 @@ export function withPictures(html: string, picture?: (src: string) => string | u
 }
 
 /**
- * A picture a page shows, by its path from docs/manual/ (`en/systems/hex-flower.svg`): written
+ * A picture a page shows, by its path from docs/manual/ (`en/packs/hex-flower.svg`): written
  * beside the page, or elsewhere by a relative path (`../images/x.svg`); a translation without
  * its own uses the English one.
  */

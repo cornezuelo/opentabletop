@@ -57,7 +57,7 @@ When something ticked needs something that isn't, **Left out** says what and why
 - `Brenna plays in Trip «To the coast».`: a roster character and the map or trip it plays in, both ways.
 - `Brenna is in the party The Company.`: a roster party and its members.
 
-**Add what's missing** ticks all of it, and what that needs in turn. You can still export without it. Packs that come with the apps (Core, the Grey Marches…) are never in the file and never asked for: every copy of OpenTabletop has them. Preferences, the Oracle app's history and Systems' test trips go only in backups.
+**Add what's missing** ticks all of it, and what that needs in turn. You can still export without it. Packs that come with the apps (Core, the Grey Marches…) are never in the file and never asked for: every copy of OpenTabletop has them. Preferences, the Oracle app's history and Packs' test trips go only in backups.
 
 To bring an export in, press **Import…** in the app switcher and choose the file. The same tree shows what it holds, each thing marked:
 

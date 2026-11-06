@@ -6,7 +6,7 @@
   import { sheetText } from './texts'
 
   /**
-   * Whose sheet a card is: the sheet and its system, a link to edit it in Systems, and
+   * Whose sheet a card is: the sheet and its system, a link to edit it in Packs, and
    * (from the host) where the system is chosen. What a sheet has is its system's to say.
    */
   let {
@@ -23,7 +23,7 @@
   } = $props()
 
   const t = translator(() => locale)
-  const url = $derived(`${appUrl('systems')}#/system/${encodeURIComponent(system.id)}/sheet`)
+  const url = $derived(`${appUrl('packs')}#/system/${encodeURIComponent(system.id)}/sheet`)
 </script>
 
 <p class="origin">

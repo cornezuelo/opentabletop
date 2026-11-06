@@ -2,7 +2,7 @@
 
 Everything the party does on a trip is an **action** of its system: marching, camping, resting, foraging, crossing a river. The engine has none of its own. Each action says **when** it can be taken (`when` / `unless`, `oncePerDay`), **who** takes it (the player with a button, or the system by itself at a moment: `on:`) and **what it does**: a list of **steps** (`do:`), done in order. This page gathers every step, with an example of each and a whole system at the end that uses them all. The rest of an action (its parameters, its checks, the halt, the way the trip goes on by itself) is in [Your own travel system](../oracle/07-connecting.md#5-your-own-travel-system); the YAML of the whole kind in [Kinds of definition](07-kinds.md#travel-rules).
 
-In the Systems app each action is a card in **Rules → Actions**, and each step a card of its own in **What it does**: a choice of what it does (_Pass time_, _Move_, _Take another action_…) and that kind's fields, its own **Only when** / **Not when** as rows, and **YAML** to write it as here (`time: 180`). See [Rules](../systems/05-rules.md#actions).
+In the Packs app each action is a card in **Rules → Actions**, and each step a card of its own in **What it does**: a choice of what it does (_Pass time_, _Move_, _Take another action_…) and that kind's fields, its own **Only when** / **Not when** as rows, and **YAML** to write it as here (`time: 180`). See [Rules](../packs/05-rules.md#actions).
 
 The world has reactions of its own, written the same way but without a party: their steps are `say`, `roll`, `effects` (clocks and factions), `do` (another reaction, `world.reactions.<id>`, or a world turn, `world.turn`), `pause` and `ask` (the world waits for the player, nothing moving it until answered). See [The world's rules](07-kinds.md#the-world-s-rules). Which moments a trip and the world hear, and in which order: [What reacts to what](11-what-reacts-to-what.md).
 
@@ -160,4 +160,4 @@ What you see in the trip, starting at 08:00 with 5 food:
 - **`travel.mode` to a way that can't be chosen there** (a boat inland): nothing changes. Give the way's `when` the place where it can be boarded, or set the value it needs first (as the raft above).
 - **A `pause` the player never sees coming**: say why (`pause: The bridge is down.`), or `say` it just before.
 
-The Grey Marches use every step: **Take the ferry** (Brenna's ferry over the Saltmere) asks how to pay, waits for her afternoon crossing, says what's left, takes to the boat and pauses; **Go ashore** changes the way back; the hirelings' grumbling says so in the journal. See [The Grey Marches](../packs/02-grey-marches.md).
+The Grey Marches use every step: **Take the ferry** (Brenna's ferry over the Saltmere) asks how to pay, waits for her afternoon crossing, says what's left, takes to the boat and pauses; **Go ashore** changes the way back; the hirelings' grumbling says so in the journal. See [The Grey Marches](../bundled/02-grey-marches.md).

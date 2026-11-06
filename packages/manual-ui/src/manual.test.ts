@@ -53,11 +53,10 @@ describe('the bundled manual', () => {
             shown++
           }
     expect(shown).toBeGreaterThan(0)
-    const page = { locale: 'es', app: 'systems' }
-    const has = (p: string) =>
-      ['en/systems/a.svg', 'es/systems/b.svg', 'en/images/c.svg'].includes(p)
-    expect(picturePath(page, 'a.svg', has)).toBe('en/systems/a.svg')
-    expect(picturePath(page, 'b.svg', has)).toBe('es/systems/b.svg')
+    const page = { locale: 'es', app: 'packs' }
+    const has = (p: string) => ['en/packs/a.svg', 'es/packs/b.svg', 'en/images/c.svg'].includes(p)
+    expect(picturePath(page, 'a.svg', has)).toBe('en/packs/a.svg')
+    expect(picturePath(page, 'b.svg', has)).toBe('es/packs/b.svg')
     expect(picturePath(page, '../images/c.svg', has)).toBe('en/images/c.svg')
     expect(picturePath(page, 'https://x/y.svg', has)).toBeUndefined()
     expect(withPictures('<p><img src="b.svg" alt="A flower"></p>', (src) => `/assets/${src}`)).toBe(

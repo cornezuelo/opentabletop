@@ -22,7 +22,7 @@ Cada aplicación la usa: Campaña la abre; Mapa abre un mapa suyo al empezar (el
 ## La pantalla
 
 - **Cabecera**: el selector de aplicaciones (nueve puntos: todas las aplicaciones, Campaña la primera, las copias y exportaciones de tus datos, y enlaces al código fuente, para avisar de un problema y a las novedades), **Jugando** ([arriba](#la-campaña-en-la-que-juegas)), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidos por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de campañas y la columna de ayuda, y las vuelven a mostrar.
-- **Campañas** (izquierda): **Nueva campaña**, un buscador y las campañas que guarda este navegador, la última cambiada primero, cada una con su sistema y, cuando su reloj del mundo está en marcha, su fecha. Bajo la lista, **Crear o editar sistemas** abre la aplicación Sistemas.
+- **Campañas** (izquierda): **Nueva campaña**, un buscador y las campañas que guarda este navegador, la última cambiada primero, cada una con su sistema y, cuando su reloj del mundo está en marcha, su fecha. Bajo la lista, **Crear o editar sistemas** abre la aplicación Packs.
 - **La campaña** (centro): la elegida en la lista, con sus pestañas.
 
 Las etiquetas subrayadas con puntos tienen una explicación: pulsa una y la columna de ayuda se abre en ella.
@@ -61,7 +61,7 @@ Cuando se ha llevado el último mapa o viaje, la campaña que dejó se borra.
 
 Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran la campaña con él) y **⋯** con **Borrar**. Debajo:
 
-- **Sistema**: el sistema de juego con el que se juegan sus mapas y viajes, con **Editar el sistema en la aplicación Sistemas →**. Se elige en los **Ajustes del mapa → Campaña** de un mapa (o al empezar un viaje en ella), ya que también es de ellos ([Campañas](../map/01-getting-started.md#campañas)).
+- **Sistema**: el sistema de juego con el que se juegan sus mapas y viajes, con **Editar el sistema en la aplicación Packs →**. Se elige en los **Ajustes del mapa → Campaña** de un mapa (o al empezar un viaje en ella), ya que también es de ellos ([Campañas](../map/01-getting-started.md#campañas)).
 - **Notas**: su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre.
 - Con un viaje en marcha en la campaña, una línea dice cuál, con **Abrir**. En una campaña hay un viaje en marcha a la vez, ya que su tiempo es el de la campaña ([Un viaje a la vez](../travel/02-playing.md#la-campaña)).
 
@@ -84,7 +84,7 @@ El reloj del mundo, el mismo que muestra el panel **Mundo** de Mapa para un mapa
 
 Aquí no hay grupo, así que avanzar el tiempo solo mueve el mundo: llegan sus eventos, su clima se tira día a día, sus relojes hacen lo que dice el sistema al llenarse, y se juegan los turnos de las facciones que tocan, cambiando su tierra en el mapa elegido en [Facciones](02-factions.md). Un viaje en marcha en la campaña (en un mapa, o en Viajes) pregunta en su siguiente paso qué hizo su grupo: **Vivirlo** (espera hasta la nueva fecha, y entonces oye los relojes que se llenaron aquí y los turnos del mundo jugados aquí, si su sistema los nombra, y el diario dice lo que hizo cada turno: [Momentos del mundo](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje)) o **Saltarlo** (está en esa fecha tal como estaba, y solo ha cambiado el mundo: una forma de adelantar un par de estaciones sin tocar al grupo). Mientras hay un viaje en marcha, el reloj no puede volver atrás, y el clima del mundo es el del viaje (aquí no se muestra).
 
-Cuando el mundo te espera (la pausa o la pregunta de una reacción, [Mundo](../systems/11-world.md)), **El mundo espera: …** aparece en todas las pestañas, con **Seguir** o las opciones de la pregunta; nada mueve el mundo (aquí, en un mapa o en un viaje) hasta que respondes, y luego sigue el resto.
+Cuando el mundo te espera (la pausa o la pregunta de una reacción, [Mundo](../packs/11-world.md)), **El mundo espera: …** aparece en todas las pestañas, con **Seguir** o las opciones de la pregunta; nada mueve el mundo (aquí, en un mapa o en un viaje) hasta que respondes, y luego sigue el resto.
 
 ### Facciones
 
@@ -92,7 +92,7 @@ Los poderes del mundo de la campaña, sus hojas y su tierra en cada uno de sus m
 
 ### Cronología
 
-Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas y lunas, relojes llenos, los turnos de las facciones, lo que el mundo hizo por sí solo ([Mundo](../systems/11-world.md)), el reloj volviendo atrás, y tus propias notas (**Añadir**). La misma cronología que la del panel Mundo, en una página propia. Es la historia del mundo, no la del grupo: un evento llega en su día esté donde esté el grupo (_Día de mercado en Ashford_ sale estéis en Ashford o no), y lo que hace el grupo en un viaje (casillas, comprobaciones, encuentros, lugares encontrados) va al **diario** del viaje. Solo lo más destacado de un viaje llega también aquí, una línea corta cada cosa: las llegadas (_El grupo llega a 0707_), los lugares encontrados, las comprobaciones que detuvieron el viaje (un encuentro) y los personajes que dejaron el grupo.
+Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas y lunas, relojes llenos, los turnos de las facciones, lo que el mundo hizo por sí solo ([Mundo](../packs/11-world.md)), el reloj volviendo atrás, y tus propias notas (**Añadir**). La misma cronología que la del panel Mundo, en una página propia. Es la historia del mundo, no la del grupo: un evento llega en su día esté donde esté el grupo (_Día de mercado en Ashford_ sale estéis en Ashford o no), y lo que hace el grupo en un viaje (casillas, comprobaciones, encuentros, lugares encontrados) va al **diario** del viaje. Solo lo más destacado de un viaje llega también aquí, una línea corta cada cosa: las llegadas (_El grupo llega a 0707_), los lugares encontrados, las comprobaciones que detuvieron el viaje (un encuentro) y los personajes que dejaron el grupo.
 
 ### Mapas y viajes
 

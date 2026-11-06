@@ -68,7 +68,7 @@ export const en = {
   },
   rolledBy: {
     title: 'Rolled by',
-    help: "Where the systems that bring this pack roll it: an action's step (`roll: table.ruins`), a check's binding, a progress clock filling, another table's entry or a generator's field. Each place links to where it's edited (the rules in Systems, tables here).\n• **Nothing rolls it** — it's rolled by hand, or by a pack no system brings\nWhat a map or a trip rolls by itself (the weather's own tables, discovery) is said by the system's bindings, listed too.",
+    help: "Where the systems that bring this pack roll it: an action's step (`roll: table.ruins`), a check's binding, a progress clock filling, another table's entry or a generator's field. Each place links to where it's edited (the rules in Packs, tables here).\n• **Nothing rolls it** — it's rolled by hand, or by a pack no system brings\nWhat a map or a trip rolls by itself (the weather's own tables, discovery) is said by the system's bindings, listed too.",
     count: '{n} places',
     none: 'Nothing rolls it',
   },
@@ -269,7 +269,7 @@ export const en = {
   newDef: {
     forTravel: 'Rules of the system',
     forTravelHelp:
-      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in Map (Play → With rules) and in Travel, edited in the Systems app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\n• **Sheet** — what each character of the party has (values, conditions)\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
+      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in Map (Play → With rules) and in Travel, edited in the Packs app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\n• **Sheet** — what each character of the party has (values, conditions)\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
     system: {
       'roll-modes': 'Roll modes',
       'travel-rules': 'Travel rules',
