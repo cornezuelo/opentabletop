@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-11-06
+
 ### Apps
 
 - Map: in a window under 1100 px the panel floats over the map, folded until a tool, a panel or a cell needs it. On a phone its sheet can take most of the window, and the bar's actions are one ⋯ menu.
