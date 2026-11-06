@@ -1,6 +1,7 @@
 import { localize, type TravelSystem } from '@open-tabletop/session'
 import { vocabulary } from '@open-tabletop/ui-kit'
 import { idText, type Translate } from './i18n'
+import { LINES } from './way'
 
 /** Terrain ids of Map's default palette, so trips can use them with any system. */
 export const PALETTE = Object.keys(vocabulary.en.terrains)
@@ -12,7 +13,7 @@ export function terrainChoices(system: TravelSystem): string[] {
 
 /** Kinds of line to choose from: the usual ones plus any the rules name. */
 export function connectionChoices(system: TravelSystem): string[] {
-  return [...new Set(['road', 'trail', 'river', ...Object.keys(system.rules.connections ?? {})])]
+  return [...new Set([...LINES, ...Object.keys(system.rules.connections ?? {})])]
 }
 
 /** Where a system's own names are read: the system and the language shown. */

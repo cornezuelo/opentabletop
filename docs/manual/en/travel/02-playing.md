@@ -30,7 +30,7 @@ The list on the left is the way. The party starts on cell 1 and heads for the la
 
 - **Terrain** of each cell: Map's terrains plus any the system's rules name.
 - **Tags**, each one a pill: Enter or a comma adds one, × takes it out. Tables and checks read them: the Grey Marches stop at `landmark` cells, charge a toll on `toll` ones and have night lights in `haunted` ones.
-- Under each cell, **To the next cell**: whether a road, trail or river joins it to the next one. What that does depends on the system (in the Grey Marches, roads are faster and keep you from getting lost or meeting anything).
+- Under each cell, **To the next cell**: what lies between it and the next one: a road or trail followed, a river to cross, or the system's own kinds (a gate). What that does depends on the system (in the Grey Marches, roads are faster and keep you from getting lost or meeting anything). They work as on a map: a **River** alone is crossed (`trip.crossing: river`), and a road or anything else ticked with it takes the party over; something a system shuts, like Core's **Gate**, starts as the system says, and its actions open it.
 - **km per cell**: the scale. Speeds in the rules are in km per day. A system that sets its own scale (`travel.cellKm`) is always played at it: the box shows it and can't be changed here (change it in Systems → Rules).
 - **Add a cell** extends the way; **×** removes one the party hasn't reached. Cells already walked are greyed out and can't change.
 

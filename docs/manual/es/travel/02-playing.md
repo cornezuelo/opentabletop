@@ -30,7 +30,7 @@ La lista de la izquierda es el camino. El grupo empieza en la casilla 1 y se dir
 
 - **Terreno** de cada casilla: los terrenos de Mapa más los que nombren las reglas del sistema.
 - **Etiquetas**, cada una una pastilla: Intro o una coma añade una, × la quita. Las tablas y las comprobaciones las leen: las Marcas Grises se detienen en las casillas `landmark`, cobran peaje en los `toll` y tienen luces nocturnas en los `haunted`.
-- Debajo de cada casilla, **A la siguiente casilla**: si un camino, un sendero o un río la une con la siguiente. Lo que eso hace depende del sistema (en las Marcas Grises, los caminos son más rápidos y evitan perderse y los encuentros).
+- Debajo de cada casilla, **A la siguiente casilla**: qué hay entre ella y la siguiente: un camino o sendero que se sigue, un río que cruzar, o los tipos propios del sistema (una verja). Lo que eso hace depende del sistema (en las Marcas Grises, los caminos son más rápidos y evitan perderse y los encuentros). Funcionan como en un mapa: un **Río** por sí solo se cruza (`trip.crossing: river`), y un camino o cualquier otra cosa marcada con él hace pasar al grupo por encima; lo que un sistema cierra, como la **Verja** de Core, empieza como diga el sistema, y sus acciones lo abren.
 - **km por casilla**: la escala. Las velocidades de las reglas van en km por día. Un sistema que fija su propia escala (`travel.cellKm`) se juega siempre a ella: la caja la muestra y aquí no se cambia (se cambia en Sistemas → Reglas).
 - **Añadir una casilla** alarga el camino; **×** quita una a la que el grupo aún no ha llegado. Las casillas ya recorridas salen atenuados y no se pueden cambiar.
 

@@ -71,7 +71,10 @@ describe('a connection’s state in play', () => {
         ],
       },
     }
-    const open = { ...rooms, connectionOf: () => ({ id: 'the-gate', kind: 'gate', uses: 2 }) }
+    const open = {
+      ...rooms,
+      connectionOf: () => ({ id: 'the-gate', kind: 'gate', tags: [], state: 'open', uses: 2 }),
+    }
     const opts = { system: creaks, world: open }
     let { session } = startTrip({ system: creaks, location: 'a', seed: 's' })
     session = stepTrip(opts, session, { type: 'setDestination', place: 'b' }).state

@@ -423,7 +423,7 @@ export const en = {
     tagsHelp:
       'Words that mark the cell, each one a pill (Enter or a comma adds it, × takes it out), for the checks and tables that look for them:\n• `landmark` — `place.tags: landmark` in a condition\n• `shrine, haunted`\nThe suggestions are the tags the loaded packs use; what each one does depends on the system (see its page in the manual).',
     connectionsHelp:
-      'Whether a road, trail or river joins this cell to the next one. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.connections: road`)',
+      'What lies between this cell and the next one, as on a map. What that does depends on the system:\n• roads are often faster (`road` × `1.5`)\n• a system may skip some checks on them (**Skip if** `trip.connections: road`)\n• a river alone is crossed (`trip.crossing: river`); a road ticked with it takes the party over\n• a kind of the system may start shut, until an action opens it',
     addHex: 'Add a cell',
     remove: 'Remove',
     destinationHint: 'Add cells to the way to set off.',

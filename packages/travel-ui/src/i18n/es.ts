@@ -417,7 +417,7 @@ export const es: Messages<typeof en> = {
     tagsHelp:
       'Palabras que marcan la casilla, cada una una pastilla (Intro o una coma la añade, × la quita), para las comprobaciones y tablas que las buscan:\n• `landmark` — `place.tags: landmark` en una condición\n• `shrine, haunted`\nLas sugerencias son las etiquetas que usan los packs cargados; lo que hace cada una depende del sistema (mira su página en el manual).',
     connectionsHelp:
-      'Si un camino, sendero o río une esta casilla con la siguiente. Lo que eso hace depende del sistema:\n• los caminos suelen ser más rápidos (`road` × `1.5`)\n• un sistema puede saltarse algunas comprobaciones en ellos (**Salvo si** `trip.connections: road`)',
+      'Qué hay entre esta casilla y la siguiente, como en un mapa. Lo que eso hace depende del sistema:\n• los caminos suelen ser más rápidos (`road` × `1.5`)\n• un sistema puede saltarse algunas comprobaciones en ellos (**Salvo si** `trip.connections: road`)\n• un río por sí solo se cruza (`trip.crossing: river`); un camino marcado con él hace pasar por encima\n• un tipo del sistema puede empezar cerrado, hasta que una acción lo abra',
     addHex: 'Añadir una casilla',
     remove: 'Quitar',
     destinationHint: 'Añade casillas al camino para ponerte en marcha.',

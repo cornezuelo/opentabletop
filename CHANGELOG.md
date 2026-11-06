@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Travel: on a way without a map, **Gate** and **River** work as on a map: Core's gate starts shut until **Open the gate**, and a river alone is crossed, unless a road or something else ticked with it takes the party over.
 - Map and Travel: a trip that camped through a wait from the World panel could leave Play unable to open for good. The journal and its export now read in time order, on trips already saved too.
 - Map and Travel: waiting at the journey's end no longer tells the arrival again every day, and an arrival is stamped when the party got there.
 - Map: a way out in a room is offered from the room, so a trip can leave the Barrow-halls by its stair. **New trip** on a map whose trip went on elsewhere starts one there, after asking.
