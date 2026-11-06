@@ -24,10 +24,11 @@ export const es: Messages = {
     wall: 'Muros (W)',
     icon: 'Iconos (I)',
     text: 'Texto (T)',
-    play: 'Jugar (P)',
+    trip: 'El viaje',
     token: 'Tokens (K)',
     region: 'Regiones (N)',
   },
+  modes: { label: 'Editar o jugar', edit: 'Editar', play: 'Jugar' },
   terrainMode: {
     brush: 'Pincel (B)',
     fill: 'Relleno (G)',

@@ -43,7 +43,7 @@ El panel de la casilla lista las líneas que cruzan la casilla seleccionada: cá
 
 ## Conexiones
 
-La herramienta **Conexiones** (<kbd>C</kbd>, **⇄**) une dos lugares con algo que no es una línea que se sigue: un puente, una puerta, un paso, un vado, o un camino entre dos casillas lejanas (un túnel, un transbordador, una senda oculta). Dos lugares lejanos unidos por una conexión pasan a ser vecinos: un viaje puede ir directamente del uno al otro en un paso, tan largo como las casillas entre sus extremos a la escala del mapa (o su propia **Longitud**), a la velocidad de su tipo y nunca a la del terreno (no cruza las tierras de en medio).
+La herramienta **Conexiones** (<kbd>C</kbd>) une dos lugares con algo que no es una línea que se sigue: un puente, una puerta, un paso, un vado, o un camino entre dos casillas lejanas (un túnel, un transbordador, una senda oculta). Dos lugares lejanos unidos por una conexión pasan a ser vecinos: un viaje puede ir directamente del uno al otro en un paso, tan largo como las casillas entre sus extremos a la escala del mapa (o su propia **Longitud**), a la velocidad de su tipo y nunca a la del terreno (no cruza las tierras de en medio).
 
 - Elige primero su **Tipo**: qué es la conexión, como lo nombra el sistema del mapa. La casilla sugiere los tipos que declara el sistema y los que ya usa el mapa; una palabra nueva también vale, y no hace nada hasta que un sistema dice qué hace.
 - Haz clic en un lugar y luego en otro: la conexión los une, dibujada como una línea discontinua con un rombo en medio, o como el [estilo](01-getting-started.md#estilos) del mapa dibuje su tipo (una puerta en su muro, un puente, las piedras de un vado: en Mazmorra clásica, una `door` es una puerta). <kbd>Esc</kbd> o un clic derecho descartan una que hayas empezado.
@@ -56,7 +56,7 @@ Lo que hace un tipo de conexión en un viaje lo decide el sistema, como con los 
 
 ## Muros
 
-La herramienta **Muros** (<kbd>W</kbd>, **▥**) pone muros en los lados de las casillas, en cualquier mapa, de hexágonos o de cuadrados: la muralla de un pueblo, un acantilado, el muro que tapia un pasadizo de una mazmorra. Un viaje nunca lo cruza, igual que los muros que el [suelo](02-terrain.md) dibuja por sí solo alrededor de una estructura, y una [conexión](#conexiones) dibujada que lo atraviese lo abre (una puerta, un portón, una brecha).
+La herramienta **Muros** (<kbd>W</kbd>) pone muros en los lados de las casillas, en cualquier mapa, de hexágonos o de cuadrados: la muralla de un pueblo, un acantilado, el muro que tapia un pasadizo de una mazmorra. Un viaje nunca lo cruza, igual que los muros que el [suelo](02-terrain.md) dibuja por sí solo alrededor de una estructura, y una [conexión](#conexiones) dibujada que lo atraviese lo abre (una puerta, un portón, una brecha).
 
 - **Clic** cerca de un lado de una casilla: un muro en ese lado, entre esa casilla y la de enfrente.
 - **Arrastrar** por los lados: un muro en cada lado por el que pasa el puntero (cruzar el centro de una casilla no añade nada).

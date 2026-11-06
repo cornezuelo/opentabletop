@@ -135,6 +135,10 @@ class Editor {
   canRedo = $state(false)
 
   #tool = $state<ToolId>('select')
+  /** Editing or playing: what's on the rail, and which tools' keys work. */
+  mode = $state<'edit' | 'play'>('edit')
+  /** The tool to come back to from Play. */
+  #editTool: ToolId = 'select'
   /**
    * The active tool. Changing it drops what the previous tool had selected (hex, icon,
    * label, token), so no outline or panel is left for something you can't edit now.
@@ -148,6 +152,10 @@ class Editor {
     if (tool === this.#tool) return
     const token = tool === 'token' ? this.selectedToken : null
     this.#tool = tool
+    // Select is in both modes; any other tool is in one.
+    if (tool === 'play') this.mode = 'play'
+    else if (tool !== 'select') this.mode = 'edit'
+    if (this.mode === 'edit') this.#editTool = tool
     this.selected = null
     this.selectedIcon = null
     this.selectedLabel = null
@@ -155,6 +163,17 @@ class Editor {
     this.connectionStart = null
     this.selectedToken =
       tool === 'play' ? (this.map.tokens.find((t) => t.kind === 'party')?.id ?? null) : token
+  }
+  /** Editing or playing, as the bar's switch does: Edit comes back to the last editing tool. */
+  switchMode(mode: 'edit' | 'play'): void {
+    this.panelView = 'tool'
+    if (mode === this.mode) return
+    if (mode === 'play') {
+      this.tool = 'play'
+      return
+    }
+    this.mode = 'edit'
+    this.tool = this.#editTool
   }
   /** What the side panel shows: the active tool and hex, or map settings and preferences. */
   panelView = $state<PanelView>('tool')

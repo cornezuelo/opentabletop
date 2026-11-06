@@ -1,51 +1,60 @@
 <script lang="ts">
   import { appGlyphUrl, tooltip } from '@open-tabletop/ui-kit'
-  import LineIcon, { LINE_ICONS, type LineIconName } from './LineIcon.svelte'
+  import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
 
   /** The tools, on the left of the map: what clicking on the map does. */
 
-  const tools: { id: ToolId; label: MessageKey; glyph: string }[] = [
-    { id: 'select', label: 'tools.select', glyph: '⬚' },
-    { id: 'terrain', label: 'tools.terrain', glyph: '⬢' },
-    { id: 'region', label: 'tools.region', glyph: 'region' },
-    { id: 'path', label: 'tools.path', glyph: '〰' },
-    { id: 'connection', label: 'tools.connection', glyph: '⇄' },
-    { id: 'wall', label: 'tools.wall', glyph: '▥' },
-    { id: 'icon', label: 'tools.icon', glyph: '♜' },
-    { id: 'text', label: 'tools.text', glyph: 'T' },
-    { id: 'token', label: 'tools.token', glyph: '♟' },
-    { id: 'play', label: 'tools.play', glyph: '▶' },
+  type Tool = { id: ToolId; label: MessageKey; glyph: LineIconName }
+  const select: Tool = { id: 'select', label: 'tools.select', glyph: 'select' }
+  /** By what they're for, a line between groups: the land, what links it, what stands on it. */
+  const editing: Tool[][] = [
+    [select],
+    [
+      { id: 'terrain', label: 'tools.terrain', glyph: 'terrain' },
+      { id: 'region', label: 'tools.region', glyph: 'region' },
+      { id: 'path', label: 'tools.path', glyph: 'path' },
+      { id: 'wall', label: 'tools.wall', glyph: 'wall' },
+    ],
+    [{ id: 'connection', label: 'tools.connection', glyph: 'connection' }],
+    [
+      { id: 'icon', label: 'tools.icon', glyph: 'icon' },
+      { id: 'text', label: 'tools.text', glyph: 'text' },
+      { id: 'token', label: 'tools.token', glyph: 'token' },
+    ],
   ]
+  const playing: Tool[][] = [[select, { id: 'play', label: 'tools.trip', glyph: 'trip' }]]
+  const groups = $derived(editor.mode === 'play' ? playing : editing)
+  /** World and the Oracle take the panel: then they, not the tool, are what's lit. */
+  const inTool = $derived(editor.panelView !== 'world' && editor.panelView !== 'oracle')
 </script>
 
 <nav class="toolbar" aria-label={t('tools.label')}>
-  {#each tools as tool (tool.id)}
-    <button
-      class:active={editor.tool === tool.id}
-      use:tooltip={t(tool.label)}
-      aria-label={t(tool.label)}
-      aria-pressed={editor.tool === tool.id}
-      onclick={() => {
-        editor.tool = tool.id
-        editor.panelView = 'tool'
-      }}
-    >
-      {#if LINE_ICONS.includes(tool.glyph)}
-        <LineIcon name={tool.glyph as LineIconName} />
-      {:else}
-        {tool.glyph}
-      {/if}
-    </button>
+  {#each groups as group, g (g)}
+    {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}
+    {#each group as tool (tool.id)}
+      <button
+        class:active={inTool && editor.tool === tool.id}
+        use:tooltip={t(tool.label)}
+        aria-label={t(tool.label)}
+        aria-pressed={inTool && editor.tool === tool.id}
+        onclick={() => {
+          editor.tool = tool.id
+          editor.panelView = 'tool'
+        }}><LineIcon name={tool.glyph} /></button
+      >
+    {/each}
   {/each}
+  <span class="sep" aria-hidden="true"></span>
   <!-- The world clock (the campaign's date, events and progress clocks), next to Play. -->
   <button
     class:active={editor.panelView === 'world'}
     use:tooltip={t('actions.world')}
     aria-label={t('actions.world')}
     aria-pressed={editor.panelView === 'world'}
-    onclick={() => (editor.panelView = editor.panelView === 'world' ? 'tool' : 'world')}>☾</button
+    onclick={() => (editor.panelView = editor.panelView === 'world' ? 'tool' : 'world')}
+    ><LineIcon name="world" /></button
   >
   <!-- The Oracle is used while mapping and playing: with the tools, under Play and the World. -->
   <button
@@ -71,6 +80,13 @@
     scrollbar-color: var(--panel-border) var(--panel);
     background: var(--panel);
     border-right: 1px solid var(--panel-border);
+  }
+
+  .sep {
+    flex: none;
+    height: 1px;
+    margin: 2px 6px;
+    background: var(--panel-border);
   }
 
   button {

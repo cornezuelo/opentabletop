@@ -102,6 +102,9 @@ export function bindShortcuts(): () => void {
       return
     }
 
+    // The tools that edit the map have no keys in Play: a slip can't turn a click into a stroke.
+    if (editor.mode === 'play' && 'bgeritckwn'.includes(key)) return
+
     switch (key) {
       case 'v':
         editor.tool = 'select'
@@ -130,7 +133,7 @@ export function bindShortcuts(): () => void {
         editor.tool = 'text'
         break
       case 'p':
-        editor.tool = 'play'
+        editor.switchMode(editor.mode === 'play' ? 'edit' : 'play')
         break
       case 'k':
         editor.tool = 'token'

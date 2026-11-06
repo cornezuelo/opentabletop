@@ -43,7 +43,7 @@ The cell panel lists the lines crossing the selected cell: switch them between c
 
 ## Connections
 
-The **Connections** tool (<kbd>C</kbd>, **⇄**) joins two places with something that isn't a line you follow: a bridge, a gate, a pass, a ford, or a way between two far cells (a tunnel, a ferry, a hidden path). Two far places joined by a connection become neighbours: a trip may go straight from one to the other in one step, as long as the cells between its ends at the map's scale (or its own **Length**), at its kind's speed and never the terrain's (it crosses none of the land between).
+The **Connections** tool (<kbd>C</kbd>) joins two places with something that isn't a line you follow: a bridge, a gate, a pass, a ford, or a way between two far cells (a tunnel, a ferry, a hidden path). Two far places joined by a connection become neighbours: a trip may go straight from one to the other in one step, as long as the cells between its ends at the map's scale (or its own **Length**), at its kind's speed and never the terrain's (it crosses none of the land between).
 
 - Choose its **Kind** first: what the connection is, as the map's system names it. The box suggests the kinds the system declares and those the map already uses; a new word works too, and does nothing until a system says what it does.
 - Click a place, then another: the connection joins them, drawn as a dashed line with a diamond in its middle, or as the map's [style](01-getting-started.md#styles) draws its kind (a door in its wall, a bridge, a ford's stepping stones: in Classic dungeon a `door` is a door). <kbd>Esc</kbd> or a right click drops one you've started.
@@ -56,7 +56,7 @@ What a kind of connection does in a trip is the system's, like roads: a speed, o
 
 ## Walls
 
-The **Walls** tool (<kbd>W</kbd>, **▥**) puts walls on the sides of cells, on any map, of hexes or squares: a city wall round a town, a cliff, the wall that bricks up a dungeon's passage. A trip never crosses one, like the walls [floor](02-terrain.md) draws by itself round a structure, and a [connection](#connections) drawn across it opens it (a gate, a door, a breach).
+The **Walls** tool (<kbd>W</kbd>) puts walls on the sides of cells, on any map, of hexes or squares: a city wall round a town, a cliff, the wall that bricks up a dungeon's passage. A trip never crosses one, like the walls [floor](02-terrain.md) draws by itself round a structure, and a [connection](#connections) drawn across it opens it (a gate, a door, a breach).
 
 - **Click** near a side of a cell: a wall on that side, between that cell and the one across.
 - **Drag** along the sides: a wall on each side the pointer runs along (passing through a cell's middle adds nothing).

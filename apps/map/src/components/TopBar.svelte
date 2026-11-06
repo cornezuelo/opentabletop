@@ -8,7 +8,7 @@
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { getCampaign } from '@open-tabletop/storage'
-  import LineIcon, { LINE_ICONS, type LineIconName } from './LineIcon.svelte'
+  import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import {
     getLocale,
     locales,
@@ -52,7 +52,7 @@
 
   type Action = {
     label: MessageKey
-    glyph: string
+    glyph: LineIconName
     run: () => void
     enabled?: () => boolean
     /** A view of the side panel: shown pressed while it's open. */
@@ -66,30 +66,30 @@
     [
       {
         label: 'actions.undo',
-        glyph: '↶',
+        glyph: 'undo',
         run: () => editor.undo(),
         enabled: () => editor.canUndo,
       },
       {
         label: 'actions.redo',
-        glyph: '↷',
+        glyph: 'redo',
         run: () => editor.redo(),
         enabled: () => editor.canRedo,
       },
       { label: 'actions.fit', glyph: 'fit', run: () => view.fit() },
     ],
     [
-      { label: 'actions.new', glyph: '✚', run: newMap },
+      { label: 'actions.new', glyph: 'new', run: newMap },
       { label: 'actions.open', glyph: 'folder', run: toggle('library'), panel: 'library' },
       { label: 'actions.save', glyph: 'save', run: saveMap },
-      { label: 'actions.export', glyph: '⤓', run: toggle('export'), panel: 'export' },
+      { label: 'actions.export', glyph: 'export', run: toggle('export'), panel: 'export' },
     ],
     [
-      { label: 'panel.layers', glyph: '▤', run: toggle('layers'), panel: 'layers' },
+      { label: 'panel.layers', glyph: 'layers', run: toggle('layers'), panel: 'layers' },
       { label: 'panel.settings', glyph: 'map', run: toggle('settings'), panel: 'settings' },
       {
         label: 'actions.help',
-        glyph: '?',
+        glyph: 'help',
         run: () => (editor.helpOpen = !editor.helpOpen),
         active: () => editor.helpOpen,
       },
@@ -112,6 +112,17 @@
       >{editor.meta.name || t('map.untitled')}</button
     >
   </nav>
+  <!-- Editing or playing: what's on the rail and which tools' keys work. -->
+  <div class="modes" role="radiogroup" aria-label={t('modes.label')}>
+    {#each ['edit', 'play'] as const as mode (mode)}
+      <button
+        role="radio"
+        aria-checked={editor.mode === mode}
+        class:on={editor.mode === mode}
+        onclick={() => editor.switchMode(mode)}>{t(`modes.${mode}`)}</button
+      >
+    {/each}
+  </div>
   <div class="spacer"></div>
   {#each groups as group, g (g)}
     {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}
@@ -132,11 +143,7 @@
         disabled={action.enabled ? !action.enabled() : false}
         onclick={action.run}
       >
-        {#if LINE_ICONS.includes(action.glyph)}
-          <LineIcon name={action.glyph as LineIconName} />
-        {:else}
-          {action.glyph}
-        {/if}
+        <LineIcon name={action.glyph} />
       </button>
     {/each}
   {/each}
@@ -211,6 +218,32 @@
 
   .spacer {
     flex: 1;
+  }
+
+  .modes {
+    display: flex;
+    flex: none;
+    margin-left: 12px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+  }
+
+  .modes button {
+    width: auto;
+    height: 26px;
+    padding: 0 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 5px;
+  }
+
+  .modes button.on {
+    color: var(--panel);
+    background: var(--accent);
+  }
+
+  .modes button.on:hover {
+    color: var(--panel);
   }
 
   .sep {

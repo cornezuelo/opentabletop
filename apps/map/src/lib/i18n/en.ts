@@ -24,10 +24,11 @@ export const en = {
     wall: 'Walls (W)',
     icon: 'Icons (I)',
     text: 'Text (T)',
-    play: 'Play (P)',
+    trip: 'The trip',
     token: 'Tokens (K)',
     region: 'Regions (N)',
   },
+  modes: { label: 'Editing or playing', edit: 'Edit', play: 'Play' },
   terrainMode: {
     brush: 'Brush (B)',
     fill: 'Fill (G)',

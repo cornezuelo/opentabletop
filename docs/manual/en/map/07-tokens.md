@@ -10,7 +10,7 @@ Tokens are pieces you move around the map: the party, player characters, NPCs an
 - **Place from the bestiary** (in the new-token options, when the map's system or its campaign's packs have a bestiary): new tokens are copies of a template, with its look, its name and a sheet with its values rolled for each one. They are the map's, like any token: a guard at a bridge, a lair. The copies a trip makes are something else: see [Playing a trip](08-play.md).
 - Right-click or <kbd>Delete</kbd> removes a token. **Take off the map** keeps it in the list without a cell.
 
-Tokens can also be dragged with the Select and Play tools (in Play, a click on one is a click on its cell too: [Play](08-play.md)).
+Tokens can also be dragged with Select and in Play (there, a click on one is a click on its cell too: [Play](08-play.md)).
 
 With the color on **Auto**, each token gets its own color from its kind's family — PCs in cool colors, enemies in warm ones, NPCs in earthy ones — so tokens of one kind look alike but can be told apart. Pick a color to fix it.
 

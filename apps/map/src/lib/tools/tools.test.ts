@@ -234,3 +234,25 @@ describe('Select on a token', () => {
     setTokenHitTest(() => null)
   })
 })
+
+describe('Edit and Play', () => {
+  it('Play keeps Select, and Edit comes back to the tool in use', () => {
+    editor.load(createMap())
+    editor.tool = 'terrain'
+    editor.switchMode('play')
+    expect([editor.mode, editor.tool]).toEqual(['play', 'play'])
+    editor.tool = 'select'
+    expect(editor.mode).toBe('play')
+    editor.switchMode('edit')
+    expect([editor.mode, editor.tool]).toEqual(['edit', 'terrain'])
+  })
+
+  it('going to a tool that edits leaves Play, as a link to a token does', () => {
+    editor.load(createMap())
+    editor.switchMode('play')
+    editor.tool = 'token'
+    expect(editor.mode).toBe('edit')
+    editor.switchMode('edit')
+    expect(editor.tool).toBe('token')
+  })
+})

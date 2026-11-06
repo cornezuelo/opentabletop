@@ -17,7 +17,7 @@
   }
 </script>
 
-{#if editor.tool === 'play' && play?.mode === 'rules' && play.rules && session && travels(system)}
+{#if editor.mode === 'play' && play?.mode === 'rules' && play.rules && session && travels(system)}
   <div class="strip">
     <TripStatus
       strip

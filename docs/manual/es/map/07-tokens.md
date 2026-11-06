@@ -10,7 +10,7 @@ Los tokens son piezas que mueves por el mapa: el grupo, los personajes jugadores
 - **Colocar desde el bestiario** (en las opciones de token nuevo, cuando el sistema del mapa o los packs de su campaña tienen un bestiario): los tokens nuevos son copias de una plantilla, con su aspecto, su nombre y una ficha con sus valores tirados para cada uno. Son del mapa, como cualquier token: un guardia en un puente, una guarida. Las copias que hace un viaje son otra cosa: mira [Jugar un viaje](08-play.md).
 - Clic derecho o <kbd>Supr</kbd> borra un token. **Quitar del mapa** lo deja en la lista sin casilla.
 
-Los tokens también se pueden arrastrar con las herramientas Seleccionar y Jugar (en Jugar, un clic en uno es también un clic en su casilla: [Jugar](08-play.md)).
+Los tokens también se pueden arrastrar con Seleccionar y en Jugar (allí, un clic en uno es también un clic en su casilla: [Jugar](08-play.md)).
 
 Con el color en **Auto**, cada token recibe su propio color dentro de la familia de su tipo —los PJ en colores fríos, los enemigos en cálidos, los PNJ en tonos tierra—, así que los de un mismo tipo se parecen pero se distinguen. Elige un color para fijarlo.
 
