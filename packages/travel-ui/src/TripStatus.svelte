@@ -9,6 +9,7 @@
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { dayPartsLine } from './dayParts'
   import { idText, translator, type TravelUiKey } from './i18n'
+  import { durationText } from './journal'
 
   /**
    * Where a trip stands: day and time, the place, the march, the weather and where it's heading.
@@ -99,6 +100,14 @@
       text={t('tips.marched')}
     /></span
   >
+  {#if travel.progress > 0 && travel.route?.[1]}
+    <span class="minor"
+      >{t('onTheWay', {
+        hex: hexLabel(travel.route[1]),
+        time: durationText(travel.progress),
+      })}</span
+    >
+  {/if}
   {#if travel.weather}
     <span class="minor">{t('weather', { weather: travel.weather.replaceAll('-', ' ') })}</span>
   {/if}

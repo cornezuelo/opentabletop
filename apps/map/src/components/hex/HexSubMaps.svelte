@@ -84,9 +84,9 @@
             ? way.name || t('map.untitled')
             : t('submap.wayOut', { name: way.name || t('map.untitled') })}
           <small
-            >{t('submap.arrives', { cell: way.cell })}{#if way.kind}{` · ${kindName(
-                way.kind,
-              )}`}{/if}</small
+            >{[way.cell && t('submap.arrives', { cell: way.cell }), way.kind && kindName(way.kind)]
+              .filter(Boolean)
+              .join(' · ')}</small
           ></span
         >
         <button onclick={() => open(way)}>{t('submap.open')}</button>

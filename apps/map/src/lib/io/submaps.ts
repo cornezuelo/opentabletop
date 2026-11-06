@@ -93,8 +93,8 @@ export interface WayHere {
   name: string
   /** Where the way arrives there, as this map's world names it (`@<map>/<place>`). */
   there: string
-  /** The cell it arrives at there, as that map writes its coordinates (`0104`). */
-  cell: string
+  /** The cell it arrives at there, as that map writes its coordinates (`0104`), if it's here. */
+  cell?: string
   /** …and as its key (`1,4`). */
   at: HexKey
   /** The kind of connection it is, as the system names it (`way-in`), if any. */
@@ -106,7 +106,7 @@ export function waysAt(hex: string): WayHere[] {
   const end = (map: HexMap | undefined, id: string, cell: HexKey) =>
     placeOn(id, map ? placeOfCell(map, cell) : cell)
   const coord = (map: HexMap | undefined, cell: HexKey) =>
-    map ? formatCoord(parseKey(cell), map.grid.coordFormat, map.grid) : cell
+    map && formatCoord(parseKey(cell), map.grid.coordFormat, map.grid)
   /** Whether a way's cell is at the same place: a way in a room is taken from all of it. */
   const here = placeOfCell(editor.map, hex)
   const at = (cell: HexKey) => placeOfCell(editor.map, cell) === here

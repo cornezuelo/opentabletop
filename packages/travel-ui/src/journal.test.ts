@@ -26,6 +26,30 @@ const entry = (time: number, code: string, rest: Partial<JournalEntry> = {}): Jo
   ...rest,
 })
 
+describe('entering a place', () => {
+  const context = {
+    t: translator(() => 'en'),
+    startDay: 1,
+    hexLabel: (h: string) => h,
+    nameOf: (id: string) => id,
+    terrainName: (id: string) => id.toUpperCase(),
+    connectionName: (id: string) => `the ${id}`,
+  }
+  const text = (data: Record<string, unknown>) =>
+    entryText(entry(0, 'PLACE_ENTERED', { data }), context)
+
+  it('says what the place is and how the party came in', () => {
+    expect(text({ place: '3', terrain: 'rubble', via: 'door' })).toBe(
+      'Entered 3 (RUBBLE, the door)',
+    )
+    expect(text({ place: '3', terrain: 'rubble' })).toBe('Entered 3 (RUBBLE)')
+  })
+
+  it('reads an older journal, with neither', () => {
+    expect(text({ place: '3' })).toBe('Entered 3')
+  })
+})
+
 describe('journal export', () => {
   it('writes Markdown by day, oldest first, with the host’s names', () => {
     const journal = [

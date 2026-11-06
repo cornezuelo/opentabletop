@@ -65,6 +65,7 @@
   import { memberLabel, memberNamer, statSource } from './members'
   import { divisionName, partName } from './dayParts'
   import Section from './Section.svelte'
+  import { connectionName } from './terrains'
   import TripStatus from './TripStatus.svelte'
   import { tripTab, type TripTab } from './tripTab.svelte'
   import { journalFilter } from './journalFilter.svelte'
@@ -429,6 +430,7 @@
     calendar,
     valueName,
     terrainName,
+    connectionName: (id: string) => connectionName(t, id, { system, locale }),
     actionNothing,
     dayValues,
     memberName,

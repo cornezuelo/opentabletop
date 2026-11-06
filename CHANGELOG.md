@@ -7,7 +7,16 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - Travel: a way's terrains are listed in Map's palette groups, and the season to start in follows the season of the open trip.
+- Map and Travel: the journal says what a place is and how the party came in (_Entered 0302 (rubble, door)_), and the trip's status the time spent on the way to the next cell, when one takes longer than a march.
 - Characters: a party in a campaign without a trip keeps its list of members open; whoever joins comes to the campaign, and whoever leaves goes.
+
+### Packs
+
+- Core: **Explore** says what its idea is for before rolling it.
+
+### Fixes
+
+- Map: a way to a map not open here no longer gives the cell's raw key.
 
 ## [0.38.0] - 2026-11-06
 

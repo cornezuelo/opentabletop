@@ -33,6 +33,7 @@ export const en = {
     nothing: 'Nothing to tell.',
   },
   dayUnit: 'day',
+  onTheWay: 'On the way to {hex}: {time} so far',
   stepSpeed: '{minutes} min a step',
   journalDay: 'Day {day}',
   /** After a waiting check that came up on another day (its line is in that day's journal). */
@@ -250,6 +251,7 @@ export const en = {
     resumed: '{action}: going on',
     modeChanged: 'Now travelling: {mode}',
     entered: 'Entered {hex}',
+    enteredBy: 'Entered {hex} ({what})',
     discovered: 'Discovered in {hex}: {what}',
     day: 'Day {day} begins',
     depleted: 'Out of {resource}',

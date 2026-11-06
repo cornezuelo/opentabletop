@@ -41,6 +41,8 @@ export interface JournalContext {
   valueName?: (key: string) => string
   /** Name of a terrain id (forest…). */
   terrainName?: (id: string) => string
+  /** Name of a kind of connection (road, door…). */
+  connectionName?: (id: string) => string
   /**
    * When an action of the system's own rolled nothing where it was taken: the system's
    * text for it (`nothing`), `''` if it has no checks at all (nothing to say), or
@@ -413,8 +415,19 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         event: eventName(t, d.event, checkName, d.named),
         error: e.text ?? '',
       })
-    case 'PLACE_ENTERED':
-      return t('journal.entered', { hex: hexLabel(String(d.place)) })
+    case 'PLACE_ENTERED': {
+      // What the place is and how the party came in; older journals have neither.
+      const what = [
+        typeof d.terrain === 'string' &&
+          (context.terrainName?.(d.terrain) ?? d.terrain.replaceAll('-', ' ')),
+        typeof d.via === 'string' &&
+          (context.connectionName?.(d.via) ?? d.via.replaceAll('-', ' ')),
+      ].filter(Boolean)
+      const hex = hexLabel(String(d.place))
+      return what.length
+        ? t('journal.enteredBy', { hex, what: what.join(', ') })
+        : t('journal.entered', { hex })
+    }
     case 'HEX_DISCOVERED':
       return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
     case 'DAY_STARTED':

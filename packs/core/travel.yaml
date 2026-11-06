@@ -159,6 +159,7 @@ actions:
     when: { time.tags: { not: dark } }
     do:
       - { time: 60 }
+      - { id: idea, say: 'You look around. What you find, as an idea to read freely:' }
       - { roll: generator.prompt }
       - { roll: table.place-found }
   # The gate ahead (the connection of the step, `connection.*`), while it's shut: ten

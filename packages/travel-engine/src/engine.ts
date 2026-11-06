@@ -460,7 +460,14 @@ export type TravelEvent =
   | { type: 'TIME_SKIPPED'; minutes: number; days: number; time: GameTime }
   | { type: 'ROUTE_PLANNED'; route: string[]; strategy: RouteStrategy }
   | { type: 'NO_ROUTE'; to: string }
-  | { type: 'PLACE_ENTERED'; place: string; time: GameTime }
+  | {
+      type: 'PLACE_ENTERED'
+      place: string
+      time: GameTime
+      /** Its terrain, and the kind of connection the step took, if any. */
+      terrain?: string
+      via?: string
+    }
   | { type: 'CHECK_REQUIRED'; check: PendingCheck; time: GameTime }
   /** A moment some check or action names came (`at`): its actions and checks are looked at. */
   | { type: 'MOMENT_REACHED'; at: string; time: GameTime }
@@ -2407,11 +2414,19 @@ export function createTravelEngine(options: {
     const totals = totalsOf(state)
     totals.places++
     totals.km += world.km(state.location, next)
+    const via = world.connections(state.location, next)[0]
+    const terrain = world.place(next)?.terrain
     state.progress = 0
     state.location = next
     state.route = state.route!.slice(1)
     state.visits = { ...state.visits, [next]: (state.visits?.[next] ?? 0) + 1 }
-    events.push({ type: 'PLACE_ENTERED', place: next, time: state.time })
+    events.push({
+      type: 'PLACE_ENTERED',
+      place: next,
+      time: state.time,
+      ...(terrain && { terrain }),
+      ...(via && { via }),
+    })
   }
 
   return {
