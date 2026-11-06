@@ -1,8 +1,13 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
 import type { Messages } from '@open-tabletop/ui-kit'
 import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   notice: {
+    packReadOnly: 'Este pack viene incluido y es de solo lectura.',
+    duplicate: 'Duplicar como pack nuevo',
+    duplicateHelp:
+      'Otros packs dependen de este, así que no puede sustituirlo una copia: haz un pack tuyo nuevo a partir de él, con su propio id, y cambia ese.',
     readOnly: 'Este pack viene incluido y es de solo lectura.',
     personalCopy: 'Tu copia se queda en este navegador y es solo para uso personal.',
     makeCopy: 'Editar una copia',
@@ -327,5 +332,84 @@ export const es: Messages<typeof en> = {
     borderOpacityHelp: 'Cuánto se ve el borde, de 0 a 1.',
     invalid:
       'Este estilo tiene problemas, así que los mapas lo dibujan como Esquemático hasta que se arreglen:',
+  },
+  kinds: vocabulary.es.kinds,
+  kindTips: {
+    table: 'Tira los dados (o elige por peso) y busca la entrada.',
+    oracle:
+      'Una tabla con variantes que elige una entrada, como las probabilidades de una pregunta de sí o no.',
+    generator: 'Tira varias tablas y rellena una plantilla de texto con los resultados.',
+    deck: 'Cartas que se roban sin reponer hasta barajar de nuevo.',
+  },
+  newDef: {
+    fileName: 'Nombre del fichero, p. ej. tablas/clima.yaml',
+    kind: 'Tipo',
+    forTravel: 'Reglas del sistema',
+    forTravelHelp:
+      'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en Mapa (Jugar → Con reglas) y en Viajes, y que se edita en la aplicación Packs\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\n• **Hoja** — lo que tiene cada personaje del grupo (valores, estados)\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
+    system: {
+      'roll-modes': 'Modos de tirada',
+      'travel-rules': 'Reglas de viaje',
+      bindings: 'Bindings',
+      calendar: 'Calendario',
+      weather: 'Modelo de clima',
+      sheet: 'Hoja',
+    },
+    systemTips: {
+      calendar:
+        'Meses y estaciones, días de la semana, lunas y fiestas para sus viajes y el reloj del mundo.',
+      weather:
+        'Clima con memoria: por estación, lo probable que es cada clima mañana. Átalo a una comprobación con weather:.',
+      'roll-modes':
+        'Formas de tirar sus tablas, como la ventaja: tirar varias veces y quedarse con un total.',
+      'travel-rules':
+        'Velocidades, terrenos, caminos, acciones y qué comprobaciones se tiran y cuándo.',
+      bindings:
+        'Qué tabla responde a cada comprobación del viaje, y las estadísticas del grupo que leen las tablas.',
+      sheet:
+        'Los personajes del grupo: sus valores (con límites, contadores), estados y las relaciones que tienen.',
+    },
+    alreadyHas: 'Este pack ya tiene uno.',
+    title: 'Nueva definición',
+    pack: 'En el pack',
+    noPacks:
+      'Las definiciones van en tus propios packs: crea un pack primero (o edita una copia de uno incluido).',
+    name: 'Nombre',
+    idPreview: 'Id: {id}',
+    fromText: 'Desde texto pegado',
+    fromTextHelp:
+      'Pega una tabla y se crean sus entradas:\n• una lista numerada copiada de un PDF: `1. Lobos`, `2–3 Bandidos`, `4) Un buhonero` (una línea que el PDF partió se une a la anterior)\n• una copia de CSV o de hoja de cálculo: `1,Lobos` o el número y el texto en dos columnas\n• una lista sin números, una entrada por línea: todas igual de probables\nLos dados salen de los números: 1–6 es `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`. Revisa luego la tabla en su formulario.',
+    fromTextPlaceholder: '1. Lobos\n2-3 Bandidos\n4 Un buhonero\n5-6 Nada',
+    fromTextRolled: '{count} entradas, con {roll}',
+    fromTextWeighted: '{count} entradas, igual de probables',
+    fromTextSkipped: 'líneas que se dejan fuera: {lines}',
+    file: 'Fichero',
+    fileHelp:
+      'Fichero YAML del pack donde se escribe. Vale cualquiera; agrúpalos como quieras:\n• `encounters.yaml`\n• `tables/weather.yaml`',
+    newFile: 'Nuevo fichero…',
+  },
+  newPack: {
+    invalidId: 'Los id usan minúsculas, números y guiones.',
+    title: 'Nuevo pack',
+    id: 'Carpeta / id',
+    idHelp:
+      'Minúsculas, dígitos y guiones. Otros packs se refieren a sus tablas como `id/tabla`:\n• `mi-mundo` → `mi-mundo/encounters`',
+    name: 'Nombre',
+    locale: 'Idioma base',
+    localeHelp:
+      'Idioma en que están escritas las tablas (`en`, `es`…); las traducciones a otros idiomas se pueden añadir después.',
+    create: 'Crear',
+    cancel: 'Cancelar',
+    idTaken: 'Ya hay un pack "{id}".',
+    duplicateTitle: 'Duplicar como pack nuevo',
+    duplicateHelp:
+      'Un pack tuyo nuevo con todos los ficheros de este. El original se queda como está, con sus actualizaciones, para los packs que dependen de él; tus tablas se refieren al nuevo por su id.',
+    copyName: '{name} (mío)',
+  },
+  file: {
+    problems: '{count} problemas',
+    noProblems: 'Sin problemas',
+    line: 'línea {line}',
+    readOnly: 'Solo lectura (incluido)',
   },
 }

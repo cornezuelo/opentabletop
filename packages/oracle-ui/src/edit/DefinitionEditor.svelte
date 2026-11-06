@@ -3,10 +3,9 @@
   import { ConditionEditor } from '@open-tabletop/pack-ui'
   import { contextSuggestions, definitionId } from '@open-tabletop/session'
   import { InfoTip, TagInput } from '@open-tabletop/ui-kit'
-  import { oracleUi } from '../../lib/oracle.svelte'
-  import { workspace } from '../../lib/packs/workspace.svelte'
-  import { getLocale, t } from '../../lib/i18n'
-  import { definitionDoc } from '../../lib/packs/doc.svelte'
+  import type { Translate } from '../i18n'
+  import type { OracleUi } from '../ui'
+  import { definitionForm } from './doc.svelte'
   import DeckEditor from './DeckEditor.svelte'
   import EntriesEditor from './EntriesEditor.svelte'
   import GeneratorEditor from './GeneratorEditor.svelte'
@@ -14,9 +13,12 @@
   import TextField from './TextField.svelte'
 
   /** Form editor of any definition: common texts and language, then its kind's form. */
-  let { def, root }: { def: Compiled; root: string } = $props()
+  let { def, root, ui }: { def: Compiled; root: string; ui: OracleUi } = $props()
 
-  const doc = definitionDoc(() => ({ def, root }))
+  // svelte-ignore state_referenced_locally
+  const doc = definitionForm(ui, () => ({ def, root }))
+  const t: Translate = (key, params) => doc.ui.t(key, params)
+  const getLocale = () => doc.ui.locale()
   const dice = $derived(def.kind === 'table' || def.kind === 'oracle')
 
   /**
@@ -24,8 +26,8 @@
    * by hand (`modes`) and/or applied by itself on a condition (`modeWhen` / `modeUnless`).
    */
   const available = $derived.by(() => {
-    const deps = workspace.registry.packs.get(def.pack)?.dependencies ?? []
-    return [...workspace.registry.rollModes.values()]
+    const deps = doc.ui.library.registry.packs.get(def.pack)?.dependencies ?? []
+    return [...doc.ui.library.registry.rollModes.values()]
       .filter((m) => m.pack === def.pack || deps.includes(m.pack))
       .map((m) => ({
         mode: m,
@@ -50,11 +52,11 @@
 
   /** Tags other definitions already have, to suggest. */
   const knownTags = $derived([
-    ...new Set([...workspace.registry.definitions.values()].flatMap((d) => d.tags)),
+    ...new Set([...doc.ui.library.registry.definitions.values()].flatMap((d) => d.tags)),
   ])
 
   /** What a mode's condition can read. */
-  const conditionHints = $derived(contextSuggestions(workspace.registry))
+  const conditionHints = $derived(contextSuggestions(doc.ui.library.registry))
   /** A mode's condition, built as rows; none removes it. */
   function setCondition(key: ModeKey, id: string, ref: string, value: unknown) {
     const rest = Object.fromEntries(
@@ -147,7 +149,7 @@
                 disabled={doc.translating}
                 onchange={(e) => setOffered(mode.id, ref, e.currentTarget.checked)}
               />
-              {oracleUi.modeName(mode)}
+              {ui.modeName(mode)}
             </label>
             {#each ['modeWhen', 'modeUnless'] as const as key (key)}
               <div class="when">

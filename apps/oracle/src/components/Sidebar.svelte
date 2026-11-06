@@ -5,8 +5,8 @@
   import { displayName, KIND_ORDER } from '../lib/names'
   import { go, nav } from '../lib/nav.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
-  import { manifestOf } from '../lib/packs/workspace'
-  import KindBadge from './KindBadge.svelte'
+  import { manifestOf } from '@open-tabletop/pack-ui'
+  import { KindBadge } from '@open-tabletop/pack-ui'
   import { definitionFilter, DefinitionFilters, favorites } from '@open-tabletop/oracle-ui'
   import { oracleUi } from '../lib/oracle.svelte'
   import { dialogs } from '../lib/dialogs.svelte'
@@ -73,7 +73,7 @@
                 class:selected={selectedDef === def.id}
                 onclick={() => go({ name: 'def', id: def.id, tab: 'roll' })}
               >
-                <KindBadge kind={def.kind} />
+                <KindBadge kind={def.kind} locale={getLocale()} />
                 <span class="name" use:fullText>{name}</span>
               </button>
             </li>
@@ -135,7 +135,7 @@
                     class:selected={selectedDef === def.id}
                     onclick={() => go({ name: 'def', id: def.id, tab: 'roll' })}
                   >
-                    <KindBadge kind={def.kind} />
+                    <KindBadge kind={def.kind} locale={getLocale()} />
                     <span class="name" use:fullText>{name}</span>
                   </button>
                 </li>

@@ -1,9 +1,14 @@
 <script lang="ts">
   import type { Compiled } from '@open-tabletop/oracle-engine'
   import { tooltip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n'
+  import { translator } from './i18n'
 
-  let { kind, full = false }: { kind: Compiled['kind']; full?: boolean } = $props()
+  let {
+    kind,
+    locale,
+    full = false,
+  }: { kind: Compiled['kind']; locale: string; full?: boolean } = $props()
+  const t = translator(() => locale)
 </script>
 
 <span class="badge {kind}" use:tooltip={t(`kindTips.${kind}`)}

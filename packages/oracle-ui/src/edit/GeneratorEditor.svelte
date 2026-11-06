@@ -2,18 +2,19 @@
   import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { ConditionEditor, PairEditor } from '@open-tabletop/pack-ui'
   import { contextSuggestions, setSuggestions } from '@open-tabletop/session'
-  import { workspace } from '../../lib/packs/workspace.svelte'
   import { moveKey, renameKey, setIn } from '@open-tabletop/pack-ui/yaml'
-  import { getLocale, t, type MessageKey } from '../../lib/i18n'
-  import { slugify } from '../../lib/packs/definitions'
-  import { nextId, type DefinitionDoc } from '../../lib/packs/doc.svelte'
+  import type { OracleUiKey, Translate } from '../i18n'
+  import { slugify } from '@open-tabletop/pack-ui'
+  import { nextId, type DefinitionForm } from './doc.svelte'
   import TextField from './TextField.svelte'
 
   /**
    * A generator: named fields (each from a table, a generator, dice or a fixed value)
    * put together by a template that writes {{field}} where each value goes.
    */
-  let { doc }: { doc: DefinitionDoc } = $props()
+  let { doc }: { doc: DefinitionForm } = $props()
+  const t: Translate = (key, params) => doc.ui.t(key, params)
+  const getLocale = () => doc.ui.locale()
 
   const SOURCES = ['table', 'generator', 'roll', 'value'] as const
   type Source = (typeof SOURCES)[number]
@@ -25,8 +26,8 @@
   /** What a field may have besides its source: its conditions and what it passes on. */
   const EXTRAS = ['when', 'unless', 'context'] as const
 
-  const conditionHints = $derived(contextSuggestions(workspace.registry))
-  const setHints = $derived(setSuggestions(workspace.registry))
+  const conditionHints = $derived(contextSuggestions(doc.ui.library.registry))
+  const setHints = $derived(setSuggestions(doc.ui.library.registry))
   /** Fields showing their conditions and context. */
   let open = $state<Record<string, boolean>>({})
   const hasExtras = (f: RawField) => EXTRAS.some((key) => f[key] !== undefined)
@@ -129,7 +130,7 @@
               onchange={(e) => setSource(name, field, e.currentTarget.value as Source)}
             >
               {#each SOURCES as s (s)}
-                <option value={s}>{t(`edit.sources.${s}` as MessageKey)}</option>
+                <option value={s}>{t(`edit.sources.${s}` as OracleUiKey)}</option>
               {/each}
             </select>
           </td>

@@ -16,12 +16,10 @@
   import OraclePreferences from './components/OraclePreferences.svelte'
   import CampaignChoice from './components/CampaignChoice.svelte'
   import DefinitionView from './components/DefinitionView.svelte'
-  import FileEditor from './components/FileEditor.svelte'
-  import { History } from '@open-tabletop/oracle-ui'
+  import { FileEditor, NewDefinitionDialog, NewPackDialog } from '@open-tabletop/pack-ui'
+  import { History, KIND_ORDER } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
   import { importZip, UndoButtons } from '@open-tabletop/pack-ui'
-  import NewDefinitionDialog from './components/NewDefinitionDialog.svelte'
-  import NewPackDialog from './components/NewPackDialog.svelte'
   import { dialogs } from './lib/dialogs.svelte'
   import PackView from './components/PackView.svelte'
   import Sidebar from './components/Sidebar.svelte'
@@ -29,7 +27,7 @@
   import { go, nav } from './lib/nav.svelte'
   import { oracleUi } from './lib/oracle.svelte'
   import { workspace } from './lib/packs/workspace.svelte'
-  import { manifestOf } from './lib/packs/workspace'
+  import { manifestOf } from '@open-tabletop/pack-ui'
   import { isHidden } from './lib/hiddenPacks.svelte'
   import { systemOfPack, travelSystems } from '@open-tabletop/session'
 
@@ -143,7 +141,14 @@
       {:else if nav.view.name === 'pack'}
         <PackView root={nav.view.root} />
       {:else if nav.view.name === 'file'}
-        <FileEditor root={nav.view.root} path={nav.view.path} line={nav.view.line} />
+        <FileEditor
+          library={workspace}
+          locale={getLocale()}
+          root={nav.view.root}
+          path={nav.view.path}
+          line={nav.view.line}
+          onpack={(root) => go({ name: 'pack', root })}
+        />
       {:else}
         <div class="welcome">
           <h1>{t('welcome.title')}</h1>
@@ -175,12 +180,22 @@
 
 {#if dialogs.newDefinition}
   <NewDefinitionDialog
+    library={workspace}
+    locale={getLocale()}
+    kinds={KIND_ORDER}
     root={dialogs.newDefinition.root}
+    onfile={(root, path) => go({ name: 'file', root, path })}
+    ondefinition={(id) => go({ name: 'def', id, tab: 'edit' })}
     onclose={() => (dialogs.newDefinition = null)}
   />
 {/if}
 {#if creating}
-  <NewPackDialog onclose={() => (creating = false)} />
+  <NewPackDialog
+    library={workspace}
+    locale={getLocale()}
+    onclose={() => (creating = false)}
+    onmade={(root) => go({ name: 'pack', root })}
+  />
 {/if}
 
 <Toasts />

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '../lib/i18n'
+  import { getLocale, t } from '../lib/i18n'
   import { displayDescription, displayName } from '../lib/names'
   import { Markdown } from '@open-tabletop/ui-kit'
   import { go } from '../lib/nav.svelte'
@@ -7,13 +7,13 @@
   import { oracleUi } from '../lib/oracle.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
   import { locate } from '@open-tabletop/pack-ui/yaml'
-  import KindBadge from './KindBadge.svelte'
+  import { KindBadge } from '@open-tabletop/pack-ui'
   import RolledBy from './RolledBy.svelte'
-  import ReadOnlyNotice from './ReadOnlyNotice.svelte'
-  import DefinitionEditor from './edit/DefinitionEditor.svelte'
+  import { ReadOnlyNotice } from '@open-tabletop/pack-ui'
+  import { DefinitionEditor } from '@open-tabletop/oracle-ui'
   import { tooltip, showToast, confirmAction } from '@open-tabletop/ui-kit'
-  import { copyDefinition, deleteDefinition } from '../lib/packs/definitions'
-  import { manifestOf } from '../lib/packs/workspace'
+  import { copyDefinition, deleteDefinition } from '@open-tabletop/pack-ui'
+  import { manifestOf } from '@open-tabletop/pack-ui'
 
   let { id, tab }: { id: string; tab: 'roll' | 'edit' } = $props()
 
@@ -27,15 +27,19 @@
 
   function copyTo(target: string) {
     if (!def || !target) return
-    const copied = copyDefinition(def, target)
+    const copied = copyDefinition(workspace, def, target)
     if (!copied) return
     showToast(t('defActions.copied', { id: copied }))
     go({ name: 'def', id: copied, tab: 'edit' })
   }
 
   async function remove() {
-    if (!def || !(await confirmAction(t('edit.confirmDelete', { name: displayName(def) })))) return
-    deleteDefinition(def)
+    if (
+      !def ||
+      !(await confirmAction(oracleUi.t('edit.confirmDelete', { name: displayName(def) })))
+    )
+      return
+    deleteDefinition(workspace, def)
     go({ name: 'pack', root })
   }
 </script>
@@ -44,7 +48,7 @@
   <article class="definition">
     <header>
       <div class="title">
-        <KindBadge kind={def.kind} full />
+        <KindBadge kind={def.kind} locale={getLocale()} full />
         <h1 class="page-title">{displayName(def)}</h1>
         <button
           class="star"
@@ -83,7 +87,7 @@
             </select>
           {/if}
           {#if editable}
-            <button class="danger" onclick={remove}>{t('edit.deleteDefinition')}</button>
+            <button class="danger" onclick={remove}>{oracleUi.t('edit.deleteDefinition')}</button>
           {/if}
         </div>
       </div>
@@ -107,9 +111,14 @@
       {#if tab === 'roll'}
         <RollPanel ui={oracleUi} {def} />
       {:else if !editable}
-        <ReadOnlyNotice {root} />
+        <ReadOnlyNotice
+          library={workspace}
+          locale={getLocale()}
+          {root}
+          onmade={(made) => go({ name: 'pack', root: made })}
+        />
       {:else}
-        {#key def.id}<DefinitionEditor {def} {root} />{/key}
+        {#key def.id}<DefinitionEditor {def} {root} ui={oracleUi} />{/key}
       {/if}
     </div>
   </article>

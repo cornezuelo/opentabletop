@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { t } from '../../lib/i18n'
-  import type { DefinitionDoc } from '../../lib/packs/doc.svelte'
+  import type { Translate } from '../i18n'
+  import type { DefinitionForm } from './doc.svelte'
 
   /** "Then roll": nothing, a table or a generator (by id, with suggestions). */
   let {
@@ -10,12 +10,13 @@
     disabled = false,
     onchange,
   }: {
-    doc: DefinitionDoc
+    doc: DefinitionForm
     table?: string
     generator?: string
     disabled?: boolean
     onchange: (kind: 'table' | 'generator' | '', target: string) => void
   } = $props()
+  const t: Translate = (key, params) => doc.ui.t(key, params)
 
   const kind = $derived(table ? 'table' : generator ? 'generator' : '')
   const listId = $props.id()

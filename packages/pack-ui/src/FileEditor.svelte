@@ -1,23 +1,41 @@
 <script lang="ts">
-  import { t } from '../lib/i18n'
-  import { go } from '../lib/nav.svelte'
-  import { workspace } from '../lib/packs/workspace.svelte'
-  import { locate } from '@open-tabletop/pack-ui/yaml'
-  import { CodeEditor, manifestOf, yamlHints } from '@open-tabletop/pack-ui'
+  import CodeEditor from './CodeEditor.svelte'
+  import { yamlHints } from './completion'
+  import { translator } from './i18n'
+  import type { PackLibrary } from './library.svelte'
+  import { manifestOf } from './packs'
   import ReadOnlyNotice from './ReadOnlyNotice.svelte'
+  import { locate } from './yaml'
 
-  let { root, path, line }: { root: string; path: string; line?: number } = $props()
+  /** A file of a pack as YAML, with its problems beside it. */
+  let {
+    library,
+    locale,
+    root,
+    path,
+    line,
+    onpack,
+  }: {
+    library: PackLibrary
+    locale: string
+    root: string
+    path: string
+    line?: number
+    /** Go to a pack, by its folder (this one's, or a duplicate of it). */
+    onpack: (root: string) => void
+  } = $props()
+  const t = translator(() => locale)
 
   /** Suggestions while typing: this pack's tables first, then everything the packs use. */
   const hints = $derived(
     yamlHints(
-      workspace.registry,
-      manifestOf(workspace.pack(root) ?? { root, origin: 'user', files: [] }).id,
+      library.registry,
+      manifestOf(library.pack(root) ?? { root, origin: 'user', files: [] }).id,
     ),
   )
-  const content = $derived(workspace.readFile(root, path) ?? '')
-  const editable = $derived(workspace.isEditable(root))
-  const diagnostics = $derived(workspace.diagnostics(root, path))
+  const content = $derived(library.readFile(root, path) ?? '')
+  const editable = $derived(library.isEditable(root))
+  const diagnostics = $derived(library.diagnostics(root, path))
   const problems = $derived(
     diagnostics.map((d) => ({
       line: d.line ?? locate(content, d.at) ?? 1,
@@ -31,7 +49,7 @@
 
 <section class="file">
   <header>
-    <button class="link" onclick={() => go({ name: 'pack', root })}>{root}</button>
+    <button class="link" onclick={() => onpack(root)}>{root}</button>
     <span>/</span>
     <strong>{path}</strong>
     <span class="status" class:bad={problems.length > 0}>
@@ -39,7 +57,7 @@
     </span>
   </header>
   {#if !editable}
-    <ReadOnlyNotice {root} />
+    <ReadOnlyNotice {library} {locale} {root} onmade={onpack} />
   {/if}
   <div class="code">
     {#key `${root}/${path}/${editable}`}
@@ -49,7 +67,7 @@
         {problems}
         {hints}
         line={jump}
-        onchange={(text) => workspace.writeFile(root, path, text, true)}
+        onchange={(text) => library.writeFile(root, path, text, true)}
       />
     {/key}
   </div>

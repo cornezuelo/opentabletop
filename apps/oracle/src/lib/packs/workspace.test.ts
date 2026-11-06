@@ -8,7 +8,7 @@ import {
   manifestOf,
   newPack,
   overlayLocales,
-} from './workspace'
+} from '@open-tabletop/pack-ui'
 import { workspace } from './workspace.svelte'
 
 describe('workspace', () => {

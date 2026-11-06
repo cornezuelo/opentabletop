@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getAt, type DefinitionDoc } from '../../lib/packs/doc.svelte'
+  import { getAt, type DefinitionForm } from './doc.svelte'
 
   /**
    * A text of the definition (name, description, template, input labels…) at `path`: edits
@@ -14,7 +14,7 @@
     multiline = false,
     placeholder: hint = '',
   }: {
-    doc: DefinitionDoc
+    doc: DefinitionForm
     path: string[]
     overlay?: string[]
     multiline?: boolean

@@ -54,4 +54,3 @@ export const TEMPLATES: Record<Compiled['kind'], (id: string) => Record<string, 
 }
 
 // Starting points for the definitions of a system, shared with the Packs app.
-export { SYSTEM_KINDS, SYSTEM_TEMPLATES, type SystemKind } from '@open-tabletop/pack-ui'

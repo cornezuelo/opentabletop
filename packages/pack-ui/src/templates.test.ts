@@ -2,7 +2,8 @@ import { formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
 import { travelSystems } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
-import { SYSTEM_KINDS, SYSTEM_TEMPLATES, TEMPLATES } from './templates'
+import { SYSTEM_KINDS, SYSTEM_TEMPLATES } from './systemTemplates'
+import { TEMPLATES } from './templates'
 
 describe('new definition templates', () => {
   it('are valid as soon as they are created, every kind', () => {

@@ -1,17 +1,6 @@
 import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
 import { parseDocument } from 'yaml'
-import { MANIFEST_FILE, type PackSource } from '@open-tabletop/pack-ui/packs'
-
-export {
-  effectivePacks,
-  engineFiles,
-  manifestOf,
-  MANIFEST_FILE,
-  type ManifestInfo,
-  type PackFile,
-  type PackSource,
-  type WorkspacePack,
-} from '@open-tabletop/pack-ui/packs'
+import { MANIFEST_FILE, type PackSource } from './packs'
 
 const ID = /^[a-z0-9][a-z0-9-]*$/
 

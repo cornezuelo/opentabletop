@@ -3,7 +3,7 @@ import { passesFilter } from '@open-tabletop/oracle-ui'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
-import { engineFiles } from './workspace'
+import { engineFiles } from '@open-tabletop/pack-ui'
 
 describe('the Names pack', () => {
   const { registry } = loadPacks(engineFiles(bundledPacks.filter((p) => !p.personal)))

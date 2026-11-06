@@ -3,7 +3,7 @@
   import { hiddenPacks, setHidden } from '../lib/hiddenPacks.svelte'
   import { t } from '../lib/i18n'
   import { oracleUi } from '../lib/oracle.svelte'
-  import { manifestOf } from '../lib/packs/workspace'
+  import { manifestOf } from '@open-tabletop/pack-ui'
   import { workspace } from '../lib/packs/workspace.svelte'
 
   /** The Oracle's own preferences, below the shared ones. Their help shows right below each

@@ -1,34 +1,53 @@
 <script lang="ts">
   import type { Compiled } from '@open-tabletop/oracle-engine'
-  import { KIND_ORDER } from '@open-tabletop/oracle-ui'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n'
-  import { go } from '../lib/nav.svelte'
+  import { translator } from './i18n'
+  import type { PackLibrary } from './library.svelte'
   import {
     createDefinition,
     createSystemDefinition,
     dataFiles,
     hasKind,
     slugify,
-  } from '../lib/packs/definitions'
-  import { tableFromText } from '../lib/packs/fromText'
-  import { SYSTEM_KINDS, type SystemKind } from '../lib/packs/templates'
-  import { cleanFilePath, manifestOf } from '../lib/packs/workspace'
-  import { workspace } from '../lib/packs/workspace.svelte'
+  } from './definitions'
+  import { tableFromText } from './fromText'
+  import { cleanFilePath } from './packFiles'
+  import { manifestOf } from './packs'
+  import { SYSTEM_KINDS, type SystemKind } from './systemTemplates'
 
   /** New table, oracle, generator or deck in one of the user's packs, from a template. */
-  let { root: initialRoot, onclose }: { root?: string; onclose: () => void } = $props()
+  let {
+    library,
+    locale,
+    kinds,
+    root: initialRoot,
+    onclose,
+    onfile,
+    ondefinition,
+  }: {
+    library: PackLibrary
+    locale: string
+    /** What can be made, in the order offered. */
+    kinds: readonly Compiled['kind'][]
+    root?: string
+    onclose: () => void
+    /** A system's part was written in a file of `root`. */
+    onfile: (root: string, path: string) => void
+    /** A definition was made. */
+    ondefinition: (id: string) => void
+  } = $props()
+  const t = translator(() => locale)
 
-  const packs = $derived(workspace.packs.filter((p) => p.origin === 'user'))
+  const packs = $derived(library.packs.filter((p) => p.origin === 'user'))
   // svelte-ignore state_referenced_locally
   let root = $state(initialRoot ?? packs[0]?.root ?? '')
   let kind = $state<Compiled['kind'] | SystemKind>('table')
   const system = $derived((SYSTEM_KINDS as readonly string[]).includes(kind))
-  const taken = (k: SystemKind) => !!workspace.pack(root) && hasKind(workspace.pack(root)!, k)
+  const taken = (k: SystemKind) => !!library.pack(root) && hasKind(library.pack(root)!, k)
   let name = $state('')
   let file = $state('')
   let newFile = $state('')
-  const files = $derived(workspace.pack(root) ? dataFiles(workspace.pack(root)!) : [])
+  const files = $derived(library.pack(root) ? dataFiles(library.pack(root)!) : [])
   let dialog: HTMLDialogElement
   /** A table made from pasted text (a numbered list from a PDF, a CSV, a plain list). */
   let fromText = $state(false)
@@ -43,9 +62,9 @@
     const target = file === '+' ? cleanFilePath(newFile) : file || files[0]
     if (system) {
       if (!root) return
-      const path = createSystemDefinition(root, kind as SystemKind, target ?? undefined)
+      const path = createSystemDefinition(library, root, kind as SystemKind, target ?? undefined)
       dialog.close()
-      if (path) go({ name: 'file', root, path })
+      if (path) onfile(root, path)
       return
     }
     if (!root || !name.trim()) return
@@ -53,9 +72,16 @@
       imported && imported.entries.length
         ? { ...(imported.roll && { roll: imported.roll }), entries: imported.entries }
         : undefined
-    const id = createDefinition(root, kind as Compiled['kind'], name, target ?? undefined, body)
+    const id = createDefinition(
+      library,
+      root,
+      kind as Compiled['kind'],
+      name,
+      target ?? undefined,
+      body,
+    )
     dialog.close()
-    if (id) go({ name: 'def', id, tab: 'edit' })
+    if (id) ondefinition(id)
   }
 </script>
 
@@ -79,8 +105,8 @@
           {/each}
         </select>
       </label>
-      <div class="kinds" role="radiogroup" aria-label={t('pack.kind')}>
-        {#each KIND_ORDER as k (k)}
+      <div class="kinds" role="radiogroup" aria-label={t('newDef.kind')}>
+        {#each kinds as k (k)}
           <label class:active={kind === k}>
             <input type="radio" bind:group={kind} value={k} />
             <strong>{t(`kinds.${k}`)}</strong>
@@ -141,7 +167,7 @@
         </select>
       </label>
       {#if file === '+' || !files.length}
-        <input type="text" placeholder={t('pack.fileName')} bind:value={newFile} />
+        <input type="text" placeholder={t('newDef.fileName')} bind:value={newFile} />
       {/if}
     {/if}
     <div class="dialog-buttons">

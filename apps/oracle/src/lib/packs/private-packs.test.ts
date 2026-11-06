@@ -8,7 +8,7 @@ import {
 } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
-import { engineFiles } from './workspace'
+import { engineFiles } from '@open-tabletop/pack-ui'
 
 /**
  * Personal-use packs (packs-private/, a private checkout): they're only here on machines

@@ -1,20 +1,38 @@
 <script lang="ts">
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
-  import { getLocale, t } from '../lib/i18n'
-  import { go } from '../lib/nav.svelte'
-  import { workspace } from '../lib/packs/workspace.svelte'
-  import { duplicatePack, isValidId, manifestOf, newPack } from '../lib/packs/workspace'
+  import { translator } from './i18n'
+  import type { PackLibrary } from './library.svelte'
+  import { duplicatePack, isValidId, newPack } from './packFiles'
+  import { manifestOf } from './packs'
 
   /** With `from` (a pack's folder): a new pack of yours made from that one. */
-  let { onclose, from }: { onclose: () => void; from?: string } = $props()
+  let {
+    library,
+    locale: uiLocale,
+    onclose,
+    onmade,
+    from,
+  }: {
+    library: PackLibrary
+    locale: string
+    onclose: () => void
+    /** The new pack, by its folder. */
+    onmade: (root: string) => void
+    from?: string
+  } = $props()
+  const t = translator(() => uiLocale)
 
-  const source = from ? workspace.pack(from) : undefined
+  // A dialog opened for one pack: what it starts from is read once.
+  // svelte-ignore state_referenced_locally
+  const source = from ? library.pack(from) : undefined
   const original = source ? manifestOf(source) : undefined
+  // svelte-ignore state_referenced_locally
   let id = $state(original ? `${original.id ?? from}-mine` : '')
   let name = $state(
     original ? t('newPack.copyName', { name: original.name ?? original.id ?? '' }) : '',
   )
-  let locale = $state<string>(original?.locale ?? getLocale())
+  // svelte-ignore state_referenced_locally
+  let locale = $state<string>(original?.locale ?? uiLocale)
   let dialog: HTMLDialogElement
 
   $effect(() => {
@@ -32,15 +50,15 @@
 
   function create() {
     const packId = id.trim() || slug(name)
-    if (!isValidId(packId)) return showToast(t('pack.invalidId'), 'error')
-    if (workspace.pack(packId)) return showToast(t('newPack.idTaken', { id: packId }), 'error')
-    workspace.addPack(
+    if (!isValidId(packId)) return showToast(t('newPack.invalidId'), 'error')
+    if (library.pack(packId)) return showToast(t('newPack.idTaken', { id: packId }), 'error')
+    library.addPack(
       source
         ? duplicatePack(source, packId, name.trim())
         : newPack(packId, name.trim(), locale.trim() || 'en'),
     )
     onclose()
-    go({ name: 'pack', root: packId })
+    onmade(packId)
   }
 </script>
 

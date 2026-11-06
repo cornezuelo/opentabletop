@@ -1,5 +1,10 @@
+import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   notice: {
+    packReadOnly: 'This pack is bundled and read-only.',
+    duplicate: 'Duplicate as a new pack',
+    duplicateHelp:
+      'Other packs depend on this one, so it can’t be replaced by a copy: make a new pack of yours from it, with its own id, and change that one.',
     readOnly: 'This pack comes bundled and is read-only.',
     personalCopy: 'Your copy stays in this browser and is personal use only.',
     makeCopy: 'Edit a copy',
@@ -321,5 +326,81 @@ export const en = {
     borderOpacity: 'Border opacity',
     borderOpacityHelp: 'How strong the border is, from 0 to 1.',
     invalid: 'This style has problems, so maps draw it as Schematic until they’re fixed:',
+  },
+  kinds: vocabulary.en.kinds,
+  kindTips: {
+    table: 'Roll dice (or pick by weight) and look up the entry.',
+    oracle: 'A table with variants chosen by an input, like the odds of a yes/no question.',
+    generator: 'Rolls several tables and fills a text template with the results.',
+    deck: 'Cards drawn without replacement until the deck is reshuffled.',
+  },
+  newDef: {
+    fileName: 'File name, e.g. tables/weather.yaml',
+    kind: 'Kind',
+    forTravel: 'Rules of the system',
+    forTravelHelp:
+      'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in Map (Play → With rules) and in Travel, edited in the Packs app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\n• **Sheet** — what each character of the party has (values, conditions)\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
+    system: {
+      'roll-modes': 'Roll modes',
+      'travel-rules': 'Travel rules',
+      bindings: 'Bindings',
+      calendar: 'Calendar',
+      weather: 'Weather model',
+      sheet: 'Sheet',
+    },
+    systemTips: {
+      'roll-modes':
+        'Ways of rolling its tables, like advantage: roll several times and keep one total.',
+      'travel-rules': 'Speeds, terrains, roads, actions and which checks are rolled when.',
+      calendar:
+        'Months and seasons, weekdays, moons and holidays for its trips and the world clock.',
+      weather:
+        'Weather with memory: per season, how likely each weather is tomorrow. Bind it to a check with weather:.',
+      bindings: 'Which table answers each travel check, and the party stats tables read.',
+      sheet:
+        "The party's characters: their values (with bounds, tracks), conditions and the relations they hold.",
+    },
+    alreadyHas: 'This pack already has one.',
+    title: 'New definition',
+    pack: 'In pack',
+    noPacks:
+      'Definitions go into your own packs: create a pack first (or edit a copy of a bundled one).',
+    name: 'Name',
+    idPreview: 'Id: {id}',
+    fromText: 'From pasted text',
+    fromTextHelp:
+      'Paste a table and its entries are made for you:\n• a numbered list copied from a PDF: `1. Wolves`, `2–3 Bandits`, `4) A pedlar` (a line the PDF wrapped joins the one before)\n• a CSV or spreadsheet copy: `1,Wolves` or the number and the text in two columns\n• a plain list, one entry per line: equally likely\nThe dice come from the numbers: 1–6 is `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`. Check the table afterwards in its form.',
+    fromTextPlaceholder: '1. Wolves\n2-3 Bandits\n4 A pedlar\n5-6 Nothing',
+    fromTextRolled: '{count} entries, rolled on {roll}',
+    fromTextWeighted: '{count} entries, equally likely',
+    fromTextSkipped: 'left out line(s) {lines}',
+    file: 'File',
+    fileHelp:
+      'YAML file of the pack it is written to. Any file works; group them as you like:\n• `encounters.yaml`\n• `tables/weather.yaml`',
+    newFile: 'New file…',
+  },
+  newPack: {
+    invalidId: 'Ids use lowercase letters, digits and dashes.',
+    title: 'New pack',
+    id: 'Folder / id',
+    idHelp:
+      'Lowercase letters, digits and dashes. Other packs refer to its tables as `id/table`:\n• `my-setting` → `my-setting/encounters`',
+    name: 'Name',
+    locale: 'Base language',
+    localeHelp:
+      'Language the tables are written in (`en`, `es`…); translations to other languages can be added later.',
+    create: 'Create',
+    cancel: 'Cancel',
+    idTaken: 'There is already a pack "{id}".',
+    duplicateTitle: 'Duplicate as a new pack',
+    duplicateHelp:
+      'A new pack of yours with all of this one’s files. The original stays as it is, with its updates, for the packs that depend on it; tables of yours refer to the new one by its id.',
+    copyName: '{name} (mine)',
+  },
+  file: {
+    problems: '{count} problems',
+    noProblems: 'No problems',
+    line: 'line {line}',
+    readOnly: 'Read-only (bundled)',
   },
 } as const

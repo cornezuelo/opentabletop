@@ -1,6 +1,6 @@
 # The Packs app: UI/UX proposal
 
-Steps (2) to (4) of _One app edits packs_ in the [backlog](BACKLOG.md): what was decided there (2026-11-05 and 11-06) drawn as screens, from screenshots of the app and the Oracle after the rename (step 1). **Status (2026-11-06): to review with the user (§6); no code yet.**
+Steps (2) to (4) of _One app edits packs_ in the [backlog](BACKLOG.md): what was decided there (2026-11-05 and 11-06) drawn as screens, from screenshots of the app and the Oracle after the rename (step 1). **Status (2026-11-06): decided with the user (§6).**
 
 ## 1. What's wrong today
 
@@ -47,8 +47,8 @@ Kinds a pack doesn't hold aren't listed. Map styles stop being a part of the col
 | Group      | Tabs                                                     |
 | ---------- | -------------------------------------------------------- |
 | (top)      | Overview                                                 |
-| Travel     | Rules, Checks                                            |
-| Characters | Sheet, Items, Bestiary, Roll modes                       |
+| Rules      | Rules, Checks, Roll modes                                |
+| Characters | Sheet, Items, Bestiary                                   |
 | The world  | Places, Factions, Clocks, World, Calendar, Weather, Land |
 | (bottom)   | Try it, YAML                                             |
 
@@ -73,9 +73,9 @@ It rolls. Its top bar loses New definition, New pack and Import; its left column
 
 **The order**, a commit each: (a) the move, nothing visible changing; (b) the left column and a pack's page; (c) a definition's page, every kind's form working without a system around it (today most take one: Land's `system` prop is the example), which is what (4) of the backlog's steps then reviews; (d) the system's rail and the notice; (e) the Oracle; (f) Land for any map.
 
-## 6. To decide with the user
+## 6. Decided with the user (2026-11-06)
 
-1. **Two views with a switch** (proposed), or one tree with the systems inside their packs and no switch? One tree is simpler, but a player who only thinks in systems has to find them.
-2. **The rail** for a system's tabs (proposed), or tabs kept in one row with the groups as menus? The rail costs about 170 px of width, on forms that are 760 px wide today.
-3. **Does §4 answer what was asked about land?** Claude read "tierra" as the **Land** tab. If it meant something else (Map's palette, or a system's terrains), §4 changes.
-4. **Roll modes** under Characters, or a group of its own with Checks (_Rolling_)?
+1. **Two views with a switch**, Systems | Packs.
+2. **The rail** for a system's tabs.
+3. **Land** meant the **Land** tab: §4 stands.
+4. **Roll modes** go with Rules and Checks, in a group **Rules**: the user asked why Characters, and a roll mode says how a table is rolled, with characters or without.

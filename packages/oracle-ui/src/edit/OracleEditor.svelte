@@ -1,9 +1,9 @@
 <script lang="ts">
   import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { renameKey, setIn } from '@open-tabletop/pack-ui/yaml'
-  import { t } from '../../lib/i18n'
-  import { slugify } from '../../lib/packs/definitions'
-  import type { DefinitionDoc } from '../../lib/packs/doc.svelte'
+  import type { Translate } from '../i18n'
+  import { slugify } from '@open-tabletop/pack-ui'
+  import type { DefinitionForm } from './doc.svelte'
   import EntriesEditor from './EntriesEditor.svelte'
   import TextField from './TextField.svelte'
 
@@ -11,7 +11,8 @@
    * An oracle: one input the player picks before rolling (e.g. the odds) and, for each of
    * its options, its own list of entries (a variant).
    */
-  let { doc }: { doc: DefinitionDoc } = $props()
+  let { doc }: { doc: DefinitionForm } = $props()
+  const t: Translate = (key, params) => doc.ui.t(key, params)
 
   interface RawVariant {
     roll?: string

@@ -1,11 +1,10 @@
 <script lang="ts">
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { contextSuggestions, effectSuggestions, setSuggestions } from '@open-tabletop/session'
-  import { workspace } from '../../lib/packs/workspace.svelte'
   import { ConditionEditor, PairEditor } from '@open-tabletop/pack-ui'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
-  import { getLocale, t } from '../../lib/i18n'
-  import { getAt, nextId, type DefinitionDoc, type Path } from '../../lib/packs/doc.svelte'
+  import type { Translate } from '../i18n'
+  import { getAt, nextId, type DefinitionForm, type Path } from './doc.svelte'
   import RefPicker from './RefPicker.svelte'
 
   interface RawEntry {
@@ -28,7 +27,9 @@
    * A list of entries (a table's, or one oracle variant's). With dice they have ranges;
    * without, weights. `rollPath` is where "Number 1–N" writes the matching dice.
    */
-  let { doc, path, rollPath }: { doc: DefinitionDoc; path: Path; rollPath: Path } = $props()
+  let { doc, path, rollPath }: { doc: DefinitionForm; path: Path; rollPath: Path } = $props()
+  const t: Translate = (key, params) => doc.ui.t(key, params)
+  const getLocale = () => doc.ui.locale()
 
   const id = $derived(doc.def.localId)
   const entries = $derived((getAt(doc.raw, path) as RawEntry[] | undefined) ?? [])
@@ -112,9 +113,9 @@
     e.maxOccurrences !== undefined
 
   /** What conditions can read and entries can set, from every loaded pack. */
-  const conditionHints = $derived(contextSuggestions(workspace.registry))
-  const setHints = $derived(setSuggestions(workspace.registry))
-  const effectHints = $derived(effectSuggestions(workspace.registry))
+  const conditionHints = $derived(contextSuggestions(doc.ui.library.registry))
+  const setHints = $derived(setSuggestions(doc.ui.library.registry))
+  const effectHints = $derived(effectSuggestions(doc.ui.library.registry))
 
   /** Rows showing their conditions, values and limits. */
   let open = $state<Record<number, boolean>>({})

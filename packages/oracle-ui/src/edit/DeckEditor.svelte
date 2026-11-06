@@ -2,14 +2,15 @@
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { PairEditor } from '@open-tabletop/pack-ui'
   import { effectSuggestions, setSuggestions } from '@open-tabletop/session'
-  import { workspace } from '../../lib/packs/workspace.svelte'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
-  import { getLocale, t, type MessageKey } from '../../lib/i18n'
-  import { nextId, type DefinitionDoc } from '../../lib/packs/doc.svelte'
+  import type { OracleUiKey, Translate } from '../i18n'
+  import { nextId, type DefinitionForm } from './doc.svelte'
   import RefPicker from './RefPicker.svelte'
 
   /** A deck: cards (with copies) drawn without replacement until reshuffled. */
-  let { doc }: { doc: DefinitionDoc } = $props()
+  let { doc }: { doc: DefinitionForm } = $props()
+  const t: Translate = (key, params) => doc.ui.t(key, params)
+  const getLocale = () => doc.ui.locale()
 
   interface RawCard {
     id: string
@@ -24,8 +25,8 @@
 
   /** Cards showing what they set, change and whether they pause. */
   let open = $state<Record<number, boolean>>({})
-  const setHints = $derived(setSuggestions(workspace.registry))
-  const effectHints = $derived(effectSuggestions(workspace.registry))
+  const setHints = $derived(setSuggestions(doc.ui.library.registry))
+  const effectHints = $derived(effectSuggestions(doc.ui.library.registry))
 
   const RESHUFFLES = ['when-empty', 'manual', 'after-draw'] as const
 
@@ -94,7 +95,7 @@
         )}
     >
       {#each RESHUFFLES as r (r)}
-        <option value={r}>{t(`edit.reshuffles.${r}` as MessageKey)}</option>
+        <option value={r}>{t(`edit.reshuffles.${r}` as OracleUiKey)}</option>
       {/each}
     </select>
   </label>

@@ -10,11 +10,11 @@
     MANIFEST_FILE,
     overlayLocales,
     overlayPath,
-  } from '../lib/packs/workspace'
+  } from '@open-tabletop/pack-ui'
   import { locate } from '@open-tabletop/pack-ui/yaml'
-  import KindBadge from './KindBadge.svelte'
+  import { KindBadge } from '@open-tabletop/pack-ui'
   import { dialogs } from '../lib/dialogs.svelte'
-  import ReadOnlyNotice from './ReadOnlyNotice.svelte'
+  import { ReadOnlyNotice } from '@open-tabletop/pack-ui'
   import {
     BundledUpdates,
     download,
@@ -196,7 +196,12 @@
       </div>
     </header>
 
-    {#if !editable}<ReadOnlyNotice {root} />{/if}
+    {#if !editable}<ReadOnlyNotice
+        library={workspace}
+        locale={getLocale()}
+        {root}
+        onmade={(made) => go({ name: 'pack', root: made })}
+      />{/if}
     <BundledUpdates library={workspace} {root} locale={getLocale()} />
 
     <section>
@@ -223,7 +228,7 @@
         {#each defs as def (def.id)}
           <li>
             <button class="row" onclick={() => go({ name: 'def', id: def.id, tab: 'roll' })}>
-              <KindBadge kind={def.kind} />
+              <KindBadge kind={def.kind} locale={getLocale()} />
               <span>{displayName(def)}</span>
               <code>{def.localId}</code>
             </button>

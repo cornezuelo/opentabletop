@@ -37,3 +37,4 @@ export {
   type SystemTab,
   type UsePlaceShown,
 } from './usePlace'
+export { default as DefinitionEditor } from './edit/DefinitionEditor.svelte'

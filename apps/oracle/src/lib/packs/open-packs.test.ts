@@ -26,7 +26,7 @@ import {
 import { describe, expect, it } from 'vitest'
 import { parseAllDocuments } from 'yaml'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
-import { engineFiles } from './workspace'
+import { engineFiles } from '@open-tabletop/pack-ui'
 
 describe('bundled open packs', () => {
   const { registry, diagnostics } = loadPacks(engineFiles(bundledPacks.filter((p) => !p.personal)))

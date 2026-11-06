@@ -44,8 +44,8 @@ packages/                   # libraries, scope @open-tabletop/*
   storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
   transfer/                 # export and import some of it: what's kept as a tree with what each needs, the export .zip
   ui-kit/                   # shared Svelte: theme, typed i18n, shared vocabulary, tooltips, toasts, dialogs, app switcher
-  pack-ui/                  # pack library (bundled + user packs; `bundled` globs packs/ for every app), editing, YAML helpers, YAML editor, conditions as rows (ConditionEditor)
-  oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker
+  pack-ui/                  # pack library (bundled + user packs; `bundled` globs packs/ for every app), editing, new packs and definitions, YAML helpers, YAML editor, conditions as rows (ConditionEditor)
+  oracle-ui/                # embeddable Oracle: roll panel, result card, history, picker; the forms of tables, oracles, generators and decks
   character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags); the roster in the browser
   travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)
   campaign-ui/              # embeddable campaign UI: the world clock (date, moving time on, events, progress clocks, timeline), the world's words
@@ -83,7 +83,7 @@ docs/
   bestiary.md               # The bestiary and results that make things design (templates, those present), decided
   map-styles.md             # Map styles design (a beautiful map, the schematic one kept), decided
   map-ui.md                 # Map's UI/UX review and proposal (modes, the Play panel, the cell), to review
-  packs-app.md              # The Packs app: its screens (two views, a pack's page, a system's rail), the Oracle after it, land for any map, to review
+  packs-app.md              # The Packs app: its screens (two views, a pack's page, a system's rail), the Oracle after it, land for any map, decided
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):

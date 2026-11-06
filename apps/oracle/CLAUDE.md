@@ -9,17 +9,14 @@ Standalone app of the Oracle Engine: **browse and roll** every table, oracle, ge
 ```
 src/
   lib/
-    packs/      # the app's PackLibrary (bundled packs from pack-ui's `bundled`), new-pack helpers, zip import/export, templates
+    packs/      # the app's PackLibrary (bundled packs from pack-ui's `bundled`)
     i18n/       # typed en/es dictionaries on top of ui-kit's createI18n
     oracle.svelte.ts  # the app's OracleUi (roller, history, pack texts) from @open-tabletop/oracle-ui; rolls in the campaign being played (ui-kit `playing`, CampaignKeeper) or its own state
     nav.svelte.ts  # view state mirrored in the URL hash (#/def/<pack>/<id>[/edit], #/pack/<folder>, #/file/<folder>/<path>)
-  components/   # Sidebar, DefinitionView (Roll / Edit tabs, duplicate / copy to / delete),
-                # PackView, FileEditor (CodeMirror), NewPackDialog, NewDefinitionDialog
-    edit/       # form editors: DefinitionEditor (common texts, language) → EntriesEditor (tables,
-                # oracle variants), OracleEditor, GeneratorEditor, DeckEditor; RefPicker, TextField
+  components/   # Sidebar, DefinitionView (Roll / Edit tabs, duplicate / copy to / delete), PackView
 ```
 
-Shared packages: `@open-tabletop/pack-ui` (pack library with the editing operations, YAML Document helpers, CodeMirror YAML editor) and `@open-tabletop/oracle-ui` (roll panel, result card, history, roller, context variables detection). `lib/packs/workspace.svelte.ts` is the app's `PackLibrary`.
+Shared packages: `@open-tabletop/pack-ui` (pack library with the editing operations, new packs and definitions, YAML Document helpers, CodeMirror YAML editor, `FileEditor`, the **New** dialogs) and `@open-tabletop/oracle-ui` (roll panel, result card, history, roller, context variables detection, the form editors of tables, oracles, generators and decks: `edit/`, from `DefinitionEditor`). `lib/packs/workspace.svelte.ts` is the app's `PackLibrary`.
 
 Principles:
 

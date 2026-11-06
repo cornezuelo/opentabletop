@@ -1,7 +1,7 @@
 import { writeRef, type Compiled } from '@open-tabletop/oracle-engine'
 import { getOverlayText, readDefinition, setIn, setOverlayText } from '@open-tabletop/pack-ui/yaml'
-import { manifestOf, overlayLocales, overlayPath } from './workspace'
-import { workspace } from './workspace.svelte'
+import { manifestOf, overlayLocales, overlayPath } from '@open-tabletop/pack-ui'
+import type { OracleUi } from '../ui'
 
 export type Path = (string | number)[]
 
@@ -9,7 +9,8 @@ export type Path = (string | number)[]
  * A definition being edited in a form: its raw YAML (as written), structured edits that
  * keep the rest of the file, and the translation overlay for the chosen language.
  */
-export function definitionDoc(source: () => { def: Compiled; root: string }) {
+export function definitionForm(ui: OracleUi, source: () => { def: Compiled; root: string }) {
+  const workspace = ui.library
   const def = $derived(source().def)
   const root = $derived(source().root)
   const file = $derived(def.file.slice(root.length + 1))
@@ -37,6 +38,7 @@ export function definitionDoc(source: () => { def: Compiled; root: string }) {
   const save = (text: string) => workspace.writeFile(root, file, text)
 
   return {
+    ui,
     get def() {
       return def
     },
@@ -90,7 +92,7 @@ export function definitionDoc(source: () => { def: Compiled; root: string }) {
   }
 }
 
-export type DefinitionDoc = ReturnType<typeof definitionDoc>
+export type DefinitionForm = ReturnType<typeof definitionForm>
 
 /** Reads a nested value of a raw definition. */
 export function getAt(raw: unknown, path: Path): unknown {
