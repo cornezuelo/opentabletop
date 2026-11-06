@@ -7,11 +7,11 @@ import {
   pendingLine,
   startTrip,
   stepTrip,
+  tripAvailability,
   systemName,
   tripFacts,
   travelSystems,
   type SessionState,
-  shownAt,
 } from '@open-tabletop/session'
 import { calendarFacts, qualify, tripStart, type TravelWorld } from '@open-tabletop/travel-engine'
 import { seeded } from '@open-tabletop/random'
@@ -1056,7 +1056,7 @@ describe('bundled open packs', () => {
     expect(total(crossing(true))).toBe(total(crossing(false)) + 1)
   })
 
-  it('the Grey Marches: foraging for food says when there is nothing to find, and how much was found', () => {
+  it('the Grey Marches: foraging for food says first where there is nothing to find, and how much was found', () => {
     const system = marches()
     const world = row([{ terrain: 'hills' }, { terrain: 'forest' }])
     for (const locale of ['en', 'es']) {
@@ -1066,19 +1066,11 @@ describe('bundled open packs', () => {
         oracle: createOracleEngine({ registry, random: seeded(`forage-${locale}`) }),
         locale,
       }
-      // On the hills the check doesn't apply: the action says it rolled nothing.
+      // On the hills the button says so first: no hours lost, nothing in the journal.
       const { session } = startTrip({ system, location: '0', season: 'summer' })
-      const hills = stepTrip(options, session, { type: 'action', id: 'forage' }).entries
-      expect(
-        hills
-          .filter((e) => shownAt(e, { level: 'mechanics' }))
-          .map((e) => [e.code, e.data?.checks]),
-      ).toEqual([['ACTION_TAKEN', 0]])
-      // The detail says why: the check's `when`, and what it read.
-      expect(hills.find((e) => e.code === 'CHECK_SKIPPED')?.data).toMatchObject({
-        check: 'FORAGE_CHECK_REQUIRED',
-        condition: 'when',
-      })
+      expect(tripAvailability(options, session).forage).toMatchObject({ condition: 'needs' })
+      const hills = stepTrip(options, session, { type: 'action', id: 'forage' })
+      expect(hills.state.travel.time).toBe(session.travel.time)
       // In the forest it rolls, and the food in the text is the food gained.
       for (let i = 0; i < 20; i++) {
         const { session } = startTrip({ system, location: '1', season: 'summer' })

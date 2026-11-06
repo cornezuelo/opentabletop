@@ -336,6 +336,7 @@ export const es: Messages<typeof en> = {
     yes: 'sí',
     no: 'no',
     yesterday: '{name} ayer',
+    nobodyActing: 'nadie actúa: elige quién en la pestaña Grupo',
     facts: {
       trip_marched: 'la marcha del día',
       trip_weather: 'el clima',

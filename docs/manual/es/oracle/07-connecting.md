@@ -266,6 +266,7 @@ Cuándo se puede pulsar el botón:
 
 - `when` / `unless`: condiciones (como las de una tabla) sobre los datos del viaje, los valores de hoy y el grupo. Las Marcas Grises buscan comida `unless: { trip.weather: storm }` y solo acampan `when: { party.items.ration.count: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. Si no se cumplen, el botón se desactiva y dice por qué.
 - El día y la noche en esas condiciones son los del sistema: la hora (`time.hour: { gte: 6, lt: 20 }`) o las partes del día de su calendario (`time.part: night`, `time.tags: dark`). Un sistema puede descansar, buscar comida y forzar la marcha solo de día, así no se puede saltar la noche descansando, y marchar de noche solo tras una marcha nocturna.
+- `needs`: una condición que se mira después de esas dos, para lo que el jugador puede arreglar. Sin ella el botón sigue a la vista, desactivado, diciendo por qué, incluso con `hideWhenUnavailable`: `needs: { any: [{ acting: { exists: true } }, { characters: { exists: false } }] }` pide que haya alguien elegido para actuar, si el grupo tiene personajes.
 - `oncePerDay: true`: una vez al día.
 - Un valor del día que la `blocks` (arriba).
 

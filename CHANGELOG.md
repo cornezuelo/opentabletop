@@ -8,11 +8,17 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Travel: a way's terrains are listed in Map's palette groups, and the season to start in follows the season of the open trip.
 - Map and Travel: the journal says what a place is and how the party came in (_Entered 0302 (rubble, door)_), and the trip's status the time spent on the way to the next cell, when one takes longer than a march.
+- Map and Travel: an action can say what it needs before it's played: its button stays disabled, saying why (who acts, where it can work), instead of failing after.
 - Characters: a party in a campaign without a trip keeps its list of members open; whoever joins comes to the campaign, and whoever leaves goes.
 
 ### Packs
 
 - Core: **Explore** says what its idea is for before rolling it.
+- The Grey Marches: **Forage for food** says first where nothing grows, and **Tend the wounded** and **Drive them off** that someone has to act.
+
+### Formats
+
+- Packs: `needs` in an action, a condition that leaves its button in sight, disabled, saying why.
 
 ### Fixes
 

@@ -774,6 +774,9 @@ export const en = {
     stepCount: 'Steps: {count}',
     when: 'Only when',
     unless: 'Not when',
+    needs: 'Needs',
+    needsHelp:
+      "What the action needs before it's taken. Without it the button stays in sight, disabled, saying why, even if it hides when it can't be taken: use it for what the player can put right.\n• `acting: { exists: true }` — someone chosen to act\n• `place.terrain: [forest, plains]` — only where this can work",
     whenHelp:
       "When the action can be taken (**Only when**) or not (**Not when**), with conditions like the tables':\n• `trip.weather: storm` — today's weather\n• `place.terrain: [forest, hills]` — the cell the party is in\n• `place.tags: shrine` — a tag of that cell\n• `party.stats.fatigue: { lt: 2 }` — the party\n• `party.values.food: { gte: 1 }` — food left\n• `mutinous: true` — a value of the day\n• `time.moons.silver: full` — the calendar\n• `time.hour: { gte: 6, lt: 20 }` — only by day, from 06:00 to 20:00; `time.part: night`, `time.tags: dark` — a part of the calendar's day, or its tags\n• `trip.visits: 1` — the first time here; `around.terrain: lake` — next to a lake\n• `trip.doneToday: forage` — after foraging today; `trip.marched: { gte: 6 }` — after 6 hours of marching\n• `trip.km: { gte: 100 }`, `trip.taken.camp: { gte: 7 }`, `trip.spent.party.values.food: { gte: 10 }` — what the trip has done so far\n• `party.stats.fatigue: { lt: '{{party.stats.endurance}}' }` — a variable: compared with another value (quoted)\n• `party.stats.wits: { gte: '{{1d20}}' }` — a roll: the same all the moment long\nEach value by its **full name**, which says where it comes from (`place.*`, `time.*`, `trip.*`, `system.*`, `world.*`, `party.*`): never hidden by a stat with the same name\nOtherwise its button stays disabled and says why (or hides, with **Hidden when it can't be taken**); the halt's action that can't be taken lets the time pass without it.",
     params: 'Parameters',

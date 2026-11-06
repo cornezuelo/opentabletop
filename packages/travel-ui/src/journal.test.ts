@@ -5,6 +5,7 @@ import { defaultCalendar } from '@open-tabletop/time'
 import { describe, expect, it } from 'vitest'
 import { translator } from './i18n'
 import {
+  failedText,
   actionNothingOf,
   durationText,
   entryText,
@@ -24,6 +25,17 @@ const entry = (time: number, code: string, rest: Partial<JournalEntry> = {}): Jo
   source: 'travel',
   code,
   ...rest,
+})
+
+describe('why an action needs someone acting', () => {
+  it('says to choose who, whatever else its condition asks', () => {
+    const t = translator(() => 'en')
+    const failed = [
+      { path: 'acting', op: 'exists', value: undefined, asked: true },
+      { path: 'characters', op: 'exists', value: {}, asked: false },
+    ] as Parameters<typeof failedText>[0]
+    expect(failedText(failed, { t })).toBe('nobody is acting: choose who in the Party tab')
+  })
 })
 
 describe('entering a place', () => {
@@ -204,7 +216,9 @@ describe('journal lines', () => {
     // The system's own words, for an action a check is rolled at; nothing, for one without.
     const { registry } = loadPacks([...corePack(), ...greyMarchesPack()])
     const gm = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!.rules
-    expect(actionNothingOf(gm, 'forage', 'en')).toMatch(/^nothing to forage on \{terrain\}/)
+    const forage = { ...gm.actions!.forage, nothing: 'nothing to forage on {terrain}' }
+    const worded = { ...gm, actions: { ...gm.actions, forage } }
+    expect(actionNothingOf(worded, 'forage', 'en')).toMatch(/^nothing to forage on \{terrain\}/)
     expect(actionNothingOf(gm, 'eat', 'en')).toBe('')
     // No words of its own, and it changed something: that's what happened (a camp's rest).
     expect(actionNothingOf(gm, 'camp', 'en')).toBeUndefined()

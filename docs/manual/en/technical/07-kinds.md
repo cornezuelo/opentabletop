@@ -209,6 +209,7 @@ actions:
   forage:
     oncePerDay: true
     unless: { trip.weather: storm }
+    needs: { place.terrain: [forest, plains] } # off, saying why, where nothing grows
     nothing: 'nothing to forage on {terrain}' # the journal when no check applies
     do: [{ time: 180 }, { travel.speed: 0.5 }]
   # not a button; the food is a value of the party's sheet (`partySheet` in its system)

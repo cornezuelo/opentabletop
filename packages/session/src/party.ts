@@ -312,7 +312,7 @@ export function memberFacts(
     ),
   )
   return {
-    characters,
+    ...(Object.keys(characters).length && { characters }),
     ...(copies && { present: copies.present }),
     ...(acting && { acting }),
     ...(Object.keys(roles).length && { roles }),

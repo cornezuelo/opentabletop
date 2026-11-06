@@ -342,6 +342,7 @@ export const en = {
     yes: 'yes',
     no: 'no',
     yesterday: '{name} yesterday',
+    nobodyActing: 'nobody is acting: choose who in the Party tab',
     facts: {
       trip_marched: 'the day’s march',
       trip_weather: 'the weather',

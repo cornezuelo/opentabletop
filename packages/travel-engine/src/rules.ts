@@ -320,6 +320,11 @@ const action = z
     when: condition.optional(),
     /** Not available when this holds, e.g. `{ forageImpossible: true }`. */
     unless: condition.optional(),
+    /**
+     * What it needs before it's taken, checked after `when` and `unless`: without it the button
+     * stays in sight, disabled, saying why, even with `hideWhenUnavailable`.
+     */
+    needs: condition.optional(),
     /** Only once a day. */
     oncePerDay: z.boolean().optional(),
     /** Its button is hidden while it can't be taken (instead of shown disabled). */

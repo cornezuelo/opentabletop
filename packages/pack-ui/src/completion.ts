@@ -151,7 +151,7 @@ const NAMED_KEYS: Record<string, string> = {
   cancels: 'roll-modes',
 }
 /** Keys whose value is a condition, or values (one line of `key: value` pairs). */
-const CONDITION_KEYS = new Set(['when', 'unless', 'through', 'wait', 'fits', 'where'])
+const CONDITION_KEYS = new Set(['when', 'unless', 'needs', 'through', 'wait', 'fits', 'where'])
 
 /** Keys a definition, its entries and its fields use. */
 const KEYS = [
@@ -230,6 +230,7 @@ const KEYS = [
   'choices',
   'onward',
   'oncePerDay',
+  'needs',
   'hideWhenUnavailable',
   'nothing',
   'checks',

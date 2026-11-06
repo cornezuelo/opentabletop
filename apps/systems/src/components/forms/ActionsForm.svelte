@@ -412,6 +412,17 @@
               onchange={(c) => doc.edit('travel-rules', ['actions', id, 'unless'], c)}
             />
           </div>
+          <div class="cond">
+            <span class="label">{t('actions.needs')}<InfoTip text={t('actions.needsHelp')} /></span>
+            <ConditionEditor
+              value={d.needs}
+              suggestions={hints}
+              locale={getLocale()}
+              {disabled}
+              label={t('actions.needs')}
+              onchange={(c) => doc.edit('travel-rules', ['actions', id, 'needs'], c)}
+            />
+          </div>
           <div class="wide cond">
             <span class="label"
               >{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span

@@ -233,7 +233,14 @@
    */
   const buttons = $derived(
     Object.keys(actions.all)
-      .filter((id) => !actions.all[id].on && !(actions.all[id].hideWhenUnavailable && blocked[id]))
+      .filter((id) => {
+        const because = blocked[id]
+        const hidden =
+          actions.all[id].hideWhenUnavailable &&
+          because &&
+          !('condition' in because && because.condition === 'needs')
+        return !actions.all[id].on && !hidden
+      })
       .sort((a, b) => Number(movers.has(b)) - Number(movers.has(a))),
   )
   /** The action whose move is under way (stopped by a check): **Go on** goes on with it. */

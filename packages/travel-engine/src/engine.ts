@@ -476,7 +476,7 @@ export type TravelEvent =
       type: 'CHECK_SKIPPED'
       event: string
       at: string
-      condition: 'when' | 'unless'
+      condition: 'when' | 'unless' | 'needs'
       failed: FailedPair[]
       time: GameTime
     }
@@ -565,7 +565,7 @@ export type Unavailable =
    * Its `when` doesn't hold, or its `unless` does: `failed` says which pairs, with what
    * they read and asked (the UI words it).
    */
-  | { condition: 'when' | 'unless'; failed?: FailedPair[] }
+  | { condition: 'when' | 'unless' | 'needs'; failed?: FailedPair[] }
   /** The trip is paused on a check (its event): it must be resolved first (Continue). */
   | { pending: string }
   /** A step of this action stopped the trip for the player (`pause:`, `ask:`). */
@@ -865,10 +865,10 @@ export function createTravelEngine(options: {
    */
   const conditionStop = (
     state: TravelState,
-    def: { when?: unknown; unless?: unknown },
+    def: { when?: unknown; unless?: unknown; needs?: unknown },
     seen: Record<string, unknown>,
     moment?: string,
-  ): { condition: 'when' | 'unless'; failed: FailedPair[] } | undefined => {
+  ): { condition: 'when' | 'unless' | 'needs'; failed: FailedPair[] } | undefined => {
     const roller = rollsOf(state, seen, moment)
     const context = qualify(seen)
     const when = def.when as Condition | undefined
@@ -877,6 +877,9 @@ export function createTravelEngine(options: {
       return { condition: 'when', failed: explain(when, context, { roller }) }
     if (unless && matches(unless, context, { roller }))
       return { condition: 'unless', failed: explain({ not: unless }, context, { roller }) }
+    const needs = def.needs as Condition | undefined
+    if (needs && !matches(needs, context, { roller }))
+      return { condition: 'needs', failed: explain(needs, context, { roller }) }
     return undefined
   }
   const rollsOf = (state: TravelState, seen: Record<string, unknown>, moment?: string) =>

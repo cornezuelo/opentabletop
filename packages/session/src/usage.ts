@@ -168,7 +168,10 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
       for (const [key, value] of Object.entries(node)) {
         const at = join(path, key)
         // A `wait:` step waits for its condition.
-        if ((key === 'when' || key === 'unless' || key === 'wait') && isObject(value))
+        if (
+          (key === 'when' || key === 'unless' || key === 'needs' || key === 'wait') &&
+          isObject(value)
+        )
           condition(value, at)
         else if (key === 'effects' && isObject(value)) changes(value, at)
         // A `travel.mode` step changes the way of travelling.

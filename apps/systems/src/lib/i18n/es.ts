@@ -780,6 +780,9 @@ export const es: Messages<typeof en> = {
     blocksNothing: 'nada',
   },
   actions: {
+    needs: 'Necesita',
+    needsHelp:
+      'Lo que la acción necesita antes de hacerse. Sin ello el botón sigue a la vista, desactivado, diciendo por qué, aunque se oculte cuando no se puede hacer: úsalo para lo que el jugador puede arreglar.\n• `acting: { exists: true }` — alguien elegido para actuar\n• `place.terrain: [forest, plains]` — solo donde esto puede funcionar',
     search: 'Buscar en las acciones (nombre, id, momento, paso…)',
     stepCount: 'Pasos: {count}',
     when: 'Solo si',

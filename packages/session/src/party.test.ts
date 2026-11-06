@@ -76,6 +76,10 @@ actions:
   eat: { on: time.day-end, do: [{ effects: { party.items.ration: '-{{party.stats.mouths}}' } }] }
   forced-march: { do: [{ time: 60 }, { effects: { acting.values.health: -1 } }] }
   bandage: { do: [{ effects: { acting.conditions.wounded: false } }] }
+  rally:
+    needs: { any: [{ acting: { exists: true } }, { characters: { exists: false } }] }
+    hideWhenUnavailable: true
+    do: [{ time: 10 }]
   scout: { when: { roles.guide.values.survival: { gte: 2 } }, do: [{ effects: { roles.guide.values.health: -1 } }] }
   ambushed: { do: [{ effects: { party.members.values.health: -1, characters.mara.conditions.wounded: true } }] }
   soothe: { do: [{ effects: { party.members.values.harm: -1, party.members.conditions.faint: false } }] }
@@ -408,6 +412,18 @@ describe('the party is its members', () => {
       related: ['mara'],
       relations: { bond: ['mara'], debt: ['mara'] },
     })
+  })
+
+  it('an action that needs someone acting waits for the player to choose', () => {
+    const { session } = startTrip({ system: band, location: 'a', members: members() })
+    expect(tripAvailability({ system: band, world }, session).rally).toMatchObject({
+      condition: 'needs',
+    })
+    const acting = { ...session, acting: 'kael' }
+    expect(tripAvailability({ system: band, world }, acting).rally).toBeUndefined()
+    // A party without characters has nobody to choose: nothing stops it.
+    const alone = startTrip({ system: band, location: 'a' }).session
+    expect(tripAvailability({ system: band, world }, alone).rally).toBeUndefined()
   })
 
   it('gives journey roles to characters: conditions read the holder, effects reach them', () => {

@@ -271,6 +271,7 @@ When the button can be pressed:
 
 - `when` / `unless`: conditions (like a table's) on the trip's facts, today's values and the party. The Grey Marches forage `unless: { trip.weather: storm }` and camp only `when: { party.items.ration.count: { gte: 1 }, party.stats.fatigue: { lt: 10 } }`. When they don't hold, the button is disabled and says why.
 - Day and night in those conditions are the system's: the hour (`time.hour: { gte: 6, lt: 20 }`) or the parts of its calendar's day (`time.part: night`, `time.tags: dark`). A system may rest, forage and force the march only by day, so the night can't be skipped resting, and march at night only after a night march.
+- `needs`: a condition checked after those two, for what the player can put right. Without it the button stays in sight, disabled, saying why, even with `hideWhenUnavailable`: `needs: { any: [{ acting: { exists: true } }, { characters: { exists: false } }] }` asks for someone chosen to act, when the party has characters.
 - `oncePerDay: true`: once a day.
 - A value of the day that `blocks` it (above).
 

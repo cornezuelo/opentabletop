@@ -44,7 +44,6 @@ travel-rules/default:
     forage:
       name: Buscar comida
       description: 'Tres horas buscando comida (una vez al día, de día): el resto de la marcha del día va a la mitad. Solo en bosque, bosque denso, llanura, cultivos, brezal y marisma: se tira 1d6 + Supervivencia (dos veces, la mejor); de 4 a 6 da comida para un día, 7 o más para 2 a 4 días. En otros terrenos no hay nada que encontrar. No con tormenta.'
-      nothing: 'no hay nada que buscar en {terrain}: solo los bosques, campos, brezales y marismas dan comida'
     eat:
       name: Comer
       description: 'Al final de cada día, acampando o no: 1 ración por boca (cada compañero, o 1 para un grupo sin ellos), 1 más por cada mercenario, primero de las reservas de la Compañía y luego de quien más lleve; y 1 de forraje a caballo. Sin nada que comer, el grupo pasa hambre.'

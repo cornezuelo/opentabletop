@@ -158,6 +158,8 @@ export function failedText(
     if (typeof v === 'number') return String(Math.round(v * 100) / 100)
     return String(v)
   }
+  // Who acts is chosen in the trip: nobody yet, whatever else is asked beside it.
+  if (failed.some((f) => f.path === 'acting' && f.op === 'exists')) return t('why.nobodyActing')
   return failed
     .map(({ path, value, op, asked, negated }) => {
       const name = nameOf(path)

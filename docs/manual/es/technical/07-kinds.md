@@ -208,6 +208,7 @@ actions:
   forage:
     oncePerDay: true
     unless: { trip.weather: storm }
+    needs: { place.terrain: [forest, plains] } # desactivada, diciendo por qué, donde nada crece
     nothing: 'no hay nada que buscar en {terrain}' # el diario cuando no se aplica ninguna comprobación
     do: [{ time: 180 }, { travel.speed: 0.5 }]
   # no es un botón; la comida es un valor de la hoja del grupo (`partySheet` en su sistema)

@@ -235,14 +235,14 @@ actions:
   # The system's own action: foraging takes three hours and halves the rest of the day's
   # march, once a day; its check (below, at: actions.forage.done) is rolled where the party
   # stands, once the three hours are done.
-  # `nothing` is what the journal says where that check doesn't apply (hills, mountains…).
   # Only by day, and not in a storm: `when` / `unless` read the moment and today's values
   # (and the map, the party…).
   forage:
     name: Forage for food
     description: 'Three hours looking for food (once a day, by day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find. Not in a storm.'
-    nothing: 'nothing to forage on {terrain}: only woods, fields, heath and marsh give food'
     when: { time.tags: { not: dark } }
+    # Where nothing grows the button says so first, instead of three hours lost.
+    needs: { place.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
     unless: { trip.weather: storm }
     do:
       - { time: 180 }
@@ -407,6 +407,8 @@ actions:
     when:
       time.tags: { not: dark }
       any: [{ party.stats.wounded: { gte: 1 } }, { party.stats.sprained: { gte: 1 } }]
+    # With companions, one of them has to be chosen: the button stays, saying so.
+    needs: { any: [{ acting: { exists: true } }, { characters: { exists: false } }] }
     hideWhenUnavailable: true
     do:
       - { time: 60 }
@@ -565,6 +567,7 @@ actions:
     description: 'With foes here: ten minutes of steel and fire. Each of them takes 1d3 harm, and the fallen are gone; whoever acts takes 1 harm unless their Survival is 2 or more.'
     when: { present.count: { gte: 1 } }
     unless: { present.tags: vale }
+    needs: { any: [{ acting: { exists: true } }, { characters: { exists: false } }] }
     hideWhenUnavailable: true
     do:
       - { time: 10 }
