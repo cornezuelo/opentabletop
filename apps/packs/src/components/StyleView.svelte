@@ -102,10 +102,6 @@
     align-items: baseline;
   }
 
-  h1 {
-    margin: 0;
-  }
-
   code {
     font-size: 12px;
     color: var(--text-muted);

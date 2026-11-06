@@ -119,10 +119,6 @@
     max-width: 900px;
   }
 
-  .detail h1 {
-    margin: 0;
-  }
-
   .where {
     margin: -8px 0 0;
     font-size: 13px;
@@ -170,7 +166,7 @@
   }
 
   .danger {
-    color: var(--danger, #d9534f);
+    color: var(--danger);
   }
 
   .where a {

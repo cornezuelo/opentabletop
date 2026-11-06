@@ -303,7 +303,7 @@
 
   small {
     display: block;
-    color: #e3a19f;
+    color: var(--danger-text);
   }
 
   .more {

@@ -133,10 +133,10 @@
 
   .list :global(button:hover),
   .list :global(a:hover) {
-    background: rgb(200 162 74 / 0.1);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
   }
 
   .list :global(button.danger) {
-    color: var(--danger, #d9534f);
+    color: var(--danger);
   }
 </style>

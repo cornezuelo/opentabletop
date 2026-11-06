@@ -30,7 +30,7 @@
   }
 
   .table {
-    background: #c8a24a;
+    background: var(--accent);
   }
 
   .oracle {

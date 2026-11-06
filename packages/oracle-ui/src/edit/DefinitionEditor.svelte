@@ -267,6 +267,6 @@
 
   .editor :global(.note) {
     font-size: 11px;
-    color: #d8c58a;
+    color: var(--warning-text);
   }
 </style>

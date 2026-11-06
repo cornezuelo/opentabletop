@@ -118,7 +118,7 @@
   }
 </script>
 
-<div class="form">
+<div class="form-stack">
   <section class="head">
     <label>
       <span>{t('land.name')}<InfoTip text={t('land.nameHelp')} /></span>
@@ -321,13 +321,6 @@
     max-width: 260px;
   }
 
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    max-width: 1100px;
-  }
-
   section {
     display: flex;
     flex-direction: column;
@@ -338,12 +331,6 @@
     flex-direction: row;
     gap: 16px;
     align-items: end;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
   }
 
   label {

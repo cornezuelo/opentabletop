@@ -99,6 +99,6 @@
   .bad {
     margin: 2px 0 0;
     font-size: 12px;
-    color: var(--danger, #c0392b);
+    color: var(--danger);
   }
 </style>

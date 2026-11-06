@@ -83,7 +83,7 @@
     input.value.trim() === '' ? undefined : Number(input.value)
 </script>
 
-<div class="form">
+<div class="form-stack">
   <section>
     <h3>{t('rules.day')}<InfoTip text={t('rules.dayHelp')} /></h3>
     <div class="inline">
@@ -508,23 +508,10 @@
 </div>
 
 <style>
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    max-width: 1100px;
-  }
-
   section {
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
   }
 
   .inline {

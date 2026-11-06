@@ -177,8 +177,8 @@
   }
 
   .actions .danger:hover {
-    color: #e3a19f;
-    border-color: #e3a19f;
+    color: var(--danger-text);
+    border-color: var(--danger-text);
   }
 
   .description {

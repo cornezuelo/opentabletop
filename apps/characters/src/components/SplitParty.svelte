@@ -185,13 +185,6 @@
     gap: 12px;
   }
 
-  h2 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 18px;
-    font-weight: normal;
-  }
-
   .help {
     font-size: 13px;
     color: var(--text-muted);

@@ -332,7 +332,7 @@
   }
 
   .buttons .danger {
-    color: var(--danger, #d9534f);
+    color: var(--danger);
   }
 
   dd a.plain {

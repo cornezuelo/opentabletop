@@ -174,7 +174,7 @@
   }
 
   .pack-row.selected {
-    background: rgb(200 162 74 / 0.12);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
   .caret {
@@ -240,7 +240,7 @@
   }
 
   li button.selected {
-    background: rgb(200 162 74 / 0.18);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
   }
 
   .name {

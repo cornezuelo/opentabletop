@@ -10,6 +10,9 @@
   --danger: #c0504d;
   --warning: #d0913a;
   --good: #6f9e52;
+  /* Danger and warning as text on the dark panels, where the plain ones read too dark. */
+  --danger-text: #e3a19f;
+  --warning-text: #d8c58a;
 
   color-scheme: dark;
   font-family: system-ui, sans-serif;
@@ -103,6 +106,61 @@ select:focus-visible {
 }
 
 /*
+ * One scale of headings for every app: a heading is always bigger than the text it heads,
+ * and bold from h3 down. Components set a heading's colour or margins, never its size; what
+ * only labels a group of entries (a side menu's) is an `.overline`.
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+h1,
+h2 {
+  font-family: Georgia, serif;
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+h4 {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+h5,
+h6 {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* The small label over a group of entries, not a section's title. */
+.overline {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/*
  * A heading inside a section (a sheet's group, Roles, Stats): a level between the
  * section's title and a field's label, so the parts read apart from their fields.
  */
@@ -174,7 +232,22 @@ button.link {
   cursor: pointer;
 }
 
-/* The title of a view (a character, a system, a pack, a definition…). */
+/* A quiet line of explanation or of nothing to show. */
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* A form's sections, one under the other. */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 1100px;
+}
+
+/* The title of a view (a character, a system, a pack, a definition…), when it isn't an h1. */
 .page-title {
   margin: 0;
   font-family: Georgia, serif;

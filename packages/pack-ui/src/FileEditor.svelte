@@ -130,10 +130,10 @@
   }
 
   .problems li.error {
-    color: #e3a19f;
+    color: var(--danger-text);
   }
 
   .problems li.warning {
-    color: #d8c58a;
+    color: var(--warning-text);
   }
 </style>

@@ -143,7 +143,7 @@
     flex: none;
     width: 12px;
     height: 12px;
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   /* As the minimap draws its land: stripes of its colour inside a dashed frontier. */

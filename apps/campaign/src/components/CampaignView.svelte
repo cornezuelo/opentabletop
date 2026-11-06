@@ -66,7 +66,7 @@
 </script>
 
 {#if open.found === false && open.id === id}
-  <p class="help">{t('campaign.missing')}</p>
+  <p class="hint">{t('campaign.missing')}</p>
 {:else if campaign}
   <article class="campaign">
     <header>
@@ -161,7 +161,7 @@
             scroll={false}
           />
         {:else}
-          <div class="help"><Markdown text={t('timeline.none')} /></div>
+          <div class="hint"><Markdown text={t('timeline.none')} /></div>
         {/if}
       {:else if tab === 'maps'}
         <PlaceList {campaign} app="map" />
@@ -197,7 +197,7 @@
     min-width: 0;
     padding: 2px 4px;
     font-family: Georgia, serif;
-    font-size: 26px;
+    font-size: 24px;
     color: var(--text);
     background: none;
     border: 1px solid transparent;
@@ -216,7 +216,7 @@
     margin: 0;
     padding: 6px 10px;
     font-size: 13px;
-    background: rgb(200 162 74 / 0.08);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
     border-left: 2px solid var(--accent);
     border-radius: 0 4px 4px 0;
   }
@@ -225,11 +225,5 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 13px;
-    color: var(--text-muted);
   }
 </style>

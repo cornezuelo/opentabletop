@@ -57,7 +57,7 @@
 {/if}
 {@render noteLink(hex.note)}
 {#if hex.pois?.length}
-  <h3>{t('hex.pois')}</h3>
+  <h3 class="overline">{t('hex.pois')}</h3>
   <ul>
     {#each hex.pois as poi (poi.id)}
       <li>
@@ -89,18 +89,6 @@
 <p class="muted hint">{t('hex.readOnly')}</p>
 
 <style>
-  h2 {
-    margin: 0;
-    font-size: 16px;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 12px;
-    font-weight: normal;
-    color: var(--text-muted);
-  }
-
   p {
     margin: 0;
   }

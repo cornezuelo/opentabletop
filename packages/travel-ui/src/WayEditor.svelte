@@ -181,7 +181,7 @@
   }
 
   li.here {
-    background: rgb(200 162 74 / 0.12);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
     outline: 1px solid var(--accent);
   }
 

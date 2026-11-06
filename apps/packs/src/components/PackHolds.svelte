@@ -51,7 +51,6 @@
 <style>
   h2 {
     margin: 0 0 8px;
-    font-size: 14px;
   }
 
   .cards {

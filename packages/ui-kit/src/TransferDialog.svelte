@@ -409,9 +409,6 @@
 
   h2 {
     margin: 0 0 8px;
-    font-family: Georgia, serif;
-    font-size: 18px;
-    font-weight: normal;
   }
 
   p {

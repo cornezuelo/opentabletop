@@ -216,7 +216,7 @@
   .swatch {
     width: 14px;
     height: 14px;
-    border-radius: 3px;
+    border-radius: 4px;
     background: hsl(var(--hue) 40% 50% / 0.5);
     border: 1px solid var(--panel-border);
   }

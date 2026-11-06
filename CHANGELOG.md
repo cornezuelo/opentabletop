@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Every app: headings follow one scale, always bigger than the text they head, and the small labels of side menus look alike.
+- Packs: a pack's images have their own section, and **Images** in the left column stays lit when chosen.
+
 ## [0.40.0] - 2026-11-07
 
 ### Apps

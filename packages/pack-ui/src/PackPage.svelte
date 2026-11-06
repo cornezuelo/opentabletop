@@ -22,6 +22,7 @@
     library,
     locale: uiLocale,
     root,
+    at,
     holds,
     onfile,
     onpack,
@@ -30,6 +31,8 @@
     library: PackLibrary
     locale: string
     root: string
+    /** The part of the page to show first. */
+    at?: 'images'
     holds?: Snippet
     /** Open a file of the pack, at a line. */
     onfile: (path: string, line?: number) => void
@@ -51,7 +54,14 @@
   )
   const translations = $derived(pack ? overlayLocales(pack) : [])
   /** Files of the pack itself; translation files are listed under their language. */
-  const ownFiles = $derived((pack?.files ?? []).filter((f) => !f.path.startsWith('locales/')))
+  const ownFiles = $derived(
+    (pack?.files ?? []).filter((f) => !f.path.startsWith('locales/') && !isImageFile(f.path)),
+  )
+  const images = $derived((pack?.files ?? []).filter((f) => isImageFile(f.path)))
+  let imagesBox = $state<HTMLElement>()
+  $effect(() => {
+    if (at === 'images') imagesBox?.scrollIntoView({ block: 'start' })
+  })
   const filesOf = (locale: string) =>
     (pack?.files ?? []).filter((f) => f.path.startsWith(`locales/${locale}/`))
 
@@ -257,10 +267,16 @@
           <input type="text" placeholder={t('pack.fileName')} bind:value={newFileName} />
           <button type="submit">{t('pack.addFile')}</button>
           <button type="button" onclick={addImages}>{t('pack.addImage')}</button>
-          <InfoTip text={t('pack.addImageHelp')} />
         </form>
       {/if}
     </section>
+
+    {#if images.length}
+      <section bind:this={imagesBox}>
+        <h2>{t('pack.images')}<InfoTip text={t('pack.addImageHelp')} /></h2>
+        {@render fileList(images, (path) => path)}
+      </section>
+    {/if}
 
     <section>
       <h2>{t('pack.translations')}</h2>
@@ -296,14 +312,10 @@
 
   h2 {
     margin: 0 0 8px;
-    font-size: 14px;
   }
 
   h3 {
     margin: 12px 0 6px;
-    font-size: 13px;
-    font-weight: normal;
-    color: var(--text-muted);
   }
 
   .meta {
@@ -332,7 +344,7 @@
   }
 
   .actions .danger {
-    color: #e3a19f;
+    color: var(--danger-text);
   }
 
   ul {
@@ -371,11 +383,11 @@
   }
 
   .problems li.error {
-    color: #e3a19f;
+    color: var(--danger-text);
   }
 
   .problems li.warning {
-    color: #d8c58a;
+    color: var(--warning-text);
   }
 
   .help {

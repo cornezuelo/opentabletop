@@ -123,7 +123,7 @@
           <SideFold
             {name}
             open={isOpen(pack.root, rootOfView === pack.root)}
-            selected={nav.view.name === 'pack' && nav.view.root === pack.root}
+            selected={nav.view.name === 'pack' && nav.view.root === pack.root && !nav.view.at}
             onclick={() => go({ name: 'pack', root: pack.root })}
             ontoggle={() => (open[pack.root] = !isOpen(pack.root, rootOfView === pack.root))}
           >
@@ -161,7 +161,8 @@
             {#if tree.images}
               <SideItem
                 name={`${t('library.images')} (${tree.images})`}
-                onclick={() => go({ name: 'pack', root: pack.root })}
+                selected={nav.view.name === 'pack' && nav.view.root === pack.root && !!nav.view.at}
+                onclick={() => go({ name: 'pack', root: pack.root, at: 'images' })}
               />
             {/if}
           </SideFold>

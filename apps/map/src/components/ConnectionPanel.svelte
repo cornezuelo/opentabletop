@@ -198,7 +198,7 @@
   }
 
   .trip .shut {
-    color: var(--danger, #b3261e);
+    color: var(--danger);
   }
 
   .between,
@@ -214,9 +214,6 @@
 
   h4 {
     margin: 14px 0 4px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
   }
 
   ul {

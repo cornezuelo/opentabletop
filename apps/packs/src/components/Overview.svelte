@@ -311,12 +311,6 @@
     gap: 8px;
   }
 
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   label {
     display: flex;
     flex-direction: column;
@@ -423,7 +417,7 @@
   }
 
   .error {
-    color: var(--danger, #e06c6c);
+    color: var(--danger);
   }
 
   .help {
@@ -432,6 +426,6 @@
   }
 
   .help.personal {
-    color: #d8c58a;
+    color: var(--warning-text);
   }
 </style>

@@ -215,8 +215,8 @@
     font-family: ui-monospace, monospace;
     font-size: 12px;
     line-height: 1.5;
-    background: rgb(200 162 74 / 0.16);
-    border: 1px solid rgb(200 162 74 / 0.35);
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
     border-radius: 999px;
   }
 
@@ -236,7 +236,7 @@
 
   .pill button:hover {
     color: var(--text);
-    background: rgb(200 162 74 / 0.3);
+    background: color-mix(in srgb, var(--accent) 30%, transparent);
   }
 
   input {
@@ -290,6 +290,6 @@
 
   li button.active,
   li button:hover {
-    background: rgb(200 162 74 / 0.18);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
   }
 </style>

@@ -63,7 +63,7 @@
 
   .bad {
     margin: 0;
-    color: #e3a19f;
+    color: var(--danger-text);
   }
 
   ul {

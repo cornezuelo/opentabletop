@@ -309,13 +309,6 @@
   h4,
   h5 {
     margin: 6px 0 0;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  h5 {
-    color: var(--text-muted);
-    font-weight: 500;
   }
 
   .head,

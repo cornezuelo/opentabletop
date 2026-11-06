@@ -344,7 +344,6 @@
 
   h3 {
     margin: 4px 0 0;
-    font-size: 13px;
   }
 
   table {
@@ -404,7 +403,7 @@
   }
 
   .bar .p {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   td.range {
@@ -414,7 +413,7 @@
   }
 
   tr.chosen td {
-    background: rgb(200 162 74 / 0.16);
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
   }
 
   .muted,

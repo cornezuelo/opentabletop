@@ -168,6 +168,6 @@
 
   button.active,
   button:hover {
-    background: rgb(200 162 74 / 0.18);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
   }
 </style>

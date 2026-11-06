@@ -224,12 +224,6 @@
     gap: 8px;
   }
 
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   .division {
     display: flex;
     flex-direction: column;

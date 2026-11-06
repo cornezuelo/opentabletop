@@ -37,7 +37,7 @@
   </span>
 </div>
 {#if query.trim() && !shown}
-  <p class="none">{t('cards.noMatch', { query: query.trim() })}</p>
+  <p class="hint">{t('cards.noMatch', { query: query.trim() })}</p>
 {/if}
 
 <style>
@@ -63,11 +63,5 @@
     gap: 12px;
     margin-left: auto;
     font-size: 12px;
-  }
-
-  .none {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 </style>

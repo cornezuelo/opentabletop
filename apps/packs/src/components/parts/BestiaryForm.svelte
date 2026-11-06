@@ -49,7 +49,7 @@
   ])
 </script>
 
-<div class="form">
+<div class="form-stack">
   <section class="head">
     <label>
       <span>{t('bestiaryForm.name')}<InfoTip text={t('bestiaryForm.nameHelp')} /></span>
@@ -139,13 +139,6 @@
 </div>
 
 <style>
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    max-width: 1100px;
-  }
-
   section {
     display: flex;
     flex-direction: column;
@@ -156,12 +149,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 10px;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
   }
 
   .template {

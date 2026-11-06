@@ -532,7 +532,7 @@
     line-height: 1.45;
     background: var(--bg);
     border-left: 3px solid var(--accent);
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   .said {
@@ -603,7 +603,6 @@
 
   h4 {
     margin: 6px 0 0;
-    font-size: 12px;
   }
 
   .steps {

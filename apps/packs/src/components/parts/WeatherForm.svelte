@@ -58,7 +58,7 @@
   const percent = (n: number | undefined) => `${Math.round((n ?? 0) * 100)} %`
 </script>
 
-<div class="form">
+<div class="form-stack">
   <section>
     <label class="name">
       <span>{t('weather.name')}<InfoTip text={t('weather.nameHelp')} /></span>
@@ -260,23 +260,10 @@
 </div>
 
 <style>
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    max-width: 1100px;
-  }
-
   section {
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
   }
 
   label {

@@ -71,7 +71,7 @@
     }}
   >
     <h2>{t(source ? 'newPack.duplicateTitle' : 'newPack.title')}</h2>
-    {#if source}<p class="help">{t('newPack.duplicateHelp')}</p>{/if}
+    {#if source}<p class="hint">{t('newPack.duplicateHelp')}</p>{/if}
     <label class="field">
       <span>{t('newPack.name')}</span>
       <!-- svelte-ignore a11y_autofocus -->
@@ -103,16 +103,5 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 16px;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 13px;
-    color: var(--text-muted);
   }
 </style>

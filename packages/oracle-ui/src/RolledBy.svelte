@@ -66,6 +66,5 @@
 
   h4 {
     margin: 6px 0 2px;
-    font-size: 12px;
   }
 </style>

@@ -98,7 +98,7 @@
     color: var(--text);
     background: var(--swatch);
     border: 1px solid var(--panel-border);
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
   }
 

@@ -49,11 +49,4 @@
     gap: 4px 10px;
     align-items: center;
   }
-
-  h3 {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
 </style>

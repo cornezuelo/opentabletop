@@ -203,11 +203,6 @@
     gap: 12px;
   }
 
-  h2 {
-    margin: 0;
-    font-size: 16px;
-  }
-
   .check {
     display: flex;
     gap: 6px;

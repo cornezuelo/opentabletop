@@ -6,7 +6,7 @@
 </script>
 
 <nav class="sidebar">
-  {#if title}<h2>{title}</h2>{/if}
+  {#if title}<h2 class="overline">{title}</h2>{/if}
   {@render children()}
 </nav>
 
@@ -21,12 +21,6 @@
     scrollbar-gutter: stable;
     background: var(--panel);
     border-right: 1px solid var(--panel-border);
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 13px;
-    color: var(--text-muted);
   }
 
   /* The links and notes a sidebar ends with. */

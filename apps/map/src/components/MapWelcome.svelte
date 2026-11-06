@@ -85,8 +85,6 @@
 
   h2 {
     margin: 16px 0 8px;
-    font-size: 14px;
-    color: var(--text-muted);
   }
 
   ul {

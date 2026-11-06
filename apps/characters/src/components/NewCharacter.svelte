@@ -86,8 +86,6 @@
 <style>
   h1 {
     margin: 0 0 16px;
-    font-family: Georgia, serif;
-    font-weight: normal;
   }
 
   .help {

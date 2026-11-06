@@ -180,7 +180,7 @@
     width: 16px;
     height: 16px;
     border: 1px solid rgb(0 0 0 / 0.4);
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   .help {

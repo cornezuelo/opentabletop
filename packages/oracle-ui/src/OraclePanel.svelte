@@ -57,7 +57,6 @@
 
   h2 {
     margin: 4px 0 0;
-    font-size: 15px;
     color: var(--accent);
   }
 

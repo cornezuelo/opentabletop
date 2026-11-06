@@ -599,7 +599,7 @@
   .bad {
     margin: 0;
     font-size: 12px;
-    color: var(--danger, #c0392b);
+    color: var(--danger);
   }
 
   .link {
@@ -619,7 +619,7 @@
     padding: 5px 8px;
     font-size: 12px;
     color: var(--text-muted);
-    background: rgb(200 162 74 / 0.08);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
     border-left: 2px solid var(--accent);
     border-radius: 0 4px 4px 0;
   }
@@ -803,7 +803,7 @@
 
   .danger {
     margin-top: 12px;
-    color: #e09a90;
+    color: var(--danger-text);
   }
 
   .icon {

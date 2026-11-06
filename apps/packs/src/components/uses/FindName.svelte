@@ -58,12 +58,12 @@
     {#if found.length}
       <UsesList uses={found} {system} />
     {:else}
-      <p class="help">{t('uses.nothing')}</p>
+      <p class="hint">{t('uses.nothing')}</p>
     {/if}
     {#if !known}
-      <p class="help">{t('uses.undeclared')}</p>
+      <p class="hint">{t('uses.undeclared')}</p>
       {#if close.length}
-        <p class="help close">
+        <p class="hint close">
           {t('uses.close', { names: '' })}
           {#each close as c (c)}<button class="link" onclick={() => (query = c)}
               ><code>{c}</code></button
@@ -82,20 +82,8 @@
     max-width: 48em;
   }
 
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   input {
     max-width: 24em;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 
   .close {

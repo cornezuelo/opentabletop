@@ -119,7 +119,7 @@
   .swatch.wall {
     height: 6px;
     border: 2px solid var(--color);
-    background: repeating-linear-gradient(90deg, #9c9480 0 3px, var(--color) 3px 6px);
+    background: repeating-linear-gradient(90deg, var(--text-muted) 0 3px, var(--color) 3px 6px);
   }
 
   .check {

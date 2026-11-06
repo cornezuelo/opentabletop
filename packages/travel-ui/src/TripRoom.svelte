@@ -314,7 +314,7 @@
   }
 
   .trips .danger {
-    color: #e09a90;
+    color: var(--danger-text);
   }
 
   .notice {

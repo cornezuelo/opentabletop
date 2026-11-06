@@ -435,6 +435,7 @@ export const en = {
     aliasKey: 'Short name',
     files: 'Files',
     addFile: 'Add file',
+    images: 'Images',
     addImage: '+ Image',
     addImageHelp:
       'Adds images to the pack (SVG, PNG, WebP or JPEG, up to 512 KB each), which map styles draw: a terrain’s art, a texture over the map. Each keeps its file’s name; write a folder ending in `/` in the box first to put them there.\n• `relief/` then **+ Image** — `relief/hill.svg`\n• a style names it by the pack’s id and its path: `my-art/relief/hill.svg`',

@@ -241,7 +241,7 @@
     padding: 0;
     background: var(--bg);
     border: 1px solid var(--panel-border);
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
   }
 

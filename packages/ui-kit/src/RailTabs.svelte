@@ -45,7 +45,7 @@
 {:else}
   <div class="rail" role="tablist" aria-label={label} aria-orientation="vertical">
     {#each groups as group, i (i)}
-      {#if group.label}<h3>{group.label}</h3>{:else if i}<hr />{/if}
+      {#if group.label}<h3 class="overline">{group.label}</h3>{:else if i}<hr />{/if}
       {#each group.tabs as tab (tab.id)}
         <button
           type="button"
@@ -75,9 +75,6 @@
   h3 {
     margin: 12px 0 4px;
     padding: 0 10px;
-    font-size: 12px;
-    font-weight: normal;
-    color: var(--text-muted);
   }
 
   hr {

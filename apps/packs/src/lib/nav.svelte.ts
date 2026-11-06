@@ -32,7 +32,8 @@ export type View =
   | { name: 'system'; id: string; tab: Tab; item?: string }
   /** A map style, by its full id (`core/parchment`). */
   | { name: 'style'; ref: string }
-  | { name: 'pack'; root: string }
+  /** A pack's page, at its images if `at` says so. */
+  | { name: 'pack'; root: string; at?: 'images' }
   | { name: 'def'; root: string; kind: string; id: string; tab: DefTab }
   | { name: 'file'; root: string; path: string; line?: number }
 
@@ -41,7 +42,7 @@ function parse(hash: string): View {
     .replace(/^#\/?/, '')
     .split('/')
     .map(decodeURIComponent)
-  if (name === 'pack' && id) return { name, root: id }
+  if (name === 'pack' && id) return { name, root: id, ...(tab === 'images' && { at: tab }) }
   if (name === 'def' && id && tab && item)
     return {
       name,
@@ -70,7 +71,7 @@ function format(view: View): string {
     case 'system':
       return `#/system/${encodeURIComponent(view.id)}/${view.tab}${view.item ? `/${encodeURIComponent(view.item)}` : ''}`
     case 'pack':
-      return `#/pack/${encodeURIComponent(view.root)}`
+      return `#/pack/${encodeURIComponent(view.root)}${view.at ? `/${view.at}` : ''}`
     case 'def':
       return `#/def/${[view.root, view.kind, view.id].map(encodeURIComponent).join('/')}${view.tab === 'form' ? '' : `/${view.tab}`}`
     case 'file':

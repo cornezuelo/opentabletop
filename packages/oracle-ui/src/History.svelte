@@ -100,7 +100,6 @@
   h2 {
     flex: 1;
     margin: 0 0 8px;
-    font-size: 14px;
   }
 
   ol {

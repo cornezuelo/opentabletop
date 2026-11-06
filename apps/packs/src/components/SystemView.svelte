@@ -214,10 +214,10 @@
     align-self: flex-start;
     margin-bottom: 14px;
     padding: 6px 10px;
-    color: #e3a19f;
+    color: var(--danger-text);
     text-align: left;
     background: none;
-    border: 1px solid #e3a19f;
+    border: 1px solid var(--danger-text);
     border-radius: 6px;
     cursor: pointer;
   }

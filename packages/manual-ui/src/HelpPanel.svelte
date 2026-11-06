@@ -98,7 +98,7 @@
       </header>
       <Markdown text={entry.markdown ?? helpMarkdown(entry.text ?? '')} />
       {#if related.length}
-        <h3>{text.inTheManual}</h3>
+        <h3 class="overline">{text.inTheManual}</h3>
         <SearchResults
           results={related}
           query={entry.title}
@@ -180,18 +180,10 @@
     font-size: 13px;
   }
 
-  .help :global(.page h1) {
-    font-size: 19px;
-  }
-
-  .help :global(.page h2) {
-    font-size: 15px;
-  }
-
   /* Examples in code can be inserted into the last field used. */
   .can-insert :global(code) {
     cursor: copy;
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   .can-insert :global(code:hover) {
@@ -214,20 +206,11 @@
 
   .context h2 {
     flex: 1;
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 17px;
-    font-weight: normal;
     color: var(--accent);
   }
 
   .context h3 {
     margin: 14px 0 4px;
-    font-size: 12px;
-    font-weight: normal;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
   }
 
   .context :global(ul:not(.results)) {
@@ -254,12 +237,6 @@
     background: none;
     border: none;
     cursor: pointer;
-  }
-
-  .hint {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 
   .full {

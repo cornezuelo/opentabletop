@@ -49,7 +49,7 @@
     {/each}
   </ul>
 {:else}
-  <p class="help">{t('uses.none')}</p>
+  <p class="hint">{t('uses.none')}</p>
 {/if}
 
 <style>
@@ -89,11 +89,5 @@
     background: none;
     border: none;
     cursor: pointer;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 </style>

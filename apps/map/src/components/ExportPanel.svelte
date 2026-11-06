@@ -87,7 +87,7 @@
     })
 </script>
 
-<p class="help">{t('export.layersNote')}</p>
+<p class="hint">{t('export.layersNote')}</p>
 <label class="check">
   <input type="checkbox" bind:checked={emptyWhite} />
   <span>{t('export.emptyWhite')}<InfoTip text={t('export.emptyWhiteHelp')} /></span>
@@ -111,7 +111,7 @@
 >
 
 <h2>PDF</h2>
-<p class="help">
+<p class="hint">
   {t('export.scaleNote', { mm: mm.format(editor.print.hexMm) })}
   {t('export.gridSize', { w: mm.format(gridMm.width), h: mm.format(gridMm.height) })}
   {editor.print.paper ? t('export.onPaper') : t('export.fitPage')}
@@ -140,7 +140,7 @@
       {t('export.landscape')}
     </label>
   </div>
-  <p class="help">
+  <p class="hint">
     {t('export.tilePages', {
       pages: tilePages.count,
       columns: tilePages.columns,
@@ -156,7 +156,6 @@
 <style>
   h2 {
     margin: 8px 0 0;
-    font-size: 13px;
     color: var(--accent);
   }
 
@@ -193,11 +192,5 @@
   .primary:disabled {
     opacity: 0.5;
     cursor: progress;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 </style>

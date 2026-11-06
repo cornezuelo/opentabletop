@@ -67,23 +67,16 @@
 
   .page h1 {
     margin: 0 0 12px;
-    font-family: Georgia, serif;
-    font-size: 24px;
-    font-weight: normal;
   }
 
   .page :global(h2) {
     margin: 22px 0 8px;
-    font-family: Georgia, serif;
-    font-size: 18px;
-    font-weight: normal;
     color: var(--accent);
     scroll-margin-top: 8px;
   }
 
   .page :global(h3) {
     margin: 16px 0 6px;
-    font-size: 14px;
   }
 
   .page :global(p),
@@ -100,7 +93,7 @@
     font-size: 0.92em;
     background: var(--bg);
     border: 1px solid var(--panel-border);
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   .page :global(pre) {

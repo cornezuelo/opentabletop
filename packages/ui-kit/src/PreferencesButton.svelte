@@ -163,9 +163,6 @@
 
   h2 {
     margin: 0 0 12px;
-    font-family: Georgia, serif;
-    font-size: 18px;
-    font-weight: normal;
   }
 
   section {
@@ -174,13 +171,6 @@
     gap: 10px;
     padding: 12px 0;
     border-top: 1px solid var(--panel-border);
-  }
-
-  h3 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 15px;
-    font-weight: normal;
   }
 
   section :global(p) {

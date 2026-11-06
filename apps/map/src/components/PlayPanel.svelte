@@ -116,7 +116,7 @@
         restartRules(system, season)}
     />
     {#if otherSystem}
-      <p class="help">
+      <p class="hint">
         {t('play.otherSystem', { trip: systemLabel(system.id), map: systemLabel(mapSystem) })}
       </p>
     {/if}
@@ -202,9 +202,9 @@
 {/snippet}
 
 {#if !party?.hex}
-  <p class="help">{t('play.placeHelp')}</p>
+  <p class="hint">{t('play.placeHelp')}</p>
 {:else if (play?.mode ?? 'simple') === 'simple'}
-  <p class="help">{t('play.simpleHelp', { hex: coord(party.hex) })}</p>
+  <p class="hint">{t('play.simpleHelp', { hex: coord(party.hex) })}</p>
 {/if}
 
 {#if play?.away}
@@ -216,7 +216,7 @@
 {/if}
 
 {#if play?.mode === 'rules' && !travels(system)}
-  <p class="help">
+  <p class="hint">
     {loaded
       ? t('play.noTravel', { system: systemLabel(system.id) })
       : t('map.systemMissing', { system: system.id })}
@@ -318,12 +318,6 @@
   }
 
   .label {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .help {
-    margin: 0;
     font-size: 12px;
     color: var(--text-muted);
   }

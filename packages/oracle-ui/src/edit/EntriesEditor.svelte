@@ -465,12 +465,12 @@
 
   small {
     font-size: 11px;
-    color: #d8c58a;
+    color: var(--warning-text);
   }
 
   .warn {
     font-size: 13px;
-    color: #d8c58a;
+    color: var(--warning-text);
   }
 
   .bottom {

@@ -708,12 +708,6 @@
     gap: 8px;
   }
 
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   .check {
     display: flex;
     flex-direction: column;

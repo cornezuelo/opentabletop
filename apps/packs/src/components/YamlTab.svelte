@@ -60,7 +60,7 @@
   {/if}
   <p class="file">{root}/{path}</p>
   {#if dependency}
-    <p class="help">
+    <p class="hint">
       {t('edit.dependency', {
         pack: manifestOf(library.pack(root) ?? { root, origin: 'user', files: [] }).name ?? root,
       })}
@@ -91,12 +91,6 @@
     gap: 8px;
     height: 100%;
     min-height: 0;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
   }
 
   .file {
@@ -137,7 +131,7 @@
     margin: 0;
     padding: 0;
     font-size: 12px;
-    color: #e3a19f;
+    color: var(--danger-text);
     list-style: none;
   }
 </style>

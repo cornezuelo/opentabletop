@@ -20,7 +20,7 @@
   }
 
   .personal {
-    color: #d8c58a;
+    color: var(--warning-text);
   }
 
   .updated {

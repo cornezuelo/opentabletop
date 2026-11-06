@@ -277,7 +277,7 @@
     padding: 0 12px;
     font-size: 13px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
   }
 
   .modes button.on {

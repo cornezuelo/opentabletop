@@ -292,12 +292,12 @@ The door crossed stays as it was drawn: the piece's entry exit adds no second co
 
 In order, a commit each: (a) a test proving the door to nowhere; `kind: pieces`, its validation, `first` / `tries` / `otherwise` and the form; (b) turning and fitting, `lay`, the `pieces` mode, `applyDiscovery`, Map's option; (c) Core, the Deep Barrows, the manual. Pack format: new keys that change nothing old, so no bump.
 
-### 18.7 To decide with the user
+### 18.7 Decided with the user (2026-11-07)
 
-1. **The drawing.** Letters on the cell beyond the piece (above, Claude's choice: the direction comes free, but the drawing is one cell bigger each way) or letters on the floor cell with a direction written (`A: { kind: door, faces: north }`, tidier to draw, more to write). A third way is no text at all, only the form's grid, but YAML then needs a list of cells nobody can read.
-2. **Squares only for now?** Claude's proposal: yes. Text can't draw hexes well, and dungeons here are squares (§10). Pieces on a hex map would be refused by the mode not being offered, and left for when someone wants them.
-3. **The map's edge.** Claude's proposal: a piece that runs off the map doesn't fit, as a wall of rock, and **New map** makes a roomy dungeon. The alternative, a map that grows as it's explored, means moving every cell key when growing up or left, and gains little.
-4. **Exits that are dropped.** Silent (above), or left as a door that opens on rock, which is more honest about the drawing but leaves dead doors on the map?
-5. **Peeking.** Is anything seen before crossing? Claude's proposal: nothing, an exit shows only its kind. A system wanting a look through a door has an action for it.
-6. **A party that goes back.** A laid piece stays. Should a system be able to say a dungeon shifts (pieces removed when left behind)? Claude's proposal: no, left out until a game asks for it.
-7. **When.** This or Packs first. Round 2 of the agents waits for Packs, and this adds a kind whose form should be born where packs are edited, which argues for Packs first; the agreed order (point 9 of the list of 2026-10-31) has this first.
+1. **The drawing:** letters on the cell beyond the piece, as above: the direction comes free.
+2. **Any grid, one mechanism** (the user turned down squares only: "no termino de entender que hace tan diferente lo que se hará para mazmorras de lo que hay para los hexes"). Fitting and turning are generic, the turns coming from the cell's geometry (4 or 6). Only the writing differs: a catalogue says its grid, and hex rows are drawn half a cell apart. A piece with no exits is laid on entering an empty cell from any side, so pieces serve as outdoor tiles too, where no wall makes an exit mean anything. Hexes and squares from the start, in the bundled packs as well.
+3. **The map's edge:** a piece that runs off the map doesn't fit, as a wall of rock.
+4. **Exits that are dropped:** silently, as a wall.
+5. **Peeking:** nothing is seen before crossing; an exit shows only its kind. A system wanting a look has an action for it.
+6. **A party that goes back:** a laid piece stays; shifting dungeons are left out until a game asks.
+7. **When:** after Packs, and after maps are drawn in one way (the backlog's _Now (user, 2026-11-07)_).

@@ -52,7 +52,7 @@
 <section class="members">
   <h2>{t('party.members')}<InfoTip markdown={t('party.membersHelp')} /></h2>
   {#if onTrip}
-    <p class="help">{t('party.playingNote', { place: onTrip.name })}</p>
+    <p class="hint">{t('party.playingNote', { place: onTrip.name })}</p>
   {/if}
   {#if members.length}
     <RowCards>
@@ -74,7 +74,7 @@
       {/each}
     </RowCards>
   {:else}
-    <p class="help">{t('party.none')}</p>
+    <p class="hint">{t('party.none')}</p>
   {/if}
   {#if !onTrip && available.length}
     <select
@@ -103,12 +103,6 @@
     max-width: 420px;
   }
 
-  h2 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 600;
-  }
-
   .icon {
     padding: 0 5px;
     color: var(--text-muted);
@@ -119,11 +113,5 @@
 
   select {
     align-self: flex-start;
-  }
-
-  .help {
-    margin: 0;
-    font-size: 13px;
-    color: var(--text-muted);
   }
 </style>

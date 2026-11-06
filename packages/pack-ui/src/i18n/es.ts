@@ -443,6 +443,7 @@ export const es: Messages<typeof en> = {
     aliasKey: 'Nombre corto',
     files: 'Ficheros',
     addFile: 'Añadir fichero',
+    images: 'Imágenes',
     addImage: '+ Imagen',
     addImageHelp:
       'Añade imágenes al pack (SVG, PNG, WebP o JPEG, de hasta 512 KB cada una), que dibujan los estilos de mapa: el arte de un terreno, una textura sobre el mapa. Cada una conserva el nombre de su fichero; escribe antes en la casilla una carpeta acabada en `/` para ponerlas ahí.\n• `relieve/` y luego **+ Imagen** — `relieve/colina.svg`\n• un estilo la nombra por el id del pack y su ruta: `mi-arte/relieve/colina.svg`',

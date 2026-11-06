@@ -273,9 +273,6 @@
     gap: 10px;
     align-items: center;
     margin: 0 0 12px;
-    font-family: Georgia, serif;
-    font-size: 18px;
-    font-weight: normal;
   }
 
   .logo {
@@ -308,7 +305,7 @@
   }
 
   .app.here {
-    background: rgb(200 162 74 / 0.08);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
     border-color: var(--accent);
   }
 
@@ -332,7 +329,7 @@
 
   .app strong {
     font-family: Georgia, serif;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: normal;
     color: var(--text);
   }
@@ -350,13 +347,6 @@
   .data {
     padding-top: 12px;
     border-top: 1px solid var(--panel-border);
-  }
-
-  h3 {
-    margin: 0;
-    font-family: Georgia, serif;
-    font-size: 15px;
-    font-weight: normal;
   }
 
   .data p {

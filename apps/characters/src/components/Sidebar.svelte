@@ -221,9 +221,9 @@
   <div id="side-panel" role="tabpanel" aria-labelledby="side-tab-{tab}" class="lists">
     {#each groups as group (group.system)}
       <section>
-        <h3>{group.title}</h3>
+        <h3 class="overline">{group.title}</h3>
         {#each group.sheets as sheet (sheet.sheet)}
-          {#if group.sheets.length > 1}<h4>{sheet.title}</h4>{/if}
+          {#if group.sheets.length > 1}<h4 class="overline">{sheet.title}</h4>{/if}
           <SideList>
             {#each sheet.entries as e (e.key)}
               <SideItem name={e.name} selected={selected === e.key} onclick={() => open(e)} />
@@ -263,15 +263,10 @@
 
   h3 {
     margin: 0 0 2px;
-    font-size: 12px;
-    font-weight: 600;
     color: var(--accent);
   }
 
   h4 {
     margin: 6px 0 1px 6px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
   }
 </style>

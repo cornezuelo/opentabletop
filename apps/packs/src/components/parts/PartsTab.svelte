@@ -113,12 +113,6 @@
     padding-bottom: 24px;
   }
 
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   .intro,
   .help {
     margin: 0;

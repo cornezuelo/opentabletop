@@ -101,6 +101,7 @@
         {library}
         locale={getLocale()}
         {root}
+        at={nav.view.at}
         onfile={(path, line) => go({ name: 'file', root, path, line })}
         onpack={openPack}
         ongone={() => go({ name: 'welcome' })}

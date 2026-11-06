@@ -957,8 +957,6 @@
 
   h4 {
     margin: 4px 0 0;
-    font-size: 12px;
-    font-weight: 600;
   }
 
   .rows {
@@ -1017,7 +1015,7 @@
   .problems {
     padding: 6px 10px;
     font-size: 12px;
-    color: var(--danger, #c0392b);
+    color: var(--danger);
     border: 1px solid currentColor;
     border-radius: 6px;
   }
