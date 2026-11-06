@@ -134,7 +134,8 @@ export const partyWith = (roster: Roster, id: string): RosterEntry | undefined =
 
 /**
  * A party's members set (the Characters app, or the trip it plays in): each one leaves the
- * party it was in. The same roster when nothing changed.
+ * party it was in. In a campaign without a trip, those who join come to it (unless they play
+ * elsewhere) and those who leave go. The same roster when nothing changed.
  */
 export function setMembers(roster: Roster, party: string, ids: string[], now: string): Roster {
   const entry = rosterEntry(roster, party)
@@ -148,7 +149,18 @@ export function setMembers(roster: Roster, party: string, ids: string[], now: st
     changed = true
     return { ...e, members: e.members.filter((id) => !moving.has(id)), modified: now }
   })
-  return changed ? { characters } : roster
+  if (!changed) return roster
+  const place = entry.playing?.app === 'campaign' ? entry.playing : undefined
+  if (!place) return { characters }
+  return {
+    characters: characters.map((e) => {
+      if (moving.has(e.character.id)) return e.playing ? e : { ...e, playing: place, modified: now }
+      if (!entry.members?.includes(e.character.id) || !samePlace(e.playing, place)) return e
+      const rest = { ...e, modified: now }
+      delete rest.playing
+      return rest
+    }),
+  }
 }
 
 /** Whether a place's copy of a character is the roster's (the roster says it plays there). */

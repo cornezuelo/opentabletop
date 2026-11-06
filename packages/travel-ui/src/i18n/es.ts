@@ -424,6 +424,7 @@ export const es: Messages<typeof en> = {
     destinationHint: 'Añade casillas al camino para ponerte en marcha.',
     arrivedHint: 'Añade más casillas para seguir.',
   },
+  terrainGroups: vocabulary.es.terrainGroups,
   terrains: vocabulary.es.terrains,
   connectionKinds: vocabulary.es.pathKinds,
 }

@@ -56,6 +56,13 @@
   const name = (s: TravelSystem) => systemName(s, locale)
   const find = (id: string) => systems.find((s) => s.id === id)
   let season = $state<Season>(trip.saved.season)
+  /** The season the open trip is in now, which the choice of season follows as it changes. */
+  const seasonNow = $derived(
+    session && calendarOf(trip.system).describe(session.travel.time).season,
+  )
+  $effect(() => {
+    if (seasonNow) season = seasonNow
+  })
 
   /** Starts the open trip again (with this or another system). */
   /** A trip being started (its button turns until it's going). */

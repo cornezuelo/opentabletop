@@ -7,12 +7,14 @@
   import type { CharacterSystem } from '../lib/packs.svelte'
 
   /**
-   * A party's members: links to them and, while it plays nowhere, adding and taking them out
+   * A party's members: links to them and, while it's on no trip, adding and taking them out
    * (a character is in one party at a time: moving one from another party asks first).
    */
   let { entry, system }: { entry: RosterEntry; system?: CharacterSystem } = $props()
 
   const id = $derived(entry.character.id)
+  /** Where it travels: a campaign without a trip keeps its list open. */
+  const onTrip = $derived(entry.playing?.app === 'campaign' ? undefined : entry.playing)
   const members = $derived(
     (entry.members ?? []).flatMap((m) => {
       const e = rosterEntry(roster.roster, m)
@@ -49,14 +51,14 @@
 
 <section class="members">
   <h2>{t('party.members')}<InfoTip markdown={t('party.membersHelp')} /></h2>
-  {#if entry.playing}
-    <p class="help">{t('party.playingNote', { place: entry.playing.name })}</p>
+  {#if onTrip}
+    <p class="help">{t('party.playingNote', { place: onTrip.name })}</p>
   {/if}
   {#if members.length}
     <RowCards>
       {#each members as m (m.character.id)}
         <RowCard name={label(m)} href={characterUrl(m.character.id)}>
-          {#if !entry.playing}
+          {#if !onTrip}
             <button
               class="icon"
               aria-label={t('party.remove')}
@@ -74,7 +76,7 @@
   {:else}
     <p class="help">{t('party.none')}</p>
   {/if}
-  {#if !entry.playing && available.length}
+  {#if !onTrip && available.length}
     <select
       value=""
       aria-label={t('party.add')}

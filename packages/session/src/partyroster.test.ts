@@ -281,4 +281,23 @@ describe('parties in the roster', () => {
     expect(rosterEntry(r, 'kael')?.playing).toBeUndefined()
     expect(partyInCampaign(r, 'c1', 'band/company')).toBeUndefined()
   })
+
+  it('takes members in and out of the campaign of a party without a trip', async () => {
+    const { campaignPlace, putInCampaign } = await import('./roster')
+    const quick = campaignPlace('c1', 'A quick game')
+    let r = putInCampaign(company(), 'the-company', quick, T)
+    r = setMembers(r, 'the-company', ['kael'], T)
+    expect(rosterEntry(r, 'mara')?.playing).toBeUndefined()
+    r = setMembers(r, 'the-company', ['kael', 'mara'], T)
+    expect(rosterEntry(r, 'mara')?.playing).toEqual(quick)
+    // One playing on a trip joins the list and stays where it plays.
+    r = {
+      characters: r.characters.map((e) =>
+        e.character.id === 'mara' ? { ...e, playing: trip } : e,
+      ),
+    }
+    r = setMembers(r, 'the-company', ['kael'], T)
+    r = setMembers(r, 'the-company', ['kael', 'mara'], T)
+    expect(rosterEntry(r, 'mara')?.playing).toEqual(trip)
+  })
 })

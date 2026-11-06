@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Travel: a way's terrains are listed in Map's palette groups, and the season to start in follows the season of the open trip.
+- Characters: a party in a campaign without a trip keeps its list of members open; whoever joins comes to the campaign, and whoever leaves goes.
+
 ## [0.38.0] - 2026-11-06
 
 ### Apps

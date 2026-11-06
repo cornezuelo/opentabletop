@@ -1,3 +1,4 @@
+import { DEFAULT_TERRAINS, TERRAIN_GROUPS, terrainGroup } from '@open-tabletop/map'
 import { localize, type TravelSystem } from '@open-tabletop/session'
 import { vocabulary } from '@open-tabletop/ui-kit'
 import { idText, type Translate } from './i18n'
@@ -9,6 +10,17 @@ export const PALETTE = Object.keys(vocabulary.en.terrains)
 /** Terrains to choose from: the palette plus any the system's rules name. */
 export function terrainChoices(system: TravelSystem): string[] {
   return [...new Set([...PALETTE, ...Object.keys(system.rules.terrains)])]
+}
+
+/** The same terrains in Map's palette groups, with no empty group. */
+export function terrainChoiceGroups(system: TravelSystem) {
+  const groupOf = (id: string) =>
+    terrainGroup(DEFAULT_TERRAINS.find((terrain) => terrain.id === id) ?? { id })
+  const choices = terrainChoices(system)
+  return TERRAIN_GROUPS.map((id) => ({
+    id,
+    terrains: choices.filter((terrain) => groupOf(terrain) === id),
+  })).filter((group) => group.terrains.length)
 }
 
 /** Kinds of line to choose from: the usual ones plus any the rules name. */

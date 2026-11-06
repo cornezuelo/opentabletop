@@ -2,7 +2,7 @@
   import type { TravelSystem } from '@open-tabletop/session'
   import { InfoTip, TagInput, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
-  import { connectionChoices, connectionName, terrainChoices, terrainName } from './terrains'
+  import { connectionChoices, connectionName, terrainChoiceGroups, terrainName } from './terrains'
   import type { TripStore } from './trips.svelte'
 
   /** The hexes of a trip without a map: terrain, tags and the road or river to the next one. */
@@ -22,7 +22,7 @@
   const t = translator(() => locale)
   const way = $derived(trip.saved.way)
   const here = $derived(trip.location)
-  const terrains = $derived(terrainChoices(system))
+  const terrainGroups = $derived(terrainChoiceGroups(system))
   const kinds = $derived(connectionChoices(system))
 </script>
 
@@ -65,9 +65,13 @@
             trip.updateHex(i, (h) => ({ ...h, terrain }))
           }}
         >
-          {#each terrains as id (id)}<option value={id}
-              >{terrainName(t, id, { system, locale })}</option
-            >{/each}
+          {#each terrainGroups as group (group.id)}
+            <optgroup label={t(`terrainGroups.${group.id}`)}>
+              {#each group.terrains as id (id)}<option value={id}
+                  >{terrainName(t, id, { system, locale })}</option
+                >{/each}
+            </optgroup>
+          {/each}
         </select>
         <TagInput
           label={t('play.tags')}

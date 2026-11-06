@@ -197,7 +197,7 @@ const GROUP_OF: Readonly<Record<string, TerrainGroup>> = {
   'asteroid-field': 'space',
 }
 
-export function terrainGroup(terrain: TerrainType): TerrainGroup {
+export function terrainGroup(terrain: Pick<TerrainType, 'id' | 'water'>): TerrainGroup {
   return GROUP_OF[terrain.id] ?? (terrain.water ? 'water' : 'other')
 }
 

@@ -430,6 +430,7 @@ export const en = {
     destinationHint: 'Add cells to the way to set off.',
     arrivedHint: 'Add more cells to keep going.',
   },
+  terrainGroups: vocabulary.en.terrainGroups,
   terrains: vocabulary.en.terrains,
   connectionKinds: vocabulary.en.pathKinds,
 } as const
