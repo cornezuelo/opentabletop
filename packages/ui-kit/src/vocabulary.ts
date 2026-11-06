@@ -27,8 +27,17 @@ export const vocabulary = {
       /** A campaign with no name yet, wherever it's listed. */
       untitled: 'Untitled campaign',
       pauseOther:
-        'Another trip is going on in this campaign: “{trip}”. Pause it and play this one? Time is one in a campaign: if its clock went on, this party waits until then.',
-      caughtUp: "The campaign's clock had gone on: the party waited until then.",
+        'Another trip is going on in this campaign: “{trip}”. Pause it and play this one? Time is one in a campaign: if its clock went on, you choose whether this party lives that time or skips it.',
+      /** A trip whose campaign's clock went on without it. */
+      timePassed: {
+        title: 'Time has passed',
+        text: 'The campaign’s clock has gone on {time} since this trip last played.\n\nLive it: the party waits until then, and whatever the system does with that time and the world’s news happens to it.\n\nSkip it: the party is there on that date just as it was, and the world has changed without it.',
+        live: 'Live it',
+        skip: 'Skip it',
+        notNow: 'Not now',
+        days: '{n} day(s)',
+        later: '{time} later',
+      },
       /** A map or a trip joining another campaign (campaigns.md §5). */
       whatStaysTitle: 'Join “{campaign}”',
       whatStays:
@@ -162,8 +171,16 @@ export const vocabulary = {
       open: 'Abrir en Campaña ↗',
       untitled: 'Campaña sin nombre',
       pauseOther:
-        'Hay otro viaje en curso en esta campaña: «{trip}». ¿Pausarlo y jugar este? En una campaña el tiempo es uno: si su reloj avanzó, este grupo espera hasta entonces.',
-      caughtUp: 'El reloj de la campaña había avanzado: el grupo ha esperado hasta entonces.',
+        'Hay otro viaje en curso en esta campaña: «{trip}». ¿Pausarlo y jugar este? En una campaña el tiempo es uno: si su reloj avanzó, eliges si este grupo vive ese tiempo o lo salta.',
+      timePassed: {
+        title: 'Ha pasado el tiempo',
+        text: 'El reloj de la campaña ha avanzado {time} desde la última vez que se jugó este viaje.\n\nVivirlo: el grupo espera hasta entonces, y le pasa lo que el sistema haga con ese tiempo y con las noticias del mundo.\n\nSaltarlo: el grupo está en esa fecha tal como estaba, y el mundo ha cambiado sin él.',
+        live: 'Vivirlo',
+        skip: 'Saltarlo',
+        notNow: 'Ahora no',
+        days: '{n} día(s)',
+        later: '{time} después',
+      },
       whatStaysTitle: 'Unirse a «{campaign}»',
       whatStays:
         '«{campaign}» tiene un mundo propio (reloj del mundo, facciones, tiradas del Oráculo), y también la campaña que se deja. Mantén el de la campaña y el propio se queda atrás (se pierde si no queda nada más en su campaña), o trae el propio, sistema incluido, en lugar del de la campaña para todos sus mapas y viajes.',

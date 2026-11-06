@@ -56,6 +56,7 @@ import { listCampaigns } from '@open-tabletop/storage'
 import { campaignPlaces, type CampaignPlace } from './places'
 import { CampaignKeeper } from '@open-tabletop/ui-kit'
 import { translator } from './i18n'
+import { askTimePassed, timeBehind } from './timePassed'
 import { wayWorld, type WayHex } from './way'
 import { highlightText } from './journal'
 import { terrainName } from './terrains'
@@ -635,7 +636,7 @@ export class TripStore {
 
   /**
    * Makes the open trip the one going on in its campaign: if another one played there last,
-   * asks to pause it; if the campaign's clock went on meanwhile, the party waits until then.
+   * asks to pause it; if the campaign's clock went on meanwhile, asks what the party did.
    */
   private async claim(): Promise<boolean> {
     const campaign = this.campaign
@@ -647,11 +648,23 @@ export class TripStore {
       return false
     if (this.campaign !== campaign) return false
     this.keeper!.set(playTrip(campaign, me))
-    const time = campaign.world?.time
+    return this.catchUp()
+  }
+
+  /** If the campaign's clock went on without the trip, the party lives that time or skips it. */
+  private async catchUp(): Promise<boolean> {
+    const campaign = this.campaign
+    const until = campaign?.world?.time
     const session = this.saved.session
-    if (time !== undefined && session && session.travel.time < time) {
-      this.stepNow({ type: 'wait', until: time })
-      showToast(t('campaign.caughtUp'), 'info', 6000)
+    if (!campaign || !session || !timeBehind(session, until)) return true
+    const calendar = calendarOf(this.system)
+    const choice = await askTimePassed(this.options.locale(), session, until, calendar)
+    if (!choice || this.campaign !== campaign) return false
+    if (choice === 'live') this.stepNow({ type: 'wait', until })
+    else {
+      // What the world had waiting for the party passed it by.
+      this.keeper!.set(takeMoments(campaign, this.system.rules).campaign)
+      this.stepOnly({ type: 'skip', until })
     }
     return true
   }
@@ -701,16 +714,20 @@ export class TripStore {
     const taken = takeMoments(campaign, this.system.rules)
     if (taken.campaign === campaign) return
     this.keeper!.set(taken.campaign)
-    for (const { at, clock } of taken.heard) {
+    for (const { at, clock, told } of taken.heard) {
       const session = this.saved.session
       if (!session) return
-      // A full clock is told; a world turn was, as it was played (its own journal line).
-      if (clock !== undefined)
+      // A full clock is told; a world turn too if played elsewhere (here, as it was played).
+      const line =
+        clock !== undefined
+          ? { code: 'CLOCK_FILLED', text: clock }
+          : told && { code: 'WORLD_TURN', ...told }
+      if (line)
         this.saved = {
           ...this.saved,
-          session: addEntry(session, { source: 'travel', code: 'CLOCK_FILLED', text: clock }),
+          session: addEntry(session, { source: 'travel', ...line }),
         }
-      this.stepNow({ type: 'moment', at }, heard + 1)
+      if (at !== undefined) this.stepNow({ type: 'moment', at }, heard + 1)
     }
     this.save()
   }

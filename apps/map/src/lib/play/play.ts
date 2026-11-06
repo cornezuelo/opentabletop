@@ -1,8 +1,9 @@
 import { type HexKey } from '@open-tabletop/hex'
 import { loadLinks, placeLabel } from '../io/submaps'
-import { highlightText } from '@open-tabletop/travel-ui'
+import { askTimePassed, highlightText, timeBehind } from '@open-tabletop/travel-ui'
 import {
   addEntry,
+  calendarOf,
   SEASON_START_DAYS,
   seasonStart,
   startTrip,
@@ -238,19 +239,36 @@ const mapTrip = (): CampaignTrip => ({
 
 /**
  * Makes the map's trip the one going on in its campaign: if another trip played there last
- * (one of Travel's, another map's), asks to pause it, and the party waits until the
- * campaign's clock if it went on meanwhile; then plays `action`.
+ * (one of Travel's, another map's), asks to pause it; then plays `action`.
  */
 async function claimThen(other: CampaignTrip, action: TravelAction): Promise<void> {
   if (!(await confirmAction(t('play.pauseOther', { trip: other.name })))) return
   editor.setPlaying(mapTrip())
-  const time = editor.campaign.world?.time
-  const session = sessionOf(current())
-  if (time !== undefined && session && session.travel.time < time) {
-    step({ type: 'wait', until: time })
-    showToast(t('play.caughtUp'), 'info', 6000)
-  }
   step(action)
+}
+
+/** Plays `action`, hearing the world's moments before and after it. */
+function stepHearing(action: TravelAction, heard = 0): void {
+  if (heard === 0) hearWorld()
+  stepOnly(action)
+  hearWorld(heard)
+}
+
+/** The campaign's clock went on without the trip: the party lives that time or skips it. */
+async function catchUpThen(until: number, action: TravelAction): Promise<void> {
+  const play = current()
+  const session = sessionOf(play)
+  if (!session || !play.rules) return
+  const system = getSystem(play.rules.system)
+  const choice = await askTimePassed(getLocale(), session, until, calendarOf(system))
+  if (!choice) return
+  if (choice === 'live') stepHearing({ type: 'wait', until })
+  else {
+    // What the world had waiting for the party passed it by.
+    editor.takeWorld({ campaign: takeMoments(editor.campaign, system.rules).campaign })
+    stepOnly({ type: 'skip', until })
+  }
+  stepHearing(action)
 }
 
 /**
@@ -268,9 +286,9 @@ export function step(action: TravelAction, heard = 0): void {
   const other = otherTrip(editor.campaign, mapTrip())
   if (other) return void claimThen(other, action)
   if (playTrip(editor.campaign, mapTrip()) !== editor.campaign) editor.setPlaying(mapTrip())
-  if (heard === 0) hearWorld()
-  stepOnly(action)
-  hearWorld(heard)
+  const time = editor.campaign.world?.time
+  if (heard === 0 && timeBehind(session, time)) return void catchUpThen(time, action)
+  stepHearing(action, heard)
 }
 
 /**
@@ -284,16 +302,20 @@ export function hearWorld(heard = 0): void {
   const taken = takeMoments(editor.campaign, getSystem(play.rules.system).rules)
   if (taken.campaign === editor.campaign) return
   editor.takeWorld({ campaign: taken.campaign })
-  for (const { at, clock } of taken.heard) {
+  for (const { at, clock, told } of taken.heard) {
     const now = current()
     const trip = sessionOf(now)
     if (!trip || !now.rules) return
-    // A full clock is told; a world turn was, as it was played (its own journal line).
-    if (clock !== undefined) {
-      const session = addEntry(trip, { source: 'travel', code: 'CLOCK_FILLED', text: clock })
+    // A full clock is told; a world turn too if played elsewhere (here, as it was played).
+    const line =
+      clock !== undefined
+        ? { code: 'CLOCK_FILLED', text: clock }
+        : told && { code: 'WORLD_TURN', ...told }
+    if (line) {
+      const session = addEntry(trip, { source: 'travel', ...line })
       save({ ...now, rules: { ...now.rules, session } })
     }
-    step({ type: 'moment', at }, heard + 1)
+    if (at !== undefined) step({ type: 'moment', at }, heard + 1)
   }
 }
 

@@ -104,7 +104,7 @@ export function worldHost(campaign: Campaign, system: TravelSystem): WorldHost {
     random: mathRandom(),
     locale: getLocale(),
     // A trip going on elsewhere: the world's weather is its own then (not rolled here).
-    ...(campaign.playing && { trip: {} }),
+    ...(campaign.playing && { trip: { away: true } }),
     words: worldWords(getLocale),
   }
 }

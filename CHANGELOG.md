@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Map and Travel: a trip whose campaign's clock went on without it now asks what the party did: **Live it** (it waits, and a world turn played elsewhere is told in its journal) or **Skip it** (it's on that date just as it was, and only the world has changed). Map's trip used to stay behind the campaign's date.
+- The Grey Marches: **Word on the road** says why morale falls.
 - Travel: on a way without a map, **Gate** and **River** work as on a map: Core's gate starts shut until **Open the gate**, and a river alone is crossed, unless a road or something else ticked with it takes the party over.
 - Map and Travel: a trip that camped through a wait from the World panel could leave Play unable to open for good. The journal and its export now read in time order, on trips already saved too.
 - Map and Travel: waiting at the journey's end no longer tells the arrival again every day, and an arrival is stamped when the party got there.

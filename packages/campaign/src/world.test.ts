@@ -313,6 +313,16 @@ describe('the world of a campaign', () => {
     expect(done.campaign.moments).toEqual([{ at: ['world.turn'] }])
     const rules = { actions: { rumour: { on: 'world.turn', do: [] } }, checks: [] } as never
     expect(takeMoments(done.campaign, rules).heard).toEqual([{ at: 'world.turn' }])
+    // A turn played with no trip there is told when heard, whether its rules name it or not.
+    const away = worldTurnNow(playing, host({ trip: { away: true } }))
+    const said = 'clans: Pushes on'
+    expect(away.campaign.moments).toEqual([{ at: ['world.turn'], told: { text: said, time: now } }])
+    expect(takeMoments(away.campaign, { checks: [] } as never).heard).toEqual([
+      { told: { text: said, time: now } },
+    ])
+    expect(deserializeCampaign(serializeCampaign(away.campaign)).moments).toEqual(
+      away.campaign.moments,
+    )
     // Without factions the world has no turn to play: an empty line, nothing else.
     const none = step({ campaign: { ...playing.campaign, factions: undefined } })
     expect(none.lines).toEqual([{ code: 'WORLD_TURN', text: '', time: now + 60 }])

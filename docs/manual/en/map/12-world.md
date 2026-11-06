@@ -56,7 +56,7 @@ A camp lasts as long as its steps say even if you asked for less: if the halt is
 
 Example with the Grey Marches: start the clock, place the party in Ashford (0608) and click 0808 in Play to plan the way there; then press **Next day**: it asks, the weather and getting-lost checks are rolled in the morning, the party marches along the road, camps at nightfall (eating a day's food, a fed night takes off 1 fatigue, the night encounter is rolled where danger is 2 or more) and the clock ends the next morning, when the camp ends, a day further on. Clear the route (click the party's own cell) and **Next day** waits in place instead.
 
-**One trip at a time.** A trip of the Travel app may play in this map's campaign too, and the campaign's time is one: playing the map's trip when that one played last asks first ("Another trip is going on in this campaign: “To Keld”. Pause it and play this one?"), and if the clock went on meanwhile, the party waits until the campaign's date before doing what you asked (a message says so).
+**One trip at a time.** A trip of the Travel app may play in this map's campaign too, and the campaign's time is one: playing the map's trip when that one played last asks first ("Another trip is going on in this campaign: “To Keld”. Pause it and play this one?"), and if the clock went on meanwhile (there, or in the Campaign app), the next step asks first: **Live it** (the party waits until the campaign's date) or **Skip it** (it's there on that date just as it was: nothing on the way happens to it, and the journal says only how much later it is). Then it does what you asked; **Not now** leaves everything as it was.
 
 ## Events
 
@@ -78,7 +78,7 @@ The **Clocks** tab. A clock is a round dial of segments filled as something adva
 
 **A trip hears a clock fill.** A clock filling, however it fills (a click here, a table rolled by hand, a world turn, the trip itself), is a moment the trip going on in the campaign hears, if its system names it (`on: world.clocks.the-wyrm-wakes.full`): its journal says **In the world: The Wyrm wakes filled**, and what the system does then happens at once. Filled in another app (the Campaign app), the trip hears it on its next step. See [Moments of the world](../oracle/07-connecting.md#5-your-own-travel-system).
 
-**A trip brings a world turn, and hears one.** An action of the system may bring a world turn (`do: world.turn`: the Grey Marches' **Carry the news**, in Ashford): it's played here as **World turn** is, and the trip's journal says what each faction did (**World turn: …**). A world turn, however it comes (by itself as the clock moves on, by hand, from the trip), is a moment the trip hears too, if its system names it (`on: world.turn`: the Grey Marches' **Word on the road**). See [World turns](../oracle/07-connecting.md#5-your-own-travel-system).
+**A trip brings a world turn, and hears one.** An action of the system may bring a world turn (`do: world.turn`: the Grey Marches' **Carry the news**, in Ashford): it's played here as **World turn** is, and the trip's journal says what each faction did (**World turn: …**). A world turn, however it comes (by itself as the clock moves on, by hand, from the trip), is a moment the trip hears too, if its system names it (`on: world.turn`: the Grey Marches' **Word on the road**). One played in the Campaign app is told in the journal (**World turn: …**) when the party lives that time; skipped, it isn't. See [World turns](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## Timeline
 

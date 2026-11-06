@@ -558,7 +558,6 @@ export const en = {
     systemWhere:
       "The map's system is its campaign's: choose it in **Map settings → Campaign → System**.",
     pauseOther: vocabulary.en.campaign.pauseOther,
-    caughtUp: vocabulary.en.campaign.caughtUp,
     noTravel:
       '{system} has no travel rules: trips aren’t played with it, only its world, oracle and factions. To travel, choose another system in Map settings → Campaign → System.',
     otherSystem:

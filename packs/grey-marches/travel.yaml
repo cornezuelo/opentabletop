@@ -551,6 +551,9 @@ actions:
     on: world.turn
     do:
       - { id: word, say: 'Travellers bring word of what the powers of the Marches are doing.' }
+      - id: at-war
+        when: { factions.iron-clans.conditions: at-war }
+        say: 'With the Iron Clans at war, the news weighs on the Company.'
       - when: { factions.iron-clans.conditions: at-war }
         effects: { party.stats.morale: -1 }
   # Those present (bestiary.yaml): the copies of templates the encounters made, at the

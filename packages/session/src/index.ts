@@ -423,6 +423,7 @@ const isActionLine = (e: JournalEntry, action: string) =>
   e.code === 'ACTION_TAKEN' && e.data?.action === action
 const JOURNALED: TravelEvent['type'][] = [
   'DAY_STARTED',
+  'TIME_SKIPPED',
   'PLACE_ENTERED',
   'ACTION_TAKEN',
   'LIMIT_REACHED',
@@ -1500,7 +1501,7 @@ export function lastStepEntries(s: SessionState): JournalEntry[] {
  */
 export function addEntry(
   input: SessionState,
-  entry: Omit<JournalEntry, 'id' | 'at' | 'time'>,
+  entry: Omit<JournalEntry, 'id' | 'at' | 'time'> & { time?: number },
   at: string = new Date().toISOString(),
 ): SessionState {
   const s = structuredClone(input)

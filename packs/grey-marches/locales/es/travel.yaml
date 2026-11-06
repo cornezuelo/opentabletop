@@ -149,6 +149,8 @@ travel-rules/default:
       do:
         word:
           say: 'Los viajeros traen noticias de lo que hacen los poderes de las Marcas.'
+        at-war:
+          say: 'Con los Clanes de Hierro en guerra, las noticias pesan sobre la Compañía.'
     drive-off:
       name: Ahuyentarlos
       description: 'Con enemigos aquí: diez minutos de acero y fuego. Cada uno recibe 1d3 de daño, y los que caen se van; quien actúa recibe 1 de daño salvo que su Supervivencia sea 2 o más.'

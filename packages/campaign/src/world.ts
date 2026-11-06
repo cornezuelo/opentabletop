@@ -95,7 +95,11 @@ export interface WorldHost {
    * A trip going on in the campaign, if any: its weather is the world's then (the world's
    * own isn't rolled).
    */
-  trip?: { weather?: string }
+  trip?: {
+    weather?: string
+    /** The trip is played elsewhere: what the world does is told to it when it's heard. */
+    away?: boolean
+  }
   /**
    * Whether the trip going on skips pauses: the world's pauses are written on the timeline
    * and passed too (its questions still wait for the player).
@@ -118,8 +122,11 @@ export const MAX_HEARD = 10
  * clock's name.
  */
 export interface HeardMoment {
-  at: string
+  /** The moment, if the trip's rules name it. */
+  at?: string
   clock?: string
+  /** What its journal says of a world turn it wasn't there for. */
+  told?: { text: string; time: number }
 }
 
 /**
@@ -139,7 +146,14 @@ export function takeMoments(
   ])
   const heard = campaign.moments.flatMap((m): HeardMoment[] => {
     const at = m.at.find((x) => named.has(x))
-    return at ? [{ at, ...(m.clock !== undefined && { clock: m.clock }) }] : []
+    if (!at && !m.told) return []
+    return [
+      {
+        ...(at && { at }),
+        ...(m.clock !== undefined && { clock: m.clock }),
+        ...(m.told && { told: m.told }),
+      },
+    ]
   })
   const rest = { ...campaign }
   delete rest.moments
@@ -395,7 +409,10 @@ function playWorld(start: WorldPlace, host: WorldHost) {
     const texts = done.lines.map((line) => host.words.factionLine(system, line))
     turns.push({ time, lines: texts })
     done.lines.forEach((line, i) => act({ type: 'log', text: texts[i], data: { ...line }, time }))
-    heard({ at: [WORLD_TURN] })
+    // A trip playing it writes it in its journal now; from elsewhere it's told when heard.
+    const away = !host.trip || host.trip.away
+    const told = away && texts.length && { told: { text: texts.join('; '), time } }
+    heard({ at: [WORLD_TURN], ...told })
     const after = reactionsAt(rules, WORLD_TURN)
     const ticks = Object.entries(done.ticks).flatMap(([ref, n]) =>
       n ? [[`world.clocks.${ref}`, n] as const] : [],

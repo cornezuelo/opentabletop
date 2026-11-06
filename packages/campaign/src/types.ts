@@ -141,4 +141,6 @@ export interface WorldWaiting {
 export interface WorldMoment {
   at: string[]
   clock?: string
+  /** A world turn played with no trip there to tell it: what the journal says, and when. */
+  told?: { text: string; time: number }
 }

@@ -50,7 +50,7 @@ describe('trips in campaigns', () => {
 
   // Slow beside the whole suite: a longer timeout.
   it('plays in a map’s campaign: its clock, its Oracle, one trip at a time', async () => {
-    const { campaign: c, world: w, dialog, toasts, trip, systems } = await openTravel()
+    const { campaign: c, world: w, dialog, trip, systems } = await openTravel()
     const greyMarches = systems.list.find((s) => s.id.startsWith('grey-marches'))!
 
     // A map's campaign, its world clock at 08:00 of day 10, a fair at noon, its trip last.
@@ -132,20 +132,16 @@ describe('trips in campaigns', () => {
     await settle()
     expect(trip.campaign?.playing?.app).toBe('map')
 
-    // Going on asks again, and the party waits until the campaign's clock first.
-    const shown = toasts.length
+    // Going on asks again, and then what the party did with the time that passed.
     const going = trip.step({ type: 'wait', until: moved.world.time + 30 })
     await settle()
     dialog.current!.resolve('ok')
+    await settle()
+    expect(dialog.current?.message).toMatch(/gone on 1 day\(s\)/)
+    dialog.current!.resolve('live')
     await going
     await settle()
     expect(trip.saved.session!.travel.time).toBeGreaterThanOrEqual(moved.world.time + 30)
-    expect(
-      toasts
-        .slice(shown)
-        .map((x) => x.message)
-        .join(' '),
-    ).toMatch(/waited until then/)
 
     // Saying no leaves the other trip going on and this one where it was.
     kept.set('m1', {

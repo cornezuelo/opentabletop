@@ -563,7 +563,6 @@ export const es: Messages = {
     systemWhere:
       'El sistema del mapa es el de su campaña: se elige en **Ajustes del mapa → Campaña → Sistema**.',
     pauseOther: vocabulary.es.campaign.pauseOther,
-    caughtUp: vocabulary.es.campaign.caughtUp,
     noTravel:
       '{system} no tiene reglas de viaje: con él no se juegan viajes, solo su mundo, su oráculo y sus facciones. Para viajar, elige otro sistema en Ajustes del mapa → Campaña → Sistema.',
     otherSystem:

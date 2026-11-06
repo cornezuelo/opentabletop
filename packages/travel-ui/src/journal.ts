@@ -419,6 +419,12 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
     case 'DAY_STARTED':
       return t('journal.day', { day: Number(d.day) - startDay + 1 })
+    case 'TIME_SKIPPED':
+      return t('journal.timeSkipped', {
+        time: Number(d.days)
+          ? t('journal.timeSkippedDays', { n: Number(d.days) })
+          : durationText(Number(d.minutes)),
+      })
     case 'ROUTE_BLOCKED':
       return d.to === undefined
         ? t('journal.ROUTE_BLOCKED')

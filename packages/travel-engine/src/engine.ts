@@ -456,6 +456,8 @@ export type StopReason =
 
 export type TravelEvent =
   | { type: 'DAY_STARTED'; day: number }
+  /** Time jumped without being lived (`skip`): how long, and how many days on. */
+  | { type: 'TIME_SKIPPED'; minutes: number; days: number; time: GameTime }
   | { type: 'ROUTE_PLANNED'; route: string[]; strategy: RouteStrategy }
   | { type: 'NO_ROUTE'; to: string }
   | { type: 'PLACE_ENTERED'; place: string; time: GameTime }
@@ -580,6 +582,11 @@ export type TravelAction =
    * moments on the way, the system's halt. Stops early when a check is pending.
    */
   | { type: 'wait'; until: GameTime }
+  /**
+   * Jumps to a moment without living it: the party is there as it was, nothing on the way
+   * happens (no moments, no halts), and a new day starts clean.
+   */
+  | { type: 'skip'; until: GameTime }
   /**
    * Waits for the next march: lets today's go by (while the party could march, it waits on
    * until it can't), then until the system's march lets it again, living the moments on
@@ -2521,6 +2528,26 @@ export function createTravelEngine(options: {
           delete state.moving
           wait(state, action.until, events)
           break
+        case 'skip': {
+          if (action.until <= state.time) break
+          const minutes = action.until - state.time
+          const { day } = calendar.describe(action.until)
+          const days = day - state.day
+          delete state.moving
+          delete state.momentsDue
+          state.time = action.until
+          if (days > 0) {
+            state.day = day
+            state.travelledToday = 0
+            delete state.today
+            delete state.yesterday
+            delete state.reached
+            state.speedToday = undefined
+            delete state.actionsToday
+          }
+          events.push({ type: 'TIME_SKIPPED', minutes, days, time: state.time })
+          break
+        }
         case 'waitForMarch':
           delete state.moving
           waitForMarch(state, events)

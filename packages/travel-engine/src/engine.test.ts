@@ -1117,6 +1117,24 @@ describe('only through', () => {
   })
 })
 
+describe('skipping time', () => {
+  const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
+
+  it('jumps without living it: nothing happens on the way, a new day starts clean', () => {
+    const state = { ...start(), today: { lost: true }, travelledToday: 90 }
+    const until = at(9, '14:00')
+    const { state: after, events } = engine.apply(state, { type: 'skip', until })
+    expect(events).toEqual([
+      { type: 'TIME_SKIPPED', minutes: until - state.time, days: 8, time: until },
+    ])
+    expect(after).toMatchObject({ time: until, day: 9, travelledToday: 0 })
+    expect(after.today).toBeUndefined()
+    expect(after.location).toBe(state.location)
+    // Time never goes back.
+    expect(engine.apply(after, { type: 'skip', until: at(1, '06:00') }).events).toEqual([])
+  })
+})
+
 describe('waiting', () => {
   /** Waits, resolving every check it stops for, until it stops for something else. */
   function waitAll(eng: typeof engine, state: TravelState, until: number) {

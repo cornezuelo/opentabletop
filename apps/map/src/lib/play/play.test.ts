@@ -321,12 +321,63 @@ describe('playing on the map', () => {
     await Promise.resolve()
     expect(session().travel.time).toBe(before)
     expect(editor.campaign.playing).toEqual(travel)
-    // Yes: the party waits until the campaign's clock, then does what was asked.
+    // Yes: the party lives the time that passed, then does what was asked.
     step({ type: 'wait', until: world + 60 })
     dialog.current!.resolve('ok')
+    await vi.waitFor(() => expect(dialog.current?.title).toBe('Time has passed'))
+    dialog.current!.resolve('live')
     await vi.waitFor(() => expect(session().travel.time).toBeGreaterThanOrEqual(world + 60))
     expect(editor.campaign.playing).toMatchObject({ app: 'map' })
-    expect(toasts.map((x) => x.message).join(' ')).toMatch(/waited until then/)
+  })
+
+  it('a clock moved on elsewhere: the party lives that time, or skips it as it was', async () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    clickHex('7,7')
+    startWorld()
+    const session = () => sessionOf(editor.map.play!)!
+    step({ type: 'wait', until: session().travel.time + 30 })
+    /** The Campaign app moved the clock on, playing a world turn on the way. */
+    const movedOn = (days: number) => {
+      worldAct({ type: 'advance', minutes: days * 1440 })
+      const time = editor.campaign.world!.time
+      const told = { text: 'The Iron Clans march', time }
+      const moments = [{ at: ['world.turn'], told }]
+      editor.takeWorld({ campaign: { ...editor.campaign, moments } })
+      return time
+    }
+    const codes = () => session().journal.map((e) => e.code)
+
+    // Two seasons on. Not now: nothing moves.
+    const later = movedOn(180)
+    const was = session()
+    step({ type: 'wait', until: later })
+    expect(dialog.current?.message).toMatch(/gone on 180 day\(s\)/)
+    expect(dialog.current?.message).not.toMatch(/eat/i)
+    dialog.current!.resolve('cancel')
+    await Promise.resolve()
+    expect(session().travel.time).toBe(was.travel.time)
+    expect(editor.campaign.moments).toHaveLength(1)
+
+    // Skipped: on that date as it was, nothing lived; only how much later is told.
+    step({ type: 'wait', until: later })
+    dialog.current!.resolve('skip')
+    await vi.waitFor(() => expect(session().travel.time).toBe(later))
+    expect(session().stats).toEqual(was.stats)
+    expect(session().travel.location).toBe(was.travel.location)
+    expect(editor.campaign.moments).toBeUndefined()
+    expect(codes()).toContain('TIME_SKIPPED')
+    expect(codes()).not.toContain('WORLD_TURN')
+    expect(codes().slice(was.journal.length)).toEqual(['TIME_SKIPPED'])
+
+    // Lived: it waits until then, and the journal tells the turn at its time.
+    const again = movedOn(1)
+    step({ type: 'wait', until: again })
+    dialog.current!.resolve('live')
+    await vi.waitFor(() => expect(session().travel.time).toBe(again))
+    expect(session().journal.find((e) => e.code === 'WORLD_TURN')).toMatchObject({
+      text: 'The Iron Clans march',
+      time: again,
+    })
   })
 
   it('the world clock is saved in the file and follows a trip, telling what came due', () => {

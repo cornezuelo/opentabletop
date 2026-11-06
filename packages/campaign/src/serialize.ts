@@ -131,6 +131,7 @@ function readMoments(raw: unknown): Pick<Campaign, 'moments'> {
     (m): m is WorldMoment =>
       isRecord(m) &&
       (m.clock === undefined || typeof m.clock === 'string') &&
+      (m.told === undefined || isRecord(m.told)) &&
       Array.isArray(m.at) &&
       m.at.length > 0 &&
       m.at.every((at) => typeof at === 'string'),
