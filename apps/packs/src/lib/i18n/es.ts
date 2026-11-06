@@ -99,6 +99,8 @@ export const es: Messages<typeof en> = {
     body: 'Un sistema es aquello con lo que se juega una partida: sus reglas de viaje (a qué velocidad se va por cada terreno y camino, qué se lleva encima, qué puede hacer el grupo), las comprobaciones que se tiran por el camino y las tablas que las responden. Elige uno a la izquierda para verlo y editarlo, o crea uno nuevo debajo de la lista. Los sistemas incluidos son de solo lectura: **Duplicad** uno para hacerlo vuestro. Juégalos en la aplicación Viajes (viajes sin mapa) o sobre un mapa en la aplicación Mapa.',
   },
   tabs: {
+    label: 'Las páginas de un sistema',
+    groups: { rules: 'Reglas', characters: 'Personajes', world: 'El mundo' },
     overview: 'Resumen',
     rules: 'Reglas',
     checks: 'Comprobaciones',

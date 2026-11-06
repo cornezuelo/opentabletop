@@ -97,6 +97,8 @@ export const en = {
     body: 'A system is what a game is played with: its travel rules (how fast you go over each terrain and road, what you carry, what the party can do), the checks rolled on the way and the tables that answer them. Pick one on the left to see and edit it, or create a new one below the list. Bundled systems are read-only: **Duplicate** one to make it yours. Play them in the Travel app (trips without a map) or on a map in the Map app.',
   },
   tabs: {
+    label: 'The pages of a system',
+    groups: { rules: 'Rules', characters: 'Characters', world: 'The world' },
     overview: 'Overview',
     rules: 'Rules',
     checks: 'Checks',

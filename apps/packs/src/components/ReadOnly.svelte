@@ -1,15 +1,20 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
   import { PackNotice } from '@open-tabletop/pack-ui'
   import { getLocale, t } from '../lib/i18n'
   import { library } from '../lib/packs.svelte'
 
   /**
    * pack-ui's `PackNotice` worded for a system. A bundled system isn't copied in place here:
-   * the system's **Duplicate** (beside its name) makes an independent one of yours. A pack the
+   * `action` (the system's **Duplicate**) makes an independent one of yours. A pack the
    * system only brings along (`dependency`: Core's roll modes in another system) offers no
    * copy: it's shared by every system that brings it.
    */
-  let { root, dependency = false }: { root: string; dependency?: boolean } = $props()
+  let {
+    root,
+    dependency = false,
+    action,
+  }: { root: string; dependency?: boolean; action?: Snippet } = $props()
 </script>
 
 <PackNotice
@@ -24,5 +29,5 @@
     copyHelp: t('edit.duplicateHelp'),
   }}
 >
-  {#snippet copy()}{/snippet}
+  {#snippet copy()}{@render action?.()}{/snippet}
 </PackNotice>

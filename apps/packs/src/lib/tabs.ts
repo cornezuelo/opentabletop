@@ -1,24 +1,24 @@
 import type { Tab } from './nav.svelte'
 
-/** A system's tabs, in the order they're shown. */
-export const TABS: Tab[] = [
-  'overview',
-  'rules',
-  'checks',
-  'sheet',
-  'items',
-  'bestiary',
-  'places',
-  'factions',
-  'clocks',
-  'world',
-  'calendar',
-  'weather',
-  'land',
-  'modes',
-  'try',
-  'yaml',
+/** A group of a system's tabs; `label` names it in `tabs.groups`. */
+export interface TabGroup {
+  label?: 'rules' | 'characters' | 'world'
+  tabs: Tab[]
+}
+
+/** A system's tabs, in groups and in the order they're shown. */
+export const TAB_GROUPS: TabGroup[] = [
+  { tabs: ['overview'] },
+  { label: 'rules', tabs: ['rules', 'checks', 'modes'] },
+  { label: 'characters', tabs: ['sheet', 'items', 'bestiary'] },
+  {
+    label: 'world',
+    tabs: ['places', 'factions', 'clocks', 'world', 'calendar', 'weather', 'land'],
+  },
+  { tabs: ['try', 'yaml'] },
 ]
+
+export const TABS: Tab[] = TAB_GROUPS.flatMap((g) => g.tabs)
 
 /** The tabs of its parts, written in its pack. */
 const PARTS = new Set<Tab>([
@@ -36,17 +36,18 @@ const PARTS = new Set<Tab>([
 ])
 
 /**
- * The tabs a system shows, each once and in order: its travel rules' (when it has them), its
- * parts' (when it has a pack), its files' (when it has some), and the rest always.
+ * The tabs a system shows, in their groups: its travel rules' (when it has them), its parts'
+ * (when it has a pack), its files' (when it has some), and the rest always. A group left
+ * with nothing goes.
  */
-export function systemTabs(has: { rules: boolean; pack: boolean; files: boolean }): Tab[] {
-  return TABS.filter((tab) =>
+export function systemTabs(has: { rules: boolean; pack: boolean; files: boolean }): TabGroup[] {
+  const shown = (tab: Tab) =>
     tab === 'rules' || tab === 'checks'
       ? has.rules
       : PARTS.has(tab)
         ? has.pack
         : tab === 'yaml'
           ? has.files
-          : true,
-  )
+          : true
+  return TAB_GROUPS.map((g) => ({ ...g, tabs: g.tabs.filter(shown) })).filter((g) => g.tabs.length)
 }

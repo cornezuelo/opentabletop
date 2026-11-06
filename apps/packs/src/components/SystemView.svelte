@@ -1,7 +1,7 @@
 <script lang="ts">
   import { BundledUpdates, manifestOf } from '@open-tabletop/pack-ui'
   import { systemName } from '@open-tabletop/session'
-  import { appUrl, confirmAction, InfoTip, MoreMenu } from '@open-tabletop/ui-kit'
+  import { appUrl, confirmAction, InfoTip, MoreMenu, RailTabs } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { go, type Tab } from '../lib/nav.svelte'
   import {
@@ -33,9 +33,15 @@
   const file = $derived(system ? rulesFile(system) : null)
   const declared = $derived(system ? systemFile(system) : null)
   const root = $derived(system ? (systemRoot(system) ?? file?.root) : undefined)
-  const tabs = $derived(
-    systemTabs({ rules: !!file, pack: !!system?.pack, files: !!(file || declared) }),
+  const rail = $derived(
+    systemTabs({ rules: !!file, pack: !!system?.pack, files: !!(file || declared) }).map((g) => ({
+      ...(g.label && { label: t(`tabs.groups.${g.label}`) }),
+      tabs: g.tabs.map((name) => ({ id: name, label: t(`tabs.${name}`) })),
+    })),
   )
+  /** The room the pages have: with little of it (the help column open), a choice, no rail. */
+  let room = $state(0)
+  const narrow = $derived(room > 0 && room < 860)
   const doc = systemDoc(() => file ?? { root: '', path: '' })
   const overview = systemDoc(() => declared ?? { root: '', path: '' })
   /** The files its parts are written in, for the YAML tab (its rules' first). */
@@ -88,17 +94,19 @@
   const stale = $derived(system ? staleCopies(system) : [])
 </script>
 
+{#snippet duplicateButton()}
+  <button class="button" onclick={duplicate}
+    >{t('edit.duplicate')}<InfoTip markdown={t('edit.duplicateHelp')} /></button
+  >
+{/snippet}
+
 {#if system}
   <article class="system">
     <header>
       <div class="title-row">
         <h1 class="page-title">{systemName(system, getLocale())}</h1>
         <div class="title-buttons">
-          {#if root}
-            <button class="button" onclick={duplicate}
-              >{t('edit.duplicate')}<InfoTip markdown={t('edit.duplicateHelp')} /></button
-            >
-          {/if}
+          {#if root && library.isEditable(root)}{@render duplicateButton()}{/if}
           {#if canDelete(system)}
             <MoreMenu label={t('edit.more')}>
               <button class="danger" onclick={remove}>{t('edit.delete')}</button>
@@ -111,43 +119,50 @@
       >
       <!-- On every tab: a bundled system is read-only (Duplicate makes one of yours), and an
            older edited copy of one can go back to it. -->
-      {#if root}<div class="copy"><ReadOnly {root} /></div>{/if}
-      <div class="tabs" role="tablist">
-        {#each tabs as name (name)}
-          <button
-            role="tab"
-            aria-selected={tab === name}
-            class:active={tab === name}
-            onclick={() => go({ name: 'system', id, tab: name })}>{t(`tabs.${name}`)}</button
-          >
-        {/each}
-      </div>
+      {#if root}<div class="copy">
+          <ReadOnly {root}>
+            {#snippet action()}{@render duplicateButton()}{/snippet}
+          </ReadOnly>
+        </div>{/if}
     </header>
-    <div class="body">
-      {#each stale as copy (copy)}
-        <div class="stale">
-          <p>{t('edit.staleCopy', { pack: manifestOf(library.pack(copy)!).name ?? copy })}</p>
-          <BundledUpdates {library} root={copy} locale={getLocale()} />
-        </div>
-      {/each}
-      {#if problems.length && tab !== 'yaml'}
-        <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
-          {t('forms.problems', { count: problems.length })}
-        </button>
-      {/if}
-      {#if tab === 'try'}
-        <TryTab {system} />
-      {:else if tab === 'yaml' && files.length}
-        <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
-      {:else if (tab === 'sheet' || tab === 'items' || tab === 'bestiary' || tab === 'places' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
-        <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} {item} />
-      {:else if (tab === 'rules' || tab === 'checks') && file}
-        <div class="forms">
-          {#if tab === 'rules'}<RulesForm {doc} {system} />{:else}<ChecksForm {doc} {system} />{/if}
-        </div>
-      {:else}
-        <Overview {system} doc={declared ? overview : null} />
-      {/if}
+    <div class="pages" class:narrow bind:clientWidth={room}>
+      <RailTabs
+        groups={rail}
+        value={tab}
+        label={t('tabs.label')}
+        prefix="system"
+        {narrow}
+        onchange={(name) => go({ name: 'system', id, tab: name })}
+      />
+      <div class="body" id="system-panel" role="tabpanel" aria-labelledby="system-tab-{tab}">
+        {#each stale as copy (copy)}
+          <div class="stale">
+            <p>{t('edit.staleCopy', { pack: manifestOf(library.pack(copy)!).name ?? copy })}</p>
+            <BundledUpdates {library} root={copy} locale={getLocale()} />
+          </div>
+        {/each}
+        {#if problems.length && tab !== 'yaml'}
+          <button class="problems" onclick={() => go({ name: 'system', id, tab: 'yaml' })}>
+            {t('forms.problems', { count: problems.length })}
+          </button>
+        {/if}
+        {#if tab === 'try'}
+          <TryTab {system} />
+        {:else if tab === 'yaml' && files.length}
+          <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
+        {:else if (tab === 'sheet' || tab === 'items' || tab === 'bestiary' || tab === 'places' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
+          <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} {item} />
+        {:else if (tab === 'rules' || tab === 'checks') && file}
+          <div class="forms">
+            {#if tab === 'rules'}<RulesForm {doc} {system} />{:else}<ChecksForm
+                {doc}
+                {system}
+              />{/if}
+          </div>
+        {:else}
+          <Overview {system} doc={declared ? overview : null} />
+        {/if}
+      </div>
     </div>
   </article>
 {:else}
@@ -163,32 +178,23 @@
     min-height: 0;
   }
 
-  /* Wraps instead of pushing the view wider than its column (the help column open). */
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 12px;
-    border-bottom: 1px solid var(--panel-border);
+  .pages {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
   }
 
-  .tabs button {
-    padding: 6px 14px;
-    white-space: nowrap;
-    color: var(--text-muted);
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-  }
-
-  .tabs button.active {
-    color: var(--text);
-    border-bottom-color: var(--accent);
+  .pages.narrow {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 12px;
   }
 
   .body {
-    flex: 1;
+    min-width: 0;
     min-height: 0;
   }
 
