@@ -760,9 +760,9 @@ export const en = {
     iconHelp:
       'Values of this icon (a village, a bridge…). Tables rolled on its cell read them as `{{icon.<key>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:
-      'Values of this token (an NPC, a monster…). Tables rolled from the Oracle panel while it is selected read them as `{{token.<key>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
+      'Values of this token (an NPC, a monster…). Tables rolled from the Oracle panel while it is selected read them as `{{token.<key>}}`, and the rules of a trip as `{{place.tokens.<key>}}` while it stands on the cell of the party:\n• `strength` = `3` → `{{token.strength}}`\n• `fare` = `5` → `{{place.tokens.fare}}`',
     poiHelp:
-      "Values of this point of interest, kept with it in the map and its file (`treasure = 40`, `cleared = yes`). Tables don't read them: a cell can have several points of interest.",
+      'Values of this point of interest, kept with it in the map and its file. Rules and tables read them on its cell as `{{place.poi.<key>}}`; with several points of interest in a cell, the first listed wins on the same name:\n• `price` = `2` → `{{place.poi.price}}`\n• `cleared` = `true` → `place.poi.cleared: true`',
   },
   regionStyle: {
     title: vocabulary.en.terms.regions,

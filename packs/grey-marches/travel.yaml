@@ -434,31 +434,73 @@ actions:
   # reading a value at that moment (`say` with `{{…}}`), the way of travelling changed to the
   # boat (`travel.mode`: the boat's own `when` lets it be boarded at a ferry; the route is
   # planned again for it), and the trip stops, saying where to go now (`pause`), until the
-  # player presses Continue.
+  # player presses Continue. Her fare is a value of her token on the map, read from the place
+  # (`place.tokens.fare`): each mouth pays it in silver, and with Brenna gone there's no ferry.
   ferry:
     name: Take the ferry
-    description: 'At Brenna’s ferry, by day: pay her a day of food and she casts off at once, or wait for her afternoon crossing (at the latest, until nightfall). Then you are afloat on the Saltmere, by boat.'
+    description: 'At Brenna’s ferry, by day: pay her fare in silver, each of you, or a day of food, and she casts off at once, or wait for her afternoon crossing (at the latest, until nightfall). Then you are afloat on the Saltmere, by boat.'
     when: { place.tags: ferry, time.tags: { not: dark } }
+    needs: { place.tokens.fare: { exists: true } }
     hideWhenUnavailable: true
     oncePerDay: true
     params:
       fare:
         name: How do you pay Brenna?
-        description: She takes a day of food to cast off now; otherwise she rows over in the afternoon.
+        description: She takes her fare or a day of food to cast off now; otherwise she rows over in the afternoon.
         choices:
+          - { id: silver, name: 'Her fare in silver, now' }
           - { id: food, name: 'A day of food, now' }
           - { id: wait, name: Wait for her crossing }
     do:
       - { ask: params.fare }
       - { when: { params.fare: food }, effects: { party.items.ration: -1 } }
-      - when: { params.fare: wait }
+      - id: short
+        when:
+          {
+            params.fare: silver,
+            party.stats.silver: { lt: '{{place.tokens.fare * party.stats.mouths}}' },
+          }
+        say: 'You can’t pay her {{place.tokens.fare * party.stats.mouths}} silver: she’ll row over in the afternoon.'
+      - when:
+          any:
+            - { params.fare: wait }
+            - {
+                params.fare: silver,
+                party.stats.silver: { lt: '{{place.tokens.fare * party.stats.mouths}}' },
+              }
         wait: { time.part: [afternoon, evening] }
         limit: time.part.night
       - id: casts-off
         say: 'Brenna casts off from the jetty ({{party.items.ration.count}} rations left in your packs).'
+      - when:
+          {
+            params.fare: silver,
+            party.stats.silver: { gte: '{{place.tokens.fare * party.stats.mouths}}' },
+          }
+        effects: { party.stats.silver: '-{{place.tokens.fare * party.stats.mouths}}' }
       - { travel.mode: modes.boat }
       - id: afloat
         pause: 'Afloat on the Saltmere: choose a hex of the lake to sail to, then Go ashore at the far bank.'
+  # A night at an inn: any point of interest with `rooms` and `price` (the Wet Ferret), read
+  # from the place (`place.poi.*`), so an inn on any map works alike. Two to a room, each mouth
+  # paying the price; `needs` says so on the button before anything is spent.
+  inn:
+    name: Take rooms at the inn
+    description: 'A night under a roof, each of you paying the inn’s price, two to a room: you wake at dawn with 2 fatigue less, 1 morale more, each companion 1 health better, and no longer shaken.'
+    when: { place.poi.rooms: { exists: true } }
+    hideWhenUnavailable: true
+    needs:
+      party.stats.silver: { gte: '{{place.poi.price * party.stats.mouths}}' }
+      party.stats.mouths: { lte: '{{place.poi.rooms * 2}}' }
+    do:
+      - { effects: { party.stats.silver: '-{{place.poi.price * party.stats.mouths}}' } }
+      - { time: time.part.morning }
+      - effects:
+          party.stats.fatigue: -2
+          party.stats.morale: 1
+          party.members.values.health: 1
+          party.conditions.shaken: false
+          party.members.conditions.saddle-sore: false
   # Off the boat (`travel.mode` again): on foot from now on, to march onto the shore nearby.
   ashore:
     name: Go ashore
@@ -839,6 +881,11 @@ stats:
     description: Added to the getting-lost roll. With companions, their best Pathfinding.
     default: 0
     from: { max: pathfinding }
+  # Money: a value of the Company like any other, spent by the actions that charge it.
+  silver:
+    name: Silver
+    description: The Company’s purse. Pays Brenna’s fare and rooms at the inn.
+    from: { party: silver }
   # Sell-swords who join at the inn and desert when hungry: 0 until a table adds some.
   hirelings:
     name: Hirelings
@@ -910,7 +957,22 @@ reads:
   token.fare:
     {
       name: Fare,
-      description: 'A value of a token: what Brenna the ferrywoman charges, in silver.',
+      description: 'A value of the selected token: what Brenna the ferrywoman charges, in silver.',
+    }
+  place.tokens.fare:
+    {
+      name: Fare here,
+      description: 'A value of a token on the party’s cell: what Brenna charges each of you, read by Take the ferry.',
+    }
+  place.poi.rooms:
+    {
+      name: Rooms,
+      description: 'A value of a point of interest on the party’s cell: how many rooms the inn has, two to a room.',
+    }
+  place.poi.price:
+    {
+      name: Price,
+      description: 'A value of a point of interest on the party’s cell: what a night at the inn costs each of you, in silver.',
     }
   timeOfDay:
     {

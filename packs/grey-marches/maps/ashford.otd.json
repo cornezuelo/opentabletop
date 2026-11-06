@@ -1483,13 +1483,7 @@
               "id": "wetferret1",
               "name": "The Wet Ferret",
               "color": "#8a5a2b",
-              "onePlace": true,
-              "fields": [
-                {
-                  "key": "inn",
-                  "value": "true"
-                }
-              ]
+              "onePlace": true
             },
             {
               "id": "kitchen1",
@@ -1603,6 +1597,20 @@
       }
     }
   ],
-  "pois": [],
+  "pois": [
+    {
+      "id": "poi5x3x0",
+      "type": "poi",
+      "name": "The Wet Ferret (inn)",
+      "location": {
+        "map": "ashford1",
+        "hex": "5,3"
+      },
+      "stats": {
+        "rooms": "3",
+        "price": "1"
+      }
+    }
+  ],
   "state": {}
 }

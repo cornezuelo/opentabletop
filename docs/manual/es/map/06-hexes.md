@@ -12,7 +12,7 @@ Un clic en un token muestra la casilla en la que está. El panel da la coordenad
 - **PDI**: puntos de interés, cada uno con nombre, descripción, su propia nota enlazada y, si quieres, un icono para distinguirlos en el panel (no se dibuja en el mapa).
 - **Etiquetas**: palabras libres (`ruinas`, `encantado`, `referencia`…) con sugerencias del resto del mapa.
 - **Campos**: pares clave–valor (`danger: 3`, `elevation: 1200`). Las comprobaciones de viaje y las tablas los leen por su clave. Mientras escribes se sugieren las claves y valores ya usados en el mapa, y también los nombres que leen las tablas de los packs cargados (por ejemplo, el `danger` de las Marcas Grises).
-- Los **Campos** de un punto de interés: cada punto de interés tiene los suyos (`rooms: 3`), guardados con él; las tablas no los leen.
+- Los **Campos** de un punto de interés: cada punto de interés tiene los suyos (`rooms: 3`), guardados con él; las reglas y las tablas los leen en su casilla como `place.poi.rooms` ([Qué ven las tablas](../technical/04-what-tables-see.md)). Con dos en una casilla, con el mismo nombre gana el primero de la lista.
 - **Hecho a partir de**, en un punto de interés que un viaje creó con una [plantilla de lugar](../technical/07-kinds.md#lugares) del sistema (una ruina descubierta): cuál. Se edita como cualquier otro; que la plantilla cambie después no lo toca.
 - **Nota enlazada**: una página de tu aplicación de notas.
 - El icono y las líneas que cruzan la casilla.

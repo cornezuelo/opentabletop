@@ -556,7 +556,7 @@ places:
 
 - Cada lugar, con un id por el que lo nombran los efectos (sin puntos): `name` (obligatorio), `description`, `icon` (el id de un icono del mapa, `game:<nombre>`, como los lista el selector de iconos de Mapa), `tags` y `fields`.
 - `description` y los valores de `fields` pueden llevar `{{…}}`: se leen del resultado que crea el lugar (`{{result}}`, sus valores `set`, los datos del viaje) y se tiran (`{{1d6}}`), una vez, al crearlo.
-- `tags` van al **casilla**, no al punto de interés: son lo que leen las condiciones (`place.tags: shrine`), como el `set: { tags }` del descubrimiento.
+- `tags` van al **casilla**, no al punto de interés: son lo que leen las condiciones (`place.tags: shrine`), como el `set: { tags }` del descubrimiento. Sus `fields` se quedan en el punto de interés y se leen en su casilla como `place.poi.<campo>`.
 - Un lugar se crea una vez: los cambios posteriores a su plantilla no tocan los lugares ya creados, y en el mapa es vuestro para editarlo o quitarlo como cualquier otro punto de interés.
 - Los resultados los crean con un efecto: los `effects: { place.pois.ruins: 1 }` de una entrada, un paso de una acción, una carta de un mazo, o el contenido del **descubrimiento** (`discover.contents`), cuya entrada crea entonces el lugar en vez de un punto de interés simple hecho de su texto ([Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa)). El número dice cuántos (`2`, `'{{1d2}}'`); un lugar que no tiene ningún catálogo no crea nada, y el diario lo dice.
 - Un pack que añade un mapa o una campaña trae también sus catálogos de lugares, después de los del sistema.

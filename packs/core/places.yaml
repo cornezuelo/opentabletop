@@ -7,13 +7,15 @@ name: Places
 description: |-
   Places a result can make on the party's hex.
 
-  **Shows:** the smallest catalogue of places: one template with a name, a text, an icon of the map's and a tag it gives the hex; on a map it's written as a point of interest, in a trip without one the journal notes it.
+  **Shows:** the smallest catalogue of places: one template with a name, a text, an icon of the map's, a tag it gives the hex and a value the rules read there (`place.poi.shelter`); on a map it's written as a point of interest, in a trip without one the journal notes it.
 places:
   landmark:
     name: Landmark
     description: Something worth finding again.
     icon: game:obelisk
     tags: [landmark]
+    # A value of the place, read by the rules on its cell (`place.poi.shelter`, Camp).
+    fields: { shelter: 1 }
 ---
 # Rolled by Explore's last step: on a 6, a landmark is made on the party's hex.
 kind: table

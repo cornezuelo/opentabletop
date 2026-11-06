@@ -90,7 +90,7 @@ export function rollContext(): Record<string, unknown> {
         ...facts,
       }
     : { ...world, ...facts }
-  // The selected token (an NPC, a monster…) and its values: {{token.name}}, {{token.might}}.
+  // The selected token (an NPC, a monster…) and its values: {{token.name}}, {{token.fare}}.
   const token = editor.selectedToken ? editor.getToken(editor.selectedToken) : undefined
   // Its own values can't hide its name and kind.
   // A token with a sheet: its values and conditions too (`token.values.health`, `token.health`).

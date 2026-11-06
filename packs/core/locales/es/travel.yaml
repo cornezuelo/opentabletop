@@ -32,6 +32,9 @@ travel-rules/default:
     camp:
       name: Acampar
       description: Dormir hasta la mañana.
+      do:
+        sheltered:
+          say: El hito os ha dado cobijo.
     rest:
       name: Descansar
       description: Una hora sin marchar, solo de día.

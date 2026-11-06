@@ -140,6 +140,7 @@ actions:
     description: Sleep until the morning.
     do:
       - { time: time.part.morning }
+      - { id: sheltered, when: { place.poi.shelter: 1 }, say: The landmark sheltered you. }
   rest:
     name: Rest
     description: An hour without marching, only by day.

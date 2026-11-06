@@ -12,7 +12,7 @@ A click on a token shows the cell it stands on. The panel gives the cell's coord
 - **POIs**: points of interest, each with a name, a description, its own linked note and, optionally, an icon to tell them apart in the panel (it isn't drawn on the map).
 - **Tags**: free words (`ruins`, `haunted`, `landmark`…) with suggestions from the rest of the map.
 - **Fields**: key–value pairs (`danger: 3`, `elevation: 1200`). Travel checks and tables read them by key. Keys and values already used on the map are suggested as you type, and so are the names the loaded packs' tables read (the Grey Marches' `danger`, for example).
-- **Fields** of a point of interest: each point of interest has its own (`rooms: 3`), kept with it; tables don't read them.
+- **Fields** of a point of interest: each point of interest has its own (`rooms: 3`), kept with it; rules and tables read them on its cell as `place.poi.rooms` ([What tables see](../technical/04-what-tables-see.md)). With two in a cell, the first listed wins on the same name.
 - **Made from**, on a point of interest a trip made from a system's [place template](../technical/07-kinds.md#places) (a discovered ruin): which one. It's edited like any other; changing the template later doesn't touch it.
 - **Linked note**: a page of your notes app.
 - The icon and the lines crossing the cell.

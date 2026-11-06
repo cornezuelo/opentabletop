@@ -126,6 +126,9 @@ sheet/company:
     fatigue:
       name: Fatiga
       description: Lo agotada que está la Compañía. Las marchas largas, las forzadas y las noches inquietas la suben; una noche bien comidos en el campamento y descansar la bajan. Con 2 o más no hay marcha forzada, y al llegar a vuestro Aguante no se puede acampar ni descansar.
+    silver:
+      name: Plata
+      description: La bolsa de la Compañía, para el pasaje de Brenna y las habitaciones de la posada.
     hirelings:
       name: Mercenarios
       description: Espadas a sueldo que viajan con la Compañía. Se unen en la posada, comen con vosotros, se niegan a marchar tras un día de hambre y pueden marcharse si se les habla mal.

@@ -25,7 +25,7 @@ export interface TerrainType {
 
 export interface Poi {
   id: string
-  /** Values tables and travel checks can read (key/value, like a hex's fields). */
+  /** Its values, read on its cell as `place.poi.<key>` (key/value, like a hex's fields). */
   fields?: CustomField[]
   name: string
   description?: string

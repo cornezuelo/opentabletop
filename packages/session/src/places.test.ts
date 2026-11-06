@@ -78,6 +78,24 @@ describe('catalogues of places', () => {
 })
 
 describe('results that make places', () => {
+  it('Core: a landmark shelters a camp, a value of the place the rules read', () => {
+    const camp = (poi?: Record<string, unknown>) => {
+      const world = {
+        ...plain,
+        place: (id: string) => ({ ...plain.place(id)!, ...(poi && { poi }) }),
+      }
+      const { session } = startTrip({ system: core, location: 'h1', seed: 'x' })
+      const oracle = createOracleEngine({ registry, random: seeded(1) })
+      const done = stepTrip({ system: core, world, oracle, locale: 'en' }, session, {
+        type: 'action',
+        id: 'camp',
+      })
+      return done.entries.some((e) => e.code === 'SAID')
+    }
+    expect(camp({ shelter: 1 })).toBe(true)
+    expect(camp()).toBe(false)
+  })
+
   it('Core: exploring may find a landmark, made on the party’s hex for the host to write', () => {
     let found
     for (let seed = 1; seed < 100 && !found; seed++) {
@@ -98,6 +116,7 @@ describe('results that make places', () => {
       description: 'Algo que merece la pena volver a encontrar.',
       icon: 'game:obelisk',
       tags: ['landmark'],
+      fields: [{ key: 'shelter', value: '1' }],
     })
     const place = { ...made.data! }
     delete place.hex

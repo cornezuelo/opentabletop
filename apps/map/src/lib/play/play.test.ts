@@ -1353,6 +1353,64 @@ describe('the Company: a party made of characters', () => {
     editor.selectedToken = null
   })
 
+  it('Brenna’s fare is her token’s, paid in silver by each mouth, and she can be short of it', () => {
+    grey()
+    clickHex('7,7')
+    const atFerry = (silver: number) =>
+      editSession((s) => {
+        s.travel = { ...s.travel, location: '9,10', destination: undefined, route: undefined }
+        return { ...s, stats: { ...s.stats, silver } }
+      })
+    const stat = (id: string) => trip().stats[id] as number
+    const mouths = stat('mouths')
+    const fare = 2 * mouths
+    atFerry(fare + 1)
+    step({ type: 'action', id: 'ferry' })
+    step({ type: 'resume', choice: 'silver' })
+    expect(stat('silver')).toBe(1)
+    expect(activeSystem().calendar!.describe(trip().travel.time)).toMatchObject({ hour: 6 })
+    expect(trip().travel.mode).toBe('boat')
+  })
+
+  it('short of her fare, the party waits for Brenna’s crossing and keeps its silver', () => {
+    grey()
+    clickHex('7,7')
+    editSession((s) => {
+      s.travel = { ...s.travel, location: '9,10', destination: undefined, route: undefined }
+      return { ...s, stats: { ...s.stats, silver: 1 } }
+    })
+    step({ type: 'action', id: 'ferry' })
+    step({ type: 'resume', choice: 'silver' })
+    expect(trip().stats.silver).toBe(1)
+    expect(activeSystem().calendar!.describe(trip().travel.time)).toMatchObject({ hour: 14 })
+    expect(trip().travel.mode).toBe('boat')
+  })
+
+  it('the Wet Ferret charges its price and gives a night’s rest; short of silver, its button says so', () => {
+    grey()
+    clickHex('7,7')
+    const here = (silver: number) =>
+      editSession((s) => {
+        s.travel = { ...s.travel, location: '5,7', destination: undefined, route: undefined }
+        return { ...s, stats: { ...s.stats, silver, fatigue: 3 } }
+      })
+    const can = () =>
+      tripAvailability({ system: activeSystem(), world: mapWorld(editor.map) }, trip()).inn
+    here(0)
+    expect(can()).toMatchObject({ condition: 'needs' })
+    const mouths = trip().stats.mouths as number
+    here(mouths + 2)
+    expect(can()).toBeFalsy()
+    step({ type: 'action', id: 'inn' })
+    for (let i = 0; i < 5 && trip().travel.pendingChecks.length; i++)
+      for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+    expect(trip().stats.silver).toBe(2)
+    expect(trip().stats.fatigue).toBe(1)
+    // Nowhere else: no inn, no button.
+    editSession((s) => ({ ...s, travel: { ...s.travel, location: '9,10' } }))
+    expect(can()).toMatchObject({ condition: 'when' })
+  })
+
   it('Brenna’s ferry asks how to pay, waits for her, takes to the boat and stops until Continue', () => {
     grey()
     clickHex('7,7')

@@ -555,7 +555,7 @@ places:
 
 - Each place, by an id effects name it with (no dots): `name` (required), `description`, `icon` (a map icon's id, `game:<name>`, as Map's icon picker lists them), `tags` and `fields`.
 - `description` and the `fields`' values may hold `{{…}}`: read from the result that makes the place (`{{result}}`, its `set` values, the trip's facts) and rolled (`{{1d6}}`), once, as it's made.
-- `tags` go on the **cell**, not the point of interest: they're what conditions read (`place.tags: shrine`), as discovery's `set: { tags }`.
+- `tags` go on the **cell**, not the point of interest: they're what conditions read (`place.tags: shrine`), as discovery's `set: { tags }`. Its `fields` stay on the point of interest, read on its cell as `place.poi.<field>`.
 - A place is made once: later changes to its template don't touch places already made, and on the map it's yours to edit or remove like any other point of interest.
 - Results make them with an effect: an entry's `effects: { place.pois.ruins: 1 }`, an action's step, a deck's card, or **discovery**'s contents (`discover.contents`), whose entry then makes the place instead of a plain point of interest from its text ([Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)). The number says how many (`2`, `'{{1d2}}'`); a place nobody's catalogue has makes nothing, and the journal says so.
 - A pack a map or campaign adds brings its catalogues of places too, after the system's own.

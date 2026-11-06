@@ -18,7 +18,7 @@ describe('where a name is used', () => {
       'names travel-rules default values.snowbound.blocks[0]',
     )
     expect(of({ kind: 'mode', id: 'boat' })).toContain(
-      'names travel-rules default actions.ferry.do[4].travel.mode',
+      'names travel-rules default actions.ferry.do[6].travel.mode',
     )
     // Conditions that compare a terrain, a road, the weather.
     expect(of({ kind: 'terrain', id: 'forest' }).length).toBeGreaterThan(2)

@@ -11,7 +11,7 @@ import { DEFAULT_CELL_KM } from './defaults'
 import { mapWalls } from './walls'
 import { fieldValues } from './hex'
 import { cellRegions, regionFields, roomOfCell } from './regions'
-import { type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
+import { type CustomField, type HexMap, type MapConnection, TRAVEL_PATH_KINDS } from './types'
 
 /** A place of another map of the tree, as the world of this one names it: `@<map>/<hex>`. */
 export const placeOn = (map: string, hex: string): string => `@${map}/${hex}`
@@ -205,6 +205,10 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
       for (const p of inside) if (p.terrain) count.set(p.terrain, (count.get(p.terrain) ?? 0) + 1)
       const terrain = [...count].sort((x, y) => y[1] - x[1])[0]?.[0]
       const pois = unique(inside.flatMap((p) => (p.pois as string[] | undefined) ?? []))
+      const merged = (key: 'poi' | 'tokens') => {
+        const values = Object.assign({}, ...inside.map((p) => p[key]).reverse())
+        return Object.keys(values).length ? { [key]: values } : {}
+      }
       const first = { ...inside[0] }
       delete first.name
       delete first.water
@@ -215,6 +219,8 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
         tags: unique(inside.flatMap((p) => p.tags ?? [])),
         name: map.regions.find((r) => r.id === region)?.name,
         ...(pois.length && { pois }),
+        ...merged('poi'),
+        ...merged('tokens'),
         ...(inside.some((p) => p.floor) && { floor: true }),
         ...(inside.every((p) => p.water) && { water: true }),
       }
@@ -245,6 +251,12 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
     diagonal: (a, b) =>
       parseAreaPlace(a) || parseAreaPlace(b) ? undefined : cells.diagonal?.(a, b),
   }
+}
+
+/** What stands on a cell, as a fact of it: their values by name, the first's on the same name. */
+function withValues(key: string, list: { fields?: CustomField[] }[] = []) {
+  const values = Object.assign({}, ...list.map((i) => fieldValues(i.fields)).reverse())
+  return Object.keys(values).length ? { [key]: values } : {}
 }
 
 function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLinks): TravelWorld {
@@ -355,6 +367,12 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
         ...(holder(hex) && { faction: holder(hex) }),
         // The places in it, by id: characters' relations to them (`poi:<id>`) hold here.
         ...(data?.pois?.length && { pois: data.pois.map((p) => p.id) }),
+        // Their values, and those of the tokens on it: `place.poi.price`, `place.tokens.fare`.
+        ...withValues('poi', data?.pois),
+        ...withValues(
+          'tokens',
+          map.tokens.filter((t) => t.hex === hex && t.kind !== 'party'),
+        ),
       }
     },
     neighbors: (hex) => {

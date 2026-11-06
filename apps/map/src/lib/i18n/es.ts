@@ -767,9 +767,9 @@ export const es: Messages = {
     iconHelp:
       'Valores de este icono (un pueblo, un puente…). Las tablas tiradas en su casilla los leen como `{{icon.<clave>}}`:\n• `guards` = `6` → `{{icon.guards}}`\n• `toll` = `2` → `{{icon.toll}}`',
     tokenHelp:
-      'Valores de este token (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oráculo mientras está seleccionado los leen como `{{token.<clave>}}`:\n• `might` = `3` → `{{token.might}}`\n• `fare` = `5` → `{{token.fare}}`',
+      'Valores de este token (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oráculo mientras está seleccionado los leen como `{{token.<clave>}}`, y las reglas de un viaje como `{{place.tokens.<clave>}}` mientras esté en la casilla del grupo:\n• `strength` = `3` → `{{token.strength}}`\n• `fare` = `5` → `{{place.tokens.fare}}`',
     poiHelp:
-      'Valores de este punto de interés, guardados con él en el mapa y su fichero (`treasure = 40`, `cleared = yes`). Las tablas no los leen: una casilla puede tener varios puntos de interés.',
+      'Valores de este punto de interés, guardados con él en el mapa y su fichero. Las reglas y las tablas los leen en su casilla como `{{place.poi.<clave>}}`; con varios puntos de interés en una casilla, con el mismo nombre gana el primero de la lista:\n• `price` = `2` → `{{place.poi.price}}`\n• `cleared` = `true` → `place.poi.cleared: true`',
   },
   regionStyle: {
     title: vocabulary.es.terms.regions,

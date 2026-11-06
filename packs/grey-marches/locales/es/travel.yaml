@@ -89,15 +89,18 @@ travel-rules/default:
       description: 'Una hora vendando heridas y tobillos, de día, mientras algún compañero esté herido o con un tobillo torcido. Quien actúa necesita Supervivencia 2 o más: entonces se curan las heridas y los tobillos de todos los compañeros.'
     ferry:
       name: Tomar el transbordador
-      description: 'En el transbordador de Brenna, de día: pagadle un día de comida y zarpa enseguida, o esperad a su travesía de la tarde (como mucho, hasta el anochecer). Después estáis a flote en el Saltmere, en barca.'
+      description: 'En el transbordador de Brenna, de día: pagadle su pasaje en plata, cada uno, o un día de comida y zarpa enseguida, o esperad a su travesía de la tarde (como mucho, hasta el anochecer). Después estáis a flote en el Saltmere, en barca.'
       params:
         fare:
           name: ¿Cómo le pagáis a Brenna?
-          description: Por un día de comida zarpa ahora; si no, cruza por la tarde.
+          description: Por su pasaje o un día de comida zarpa ahora; si no, cruza por la tarde.
           choices:
+            silver: Su pasaje en plata, ahora
             food: Un día de comida, ahora
             wait: Esperar a su travesía
       do:
+        short:
+          say: 'No podéis pagarle {{place.tokens.fare * party.stats.mouths}} monedas de plata: cruzará por la tarde.'
         casts-off:
           say: 'Brenna suelta amarras ({{party.items.ration.count}} raciones en vuestros fardos).'
         afloat:
@@ -105,6 +108,9 @@ travel-rules/default:
     ashore:
       name: Desembarcar
       description: 'Media hora para dejar la barca en la orilla: a pie desde ahora, para marchar a tierra.'
+    inn:
+      name: Tomar habitaciones en la posada
+      description: 'Una noche bajo techo, pagando cada uno el precio de la posada, dos por habitación: despertáis al alba con 2 de fatiga menos, 1 de moral más, cada compañero con 1 de salud más y sin el miedo en el cuerpo.'
     delve:
       name: Explorar la ruina
       description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'
@@ -314,6 +320,9 @@ bindings/default:
     fatigue:
       name: Fatiga
       description: Sube con cada día sin comida suficiente, los días largos, los vados y el hambre; baja tras una noche bien comidos en el campamento, un descanso o una oración en el santuario.
+    silver:
+      name: Plata
+      description: La bolsa de la Compañía. Paga el pasaje de Brenna y las habitaciones de la posada.
     hirelings:
       name: Mercenarios
       description: Espadas de alquiler que viajan con el grupo. Se unen en la posada y pueden desertar cuando no hay comida.
@@ -333,7 +342,16 @@ bindings/default:
       description: 'Un valor del icono del lugar en el mapa: cuántos guardias vigilan sus puertas (0 en Vado Ceniza, 2 en Fuerte Keld).'
     token.fare:
       name: Pasaje
-      description: 'Un valor de un token: lo que cobra Brenna la barquera, en plata.'
+      description: 'Un valor del token seleccionado: lo que cobra Brenna la barquera, en plata.'
+    place.tokens.fare:
+      name: Pasaje aquí
+      description: 'Un valor de un token en la casilla del grupo: lo que os cobra Brenna a cada uno, leído por Tomar el transbordador.'
+    place.poi.rooms:
+      name: Habitaciones
+      description: 'Un valor de un punto de interés en la casilla del grupo: cuántas habitaciones tiene la posada, dos personas en cada una.'
+    place.poi.price:
+      name: Precio
+      description: 'Un valor de un punto de interés en la casilla del grupo: lo que os cuesta a cada uno una noche en la posada, en plata.'
     timeOfDay:
       name: Hora del día
       description: 'day o night (día o noche): los bindings se lo dan a la tabla de encuentros (night al acampar).'

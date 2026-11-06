@@ -25,6 +25,57 @@ describe('the map as the travel engine sees it', () => {
   })
 })
 
+describe('what stands on a place', () => {
+  const map = createMap()
+  const fields = (entries: Record<string, string>) =>
+    Object.entries(entries).map(([key, value]) => ({ key, value }))
+  map.hexes['1,1'] = {
+    terrain: 'plains',
+    pois: [
+      { id: 'inn', name: 'Inn', fields: fields({ price: '2', rooms: '3' }) },
+      { id: 'stall', name: 'Stall', fields: fields({ price: '9', goods: 'rope' }) },
+    ],
+  }
+  map.tokens = [
+    { id: 'a', hex: '1,1', name: 'Boatman', kind: 'npc', fields: fields({ fare: '4' }) },
+    { id: 'b', hex: '1,1', name: 'Party', kind: 'party', fields: fields({ fare: '1', own: '1' }) },
+    { id: 'c', hex: '2,1', name: 'Far', kind: 'npc', fields: fields({ fare: '7' }) },
+  ] as unknown as typeof map.tokens
+
+  it('reads the values of its points of interest, the first’s on the same name', () => {
+    expect(mapWorld(map).place('1,1')?.poi).toEqual({ price: 2, rooms: 3, goods: 'rope' })
+  })
+
+  it('reads the values of the tokens on it, but the party’s', () => {
+    expect(mapWorld(map).place('1,1')?.tokens).toEqual({ fare: 4 })
+    expect(mapWorld(map).place('2,1')?.tokens).toEqual({ fare: 7 })
+  })
+
+  it('reads nothing where nothing stands', () => {
+    const empty = mapWorld(map).place('3,3')
+    expect(empty).not.toHaveProperty('poi')
+    expect(empty).not.toHaveProperty('tokens')
+  })
+
+  it('a room reads what stands in any of its cells', () => {
+    const room = createMap()
+    room.regions = [{ id: 'hall', name: 'Hall', color: '#000', onePlace: true }]
+    room.hexes['1,1'] = { terrain: 'floor', region: 'hall' }
+    room.hexes['2,1'] = {
+      terrain: 'floor',
+      region: 'hall',
+      pois: [{ id: 'bar', name: 'Bar', fields: fields({ price: '1' }) }],
+    }
+    room.tokens = [
+      { id: 'a', hex: '1,1', name: 'Host', kind: 'npc', fields: fields({ mood: 'sour' }) },
+    ] as unknown as typeof room.tokens
+    expect(mapWorld(room).place('area:hall')).toMatchObject({
+      poi: { price: 1 },
+      tokens: { mood: 'sour' },
+    })
+  })
+})
+
 describe('rivers crossed', () => {
   // A river down column 2 (rows 0–4), a road over it on row 1, a bridge drawn on row 3.
   const map = createMap()

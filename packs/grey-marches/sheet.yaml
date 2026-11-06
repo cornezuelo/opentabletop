@@ -240,7 +240,7 @@ kind: sheet
 id: company
 name: The Company
 description: |-
-  The Company as a whole: its morale, its fatigue, the sell-swords it has hired, how much it can take, the horses' fodder and its stores of rations. It stays the same as companions join and fall: every trip has it.
+  The Company as a whole: its morale, its fatigue, its silver, the sell-swords it has hired, how much it can take, the horses' fodder and its stores of rations. It stays the same as companions join and fall: every trip has it.
 
   **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
 values:
@@ -252,6 +252,12 @@ values:
     name: Fatigue
     description: How worn out the Company is. Marching long, forced marches and restless nights add to it; a fed night in camp and resting take it off. At 2 or more there's no forced march, and at your Endurance you can't camp or rest.
     default: 0
+    min: 0
+  # Money, a value like any other: nothing in the engines knows what it is.
+  silver:
+    name: Silver
+    description: The Company's purse, spent on Brenna's fare and rooms at the inn.
+    default: 10
     min: 0
   hirelings:
     name: Hirelings
