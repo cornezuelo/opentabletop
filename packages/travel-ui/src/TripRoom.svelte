@@ -252,6 +252,7 @@
 <style>
   /* Stacks by the room it has, not the window: the manual column can take half of it. */
   .room {
+    --trip-pin-bg: var(--bg);
     container-type: inline-size;
   }
 

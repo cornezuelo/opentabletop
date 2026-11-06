@@ -88,46 +88,118 @@
   const rosterPlace = $derived((void editor.meta.name, mapPlace()))
 </script>
 
-<span class="label">{t('play.mode')}<InfoTip text={t('play.modeHelp')} /></span>
-<div class="segmented" role="radiogroup" aria-label={t('play.mode')}>
-  {#each ['simple', 'rules'] as const as mode (mode)}
-    <button
-      role="radio"
-      aria-checked={(play?.mode ?? 'simple') === mode}
-      class:active={(play?.mode ?? 'simple') === mode}
-      onclick={() => setMode(mode)}>{t(`play.modes.${mode}` as MessageKey)}</button
-    >
-  {/each}
-</div>
+{#snippet mapOptions()}
+  <span class="label">{t('play.mode')}<InfoTip text={t('play.modeHelp')} /></span>
+  <div class="segmented" role="radiogroup" aria-label={t('play.mode')}>
+    {#each ['simple', 'rules'] as const as mode (mode)}
+      <button
+        role="radio"
+        aria-checked={(play?.mode ?? 'simple') === mode}
+        class:active={(play?.mode ?? 'simple') === mode}
+        onclick={() => setMode(mode)}>{t(`play.modes.${mode}` as MessageKey)}</button
+      >
+    {/each}
+  </div>
 
-<label class="check">
-  <input
-    type="checkbox"
-    checked={play?.showTrail ?? true}
-    onchange={(e) => updatePlay((p) => ({ ...p, showTrail: e.currentTarget.checked }))}
-  />
-  {t('play.showTrail')}<InfoTip text={t('play.showTrailHelp')} />
-</label>
-<label class="check">
-  <input
-    type="checkbox"
-    checked={play?.straightTrail ?? false}
-    onchange={(e) =>
-      updatePlay((p) => ({ ...p, straightTrail: e.currentTarget.checked || undefined }))}
-  />
-  {t('play.straightTrail')}<InfoTip text={t('play.straightTrailHelp')} />
-</label>
-{#if session?.present?.length}
+  {#if play?.mode === 'rules'}
+    <TripSetup
+      systems={playSystems()}
+      system={mapSystem}
+      locale={getLocale()}
+      bind:season={newSeason}
+      startNote={editor.world ? t('play.worldStart') : undefined}
+      systemNote={t('play.systemNote')}
+      onrestart={async (system, season) =>
+        (play?.away
+          ? await confirmAction(t('submap.confirmNewTrip', { name: awayName(play.away) }))
+          : !session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
+        restartRules(system, season)}
+    />
+    {#if otherSystem}
+      <p class="help">
+        {t('play.otherSystem', { trip: systemLabel(system.id), map: systemLabel(mapSystem) })}
+      </p>
+    {/if}
+    {#if system.bindings?.discover}
+      {@const discover = play.discover}
+      <div class="discover">
+        <label class="check">
+          <input
+            type="checkbox"
+            checked={!!discover?.on}
+            onchange={(e) => setDiscover({ ...discover, on: e.currentTarget.checked })}
+          />
+          {t('play.discover')}
+          <InfoTip text={t('play.discoverHelp')} />
+        </label>
+        {#if discover?.on}
+          <select
+            aria-label={t('play.reveal')}
+            value={discover.reveal ?? system.bindings.discover.reveal}
+            onchange={(e) =>
+              setDiscover({
+                on: true,
+                reveal: e.currentTarget.value as 'neighbors' | 'entered',
+              })}
+          >
+            <option value="neighbors">{t('play.revealNeighbors')}</option>
+            <option value="entered">{t('play.revealEntered')}</option>
+          </select>
+        {/if}
+      </div>
+    {/if}
+  {/if}
+
   <label class="check">
     <input
       type="checkbox"
-      checked={play?.copiesApart ?? false}
-      onchange={(e) =>
-        updatePlay((p) => ({ ...p, copiesApart: e.currentTarget.checked || undefined }))}
+      checked={play?.showTrail ?? true}
+      onchange={(e) => updatePlay((p) => ({ ...p, showTrail: e.currentTarget.checked }))}
     />
-    {t('play.copiesApart')}<InfoTip markdown={t('play.copiesApartHelp')} />
+    {t('play.showTrail')}<InfoTip text={t('play.showTrailHelp')} />
   </label>
-{/if}
+  <label class="check">
+    <input
+      type="checkbox"
+      checked={play?.straightTrail ?? false}
+      onchange={(e) =>
+        updatePlay((p) => ({ ...p, straightTrail: e.currentTarget.checked || undefined }))}
+    />
+    {t('play.straightTrail')}<InfoTip text={t('play.straightTrailHelp')} />
+  </label>
+  {#if session?.present?.length}
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={play?.copiesApart ?? false}
+        onchange={(e) =>
+          updatePlay((p) => ({ ...p, copiesApart: e.currentTarget.checked || undefined }))}
+      />
+      {t('play.copiesApart')}<InfoTip markdown={t('play.copiesApartHelp')} />
+    </label>
+  {/if}
+
+  {#if party?.hex}
+    <div class="actions">
+      <button
+        onclick={async () => (await confirmAction(t('play.confirmClearTrail'))) && clearTrail()}
+        >{t('play.clearTrail')}</button
+      >
+      <button
+        class="danger"
+        onclick={async () =>
+          (await confirmAction(
+            t(session ? 'play.confirmRemovePartyTrip' : 'play.confirmRemoveParty'),
+          )) && resetParty()}>{t('play.removeParty')}</button
+      >
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet ways()}
+  <!-- Where the party stands leads into another map: Go in / Go out from here. -->
+  {#if party?.hex}<HexSubMaps key={party.hex} editing={false} />{/if}
+{/snippet}
 
 {#if !party?.hex}
   <p class="help">{t('play.placeHelp')}</p>
@@ -143,104 +215,44 @@
   </p>
 {/if}
 
-{#if play?.mode === 'rules'}
-  <TripSetup
-    systems={playSystems()}
-    system={mapSystem}
-    locale={getLocale()}
-    bind:season={newSeason}
-    startNote={editor.world ? t('play.worldStart') : undefined}
-    systemNote={t('play.systemNote')}
-    onrestart={async (system, season) =>
-      (play?.away
-        ? await confirmAction(t('submap.confirmNewTrip', { name: awayName(play.away) }))
-        : !session?.journal.length || (await confirmAction(t('play.confirmNewTrip')))) &&
-      restartRules(system, season)}
-  />
-  {#if !travels(system)}
-    <p class="help">
-      {loaded
-        ? t('play.noTravel', { system: systemLabel(system.id) })
-        : t('map.systemMissing', { system: system.id })}
-    </p>
-  {/if}
-  {#if otherSystem}
-    <p class="help">
-      {t('play.otherSystem', { trip: systemLabel(system.id), map: systemLabel(mapSystem) })}
-    </p>
-  {/if}
-  {#if system.bindings?.discover}
-    {@const discover = play.discover}
-    <div class="discover">
-      <label class="check">
-        <input
-          type="checkbox"
-          checked={!!discover?.on}
-          onchange={(e) => setDiscover({ ...discover, on: e.currentTarget.checked })}
-        />
-        {t('play.discover')}
-        <InfoTip text={t('play.discoverHelp')} />
-      </label>
-      {#if discover?.on}
-        <select
-          aria-label={t('play.reveal')}
-          value={discover.reveal ?? system.bindings.discover.reveal}
-          onchange={(e) =>
-            setDiscover({
-              on: true,
-              reveal: e.currentTarget.value as 'neighbors' | 'entered',
-            })}
-        >
-          <option value="neighbors">{t('play.revealNeighbors')}</option>
-          <option value="entered">{t('play.revealEntered')}</option>
-        </select>
-      {/if}
-    </div>
-  {/if}
-  {#if session && play.rules && travels(system)}
-    {#if party?.hex}
-      <!-- Where the party stands leads into another map: Go in / Go out from here. -->
-      <HexSubMaps key={party.hex} editing={false} />
-    {/if}
-    <TripPanel
-      {system}
-      {session}
-      startDay={play.rules.startDay}
-      locale={getLocale()}
-      hexLabel={coord}
-      relationTargets={relationTargets()}
-      terrainName={terrainLabel}
-      world={playWorld(system)}
-      facts={worldFactsNow()}
-      title={editor.map.meta.name || t('map.untitled')}
-      nameOf={oracleUi.nameOf}
-      destinationHint={t('play.destinationHelp')}
-      arrivedHint={t('play.newDestination')}
-      onstep={step}
-      place={rosterPlace}
-      systemWhere={t('play.systemWhere')}
-      uses={systemUsesOf(system)}
-      onedit={editSession}
-      onshare={shareSession}
-      {worldWaiting}
-      onworld={answerWorld}
-    />
-  {/if}
+{#if play?.mode === 'rules' && !travels(system)}
+  <p class="help">
+    {loaded
+      ? t('play.noTravel', { system: systemLabel(system.id) })
+      : t('map.systemMissing', { system: system.id })}
+  </p>
 {/if}
 
-{#if party?.hex}
-  <div class="actions">
-    <button onclick={async () => (await confirmAction(t('play.confirmClearTrail'))) && clearTrail()}
-      >{t('play.clearTrail')}</button
-    >
-    <button
-      class="danger"
-      onclick={async () =>
-        (await confirmAction(
-          t(session ? 'play.confirmRemovePartyTrip' : 'play.confirmRemoveParty'),
-        )) && resetParty()}>{t('play.removeParty')}</button
-    >
-  </div>
+<!-- On a trip the panel is for playing: these options wait in its Options tab. -->
+{#if play?.mode === 'rules' && session && play.rules && travels(system)}
+  <TripPanel
+    {system}
+    {session}
+    startDay={play.rules.startDay}
+    locale={getLocale()}
+    hexLabel={coord}
+    relationTargets={relationTargets()}
+    terrainName={terrainLabel}
+    world={playWorld(system)}
+    facts={worldFactsNow()}
+    title={editor.map.meta.name || t('map.untitled')}
+    nameOf={oracleUi.nameOf}
+    destinationHint={t('play.destinationHelp')}
+    arrivedHint={t('play.newDestination')}
+    onstep={step}
+    place={rosterPlace}
+    systemWhere={t('play.systemWhere')}
+    uses={systemUsesOf(system)}
+    onedit={editSession}
+    onshare={shareSession}
+    {worldWaiting}
+    onworld={answerWorld}
+    status={false}
+    here={ways}
+    options={mapOptions}
+  />
+{:else}
+  {@render mapOptions()}
 {/if}
 
 <style>

@@ -5,7 +5,7 @@
 const TAB_KEY = 'opentabletop.trip.tab'
 
 /** The trip panel's tab, under its status and buttons. */
-export type TripTab = 'party' | 'journal' | 'totals'
+export type TripTab = 'party' | 'journal' | 'totals' | 'options'
 
 class Tab {
   /** The tab chosen last (absent: the panel's first). */
@@ -35,7 +35,9 @@ export function showPresent(id: string): void {
 function readTab(): TripTab | undefined {
   try {
     const raw = localStorage.getItem(TAB_KEY)
-    return raw === 'party' || raw === 'journal' || raw === 'totals' ? raw : undefined
+    return raw === 'party' || raw === 'journal' || raw === 'totals' || raw === 'options'
+      ? raw
+      : undefined
   } catch {
     return undefined
   }

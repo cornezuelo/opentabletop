@@ -22,7 +22,7 @@ async function openTravel(json: string) {
   const { trip } = await import('./trip.svelte')
   const { systems } = await import('./packs.svelte')
   // What the system's page shows (SystemView, without the app around it).
-  const text = () =>
+  const html = () =>
     render(TripRoom, {
       props: {
         trip,
@@ -32,14 +32,15 @@ async function openTravel(json: string) {
         tags: [],
         onsystem: () => {},
       },
-    }).body.replace(/<[^>]+>/g, ' ')
-  return { trip, text, toasts }
+    }).body
+  const text = () => html().replace(/<[^>]+>/g, ' ')
+  return { trip, html, text, toasts }
 }
 
 type Travel = Awaited<ReturnType<typeof openTravel>>
 
 /** Resolves what waits, then the way grows by a hex and the party marches on. */
-async function playOn({ trip, text }: Travel) {
+async function playOn({ trip, html, text }: Travel) {
   const session = () => trip.saved.session!
   // The open trip's panel: its moment, and Continue on a check waiting to be resolved.
   expect(text()).toMatch(/Day \d+ · \d\d:\d\d/)
@@ -59,9 +60,9 @@ async function playOn({ trip, text }: Travel) {
     session().journal.some((e) => e.code === 'PLACE_ENTERED' && (e.data?.time as number) > start),
   ).toBe(true)
   expect(text()).toMatch(/Day \d+ · \d\d:\d\d/)
-  // What the last step did, under the buttons; the rest a tab at a time.
-  expect(text()).toMatch(/What just happened/)
-  expect(text()).toMatch(/Journal\s+So far/)
+  // The journal first, what the last step did marked in it; the rest a tab at a time.
+  expect(html()).toMatch(/class="[^"]*latest|Nothing to tell/)
+  expect(text()).toMatch(/Journal.*So far\s+Options/s)
 }
 
 describe('old saved trips', () => {

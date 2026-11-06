@@ -83,6 +83,7 @@ export const es: Messages = {
     help: 'Las tiradas leen la casilla seleccionada (o la del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oráculo aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
   panel: {
+    width: 'Ancho del panel',
     whatItDoes: 'Qué hace',
     hide: 'Ocultar el panel lateral (más sitio para el mapa)',
     show: 'Mostrar el panel lateral',

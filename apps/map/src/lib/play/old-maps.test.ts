@@ -53,7 +53,8 @@ function marchOn() {
   ).toBe(true)
 }
 
-const panelText = () => render(PlayPanel).body.replace(/<[^>]+>/g, ' ')
+const panelHtml = () => render(PlayPanel).body
+const panelText = () => panelHtml().replace(/<[^>]+>/g, ' ')
 
 /** Opens the map, shows Play and the World view, resolves what waits and marches on. */
 function playOn(json: string) {
@@ -64,10 +65,10 @@ function playOn(json: string) {
   expect(trip().travel.pendingChecks).toEqual([])
   marchOn()
   expect(panelText()).toMatch(/Day \d/)
-  // What the last step did, under the buttons, kept when the map is saved and opened again.
+  // What the last step did, marked in the journal, kept when the map is saved and opened again.
   const last = trip().lastStep
   expect(last).toBeGreaterThan(0)
-  expect(panelText()).toMatch(/What just happened/)
+  expect(panelHtml()).toMatch(/class="[^"]*latest|Nothing to tell/)
   editor.load(
     deserializeMap(serializeMap(editor.map)),
     deserializeCampaign(serializeCampaign(editor.campaign)),

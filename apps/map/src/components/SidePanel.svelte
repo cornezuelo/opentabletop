@@ -207,6 +207,7 @@
 
 <style>
   .panel {
+    --trip-pin-room: 12px;
     padding: 12px calc(16px + var(--scroll-room)) 12px 16px;
     overflow-y: auto;
     scrollbar-gutter: stable;

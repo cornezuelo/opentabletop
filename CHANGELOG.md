@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Map and Travel: the trip's panel puts what you do first. The buttons and the way of travelling stay in sight while the rest scrolls, with one scroll for everything; the main button stands out, and says why when it can't be pressed. The Journal is the first tab and marks your last step, replacing **What just happened**. What's set once a trip moved to a new **Options** tab.
+- Map: where the trip stands is a strip over the map, and the side panel can be widened by dragging its edge.
 - Map: a browser with no maps yet is greeted over the empty map: **New map**, a file, the examples, or start on it.
 - Map: the open map's name is always in the top bar, and a click on it opens Map settings. Every side panel has the same head. The cell panel gives one coordinate; its id is in the coordinate's help.
 - Map: a new map nobody has changed isn't kept any more, so it leaves no "Untitled" behind, and **New map** doesn't ask about saving it.

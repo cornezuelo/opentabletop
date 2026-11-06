@@ -30,6 +30,7 @@ async function openTravel() {
 describe('the Party tab', () => {
   beforeEach(() => {
     localStorage.clear()
+    localStorage.setItem('opentabletop.trip.tab', 'party')
     vi.spyOn(Math, 'random').mockReturnValue(0.42)
   })
 
@@ -80,6 +81,7 @@ describe('the Party tab', () => {
 describe('those present', () => {
   beforeEach(() => {
     localStorage.clear()
+    localStorage.setItem('opentabletop.trip.tab', 'party')
     vi.spyOn(Math, 'random').mockReturnValue(0.42)
   })
 

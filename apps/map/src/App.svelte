@@ -3,8 +3,16 @@
   import MapCanvas from './components/MapCanvas.svelte'
   import HoverLine from './components/HoverLine.svelte'
   import MapWelcome from './components/MapWelcome.svelte'
+  import PlayStrip from './components/PlayStrip.svelte'
   import SidePanel from './components/SidePanel.svelte'
-  import { contextHelp, Dialogs, FoldTab, Toasts, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    contextHelp,
+    Dialogs,
+    FoldTab,
+    ResizeHandle,
+    Toasts,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import { HelpPanel } from '@open-tabletop/manual-ui'
   import { getLocale, t } from './lib/i18n/index.svelte'
   import { editor } from './lib/store/editor.svelte'
@@ -13,6 +21,7 @@
   import { startPersistence } from './lib/io/actions.svelte'
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
   import { bindShortcuts } from './lib/shortcuts'
+  import { PANEL_WIDTH, panelWidth, setPanelWidth } from './lib/store/panelWidth.svelte'
   import { roster } from '@open-tabletop/character-ui'
   import { pullMap } from './lib/play/roster'
   import { loadLinks } from './lib/io/submaps'
@@ -68,7 +77,12 @@
   })
 </script>
 
-<div class="layout" class:hidden={editor.panelHidden} class:with-help={editor.helpOpen}>
+<div
+  class="layout"
+  class:hidden={editor.panelHidden}
+  class:with-help={editor.helpOpen}
+  style:--panel-width={`${panelWidth.value}px`}
+>
   <TopBar />
   {#if !editor.toolsHidden}<Toolbar />{:else}<span aria-hidden="true"></span>{/if}
   <main>
@@ -77,6 +91,17 @@
       <HoverLine />
     {/if}
     {#if linksFollowed}<MapWelcome />{/if}
+    <PlayStrip />
+    {#if !editor.panelHidden}
+      <div class="edge">
+        <ResizeHandle
+          value={panelWidth.value}
+          {...PANEL_WIDTH}
+          label={t('panel.width')}
+          onchange={setPanelWidth}
+        />
+      </div>
+    {/if}
     <FoldTab
       side="left"
       open={!editor.toolsHidden}
@@ -104,7 +129,7 @@
 <style>
   .layout {
     display: grid;
-    grid-template-columns: auto 1fr 300px;
+    grid-template-columns: auto 1fr var(--panel-width);
     grid-template-rows: auto minmax(0, 1fr);
     height: 100%;
   }
@@ -118,7 +143,7 @@
   }
 
   .layout.with-help {
-    grid-template-columns: auto 1fr 300px 320px;
+    grid-template-columns: auto 1fr var(--panel-width) 320px;
   }
 
   .layout.hidden.with-help {
@@ -134,6 +159,15 @@
     scrollbar-gutter: stable;
     background: var(--panel);
     border-left: 1px solid var(--panel-border);
+  }
+
+  /* The panel's left edge, dragged to widen it. */
+  .edge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
   }
 
   .fold {
@@ -160,6 +194,10 @@
 
   /* Narrow windows: the panel becomes a sheet under the map. */
   @media (max-width: 760px) {
+    .edge {
+      display: none;
+    }
+
     .layout {
       grid-template-columns: auto 1fr;
       grid-template-rows: auto minmax(0, 1fr) auto;

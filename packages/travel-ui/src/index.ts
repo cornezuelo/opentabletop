@@ -1,4 +1,5 @@
 export { default as TripPanel } from './TripPanel.svelte'
+export { default as TripStatus } from './TripStatus.svelte'
 export { default as TripRoom } from './TripRoom.svelte'
 export { default as TripSetup } from './TripSetup.svelte'
 export { default as WayEditor } from './WayEditor.svelte'

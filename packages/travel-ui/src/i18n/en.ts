@@ -27,11 +27,10 @@ export const en = {
     label: 'The trip',
     party: 'Party',
     totals: 'So far',
+    options: 'Options',
   },
   lastStep: {
-    title: 'What just happened',
     nothing: 'Nothing to tell.',
-    help: 'The journal lines of your last step (a march, an action, a check you went on from), and of the tables you rolled by hand after it, newest first: what stopped the trip is on top. The next step replaces them; the whole trip is in the **Journal** tab.',
   },
   dayUnit: 'day',
   stepSpeed: '{minutes} min a step',
@@ -53,6 +52,7 @@ export const en = {
   // A move's targets, when a choice of a parameter has no name of its own.
   choices: { destination: 'to the destination', place: 'one place', hexes: '{n} cells' },
   continue: 'Continue',
+  status: { more: 'The date and the calendar' },
   journalTitle: 'Journal',
   exportJournal: 'Export',
   emptyJournal: 'Nothing has happened yet.',

@@ -1,6 +1,6 @@
 # Map's UI/UX: review and proposal
 
-Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), step 1 done, step 2 next.**
+Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), steps 1 and 2 done, step 3 next.**
 
 Seen on v0.37.0 in headless Chrome: the Grey Marches' frontier in every tool and panel, a trip with a march played, a fresh profile, and windows of 1440, 1280, 1024, 820 and 390 px. It also starts from the round 1 players (P1–P14). The comparison with Dungeon Scrawl, Inkarnate, Wonderdraft, Hextml and Worldographer is from what is generally known of them; they weren't opened for this.
 
@@ -72,8 +72,8 @@ Every tool's icon drawn in one set (`LineIcon` exists; the glyphs become entries
 - **The status leaves the panel** for a strip over the top of the map: day, hour, season, weather, place, destination, march. Its long form (calendar, moons) opens from it. About 190 px back.
 - **Actions pinned at the top**, the system's first one (or its main one) as the primary button, with the reason a disabled one can't be played under it.
 - **Journal, Party and So far fill the rest**, with the only scroll. _What just happened_ goes: the Journal tab opens by default, the newest lines marked.
-- **Trip options behind one button** (⚙ in the panel's head): play mode, trail, straight lines, discovery, skip pauses, ask who gives, **New trip**, **Clear trail**, **Remove party**.
-- **A panel you can widen:** a drag on its edge, 300 to 480 px, remembered as a preference.
+- **Trip options in a tab of their own** (**Options**): play mode, trail, straight lines, discovery, skip pauses, ask who gives, **New trip**, **Clear trail**, **Remove party**.
+- **A panel you can widen:** a drag on its edge, 300 to 480 px (340 at first), remembered as a preference.
 
 `TripPanel` lives in `travel-ui`, so Travel gets the same order; the strip is a part it draws in its own place.
 
@@ -102,7 +102,7 @@ Every tool's icon drawn in one set (`LineIcon` exists; the glyphs become entries
 One commit each, `make verify` green, the manual updated in the same work.
 
 1. ✅ (2026-11-06) **Small and sure:** the two bugs (9, 14), the map's name (10), one panel head (`PanelHead` in ui-kit, 11), one coordinate (8), `Welcome` (13). Number 14's cause: `App`'s start-up effect read `playing.id`, so playing the opened map's campaign started the app again; and reading the ways to other maps counted as a change (`links`), stamping and keeping every map opened, a blank one too. **Left:** opening a kept example again by its link still asks, though nothing was played: the bundled files have no `modified` to compare with.
-2. **The Play panel** (3.2), with Travel.
+2. ✅ (2026-11-06) **The Play panel** (3.2), with Travel. Changed while building: the options are a fourth tab, **Options**, not a ⚙ in the head (Travel gets them as they are, and no new popover), and the panel opens at 340 px so four tabs fit. Travel keeps `TripStatus` as a box at the top of its column.
 3. **Edit and Play** (3.1) and the icons.
 4. **The cell** (3.3).
 5. **The map's bar** (3.4).

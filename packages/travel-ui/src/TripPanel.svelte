@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
   import { usesOf, type Declared, type Use } from '@open-tabletop/session'
   import { usesHelp } from './uses'
   import {
@@ -60,10 +61,11 @@
     waitingForRoom,
   } from '@open-tabletop/session'
   import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
-  import { idText, translator, type TravelUiKey } from './i18n'
+  import { idText, translator } from './i18n'
   import { memberLabel, memberNamer, statSource } from './members'
-  import { dayPartsLine, divisionName, partName } from './dayParts'
+  import { divisionName, partName } from './dayParts'
   import Section from './Section.svelte'
+  import TripStatus from './TripStatus.svelte'
   import { tripTab, type TripTab } from './tripTab.svelte'
   import { journalFilter } from './journalFilter.svelte'
   import PartyMembers from './PartyMembers.svelte'
@@ -100,6 +102,9 @@
     onshare,
     worldWaiting,
     onworld,
+    status = true,
+    here,
+    options,
   }: {
     system: TravelSystem
     session: SessionState
@@ -145,51 +150,18 @@
      */
     worldWaiting?: WaitingSaid
     onworld?: (choice?: string) => void
+    /** Whether it shows where the trip stands; false when the host draws `TripStatus` itself. */
+    status?: boolean
+    /** The host's actions for where the party stands, above the system's. */
+    here?: Snippet
+    /** The host's options for the trip, first in the Options tab. */
+    options?: Snippet
   } = $props()
 
   const t = translator(() => locale)
   const travel = $derived(session.travel)
 
   const calendar = $derived(calendarOf(system))
-  const time = $derived.by(() => {
-    const parts = calendar.describe(travel.time)
-    return {
-      day: parts.day - startDay + 1,
-      clock: formatClock(parts),
-      season: parts.season ? idText(t, `seasons.${parts.season}`, parts.season) : '',
-      // What it is in each division of the calendar's day: "Meals: elevenses".
-      parts: dayPartsLine(calendar, travel.time, locale, t('watches')),
-    }
-  })
-  /** With a calendar of the system's own: the date, its moons and holidays. */
-  const date = $derived.by(() => {
-    if (!system.calendar) return null
-    const parts = system.calendar.describe(travel.time)
-    const name = (text: Parameters<typeof localize>[0], id: string) =>
-      localize(text, locale, 'en') ?? id
-    return {
-      line: t('dateLine', {
-        weekday: parts.weekday ? name(parts.weekday.name, parts.weekday.id) : '',
-        day: parts.month.day,
-        month: name(parts.month.name, parts.month.id),
-        year: parts.year,
-      }).replace(/^, /, ''),
-      moons: parts.moons
-        .map((m) => `${name(m.name, m.id)}: ${t(`moonPhases.${m.phase}` as TravelUiKey)}`)
-        .join(' · '),
-      holidays: parts.holidays.map((h) => name(h.name, h.id)).join(', '),
-    }
-  })
-
-  /** Marching hours used today vs. the rules' daily limit. */
-  const marched = $derived.by(() => {
-    const used = travel.travelledToday
-    return {
-      used: `${Math.floor(used / 60)} h ${String(Math.round(used % 60)).padStart(2, '0')}`,
-      limit: system.rules.travel.hoursPerDay,
-    }
-  })
-
   /** A way of travelling's speed: its km a day, or its minutes a step. */
   const speedOf = (mode: string): string => {
     const { kmPerDay, minutes } = system.rules.modes[mode]
@@ -366,6 +338,15 @@
   }
   /** Who has items waiting for room to be made for them (`full: ask`): the trip waits. */
   const roomless = $derived(waitingForRoom(session))
+  /** Why the button that stands out can't be pressed: said under it, not only in its tooltip. */
+  const stuck = $derived.by(() => {
+    if (goingOn) return why(blocked.travel)
+    if (!main) return ''
+    // With the status here, it says where to head itself.
+    return (
+      why(blocked[main]) || (movers.has(main) && !travel.route && !status ? destinationHint : '')
+    )
+  })
   /** Nothing goes on while a share waits for who gives it, or an item for room. */
   const held = $derived(
     (!!sharing && !!onshare) || roomless.length > 0 || (!!worldWaiting && !!onworld),
@@ -509,7 +490,7 @@
     const line = pendingLine(session.journal, id)
     if (!line) return ''
     const day = tripDay(line, startDay, calendar)
-    return day === time.day
+    return day === calendar.describe(travel.time).day - startDay + 1
       ? ''
       : t('cameUp', { day, clock: formatClock(calendar.describe(line.time)) })
   }
@@ -523,8 +504,8 @@
     JOURNAL_TOPICS.filter((topic) => session.journal.some((e) => entryTopic(e) === topic)),
   )
   /**
-   * What the last step did, newest first like the journal: what stopped it on top (the
-   * story and the rules: what happened behind is in the Journal tab).
+   * What the last step did, newest first like the journal (the story and the rules: what
+   * happened behind doesn't count as news).
    */
   const lastDays = $derived(
     journalByDay(
@@ -534,17 +515,29 @@
     ),
   )
 
-  /** The tabs under what the last step did: the party's only when the system has one. */
+  /** What the last step wrote, marked in the journal and counted on its tab. */
+  const latest = $derived(new Set(lastDays.flatMap((d) => d.entries.map((e) => e.id))))
+
+  /** The tabs under the buttons: the party's only when the system has one. */
   const tabs = $derived<TripTab[]>([
+    'journal',
     ...(stats.length || (system.partySheet && session.party) || system.sheet
       ? (['party'] as const)
       : []),
-    'journal',
     'totals',
+    'options',
   ])
   const tab = $derived(tripTab.chosen && tabs.includes(tripTab.chosen) ? tripTab.chosen : tabs[0])
   const tabName = (id: TripTab) =>
-    id === 'party' ? t('tabs.party') : id === 'journal' ? t('journalTitle') : t('tabs.totals')
+    id === 'party'
+      ? t('tabs.party')
+      : id === 'journal'
+        ? tab !== 'journal' && latest.size
+          ? `${t('journalTitle')} (${latest.size})`
+          : t('journalTitle')
+        : id === 'options'
+          ? t('tabs.options')
+          : t('tabs.totals')
 
   function exportJournal() {
     const markdown = journalMarkdown(filtered, context, title || t('journalTitle'))
@@ -557,298 +550,255 @@
   }
 </script>
 
-<div class="trip">
-  <div class="status">
-    <strong>{t('dayLine', time)}</strong>
-    {#if time.parts}<span>{time.parts}</span>{/if}
-    {#if date}
-      <span>{date.line}{date.holidays ? ` · ${date.holidays}` : ''}</span>
-      {#if date.moons}<span class="moons">{date.moons}</span>{/if}
-    {/if}
-    <span>{t('at', { hex: hexLabel(travel.location) })}</span>
-    <span
-      >{t('marched', { used: marched.used, limit: marched.limit })}<InfoTip
-        text={t('tips.marched')}
-      /></span
-    >
-    {#if travel.weather}
-      <span>{t('weather', { weather: travel.weather.replaceAll('-', ' ') })}</span>
-    {/if}
-    {#if travel.destination && travel.destination === travel.location}
-      <span>{t('arrived')} {arrivedHint}</span>
-    {:else if travel.destination}
-      <span>{t('destination', { hex: hexLabel(travel.destination) })}</span>
-    {:else if destinationHint}
-      <span class="help">{destinationHint}</span>
-    {/if}
-  </div>
-
-  <!-- What needs you first, then what the party can do: right under where it is. -->
-  {#each travel.pendingChecks as check (check.id)}
-    <div class="pending" class:asks={session.asking?.includes(check.id)}>
-      <span
-        >{t(
-          session.asking?.includes(check.id)
-            ? 'journal.asks'
-            : check.rolled
-              ? 'journal.paused'
-              : 'journal.pending',
-          {
-            event: placeIdOf(check.context)
-              ? t('journal.eventAt', {
-                  event: pendingName(check.event),
-                  hex: hexLabel(placeIdOf(check.context)!),
-                })
-              : pendingName(check.event),
-          },
-        )}{cameUp(check.id)}{#if checkTip(check.event)}<InfoTip
-            markdown={checkTip(check.event)}
-          />{/if}</span
-      >
-      {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
-      <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}>{t('continue')}</button
-      >
-    </div>
-  {/each}
-
-  <!-- What the party spent or gained, shared out by the rule: who gives it (Ask who gives). -->
-  {#if sharing && onshare}
-    {@const count = Math.abs(sharing.delta)}
-    <div class="pending asks share">
-      <span
-        >{t(sharing.delta < 0 ? 'share.gives' : 'share.takes', {
-          count,
-          name: memberName(`party.items.${sharing.item}`) ?? sharing.item,
-        })}<InfoTip text={t('share.help')} /></span
-      >
-      <div class="givers">
-        {#each (session.members ?? []).filter((m) => m.id in shareRoom) as m (m.id)}
-          <label
-            >{memberLabel(m)}
-            <input
-              type="number"
-              min="0"
-              max={sharing.delta < 0 ? shareRoom[m.id] : count}
-              value={shareAmounts[m.id] ?? 0}
-              onchange={(e) => setShare(m.id, Number(e.currentTarget.value))}
-            />{#if sharing.delta < 0}<span class="help"
-                >{t('share.of', { room: shareRoom[m.id] })}</span
-              >{/if}</label
-          >
-        {/each}
-      </div>
-      <span class:help={shareDone === count} class:wrong={shareDone !== count}
-        >{t('share.total', { done: shareDone, count })}</span
-      >
-      <button
-        disabled={shareDone !== count ||
-          (sharing.delta < 0 &&
-            Object.entries(shareAmounts).some(([id, n]) => n > (shareRoom[id] ?? 0)))}
-        onclick={answerShare}>{t('share.keep')}</button
-      >
-    </div>
-  {/if}
-
-  <!-- Items given with no room left, waiting for the player to make room on the cards. -->
-  {#if roomless.length}
-    <div class="pending asks">
-      <span
-        >{t('room.waits', {
-          names: roomless
-            .map((id) => {
-              const m = [session.party, ...(session.members ?? [])].find((c) => c?.id === id)
-              return m ? memberLabel(m) : id
-            })
-            .join(', '),
-        })}<InfoTip text={t('room.help')} /></span
-      >
-    </div>
-  {/if}
-
-  <!-- The campaign's world waits for the player: the trip goes on once it's answered. -->
-  {#if worldWaiting && onworld}
-    <WorldWaiting {locale} waiting={worldWaiting} onanswer={onworld} />
-  {/if}
-
-  <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
-  {#if waiting}
-    <div class="pending" class:asks={!!asked}>
-      <span
-        >{entryText(
-          { id: '', at: '', time: waiting.time, source: 'travel', code: 'HELD', data: { waiting } },
-          context,
-        )}{#if asked && localize(asked.description, locale, 'en')}<InfoTip
-            markdown={localize(asked.description, locale, 'en')}
-          />{/if}</span
-      >
-      {#if asked}
-        {#each asked.choices as c (String(choiceId(c)))}
-          <button
-            use:tooltip={choiceTip(c)}
-            onclick={() => onstep({ type: 'resume', choice: choiceId(c) })}>{askedName(c)}</button
-          >
-        {/each}
-      {:else}
-        <button onclick={() => onstep({ type: 'resume' })}>{t('continue')}</button>
-      {/if}
-    </div>
-  {/if}
-
-  <!-- Nothing goes on while a share waits for who gives it, or an item for room. -->
-  <div class="actions" class:held inert={held}>
-    {#if goingOn && !waiting}
-      <button
-        class="primary"
-        use:tooltip={tipWith(t('tips.goOn', { action: actionName(goingOn) }), 'travel')}
-        disabled={!!blocked.travel}
-        onclick={() => onstep({ type: 'travel' })}>{t('goOn')}</button
-      >
-    {/if}
-    {#each buttons as id (id)}
-      <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
-      {@const params = Object.entries(actions.all[id].params ?? {}).filter(
-        ([key]) => !askedParams(actions.all[id]).includes(key),
-      )}
-      <span class="take" class:joined={params.length > 0}>
-        <button
-          class:primary={id === main}
-          use:tooltip={tipWith(actionTip(id), id)}
-          disabled={!!blocked[id] || (movers.has(id) && !travel.route)}
-          onclick={() => take(id)}>{buttonText(id)}</button
-        >
-        {#each params as [key, param] (key)}
-          <select
-            aria-label={paramName(key, param)}
-            use:tooltip={paramName(key, param)}
-            value={choiceOf(id, key, param)}
-            onchange={(e) =>
-              (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
-          >
-            {#each param.choices as c (String(choiceId(c)))}<option value={String(choiceId(c))}
-                >{choiceName(c)}</option
-              >{/each}
-          </select>
-        {/each}
-      </span>
-    {/each}
-    {#if onward}
-      <button
-        use:tooltip={travel.pendingChecks.length || waiting
-          ? tipWith(
-              t('tips.waitOnward', { action: actionName(onwardAction ?? onward.do) }),
-              'travel',
-            )
-          : t('tips.waitOnward', { action: actionName(onwardAction ?? onward.do) })}
-        disabled={travel.pendingChecks.length > 0 || !!waiting}
-        onclick={() => onstep({ type: 'waitForMarch' })}>{t('waitOnward')}</button
-      >
-    {/if}
-  </div>
-  <label class="check skip"
-    ><input
-      type="checkbox"
-      checked={!!session.skipPauses}
-      onchange={(e) => {
-        const on = e.currentTarget.checked
-        onedit((s) => {
-          const next = { ...s }
-          if (on) next.skipPauses = true
-          else delete next.skipPauses
-          return next
-        })
-      }}
-    /><span>{t('skipPauses')}<InfoTip text={t('skipPausesHelp')} /></span></label
-  >
-  {#if onshare && system.sheet?.def.items && (session.members?.length ?? 0) > 1}
-    <label class="check skip"
+{#snippet rollsChoice()}
+  <div class="rolls">
+    <span>{t('rolls.label')}<InfoTip text={t('rolls.help')} /></span>
+    {@render whoRolls()}
+    <label class="check"
       ><input
         type="checkbox"
-        checked={!!session.askShare}
+        checked={!!session.askRolls}
         onchange={(e) => {
           const on = e.currentTarget.checked
           onedit((s) => {
             const next = { ...s }
-            if (on) next.askShare = true
-            else delete next.askShare
+            if (on) next.askRolls = true
+            else delete next.askRolls
             return next
           })
         }}
-      /><span>{t('share.ask')}<InfoTip text={t('share.help')} /></span></label
+      />{t('rolls.ask')}</label
     >
-  {/if}
-
-  {#snippet rollsChoice()}
-    <div class="rolls">
-      <span>{t('rolls.label')}<InfoTip text={t('rolls.help')} /></span>
-      {@render whoRolls()}
-      <label class="check"
-        ><input
-          type="checkbox"
-          checked={!!session.askRolls}
-          onchange={(e) => {
-            const on = e.currentTarget.checked
-            onedit((s) => {
-              const next = { ...s }
-              if (on) next.askRolls = true
-              else delete next.askRolls
-              return next
-            })
-          }}
-        />{t('rolls.ask')}</label
-      >
-    </div>
-  {/snippet}
-  {#snippet whoRolls()}
-    <select
-      class="who"
-      aria-label={t('rolls.label')}
-      value={session.rolls ?? ''}
-      onchange={(e) => setRolls(e.currentTarget.value)}
-    >
-      <option value="">{t('rolls.best')}</option>
-      {#each session.members ?? [] as m (m.id)}<option value={m.id}>{m.name ?? m.id}</option>{/each}
-    </select>
-  {/snippet}
-
-  <div class="mode">
-    <label class="field">
-      <span
-        >{t(
-          'travelMode',
-        )}{#if localize(system.rules.modes[travel.mode]?.description, locale, 'en')}<InfoTip
-            markdown={localize(system.rules.modes[travel.mode]?.description, locale, 'en')}
-          />{/if}</span
-      >
-      <select
-        value={travel.mode}
-        onchange={(e) => {
-          const mode = e.currentTarget.value
-          onedit((s) => ({ ...s, travel: { ...s.travel, mode } }))
-        }}
-      >
-        {#each Object.keys(system.rules.modes) as mode (mode)}
-          {@const because = mode === travel.mode ? '' : why(blocked[`mode.${mode}`])}
-          <option value={mode} disabled={!!because}
-            >{modeName(mode)} ({speedOf(mode)}){because ? ` — ${because}` : ''}</option
-          >
-        {/each}
-      </select>
-    </label>
   </div>
-  <!-- What the last step did, right under the buttons that did it. -->
-  {#if session.lastStep !== undefined}
-    <section class="last" aria-live="polite">
-      <h3>{t('lastStep.title')}<InfoTip markdown={t('lastStep.help')} /></h3>
-      {@render lines(lastDays, t('lastStep.nothing'))}
-    </section>
+{/snippet}
+{#snippet whoRolls()}
+  <select
+    class="who"
+    aria-label={t('rolls.label')}
+    value={session.rolls ?? ''}
+    onchange={(e) => setRolls(e.currentTarget.value)}
+  >
+    <option value="">{t('rolls.best')}</option>
+    {#each session.members ?? [] as m (m.id)}<option value={m.id}>{m.name ?? m.id}</option>{/each}
+  </select>
+{/snippet}
+
+<div class="trip">
+  {#if status}
+    <TripStatus {system} {session} {startDay} {locale} {hexLabel} {destinationHint} {arrivedHint} />
   {/if}
+
+  <!-- What the party can do stays in sight while what's below scrolls. -->
+  <div class="do">
+    {@render here?.()}
+    <!-- What needs you first, then what the party can do: right under where it is. -->
+    {#each travel.pendingChecks as check (check.id)}
+      <div class="pending" class:asks={session.asking?.includes(check.id)}>
+        <span
+          >{t(
+            session.asking?.includes(check.id)
+              ? 'journal.asks'
+              : check.rolled
+                ? 'journal.paused'
+                : 'journal.pending',
+            {
+              event: placeIdOf(check.context)
+                ? t('journal.eventAt', {
+                    event: pendingName(check.event),
+                    hex: hexLabel(placeIdOf(check.context)!),
+                  })
+                : pendingName(check.event),
+            },
+          )}{cameUp(check.id)}{#if checkTip(check.event)}<InfoTip
+              markdown={checkTip(check.event)}
+            />{/if}</span
+        >
+        {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
+        <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}
+          >{t('continue')}</button
+        >
+      </div>
+    {/each}
+
+    <!-- What the party spent or gained, shared out by the rule: who gives it (Ask who gives). -->
+    {#if sharing && onshare}
+      {@const count = Math.abs(sharing.delta)}
+      <div class="pending asks share">
+        <span
+          >{t(sharing.delta < 0 ? 'share.gives' : 'share.takes', {
+            count,
+            name: memberName(`party.items.${sharing.item}`) ?? sharing.item,
+          })}<InfoTip text={t('share.help')} /></span
+        >
+        <div class="givers">
+          {#each (session.members ?? []).filter((m) => m.id in shareRoom) as m (m.id)}
+            <label
+              >{memberLabel(m)}
+              <input
+                type="number"
+                min="0"
+                max={sharing.delta < 0 ? shareRoom[m.id] : count}
+                value={shareAmounts[m.id] ?? 0}
+                onchange={(e) => setShare(m.id, Number(e.currentTarget.value))}
+              />{#if sharing.delta < 0}<span class="help"
+                  >{t('share.of', { room: shareRoom[m.id] })}</span
+                >{/if}</label
+            >
+          {/each}
+        </div>
+        <span class:help={shareDone === count} class:wrong={shareDone !== count}
+          >{t('share.total', { done: shareDone, count })}</span
+        >
+        <button
+          disabled={shareDone !== count ||
+            (sharing.delta < 0 &&
+              Object.entries(shareAmounts).some(([id, n]) => n > (shareRoom[id] ?? 0)))}
+          onclick={answerShare}>{t('share.keep')}</button
+        >
+      </div>
+    {/if}
+
+    <!-- Items given with no room left, waiting for the player to make room on the cards. -->
+    {#if roomless.length}
+      <div class="pending asks">
+        <span
+          >{t('room.waits', {
+            names: roomless
+              .map((id) => {
+                const m = [session.party, ...(session.members ?? [])].find((c) => c?.id === id)
+                return m ? memberLabel(m) : id
+              })
+              .join(', '),
+          })}<InfoTip text={t('room.help')} /></span
+        >
+      </div>
+    {/if}
+
+    <!-- The campaign's world waits for the player: the trip goes on once it's answered. -->
+    {#if worldWaiting && onworld}
+      <WorldWaiting {locale} waiting={worldWaiting} onanswer={onworld} />
+    {/if}
+
+    <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
+    {#if waiting}
+      <div class="pending" class:asks={!!asked}>
+        <span
+          >{entryText(
+            {
+              id: '',
+              at: '',
+              time: waiting.time,
+              source: 'travel',
+              code: 'HELD',
+              data: { waiting },
+            },
+            context,
+          )}{#if asked && localize(asked.description, locale, 'en')}<InfoTip
+              markdown={localize(asked.description, locale, 'en')}
+            />{/if}</span
+        >
+        {#if asked}
+          {#each asked.choices as c (String(choiceId(c)))}
+            <button
+              use:tooltip={choiceTip(c)}
+              onclick={() => onstep({ type: 'resume', choice: choiceId(c) })}>{askedName(c)}</button
+            >
+          {/each}
+        {:else}
+          <button onclick={() => onstep({ type: 'resume' })}>{t('continue')}</button>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- Nothing goes on while a share waits for who gives it, or an item for room. -->
+    <div class="actions" class:held inert={held}>
+      {#if goingOn && !waiting}
+        <button
+          class="primary"
+          use:tooltip={tipWith(t('tips.goOn', { action: actionName(goingOn) }), 'travel')}
+          disabled={!!blocked.travel}
+          onclick={() => onstep({ type: 'travel' })}>{t('goOn')}</button
+        >
+      {/if}
+      {#each buttons as id (id)}
+        <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
+        {@const params = Object.entries(actions.all[id].params ?? {}).filter(
+          ([key]) => !askedParams(actions.all[id]).includes(key),
+        )}
+        <span class="take" class:joined={params.length > 0}>
+          <button
+            class:primary={id === main}
+            use:tooltip={tipWith(actionTip(id), id)}
+            disabled={!!blocked[id] || (movers.has(id) && !travel.route)}
+            onclick={() => take(id)}>{buttonText(id)}</button
+          >
+          {#each params as [key, param] (key)}
+            <select
+              aria-label={paramName(key, param)}
+              use:tooltip={paramName(key, param)}
+              value={choiceOf(id, key, param)}
+              onchange={(e) =>
+                (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
+            >
+              {#each param.choices as c (String(choiceId(c)))}<option value={String(choiceId(c))}
+                  >{choiceName(c)}</option
+                >{/each}
+            </select>
+          {/each}
+        </span>
+      {/each}
+      {#if onward}
+        <button
+          use:tooltip={travel.pendingChecks.length || waiting
+            ? tipWith(
+                t('tips.waitOnward', { action: actionName(onwardAction ?? onward.do) }),
+                'travel',
+              )
+            : t('tips.waitOnward', { action: actionName(onwardAction ?? onward.do) })}
+          disabled={travel.pendingChecks.length > 0 || !!waiting}
+          onclick={() => onstep({ type: 'waitForMarch' })}>{t('waitOnward')}</button
+        >
+      {/if}
+    </div>
+    {#if stuck && !held}<p class="stuck">{stuck}</p>{/if}
+
+    <div class="mode">
+      <label class="field">
+        <span
+          >{t(
+            'travelMode',
+          )}{#if localize(system.rules.modes[travel.mode]?.description, locale, 'en')}<InfoTip
+              markdown={localize(system.rules.modes[travel.mode]?.description, locale, 'en')}
+            />{/if}</span
+        >
+        <select
+          value={travel.mode}
+          onchange={(e) => {
+            const mode = e.currentTarget.value
+            onedit((s) => ({ ...s, travel: { ...s.travel, mode } }))
+          }}
+        >
+          {#each Object.keys(system.rules.modes) as mode (mode)}
+            {@const because = mode === travel.mode ? '' : why(blocked[`mode.${mode}`])}
+            <option value={mode} disabled={!!because}
+              >{modeName(mode)} ({speedOf(mode)}){because ? ` — ${because}` : ''}</option
+            >
+          {/each}
+        </select>
+      </label>
+    </div>
+  </div>
 
   {#snippet lines(days: { day: number; entries: JournalEntry[] }[], empty: string)}
-    <ol class="journal">
+    <ol class="journal" aria-live="polite">
       {#each days as group (group.day)}
         <li class="day">{t('journalDay', { day: group.day })}</li>
         {#each group.entries as entry (entry.id)}
-          <li class={entry.source} class:detail={shownAt(entry, { level: 'mechanics' }) === false}>
+          <li
+            class={entry.source}
+            class:detail={shownAt(entry, { level: 'mechanics' }) === false}
+            class:latest={latest.has(entry.id)}
+          >
             <time>{entryClock(entry, calendar)}</time>
             <span>{text(entry)}</span>
           </li>
@@ -859,8 +809,8 @@
     </ol>
   {/snippet}
 
-  <!-- The rest, a tab at a time (the one chosen is remembered per viewer); the status, what
-       waits for Continue, the buttons and the last step above are always there. -->
+  <!-- The rest, a tab at a time (the one chosen is remembered per viewer); what waits for
+       Continue and the buttons above are always there. -->
   <Tabs
     tabs={tabs.map((id) => ({ id, label: tabName(id) }))}
     value={tab}
@@ -1014,7 +964,44 @@
           bind:value={journalFilter.search}
         />
       </div>
+      {#if session.lastStep !== undefined && !lastDays.length}
+        <p class="help">{t('lastStep.nothing')}</p>
+      {/if}
       {@render lines(journalDays, session.journal.length ? t('filter.none') : t('emptyJournal'))}
+    {:else if tab === 'options'}
+      {@render options?.()}
+      <label class="check skip"
+        ><input
+          type="checkbox"
+          checked={!!session.skipPauses}
+          onchange={(e) => {
+            const on = e.currentTarget.checked
+            onedit((s) => {
+              const next = { ...s }
+              if (on) next.skipPauses = true
+              else delete next.skipPauses
+              return next
+            })
+          }}
+        /><span>{t('skipPauses')}<InfoTip text={t('skipPausesHelp')} /></span></label
+      >
+      {#if onshare && system.sheet?.def.items && (session.members?.length ?? 0) > 1}
+        <label class="check skip"
+          ><input
+            type="checkbox"
+            checked={!!session.askShare}
+            onchange={(e) => {
+              const on = e.currentTarget.checked
+              onedit((s) => {
+                const next = { ...s }
+                if (on) next.askShare = true
+                else delete next.askShare
+                return next
+              })
+            }}
+          /><span>{t('share.ask')}<InfoTip text={t('share.help')} /></span></label
+        >
+      {/if}
     {:else}
       <div class="lines totals">
         <span>{totals.line}<InfoTip markdown={t('tips.totals')} /></span>
@@ -1092,28 +1079,6 @@
     font-size: 0.9em;
   }
 
-  /* What the last step did: a box of its own, under the buttons. */
-  .last {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 6px 8px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-  }
-
-  .last h3 {
-    margin: 0;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
-  }
-
-  .last .journal {
-    max-height: 200px;
-  }
-
   /* The way of travelling: its name and its choice, on one line. */
   .mode .field {
     display: grid;
@@ -1185,6 +1150,36 @@
     gap: 10px;
   }
 
+  /* Pinned to the top of what scrolls; a tall one (checks waiting) scrolls by itself. */
+  .do {
+    position: sticky;
+    /* The host's padding above what scrolls, or what scrolls would show through it. */
+    top: calc(-1 * var(--trip-pin-room, 0px));
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 60vh;
+    padding: 8px 0;
+    overflow-y: auto;
+    background: var(--trip-pin-bg, var(--panel));
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  /* A sheet under the map is too short to pin anything. */
+  @media (max-width: 760px) {
+    .do {
+      position: static;
+      max-height: none;
+    }
+  }
+
+  .stuck {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
   /* The party's stats under its sheet, each with where it comes from. */
   .stats {
     display: flex;
@@ -1224,27 +1219,12 @@
     opacity: 0.6;
   }
 
-  .status {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 8px;
-    color: var(--text);
-    background: var(--bg);
-    border-left: 3px solid var(--accent);
-    border-radius: 6px;
-  }
-
   .totals {
     display: flex;
     flex-direction: column;
     gap: 2px;
     font-size: 12px;
     color: var(--text-muted);
-  }
-
-  .status strong {
-    color: var(--accent);
   }
 
   .actions {
@@ -1264,7 +1244,9 @@
   }
 
   .actions .primary:not(:disabled) {
-    color: var(--accent);
+    font-weight: 600;
+    color: var(--panel);
+    background: var(--accent);
     border-color: var(--accent);
   }
 
@@ -1315,10 +1297,8 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: 280px;
     margin: 0;
-    padding: 0 var(--scroll-room) 0 0;
-    overflow-y: auto;
+    padding: 0;
     list-style: none;
   }
 
@@ -1328,6 +1308,13 @@
     gap: 8px;
     color: var(--text);
     font-size: 12px;
+  }
+
+  /* What the last step wrote. */
+  .journal li.latest {
+    margin-left: -8px;
+    padding-left: 5px;
+    border-left: 3px solid var(--accent);
   }
 
   .journal li.oracle span {
