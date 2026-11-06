@@ -4,6 +4,8 @@ import type { ExportResult } from '../render/MapRenderer'
 /** Viewport actions, wired up by the map canvas once the renderer exists. */
 export const view = {
   fit: () => {},
+  /** Zooms in (over 1) or out on the middle of the view. */
+  zoomBy: (() => {}) as (factor: number) => void,
   /** Centers a hex; before the renderer exists the request is kept in `pendingCenter`. */
   centerOn: (cell: Offset) => {
     view.pendingCenter = cell

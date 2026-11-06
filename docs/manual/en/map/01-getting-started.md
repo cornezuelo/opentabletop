@@ -6,10 +6,11 @@ A browser with no maps yet greets you over an empty map: **New map**, **Import f
 
 ## The screen
 
-- **Top bar**, like in every app: on the left the app, the button with nine dots that opens the other OpenTabletop apps, the campaign you're playing, the open map's name (after the maps above it, if it's a sub-map; a click on the name opens Map settings) and the **Edit | Play** switch; on the right Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings, the gear (**Preferences**, shared by every app: language and notes app) and Help (?).
+- **Top bar**, like in every app: on the left the app, the button with nine dots that opens the other OpenTabletop apps, the campaign you're playing, the open map's name (after the maps above it, if it's a sub-map; a click on the name opens Map settings) and the **Edit | Play** switch; on the right Undo and Redo, then New, Maps, Save and Export, then Layers, Map settings, the gear (**Preferences**, shared by every app: language and notes app) and Help (?).
 - **Toolbar** (left): in **Edit**, the tools by what they're for — Select; Terrain, Regions, Roads and rivers, Walls; Connections; Icons, Text, Tokens — then the World clock and the Oracle; in **Play**, only Select, The trip, the World clock and the Oracle. Map opens with **Select**, so a first click on the map shows a cell instead of painting it. The small tab on the map's left edge folds it away for more room (the tools' keys still work) and brings it back.
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
 - **Side panel** (right): what the active tool edits — the selected cell with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected. The tab on the map's right edge folds it away and brings it back.
+- **Under the map**: the cell under the pointer (its coordinate, region, faction and ways to other maps) on the left; on the right the zoom, 100% being the whole map in view, with − and +, and **Fit**.
 - **Help column** (far right, opened with **?**): this manual, or the explanation of a field, beside the side panel so you see both.
 
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).

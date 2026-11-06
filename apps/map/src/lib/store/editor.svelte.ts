@@ -131,6 +131,8 @@ class Editor {
   factionBrush = $state<string | null>(null)
   /** The hex under the pointer, if it's on the map (its region and faction are said under it). */
   hoveredHex = $state<HexKey | null>(null)
+  /** The view's zoom, 1 being the whole map in view. */
+  zoom = $state(1)
   canUndo = $state(false)
   canRedo = $state(false)
 

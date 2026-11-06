@@ -33,6 +33,7 @@
         if (destroyed) return app.destroy()
         renderer = new MapRenderer(app, canvas)
         view.fit = () => renderer?.fit()
+        view.zoomBy = (factor) => renderer?.zoomBy(factor)
         view.exportCanvas = (options) => renderer!.exportCanvas(options)
         view.exportBounds = () => renderer!.exportBounds()
         view.centerOn = (cell) => renderer?.centerOn(cell)
@@ -53,6 +54,7 @@
       destroyed = true
       observer.disconnect()
       view.fit = () => {}
+      view.zoomBy = () => {}
       view.centerOnPoint = () => {}
       view.exportCanvas = null
       view.exportBounds = null

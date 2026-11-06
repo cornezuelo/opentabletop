@@ -1,6 +1,6 @@
 # Map's UI/UX: review and proposal
 
-Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), steps 1 to 4 done, step 5 next.**
+Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), steps 1 to 5 done, step 6 next.**
 
 Seen on v0.37.0 in headless Chrome: the Grey Marches' frontier in every tool and panel, a trip with a march played, a fresh profile, and windows of 1440, 1280, 1024, 820 and 390 px. It also starts from the round 1 players (P1–P14). The comparison with Dungeon Scrawl, Inkarnate, Wonderdraft, Hextml and Worldographer is from what is generally known of them; they weren't opened for this.
 
@@ -105,7 +105,7 @@ One commit each, `make verify` green, the manual updated in the same work.
 2. ✅ (2026-11-06) **The Play panel** (3.2), with Travel. Changed while building: the options are a fourth tab, **Options**, not a ⚙ in the head (Travel gets them as they are, and no new popover), and the panel opens at 340 px so four tabs fit. Travel keeps `TripStatus` as a box at the top of its column.
 3. ✅ (2026-11-06) **Edit and Play** (3.1) and the icons: the switch in the top bar, `editor.mode` (the tool's setter keeps it, Select being in both), one `LineIcon` set for both bars. Editing a cell's fields from Select in Play still works: step 4 decides what the cell shows there.
 4. ✅ (2026-11-06) **The cell** (3.3): chips for what it doesn't hold, the link and **Clear cell** in a ⋯, **New sub-map here** behind **+ Way into a map**. Decided with the user: in Play it's read only (`HexReadOnly`), names can't be dragged and **Delete** doesn't remove a token. Discovery needs nothing here: an undiscovered cell is an empty one, with nothing to hide.
-5. **The map's bar** (3.4).
+5. ✅ (2026-11-06) **The map's bar** (3.4): `MapBar`, `HoverLine` grown; **Fit** moved there from the top bar; 100% is the whole map in view, not a fixed scale.
 6. **Narrow windows** (3.5).
 7. P12's rest, what's left of it by then.
 

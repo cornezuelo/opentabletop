@@ -29,6 +29,7 @@ export const es: Messages = {
     region: 'Regiones (N)',
   },
   modes: { label: 'Editar o jugar', edit: 'Editar', play: 'Jugar' },
+  zoom: { label: 'Zoom', in: 'Acercar', out: 'Alejar' },
   terrainMode: {
     brush: 'Pincel (B)',
     fill: 'Relleno (G)',

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte'
   import MapCanvas from './components/MapCanvas.svelte'
-  import HoverLine from './components/HoverLine.svelte'
+  import MapBar from './components/MapBar.svelte'
   import MapWelcome from './components/MapWelcome.svelte'
   import PlayStrip from './components/PlayStrip.svelte'
   import SidePanel from './components/SidePanel.svelte'
@@ -88,7 +88,7 @@
   <main>
     {#if ready}
       <MapCanvas />
-      <HoverLine />
+      <MapBar />
     {/if}
     {#if linksFollowed}<MapWelcome />{/if}
     <PlayStrip />

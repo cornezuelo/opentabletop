@@ -29,6 +29,7 @@ export const en = {
     region: 'Regions (N)',
   },
   modes: { label: 'Editing or playing', edit: 'Edit', play: 'Play' },
+  zoom: { label: 'Zoom', in: 'Zoom in', out: 'Zoom out' },
   terrainMode: {
     brush: 'Brush (B)',
     fill: 'Fill (G)',

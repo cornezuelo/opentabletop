@@ -25,6 +25,7 @@
     | 'undo'
     | 'redo'
     | 'new'
+    | 'minus'
     | 'export'
     | 'layers'
     | 'help'
@@ -95,6 +96,8 @@
     <path d="m16 5 4 4-4 4M20 9H10a5.5 5.5 0 0 0 0 11h3" />
   {:else if name === 'new'}
     <path d="M12 5v14M5 12h14" />
+  {:else if name === 'minus'}
+    <path d="M5 12h14" />
   {:else if name === 'export'}
     <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14" />
   {:else if name === 'layers'}

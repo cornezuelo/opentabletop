@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Map: under the map, the coordinate of the cell under the pointer and the zoom in %, with − and +; **Fit** moved there from the top bar.
 - Map: the cell panel shows what a cell holds, with small buttons for the rest (**+ Notes**, **+ Tag**…). In Play it's to read: going back to Edit changes it.
 - Map: **Edit | Play** at the top. In Play the toolbar keeps only what play uses and the editing tools' keys do nothing; <kbd>P</kbd> goes back and forth, to the tool you were using. The tools are grouped by what they're for, and both bars share one set of icons.
 - Map and Travel: the trip's panel puts what you do first. The buttons and the way of travelling stay in sight while the rest scrolls, with one scroll for everything; the main button stands out, and says why when it can't be pressed. The Journal is the first tab and marks your last step, replacing **What just happened**. What's set once a trip moved to a new **Options** tab.

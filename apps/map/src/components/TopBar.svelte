@@ -19,7 +19,6 @@
   } from '../lib/i18n/index.svelte'
   import { library, newMap, openLibraryMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type PanelView } from '../lib/store/editor.svelte'
-  import { view } from '../lib/store/view'
 
   /**
    * The bar across the top, like in every app: the app and the app switcher on the left;
@@ -76,7 +75,6 @@
         run: () => editor.redo(),
         enabled: () => editor.canRedo,
       },
-      { label: 'actions.fit', glyph: 'fit', run: () => view.fit() },
     ],
     [
       { label: 'actions.new', glyph: 'new', run: newMap },

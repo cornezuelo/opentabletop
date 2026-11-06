@@ -351,12 +351,26 @@ export class MapRenderer {
     this.iconTextures.destroy()
   }
 
-  /** Centers the whole map in the view. */
-  fit(): void {
+  /** The zoom that shows the whole map; none before it has a size. */
+  private fitScale(): number | null {
     const bounds = this.terrainLayer.getLocalBounds()
     const { width, height } = this.app.screen
-    if (bounds.width === 0 || width === 0) return
-    const scale = clampZoom(Math.min(width / bounds.width, height / bounds.height) * 0.92)
+    if (bounds.width === 0 || width === 0) return null
+    return clampZoom(Math.min(width / bounds.width, height / bounds.height) * 0.92)
+  }
+
+  /** Zooms on the middle of the view. */
+  zoomBy(factor: number): void {
+    const { width, height } = this.app.screen
+    this.zoomAt({ x: width / 2, y: height / 2 }, factor)
+  }
+
+  /** Centers the whole map in the view. */
+  fit(): void {
+    const scale = this.fitScale()
+    if (!scale) return
+    const bounds = this.terrainLayer.getLocalBounds()
+    const { width, height } = this.app.screen
     this.world.scale.set(scale)
     this.world.position.set(
       (width - bounds.width * scale) / 2 - bounds.minX * scale,
@@ -2206,6 +2220,8 @@ export class MapRenderer {
   }
 
   private onViewChanged(): void {
+    const fit = this.fitScale()
+    if (fit) editor.zoom = this.world.scale.x / fit
     this.sizeGroundFilters()
     this.applyLayers()
     this.updateLabelResolution()
