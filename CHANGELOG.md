@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.39.0] - 2026-11-06
+
 ### Apps
 
 - Travel: a way's terrains are listed in Map's palette groups, and the season to start in follows the season of the open trip.
