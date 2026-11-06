@@ -1,15 +1,12 @@
 <script lang="ts">
-  import { parseKey } from '@open-tabletop/hex'
   import type { HexKey } from '@open-tabletop/map'
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
-  import { localize } from '@open-tabletop/session'
-  import { getLocale, t } from '../../lib/i18n/index.svelte'
-  import { openLibraryMap } from '../../lib/io/actions.svelte'
-  import { addWayInto, newSubMap, waysAt, type WayHere } from '../../lib/io/submaps'
+  import { t } from '../../lib/i18n/index.svelte'
+  import { addWayInto, newSubMap, openMapAt, waysAt, type WayHere } from '../../lib/io/submaps'
   import { partyAt, sessionOf, step } from '../../lib/play/play'
-  import { mapSystem } from '../../lib/play/systems'
+  import { connectionName, mapSystem } from '../../lib/play/systems'
   import { editor } from '../../lib/store/editor.svelte'
-  import { view } from '../../lib/store/view'
+  import WayArrow from './WayArrow.svelte'
 
   /**
    * The ways a cell leads into other maps: into the sub-maps under it and out of this
@@ -35,24 +32,11 @@
     return !!play && play.mode === 'rules' && !!sessionOf(play) && partyAt(key)
   })
 
-  /** The map at the way's other end, with the cell it arrives at selected and in view. */
-  async function open(way: WayHere) {
-    if (!(await openLibraryMap(way.map))) return
-    if (editor.tool !== 'play') editor.tool = 'select'
-    editor.panelView = 'tool'
-    editor.selected = way.at
-    view.centerOn(parseKey(way.at))
-  }
-
   /** The way's other end becomes the destination: the trip's march takes it. */
   function head(way: WayHere) {
     step({ type: 'setDestination', place: way.there })
     showToast(t('submap.headed'), 'info', 6000)
   }
-
-  /** A kind of way as the system names it for players, else its id. */
-  const kindName = (kind: string) =>
-    localize(mapSystem().rules.connections?.[kind]?.name, getLocale(), 'en') ?? kind
 
   async function create() {
     const kinds = Object.keys(mapSystem().rules.connections ?? {})
@@ -79,17 +63,20 @@
     {#each ways as way (way.dir + way.there)}
       <div class="way">
         <span class="name"
-          ><span class="arrow {way.dir}">{way.dir === 'in' ? '↓' : '↑'}</span>
+          ><WayArrow dir={way.dir} />
           {way.dir === 'in'
             ? way.name || t('map.untitled')
             : t('submap.wayOut', { name: way.name || t('map.untitled') })}
           <small
-            >{[way.cell && t('submap.arrives', { cell: way.cell }), way.kind && kindName(way.kind)]
+            >{[
+              way.cell && t('submap.arrives', { cell: way.cell }),
+              way.kind && connectionName(way.kind),
+            ]
               .filter(Boolean)
               .join(' · ')}</small
           ></span
         >
-        <button onclick={() => open(way)}>{t('submap.open')}</button>
+        <button onclick={() => openMapAt(way.map, way.at)}>{t('submap.open')}</button>
         {#if here}
           <button class="primary" onclick={() => head(way)}
             >{way.dir === 'in' ? t('submap.goIn') : t('submap.goOut')}</button
@@ -130,27 +117,6 @@
     display: flex;
     align-items: center;
     gap: 6px;
-  }
-
-  .arrow {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
-    border-radius: 50%;
-    font-size: 11px;
-    line-height: 16px;
-    color: #f4efe2;
-    text-align: center;
-  }
-
-  /* The colours of the ways' badges on the map. */
-  .arrow.in {
-    background: #c4561c;
-  }
-
-  .arrow.out {
-    background: #1f7a8c;
   }
 
   /* Where it arrives and its kind, on a line of their own under the map's name. */

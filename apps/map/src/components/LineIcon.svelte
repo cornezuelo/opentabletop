@@ -28,6 +28,7 @@
     | 'minus'
     | 'export'
     | 'layers'
+    | 'tree'
     | 'help'
 </script>
 
@@ -102,6 +103,8 @@
     <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14" />
   {:else if name === 'layers'}
     <path d="m12 4-8.5 4.5L12 13l8.5-4.5zM3.5 12.5 12 17l8.5-4.5M3.5 16 12 20.5l8.5-4.5" />
+  {:else if name === 'tree'}
+    <path d="M9 3.5h6v5H9zM3.5 15.5h6v5h-6zM14.5 15.5h6v5h-6zM12 8.5V12M6.5 15.5V12h11v3.5" />
   {:else if name === 'help'}
     <path d="M9 9.5a3 3 0 1 1 4.5 2.6c-1 .6-1.5 1.2-1.5 2.4M12 18v.01" />
   {:else}

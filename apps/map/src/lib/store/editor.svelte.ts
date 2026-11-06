@@ -52,7 +52,8 @@ export type ToolId =
   | 'play'
 export type TerrainMode = 'brush' | 'fill' | 'erase'
 /** What the side panel shows besides the active tool's view. */
-export type PanelView = 'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'layers'
+export type PanelView =
+  'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'layers' | 'tree'
 
 export const MAX_BRUSH_RADIUS = 5
 

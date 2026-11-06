@@ -23,6 +23,7 @@
     showToast,
   } from '@open-tabletop/ui-kit'
   import { listCampaigns } from '@open-tabletop/storage'
+  import { treeOrder } from '@open-tabletop/map'
   import { allPlaces } from '@open-tabletop/travel-ui'
 
   type Entry = Awaited<ReturnType<typeof listLibrary>>[number]
@@ -57,26 +58,6 @@
   const groups = $derived(
     groupByCampaign(entries, (e) => campaignOf[e.id], names, playing.id, getLocale()),
   )
-
-  /**
-   * A campaign's maps as a tree: each sub-map right under the map it hangs from, one step
-   * further in (a sub-map whose parent isn't listed stands on its own).
-   */
-  function tree(items: Entry[]): { entry: Entry; depth: number }[] {
-    const ids = new Set(items.map((e) => e.id))
-    const out: { entry: Entry; depth: number }[] = []
-    const add = (entry: Entry, depth: number, seen: Set<string>) => {
-      if (seen.has(entry.id)) return
-      seen.add(entry.id)
-      out.push({ entry, depth })
-      for (const child of items.filter((e) => e.parent === entry.id)) add(child, depth + 1, seen)
-    }
-    const seen = new Set<string>()
-    for (const entry of items.filter((e) => !e.parent || !ids.has(e.parent))) add(entry, 0, seen)
-    // Loops (a map under its own sub-map) still list every map.
-    for (const entry of items) add(entry, 0, seen)
-    return out
-  }
 
   const date = $derived(
     new Intl.DateTimeFormat(getLocale(), { dateStyle: 'medium', timeStyle: 'short' }),
@@ -164,7 +145,7 @@
     >
   {/if}
   <ul>
-    {#each tree(group.items) as { entry, depth } (entry.id)}
+    {#each treeOrder(group.items) as { item: entry, depth } (entry.id)}
       <li class:current={entry.id === editor.meta.id} style:padding-left="{depth * 14}px">
         <button
           class="open"

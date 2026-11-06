@@ -1,5 +1,6 @@
 import { formatDiagnostic, type OracleEngine, type Registry } from '@open-tabletop/oracle-engine'
 import {
+  localize,
   missingSystem,
   systemIdOf,
   systemUses,
@@ -8,6 +9,7 @@ import {
   type TravelSystem,
   type Use,
 } from '@open-tabletop/session'
+import { getLocale } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 
@@ -60,6 +62,10 @@ export const mapSystemId = (): string => systemIdOf(editor.setup.system)
 
 /** The system the map is played with (one that doesn't travel if its pack isn't loaded). */
 export const mapSystem = (): TravelSystem => getSystem(mapSystemId())
+
+/** A kind of connection as the map's system names it for players, else its id. */
+export const connectionName = (kind: string): string =>
+  localize(mapSystem().rules.connections?.[kind]?.name, getLocale(), 'en') ?? kind
 
 /**
  * The system in use now: the trip's (the one it was started with), or the map's when no

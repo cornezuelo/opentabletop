@@ -11,6 +11,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Map and Travel: an action can say what it needs before it's played: its button stays disabled, saying why (who acts, where it can work), instead of failing after.
 - Map and Travel: bringing a roster party to a trip with others on it asks whether they stay; on a map, its company no longer stays unannounced.
 - Map, Travel and Campaign: **Day** says which: _Day 3 of the trip_, _Day 93 of the world_.
+- Map: **Tree of maps**, a panel of the top bar with every map joined to the open one and each way between them, its two cells a click away.
 - Characters: a party in a campaign without a trip keeps its list of members open; whoever joins comes to the campaign, and whoever leaves goes.
 
 ### Packs

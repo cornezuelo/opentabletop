@@ -1,5 +1,6 @@
 import type { HexKey } from '@open-tabletop/hex'
 import type { HexMap, MapRegion } from './types'
+import { treeOrder } from './tree'
 
 /**
  * Regions inside regions: a region may lie inside another (`parent`), and a cell painted into
@@ -56,19 +57,7 @@ export function regionDepth(regions: readonly MapRegion[], id: string): number {
  * `parent` is missing are outermost.
  */
 export function regionTree(regions: readonly MapRegion[]): { region: MapRegion; depth: number }[] {
-  const known = new Set(regions.map((r) => r.id))
-  const out: { region: MapRegion; depth: number }[] = []
-  const placed = new Set<string>()
-  const visit = (region: MapRegion, depth: number) => {
-    if (placed.has(region.id)) return
-    placed.add(region.id)
-    out.push({ region, depth })
-    for (const child of regions) if (child.parent === region.id) visit(child, depth + 1)
-  }
-  for (const r of regions) if (!r.parent || !known.has(r.parent)) visit(r, 0)
-  // Regions caught in a loop of parents: outermost, so none is lost.
-  for (const r of regions) visit(r, 0)
-  return out
+  return treeOrder(regions).map(({ item, depth }) => ({ region: item, depth }))
 }
 
 /** The regions that may hold `id`: any but itself and those inside it (no loops). */

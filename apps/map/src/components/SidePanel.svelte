@@ -9,6 +9,7 @@
   import MapCampaign from './MapCampaign.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapStyleSettings from './MapStyleSettings.svelte'
+  import MapTreePanel from './MapTreePanel.svelte'
   import MapSystem from './MapSystem.svelte'
   import WorldPanel from './WorldPanel.svelte'
   import MapSize from './MapSize.svelte'
@@ -170,6 +171,14 @@
   {:else if editor.panelView === 'layers'}
     <PanelHead title={t('panel.layers')} closeLabel={t('panel.closeSettings')} onclose={back} />
     <div class="body"><LayersPanel /></div>
+  {:else if editor.panelView === 'tree'}
+    <PanelHead
+      title={t('panel.tree')}
+      help={t('submap.treeHelp')}
+      closeLabel={t('panel.closeSettings')}
+      onclose={back}
+    />
+    <div class="body"><MapTreePanel /></div>
   {:else if editor.panelView === 'export'}
     <PanelHead title={t('export.title')} closeLabel={t('panel.closeSettings')} onclose={back} />
     <div class="body"><ExportPanel /></div>

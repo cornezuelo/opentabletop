@@ -106,6 +106,7 @@ export const es: Messages = {
     noSelection: 'Haz clic en una casilla para ver y editar sus detalles.',
     brushSize: 'Tamaño del pincel',
     layers: 'Capas',
+    tree: 'Árbol de mapas',
     settings: 'Ajustes del mapa',
     closeSettings: 'Cerrar',
     tokens: 'Tokens',
@@ -667,6 +668,12 @@ export const es: Messages = {
     headed: 'El paso es el destino: marchad para tomarlo.',
     missing: 'El mapa del otro lado no está guardado en este navegador.',
     breadcrumb: 'De dónde cuelga este mapa',
+    treeHelp:
+      'El mapa abierto y todos los unidos a él: cada **submapa** bajo el mapa del que cuelga, con sus **caminos** a él. Cada camino muestra sus dos extremos, la casilla de arriba y la de abajo, y su tipo.\n• el nombre de un mapa abre ese mapa\n• una casilla abre su mapa con esa casilla seleccionada y a la vista\nMuestra todos los caminos, se hayan encontrado en un viaje o no, igual que el propio mapa.',
+    treeHere: 'abierto',
+    treeEmpty:
+      'Este mapa aún no tiene submapas. Selecciona una casilla y usa **+ Camino a un mapa** para crear uno.',
+    treeAbove: 'el mapa de arriba, que no está guardado aquí',
     inside: 'Dentro de',
     insideHelp:
       'Este mapa es un **submapa** de otro, y estos son sus **caminos** a él: cada uno, el lugar del otro mapa que lleva aquí (**Desde**) y la **Entrada** de este mapa, donde llega y de donde sale el camino. Con varios, el submapa se cruza: un viaje entra por uno y sale por otro, y una ruta a un lugar de más allá pasa por él.\n• Selecciona una casilla y pulsa **Hacer … la entrada** para mover la entrada de un camino\n• **Otro camino a…**, en el panel de casilla del otro mapa, añade un camino desde un lugar de allí\n• **Quitar este camino** quita uno (un submapa conserva al menos uno)\nEl viaje entra y sale con un paso entre los dos extremos, del **Tipo de camino**.',

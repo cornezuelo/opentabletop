@@ -7,6 +7,7 @@ import {
   parsePlaceOn,
   placeOfCell,
   placeOn,
+  treeAround,
   type HexKey,
   type HexMap,
   type MapParent,
@@ -14,7 +15,8 @@ import {
 import { getLibraryMap, listLibrary, putLibraryMap } from '@open-tabletop/storage'
 import { serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
-import { keepOpenMap, library } from './actions.svelte'
+import { view } from '../store/view'
+import { keepOpenMap, library, openLibraryMap } from './actions.svelte'
 
 /** A map kept in the library, read, or undefined if it isn't (or can't be read). */
 async function kept(id: string): Promise<HexMap | undefined> {
@@ -55,28 +57,29 @@ export async function loadLinks(): Promise<void> {
   editor.notify({ kind: 'links' })
 }
 
+/** A place of a map by its name and coordinates, a room by its name. */
+function placeName(map: HexMap, key: string): string {
+  const room = parseAreaPlace(key)
+  if (room) return map.regions.find((r) => r.id === room)?.name || room
+  const at = formatCoord(parseKey(key as HexKey), map.grid.coordFormat, map.grid)
+  const name = map.hexes[key as HexKey]?.name
+  return name ? `${name} (${at})` : at
+}
+
 /**
  * A place as the journal and panels name it: a cell of the open map by its name and its
  * coordinates (`The clan watch-cairn (0507)`), a room by its name, one of another map of its
  * tree (`@<map>/<hex>`) by that map's name too.
  */
 export function placeLabel(key: string): string {
-  // A room by its name; a cell by its name and coordinates, or its coordinates alone.
-  const coord = (map: HexMap, hex: string) => {
-    const room = parseAreaPlace(hex)
-    if (room) return map.regions.find((r) => r.id === room)?.name || room
-    const at = formatCoord(parseKey(hex as HexKey), map.grid.coordFormat, map.grid)
-    const name = map.hexes[hex as HexKey]?.name
-    return name ? `${name} (${at})` : at
-  }
   const there = parsePlaceOn(key)
-  if (!there) return coord(editor.map, key)
+  if (!there) return placeName(editor.map, key)
   const other = [editor.linked.parent, ...(editor.linked.children ?? [])].find(
     (m) => m?.meta.id === there.map,
   )
   const name =
     other?.meta.name || editor.linked.ancestors.find((a) => a.id === there.map)?.name || there.map
-  return `${name} · ${other ? coord(other, there.place) : there.place}`
+  return `${name} · ${other ? placeName(other, there.place) : there.place}`
 }
 
 /** The sub-maps of the open map that a place leads into. */
@@ -138,6 +141,77 @@ export function waysAt(hex: string): WayHere[] {
       ...(w.kind && { kind: w.kind }),
     }))
   return [...into, ...out]
+}
+
+/** Opens a map with a cell of it selected and in view. */
+export async function openMapAt(id: string, cell: HexKey): Promise<void> {
+  if (!(await openLibraryMap(id))) return
+  if (editor.tool !== 'play') editor.tool = 'select'
+  editor.panelView = 'tool'
+  editor.selected = cell
+  view.centerOn(parseKey(cell))
+}
+
+/** One end of a way in the tree of maps. */
+export interface WayEnd {
+  /** The map it's on. */
+  map: string
+  /** Its cell there. */
+  cell: HexKey
+  /** The cell by its name and coordinates. */
+  label: string
+}
+
+/** A way between a map of the tree and the one above it. */
+export interface TreeWay {
+  /** Its end above; none if that map isn't kept here. */
+  above?: WayEnd
+  below: WayEnd
+  /** The kind of connection it is, as the system names it (`way-in`), if any. */
+  kind?: string
+}
+
+/** A map of the tree the open one is in. */
+export interface TreeNode {
+  id: string
+  name: string
+  depth: number
+  /** Its ways to the map above. */
+  ways: TreeWay[]
+}
+
+/**
+ * The whole tree of maps the open one is in, from its top: each map under the one it hangs
+ * from, with its ways to it. The open map as it is now, kept yet or not.
+ */
+export async function mapsTree(): Promise<TreeNode[]> {
+  const open = editor.map
+  const id = open.meta.id
+  const entries = await listLibrary().catch(() => [])
+  const here = { id, name: open.meta.name, parent: open.meta.parent?.map }
+  // By name: the tree stays put as maps are opened and kept.
+  const all = [...entries.filter((e) => e.id !== id), here].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )
+  const tree = treeAround(all, id)
+  const read = await Promise.all(tree.map(({ item }) => (item.id === id ? open : kept(item.id))))
+  const maps = new Map(read.flatMap((m) => (m ? [[m.meta.id, m] as const] : [])))
+  const end = (map: HexMap, cell: HexKey): WayEnd => ({
+    map: map.meta.id,
+    cell,
+    label: placeName(map, cell),
+  })
+  return tree.map(({ item, depth }) => {
+    const map = maps.get(item.id)
+    const parent = map?.meta.parent
+    const above = parent && maps.get(parent.map)
+    const ways = (parent?.ways ?? []).map((w): TreeWay => ({
+      ...(above && { above: end(above, w.place) }),
+      below: end(map!, w.entrance),
+      ...(w.kind && { kind: w.kind }),
+    }))
+    return { id: item.id, name: item.name, depth, ways }
+  })
 }
 
 /**

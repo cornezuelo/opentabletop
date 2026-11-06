@@ -85,6 +85,7 @@
     ],
     [
       { label: 'panel.layers', glyph: 'layers', run: toggle('layers'), panel: 'layers' },
+      { label: 'panel.tree', glyph: 'tree', run: toggle('tree'), panel: 'tree' },
       { label: 'panel.settings', glyph: 'map', run: toggle('settings'), panel: 'settings' },
       {
         label: 'actions.help',

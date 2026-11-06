@@ -220,6 +220,55 @@ describe('sub-maps', () => {
     expect(maps.has('greymarches1')).toBe(true)
   })
 
+  it('the tree of maps shows the whole tree from any of its maps, and each way’s two ends', async () => {
+    vi.resetModules()
+    const actions = await import('./actions.svelte')
+    const { exampleMaps } = await import('./examples')
+    const { mapsTree, openMapAt } = await import('./submaps')
+    const { editor } = await import('../store/editor.svelte')
+    await actions.openExampleMap(exampleMaps().find((m) => m.id === 'barrowhalls1')!)
+    await settle()
+
+    const tree = await mapsTree()
+    expect(tree[0]).toMatchObject({ id: 'greymarches1', depth: 0, ways: [] })
+    const hills = tree.find((n) => n.id === 'hollowhills1')!
+    const halls = tree.find((n) => n.id === 'barrowhalls1')!
+    expect(hills.depth).toBe(1)
+    expect(halls.depth).toBe(2)
+    expect(tree.indexOf(halls)).toBeGreaterThan(tree.indexOf(hills))
+    expect(hills.ways.length).toBeGreaterThan(1)
+    expect(halls.ways[0]).toMatchObject({
+      above: { map: 'hollowhills1', cell: '10,8' },
+      below: { map: 'barrowhalls1', cell: '0,3' },
+    })
+    expect(halls.ways[0].above!.label).toContain('1109')
+
+    // A click on a way's end above opens that map, with that cell selected.
+    await openMapAt('hollowhills1', '10,8')
+    expect(editor.map.meta.id).toBe('hollowhills1')
+    expect(editor.selected).toBe('10,8')
+    // The same tree from there, and names as they are now, though the open map isn't saved yet.
+    editor.map.meta.name = 'The Hills'
+    const again = await mapsTree()
+    // 'The Hills' sorts where 'The Hollow Hills' did: the same order, whichever map is open.
+    expect(again.map((n) => n.id)).toEqual(tree.map((n) => n.id))
+    expect(again.find((n) => n.id === 'hollowhills1')!.name).toBe('The Hills')
+  })
+
+  it('a map whose map above is not kept keeps its ways in the tree, one end missing', async () => {
+    vi.resetModules()
+    const actions = await import('./actions.svelte')
+    const { exampleMaps } = await import('./examples')
+    const { mapsTree } = await import('./submaps')
+    await actions.openExampleMap(exampleMaps().find((m) => m.id === 'barrowhalls1')!)
+    await settle()
+    maps.delete('hollowhills1')
+    const [top] = await mapsTree()
+    expect(top).toMatchObject({ id: 'barrowhalls1', depth: 0 })
+    expect(top.ways[0].above).toBeUndefined()
+    expect(top.ways[0].below.cell).toBe('0,3')
+  })
+
   it('the trip goes down the Barrow-halls’ stair and back out by it', async () => {
     vi.resetModules()
     const actions = await import('./actions.svelte')

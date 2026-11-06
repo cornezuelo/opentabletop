@@ -106,6 +106,7 @@ export const en = {
     noSelection: 'Click a cell to view and edit its details.',
     brushSize: 'Brush size',
     layers: 'Layers',
+    tree: 'Tree of maps',
     settings: 'Map settings',
     closeSettings: 'Close',
     tokens: 'Tokens',
@@ -660,6 +661,12 @@ export const en = {
     headed: 'The way through is the destination: march to take it.',
     missing: "The map at the other end isn't kept in this browser.",
     breadcrumb: 'Where this map hangs',
+    treeHelp:
+      "The open map and every map joined to it: each **sub-map** under the map it hangs from, with its **ways** to it. Each way shows its two ends, the cell above and the cell below, and its kind.\n• a map's name opens that map\n• a cell opens its map with that cell selected and in view\nIt shows every way, found on a trip or not, as the map itself does.",
+    treeHere: 'open now',
+    treeEmpty:
+      'This map has no sub-maps yet. Select a cell and use **+ Way into a map** to make one.',
+    treeAbove: 'the map above, not kept here',
     inside: 'Inside',
     insideHelp:
       "This map is a **sub-map** of another, and these are its **ways** to it: each the other map's place that leads in (**From**) and this map's **Entrance**, where the way arrives and leaves from. With several, the sub-map is crossed: a trip goes in by one and out by another, and a route to a place beyond goes through it.\n• Select a cell and click **Make … the entrance** to move a way's entrance\n• **Another way into…**, in the hex panel of the other map, adds a way from a place there\n• **Remove this way** takes one away (a sub-map keeps one at least)\nThe trip goes in and out by a step between the two ends, of the way's **Kind of way**.",
