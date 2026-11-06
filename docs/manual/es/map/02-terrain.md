@@ -53,7 +53,7 @@ Cada terreno puede dibujar un símbolo discreto en sus casillas (un árbol, una 
 
 ## Generar tierra
 
-**Generar tierra**, al final de la herramienta Terreno, rellena las casillas **vacías** del mapa con un **modelo de tierra** del sistema del mapa (su `land:`, mira [Modelos de tierra](../technical/07-kinds.md#modelos-de-tierra)): para cada terreno, lo probable que es que una casilla junto a él sea cada terreno. Cada casilla vacía suma la tierra de todas sus vecinas conocidas, así bosques, cordilleras y lagos crecen juntos en vez de salir un mosaico.
+**Generar tierra**, al final de la herramienta Terreno, rellena las casillas **vacías** del mapa con un **modelo de tierra** del sistema del mapa (su `land:`, mira [Modelos de tierra](../technical/07-kinds.md#modelos-de-tierra)): para cada terreno, lo probable que es que una casilla junto a él sea cada terreno. Cada casilla vacía suma la tierra de todas sus vecinas conocidas, así bosques, cordilleras y lagos crecen juntos en vez de salir un mosaico. Funciona igual en hexes y en cuadrículas, y lo que nombra el modelo y la paleta del mapa no tiene entra en la paleta.
 
 - Pinta primero la tierra que te importa (una costa, una cordillera, un lago): la tierra crece hacia fuera desde ella, primero las casillas con más vecinas pintadas. Las casillas pintadas no cambian nunca.
 - **Semilla**: la misma semilla saca la misma tierra (apúntala para volver a sacarla); 🎲 da otra. **Modelo de tierra** elige uno cuando el sistema tiene varios.

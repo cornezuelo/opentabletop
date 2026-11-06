@@ -12,7 +12,14 @@ export {
   whyText,
   type JournalContext,
 } from './journal'
-export { connectionChoices, connectionName, PALETTE, terrainChoices, terrainName } from './terrains'
+export {
+  connectionChoices,
+  connectionName,
+  PALETTE,
+  terrainChoiceGroups,
+  terrainChoices,
+  terrainName,
+} from './terrains'
 export {
   allPlaces,
   campaignPlaces,

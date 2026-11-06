@@ -85,6 +85,8 @@ export const nav = $state<{ view: View }>({ view: parse(location.hash) })
 /** Shows a view; `replace` takes the place of the current history entry instead of adding one. */
 export function go(view: View, replace = false): void {
   nav.view = view
+  // What a pack holds is found in the Packs list.
+  if (IN_PACKS.includes(view.name)) side.view = 'packs'
   const hash = format(view)
   if (location.hash === hash) return
   if (replace) history.replaceState(null, '', hash)
@@ -95,12 +97,14 @@ window.addEventListener('popstate', () => {
   nav.view = parse(location.hash)
 })
 
+const IN_PACKS: View['name'][] = ['pack', 'def', 'file', 'style']
+
 /** Which of the left column's lists shows: a preference of this browser. */
 export type SideView = 'systems' | 'packs'
 const SIDE = 'opentabletop.packs.side'
 function readSide(): SideView {
   // What a link opened decides; otherwise the list last shown here.
-  if (['pack', 'def', 'file', 'style'].includes(nav.view.name)) return 'packs'
+  if (IN_PACKS.includes(nav.view.name)) return 'packs'
   try {
     return localStorage.getItem(SIDE) === 'packs' ? 'packs' : 'systems'
   } catch {

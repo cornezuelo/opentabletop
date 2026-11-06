@@ -4,3 +4,7 @@ land/default:
     Una tierra pequeña y universal: llanuras y bosques, colinas que se alzan en montañas, lagos y las marismas a su alrededor.
 
     Un hex vacío suma las filas de los terrenos que lo rodean, así que cada terreno tiende a seguir siendo él mismo.
+land/caves:
+  name: Las cuevas
+  description: |-
+    El modelo de tierra más pequeño de un lugar bajo tierra: roca con cuevas que se abren en ella, y escombros y charcas dentro. Dibujado en cuadrículas, los muros siguen al suelo por sí solos.

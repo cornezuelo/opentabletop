@@ -192,32 +192,46 @@ export function landShares(
 }
 
 /**
- * A patch of land grown from nothing with a model: `size` × `size` hexes in rows (`col,row`,
- * odd rows shifted right), filled from the middle outwards. For previews.
+ * A patch of land grown from nothing with a model: `size` × `size` cells (`col,row`), hexes
+ * in rows (odd rows shifted right) or squares, filled from the middle outwards. For previews.
  */
-export function landPatch(model: LandModel, random: RandomSource, size = 12): Map<string, string> {
+export function landPatch(
+  model: LandModel,
+  random: RandomSource,
+  size = 12,
+  cells: 'hex' | 'square' = 'hex',
+): Map<string, string> {
   const key = (c: number, r: number) => `${c},${r}`
   const area: string[] = []
   const mid = Math.floor(size / 2)
   // From the middle outwards, so ties grow a single patch.
-  const cells: [number, number][] = []
-  for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) cells.push([c, r])
-  cells.sort(
+  const order: [number, number][] = []
+  for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) order.push([c, r])
+  order.sort(
     ([c1, r1], [c2, r2]) =>
       Math.abs(c1 - mid) + Math.abs(r1 - mid) - (Math.abs(c2 - mid) + Math.abs(r2 - mid)),
   )
-  for (const [c, r] of cells) area.push(key(c, r))
+  for (const [c, r] of order) area.push(key(c, r))
   const neighbors = (hex: string) => {
     const [c, r] = hex.split(',').map(Number)
     const shift = r % 2 ? 0 : -1
-    return [
-      [c - 1, r],
-      [c + 1, r],
-      [c + shift, r - 1],
-      [c + shift + 1, r - 1],
-      [c + shift, r + 1],
-      [c + shift + 1, r + 1],
-    ]
+    const around =
+      cells === 'square'
+        ? [
+            [c - 1, r],
+            [c + 1, r],
+            [c, r - 1],
+            [c, r + 1],
+          ]
+        : [
+            [c - 1, r],
+            [c + 1, r],
+            [c + shift, r - 1],
+            [c + shift + 1, r - 1],
+            [c + shift, r + 1],
+            [c + shift + 1, r + 1],
+          ]
+    return around
       .filter(([x, y]) => x >= 0 && y >= 0 && x < size && y < size)
       .map(([x, y]) => key(x, y))
   }

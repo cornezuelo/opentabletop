@@ -2,6 +2,7 @@ import { seeded, sequence } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import {
   generateLand,
+  landPatch,
   landShares,
   landTerrains,
   landWeights,
@@ -103,5 +104,29 @@ describe('land models', () => {
     expect(shares.reduce((a, s) => a + s.share, 0)).toBeCloseTo(1)
     // Forest stays forest more than anything else becomes it.
     expect(shares[0].terrain).toBe('forest')
+  })
+})
+
+describe('a patch of land', () => {
+  const caves: LandModel = {
+    next: { rock: { rock: 4, floor: 1 }, floor: { floor: 3, rock: 1 } },
+    start: { rock: 1 },
+  }
+
+  it('fills every cell, on hexes and on squares, seeded', () => {
+    for (const cells of ['hex', 'square'] as const) {
+      const patch = landPatch(caves, seeded('a'), 6, cells)
+      expect(patch.size).toBe(36)
+      expect([...patch]).toEqual([...landPatch(caves, seeded('a'), 6, cells)])
+    }
+  })
+
+  it('grows differently on squares, whose cells have fewer neighbours', () => {
+    const same = ['a', 'b', 'c'].every((seed) => {
+      const hex = landPatch(caves, seeded(seed), 10, 'hex')
+      const square = landPatch(caves, seeded(seed), 10, 'square')
+      return [...hex].every(([k, v]) => square.get(k) === v)
+    })
+    expect(same).toBe(false)
   })
 })

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte'
   import type { TravelSystem } from '@open-tabletop/session'
-  import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
+  import { LAND_STARTS, type LandStart } from '@open-tabletop/pack-ui'
+  import { InfoTip, Markdown, MoreMenu } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import { bestiaryOf } from '../../lib/bestiary'
   import { createSystemPart, systemParts, systemRoot, type PartTabKind } from '../../lib/newSystem'
@@ -53,8 +54,8 @@
     ]
   const key = $derived(kind === 'roll-modes' ? 'modes' : kind)
 
-  function create(party = false) {
-    const id = createSystemPart(system, kind, party)
+  function create(party = false, land?: LandStart) {
+    const id = createSystemPart(system, kind, party, land)
     if (id) chosen = systemParts(system, kind).findIndex((p) => p.id === id && p.root === root)
   }
 </script>
@@ -89,7 +90,14 @@
   {:else}
     <p class="help">{t(`parts.${key}.none`)}</p>
   {/if}
-  {#if canCreate}
+  {#if canCreate && kind === 'land'}
+    <MoreMenu label={t('parts.land.create')} align="left">
+      {#snippet button()}{t('parts.land.create')} ▾{/snippet}
+      {#each Object.keys(LAND_STARTS) as LandStart[] as start (start)}
+        <button onclick={() => create(false, start)}>{t(`parts.land.starts.${start}`)}</button>
+      {/each}
+    </MoreMenu>
+  {:else if canCreate}
     <button class="button add" onclick={() => create()}>{t(`parts.${key}.create`)}</button>
   {/if}
   {#if canCreateParty}

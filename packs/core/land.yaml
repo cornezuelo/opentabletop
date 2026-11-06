@@ -19,3 +19,15 @@ next:
   marsh: { marsh: 3, lake: 2, plains: 1 }
 # With nothing known around: mostly open land.
 start: { plains: 3, forest: 2, hills: 1 }
+---
+kind: land
+id: caves
+name: The caves
+description: |-
+  The smallest land model of a place under the ground: rock with caves opening in it, rubble and pools inside them. Drawn on squares, walls follow the floor by themselves.
+next:
+  rock: { rock: 6, cave-floor: 2 }
+  cave-floor: { cave-floor: 5, rock: 2, rubble: 1, pool: 1 }
+  rubble: { cave-floor: 3, rock: 2 }
+  pool: { pool: 3, cave-floor: 2 }
+start: { rock: 3, cave-floor: 1 }

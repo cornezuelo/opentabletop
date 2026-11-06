@@ -53,7 +53,7 @@ Each terrain can draw a subtle symbol on its cells (a tree, a mountain, waves…
 
 ## Generating land
 
-**Generate land**, at the bottom of the Terrain tool, fills the map's **empty** cells with a **land model** of the map's system (its `land:`, see [Land models](../technical/07-kinds.md#land-models)): for each terrain, how likely a cell next to it is to be each terrain. Each empty cell adds up the land of all its known neighbours, so forests, ranges and lakes grow together instead of a patchwork.
+**Generate land**, at the bottom of the Terrain tool, fills the map's **empty** cells with a **land model** of the map's system (its `land:`, see [Land models](../technical/07-kinds.md#land-models)): for each terrain, how likely a cell next to it is to be each terrain. Each empty cell adds up the land of all its known neighbours, so forests, ranges and lakes grow together instead of a patchwork. It works on hexes and squares alike, and what the model names that the map's palette lacks joins the palette.
 
 - Paint the land you care about first (a coast, a range, a lake): the land grows outwards from it, the cells with most painted neighbours first. Painted cells never change.
 - **Seed**: the same seed draws the same land (note it to draw it again); 🎲 gives another. **Land model** chooses one when the system has several.

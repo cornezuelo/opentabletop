@@ -266,6 +266,8 @@ travel-rules/default:
   terrains:
     barrow-floor:
       name: Suelo del túmulo
+    rock:
+      name: Roca maciza
     mine-gallery:
       name: Galería de mina
     black-water:

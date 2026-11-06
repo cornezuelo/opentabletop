@@ -60,8 +60,7 @@ async function answer(
   return message
 }
 
-// Each test loads the whole app afresh: seconds on a busy machine, more than the default 5.
-describe('a map’s campaign', { timeout: 30_000 }, () => {
+describe('a map’s campaign', () => {
   beforeEach(() => {
     maps.clear()
     kept.clear()

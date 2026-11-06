@@ -329,7 +329,7 @@ describe('systems in the Packs app', () => {
     expect(copy.items?.map((c) => c.id)).toEqual([`${id}/gear`])
     expect(copy.bestiary?.map((b) => b.id)).toEqual([`${id}/foes`])
     expect(copy.places?.map((c) => c.id)).toEqual([`${id}/default`])
-    expect(Object.keys(copy.land ?? {})).toEqual([`${id}/default`])
+    expect(Object.keys(copy.land ?? {})).toEqual([`${id}/default`, `${id}/caves`])
     expect(Object.keys(copy.weather ?? {})).toEqual([`${id}/default`])
     for (const kind of [
       'sheet',

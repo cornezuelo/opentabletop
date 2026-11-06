@@ -27,3 +27,21 @@ next:
 # The land you come from counts twice: a trip into the unknown follows its own road.
 weights: { from: 2 }
 start: { hills: 3, heath: 2, plains: 1 }
+---
+kind: land
+id: galleries
+name: The clans' galleries
+description: |-
+  How the old clan workings run through the rock: long galleries, falls of rubble, black water where they've flooded. For the side workings of a mine, filled in with Generate on a map of squares.
+
+  **Shows:**
+
+  - **A land model on squares**: floor terrains grow as corridors in solid rock, and walls follow them by themselves
+  - A system with **two models**, chosen in Generate: one for the land, one for what lies under it
+  - `rock`, a terrain no step can enter (`passable: false`), so what's generated stays walled
+next:
+  rock: { rock: 7, mine-gallery: 2 }
+  mine-gallery: { mine-gallery: 5, rock: 3, rubble: 1, black-water: 1 }
+  rubble: { mine-gallery: 3, rock: 2 }
+  black-water: { black-water: 3, mine-gallery: 2 }
+start: { rock: 3, mine-gallery: 1 }

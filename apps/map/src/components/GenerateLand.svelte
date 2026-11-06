@@ -37,10 +37,10 @@
     if (!done.command) return showToast(t('generate.nothing'))
     editor.notify({ kind: 'hexes', keys: done.keys })
     editor.record(done.command)
-    const palette = new Set(editor.map.terrains.map((p) => p.id))
-    const unknown = done.terrains.filter((id) => !palette.has(id))
+    // What the model brings that the palette lacks joins it: a cave's rock on a mine's map.
+    if (done.terrains.map((id) => editor.addToPalette(id)).some(Boolean))
+      editor.notify({ kind: 'terrains' })
     showToast(t('generate.done', { count: done.keys.length, model: current.name }))
-    if (unknown.length) showToast(t('generate.unknown', { terrains: unknown.join(', ') }), 'error')
   }
 </script>
 

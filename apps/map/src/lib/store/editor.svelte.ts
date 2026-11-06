@@ -16,6 +16,7 @@ import {
   createMap,
   DEFAULT_LABEL_STYLE,
   DEFAULT_TERRAINS,
+  TERRAIN_SETS,
   type GridSettings,
   type HexData,
   type HexKey,
@@ -336,6 +337,19 @@ class Editor {
     this.notify({ kind: 'oracle' })
   }
 
+  /** A terrain the palette lacks goes on it: Map's own, or a plain new entry. True if added. */
+  addToPalette(id: string): boolean {
+    if (this.map.terrains.some((t) => t.id === id)) return false
+    const known = [...DEFAULT_TERRAINS, ...Object.values(TERRAIN_SETS).flat()].find(
+      (t) => t.id === id,
+    )
+    this.map.terrains = [
+      ...this.map.terrains,
+      known ? { ...known } : { id, name: id, color: '#8a8a6a' },
+    ]
+    return true
+  }
+
   /**
    * Writes what a trip discovered (play, so outside the undo history): terrain only on
    * empty hexes, tags added, a name only where there was none, points of interest added.
@@ -346,15 +360,7 @@ class Editor {
     for (const [key, d] of Object.entries(found) as [HexKey, DiscoveredHex][]) {
       const hex = { ...this.map.hexes[key] }
       if (d.terrain && !hex.terrain) {
-        if (!this.map.terrains.some((t) => t.id === d.terrain)) {
-          // A terrain the palette lacks: the default one, or a plain new entry.
-          const known = DEFAULT_TERRAINS.find((t) => t.id === d.terrain)
-          this.map.terrains = [
-            ...this.map.terrains,
-            known ? { ...known } : { id: d.terrain, name: d.terrain, color: '#8a8a6a' },
-          ]
-          terrains = true
-        }
+        if (this.addToPalette(d.terrain)) terrains = true
         hex.terrain = d.terrain
       }
       if (d.tags?.length) hex.tags = [...new Set([...(hex.tags ?? []), ...d.tags])]

@@ -244,3 +244,33 @@ export const FACTION_SHEET = (): Record<string, unknown> => ({
   values: { strength: { name: 'Strength', default: 3, min: 0, max: 6 } },
   conditions: { 'at-war': { name: 'At war' } },
 })
+
+/** What a new land model starts from: open land (`SYSTEM_TEMPLATES.land`), caves, a town. */
+export const LAND_STARTS = {
+  open: SYSTEM_TEMPLATES.land,
+  caves: (id: string) => ({
+    kind: 'land',
+    id,
+    name: 'The caves',
+    next: {
+      rock: { rock: 6, 'cave-floor': 2 },
+      'cave-floor': { 'cave-floor': 5, rock: 2, rubble: 1, pool: 1 },
+      rubble: { 'cave-floor': 3, rock: 2 },
+      pool: { pool: 3, 'cave-floor': 2 },
+    },
+    start: { rock: 3, 'cave-floor': 1 },
+  }),
+  town: (id: string) => ({
+    kind: 'land',
+    id,
+    name: 'The town',
+    next: {
+      cobbles: { cobbles: 5, yard: 2, 'wood-floor': 2 },
+      yard: { yard: 3, cobbles: 2, garden: 2 },
+      garden: { garden: 4, yard: 2 },
+      'wood-floor': { 'wood-floor': 6, cobbles: 1 },
+    },
+    start: { cobbles: 3, yard: 1 },
+  }),
+}
+export type LandStart = keyof typeof LAND_STARTS

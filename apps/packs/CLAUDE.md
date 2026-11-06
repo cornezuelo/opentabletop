@@ -1,6 +1,6 @@
 # Packs
 
-Makes and edits game systems. It is one app of the OpenTabletop ecosystem: read the root `CLAUDE.md` first.
+Makes and edits packs and the game systems they hold. It is one app of the OpenTabletop ecosystem: read the root `CLAUDE.md` first.
 
 **Responsibility:** systems (`kind: system` and the parts it names: travel rules, bindings; later calendars, weather models and roll modes), and map styles (`kind: style`, any pack's), on the way to editing every kind of every pack (backlog: _One app edits packs_). It edits; it doesn't play: trips without a map are the Travel app's, trips on a map Map's. Its **Try it** tab plays a test trip without a map (travel-ui's `TripRoom`) with the rules as they are, kept apart from Travel's trips; the system page links to Travel to play it.
 
@@ -15,7 +15,7 @@ src/
     terrains.ts       # terrain and edge names (Map palette, suggested in the rules)
     maps.ts           # a system's example maps (`maps:`, OTD bundles in its pack): read, added, named
     systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
-    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|factions|clocks|world|calendar|weather|land|modes|try|yaml>[/<item>] (a template, unfolded); #/style/<pack>/<id> (a map style)
+    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|factions|clocks|world|calendar|weather|land|modes|try|yaml>[/<item>] (a template, unfolded); #/style/<pack>/<id> (a map style); #/pack/<folder>; #/def/<folder>/<kind>/<id>[/yaml|used]; #/file/<folder>/<path>
     partDoc.svelte.ts # pack-ui's definitionDoc on this app's library (one definition edited in forms), and the rows' document interfaces
     bestiary.ts       # the Bestiary tab: a part's bestiary as the system read it, a template shown and written (texts in the language edited)
     tabs.ts           # a system's tabs, each once and in order (systemTabs)
@@ -23,7 +23,7 @@ src/
     steps.ts          # a step's kind, changing it, a new kind's value, the step in words (StepCard's title)
     usage.ts          # where a system's names are used (session's index of uses): Used by, Find a name; each place's name and link and the list are oracle-ui's (`shownPlace`, `UsesList`), shared with the Oracle's Rolled by
     i18n/             # typed en/es dictionaries
-  components/         # Sidebar (Systems | Packs, a search; the tree from lib/tree.ts), PackHolds (a pack's cards, in pack-ui's PackPage), NewSystemDialog, SystemView (tabs), StyleView (a map style: pack-ui's StyleForm, Make a copy, Remove), Overview (the kind: system form), YamlTab (the parts' files), TryTab (a test trip), ReadOnly (pack-ui's PackNotice worded for a system: edit a copy / revert);
+  components/         # Sidebar (Systems | Packs, a search; the tree from lib/tree.ts), PackHolds (a pack's cards, in pack-ui's PackPage), NewSystemDialog, DefinitionPage (a definition's Form, YAML, Rolled by), SystemView (tabs), StyleView (a map style: pack-ui's StyleForm, Make a copy, Remove), Overview (the kind: system form), YamlTab (the parts' files), TryTab (a test trip), ReadOnly (pack-ui's PackNotice worded for a system: edit a copy / revert);
                       # forms/: RulesForm (+ values of the day), ActionsForm (actions, conditions as rows), StepCard (a step as a card),
                       # ChecksForm (checks + bindings + stats, stats from the characters, carried supplies), RecordRows;
                       # parts/: the sheet, item catalogues, factions, clocks, world rules (WorldForm, WorldSteps), calendar, weather, land and roll modes forms (PartsTab);

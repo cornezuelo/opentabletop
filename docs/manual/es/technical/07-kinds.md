@@ -409,7 +409,7 @@ weights: { from: 2 } # la casilla desde la que se ve cuenta doble (sin esto: com
 - **Dónde se usa**, una vez que su sistema lo lista (`land: [land.default]`): en el **descubrimiento**, cuando los bindings dicen `discover: { terrain: { land: land.default } }` en vez de una tabla, o cuando la tabla del terreno le **pasa la decisión** (una entrada con `set: { land: land.default }`: la tabla decide primero, y el modelo el resto, mira [Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa)); y en el **Generar** de Mapa, que rellena casillas vacías con él.
 - Solo decide el terreno: lo que hay en una casilla sigue siendo cosa de la tabla de contenido.
 
-Traducciones: `name` y `description` en `locales/<idioma>/`, con la clave `land/<id>`. _La tierra sencilla_ de Core es el más pequeño; _La tierra de las Marcas_ de las Marcas Grises cuenta doble la tierra de la que vienes.
+Traducciones: `name` y `description` en `locales/<idioma>/`, con la clave `land/<id>`. _La tierra sencilla_ de Core es el más pequeño, y sus _Las cuevas_ lo mismo bajo tierra; _La tierra de las Marcas_ de las Marcas Grises cuenta doble la tierra de la que vienes, y _Las galerías de los clanes_ corre por la roca en cuadrículas. Un modelo funciona en cualquier rejilla, con los terrenos que nombra.
 
 ## Hojas
 

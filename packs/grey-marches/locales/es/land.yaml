@@ -9,3 +9,13 @@ land/default:
     - `weights: { from: 2 }`: la tierra de la que viene el grupo cuenta doble
     - `start`: la tierra donde no se conoce nada alrededor
     - Lo usa **Generar** en Mapa, y el descubrimiento a través de una tabla que le pasa la decisión (`set: { land: land.default }` en _La tierra de delante_)
+land/galleries:
+  name: Las galerías de los clanes
+  description: |-
+    Cómo corren por la roca las viejas obras de los clanes: galerías largas, derrumbes, agua negra donde se han inundado. Para las galerías laterales de una mina, rellenas con Generar en un mapa de cuadrículas.
+
+    **Enseña:**
+
+    - **Un modelo de tierra en cuadrículas**: los terrenos de suelo crecen como pasillos en roca maciza, y los muros los siguen por sí solos
+    - Un sistema con **dos modelos**, a elegir en Generar: uno para la tierra y otro para lo que hay debajo
+    - `rock`, un terreno en el que no se puede entrar (`passable: false`), así que lo generado queda amurallado

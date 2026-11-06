@@ -50,6 +50,7 @@ terrains:
   # name, so it says itself that nobody crosses it (a listed terrain's rule wins over water's).
   barrow-floor: { name: Barrow floor, multiplier: 1 }
   mine-gallery: { name: Mine gallery, multiplier: 1 }
+  rock: { name: Solid rock, passable: false }
   rubble: { multiplier: 0.5 }
   black-water: { name: Black water, passable: false }
 # Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…

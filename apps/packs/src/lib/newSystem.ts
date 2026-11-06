@@ -9,10 +9,12 @@ import {
 } from '@open-tabletop/session'
 import {
   FACTION_SHEET,
+  LAND_STARTS,
   MANIFEST_FILE,
   manifestOf,
   PARTY_SHEET,
   SYSTEM_TEMPLATES,
+  type LandStart,
   type PackFile,
 } from '@open-tabletop/pack-ui'
 import { appendDefinition, freeId, readDefinition, setIn } from '@open-tabletop/pack-ui/yaml'
@@ -501,6 +503,8 @@ export function createSystemPart(
   kind: PartTabKind,
   /** A sheet for the party itself (`partySheet`), not for its characters. */
   party = false,
+  /** What a land model starts from. */
+  land: LandStart = 'open',
 ): string | null {
   const root = systemRoot(system)
   if (!root || !library.isEditable(root)) return null
@@ -530,7 +534,9 @@ export function createSystemPart(
           ? PARTY_SHEET(id)
           : kind === 'bestiary'
             ? bestiaryTemplate(id, system)
-            : SYSTEM_TEMPLATES[kind](id),
+            : kind === 'land'
+              ? LAND_STARTS[land](id)
+              : SYSTEM_TEMPLATES[kind](id),
       ),
     )
     // New factions name a sheet `faction`: written beside them when the pack has none.

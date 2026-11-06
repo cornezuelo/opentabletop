@@ -30,4 +30,4 @@ places: [places.default]
 # The weather models its bindings name (weather.yaml).
 weather: [weather.default]
 # Its land (land.yaml): what Map's Generate fills empty hexes with.
-land: [land.default]
+land: [land.default, land.caves]

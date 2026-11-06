@@ -195,6 +195,7 @@ export const en = {
       create: 'New weather model',
     },
     land: {
+      starts: { open: 'Open land', caves: 'Caves', town: 'A town' },
       title: 'Its land models',
       intro:
         "Terrain with memory: for each terrain, how likely a cell next to it is to be each terrain, so land grows coherent (forests stay forests, hills gather into ranges). Map's **Generate land** fills empty cells with one, and discovery may decide empty cells with one (`discover.terrain: { land: land.default }`).",
@@ -549,6 +550,9 @@ export const en = {
     day: 'Day',
   },
   land: {
+    hexes: 'Hexes',
+    squares: 'Squares',
+    fromPalette: 'Add from the palette…',
     name: 'Name',
     nameHelp: "The model's name.\n• **The lie of the land**\n• **Northern wilds**",
     from: 'The cell it’s seen from counts',
@@ -568,7 +572,7 @@ export const en = {
     addTerrain: 'Add a terrain',
     preview: 'A patch of this land',
     previewHelp:
-      "Land grown from nothing with this model, from the middle outwards, in Map's terrain colours. **Another** draws another patch; Map's **Generate land** grows it from the land you painted instead.",
+      "Land grown from nothing with this model, from the middle outwards, in Map's terrain colours. **Hexes** and **Squares** show it on each grid, walls round floor on squares. **Another** draws another patch; Map's **Generate land** grows it from the land you painted instead.",
     again: 'Another',
   },
   weather: {
@@ -1091,6 +1095,7 @@ export const en = {
   },
   yaml: { line: 'line {line}' },
   terrains: vocabulary.en.terrains,
+  terrainGroups: vocabulary.en.terrainGroups,
   connectionKinds: vocabulary.en.pathKinds,
   storage: { full: 'Browser storage is full: export your packs to keep them safe.' },
 } as const

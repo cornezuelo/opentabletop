@@ -19,16 +19,18 @@ Where it's used, once the system lists it:
 
 - **Name**: what the model is called (_The lie of the land_).
 - **The cell it's seen from counts**: how many times the cell the party stands on counts in discovery (empty: once, as any other).
-- **Next to each terrain**: a grid. Each row is a terrain a cell may stand next to; each column, what that cell may become; each cell, a weight (empty is 0). Each row starts with its colour on Map's palettes. **×** removes a row; **Add a terrain**, with a terrain of the rules or the palette, adds one (going on as itself, `1`, until you weigh it).
+- **Next to each terrain**: a grid. Each row is a terrain a cell may stand next to; each column, what that cell may become; each cell, a weight (empty is 0). Each row starts with its colour on Map's palettes. **×** removes a row; **Add from the palette…** adds one of Map's terrains, in its palette's groups (the land, water, dungeon, town…), and **Add a terrain** any other by its id (each going on as itself, `1`, until you weigh it).
 - **Where nothing is known**: the weights of a cell with no known neighbour.
 - **Over many cells**: how much of each terrain a large patch grown from nothing has, from the weights above.
-- **A patch of this land**: land grown from nothing with the model, in Map's terrain colours; **Another** draws another patch.
+- **A patch of this land**: land grown from nothing with the model, in Map's terrain colours, on **Hexes** or **Squares** (a model of floors starts on squares, with the walls Map would draw); **Another** draws another patch.
+
+**Not only the outdoors.** A land model is about any terrains on any map: a cave is rock with floor in it, a town is cobbles, yards and houses. On squares, floor terrains grow as rooms and passages, and walls follow them by themselves. **New land model** asks what to start from: **Open land**, **Caves** or **A town**.
 
 ## Step by step: a land of forests and lakes
 
 A new system starts without a land model. In a system of your own:
 
-1. **The model**: in the **Land** tab, **New land model**. It starts with plains, forests, hills and mountains; name it _Forests and lakes_.
+1. **The model**: in the **Land** tab, **New land model → Open land**. It starts with plains, forests, hills and mountains; name it _Forests and lakes_.
 2. **Forests that go on**: in the **Forest** row, `forest` · `6`, `plains` · `1`.
 3. **Lakes**: **Add a terrain** `lake`. In its row, `lake` · `4`, `forest` · `2`; in the **Forest** row, `lake` · `1`.
 4. **Look**: **A patch of this land** shows forests with lakes in them, and **Over many cells** how much of each; **Another** for another patch. If the lakes are too many, lower `lake` in their own row.

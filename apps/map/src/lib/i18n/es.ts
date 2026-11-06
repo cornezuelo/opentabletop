@@ -448,7 +448,6 @@ export const es: Messages = {
     fillRegion: 'Generar sus casillas vacías',
     nothing: 'No hay casillas vacías que rellenar.',
     done: '{count} casillas generadas con {model}.',
-    unknown: 'No están en la paleta del mapa: {terrains}. Añádelos con Editar paleta.',
   },
   captions: {
     showOnMap: 'Mostrar el nombre en el mapa',

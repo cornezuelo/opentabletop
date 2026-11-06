@@ -445,7 +445,6 @@ export const en = {
     fillRegion: 'Generate its empty cells',
     nothing: 'No empty cells to fill.',
     done: '{count} cells generated with {model}.',
-    unknown: 'Not on the map’s palette: {terrains}. Add them with Edit palette.',
   },
   captions: {
     showOnMap: 'Show the name on the map',

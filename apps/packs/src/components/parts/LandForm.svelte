@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import {
     landPatch,
     landShares,
@@ -6,10 +7,11 @@
     validateLand,
     type LandModel,
   } from '@open-tabletop/land-engine'
-  import { DEFAULT_TERRAINS, TERRAIN_SETS } from '@open-tabletop/map'
+  import { DEFAULT_TERRAINS, TERRAIN_SETS, type TerrainType } from '@open-tabletop/map'
   import { seeded } from '@open-tabletop/random'
   import type { TravelSystem } from '@open-tabletop/session'
-  import { confirmAction, InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { terrainChoiceGroups } from '@open-tabletop/travel-ui'
+  import { confirmAction, InfoTip, SuggestInput, Tabs, tooltip } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import { PALETTE, terrainName } from '../../lib/terrains'
@@ -33,6 +35,12 @@
     [...new Set([...Object.keys(system.rules.terrains ?? {}), ...PALETTE])].filter(
       (id) => !terrains.includes(id),
     ),
+  )
+  /** The same, in Map's palette groups. */
+  const groups = $derived(
+    terrainChoiceGroups(system)
+      .map((g) => ({ ...g, terrains: g.terrains.filter((id) => free.includes(id)) }))
+      .filter((g) => g.terrains.length),
   )
   let newTerrain = $state('')
   let seed = $state('land')
@@ -60,10 +68,18 @@
     doc.edit('', ['next', id], undefined)
   }
 
+  const palette: TerrainType[] = [...DEFAULT_TERRAINS, ...Object.values(TERRAIN_SETS).flat()]
+  const colours = new Map<string, string>(palette.map((tt) => [tt.id, tt.color]))
+  /** Terrains walls are drawn round. */
+  const floors = new Set(palette.filter((tt) => tt.floor).map((tt) => tt.id))
   /** The model as it is, if valid: a patch grown from it and its mix. */
   const model = $derived(validateLand(data).length ? null : (data as unknown as LandModel))
   const SIZE = 12
-  const patch = $derived(model ? landPatch(model, seeded(`patch/${seed}`), SIZE) : null)
+  /** Which cells the patch is drawn on: squares for a model of floors, as Map would. */
+  let shape = $state<'hex' | 'square'>(
+    untrack(() => (Object.keys(next).some((id) => floors.has(id)) ? 'square' : 'hex')),
+  )
+  const patch = $derived(model ? landPatch(model, seeded(`patch/${seed}`), SIZE, shape) : null)
   const shares = $derived(
     model
       ? new Map(landShares(model, seeded(`shares/${seed}`)).map((s) => [s.terrain, s.share]))
@@ -71,13 +87,26 @@
   )
   const percent = (n: number | undefined) => `${Math.round((n ?? 0) * 100)} %`
   /** A terrain's colour on Map's palettes (grey for one they lack). */
-  const colours = new Map<string, string>(
-    [...DEFAULT_TERRAINS, ...Object.values(TERRAIN_SETS).flat()].map((tt) => [tt.id, tt.color]),
-  )
   const colour = (id: string) => colours.get(id) ?? '#888'
   /** A pointy hex of the patch (`col,row`, odd rows shifted right). */
   const R = 10
   const W = Math.sqrt(3) * R
+  const SQUARE = 16
+  /** Where floor meets what isn't floor on a patch of squares: the walls Map would draw. */
+  const walls = $derived.by(() => {
+    if (!patch || shape !== 'square') return []
+    const out: { x1: number; y1: number; x2: number; y2: number }[] = []
+    const isFloor = (c: number, r: number) => floors.has(patch.get(`${c},${r}`) ?? '')
+    for (const key of patch.keys()) {
+      const [c, r] = key.split(',').map(Number)
+      const [x, y] = [c * SQUARE, r * SQUARE]
+      if (isFloor(c, r) !== isFloor(c + 1, r))
+        out.push({ x1: x + SQUARE, y1: y, x2: x + SQUARE, y2: y + SQUARE })
+      if (isFloor(c, r) !== isFloor(c, r + 1))
+        out.push({ x1: x, y1: y + SQUARE, x2: x + SQUARE, y2: y + SQUARE })
+    }
+    return out
+  })
   const hexPoints = (key: string) => {
     const [c, r] = key.split(',').map(Number)
     const x = W * (c + (r % 2 ? 0.5 : 0)) + W / 2
@@ -189,6 +218,23 @@
       </tbody>
     </table>
     {#if !disabled}
+      <select
+        class="palette"
+        aria-label={t('land.fromPalette')}
+        value=""
+        onchange={(e) => {
+          newTerrain = e.currentTarget.value
+          e.currentTarget.value = ''
+          addTerrain()
+        }}
+      >
+        <option value="">{t('land.fromPalette')}</option>
+        {#each groups as group (group.id)}
+          <optgroup label={t(`terrainGroups.${group.id}`)}>
+            {#each group.terrains as id (id)}<option value={id}>{terrainName(id)}</option>{/each}
+          </optgroup>
+        {/each}
+      </select>
       <form
         class="add"
         onsubmit={(e) => {
@@ -212,17 +258,51 @@
     <section>
       <h3>{t('land.preview')}<InfoTip text={t('land.previewHelp')} /></h3>
       <div class="preview">
-        <svg
-          viewBox={`0 0 ${(W * (SIZE + 0.5)).toFixed(0)} ${(1.5 * R * SIZE + R / 2).toFixed(0)}`}
-          role="img"
-          aria-label={t('land.preview')}
-        >
-          {#each [...patch] as [key, terrain] (key)}
-            <polygon points={hexPoints(key)} fill={colour(terrain)}
-              ><title>{terrainName(terrain)}</title></polygon
+        <Tabs
+          tabs={[
+            { id: 'hex' as const, label: t('land.hexes') },
+            { id: 'square' as const, label: t('land.squares') },
+          ]}
+          value={shape}
+          label={t('land.preview')}
+          prefix="land-cells"
+          onchange={(id) => (shape = id)}
+        />
+        <div id="land-cells-panel" role="tabpanel" aria-labelledby="land-cells-tab-{shape}">
+          {#if shape === 'square'}
+            <svg
+              viewBox={`0 0 ${SQUARE * SIZE} ${SQUARE * SIZE}`}
+              role="img"
+              aria-label={t('land.preview')}
             >
-          {/each}
-        </svg>
+              {#each [...patch] as [key, terrain] (key)}
+                {@const [c, r] = key.split(',').map(Number)}
+                <rect
+                  x={c * SQUARE}
+                  y={r * SQUARE}
+                  width={SQUARE}
+                  height={SQUARE}
+                  fill={colour(terrain)}><title>{terrainName(terrain)}</title></rect
+                >
+              {/each}
+              {#each walls as wall, i (i)}
+                <line {...wall} class="wall" />
+              {/each}
+            </svg>
+          {:else}
+            <svg
+              viewBox={`0 0 ${(W * (SIZE + 0.5)).toFixed(0)} ${(1.5 * R * SIZE + R / 2).toFixed(0)}`}
+              role="img"
+              aria-label={t('land.preview')}
+            >
+              {#each [...patch] as [key, terrain] (key)}
+                <polygon points={hexPoints(key)} fill={colour(terrain)}
+                  ><title>{terrainName(terrain)}</title></polygon
+                >
+              {/each}
+            </svg>
+          {/if}
+        </div>
         <button class="link" onclick={() => (seed = Math.random().toString(36).slice(2, 8))}
           >{t('land.again')}</button
         >
@@ -232,6 +312,15 @@
 </div>
 
 <style>
+  .wall {
+    stroke: #1a1815;
+    stroke-width: 1.5;
+  }
+
+  .palette {
+    max-width: 260px;
+  }
+
   .form {
     display: flex;
     flex-direction: column;

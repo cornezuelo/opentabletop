@@ -408,7 +408,7 @@ weights: { from: 2 } # the cell it's seen from counts twice (absent: as any othe
 - **Where it's used**, once its system lists it (`land: [land.default]`): by **discovery**, when the bindings say `discover: { terrain: { land: land.default } }` instead of a table, or when the terrain table **hands over** to it (an entry with `set: { land: land.default }`: the table decides first, and the model the rest, see [Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)); and by Map's **Generate**, which fills empty cells with it.
 - It decides only the terrain: what a cell holds is still the contents table's job.
 
-Translations: `name` and `description` in `locales/<language>/`, keyed `land/<id>`. Core's _The plain land_ is the smallest; the Grey Marches' _The lie of the Marches_ counts the land you come from twice.
+Translations: `name` and `description` in `locales/<language>/`, keyed `land/<id>`. Core's _The plain land_ is the smallest, and its _The caves_ the same under the ground; the Grey Marches' _The lie of the Marches_ counts the land you come from twice, and _The clans' galleries_ runs through rock on squares. A model works on any grid, with the terrains it names.
 
 ## Sheets
 

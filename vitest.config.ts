@@ -7,5 +7,7 @@ export default defineConfig({
   test: {
     include: ['packages/*/src/**/*.test.ts', 'apps/*/src/**/*.test.ts'],
     setupFiles: ['./vitest.setup.ts'],
+    // Tests that load the bundled packs take seconds on a busy machine.
+    testTimeout: 30_000,
   },
 })

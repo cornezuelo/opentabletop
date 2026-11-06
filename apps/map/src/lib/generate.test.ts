@@ -50,6 +50,34 @@ describe('Generate', () => {
     expect(map.hexes).toEqual(painted)
   })
 
+  it("grows the clans' galleries round the old mine's squares: floor in rock, what's drawn kept", () => {
+    const mine = parseMapFile(exampleMaps().find((m) => m.id === 'oldmine1')!.json).map
+    expect(mine.grid.kind).toBe('square')
+    const drawn = structuredClone(mine.hexes)
+    const galleries = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!.land![
+      'grey-marches/galleries'
+    ]
+    const done = generateEmpty(mine, galleries, {}, 'side-workings')
+    expect(done.keys.length).toBe(emptyHexes(structuredClone({ ...mine, hexes: drawn })).length)
+    for (const [key, hex] of Object.entries(drawn))
+      expect(mine.hexes[key as keyof typeof mine.hexes]).toEqual(hex)
+    expect(done.terrains).toEqual(expect.arrayContaining(['rock', 'mine-gallery']))
+    // Corridors, not noise: most gallery cells have gallery next to them.
+    const cells = Object.entries(mine.hexes).filter(([, h]) => h.terrain === 'mine-gallery')
+    const joined = cells.filter(([key]) => {
+      const [c, r] = key.split(',').map(Number)
+      return [
+        [c - 1, r],
+        [c + 1, r],
+        [c, r - 1],
+        [c, r + 1],
+      ].some(
+        ([x, y]) => mine.hexes[`${x},${y}` as keyof typeof mine.hexes]?.terrain === 'mine-gallery',
+      )
+    })
+    expect(joined.length / cells.length).toBeGreaterThan(0.6)
+  })
+
   it('draws the same land from the same seed, and fills only a region when asked', () => {
     const a = example()
     const b = example()

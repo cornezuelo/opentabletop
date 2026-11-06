@@ -198,6 +198,7 @@ export const es: Messages<typeof en> = {
       create: 'Nuevo modelo de clima',
     },
     land: {
+      starts: { open: 'Tierra abierta', caves: 'Cuevas', town: 'Un pueblo' },
       title: 'Sus modelos de tierra',
       intro:
         'Terreno con memoria: para cada terreno, lo probable que es que una casilla junto a él sea cada terreno, así la tierra sale coherente (los bosques siguen siendo bosques, las colinas se juntan en cordilleras). **Generar tierra** de Mapa rellena con uno las casillas vacías, y el descubrimiento puede decidir con uno las casillas vacías (`discover.terrain: { land: land.default }`).',
@@ -558,6 +559,9 @@ export const es: Messages<typeof en> = {
     day: 'Día',
   },
   land: {
+    hexes: 'Hexes',
+    squares: 'Cuadrículas',
+    fromPalette: 'Añadir de la paleta…',
     name: 'Nombre',
     nameHelp:
       'El nombre del modelo.\n• **La forma de la tierra**\n• **Tierras salvajes del norte**',
@@ -578,7 +582,7 @@ export const es: Messages<typeof en> = {
     addTerrain: 'Añadir un terreno',
     preview: 'Un trozo de esta tierra',
     previewHelp:
-      'Tierra que crece desde la nada con este modelo, del centro hacia fuera, con los colores de terreno de Mapa. **Otro** saca otro trozo; **Generar tierra** de Mapa la hace crecer en cambio desde la tierra que pintaste.',
+      'Tierra que crece desde la nada con este modelo, del centro hacia fuera, con los colores de terreno de Mapa. **Hexes** y **Cuadrículas** lo enseñan en cada rejilla, con muros alrededor del suelo en cuadrículas. **Otro** saca otro trozo; **Generar tierra** de Mapa la hace crecer en cambio desde la tierra que pintaste.',
     again: 'Otro',
   },
   weather: {
@@ -1101,6 +1105,7 @@ export const es: Messages<typeof en> = {
   },
   yaml: { line: 'línea {line}' },
   terrains: vocabulary.es.terrains,
+  terrainGroups: vocabulary.es.terrainGroups,
   connectionKinds: vocabulary.es.pathKinds,
   storage: {
     full: 'El almacenamiento del navegador está lleno: exporta tus packs para no perderlos.',

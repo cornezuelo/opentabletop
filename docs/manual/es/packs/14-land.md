@@ -19,16 +19,18 @@ Dónde se usa, una vez que el sistema lo lista:
 
 - **Nombre**: cómo se llama el modelo (_La forma de la tierra_).
 - **La casilla desde la que se ve cuenta**: cuántas veces cuenta al descubrir la casilla que pisa el grupo (vacío: una, como cualquier otra).
-- **Junto a cada terreno**: una cuadrícula. Cada fila es un terreno junto al que puede estar una casilla; cada columna, lo que esa casilla puede volverse; cada casilla, un peso (vacío es 0). Cada fila empieza con su color en las paletas de Mapa. **×** quita una fila; **Añadir un terreno**, con un terreno de las reglas o de la paleta, añade una (que sigue siendo él mismo, `1`, hasta que la peses).
+- **Junto a cada terreno**: una cuadrícula. Cada fila es un terreno junto al que puede estar una casilla; cada columna, lo que esa casilla puede volverse; cada casilla, un peso (vacío es 0). Cada fila empieza con su color en las paletas de Mapa. **×** quita una fila; **Añadir de la paleta…** añade uno de los terrenos de Mapa, en los grupos de su paleta (la tierra, el agua, mazmorra, pueblo…), y **Añadir un terreno** cualquier otro por su id (cada uno sigue siendo él mismo, `1`, hasta que lo peses).
 - **Donde no se conoce nada**: los pesos de una casilla sin ningún vecina conocida.
 - **A lo largo de muchas casillas**: cuánto de cada terreno tiene una extensión grande que crece desde la nada, con los pesos de arriba.
-- **Un trozo de esta tierra**: tierra que crece desde la nada con el modelo, con los colores de terreno de Mapa; **Otro** saca otro trozo.
+- **Un trozo de esta tierra**: tierra que crece desde la nada con el modelo, con los colores de terreno de Mapa, en **Hexes** o **Cuadrículas** (un modelo de suelos empieza en cuadrículas, con los muros que dibujaría Mapa); **Otro** saca otro trozo.
+
+**No solo el exterior.** Un modelo de tierra vale para cualquier terreno en cualquier mapa: una cueva es roca con suelo dentro, un pueblo son adoquines, patios y casas. En cuadrículas, los terrenos de suelo crecen como salas y pasillos, y los muros los siguen por sí solos. **Nuevo modelo de tierra** pregunta de qué partir: **Tierra abierta**, **Cuevas** o **Un pueblo**.
 
 ## Paso a paso: una tierra de bosques y lagos
 
 Un sistema nuevo empieza sin modelo de tierra. En un sistema propio:
 
-1. **El modelo**: en la pestaña **Tierra**, **Nuevo modelo de tierra**. Empieza con llanuras, bosques, colinas y montañas; llámalo _Bosques y lagos_.
+1. **El modelo**: en la pestaña **Tierra**, **Nuevo modelo de tierra → Tierra abierta**. Empieza con llanuras, bosques, colinas y montañas; llámalo _Bosques y lagos_.
 2. **Bosques que siguen**: en la fila **Bosque**, `forest` · `6`, `plains` · `1`.
 3. **Lagos**: **Añadir un terreno** `lake`. En su fila, `lake` · `4`, `forest` · `2`; en la fila **Bosque**, `lake` · `1`.
 4. **Mira**: **Un trozo de esta tierra** muestra bosques con lagos dentro, y **A lo largo de muchas casillas** cuánto hay de cada uno; **Otro** para otro trozo. Si salen demasiados lagos, baja `lake` en su propia fila.
