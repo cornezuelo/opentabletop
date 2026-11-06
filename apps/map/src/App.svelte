@@ -2,6 +2,7 @@
   import { untrack } from 'svelte'
   import MapCanvas from './components/MapCanvas.svelte'
   import HoverLine from './components/HoverLine.svelte'
+  import MapWelcome from './components/MapWelcome.svelte'
   import SidePanel from './components/SidePanel.svelte'
   import { contextHelp, Dialogs, FoldTab, Toasts, tooltip } from '@open-tabletop/ui-kit'
   import { HelpPanel } from '@open-tabletop/manual-ui'
@@ -17,6 +18,8 @@
   import { loadLinks } from './lib/io/submaps'
 
   let ready = $state(false)
+  /** The link in the URL is open, so an empty map is really what's in front of the player. */
+  let linksFollowed = $state(false)
 
   // A dotted label clicked: the help column opens on its explanation.
   $effect(() => {
@@ -27,24 +30,30 @@
     contextHelp.shown = editor.helpOpen
   })
 
-  $effect(() => {
-    const unbind = bindShortcuts()
-    const stops: (() => void)[] = []
-    let disposed = false
-    const keep = (stop: () => void) => (disposed ? stop() : stops.push(stop))
-    startPersistence()
-      .then((stop) => {
-        keep(stop)
-        ready = true
-        return startDeepLinks()
-      })
-      .then(keep)
-    return () => {
-      disposed = true
-      unbind()
-      for (const stop of stops) stop()
-    }
-  })
+  // Once: starting reads state (the campaign played), and mustn't start again when it changes.
+  $effect(() =>
+    untrack(() => {
+      const unbind = bindShortcuts()
+      const stops: (() => void)[] = []
+      let disposed = false
+      const keep = (stop: () => void) => (disposed ? stop() : stops.push(stop))
+      startPersistence()
+        .then((stop) => {
+          keep(stop)
+          ready = true
+          return startDeepLinks()
+        })
+        .then((stop) => {
+          keep(stop)
+          linksFollowed = true
+        })
+      return () => {
+        disposed = true
+        unbind()
+        for (const stop of stops) stop()
+      }
+    }),
+  )
 
   // Another map opened, or this one now hangs elsewhere: the maps it reaches are read again.
   $effect(() => {
@@ -67,6 +76,7 @@
       <MapCanvas />
       <HoverLine />
     {/if}
+    {#if linksFollowed}<MapWelcome />{/if}
     <FoldTab
       side="left"
       open={!editor.toolsHidden}

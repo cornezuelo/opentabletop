@@ -63,8 +63,11 @@ const PENDING_CAMPAIGN_KEY = 'opentabletop.map.pendingCampaign'
 const now = (): string => new Date(Date.now()).toISOString()
 
 /** Bumped whenever the library changes, so lists can refresh. */
-/** `version`: bumped on every change of the library; `loaded`: once the first map is open. */
-export const library = $state({ version: 0, loaded: false })
+/**
+ * `version`: bumped on every change of the library; `loaded`: once the first map is open;
+ * `untouched`: the open map is a new one nobody changed, so it isn't kept yet.
+ */
+export const library = $state({ version: 0, loaded: false, untouched: false })
 
 /**
  * A map to open, and its campaign when it brings one (a file, a map saved before campaigns);
@@ -119,6 +122,7 @@ async function saveCurrent(): Promise<void> {
       dirty = true
       throw error
     }
+    library.untouched = false
     library.version++
   }
   if (!dirty && !campaignDirty) clearPending()
@@ -195,11 +199,14 @@ export async function newMap(): Promise<void> {
     { value: 'hexcrawl', label: t('newMap.hexcrawl'), kind: 'primary' },
   ])
   if (kind !== 'hexcrawl' && kind !== 'dungeon' && kind !== 'town') return
-  const choice = await ask(t('newMap.title'), t('newMap.message'), [
-    { value: 'cancel', label: t('newMap.cancel') },
-    { value: 'create', label: t('newMap.create') },
-    { value: 'save', label: t('newMap.saveAndCreate'), kind: 'primary' },
-  ])
+  // A new map no one has touched isn't kept yet: nothing to lose, nothing to ask.
+  const choice = library.untouched
+    ? 'create'
+    : await ask(t('newMap.title'), t('newMap.message'), [
+        { value: 'cancel', label: t('newMap.cancel') },
+        { value: 'create', label: t('newMap.create') },
+        { value: 'save', label: t('newMap.saveAndCreate'), kind: 'primary' },
+      ])
   if (choice !== 'create' && choice !== 'save') return
   if (choice === 'save') saveMap()
   let map = createMap('', kind)
@@ -774,7 +781,7 @@ export async function startPersistence(): Promise<() => void> {
   library.loaded = true
 
   const stop = editor.onChange((change) => {
-    if (taking) return
+    if (taking || change.kind === 'links') return
     if (change.kind === 'factions' || isCampaignChange(change)) campaignDirty = true
     if (!isCampaignChange(change)) dirty = true
     clearTimeout(timer)
@@ -903,7 +910,10 @@ async function initialMap(): Promise<Opening> {
     found = pendingMap
   }
   // A new map, saved (with its campaign) once it changes.
-  if (!found) return { map: createMap() }
+  if (!found) {
+    library.untouched = true
+    return { map: createMap() }
+  }
   const pendingCampaign = readPending(PENDING_CAMPAIGN_KEY)
   const crash = pendingCampaign ? safeCampaign(pendingCampaign) : null
   if (crash && crash.id === found.map.meta.campaign && !found.campaign) {

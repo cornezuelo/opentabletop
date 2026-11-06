@@ -4,8 +4,16 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: a browser with no maps yet is greeted over the empty map: **New map**, a file, the examples, or start on it.
+- Map: the open map's name is always in the top bar, and a click on it opens Map settings. Every side panel has the same head. The cell panel gives one coordinate; its id is in the coordinate's help.
+- Map: a new map nobody has changed isn't kept any more, so it leaves no "Untitled" behind, and **New map** doesn't ask about saving it.
+
 ### Fixes
 
+- Map: a link to an example no longer asks about "your copy" in a browser that has none, and the start of the app doesn't run twice when the map's campaign becomes the one played.
+- Map: **Select** on a token shows the cell it stands on.
 - Map and Travel: a trip whose campaign's clock went on without it now asks what the party did: **Live it** (it waits, and a world turn played elsewhere is told in its journal) or **Skip it** (it's on that date just as it was, and only the world has changed). Map's trip used to stay behind the campaign's date.
 - The Grey Marches: **Word on the road** says why morale falls.
 - Travel: on a way without a map, **Gate** and **River** work as on a map: Core's gate starts shut until **Open the gate**, and a river alone is crossed, unless a road or something else ticked with it takes the party over.

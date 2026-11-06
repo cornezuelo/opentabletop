@@ -567,7 +567,7 @@ export class MapRenderer {
       this.drawPaths()
     } else if (change.kind === 'walls') {
       this.drawWalls()
-    } else if (change.kind === 'connections') {
+    } else if (change.kind === 'connections' || change.kind === 'links') {
       this.drawConnections()
       // A connection across a wall opens it (a door).
       this.drawWalls()

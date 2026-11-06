@@ -60,7 +60,10 @@ describe('sub-maps', () => {
       await actions.openExampleMap(hills)
       await settle()
       expect(maps.get('barrowhalls1')).toMatchObject({ parent: 'hollowhills1' })
+      const modified = editor.map.meta.modified
       await loadLinks()
+      // Reading the ways is no change: opening a map doesn't make it the player's.
+      expect(editor.map.meta.modified).toBe(modified)
       expect(subMapsAt('10,8').map((m) => m.meta.id)).toEqual(['barrowhalls1'])
       expect(subMapsAt('10,8')[0].meta.campaign).toBe(editor.map.meta.campaign)
 

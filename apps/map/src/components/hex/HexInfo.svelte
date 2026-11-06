@@ -24,6 +24,7 @@
     appIconUrl,
     confirmAction,
     helpMarkdown,
+    InfoTip,
     tooltip,
     showToast,
   } from '@open-tabletop/ui-kit'
@@ -93,8 +94,7 @@
   {@const { key, hex } = selected}
   <div class="summary">
     <span class="coord">
-      {selected.coord}
-      <code class="id" use:tooltip={t('hex.idTip')}>{key}</code>
+      <span>{selected.coord}<InfoTip text={t('hex.idHelp', { id: key })} /></span>
       <button
         class="link"
         use:tooltip={t('library.copyHexLink')}

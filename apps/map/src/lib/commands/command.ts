@@ -8,6 +8,8 @@ export type MapChange =
   | { kind: 'paths' }
   /** The connections drawn between places. */
   | { kind: 'connections' }
+  /** The ways to other maps were read: drawn again, and nothing of this map changed. */
+  | { kind: 'links' }
   /** The walls drawn by hand on cells' sides. */
   | { kind: 'walls' }
   | { kind: 'assets' }

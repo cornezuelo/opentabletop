@@ -14,7 +14,7 @@ import {
 import { getLibraryMap, listLibrary, putLibraryMap } from '@open-tabletop/storage'
 import { serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
-import { library } from './actions.svelte'
+import { keepOpenMap, library } from './actions.svelte'
 
 /** A map kept in the library, read, or undefined if it isn't (or can't be read). */
 async function kept(id: string): Promise<HexMap | undefined> {
@@ -52,7 +52,7 @@ export async function loadLinks(): Promise<void> {
   }
   if (editor.map.meta.id !== id) return
   editor.linked = { ...(parent && { parent }), children, ancestors }
-  editor.notify({ kind: 'connections' })
+  editor.notify({ kind: 'links' })
 }
 
 /**
@@ -170,6 +170,8 @@ export async function addWayInto(id: string, place: HexKey): Promise<void> {
  * library (not opened). Its entrance is its middle hex; `kind`, the way in's.
  */
 export async function newSubMap(place: HexKey, name: string, kind?: string): Promise<HexMap> {
+  // It hangs from the open map, which has to be there to go back to.
+  if (library.untouched) await keepOpenMap()
   // A site under a place is a dungeon at first (squares, floors and rock); Map settings and
   // Edit palette change it.
   const map = createMap('', 'dungeon')

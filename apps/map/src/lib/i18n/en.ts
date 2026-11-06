@@ -379,6 +379,13 @@ export const en = {
     otherMap: 'That file is a different map; the link needs {id}.otd.json.',
     hexNotFound: 'Cell {hex} is not on this map.',
   },
+  welcome: {
+    title: vocabulary.en.apps.map,
+    tagline: 'Maps of hexes or squares for hexcrawls and sandbox campaigns, played on with trips.',
+    body: 'This browser has no maps yet. Start one, or open an example to see what a finished map can do: your changes to it are kept as your map.',
+    examples: 'Examples',
+    empty: 'Start on this empty map',
+  },
   newMap: {
     title: 'New map',
     kindMessage:
@@ -682,8 +689,8 @@ export const en = {
     makeOpen: 'Open',
   },
   hex: {
-    idTip:
-      'The cell’s id, as tables read it: place.id (column,row, counted from 0, whatever the map’s coordinate labels)',
+    idHelp:
+      'The cell’s coordinate, in the format the map shows (Map settings → **Coordinates**). Its id is `{id}`: column and row counted from 0, whatever the map’s labels, and what tables and conditions read.\n• `place.id` — the cell’s id, in a table or a condition',
     terrainIdTip: 'The terrain’s id, as tables and travel rules read it: place.terrain',
     poiIcon: 'Icon (only to tell POIs apart here)',
     noIcon: 'No icon',

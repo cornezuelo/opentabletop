@@ -5,7 +5,7 @@ import { createTravelEngine, initialTravelState } from '@open-tabletop/travel-en
 import { coreSystem } from '../../../../../packages/session/src/core.testing'
 import { editor } from '../store/editor.svelte'
 import { currentTool, type PointerInfo } from './tools'
-import { setNameHitTest } from '../render/hitTest'
+import { setNameHitTest, setTokenHitTest } from '../render/hitTest'
 
 const press = (more: Partial<PointerInfo> = {}): PointerInfo => ({
   button: 0,
@@ -215,5 +215,22 @@ describe('names moved by hand', () => {
       () => null,
       () => {},
     )
+  })
+})
+
+describe('Select on a token', () => {
+  it('shows the cell the token stands on', () => {
+    const map = createMap()
+    map.tokens = [{ id: 'hero', name: 'Hero', kind: 'pc', hex: '2,3', iconId: 'game:hood' }]
+    editor.load(map)
+    editor.tool = 'select'
+    editor.selected = '0,0'
+    const tool = currentTool()
+    setTokenHitTest(() => 'hero')
+    tool.down({ col: 2, row: 3 }, press())
+    tool.up()
+    expect(editor.selected).toBe('2,3')
+    expect(editor.selectedToken).toBe('hero')
+    setTokenHitTest(() => null)
   })
 })

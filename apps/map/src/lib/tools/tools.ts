@@ -360,7 +360,12 @@ const nameDragger = new NameDragger()
  */
 const selectTool: Tool = {
   down(cell, info) {
-    if (tokenDragger.down(cell, info)) return
+    if (tokenDragger.down(cell, info)) {
+      // The panel shows the cell it stands on, as a click beside it would.
+      const token = info.button === 0 ? editor.getToken(editor.selectedToken ?? '') : undefined
+      if (token?.hex) editor.selected = token.hex
+      return
+    }
     const name = nameDragger.down(info)
     editor.selected = typeof name === 'string' ? name : keyOf(cell)
   },

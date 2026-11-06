@@ -380,6 +380,14 @@ export const es: Messages = {
     otherMap: 'Ese fichero es otro mapa; el enlace necesita {id}.otd.json.',
     hexNotFound: 'La casilla {hex} no está en este mapa.',
   },
+  welcome: {
+    title: vocabulary.es.apps.map,
+    tagline:
+      'Mapas de hexágonos o cuadrados para hexcrawls y campañas sandbox, jugados con viajes.',
+    body: 'Este navegador aún no tiene mapas. Empieza uno, o abre un ejemplo para ver lo que puede hacer un mapa terminado: tus cambios en él se guardan como mapa tuyo.',
+    examples: 'Ejemplos',
+    empty: 'Empezar en este mapa vacío',
+  },
   newMap: {
     title: 'Nuevo mapa',
     kindMessage:
@@ -687,8 +695,8 @@ export const es: Messages = {
     makeOpen: 'Abrir',
   },
   hex: {
-    idTip:
-      'El id de la casilla, como lo leen las tablas: place.id (columna,fila, contadas desde 0, sea cual sea el formato de coordenadas del mapa)',
+    idHelp:
+      'La coordenada de la casilla, en el formato que muestra el mapa (Ajustes del mapa → **Coordenadas**). Su id es `{id}`: columna y fila contadas desde 0, sean cuales sean las etiquetas del mapa, y lo que leen las tablas y las condiciones.\n• `place.id` — el id de la casilla, en una tabla o una condición',
     terrainIdTip: 'El id del terreno, como lo leen las tablas y las reglas de viaje: place.terrain',
     poiIcon: 'Icono (solo para distinguir los PDI aquí)',
     noIcon: 'Sin icono',

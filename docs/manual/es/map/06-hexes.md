@@ -1,6 +1,6 @@
 # Detalles de la casilla
 
-Selecciona una casilla con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y editar sus detalles en el panel lateral. Junto a sus coordenadas está su **id** (`4,2`: columna y fila contadas desde 0, sea cual sea el formato de coordenadas del mapa), y junto a su terreno el id del terreno (`heath`): lo que las tablas y las condiciones leen como `place.id` y `place.terrain`.
+Selecciona una casilla con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y editar sus detalles en el panel lateral; un clic en un token muestra la casilla en la que está. El panel da la coordenada de la casilla en el formato del mapa; su ayuda (un clic en ella) da su **id** (`4,2`: columna y fila contadas desde 0, sea cual sea el formato de coordenadas del mapa). Junto a su terreno está el id del terreno (`heath`). Las tablas y las condiciones los leen como `place.id` y `place.terrain`.
 
 ## Qué puede tener una casilla
 

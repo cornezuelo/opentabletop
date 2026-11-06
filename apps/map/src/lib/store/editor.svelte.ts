@@ -576,7 +576,8 @@ class Editor {
     // The world clock and the Oracle are the campaign's; factions are both (sheets and land).
     if (change && (isCampaignChange(change) || change.kind === 'factions'))
       this.campaign.modified = now
-    if (!change || !isCampaignChange(change)) this.map.meta.modified = now
+    if (!change || (!isCampaignChange(change) && change.kind !== 'links'))
+      this.map.meta.modified = now
     this.canUndo = this.history.canUndo
     this.canRedo = this.history.canRedo
     this.revision++

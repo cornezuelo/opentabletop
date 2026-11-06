@@ -2,9 +2,11 @@
 
 Map draws maps of hexes or squares for hexcrawls and sandbox campaigns, and lets you play trips on them. Everything stays in your browser: no account, no server. It can be installed and works offline: see [Installing and playing offline](../technical/06-install-and-offline.md).
 
+A browser with no maps yet greets you over an empty map: **New map**, **Import file…**, the examples of the systems you have, or **Start on this empty map**.
+
 ## The screen
 
-- **Top bar**, like in every app: on the left the app (the open map's name is in the window's title, "Map - The Grey Marches") and the button with nine dots that opens the other OpenTabletop apps; on the right Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings, the gear (**Preferences**, shared by every app: language and notes app) and Help (?).
+- **Top bar**, like in every app: on the left the app, the button with nine dots that opens the other OpenTabletop apps, the campaign you're playing and the open map's name (after the maps above it, if it's a sub-map; a click on the name opens Map settings); on the right Undo, Redo and Fit, then New, Maps, Save and Export, then Layers, Map settings, the gear (**Preferences**, shared by every app: language and notes app) and Help (?).
 - **Toolbar** (left): the tools — Select, Terrain, Regions, Roads and rivers, Connections, Walls, Icons, Text, Tokens, Play, the World clock and the Oracle. Map opens with **Select**, so a first click on the map shows a cell instead of painting it. The small tab on the map's left edge folds it away for more room (the tools' keys still work) and brings it back.
 - **Map** (center): drag with the middle button or <kbd>Space</kbd> + drag to pan, use the wheel to zoom, <kbd>F</kbd> fits the whole map.
 - **Side panel** (right): what the active tool edits — the selected cell with Select, the palette with Terrain, the selected token with Tokens… — or Settings, Layers, the Oracle and the other views of the top bar's buttons. Changing tools deselects what the previous one had selected. The tab on the map's right edge folds it away and brings it back.

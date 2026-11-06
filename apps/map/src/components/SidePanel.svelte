@@ -24,15 +24,29 @@
   import { SetRegionStyleCommand } from '../lib/commands/settings'
   import type { HexKey, RegionStyle } from '@open-tabletop/map'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
-  import { helpMarkdown, InfoTip, tooltip, showToast } from '@open-tabletop/ui-kit'
-  import { t } from '../lib/i18n/index.svelte'
+  import { helpMarkdown, PanelHead, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
   import { applyWorldEffects } from '../lib/play/world.svelte'
   import { applyResult, partyOf, tripChanges } from '@open-tabletop/session'
   import { activeSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
-  import { editor } from '../lib/store/editor.svelte'
+  import { editor, type ToolId } from '../lib/store/editor.svelte'
+
+  const TOOL_TITLES: Record<ToolId, MessageKey> = {
+    select: 'panel.hex',
+    terrain: 'panel.terrain',
+    region: 'panel.regions',
+    path: 'panel.paths',
+    connection: 'panel.connections',
+    wall: 'panel.walls',
+    icon: 'panel.icons',
+    text: 'panel.text',
+    token: 'panel.tokens',
+    play: 'panel.play',
+  }
+  const back = () => (editor.panelView = 'tool')
 
   const hexCoord = (hex: HexKey) => formatCoord(parseKey(hex), editor.grid.coordFormat, editor.grid)
   /** Hand-rolled results already applied to the trip (by history item). */
@@ -56,15 +70,7 @@
 
 <aside class="panel">
   {#if editor.panelView === 'settings'}
-    <header>
-      <h1>{t('panel.settings')}</h1>
-      <button
-        class="close"
-        use:tooltip={t('panel.closeSettings')}
-        aria-label={t('panel.closeSettings')}
-        onclick={() => (editor.panelView = 'tool')}>✕</button
-      >
-    </header>
+    <PanelHead title={t('panel.settings')} closeLabel={t('panel.closeSettings')} onclose={back} />
     <Section title={t('panel.map')}><MapSettings /></Section>
     <Section title={t('panel.campaign')}><MapCampaign /><MapSystem /></Section>
     <Section title={t('map.size')}><MapSize /></Section>
@@ -79,29 +85,18 @@
       />
     </Section>
   {:else if editor.panelView === 'library'}
-    <header>
-      <h1>{t('library.title')}</h1>
-      <button
-        class="close"
-        use:tooltip={t('panel.closeSettings')}
-        aria-label={t('panel.closeSettings')}
-        onclick={() => (editor.panelView = 'tool')}>✕</button
-      >
-    </header>
-    <div class="export"><LibraryPanel /></div>
+    <PanelHead title={t('library.title')} closeLabel={t('panel.closeSettings')} onclose={back} />
+    <div class="body"><LibraryPanel /></div>
   {:else if editor.panelView === 'oracle'}
-    <header>
-      <h1>{t('oracle.title')}<InfoTip text={t('oracle.help')} /></h1>
-      <button
-        class="close"
-        use:tooltip={t('panel.closeSettings')}
-        aria-label={t('panel.closeSettings')}
-        onclick={() => (editor.panelView = 'tool')}>✕</button
-      >
-    </header>
+    <PanelHead
+      title={t('oracle.title')}
+      help={t('oracle.help')}
+      closeLabel={t('panel.closeSettings')}
+      onclose={back}
+    />
     {@const hex = rollHex()}
     {@const coord = hex ? hexCoord(hex) : ''}
-    <div class="export">
+    <div class="body">
       <OraclePanel ui={oracleUi} context={rollContext()}>
         {#snippet header()}
           <p class="rolls-for" class:none={!hex}>
@@ -165,65 +160,49 @@
       </OraclePanel>
     </div>
   {:else if editor.panelView === 'world'}
-    <header>
-      <h1>{t('world.title')}<InfoTip markdown={t('world.help')} /></h1>
-      <button
-        class="close"
-        use:tooltip={t('panel.closeSettings')}
-        aria-label={t('panel.closeSettings')}
-        onclick={() => (editor.panelView = 'tool')}>✕</button
-      >
-    </header>
-    <div class="export"><WorldPanel /></div>
+    <PanelHead
+      title={t('world.title')}
+      help={t('world.help')}
+      closeLabel={t('panel.closeSettings')}
+      onclose={back}
+    />
+    <div class="body"><WorldPanel /></div>
   {:else if editor.panelView === 'layers'}
-    <header>
-      <h1>{t('panel.layers')}</h1>
-      <button
-        class="close"
-        use:tooltip={t('panel.closeSettings')}
-        aria-label={t('panel.closeSettings')}
-        onclick={() => (editor.panelView = 'tool')}>✕</button
-      >
-    </header>
-    <div class="export"><LayersPanel /></div>
+    <PanelHead title={t('panel.layers')} closeLabel={t('panel.closeSettings')} onclose={back} />
+    <div class="body"><LayersPanel /></div>
   {:else if editor.panelView === 'export'}
-    <header>
-      <h1>{t('export.title')}</h1>
-      <button
-        class="close"
-        use:tooltip={t('panel.closeSettings')}
-        aria-label={t('panel.closeSettings')}
-        onclick={() => (editor.panelView = 'tool')}>✕</button
-      >
-    </header>
-    <div class="export"><ExportPanel /></div>
+    <PanelHead title={t('export.title')} closeLabel={t('panel.closeSettings')} onclose={back} />
+    <div class="body"><ExportPanel /></div>
   {:else}
     {@render toolView()}
   {/if}
 </aside>
 
 {#snippet toolView()}
-  {#if editor.tool === 'terrain'}
-    <Section title={t('panel.terrain')}><TerrainPanel /></Section>
-  {:else if editor.tool === 'region'}
-    <Section title={t('panel.regions')}><RegionPanel /></Section>
-  {:else if editor.tool === 'path'}
-    <Section title={t('panel.paths')}><PathPanel /></Section>
-  {:else if editor.tool === 'connection'}
-    <Section title={t('panel.connections')}><ConnectionPanel /></Section>
-  {:else if editor.tool === 'wall'}
-    <Section title={t('panel.walls')}><WallPanel /></Section>
-  {:else if editor.tool === 'icon'}
-    <Section title={t('panel.icons')}><IconPanel /></Section>
-  {:else if editor.tool === 'text'}
-    <Section title={t('panel.text')}><LabelPanel /></Section>
-  {:else if editor.tool === 'token'}
-    <Section title={t('panel.tokens')}><TokenPanel /></Section>
-  {:else if editor.tool === 'play'}
-    <Section title={t('panel.play')}><PlayPanel /></Section>
-  {:else}
-    <Section title={t('panel.hex')}><HexInfo /></Section>
-  {/if}
+  <PanelHead title={t(TOOL_TITLES[editor.tool])} />
+  <div class="body">
+    {#if editor.tool === 'terrain'}
+      <TerrainPanel />
+    {:else if editor.tool === 'region'}
+      <RegionPanel />
+    {:else if editor.tool === 'path'}
+      <PathPanel />
+    {:else if editor.tool === 'connection'}
+      <ConnectionPanel />
+    {:else if editor.tool === 'wall'}
+      <WallPanel />
+    {:else if editor.tool === 'icon'}
+      <IconPanel />
+    {:else if editor.tool === 'text'}
+      <LabelPanel />
+    {:else if editor.tool === 'token'}
+      <TokenPanel />
+    {:else if editor.tool === 'play'}
+      <PlayPanel />
+    {:else}
+      <HexInfo />
+    {/if}
+  </div>
 {/snippet}
 
 <style>
@@ -235,39 +214,11 @@
     border-left: 1px solid var(--panel-border);
   }
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--panel-border);
-  }
-
-  .export {
+  .body {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding-top: 12px;
-  }
-
-  .close {
-    padding: 2px 8px;
-    color: var(--text-muted);
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .close:hover {
-    color: var(--text);
-    border-color: var(--panel-border);
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 16px;
-    color: var(--accent);
   }
 
   .rolls-for {

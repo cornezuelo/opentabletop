@@ -2,9 +2,11 @@
 
 Mapa dibuja mapas de hexágonos o cuadrados para hexcrawls y campañas sandbox, y permite jugar viajes sobre ellos. Todo se queda en tu navegador: sin cuentas ni servidores. Se puede instalar y funciona sin conexión: ver [Instalar y jugar sin conexión](../technical/06-install-and-offline.md).
 
+Un navegador sin mapas todavía te recibe sobre un mapa vacío: **Nuevo mapa**, **Importar fichero…**, los ejemplos de los sistemas que tengas o **Empezar en este mapa vacío**.
+
 ## La pantalla
 
-- **Barra superior**, como en todas las aplicaciones: a la izquierda la aplicación (el nombre del mapa abierto está en el título de la ventana, «Mapa - The Grey Marches») y el botón de nueve puntos que abre las demás aplicaciones de OpenTabletop; a la derecha Deshacer, Rehacer y Encuadrar, luego Nuevo, Mapas, Guardar y Exportar, y luego Capas, Ajustes del mapa, el engranaje (**Preferencias**, compartidas por todas las aplicaciones: idioma y aplicación de notas) y Ayuda (?).
+- **Barra superior**, como en todas las aplicaciones: a la izquierda la aplicación, el botón de nueve puntos que abre las demás aplicaciones de OpenTabletop, la campaña que juegas y el nombre del mapa abierto (tras los mapas de encima, si es un submapa; un clic en el nombre abre Ajustes del mapa); a la derecha Deshacer, Rehacer y Encuadrar, luego Nuevo, Mapas, Guardar y Exportar, y luego Capas, Ajustes del mapa, el engranaje (**Preferencias**, compartidas por todas las aplicaciones: idioma y aplicación de notas) y Ayuda (?).
 - **Barra de herramientas** (izquierda): las herramientas —Seleccionar, Terreno, Regiones, Caminos y ríos, Conexiones, Muros, Iconos, Texto, Tokens, Jugar, el reloj del Mundo y Oráculo—. Map se abre con **Seleccionar**, así que el primer clic en el mapa muestra una casilla en vez de pintarla. La pestañita del borde izquierdo del mapa la oculta para tener más sitio (las teclas de las herramientas siguen funcionando) y la vuelve a mostrar.
 - **Mapa** (centro): arrastra con el botón central o con <kbd>Espacio</kbd> + arrastrar para desplazarte, usa la rueda para el zoom y <kbd>F</kbd> encuadra el mapa entero.
 - **Panel lateral** (derecha): lo que edita la herramienta activa —la casilla seleccionada con Seleccionar, la paleta con Terreno, el token seleccionado con Tokens…— o Ajustes, Capas, Oráculo y las demás vistas de los botones de la barra superior. Al cambiar de herramienta se deselecciona lo que tenía seleccionado la anterior. La pestañita del borde derecho del mapa lo oculta y lo vuelve a mostrar.

@@ -23,8 +23,8 @@
 
   /**
    * The bar across the top, like in every app: the app and the app switcher on the left;
-   * what you do with the map and the panel's views on the right. The open map's name goes
-   * in the window's title ("Map - The Grey Marches").
+   * what you do with the map and the panel's views on the right. The open map's name is in
+   * the bar and in the window's title ("Map - The Grey Marches").
    */
   $effect(() => {
     const name = editor.meta.name.trim()
@@ -101,17 +101,17 @@
   <span class="name"><AppBrand app="map" name={t('app.title')} /></span>
   <AppSwitcher current="map" locale={getLocale()} />
   <CampaignChip locale={getLocale()} {held} />
-  {#if editor.linked.ancestors.length}
-    <!-- A sub-map: the maps above it, each opening its map, then this one. -->
-    <nav class="crumbs" aria-label={t('submap.breadcrumb')}>
-      {#each editor.linked.ancestors as above (above.id)}
-        <button class="crumb" onclick={() => openLibraryMap(above.id)}
-          >{above.name || t('map.untitled')}</button
-        ><span class="crumb-sep" aria-hidden="true">›</span>
-      {/each}
-      <span class="crumb here">{editor.meta.name || t('map.untitled')}</span>
-    </nav>
-  {/if}
+  <!-- The open map, after the maps above it if it's a sub-map, each opening its map. -->
+  <nav class="crumbs" aria-label={t('submap.breadcrumb')}>
+    {#each editor.linked.ancestors as above (above.id)}
+      <button class="crumb" onclick={() => openLibraryMap(above.id)}
+        >{above.name || t('map.untitled')}</button
+      ><span class="crumb-sep" aria-hidden="true">›</span>
+    {/each}
+    <button class="crumb here" onclick={toggle('settings')}
+      >{editor.meta.name || t('map.untitled')}</button
+    >
+  </nav>
   <div class="spacer"></div>
   {#each groups as group, g (g)}
     {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}

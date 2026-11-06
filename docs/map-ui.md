@@ -1,6 +1,6 @@
 # Map's UI/UX: review and proposal
 
-Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): to review with the user, no code yet.**
+Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), step 1 done, step 2 next.**
 
 Seen on v0.37.0 in headless Chrome: the Grey Marches' frontier in every tool and panel, a trip with a march played, a fresh profile, and windows of 1440, 1280, 1024, 820 and 390 px. It also starts from the round 1 players (P1–P14). The comparison with Dungeon Scrawl, Inkarnate, Wonderdraft, Hextml and Worldographer is from what is generally known of them; they weren't opened for this.
 
@@ -38,7 +38,7 @@ Seen on v0.37.0 in headless Chrome: the Grey Marches' frontier in every tool and
 11. **Two kinds of panel header:** tools' `▾ Terrain` folds the only section there is, while Layers, Settings, Maps, Export, World and the Oracle have a title and ✕.
 12. **No zoom in sight:** no percentage, no buttons, only the wheel and **Fit**. The cell under the pointer isn't told either: `HoverLine` gives its region and faction, not its coordinate.
 13. **First run:** a dark empty grid and "Click a cell to view and edit its details". Campaign, Characters, Travel and Systems greet with ui-kit's `Welcome`; Map doesn't, and the examples are behind the **Maps** icon.
-14. **Bug: a link to an example asks about "your copy" in a fresh browser** (verified, the item found checking Relief). Not the service worker, as suspected: it happens with it blocked. One page load, the hash is rewritten to `#/greymarches1` and then the dialog opens. Cause still unconfirmed; the likeliest is `follow` running twice (App's start-up effect running again), the second finding the example the first just kept.
+14. **Bug: a link to an example asks about "your copy" in a fresh browser** (verified, the item found checking Relief). Not the service worker, as suspected: it happens with it blocked. One page load, the hash is rewritten to `#/greymarches1` and then the dialog opens. Its cause is under step 1 in §4.
 15. **Narrow windows.** The panel stays 300 px down to 761 px, so at 820 px the map has 463 px of width. Under 760 px it becomes a sheet of 45% of the height, so a phone reads a 2705 px panel through 380 px. The bar scrolls sideways (601 px in 390), which works but hides Save.
 
 ## 3. Proposal
@@ -101,7 +101,7 @@ Every tool's icon drawn in one set (`LineIcon` exists; the glyphs become entries
 
 One commit each, `make verify` green, the manual updated in the same work.
 
-1. **Small and sure:** the two bugs (9, 14), the map's name (10), one panel head (11), one coordinate (8), `Welcome` (13).
+1. ✅ (2026-11-06) **Small and sure:** the two bugs (9, 14), the map's name (10), one panel head (`PanelHead` in ui-kit, 11), one coordinate (8), `Welcome` (13). Number 14's cause: `App`'s start-up effect read `playing.id`, so playing the opened map's campaign started the app again; and reading the ways to other maps counted as a change (`links`), stamping and keeping every map opened, a blank one too. **Left:** opening a kept example again by its link still asks, though nothing was played: the bundled files have no `modified` to compare with.
 2. **The Play panel** (3.2), with Travel.
 3. **Edit and Play** (3.1) and the icons.
 4. **The cell** (3.3).
@@ -109,9 +109,9 @@ One commit each, `make verify` green, the manual updated in the same work.
 6. **Narrow windows** (3.5).
 7. P12's rest, what's left of it by then.
 
-## 5. To decide with the user
+## 5. Decided with the user (2026-11-06)
 
-1. **Edit | Play as modes**, or Play staying a tool with the rail only grouped? Proposed: modes. The cost: today's quick fix of a cell in the middle of a trip takes a key press more.
-2. **The status as a strip over the map**, or at the top of the panel, shorter? Proposed: the strip, since it gives the panel its height back; it covers a little of the map.
-3. **Is it only Map?** The panel order reaches Travel by itself. Campaign, Characters, the Oracle and Systems weren't reviewed here; the backlog's item speaks of Map, so proposed: Map only, the rest with round 2.
-4. **The order of the steps**, and whether step 1 goes ahead while the rest is talked over.
+1. **Edit | Play as modes** (§3.1), not Play as a tool with the rail only grouped. The cost accepted: fixing a cell in the middle of a trip takes a step back to Edit.
+2. **The status as a strip over the map** (§3.2).
+3. **Map only.** Campaign, Characters, the Oracle and Systems wait for round 2; Travel gets the Play panel's order through `TripPanel`.
+4. **The steps in the order of §4**, starting with step 1.

@@ -3,7 +3,13 @@ import { t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 import { view } from '../store/view'
-import { openExampleMap, openInCampaign, openLibraryMap, openMapFile } from './actions.svelte'
+import {
+  library,
+  openExampleMap,
+  openInCampaign,
+  openLibraryMap,
+  openMapFile,
+} from './actions.svelte'
 import { exampleMaps } from './examples'
 import { ask, parseInCampaign } from '@open-tabletop/ui-kit'
 import { formatDeepLink, parseDeepLink, parseExampleLink, resolveHexLabel } from './deepLink'
@@ -76,6 +82,8 @@ export async function startDeepLinks(): Promise<() => void> {
   window.addEventListener('hashchange', onHash)
   const stopSync = $effect.root(() => {
     $effect(() => {
+      // A map not kept yet has no link: after a reload there would be nothing to open.
+      if (library.untouched) return
       const selected = editor.selected
       const label = selected
         ? formatCoord(parseKey(selected), editor.grid.coordFormat, editor.grid)

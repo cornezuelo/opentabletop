@@ -1,6 +1,6 @@
 # Cell details
 
-Select a cell with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel. Beside its coordinates is its **id** (`4,2`: column and row counted from 0, whatever the map's coordinate labels), and beside its terrain the terrain's id (`heath`): what tables and conditions read as `place.id` and `place.terrain`.
+Select a cell with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel; a click on a token shows the cell it stands on. The panel gives the cell's coordinate in the map's format; its help (a click on it) gives its **id** (`4,2`: column and row counted from 0, whatever the map's coordinate labels). Beside its terrain is the terrain's id (`heath`). Tables and conditions read them as `place.id` and `place.terrain`.
 
 ## What a cell can hold
 
