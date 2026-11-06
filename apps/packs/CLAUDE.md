@@ -23,7 +23,7 @@ src/
     steps.ts          # a step's kind, changing it, a new kind's value, the step in words (StepCard's title)
     usage.ts          # where a system's names are used (session's index of uses): Used by, Find a name; each place's name and link and the list are oracle-ui's (`shownPlace`, `UsesList`), shared with the Oracle's Rolled by
     i18n/             # typed en/es dictionaries
-  components/         # Sidebar (systems, new system; map styles), SystemView (tabs), StyleView (a map style: pack-ui's StyleForm, Make a copy, Remove), Overview (the kind: system form), YamlTab (the parts' files), TryTab (a test trip), ReadOnly (pack-ui's PackNotice worded for a system: edit a copy / revert);
+  components/         # Sidebar (Systems | Packs, a search; the tree from lib/tree.ts), PackHolds (a pack's cards, in pack-ui's PackPage), NewSystemDialog, SystemView (tabs), StyleView (a map style: pack-ui's StyleForm, Make a copy, Remove), Overview (the kind: system form), YamlTab (the parts' files), TryTab (a test trip), ReadOnly (pack-ui's PackNotice worded for a system: edit a copy / revert);
                       # forms/: RulesForm (+ values of the day), ActionsForm (actions, conditions as rows), StepCard (a step as a card),
                       # ChecksForm (checks + bindings + stats, stats from the characters, carried supplies), RecordRows;
                       # parts/: the sheet, item catalogues, factions, clocks, world rules (WorldForm, WorldSteps), calendar, weather, land and roll modes forms (PartsTab);

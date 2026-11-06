@@ -3,7 +3,7 @@ import { TABS } from './tabs'
 /**
  * What the main area shows, mirrored in the URL hash so views can be linked:
  * #/system/<id>/<tab>[/<item>] (an item of the tab, unfolded: a template of the bestiary),
- * #/style/<pack>/<id> (a map style).
+ * #/style/<pack>/<id> (a map style), #/pack/<folder> (a pack), #/file/<folder>/<path> (a file).
  */
 export type Tab =
   | 'overview'
@@ -27,9 +27,17 @@ export type View =
   | { name: 'system'; id: string; tab: Tab; item?: string }
   /** A map style, by its full id (`core/parchment`). */
   | { name: 'style'; ref: string }
+  | { name: 'pack'; root: string }
+  | { name: 'file'; root: string; path: string; line?: number }
 
 function parse(hash: string): View {
-  const [name, id, tab, item] = hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
+  const [name, id, tab, item, ...rest] = hash
+    .replace(/^#\/?/, '')
+    .split('/')
+    .map(decodeURIComponent)
+  if (name === 'pack' && id) return { name, root: id }
+  if (name === 'file' && id && tab)
+    return { name, root: id, path: [tab, item, ...rest].filter(Boolean).join('/') }
   if (name === 'style' && id && tab) return { name, ref: `${id}/${tab}` }
   if (name === 'system' && id)
     return {
@@ -41,12 +49,20 @@ function parse(hash: string): View {
   return { name: 'welcome' }
 }
 
-const format = (view: View): string =>
-  view.name === 'style'
-    ? `#/style/${view.ref.split('/').map(encodeURIComponent).join('/')}`
-    : view.name === 'system'
-      ? `#/system/${encodeURIComponent(view.id)}/${view.tab}${view.item ? `/${encodeURIComponent(view.item)}` : ''}`
-      : '#/'
+function format(view: View): string {
+  switch (view.name) {
+    case 'style':
+      return `#/style/${view.ref.split('/').map(encodeURIComponent).join('/')}`
+    case 'system':
+      return `#/system/${encodeURIComponent(view.id)}/${view.tab}${view.item ? `/${encodeURIComponent(view.item)}` : ''}`
+    case 'pack':
+      return `#/pack/${encodeURIComponent(view.root)}`
+    case 'file':
+      return `#/file/${encodeURIComponent(view.root)}/${view.path}`
+    default:
+      return '#/'
+  }
+}
 
 export const nav = $state<{ view: View }>({ view: parse(location.hash) })
 
@@ -62,3 +78,26 @@ export function go(view: View, replace = false): void {
 window.addEventListener('popstate', () => {
   nav.view = parse(location.hash)
 })
+
+/** Which of the left column's lists shows: a preference of this browser. */
+export type SideView = 'systems' | 'packs'
+const SIDE = 'opentabletop.packs.side'
+function readSide(): SideView {
+  // What a link opened decides; otherwise the list last shown here.
+  if (['pack', 'file', 'style'].includes(nav.view.name)) return 'packs'
+  try {
+    return localStorage.getItem(SIDE) === 'packs' ? 'packs' : 'systems'
+  } catch {
+    return 'systems'
+  }
+}
+export const side = $state<{ view: SideView }>({ view: readSide() })
+
+export function showSide(view: SideView): void {
+  side.view = view
+  try {
+    localStorage.setItem(SIDE, view)
+  } catch {
+    // Not remembered; it still shows now.
+  }
+}

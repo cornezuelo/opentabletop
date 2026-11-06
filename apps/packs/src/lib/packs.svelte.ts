@@ -1,9 +1,10 @@
 import { mapStyles } from '@open-tabletop/map'
+import { packTexts } from '@open-tabletop/oracle-ui'
 import { PackLibrary } from '@open-tabletop/pack-ui'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 import { travelSystems, type TravelSystem } from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
-import { t } from './i18n'
+import { getLocale, t } from './i18n'
 
 /** Bundled packs plus the user's (shared with the other apps on the same site). */
 export const library = new PackLibrary(bundledPacks, {
@@ -13,6 +14,9 @@ export const library = new PackLibrary(bundledPacks, {
     ...mapStyles(registry).problems,
   ],
 })
+
+/** Pack texts in the UI's language (a definition's name). */
+export const texts = packTexts(() => library.registry, getLocale)
 
 /** Travel systems of the loaded packs (Generic first); recomputed when packs change. */
 class Packs {
