@@ -17,6 +17,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Core: **Explore** says what its idea is for before rolling it.
 - The Grey Marches: **Forage for food** says first where nothing grows, and **Tend the wounded** and **Drive them off** that someone has to act.
+- The Grey Marches: **Look for tracks**, an hour reading the ground: where the place is dangerous you learn what passed, and where it isn't, that nothing did.
 
 ### Formats
 

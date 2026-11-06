@@ -248,6 +248,17 @@ actions:
       - { time: 180 }
       - { travel.speed: 0.5 }
     oncePerDay: true
+  # An hour reading the ground. Its check (below, at: actions.look-for-tracks.done) comes up
+  # only where there's danger, which the party can't know first: `needs` would give it away
+  # for free, so the hour is spent and `nothing` is what the journal says where it doesn't.
+  look-for-tracks:
+    name: Look for tracks
+    description: 'An hour reading the ground, by day, once a day. Where danger walks you learn what left its mark; where nothing does, you learn that, for the hour it took.'
+    nothing: 'no tracks on {terrain}: nothing dangerous has passed this way'
+    when: { time.tags: { not: dark } }
+    oncePerDay: true
+    do:
+      - { time: 60 }
   # Nobody presses this one: the system takes it by itself as each day ends (on: time.day-end),
   # whether the party camped or not. A ration per mouth, one more per hireling (an amount
   # that is a variable: as many as the stat says), taken from the Company's stores first and
@@ -744,6 +755,12 @@ checks:
     description: Rolled after three hours foraging in woods, fields, heath or marsh.
     at: actions.forage.done
     when: { place.terrain: [forest, dense-forest, plains, farmland, heath, marsh] }
+  # Tracks (the look-for-tracks action above), where the place is dangerous.
+  - event: TRACKS_CHECK_REQUIRED
+    name: Tracks
+    description: Rolled after an hour looking for tracks, where the place is dangerous.
+    at: actions.look-for-tracks.done
+    when: { place.danger: { gte: 1 } }
   # Fishing (the fish action above): a table rolled on a d6 under Survival. No `at`: only the
   # fish action's step rolls it, after its two hours.
   - event: FISHING_CHECK_REQUIRED
@@ -937,5 +954,6 @@ on:
   SHRINE_CHECK_REQUIRED: { resolve: table.shrine }
   HIDDEN_PATH_CHECK_REQUIRED: { resolve: table.hidden-path }
   FORAGE_CHECK_REQUIRED: { resolve: table.forage }
+  TRACKS_CHECK_REQUIRED: { resolve: table.tracks }
   FISHING_CHECK_REQUIRED: { resolve: table.fishing }
   HUNGER_CHECK_REQUIRED: { resolve: table.hunger }

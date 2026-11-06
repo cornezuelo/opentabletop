@@ -33,6 +33,18 @@ forage:
     nothing: Aquí no hay nada que comer
     some: Bayas y raíces para un día
     plenty: '¡Caza! Comida para {{days}} días'
+tracks:
+  name: Huellas
+  description: |-
+    Lo que el grupo lee en el suelo con **Buscar huellas**, donde el lugar es peligroso. Donde no lo es, no hay tirada: la acción lo dice con sus palabras, una vez gastada la hora.
+
+    **Enseña:**
+
+    - El `nothing` de una acción, para lo que el jugador no puede saber antes de intentarlo (`needs` lo diría gratis)
+    - Una comprobación al acabar una acción, sobre un valor del lugar: `place.danger: { gte: 1 }`
+  entries:
+    faint: 'Algo pasó por aquí hace días: la lluvia se ha llevado el resto'
+    clear: 'Huellas frescas, de menos de un día: abrid bien los ojos'
 fishing:
   name: Pesca
   description: |-

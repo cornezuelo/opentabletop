@@ -1086,6 +1086,25 @@ describe('bundled open packs', () => {
     }
   })
 
+  it('the Grey Marches: looking for tracks spends the hour, and only danger gives a roll', () => {
+    const system = marches()
+    const world = row([{ terrain: 'hills' }, { terrain: 'hills', danger: 2 }])
+    const options = { system, world, oracle: createOracleEngine({ registry, random: seeded('t') }) }
+    const look = { type: 'action', id: 'look-for-tracks' } as const
+    // A safe place: the button is on, so it gives nothing away, and the hour goes.
+    const safe = startTrip({ system, location: '0', season: 'summer' }).session
+    expect(tripAvailability(options, safe)['look-for-tracks']).toBeUndefined()
+    const none = stepTrip(options, safe, look)
+    expect(none.state.travel.time).toBe(safe.travel.time + 60)
+    expect(none.entries.find((e) => e.code === 'ACTION_TAKEN')?.data?.checks).toBe(0)
+    expect(none.entries.some((e) => e.code === 'ORACLE_RESULT')).toBe(false)
+    // A dangerous one: rolled once the hour is done.
+    const risky = startTrip({ system, location: '1', season: 'summer' }).session
+    const seen = stepTrip(options, risky, look).entries.find((e) => e.code === 'ORACLE_RESULT')
+    expect(seen?.data?.event).toBe('TRACKS_CHECK_REQUIRED')
+    expect(seen?.time).toBe(risky.travel.time + 60)
+  })
+
   it('the Grey Marches: fishing rolls its check after two hours, and the step after it sees the result', () => {
     const system = marches()
     const world = row([{ terrain: 'coast' }])

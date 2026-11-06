@@ -98,6 +98,27 @@ entries:
       effects: { party.items.ration: '{{days}}' },
     }
 ---
+# What the ground tells, where the place is dangerous; where it isn't, the action's `nothing`.
+kind: table
+id: tracks
+tags: [travel, rules]
+name: Tracks
+description: |-
+  What the party reads on the ground with **Look for tracks**, where the place is dangerous. Where it isn't, no roll: the action says so in its own words, once the hour is spent.
+
+  **Shows:**
+
+  - An action's `nothing`, for what the player can't know before trying (`needs` would tell for free)
+  - A check at the end of an action, on a value the place holds: `place.danger: { gte: 1 }`
+roll: '1d6 + {{party.stats.survival}}'
+entries:
+  - {
+      id: faint,
+      range: 1-3,
+      result: 'Something passed here, days ago: the rain has taken the rest',
+    }
+  - { id: clear, range: 4-20, result: 'Fresh tracks, and not a day old: keep your eyes open' }
+---
 # A roll-under on the table's own roll: its entries read the d6 as `roll`, in a condition
 # against a stat (at or under Survival) and in their texts.
 kind: table

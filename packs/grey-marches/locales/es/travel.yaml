@@ -71,6 +71,10 @@ travel-rules/default:
     carter:
       name: Ir con un carretero
       description: 'Por un camino, de día: un carretero que va en vuestra dirección os lleva dos hexes por la ruta en dos horas. Una vez al día.'
+    look-for-tracks:
+      name: Buscar huellas
+      description: 'Una hora leyendo el suelo, de día, una vez al día. Donde anda el peligro sabéis qué dejó su rastro; donde no, sabéis eso, por la hora que costó.'
+      nothing: 'no hay huellas en {terrain}: nada peligroso ha pasado por aquí'
     fish:
       name: Pescar
       description: 'Junto a un lago, el mar o en la costa, de día: dos horas con el sedal, una vez al día. Tira un d6: si saca vuestra Supervivencia o menos, pescado para dos días; si no, de 1 a 3, para uno; si no, no pica nada.'
@@ -193,6 +197,9 @@ travel-rules/default:
     HIDDEN_PATH_CHECK_REQUIRED:
       name: Senda oculta
       description: Donde empieza una senda oculta, hasta encontrarla; la Supervivencia ayuda.
+    TRACKS_CHECK_REQUIRED:
+      name: Huellas
+      description: Se tira tras una hora buscando huellas, donde el lugar es peligroso.
     SHRINE_CHECK_REQUIRED:
       name: Santuario
       description: Un santuario junto al camino, la primera vez que el viaje pasa por él. El viaje se detiene tras la tirada; pulsa Continuar para seguir.

@@ -216,9 +216,7 @@ describe('journal lines', () => {
     // The system's own words, for an action a check is rolled at; nothing, for one without.
     const { registry } = loadPacks([...corePack(), ...greyMarchesPack()])
     const gm = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!.rules
-    const forage = { ...gm.actions!.forage, nothing: 'nothing to forage on {terrain}' }
-    const worded = { ...gm, actions: { ...gm.actions, forage } }
-    expect(actionNothingOf(worded, 'forage', 'en')).toMatch(/^nothing to forage on \{terrain\}/)
+    expect(actionNothingOf(gm, 'look-for-tracks', 'en')).toMatch(/^no tracks on \{terrain\}/)
     expect(actionNothingOf(gm, 'eat', 'en')).toBe('')
     // No words of its own, and it changed something: that's what happened (a camp's rest).
     expect(actionNothingOf(gm, 'camp', 'en')).toBeUndefined()
