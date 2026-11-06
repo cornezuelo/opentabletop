@@ -65,9 +65,10 @@ const now = (): string => new Date(Date.now()).toISOString()
 /** Bumped whenever the library changes, so lists can refresh. */
 /**
  * `version`: bumped on every change of the library; `loaded`: once the first map is open;
- * `untouched`: the open map is a new one nobody changed, so it isn't kept yet.
+ * `untouched`: the open map is a new one nobody changed, so it isn't kept yet;
+ * `links`: bumped when the maps round the open one changed, to read its ways again.
  */
-export const library = $state({ version: 0, loaded: false, untouched: false })
+export const library = $state({ version: 0, loaded: false, untouched: false, links: 0 })
 
 /**
  * A map to open, and its campaign when it brings one (a file, a map saved before campaigns);
@@ -304,6 +305,8 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
     if (id === example.id) {
       await keepSubMaps(id)
       await keepParents(editor.map)
+      // Kept after the map opened: its ways are read again.
+      library.links++
     }
     if (opening.trip) sayJoinedTrip(opening.trip)
     else await sayCampaign()

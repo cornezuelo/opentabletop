@@ -366,7 +366,8 @@ const selectTool: Tool = {
       if (token?.hex) editor.selected = token.hex
       return
     }
-    const name = nameDragger.down(info)
+    // In Play the map isn't edited: names stay where they are.
+    const name = editor.mode === 'edit' ? nameDragger.down(info) : false
     editor.selected = typeof name === 'string' ? name : keyOf(cell)
   },
   move(cell, info) {

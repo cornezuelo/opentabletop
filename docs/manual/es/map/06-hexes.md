@@ -1,6 +1,8 @@
 # Detalles de la casilla
 
-Selecciona una casilla con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y editar sus detalles en el panel lateral; un clic en un token muestra la casilla en la que está. El panel da la coordenada de la casilla en el formato del mapa; su ayuda (un clic en ella) da su **id** (`4,2`: columna y fila contadas desde 0, sea cual sea el formato de coordenadas del mapa). Junto a su terreno está el id del terreno (`heath`). Las tablas y las condiciones los leen como `place.id` y `place.terrain`.
+Selecciona una casilla con la herramienta **Seleccionar** (<kbd>V</kbd>) para ver y editar sus detalles en el panel lateral: su coordenada, terreno, nombre y región, después lo que contiene y unos botones pequeños para lo que aún no tiene (**+ Notas**, **+ Punto de interés**, **+ Etiqueta**…), cada uno abre su campo. El **⋯** junto a **Tirar aquí** copia el enlace de la casilla y la vacía. En [Jugar](08-play.md) el mismo panel es para leer, sin nada que rellenar: para cambiar la casilla, vuelve a **Editar**.
+
+Un clic en un token muestra la casilla en la que está. El panel da la coordenada de la casilla en el formato del mapa; su ayuda (un clic en ella) da su **id** (`4,2`: columna y fila contadas desde 0, sea cual sea el formato de coordenadas del mapa). Junto a su terreno está el id del terreno (`heath`). Las tablas y las condiciones los leen como `place.id` y `place.terrain`.
 
 ## Qué puede tener una casilla
 

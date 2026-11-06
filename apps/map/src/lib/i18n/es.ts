@@ -697,6 +697,17 @@ export const es: Messages = {
     makeOpen: 'Abrir',
   },
   hex: {
+    nothingHere: 'No hay nada apuntado en esta casilla.',
+    readOnly: 'Para cambiarla, vuelve a Editar (P).',
+    part: {
+      notes: '+ Notas',
+      note: '+ Nota enlazada',
+      pois: '+ Punto de interés',
+      tags: '+ Etiqueta',
+      fields: '+ Campo',
+      ways: '+ Camino a un mapa',
+    },
+    more: 'Más sobre esta casilla',
     idHelp:
       'La coordenada de la casilla, en el formato que muestra el mapa (Ajustes del mapa → **Coordenadas**). Su id es `{id}`: columna y fila contadas desde 0, sean cuales sean las etiquetas del mapa, y lo que leen las tablas y las condiciones.\n• `place.id` — el id de la casilla, en una tabla o una condición',
     terrainIdTip: 'El id del terreno, como lo leen las tablas y las reglas de viaje: place.terrain',

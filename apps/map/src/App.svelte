@@ -18,7 +18,7 @@
   import { editor } from './lib/store/editor.svelte'
   import Toolbar from './components/Toolbar.svelte'
   import TopBar from './components/TopBar.svelte'
-  import { startPersistence } from './lib/io/actions.svelte'
+  import { library, startPersistence } from './lib/io/actions.svelte'
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
   import { bindShortcuts } from './lib/shortcuts'
   import { PANEL_WIDTH, panelWidth, setPanelWidth } from './lib/store/panelWidth.svelte'
@@ -66,7 +66,7 @@
 
   // Another map opened, or this one now hangs elsewhere: the maps it reaches are read again.
   $effect(() => {
-    void [editor.meta.id, editor.meta.parent?.map, ready]
+    void [editor.meta.id, editor.meta.parent?.map, ready, library.links]
     if (ready) untrack(() => void loadLinks())
   })
 

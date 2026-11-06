@@ -691,6 +691,17 @@ export const en = {
     makeOpen: 'Open',
   },
   hex: {
+    nothingHere: 'Nothing is noted on this cell.',
+    readOnly: 'To change it, go back to Edit (P).',
+    part: {
+      notes: '+ Notes',
+      note: '+ Linked note',
+      pois: '+ Point of interest',
+      tags: '+ Tag',
+      fields: '+ Field',
+      ways: '+ Way into a map',
+    },
+    more: 'More on this cell',
     idHelp:
       'The cell’s coordinate, in the format the map shows (Map settings → **Coordinates**). Its id is `{id}`: column and row counted from 0, whatever the map’s labels, and what tables and conditions read.\n• `place.id` — the cell’s id, in a table or a condition',
     terrainIdTip: 'The terrain’s id, as tables and travel rules read it: place.terrain',

@@ -1,5 +1,5 @@
 import type { HexKey } from '@open-tabletop/hex'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { dialog, toasts } from '@open-tabletop/ui-kit'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
@@ -331,6 +331,10 @@ describe('playing on the map', () => {
   })
 
   it('a clock moved on elsewhere: the party lives that time, or skips it as it was', async () => {
+    // World turns roll with Math.random, and a reaction that waits for the player would stop
+    // the trip before it asks.
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    onTestFinished(() => random.mockRestore())
     editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     clickHex('7,7')
     startWorld()

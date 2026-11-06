@@ -85,7 +85,7 @@ export function bindShortcuts(): () => void {
         e.preventDefault()
         return
       }
-      if (key === 'delete' || key === 'backspace') {
+      if ((key === 'delete' || key === 'backspace') && editor.mode === 'edit') {
         deleteSelectedToken()
         e.preventDefault()
         return

@@ -57,9 +57,12 @@ describe('sub-maps', () => {
       const hills = exampleMaps().find((m) => m.id === 'hollowhills1')!
 
       // Opening the example keeps its sub-map beside it, under it, in the same campaign.
+      const links = actions.library.links
       await actions.openExampleMap(hills)
       await settle()
       expect(maps.get('barrowhalls1')).toMatchObject({ parent: 'hollowhills1' })
+      // Kept after the map opened: the app is told to read its ways again.
+      expect(actions.library.links).toBeGreaterThan(links)
       const modified = editor.map.meta.modified
       await loadLinks()
       // Reading the ways is no change: opening a map doesn't make it the player's.

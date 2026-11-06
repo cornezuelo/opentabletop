@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import { t } from '../../lib/i18n/index.svelte'
   import { renderMarkdown } from '../../lib/markdown'
   import type { HexKey } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
 
-  let { key, notes }: { key: HexKey; notes: string } = $props()
+  /** `editing`: open for writing as it appears (asked for, on a cell without notes). */
+  let { key, notes, editing = false }: { key: HexKey; notes: string; editing?: boolean } = $props()
 
   /** Hex being edited, captured at start so a late save never lands on another hex. */
   let editingKey = $state<HexKey | null>(null)
@@ -24,6 +26,10 @@
     editingKey = null
     editor.editHex(target, (h) => ({ ...h, notes: draft }))
   }
+
+  onMount(() => {
+    if (editing && !notes) start()
+  })
 
   // Save if the component goes away mid-edit (e.g. the map is replaced).
   $effect(() => () => finish())

@@ -1,6 +1,6 @@
 # Map's UI/UX: review and proposal
 
-Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), steps 1 to 3 done, step 4 next.**
+Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), steps 1 to 4 done, step 5 next.**
 
 Seen on v0.37.0 in headless Chrome: the Grey Marches' frontier in every tool and panel, a trip with a march played, a fresh profile, and windows of 1440, 1280, 1024, 820 and 390 px. It also starts from the round 1 players (P1–P14). The comparison with Dungeon Scrawl, Inkarnate, Wonderdraft, Hextml and Worldographer is from what is generally known of them; they weren't opened for this.
 
@@ -83,7 +83,7 @@ Every tool's icon drawn in one set (`LineIcon` exists; the glyphs become entries
 - Then only what it holds: notes, points of interest, ways, icon, tags, fields.
 - Below, **+ Note · + Linked note · + Place · + Tag · + Field · + Way in** as small chips: each opens its input.
 - **Clear cell** and **New sub-map here** in a ⋯ menu.
-- In Play, the same head with what the party can see, as **Here** does.
+- In Play, the same head, read only: what it holds, nothing to fill in.
 
 ### 3.4 The frame
 
@@ -104,7 +104,7 @@ One commit each, `make verify` green, the manual updated in the same work.
 1. ✅ (2026-11-06) **Small and sure:** the two bugs (9, 14), the map's name (10), one panel head (`PanelHead` in ui-kit, 11), one coordinate (8), `Welcome` (13). Number 14's cause: `App`'s start-up effect read `playing.id`, so playing the opened map's campaign started the app again; and reading the ways to other maps counted as a change (`links`), stamping and keeping every map opened, a blank one too. **Left:** opening a kept example again by its link still asks, though nothing was played: the bundled files have no `modified` to compare with.
 2. ✅ (2026-11-06) **The Play panel** (3.2), with Travel. Changed while building: the options are a fourth tab, **Options**, not a ⚙ in the head (Travel gets them as they are, and no new popover), and the panel opens at 340 px so four tabs fit. Travel keeps `TripStatus` as a box at the top of its column.
 3. ✅ (2026-11-06) **Edit and Play** (3.1) and the icons: the switch in the top bar, `editor.mode` (the tool's setter keeps it, Select being in both), one `LineIcon` set for both bars. Editing a cell's fields from Select in Play still works: step 4 decides what the cell shows there.
-4. **The cell** (3.3).
+4. ✅ (2026-11-06) **The cell** (3.3): chips for what it doesn't hold, the link and **Clear cell** in a ⋯, **New sub-map here** behind **+ Way into a map**. Decided with the user: in Play it's read only (`HexReadOnly`), names can't be dragged and **Delete** doesn't remove a token. Discovery needs nothing here: an undiscovered cell is an empty one, with nothing to hide.
 5. **The map's bar** (3.4).
 6. **Narrow windows** (3.5).
 7. P12's rest, what's left of it by then.
