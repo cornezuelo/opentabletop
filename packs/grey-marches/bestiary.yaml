@@ -110,6 +110,17 @@ templates:
     tags: [leader]
     values: { health: '{{2d6+2}}', harm: 2, morale: 9 }
     items: { ration: 2 }
+  traveller:
+    # Whoever a road brings, on the companions' own sheet: gone once the Company moves on,
+    # unless it takes them along (Take the escort).
+    sheet: sheet.companion
+    name: Traveller
+    description: Someone met on the road, with business of their own.
+    names: table.npc-names
+    tags: [people, traveller]
+    values: { survival: 1, charisma: '{{1d2}}', health: 3 }
+    token: { icon: 'game:walking-boot', kind: npc }
+    behind: leave
   vale-rider:
     # An NPC type on the companions' own sheet: a rider of the Vale's patrol.
     sheet: sheet.companion

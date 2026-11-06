@@ -42,6 +42,9 @@ bestiary/marches:
     - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
     - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque (`behind: stay`)
   templates:
+    traveller:
+      name: Viajero
+      description: Alguien que os cruzáis en el camino, con sus propios asuntos.
     grey-wolf:
       name: Lobo gris
       description: Flaco y paciente; caza en manada, y se desbanda cuando cae su jefe.

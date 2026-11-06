@@ -1503,13 +1503,7 @@
               "id": "smithy1",
               "name": "Old Brenna’s smithy",
               "color": "#5a5a5a",
-              "onePlace": true,
-              "fields": [
-                {
-                  "key": "smithy",
-                  "value": "true"
-                }
-              ]
+              "onePlace": true
             },
             {
               "id": "reeve1",

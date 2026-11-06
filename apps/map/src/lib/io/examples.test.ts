@@ -683,7 +683,7 @@ describe('example maps', () => {
       'drive-off': { condition: 'when' }, // nobody here to drive off
       'buy-off': { condition: 'when' }, // no outlaws here
     })
-    expect(Object.keys(unavailable)).toHaveLength(18)
+    expect(Object.keys(unavailable)).toHaveLength(20)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {
@@ -826,19 +826,12 @@ describe('example maps', () => {
     expect(hunger?.text).toMatch(/^In the night, /)
     expect(camped.state.stats).toMatchObject({ morale: -1, hirelings: 0 }) // hirelings never below 0 (min: 0)
 
-    // The inn reads the party: a feast needs food; without a trip, nobody is asked.
-    const fed = {
-      ...session,
-      stats: { ...session.stats, morale: 3 },
-      party: {
-        ...session.party!,
-        items: [{ key: 'ration', id: 'ration', from: 'grey-marches/gear', count: 4, fields: {} }],
-      },
-    }
+    // The inn reads the party: a feast needs silver; without a trip, nobody is asked.
+    const fed = { ...session, stats: { ...session.stats, morale: 3, silver: 6 } }
     const feast = oracle.resolve('grey-marches/inn', tripContext(fed, {}, { spend: 'feast' }))
     expect(feast.resolution.entry).toBe('feast')
     expect(tripChanges(feast.resolution.value)).toEqual([
-      ['party.items.ration', -2],
+      ['party.stats.silver', -5],
       ['party.stats.morale', 2],
       ['party.stats.fatigue', -1],
     ])

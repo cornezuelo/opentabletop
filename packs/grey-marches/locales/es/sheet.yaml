@@ -129,6 +129,12 @@ sheet/company:
     silver:
       name: Plata
       description: La bolsa de la Compañía, para el pasaje de Brenna y las habitaciones de la posada.
+    escort-offer:
+      name: Escolta ofrecida
+      description: La plata que ofrece quien está aquí por una escolta a Fuerte Keld.
+    escort:
+      name: Paga de la escolta
+      description: La plata que paga en Fuerte Keld quien va escoltado por la Compañía. Come con vosotros por el camino.
     hirelings:
       name: Mercenarios
       description: Espadas a sueldo que viajan con la Compañía. Se unen en la posada, comen con vosotros, se niegan a marchar tras un día de hambre y pueden marcharse si se les habla mal.

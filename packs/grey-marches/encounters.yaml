@@ -107,9 +107,11 @@ entries:
   - id: traveller
     range: 1-4
     when: { place.danger: { lt: 3 } }
-    result: 'On the way you meet {{result}}'
+    result: 'On the way you meet a {{role}} who {{want}}'
     pause: true
     table: generator.npc
+    # Who it is: a copy of the bestiary's Traveller, named when it comes, there to talk to.
+    effects: { present.traveller: 1 }
   - id: bandits
     range: 5-20
     when: { place.terrain: { in: [hills, marsh, swamp] } }
@@ -150,20 +152,35 @@ id: npc
 tags: [people]
 name: Someone on the road
 description: |-
-  A name, a role, what they want and how strong they are.
+  A name, a role, their age and what they want.
 
   **Shows:**
 
   - A **generator**: fields from tables and from dice (`4d6kh3`: keep the best 3)
   - Fields that agree: what they want depends on who they are (_Wants_ reads the role field's `role.id`)
   - A template that joins them
+  - What a field's table changes reaches whoever rolled it: _Wants_' escort makes an offer
 fields:
   name: { table: table.npc-names }
   role: { table: table.npc-roles }
   want: { table: table.npc-wants }
-  # Keep the best 3 of 4d6: 3 to 18, mostly 10-14.
-  might: { roll: 4d6kh3 }
-template: '{{name}}, a {{role}} who {{want}} (might {{might}})'
+  # Keep the best 3 of 4d6, and twenty more: mostly 30 to 34.
+  years: { roll: 4d6kh3+20 }
+template: '{{name}}, a {{role}} of {{years}} winters who {{want}}'
+---
+# Only who someone is: what a rumour needs of them, without what they want of you.
+kind: generator
+id: person
+tags: [people]
+name: Someone
+description: |-
+  A name and a role.
+
+  **Shows:** A small generator for others to use: _A rumour_ reads its fields.
+fields:
+  name: { table: table.npc-names }
+  role: { table: table.npc-roles }
+template: '{{name}} the {{role}}'
 ---
 # Another generator using the first: {{npc.role}} reads a field of the npc generator.
 kind: generator
@@ -173,9 +190,9 @@ name: A rumour
 description: |-
   Who tells it, and what they say.
 
-  **Shows:** A generator inside another one: `{{npc.name}}` and `{{npc.role}}` read the fields of _Someone on the road_
+  **Shows:** A generator inside another one: `{{npc.name}}` and `{{npc.role}}` read the fields of _Someone_
 fields:
-  npc: { generator: generator.npc }
+  npc: { generator: generator.person }
   what: { table: table.rumours }
 template: '{{npc.name}} the {{npc.role}} swears that {{what}}.'
 ---
@@ -222,7 +239,11 @@ description: |-
 
   **Shows:** Conditions on an earlier field of the generator: `role.id` (a deserter never asks for an escort to the fort; pilgrims, deserters and hedge-witches have wants of their own)
 entries:
-  - { id: escort, result: wants an escort to Fort Keld, unless: { role.id: deserter } }
+  # An offer of the Company's, taken up with Take the escort while its traveller is here.
+  - id: escort
+    result: wants an escort to Fort Keld
+    unless: { role.id: deserter }
+    effects: { party.values.escort-offer: '={{2d6+4}}' }
   - { id: trade, result: has something to trade }
   - { id: lost, result: is lost and frightened }
   - { id: news, result: wants news from the south }
@@ -238,6 +259,7 @@ entries:
     weight: 3
     when: { role.id: witch }
     result: gathers herbs and will brew a cordial for a song
+    effects: { party.stats.fatigue: -1 }
 ---
 # d66: two dice read as tens and units (11–66), 36 results; ranges like 11-16.
 kind: table

@@ -27,12 +27,12 @@ gate-news:
     **Enseña:**
 
     - Una **fiesta** del calendario como condición: `holidays: midsummer` (solo entonces, y entonces casi seguro)
-    - Dados en el texto: `{{2d6}}`
+    - Dados tirados una vez con `set` y leídos por el texto y los `effects`: la paga ofrecida, que se acepta con **Aceptar la escolta**
     - Una cascada a un generador
   entries:
     midsummer: todo el pueblo baila por Pleno Verano y las puertas están abiertas
     rumour: 'el guardia os susurra un rumor: {{result}}'
-    work: 'hay trabajo: alguien paga {{2d6}} monedas de plata por una escolta'
+    work: 'hay trabajo: alguien paga {{pay}} monedas de plata por una escolta a Fuerte Keld'
     feast: es día de fiesta; la posada está llena
 ferry:
   name: La barca
@@ -55,11 +55,11 @@ inn:
 
     **Enseña:**
 
-    - Valores del grupo en la tirada (`{{party.stats.morale}}`) y en condiciones (`party.items.ration.count`)
+    - Valores del grupo en la tirada (`{{party.stats.morale}}`) y en condiciones (`party.stats.silver`)
     - Entradas para cuando no hay viaje: `party: { exists: false }`
     - `maxOccurrences`: un mercenario se une dos veces como mucho
     - Cascadas a tablas y generadores
-    - **Efectos** en el grupo: comida, moral, fatiga y mercenarios
+    - **Efectos** en el grupo: plata, moral, fatiga y mercenarios
   inputs:
     spend:
       label: Gastas

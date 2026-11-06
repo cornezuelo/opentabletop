@@ -11,12 +11,21 @@ description: |-
   **Shows:**
 
   - Percentile dice: `d100`, also written `d%`
-  - Dice in the text
+  - Dice rolled once by `set`, read by the text and the `effects`: the silver found is what the Company gets
   - Cascades into _Rumours_ and _A rare prize_
 roll: d100
 entries:
-  - { id: coins, range: 1-50, result: '{{3d6}} silver pieces' }
-  - { id: gems, range: 51-75, result: '{{1d4}} gems worth {{2d6+4}} silver each' }
+  # Rolled once by `set`, so the text says what the Company gets.
+  - id: coins
+    range: 1-50
+    result: '{{coins}} silver pieces'
+    set: { coins: '{{3d6}}' }
+    effects: { party.stats.silver: '{{coins}}' }
+  - id: gems
+    range: 51-75
+    result: '{{gems}} gems worth {{worth}} silver each'
+    set: { gems: '{{1d4}}', worth: '{{2d6+4}}' }
+    effects: { party.stats.silver: '{{gems * worth}}' }
   - {
       id: map,
       range: 76-90,
@@ -49,7 +58,11 @@ entries:
       result: 'The Sword of Keld, lost these hundred years',
       effects: { acting.items.sword-of-keld: 1 },
     }
-  - { id: gold, weight: 1, result: '{{2d6+6}} gold crowns of the old kings' }
+  - id: gold
+    weight: 1
+    result: '{{crowns}} gold crowns of the old kings'
+    set: { crowns: '{{2d6+6}}' }
+    effects: { party.stats.silver: '{{crowns * 10}}' }
 ---
 # A generator using every kind of field: a table, dice (keep the lowest of 2d6: mostly
 # low), percentile dice, a fixed value with a template, a field only when another says so,

@@ -26,7 +26,7 @@ encounter:
     friends: 'Una patrulla del Valle: os saludan como amigos y comparten su pan'
     patrol: 'Una patrulla del Valle: están {{result}}'
     wolves: '{{wolves}} lobos grises, con su jefe entre ellos: están {{result}}'
-    traveller: 'Por el camino os cruzáis con {{result}}'
+    traveller: 'Por el camino os cruzáis con alguien: {{role}}, que {{want}}'
     bandits: '{{bandits}} bandidos de las Colinas Huecas: están {{result}}'
     tracks: Solo huellas, y la sensación de que os vigilan
 reaction:
@@ -49,20 +49,27 @@ reaction:
 npc:
   name: Alguien en el camino
   description: |-
-    Un nombre, un oficio, qué quiere y su fuerza.
+    Un nombre, un oficio, su edad y qué quiere.
 
     **Enseña:**
 
     - Un **generador**: campos de tablas y de dados (`4d6kh3`: las 3 mejores)
     - Campos que encajan: lo que quiere depende de quién es (_Deseos_ lee el `role.id` del campo del oficio)
     - Una plantilla que los une
-  template: '{{name}}, {{role}} que {{want}} (fuerza {{might}})'
+  template: '{{name}}, {{role}} de {{years}} inviernos, que {{want}}'
+person:
+  name: Alguien
+  description: |-
+    Un nombre y un oficio.
+
+    **Enseña:** Un generador pequeño para que lo usen otros: _Un rumor_ lee sus campos.
+  template: '{{name}}, {{role}}'
 rumour:
   name: Un rumor
   description: |-
     Quién lo cuenta y qué dice.
 
-    **Enseña:** Un generador dentro de otro: `{{npc.name}}` y `{{npc.role}}` leen los campos de _Alguien en el camino_
+    **Enseña:** Un generador dentro de otro: `{{npc.name}}` y `{{npc.role}}` leen los campos de _Alguien_
   template: '{{npc.name}}, {{npc.role}}, jura que {{what}}.'
 npc-names:
   name: Nombres de las Marcas

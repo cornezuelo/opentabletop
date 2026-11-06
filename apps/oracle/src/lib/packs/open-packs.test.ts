@@ -1292,8 +1292,11 @@ describe('bundled open packs', () => {
     })
 
     it('lost and hungry, waiting until dawn gets the party out of a day it can do nothing in', () => {
+      const lost = trip(0, 4)
+      // A guide who won't lose them again the next morning: yesterday's `lost` goes.
       const stuck = {
-        ...trip(0, 4),
+        ...lost,
+        stats: { ...lost.stats, navigation: 6 },
         dayVars: { lost: true },
       }
       // The system's dawn is a part of its calendar's day (`part.morning`).

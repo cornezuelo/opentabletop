@@ -108,6 +108,21 @@ travel-rules/default:
     ashore:
       name: Desembarcar
       description: 'Media hora para dejar la barca en la orilla: a pie desde ahora, para marchar a tierra.'
+    escort:
+      name: Aceptar la escolta
+      description: 'Alguien aquí ofrece plata por que lo llevéis a Fuerte Keld: camina y come con vosotros, y paga al llegar.'
+      do:
+        agreed:
+          say: 'Aceptáis: {{party.values.escort-offer}} monedas de plata a las puertas de Fuerte Keld.'
+    escort-paid:
+      name: Escolta pagada
+      description: 'Al llegar a Fuerte Keld con alguien a vuestro cargo, paga lo prometido y sigue su camino.'
+      do:
+        paid:
+          say: 'A las puertas de Fuerte Keld, quien escoltabais os cuenta {{party.values.escort}} monedas de plata.'
+    escort-forgotten:
+      name: Escolta olvidada
+      description: 'Alejarse de quien pidió escolta: la oferta se va con esa persona.'
     inn:
       name: Tomar habitaciones en la posada
       description: 'Una noche bajo techo, pagando cada uno el precio de la posada, dos por habitación: despertáis al alba con 2 de fatiga menos, 1 de moral más, cada compañero con 1 de salud más y sin el miedo en el cuerpo.'

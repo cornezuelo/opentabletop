@@ -259,6 +259,18 @@ values:
     description: The Company's purse, spent on Brenna's fare and rooms at the inn.
     default: 10
     min: 0
+  # An escort is two numbers of the Company's: what a traveller here offers, and what the one
+  # it travels with will pay at Fort Keld.
+  escort-offer:
+    name: Escort offered
+    description: The silver a traveller here offers for an escort to Fort Keld.
+    default: 0
+    min: 0
+  escort:
+    name: Escort's pay
+    description: The silver the traveller the Company escorts pays at Fort Keld. They eat with you on the way.
+    default: 0
+    min: 0
   hirelings:
     name: Hirelings
     description: Sell-swords travelling with the Company. They join at the inn, eat with you, refuse to march after a hungry day and may walk off when talked to badly.

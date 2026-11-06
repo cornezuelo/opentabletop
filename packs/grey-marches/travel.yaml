@@ -273,6 +273,7 @@ actions:
       - { effects: { party.items.ration: '-{{party.stats.mouths}}' } }
       - when: { party.stats.hirelings: { gte: 1 } }
         effects: { party.items.ration: '-{{party.stats.hirelings}}' }
+      - { when: { party.values.escort: { gte: 1 } }, effects: { party.items.ration: -1 } }
       - { when: { trip.mode: horse }, effects: { party.values.fodder: -1 } }
       # If the rations ran out (they hit their minimum), the day is remembered as hungry.
       - { when: { trip.below: party.items.ration }, set: { hungry: true } }
@@ -501,6 +502,42 @@ actions:
           party.members.values.health: 1
           party.conditions.shaken: false
           party.members.conditions.saddle-sore: false
+  # A job as a promise kept in the Company's values: a traveller's offer (_Wants_, `escort-offer`)
+  # taken up while they're here, the copy leaving those present to walk with you; paid by an
+  # action of the system's own the moment the Company enters the fort (`on: trip.place-enter`,
+  # the garrison's tag), and forgotten if the Company walks away from it.
+  escort:
+    name: Take the escort
+    description: 'A traveller here offers silver to be taken to Fort Keld: they walk and eat with you, and pay when you get there.'
+    when:
+      {
+        party.values.escort-offer: { gte: 1 },
+        party.values.escort: 0,
+        present.traveller.count: { gte: 1 },
+      }
+    hideWhenUnavailable: true
+    do:
+      - id: agreed
+        say: 'You agree: {{party.values.escort-offer}} silver at the gates of Fort Keld.'
+      - effects:
+          party.values.escort: '={{party.values.escort-offer}}'
+          party.values.escort-offer: '=0'
+          present.traveller: -1
+  escort-paid:
+    name: Escort paid
+    description: 'On reaching Fort Keld with someone in your care, they pay what they promised and go on their way.'
+    on: trip.place-enter
+    when: { place.tags: garrison, party.values.escort: { gte: 1 } }
+    do:
+      - id: paid
+        say: 'At the gates of Fort Keld your charge counts out {{party.values.escort}} silver.'
+      - effects: { party.stats.silver: '{{party.values.escort}}', party.values.escort: '=0' }
+  escort-forgotten:
+    name: Escort forgotten
+    description: 'Walking away from a traveller who asked for an escort: the offer goes with them.'
+    on: { when: { party.values.escort-offer: { gte: 1 }, present.traveller.count: 0 } }
+    do:
+      - { effects: { party.values.escort-offer: '=0' } }
   # Off the boat (`travel.mode` again): on foot from now on, to march onto the shore nearby.
   ashore:
     name: Go ashore

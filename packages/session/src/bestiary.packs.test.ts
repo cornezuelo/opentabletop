@@ -107,6 +107,69 @@ describe('the bundled packs make foes from their bestiaries', () => {
     ).toEqual(Array(count).fill('bought-off'))
   })
 
+  it('the Grey Marches: a traveller who wants an escort pays at Fort Keld, and walks off if refused', () => {
+    const rules = partyOf(marches)
+    const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
+    const road: TravelWorld = {
+      km: () => 1,
+      place: (id) => ({ terrain: 'plains', danger: 2, tags: id === 'fort' ? ['garrison'] : [] }),
+      neighbors: (id) => (id === 'a' ? ['b', 'fort'] : ['a']),
+      distance: () => 1,
+      connections: () => ['road'],
+    }
+    const options = { system: marches, world: road }
+    const start = () =>
+      startTrip({ system: marches, location: 'a', members, seed: 'x', season: 'summer' }).session
+    const meeting = () => {
+      for (let seed = 1; seed < 500; seed++) {
+        const made = createOracleEngine({ registry, random: seeded(seed) }).resolve(
+          'grey-marches/table.encounter',
+          tripFacts(options, start()),
+        ).resolution
+        const offer = (made.value.effects as Record<string, unknown> | undefined)?.[
+          'party.values.escort-offer'
+        ]
+        if (made.entry === 'traveller' && offer) return made
+      }
+      throw new Error('no escort in 500 seeds')
+    }
+    const met = meeting()
+    expect(met.text).toMatch(/^On the way you meet a \S+ who wants an escort to Fort Keld$/)
+    let s = applyResult(start(), met.value, marches.bindings?.stats, rules)
+    expect(s.present?.[0].character.template?.id).toBe('traveller')
+    const values = () => (tripFacts(options, s).party as { values: Record<string, number> }).values
+    const offered = values()['escort-offer']
+    expect(offered).toBeGreaterThanOrEqual(6)
+    const can = () => tripAvailability(options, s).escort
+    expect(can()).toBeFalsy()
+
+    // Taken up: the offer is a promise, and the traveller walks with the Company.
+    s = stepTrip(options, s, { type: 'action', id: 'escort' }).state
+    expect(values()).toMatchObject({ escort: offered, 'escort-offer': 0 })
+    expect(s.present).toEqual([])
+    const silver = s.stats.silver as number
+
+    // Entering the fort pays it, once.
+    const walkTo = (place: string) => {
+      s = stepTrip(options, s, { type: 'setDestination', place }).state
+      for (let i = 0; i < 8 && s.travel.location !== place; i++) {
+        for (const c of s.travel.pendingChecks)
+          s = stepTrip(options, s, { type: 'resolveCheck', id: c.id }).state
+        s = stepTrip(options, s, { type: 'action', id: 'march', with: { until: 'place' } }).state
+      }
+      expect(s.travel.location).toBe(place)
+    }
+    walkTo('fort')
+    expect(s.stats.silver).toBe(silver + offered)
+    expect(values().escort).toBe(0)
+
+    // Refused: walking on, the traveller is gone and the offer with them.
+    s = applyResult(start(), met.value, marches.bindings?.stats, rules)
+    walkTo('b')
+    expect(s.present).toEqual([])
+    expect(values()['escort-offer']).toBe(0)
+  })
+
   it('Core: trouble on the road makes its foes, gone once down', () => {
     const rules = partyOf(core)
     const { session } = startTrip({ system: core, location: 'a', seed: 'x' })

@@ -6,11 +6,11 @@ treasure:
     **Enseña:**
 
     - Dados de porcentaje: `d100`, también `d%`
-    - Dados en el texto
+    - Dados tirados una vez con `set`, leídos por el texto y los `effects`: la plata hallada es la que recibe la Compañía
     - Cascadas a _Rumores_ y _Un premio raro_
   entries:
-    coins: '{{3d6}} monedas de plata'
-    gems: '{{1d4}} gemas de {{2d6+4}} monedas de plata cada una'
+    coins: '{{coins}} monedas de plata'
+    gems: '{{gems}} gemas de {{worth}} monedas de plata cada una'
     map: 'Un mapa de las Colinas Huecas; una nota dice que {{result}}'
     potion: Un frasco del cordial de las brujas (quita toda la fatiga)
 prize:
@@ -21,7 +21,7 @@ prize:
     **Enseña:** `maxOccurrences`: la Espada de Keld aparece dos veces como mucho; después solo queda oro. Un objeto que da un resultado: quien la encuentra (`acting.items.sword-of-keld: 1`) recibe la espada del equipo (items.yaml).
   entries:
     sword: La Espada de Keld, perdida hace cien años
-    gold: '{{2d6+6}} coronas de oro de los antiguos reyes'
+    gold: '{{crowns}} coronas de oro de los antiguos reyes'
 ruin-delve:
   name: Explorar una ruina
   description: |-

@@ -116,7 +116,7 @@ describe('where a name is used', () => {
 
   it('finds values of the day set one day and read the next', () => {
     const hungry = where(usesOf(uses, { kind: 'day-value', id: 'hungry' }))
-    expect(hungry).toContain('sets travel-rules default actions.eat.do[3].set')
+    expect(hungry).toContain('sets travel-rules default actions.eat.do[4].set')
     expect(hungry).toContain('reads travel-rules default actions.grumble.when')
     const lost = usesOf(uses, { kind: 'day-value', id: 'lost' })
     expect(lost.some((u) => u.how === 'sets' && u.at.id === 'getting-lost')).toBe(true)

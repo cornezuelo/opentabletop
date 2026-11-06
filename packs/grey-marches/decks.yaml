@@ -20,6 +20,9 @@ cards:
   - { id: stranger, result: 'A stranger on the road: {{result}}', table: generator.npc, count: 2 }
   - { id: rumour, result: 'A rumour reaches you: {{result}}', table: generator.rumour }
   - { id: cache, result: 'A hunter’s cache: two days of food', effects: { party.items.ration: 2 } }
-  - { id: wyrm-sign, result: Scorched trees and a smell of sulphur }
+  # An omen that's more than a sign: the Wyrm's clock ticks.
+  - id: wyrm-sign
+    result: Scorched trees and a smell of sulphur
+    effects: { world.clocks.the-greywood-wyrm-wakes: 1 }
   # Another pack's table, through the alias in pack.yaml (table.twist → core/table.twists).
   - { id: twist, result: 'The road turns strange: {{result}}', table: table.twist }
