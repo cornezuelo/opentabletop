@@ -55,6 +55,9 @@ export type TerrainMode = 'brush' | 'fill' | 'erase'
 export type PanelView =
   'tool' | 'settings' | 'export' | 'library' | 'oracle' | 'world' | 'layers' | 'tree'
 
+/** What Select picked instead of a cell; its panel shows it, by the tool that edits it. */
+export type Picked = { kind: 'token' | 'label' | 'connection' | 'region'; id: string }
+
 export const MAX_BRUSH_RADIUS = 5
 
 export interface PathDraft {
@@ -160,6 +163,7 @@ class Editor {
     else if (tool !== 'select') this.mode = 'edit'
     if (this.mode === 'edit') this.#editTool = tool
     this.selected = null
+    this.picked = null
     this.selectedIcon = null
     this.selectedLabel = null
     this.selectedConnection = null
@@ -212,6 +216,8 @@ class Editor {
   iconId = $state('game:village')
   /** Hex whose icon the icon tool is editing (palette and style apply to it live). */
   selectedIcon = $state<HexKey | null>(null)
+  /** What Select picked, while editing; none: the selected cell. */
+  picked = $state.raw<Picked | null>(null)
   /** Style applied to newly stamped icons. */
   iconStyle = $state<IconStyle>({})
   /** New paths are drawn with straight segments instead of curves. */
@@ -575,6 +581,7 @@ class Editor {
     this.campaign = campaign
     this.history.clear()
     this.selected = null
+    this.picked = null
     this.selectedLabel = null
     this.selectedIcon = null
     this.selectedToken = null

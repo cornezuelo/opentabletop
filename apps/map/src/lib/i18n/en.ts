@@ -107,6 +107,7 @@ export const en = {
     brushSize: 'Brush size',
     layers: 'Layers',
     tree: 'Tree of maps',
+    backToCell: 'Cell {cell}',
     settings: 'Map settings',
     closeSettings: 'Close',
     tokens: 'Tokens',

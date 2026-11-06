@@ -43,7 +43,7 @@ import {
   type Offset,
 } from '@open-tabletop/hex'
 import { t, type MessageKey } from '../i18n/index.svelte'
-import { editor, type ToolId } from '../store/editor.svelte'
+import { editor, type Picked, type ToolId } from '../store/editor.svelte'
 import { showToast } from '@open-tabletop/ui-kit'
 
 /** Tells the user why nothing happened when a tool targets a locked layer. */
@@ -327,6 +327,15 @@ class NameDragger {
     }
   }
 
+  /** What a press on a free label or a region's name is on, for Select to pick. */
+  pressedThing(): Picked | null {
+    const pressed = this.pressed
+    if (!pressed) return null
+    if ('label' in pressed) return { kind: 'label', id: pressed.label }
+    const { target } = pressed.hit
+    return target.kind === 'region' ? { kind: 'region', id: target.id } : null
+  }
+
   /** Ends a press; true if it moved something (so it wasn't a click). */
   up(): boolean {
     const { pressed, moved, dropAt } = this
@@ -354,29 +363,61 @@ class NameDragger {
 
 const nameDragger = new NameDragger()
 
+/** Where a press of Select began, and whether it pressed what was picked already. */
+let pressedAt: { cell: Offset; again: boolean } | null = null
+
+/** Select picks something else than the cell; picking it again goes down to its cell. */
+function pick(picked: Picked, cell: Offset): void {
+  const again = editor.picked?.kind === picked.kind && editor.picked.id === picked.id
+  pressedAt = { cell, again }
+  editor.picked = picked
+  if (picked.kind === 'token') editor.selectedToken = picked.id
+  if (picked.kind === 'label') editor.selectedLabel = picked.id
+  if (picked.kind === 'connection') editor.selectedConnection = picked.id
+  if (picked.kind === 'region') editor.regionId = picked.id
+}
+
 /**
- * Select: picks a cell; tokens are selected and dragged here too, and names (cells', regions',
- * free labels) dragged where they should stand.
+ * Select: picks what's on top under the pointer (a token, a free label, a region's name, a
+ * connection, else the cell) and the panel shows it; a second click on it goes down to the
+ * cell. Tokens are dragged here too, and names (cells', regions', free labels) dragged where
+ * they should stand. In Play there's only the cell: nothing is edited there.
  */
 const selectTool: Tool = {
   down(cell, info) {
+    pressedAt = null
+    const editing = editor.mode === 'edit'
     if (tokenDragger.down(cell, info)) {
       // The panel shows the cell it stands on, as a click beside it would.
       const token = info.button === 0 ? editor.getToken(editor.selectedToken ?? '') : undefined
       if (token?.hex) editor.selected = token.hex
+      if (token && editing) pick({ kind: 'token', id: token.id }, cell)
       return
     }
     // In Play the map isn't edited: names stay where they are.
-    const name = editor.mode === 'edit' ? nameDragger.down(info) : false
+    const name = editing ? nameDragger.down(info) : false
     editor.selected = typeof name === 'string' ? name : keyOf(cell)
+    const named = name === true ? nameDragger.pressedThing() : null
+    const connection = editing && !name ? connectionAt(info.world, info.pickRadius / 2) : undefined
+    if (named) pick(named, cell)
+    else if (connection && info.button === 0) pick({ kind: 'connection', id: connection.id }, cell)
+    else editor.picked = null
   },
   move(cell, info) {
     tokenDragger.move(cell, info)
     nameDragger.move(info)
   },
   up() {
-    tokenDragger.up()
-    nameDragger.up()
+    const clicked = tokenDragger.up()
+    const moved = nameDragger.up()
+    const press = pressedAt
+    pressedAt = null
+    // A token dragged isn't clicked: `clicked` says so, as for names `moved` does.
+    const token = editor.picked?.kind === 'token'
+    if (press?.again && !moved && (!token || clicked)) {
+      editor.picked = null
+      editor.selected = keyOf(press.cell)
+    }
   },
 }
 

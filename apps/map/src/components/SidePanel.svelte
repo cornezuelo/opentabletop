@@ -33,7 +33,7 @@
   import { applyResult, partyOf, tripChanges } from '@open-tabletop/session'
   import { activeSystem } from '../lib/play/systems'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
-  import { editor, type ToolId } from '../lib/store/editor.svelte'
+  import { editor, type Picked, type ToolId } from '../lib/store/editor.svelte'
 
   const TOOL_TITLES: Record<ToolId, MessageKey> = {
     select: 'panel.hex',
@@ -48,6 +48,18 @@
     play: 'panel.play',
   }
   const back = () => (editor.panelView = 'tool')
+  /** What Select picked is shown by the panel of the tool that edits it. */
+  const PICKED: Record<Picked['kind'], ToolId> = {
+    token: 'token',
+    label: 'text',
+    connection: 'connection',
+    region: 'region',
+  }
+  const shown = $derived(
+    editor.tool === 'select' && editor.mode === 'edit' && editor.picked
+      ? PICKED[editor.picked.kind]
+      : editor.tool,
+  )
 
   const hexCoord = (hex: HexKey) => formatCoord(parseKey(hex), editor.grid.coordFormat, editor.grid)
   /** Hand-rolled results already applied to the trip (by history item). */
@@ -188,25 +200,30 @@
 </aside>
 
 {#snippet toolView()}
-  <PanelHead title={t(TOOL_TITLES[editor.tool])} />
+  <PanelHead title={t(TOOL_TITLES[shown])} />
   <div class="body">
-    {#if editor.tool === 'terrain'}
+    {#if shown !== editor.tool && editor.selected}
+      <button class="to-cell" onclick={() => (editor.picked = null)}
+        >← {t('panel.backToCell', { cell: hexCoord(editor.selected) })}</button
+      >
+    {/if}
+    {#if shown === 'terrain'}
       <TerrainPanel />
-    {:else if editor.tool === 'region'}
+    {:else if shown === 'region'}
       <RegionPanel />
-    {:else if editor.tool === 'path'}
+    {:else if shown === 'path'}
       <PathPanel />
-    {:else if editor.tool === 'connection'}
+    {:else if shown === 'connection'}
       <ConnectionPanel />
-    {:else if editor.tool === 'wall'}
+    {:else if shown === 'wall'}
       <WallPanel />
-    {:else if editor.tool === 'icon'}
+    {:else if shown === 'icon'}
       <IconPanel />
-    {:else if editor.tool === 'text'}
+    {:else if shown === 'text'}
       <LabelPanel />
-    {:else if editor.tool === 'token'}
+    {:else if shown === 'token'}
       <TokenPanel />
-    {:else if editor.tool === 'play'}
+    {:else if shown === 'play'}
       <PlayPanel />
     {:else}
       <HexInfo />
@@ -229,6 +246,17 @@
     flex-direction: column;
     gap: 8px;
     padding-top: 12px;
+  }
+
+  .to-cell {
+    align-self: flex-start;
+    padding: 0;
+    font: inherit;
+    font-size: 12px;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
   }
 
   .rolls-for {

@@ -1,6 +1,6 @@
 # Cell details
 
-Select a cell with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel: its coordinate, terrain, name and region, then what it holds, and small buttons for what it doesn't hold yet (**+ Notes**, **+ Point of interest**, **+ Tag**…), each opening its field. The **⋯** beside **Roll here** copies the cell's link and clears the cell. In [Play](08-play.md) the same panel is to read, with nothing to fill in: to change the cell, go back to **Edit**.
+While editing, **Select** picks what's on top under the pointer: a token, a free label, a region's name or a connection, and the side panel shows that thing, with a link back to its cell; a second click on it goes down to the cell. Select a cell with the **Select** tool (<kbd>V</kbd>) to see and edit its details in the side panel: its coordinate, terrain, name and region, then what it holds, and small buttons for what it doesn't hold yet (**+ Notes**, **+ Point of interest**, **+ Tag**…), each opening its field. The **⋯** beside **Roll here** copies the cell's link and clears the cell. In [Play](08-play.md) the same panel is to read, with nothing to fill in: to change the cell, go back to **Edit**.
 
 A click on a token shows the cell it stands on. The panel gives the cell's coordinate in the map's format; its help (a click on it) gives its **id** (`4,2`: column and row counted from 0, whatever the map's coordinate labels). Beside its terrain is the terrain's id (`heath`). Tables and conditions read them as `place.id` and `place.terrain`.
 

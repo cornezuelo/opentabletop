@@ -107,6 +107,7 @@ export const es: Messages = {
     brushSize: 'Tamaño del pincel',
     layers: 'Capas',
     tree: 'Árbol de mapas',
+    backToCell: 'Casilla {cell}',
     settings: 'Ajustes del mapa',
     closeSettings: 'Cerrar',
     tokens: 'Tokens',

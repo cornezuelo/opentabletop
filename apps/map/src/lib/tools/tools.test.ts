@@ -196,6 +196,75 @@ describe('names moved by hand', () => {
     expect(editor.map.hexes['1,1'].nameOffset).toBeUndefined()
   })
 
+  it('Select picks a token over its cell, and a second click goes down to the cell', () => {
+    const map = createMap()
+    map.tokens = [{ id: 'hero', name: 'Hero', kind: 'pc', hex: '2,3', iconId: '' }] as never
+    editor.load(map)
+    editor.tool = 'select'
+    setTokenHitTest(() => 'hero')
+    const click = () => {
+      const tool = currentTool()
+      tool.down({ col: 2, row: 3 }, press())
+      tool.up()
+    }
+    click()
+    expect(editor.picked).toEqual({ kind: 'token', id: 'hero' })
+    expect(editor.selectedToken).toBe('hero')
+    expect(editor.selected).toBe('2,3')
+    click()
+    expect(editor.picked).toBeNull()
+    expect(editor.selected).toBe('2,3')
+    // And down on the cell, a third click picks it again.
+    click()
+    expect(editor.picked).toEqual({ kind: 'token', id: 'hero' })
+    setTokenHitTest(() => null)
+  })
+
+  it('Select picks a region by its name and a connection by its mark; beside them, the cell', () => {
+    const map = createMap()
+    map.regions = [{ id: 'vale', name: 'Vale', color: '#000000' }]
+    map.connections = [{ id: 'gate', between: ['1,1', '2,1'], kind: 'gate' }] as never
+    editor.load(map)
+    editor.tool = 'select'
+    const tool = currentTool()
+    setNameHitTest(
+      () =>
+        ({
+          target: { kind: 'region', id: 'vale' },
+          at: { x: 0, y: 0 },
+          from: { x: 0, y: 0 },
+        }) as never,
+      () => {},
+    )
+    tool.down({ col: 5, row: 5 }, press())
+    tool.up()
+    expect(editor.picked).toEqual({ kind: 'region', id: 'vale' })
+    expect(editor.regionId).toBe('vale')
+    setNameHitTest(
+      () => null,
+      () => {},
+    )
+    tool.down({ col: 5, row: 5 }, press({ world: { x: -9999, y: -9999 } }))
+    tool.up()
+    expect(editor.picked).toBeNull()
+    expect(editor.selected).toBe('5,5')
+  })
+
+  it('in Play, Select keeps to the cell', () => {
+    const map = createMap()
+    map.tokens = [{ id: 'hero', name: 'Hero', kind: 'pc', hex: '2,3', iconId: '' }] as never
+    editor.load(map)
+    editor.switchMode('play')
+    editor.tool = 'select'
+    setTokenHitTest(() => 'hero')
+    currentTool().down({ col: 2, row: 3 }, press())
+    currentTool().up()
+    expect(editor.picked).toBeNull()
+    expect(editor.selected).toBe('2,3')
+    setTokenHitTest(() => null)
+    editor.switchMode('edit')
+  })
+
   it('a press on a cell name that does not move selects its own cell', () => {
     const map = createMap()
     map.hexes['2,2'] = { name: 'Ashford' }
