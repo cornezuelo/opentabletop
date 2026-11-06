@@ -181,3 +181,123 @@ Decided with the user (backlog, "Decided with the user (2026-10-31), after 3b", 
 - **The Roads and rivers tool's Wall line** stays as it was, a drawing that stops nothing; the manual says so. To review: whether it should go (or become this) now that walls exist.
 - **Example**: the Barrow-halls' corridor has its two side-niches bricked up.
 - Left for later: walls drawn in the styles of the redesign (stone, palisade), a wall's own name or tags, and the trip's facts saying a wall is beside the party.
+
+## 18. Pieces on discovery: proposal (2026-11-06), to review before any code
+
+Phase 4 of §8 C, the sketch of §7 made concrete, as agreed in the backlog (_Decided with the user (2026-10-31), after 3b_, c). Nothing here is built or decided; §18.7 lists what the user has to choose.
+
+### 18.1 What it is, in play
+
+A party on a dungeon map stands before a door nobody has opened. It goes through: the system rolls a table or draws a card, the result names a **piece** (a corridor, a junction, a crypt), and the piece appears on the map, turned so that one of its exits meets the door crossed. Its other exits are new doors nobody has opened. The dungeon grows only where the party goes, as Ker Nethalas draws it.
+
+### 18.2 What is already there
+
+- **A door to nowhere needs nothing new, as far as the code says** (to prove with a test first): a connection between a floor cell and an empty one is a way through the wall (`mapWorld`), and `arrive` runs on the empty cell. So an exit waiting to be crossed is an ordinary `MapConnection`.
+- **The choice** is what `discover.terrain` does: a binding that resolves a table, oracle, generator or deck, whose `set:` says what came up.
+- **The contents** are `discover.contents`, as they are: rolled on first entering, making POIs from `kind: places`.
+- **Where it's kept**: `applyDiscovery` writes what a trip found on the map, in play, outside the undo history.
+- **Rooms and walls**: a room is a region with `onePlace`, and walls draw themselves round floor. A piece only has to lay terrain and a region.
+
+### 18.3 The syntax
+
+A new kind, `kind: pieces`, a catalogue listed by the system as `places` are (`pieces: [pieces.barrows]`). Each piece is drawn in text: what you see is its shape.
+
+```yaml
+kind: pieces
+id: barrows
+name: The deep barrows
+marks: # what each mark in a drawing lays
+  '.': barrow-floor
+  '~': black-water
+pieces:
+  passage:
+    name: Passage
+    cells: |
+      A
+      .
+      .
+      B
+    exits:
+      A: { kind: passage }
+      B: { kind: passage }
+  crypt:
+    name: Crypt
+    room: true # played as one place, a region with `onePlace`
+    tags: [crypt]
+    fields: { danger: 2 }
+    cells: |
+        A
+       ...
+      B...C
+       ...
+    exits:
+      A: { kind: door, entry: true }
+      B: { kind: door }
+      C: { kind: secret, tags: [hidden] }
+```
+
+- **Marks**: a mark of `marks` lays that terrain; a space lays nothing. An upper-case letter is an **exit**: it stands on the cell beyond the piece, next to exactly one of its floor cells, which gives the exit's direction with no need to write it.
+- **Exits** become connections of the system's kinds, with `tags` and `fields`. `entry: true` says which may be the way in; with none marked, any.
+- `tags` and `fields` go on the cells (or on the region for a `room`), so checks and tables read `place.tags: crypt` and `place.danger` as they do anywhere.
+- `contents:` (optional) names what's rolled there instead of `discover.contents`.
+- `turn: false` (optional) keeps a piece as drawn; by default it may be turned a quarter at a time and mirrored.
+
+The bindings gain one entry:
+
+```yaml
+kind: bindings
+discover:
+  piece:
+    resolve: table.next-piece # its entries `set: { piece: crypt }`
+    first: stair-foot # what an empty map starts from, at the way in
+    tries: 3 # rolls before giving up, when what came up doesn't fit
+    otherwise: dead-end # laid when none did
+  contents: { resolve: table.barrow-contents }
+```
+
+The table sees what `discover.terrain` sees, plus the **exit** being crossed (`exit.kind`, `exit.tags`) and **what has been laid** on this map (`pieces.total`, `pieces.<id>`), so a system can say "the third crypt is the last", or put the boss after 20 pieces. A deck works as it does everywhere: cards drawn stay drawn.
+
+### 18.4 How one is laid
+
+1. A step enters an empty cell through a connection, with discovery in `pieces` mode (below).
+2. The binding is resolved and names a piece.
+3. Every way of laying it is tried, in an order drawn from the trip's `RandomSource`: each `entry` exit, each turn and mirror. A way **fits** when the exit's floor cell falls on the cell entered, its letter on the cell the party came from, and every cell it lays is inside the map and empty.
+4. If none fits: rolled again up to `tries`, then `otherwise`. With nothing left, nothing is laid, the party stays on its side and the journal says so; the exit is then marked as a dead end (a state of the connection, so it isn't rolled at every try).
+5. The other exits: one whose beyond is empty stays waiting; one that falls on floor of another piece joins it, a door between the two; one that falls on anything else is dropped. Dropping is silent, as a wall.
+
+The door crossed stays as it was drawn: the piece's entry exit adds no second connection.
+
+**Which mode.** A map has `play.discover: { on, reveal }`, where `reveal` is `neighbors` or `entered`. `pieces` is a third value: **Through exits, piece by piece**. It's per map, so the Grey Marches keep their terrain discovery outside and pieces in a dungeon below, with no condition to write. In this mode `terrain` isn't rolled.
+
+**Where it lives.** Session can't import `map` (dependencies only go down) and the world must change within a step, since the route and the checks after a piece has to see it. So:
+
+- `kind: pieces` is parsed and validated in `session`, beside `kind: places`.
+- Turning and fitting are pure functions on cells in `@open-tabletop/hex`, for any caller, with the bounds and "is it free" passed in.
+- `TravelWorld` gains one optional port, `lay(piece, at, from)`, which `mapWorld` implements and which returns the world with the piece in it. Worlds without it (Travel's way) never lay anything, and the mode isn't offered there.
+- `stepTrip` returns what was laid beside `discovered`; `applyDiscovery` writes it (terrain, regions, connections, `pieces`).
+- A step that lays a piece ends there: what's beyond was unknown, so a route through it can't have existed. The party is in the new piece, with a stop reason the journal names.
+
+**The map keeps** a list `pieces` of what was laid (`{ id, at, turn, mirror }`), read for `pieces.<id>` and for Map to show a piece as one thing; a map format bump with nothing to migrate. As with discovered terrain, a laid piece is part of the map from then on and can be edited in Edit.
+
+### 18.5 Forms and manual
+
+- **Form** (the directive, same work): `kind: pieces` in Systems (Packs, once it's built), a folded card per piece, with the drawing in a monospaced box and, beside it, the piece drawn as it will look. Exits, tags and fields as rows; `discover.piece` in Rules next to terrain and contents.
+- **Manual**: Kinds (Pieces), Connecting (§7, Discovering the map), What tables see (`exit.*`, `pieces.*`), Map's Play, Systems' page, both packs' pages. Every list that enumerates `reveal`.
+
+### 18.6 Bundled packs and the order of work
+
+- **Core**: the smallest thing that works, a corridor, a junction, a room and a dead end, one table.
+- **The Grey Marches**: the Barrow-halls stay as they are, drawn by hand, the showcase of rooms and doors. A new sub-map under them, _the Deep Barrows_ (name to choose), empty but for its way in, reached by a stair from the halls: pieces from a **deck**, a crypt with its own contents, a hidden exit found by a check, black water, and a table that reads `pieces.total` for a last piece. A test plays it from the stair to the last piece, seeded.
+- **Ker Nethalas** in the private repo, later.
+
+In order, a commit each: (a) a test proving the door to nowhere; `kind: pieces`, its validation, `first` / `tries` / `otherwise` and the form; (b) turning and fitting, `lay`, the `pieces` mode, `applyDiscovery`, Map's option; (c) Core, the Deep Barrows, the manual. Pack format: new keys that change nothing old, so no bump.
+
+### 18.7 To decide with the user
+
+1. **The drawing.** Letters on the cell beyond the piece (above, Claude's choice: the direction comes free, but the drawing is one cell bigger each way) or letters on the floor cell with a direction written (`A: { kind: door, faces: north }`, tidier to draw, more to write). A third way is no text at all, only the form's grid, but YAML then needs a list of cells nobody can read.
+2. **Squares only for now?** Claude's proposal: yes. Text can't draw hexes well, and dungeons here are squares (§10). Pieces on a hex map would be refused by the mode not being offered, and left for when someone wants them.
+3. **The map's edge.** Claude's proposal: a piece that runs off the map doesn't fit, as a wall of rock, and **New map** makes a roomy dungeon. The alternative, a map that grows as it's explored, means moving every cell key when growing up or left, and gains little.
+4. **Exits that are dropped.** Silent (above), or left as a door that opens on rock, which is more honest about the drawing but leaves dead doors on the map?
+5. **Peeking.** Is anything seen before crossing? Claude's proposal: nothing, an exit shows only its kind. A system wanting a look through a door has an action for it.
+6. **A party that goes back.** A laid piece stays. Should a system be able to say a dungeon shifts (pieces removed when left behind)? Claude's proposal: no, left out until a game asks for it.
+7. **When.** This or Packs first. Round 2 of the agents waits for Packs, and this adds a kind whose form should be born where packs are edited, which argues for Packs first; the agreed order (point 9 of the list of 2026-10-31) has this first.
