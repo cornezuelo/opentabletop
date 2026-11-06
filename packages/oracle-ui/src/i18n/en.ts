@@ -1,6 +1,12 @@
 import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   kinds: vocabulary.en.kinds,
+  rolledBy: {
+    title: 'Rolled by',
+    help: "Where the systems that bring this pack roll it: an action's step (`roll: table.ruins`), a check's binding, a progress clock filling, another table's entry or a generator's field. Each place links to where it's edited (the rules in Packs, tables here).\n• **Nothing rolls it** — it's rolled by hand, or by a pack no system brings\nWhat a map or a trip rolls by itself (the weather's own tables, discovery) is said by the system's bindings, listed too.",
+    count: '{n} places',
+    none: 'Nothing rolls it',
+  },
   roll: {
     roll: 'Roll',
     draw: 'Draw',

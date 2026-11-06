@@ -28,6 +28,21 @@ export const en = {
     holdsHelp:
       'Everything this pack declares, by kind. A click opens the first; the left column lists them all.',
     noHolds: 'Nothing yet: **New → Definition…** adds the first.',
+    form: 'Form',
+    yaml: 'YAML',
+    used: 'Rolled by',
+    defTabs: 'What to see of it',
+    roll: 'Roll it in the Oracle ↗',
+    readOnlyForm:
+      'A bundled definition has no form to fill in: read it in YAML, or make a copy to change it.',
+    withSystem:
+      'This is edited with its system, {system}, in the tabs that show it with what it works with.',
+    openSystem: 'Open it there',
+    noSystem:
+      'No system names this yet, so its form has nothing to work with: name it from a system’s Overview, or edit it in YAML.',
+    yamlOnly: 'Map styles open on their own page.',
+    readWith: 'No system uses this yet: what its form suggests comes from {system}.',
+    notFound: 'This definition isn’t in its pack any more.',
     kindNames: {
       table: 'Tables',
       oracle: 'Oracles',

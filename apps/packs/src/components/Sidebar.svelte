@@ -10,9 +10,10 @@
   } from '@open-tabletop/ui-kit'
   import { manifestOf, OlderPacks } from '@open-tabletop/pack-ui'
   import { systemName } from '@open-tabletop/session'
-  import { getLocale, t, type MessageKey } from '../lib/i18n'
+  import { getLocale, t } from '../lib/i18n'
+  import { kindName } from '../lib/kindNames'
   import { go, nav, showSide, side, type SideView, type View } from '../lib/nav.svelte'
-  import { library, systems, texts } from '../lib/packs.svelte'
+  import { library, oracleUi, systems } from '../lib/packs.svelte'
   import { staleCopies } from '../lib/transfer'
   import { findInTree, packTree } from '../lib/tree'
 
@@ -23,7 +24,7 @@
 
   const selected = $derived(nav.view.name === 'system' ? nav.view.id : undefined)
   const rootOfView = $derived(
-    nav.view.name === 'pack' || nav.view.name === 'file'
+    nav.view.name === 'pack' || nav.view.name === 'file' || nav.view.name === 'def'
       ? nav.view.root
       : nav.view.name === 'style'
         ? library.rootOf(nav.view.ref.split('/')[0])
@@ -51,7 +52,7 @@
         const whole = packTree(library, pack.root, {
           locale: getLocale(),
           systems: systems.list,
-          displayName: texts.displayName,
+          displayName: oracleUi.displayName,
         })
         const name = manifestOf(pack).name ?? pack.root
         const inName = name.toLowerCase().includes(query.trim().toLowerCase())
@@ -61,11 +62,6 @@
       .sort((a, b) => a.name.localeCompare(b.name)),
   )
 
-  const kindName = (kind: string) => {
-    const key = `library.kindNames.${kind}` as MessageKey
-    const name = t(key)
-    return name === key ? kind : name
-  }
   /** Whether a view is the one showing. */
   function showing(view: View): boolean {
     const now = nav.view
@@ -73,6 +69,8 @@
     if (now.name === 'file' && view.name === 'file')
       return now.root === view.root && now.path === view.path
     if (now.name === 'style' && view.name === 'style') return now.ref === view.ref
+    if (now.name === 'def' && view.name === 'def')
+      return now.root === view.root && now.kind === view.kind && now.id === view.id
     return false
   }
   const isOpen = (key: string, holdsShown: boolean) => searching || (open[key] ?? holdsShown)

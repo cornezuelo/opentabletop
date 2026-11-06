@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte'
-  import { seasonsFor, type TravelSystem } from '@open-tabletop/session'
+  import type { TravelSystem } from '@open-tabletop/session'
   import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import { bestiaryOf } from '../../lib/bestiary'
@@ -9,17 +9,7 @@
   import { partDoc } from '../../lib/partDoc.svelte'
   import { sheetScope } from '../../lib/usage'
   import ReadOnly from '../ReadOnly.svelte'
-  import CalendarForm from './CalendarForm.svelte'
-  import RollModesForm from './RollModesForm.svelte'
-  import FactionsForm from './FactionsForm.svelte'
-  import ClocksForm from './ClocksForm.svelte'
-  import WorldForm from './WorldForm.svelte'
-  import ItemsForm from './ItemsForm.svelte'
-  import BestiaryForm from './BestiaryForm.svelte'
-  import PlacesForm from './PlacesForm.svelte'
-  import SheetForm from './SheetForm.svelte'
-  import WeatherForm from './WeatherForm.svelte'
-  import LandForm from './LandForm.svelte'
+  import PartForm from './PartForm.svelte'
 
   /**
    * The definitions of one kind a system uses (its calendar, its weather models, the roll
@@ -94,29 +84,7 @@
     <p class="file">{part.root}/{part.path} · <code>@{part.kind}/{part.id}</code></p>
     {#if part.root !== root}<ReadOnly root={part.root} dependency />{/if}
     {#key `${part.root}/${part.path}/${part.id}`}
-      {#if kind === 'calendar'}
-        <CalendarForm {doc} {system} />
-      {:else if kind === 'factions'}
-        <FactionsForm {doc} {system} />
-      {:else if kind === 'clocks'}
-        <ClocksForm {doc} {system} />
-      {:else if kind === 'world'}
-        <WorldForm {doc} {system} />
-      {:else if kind === 'items'}
-        <ItemsForm {doc} {system} />
-      {:else if kind === 'bestiary'}
-        <BestiaryForm {doc} {system} id={part.id} {item} />
-      {:else if kind === 'places'}
-        <PlacesForm {doc} />
-      {:else if kind === 'sheet'}
-        <SheetForm {doc} {system} scope={sheetScope(system, part.id)} />
-      {:else if kind === 'weather'}
-        <WeatherForm {doc} seasons={seasonsFor(system)} />
-      {:else if kind === 'land'}
-        <LandForm {doc} {system} />
-      {:else}
-        <RollModesForm {doc} {system} />
-      {/if}
+      <PartForm {doc} {system} {kind} id={part.id} {item} />
     {/key}
   {:else}
     <p class="help">{t(`parts.${key}.none`)}</p>

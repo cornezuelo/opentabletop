@@ -8,7 +8,7 @@
   import { workspace } from '../lib/packs/workspace.svelte'
   import { locate } from '@open-tabletop/pack-ui/yaml'
   import { KindBadge } from '@open-tabletop/pack-ui'
-  import RolledBy from './RolledBy.svelte'
+  import { RolledBy } from '@open-tabletop/oracle-ui'
   import { ReadOnlyNotice } from '@open-tabletop/pack-ui'
   import { DefinitionEditor } from '@open-tabletop/oracle-ui'
   import { tooltip, showToast, confirmAction } from '@open-tabletop/ui-kit'
@@ -94,7 +94,7 @@
       {#if displayDescription(def)}
         <div class="description"><Markdown text={displayDescription(def) ?? ''} /></div>
       {/if}
-      <RolledBy {def} />
+      <RolledBy {def} ui={oracleUi} />
       <div class="tabs" role="tablist">
         {#each ['roll', 'edit'] as const as name (name)}
           <button

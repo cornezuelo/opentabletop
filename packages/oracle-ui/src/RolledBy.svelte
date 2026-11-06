@@ -1,16 +1,18 @@
 <script lang="ts">
   import type { Compiled } from '@open-tabletop/oracle-engine'
-  import { rolledBy, UsesList } from '@open-tabletop/oracle-ui'
   import { systemName, type TravelSystem, type Use } from '@open-tabletop/session'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { getLocale, t } from '../lib/i18n'
-  import { workspace } from '../lib/packs/workspace.svelte'
+  import type { OracleUi } from './ui'
+  import UsesList from './UsesList.svelte'
+  import { rolledBy } from './usePlace'
 
   /** Who rolls a definition: the places in the systems that bring its pack, folded. */
-  let { def }: { def: Compiled } = $props()
+  let { def, ui }: { def: Compiled; ui: OracleUi } = $props()
+  const t: OracleUi['t'] = (key, params) => ui.t(key, params)
+  const getLocale = () => ui.locale()
 
   let open = $state(false)
-  const found = $derived(rolledBy(workspace.registry, def))
+  const found = $derived(rolledBy(ui.library.registry, def))
   /** By system, in the order they come. */
   const bySystem = $derived.by(() => {
     const groups: { system: TravelSystem; uses: Use[] }[] = []
@@ -36,7 +38,7 @@
 {#if open}
   {#each bySystem as { system, uses } (system.id)}
     {#if bySystem.length > 1}<h4>{systemName(system, getLocale())}</h4>{/if}
-    <UsesList {uses} {system} registry={workspace.registry} locale={getLocale()} />
+    <UsesList {uses} {system} registry={ui.library.registry} locale={getLocale()} />
   {/each}
 {/if}
 

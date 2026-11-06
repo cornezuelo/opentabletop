@@ -1,8 +1,9 @@
 <script lang="ts">
   import { InfoTip, Markdown } from '@open-tabletop/ui-kit'
-  import { getLocale, t, type MessageKey } from '../lib/i18n'
+  import { getLocale, t } from '../lib/i18n'
+  import { kindName } from '../lib/kindNames'
   import { go, showSide } from '../lib/nav.svelte'
-  import { library, systems, texts } from '../lib/packs.svelte'
+  import { library, oracleUi, systems } from '../lib/packs.svelte'
   import { packTree } from '../lib/tree'
   import { systemName } from '@open-tabletop/session'
 
@@ -13,15 +14,10 @@
     packTree(library, root, {
       locale: getLocale(),
       systems: systems.list,
-      displayName: texts.displayName,
+      displayName: oracleUi.displayName,
     }),
   )
   const kinds = $derived(tree.groups.filter((g) => g.kind !== 'files'))
-  const kindName = (kind: string) => {
-    const key = `library.kindNames.${kind}` as MessageKey
-    const name = t(key)
-    return name === key ? kind : name
-  }
 </script>
 
 <section>

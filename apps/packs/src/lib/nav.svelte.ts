@@ -3,7 +3,8 @@ import { TABS } from './tabs'
 /**
  * What the main area shows, mirrored in the URL hash so views can be linked:
  * #/system/<id>/<tab>[/<item>] (an item of the tab, unfolded: a template of the bestiary),
- * #/style/<pack>/<id> (a map style), #/pack/<folder> (a pack), #/file/<folder>/<path> (a file).
+ * #/style/<pack>/<id> (a map style), #/pack/<folder> (a pack), #/file/<folder>/<path> (a file),
+ * #/def/<folder>/<kind>/<id>[/<tab>] (a definition of a pack).
  */
 export type Tab =
   | 'overview'
@@ -22,12 +23,17 @@ export type Tab =
   | 'modes'
   | 'try'
   | 'yaml'
+/** A definition's tabs. */
+export type DefTab = 'form' | 'yaml' | 'used'
+const DEF_TABS: DefTab[] = ['form', 'yaml', 'used']
+
 export type View =
   | { name: 'welcome' }
   | { name: 'system'; id: string; tab: Tab; item?: string }
   /** A map style, by its full id (`core/parchment`). */
   | { name: 'style'; ref: string }
   | { name: 'pack'; root: string }
+  | { name: 'def'; root: string; kind: string; id: string; tab: DefTab }
   | { name: 'file'; root: string; path: string; line?: number }
 
 function parse(hash: string): View {
@@ -36,6 +42,14 @@ function parse(hash: string): View {
     .split('/')
     .map(decodeURIComponent)
   if (name === 'pack' && id) return { name, root: id }
+  if (name === 'def' && id && tab && item)
+    return {
+      name,
+      root: id,
+      kind: tab,
+      id: item,
+      tab: DEF_TABS.includes(rest[0] as DefTab) ? (rest[0] as DefTab) : 'form',
+    }
   if (name === 'file' && id && tab)
     return { name, root: id, path: [tab, item, ...rest].filter(Boolean).join('/') }
   if (name === 'style' && id && tab) return { name, ref: `${id}/${tab}` }
@@ -57,6 +71,8 @@ function format(view: View): string {
       return `#/system/${encodeURIComponent(view.id)}/${view.tab}${view.item ? `/${encodeURIComponent(view.item)}` : ''}`
     case 'pack':
       return `#/pack/${encodeURIComponent(view.root)}`
+    case 'def':
+      return `#/def/${[view.root, view.kind, view.id].map(encodeURIComponent).join('/')}${view.tab === 'form' ? '' : `/${view.tab}`}`
     case 'file':
       return `#/file/${encodeURIComponent(view.root)}/${view.path}`
     default:
@@ -84,7 +100,7 @@ export type SideView = 'systems' | 'packs'
 const SIDE = 'opentabletop.packs.side'
 function readSide(): SideView {
   // What a link opened decides; otherwise the list last shown here.
-  if (['pack', 'file', 'style'].includes(nav.view.name)) return 'packs'
+  if (['pack', 'def', 'file', 'style'].includes(nav.view.name)) return 'packs'
   try {
     return localStorage.getItem(SIDE) === 'packs' ? 'packs' : 'systems'
   } catch {

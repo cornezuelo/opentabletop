@@ -18,6 +18,7 @@
     Toasts,
     Welcome,
   } from '@open-tabletop/ui-kit'
+  import DefinitionPage from './components/DefinitionPage.svelte'
   import NewSystemDialog from './components/NewSystemDialog.svelte'
   import PackHolds from './components/PackHolds.svelte'
   import StyleView from './components/StyleView.svelte'
@@ -39,7 +40,9 @@
   let making = $state<'system' | 'pack' | 'definition' | null>(null)
   /** The pack on show, where **New → Definition…** starts. */
   const openRoot = $derived(
-    nav.view.name === 'pack' || nav.view.name === 'file' ? nav.view.root : undefined,
+    nav.view.name === 'pack' || nav.view.name === 'file' || nav.view.name === 'def'
+      ? nav.view.root
+      : undefined,
   )
 
   async function importPacks() {
@@ -105,6 +108,15 @@
         {#snippet holds()}<PackHolds {root} />{/snippet}
       </PackPage>
     {/key}
+  {:else if nav.view.name === 'def'}
+    {#key `${nav.view.root}/${nav.view.kind}/${nav.view.id}`}
+      <DefinitionPage
+        root={nav.view.root}
+        kind={nav.view.kind}
+        id={nav.view.id}
+        tab={nav.view.tab}
+      />
+    {/key}
   {:else if nav.view.name === 'file'}
     <FileEditor
       {library}
@@ -132,8 +144,9 @@
     onclose={() => (making = null)}
     onfile={(root, path) => go({ name: 'file', root, path })}
     ondefinition={(id) => {
+      const def = library.registry.definitions.get(id)
       const root = library.rootOf(id.split('/')[0])
-      if (root) go({ name: 'pack', root })
+      if (def && root) go({ name: 'def', root, kind: def.kind, id: def.localId, tab: 'form' })
     }}
   />
 {/if}

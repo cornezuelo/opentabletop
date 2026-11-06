@@ -4,6 +4,12 @@ import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   kinds: vocabulary.es.kinds,
+  rolledBy: {
+    title: 'La tiran',
+    help: 'Dónde la tiran los sistemas que traen este pack: el paso de una acción (`roll: table.ruins`), el binding de una comprobación, un reloj de progreso al llenarse, la entrada de otra tabla o el campo de un generador. Cada sitio enlaza a donde se edita (las reglas en Packs, las tablas aquí).\n• **Nada la tira** — se tira a mano, o desde un pack que no trae ningún sistema\nLo que un mapa o un viaje tira por sí solo (las tablas del clima, el descubrimiento) lo dicen los bindings del sistema, que también salen.',
+    count: '{n} sitios',
+    none: 'Nada la tira',
+  },
   roll: {
     roll: 'Tirar',
     draw: 'Robar',

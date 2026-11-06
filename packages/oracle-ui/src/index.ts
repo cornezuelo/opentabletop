@@ -38,3 +38,4 @@ export {
   type UsePlaceShown,
 } from './usePlace'
 export { default as DefinitionEditor } from './edit/DefinitionEditor.svelte'
+export { default as RolledBy } from './RolledBy.svelte'

@@ -15,7 +15,7 @@ describe('the tree of a pack', () => {
     open.packTree(packs.library, 'grey-marches', {
       locale: 'en',
       systems: packs.systems.list,
-      displayName: packs.texts.displayName,
+      displayName: packs.oracleUi.displayName,
     })
 
   it('lists its systems apart, and each kind once, in order', () => {

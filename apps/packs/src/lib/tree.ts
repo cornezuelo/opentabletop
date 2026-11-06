@@ -71,7 +71,6 @@ export function packTree(
   if (!pack || !id) return { systems: [], groups: [], images: 0 }
   const items = new Map<string, TreeItem[]>()
   const add = (kind: string, item: TreeItem) => items.set(kind, [...(items.get(kind) ?? []), item])
-  const inFile = (file: string) => file.slice(root.length + 1)
 
   for (const def of library.engine.list({ pack: id }))
     add(def.kind, {
@@ -79,7 +78,7 @@ export function packTree(
       name: options.displayName(def),
       id: def.localId,
       tags: def.tags,
-      view: { name: 'file', root, path: inFile(def.file) },
+      view: { name: 'def', root, kind: def.kind, id: def.localId, tab: 'form' },
     })
   for (const extra of library.registry.extras.get(id) ?? []) {
     if (extra.kind === 'system') continue
@@ -93,7 +92,7 @@ export function packTree(
       view:
         extra.kind === 'style'
           ? { name: 'style', ref: `${id}/${local}` }
-          : { name: 'file', root, path: inFile(extra.file) },
+          : { name: 'def', root, kind: extra.kind, id: local, tab: 'form' },
     })
   }
   const groups = [...items]
@@ -138,4 +137,12 @@ export function findInTree(tree: PackTree, query: string): PackTree {
       }))
       .filter((g) => g.items.length),
   }
+}
+
+/** The line a definition starts on in its file, to open the YAML there. */
+export function definitionLine(text: string, kind: string, id: string): number | undefined {
+  const lines = text.split('\n')
+  const at = lines.findIndex((l) => new RegExp(`^id:\\s*['"]?${id}['"]?\\s*(#.*)?$`).test(l))
+  const line = at >= 0 ? at : lines.findIndex((l) => l.trim() === `kind: ${kind}`)
+  return line >= 0 ? line + 1 : undefined
 }

@@ -8,6 +8,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Systems is now **Packs**, at `/packs/`, on its way to being the app that edits every pack. Its test trips start afresh. The manual's pages of the bundled packs are under **Bundled packs**.
 - Packs: the left column shows **Systems** or **Packs**, every pack a tree of what it holds, with its page, files as YAML and a search; **New ▾** makes systems, packs and definitions and imports a .zip.
+- Packs: a definition has its own page, with its form, its YAML and who rolls it, also when no system uses it.
 
 ## [0.39.0] - 2026-11-06
 

@@ -1,5 +1,5 @@
 import { mapStyles } from '@open-tabletop/map'
-import { packTexts } from '@open-tabletop/oracle-ui'
+import { createOracleUi } from '@open-tabletop/oracle-ui'
 import { PackLibrary } from '@open-tabletop/pack-ui'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 import { travelSystems, type TravelSystem } from '@open-tabletop/session'
@@ -15,8 +15,12 @@ export const library = new PackLibrary(bundledPacks, {
   ],
 })
 
-/** Pack texts in the UI's language (a definition's name). */
-export const texts = packTexts(() => library.registry, getLocale)
+/** The Oracle's forms and texts here: names in the UI's language, tables and decks edited. */
+export const oracleUi = createOracleUi({
+  library,
+  locale: getLocale,
+  storageKey: 'opentabletop.packs.oracle',
+})
 
 /** Travel systems of the loaded packs (Generic first); recomputed when packs change. */
 class Packs {

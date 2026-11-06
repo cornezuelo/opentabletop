@@ -30,6 +30,21 @@ export const es: Messages<typeof en> = {
     holdsHelp:
       'Todo lo que declara este pack, por kind. Un clic abre el primero; la columna izquierda los lista todos.',
     noHolds: 'Aún nada: **Nuevo → Definición…** añade lo primero.',
+    form: 'Formulario',
+    yaml: 'YAML',
+    used: 'La tiran',
+    defTabs: 'Qué ver de ella',
+    roll: 'Tirarla en el Oráculo ↗',
+    readOnlyForm:
+      'Una definición incluida no tiene formulario que rellenar: léela en YAML, o haz una copia para cambiarla.',
+    withSystem:
+      'Esto se edita con su sistema, {system}, en las pestañas que lo muestran con lo que necesita.',
+    openSystem: 'Abrirlo allí',
+    noSystem:
+      'Ningún sistema nombra esto aún, así que su formulario no tiene con qué trabajar: nómbralo desde el Resumen de un sistema, o edítalo en YAML.',
+    yamlOnly: 'Los estilos de mapa se abren en su propia página.',
+    readWith: 'Ningún sistema usa esto aún: lo que sugiere su formulario viene de {system}.',
+    notFound: 'Esta definición ya no está en su pack.',
     kindNames: {
       table: 'Tablas',
       oracle: 'Oráculos',
