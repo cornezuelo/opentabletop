@@ -16,6 +16,6 @@ The Travel app plays trips without a map, with any **system**: a game's travel r
 
 - **Generic rules**: Core's system: plain travel whose one check rolls the weather each morning (rain, a storm or snow slow the march); the party eats 1 food as each day ends. Create a new system in the Packs app to start from a copy of it. A system without travel rules isn't listed: a trip without a map is all travel.
 - **The Grey Marches**: the bundled example, a small frontier with its own rules: weather by season, getting lost, encounters by terrain, region, danger and time of day, tolls, fords, shrines, boats on the lake, and landmarks that wait for you. See [The Grey Marches](../bundled/02-grey-marches.md).
-- Systems from your packs, personal-use ones included (see [Packs](../oracle/03-packs.md)).
+- Systems from your packs, personal-use ones included (see [Packs](../packs/21-packs.md)).
 
 Read on: [Playing a trip](02-playing.md) and [Making a system](../packs/02-making-a-system.md).

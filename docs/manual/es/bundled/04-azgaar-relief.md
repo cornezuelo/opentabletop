@@ -9,7 +9,7 @@ Dos de los conjuntos del generador, cada uno en su carpeta, con los mismos 34 di
 - `colored/`: colores planos, montañas grises, árboles verdes (el **Relieve** de Core);
 - `illustrated/`: dibujados en tonos tierra con líneas oscuras, como un atlas antiguo (el **Atlas grabado** de las Marcas Grises). Las líneas toman su color de los estilos del propio generador, que una imagen no tiene, así que aquí lo dice cada fichero (un marrón oscuro); por lo demás están como los tiene el generador.
 
-Los dibujos: `mount-1` a `mount-6`, `mountSnow-1` a `mountSnow-6`, `hill-1` a `hill-4`, `conifer-1`, `coniferSnow-1`, `deciduous-1`, `deciduous-2`, `acacia-1`, `palm-1`, `deadTree-1`, `deadTree-2`, `cactus-1` a `cactus-3`, `dune-1`, `grass-1`, `swamp-1`, `swamp-2`, `vulcan-1` a `vulcan-3`. Míralos en la Oráculo: abre el pack en su columna izquierda y se listan sus ficheros, cada uno en pequeño.
+Los dibujos: `mount-1` a `mount-6`, `mountSnow-1` a `mountSnow-6`, `hill-1` a `hill-4`, `conifer-1`, `coniferSnow-1`, `deciduous-1`, `deciduous-2`, `acacia-1`, `palm-1`, `deadTree-1`, `deadTree-2`, `cactus-1` a `cactus-3`, `dune-1`, `grass-1`, `swamp-1`, `swamp-2`, `vulcan-1` a `vulcan-3`. Míralos en la aplicación Packs: abre el pack en su columna izquierda y se listan sus ficheros, cada uno en pequeño.
 
 ## Usarlos en un estilo tuyo
 
@@ -24,4 +24,4 @@ art:
     forest: { images: azgaar-relief/illustrated/conifer-1.svg, count: 3 }
 ```
 
-Tus propios dibujos van en un pack tuyo con el **+ Imagen** de la Oráculo ([Packs](../oracle/03-packs.md)).
+Tus propios dibujos van en un pack tuyo con el **+ Imagen** de la página de un pack ([Packs](../packs/21-packs.md)).

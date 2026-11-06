@@ -82,7 +82,7 @@ Qué puede hacer que se cumpla: el propio tiempo (`time.hour: { gte: 14 }`, `tim
 ## La condición de un paso, y su `id`
 
 - `when` / `unless` en un paso hacen que solo ocurra cuando se cumplen: `{ unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }` (una noche con comida). Ven lo mismo que las condiciones de la acción, más `params.<id>` (sus parámetros), `trip.below` / `trip.above` (lo que llegó a un límite durante la acción), `trip.doing` (la acción en marcha) y `trip.moment` (cuándo la hizo el sistema).
-- `id` da nombre a un paso para poder traducir sus textos: en `locales/<idioma>/`, un paso se encuentra por su `id` en el `do` de su acción (`actions: { grumble: { do: { sulk: { say: … } } } }`), y solo se traducen los textos de `say` y `pause`. Mira [Traducciones](../oracle/05-translations.md#reglas-calendarios-clima-y-modos-de-tirada).
+- `id` da nombre a un paso para poder traducir sus textos: en `locales/<idioma>/`, un paso se encuentra por su `id` en el `do` de su acción (`actions: { grumble: { do: { sulk: { say: … } } } }`), y solo se traducen los textos de `say` y `pause`. Mira [Traducciones](../packs/22-translations.md#reglas-calendarios-clima-y-modos-de-tirada).
 
 ## Un ejemplo entero: cruzar un río
 

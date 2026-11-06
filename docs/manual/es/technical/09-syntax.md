@@ -241,6 +241,6 @@ Las **etiquetas** clasifican lo que se tira: `tags: [people, names]` en una tabl
 
 ## Traducciones
 
-Nunca en línea: los textos de un pack se escriben una vez en su idioma base, y las traducciones van en capas `locales/<idioma>/<fichero>`, por id. Mira [Traducciones](../oracle/05-translations.md).
+Nunca en línea: los textos de un pack se escriben una vez en su idioma base, y las traducciones van en capas `locales/<idioma>/<fichero>`, por id. Mira [Traducciones](../packs/22-translations.md).
 
 Cada tipo de definición, con un ejemplo entero: [Tipos de definición](07-kinds.md).

@@ -53,7 +53,7 @@ packages/                   # libraries, scope @open-tabletop/*
 apps/                       # each with its own CLAUDE.md
   map/                      # Map: the map editor, and play on the map
   campaign/                 # the campaigns: their world clock, timeline, maps and trips
-  oracle/                   # roll and edit packs
+  oracle/                   # roll packs
   travel/                   # play trips without a map
   characters/               # the roster: characters of any system, kept and taken on trips
   packs/                    # make and edit packs and the game systems they hold (rules, checks, sheets, map styles…)

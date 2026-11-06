@@ -11,10 +11,10 @@ It is **game-system agnostic**: the apps know no game's rules. A game comes as a
 | App            | What it does                                                                                                                                                                       |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Map**        | Draw hex maps (terrain, roads and rivers, regions, icons, tokens, notes), print or export them, and **play** on them: trips with rules, discovery of blank hexes, the world clock. |
-| **Oracle**     | Browse, roll and **edit** every table, oracle, generator and deck of your packs, with forms or a YAML editor with live problems; create and share packs.                           |
+| **Oracle**     | Browse and roll every table, oracle, generator and deck of your packs, and edit them with forms.                                                                                   |
 | **Travel**     | Play trips without a map, with any system.                                                                                                                                         |
 | **Characters** | Your roster of characters, of any system: make them, keep their notes, and take them on trips on any map.                                                                          |
-| **Packs**      | Make and edit packs and the game systems they hold: rules, checks, sheets, map styles.                                                                                             |
+| **Packs**      | Make, import and edit packs and the game systems they hold, each kind with its form, or YAML with live problems.                                                                   |
 | **Manual**     | The user manual of every app, in English and Spanish, with search. Each app also opens it in a side panel.                                                                         |
 | **CLI**        | `opentabletop validate`, `list` and `roll` packs from the command line.                                                                                                            |
 

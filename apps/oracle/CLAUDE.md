@@ -1,8 +1,8 @@
 # Oracle
 
-Standalone app of the Oracle Engine: **browse and roll** every table, oracle, generator and deck of the loaded packs, and **create and edit packs**. Read the root `CLAUDE.md` and `docs/oracle-engine.md` first.
+Standalone app of the Oracle Engine: **browse and roll** every table, oracle, generator and deck of the loaded packs. Packs are made, imported and their files edited in the Packs app; a definition's **Edit** stays here, the same forms. Read the root `CLAUDE.md` and `docs/oracle-engine.md` first.
 
-**Responsibility:** packs (YAML files) and rolling them. Resolution, validation and translations are the engine's job (`@open-tabletop/oracle-engine`); this app only reads and writes files and shows results.
+**Responsibility:** rolling packs. Resolution, validation and translations are the engine's job (`@open-tabletop/oracle-engine`); this app only reads and writes files and shows results.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ src/
     packs/      # the app's PackLibrary (bundled packs from pack-ui's `bundled`)
     i18n/       # typed en/es dictionaries on top of ui-kit's createI18n
     oracle.svelte.ts  # the app's OracleUi (roller, history, pack texts) from @open-tabletop/oracle-ui; rolls in the campaign being played (ui-kit `playing`, CampaignKeeper) or its own state
-    nav.svelte.ts  # view state mirrored in the URL hash (#/def/<pack>/<id>[/edit], #/pack/<folder>, #/file/<folder>/<path>)
+    nav.svelte.ts  # view state mirrored in the URL hash (#/def/<pack>/<id>[/edit], #/pack/<folder>)
   components/   # Sidebar, DefinitionView (Roll / Edit tabs, duplicate / copy to / delete), PackView
 ```
 

@@ -67,7 +67,7 @@ Para traer una exportación, pulsa **Importar…** en el selector de aplicacione
 
 **Se queda fuera** funciona igual, contando lo que ya tiene este navegador: un viaje cuya campaña está aquí no necesita nada más. Importar añade lo que marcaste junto a todo lo demás que hay aquí (no se quita nada) y recarga la página; cierra antes otras pestañas de OpenTabletop.
 
-El **Importar .zip** de la Oráculo también lee una exportación, y toma solo sus packs.
+**Nuevo ▾ → Importar un .zip…** de la aplicación Packs también lee una exportación, y toma solo sus packs.
 
 ## El fichero
 

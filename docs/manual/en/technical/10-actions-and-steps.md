@@ -82,7 +82,7 @@ What can make it hold: the time itself (`time.hour: { gte: 14 }`, `time.part: [a
 ## A step's condition, and its `id`
 
 - `when` / `unless` on a step make it happen only when they hold: `{ unless: { trip.below: party.values.food }, effects: { party.stats.fatigue: -1 } }` (a fed night). They see what the action's conditions see, plus `params.<id>` (its parameters), `trip.below` / `trip.above` (what hit a bound during the action), `trip.doing` (the action under way) and `trip.moment` (when the system took it).
-- `id` names a step so its texts can be translated: in `locales/<language>/`, a step is found by its `id` in its action's `do` (`actions: { grumble: { do: { sulk: { say: … } } } }`), and only `say` and `pause` texts are translated. See [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes).
+- `id` names a step so its texts can be translated: in `locales/<language>/`, a step is found by its `id` in its action's `do` (`actions: { grumble: { do: { sulk: { say: … } } } }`), and only `say` and `pause` texts are translated. See [Translations](../packs/22-translations.md#rules-calendars-weather-and-roll-modes).
 
 ## A whole example: a river crossing
 

@@ -67,7 +67,7 @@ To bring an export in, press **Import…** in the app switcher and choose the fi
 
 **Left out** works the same, counting what this browser has already: a trip whose campaign is here needs nothing more. Importing adds what you ticked beside everything else here (nothing else is removed) and reloads the page; close other OpenTabletop tabs first.
 
-The Oracle's **Import .zip** reads an export too, taking only its packs.
+The Packs app's **New ▾ → Import a .zip…** reads an export too, taking only its packs.
 
 ## The file
 

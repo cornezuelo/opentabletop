@@ -4,9 +4,10 @@ import type { en } from './en'
 export const es: Messages<typeof en> = {
   app: {
     title: vocabulary.es.apps.oracle,
-    tagline: 'Tira y crea tablas aleatorias, generadores, oráculos y mazos.',
+    tagline: 'Tira las tablas, generadores, oráculos y mazos de tus packs.',
   },
   nav: {
+    openPacks: 'Packs ↗',
     favorites: 'Favoritos',
     favorite: 'Favorito: fijado arriba de la lista (también en Mapa)',
     help: 'Ayuda y manual',
@@ -18,12 +19,7 @@ export const es: Messages<typeof en> = {
     hideHistory: 'Ocultar el historial (más espacio)',
     showHelp: 'Mostrar la ayuda',
     hideHelp: 'Ocultar la ayuda (más espacio)',
-    newDefinition: 'Nueva definición',
     search: 'Buscar tablas…',
-    newPack: 'Nuevo pack',
-    import: 'Importar .zip',
-    importTip:
-      'Importa packs de un .zip: un pack (una carpeta con pack.yaml) o un sistema con los packs que trae.',
     noResults: 'No hay coincidencias.',
     problems: '{count} problemas',
   },
@@ -58,16 +54,13 @@ export const es: Messages<typeof en> = {
   },
   welcome: {
     title: vocabulary.es.apps.oracle,
-    body: 'Elige una tabla, generador, oráculo o mazo a la izquierda para tirarlo. Los packs son carpetas de ficheros YAML: los incluidos son de solo lectura (edita una copia) y los tuyos se guardan en este navegador. Expórtalos como .zip para tener copia o compartirlos.',
+    body: 'Elige a la izquierda una tabla, un generador, un oráculo o un mazo para tirarlo. Los packs se crean y se cambian en la aplicación Packs (**Packs ↗**, arriba); **Editar** en una tabla tuya también la cambia aquí.',
     packs: '{packs} packs, {definitions} definiciones',
   },
   tabs: { roll: 'Tirar', edit: 'Editar' },
   pack: {
-    definitions: 'Definiciones',
-    newDefinition: 'Nueva definición',
-    other: 'Otras definiciones',
-    otherHelp:
-      'Reglas para otros motores: reglas de viaje, bindings, calendarios, modelos de clima. Edítalas en sus ficheros (YAML), o las reglas de viaje en la aplicación **Viajes**.',
+    open: 'Abrir en Packs ↗',
+    nothing: 'Aquí no hay nada que tirar: lo que trae está en la aplicación Packs.',
   },
   defActions: {
     duplicate: 'Duplicar',

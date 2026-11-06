@@ -24,7 +24,7 @@ During a trip with rules, a result that changes the party's stats, its sheet, it
 
 ## Try it
 
-Make this table in the Oracle app (a pack of yours, see [Packs](../oracle/03-packs.md)):
+Make this table in the Oracle app (a pack of yours, see [Packs](../packs/21-packs.md)):
 
 ```yaml
 kind: table

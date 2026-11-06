@@ -16,6 +16,6 @@ La aplicación Viajes juega viajes sin mapa, con cualquier **sistema**: las regl
 
 - **Reglas genéricas**: el sistema de Core: viaje sencillo cuya única comprobación tira el clima cada mañana (la lluvia, una tormenta o la nieve frenan la marcha); el grupo come 1 de comida al acabar cada día. Crea un sistema nuevo en la aplicación Packs para partir de una copia suya. Un sistema sin reglas de viaje no sale en la lista: un viaje sin mapa es todo viaje.
 - **Las Marcas Grises**: el ejemplo incluido, una pequeña frontera con reglas propias: clima por estación, perderse, encuentros por terreno, región, peligro y hora del día, peajes, vados, santuarios, barcas en el lago y lugares señalados que te esperan. Mira [Las Marcas Grises](../bundled/02-grey-marches.md).
-- Los sistemas de tus packs, incluidos los de uso personal (ver [Packs](../oracle/03-packs.md)).
+- Los sistemas de tus packs, incluidos los de uso personal (ver [Packs](../packs/21-packs.md)).
 
 Sigue con: [Jugar un viaje](02-playing.md) y [Crear un sistema](../packs/02-making-a-system.md).

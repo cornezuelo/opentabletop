@@ -49,4 +49,4 @@ Los **campos** se tiran en orden; cada uno (**Añadir campo**) tiene un nombre y
 
 ## Lo que no editan los formularios
 
-Las condiciones anidadas (`any`, `all`, `not`), son más cómodos en el YAML. Consulta [Referencia YAML](06-yaml.md).
+Las condiciones anidadas (`any`, `all`, `not`), son más cómodos en el YAML. Consulta [Referencia YAML](../packs/23-yaml-reference.md).

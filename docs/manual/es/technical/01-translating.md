@@ -6,7 +6,7 @@ OpenTabletop está pensado para traducirse a tres niveles, del más fácil al m�
 
 ## El contenido de los packs (sin código)
 
-Las tablas, oráculos, generadores y mazos se traducen dentro de su pack, con ficheros que solo sustituyen los textos. Hazlo desde la aplicación Oráculo (**Añadir idioma** en la página del pack y después elige el idioma en la pestaña **Editar** de una definición) o a mano: consulta [Traducciones](../oracle/05-translations.md). Cualquiera puede traducir sus propios packs, o enviar traducciones de los packs abiertos.
+Las tablas, oráculos, generadores y mazos se traducen dentro de su pack, con ficheros que solo sustituyen los textos. Hazlo desde la aplicación Packs (**Añadir idioma** en la página del pack y después elige el idioma en la pestaña **Editar** de una definición) o a mano: consulta [Traducciones](../packs/22-translations.md). Cualquiera puede traducir sus propios packs, o enviar traducciones de los packs abiertos.
 
 ## El manual (Markdown)
 

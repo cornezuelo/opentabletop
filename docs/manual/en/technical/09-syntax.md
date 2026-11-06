@@ -241,6 +241,6 @@ Descriptions take basic Markdown: a blank line between paragraphs, `**bold**`, `
 
 ## Translations
 
-Never inline: a pack's texts are written once in its base language, and translations go in `locales/<lang>/<file>` overlays, keyed by id. See [Translations](../oracle/05-translations.md).
+Never inline: a pack's texts are written once in its base language, and translations go in `locales/<lang>/<file>` overlays, keyed by id. See [Translations](../packs/22-translations.md).
 
 Every kind of definition, with a whole example: [Kinds of definition](07-kinds.md).

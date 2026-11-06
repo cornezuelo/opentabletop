@@ -71,7 +71,7 @@ export const APP_BLURBS = {
   en: {
     map: 'Draw maps of hexes or squares: terrain, roads, rivers, regions, icons and tokens; play trips on them.',
     campaign: 'What is going on in your world: its date, events and clocks, its maps and trips.',
-    oracle: 'Roll and edit tables, oracles, generators and decks from your packs.',
+    oracle: 'Roll the tables, oracles, generators and decks of your packs.',
     travel: 'Run trips without a map, with any system.',
     characters: 'Your characters, of any system: make them, keep them and take them on trips.',
     packs:
@@ -81,7 +81,7 @@ export const APP_BLURBS = {
   es: {
     map: 'Dibuja mapas de hexágonos o cuadrados: terreno, caminos, ríos, regiones, iconos y tokens; juega viajes sobre ellos.',
     campaign: 'Lo que pasa en tu mundo: su fecha, eventos y relojes, sus mapas y viajes.',
-    oracle: 'Tira y edita tablas, oráculos, generadores y mazos de tus packs.',
+    oracle: 'Tira las tablas, oráculos, generadores y mazos de tus packs.',
     travel: 'Juega viajes sin mapa, con cualquier sistema.',
     characters: 'Tus personajes, de cualquier sistema: créalos, guárdalos y llévalos de viaje.',
     packs:

@@ -27,7 +27,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 
 **Who reads what.** Tables, oracles, generators and decks are all things you can roll, and anything that rolls can roll any of them: the Oracle by hand, a trip's check or discovery when a binding names it (`resolve: deck.omens` draws a card), an action's `roll:` step (`roll: table.ruins`), an entry or card that rolls another (`table:`), a generator's field, a progress clock as it fills (`resolve:`) and a faction's world turn (`turn:`). **How many:** one of a kind that describes the whole system (its roll modes, travel rules, bindings, calendar, sheet: a system has one way of doing each), any number of the rest. A pack with several [systems](#systems) has one set for each, told apart by their ids. Weather models are many because a system may have several climates (the coast and the mountains, each bound to its own check).
 
-Translations of names and texts go in `locales/<language>/` files with the same name, for every kind; the ones that aren't tables are keyed by kind and id (`calendar/marcher-reckoning:`): see [Translations](../oracle/05-translations.md#rules-calendars-weather-and-roll-modes). The examples below are in the base language only.
+Translations of names and texts go in `locales/<language>/` files with the same name, for every kind; the ones that aren't tables are keyed by kind and id (`calendar/marcher-reckoning:`): see [Translations](../packs/22-translations.md#rules-calendars-weather-and-roll-modes). The examples below are in the base language only.
 
 ## Tables
 
@@ -42,7 +42,7 @@ entries:
   - { id: storm, range: 4-6, result: Storm, table: table.storm-damage }
 ```
 
-Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` / `unless` (conditions), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session), `effects` (changes to the party's values) and `pause` (stop the trip when it comes up). The table may also have `clamp`, `onExhausted`, `modes`, `modeWhen` and `modeUnless`, and, as every table, oracle, generator and deck, `tags`: words that sort it (`tags: [people, names]`), which the Oracle's and Map's **Filter** read; they mean nothing else, and `rules` is only our packs' habit for what their systems roll. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../oracle/06-yaml.md).
+Entries have a `range` of totals (or a `weight`), a `result` text, and optionally `when` / `unless` (conditions), `set` (values the result gives), `table` / `generator` (roll another one), `once` / `maxOccurrences` (limits per session), `effects` (changes to the party's values) and `pause` (stop the trip when it comes up). The table may also have `clamp`, `onExhausted`, `modes`, `modeWhen` and `modeUnless`, and, as every table, oracle, generator and deck, `tags`: words that sort it (`tags: [people, names]`), which the Oracle's and Map's **Filter** read; they mean nothing else, and `rules` is only our packs' habit for what their systems roll. Everything about them: [Editing](../oracle/04-editing.md) and [YAML](../packs/23-yaml-reference.md).
 
 **What other tables see:** a table rolled from another (`table:`) gives its text as `{{result}}` and its `set` values to the trip and to later checks of the day (see [What tables see](04-what-tables-see.md)).
 

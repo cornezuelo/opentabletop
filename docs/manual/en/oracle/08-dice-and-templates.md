@@ -94,7 +94,7 @@ When a definition is rolled it receives a **context**: a set of named values. Th
    - An entry's **set** values are passed to the table it rolls next (**then roll**), and become values of the result.
    - A generator's **fields** are rolled in order, and each one sees the ones before it; a field's `context: { … }` adds values just for that field.
 
-Conditions (`when`) read the same context, and so do variables. See [YAML reference](06-yaml.md#conditions) for their syntax.
+Conditions (`when`) read the same context, and so do variables. See [YAML reference](../packs/23-yaml-reference.md#conditions) for their syntax.
 
 ## Putting it together
 

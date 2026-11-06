@@ -26,7 +26,7 @@ yes-no:
       labels: { even: Igualada }
 ```
 
-Los campos de un generador con un texto fijo (`value: ' A trap guards the way in.'`) se traducen en `fields`, por el nombre del campo; los números y otros valores no son textos y se quedan como están. Al traducir, el formulario del generador en la Oráculo muestra las casillas de esos campos para la traducción:
+Los campos de un generador con un texto fijo (`value: ' A trap guards the way in.'`) se traducen en `fields`, por el nombre del campo; los números y otros valores no son textos y se quedan como están. Al traducir, el formulario del generador en el Oráculo muestra las casillas de esos campos para la traducción:
 
 ```yaml
 # locales/es/treasure.yaml (las Marcas Grises)

@@ -94,7 +94,7 @@ Cuando se tira una definición recibe un **contexto**: un conjunto de valores co
    - Los valores que **fija** (`set`) una entrada pasan a la tabla que tira después (**luego tira**) y forman parte del resultado.
    - Los **campos** de un generador se tiran en orden y cada uno ve los anteriores; el `context: { … }` de un campo añade valores solo para ese campo.
 
-Las condiciones (`when`) leen el mismo contexto, y también las variables. Consulta [Referencia YAML](06-yaml.md#condiciones) para su sintaxis.
+Las condiciones (`when`) leen el mismo contexto, y también las variables. Consulta [Referencia YAML](../packs/23-yaml-reference.md#condiciones) para su sintaxis.
 
 ## Todo junto
 

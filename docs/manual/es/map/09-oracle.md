@@ -24,7 +24,7 @@ Durante un viaje con reglas, un resultado que cambia las características del gr
 
 ## Pruébalo
 
-Crea esta tabla en la aplicación Oráculo (en un pack tuyo, ver [Packs](../oracle/03-packs.md)):
+Crea esta tabla en la aplicación Oráculo (en un pack tuyo, ver [Packs](../packs/21-packs.md)):
 
 ```yaml
 kind: table

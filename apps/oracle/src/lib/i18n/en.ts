@@ -3,9 +3,10 @@ import { vocabulary } from '@open-tabletop/ui-kit'
 export const en = {
   app: {
     title: vocabulary.en.apps.oracle,
-    tagline: 'Roll and build random tables, generators, oracles and decks.',
+    tagline: 'Roll the random tables, generators, oracles and decks of your packs.',
   },
   nav: {
+    openPacks: 'Packs ↗',
     favorites: 'Favorites',
     favorite: 'Favorite: pinned on top of the list (also in Map)',
     help: 'Help and manual',
@@ -17,12 +18,7 @@ export const en = {
     hideHistory: 'Hide the history (more room)',
     showHelp: 'Show the help',
     hideHelp: 'Hide the help (more room)',
-    newDefinition: 'New definition',
     search: 'Search tables…',
-    newPack: 'New pack',
-    import: 'Import .zip',
-    importTip:
-      'Import packs from a .zip: one pack (a folder with pack.yaml), or a system with the packs it brings.',
     noResults: 'Nothing matches.',
     problems: '{count} problems',
   },
@@ -57,16 +53,13 @@ export const en = {
   },
   welcome: {
     title: vocabulary.en.apps.oracle,
-    body: 'Pick a table, generator, oracle or deck on the left to roll it. Packs are folders of YAML files: bundled packs are read-only (edit a copy), your own packs are stored in this browser. Export them as .zip to back them up or share them.',
+    body: 'Pick a table, generator, oracle or deck on the left to roll it. Packs are made and changed in the Packs app (**Packs ↗**, above); **Edit** on a table of yours changes it here too.',
     packs: '{packs} packs, {definitions} definitions',
   },
   tabs: { roll: 'Roll', edit: 'Edit' },
   pack: {
-    definitions: 'Definitions',
-    newDefinition: 'New definition',
-    other: 'Other definitions',
-    otherHelp:
-      'Rules for other engines: travel rules, bindings, calendars, weather models. Edit them in their files (YAML), or travel rules in the **Travel** app.',
+    open: 'Open in Packs ↗',
+    nothing: 'Nothing here to roll: what it holds is in the Packs app.',
   },
   defActions: {
     duplicate: 'Duplicate',

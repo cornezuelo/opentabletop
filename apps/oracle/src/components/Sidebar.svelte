@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fullText, SideCount, SideTag, tooltip } from '@open-tabletop/ui-kit'
+  import { fullText, SideCount, SideTag } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { OlderPacks } from '@open-tabletop/pack-ui'
   import { displayName, KIND_ORDER } from '../lib/names'
@@ -9,7 +9,6 @@
   import { KindBadge } from '@open-tabletop/pack-ui'
   import { definitionFilter, DefinitionFilters, favorites } from '@open-tabletop/oracle-ui'
   import { oracleUi } from '../lib/oracle.svelte'
-  import { dialogs } from '../lib/dialogs.svelte'
   import { isHidden } from '../lib/hiddenPacks.svelte'
 
   let query = $state('')
@@ -113,14 +112,6 @@
             {:else if pack.origin === 'bundled'}
               <SideTag tip={t('originTips.bundled')}>{t('origin.bundled')}</SideTag>
             {/if}
-            {#if pack.origin === 'user'}
-              <button
-                class="add"
-                aria-label={t('nav.newDefinition')}
-                use:tooltip={t('nav.newDefinition')}
-                onclick={() => (dialogs.newDefinition = { root: pack.root })}>+</button
-              >
-            {/if}
             {#if errors}
               <span class="push"
                 ><SideCount count={errors} tip={t('nav.problems', { count: errors })} /></span
@@ -208,20 +199,6 @@
     white-space: nowrap;
     background: none;
     border: none;
-    cursor: pointer;
-  }
-
-  .add {
-    flex: none;
-    width: 20px;
-    height: 20px;
-    padding: 0;
-    margin-left: auto;
-    line-height: 1;
-    color: var(--text-muted);
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
     cursor: pointer;
   }
 

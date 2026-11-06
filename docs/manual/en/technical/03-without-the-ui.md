@@ -4,9 +4,9 @@ The apps are one way to edit; the files are the source of truth. Some things are
 
 ## Editing packs as files
 
-1. **Export .zip** a pack from the Oracle app and unzip it — or start from an empty folder with a `pack.yaml`.
+1. **Export .zip** a pack from its page in the Packs app and unzip it — or start from an empty folder with a `pack.yaml`.
 2. Edit its YAML with any text editor. YAML-aware editors help with indentation.
-3. **Import .zip** it back (zip the folder), and the app checks it and lists its problems with their line.
+3. **New ▾ → Import a .zip…** it back (zip the folder), and the app checks it and lists its problems with their line.
 
 Writing many similar entries is often faster in YAML than in the forms; comments (`# …`) are kept when the forms edit the file later.
 

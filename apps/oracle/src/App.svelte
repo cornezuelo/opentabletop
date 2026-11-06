@@ -2,6 +2,7 @@
   import { untrack } from 'svelte'
   import {
     AppBrand,
+    appUrl,
     AppSwitcher,
     CampaignChip,
     contextHelp,
@@ -16,11 +17,9 @@
   import OraclePreferences from './components/OraclePreferences.svelte'
   import CampaignChoice from './components/CampaignChoice.svelte'
   import DefinitionView from './components/DefinitionView.svelte'
-  import { FileEditor, NewDefinitionDialog, NewPackDialog } from '@open-tabletop/pack-ui'
-  import { History, KIND_ORDER } from '@open-tabletop/oracle-ui'
+  import { History } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { importZip, UndoButtons } from '@open-tabletop/pack-ui'
-  import { dialogs } from './lib/dialogs.svelte'
+  import { UndoButtons } from '@open-tabletop/pack-ui'
   import PackView from './components/PackView.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
@@ -31,8 +30,6 @@
   import { isHidden } from './lib/hiddenPacks.svelte'
   import { systemOfPack, travelSystems } from '@open-tabletop/session'
 
-  let creating = $state(false)
-
   // The system last chosen here, in Travel or in Packs: opened without a view, the Oracle
   // starts on its pack; a pack with a system chosen here becomes the last system.
   const systems = $derived(travelSystems(workspace.registry).systems)
@@ -41,18 +38,11 @@
   if (lastRoot) go({ name: 'pack', root: lastRoot }, true)
   $effect(() => {
     const view = nav.view
-    const folder =
-      view.name === 'pack' || view.name === 'file' ? workspace.pack(view.root) : undefined
+    const folder = view.name === 'pack' ? workspace.pack(view.root) : undefined
     const pack = view.name === 'def' ? view.id.split('/')[0] : folder && manifestOf(folder).id
     const system = pack ? untrack(() => systemOfPack(systems, pack, readLastSystem())) : undefined
     if (system) rememberSystem(system.id)
   })
-
-  async function importPacks() {
-    const packs = await importZip(workspace, getLocale())
-    // A system's file has its own pack first.
-    if (packs?.length) go({ name: 'pack', root: packs[0].root })
-  }
 
   const count = $derived(workspace.registry.definitions.size)
 
@@ -97,13 +87,7 @@
     <CampaignChip locale={getLocale()} />
     <div class="spacer"></div>
     <UndoButtons library={workspace} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
-    <button class="button" onclick={() => (dialogs.newDefinition = {})}
-      >{t('nav.newDefinition')}</button
-    >
-    <button class="button" onclick={() => (creating = true)}>{t('nav.newPack')}</button>
-    <button class="button" use:tooltip={t('nav.importTip')} onclick={importPacks}
-      >{t('nav.import')}</button
-    >
+    <a class="button" href={appUrl('packs')}>{t('nav.openPacks')}</a>
     <PreferencesButton
       locale={getLocale()}
       {locales}
@@ -140,15 +124,6 @@
         <DefinitionView id={nav.view.id} tab={nav.view.tab} />
       {:else if nav.view.name === 'pack'}
         <PackView root={nav.view.root} />
-      {:else if nav.view.name === 'file'}
-        <FileEditor
-          library={workspace}
-          locale={getLocale()}
-          root={nav.view.root}
-          path={nav.view.path}
-          line={nav.view.line}
-          onpack={(root) => go({ name: 'pack', root })}
-        />
       {:else}
         <div class="welcome">
           <h1>{t('welcome.title')}</h1>
@@ -177,26 +152,6 @@
     </History>
   {/if}
 </div>
-
-{#if dialogs.newDefinition}
-  <NewDefinitionDialog
-    library={workspace}
-    locale={getLocale()}
-    kinds={KIND_ORDER}
-    root={dialogs.newDefinition.root}
-    onfile={(root, path) => go({ name: 'file', root, path })}
-    ondefinition={(id) => go({ name: 'def', id, tab: 'edit' })}
-    onclose={() => (dialogs.newDefinition = null)}
-  />
-{/if}
-{#if creating}
-  <NewPackDialog
-    library={workspace}
-    locale={getLocale()}
-    onclose={() => (creating = false)}
-    onmade={(root) => go({ name: 'pack', root })}
-  />
-{/if}
 
 <Toasts />
 <Dialogs />

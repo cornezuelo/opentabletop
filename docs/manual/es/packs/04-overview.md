@@ -54,7 +54,7 @@ En las Marcas Grises, el **Rastreo** de los compañeros (Hoja) enseña dos sitio
 
 Tus sistemas solo viven en este navegador. Para ponerlo a salvo, llevarlo a otro navegador o dárselo a alguien, el Resumen acaba con **Llevarlo a otra parte**: dice lo que lleva el fichero y **Exportar como .zip** lo descarga. El .zip lleva todos los packs que necesita el sistema, cada uno en su carpeta: el suyo, los que trae, los que tienen sus partes y sus dependencias, hasta donde lleguen. El fichero de las Marcas Grises, por ejemplo, lleva las Marcas Grises y Core.
 
-**Nuevo ▾ → Importar un .zip…** vuelve a leer ese fichero y abre el sistema que trae (el **Importar .zip** de la Oráculo también lo lee):
+**Nuevo ▾ → Importar un .zip…** vuelve a leer ese fichero y abre el sistema que trae (también el .zip de un pack):
 
 - los packs que no tienes se añaden a los tuyos;
 - los que ya están y sin cambios (un Core incluido, por ejemplo) se quedan como están;

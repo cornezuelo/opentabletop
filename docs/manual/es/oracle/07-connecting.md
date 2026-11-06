@@ -348,7 +348,7 @@ El **Ir con un carretero** de las Marcas Grises lo usa en el camino.
 
 ### Comprobaciones
 
-**checks** son lo que tira el viaje, y cuándo. Cada una tiene un `event` (el nombre que quieras: los bindings lo usan para elegir su tabla), un `name` y una `description` para los jugadores (se ven en el panel del viaje y el diario en lugar del evento; se traducen en `locales/`, mira [Traducciones](05-translations.md#reglas-calendarios-clima-y-modos-de-tirada)) y un `at`:
+**checks** son lo que tira el viaje, y cuándo. Cada una tiene un `event` (el nombre que quieras: los bindings lo usan para elegir su tabla), un `name` y una `description` para los jugadores (se ven en el panel del viaje y el diario en lugar del evento; se traducen en `locales/`, mira [Traducciones](../packs/22-translations.md#reglas-calendarios-clima-y-modos-de-tirada)) y un `at`:
 
 - una hora o una parte del día del calendario: `at: '06:00'`, `at: time.part.morning`, al llegar, marchando, esperando o dormidos en el campamento (el clima, perderse cada mañana); un viaje nuevo tiene los momentos de su primer minuto al marchar o esperar por primera vez;
 - `trip.place-enter`: al entrar en cada casilla (encuentros, un peaje, un hito);

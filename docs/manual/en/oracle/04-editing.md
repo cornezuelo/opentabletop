@@ -49,4 +49,4 @@ An **input** (its id, a **label** to show, and its **options**, each with a labe
 
 ## What the forms don't edit
 
-Deeply nested conditions (`any`, `all`, `not`), are easier in the YAML. See [YAML reference](06-yaml.md).
+Deeply nested conditions (`any`, `all`, `not`), are easier in the YAML. See [YAML reference](../packs/23-yaml-reference.md).

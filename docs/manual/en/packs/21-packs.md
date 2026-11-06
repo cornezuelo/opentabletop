@@ -5,7 +5,7 @@ A pack is a folder of YAML files with a `pack.yaml` (id, name, version, base lan
 ## Where packs come from
 
 - **Bundled**: they come with the app and can't be changed. **Edit a copy** copies one into your packs; the copy replaces it (references from other packs keep working) and **Revert to bundled** deletes it. Copies of personal-use packs stay personal use: don't share them. A bundled pack other packs depend on (Core) offers **Duplicate as a new pack** instead: a pack of yours with all its files and an id of its own (`core-mine`), beside the original, which stays as it is, with its updates, for the packs that need it.
-- **Yours**: made with **New pack** or imported, stored in this browser.
+- **Yours**: made with **New ▾ → Pack…** or imported, stored in this browser.
 
 When a new version of OpenTabletop changes a bundled pack you have a copy of, your copy doesn't change by itself: it is marked **update** in the list, and its page (in the Oracle app, and under the system's name in the Packs app) lists the files the bundled pack changed, added or removed since you made the copy, saying for each one whether you touched it too. For each file, **Take bundled** brings in the new version (yours of that file is replaced) and **Keep mine** leaves yours and stops telling you about it; **See the bundled version** shows it first. **Take the updates you haven't touched** brings in, at once, every changed file your copy left as it was, so nothing of yours is lost. **Keep my copy as it is** ignores them all. All of it can be undone with ↶. Copies made before this existed list the files that differ from the bundled version, since whether you or an update changed them can't be told; choose once, and from then on only real updates are shown.
 
@@ -47,23 +47,23 @@ They could live in separate files just as well. A pack holds at most one travel 
 **How to add them.**
 
 - In the Packs app: **New ▾ → System…** creates a pack with both; its **Rules** and **Checks** tabs edit them with forms.
-- In the Oracle app: **New definition → Rules of the system** adds one of them (roll modes, travel rules, bindings, a calendar or a weather model) to one of your packs, as a valid example to change in the YAML editor ([Kinds of definition](../technical/07-kinds.md) explains each). The pack page lists them under **Other definitions**; open them in the YAML editor, where problems are checked like in any other definition.
+- **New ▾ → Definition…**, under **Rules of the system**, adds one of them (roll modes, travel rules, bindings, a calendar or a weather model) to one of your packs, as a valid example to change in the YAML editor ([Kinds of definition](../technical/07-kinds.md) explains each). The pack page lists them under **Other definitions**; open them in the YAML editor, where problems are checked like in any other definition.
 
-What goes inside is explained step by step in [Connecting tables to maps and trips](07-connecting.md#5-your-own-travel-system).
+What goes inside is explained step by step in [Connecting tables to maps and trips](../oracle/07-connecting.md#5-your-own-travel-system).
 
 ## Making a pack
 
-**New pack** asks for a name, a folder/id (lowercase letters, digits and dashes) and the base language the tables are written in. Then add definitions with **New definition** (or the **+** next to the pack): pick the kind, its id and name, and the file it goes **In** (an existing one or a new one). Definitions can live in any file of the pack; group them as you like.
+**New ▾ → Pack…** asks for a name, a folder/id (lowercase letters, digits and dashes) and the base language the tables are written in. Then add definitions with **New ▾ → Definition…**: pick the kind, its id and name, and the file it goes **In** (an existing one or a new one). Definitions can live in any file of the pack; group them as you like.
 
 A table can start **From pasted text**: tick it and paste a table copied from a PDF, a CSV or a spreadsheet, and its entries are made for you. A numbered list (`1. Wolves`, `2–3 Bandits`, `4) A pedlar`) gives entries with those ranges, and a line the PDF wrapped joins the one before; a CSV or spreadsheet copy (`1,Wolves`, or the number and the text in two columns) the same; a list without numbers, one entry per line, equally likely. The dice come from the numbers (1–6 is `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`), and below the box it says what it found ("4 entries, rolled on 1d6"). Check the table afterwards in its form, and turn **Odds** on to see it as it rolls.
 
-The pack page shows its manifest, its **problems** (click one to jump to the line), its definitions, other engines' definitions (travel rules, bindings), its files (add, rename, delete) and its translations. Under its name, **Export .zip** and **Delete pack**, which removes the pack and all its files from this browser (it asks first; export it before if you may want it back).
+The pack page shows its manifest, its **problems** (click one to jump to the line), what it holds by kind, its files (add, rename, delete) and its translations. Under its name, **Export .zip** and **Delete pack**, which removes the pack and all its files from this browser (it asks first; export it before if you may want it back).
 
-A pack may hold **images** too (SVG, PNG, WebP or JPEG), for map styles to draw with: a terrain's art, a texture over the map ([Map styles](../packs/20-map-styles.md)). **+ Image**, beside **Add file**, adds the ones you choose, each by its file's name (up to 512 KB each); write a folder ending in `/` in the box first (`relief/`) to put them there. They're listed with the files, each small, and a style names one by the pack's id and its path (hover it: `my-art/relief/hill.svg`). Rename or delete them as any file. The bundled **Azgaar's relief icons** pack ([its page](../bundled/04-azgaar-relief.md)) is images alone.
+A pack may hold **images** too (SVG, PNG, WebP or JPEG), for map styles to draw with: a terrain's art, a texture over the map ([Map styles](20-map-styles.md)). **+ Image**, beside **Add file**, adds the ones you choose, each by its file's name (up to 512 KB each); write a folder ending in `/` in the box first (`relief/`) to put them there. They're listed with the files, each small, and a style names one by the pack's id and its path (hover it: `my-art/relief/hill.svg`). Rename or delete them as any file. The bundled **Azgaar's relief icons** pack ([its page](../bundled/04-azgaar-relief.md)) is images alone.
 
 ## Backups and sharing
 
-**Export .zip** downloads the pack as a folder; **Import .zip** adds the packs of a .zip: one pack, or a whole system with the packs it brings, exported from the Packs app (packs already here unchanged are left alone; replacing a different version asks first). Your packs live only in this browser: export them to keep them safe. To take several packs at once, with the campaigns and characters that use them, use the app switcher's [**Export…**](../technical/05-backups.md#exporting-and-importing-some-of-it).
+**Export .zip** downloads the pack as a folder; **New ▾ → Import a .zip…** adds the packs of a .zip: one pack, or a whole system with the packs it brings, exported from the Packs app (packs already here unchanged are left alone; replacing a different version asks first). Your packs live only in this browser: export them to keep them safe. To take several packs at once, with the campaigns and characters that use them, use the app switcher's [**Export…**](../technical/05-backups.md#exporting-and-importing-some-of-it).
 
 Map sees your packs when both apps are served from the same site (e.g. `…/oracle/` and `…/map/`).
 

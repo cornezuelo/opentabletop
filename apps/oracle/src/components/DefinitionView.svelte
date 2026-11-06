@@ -1,12 +1,11 @@
 <script lang="ts">
   import { getLocale, t } from '../lib/i18n'
   import { displayDescription, displayName } from '../lib/names'
-  import { Markdown } from '@open-tabletop/ui-kit'
+  import { appUrl, Markdown } from '@open-tabletop/ui-kit'
   import { go } from '../lib/nav.svelte'
   import { favorites, RollPanel } from '@open-tabletop/oracle-ui'
   import { oracleUi } from '../lib/oracle.svelte'
   import { workspace } from '../lib/packs/workspace.svelte'
-  import { locate } from '@open-tabletop/pack-ui/yaml'
   import { KindBadge } from '@open-tabletop/pack-ui'
   import { RolledBy } from '@open-tabletop/oracle-ui'
   import { ReadOnlyNotice } from '@open-tabletop/pack-ui'
@@ -21,7 +20,6 @@
   const root = $derived(def ? def.file.split('/')[0] : '')
   const file = $derived(def ? def.file.slice(root.length + 1) : '')
   const editable = $derived(workspace.isEditable(root))
-  const line = $derived(def ? locate(workspace.readFile(root, file) ?? '', def.localId) : undefined)
   /** User packs a copy can go to (besides this one). */
   const targets = $derived(workspace.packs.filter((p) => p.origin === 'user' && p.root !== root))
 
@@ -61,9 +59,7 @@
       </div>
       <div class="meta">
         <code>{def.id}</code>
-        <button class="link" onclick={() => go({ name: 'file', root, path: file, line })}
-          >{file}</button
-        >
+        <a href={`${appUrl('packs')}#/file/${encodeURIComponent(root)}/${file}`}>{file}</a>
         <div class="actions">
           {#if editable}
             <button use:tooltip={t('defActions.duplicateHelp')} onclick={() => copyTo(root)}

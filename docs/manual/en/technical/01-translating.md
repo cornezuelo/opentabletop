@@ -6,7 +6,7 @@ OpenTabletop is built to be translated at three levels, from easiest to hardest.
 
 ## Pack content (no code)
 
-Tables, oracles, generators and decks are translated inside their pack, with files that replace only the texts. Do it from the Oracle app (**Add language** in the pack page, then choose the language in a definition's **Edit** tab) or by hand: see [Translations](../oracle/05-translations.md). Anyone can translate their own packs, or send translations for open packs.
+Tables, oracles, generators and decks are translated inside their pack, with files that replace only the texts. Do it from the Packs app (**Add language** in the pack page, then choose the language in a definition's **Edit** tab) or by hand: see [Translations](../packs/22-translations.md). Anyone can translate their own packs, or send translations for open packs.
 
 ## The manual (Markdown)
 

@@ -54,7 +54,7 @@ In the Grey Marches, the companions' **Pathfinding** (Sheet) shows two places: t
 
 Your systems live only in this browser. To keep one safe, take it to another browser or give it to someone, the Overview ends with **Take it elsewhere**: it lists what the file holds and **Export as .zip** downloads it. The .zip holds every pack the system needs, each in its own folder: its own pack, the packs it brings, those its parts are written in and their dependencies, as far as they go. The Grey Marches' file, for instance, holds the Grey Marches and Core.
 
-**New ▾ → Import a .zip…** reads such a file back and opens the system it brought (the Oracle's **Import .zip** reads it too):
+**New ▾ → Import a .zip…** reads such a file back and opens the system it brought (a pack's .zip too):
 
 - packs you don't have are added to yours;
 - packs already here and unchanged (a bundled Core, say) are left as they are;

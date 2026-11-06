@@ -353,7 +353,7 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 
 ### Checks
 
-**checks** are what the trip rolls, and when. Each one has an `event` (any name you like: the bindings use it to pick its table), a `name` and `description` for players (shown in the trip panel and the journal instead of the event; translated in `locales/`, see [Translations](05-translations.md#rules-calendars-weather-and-roll-modes)) and an `at`:
+**checks** are what the trip rolls, and when. Each one has an `event` (any name you like: the bindings use it to pick its table), a `name` and `description` for players (shown in the trip panel and the journal instead of the event; translated in `locales/`, see [Translations](../packs/22-translations.md#rules-calendars-weather-and-roll-modes)) and an `at`:
 
 - a clock or a part of the calendar's day: `at: '06:00'`, `at: time.part.morning`, as it comes, marching, waiting or asleep in camp (the weather, getting lost each morning); a new trip has the moments of its first minute as it first marches or waits;
 - `trip.place-enter`: entering each cell (encounters, a toll, a landmark);
