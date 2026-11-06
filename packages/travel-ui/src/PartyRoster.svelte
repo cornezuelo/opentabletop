@@ -11,7 +11,7 @@
     type TravelSystem,
   } from '@open-tabletop/session'
   import { characterUrl, roster, sheetText } from '@open-tabletop/character-ui'
-  import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { ask, confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
 
   /**
@@ -50,7 +50,26 @@
     ),
   )
 
+  /** Whether the party comes alone, asked when the trip has others; undefined: it stays. */
+  async function comesAlone(id: string): Promise<boolean | undefined> {
+    const theirs = rosterEntry(roster.roster, id)?.members ?? []
+    const others = (session.members ?? []).filter((m) => !theirs.includes(m.id))
+    if (!others.length) return false
+    const choice = await ask(
+      t('partySheet.othersTitle'),
+      t('partySheet.others', { list: others.map((m) => m.name || m.id).join(', ') }),
+      [
+        { value: 'cancel', label: t('campaign.cancel') },
+        { value: 'together', label: t('partySheet.othersStay') },
+        { value: 'alone', label: t('partySheet.othersGo'), kind: 'primary' },
+      ],
+    )
+    return !choice || choice === 'cancel' ? undefined : choice === 'alone'
+  }
+
   async function bring(id: string) {
+    const alone = await comesAlone(id)
+    if (alone === undefined) return
     if (!linked && !(await confirmAction(t('partySheet.replaceConfirm')))) return
     const taking = partyTaking(roster.roster, id, place)
     if (
@@ -63,7 +82,7 @@
     )
       return
     onedit((s) => {
-      const brought = bringParty(roster.roster, s, id, place, partyOf(system), now())
+      const brought = bringParty(roster.roster, s, id, place, partyOf(system), now(), alone)
       roster.set(brought.roster)
       return brought.session
     })

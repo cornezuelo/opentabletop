@@ -20,7 +20,7 @@ export const es: Messages = {
     start: 'Poner en marcha el reloj del mundo',
     stop: 'Quitar el reloj del mundo',
     confirmStop: '¿Quitar el reloj del mundo? Se olvidan su fecha, eventos, relojes y cronología.',
-    dayLine: 'Día {day} · {clock} · {season}',
+    dayLine: 'Día {day} del mundo · {clock} · {season}',
     day: 'Día {day}',
     date: '{weekday}, {day} de {month}, año {year}',
     seasons: vocabulary.es.seasons,

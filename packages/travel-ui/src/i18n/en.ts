@@ -40,7 +40,7 @@ export const en = {
   cameUp: ' (it came up on day {day}, {clock})',
   dateLine: '{weekday}, {day} {month}, year {year}',
   moonPhases: vocabulary.en.moonPhases,
-  dayLine: 'Day {day} · {clock} · {season}',
+  dayLine: 'Day {day} of the trip · {clock} · {season}',
   at: 'At {hex}',
   weather: 'Weather: {weather}',
   destination: 'Heading to {hex}',
@@ -137,6 +137,10 @@ export const en = {
       "Parties of the roster (the Characters app) made with this system's party sheet. One becomes this trip's party: its sheet as it was (values, conditions, items: 3 rations left, 3 rations now), and its members join the trip's characters. It stays linked: what happens to it here is written back to the roster after every step, its members are the trip's linked characters, and what you change in the Characters app reaches the trip. A party plays in one place at a time: taking one that plays elsewhere asks first.",
     takeConfirm:
       'This takes from where they play now: {list}. Bring them here? Those places keep their copies, no longer linked to the roster.',
+    othersTitle: 'Others on this trip',
+    others: 'This trip has others who aren’t in that party: {list}. Do they stay with it?',
+    othersGo: 'Only the party',
+    othersStay: 'They stay',
     replaceConfirm:
       "This trip's party isn't in the roster: bringing another one loses its sheet as it is now. Bring it?",
     keep: vocabulary.en.roster.keep,

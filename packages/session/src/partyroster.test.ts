@@ -118,6 +118,16 @@ describe('parties in the roster', () => {
     expect(rosterEntry(copy.roster, copy.id)?.members).toEqual([])
   })
 
+  it('takes a party to a trip alone: the others on it go', () => {
+    const start = startTrip({ system: band, location: 'a' }).session
+    const crew = { ...start, members: [member('ivo')], acting: 'ivo' }
+    const alone = bringParty(company(), crew, 'the-company', trip, rules, T, true).session
+    expect(alone.members?.map((m) => m.id)).toEqual(['kael', 'mara'])
+    expect(alone.acting).toBeUndefined()
+    const together = bringParty(company(), crew, 'the-company', trip, rules, T).session
+    expect(together.members?.map((m) => m.id)).toEqual(['ivo', 'kael', 'mara'])
+  })
+
   it('takes a party to a trip with its members, and keeps them in step', () => {
     const r = company()
     const start = startTrip({ system: band, location: 'a' }).session

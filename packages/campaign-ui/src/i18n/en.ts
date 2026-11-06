@@ -19,7 +19,7 @@ export const en = {
     start: 'Start the world clock',
     stop: 'Remove the world clock',
     confirmStop: 'Remove the world clock? Its date, events, clocks and timeline are forgotten.',
-    dayLine: 'Day {day} · {clock} · {season}',
+    dayLine: 'Day {day} of the world · {clock} · {season}',
     day: 'Day {day}',
     date: '{weekday}, {day} {month}, year {year}',
     seasons: vocabulary.en.seasons,

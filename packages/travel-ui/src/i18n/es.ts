@@ -41,7 +41,7 @@ export const es: Messages<typeof en> = {
   cameUp: ' (salió el día {day}, a las {clock})',
   dateLine: '{weekday}, {day} de {month}, año {year}',
   moonPhases: vocabulary.es.moonPhases,
-  dayLine: 'Día {day} · {clock} · {season}',
+  dayLine: 'Día {day} del viaje · {clock} · {season}',
   at: 'En {hex}',
   weather: 'Clima: {weather}',
   destination: 'Rumbo a {hex}',
@@ -135,6 +135,10 @@ export const es: Messages<typeof en> = {
       'Grupos del plantel (la aplicación Personajes) hechos con la hoja de grupo de este sistema. Uno pasa a ser el grupo de este viaje: su hoja tal como estaba (valores, condiciones, objetos: si le quedaban 3 raciones, tiene 3 raciones), y sus miembros se unen a los personajes del viaje. Queda enlazado: lo que le pase aquí se escribe en el plantel tras cada paso, sus miembros son los personajes enlazados del viaje, y lo que cambies en Personajes llega al viaje. Un grupo juega en un solo sitio a la vez: traer uno que juega en otro sitio pregunta antes.',
     takeConfirm:
       'Esto se los lleva de donde juegan ahora: {list}. ¿Traerlos aquí? Esos sitios conservan sus copias, ya sin enlazar con el plantel.',
+    othersTitle: 'Otros en este viaje',
+    others: 'Este viaje tiene a otros que no son de ese grupo: {list}. ¿Se quedan con él?',
+    othersGo: 'Solo el grupo',
+    othersStay: 'Se quedan',
     replaceConfirm:
       'El grupo de este viaje no está en el plantel: si traes otro, su hoja tal como está ahora se pierde. ¿Traerlo?',
     keep: vocabulary.es.roster.keep,

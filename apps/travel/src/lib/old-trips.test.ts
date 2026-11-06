@@ -43,7 +43,7 @@ type Travel = Awaited<ReturnType<typeof openTravel>>
 async function playOn({ trip, html, text }: Travel) {
   const session = () => trip.saved.session!
   // The open trip's panel: its moment, and Continue on a check waiting to be resolved.
-  expect(text()).toMatch(/Day \d+ · \d\d:\d\d/)
+  expect(text()).toMatch(/Day \d+ of the trip · \d\d:\d\d/)
   if (session().travel.pendingChecks.length) expect(text()).toMatch(/Continue/)
   for (const c of session().travel.pendingChecks)
     await trip.step({ type: 'resolveCheck', id: c.id })
@@ -59,7 +59,7 @@ async function playOn({ trip, html, text }: Travel) {
   expect(
     session().journal.some((e) => e.code === 'PLACE_ENTERED' && (e.data?.time as number) > start),
   ).toBe(true)
-  expect(text()).toMatch(/Day \d+ · \d\d:\d\d/)
+  expect(text()).toMatch(/Day \d+ of the trip · \d\d:\d\d/)
   // The journal first, what the last step did marked in it; the rest a tab at a time.
   expect(html()).toMatch(/class="[^"]*latest|Nothing to tell/)
   expect(text()).toMatch(/Journal.*So far\s+Options/s)

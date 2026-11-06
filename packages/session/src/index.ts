@@ -1432,7 +1432,8 @@ export function partyTaking(
 /**
  * Brings a roster party to a trip: it's the trip's party from now on (its sheet, the stats
  * made of it following), and its members join the trip's (those of the system's sheet that
- * aren't there yet). Each plays here from now on; the party it replaces stays in the roster.
+ * aren't there yet), or are the only ones left (`alone`: the trip's others go). Each plays
+ * here from now on; the party it replaces stays in the roster.
  */
 export function bringParty(
   roster: Roster,
@@ -1441,6 +1442,7 @@ export function bringParty(
   place: RosterPlace,
   rules: PartyRules,
   now: string,
+  alone = false,
 ): { roster: Roster; session: SessionState } {
   const taken = takeFromRoster(roster, id, place, now)
   if (!taken || !rules.partySheet || taken.character.sheet !== rules.partySheet.id)
@@ -1459,6 +1461,10 @@ export function bringParty(
     if (out.members?.some((c) => c.id === m))
       renameMember(out, m, characterId(m, [...out.members.map((c) => c.id), m]))
     out.members = [...(out.members ?? []), joined.character]
+  }
+  if (alone) {
+    out.members = out.members?.filter((m) => members.includes(m.id))
+    if (out.acting !== undefined && !members.includes(out.acting)) delete out.acting
   }
   out.partyRef = id
   editPartySheet(out, rules, { ...taken.character, id: PARTY_ID })
