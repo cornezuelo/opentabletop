@@ -4,7 +4,7 @@ import { Document, parseDocument } from 'yaml'
 import type { PackLibrary } from './library.svelte'
 import { overlayLocales, overlayPath } from './packFiles'
 import { manifestOf, type PackSource } from './packs'
-import { SYSTEM_TEMPLATES, type SystemKind } from './systemTemplates'
+import { FACTION_SHEET, SYSTEM_TEMPLATES, type PartKind, type SystemKind } from './systemTemplates'
 import { TEMPLATES } from './templates'
 
 /** "Night encounters!" → "night-encounters" (a valid definition id). */
@@ -57,26 +57,99 @@ export function createDefinition(
 }
 
 /**
- * Adds travel rules or bindings to a pack (a pack is one travel system at most);
- * returns the file they went to, to open it in the YAML editor.
+ * Adds a part of a system to a pack, from its template, in `<kind>.yaml` unless told where;
+ * returns where it went and its id. Factions name a sheet: written beside them if missing.
  */
 export function createSystemDefinition(
   library: PackLibrary,
   root: string,
-  kind: SystemKind,
+  kind: SystemKind | PartKind,
   file?: string,
-): string | null {
+): { path: string; id: string } | null {
   const pack = library.pack(root)
-  if (!pack) return null
-  const target = file || dataFiles(pack)[0] || 'travel.yaml'
-  // One travel system per pack: rules and bindings both use `default` (ids are per kind).
-  const id = 'default'
-  library.writeFile(
-    root,
-    target,
-    appendDefinition(library.readFile(root, target) ?? '', SYSTEM_TEMPLATES[kind](id)),
-  )
-  return target
+  const packId = pack && manifestOf(pack).id
+  if (!pack || !packId) return null
+  const path = file || `${kind}.yaml`
+  const taken = (library.registry.extras.get(packId) ?? [])
+    .filter((e) => e.kind === kind)
+    .map((e) => e.id ?? 'default')
+  const id = freeId('default', taken)
+  library.batch(() => {
+    if (kind === 'factions' && !hasDefinition(library, packId, 'sheet', 'faction'))
+      library.writeFile(
+        root,
+        path,
+        appendDefinition(library.readFile(root, path) ?? '', FACTION_SHEET()),
+      )
+    library.writeFile(
+      root,
+      path,
+      appendDefinition(library.readFile(root, path) ?? '', SYSTEM_TEMPLATES[kind](id)),
+    )
+  })
+  return { path, id }
+}
+
+const hasDefinition = (library: PackLibrary, pack: string, kind: string, id: string) =>
+  (library.registry.extras.get(pack) ?? []).some((e) => e.kind === kind && e.id === id)
+
+/** Where a part of a pack that isn't rolled is written, as forms edit it. */
+export interface PartPlace {
+  root: string
+  path: string
+  kind: string
+  id: string
+}
+
+/** Each of a pack's translation files of a data file, read and written as `yaml` documents. */
+function eachOverlay(
+  library: PackLibrary,
+  { root, path }: PartPlace,
+  change: (doc: ReturnType<typeof parseDocument>) => boolean,
+) {
+  const pack = library.pack(root)
+  for (const locale of pack ? overlayLocales(pack) : []) {
+    const file = overlayPath(locale, path)
+    const content = library.readFile(root, file)
+    if (!content?.trim()) continue
+    const doc = parseDocument(content)
+    if (change(doc)) library.writeFile(root, file, doc.toString())
+  }
+}
+
+/** Removes a part from its file, and its translations. */
+export function deletePart(library: PackLibrary, part: PartPlace): void {
+  const key = `${part.kind}/${part.id}`
+  library.batch(() => {
+    const text = library.readFile(part.root, part.path) ?? ''
+    library.writeFile(part.root, part.path, removeDefinition(text, `@${key}`))
+    eachOverlay(library, part, (doc) => doc.delete(key))
+  })
+}
+
+/** A copy of a part beside it, under a free id, with its translations; returns the id. */
+export function duplicatePart(library: PackLibrary, part: PartPlace): string | null {
+  const key = `${part.kind}/${part.id}`
+  const pack = library.pack(part.root)
+  const packId = pack && manifestOf(pack).id
+  const text = library.readFile(part.root, part.path) ?? ''
+  const raw = readDefinition(text, `@${key}`)
+  if (!packId || !raw) return null
+  const taken = (library.registry.extras.get(packId) ?? [])
+    .filter((e) => e.kind === part.kind)
+    .map((e) => e.id ?? 'default')
+  const id = freeId(`${part.id}-copy`, taken)
+  const name = typeof raw.name === 'string' ? { name: `${raw.name} (copy)` } : {}
+  library.batch(() => {
+    library.writeFile(part.root, part.path, appendDefinition(text, { ...raw, id, ...name }))
+    eachOverlay(library, part, (doc) => {
+      const texts = doc.get(key)
+      if (texts === undefined) return false
+      doc.set(`${part.kind}/${id}`, texts)
+      return true
+    })
+  })
+  return id
 }
 
 /** Whether a pack already has a definition of that kind (only one travel system per pack). */

@@ -1,8 +1,16 @@
 <script lang="ts">
   import { DefinitionEditor, RolledBy } from '@open-tabletop/oracle-ui'
-  import { FileEditor, manifestOf, ReadOnlyNotice } from '@open-tabletop/pack-ui'
+  import {
+    copyDefinition,
+    deleteDefinition,
+    deletePart,
+    duplicatePart,
+    FileEditor,
+    manifestOf,
+    ReadOnlyNotice,
+  } from '@open-tabletop/pack-ui'
   import { localize, systemName, type TravelSystem } from '@open-tabletop/session'
-  import { appUrl, Tabs } from '@open-tabletop/ui-kit'
+  import { appUrl, confirmAction, MoreMenu, Tabs } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n'
   import { kindName } from '../lib/kindNames'
   import { go, showSide, type DefTab } from '../lib/nav.svelte'
@@ -10,6 +18,9 @@
   import { library, oracleUi, systems } from '../lib/packs.svelte'
   import { partDoc } from '../lib/partDoc.svelte'
   import { definitionLine } from '../lib/tree'
+  import { systemDoc } from '../lib/systemDoc.svelte'
+  import ChecksForm from './forms/ChecksForm.svelte'
+  import RulesForm from './forms/RulesForm.svelte'
   import PartForm from './parts/PartForm.svelte'
 
   /**
@@ -60,11 +71,57 @@
     )
   })
 
+  /** Rules or bindings no system names: edited here, the pack's other half beside them. */
+  const lone = $derived.by(() => {
+    if (owner || (kind !== 'travel-rules' && kind !== 'bindings')) return undefined
+    const of = (wanted: string) =>
+      (library.registry.extras.get(packId ?? '') ?? []).find((e) => e.kind === wanted)
+    const rules = kind === 'travel-rules' ? extra : of('travel-rules')
+    const bindings = kind === 'bindings' ? extra : of('bindings')
+    if (!rules) return undefined
+    const local = (file: string) => file.slice(root.length + 1)
+    return {
+      root,
+      path: local(rules.file),
+      rulesId: rules.id ?? 'default',
+      ...(bindings && {
+        bindings: { path: local(bindings.file), id: bindings.id ?? 'default' },
+      }),
+    }
+  })
+  const loneDoc = systemDoc(() => lone ?? { root: '', path: '' })
+
   const tabs = $derived([
     { id: 'form' as DefTab, label: t('library.form') },
     { id: 'yaml' as DefTab, label: t('library.yaml') },
     ...(rollable ? [{ id: 'used' as DefTab, label: t('library.used') }] : []),
   ])
+  /** Your packs a copy can go to. */
+  const others = $derived(library.packs.filter((p) => p.origin === 'user' && p.root !== root))
+
+  function duplicate() {
+    if (rollable) {
+      const made = copyDefinition(library, rollable, root)
+      const copy = made && library.registry.definitions.get(made)
+      if (copy) go({ name: 'def', root, kind, id: copy.localId, tab: 'form' })
+    } else if (source) {
+      const made = duplicatePart(library, source)
+      if (made) go({ name: 'def', root, kind, id: made, tab: 'form' })
+    }
+  }
+  function copyTo(to: string) {
+    if (!rollable) return
+    const made = copyDefinition(library, rollable, to)
+    const copy = made && library.registry.definitions.get(made)
+    if (copy) go({ name: 'def', root: to, kind, id: copy.localId, tab: 'form' })
+  }
+  async function remove() {
+    if (!(await confirmAction(t('library.confirmDelete', { name })))) return
+    if (rollable) deleteDefinition(library, rollable)
+    else if (source) deletePart(library, source)
+    go({ name: 'pack', root })
+  }
+
   const show = (next: DefTab) => go({ name: 'def', root, kind, id, tab: next }, true)
   const openPack = (made: string) => go({ name: 'pack', root: made })
 </script>
@@ -80,6 +137,20 @@
       <h1 class="page-title">{name}</h1>
       {#if rollable}
         <a class="roll" href={`${appUrl('oracle')}#/def/${rollable.id}`}>{t('library.roll')}</a>
+      {/if}
+      <span class="spacer"></span>
+      {#if editable || (rollable && others.length)}
+        <MoreMenu label={t('library.more')}>
+          {#if editable}<button onclick={duplicate}>{t('library.duplicate')}</button>{/if}
+          {#if rollable}
+            {#each others as other (other.root)}
+              <button onclick={() => copyTo(other.root)}
+                >{t('library.copyTo', { pack: manifestOf(other).name ?? other.root })}</button
+              >
+            {/each}
+          {/if}
+          {#if editable}<button class="danger" onclick={remove}>{t('library.delete')}</button>{/if}
+        </MoreMenu>
       {/if}
     </div>
     <p class="file"><code>{file}</code> · <code>@{kind}/{id}</code></p>
@@ -102,11 +173,10 @@
       {:else if tab === 'used' && rollable}
         <RolledBy def={rollable} ui={oracleUi} />
       {:else if rollable}
-        {#if editable}
+        <!-- A bundled one is read as its form, with nothing to change. -->
+        <fieldset disabled={!editable}>
           <DefinitionEditor def={rollable} {root} ui={oracleUi} />
-        {:else}
-          <p class="help">{t('library.readOnlyForm')}</p>
-        {/if}
+        </fieldset>
       {:else if kind === 'travel-rules' || kind === 'bindings'}
         {#if owner}
           <p class="help">
@@ -119,11 +189,19 @@
               go({ name: 'system', id: owner.system.id, tab: owner.tab })
             }}>{t('library.openSystem')}</button
           >
+        {:else if lone && kind === 'travel-rules'}
+          <p class="help">{t('library.loneRules')}</p>
+          <RulesForm doc={loneDoc} />
+        {:else if lone}
+          <p class="help">{t('library.loneRules')}</p>
+          <ChecksForm doc={loneDoc} />
         {:else}
-          <p class="help">{t('library.noSystem')}</p>
+          <p class="help">{t('library.noRules')}</p>
         {/if}
       {:else if kind === 'style'}
-        <p class="help">{t('library.yamlOnly')}</p>
+        <button class="button" onclick={() => go({ name: 'style', ref: `${packId}/${id}` })}
+          >{t('library.openStyle')}</button
+        >
       {:else}
         {#if system && !uses(system)}
           <p class="help">
@@ -159,6 +237,17 @@
     display: flex;
     gap: 14px;
     align-items: baseline;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
   }
 
   .roll {

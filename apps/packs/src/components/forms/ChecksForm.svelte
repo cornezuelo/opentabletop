@@ -13,6 +13,7 @@
   } from '@open-tabletop/ui-kit'
   import { contextSuggestions, effectSuggestions, type TravelSystem } from '@open-tabletop/session'
   import { SvelteSet } from 'svelte/reactivity'
+  import DiscoverForm from './DiscoverForm.svelte'
   import RecordRows from './RecordRows.svelte'
   import { matches } from '../../lib/search'
   import UsedBy from '../uses/UsedBy.svelte'
@@ -644,6 +645,8 @@
     {#if !disabled}<button class="add" onclick={addStat}>{t('checks.addStat')}</button>{/if}
   </section>
 
+  {#if doc.bindings}<DiscoverForm {doc} {system} />{/if}
+
   <section>
     <h3>{t('checks.roles')}<InfoTip text={t('checks.rolesHelp')} /></h3>
     <RecordRows
@@ -653,6 +656,26 @@
       uses={system && { of: (id) => usesFor(system, { kind: 'role', id }), system }}
       idLabel={t('forms.id')}
       suggestions={['guide', 'lookout', 'forager', 'quartermaster']}
+      columns={[
+        { field: 'name', label: t('checks.roleName'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+      ]}
+    />
+  </section>
+
+  <section>
+    <h3>{t('checks.reads')}<InfoTip text={t('checks.readsHelp')} /></h3>
+    <RecordRows
+      {doc}
+      kind="bindings"
+      at={['reads']}
+      idLabel={t('forms.id')}
+      suggestions={['danger', 'token.guards']}
       columns={[
         { field: 'name', label: t('checks.roleName'), type: 'text' },
         {

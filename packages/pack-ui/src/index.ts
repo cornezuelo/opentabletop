@@ -11,10 +11,12 @@ export { completeYaml, yamlHints, type YamlHints } from './completion'
 export {
   FACTION_SHEET,
   PARTY_SHEET,
+  PART_KINDS,
   SYSTEM_KINDS,
   LAND_STARTS,
   SYSTEM_TEMPLATES,
   type LandStart,
+  type PartKind,
   type SystemKind,
 } from './systemTemplates'
 export { packsToZip, zipToPacks, planImport, download, type ImportPlan } from './zip'
@@ -41,3 +43,4 @@ export * from './packFiles'
 export { tableFromText, type TableFromText, type TextEntry } from './fromText'
 export { TEMPLATES } from './templates'
 export { default as PackPage } from './PackPage.svelte'
+export { default as ManifestForm } from './ManifestForm.svelte'

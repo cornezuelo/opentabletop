@@ -12,6 +12,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Oracle: it's for rolling now: packs are made, imported and their files edited in Packs, with **Open in Packs ↗** on a pack; **Edit** stays on a definition.
 - Packs: land models for any map: terrains added from the palette's groups, a preview on hexes or squares, and **New land model** from open land, caves or a town. Map's **Generate land** adds to the palette what a model names and it lacks.
 - Core: _The caves_; the Grey Marches: _The clans' galleries_, a land model of what lies under the land.
+- Packs: forms for what was YAML only: discovery and other values read (**Checks**), a system's sheets, factions, clocks, world and lists (**Overview**), every part's description, and `pack.yaml`.
+- Packs: **New ▾ → Definition…** makes every kind, and a definition can be duplicated, copied to another pack and deleted.
 - Packs: a definition has its own page, with its form, its YAML and who rolls it, also when no system uses it.
 
 ## [0.39.0] - 2026-11-06

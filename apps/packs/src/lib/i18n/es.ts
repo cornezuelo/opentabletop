@@ -42,9 +42,18 @@ export const es: Messages<typeof en> = {
     openSystem: 'Abrirlo allí',
     noSystem:
       'Ningún sistema nombra esto aún, así que su formulario no tiene con qué trabajar: nómbralo desde el Resumen de un sistema, o edítalo en YAML.',
-    yamlOnly: 'Los estilos de mapa se abren en su propia página.',
     readWith: 'Ningún sistema usa esto aún: lo que sugiere su formulario viene de {system}.',
     notFound: 'Esta definición ya no está en su pack.',
+    more: 'Más',
+    duplicate: 'Duplicar',
+    copyTo: 'Copiar a {pack}',
+    delete: 'Borrar',
+    confirmDelete: '¿Borrar «{name}»? Ctrl+Z lo trae de vuelta.',
+    loneRules:
+      'Ningún sistema las nombra aún: se editan aquí, y un sistema las toma desde su Resumen.',
+    noRules:
+      'Estos bindings no tienen reglas de viaje en su pack a las que responder: añádelas con **Nuevo → Definición…**, o edita los bindings en YAML.',
+    openStyle: 'Abrir su formulario',
     kindNames: {
       table: 'Tablas',
       oracle: 'Oráculos',
@@ -645,7 +654,49 @@ export const es: Messages<typeof en> = {
     cancelsHelp:
       'Modos con los que se anula: si se aplican los dos, no se aplica ninguno (una tirada normal).\n• `disadvantage`',
   },
+  discover: {
+    title: 'Descubrir el mapa',
+    help: 'Lo que decide las casillas vacías mientras viaja el grupo (`discover`), en un mapa con **Descubrir el mapa al viajar** activado.\n• Un terreno por un modelo de tierra: `terrain: { land: land.default }`\n• O por una tabla: `terrain: { resolve: table.next-terrain }`\n• Lo que hay en una casilla: `contents: { resolve: table.cell-contents }`',
+    terrain: 'Terreno',
+    terrainHelp:
+      'Lo que da su terreno a una casilla vacía: un modelo de tierra, o una tabla cuyas entradas hacen `set: { terrain: hills }`.',
+    contents: 'Lo que hay en una casilla',
+    contentsHelp:
+      'Se tira la primera vez que el grupo entra en una casilla descubierta: su texto se convierte en un punto de interés.',
+    reveal: 'Qué se decide al entrar',
+    revealHelp:
+      'Si entrar en una casilla decide también sus vecinas vacías, lo que el grupo ve desde ella, o solo la propia casilla.',
+    none: '(nada)',
+    models: 'Modelos de tierra',
+    neighbors: 'La casilla y sus vecinas',
+    entered: 'Solo la casilla',
+  },
   overview: {
+    sheet: 'Hoja de personajes',
+    sheetHelp:
+      'La hoja con la que se hacen sus personajes (`sheet:`). Se edita en **Hoja**.\n• `sheet.default`\n• `core/sheet.default`, la de otro pack',
+    partySheet: 'Hoja del grupo',
+    partySheetHelp:
+      'Una hoja del propio grupo, además de la de sus personajes (`partySheet:`).\n• `sheet.party`',
+    factions: 'Facciones',
+    factionsHelp:
+      'Los poderes de su mundo (`factions:`). Se editan en **Facciones**.\n• `factions.default`',
+    clocks: 'Relojes',
+    clocksHelp:
+      'Sus relojes de progreso (`clocks:`). Se editan en **Relojes**.\n• `clocks.default`',
+    world: 'Reglas del mundo',
+    worldHelp:
+      'Lo que hace su mundo por sí solo (`world:`). Se editan en **Mundo**.\n• `world.default`',
+    items: 'Catálogos de objetos',
+    itemsHelp:
+      'Lo que pueden llevar sus personajes (`items:`), tantos como quiera, de este pack o de los que necesita.',
+    bestiary: 'Bestiarios',
+    bestiaryHelp: 'Las criaturas y gente que puede crear (`bestiary:`), tantos como quiera.',
+    places: 'Catálogos de lugares',
+    placesHelp: 'Los lugares que pueden crear sus resultados (`places:`), tantos como quiera.',
+    noItems: 'No hay catálogos de objetos en este pack ni en sus dependencias.',
+    noBestiary: 'No hay bestiarios en este pack ni en sus dependencias.',
+    noPlaces: 'No hay catálogos de lugares en este pack ni en sus dependencias.',
     implicit:
       'Este sistema viene de un pack antiguo: sus reglas de viaje forman un sistema con el nombre del pack, con sus bindings y su calendario. Declararlo escribe un system.yaml que nombra lo que usa, para que puedas elegir aquí sus partes y los packs que trae; se juega igual.',
     declare: 'Declararlo',
@@ -668,6 +719,11 @@ export const es: Messages<typeof en> = {
     calendarHelp:
       'Cómo nombran los días sus viajes y el reloj del mundo: meses, días de la semana, estaciones, lunas, fiestas (`calendar: royal-reckoning`, un `kind: calendar`).\n• ninguno — el calendario por defecto: días y cuatro estaciones',
     no: {
+      sheet: '(ninguna)',
+      partySheet: '(ninguna)',
+      factions: '(ninguna)',
+      clocks: '(ninguno)',
+      world: '(ninguna)',
       travel: '(ninguna: las reglas Genéricas)',
       bindings: '(ninguno)',
       calendar: '(ninguno: el de por defecto)',
@@ -710,6 +766,8 @@ export const es: Messages<typeof en> = {
     },
   },
   forms: {
+    partDescriptionHelp:
+      'La descripción de la definición, en Markdown básico: para qué sirve, se muestra en sus listas y la lee quien abre el pack.',
     yes: 'sí',
     no: 'no',
     search: 'Buscar…',
@@ -1059,6 +1117,9 @@ export const es: Messages<typeof en> = {
       'Con personajes en el grupo, la característica sale de las suyas (y los efectos sobre ella se sobrescriben); sin ellos, se guarda como cualquier otra. Una de:\n• `max: survival` — la mejor Supervivencia entre ellos\n• `min: stealth` — la peor\n• `sum: strength` — la de todos juntos\n• `count: true` — cuántos son\n• `pick: charisma` — el que elija el jugador para tirar en el viaje (el mejor por defecto)\nAñade `when` / `unless` para contar solo a algunos, y `none` para cuando no cuenta nadie:\n• `count: true, unless: { conditions: wounded }` — los que no están heridos\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — la mejor de los que siguen en pie\nNecesita una hoja (la pestaña **Hoja**).\nO un valor de la hoja del propio grupo, siempre: la característica es ese valor, y los efectos sobre ella cambian la hoja:\n• `party: morale` — la Moral de la hoja de grupo',
     statFromNone: 'la guarda el grupo',
     roles: 'Roles de viaje',
+    reads: 'Otros valores que lee',
+    readsHelp:
+      'Nombres para otros valores que leen sus tablas, que aparecen en el panel de tirada y en el mapa (`reads`).\n• `danger` · **Peligro**: un valor de una casilla o región\n• `token.guards` · **Guardias**: un valor de lo que hay allí',
     rolesHelp:
       'Tareas que asumen los personajes del grupo durante el viaje (guiar, montar guardia, buscar comida…), al estilo de Forbidden Lands: en un viaje, cada rol se le da a un personaje, y las comprobaciones, tablas y acciones del sistema leen a quien lo tiene y le cambian cosas:\n• `roles.guide.values.pathfinding: { gte: 2 }` — el guía es lo bastante bueno\n• `modeWhen: { roll-modes.advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — una tabla tirada con ventaja\n• `roles.lookout.values.health: -1` — un efecto sobre el vigía\nNecesita una hoja.',
     roleName: 'Nombre',

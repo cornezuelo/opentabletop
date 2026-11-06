@@ -40,9 +40,18 @@ export const en = {
     openSystem: 'Open it there',
     noSystem:
       'No system names this yet, so its form has nothing to work with: name it from a system’s Overview, or edit it in YAML.',
-    yamlOnly: 'Map styles open on their own page.',
     readWith: 'No system uses this yet: what its form suggests comes from {system}.',
     notFound: 'This definition isn’t in its pack any more.',
+    more: 'More',
+    duplicate: 'Duplicate',
+    copyTo: 'Copy to {pack}',
+    delete: 'Delete',
+    confirmDelete: 'Delete “{name}”? Ctrl+Z brings it back.',
+    loneRules:
+      'No system names these yet: they’re edited here, and a system takes them from its Overview.',
+    noRules:
+      'These bindings have no travel rules in their pack to answer: add them with **New → Definition…**, or edit the bindings in YAML.',
+    openStyle: 'Open its form',
     kindNames: {
       table: 'Tables',
       oracle: 'Oracles',
@@ -635,7 +644,47 @@ export const en = {
     cancelsHelp:
       'Modes this one cancels out with: when both apply, neither does (a normal roll).\n• `disadvantage`',
   },
+  discover: {
+    title: 'Discovering the map',
+    help: 'What decides empty cells as the party travels (`discover`), on a map with **Discover the map as you travel** on.\n• A terrain by a land model: `terrain: { land: land.default }`\n• Or by a table: `terrain: { resolve: table.next-terrain }`\n• What a cell holds: `contents: { resolve: table.cell-contents }`',
+    terrain: 'Terrain',
+    terrainHelp:
+      'What gives an empty cell its terrain: a land model, or a table whose entries `set: { terrain: hills }`.',
+    contents: 'What a cell holds',
+    contentsHelp:
+      'Rolled the first time the party enters a discovered cell: its text becomes a point of interest.',
+    reveal: 'What is decided on entering',
+    revealHelp:
+      'Whether entering a cell also decides its empty neighbours, what the party can see from it, or only the cell itself.',
+    none: '(nothing)',
+    models: 'Land models',
+    neighbors: 'The cell and its neighbours',
+    entered: 'Only the cell',
+  },
   overview: {
+    sheet: 'Characters’ sheet',
+    sheetHelp:
+      'The sheet its characters are made with (`sheet:`). Edited in **Sheet**.\n• `sheet.default`\n• `core/sheet.default`, another pack’s',
+    partySheet: 'The party’s sheet',
+    partySheetHelp:
+      'A sheet of the party itself, beside its characters’ (`partySheet:`).\n• `sheet.party`',
+    factions: 'Factions',
+    factionsHelp:
+      'The powers of its world (`factions:`). Edited in **Factions**.\n• `factions.default`',
+    clocks: 'Clocks',
+    clocksHelp: 'Its progress clocks (`clocks:`). Edited in **Clocks**.\n• `clocks.default`',
+    world: 'World rules',
+    worldHelp: 'What its world does by itself (`world:`). Edited in **World**.\n• `world.default`',
+    items: 'Item catalogues',
+    itemsHelp:
+      'What its characters may carry (`items:`), as many as it wants, from this pack or those it depends on.',
+    bestiary: 'Bestiaries',
+    bestiaryHelp: 'Creatures and people it can make (`bestiary:`), as many as it wants.',
+    places: 'Catalogues of places',
+    placesHelp: 'Places its results can make (`places:`), as many as it wants.',
+    noItems: 'No item catalogues in this pack or its dependencies.',
+    noBestiary: 'No bestiaries in this pack or its dependencies.',
+    noPlaces: 'No catalogues of places in this pack or its dependencies.',
     implicit:
       'This system comes from an older pack: its travel rules make a system named after the pack, with its bindings and calendar. Declaring it writes a system.yaml naming what it uses, so you can choose its parts and the packs it brings here; it plays the same.',
     declare: 'Declare it',
@@ -658,6 +707,11 @@ export const en = {
     calendarHelp:
       'How its trips and the world clock name days: months, weekdays, seasons, moons, holidays (`calendar: royal-reckoning`, a `kind: calendar`).\n• none — the default calendar: days and four seasons',
     no: {
+      sheet: '(none)',
+      partySheet: '(none)',
+      factions: '(none)',
+      clocks: '(none)',
+      world: '(none)',
       travel: '(none: the Generic rules)',
       bindings: '(none)',
       calendar: '(none: the default calendar)',
@@ -700,6 +754,8 @@ export const en = {
     },
   },
   forms: {
+    partDescriptionHelp:
+      'The definition’s description, in basic Markdown: what it’s for, shown in its lists and read by whoever opens the pack.',
     yes: 'yes',
     no: 'no',
     search: 'Search…',
@@ -1049,6 +1105,9 @@ export const en = {
       "With characters in the party, the stat is made of theirs (and effects on it are overwritten); without, it's kept as any other. One of:\n• `max: survival` — the best Survival among them\n• `min: stealth` — the worst\n• `sum: strength` — all of them together\n• `count: true` — how many they are\n• `pick: charisma` — whoever the player chooses to roll in the trip (the best by default)\nAdd `when` / `unless` to count only some, and `none` for when nobody counts:\n• `count: true, unless: { conditions: wounded }` — those not wounded\n• `max: wits, when: { values.health: { gt: 0 } }, none: 0` — the best of those still standing\nNeeds a sheet (the **Sheet** tab).\nOr one value of the party's own sheet, always: the stat is that value, and effects on it change the sheet:\n• `party: morale` — the party sheet's Morale",
     statFromNone: 'kept by the party',
     roles: 'Journey roles',
+    reads: 'Other values it reads',
+    readsHelp:
+      'Names for other values its tables read, shown in the roll panel and on the map (`reads`).\n• `danger` · **Danger** — a value of a cell or region\n• `token.guards` · **Guards** — a value of what stands there',
     rolesHelp:
       "Jobs the party's characters take for the journey (lead the way, keep watch, forage…), Forbidden Lands-style: in a trip, each role is given to one character, and the system's checks, tables and actions read the holder and change them:\n• `roles.guide.values.pathfinding: { gte: 2 }` — the guide is good enough\n• `modeWhen: { roll-modes.advantage: { roles.lookout.values.stealth: { gte: 2 } } }` — a table rolled with advantage\n• `roles.lookout.values.health: -1` — an effect on the lookout\nNeeds a sheet.",
     roleName: 'Name',

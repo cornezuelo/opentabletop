@@ -5,6 +5,7 @@
   import BundledUpdates from './BundledUpdates.svelte'
   import { translator } from './i18n'
   import ImageThumb from './ImageThumb.svelte'
+  import ManifestForm from './ManifestForm.svelte'
   import { MAX_IMAGE_BYTES, readImageFile } from './images'
   import type { PackLibrary } from './library.svelte'
   import { cleanFilePath, overlayLocales, overlayPath } from './packFiles'
@@ -219,6 +220,7 @@
 
     {#if !editable}<ReadOnlyNotice {library} locale={uiLocale} {root} onmade={onpack} />{/if}
     <BundledUpdates {library} {root} locale={uiLocale} />
+    <ManifestForm {library} locale={uiLocale} {root} />
 
     <section>
       <h2>{t('pack.problems')}</h2>

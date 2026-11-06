@@ -344,10 +344,17 @@ export const es: Messages<typeof en> = {
   newDef: {
     fileName: 'Nombre del fichero, p. ej. tablas/clima.yaml',
     kind: 'Tipo',
-    forTravel: 'Reglas del sistema',
+    forTravel: 'Partes de un sistema',
     forTravelHelp:
       'Reglas de un sistema, además de sus tablas:\n• **Modos de tirada** — formas de tirar sus tablas (ventaja…)\n• **Reglas de viaje** — hacen del pack un sistema que puedes elegir en Mapa (Jugar → Con reglas) y en Viajes, y que se edita en la aplicación Packs\n• **Bindings** — qué tabla responde a cada comprobación\n• **Calendario**, **Modelo de clima**\n• **Hoja** — lo que tiene cada personaje del grupo (valores, estados)\nMira el manual: _Tipos de definición_ y _Conectar tablas con mapas y viajes_.',
     system: {
+      land: 'Modelo de tierra',
+      items: 'Catálogo de objetos',
+      bestiary: 'Bestiario',
+      places: 'Catálogo de lugares',
+      factions: 'Facciones',
+      clocks: 'Relojes',
+      world: 'Reglas del mundo',
       'roll-modes': 'Modos de tirada',
       'travel-rules': 'Reglas de viaje',
       bindings: 'Bindings',
@@ -356,6 +363,13 @@ export const es: Messages<typeof en> = {
       sheet: 'Hoja',
     },
     systemTips: {
+      land: 'Cómo sigue el terreno a partir de la tierra de alrededor, en cualquier mapa.',
+      items: 'Lo que pueden llevar los personajes.',
+      bestiary: 'Plantillas de criaturas y gente que crear.',
+      places: 'Puntos de interés que pueden crear los resultados.',
+      factions: 'Los poderes de su mundo, con su territorio y sus turnos.',
+      clocks: 'Relojes de progreso que se llenan según se mueve el mundo.',
+      world: 'Lo que hace el mundo por sí solo.',
       calendar:
         'Meses y estaciones, días de la semana, lunas y fiestas para sus viajes y el reloj del mundo.',
       weather:
@@ -413,6 +427,20 @@ export const es: Messages<typeof en> = {
     readOnly: 'Solo lectura (incluido)',
   },
   pack: {
+    edit: 'Su nombre y licencia',
+    editHelp:
+      'Lo que dice `pack.yaml`, en un formulario: su nombre, versión, licencia, quién lo escribió, los packs que necesita y sus nombres cortos. Su id, idioma y formato se fijan al crearlo.\n• **Dependencias**: `core` · `>=0.3.0`\n• **Nombres cortos**: `table.twist` · `core/table.twists`',
+    name: 'Nombre',
+    versionLabel: 'Versión',
+    licenseLabel: 'Licencia',
+    attribution: 'Atribución',
+    dependencies: 'Packs que necesita',
+    dependenciesHelp:
+      'Packs que tienen que estar cargados para que este funcione, cada uno con las versiones que acepta.\n• `core` · `>=0.3.0`',
+    dependencyKey: 'Pack',
+    aliases: 'Nombres cortos',
+    aliasesHelp: 'Un nombre corto para algo de otro pack.\n• `table.twist` · `core/table.twists`',
+    aliasKey: 'Nombre corto',
     files: 'Ficheros',
     addFile: 'Añadir fichero',
     addImage: '+ Imagen',

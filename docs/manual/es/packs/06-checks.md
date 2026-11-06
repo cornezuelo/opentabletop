@@ -136,3 +136,9 @@ Las Marcas Grises juegan con todo esto y más (el clima primero al alba y una co
 - **Lobos en el camino.** **Salvo si** `trip.connections` · **es** · `road` lee el camino o río que el grupo siguió para entrar en la casilla: una casilla de bosque a la que se entra campo a través, junto a un camino, sigue teniendo lobos.
 - **Un ⚠ en Se tira en.** La tabla nombrada no está en el pack del sistema ni en los packs que trae: una tabla de otro pack se nombra con su id completo (`core/weather`), y ese pack tiene que ser una de las dependencias del pack.
 - **Una tabla que pide un valor.** Un valor que la tabla lee y nada da (`{{night}}` de día) cuenta como `0` en los dados; en las condiciones no es nada. Tirada a mano en el Oráculo, lo pide.
+
+## Descubrir el mapa
+
+**Descubrir el mapa**, en esta misma página, dice qué decide las casillas vacías mientras viaja el grupo, en un mapa con **Descubrir el mapa al viajar** activado: el **Terreno** (un modelo de tierra o una tabla), **Lo que hay en una casilla** (se tira la primera vez que el grupo entra en una casilla descubierta) y **Qué se decide al entrar** (la casilla y sus vecinas, o solo la casilla). Mira [Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa).
+
+**Otros valores que lee** pone nombre a valores que leen sus tablas y que no son del propio sistema, para el panel de tirada y el mapa.

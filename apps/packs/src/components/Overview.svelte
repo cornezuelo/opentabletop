@@ -43,15 +43,30 @@
 
   const deps = $derived(dependencies(system))
   const brought = $derived(Array.isArray(data?.packs) ? (data.packs as string[]) : [])
-  const weather = $derived(Array.isArray(data?.weather) ? (data.weather as string[]) : [])
-  const land = $derived(Array.isArray(data?.land) ? (data.land as string[]) : [])
 
   /** The parts shown as selects, each with the key it's written under and its tab. */
-  const PARTS: { key: string; kind: PartKind; tab?: Tab }[] = [
+  const PARTS = [
     { key: 'travel', kind: 'travel-rules', tab: 'rules' },
     { key: 'bindings', kind: 'bindings', tab: 'checks' },
-    { key: 'calendar', kind: 'calendar' },
-  ]
+    { key: 'calendar', kind: 'calendar', tab: 'calendar' },
+    { key: 'sheet', kind: 'sheet', tab: 'sheet' },
+    { key: 'partySheet', kind: 'sheet', tab: 'sheet' },
+    { key: 'factions', kind: 'factions', tab: 'factions' },
+    { key: 'clocks', kind: 'clocks', tab: 'clocks' },
+    { key: 'world', kind: 'world', tab: 'world' },
+  ] as const satisfies readonly { key: string; kind: PartKind; tab: Tab }[]
+
+  /** The parts it may list several of, written under their own kind. */
+  const LISTS = ['weather', 'land', 'items', 'bestiary', 'places'] as const
+  const noneOf = {
+    weather: 'overview.noWeather',
+    land: 'overview.noLand',
+    items: 'overview.noItems',
+    bestiary: 'overview.noBestiary',
+    places: 'overview.noPlaces',
+  } as const
+  const listOf = (key: (typeof LISTS)[number]) =>
+    Array.isArray(data?.[key]) ? (data[key] as string[]) : []
 
   const listed = $derived(Array.isArray(data?.maps) ? (data.maps as string[]) : [])
   const maps = $derived(systemMaps(system, listed))
@@ -101,7 +116,7 @@
     doc?.setText('system', [key], data?.[key], [key], text)
   }
 
-  function toggle(key: 'weather' | 'land' | 'packs', list: string[], id: string, on: boolean) {
+  function toggle(key: (typeof LISTS)[number] | 'packs', list: string[], id: string, on: boolean) {
     const next = on ? [...list, id] : list.filter((x) => x !== id)
     doc?.edit('system', [key], next.length ? next : undefined)
   }
@@ -145,28 +160,22 @@
           {@const choices = partChoices(system, part.kind)}
           {@const value = typeof data[part.key] === 'string' ? (data[part.key] as string) : ''}
           <label>
-            <span
-              >{t(`overview.${part.key as 'travel' | 'bindings' | 'calendar'}`)}<InfoTip
-                text={t(`overview.${part.key as 'travel' | 'bindings' | 'calendar'}Help`)}
-              /></span
-            >
+            <span>{t(`overview.${part.key}`)}<InfoTip text={t(`overview.${part.key}Help`)} /></span>
             <div class="row">
               <select
                 {value}
                 {disabled}
                 onchange={(e) => doc.edit('system', [part.key], e.currentTarget.value || undefined)}
               >
-                <option value=""
-                  >{t(`overview.no.${part.key as 'travel' | 'bindings' | 'calendar'}`)}</option
-                >
+                <option value="">{t(`overview.no.${part.key}`)}</option>
                 {#each choices as id (id)}<option value={id}>{choiceLabel(part.kind, id)}</option
                   >{/each}
                 {#if value && !choices.includes(value)}<option {value}>{value}</option>{/if}
               </select>
-              {#if part.tab && value}
+              {#if value}
                 <button
                   class="plain"
-                  onclick={() => go({ name: 'system', id: system.id, tab: part.tab! })}
+                  onclick={() => go({ name: 'system', id: system.id, tab: part.tab })}
                   >{t('overview.open')}</button
                 >
               {:else if !value && !disabled && (part.kind === 'travel-rules' || part.kind === 'bindings')}
@@ -182,41 +191,26 @@
       </div>
     </section>
 
-    <section>
-      <h3>{t('overview.weather')}<InfoTip text={t('overview.weatherHelp')} /></h3>
-      {#each partChoices(system, 'weather') as id (id)}
-        <label class="check">
-          <input
-            type="checkbox"
-            checked={weather.includes(id)}
-            {disabled}
-            onchange={(e) => toggle('weather', weather, id, e.currentTarget.checked)}
-          />
-          {#if partName(system, 'weather', id)}{partName(system, 'weather', id)}{/if}
-          <code>{id}</code>
-        </label>
-      {:else}
-        <p class="help">{t('overview.noWeather')}</p>
-      {/each}
-    </section>
-
-    <section>
-      <h3>{t('overview.land')}<InfoTip text={t('overview.landHelp')} /></h3>
-      {#each partChoices(system, 'land') as id (id)}
-        <label class="check">
-          <input
-            type="checkbox"
-            checked={land.includes(id)}
-            {disabled}
-            onchange={(e) => toggle('land', land, id, e.currentTarget.checked)}
-          />
-          {#if partName(system, 'land', id)}{partName(system, 'land', id)}{/if}
-          <code>{id}</code>
-        </label>
-      {:else}
-        <p class="help">{t('overview.noLand')}</p>
-      {/each}
-    </section>
+    {#each LISTS as key (key)}
+      {@const list = listOf(key)}
+      <section>
+        <h3>{t(`overview.${key}`)}<InfoTip text={t(`overview.${key}Help`)} /></h3>
+        {#each partChoices(system, key) as id (id)}
+          <label class="check">
+            <input
+              type="checkbox"
+              checked={list.includes(id)}
+              {disabled}
+              onchange={(e) => toggle(key, list, id, e.currentTarget.checked)}
+            />
+            {#if partName(system, key, id)}{partName(system, key, id)}{/if}
+            <code>{id}</code>
+          </label>
+        {:else}
+          <p class="help">{t(noneOf[key])}</p>
+        {/each}
+      </section>
+    {/each}
 
     <section>
       <h3>{t('overview.packs')}<InfoTip text={t('overview.packsHelp')} /></h3>

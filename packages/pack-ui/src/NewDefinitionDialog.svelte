@@ -13,7 +13,7 @@
   import { tableFromText } from './fromText'
   import { cleanFilePath } from './packFiles'
   import { manifestOf } from './packs'
-  import { SYSTEM_KINDS, type SystemKind } from './systemTemplates'
+  import { PART_KINDS, SYSTEM_KINDS, type PartKind, type SystemKind } from './systemTemplates'
 
   /** New table, oracle, generator or deck in one of the user's packs, from a template. */
   let {
@@ -22,7 +22,7 @@
     kinds,
     root: initialRoot,
     onclose,
-    onfile,
+    onpart,
     ondefinition,
   }: {
     library: PackLibrary
@@ -31,8 +31,8 @@
     kinds: readonly Compiled['kind'][]
     root?: string
     onclose: () => void
-    /** A system's part was written in a file of `root`. */
-    onfile: (root: string, path: string) => void
+    /** A part of a system was written in `root`. */
+    onpart: (root: string, kind: string, id: string) => void
     /** A definition was made. */
     ondefinition: (id: string) => void
   } = $props()
@@ -41,8 +41,8 @@
   const packs = $derived(library.packs.filter((p) => p.origin === 'user'))
   // svelte-ignore state_referenced_locally
   let root = $state(initialRoot ?? packs[0]?.root ?? '')
-  let kind = $state<Compiled['kind'] | SystemKind>('table')
-  const system = $derived((SYSTEM_KINDS as readonly string[]).includes(kind))
+  let kind = $state<Compiled['kind'] | SystemKind | PartKind>('table')
+  const system = $derived(([...SYSTEM_KINDS, ...PART_KINDS] as string[]).includes(kind))
   const taken = (k: SystemKind) => !!library.pack(root) && hasKind(library.pack(root)!, k)
   let name = $state('')
   let file = $state('')
@@ -62,9 +62,9 @@
     const target = file === '+' ? cleanFilePath(newFile) : file || files[0]
     if (system) {
       if (!root) return
-      const path = createSystemDefinition(library, root, kind as SystemKind, target ?? undefined)
+      const made = createSystemDefinition(library, root, kind as SystemKind | PartKind)
       dialog.close()
-      if (path) onfile(root, path)
+      if (made) onpart(root, kind, made.id)
       return
     }
     if (!root || !name.trim()) return
@@ -125,6 +125,13 @@
             <span>{taken(k) ? t('newDef.alreadyHas') : t(`newDef.systemTips.${k}`)}</span>
           </label>
         {/each}
+        {#each PART_KINDS as k (k)}
+          <label class:active={kind === k}>
+            <input type="radio" bind:group={kind} value={k} />
+            <strong>{t(`newDef.system.${k}`)}</strong>
+            <span>{t(`newDef.systemTips.${k}`)}</span>
+          </label>
+        {/each}
       </div>
       {#if !system}
         <label class="field">
@@ -159,15 +166,17 @@
           {/if}
         {/if}
       {/if}
-      <label class="field">
-        <span>{t('newDef.file')}<InfoTip text={t('newDef.fileHelp')} /></span>
-        <select bind:value={file}>
-          {#each files as f (f)}<option value={f}>{f}</option>{/each}
-          <option value="+">{t('newDef.newFile')}</option>
-        </select>
-      </label>
-      {#if file === '+' || !files.length}
-        <input type="text" placeholder={t('newDef.fileName')} bind:value={newFile} />
+      {#if !system}
+        <label class="field">
+          <span>{t('newDef.file')}<InfoTip text={t('newDef.fileHelp')} /></span>
+          <select bind:value={file}>
+            {#each files as f (f)}<option value={f}>{f}</option>{/each}
+            <option value="+">{t('newDef.newFile')}</option>
+          </select>
+        </label>
+        {#if file === '+' || !files.length}
+          <input type="text" placeholder={t('newDef.fileName')} bind:value={newFile} />
+        {/if}
       {/if}
     {/if}
     <div class="dialog-buttons">

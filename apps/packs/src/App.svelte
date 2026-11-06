@@ -142,7 +142,7 @@
     kinds={KIND_ORDER}
     root={openRoot}
     onclose={() => (making = null)}
-    onfile={(root, path) => go({ name: 'file', root, path })}
+    onpart={(root, kind, id) => go({ name: 'def', root, kind, id, tab: 'form' })}
     ondefinition={(id) => {
       const def = library.registry.definitions.get(id)
       const root = library.rootOf(id.split('/')[0])

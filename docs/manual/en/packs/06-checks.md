@@ -136,3 +136,9 @@ The Grey Marches play with all of this and more (weather first at dawn and a che
 - **Wolves on the road.** **Skip if** `trip.connections` · **is** · `road` reads the road or river the party followed into the cell: a forest cell entered from the open, next to a road, still has wolves.
 - **A ⚠ in Rolled on.** The table named isn't in the system's pack or the packs it brings: a table of another pack is named by its full id (`core/weather`), and that pack must be one of the pack's dependencies.
 - **A table that asks for a value.** A value the table reads that nothing gives (`{{night}}` by day) counts as `0` in dice; in conditions it's nothing. Rolled by hand in the Oracle, it's asked for.
+
+## Discovering the map
+
+**Discovering the map**, on the same page, says what decides empty cells as the party travels, on a map with **Discover the map as you travel** on: the **Terrain** (a land model, or a table), **What a cell holds** (rolled the first time the party enters a discovered cell) and **What is decided on entering** (the cell and its neighbours, or only the cell). See [Discovering the map](../oracle/07-connecting.md#7-discovering-the-map).
+
+**Other values it reads** names values its tables read that aren't the system's own, for the roll panel and the map.

@@ -56,6 +56,14 @@
   <header>
     <h1 class="page-title">{title}</h1>
     <code>{ref}</code>
+    {#if source}
+      <button
+        class="link"
+        onclick={() =>
+          go({ name: 'def', root: source.root, kind: 'style', id: source.id, tab: 'yaml' })}
+        >{t('library.yaml')}</button
+      >
+    {/if}
     <span class="actions">
       <button class="button" onclick={copy}>{t('styles.copy')}</button>
       {#if doc.editable}

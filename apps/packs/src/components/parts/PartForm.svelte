@@ -1,5 +1,7 @@
 <script lang="ts">
   import { seasonsFor, type TravelSystem } from '@open-tabletop/session'
+  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { t } from '../../lib/i18n'
   import type { PartTabKind } from '../../lib/newSystem'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import { sheetScope } from '../../lib/usage'
@@ -26,7 +28,25 @@
     id,
     item,
   }: { doc: PartDoc; system: TravelSystem; kind: PartTabKind; id: string; item?: string } = $props()
+
+  const data = $derived(doc.data())
+  /** A sheet's form has it already; a file of roll modes is many definitions, each with its own. */
+  const described = $derived(kind !== 'sheet' && kind !== 'roll-modes')
 </script>
+
+{#if described}
+  <label class="description">
+    <span>{t('forms.description')}<InfoTip text={t('forms.partDescriptionHelp')} /></span>
+    <textarea
+      rows="2"
+      value={doc.text('', data.description, ['description'])}
+      placeholder={doc.translating ? doc.baseText(data.description) : ''}
+      disabled={!doc.editable}
+      onchange={(e) =>
+        doc.setText('', ['description'], data.description, ['description'], e.currentTarget.value)}
+    ></textarea>
+  </label>
+{/if}
 
 {#if kind === 'calendar'}
   <CalendarForm {doc} {system} />
@@ -51,3 +71,15 @@
 {:else}
   <RollModesForm {doc} {system} />
 {/if}
+
+<style>
+  .description {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 760px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+</style>

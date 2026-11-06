@@ -306,7 +306,19 @@ const CORE_CALENDAR = writeRef('calendar', 'default', DEFAULT_SYSTEM)
  * The parts a system can name, by kind, as it names them: its pack's as `kind.id`, its
  * dependencies' as `pack/kind.id`.
  */
-export type PartKind = 'travel-rules' | 'bindings' | 'calendar' | 'weather' | 'land'
+export type PartKind =
+  | 'travel-rules'
+  | 'bindings'
+  | 'calendar'
+  | 'weather'
+  | 'land'
+  | 'sheet'
+  | 'items'
+  | 'bestiary'
+  | 'places'
+  | 'factions'
+  | 'clocks'
+  | 'world'
 
 export function partChoices(system: TravelSystem, kind: PartKind): string[] {
   const pack = system.pack

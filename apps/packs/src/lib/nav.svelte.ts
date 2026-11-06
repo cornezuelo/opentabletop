@@ -95,6 +95,7 @@ export function go(view: View, replace = false): void {
 
 window.addEventListener('popstate', () => {
   nav.view = parse(location.hash)
+  if (IN_PACKS.includes(nav.view.name)) side.view = 'packs'
 })
 
 const IN_PACKS: View['name'][] = ['pack', 'def', 'file', 'style']

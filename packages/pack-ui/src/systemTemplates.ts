@@ -13,6 +13,18 @@ export const SYSTEM_KINDS = [
 ] as const
 export type SystemKind = (typeof SYSTEM_KINDS)[number]
 
+/** Parts of a system a pack may hold as many of as it wants. */
+export const PART_KINDS = [
+  'land',
+  'items',
+  'bestiary',
+  'places',
+  'factions',
+  'clocks',
+  'world',
+] as const
+export type PartKind = (typeof PART_KINDS)[number]
+
 /**
  * Starting points for a travel system: rules like the generic ones with one weather
  * check, and bindings to fill in (which table answers each check).

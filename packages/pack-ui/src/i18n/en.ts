@@ -337,10 +337,17 @@ export const en = {
   newDef: {
     fileName: 'File name, e.g. tables/weather.yaml',
     kind: 'Kind',
-    forTravel: 'Rules of the system',
+    forTravel: 'Parts of a system',
     forTravelHelp:
       'Rules of a system, besides its tables:\n• **Roll modes** — ways its tables can be rolled (advantage…)\n• **Travel rules** — makes the pack a system you can pick in Map (Play → With rules) and in Travel, edited in the Packs app\n• **Bindings** — which table answers each check\n• **Calendar**, **Weather model**\n• **Sheet** — what each character of the party has (values, conditions)\nSee the manual: _Kinds of definition_ and _Connecting tables to maps and trips_.',
     system: {
+      land: 'Land model',
+      items: 'Item catalogue',
+      bestiary: 'Bestiary',
+      places: 'Catalogue of places',
+      factions: 'Factions',
+      clocks: 'Clocks',
+      world: 'World rules',
       'roll-modes': 'Roll modes',
       'travel-rules': 'Travel rules',
       bindings: 'Bindings',
@@ -349,6 +356,13 @@ export const en = {
       sheet: 'Sheet',
     },
     systemTips: {
+      land: 'How terrain follows from the land around it, on any map.',
+      items: 'What characters may carry.',
+      bestiary: 'Templates of creatures and people to make.',
+      places: 'Points of interest results can make.',
+      factions: 'The powers of its world, with their land and turns.',
+      clocks: 'Progress clocks that fill as the world moves.',
+      world: 'What the world does by itself.',
       'roll-modes':
         'Ways of rolling its tables, like advantage: roll several times and keep one total.',
       'travel-rules': 'Speeds, terrains, roads, actions and which checks are rolled when.',
@@ -404,6 +418,21 @@ export const en = {
     readOnly: 'Read-only (bundled)',
   },
   pack: {
+    edit: 'Its name and licence',
+    editHelp:
+      'What `pack.yaml` says, in a form: its name, version, licence, who wrote it, the packs it needs and its short names. Its id, language and format are set when it’s made.\n• **Dependencies**: `core` · `>=0.3.0`\n• **Short names**: `table.twist` · `core/table.twists`',
+    name: 'Name',
+    versionLabel: 'Version',
+    licenseLabel: 'Licence',
+    attribution: 'Attribution',
+    dependencies: 'Packs it needs',
+    dependenciesHelp:
+      'Packs that must be loaded for this one to work, each with the versions it takes.\n• `core` · `>=0.3.0`',
+    dependencyKey: 'Pack',
+    aliases: 'Short names',
+    aliasesHelp:
+      'A short name for something of another pack.\n• `table.twist` · `core/table.twists`',
+    aliasKey: 'Short name',
     files: 'Files',
     addFile: 'Add file',
     addImage: '+ Image',

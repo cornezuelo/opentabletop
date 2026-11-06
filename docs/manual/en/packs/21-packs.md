@@ -61,6 +61,8 @@ The pack page shows its manifest, its **problems** (click one to jump to the lin
 
 A pack may hold **images** too (SVG, PNG, WebP or JPEG), for map styles to draw with: a terrain's art, a texture over the map ([Map styles](20-map-styles.md)). **+ Image**, beside **Add file**, adds the ones you choose, each by its file's name (up to 512 KB each); write a folder ending in `/` in the box first (`relief/`) to put them there. They're listed with the files, each small, and a style names one by the pack's id and its path (hover it: `my-art/relief/hill.svg`). Rename or delete them as any file. The bundled **Azgaar's relief icons** pack ([its page](../bundled/04-azgaar-relief.md)) is images alone.
 
+**Its name and licence**, folded on a pack's page, edits what `pack.yaml` says: name, version, licence, attribution, the packs it needs and its short names. A definition's page has **⋯**: **Duplicate**, **Copy to** another pack of yours (what can be rolled) and **Delete**; **New ▾ → Definition…** makes any kind, parts of a system included.
+
 ## Backups and sharing
 
 **Export .zip** downloads the pack as a folder; **New ▾ → Import a .zip…** adds the packs of a .zip: one pack, or a whole system with the packs it brings, exported from the Packs app (packs already here unchanged are left alone; replacing a different version asks first). Your packs live only in this browser: export them to keep them safe. To take several packs at once, with the campaigns and characters that use them, use the app switcher's [**Export…**](../technical/05-backups.md#exporting-and-importing-some-of-it).
