@@ -1,6 +1,6 @@
 # Playing a trip
 
-**Play**, on the switch at the top (<kbd>P</kbd>), moves your party around the map. The bar on the left then holds only what play uses: **Select**, **The trip**, the World and the Oracle, and the keys of the tools that edit the map do nothing, so a slip can't paint over it; **Edit** (<kbd>P</kbd> again) comes back to the tool you were using. A trip plays in one of two modes (**Play mode**, whose help sums them up). Going to Play selects the party token (the Tokens tool, in Edit, keeps it selected, and there you change its icon, color and halo).
+**Play**, on the switch at the top (<kbd>P</kbd>), moves your party around the map. The bar on the left then holds only what play uses: **Select**, **The trip**, the World and the Oracle, and the keys of the tools that edit the map do nothing, so a slip can't paint over it; **Edit** (<kbd>P</kbd> again) comes back to the tool you were using. What both have stays when you switch: **Select** with the cell it selected, and the panel open (the World, the Oracle), so from **Select** the trip is one click further, on **The trip**. A trip plays in one of two modes (**Play mode**, whose help sums them up). Going to Play selects the party token (the Tokens tool, in Edit, keeps it selected, and there you change its icon, color and halo).
 
 ## Simple mode
 

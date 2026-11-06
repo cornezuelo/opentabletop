@@ -3,6 +3,7 @@
     AppBrand,
     AppSwitcher,
     CampaignChip,
+    MoreMenu,
     playIn,
     PreferencesButton,
     tooltip,
@@ -123,7 +124,7 @@
   </div>
   <div class="spacer"></div>
   {#each groups as group, g (g)}
-    {#if g > 0}<span class="sep" aria-hidden="true"></span>{/if}
+    {#if g > 0}<span class="sep wide" aria-hidden="true"></span>{/if}
     {#each group as action (action.label)}
       <!-- Preferences next to Help, as in every app. -->
       {#if action.label === 'actions.help'}
@@ -134,6 +135,7 @@
         />
       {/if}
       <button
+        class="wide"
         class:active={pressed(action)}
         use:tooltip={t(action.label)}
         aria-label={t(action.label)}
@@ -145,6 +147,16 @@
       </button>
     {/each}
   {/each}
+  <!-- A phone has no room for them side by side. -->
+  <div class="narrow">
+    <MoreMenu label={t('actions.more')}>
+      {#each groups.flat() as action (action.label)}
+        <button disabled={action.enabled ? !action.enabled() : false} onclick={action.run}
+          >{t(action.label)}</button
+        >
+      {/each}
+    </MoreMenu>
+  </div>
 </header>
 
 <style>
@@ -202,15 +214,47 @@
     margin-right: 4px;
   }
 
-  /* Narrow windows: the app's icon without its name, and the bar scrolls if needed. */
+  .narrow {
+    display: none;
+  }
+
+  /* The menu's are lines of text, not the bar's icons. */
+  .narrow button {
+    width: 100%;
+    height: auto;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--text);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  /* Narrow windows: the app's icon without its name, the map's actions in one menu. */
   @media (max-width: 760px) {
-    .bar {
-      overflow-x: auto;
-      scrollbar-width: thin;
+    .name :global(.brand > span),
+    .crumbs,
+    .wide {
+      display: none;
     }
 
-    .name :global(.brand > span) {
-      display: none;
+    .narrow {
+      display: block;
+    }
+
+    .modes {
+      margin-left: 0;
+    }
+
+    .bar :global(.chip) {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .bar :global(.chip .toggle) {
+      max-width: 34vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 

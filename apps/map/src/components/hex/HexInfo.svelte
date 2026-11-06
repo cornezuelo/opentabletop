@@ -251,7 +251,7 @@
     {/if}
   {/key}
 {:else}
-  <p class="muted">{t('panel.noSelection')}</p>
+  <p class="muted">{t(playing ? 'panel.noSelectionPlay' : 'panel.noSelection')}</p>
 {/if}
 
 <style>

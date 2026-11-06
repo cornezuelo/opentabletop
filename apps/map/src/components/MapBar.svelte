@@ -72,7 +72,7 @@
 <style>
   .map-bar {
     position: absolute;
-    right: 28px;
+    right: calc(28px + var(--map-covered, 0px));
     bottom: 8px;
     left: 28px;
     z-index: 1;

@@ -13,6 +13,8 @@ A browser with no maps yet greets you over an empty map: **New map**, **Import f
 - **Under the map**: the cell under the pointer (its coordinate, region, faction and ways to other maps) on the left; on the right the zoom, 100% being the whole map in view, with − and +, and **Fit**.
 - **Help column** (far right, opened with **?**): this manual, or the explanation of a field, beside the side panel so you see both.
 
+In a narrow window (under 1100 px) the side panel floats over the map, folded until a tool, a panel or a cell needs it; its tab folds it away. On a phone it's a sheet under the map: **▴** gives it most of the window, and **⋯** in the top bar holds the map's actions.
+
 Every tool has a key: hover a toolbar button to see it, or read [Keyboard shortcuts](11-shortcuts.md).
 
 **Help where you are**: a label underlined with dots has an explanation, often with examples of what to write. Click it and the help column (**?**, on the far right) opens on it, in place of this manual: what the field does, examples that work and, under **In the manual**, the manual's sections about it (the Syntax page first); **← The manual** goes back to the manual. From a field, <kbd>F1</kbd> shows its help. Moving to another field doesn't change what the column shows, so a click on an example there inserts it into the field you're writing in.

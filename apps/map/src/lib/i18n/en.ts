@@ -37,6 +37,7 @@ export const en = {
     help: 'Click or drag to paint; Shift+drag paints a rectangle (a room at once). Right-click erases, Ctrl+click picks the terrain under the cursor, [ and ] change the brush size.',
   },
   actions: {
+    more: 'The map’s actions',
     help: 'Help and manual (?)',
     new: 'New map',
     open: 'Maps',
@@ -86,6 +87,8 @@ export const en = {
   },
   panel: {
     width: 'Width of the panel',
+    grow: 'More room for the panel',
+    noSelectionPlay: 'Click a cell to read it, or choose The trip on the left to play.',
     /** Beside a button with help: its explanation, without pressing it. */
     whatItDoes: 'What it does',
     hide: 'Hide the side panel (more room for the map)',

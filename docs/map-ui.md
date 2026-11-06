@@ -1,6 +1,6 @@
 # Map's UI/UX: review and proposal
 
-Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), steps 1 to 5 done, step 6 next.**
+Part (3) of _Map looks like a beautiful map editor_ in the [backlog](BACKLOG.md): panels, toolbar and canvas reviewed as a whole, screenshots first, then a proposal, then the work in steps. **Status (2026-11-06): decided with the user (§5), steps 1 to 6 done; step 7, P12's rest, stays in the backlog.**
 
 Seen on v0.37.0 in headless Chrome: the Grey Marches' frontier in every tool and panel, a trip with a march played, a fresh profile, and windows of 1440, 1280, 1024, 820 and 390 px. It also starts from the round 1 players (P1–P14). The comparison with Dungeon Scrawl, Inkarnate, Wonderdraft, Hextml and Worldographer is from what is generally known of them; they weren't opened for this.
 
@@ -94,8 +94,8 @@ Every tool's icon drawn in one set (`LineIcon` exists; the glyphs become entries
 
 ### 3.5 Narrow windows
 
-- Under about 1100 px the panel floats over the map instead of squeezing it, folded with its tab.
-- On a phone, a bottom sheet with three heights (peek: the actions; half; full), and the top bar's file actions in one ⋯ menu.
+- Under about 1100 px the panel floats over the map instead of squeezing it, folded with its tab until something asks for it.
+- On a phone, a bottom sheet folded, half or most of the window, and the top bar's actions in one ⋯ menu.
 
 ## 4. Steps
 
@@ -106,7 +106,7 @@ One commit each, `make verify` green, the manual updated in the same work.
 3. ✅ (2026-11-06) **Edit and Play** (3.1) and the icons: the switch in the top bar, `editor.mode` (the tool's setter keeps it, Select being in both), one `LineIcon` set for both bars. Editing a cell's fields from Select in Play still works: step 4 decides what the cell shows there.
 4. ✅ (2026-11-06) **The cell** (3.3): chips for what it doesn't hold, the link and **Clear cell** in a ⋯, **New sub-map here** behind **+ Way into a map**. Decided with the user: in Play it's read only (`HexReadOnly`), names can't be dragged and **Delete** doesn't remove a token. Discovery needs nothing here: an undiscovered cell is an empty one, with nothing to hide.
 5. ✅ (2026-11-06) **The map's bar** (3.4): `MapBar`, `HoverLine` grown; **Fit** moved there from the top bar; 100% is the whole map in view, not a fixed scale.
-6. **Narrow windows** (3.5).
+6. ✅ (2026-11-06) **Narrow windows** (3.5): under 1100 px the panel floats and starts folded, opening when a tool, a panel or a cell asks for it (floating it alone gained nothing: open, it covers what squeezing took). On a phone the sheet has two heights plus folded, not three, and the bar's actions are one ⋯ menu.
 7. P12's rest, what's left of it by then.
 
 ## 5. Decided with the user (2026-11-06)

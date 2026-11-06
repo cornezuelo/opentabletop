@@ -13,6 +13,8 @@ Un navegador sin mapas todavía te recibe sobre un mapa vacío: **Nuevo mapa**, 
 - **Bajo el mapa**: la casilla bajo el puntero (su coordenada, región, facción y caminos a otros mapas) a la izquierda; a la derecha el zoom, donde 100% es el mapa entero a la vista, con − y +, y **Encuadrar**.
 - **Columna de ayuda** (a la derecha del todo, se abre con **?**): este manual, o la explicación de un campo, junto al panel lateral para que veas los dos.
 
+En una ventana estrecha (menos de 1100 px) el panel lateral flota sobre el mapa, plegado hasta que lo necesita una herramienta, un panel o una casilla; su pestaña lo pliega. En un móvil es una hoja bajo el mapa: **▴** le da casi toda la ventana, y **⋯** en la barra superior guarda las acciones del mapa.
+
 Cada herramienta tiene su tecla: pasa el ratón por un botón para verla, o consulta [Atajos de teclado](11-shortcuts.md).
 
 **Ayuda donde estás**: una etiqueta subrayada con puntos tiene una explicación, a menudo con ejemplos de qué escribir. Púlsala y la columna de ayuda (**?**, a la derecha del todo) se abre en ella, en lugar de este manual: qué hace el campo, ejemplos que funcionan y, bajo **En el manual**, las secciones del manual que hablan de él (primero la página de Sintaxis); **← El manual** vuelve al manual. Desde un campo, <kbd>F1</kbd> muestra su ayuda. Pasar a otro campo no cambia lo que enseña la columna, así que un clic en un ejemplo de ella lo inserta en el campo en el que escribes.

@@ -1,6 +1,6 @@
 # Jugar un viaje
 
-**Jugar**, en el interruptor de arriba (<kbd>P</kbd>), mueve a tu grupo por el mapa. La barra de la izquierda deja entonces solo lo que usa el juego: **Seleccionar**, **El viaje**, el Mundo y el Oráculo, y las teclas de las herramientas que editan el mapa no hacen nada, así que un despiste no pinta encima; **Editar** (<kbd>P</kbd> otra vez) vuelve a la herramienta que usabas. Un viaje se juega en uno de dos modos (**Modo de juego**, cuya ayuda los resume). Al pasar a Jugar se selecciona el token del grupo (la herramienta Tokens, en Editar, lo mantiene seleccionado, y allí se cambian su icono, color y halo).
+**Jugar**, en el interruptor de arriba (<kbd>P</kbd>), mueve a tu grupo por el mapa. La barra de la izquierda deja entonces solo lo que usa el juego: **Seleccionar**, **El viaje**, el Mundo y el Oráculo, y las teclas de las herramientas que editan el mapa no hacen nada, así que un despiste no pinta encima; **Editar** (<kbd>P</kbd> otra vez) vuelve a la herramienta que usabas. Lo que tienen los dos se queda al cambiar: **Seleccionar** con la casilla seleccionada y el panel abierto (el Mundo, el Oráculo), así que desde **Seleccionar** el viaje está a un clic más, en **El viaje**. Un viaje se juega en uno de dos modos (**Modo de juego**, cuya ayuda los resume). Al pasar a Jugar se selecciona el token del grupo (la herramienta Tokens, en Editar, lo mantiene seleccionado, y allí se cambian su icono, color y halo).
 
 ## Modo simple
 

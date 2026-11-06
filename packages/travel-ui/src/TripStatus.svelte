@@ -90,17 +90,17 @@
   {/if}
 {/snippet}
 
-<div class="status" class:strip>
+<div class="status" class:strip class:more>
   <strong>{t('dayLine', time)}</strong>
   {#if !strip}{@render longForm()}{/if}
   <span>{t('at', { hex: hexLabel(travel.location) })}</span>
-  <span
+  <span class="minor"
     >{t('marched', { used: marched.used, limit: marched.limit })}<InfoTip
       text={t('tips.marched')}
     /></span
   >
   {#if travel.weather}
-    <span>{t('weather', { weather: travel.weather.replaceAll('-', ' ') })}</span>
+    <span class="minor">{t('weather', { weather: travel.weather.replaceAll('-', ' ') })}</span>
   {/if}
   {#if travel.destination && travel.destination === travel.location}
     <span>{t('arrived')} {arrivedHint}</span>
@@ -145,6 +145,13 @@
     background: var(--panel);
     border: 1px solid var(--panel-border);
     border-left: 3px solid var(--accent);
+  }
+
+  /* On a phone the strip is the moment and the place; its button opens the rest. */
+  @media (max-width: 760px) {
+    .strip:not(.more) .minor {
+      display: none;
+    }
   }
 
   .long {

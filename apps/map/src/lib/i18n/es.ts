@@ -37,6 +37,7 @@ export const es: Messages = {
     help: 'Haz clic o arrastra para pintar; Mayús+arrastrar pinta un rectángulo (una sala de una vez). El clic derecho borra, Ctrl+clic coge el terreno bajo el cursor, [ y ] cambian el tamaño del pincel.',
   },
   actions: {
+    more: 'Acciones del mapa',
     help: 'Ayuda y manual (?)',
     new: 'Nuevo mapa',
     open: 'Mapas',
@@ -86,6 +87,9 @@ export const es: Messages = {
   },
   panel: {
     width: 'Ancho del panel',
+    grow: 'Más sitio para el panel',
+    noSelectionPlay:
+      'Haz clic en una casilla para leerla, o elige El viaje a la izquierda para jugar.',
     whatItDoes: 'Qué hace',
     hide: 'Ocultar el panel lateral (más sitio para el mapa)',
     show: 'Mostrar el panel lateral',

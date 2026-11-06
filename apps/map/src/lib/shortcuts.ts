@@ -163,7 +163,7 @@ export function bindShortcuts(): () => void {
       default:
         return
     }
-    if ('vbgeritpkn'.includes(key)) editor.panelView = 'tool'
+    if ('vbgeritkn'.includes(key)) editor.panelView = 'tool'
     e.preventDefault()
   }
   window.addEventListener('keydown', handler)

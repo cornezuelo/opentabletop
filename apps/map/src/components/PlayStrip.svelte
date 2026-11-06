@@ -35,7 +35,7 @@
   .strip {
     position: absolute;
     top: 8px;
-    right: 28px;
+    right: calc(28px + var(--map-covered, 0px));
     left: 28px;
     z-index: 2;
     display: flex;

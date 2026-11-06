@@ -236,15 +236,27 @@ describe('Select on a token', () => {
 })
 
 describe('Edit and Play', () => {
-  it('Play keeps Select, and Edit comes back to the tool in use', () => {
+  it('from a tool of one mode, Play goes to the trip and Edit back to that tool', () => {
     editor.load(createMap())
     editor.tool = 'terrain'
     editor.switchMode('play')
     expect([editor.mode, editor.tool]).toEqual(['play', 'play'])
-    editor.tool = 'select'
-    expect(editor.mode).toBe('play')
     editor.switchMode('edit')
     expect([editor.mode, editor.tool]).toEqual(['edit', 'terrain'])
+  })
+
+  it('what both modes have stays: Select with its cell, the panel open', () => {
+    editor.load(createMap())
+    editor.tool = 'select'
+    editor.selected = '2,3'
+    editor.panelView = 'world'
+    editor.switchMode('play')
+    expect([editor.mode, editor.tool, editor.selected]).toEqual(['play', 'select', '2,3'])
+    expect(editor.panelView).toBe('world')
+    editor.switchMode('edit')
+    expect([editor.mode, editor.tool, editor.selected]).toEqual(['edit', 'select', '2,3'])
+    expect(editor.panelView).toBe('world')
+    editor.panelView = 'tool'
   })
 
   it('going to a tool that edits leaves Play, as a link to a token does', () => {

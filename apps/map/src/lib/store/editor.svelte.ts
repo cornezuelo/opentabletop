@@ -166,10 +166,17 @@ class Editor {
     this.selectedToken =
       tool === 'play' ? (this.map.tokens.find((t) => t.kind === 'party')?.id ?? null) : token
   }
-  /** Editing or playing, as the bar's switch does: Edit comes back to the last editing tool. */
+  /**
+   * Editing or playing, as the bar's switch does. What both have stays as it is: Select with
+   * what it selected, and the panel open (World, the Oracle…). Otherwise Play goes to the trip
+   * and Edit comes back to the last editing tool.
+   */
   switchMode(mode: 'edit' | 'play'): void {
-    this.panelView = 'tool'
     if (mode === this.mode) return
+    if (this.#tool === 'select') {
+      this.mode = mode
+      return
+    }
     if (mode === 'play') {
       this.tool = 'play'
       return
@@ -188,6 +195,8 @@ class Editor {
   panelHidden = $state(false)
   /** The tools bar on the left is folded away (its keyboard shortcuts still work). */
   toolsHidden = $state(false)
+  /** On a phone, the panel's sheet takes most of the window. */
+  sheetFull = $state(false)
   terrainMode = $state<TerrainMode>('brush')
   terrainId = $state('steppe')
   brushRadius = $state(0)

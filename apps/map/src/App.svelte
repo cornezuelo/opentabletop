@@ -1,5 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte'
+  import { MediaQuery } from 'svelte/reactivity'
   import MapCanvas from './components/MapCanvas.svelte'
   import MapBar from './components/MapBar.svelte'
   import MapWelcome from './components/MapWelcome.svelte'
@@ -27,6 +28,8 @@
   import { loadLinks } from './lib/io/submaps'
 
   let ready = $state(false)
+  /** The first run of what opens the floating panel: nothing has been asked of it yet. */
+  let started = false
   /** The link in the URL is open, so an empty map is really what's in front of the player. */
   let linksFollowed = $state(false)
 
@@ -64,6 +67,22 @@
     }),
   )
 
+  // A window too narrow for map and panel side by side: the panel floats, folded until there's
+  // something for it to show (a tool, a panel, a cell).
+  const floating = new MediaQuery('max-width: 1100px')
+  untrack(() => {
+    if (floating.current) editor.panelHidden = true
+  })
+  $effect.pre(() => {
+    void [editor.tool, editor.panelView, editor.mode]
+    const asked = !!editor.selected
+    untrack(() => {
+      if (!floating.current) return
+      if (asked || started) editor.panelHidden = false
+      started = true
+    })
+  })
+
   // Another map opened, or this one now hangs elsewhere: the maps it reaches are read again.
   $effect(() => {
     void [editor.meta.id, editor.meta.parent?.map, ready, library.links]
@@ -81,6 +100,7 @@
   class="layout"
   class:hidden={editor.panelHidden}
   class:with-help={editor.helpOpen}
+  class:sheet-full={editor.sheetFull}
   style:--panel-width={`${panelWidth.value}px`}
 >
   <TopBar />
@@ -117,6 +137,16 @@
       onclick={() => (editor.panelHidden = !editor.panelHidden)}
       ><span aria-hidden="true">{editor.panelHidden ? '‹' : '›'}</span></button
     >
+    {#if !editor.panelHidden}
+      <button
+        class="grow"
+        aria-pressed={editor.sheetFull}
+        aria-label={t('panel.grow')}
+        use:tooltip={t('panel.grow')}
+        onclick={() => (editor.sheetFull = !editor.sheetFull)}
+        ><span aria-hidden="true">{editor.sheetFull ? '▾' : '▴'}</span></button
+      >
+    {/if}
   </main>
   {#if !editor.panelHidden}<SidePanel />{/if}
   {#if editor.helpOpen}
@@ -192,10 +222,77 @@
     color: var(--accent);
   }
 
-  /* Narrow windows: the panel becomes a sheet under the map. */
+  .grow {
+    display: none;
+  }
+
+  /* Too narrow for both: the panel floats over the map, its tab beside it. */
+  @media (min-width: 761px) and (max-width: 1100px) {
+    .layout,
+    .layout.with-help {
+      position: relative;
+      grid-template-columns: auto 1fr;
+    }
+
+    .layout :global(> aside.panel) {
+      position: absolute;
+      top: var(--bar-height, 45px);
+      right: 0;
+      bottom: 0;
+      z-index: 3;
+      width: var(--panel-width);
+      box-shadow: -6px 0 16px rgb(0 0 0 / 35%);
+    }
+
+    .layout:not(.hidden) .fold {
+      right: var(--panel-width);
+    }
+
+    /* What stands over the map keeps clear of the panel. */
+    .layout:not(.hidden) main {
+      --map-covered: var(--panel-width);
+    }
+
+    .edge {
+      display: none;
+    }
+
+    .help-column {
+      position: absolute;
+      top: var(--bar-height, 45px);
+      right: 0;
+      bottom: 0;
+      z-index: 4;
+      width: 320px;
+    }
+  }
+
+  /* Narrow windows: the panel becomes a sheet under the map, half the window or most of it. */
   @media (max-width: 760px) {
     .edge {
       display: none;
+    }
+
+    .grow {
+      position: absolute;
+      right: calc(50% + 28px);
+      bottom: 0;
+      z-index: 2;
+      display: block;
+      width: 48px;
+      height: 18px;
+      padding: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+    }
+
+    .layout.sheet-full :global(> aside.panel) {
+      max-height: 85vh;
     }
 
     .layout {
