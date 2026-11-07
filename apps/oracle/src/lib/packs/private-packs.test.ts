@@ -155,8 +155,34 @@ describe.skipIf(!iron)('Ironsworn', () => {
     expect(ask(100, 'small-chance')).toBe('yes-twist')
     // Every table of the oracles chapter covers its d100.
     const engine = createOracleEngine({ registry, random: seeded('oracles') })
-    for (const id of ['action', 'theme', 'combat-action', 'plot-twist', 'challenge-rank'])
+    for (const id of [
+      'action',
+      'theme',
+      'combat-action',
+      'plot-twist',
+      'challenge-rank',
+      'region',
+      'location',
+      'coastal',
+      'location-descriptor',
+      'settlement-trouble',
+      'role',
+      'goal',
+      'descriptor',
+      'mystic-backlash',
+      'ironlander-names',
+      'elf-names',
+      'giant-names',
+      'varou-names',
+      'troll-names',
+      'quick-settlement-name',
+      'character',
+      'place',
+    ])
       for (let i = 0; i < 50; i++)
         expect(engine.resolve(`ironsworn/${id}`).resolution.text, id).toBeTruthy()
+    // In English too, from the rulebook.
+    const english = createOracleEngine({ registry, random: seeded('en'), locale: 'en' })
+    expect(english.resolve('ironsworn/character').resolution.text).toContain('wants to')
   })
 })
