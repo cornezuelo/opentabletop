@@ -22,6 +22,7 @@ export const es: Messages<typeof en> = {
     normal: 'Normal',
     modeHelp: 'Formas de tirar esta tabla que declara su sistema:',
     modeRule: 'tira {times} veces y quédate con el total {keep}.',
+    modeRuleExtra: 'tira {dice} dados más y quédate con los de total {keep}.',
     keep: { highest: 'más alto', lowest: 'más bajo', middle: 'del medio' },
     nothing: 'No se aplica ninguna entrada. Revisa los valores del contexto.',
     entries: 'Entradas',

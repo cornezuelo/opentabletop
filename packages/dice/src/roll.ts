@@ -74,3 +74,22 @@ function keptIndices(rolls: number[], term: DiceTerm): number[] {
   )
   return sorted.slice(0, term.keep.count).sort((a, b) => a - b)
 }
+
+/**
+ * The expression with `extra` more dice on its first plain term, keeping as many as it had:
+ * `2d6` with 1 more, the highest, is `3d6kh2`. Terms that already keep some stay as they are.
+ */
+export function withExtraDice(
+  expression: DiceExpression,
+  extra: number,
+  keep: 'highest' | 'lowest',
+): DiceExpression {
+  const at = expression.terms.findIndex(
+    (t) => t.kind === 'dice' && !t.keep && typeof t.sides === 'number',
+  )
+  if (at < 0) return expression
+  const terms = [...expression.terms]
+  const term = terms[at] as Extract<(typeof terms)[number], { kind: 'dice' }>
+  terms[at] = { ...term, count: term.count + extra, keep: { mode: keep, count: term.count } }
+  return { ...expression, terms }
+}

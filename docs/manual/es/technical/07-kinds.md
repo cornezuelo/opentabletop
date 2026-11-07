@@ -142,6 +142,15 @@ modes:
   disadvantage: { name: Desventaja, repeat: 2, keep: lowest }
 ```
 
+O `extra` en lugar de `repeat`: se tiran esos **dados** de más y se conservan tantos como antes, así que deciden los dados de la propia tirada. Un ejemplo inventado:
+
+```yaml
+kind: roll-modes
+id: edge
+modes:
+  edge: { name: Ventaja, extra: 1, keep: highest } # 2d6 pasa a 3d6, los dos mejores sumados
+```
+
 Una tabla u oráculo los usa con:
 
 - `modes: [roll-modes.advantage, roll-modes.disadvantage]`: se ofrecen al tirar a mano (la opción junto a **Tirar**).

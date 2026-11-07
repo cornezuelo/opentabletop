@@ -42,6 +42,13 @@
         min: 1,
       },
       {
+        field: 'extra',
+        label: t('modes.extra'),
+        help: t('modes.extraHelp'),
+        type: 'number',
+        min: 1,
+      },
+      {
         field: 'keep',
         label: t('modes.keep'),
         help: t('modes.keepHelp'),

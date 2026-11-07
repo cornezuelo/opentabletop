@@ -19,6 +19,7 @@ export const en = {
     normal: 'Normal',
     modeHelp: 'Ways of rolling this table that its system declares:',
     modeRule: 'roll {times} times and keep the {keep} total.',
+    modeRuleExtra: 'roll {dice} more dice and keep the {keep} ones.',
     keep: { highest: 'highest', lowest: 'lowest', middle: 'middle' },
     nothing: 'No entry applies. Check the context values.',
     entries: 'Entries',

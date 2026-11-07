@@ -73,7 +73,10 @@ export interface RollMode {
   localId: string
   name?: LocalizedText
   description?: LocalizedText
-  repeat: number
+  /** The whole roll made this many times. */
+  repeat?: number
+  /** Or this many more dice rolled, as many as before kept. */
+  extra?: number
   keep: 'highest' | 'lowest' | 'middle'
   /** Full ids of the modes it cancels out with. */
   cancels: string[]
@@ -567,7 +570,8 @@ function compileRollModes(loaded: LoadedPack[], registry: Registry, diagnostics:
           localId,
           name: m.name,
           description: m.description,
-          repeat: m.repeat,
+          ...(m.repeat !== undefined && { repeat: m.repeat }),
+          ...(m.extra !== undefined && { extra: m.extra }),
           keep: m.keep,
           cancels: [],
         }

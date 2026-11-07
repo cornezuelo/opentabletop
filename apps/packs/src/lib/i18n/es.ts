@@ -697,7 +697,11 @@ export const es: Messages<typeof en> = {
     help: 'Cada modo hace la tirada entera varias veces y se queda con una:\n• `advantage` — 2 tiradas, la más alta, anula `disadvantage`\n• `careful` — 3 tiradas, la del medio',
     name: 'Nombre',
     repeat: 'Tiradas',
-    repeatHelp: 'Cuántas veces se hace la tirada entera.',
+    repeatHelp:
+      'Cuántas veces se hace la tirada entera, quedándose con un total.\n• `2` — tira dos veces\n• `3` — tira tres veces\nDéjalo vacío para usar **Dados extra**.',
+    extra: 'Dados extra',
+    extraHelp:
+      'Cuántos dados más se tiran, quedándose con tantos como tenía la tirada.\n• `1` sobre `2d6`, los más altos — tira `3d6` y suma los dos mejores\n• `1` sobre `1d20`, los más bajos — tira `2d20` y toma el menor\nDéjalo vacío para usar **Tiradas**: un modo tiene una cosa o la otra.',
     keep: 'Quedarse con',
     keepHelp:
       'Qué total se queda: `highest` (el más alto), `lowest` (el más bajo) o `middle` (el del medio; con un número par, el menor de los dos del medio).',

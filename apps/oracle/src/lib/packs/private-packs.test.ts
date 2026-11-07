@@ -71,8 +71,11 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
 
   it('rolls foraging and getting lost with advantage for an explorer, finding the way with disadvantage', () => {
     const engine = createOracleEngine({ registry, random: seeded('explorer') })
+    // Advantage and disadvantage are a die more, the best or worst kept (`3d6` for `2d6`).
     const twice = (id: string, context: Record<string, unknown>) =>
-      !!engine.resolve(id, context).resolution.rolls[0]?.discarded
+      engine
+        .resolve(id, context)
+        .resolution.rolls[0]?.terms.some((t) => t.kind === 'dice' && t.rolls.length > 1) ?? false
     expect(twice('kal-arath/forage', {})).toBe(false)
     expect(twice('kal-arath/forage', { explorer: 1 })).toBe(true)
     expect(twice('kal-arath/lost-check', { yesterday: { lost: true } })).toBe(true)

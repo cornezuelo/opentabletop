@@ -1,5 +1,5 @@
 export { parseDice } from './parse'
-export { roll, type RollOptions } from './roll'
+export { roll, withExtraDice, type RollOptions } from './roll'
 export { bounds, distribution, possibleTotals } from './support'
 export { diceText } from './text'
 export * from './types'

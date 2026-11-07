@@ -58,10 +58,10 @@
           const mode = ui.library.registry.rollModes.get(id)
           if (!mode) return []
           // The pack's description, or what it does in plain words.
-          const rule = t('roll.modeRule', {
-            times: mode.repeat,
-            keep: t(`roll.keep.${mode.keep}`),
-          })
+          const keep = t(`roll.keep.${mode.keep}`)
+          const rule = mode.extra
+            ? t('roll.modeRuleExtra', { dice: mode.extra, keep })
+            : t('roll.modeRule', { times: mode.repeat ?? 1, keep })
           return [{ id, name: ui.modeName(mode), help: ui.modeDescription(mode) ?? rule }]
         })
       : [],
@@ -131,7 +131,7 @@
     const dist = rollOdds(
       list.roll,
       mergeContext(context, parseContext(values)),
-      mode && { repeat: mode.repeat, keep: mode.keep },
+      mode && { repeat: mode.repeat, extra: mode.extra, keep: mode.keep },
     )
     if (!dist) return undefined
     const top = Math.max(...dist.values())

@@ -24,6 +24,8 @@ Guiding idea (the user's, 2026-10-07): mechanics like fatigue, morale, reputatio
   - [ ] **A piece that keeps the place open**: re-rolling a shape that would leave no way on.
   - [ ] **Procedures with choices** (locks and traps, camp activities that change the camp's roll): possible with actions, long to write; a shorter form to look for.
 
+- **Kal-Arath** (private; personal use by its licence; 2026-11-07: characters with their five stats, the tests of each stat, the Death table, initiative and morale; dungeons played as pieces, each area rolling what's in it; advantage as the book has it). Fixed on the way: roll modes with `extra` dice (a die more, the best or worst kept). **Still lacking:** a test naming its stat in one table (today a table per stat); a table reading doubles, for the critical on two sixes; the reroll of a Fate Point; damage dice that explode once; a level's choice of a skill or a stat.
+
 **Waiting behind it, decided with the user 2026-11-07:** after Factions that choose, **images**: the library with one shared picker (upload, search, pick, delete, zoom and crop), portraits for characters, the party, items and templates, then a picture under the map and cards with pictures. No screen to manage the library yet: the picker is enough to start.
 
 ## Alpha 0.1: what's left (reviewed 2026-10-07)

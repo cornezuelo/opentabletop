@@ -143,6 +143,15 @@ modes:
   disadvantage: { name: Disadvantage, repeat: 2, keep: lowest }
 ```
 
+Or `extra` instead of `repeat`: that many more **dice** are rolled and as many as before kept, so the roll's own dice decide. A made-up example:
+
+```yaml
+kind: roll-modes
+id: edge
+modes:
+  edge: { name: Edge, extra: 1, keep: highest } # 2d6 becomes 3d6, the best two added
+```
+
 A table or oracle uses them with:
 
 - `modes: [roll-modes.advantage, roll-modes.disadvantage]`: offered when rolling by hand (the choice next to **Roll**).

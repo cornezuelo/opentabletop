@@ -684,7 +684,11 @@ export const en = {
     help: 'Each mode rolls the whole roll several times and keeps one:\n• `advantage` — 2 rolls, keep the highest, cancels `disadvantage`\n• `careful` — 3 rolls, keep the middle one',
     name: 'Name',
     repeat: 'Rolls',
-    repeatHelp: 'How many times the whole roll is made.',
+    repeatHelp:
+      'How many times the whole roll is made, keeping one total.\n• `2` — roll twice\n• `3` — roll three times\nLeave it empty to use **Extra dice** instead.',
+    extra: 'Extra dice',
+    extraHelp:
+      'How many more dice are rolled, keeping as many as the roll had.\n• `1` on `2d6`, keeping the highest — rolls `3d6` and adds the best two\n• `1` on `1d20`, keeping the lowest — rolls `2d20` and takes the lower\nLeave it empty to use **Rolls** instead: a mode has one or the other.',
     keep: 'Keep',
     keepHelp:
       'Which total is kept: `highest`, `lowest` or `middle` (of an even count, the lower middle one).',

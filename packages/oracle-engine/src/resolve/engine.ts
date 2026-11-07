@@ -1,5 +1,11 @@
 import { matches, resolvePath, type Condition } from '@open-tabletop/conditions'
-import { parseDice, roll, type DiceExpression, type DiceResult } from '@open-tabletop/dice'
+import {
+  parseDice,
+  roll,
+  withExtraDice,
+  type DiceExpression,
+  type DiceResult,
+} from '@open-tabletop/dice'
 import { shuffled, weightedIndex, type RandomSource } from '@open-tabletop/random'
 import {
   evaluate,
@@ -577,7 +583,9 @@ class Run {
             }),
           )
         : expression
-    const result = roll(parsed, this.random, mode && { repeat: mode.repeat, keep: mode.keep })
+    const result = mode?.extra
+      ? roll(withExtraDice(parsed, mode.extra, mode.keep as 'highest' | 'lowest'), this.random)
+      : roll(parsed, this.random, mode && { repeat: mode.repeat, keep: mode.keep })
     node?.rolls.push(result)
     return result
   }

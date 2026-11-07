@@ -16,6 +16,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- Roll modes: `extra` dice, a die more with the best or worst kept, besides repeating the whole roll; in Packs' form.
 - Tables: a roll may take its die's size from a value (`1d{{party.values.tension}}`).
 - The Grey Marches: the Deep Barrows no longer find land's ruins and landmarks, omens or getting lost underground; marching says "one cell" (also in Core).
 

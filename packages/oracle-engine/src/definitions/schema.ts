@@ -295,14 +295,22 @@ export const rollModesSchema = z
         .object({
           name: text.optional(),
           description: text.optional(),
-          /** How many times the roll is made (2 or more). */
-          repeat: z.number().int().min(2),
-          /** Which total is kept. */
+          /** How many times the whole roll is made (2 or more). */
+          repeat: z.number().int().min(2).optional(),
+          /** Instead, how many more dice are rolled, as many as before kept (`2d6` → `3d6kh2`). */
+          extra: z.number().int().min(1).optional(),
+          /** Which total (or which dice, with `extra`) is kept. */
           keep: z.enum(['highest', 'lowest', 'middle']),
           /** Modes that, when both apply, cancel each other out (e.g. advantage and disadvantage). */
           cancels: z.union([ref, z.array(ref)]).optional(),
         })
-        .strict(),
+        .strict()
+        .refine((m) => (m.repeat === undefined) !== (m.extra === undefined), {
+          message: 'a roll mode has either repeat or extra',
+        })
+        .refine((m) => m.extra === undefined || m.keep !== 'middle', {
+          message: 'extra dice keep the highest or the lowest',
+        }),
     ),
   })
   .strict()

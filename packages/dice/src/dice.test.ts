@@ -8,6 +8,7 @@ import {
   parseDice,
   possibleTotals,
   roll,
+  withExtraDice,
 } from './index'
 
 /** Unit-interval values that make randomInt(1, n) return the given faces. */
@@ -147,5 +148,20 @@ describe('distribution', () => {
   it('gives up on too many combinations', () => {
     expect(distribution('20d6kh3', {}, 1000)).toBeNull()
     expect(distribution('20d6')).not.toBeNull()
+  })
+})
+
+describe('withExtraDice', () => {
+  it('rolls more dice and keeps as many as before', () => {
+    const more = withExtraDice(parseDice('2d6+1'), 1, 'highest')
+    expect(more.terms[0]).toMatchObject({ count: 3, keep: { mode: 'highest', count: 2 } })
+    const { total } = roll(more, seeded('extra'))
+    expect(total).toBeGreaterThanOrEqual(3)
+    expect(total).toBeLessThanOrEqual(13)
+  })
+
+  it('leaves dice that already keep some as they are', () => {
+    const own = parseDice('4d6kh3')
+    expect(withExtraDice(own, 1, 'highest')).toEqual(own)
   })
 })

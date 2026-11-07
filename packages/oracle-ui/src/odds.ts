@@ -1,4 +1,4 @@
-import { distribution } from '@open-tabletop/dice'
+import { distribution, parseDice, withExtraDice } from '@open-tabletop/dice'
 import { createOracleEngine, type Registry } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 
@@ -47,7 +47,7 @@ export function entryOdds(
 export function rollOdds(
   roll: string,
   context: Record<string, unknown>,
-  mode?: { repeat: number; keep: 'highest' | 'lowest' | 'middle' },
+  mode?: { repeat?: number; extra?: number; keep: 'highest' | 'lowest' | 'middle' },
 ): Map<number, number> | null {
   const read = (path: string): unknown =>
     path
@@ -63,6 +63,10 @@ export function rollOdds(
     return n < 0 ? `0 - ${-n}` : String(n)
   })
   try {
+    if (mode?.extra)
+      return distribution(
+        withExtraDice(parseDice(expression), mode.extra, mode.keep as 'highest' | 'lowest'),
+      )
     return distribution(expression, mode ?? {})
   } catch {
     return null
