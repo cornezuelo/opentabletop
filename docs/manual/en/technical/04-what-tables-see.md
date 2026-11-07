@@ -236,6 +236,8 @@ When the campaign has its world clock (Map's World panel, the Campaign app), on 
 
 A table bound as `discover.piece` also sees `exit.kind` and `exit.tags`, the exit being crossed, and what has been laid on this map: `pieces.total` and `pieces.<id>`. See [Pieces](../packs/24-pieces.md).
 
+Checks at `trip.place-enter` read the place as discovered: what's laid or decided there comes first, as the party steps in, so `place.tags` or `place.floor` of a piece just laid hold at once.
+
 - The **terrain** table sees the cell the party is on (its terrain, tags, values and region), plus `place.id` (the cell being decided), `from` (the one it's seen from: `from.id`, `from.terrain`…) and the land around the cell being decided: `around` counts its known neighbours' terrains (`around.lake: 2`), `aroundCount` how many are known, `common` the most frequent terrain (a tie goes to the one it's seen from) and `commonCount` how many have it.
 - The **contents** table sees the cell being entered (`place.terrain`, `place.tags`… and `terrain` for short).
 - Both see the party stats, `party` and today's values.

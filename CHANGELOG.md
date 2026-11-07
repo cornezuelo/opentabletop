@@ -12,8 +12,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Map: a map that's discovered by playing says so when blank, with **Start playing**; a map laid piece by piece shows its first piece as soon as the party stands on it, and marks the exits nobody has crossed.
 - Map: **March** is off once the party has arrived.
 
+- Trips: a check on entering a place reads what was just discovered there (a piece, a terrain).
+
 ### Packs
 
+- Tables: a roll may take its die's size from a value (`1d{{party.values.tension}}`).
 - The Grey Marches: the Deep Barrows no longer find land's ruins and landmarks, omens or getting lost underground; marching says "one cell" (also in Core).
 
 ## [0.41.0] - 2026-11-07

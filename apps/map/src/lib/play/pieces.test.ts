@@ -41,6 +41,30 @@ const start = (map: HexMap) => {
 }
 
 describe('pieces', () => {
+  it('entering reads the piece just laid: a check sees its tags and floor', () => {
+    start(createMap('', { template: 'dungeon', cells: 'square' }))
+    const core = getSystem('core')
+    const system: TravelSystem = {
+      ...core,
+      rules: {
+        ...core.rules,
+        checks: [
+          {
+            event: 'NEW_ROOM',
+            at: ['trip.place-enter'],
+            when: { 'place.floor': true },
+          } as never,
+        ],
+      },
+    }
+    const { session } = startTrip({ system, location: '15,15', season: 'summer' })
+    const done = through(system, session, '15,14', 3)
+    expect(
+      done.state.travel.pendingChecks.some((c) => c.event === 'NEW_ROOM') ||
+        done.entries.some((e) => JSON.stringify(e).includes('NEW_ROOM')),
+    ).toBe(true)
+  })
+
   for (const cells of ['square', 'hex'] as const)
     it(`a map of ${cells} grows through its doors, on the Generic rules`, () => {
       start(createMap('', { template: 'dungeon', cells }))

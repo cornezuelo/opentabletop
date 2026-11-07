@@ -81,6 +81,11 @@ export interface TravelWorld {
    * `travel.diagonals` says whether such steps exist and what they cost.
    */
   diagonal?(a: string, b: string): [string, string] | undefined
+  /**
+   * The party is about to step into `next`: what lies there is decided now, so that entering
+   * reads it (`trip.place-enter` checks). False: nothing fits, and it can't be entered.
+   */
+  entering?(next: string, from: string): boolean
   /** The cells under its places, on a world that can lay pieces (a map). */
   ground?: {
     layout: CellLayout
@@ -1694,6 +1699,10 @@ export function createTravelEngine(options: {
         )
       }
       const from = state.location
+      if (world.entering?.(next, from) === false) {
+        events.push({ type: 'ROUTE_BLOCKED', from, to: next })
+        return stop('blocked')
+      }
       enter(state, next, events)
       schedule(state, PLACE_ENTER, events, from)
       if (left !== undefined) left--
@@ -2404,6 +2413,10 @@ export function createTravelEngine(options: {
         return
       }
       const from = state.location
+      if (world.entering?.(next, from) === false) {
+        events.push({ type: 'ROUTE_BLOCKED', from, to: next })
+        return
+      }
       enter(state, next, events)
       schedule(state, PLACE_ENTER, events, from)
       if (state.route.length < 2)

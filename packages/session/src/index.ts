@@ -789,6 +789,18 @@ export function createSession(options: {
           })
         return done.limits
       }
+      // What lies ahead is decided as the party steps in: entering reads it.
+      discovery?.opening((hex, from) => {
+        const opened = discovery.enter(s, tripContext(s, hostOf(s), {}, party), hex, from)
+        if (!opened)
+          add(s, entries, {
+            source: 'travel',
+            code: 'PIECE_NOT_LAID',
+            time: s.travel.time,
+            data: { hex },
+          })
+        return opened
+      })
       /** Discovers at the party's hex; true when it found something to stop for. */
       const arrive = (hex: string, from?: string, time?: number): boolean => {
         if (!discovery) return false

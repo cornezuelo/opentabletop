@@ -179,8 +179,12 @@ export function createDiscovery(options: {
   /** What's rolled on entering a cell of a piece with contents of its own. */
   const contentsOf = new Map<string, DiscoverBinding>()
 
+  /** What opens the way ahead as the party steps into a place, given by the session. */
+  let opener: ((hex: string, from: string) => boolean) | undefined
+
   const world: TravelWorld = {
     ...base,
+    entering: (hex, from) => opener?.(hex, from) ?? true,
     place(hex) {
       const cell = base.place(hex)
       const extra = found.get(hex)
@@ -318,10 +322,63 @@ export function createDiscovery(options: {
     return named(binding.otherwise)
   }
 
+  /** Rolls with the Oracle's state in `state`. */
+  function rollerOf(state: { oracle: OracleState }, context: Context): Roll {
+    // The party stays on top of the hex facts; the binding's context wins.
+    const { party, ...known } = context
+    return (binding, extra) => {
+      const out = oracle.resolve(
+        binding.resolve!,
+        { ...known, ...extra, ...(party !== undefined && { party }), ...binding.context },
+        state.oracle,
+        { locale },
+      )
+      state.oracle = out.state
+      return { text: out.resolution.text, value: out.resolution.value }
+    }
+  }
+
+  /** What's at `hex` is decided: a piece laid or its terrain. False: no piece fits there. */
+  function open(
+    state: { oracle: OracleState; discovery?: DiscoveryState },
+    roll: Roll,
+    hex: string,
+    from: string,
+  ): boolean {
+    const pending = new Set(state.discovery?.pending ?? [])
+    const laying = reveal === 'pieces'
+    // On the map's first piece the party stands where it starts; else it came through an exit.
+    const opening = from === hex && !!world.ground && !Object.keys(world.ground.laid).length
+    if (laying && isEmpty(world, hex) && (from !== hex || opening)) {
+      if (lay(roll, hex, from)) pending.add(hex)
+      else if (from !== hex) return false
+    }
+    // Entering an empty hex discovers it, in either mode.
+    if (!laying && isEmpty(world, hex) && terrain(roll, hex, from)) pending.add(hex)
+    state.discovery = { pending: [...pending] }
+    return true
+  }
+
+  /** The pieces the journal has told. */
+  const told = new Set<LaidPiece>()
+
   return {
     world,
     found,
     laid,
+    /** Says how the way ahead opens during this step. */
+    opening(fn: (hex: string, from: string) => boolean) {
+      opener = fn
+    },
+    /** The party is about to step into `hex`: what's there is decided, for entering to read. */
+    enter(
+      state: { oracle: OracleState; discovery?: DiscoveryState },
+      context: Context,
+      hex: string,
+      from: string,
+    ): boolean {
+      return open(state, rollerOf(state, context), hex, from)
+    },
     /**
      * The party is at `hex`, coming from `from` (or the trip starts there). Returns the
      * contents' text when they were rolled, for the journal.
@@ -339,29 +396,9 @@ export function createDiscovery(options: {
       /** No piece fitted: the party can't stand here. */
       unlaid?: boolean
     } {
-      // The party stays on top of the hex facts (extra); the binding's context wins.
-      const { party, ...known } = context
-      const roll: Roll = (binding, extra) => {
-        const out = oracle.resolve(
-          binding.resolve!,
-          { ...known, ...extra, ...(party !== undefined && { party }), ...binding.context },
-          state.oracle,
-          { locale },
-        )
-        state.oracle = out.state
-        return { text: out.resolution.text, value: out.resolution.value }
-      }
+      const roll = rollerOf(state, context)
+      if (!open(state, roll, hex, from)) return { unlaid: true }
       const pending = new Set(state.discovery?.pending ?? [])
-      const laying = reveal === 'pieces'
-      // On the map's first piece the party stands where it starts; else it came through an exit.
-      const opening = from === hex && !!world.ground && !Object.keys(world.ground.laid).length
-      const already = laid.length
-      if (laying && isEmpty(world, hex) && (from !== hex || opening)) {
-        if (lay(roll, hex, from)) pending.add(hex)
-        else if (from !== hex) return { unlaid: true }
-      }
-      // Entering an empty hex discovers it, in either mode.
-      if (!laying && isEmpty(world, hex) && terrain(roll, hex, from)) pending.add(hex)
       let result: ReturnType<Discovery['arrive']> = {}
       const contents = contentsOf.get(hex) ?? discover.contents
       if (pending.has(hex) && contents) {
@@ -412,7 +449,10 @@ export function createDiscovery(options: {
       if (reveal === 'neighbors')
         for (const next of base.neighbors(hex)) if (terrain(roll, next, hex)) pending.add(next)
       state.discovery = { pending: [...pending] }
-      return laid.length > already ? { ...result, piece: laid.at(-1) } : result
+      const piece = laid.find((p) => !told.has(p))
+      if (!piece) return result
+      told.add(piece)
+      return { ...result, piece }
     },
   }
 }

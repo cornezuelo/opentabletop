@@ -98,3 +98,20 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
     expect(minutes('autumn-storm')).toBe(minutes('clear') * 2)
   })
 })
+
+const ker = personal.some((p) => p.root === 'ker-nethalas')
+
+describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
+  const { diagnostics } = loadPacks(engineFiles(bundledPacks))
+
+  it('loads without problems', () => {
+    const own = diagnostics.filter((d) => d.pack === 'ker-nethalas')
+    expect(own.map(formatDiagnostic)).toEqual([])
+  })
+
+  it('walks a Domain: the map grows, the dice run down, and something finds the lair', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    expect(system.pieces?.length).toBeGreaterThan(0)
+  })
+})
