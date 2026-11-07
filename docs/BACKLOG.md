@@ -13,8 +13,10 @@ Guiding idea (the user's, 2026-10-07): mechanics like fatigue, morale, reputatio
 
 **Seen by the user playing the Deep Barrows (2026-11-07), to do next:**
 
-- [ ] **Moving with the keys**: with W A S D (and the arrows) odd things happen: the map sometimes zooms out, and whole rooms are crossed in one press (a room is one place, so a step goes from door to door). Look at what each key does in Play, and how a step through a room should read. The user (2026-11-07): "avanzas de habitación en habitación. Casi quitaría lo de mover con flechas": to decide whether walking by keys goes (dragging and clicking stay).
+- [ ] **Moving with the keys**: with W A S D (and the arrows) odd things happen: the map sometimes zooms out, and whole rooms are crossed in one press (a room is one place, so a step goes from door to door). Look at what each key does in Play, and how a step through a room should read. The user (2026-11-07): "avanzas de habitación en habitación. Casi quitaría lo de mover con flechas": then (same day): on ordinary maps it works as it should; on maps discovered as a dungeon it's to rethink how it should move (cell by cell inside a room? one press per door?), not to remove.
 - [ ] **Closed doors**: today the Deep Barrows' doors are never shut, so doors look like gaps in a wall. The mechanism exists (a connection's state, `passable: { unless: { connection.state: barred } }`, Core's _Open the gate_); the Grey Marches should show it on pieces (a barred or locked door, an action to force it, a noise that brings trouble). Ker Nethalas needs a door's state rolled as it's laid (locked on 12+ in d20, traps): a gap below.
+- [ ] **The strip over the map as what happened last** (user, 2026-11-07: "me pone «Habéis llegado» seguido… no está mal como indicador de lo último que pasa en modo jugar, impleméntalo"): in Play, the strip above the map (`PlayStrip`, `TripStatus`) keeps saying _You've arrived_; it should show the trip's latest journal line as it happens (a check rolled, a piece laid, an encounter), what the map needs to say coming after it.
+- [ ] **Starting a trip with no party on the map says nothing** (user, 2026-11-07, on Ashford, Play → With rules → New trip): nothing happens and nothing tells why. Say that the party has to be placed first (click a cell), or place it where a start makes sense.
 - [x] ✅ (2026-11-07) Dragging the party past the walls, by a strange way: on a map laid piece by piece, what nobody has opened is rock (a step may end past an exit, never go on through the unknown).
 
 **What the real systems show the tools lack** (found building each pack, in the order met; mechanisms only, never a book's text). The packs live in `packs-private/` unless their line says otherwise.
@@ -42,8 +44,8 @@ Guiding idea (the user's, 2026-10-07): mechanics like fatigue, morale, reputatio
 
 1. [ ] **Ker Nethalas**: combat, traps and locks, scavenging and containers, potions, Masteries and levels, Domains as maps one after another, its Spanish texts.
 2. [ ] **Kal-Arath**: the gaps in its line above; review against the rulebook again (older item, under Packs).
-3. [ ] **Ironsworn**: moves, oracles, vows and progress tracks, its world's map; may be public (CC BY 4.0).
-4. [ ] **Starforged**: after Ironsworn, sharing its engine; licence CC BY-NC-SA 4.0 to decide.
+3. [ ] **Ironsworn**: moves, oracles, vows and progress tracks, its world's map. **Public** (user, 2026-11-07: "van públicos si es legal"; CC BY 4.0 allows it): moved to `packs/` with its attribution once it plays whole, with its manual page.
+4. [ ] **Starforged**: after Ironsworn, sharing its engine. **Public** too (user, 2026-11-07): its text is CC BY-NC-SA 4.0, which allows sharing it free, attributed and under the same licence; the pack says so in `license`.
 5. [ ] **The One Ring**: journeys, Shadow and Hope, its special dice; its world's map.
 6. [ ] **Stars Without Number**: sectors, world tags, faction turns.
 7. [ ] **Twilight 2000**: step dice, ammunition, encounter cards, hex travel by quarters of a day.
