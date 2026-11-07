@@ -169,6 +169,8 @@ export interface TravelSystem {
    * (`maps/frontier.otd.json`), in the order it lists them.
    */
   maps?: string[]
+  /** The map style its new maps start in (`pack/id`), if it names one. */
+  style?: string
 }
 
 /** Where a system's part is defined: a definition of a pack. */
@@ -345,6 +347,7 @@ const SYSTEM_KEYS = new Set([
   'land',
   'packs',
   'maps',
+  'style',
   'sheet',
   'partySheet',
   'factions',
@@ -929,6 +932,8 @@ export function travelSystems(registry: Registry): {
       })
       for (const key of ['name', 'description'] as const)
         if (data[key] !== undefined && !isText(data[key])) report(key, 'Expected a text')
+      if (data.style !== undefined && typeof data.style !== 'string')
+        report('style', 'Expected a map style (pack/id)')
       const rules = part('travel', 'travel-rules', data.travel)
       if (data.travel !== undefined && !rules) continue
       const system = build(
@@ -941,6 +946,7 @@ export function travelSystems(registry: Registry): {
           ...(locale && { locale }),
           packs,
           ...(maps.length && { maps }),
+          ...(typeof data.style === 'string' && data.style && { style: data.style }),
         },
         {
           rules,

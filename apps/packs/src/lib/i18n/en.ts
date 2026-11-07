@@ -287,7 +287,6 @@ export const en = {
     exits: 'Exits',
     exitsHelp:
       'What each letter of the drawing leaves on the map: a connection of its kind, a way on nobody has crossed yet. **Way in**: it may be entered by. If none is ticked, any may. A piece with no exits is laid from any side, as a tile.',
-    saidExits: 'Exits: {list}',
     exitKind: 'Kind of connection',
     noKind: '(choose)',
     entry: 'Way in',
@@ -748,6 +747,10 @@ export const en = {
     pieces: 'Catalogues of pieces',
     piecesHelp: 'Pieces its maps may grow with (`pieces:`), as many as it wants.',
     noPieces: 'No catalogues of pieces in this pack or its dependencies.',
+    style: "Its maps' style",
+    styleHelp:
+      'The map style a new blank map of this system starts in (`style:`), and a blank sub-map under one of its maps. It changes nothing on maps already made.\n• `core/parchment`',
+    noStyle: "Map's default",
     implicit:
       'This system comes from an older pack: its travel rules make a system named after the pack, with its bindings and calendar. Declaring it writes a system.yaml naming what it uses, so you can choose its parts and the packs it brings here; it plays the same.',
     declare: 'Declare it',

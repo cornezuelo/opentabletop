@@ -15,6 +15,7 @@
   } from '../lib/newSystem'
   import { mapPath, readMap, systemMaps } from '../lib/maps'
   import { library } from '../lib/packs.svelte'
+  import { mapStyles } from '@open-tabletop/map'
   import { exportSystem, systemZipPacks } from '../lib/transfer'
   import { ROLLABLE, type SystemDoc } from '../lib/systemDoc.svelte'
   import FindName from './uses/FindName.svelte'
@@ -69,6 +70,8 @@
   const listOf = (key: (typeof LISTS)[number]) =>
     Array.isArray(data?.[key]) ? (data[key] as string[]) : []
 
+  /** The map styles of the loaded packs, by `pack/id`. */
+  const styles = $derived(mapStyles(library.registry).styles.map((s) => s.ref))
   const listed = $derived(Array.isArray(data?.maps) ? (data.maps as string[]) : [])
   const maps = $derived(systemMaps(system, listed))
   /** Opens the map in Map, as its Maps → Example maps would. */
@@ -190,6 +193,21 @@
           </label>
         {/each}
       </div>
+    </section>
+
+    <section>
+      <h3>{t('overview.style')}<InfoTip text={t('overview.styleHelp')} /></h3>
+      <label class="parts">
+        <select
+          value={String(data.style ?? '')}
+          {disabled}
+          aria-label={t('overview.style')}
+          onchange={(e) => doc.edit('system', ['style'], e.currentTarget.value || undefined)}
+        >
+          <option value="">{t('overview.noStyle')}</option>
+          {#each styles as ref (ref)}<option value={ref}>{ref}</option>{/each}
+        </select>
+      </label>
     </section>
 
     {#each LISTS as key (key)}

@@ -293,7 +293,6 @@ export const es: Messages<typeof en> = {
     exits: 'Salidas',
     exitsHelp:
       'Lo que deja en el mapa cada letra del dibujo: una conexión de su tipo, un camino que nadie ha cruzado aún. **Entrada**: se puede entrar por ella. Si ninguna está marcada, por cualquiera. Una pieza sin salidas se coloca desde cualquier lado, como una loseta.',
-    saidExits: 'Salidas: {list}',
     exitKind: 'Tipo de conexión',
     noKind: '(elige)',
     entry: 'Entrada',
@@ -763,6 +762,10 @@ export const es: Messages<typeof en> = {
     pieces: 'Catálogos de piezas',
     piecesHelp: 'Piezas con las que pueden crecer sus mapas (`pieces:`), tantas como quiera.',
     noPieces: 'No hay catálogos de piezas en este pack ni en sus dependencias.',
+    style: 'El estilo de sus mapas',
+    styleHelp:
+      'El estilo de mapa con el que empieza un mapa en blanco de este sistema (`style:`), y un submapa en blanco bajo uno de sus mapas. No cambia nada en los mapas ya hechos.\n• `core/parchment`',
+    noStyle: 'El de Mapa por defecto',
     implicit:
       'Este sistema viene de un pack antiguo: sus reglas de viaje forman un sistema con el nombre del pack, con sus bindings y su calendario. Declararlo escribe un system.yaml que nombra lo que usa, para que puedas elegir aquí sus partes y los packs que trae; se juega igual.',
     declare: 'Declararlo',

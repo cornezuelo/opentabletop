@@ -23,7 +23,7 @@ import {
   type Campaign,
   type WhatStays,
 } from '@open-tabletop/campaign'
-import { DEFAULT_SYSTEM, systemIdOf, systemName } from '@open-tabletop/session'
+import { DEFAULT_SYSTEM, systemIdOf, systemName, type TravelSystem } from '@open-tabletop/session'
 import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { editor, isCampaignChange } from '../store/editor.svelte'
 import { askNewMap } from './newMapDialog.svelte'
@@ -191,11 +191,20 @@ function asCopy(opening: Opening): Opening {
   return { map, ...(campaign && { campaign }) }
 }
 
-/** A new map as chosen. A town starts drawn in Core's Village style (its roofs), when it's loaded. */
-export function startMap(name: string, start: MapStart): HexMap {
+/**
+ * A new map as chosen, in the style it starts in: a town in Core's Village (its roofs), a blank
+ * map in the one its system names, if it's loaded.
+ */
+export function startMap(name: string, start: MapStart, system?: TravelSystem): HexMap {
   const map = createMap(name, start)
-  const village = start.template === 'town' && loadedStyles().find((s) => s.ref === TOWN_STYLE)
-  return village ? applyStyle(map, village.ref, village.style) : map
+  const ref =
+    start.template === 'town'
+      ? TOWN_STYLE
+      : (start.template ?? 'blank') === 'blank'
+        ? system?.style
+        : undefined
+  const style = ref && loadedStyles().find((s) => s.ref === ref)
+  return style ? applyStyle(map, style.ref, style.style) : map
 }
 
 /**
@@ -230,7 +239,10 @@ const TOWN_STYLE = 'core/village'
 export async function openInCampaign(campaign: string, map?: string): Promise<boolean | 'missing'> {
   if (map) {
     if (!(await openLibraryMap(map))) return 'missing'
-  } else await switchTo({ map: createMap() })
+  } else {
+    const system = (await keptCampaign(campaign))?.system
+    await switchTo({ map: startMap('', {}, system ? getSystem(system) : undefined) })
+  }
   return moveToCampaign(campaign)
 }
 

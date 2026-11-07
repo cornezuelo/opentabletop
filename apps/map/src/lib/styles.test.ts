@@ -27,6 +27,18 @@ describe('the bundled map styles', () => {
     ])
   })
 
+  it('a system names the style its blank maps start in', async () => {
+    const { startMap } = await import('./io/actions.svelte')
+    const { getSystem } = await import('./play/systems')
+    const marches = getSystem('grey-marches')
+    expect(marches.style).toBe('core/parchment')
+    expect(startMap('', {}, marches).meta.style).toBe('core/parchment')
+    // A template keeps its own.
+    expect(startMap('', { template: 'dungeon' }, marches).meta.style).toBeUndefined()
+    expect(startMap('', { template: 'town' }, marches).meta.style).toBe('core/village')
+    expect(startMap('', {}).meta.style).toBeUndefined()
+  })
+
   it('Village draws roofs over a town’s buildings and art on every terrain of a new town', () => {
     const s = style('core/village')
     expect(s.roofs).toEqual({ kind: 'tiles', color: '#a5563a', shadow: 0.3 })

@@ -16,6 +16,7 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 - **Bestiarios** (`bestiary:`, una lista): las criaturas y clases de gente que puede crear; se crean, se eligen y se editan en [Bestiario](18-bestiary.md), cuyo **Nuevo bestiario** añade uno aquí.
 - **Catálogos de lugares** (`places:`, una lista): los lugares que sus resultados pueden crear en la casilla del grupo; se crean, se eligen y se editan en [Lugares](19-places.md), cuyo **Nuevo catálogo de lugares** añade uno aquí.
 - **Catálogos de piezas** (`pieces:`, una lista): las formas con las que pueden crecer sus mapas; se crean, eligen y editan en [Piezas](24-pieces.md).
+- **El estilo de sus mapas** (`style:`): el [estilo de mapa](20-map-styles.md) con el que empieza un mapa en blanco del sistema, y un submapa en blanco bajo uno de sus mapas.
 
 ## Packs que trae
 

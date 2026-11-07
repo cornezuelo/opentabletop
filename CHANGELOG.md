@@ -11,6 +11,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - The Grey Marches: the system names a village's terrains, and _A village of the Marches_ is a new land model.
 - Map and Packs: **pieces** (`kind: pieces`): a map played **Through exits, piece by piece** grows where the party goes, on squares or hexes, with a **Pieces** tab in Packs.
 - The Grey Marches: _The Deep Barrows_, a map under the Barrow-halls laid from a deck. Core: _Rooms and passages_, on squares and hexes.
+- Packs: a system may name the style its blank maps start in (**Its maps' style** in the Overview).
 - Map: a faction's land is painted with the new **Factions** tool (L) in Edit; **World** is only in Play.
 - Packs: a pack's images have their own section, and **Images** in the left column stays lit when chosen.
 

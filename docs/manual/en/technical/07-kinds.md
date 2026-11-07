@@ -731,10 +731,12 @@ world: world.default # what its world does by itself
 items: [items.gear] # what its characters may carry (item catalogues)
 bestiary: [bestiary.marches] # the templates its results make copies of
 places: [places.default] # the places its results make on the party's cell
+pieces: [pieces.deep-barrows] # the pieces its maps may grow with
 weather: [weather.sky] # the weather models its bindings may use
 land: [land.default] # its land models: discovery's and Generate's
 packs: [core] # packs whose tables it brings
 maps: [maps/grey-marches.otd.json] # example maps, files of this pack
+style: core/parchment # the map style its new blank maps start in
 ```
 
 - Every part is optional. Without `travel`, the system doesn't travel (Play and Travel say so; its world, oracle and factions still play), and any system can name Core's, `travel: core/travel-rules.default`, the **Generic rules** (with `calendar: core/calendar.default`, whose parts of the day they name, and `bindings: core/bindings.default` with `weather: [core/weather.default]`, which roll their weather check); without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `land`, it has no land model to discover or generate with; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `sheet`, its party is played as a whole; without `bestiary`, its results make no copies of templates; without `places`, they make no places from templates. Core's own system, `core`, is the one a map plays when it chooses none: [the Generic rules](../bundled/01-core.md#the-generic-rules).

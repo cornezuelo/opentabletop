@@ -271,7 +271,7 @@ export async function newSubMap(
 ): Promise<HexMap> {
   // It hangs from the open map, which has to be there to go back to.
   if (library.untouched) await keepOpenMap()
-  const map = startMap('', start)
+  const map = startMap('', start, mapSystem())
   const { width, height } = map.grid
   const parent: MapParent = {
     map: editor.map.meta.id,

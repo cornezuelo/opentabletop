@@ -33,6 +33,8 @@ world: world.default
 weather: [weather.sky]
 # The lie of the Marches (land.yaml): Generate's land, and discovery's east of the Hills.
 land: [land.default, land.galleries, land.village]
+# What its new maps are drawn in, when they start blank.
+style: core/parchment
 # What the Deep Barrows are laid with (pieces.yaml).
 pieces: [pieces.deep-barrows]
 packs: [core]

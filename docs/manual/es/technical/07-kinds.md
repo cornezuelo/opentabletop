@@ -732,10 +732,12 @@ world: world.default # lo que su mundo hace por sí solo
 items: [items.gear] # lo que pueden llevar sus personajes (catálogos de objetos)
 bestiary: [bestiary.marches] # las plantillas de las que sus resultados hacen copias
 places: [places.default] # los lugares que sus resultados crean en la casilla del grupo
+pieces: [pieces.deep-barrows] # las piezas con las que pueden crecer sus mapas
 weather: [weather.sky] # los modelos de clima que pueden usar sus bindings
 land: [land.default] # sus modelos de tierra: los del descubrimiento y Generar
 packs: [core] # packs cuyas tablas trae
 maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
+style: core/parchment # el estilo con el que empiezan sus mapas en blanco
 ```
 
 - Todas las partes son opcionales. Sin `travel`, el sistema no viaja (Jugar y Viajes lo dicen; su mundo, su oráculo y sus facciones se siguen jugando), y cualquier sistema puede nombrar las de Core, `travel: core/travel-rules.default`, las **reglas genéricas** (con `calendar: core/calendar.default`, cuyas partes del día nombran, y `bindings: core/bindings.default` con `weather: [core/weather.default]`, que tiran su comprobación de clima); sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `land`, no tiene modelo de tierra con el que descubrir o generar; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `partySheet`, el grupo no tiene hoja propia; sin `sheet`, su grupo se juega como un todo; sin `bestiary`, sus resultados no hacen copias de plantillas; sin `places`, no crean lugares con plantillas. El propio sistema de Core, `core`, es el que juega un mapa que no elige ninguno: [las reglas genéricas](../bundled/01-core.md#las-reglas-genericas).

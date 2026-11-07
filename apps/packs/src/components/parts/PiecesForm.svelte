@@ -69,10 +69,7 @@
       help: t('piecesForm.exitsHelp'),
       type: 'custom',
       render: exits,
-      said: (value: unknown) =>
-        Object.keys((value ?? {}) as Raw).length
-          ? t('piecesForm.saidExits', { list: Object.keys(value as Raw).join(' ') })
-          : '',
+      said: (value: unknown) => Object.keys((value ?? {}) as Raw).join(' '),
     },
   ])
 </script>
