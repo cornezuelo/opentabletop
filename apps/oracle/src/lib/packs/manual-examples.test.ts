@@ -122,6 +122,7 @@ describe.each(['en', 'es'])('the manual’s examples (%s)', (locale) => {
         'items',
         'bestiary',
         'places',
+        'pieces',
         'style',
       ]),
     )

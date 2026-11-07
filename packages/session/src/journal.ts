@@ -37,6 +37,8 @@ const STORY = new Set([
   'ORACLE_RESULT',
   'ORACLE_ROLL',
   'HEX_DISCOVERED',
+  'PIECE_LAID',
+  'PIECE_NOT_LAID',
   'SAID',
   'HELD',
   'RESUMED',

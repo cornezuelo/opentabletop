@@ -1,5 +1,5 @@
 import { explain, matches, type Condition, type FailedPair } from '@open-tabletop/conditions'
-import { findPath } from '@open-tabletop/hex'
+import { findPath, type CellLayout } from '@open-tabletop/hex'
 import { evaluate, lookupIn, momentRoller, render, type Roller } from '@open-tabletop/variables'
 import {
   defaultCalendar,
@@ -81,6 +81,14 @@ export interface TravelWorld {
    * `travel.diagonals` says whether such steps exist and what they cost.
    */
   diagonal?(a: string, b: string): [string, string] | undefined
+  /** The cells under its places, on a world that can lay pieces (a map). */
+  ground?: {
+    layout: CellLayout
+    /** The cell of `a` a step into its neighbour `b` leaves from (a room's by its door). */
+    gate(a: string, b: string): string
+    /** The pieces laid here, how many of each. */
+    laid: Record<string, number>
+  }
 }
 
 /** An effect on the connection of the step (`connection.state: open`, `connection.uses: -1`). */

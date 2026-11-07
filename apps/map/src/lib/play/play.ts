@@ -343,8 +343,9 @@ function stepOnly(action: TravelAction): void {
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
     return
   }
-  const { state, entries, discovered } = result
+  const { state, entries, discovered, laid } = result
   editor.applyDiscovery(discovered)
+  editor.applyLaid(laid)
   // Places of another map (a way in or out) are that map's trail, not this one's; a room is
   // drawn on its cell where the party came in.
   let near: string | undefined = partyLocation()
@@ -411,9 +412,21 @@ export async function goOnIn(map: string): Promise<boolean> {
     mode: 'rules',
     trail: !location || here.trail.at(-1) === location ? here.trail : [...here.trail, location],
     rules: { system: rules.system, startDay: rules.startDay, session: moved },
-    ...(discover && { discover }),
+    // A map says how it's discovered; one that doesn't goes on as the trip was.
+    ...((here.discover ?? discover) && { discover: here.discover ?? discover }),
   })
   editor.setPlaying(mapTrip())
+  // A map laid piece by piece starts under the party's feet.
+  if (current().discover?.on && current().discover?.reveal === 'pieces') {
+    const heading = moved.travel.destination
+    step({ type: 'setDestination', place: moved.travel.location })
+    if (!heading)
+      editSession((s) => {
+        const travel = { ...s.travel }
+        delete travel.destination
+        return { ...s, travel }
+      })
+  }
   // Heading on beyond (out by another way of a tunnel): the route is planned again here, or
   // the destination given up if this map's ways don't reach it.
   const destination = moved.travel.destination
@@ -434,7 +447,7 @@ export async function goOnIn(map: string): Promise<boolean> {
 export function discoverMode(
   play: PlayState,
   system: TravelSystem,
-): 'neighbors' | 'entered' | undefined {
+): 'neighbors' | 'entered' | 'pieces' | undefined {
   const bindings = system.bindings?.discover
   if (!bindings || !play.discover?.on) return undefined
   return play.discover.reveal ?? bindings.reveal

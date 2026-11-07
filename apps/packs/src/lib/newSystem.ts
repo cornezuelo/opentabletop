@@ -316,6 +316,7 @@ export type PartKind =
   | 'items'
   | 'bestiary'
   | 'places'
+  | 'pieces'
   | 'factions'
   | 'clocks'
   | 'world'
@@ -438,6 +439,7 @@ export type PartTabKind =
   | 'items'
   | 'bestiary'
   | 'places'
+  | 'pieces'
   | 'factions'
   | 'clocks'
   | 'world'
@@ -497,7 +499,7 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
         : []
       : ownOfKind(pack).slice(0, 1)
   else {
-    // Weather models, land models, item catalogues, bestiaries and places: a list in the system.
+    // Weather models, land models, item catalogues, bestiaries, places and pieces: a list in the system.
     const listed = data?.[kind]
     refs = data ? (Array.isArray(listed) ? (listed as string[]) : []) : ownOfKind(pack)
   }

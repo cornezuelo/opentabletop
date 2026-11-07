@@ -9,6 +9,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Every app: headings follow one scale, always bigger than the text they head, and the small labels of side menus look alike.
 - Map: **New map** asks for a name, cells and scale, with **Start from** (Blank, Dungeon, Town) as a shortcut; a blank map has every terrain. Sub-maps are made in the same dialog, from **New map** too, and a map you have can hang from a cell.
 - The Grey Marches: the system names a village's terrains, and _A village of the Marches_ is a new land model.
+- Map and Packs: **pieces** (`kind: pieces`): a map played **Through exits, piece by piece** grows where the party goes, on squares or hexes, with a **Pieces** tab in Packs.
+- The Grey Marches: _The Deep Barrows_, a map under the Barrow-halls laid from a deck. Core: _Rooms and passages_, on squares and hexes.
 - Map: a faction's land is painted with the new **Factions** tool (L) in Edit; **World** is only in Play.
 - Packs: a pack's images have their own section, and **Images** in the left column stays lit when chosen.
 

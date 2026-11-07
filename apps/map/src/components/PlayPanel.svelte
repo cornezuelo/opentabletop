@@ -139,11 +139,14 @@
             onchange={(e) =>
               setDiscover({
                 on: true,
-                reveal: e.currentTarget.value as 'neighbors' | 'entered',
+                reveal: e.currentTarget.value as 'neighbors' | 'entered' | 'pieces',
               })}
           >
             <option value="neighbors">{t('play.revealNeighbors')}</option>
             <option value="entered">{t('play.revealEntered')}</option>
+            {#if system.bindings.discover.piece}
+              <option value="pieces">{t('play.revealPieces')}</option>
+            {/if}
           </select>
         {/if}
       </div>

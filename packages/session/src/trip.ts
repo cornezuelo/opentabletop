@@ -75,6 +75,7 @@ import {
   type PartyRules,
 } from './party'
 import { createDiscovery, type DiscoveredHex, type RevealMode } from './discovery'
+import { lookupPieces, parsePieces, type LaidPiece, type PiecesCatalogue } from './pieces'
 import {
   lookupPlaces,
   parsePlaces,
@@ -161,6 +162,8 @@ export interface TravelSystem {
    * campaign adds: `withAddedPacks`), by `pack/id`, in order: what `place.pois.<id>` makes.
    */
   places?: { id: string; def: PlacesCatalogue }[]
+  /** Its catalogues of pieces (`pieces` in `kind: system`), by `pack/id`, in order. */
+  pieces?: { id: string; def: PiecesCatalogue }[]
   /**
    * Its example maps: OTD bundles (`*.otd.json`) in its own pack, by path in the pack
    * (`maps/frontier.otd.json`), in the order it lists them.
@@ -328,6 +331,7 @@ const PART_NAMES: Record<string, string> = {
   items: 'item catalogue',
   bestiary: 'bestiary',
   places: 'catalogue of places',
+  pieces: 'catalogue of pieces',
 }
 const SYSTEM_KEYS = new Set([
   'kind',
@@ -349,6 +353,7 @@ const SYSTEM_KEYS = new Set([
   'items',
   'bestiary',
   'places',
+  'pieces',
 ])
 
 /**
@@ -448,6 +453,7 @@ export function travelSystems(registry: Registry): {
       items?: Extra[]
       bestiary?: Extra[]
       places?: Extra[]
+      pieces?: Extra[]
     },
   ): TravelSystem | undefined {
     let rules = NO_TRAVEL
@@ -797,6 +803,11 @@ export function travelSystems(registry: Registry): {
       (parts.places ?? []).map((extra) => ({ extra, owner: ownerOf(extra) ?? pack })),
     )
     problems.push(...places.problems)
+    // Its catalogues of pieces.
+    const pieces = readPieces(
+      (parts.pieces ?? []).map((extra) => ({ extra, owner: ownerOf(extra) ?? pack })),
+    )
+    problems.push(...pieces.problems)
     const source = (extra: Extra | undefined, owner: string): SystemSource | undefined =>
       extra && { pack: owner, id: extra.id ?? 'default', file: extra.file }
     return {
@@ -821,6 +832,7 @@ export function travelSystems(registry: Registry): {
       ...(items.length && { items }),
       ...(read.bestiary.length && { bestiary: read.bestiary, templateSheets: read.sheets }),
       ...(places.places.length && { places: places.places }),
+      ...(pieces.pieces.length && { pieces: pieces.pieces }),
     }
   }
   const owners = new Map<Extra, string>()
@@ -852,6 +864,7 @@ export function travelSystems(registry: Registry): {
           items: extras.filter((e) => e.kind === 'items'),
           bestiary: extras.filter((e) => e.kind === 'bestiary'),
           places: extras.filter((e) => e.kind === 'places'),
+          pieces: extras.filter((e) => e.kind === 'pieces'),
         },
       )
       if (system) systems.push(system)
@@ -949,6 +962,9 @@ export function travelSystems(registry: Registry): {
           ),
           places: list('places', data.places).flatMap(
             (ref, i) => part(`places.${i}`, 'places', ref) ?? [],
+          ),
+          pieces: list('pieces', data.pieces).flatMap(
+            (ref, i) => part(`pieces.${i}`, 'pieces', ref) ?? [],
           ),
         },
       )
@@ -1080,6 +1096,21 @@ function readPlaces(extras: { extra: Extra; owner: string }[]): {
     if (parsed.places) places.push({ id: `${owner}/${extra.id ?? 'default'}`, def: parsed.places })
   }
   return { places, problems }
+}
+
+/** Catalogues of pieces (`kind: pieces`) as a system uses them: each parsed, its problems reported. */
+function readPieces(extras: { extra: Extra; owner: string }[]): {
+  pieces: { id: string; def: PiecesCatalogue }[]
+  problems: Diagnostic[]
+} {
+  const pieces: { id: string; def: PiecesCatalogue }[] = []
+  const problems: Diagnostic[] = []
+  for (const { extra, owner } of extras) {
+    const parsed = parsePieces(extra.data, owner)
+    for (const e of parsed.errors) problems.push(problem(owner, extra.file, 'pieces', e, extra.id))
+    if (parsed.pieces) pieces.push({ id: `${owner}/${extra.id ?? 'default'}`, def: parsed.pieces })
+  }
+  return { pieces, problems }
 }
 
 /**
@@ -1352,7 +1383,13 @@ export function stepTrip(
   },
   session: SessionState,
   action: TravelAction,
-): { state: SessionState; entries: JournalEntry[]; discovered: Record<string, DiscoveredHex> } {
+): {
+  state: SessionState
+  entries: JournalEntry[]
+  discovered: Record<string, DiscoveredHex>
+  /** Pieces laid on the way, for the host to write on its map. */
+  laid: LaidPiece[]
+} {
   const { system } = options
   // The members' relations to the places they come to (`place.related`).
   const world = relatedWorld(options.world, session.members)
@@ -1368,6 +1405,7 @@ export function stepTrip(
           land: system.land,
           random: options.random ?? mathRandom(),
           places: partyOf(system).places,
+          ...(system.pieces && { pieces: lookupPieces(system.pieces) }),
         })
       : undefined
   const result = createSession({
@@ -1397,6 +1435,7 @@ export function stepTrip(
   return {
     ...result,
     discovered: withPlacesMade(Object.fromEntries(discovery?.found ?? []), result.entries),
+    laid: discovery?.laid ?? [],
   }
 }
 

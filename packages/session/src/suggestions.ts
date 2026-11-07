@@ -65,6 +65,10 @@ export function contextSuggestions(
   add('visits', 1)
   // What the trip has done so far (only by their full names).
   add('trip.places')
+  // What a table naming the next piece sees.
+  add('exit.kind')
+  add('exit.tags')
+  add('pieces.total', 1)
   add('trip.km')
   add('trip.hours')
   add('trip.checks')

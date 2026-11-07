@@ -44,6 +44,71 @@ describe('sub-maps', () => {
     localStorage.clear()
   })
 
+  it(
+    'the Deep Barrows lay themselves under the trip, down to the last tomb',
+    { timeout: 30_000 },
+    async () => {
+      vi.resetModules()
+      const actions = await import('./actions.svelte')
+      const { exampleMaps } = await import('./examples')
+      const { editor } = await import('../store/editor.svelte')
+      const { loadLinks, waysAt } = await import('./submaps')
+      const play = await import('../play/play')
+      const { mapWorld } = await import('@open-tabletop/map')
+      await actions.openExampleMap(exampleMaps().find((m) => m.id === 'hollowhills1')!)
+      await settle()
+      await loadLinks()
+      expect(maps.get('deepbarrows1')).toMatchObject({ parent: 'barrowhalls1' })
+
+      editor.tool = 'play'
+      play.setMode('rules')
+      play.partyMoved('10,8')
+      const session = () => play.sessionOf(editor.map.play!)!
+      /** Goes to a place, resolving what comes up on the way. */
+      const go = async (to: string) => {
+        play.step({ type: 'setDestination', place: to })
+        await settle()
+        for (let i = 0; i < 12; i++) {
+          if (session().travel.location === to || !session().travel.route) break
+          for (const c of session().travel.pendingChecks) play.resolvePending(c.id)
+          play.step({ type: 'action', id: 'march', with: { until: 'place' } })
+          await settle()
+        }
+      }
+      await go(waysAt('10,8')[0].there)
+      await settle()
+      expect(editor.map.meta.id).toBe('barrowhalls1')
+      await loadLinks()
+      // Past the slab of the grave-niche, a stair goes on down.
+      play.partyMoved('8,3')
+      await go(waysAt('8,3').find((w) => w.map === 'deepbarrows1')!.there)
+      await settle()
+      expect(editor.map.meta.id).toBe('deepbarrows1')
+      // The map was empty: the foot of the stair is there as the party arrives, a room.
+      expect(editor.map.pieces?.map((p) => p.id)).toEqual(['stair-foot'])
+      expect(editor.map.regions.map((r) => r.name)).toEqual(['The foot of the stair'])
+      expect(mapWorld(editor.map).place(session().travel.location)?.danger).toBe(1)
+
+      // Through whatever way on is open, until the table ends it.
+      for (let i = 0; i < 40 && !editor.map.pieces!.some((p) => p.id === 'tomb'); i++) {
+        const waiting = editor.map.connections
+          .filter((c) => c.kind === 'door')
+          .flatMap((c) => c.between.filter((cell) => !editor.map.hexes[cell]?.terrain))
+        if (!waiting.length) break
+        await go(waiting[i % waiting.length])
+      }
+      const laid = editor.map.pieces!.map((p) => p.id)
+      expect(laid).toContain('tomb')
+      expect(laid.length).toBeGreaterThanOrEqual(9)
+      // The deck was drawn from, and the journal told it.
+      expect(Object.keys(session().oracle.decks)).toContain('grey-marches/deep-barrows')
+      expect(session().journal.filter((e) => e.code === 'PIECE_LAID').length).toBe(laid.length)
+      // Saved and read again, a played map keeps what was laid.
+      const { deserializeMap, serializeMap } = await import('@open-tabletop/map')
+      expect(deserializeMap(serializeMap(editor.map)).pieces).toEqual(editor.map.pieces)
+    },
+  )
+
   it('a map you have hangs from a cell, in this campaign, with its own sub-map', async () => {
     vi.resetModules()
     const { editor } = await import('../store/editor.svelte')

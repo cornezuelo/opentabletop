@@ -81,6 +81,10 @@ connections:
     description: Ten minutes more to pass; can't be passed while it's shut.
     extra: 10
     passable: { when: { connection.state: open } }
+  # A door, as pieces leave them (pieces.yaml): nothing more than the step.
+  door:
+    name: Door
+    description: A way through a wall.
   # The way into a sub-map drawn under a place (Map's sub-maps) and out of it: five minutes
   # more than the step, which measures nothing.
   way-in:
@@ -183,6 +187,10 @@ actions:
 # The Generic rules' bindings (system.yaml): what resolves each check of their travel rules.
 kind: bindings
 id: default
+# A map played by discovering it grows piece by piece (pieces.yaml).
+discover:
+  piece: { resolve: table.next-piece, first: room, otherwise: dead-end }
+  reveal: pieces
 on:
   # Weather with inertia: a weather model (weather.yaml) instead of a table.
   WEATHER_CHECK_REQUIRED: { weather: weather.default }

@@ -87,6 +87,10 @@ A dungeon under the Hollow Hills' cell 1109: **9 × 7 squares of 10 m**, floor w
 | **The sealed slab**                      | a connection 0804 → 0904 | A second `door`                                                                                                  | Into the grave-niche                                                                               |
 | **The grave-niche** (room inside a room) | 0904                     | A region inside the tomb (`parent`), played as a place of its own, danger `5`                                    | The worst odds in the halls; to a condition it's still the tomb (`place.region: The chief's tomb`) |
 
+### The Deep Barrows
+
+A map nobody has drawn, **24 × 24 squares of 10 m**, under the grave-niche of the Barrow-halls (way at 0904): it's played **Through exits, piece by piece**, so it grows as the party goes, from _The foot of the stair_. _The way down_, a [deck](../technical/07-kinds.md#decks), says what each way opens into, so nothing repeats until it runs out; _What lies beyond_ ends it with _The last tomb_ once eight pieces are laid. Crypts roll their own contents and may hide a crack behind the bones, found as the Barrow-road is; the flooded passage shows black water beside the floor. See [Pieces](../packs/24-pieces.md).
+
 ### The old clan mine
 
 Galleries under the mountains east of the Hollow Hills, **14 × 7 squares of 500 m**, drawn in Core's **Cave** [style](../map/01-getting-started.md#styles): a **sub-map crossed**, with three ways to the hills, each of its own kind.

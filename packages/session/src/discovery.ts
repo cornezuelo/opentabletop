@@ -5,6 +5,7 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { onceRoller } from '@open-tabletop/variables'
 import { definitionId } from './refs'
 import { effectsOf } from './effects'
+import { layPiece, type LaidPiece, type Piece, type PieceLookup } from './pieces'
 import { makePlace, PLACE_PATH, type MadePlace, type PlaceLookup } from './places'
 
 /**
@@ -27,12 +28,25 @@ export interface DiscoverBinding {
 export interface DiscoverBindings {
   terrain?: DiscoverBinding
   contents?: DiscoverBinding
+  /** The pieces a map discovered through its exits is laid with. */
+  piece?: PieceBinding
   /** What is decided on entering a hex: its empty neighbours too (what the party sees), or only it. */
   reveal: RevealMode
 }
 
-export type RevealMode = 'neighbors' | 'entered'
-export const REVEAL_MODES: RevealMode[] = ['neighbors', 'entered']
+/**
+ * `discover.piece`: what names the next piece (a table's `set: { piece: <id> }`), `first` what
+ * an empty map starts with, up to `tries` rolls when what came up doesn't fit, and `otherwise`
+ * laid when nothing did.
+ */
+export interface PieceBinding extends DiscoverBinding {
+  first?: string
+  tries: number
+  otherwise?: string
+}
+
+export type RevealMode = 'neighbors' | 'entered' | 'pieces'
+export const REVEAL_MODES: RevealMode[] = ['neighbors', 'entered', 'pieces']
 
 /** What discovery decided for a hex; the host applies it to its map. */
 export interface DiscoveredHex {
@@ -85,6 +99,7 @@ export function parseDiscover(
         value.context !== null && { context: value.context as Record<string, unknown> }),
     }
   }
+  const piece = parsePieceBinding(r.piece, pack, errors)
   const reveal = r.reveal ?? 'neighbors'
   if (!REVEAL_MODES.includes(reveal as RevealMode))
     errors.push(`bindings.discover.reveal: expected one of ${REVEAL_MODES.join(', ')}`)
@@ -93,7 +108,34 @@ export function parseDiscover(
   return {
     ...(terrain && { terrain }),
     ...(contents && { contents }),
+    ...(piece && { piece }),
     reveal: REVEAL_MODES.includes(reveal as RevealMode) ? (reveal as RevealMode) : 'neighbors',
+  }
+}
+
+function parsePieceBinding(
+  raw: unknown,
+  pack: string | undefined,
+  errors: string[],
+): PieceBinding | undefined {
+  if (raw === undefined) return undefined
+  const value = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>
+  if (typeof value.resolve !== 'string' || !value.resolve) {
+    errors.push('bindings.discover.piece: needs "resolve" (a table: table.<id>)')
+    return undefined
+  }
+  const tries = value.tries ?? 3
+  if (typeof tries !== 'number' || !Number.isInteger(tries) || tries < 1)
+    errors.push('bindings.discover.piece.tries: expected a whole number, 1 or more')
+  const id = (key: 'first' | 'otherwise') =>
+    typeof value[key] === 'string' && value[key] ? { [key]: value[key] as string } : {}
+  return {
+    resolve: definitionId(value.resolve, pack),
+    tries: typeof tries === 'number' && tries >= 1 ? Math.floor(tries) : 3,
+    ...id('first'),
+    ...id('otherwise'),
+    ...(typeof value.context === 'object' &&
+      value.context !== null && { context: value.context as Record<string, unknown> }),
   }
 }
 
@@ -126,10 +168,16 @@ export function createDiscovery(options: {
   random: RandomSource
   /** The system's catalogues of places, for contents that name one (`place.pois.<template>`). */
   places?: PlaceLookup
+  /** The system's pieces, for a map that lays them. */
+  pieces?: PieceLookup
 }) {
   const { world: base, oracle, discover, reveal, locale, random } = options
   /** Found during this step, by hex. */
   const found = new Map<string, DiscoveredHex>()
+  /** Laid during this step. */
+  const laid: LaidPiece[] = []
+  /** What's rolled on entering a cell of a piece with contents of its own. */
+  const contentsOf = new Map<string, DiscoverBinding>()
 
   const world: TravelWorld = {
     ...base,
@@ -224,9 +272,55 @@ export function createDiscovery(options: {
     return true
   }
 
+  /**
+   * Lays a piece on the empty cell `hex`, come to from `from`: `first` on an empty map, else
+   * what the binding names, tried again if it doesn't fit, then `otherwise`. True if laid.
+   */
+  function lay(roll: Roll, hex: string, from: string): boolean {
+    const binding = discover.piece
+    const ground = world.ground
+    if (!binding || !ground || !options.pieces || !isEmpty(world, hex)) return false
+    const { layout, laid: before } = ground
+    const counts: Record<string, number> = { ...before }
+    for (const { id } of laid) counts[id] = (counts[id] ?? 0) + 1
+    const total = Object.values(counts).reduce((sum, n) => sum + n, 0)
+    const gate = from === hex ? hex : ground.gate(from, hex)
+    const fit = {
+      layout,
+      free: (cell: string) => isEmpty(world, cell),
+      floor: (cell: string) => !!world.place(cell)?.floor,
+    }
+    const named = (id: unknown): boolean => {
+      if (typeof id !== 'string' || !id) return false
+      const piece: Piece | undefined = options.pieces!(id, layout)
+      const done = piece && layPiece(id, piece, fit, hex, gate, random, locale)
+      if (!piece || !done) return false
+      laid.push(done)
+      for (const [cell, terrain] of Object.entries(done.cells))
+        record(cell, { terrain, ...(piece.tags && { tags: piece.tags }) })
+      if (piece.contents) contentsOf.set(hex, { resolve: piece.contents })
+      return true
+    }
+    if (!total && binding.first && named(binding.first)) return true
+    const here = world.place(gate) ?? {}
+    const exit = base.connectionOf?.(from, hex)
+    for (let i = 0; i < binding.tries; i++) {
+      const { value } = roll(binding, {
+        ...here,
+        from: { ...here, id: gate },
+        place: { id: hex },
+        exit: { kind: exit?.kind, tags: exit?.tags ?? [] },
+        pieces: { ...counts, total },
+      })
+      if (named(value.piece)) return true
+    }
+    return named(binding.otherwise)
+  }
+
   return {
     world,
     found,
+    laid,
     /**
      * The party is at `hex`, coming from `from` (or the trip starts there). Returns the
      * contents' text when they were rolled, for the journal.
@@ -236,7 +330,14 @@ export function createDiscovery(options: {
       context: Context,
       hex: string,
       from: string = hex,
-    ): { text?: string; discovered?: DiscoveredHex } {
+    ): {
+      text?: string
+      discovered?: DiscoveredHex
+      /** A piece was laid here. */
+      piece?: LaidPiece
+      /** No piece fitted: the party can't stand here. */
+      unlaid?: boolean
+    } {
       // The party stays on top of the hex facts (extra); the binding's context wins.
       const { party, ...known } = context
       const roll: Roll = (binding, extra) => {
@@ -250,12 +351,21 @@ export function createDiscovery(options: {
         return { text: out.resolution.text, value: out.resolution.value }
       }
       const pending = new Set(state.discovery?.pending ?? [])
+      const laying = reveal === 'pieces'
+      // On the map's first piece the party stands where it starts; else it came through an exit.
+      const opening = from === hex && !!world.ground && !Object.keys(world.ground.laid).length
+      const already = laid.length
+      if (laying && isEmpty(world, hex) && (from !== hex || opening)) {
+        if (lay(roll, hex, from)) pending.add(hex)
+        else if (from !== hex) return { unlaid: true }
+      }
       // Entering an empty hex discovers it, in either mode.
-      if (isEmpty(world, hex) && terrain(roll, hex, from)) pending.add(hex)
-      let result: { text?: string; discovered?: DiscoveredHex } = {}
-      if (pending.has(hex) && discover.contents) {
+      if (!laying && isEmpty(world, hex) && terrain(roll, hex, from)) pending.add(hex)
+      let result: ReturnType<Discovery['arrive']> = {}
+      const contents = contentsOf.get(hex) ?? discover.contents
+      if (pending.has(hex) && contents) {
         pending.delete(hex)
-        const { text, value } = roll(discover.contents, {
+        const { text, value } = roll(contents, {
           ...world.place(hex),
           place: { ...world.place(hex), id: hex },
         })
@@ -301,7 +411,7 @@ export function createDiscovery(options: {
       if (reveal === 'neighbors')
         for (const next of base.neighbors(hex)) if (terrain(roll, next, hex)) pending.add(next)
       state.discovery = { pending: [...pending] }
-      return result
+      return laid.length > already ? { ...result, piece: laid.at(-1) } : result
     },
   }
 }

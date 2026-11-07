@@ -561,7 +561,7 @@ kind: bindings
 discover:
   terrain: { resolve: table.next-terrain } # el terreno de una casilla vacía
   contents: { resolve: table.hex-contents } # qué hay en una casilla, la primera vez que entras
-  reveal: neighbors # o: entered (solo la casilla a la que entras)
+  reveal: neighbors # o: entered (solo la casilla a la que entras), o pieces
 on: { … }
 ```
 
@@ -569,6 +569,7 @@ on: { … }
 - **Un modelo de tierra en su lugar** (`kind: land`, [Modelos de tierra](../technical/07-kinds.md#modelos-de-tierra)): `terrain: { land: land.default }` decide cada casilla vacía con las filas de todas sus vecinas conocidas sumadas, sin tabla. El sistema tiene que listarlo (`land: [land.default]` en su `kind: system`).
 - **Una tabla que pasa la decisión a un modelo:** una entrada con `set: { land: land.<id> }` (y sin `terrain`) deja que el modelo decida esa casilla. La tabla se queda con los casos especiales y el modelo con el resto; una entrada cuyo `when` lee la región le da a una región su propia tierra: `{ id: north, range: 1-6, when: { from.region: El Norte }, set: { land: land.north } }`. Un modelo que el sistema no lista no decide nada.
 - La tabla de **contenido** ve la casilla a la que entras. Su texto se convierte en un punto de interés; `set: { poi: false }` significa que no hay nada que apuntar, `set: { poi: 'Un nombre' }` lo nombra de otra forma. `tags` (una o una lista) y `name` se escriben también en la casilla. Una entrada puede crear en su lugar un **lugar con una plantilla** (`effects: { place.pois.ruins: 1 }`, de los [catálogos de lugares](../technical/07-kinds.md#lugares) del sistema): el punto de interés es el de la plantilla (su nombre, texto, icono y campos, con `{{result}}` leyendo el texto de la entrada) y sus etiquetas van a la casilla, en vez de uno hecho con el texto.
+- **Piezas en su lugar:** `piece: { resolve: table.next-piece, first: room, otherwise: dead-end }` y un mapa jugado **Por las salidas, pieza a pieza** coloca [piezas](../packs/24-pieces.md) en las casillas vacías: el `set: { piece: <id> }` de una tabla, que ve también `exit.kind`, `exit.tags`, `pieces.total` y `pieces.<id>`.
 - Las características del grupo y los valores del día están en el contexto de ambas, como en las comprobaciones.
 
 El `discovery.yaml` de las Marcas Grises es un ejemplo completo: un terreno que tiende a seguir, familias de tierras, un lugar señalado que solo se encuentra una vez, y al este de las Hollow Hills una entrada que pasa la decisión a su modelo de tierra (`land.yaml`).

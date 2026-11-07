@@ -13,7 +13,7 @@ export const TAB_GROUPS: TabGroup[] = [
   { label: 'characters', tabs: ['sheet', 'items', 'bestiary'] },
   {
     label: 'world',
-    tabs: ['places', 'factions', 'clocks', 'world', 'calendar', 'weather', 'land'],
+    tabs: ['places', 'pieces', 'factions', 'clocks', 'world', 'calendar', 'weather', 'land'],
   },
   { tabs: ['try', 'yaml'] },
 ]
@@ -26,6 +26,7 @@ const PARTS = new Set<Tab>([
   'items',
   'bestiary',
   'places',
+  'pieces',
   'factions',
   'clocks',
   'world',

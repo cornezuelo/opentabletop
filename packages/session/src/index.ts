@@ -806,8 +806,27 @@ export function createSession(options: {
           })
           return false
         }
-        const { text, discovered } = outcome
-        if (!discovered) return false
+        const { text, discovered, piece, unlaid } = outcome
+        // Nothing fits past the exit: the party stays on its side.
+        if (unlaid && from) {
+          add(s, entries, {
+            source: 'travel',
+            code: 'PIECE_NOT_LAID',
+            ...(time !== undefined && { time }),
+            data: { hex },
+          })
+          s.travel = { ...s.travel, location: from, route: undefined, moving: undefined }
+          return true
+        }
+        if (piece)
+          add(s, entries, {
+            source: 'travel',
+            code: 'PIECE_LAID',
+            ...(time !== undefined && { time }),
+            data: { hex, piece: piece.id, name: piece.name },
+          })
+        // What's beyond was unknown: a route can't go on through it.
+        if (!discovered) return !!piece
         add(s, entries, {
           source: 'oracle',
           code: 'HEX_DISCOVERED',
@@ -815,7 +834,7 @@ export function createSession(options: {
           ...(text && { text }),
           data: { hex, ...discovered },
         })
-        return !!discovered.poi || !!discovered.places?.length
+        return !!piece || !!discovered.poi || !!discovered.places?.length
       }
       // Going on, an action that moves the party (march…), or going on from a step that
       // stopped the trip (what it stopped may move).
@@ -1562,6 +1581,7 @@ export * from './journal'
 export * from './trip'
 export * from './submaps'
 export * from './discovery'
+export * from './pieces'
 export * from './suggestions'
 // The full names of facts (`place.terrain`, `trip.day`…), for hosts that build contexts.
 export { FACT_GROUPS, FACT_PATHS, placeIdOf, qualify } from '@open-tabletop/travel-engine'

@@ -141,4 +141,6 @@ Las Marcas Grises juegan con todo esto y más (el clima primero al alba y una co
 
 **Descubrir el mapa**, en esta misma página, dice qué decide las casillas vacías mientras viaja el grupo, en un mapa con **Descubrir el mapa al viajar** activado: el **Terreno** (un modelo de tierra o una tabla), **Lo que hay en una casilla** (se tira la primera vez que el grupo entra en una casilla descubierta) y **Qué se decide al entrar** (la casilla y sus vecinas, o solo la casilla). Mira [Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa).
 
+**Siguiente pieza**, **Empieza con**, **Intentos** y **Si no** dicen con qué se coloca un mapa jugado pieza a pieza: mira [Piezas](24-pieces.md).
+
 **Otros valores que lee** pone nombre a valores que leen sus tablas y que no son del propio sistema, para el panel de tirada y el mapa.

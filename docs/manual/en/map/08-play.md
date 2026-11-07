@@ -50,7 +50,7 @@ With a system that can discover (the Grey Marches can; their example map leaves 
 - **What is there**, the first time you enter a cell: a point of interest, tags (a `landmark` stops the Grey Marches' trips there), a name. The trip stops when you find something, so you can play it.
 - **Places from templates**: a system with [catalogues of places](../technical/07-kinds.md#places) can make a found place from one (the Grey Marches' ruins, wayside shrines and the dragon's lair): a point of interest with the template's name, text, icon and fields, its tags on the cell (a `ruins` cell can be delved). Any result of a trip can make one on the party's cell the same way (Core's **Explore**, on a 6, a _Landmark_). The point of interest says **Made from** its template, and is yours to edit or remove like any other.
 
-**What is discovered**: _the cells around the party_ (what it sees: their terrain is known before you step in, so routes and speeds are real) or _only the cell the party enters_. The system chooses one; you can change it for your game.
+**What is discovered**: _the cells around the party_ (what it sees: their terrain is known before you step in, so routes and speeds are real), _only the cell the party enters_, or, with a system that has [pieces](../packs/24-pieces.md), _through exits, piece by piece_: the map grows a shape at a time where the party goes. The system chooses one; you can change it for your game.
 
 Cells you painted are never changed, so you can prepare part of the map and leave the rest unknown. Discoveries are part of the game, like the journal: <kbd>Ctrl</kbd>+<kbd>Z</kbd> doesn't undo them; repaint or delete by hand. Only noteworthy finds go in the journal.
 

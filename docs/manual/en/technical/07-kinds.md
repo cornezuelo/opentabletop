@@ -22,6 +22,7 @@ The kinds are a **fixed set**: each one is read by an engine that knows it, and 
 | `items`        | What its characters may carry: items with tags, numbers, places             | Characters' cards (trips, tokens, the Characters app), effects, the Packs app | Any               |
 | `bestiary`     | Templates of characters (creatures, NPC types) that results make copies of  | Trips (those present: effects `present.<template>`)                           | Any               |
 | `places`       | Templates of points of interest that results make on the party's cell       | Trips (effects `place.pois.<place>`), written on the map by Map               | Any               |
+| `pieces`       | Shapes of cells a map grows with as the party goes                          | Map Play (**Through exits, piece by piece**)                                  |
 | `style`        | How a map is drawn: paper, ground, art, shores, paths, floors, walls, names | Map (**Map settings → Style**)                                                | Any               |
 | `system`       | A game system: which of the above it uses, and which packs                  | Every app that plays with a system: Map, Travel, Campaign, Characters, Packs  | Any               |
 
@@ -273,7 +274,8 @@ reads: # names for other values its tables read (shown in the roll panel and on 
 discover: # tables that decide empty cells as the party travels
   terrain: { resolve: table.next-terrain } # or a land model: { land: land.default }
   contents: { resolve: table.hex-contents }
-  reveal: neighbors # or entered
+  piece: { resolve: table.next-piece, first: room, otherwise: dead-end } # see Pieces
+  reveal: neighbors # or entered, or pieces
 on: # per check event: what answers it
   WEATHER_CHECK_REQUIRED: { weather: weather.sky } # a weather model
   NAVIGATION_CHECK_REQUIRED: { resolve: table.getting-lost } # a table, oracle, generator or deck
@@ -560,6 +562,50 @@ places:
 - Results make them with an effect: an entry's `effects: { place.pois.ruins: 1 }`, an action's step, a deck's card, or **discovery**'s contents (`discover.contents`), whose entry then makes the place instead of a plain point of interest from its text ([Discovering the map](../oracle/07-connecting.md#7-discovering-the-map)). The number says how many (`2`, `'{{1d2}}'`); a place nobody's catalogue has makes nothing, and the journal says so.
 - A pack a map or campaign adds brings its catalogues of places too, after the system's own.
 - Translated keyed `places/<id>`, by place (`places: { ruins: { name: Ruinas } }`).
+
+## Pieces
+
+Shapes of cells drawn in text, laid on empty cells as the party comes to them (`pieces:` in its [system](#systems), a list). What each part does, in plain words: [Pieces](../packs/24-pieces.md).
+
+```yaml
+kind: pieces
+id: deep
+name: The deep ways
+grid: square # or hex: rows half a cell apart, marks two characters from each other
+marks: # what each mark lays; a space lays nothing
+  '.': stone-floor
+pieces:
+  passage:
+    name: Passage
+    cells: |
+      A
+      .
+      .
+      B
+    exits: # each letter stands on the cell beyond the piece, next to one of its cells
+      A: { kind: door, entry: true } # entry: it may be the way in (none says: any)
+      B: { kind: door, tags: [narrow] }
+  crypt:
+    name: Crypt
+    room: true # played as one place
+    tags: [crypt] # on its cells: place.tags
+    fields: { danger: 2 } # on its cells or its room: place.danger
+    contents: table.crypt-contents # rolled on coming in, instead of discover.contents
+    turn: false # laid as drawn (by default it may be turned and mirrored)
+    cells: |2
+       A
+      ...
+      ...
+    exits:
+      A: { kind: door }
+```
+
+- `marks` and `cells` are required. A drawing's upper-case letters are exits and all must be declared under `exits`, each with its `kind` of connection; a letter must stand next to exactly one cell of the piece, which gives its direction.
+- A first line that starts further in than the next needs `|2` after `cells:`, so YAML keeps its spaces.
+- A piece with no exits is laid from any side.
+- `exits` take `name`, `tags` and `fields` too: `C: { kind: hidden-path, fields: { state: hidden } }` is a way a check finds.
+- Bound as `discover.piece` in [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end }`, a table or deck whose results `set: { piece: <id> }`.
+- Translated keyed `pieces/<id>`, by piece (`pieces: { passage: { name: Pasillo } }`).
 
 ## Factions
 

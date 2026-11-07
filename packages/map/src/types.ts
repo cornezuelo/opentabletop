@@ -275,7 +275,7 @@ export interface PlayState {
    * Discovery (rules mode, systems with `discover` bindings): empty hexes are decided as
    * the party travels. `reveal` overrides the system's choice (neighbours or entered hex).
    */
-  discover?: { on: boolean; reveal?: 'neighbors' | 'entered' }
+  discover?: { on: boolean; reveal?: 'neighbors' | 'entered' | 'pieces' }
   /**
    * The trip went on into another map of its tree (a sub-map, or its parent), by id: it plays
    * there now, and this map keeps only where the party left from.
@@ -357,6 +357,16 @@ export interface MapPath {
  * Its kind is the system's (`connections:` in its travel rules), read by rules as
  * `trip.connections`; what changes while playing (open, found…) is the trip's, not the map's.
  */
+/** A piece of a system laid on the map as a trip found it (docs/places.md §18). */
+export interface MapPiece {
+  /** Its id in its catalogue. */
+  id: string
+  /** The cell the party came in by. */
+  at: HexKey
+  turn: number
+  mirror: boolean
+}
+
 export interface MapConnection {
   id: string
   /** The two places it joins, in either direction. */
@@ -448,6 +458,8 @@ export interface HexMap {
    * as those floor draws by itself, but where a connection is drawn across (a door).
    */
   walls: [HexKey, HexKey][]
+  /** The pieces laid on it in play, in order: what `pieces.<id>` counts. */
+  pieces?: MapPiece[]
   assets: MapAsset[]
   labels: MapLabel[]
   tokens: MapToken[]

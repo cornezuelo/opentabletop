@@ -64,6 +64,7 @@ export const en = {
       items: 'Item catalogues',
       bestiary: 'Bestiaries',
       places: 'Places',
+      pieces: 'Pieces',
       factions: 'Factions',
       clocks: 'Clocks',
       world: 'World rules',
@@ -114,6 +115,7 @@ export const en = {
     sheet: 'Sheet',
     bestiary: 'Bestiary',
     places: 'Places',
+    pieces: 'Pieces',
     items: 'Items',
     factions: 'Factions',
     clocks: 'Clocks',
@@ -133,6 +135,14 @@ export const en = {
       help: 'Item catalogues, as many as the system wants (gear, weapons, magic), named in its **Overview** (`items:`). Tables and conditions read what a character has:\n• `characters.kael.items.torch.count: { gte: 1 }` — has a torch\n• `acting.items.tags: light` — carries something tagged light\nEffects give and take them:\n• `acting.items.torch: -1` — one torch fewer\n• `party.members.items.ration: 1` — a ration each, from the catalogue if they have none',
       none: 'This system has no item catalogues: its characters may still carry items written by hand.',
       create: 'New catalogue',
+    },
+    pieces: {
+      title: 'Its pieces',
+      intro:
+        'Shapes a map grows with as the party goes (`kind: pieces`): each drawn in text, with its exits, laid on a map played **Through exits, piece by piece**.',
+      help: 'Catalogues of pieces, as many as the system wants, named in its **Overview** (`pieces:`). **Checks → Discovering the map** says what chooses the next piece.',
+      none: 'This system has no catalogue of pieces: its maps are discovered cell by cell.',
+      create: 'New catalogue of pieces',
     },
     places: {
       title: 'Its places',
@@ -244,6 +254,45 @@ export const en = {
       "What it is as a place, so items fit it by these tags as by the sheet's places':\n• `pack` — anything that fits a pack fits inside it",
     noFields:
       'The sheet gives items no fields yet: add them in **Sheet → Items** (slots, weight, uses…), and each item here gets a box for them.',
+  },
+  piecesForm: {
+    name: 'Name',
+    nameHelp: 'What this catalogue is called.\n• **The deep caves**',
+    grid: 'Grid',
+    gridHelp:
+      'The cells its pieces are drawn for. A map only lays the pieces of its own grid, so two catalogues may use the same ids:\n• **Squares** — a mark a cell\n• **Hexes** — rows half a cell apart, marks two characters from each other',
+    squares: 'Squares',
+    hexes: 'Hexes',
+    marks: 'Marks',
+    marksHelp:
+      'What each mark of a drawing lays, by terrain id. A space lays nothing; upper-case letters are exits.\n• `.` — `stone-floor`\n• `~` — `black-water`',
+    pieces: 'Pieces',
+    piecesHelp: 'Each piece, by the id a table names it with (`set: { piece: <id> }`).',
+    pieceName: 'Name',
+    room: 'A room',
+    roomHelp:
+      'Played as one place, as a region ticked **Played as one place** is: one step in, one check, its values read as `place.*`.',
+    turn: 'May be turned',
+    turnHelp: 'It may be turned and mirrored to fit. Unticked, it\u2019s laid as drawn.',
+    contents: 'Contents',
+    contentsHelp:
+      'What\u2019s rolled on coming in, instead of `discover.contents`.\n• `table.crypt-contents`',
+    tags: 'Tags of its cells',
+    tagsHelp: 'Tags its cells get, what rules read.\n• `crypt` — `place.tags: crypt`',
+    fields: 'Values',
+    fieldsHelp: 'Values of its cells, or of its room, read as `place.<key>`.\n• `danger: 2`',
+    cells: 'Drawing',
+    cellsHelp:
+      'The piece in text, what you see is its shape: a mark of **Marks** a cell, a space for nothing, and an upper-case letter on the cell **beyond** the piece for each exit, next to exactly one of its cells:\n• `A` over `.` — an exit going up',
+    exits: 'Exits',
+    exitsHelp:
+      'What each letter of the drawing leaves on the map: a connection of its kind, a way on nobody has crossed yet. **Way in**: it may be entered by. If none is ticked, any may. A piece with no exits is laid from any side, as a tile.',
+    saidExits: 'Exits: {list}',
+    exitKind: 'Kind of connection',
+    noKind: '(choose)',
+    entry: 'Way in',
+    entryHelp: 'This exit may be the one the party comes in by. With none ticked, any may.',
+    noExits: 'No letters in the drawing: laid from any side.',
   },
   placesForm: {
     name: 'Name',
@@ -660,6 +709,17 @@ export const en = {
     models: 'Land models',
     neighbors: 'The cell and its neighbours',
     entered: 'Only the cell',
+    pieces: 'Through exits, piece by piece',
+    piece: 'Next piece',
+    pieceHelp:
+      'What names the next piece: a table or deck whose results `set: { piece: <id> }`. It sees `exit.kind`, `exit.tags`, `pieces.total` and `pieces.<id>`.',
+    first: 'Starts with',
+    firstHelp: 'The piece an empty map starts with, under the party.\n• `stair-foot`',
+    tries: 'Tries',
+    triesHelp: 'Rolls before giving up when what came up doesn\u2019t fit. Empty: 3.',
+    otherwise: 'Otherwise',
+    otherwiseHelp:
+      'The piece laid when none fitted. A piece of one cell always fits.\n• `dead-end`',
   },
   overview: {
     sheet: 'Characters’ sheet',
@@ -685,6 +745,9 @@ export const en = {
     noItems: 'No item catalogues in this pack or its dependencies.',
     noBestiary: 'No bestiaries in this pack or its dependencies.',
     noPlaces: 'No catalogues of places in this pack or its dependencies.',
+    pieces: 'Catalogues of pieces',
+    piecesHelp: 'Pieces its maps may grow with (`pieces:`), as many as it wants.',
+    noPieces: 'No catalogues of pieces in this pack or its dependencies.',
     implicit:
       'This system comes from an older pack: its travel rules make a system named after the pack, with its bindings and calendar. Declaring it writes a system.yaml naming what it uses, so you can choose its parts and the packs it brings here; it plays the same.',
     declare: 'Declare it',

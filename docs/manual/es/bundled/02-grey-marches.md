@@ -89,6 +89,10 @@ Una mazmorra bajo la casilla 1109 de las Hollow Hills: **9 × 7 casillas cuadrad
 | **The sealed slab**                           | una conexión 0804 → 0904 | Una segunda `door`                                                                                                                                     | Al nicho funerario                                                                                                  |
 | **The grave-niche** (sala dentro de una sala) | 0904                     | Una región dentro de la tumba (`parent`), que se juega como un lugar propio, peligro `5`                                                               | Las peores probabilidades de las salas; para una condición sigue siendo la tumba (`place.region: The chief's tomb`) |
 
+### The Deep Barrows
+
+Un mapa que nadie ha dibujado, **24 × 24 casillas cuadradas de 10 m**, bajo la grave-niche de las Barrow-halls (camino en 0904): se juega **Por las salidas, pieza a pieza**, así que crece según va el grupo, desde _El pie de la escalera_. _El camino hacia abajo_, un [mazo](../technical/07-kinds.md#mazos), dice a qué da cada camino, así que nada se repite hasta que se acaba; _Qué hay más allá_ lo termina con _La última tumba_ cuando hay ocho piezas colocadas. Las criptas tiran su propio contenido y pueden esconder una grieta tras los huesos, que se encuentra como el Barrow-road; el pasillo inundado enseña agua negra junto al suelo. Mira [Piezas](../packs/24-pieces.md).
+
 ### The old clan mine
 
 Galerías bajo las montañas al este de las Hollow Hills, **14 × 7 casillas cuadradas de 500 m**, dibujadas en el [estilo](../map/01-getting-started.md#estilos) **Cueva** de Core: un **submapa que se cruza**, con tres caminos a las colinas, cada uno de su tipo.

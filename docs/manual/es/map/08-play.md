@@ -52,6 +52,8 @@ Con un sistema que sepa descubrir (las Marcas Grises saben; su mapa de ejemplo d
 
 **Qué se descubre**: _los casillas alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlas, así que rutas y velocidades son reales) o _solo la casilla a la que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.
 
+Con un sistema que tiene [piezas](../packs/24-pieces.md), también _por las salidas, pieza a pieza_: el mapa crece una forma cada vez por donde va el grupo.
+
 Las casillas que pintaste nunca se cambian, así que puedes preparar parte del mapa y dejar el resto por descubrir. Los descubrimientos son parte de la partida, como el diario: <kbd>Ctrl</kbd>+<kbd>Z</kbd> no los deshace; repinta o borra a mano. En el diario solo se apunta lo que merece la pena.
 
 Para que tu propio sistema descubra, mira [Conectar tablas con mapas y viajes](../oracle/07-connecting.md#7-descubrir-el-mapa).

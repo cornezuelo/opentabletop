@@ -66,6 +66,7 @@ export const es: Messages<typeof en> = {
       items: 'Catálogos de objetos',
       bestiary: 'Bestiarios',
       places: 'Lugares',
+      pieces: 'Piezas',
       factions: 'Facciones',
       clocks: 'Relojes',
       world: 'Reglas del mundo',
@@ -116,6 +117,7 @@ export const es: Messages<typeof en> = {
     sheet: 'Hoja',
     bestiary: 'Bestiario',
     places: 'Lugares',
+    pieces: 'Piezas',
     items: 'Objetos',
     factions: 'Facciones',
     clocks: 'Relojes',
@@ -135,6 +137,14 @@ export const es: Messages<typeof en> = {
       help: 'Catálogos de objetos, tantos como quiera el sistema (equipo, armas, magia), nombrados en su **Resumen** (`items:`). Las tablas y condiciones leen lo que tiene un personaje:\n• `characters.kael.items.torch.count: { gte: 1 }` — tiene una antorcha\n• `acting.items.tags: light` — lleva algo con la etiqueta light\nLos efectos los dan y los quitan:\n• `acting.items.torch: -1` — una antorcha menos\n• `party.members.items.ration: 1` — una ración a cada uno, del catálogo si no tienen ninguna',
       none: 'Este sistema no tiene catálogos de objetos: sus personajes pueden llevar igualmente objetos escritos a mano.',
       create: 'Nuevo catálogo',
+    },
+    pieces: {
+      title: 'Sus piezas',
+      intro:
+        'Formas con las que crece un mapa según va el grupo (`kind: pieces`): cada una dibujada en texto, con sus salidas, colocada en un mapa jugado **Por las salidas, pieza a pieza**.',
+      help: 'Catálogos de piezas, tantos como quiera el sistema, nombrados en su **Resumen** (`pieces:`). **Comprobaciones → Descubrir el mapa** dice qué elige la siguiente pieza.',
+      none: 'Este sistema no tiene catálogo de piezas: sus mapas se descubren casilla a casilla.',
+      create: 'Nuevo catálogo de piezas',
     },
     places: {
       title: 'Sus lugares',
@@ -247,6 +257,48 @@ export const es: Messages<typeof en> = {
       'Qué es como lugar, para que los objetos quepan en él por estas etiquetas igual que en los lugares de la hoja:\n• `pack` — todo lo que cabe en una mochila cabe dentro',
     noFields:
       'La hoja aún no da campos a los objetos: añádelos en **Hoja → Objetos** (huecos, peso, usos…) y cada objeto de aquí tendrá una casilla para ellos.',
+  },
+  piecesForm: {
+    name: 'Nombre',
+    nameHelp: 'Cómo se llama este catálogo.\n• **Las cuevas hondas**',
+    grid: 'Rejilla',
+    gridHelp:
+      'Las casillas para las que están dibujadas sus piezas. Un mapa solo coloca las de su rejilla, así que dos catálogos pueden usar los mismos ids:\n• **Cuadradas** — una marca por casilla\n• **Hexagonales** — filas a media casilla, marcas a dos caracteres unas de otras',
+    squares: 'Cuadradas',
+    hexes: 'Hexagonales',
+    marks: 'Marcas',
+    marksHelp:
+      'Qué coloca cada marca del dibujo, por id de terreno. Un espacio no coloca nada; las letras mayúsculas son salidas.\n• `.` — `stone-floor`\n• `~` — `black-water`',
+    pieces: 'Piezas',
+    piecesHelp: 'Cada pieza, por el id con el que la nombra una tabla (`set: { piece: <id> }`).',
+    pieceName: 'Nombre',
+    room: 'Una sala',
+    roomHelp:
+      'Se juega como un solo lugar, igual que una región con **Se juega como un solo lugar** marcado: un paso para entrar, una comprobación, sus valores leídos como `place.*`.',
+    turn: 'Se puede girar',
+    turnHelp:
+      'Se puede girar y reflejar para que encaje. Sin marcar, se coloca como está dibujada.',
+    contents: 'Contenido',
+    contentsHelp:
+      'Lo que se tira al entrar, en lugar de `discover.contents`.\n• `table.crypt-contents`',
+    tags: 'Etiquetas de sus casillas',
+    tagsHelp:
+      'Etiquetas que reciben sus casillas, lo que leen las reglas.\n• `crypt` — `place.tags: crypt`',
+    fields: 'Valores',
+    fieldsHelp:
+      'Valores de sus casillas, o de su sala, leídos como `place.<clave>`.\n• `danger: 2`',
+    cells: 'Dibujo',
+    cellsHelp:
+      'La pieza en texto, lo que ves es su forma: una marca de **Marcas** por casilla, un espacio para nada y una letra mayúscula en la casilla **más allá** de la pieza por cada salida, junto a exactamente una de sus casillas:\n• `A` sobre `.` — una salida hacia arriba',
+    exits: 'Salidas',
+    exitsHelp:
+      'Lo que deja en el mapa cada letra del dibujo: una conexión de su tipo, un camino que nadie ha cruzado aún. **Entrada**: se puede entrar por ella. Si ninguna está marcada, por cualquiera. Una pieza sin salidas se coloca desde cualquier lado, como una loseta.',
+    saidExits: 'Salidas: {list}',
+    exitKind: 'Tipo de conexión',
+    noKind: '(elige)',
+    entry: 'Entrada',
+    entryHelp: 'El grupo puede entrar por esta salida. Si ninguna está marcada, por cualquiera.',
+    noExits: 'No hay letras en el dibujo: se coloca desde cualquier lado.',
   },
   placesForm: {
     name: 'Nombre',
@@ -670,6 +722,17 @@ export const es: Messages<typeof en> = {
     models: 'Modelos de tierra',
     neighbors: 'La casilla y sus vecinas',
     entered: 'Solo la casilla',
+    pieces: 'Por las salidas, pieza a pieza',
+    piece: 'Siguiente pieza',
+    pieceHelp:
+      'Lo que nombra la siguiente pieza: una tabla o un mazo cuyos resultados hacen `set: { piece: <id> }`. Ve `exit.kind`, `exit.tags`, `pieces.total` y `pieces.<id>`.',
+    first: 'Empieza con',
+    firstHelp: 'La pieza con la que empieza un mapa vacío, bajo el grupo.\n• `stair-foot`',
+    tries: 'Intentos',
+    triesHelp: 'Tiradas antes de rendirse cuando lo que sale no cabe. Vacío: 3.',
+    otherwise: 'Si no',
+    otherwiseHelp:
+      'La pieza que se coloca cuando ninguna ha cabido. Una pieza de una casilla siempre cabe.\n• `dead-end`',
   },
   overview: {
     sheet: 'Hoja de personajes',
@@ -697,6 +760,9 @@ export const es: Messages<typeof en> = {
     noItems: 'No hay catálogos de objetos en este pack ni en sus dependencias.',
     noBestiary: 'No hay bestiarios en este pack ni en sus dependencias.',
     noPlaces: 'No hay catálogos de lugares en este pack ni en sus dependencias.',
+    pieces: 'Catálogos de piezas',
+    piecesHelp: 'Piezas con las que pueden crecer sus mapas (`pieces:`), tantas como quiera.',
+    noPieces: 'No hay catálogos de piezas en este pack ni en sus dependencias.',
     implicit:
       'Este sistema viene de un pack antiguo: sus reglas de viaje forman un sistema con el nombre del pack, con sus bindings y su calendario. Declararlo escribe un system.yaml que nombra lo que usa, para que puedas elegir aquí sus partes y los packs que trae; se juega igual.',
     declare: 'Declararlo',

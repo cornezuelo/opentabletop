@@ -432,6 +432,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     }
     case 'HEX_DISCOVERED':
       return t('journal.discovered', { hex: hexLabel(String(d.hex)), what: e.text ?? '—' })
+    case 'PIECE_LAID':
+      return t('journal.pieceLaid', { name: String(d.name) })
+    case 'PIECE_NOT_LAID':
+      return t('journal.pieceNotLaid')
     case 'DAY_STARTED':
       return t('journal.day', { day: Number(d.day) - startDay + 1 })
     case 'TIME_SKIPPED':

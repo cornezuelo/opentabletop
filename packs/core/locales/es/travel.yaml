@@ -3,6 +3,9 @@ travel-rules/default:
     gate:
       name: Verja
       description: Diez minutos más para pasarla; no se puede pasar mientras está cerrada.
+    door:
+      name: Puerta
+      description: Un paso a través de un muro.
     way-in:
       name: Entrada
       description: Cinco minutos para entrar, o para volver a salir.

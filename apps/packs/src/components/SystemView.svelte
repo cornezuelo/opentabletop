@@ -60,6 +60,7 @@
         'items',
         'bestiary',
         'places',
+        'pieces',
         'factions',
         'clocks',
         'world',
@@ -150,7 +151,7 @@
           <TryTab {system} />
         {:else if tab === 'yaml' && files.length}
           <YamlTab {files} own={library.rootOf(system.pack ?? '')} />
-        {:else if (tab === 'sheet' || tab === 'items' || tab === 'bestiary' || tab === 'places' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
+        {:else if (tab === 'sheet' || tab === 'items' || tab === 'bestiary' || tab === 'places' || tab === 'pieces' || tab === 'factions' || tab === 'clocks' || tab === 'world' || tab === 'calendar' || tab === 'weather' || tab === 'land' || tab === 'modes') && system.pack}
           <PartsTab {system} kind={tab === 'modes' ? 'roll-modes' : tab} {item} />
         {:else if (tab === 'rules' || tab === 'checks') && file}
           <div class="forms">

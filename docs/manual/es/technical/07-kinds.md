@@ -22,6 +22,7 @@ Los tipos son un **conjunto fijo**: cada uno lo lee un motor que lo conoce, y un
 | `items`        | Lo que pueden llevar sus personajes: objetos con etiquetas, números y lugares             | Las tarjetas de los personajes (viajes, fichas, la aplicación Personajes), los efectos, la aplicación Packs | Cualquiera       |
 | `bestiary`     | Plantillas de personajes (criaturas, tipos de PNJ) de las que los resultados hacen copias | Los viajes (los presentes: efectos `present.<plantilla>`)                                                   | Cualquiera       |
 | `places`       | Plantillas de puntos de interés que los resultados crean en la casilla del grupo          | Los viajes (efectos `place.pois.<lugar>`), escritos en el mapa por Mapa                                     | Cualquiera       |
+| `pieces`       | Formas de casillas con las que crece un mapa según va el grupo                            | Jugar en Mapa (**Por las salidas, pieza a pieza**)                                                          |
 | `style`        | Cómo se dibuja un mapa: papel, terreno, arte, costas, caminos, suelos, muros, nombres     | Mapa (**Ajustes del mapa → Estilo**)                                                                        | Cualquiera       |
 | `system`       | Un sistema de juego: cuáles de los anteriores usa, y qué packs                            | Cada aplicación que juega con un sistema: Mapa, Viajes, Campaña, Personajes, Packs                          | Los que quieras  |
 
@@ -272,7 +273,8 @@ reads: # nombres para otros valores que leen sus tablas (en el panel de tirada y
 discover: # tablas que deciden las casillas vacías según viaja el grupo
   terrain: { resolve: table.next-terrain } # o un modelo de tierra: { land: land.default }
   contents: { resolve: table.hex-contents }
-  reveal: neighbors # o entered
+  piece: { resolve: table.next-piece, first: room, otherwise: dead-end } # see Pieces
+  reveal: neighbors # or entered, or pieces
 on: # por evento de comprobación: qué la responde
   WEATHER_CHECK_REQUIRED: { weather: weather.sky } # un modelo de clima
   NAVIGATION_CHECK_REQUIRED: { resolve: table.getting-lost } # una tabla, oráculo, generador o mazo
@@ -561,6 +563,50 @@ places:
 - Los resultados los crean con un efecto: los `effects: { place.pois.ruins: 1 }` de una entrada, un paso de una acción, una carta de un mazo, o el contenido del **descubrimiento** (`discover.contents`), cuya entrada crea entonces el lugar en vez de un punto de interés simple hecho de su texto ([Descubrir el mapa](../oracle/07-connecting.md#7-descubrir-el-mapa)). El número dice cuántos (`2`, `'{{1d2}}'`); un lugar que no tiene ningún catálogo no crea nada, y el diario lo dice.
 - Un pack que añade un mapa o una campaña trae también sus catálogos de lugares, después de los del sistema.
 - Se traduce con la clave `places/<id>`, por lugar (`places: { ruins: { name: Ruinas } }`).
+
+## Piezas
+
+Formas de casillas dibujadas en texto, colocadas en casillas vacías según llega el grupo (`pieces:` en su [sistema](#sistemas), una lista). Qué hace cada parte, en palabras sencillas: [Piezas](../packs/24-pieces.md).
+
+```yaml
+kind: pieces
+id: deep
+name: The deep ways
+grid: square # or hex: rows half a cell apart, marks two characters from each other
+marks: # what each mark lays; a space lays nothing
+  '.': stone-floor
+pieces:
+  passage:
+    name: Passage
+    cells: |
+      A
+      .
+      .
+      B
+    exits: # each letter stands on the cell beyond the piece, next to one of its cells
+      A: { kind: door, entry: true } # entry: it may be the way in (none says: any)
+      B: { kind: door, tags: [narrow] }
+  crypt:
+    name: Crypt
+    room: true # played as one place
+    tags: [crypt] # on its cells: place.tags
+    fields: { danger: 2 } # on its cells or its room: place.danger
+    contents: table.crypt-contents # rolled on coming in, instead of discover.contents
+    turn: false # laid as drawn (by default it may be turned and mirrored)
+    cells: |2
+       A
+      ...
+      ...
+    exits:
+      A: { kind: door }
+```
+
+- `marks` y `cells` son obligatorios. Las letras mayúsculas de un dibujo son salidas y todas deben declararse en `exits`, cada una con su `kind` de conexión; una letra debe quedar junto a exactamente una casilla de la pieza, lo que da su dirección.
+- Una primera línea que empieza más adentro que la siguiente necesita `|2` tras `cells:`, para que YAML conserve sus espacios.
+- Una pieza sin salidas se coloca desde cualquier lado.
+- `exits` admite también `name`, `tags` y `fields`: `C: { kind: hidden-path, fields: { state: hidden } }` es un camino que encuentra una comprobación.
+- Se ata como `discover.piece` en los [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end }`, una tabla o un mazo cuyos resultados hacen `set: { piece: <id> }`.
+- Se traduce con la clave `pieces/<id>`, por pieza (`pieces: { passage: { name: Pasillo } }`).
 
 ## Facciones
 

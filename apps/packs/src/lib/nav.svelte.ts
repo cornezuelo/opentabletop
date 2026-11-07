@@ -14,6 +14,7 @@ export type Tab =
   | 'items'
   | 'bestiary'
   | 'places'
+  | 'pieces'
   | 'factions'
   | 'clocks'
   | 'world'

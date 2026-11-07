@@ -107,6 +107,7 @@ const ENUMS: Record<string, readonly string[]> = {
     'items',
     'bestiary',
     'places',
+    'pieces',
     'style',
   ],
   keep: ['highest', 'lowest', 'middle'],
@@ -114,7 +115,8 @@ const ENUMS: Record<string, readonly string[]> = {
   reshuffle: ['when-empty', 'manual', 'after-draw'],
   time: ['60', '120', '180', '06:00'],
   limit: ['60', '180', '18:00'],
-  reveal: ['neighbors', 'entered'],
+  reveal: ['neighbors', 'entered', 'pieces'],
+  grid: ['square', 'hex'],
   clamp: ['true', 'false'],
   font: ['fell', 'cinzel', 'sans'],
   painter: [...PAINTERS],
@@ -302,6 +304,13 @@ const KEYS = [
   // Catalogues of places: the places, what each gives its point of interest and its hex.
   'places',
   'fields',
+  // Catalogues of pieces: what marks lay, each piece's drawing and exits.
+  'pieces',
+  'marks',
+  'cells',
+  'exits',
+  'entry',
+  'contents',
   // Map styles: the grid, the glyphs, the names and the regions.
   'grid',
   'opacity',

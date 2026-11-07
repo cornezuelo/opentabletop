@@ -15,6 +15,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 - **Item catalogues** (`items:`, a list): what its characters may carry; made, chosen and edited in [Items](08-items.md), whose **New catalogue** adds one here.
 - **Bestiaries** (`bestiary:`, a list): the creatures and kinds of people it can make; made, chosen and edited in [Bestiary](18-bestiary.md), whose **New bestiary** adds one here.
 - **Catalogues of places** (`places:`, a list): the places its results can make on the party's cell; made, chosen and edited in [Places](19-places.md), whose **New catalogue of places** adds one here.
+- **Catalogues of pieces** (`pieces:`, a list): the shapes its maps may grow with; made, chosen and edited in [Pieces](24-pieces.md).
 
 ## Packs it brings
 

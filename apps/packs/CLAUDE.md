@@ -15,7 +15,7 @@ src/
     terrains.ts       # terrain and edge names (Map palette, suggested in the rules)
     maps.ts           # a system's example maps (`maps:`, OTD bundles in its pack): read, added, named
     systemDoc.svelte.ts # forms ↔ YAML: edits to the rules (@travel-rules), bindings (@bindings) or system (@system)
-    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|factions|clocks|world|calendar|weather|land|modes|try|yaml>[/<item>] (a template, unfolded); #/style/<pack>/<id> (a map style); #/pack/<folder>[/images]; #/def/<folder>/<kind>/<id>[/yaml|used]; #/file/<folder>/<path>
+    nav.svelte.ts     # #/system/<id>/<overview|rules|checks|sheet|items|bestiary|places|pieces|factions|clocks|world|calendar|weather|land|modes|try|yaml>[/<item>] (a template, unfolded); #/style/<pack>/<id> (a map style); #/pack/<folder>[/images]; #/def/<folder>/<kind>/<id>[/yaml|used]; #/file/<folder>/<path>
     partDoc.svelte.ts # pack-ui's definitionDoc on this app's library (one definition edited in forms), and the rows' document interfaces
     bestiary.ts       # the Bestiary tab: a part's bestiary as the system read it, a template shown and written (texts in the language edited)
     tabs.ts           # a system's tabs, each once and in order (systemTabs)

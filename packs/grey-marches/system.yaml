@@ -33,6 +33,8 @@ world: world.default
 weather: [weather.sky]
 # The lie of the Marches (land.yaml): Generate's land, and discovery's east of the Hills.
 land: [land.default, land.galleries, land.village]
+# What the Deep Barrows are laid with (pieces.yaml).
+pieces: [pieces.deep-barrows]
 packs: [core]
 # Listed in Map's Maps → Example maps: the Marches, the Hollow Hills up close (3 km a hex),
 # the Barrow-halls under one of their hexes (a sub-map, 10 m a hex) and the clans' old mine
@@ -44,5 +46,6 @@ maps:
   - maps/grey-marches.otd.json
   - maps/hollow-hills.otd.json
   - maps/barrow-halls.otd.json
+  - maps/deep-barrows.otd.json
   - maps/old-mine.otd.json
   - maps/ashford.otd.json

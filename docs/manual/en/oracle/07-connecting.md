@@ -560,7 +560,7 @@ kind: bindings
 discover:
   terrain: { resolve: table.next-terrain } # an empty cell's terrain
   contents: { resolve: table.hex-contents } # what a cell holds, the first time you enter it
-  reveal: neighbors # or: entered (only the cell you walk into)
+  reveal: neighbors # or: entered (only the cell you walk into), or pieces
 on: { … }
 ```
 
@@ -568,6 +568,7 @@ on: { … }
 - **A land model instead** (`kind: land`, [Land models](../technical/07-kinds.md#land-models)): `terrain: { land: land.default }` decides each empty cell from the rows of all its known neighbours added up, with no table. The system must list it (`land: [land.default]` in its `kind: system`).
 - **A table that hands over to a model:** an entry with `set: { land: land.<id> }` (and no `terrain`) lets the model decide that cell. The table keeps the special cases and the model the rest; an entry whose `when` reads the region gives a region its own land: `{ id: north, range: 1-6, when: { from.region: The North }, set: { land: land.north } }`. A model the system doesn't list decides nothing.
 - The **contents** table sees the entered cell. Its text becomes a point of interest; `set: { poi: false }` means nothing worth noting, `set: { poi: 'A name' }` names it differently. `tags` (one or a list) and `name` are written on the cell too. An entry may make a **place from a template** instead (`effects: { place.pois.ruins: 1 }`, from the system's [catalogues of places](../technical/07-kinds.md#places)): the point of interest is the template's (its name, text, icon and fields, `{{result}}` reading the entry's text) and its tags go on the cell, in place of one made of the text.
+- **Pieces instead:** `piece: { resolve: table.next-piece, first: room, otherwise: dead-end }` and a map played **Through exits, piece by piece** lays [pieces](../packs/24-pieces.md) on empty cells: a table's `set: { piece: <id> }`, which also sees `exit.kind`, `exit.tags`, `pieces.total` and `pieces.<id>`.
 - Party stats and today's values are in the context of both, as in checks.
 
 The Grey Marches' `discovery.yaml` is a full example: terrain that tends to go on, families of land, a landmark found only once, and east of the Hollow Hills a hand-over to their land model (`land.yaml`).

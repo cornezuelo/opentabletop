@@ -17,6 +17,7 @@ export const KINDS = [
   'items',
   'bestiary',
   'places',
+  'pieces',
   'factions',
   'clocks',
   'world',

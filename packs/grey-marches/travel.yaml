@@ -1042,6 +1042,8 @@ reads:
 discover:
   terrain: { resolve: table.next-terrain }
   contents: { resolve: table.hex-contents }
+  # A map played piece by piece (the Deep Barrows): pieces.yaml.
+  piece: { resolve: table.next-barrow, first: stair-foot, otherwise: dead-end }
   reveal: neighbors
 on:
   # Weather with inertia: a model (sky.yaml) instead of a table.

@@ -601,6 +601,7 @@ export const es: Messages = {
       'Las tablas del sistema deciden las casillas vacías según viaja el grupo: su terreno, y lo que hay en ellas (un punto de interés, etiquetas, un nombre) la primera vez que entras.\n• **Las casillas alrededor del grupo** — se revelan al moverse, hasta donde ve\n• **Solo la casilla a la que entra el grupo**\nLos casillas pintadas nunca cambian. Los descubrimientos son parte del juego: Ctrl+Z no los deshace.',
     reveal: 'Qué se descubre',
     revealNeighbors: 'Las casillas alrededor del grupo (lo que ve)',
+    revealPieces: 'Por las salidas, pieza a pieza',
     revealEntered: 'Solo la casilla a la que entra el grupo',
     mode: 'Modo de juego',
     modeHelp:

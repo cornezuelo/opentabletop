@@ -142,6 +142,7 @@ interface MapExt {
   regions: HexMap['regions']
   captions: HexMap['captions']
   regionStyle?: HexMap['regionStyle']
+  pieces?: HexMap['pieces']
   /** The style it's drawn in (`meta.style`). */
   style?: string
   /** Files written before v25: the system the map was played with (now its campaign's). */
@@ -230,6 +231,7 @@ export function mapToBundle(
     regions: map.regions,
     captions: map.captions,
     regionStyle: map.regionStyle,
+    ...(map.pieces?.length && { pieces: map.pieces }),
     ...(map.meta.style && { style: map.meta.style }),
     assets: map.assets,
     icons,
@@ -695,6 +697,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
     regions: ext.regions ?? [],
     ...(ext.captions && { captions: ext.captions }),
     ...(ext.regionStyle && { regionStyle: ext.regionStyle }),
+    ...(ext.pieces && { pieces: ext.pieces }),
     ...(version >= 2 && { tokens }),
     layers: ext.layers,
     ...(play && { play }),

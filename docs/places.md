@@ -302,3 +302,15 @@ In order, a commit each: (a) a test proving the door to nowhere; `kind: pieces`,
 5. **Peeking:** nothing is seen before crossing; an exit shows only its kind. A system wanting a look has an action for it.
 6. **A party that goes back:** a laid piece stays; shifting dungeons are left out until a game asks.
 7. **When:** after Packs, and after maps are drawn in one way (the backlog's _Now (user, 2026-11-07)_).
+
+### 18.8 Built (2026-11-07, on autopilot), details to review
+
+Built as above, with what §18.7 decided. What Claude decided while building:
+
+- **No `lay` port.** A step that lays a piece ends there, so nothing in it needs the new walls: `TravelWorld.ground` gives the layout, the cell a step leaves a room from (`gate`) and the counts, and the host writes what was laid (`stepTrip`'s `laid`, `editor.applyLaid`).
+- **Nothing fits, and no `otherwise`:** the party goes back to its side and the journal says so (`PIECE_NOT_LAID`). The connection isn't marked as a dead end: trying again rolls again. A one-cell `otherwise` always fits, and both bundled packs have one.
+- **`first`** is laid under the party when a trip reaches an empty map (`goOnIn`), or on its first step.
+- **Going into a map:** a map's own `play.discover` wins over the trip's, so the Deep Barrows lay pieces whatever the Barrow-halls did.
+- **Contents** are rolled once per piece, on the cell entered.
+- **`cells: |2`:** a drawing whose first line starts further in needs YAML's indentation indicator. The manual says so.
+- **Not built:** a hex tile set in the Grey Marches (Core's catalogue on hexes shows the grid; the Marches' showcase is on squares).

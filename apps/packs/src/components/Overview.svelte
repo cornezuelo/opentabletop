@@ -57,13 +57,14 @@
   ] as const satisfies readonly { key: string; kind: PartKind; tab: Tab }[]
 
   /** The parts it may list several of, written under their own kind. */
-  const LISTS = ['weather', 'land', 'items', 'bestiary', 'places'] as const
+  const LISTS = ['weather', 'land', 'items', 'bestiary', 'places', 'pieces'] as const
   const noneOf = {
     weather: 'overview.noWeather',
     land: 'overview.noLand',
     items: 'overview.noItems',
     bestiary: 'overview.noBestiary',
     places: 'overview.noPlaces',
+    pieces: 'overview.noPieces',
   } as const
   const listOf = (key: (typeof LISTS)[number]) =>
     Array.isArray(data?.[key]) ? (data[key] as string[]) : []

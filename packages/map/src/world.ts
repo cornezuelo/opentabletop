@@ -247,6 +247,9 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
     },
     km: (a, b) => cells.km(...firstPair(a, b)),
     far: (a, b) => !!cells.far?.(...firstPair(a, b)),
+    ...(cells.ground && {
+      ground: { ...cells.ground, gate: (a: string, b: string) => firstPair(a, b)[0] },
+    }),
     // A step into or out of a room is a step between places, never across a corner.
     diagonal: (a, b) =>
       parseAreaPlace(a) || parseAreaPlace(b) ? undefined : cells.diagonal?.(a, b),
@@ -325,7 +328,10 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
   const km = map.scale.cellKm ?? systemCellKm ?? DEFAULT_CELL_KM
   const isFar = (a: string, b: string) =>
     !!wayOf(a, b) || (drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1)
+  const laid: Record<string, number> = {}
+  for (const { id } of map.pieces ?? []) laid[id] = (laid[id] ?? 0) + 1
   return {
+    ground: { layout: grid, gate: (a) => a, laid },
     // A connection between far hexes measures its own `km`, else the hexes between its ends;
     // a way into another map, none.
     km(a, b) {

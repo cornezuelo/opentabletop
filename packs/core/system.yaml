@@ -27,6 +27,8 @@ items: [items.gear]
 bestiary: [bestiary.foes]
 # What exploring may find (places.yaml): a place written on the map's hex.
 places: [places.default]
+# What a map discovered through its exits is laid with (pieces.yaml): on squares and on hexes.
+pieces: [pieces.rooms, pieces.hex-rooms]
 # The weather models its bindings name (weather.yaml).
 weather: [weather.default]
 # Its land (land.yaml): what Map's Generate fills empty hexes with.

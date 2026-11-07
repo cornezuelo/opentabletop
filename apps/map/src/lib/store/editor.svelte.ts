@@ -3,7 +3,12 @@ import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
 import { SetRegionsCommand } from '../commands/regions'
 import { ReplaceLabelCommand } from '../commands/paths'
-import { DEFAULT_SYSTEM, systemIdOf, type DiscoveredHex } from '@open-tabletop/session'
+import {
+  DEFAULT_SYSTEM,
+  systemIdOf,
+  type DiscoveredHex,
+  type LaidPiece,
+} from '@open-tabletop/session'
 import {
   createCampaign,
   factionsOn,
@@ -39,6 +44,9 @@ import {
 } from '@open-tabletop/map'
 import { History } from '../commands/history'
 import { ReplaceTokenCommand } from '../commands/tokens'
+
+/** The colour of a room a piece lays. */
+const ROOM_COLOR = '#6e4f2c'
 
 export type ToolId =
   | 'select'
@@ -387,6 +395,42 @@ class Editor {
     }
     if (terrains) this.notify({ kind: 'terrains' })
     if (keys.length) this.notify({ kind: 'hexes', keys })
+  }
+
+  /**
+   * Pieces a trip laid, after their terrains (`applyDiscovery`): a room's region, their values,
+   * the exits left waiting, and the list `pieces.<id>` counts. Outside the undo history.
+   */
+  applyLaid(laid: LaidPiece[]): void {
+    if (!laid.length) return
+    for (const piece of laid) {
+      const cells = Object.keys(piece.cells) as HexKey[]
+      if (piece.room) {
+        const id = newId()
+        this.map.regions.push({
+          id,
+          name: piece.name,
+          color: ROOM_COLOR,
+          onePlace: true,
+          ...(piece.fields && { fields: piece.fields }),
+        })
+        for (const key of cells) this.map.hexes[key] = { ...this.map.hexes[key], region: id }
+      } else if (piece.fields)
+        for (const key of cells)
+          this.map.hexes[key] = { ...this.map.hexes[key], fields: piece.fields }
+      for (const { between, fields, ...rest } of piece.connections)
+        this.map.connections.push({
+          ...rest,
+          id: newId(),
+          between: between as [HexKey, HexKey],
+          ...(fields && { fields }),
+        })
+      this.map.pieces = [
+        ...(this.map.pieces ?? []),
+        { id: piece.id, at: piece.at as HexKey, turn: piece.turn, mirror: piece.mirror },
+      ]
+    }
+    this.notify({ kind: 'all' })
   }
 
   /** The world clock: saved with the campaign, outside the undo history (like play). */

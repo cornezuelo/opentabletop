@@ -594,6 +594,7 @@ export const en = {
       "Empty cells are decided by the system's tables as the party travels: their terrain, and what is in them (a point of interest, tags, a name) the first time you enter.\n• **The cells around the party** — revealed as it moves, as far as it sees\n• **Only the cell the party enters**\nPainted cells are never changed. Discoveries are part of the game: Ctrl+Z doesn't undo them.",
     reveal: 'What is discovered',
     revealNeighbors: 'The cells around the party (what it sees)',
+    revealPieces: 'Through exits, piece by piece',
     revealEntered: 'Only the cell the party enters',
     mode: 'Play mode',
     modeHelp:

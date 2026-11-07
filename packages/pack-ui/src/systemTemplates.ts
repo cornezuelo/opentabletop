@@ -19,6 +19,7 @@ export const PART_KINDS = [
   'items',
   'bestiary',
   'places',
+  'pieces',
   'factions',
   'clocks',
   'world',
@@ -31,7 +32,15 @@ export type PartKind = (typeof PART_KINDS)[number]
  */
 /** Each kind's starting point; `factions` only from the Packs app, which writes their sheet too. */
 export const SYSTEM_TEMPLATES: Record<
-  SystemKind | 'factions' | 'clocks' | 'world' | 'items' | 'bestiary' | 'places' | 'land',
+  | SystemKind
+  | 'factions'
+  | 'clocks'
+  | 'world'
+  | 'items'
+  | 'bestiary'
+  | 'places'
+  | 'pieces'
+  | 'land',
   (id: string) => Record<string, unknown>
 > = {
   // The usual pair; rename, add (e.g. 3 rolls keeping the middle one) or remove modes.
@@ -210,6 +219,21 @@ export const SYSTEM_TEMPLATES: Record<
         icon: 'game:campfire',
         tags: ['camp'],
       },
+    },
+  }),
+  // Two pieces to rename: a passage and a room, to lay a map through its exits with.
+  pieces: (id) => ({
+    kind: 'pieces',
+    id,
+    name: 'Pieces',
+    marks: { '.': 'stone-floor' },
+    pieces: {
+      passage: {
+        name: 'Passage',
+        cells: 'A\n.\n.\nB\n',
+        exits: { A: { kind: 'door' }, B: { kind: 'door' } },
+      },
+      'dead-end': { name: 'Dead end', cells: 'A\n.\n', exits: { A: { kind: 'door' } } },
     },
   }),
   // One clock that starts over once full: what a system's world clock starts with (what

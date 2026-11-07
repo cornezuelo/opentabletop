@@ -12,7 +12,7 @@ import type {
   TerrainType,
 } from './types'
 
-export const CURRENT_VERSION = 38
+export const CURRENT_VERSION = 39
 
 export const MIN_MAP_SIZE = 1
 export const MAX_MAP_SIZE = 200

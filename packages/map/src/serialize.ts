@@ -27,6 +27,7 @@ import type {
   HexMap,
   LabelStyle,
   MapConnection,
+  MapPiece,
   MapParent,
   MapWay,
   MapAsset,
@@ -147,6 +148,7 @@ function validate(data: Record<string, unknown>): HexMap {
     paths: parsePaths(data.paths),
     connections: parseConnections(data.connections),
     walls: parseWalls(data.walls),
+    ...(Array.isArray(data.pieces) && { pieces: parseMapPieces(data.pieces) }),
     assets: parseAssets(data.assets),
     labels: parseLabels(data.labels),
     tokens: parseTokens(data.tokens),
@@ -279,6 +281,22 @@ function parseConnections(value: unknown): MapConnection[] {
 }
 
 /** Walls on cells' sides: pairs of two different cells, each once. */
+export function parseMapPieces(value: unknown): MapPiece[] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((p): MapPiece[] =>
+    isRecord(p) && typeof p.id === 'string' && typeof p.at === 'string'
+      ? [
+          {
+            id: p.id,
+            at: p.at as HexKey,
+            turn: typeof p.turn === 'number' ? p.turn : 0,
+            mirror: p.mirror === true,
+          },
+        ]
+      : [],
+  )
+}
+
 export function parseWalls(value: unknown): [HexKey, HexKey][] {
   if (!Array.isArray(value)) return []
   const key = (k: unknown): k is HexKey => typeof k === 'string' && /^\d+,\d+$/.test(k)
@@ -538,7 +556,9 @@ function parsePlay(p: Record<string, unknown>): NonNullable<HexMap['play']> {
     ...(isRecord(p.discover) && {
       discover: {
         on: p.discover.on === true,
-        ...((p.discover.reveal === 'neighbors' || p.discover.reveal === 'entered') && {
+        ...((p.discover.reveal === 'neighbors' ||
+          p.discover.reveal === 'entered' ||
+          p.discover.reveal === 'pieces') && {
           reveal: p.discover.reveal,
         }),
       },

@@ -31,6 +31,9 @@ describe("the bundled packs' tags", () => {
 
   it('narrow by kind and tag together', () => {
     expect(shown({ names: 'only' })).toEqual(['grey-marches/npc-names'])
-    expect(shown({ rules: 'only' }, ['deck'])).toEqual(['grey-marches/omens'])
+    expect(shown({ rules: 'only' }, ['deck'])).toEqual([
+      'grey-marches/deep-barrows',
+      'grey-marches/omens',
+    ])
   })
 })

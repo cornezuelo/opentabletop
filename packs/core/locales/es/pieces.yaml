@@ -1,0 +1,33 @@
+pieces/rooms:
+  name: Salas y pasillos
+  description: |-
+    Un pasillo, un cruce, una sala y un callejón sin salida, en cuadrados: la mazmorra más pequeña que se coloca sola según el grupo abre sus puertas.
+
+    **Enseña:** el catálogo de piezas más pequeño: qué coloca cada marca, letras más allá de la pieza como sus salidas, una sala jugada como un solo lugar y una pieza de una casilla que siempre cabe.
+  pieces:
+    passage: { name: Pasillo }
+    junction: { name: Cruce }
+    room: { name: Sala }
+    dead-end: { name: Callejón sin salida }
+pieces/hex-rooms:
+  name: Salas y pasillos en hexágonos
+  description: |-
+    Las mismas cuatro piezas dibujadas en hexágonos: filas a media casilla, así que las marcas quedan a dos caracteres unas de otras. Nada más cambia.
+
+    **Enseña:** un catálogo para otra rejilla (`grid: hex`), con los ids del de cuadrados, para que una tabla nombre cualquiera.
+  pieces:
+    passage: { name: Pasillo }
+    junction: { name: Cruce }
+    room: { name: Sala }
+    dead-end: { name: Callejón sin salida }
+next-piece:
+  name: Siguiente pieza
+  description: |-
+    Lo que hay tras una puerta que nadie ha abierto: sobre todo pasillos, a veces una sala, y un callejón sin salida cuando el sitio ya ha crecido.
+
+    **Enseña:** `discover.piece` en `travel.yaml`: el `set: { piece: <id> }` de una tabla, y `pieces.total`, lo colocado en este mapa.
+  entries:
+    passage: Un pasillo
+    junction: Un cruce
+    room: Una sala
+    dead-end: Un callejón sin salida

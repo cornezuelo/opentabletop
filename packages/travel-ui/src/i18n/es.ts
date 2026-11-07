@@ -251,6 +251,8 @@ export const es: Messages<typeof en> = {
     entered: 'Entráis en {hex}',
     enteredBy: 'Entráis en {hex} ({what})',
     discovered: 'Descubierto en {hex}: {what}',
+    pieceLaid: 'Más allá hay: {name}',
+    pieceNotLaid: 'Por aquí no se sigue: el grupo se queda a este lado.',
     day: 'Empieza el día {day}',
     depleted: 'Sin {resource}',
     limitMin: '{name} se queda en {value}, su mínimo',

@@ -364,6 +364,10 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   37(data) {
     return data
   },
+  /** v39: the pieces laid in play (`pieces`); older maps have none. */
+  38(data) {
+    return data
+  },
 }
 
 /** The km a hex of an older map measures: its own scale, else the default's 10. */

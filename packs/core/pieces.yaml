@@ -1,0 +1,125 @@
+# The Generic rules' pieces (system.yaml: `pieces: [...]`): a map played Through exits, piece
+# by piece grows where the party goes. The same four pieces on squares and on hexes, named
+# the same, so one table (Next piece, below) serves both.
+kind: pieces
+id: rooms
+name: Rooms and passages
+description: |-
+  A corridor, a junction, a room and a dead end, on squares: the smallest dungeon that lays itself as the party opens its doors.
+
+  **Shows:** the smallest catalogue of pieces: what each mark lays, letters beyond a piece as its exits, a room played as one place, and a one-cell piece that always fits.
+grid: square
+marks:
+  '.': stone-floor
+pieces:
+  passage:
+    name: Passage
+    cells: |
+      A
+      .
+      .
+      B
+    exits:
+      A: { kind: door }
+      B: { kind: door }
+  junction:
+    name: Junction
+    cells: |2
+       A
+      B.C
+       D
+    exits:
+      A: { kind: door }
+      B: { kind: door }
+      C: { kind: door }
+      D: { kind: door }
+  room:
+    name: Room
+    room: true
+    cells: |2
+       A
+      ...
+      ...
+       B
+    exits:
+      A: { kind: door }
+      B: { kind: door }
+  dead-end:
+    name: Dead end
+    cells: |
+      A
+      .
+    exits:
+      A: { kind: door }
+---
+kind: pieces
+id: hex-rooms
+name: Rooms and passages on hexes
+description: |-
+  The same four pieces drawn on hexes: rows half a cell apart, so marks stand two characters from each other. Nothing else changes.
+
+  **Shows:** a catalogue for another grid (`grid: hex`), with the ids of the one on squares, so a table names either.
+grid: hex
+marks:
+  '.': stone-floor
+pieces:
+  passage:
+    name: Passage
+    cells: |
+      A
+       .
+        .
+         B
+    exits:
+      A: { kind: door }
+      B: { kind: door }
+  junction:
+    name: Junction
+    cells: |2
+       A B
+        .
+       C D
+    exits:
+      A: { kind: door }
+      B: { kind: door }
+      C: { kind: door }
+      D: { kind: door }
+  room:
+    name: Room
+    room: true
+    cells: |2
+       A
+        . .
+       . . .
+        . .
+           B
+    exits:
+      A: { kind: door }
+      B: { kind: door }
+  dead-end:
+    name: Dead end
+    cells: |
+      A
+       .
+    exits:
+      A: { kind: door }
+---
+kind: table
+id: next-piece
+tags: [discovery, rules]
+name: Next piece
+description: |-
+  What lies beyond a door nobody has opened: mostly passages, sometimes a room, and a dead end once the place has grown.
+
+  **Shows:** `discover.piece` in `travel.yaml`: a table's `set: { piece: <id> }`, and `pieces.total`, what has been laid on this map.
+entries:
+  - { id: passage, weight: 3, result: A passage, set: { piece: passage } }
+  - { id: junction, weight: 2, result: A junction, set: { piece: junction } }
+  - { id: room, weight: 2, result: A room, set: { piece: room } }
+  - {
+      id: dead-end,
+      weight: 2,
+      when: { pieces.total: { gte: 6 } },
+      result: A dead end,
+      set: { piece: dead-end },
+    }

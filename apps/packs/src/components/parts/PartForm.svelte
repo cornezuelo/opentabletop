@@ -11,6 +11,7 @@
   import FactionsForm from './FactionsForm.svelte'
   import ItemsForm from './ItemsForm.svelte'
   import LandForm from './LandForm.svelte'
+  import PiecesForm from './PiecesForm.svelte'
   import PlacesForm from './PlacesForm.svelte'
   import RollModesForm from './RollModesForm.svelte'
   import SheetForm from './SheetForm.svelte'
@@ -62,6 +63,8 @@
   <BestiaryForm {doc} {system} {id} {item} />
 {:else if kind === 'places'}
   <PlacesForm {doc} />
+{:else if kind === 'pieces'}
+  <PiecesForm {doc} {system} />
 {:else if kind === 'sheet'}
   <SheetForm {doc} {system} scope={sheetScope(system, id)} />
 {:else if kind === 'weather'}

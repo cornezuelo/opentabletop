@@ -257,6 +257,8 @@ export const en = {
     entered: 'Entered {hex}',
     enteredBy: 'Entered {hex} ({what})',
     discovered: 'Discovered in {hex}: {what}',
+    pieceLaid: 'Beyond lies: {name}',
+    pieceNotLaid: 'There’s no way on here: the party stays on this side.',
     day: 'Day {day} begins',
     depleted: 'Out of {resource}',
     limitMin: '{name} stops at {value}, its minimum',

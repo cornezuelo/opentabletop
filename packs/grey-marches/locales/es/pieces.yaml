@@ -1,0 +1,58 @@
+pieces/deep-barrows:
+  name: Los Túmulos Hondos
+  description: |-
+    Lo que hay bajo las Barrow-halls: pasillos, criptas y salas inundadas, colocados según el grupo abre cada camino, hasta la última tumba.
+
+    **Enseña:**
+
+    - **Piezas** (`kind: pieces`): formas dibujadas en texto, colocadas por donde va el grupo, giradas para encajar con la puerta por la que llegó
+    - `marks`: qué coloca cada marca, agua negra junto al suelo en _El pasillo inundado_
+    - `room: true`, con `tags` y `fields`: una cripta jugada como un solo lugar, su peligro leído como `place.danger`
+    - `contents`: lo que se tira en una cripta en lugar de `discover.contents`
+    - `entry: true`: por qué salidas se puede entrar en una pieza
+    - Una salida con valores (`fields: { state: hidden }`): un camino oculto que se encuentra con una comprobación
+  pieces:
+    stair-foot: { name: El pie de la escalera }
+    passage: { name: Pasillo }
+    flooded: { name: El pasillo inundado }
+    crypt: { name: Cripta }
+    tomb: { name: La última tumba }
+    dead-end: { name: Un derrumbe }
+deep-barrows:
+  name: El camino hacia abajo
+  description: |-
+    A qué da el siguiente camino. Las cartas robadas siguen robadas hasta que se acaba el mazo, así que los Túmulos Hondos no se repiten como lo haría una tabla.
+
+    **Enseña:** un **mazo** que nombra piezas (`set: { piece: crypt }`): cada carta robada es una pieza menos de su tipo.
+  cards:
+    passage: Un pasillo
+    flooded: Un pasillo inundado
+    crypt: Una cripta
+    fall: Un derrumbe
+next-barrow:
+  name: Qué hay más allá
+  description: |-
+    Atada como `discover.piece`: el camino hacia abajo sigue, hasta que se ha colocado bastante para la última tumba.
+
+    **Enseña:** lo que ve una tabla de las piezas colocadas: `pieces.total`; una tabla que pasa la decisión a un mazo.
+  entries:
+    on: El camino sigue
+    last: La última tumba
+crypt-contents:
+  name: En la cripta
+  description: |-
+    Lo que guarda una cripta de los Túmulos Hondos, tirado al entrar por primera vez.
+
+    **Enseña:** los `contents` propios de una pieza, en lugar de `discover.contents`.
+  entries:
+    bones: Huesos y nada más
+    grave-goods: Un ajuar que nadie ha tocado
+    sleeper: Un durmiente que no sigue durmiendo
+last-tomb:
+  name: La última tumba
+  description: |-
+    Lo que espera en el fondo de los Túmulos Hondos.
+
+    **Enseña:** una pieza que acaba un sitio, a la que se llega por lo colocado, no por dónde está.
+  entries:
+    king: Un rey del pueblo antiguo, y su corona

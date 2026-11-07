@@ -14,6 +14,7 @@
   const discover = $derived((doc.bindings?.discover ?? {}) as Raw)
   const terrain = $derived((discover.terrain ?? {}) as Raw)
   const contents = $derived((discover.contents ?? {}) as Raw)
+  const piece = $derived((discover.piece ?? {}) as Raw)
   const terrainValue = $derived(String(terrain.land ?? terrain.resolve ?? ''))
   const models = $derived(system ? partChoices(system, 'land') : [])
 
@@ -29,9 +30,15 @@
       : undefined
     write({ ...discover, [key]: next })
   }
+  /** Writes a part of `discover.piece`; with nothing to resolve, it goes. */
+  function bindPiece(patch: Raw) {
+    const next: Raw = { ...piece, ...patch }
+    for (const [key, value] of Object.entries(next)) if (value === '') delete next[key]
+    write({ ...discover, piece: next.resolve ? next : undefined })
+  }
   function write(next: Raw) {
     const kept = Object.fromEntries(Object.entries(next).filter(([, v]) => v !== undefined))
-    const empty = !kept.terrain && !kept.contents
+    const empty = !kept.terrain && !kept.contents && !kept.piece
     doc.edit('bindings', ['discover'], empty ? undefined : kept)
   }
   const refName = (ref: string) => doc.targets.find((x) => x.ref === ref)?.ref ?? ref
@@ -90,7 +97,7 @@
       <span>{t('discover.reveal')}<InfoTip text={t('discover.revealHelp')} /></span>
       <select
         value={String(discover.reveal ?? 'neighbors')}
-        disabled={disabled || (!discover.terrain && !discover.contents)}
+        disabled={disabled || (!discover.terrain && !discover.contents && !discover.piece)}
         onchange={(e) =>
           write({
             ...discover,
@@ -99,7 +106,51 @@
       >
         <option value="neighbors">{t('discover.neighbors')}</option>
         <option value="entered">{t('discover.entered')}</option>
+        <option value="pieces">{t('discover.pieces')}</option>
       </select>
+    </label>
+  </div>
+  <div class="row">
+    <label>
+      <span>{t('discover.piece')}<InfoTip text={t('discover.pieceHelp')} /></span>
+      <select
+        value={String(piece.resolve ?? '')}
+        {disabled}
+        onchange={(e) => bindPiece({ resolve: e.currentTarget.value })}
+      >
+        <option value="">{t('discover.none')}</option>
+        {@render rollables(String(piece.resolve ?? ''))}
+      </select>
+    </label>
+    <label>
+      <span>{t('discover.first')}<InfoTip text={t('discover.firstHelp')} /></span>
+      <input
+        type="text"
+        value={String(piece.first ?? '')}
+        disabled={disabled || !piece.resolve}
+        onchange={(e) => bindPiece({ first: e.currentTarget.value })}
+      />
+    </label>
+    <label>
+      <span>{t('discover.tries')}<InfoTip text={t('discover.triesHelp')} /></span>
+      <input
+        type="number"
+        min="1"
+        placeholder="3"
+        value={piece.tries === undefined ? '' : String(piece.tries)}
+        disabled={disabled || !piece.resolve}
+        onchange={(e) =>
+          bindPiece({ tries: e.currentTarget.value ? Number(e.currentTarget.value) : '' })}
+      />
+    </label>
+    <label>
+      <span>{t('discover.otherwise')}<InfoTip text={t('discover.otherwiseHelp')} /></span>
+      <input
+        type="text"
+        value={String(piece.otherwise ?? '')}
+        disabled={disabled || !piece.resolve}
+        onchange={(e) => bindPiece({ otherwise: e.currentTarget.value })}
+      />
     </label>
   </div>
 </section>
