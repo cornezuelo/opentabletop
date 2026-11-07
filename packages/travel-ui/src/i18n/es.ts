@@ -52,7 +52,7 @@ export const es: Messages<typeof en> = {
   waitOnward: 'Esperar para seguir',
   choices: { destination: 'hasta el destino', place: 'un sitio', hexes: '{n} casillas' },
   continue: 'Continuar',
-  status: { more: 'La fecha y el calendario' },
+  status: { more: 'La fecha y el calendario', choose: 'Elegir…' },
   journalTitle: 'Diario',
   exportJournal: 'Exportar',
   emptyJournal: 'Aún no ha pasado nada.',

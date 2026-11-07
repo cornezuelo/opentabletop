@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: a paused trip says so in the strip over the map, outlined, with **Continue** (or **Choose…**), and a message when the trip's panel isn't in sight.
+
+### Fixes
+
+- Map: the strip over the map says what happened before arriving (a piece laid, a check), not _Destination reached_ every time.
+
 ## [0.43.0] - 2026-11-07
 
 ### Apps

@@ -1,9 +1,10 @@
 <script lang="ts">
   import { travels } from '@open-tabletop/session'
   import { TripStatus } from '@open-tabletop/travel-ui'
-  import { getLocale } from '../lib/i18n/index.svelte'
+  import { getLocale, t } from '../lib/i18n/index.svelte'
   import { placeLabel } from '../lib/io/submaps'
-  import { destinationHelp, sessionOf } from '../lib/play/play'
+  import { showToast } from '@open-tabletop/ui-kit'
+  import { destinationHelp, playPanelShown, sessionOf, showPlayPanel, step } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
   import { worldFactsNow } from '../lib/play/world.svelte'
   import { terrainLabel } from '../lib/terrainName'
@@ -18,6 +19,18 @@
     void editor.grid
     return placeLabel(key)
   }
+
+  /** What the trip waits for now (a check, a step's pause): one toast when it starts, out of the panel's sight. */
+  const waitingFor = $derived(
+    session?.travel.pendingChecks[0]?.id ??
+      (session?.travel.waiting ? `held:${session.travel.waiting.time}` : ''),
+  )
+  let toldOf = ''
+  $effect(() => {
+    if (waitingFor && waitingFor !== toldOf && !playPanelShown())
+      showToast(t('play.paused'), 'info', 8000)
+    toldOf = waitingFor
+  })
 </script>
 
 {#if editor.mode === 'play' && play?.mode === 'rules' && play.rules && session && travels(system)}
@@ -31,6 +44,8 @@
       hexLabel={coord}
       arrivedHint={destinationHelp(true)}
       latest
+      onstep={step}
+      onshow={showPlayPanel}
       terrainName={terrainLabel}
       nameOf={oracleUi.nameOf}
       facts={worldFactsNow()}

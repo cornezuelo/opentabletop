@@ -258,6 +258,17 @@ export function destinationHelp(again = false): string {
   return t(again ? 'play.newDestination' : 'play.destinationHelp')
 }
 
+/** Whether the trip's panel is in sight: Play's view of the side panel, not hidden. */
+export const playPanelShown = (): boolean =>
+  !editor.panelHidden && editor.panelView === 'tool' && editor.tool === 'play'
+
+/** Brings the trip's panel into sight. */
+export function showPlayPanel(): void {
+  editor.tool = 'play'
+  editor.panelView = 'tool'
+  editor.panelHidden = false
+}
+
 /** Whether a trip goes on here: what the party does then follows its rules. */
 export const onTrip = (): boolean =>
   current().mode === 'rules' && !current().away && !!sessionOf(current())

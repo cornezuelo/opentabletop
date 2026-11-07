@@ -53,7 +53,7 @@ export const en = {
   // A move's targets, when a choice of a parameter has no name of its own.
   choices: { destination: 'to the destination', place: 'one place', hexes: '{n} cells' },
   continue: 'Continue',
-  status: { more: 'The date and the calendar' },
+  status: { more: 'The date and the calendar', choose: 'Choose…' },
   journalTitle: 'Journal',
   exportJournal: 'Export',
   emptyJournal: 'Nothing has happened yet.',

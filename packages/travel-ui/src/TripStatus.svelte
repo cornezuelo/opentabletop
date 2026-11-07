@@ -6,17 +6,19 @@
     type SessionState,
     type TravelSystem,
   } from '@open-tabletop/session'
+  import type { TravelAction } from '@open-tabletop/travel-engine'
   import { formatClock } from '@open-tabletop/time'
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { dayPartsLine } from './dayParts'
   import { idText, translator, type TravelUiKey } from './i18n'
-  import { durationText, entryText } from './journal'
+  import { durationText, entryText, eventName } from './journal'
   import { journalContext } from './journalContext'
 
   /**
    * Where a trip stands: day and time, the place, the march, the weather and where it's heading.
    * `strip`: one line for over a map, the calendar's long form behind a button; otherwise a box.
-   * `latest`: what happened last too, the journal's newest line (a check, a piece laid…).
+   * `latest`: what happened last too, the journal's newest line (a check, a piece laid…), and
+   * what the trip waits for (a check, a step's pause), with **Continue** when `onstep` is given.
    */
   let {
     system,
@@ -31,6 +33,8 @@
     terrainName,
     nameOf,
     facts,
+    onstep,
+    onshow,
   }: {
     system: TravelSystem
     session: SessionState
@@ -48,6 +52,10 @@
     nameOf?: (id: string) => string
     /** The host's facts (the world clock's), for members' values made of them. */
     facts?: Record<string, unknown>
+    /** Goes on from a pause (a check, a step that waits) from the strip. */
+    onstep?: (action: TravelAction) => void
+    /** Shows the trip's panel, for a pause that asks for a choice. */
+    onshow?: () => void
   } = $props()
 
   const t = translator(() => locale)
@@ -92,12 +100,8 @@
     }
   })
 
-  /** The journal's newest line (the story and the rules, not what happened behind), in words. */
-  const lastLine = $derived.by(() => {
-    if (!latest) return ''
-    const entry = session.journal.findLast((e) => shownAt(e, { level: 'mechanics' }))
-    if (!entry) return ''
-    const context = journalContext({
+  const context = $derived(
+    journalContext({
       system,
       session,
       locale,
@@ -107,8 +111,43 @@
       terrainName,
       nameOf,
       facts,
-    })
-    return entryText(entry, context).replace(/\s*\n\s*/g, ' ')
+    }),
+  )
+
+  /**
+   * Lines the strip says already (where the party is, that it arrived): what happened last is
+   * the newest line before them, the piece laid or the check rolled on the way.
+   */
+  const SAID = new Set(['DESTINATION_REACHED', 'PLACE_ENTERED', 'ROUTE_PLANNED'])
+
+  /** The journal's newest line (the story and the rules, not what happened behind), in words. */
+  const lastLine = $derived.by(() => {
+    if (!latest) return ''
+    const entry = session.journal.findLast(
+      (e) => !SAID.has(e.code) && shownAt(e, { level: 'mechanics' }),
+    )
+    return entry ? entryText(entry, context).replace(/\s*\n\s*/g, ' ') : ''
+  })
+
+  /** What the trip waits for (a check, a step's pause), and what goes on from it, if not a choice. */
+  const waits = $derived.by((): { text: string; go?: TravelAction } | null => {
+    if (!latest) return null
+    const check = travel.pendingChecks[0]
+    if (check) {
+      const asks = session.asking?.includes(check.id)
+      const key = asks ? 'journal.asks' : check.rolled ? 'journal.paused' : 'journal.pending'
+      return {
+        text: t(key, { event: eventName(t, check.event, context.checkName) }),
+        ...(!asks && { go: { type: 'resolveCheck', id: check.id } }),
+      }
+    }
+    const waiting = travel.waiting
+    if (!waiting) return null
+    const line = { id: '', at: '', time: waiting.time, source: 'travel' as const, code: 'HELD' }
+    return {
+      text: entryText({ ...line, data: { waiting } }, context),
+      ...(!waiting.ask && { go: { type: 'resume' } }),
+    }
   })
 
   /** The strip's long form is open. */
@@ -146,7 +185,16 @@
   {#if lastLine}
     <span class="last" use:tooltip={lastLine}>{lastLine}</span>
   {/if}
-  {#if travel.destination && travel.destination === travel.location}
+  {#if waits}
+    <span class="waits" role="status"
+      >⏸ {waits.text}
+      {#if waits.go && onstep}
+        <button class="go" onclick={() => onstep(waits.go!)}>{t('continue')}</button>
+      {:else if !waits.go && onshow}
+        <button class="go" onclick={onshow}>{t('status.choose')}</button>
+      {/if}</span
+    >
+  {:else if travel.destination && travel.destination === travel.location}
     <!-- What happened last says the arrival: only what to do next is left. -->
     <span>{lastLine ? arrivedHint : `${t('arrived')} ${arrivedHint}`}</span>
   {:else if travel.destination}
@@ -225,6 +273,30 @@
     font-style: italic;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* A pause can't be missed: the trip goes on from here or from its panel. */
+  .waits {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 2px 4px 2px 8px;
+    font-weight: 600;
+    color: var(--warning-text);
+    border: 1px solid var(--warning);
+    border-radius: 4px;
+  }
+
+  .waits .go {
+    padding: 1px 10px;
+    color: var(--bg);
+    background: var(--warning);
+    border-radius: 3px;
+  }
+
+  .waits .go:hover {
+    color: var(--bg);
+    filter: brightness(1.1);
   }
 
   .help {
