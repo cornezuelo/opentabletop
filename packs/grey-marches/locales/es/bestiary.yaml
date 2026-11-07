@@ -40,7 +40,7 @@ bestiary/marches:
     - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
     - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
     - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
-    - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque (`behind: stay`)
+    - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, y los muertos inquietos, en su túmulo (`behind: stay`)
   templates:
     traveller:
       name: Viajero
@@ -57,6 +57,9 @@ bestiary/marches:
     wyrm:
       name: La Sierpe del Bosque Gris
       description: Enroscada en el corazón del Bosque Gris. No persigue; espera.
+    barrow-dead:
+      name: Los muertos inquietos
+      description: Huesos en sus mortajas que no se quedan donde los pusieron.
     bandit:
       name: Bandido
       description: Un forajido de las Colinas Huecas, hambriento y mal armado.

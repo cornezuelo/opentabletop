@@ -559,6 +559,20 @@ actions:
   # delving it, then what it holds rolled on the Oracle by a step (`roll:` naming a
   # generator, not a check: no binding, its result and the generator's name in the journal).
   # Once a day; hidden elsewhere.
+  # A barred door leaving the place (`place.connections.door.state`, a door laid shut by the
+  # Deep Barrows' pieces): ten minutes with shoulder and crowbar, and every door here is open
+  # for the rest of the trip (an effect on the connections leaving the place, never on the
+  # map); then the noise of it, rolled on a table that may bring one of the dead.
+  force-door:
+    name: Force the door
+    description: 'At a barred door: ten minutes to break it open, and the noise may bring what sleeps below (_The noise of it_).'
+    when: { place.connections.door.state: barred }
+    hideWhenUnavailable: true
+    do:
+      - { time: 10 }
+      - { effects: { place.connections.door.state: forced } }
+      - { id: forced, say: 'The bar splinters and the door gives way.' }
+      - { roll: table.door-noise }
   delve:
     name: Delve the ruin
     description: 'In a ruin, by day: three hours searching it, then what it holds and what guards it, rolled on _Delving a ruin_. Once a day.'

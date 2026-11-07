@@ -630,7 +630,7 @@ pieces:
 - `marks` y `cells` son obligatorios. Las letras mayúsculas de un dibujo son salidas y todas deben declararse en `exits`, cada una con su `kind` de conexión; una letra debe quedar junto a exactamente una casilla de la pieza, lo que da su dirección.
 - Una primera línea que empieza más adentro que la siguiente necesita `|2` tras `cells:`, para que YAML conserve sus espacios.
 - Una pieza sin salidas se coloca desde cualquier lado.
-- `exits` admite también `name`, `tags` y `fields`: `C: { kind: hidden-path, fields: { state: hidden } }` es un camino que encuentra una comprobación.
+- `exits` admite también `name`, `tags` y `fields`: `C: { kind: hidden-path, fields: { state: hidden } }` es un camino que encuentra una comprobación, y `B: { kind: door, fields: { state: barred } }` una puerta colocada cerrada, que el `passable` de su tipo mantiene así hasta que una acción cambia su estado.
 - Se ata como `discover.piece` en los [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end }`, una tabla o un mazo cuyos resultados hacen `set: { piece: <id> }`.
 - Se traduce con la clave `pieces/<id>`, por pieza (`pieces: { passage: { name: Pasillo } }`).
 

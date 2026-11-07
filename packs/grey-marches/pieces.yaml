@@ -15,6 +15,7 @@ description: |-
   - `contents`: what's rolled in a crypt instead of `discover.contents`
   - `entry: true`: which exits a piece may be entered by
   - An exit with values (`fields: { state: hidden }`): a hidden way found by a check
+  - A door laid shut (`fields: { state: barred }`): no way on until the party forces it (_Force the door_), and the noise may wake what sleeps here
 grid: square
 marks:
   '.': barrow-floor
@@ -84,6 +85,18 @@ pieces:
       ...
     exits:
       A: { kind: door, entry: true }
+  # A door shut from the far side: the door kind's `passable` (travel.yaml) reads its state,
+  # so the way on waits for Force the door.
+  barred-passage:
+    name: A barred door
+    cells: |
+      A
+      .
+      .
+      B
+    exits:
+      A: { kind: door }
+      B: { kind: door, name: A barred door, fields: { state: barred } }
   dead-end:
     name: A fall of stone
     cells: |
@@ -105,6 +118,7 @@ cards:
   - { id: passage, result: A passage, set: { piece: passage }, count: 4 }
   - { id: flooded, result: A flooded passage, set: { piece: flooded }, count: 2 }
   - { id: crypt, result: A crypt, set: { piece: crypt }, count: 3 }
+  - { id: barred, result: A barred door, set: { piece: barred-passage }, count: 2 }
   - { id: fall, result: A fall of stone, set: { piece: dead-end } }
 ---
 kind: table
@@ -138,11 +152,16 @@ name: In the crypt
 description: |-
   What a crypt of the Deep Barrows holds, rolled on first coming in.
 
-  **Shows:** a piece's own `contents`, in place of `discover.contents`.
+  **Shows:** a piece's own `contents`, in place of `discover.contents`; a result that makes one of those present (`present.barrow-dead`).
 entries:
   - { id: bones, weight: 3, result: Bones and nothing else, set: { poi: false } }
   - { id: grave-goods, weight: 2, result: Grave-goods nobody has touched }
-  - { id: sleeper, weight: 1, result: A sleeper who does not stay asleep }
+  - {
+      id: sleeper,
+      weight: 1,
+      result: A sleeper who does not stay asleep,
+      effects: { present.barrow-dead: 1 },
+    }
 ---
 kind: table
 id: last-tomb
@@ -154,3 +173,19 @@ description: |-
   **Shows:** a piece that ends a place, reached by what's been laid, not by where it lies.
 entries:
   - { id: king, result: 'A king of the old folk, and his crown' }
+---
+kind: table
+id: door-noise
+tags: [rules]
+name: The noise of it
+description: |-
+  Rolled as a barred door of the Deep Barrows gives way (_Force the door_): whether anything heard it.
+
+  **Shows:** a table an action rolls (`roll:`), its result making one of those present (`present.barrow-dead`) and stopping the trip (`pause`).
+entries:
+  - { id: silence, weight: 3, result: The echo dies away; nothing stirs }
+  - id: heard
+    weight: 1
+    result: Something in the dark heard it, and comes
+    pause: true
+    effects: { present.barrow-dead: 1 }

@@ -65,7 +65,7 @@ description: |-
   - Copies named from a table (`names: table.npc-names`): _Brenna_, _Corin_… instead of _Bandit 2_
   - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
   - How each is drawn on a map (`token:` its icon and kind)
-  - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood (`behind: stay`)
+  - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, and the restless dead, in their barrow (`behind: stay`)
 sheet: sheet.foe
 behind: leave
 templates:
@@ -94,6 +94,15 @@ templates:
     tags: [beast, wyrm]
     values: { health: 30, harm: 4, morale: 12 }
     token: { icon: 'game:dragon-head', kind: enemy }
+    behind: stay
+  # What sleeps in the Deep Barrows (pieces.yaml): woken by a crypt's sleeper or a door forced.
+  # It stays in its barrow when the party leaves.
+  barrow-dead:
+    name: The restless dead
+    description: Bones in grave-wrappings that don't stay where they were laid.
+    tags: [undead]
+    values: { health: '{{1d6+2}}', harm: 1, morale: 12 }
+    token: { icon: 'game:death-skull', kind: enemy }
     behind: stay
   bandit:
     name: Bandit

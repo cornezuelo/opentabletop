@@ -682,8 +682,9 @@ describe('example maps', () => {
       'out-of-the-wood': { condition: 'when' }, // not leaving the Greywood
       'drive-off': { condition: 'when' }, // nobody here to drive off
       'buy-off': { condition: 'when' }, // no outlaws here
+      'force-door': { condition: 'when' }, // no barred door here
     })
-    expect(Object.keys(unavailable)).toHaveLength(20)
+    expect(Object.keys(unavailable)).toHaveLength(21)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

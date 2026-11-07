@@ -629,7 +629,7 @@ pieces:
 - `marks` and `cells` are required. A drawing's upper-case letters are exits and all must be declared under `exits`, each with its `kind` of connection; a letter must stand next to exactly one cell of the piece, which gives its direction.
 - A first line that starts further in than the next needs `|2` after `cells:`, so YAML keeps its spaces.
 - A piece with no exits is laid from any side.
-- `exits` take `name`, `tags` and `fields` too: `C: { kind: hidden-path, fields: { state: hidden } }` is a way a check finds.
+- `exits` take `name`, `tags` and `fields` too: `C: { kind: hidden-path, fields: { state: hidden } }` is a way a check finds, and `B: { kind: door, fields: { state: barred } }` a door laid shut, kept so by its kind's `passable` until an action changes its state.
 - Bound as `discover.piece` in [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end }`, a table or deck whose results `set: { piece: <id> }`.
 - Translated keyed `pieces/<id>`, by piece (`pieces: { passage: { name: Pasillo } }`).
 

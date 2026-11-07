@@ -11,12 +11,14 @@ pieces/deep-barrows:
     - `contents`: lo que se tira en una cripta en lugar de `discover.contents`
     - `entry: true`: por qué salidas se puede entrar en una pieza
     - Una salida con valores (`fields: { state: hidden }`): un camino oculto que se encuentra con una comprobación
+    - Una puerta colocada cerrada (`fields: { state: barred }`): no hay camino hasta que el grupo la fuerza (_Forzar la puerta_), y el ruido puede despertar lo que duerme aquí
   pieces:
     stair-foot: { name: El pie de la escalera }
     passage: { name: Pasillo }
     flooded: { name: El pasillo inundado }
     crypt: { name: Cripta }
     tomb: { name: La última tumba }
+    barred-passage: { name: Una puerta atrancada }
     dead-end: { name: Un derrumbe }
 deep-barrows:
   name: El camino hacia abajo
@@ -28,6 +30,7 @@ deep-barrows:
     passage: Un pasillo
     flooded: Un pasillo inundado
     crypt: Una cripta
+    barred: Una puerta atrancada
     fall: Un derrumbe
 next-barrow:
   name: Qué hay más allá
@@ -43,7 +46,7 @@ crypt-contents:
   description: |-
     Lo que guarda una cripta de los Túmulos Hondos, tirado al entrar por primera vez.
 
-    **Enseña:** los `contents` propios de una pieza, en lugar de `discover.contents`.
+    **Enseña:** los `contents` propios de una pieza, en lugar de `discover.contents`; un resultado que pone a uno entre los presentes (`present.barrow-dead`).
   entries:
     bones: Huesos y nada más
     grave-goods: Un ajuar que nadie ha tocado
@@ -56,3 +59,12 @@ last-tomb:
     **Enseña:** una pieza que acaba un sitio, a la que se llega por lo colocado, no por dónde está.
   entries:
     king: Un rey del pueblo antiguo, y su corona
+door-noise:
+  name: El ruido
+  description: |-
+    Se tira cuando cede una puerta atrancada de los Túmulos Hondos (_Forzar la puerta_): si algo lo ha oído.
+
+    **Enseña:** una tabla que tira una acción (`roll:`), cuyo resultado pone a uno entre los presentes (`present.barrow-dead`) y detiene el viaje (`pause`).
+  entries:
+    silence: El eco se apaga; nada se mueve
+    heard: Algo en la oscuridad lo ha oído, y viene

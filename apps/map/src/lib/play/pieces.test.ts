@@ -112,3 +112,66 @@ describe('pieces', () => {
       expect(editor.map.pieces!.length).toBeGreaterThan(1)
     })
 })
+
+describe('a barred door in the Deep Barrows', () => {
+  it('holds until forced, and the noise of it may bring the dead', () => {
+    const map = createMap('', { template: 'dungeon', cells: 'square' })
+    map.grid = { ...map.grid, width: 30, height: 30 }
+    map.hexes['15,15' as HexKey] = { terrain: 'barrow-floor' }
+    map.hexes['15,14' as HexKey] = { terrain: 'barrow-floor' }
+    // As the Marches' barred passage lays it: a door with its state.
+    map.connections = [
+      {
+        id: 'bar',
+        between: ['15,15', '15,14'],
+        kind: 'door',
+        name: 'A barred door',
+        fields: [{ key: 'state', value: 'barred' }],
+      },
+    ]
+    editor.load(map)
+    const system = getSystem('grey-marches')
+    let { session } = startTrip({ system, location: '15,15', season: 'summer' })
+    const run = (action: Parameters<typeof stepTrip>[2], seed: number) =>
+      stepTrip(
+        {
+          system,
+          world: mapWorld(editor.map),
+          oracle: createOracleEngine({ registry: library.registry, random: seeded(seed) }),
+          random: seeded(seed),
+          locale: 'en',
+          // Laid piece by piece: what nobody has opened is rock, so the door is the only way.
+          discover: 'pieces' as const,
+        },
+        session,
+        action,
+      )
+    const march = { type: 'action', id: 'march', with: { until: 'destination' } } as const
+    // Shut: the route goes up to the door, and the march stops at it.
+    session = run({ type: 'setDestination', place: '15,14' }, 1).state
+    let done = run(march, 1)
+    expect(done.state.travel.location).toBe('15,15')
+    expect(done.entries.some((e) => e.code === 'ROUTE_BLOCKED')).toBe(true)
+    session = done.state
+    // Force the door: the noise of it rolled, sometimes bringing one of the dead.
+    let heard = false
+    let silent = false
+    for (let seed = 1; seed < 40; seed++) {
+      const forced = run({ type: 'action', id: 'force-door' }, seed)
+      const text = JSON.stringify(forced.entries)
+      expect(text).toContain('door-noise')
+      const dead = (forced.state.present ?? []).some((p) =>
+        JSON.stringify(p).includes('barrow-dead'),
+      )
+      if (dead) heard = true
+      else silent = true
+      if (seed === 1) done = forced
+    }
+    expect(heard && silent).toBe(true)
+    // Forced, the door is open for the rest of the trip.
+    session = done.state
+    expect(
+      run({ type: 'action', id: 'march', with: { until: 'destination' } }, 3).state.travel.location,
+    ).toBe('15,14')
+  })
+})

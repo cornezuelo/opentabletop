@@ -126,6 +126,12 @@ travel-rules/default:
     inn:
       name: Tomar habitaciones en la posada
       description: 'Una noche bajo techo, pagando cada uno el precio de la posada, dos por habitación: despertáis al alba con 2 de fatiga menos, 1 de moral más, cada compañero con 1 de salud más y sin el miedo en el cuerpo.'
+    force-door:
+      name: Forzar la puerta
+      description: 'Ante una puerta atrancada: diez minutos para echarla abajo, y el ruido puede traer lo que duerme abajo (_El ruido_).'
+      do:
+        forced:
+          say: 'La tranca se astilla y la puerta cede.'
     delve:
       name: Explorar la ruina
       description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'
