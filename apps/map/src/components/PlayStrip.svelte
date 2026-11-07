@@ -4,10 +4,13 @@
   import { getLocale } from '../lib/i18n/index.svelte'
   import { placeLabel } from '../lib/io/submaps'
   import { destinationHelp, sessionOf } from '../lib/play/play'
+  import { oracleUi } from '../lib/play/oracle'
+  import { worldFactsNow } from '../lib/play/world.svelte'
+  import { terrainLabel } from '../lib/terrainName'
   import { activeSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
 
-  /** Over the map, in Play: where the trip stands, so the panel keeps its height for what to do. */
+  /** Over the map, in Play: where the trip stands and what happened last, so the panel keeps its height for what to do. */
   const play = $derived(editor.play)
   const session = $derived(play ? sessionOf(play) : null)
   const system = $derived(activeSystem())
@@ -27,6 +30,10 @@
       locale={getLocale()}
       hexLabel={coord}
       arrivedHint={destinationHelp(true)}
+      latest
+      terrainName={terrainLabel}
+      nameOf={oracleUi.nameOf}
+      facts={worldFactsNow()}
     />
   </div>
 {/if}

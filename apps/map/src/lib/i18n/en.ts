@@ -613,6 +613,7 @@ export const en = {
     copiesApartHelp:
       "Those present (the copies a trip's results make from the system's bestiary) are drawn on the cells where they were made. Up to six tokens on a cell are drawn apart; past that, the copies of one template are one token with how many (×6), and what still doesn't fit is a chip (+3). Ticked, every copy is drawn apart, however many. Selecting a cell lists everything on it under **Here**.",
     placeHelp: 'Click a cell to place the party.',
+    placeFirst: 'The trip starts where the party stands: click a cell to place it.',
     simpleHelp: 'The party is at {hex}: click a cell to move it there.',
     destinationHelp: 'Click a cell to set the destination, or walk with the arrow keys.',
     clearTrail: 'Clear trail',

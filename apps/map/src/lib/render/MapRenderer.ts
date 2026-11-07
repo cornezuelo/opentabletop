@@ -470,6 +470,23 @@ export class MapRenderer {
     this.onViewChanged()
   }
 
+  /** Pans (never zooms) so these cells are in sight, if any of them is out of it. */
+  showCells(cells: Offset[]): void {
+    if (!cells.length) return
+    const { width, height } = this.app.screen
+    const scale = this.world.scale.x
+    const margin = editor.map.grid.hexSize * scale
+    const points = cells.map((c) => this.worldToScreen(this.centerOf(c)))
+    const out = points.some(
+      (p) => p.x < margin || p.y < margin || p.x > width - margin || p.y > height - margin,
+    )
+    if (!out) return
+    const x = points.reduce((sum, p) => sum + p.x, 0) / points.length
+    const y = points.reduce((sum, p) => sum + p.y, 0) / points.length
+    this.world.position.set(this.world.x + width / 2 - x, this.world.y + height / 2 - y)
+    this.onViewChanged()
+  }
+
   /** Centers a point of the map (in hexes, like labels' `x` / `y`), zooming in like `centerOn`. */
   centerOnPoint(p: Point): void {
     const { hexSize } = editor.map.grid
@@ -620,6 +637,10 @@ export class MapRenderer {
     } else if (change.kind === 'layers') {
       this.applyLayers()
       this.drawRoofs()
+    } else if (change.kind === 'laid') {
+      // The view stays where it was: a room laid shouldn't zoom the map out.
+      this.rebuild()
+      this.showCells(change.cells.map(parseKey))
     } else if (change.kind !== 'meta') {
       const before = this.shapeSignature
       this.rebuild()

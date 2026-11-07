@@ -31,7 +31,7 @@
     systemUsesOf,
   } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
-  import { terrainName } from '../lib/terrainName'
+  import { terrainLabel } from '../lib/terrainName'
   import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
 
   /** The party is a token: its look is edited in Tokens, its position by playing. */
@@ -57,11 +57,6 @@
   const coord = (key: string) => {
     void editor.grid
     return placeLabel(key)
-  }
-
-  const terrainLabel = (id: string) => {
-    const terrain = editor.terrains.find((x) => x.id === id)
-    return terrain ? terrainName(terrain) : id.replaceAll('-', ' ')
   }
 
   let newSeason = $state<Season>('spring')

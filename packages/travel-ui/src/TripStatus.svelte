@@ -2,6 +2,7 @@
   import {
     calendarOf,
     localize,
+    shownAt,
     type SessionState,
     type TravelSystem,
   } from '@open-tabletop/session'
@@ -9,11 +10,13 @@
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { dayPartsLine } from './dayParts'
   import { idText, translator, type TravelUiKey } from './i18n'
-  import { durationText } from './journal'
+  import { durationText, entryText } from './journal'
+  import { journalContext } from './journalContext'
 
   /**
    * Where a trip stands: day and time, the place, the march, the weather and where it's heading.
    * `strip`: one line for over a map, the calendar's long form behind a button; otherwise a box.
+   * `latest`: what happened last too, the journal's newest line (a check, a piece laid…).
    */
   let {
     system,
@@ -24,6 +27,10 @@
     destinationHint = '',
     arrivedHint = '',
     strip = false,
+    latest = false,
+    terrainName,
+    nameOf,
+    facts,
   }: {
     system: TravelSystem
     session: SessionState
@@ -35,6 +42,12 @@
     destinationHint?: string
     arrivedHint?: string
     strip?: boolean
+    latest?: boolean
+    /** For the latest line, in the journal's words: a terrain's and a definition's names. */
+    terrainName?: (id: string) => string
+    nameOf?: (id: string) => string
+    /** The host's facts (the world clock's), for members' values made of them. */
+    facts?: Record<string, unknown>
   } = $props()
 
   const t = translator(() => locale)
@@ -79,6 +92,25 @@
     }
   })
 
+  /** The journal's newest line (the story and the rules, not what happened behind), in words. */
+  const lastLine = $derived.by(() => {
+    if (!latest) return ''
+    const entry = session.journal.findLast((e) => shownAt(e, { level: 'mechanics' }))
+    if (!entry) return ''
+    const context = journalContext({
+      system,
+      session,
+      locale,
+      t,
+      startDay,
+      hexLabel,
+      terrainName,
+      nameOf,
+      facts,
+    })
+    return entryText(entry, context).replace(/\s*\n\s*/g, ' ')
+  })
+
   /** The strip's long form is open. */
   let more = $state(false)
 </script>
@@ -111,8 +143,12 @@
   {#if travel.weather}
     <span class="minor">{t('weather', { weather: travel.weather.replaceAll('-', ' ') })}</span>
   {/if}
+  {#if lastLine}
+    <span class="last" use:tooltip={lastLine}>{lastLine}</span>
+  {/if}
   {#if travel.destination && travel.destination === travel.location}
-    <span>{t('arrived')} {arrivedHint}</span>
+    <!-- What happened last says the arrival: only what to do next is left. -->
+    <span>{lastLine ? arrivedHint : `${t('arrived')} ${arrivedHint}`}</span>
   {:else if travel.destination}
     <span>{t('destination', { hex: hexLabel(travel.destination) })}</span>
   {:else if destinationHint}
@@ -181,6 +217,14 @@
 
   button:hover {
     color: var(--accent);
+  }
+
+  .last {
+    overflow: hidden;
+    max-width: 60ch;
+    font-style: italic;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .help {

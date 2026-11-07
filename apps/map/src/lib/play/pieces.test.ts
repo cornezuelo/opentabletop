@@ -41,6 +41,24 @@ const start = (map: HexMap) => {
 }
 
 describe('pieces', () => {
+  it('a piece laid keeps the view: it says which cells, never "everything changed"', () => {
+    start(createMap('', { template: 'dungeon', cells: 'square' }))
+    const system = getSystem('core')
+    const { session } = startTrip({ system, location: '15,15', season: 'summer' })
+    const changes: string[] = []
+    const cells: string[] = []
+    const stop = editor.onChange((change) => {
+      changes.push(change.kind)
+      if (change.kind === 'laid') cells.push(...change.cells)
+    })
+    through(system, session, '15,14', 3)
+    stop()
+    // `all` fits the whole map in the view, zooming out on every room laid.
+    expect(changes).not.toContain('all')
+    expect(changes).toContain('laid')
+    expect(cells).toContain('15,14')
+  })
+
   it('entering reads the piece just laid: a check sees its tags and floor', () => {
     start(createMap('', { template: 'dungeon', cells: 'square' }))
     const core = getSystem('core')

@@ -5,6 +5,7 @@ import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
 import { createMap, deserializeMap, serializeMap } from '@open-tabletop/map'
 import { editor } from '../store/editor.svelte'
+import { t } from '../i18n/index.svelte'
 import { bundleToMap, mapToBundle } from '../io/otd'
 import { createCampaign, factionsOn } from '@open-tabletop/campaign'
 import {
@@ -170,6 +171,18 @@ describe('playing on the map', () => {
     const back = bundleToMap(bundle)
     expect(back.campaign).toMatchObject({ system: 'grey-marches', packs: [] })
     expect(back.map.meta).not.toHaveProperty('system')
+  })
+
+  it('a new trip with no party on the map says to place it first (Ashford)', async () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'ashford1')!.json))
+    setMode('rules')
+    expect(partyLocation()).toBeUndefined()
+    toasts.length = 0
+    expect(await restartRules(mapSystemId(), 'spring')).toBe(true)
+    expect(toasts.some((x) => x.message === t('play.placeFirst'))).toBe(true)
+    // A click places the party, and the trip starts there.
+    clickHex('5,5' as HexKey)
+    expect(sessionOf(editor.map.play!)?.travel.location).toBeTruthy()
   })
 
   it("new trips play the campaign's system; a trip going on keeps its own until a new one", async () => {

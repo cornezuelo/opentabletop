@@ -430,7 +430,8 @@ class Editor {
         { id: piece.id, at: piece.at as HexKey, turn: piece.turn, mirror: piece.mirror },
       ]
     }
-    this.notify({ kind: 'all' })
+    if (laid.length)
+      this.notify({ kind: 'laid', cells: laid.flatMap((p) => Object.keys(p.cells) as HexKey[]) })
   }
 
   /** The world clock: saved with the campaign, outside the undo history (like play). */
@@ -684,7 +685,8 @@ class Editor {
       this.print = structuredClone(this.map.print)
       this.scale = { ...this.map.scale }
     }
-    if (change.kind === 'meta' || change.kind === 'all') this.meta = { ...this.map.meta }
+    if (change.kind === 'meta' || change.kind === 'laid' || change.kind === 'all')
+      this.meta = { ...this.map.meta }
     if (change.kind === 'world' || change.kind === 'all') {
       this.world = this.campaign.world
       this.waiting = this.campaign.waiting
@@ -697,7 +699,7 @@ class Editor {
       this.layers = structuredClone(this.map.layers)
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]
     if (change.kind === 'tokens' || change.kind === 'all') this.tokens = [...this.map.tokens]
-    if (change.kind === 'regions' || change.kind === 'all') {
+    if (change.kind === 'regions' || change.kind === 'laid' || change.kind === 'all') {
       this.regionStyle = { ...this.map.regionStyle }
       this.regions = [...this.map.regions]
       if (this.regionId && !this.map.regions.some((r) => r.id === this.regionId))

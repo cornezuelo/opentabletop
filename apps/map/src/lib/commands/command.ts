@@ -31,6 +31,8 @@ export type MapChange =
   | { kind: 'meta' }
   /** The style the map is drawn in changed in its pack: everything redrawn, the view kept. */
   | { kind: 'look' }
+  /** Pieces a trip laid: everything redrawn, the view kept unless they fall out of sight. */
+  | { kind: 'laid'; cells: HexKey[] }
   | { kind: 'all' }
 
 /** A reversible map mutation. Every edit goes through one so undo/redo always works. */

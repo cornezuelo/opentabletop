@@ -318,11 +318,14 @@ function newTrip(system: string, season: Season): void {
   const play = { ...current() }
   delete play.away
   const location = partyLocation()
-  if (!location)
+  if (!location) {
+    // Nothing shows yet: say what starts it.
+    showToast(t('play.placeFirst'), 'info', 6000)
     return save({
       ...play,
       rules: { system, startDay: seasonStart(getSystem(system), season), session: null },
     })
+  }
   save(newSession(play, location, system, season))
 }
 

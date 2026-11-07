@@ -4,6 +4,15 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: the strip over the map says what happened last, the journal's newest line, instead of _You've arrived_ again and again.
+- Map: **New trip** with no party on the map says to place it first.
+
+### Fixes
+
+- Map: laying a room on a map laid piece by piece no longer zooms the view out; it only moves when the room falls out of sight.
+
 ## [0.42.0] - 2026-11-07
 
 ### Apps

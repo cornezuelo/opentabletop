@@ -21,7 +21,6 @@
   } from '@open-tabletop/session'
   import { formatClock } from '@open-tabletop/time'
   import {
-    actionNothingOf,
     changesText,
     durationText,
     entryClock,
@@ -40,13 +39,11 @@
     availableActions,
     isClock,
     isPartRef,
-    findPartRef,
     refId,
     movingActions,
     noTotals,
     paramDefault,
     checkInfo,
-    declaredValues,
     type ActionParam,
     type ParamChoice,
     type TravelAction,
@@ -61,12 +58,11 @@
     waitingForRoom,
   } from '@open-tabletop/session'
   import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
-  import { idText, translator } from './i18n'
-  import { memberLabel, memberNamer, statSource } from './members'
-  import { divisionName, partName } from './dayParts'
+  import { translator } from './i18n'
+  import { memberLabel, statSource } from './members'
   import Section from './Section.svelte'
-  import { connectionName } from './terrains'
   import TripStatus from './TripStatus.svelte'
+  import { journalContext } from './journalContext'
   import { tripTab, type TripTab } from './tripTab.svelte'
   import { journalFilter } from './journalFilter.svelte'
   import PartyMembers from './PartyMembers.svelte'
@@ -163,6 +159,10 @@
   const travel = $derived(session.travel)
 
   const calendar = $derived(calendarOf(system))
+  /** The journal's lines in words, by the system's names; its helpers serve the rest too. */
+  const context = $derived(
+    journalContext({ system, session, locale, t, startDay, hexLabel, terrainName, nameOf, facts }),
+  )
   /** A way of travelling's speed: its km a day, or its minutes a step. */
   const speedOf = (mode: string): string => {
     const { kmPerDay, minutes } = system.rules.modes[mode]
@@ -300,16 +300,9 @@
   /** What can't be done now (travel, actions) and why. */
   const blocked = $derived(tripAvailability({ system, world, facts }, session))
   /** The values of the day the system declares, by their names (lost: Lost). */
-  const dayValues = $derived(
-    Object.fromEntries(
-      Object.entries(declaredValues(system.rules)).map(([id, v]) => [
-        id,
-        localize(v.name, locale, 'en') ?? idText(t, `values.${id}`, id),
-      ]),
-    ),
-  )
+  const dayValues = $derived(context.dayValues)
   /** The party's characters' values and conditions in words ("Kael: Health"). */
-  const memberName = $derived(memberNamer(system, session.members, locale, t, facts, session.party))
+  const memberName = $derived(context.memberName)
   /** Why a button is disabled, in words ('' when it isn't). */
   const why = (because: Unavailable | undefined): string =>
     whyText(because, { t, dayValues, memberName, valueName, terrainName })
@@ -383,9 +376,8 @@
   const statText = (text: Parameters<typeof localize>[0], key: string) =>
     localize(text, locale, 'en') ?? key
 
-  const actionName = (id: string) =>
-    localize(actions.all[id]?.name, locale, 'en') ?? idText(t, `actions.${id}`, id)
-  const checkName = (event: string) => localize(checkInfo(system.rules, event).name, locale, 'en')
+  const actionName = (id: string) => context.actionName(id)
+  const checkName = (event: string) => context.checkName(event)
   /** A check's description from its pack (basic Markdown). */
   const checkTip = (event: string) =>
     localize(checkInfo(system.rules, event).description, locale, 'en') ?? ''
@@ -393,8 +385,7 @@
    * Names the system gives its ways of travelling (the app's dictionary only names the
    * Generic rules' ones, then the id made readable).
    */
-  const modeName = (id: string) =>
-    localize(system.rules.modes[id]?.name, locale, 'en') ?? idText(t, `modes.${id}`, id)
+  const modeName = (id: string) => context.modeName(id)
 
   /** What an action or a rest changes, as words: "Morale +1" (from its effects). */
   function changes(own: unknown): string {
@@ -411,49 +402,9 @@
     t('tips.readAs', { keys: keys.map((k) => '`{{' + k + '}}`').join(' · ') })
 
   /** Name of a value results change: a stat of the system, as it names it. */
-  const valueName = (key: string) => {
-    const stat = system.bindings?.stats?.[key]
-    if (stat) return statText(stat.name, key)
-    return idText(t, `resources.${key}`, key)
-  }
-  /** What an action that rolled nothing says: its own text, '' without checks, or generic. */
-  const actionNothing = (id: string) => actionNothingOf(system.rules, id, locale)
+  const valueName = (key: string) => context.valueName(key)
   /** A clock (`06:00`) or a part of the calendar's day by its name ("Meals: supper"). */
-  const untilText = (moment: string) => {
-    if (!isPartRef(moment)) return moment
-    const found = findPartRef(calendar.divisions ?? [], moment)
-    return found
-      ? `${divisionName(found.division, locale, t('watches'))}: ${partName(found.division, found.part, locale)}`
-      : moment
-  }
-  const context = $derived({
-    t,
-    partName: untilText,
-    startDay,
-    hexLabel,
-    nameOf,
-    actionName,
-    checkName,
-    calendar,
-    valueName,
-    terrainName,
-    connectionName: (id: string) => connectionName(t, id, { system, locale }),
-    actionNothing,
-    dayValues,
-    memberName,
-    textOf: (text: unknown) => localize(text as Parameters<typeof localize>[0], locale, 'en') ?? '',
-    modeName,
-    paramName: (action: string, key: string) => {
-      const param = actions.all[action]?.params?.[key]
-      return param ? paramName(key, param) : key
-    },
-    choiceName: (action: string, key: string, choice: string) => {
-      const c = actions.all[action]?.params?.[key]?.choices.find(
-        (c) => String(choiceId(c)) === choice,
-      )
-      return c === undefined ? choice : askedName(c)
-    },
-  })
+  const untilText = (moment: string) => context.partName(moment)
   /** What an action does, for its tooltip: its description, or what its steps do. */
   function actionTip(id: string, fallback = ''): TooltipText {
     const own = actions.all[id]
