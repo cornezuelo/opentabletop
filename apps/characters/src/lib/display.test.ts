@@ -23,7 +23,11 @@ describe('how the bundled sheets show their values', () => {
 
   it('a companion’s health is a bar up to its max, its tone falling with it', () => {
     const sheet = marches().sheet.def
-    const kael = createCharacter(sheet, marches().sheet.id, { id: 'kael' })
+    // Max health is rolled for each companion: this one has 3.
+    const kael = createCharacter(sheet, marches().sheet.id, {
+      id: 'kael',
+      values: { maxHealth: 3 },
+    })
     const at = (health: number) =>
       valueView(sheet.values.health, health, boundsOf(sheet, kael, 'health'), 'en')
     expect(at(3)).toMatchObject({ display: 'bar', max: 3, fill: 1, tone: 'good' })

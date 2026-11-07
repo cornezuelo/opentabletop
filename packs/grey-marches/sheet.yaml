@@ -13,7 +13,8 @@ description: |-
   A new companion sets out with two rations.
 
   **Shows:** a sheet of values with bounds (one bounded by another value,
-  `max: '{{self.values.maxHealth}}'`), each value shown its own way (skills as pips, health as
+  `max: '{{self.values.maxHealth}}'`, itself rolled for each new companion,
+  `default: '{{1d3+2}}'`), each value shown its own way (skills as pips, health as
   a bar whose tone falls with it, dread as boxes that turn red,
   nerve as a die that steps from d4 to d12 (`display: levels`), a bond's number as pips), a
   value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action, a
@@ -64,11 +65,12 @@ values:
     max: 3
     display: pips
     group: skills
-  # Health under a maximum that is another value (a variable as the bound).
+  # Health under a maximum that is another value (a variable as the bound). The maximum is
+  # rolled for each new companion (dice as a default): 3 to 5.
   maxHealth:
     name: Max health
-    description: The most health this companion can have; a fed night in camp heals up to it.
-    default: 3
+    description: The most health this companion can have, rolled when they join (1d3+2); a fed night in camp heals up to it.
+    default: '{{1d3+2}}'
     min: 1
     max: 6
     group: body

@@ -464,6 +464,8 @@ export const es: Messages<typeof en> = {
     valueName: 'Nombre',
     default: 'Empieza en',
     defaultHelp: 'Lo que tiene un personaje nuevo (vacío: 0).\n• `2`',
+    startRolledHelp:
+      'Lo que tiene un personaje nuevo (vacío: 0): un número, o dados que se tiran para cada personaje nuevo, los mismos por muchas veces que se haga el mismo.\n• `2`\n• `{{3d6}}` — tres dados de seis caras, sumados\n• `{{1d6+10}}` — de 11 a 16',
     min: 'Mín.',
     max: 'Máx.',
     boundHelp:

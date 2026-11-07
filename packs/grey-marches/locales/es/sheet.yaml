@@ -8,7 +8,8 @@ sheet/companion:
     marchas nocturnas. Un compañero nuevo sale con dos raciones.
 
     **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
-    `max: '{{self.values.maxHealth}}'`), cada valor mostrado a su manera (las habilidades
+    `max: '{{self.values.maxHealth}}'`, que se tira para cada compañero nuevo,
+    `default: '{{1d3+2}}'`), cada valor mostrado a su manera (las habilidades
     como puntos, la salud como una barra cuyo tono baja con ella, el
     pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12
     (`display: levels`), el número de un vínculo como puntos), un valor que sale de otros (las
@@ -43,7 +44,7 @@ sheet/companion:
       description: El grupo es tan sigiloso como su compañero más torpe.
     maxHealth:
       name: Salud máxima
-      description: La salud más alta que puede tener este compañero; una noche bien comidos en el campamento cura hasta ella.
+      description: La salud más alta que puede tener este compañero, tirada cuando se une (1d3+2); una noche bien comidos en el campamento cura hasta ella.
     health:
       name: Salud
       description: Se pierde en vados, emboscadas y con el frío; una noche bien comidos en el campamento devuelve una.

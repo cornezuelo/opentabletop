@@ -71,6 +71,10 @@ describe('sub-maps', () => {
         for (let i = 0; i < 12; i++) {
           if (session().travel.location === to || !session().travel.route) break
           for (const c of session().travel.pendingChecks) play.resolvePending(c.id)
+          // A barred door on the way: forced first (its noise may bring the dead).
+          const last = session().journal.at(-1)
+          if (last?.code === 'ROUTE_BLOCKED' || last?.code === 'TRAVEL_STOPPED')
+            play.step({ type: 'action', id: 'force-door' })
           play.step({ type: 'action', id: 'march', with: { until: 'place' } })
           await settle()
         }

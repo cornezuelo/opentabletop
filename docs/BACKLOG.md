@@ -29,7 +29,7 @@ Guiding idea (the user's, 2026-10-07): mechanics like fatigue, morale, reputatio
   - [x] ✅ (2026-11-07, on autopilot, **to review with the user**: `dice.doubles` and `dice.faces` beside `roll`, read by a table's entries; a roll mode's `swap: true`, the percentile die's tens and units swapped when that's the total kept; also exploding dice, `1d6!` and `1d6!1`; Core's _Against the odds_ and _Either way_, the Grey Marches' hoard and _A lucky search_; Packs' **Either way**; the dice regex once, in `dice` (`isDiceTerm`, `isDiceRoll`)) **Percentile dice**: reading doubles (critical, fumble), and advantage as swapping tens and ones; roll modes only repeat and keep.
   - [ ] **A skill check as a step**: choose a value, roll under it with a modifier, opposed checks, each result its own branch.
   - [ ] **Combat**: turns, opposed attacks, hit locations, a damage pool keeping one die, armour wearing out (roadmap point 9); creatures' statblocks with their action tables.
-  - [ ] **Sheets with rolled starts** (a value starting at `1d6+10`), allotments of points, and advancement (marked skills, levels, trees of abilities).
+  - [ ] ~~**Sheets with rolled starts** (a value starting at `1d6+10`)~~ (✅ 2026-11-07, on autopilot, **to review**: `default: '{{1d6+10}}'`, rolled for each new character, seeded by its id; the Grey Marches' Max health, Core's food), allotments of points, and advancement (marked skills, levels, trees of abilities).
   - [ ] **A piece that keeps the place open**: re-rolling a shape that would leave no way on.
   - [ ] **Procedures with choices** (locks and traps, camp activities that change the camp's roll): possible with actions, long to write; a shorter form to look for.
 

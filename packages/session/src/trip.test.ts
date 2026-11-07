@@ -705,7 +705,10 @@ describe("Core's system: the Generic rules as data", () => {
     const system = coreSystem()
     const { session } = startTrip({ system, location: '0' })
     expect(system.calendar!.describe(session.travel.time)).toMatchObject({ hour: 6 })
-    expect(session.party?.values).toMatchObject({ morale: 3, food: 6 })
+    // Food is rolled as the party sets out (2d3+2).
+    expect(session.party?.values.morale).toBe(3)
+    expect(session.party?.values.food).toBeGreaterThanOrEqual(4)
+    expect(session.party?.values.food).toBeLessThanOrEqual(8)
     // The weather check rolls the plain sky each morning (a spring day starts cloudy).
     const { registry } = loadPacks(corePack())
     const oracle = createOracleEngine({ registry, random: seeded(1) })
@@ -723,7 +726,7 @@ describe("Core's system: the Generic rules as data", () => {
     // Going on by itself (a wait), the party halts at night (camp) and eats at midnight.
     const until = system.calendar!.at(2, '12:00')
     const next = stepTrip(options, day.state, { type: 'wait', until }).state
-    expect(next.party?.values.food).toBe(5)
+    expect(next.party?.values.food).toBe(session.party!.values.food - 1)
     expect(next.journal.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'camp')).toBe(
       true,
     )

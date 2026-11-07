@@ -167,8 +167,8 @@
         {
           field: 'default',
           label: t('sheet.default'),
-          help: t('sheet.defaultHelp'),
-          type: 'number',
+          help: t('sheet.startRolledHelp'),
+          type: 'value',
           off: (row) => row.from !== undefined,
         },
         { field: 'from', label: t('sheet.from'), help: t('sheet.fromHelp'), type: 'value' },

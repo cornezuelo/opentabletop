@@ -452,6 +452,8 @@ export const en = {
     valueName: 'Name',
     default: 'Starts at',
     defaultHelp: 'What a new character has (empty: 0).\n• `2`',
+    startRolledHelp:
+      'What a new character has (empty: 0): a number, or dice rolled for each new character, the same however often the same one is made.\n• `2`\n• `{{3d6}}` — three six-sided dice, added\n• `{{1d6+10}}` — 11 to 16',
     min: 'Min',
     max: 'Max',
     boundHelp:

@@ -15,6 +15,7 @@ import {
   changeValue,
   evaluate,
   lookupIn,
+  momentRoller,
   namesIn,
   resolveChange,
   rollsIn,
@@ -120,7 +121,16 @@ const value = z
   .object({
     name: text.optional(),
     description: text.optional(),
-    default: z.number().optional(),
+    /**
+     * What a new character starts with: a number, or dice rolled for each one (`'{{3d6}}'`,
+     * `'{{1d6+10}}'`), seeded by the character's id so it's the same however often it's made.
+     */
+    default: z
+      .union([
+        z.number(),
+        z.string().regex(/^\s*\{\{[^}]+\}\}\s*$/, "a number, or dice in '{{…}}' ('{{3d6}}')"),
+      ])
+      .optional(),
     /**
      * Made of the sheet's other values, never set (`'{{self.values.might * 2 + 4}}'`), or of
      * the items (`{ sum: items.slots }`): kept up to date after every change, within its bounds.
@@ -557,6 +567,13 @@ export interface CharacterState {
   template?: { id: string; from: string }
 }
 
+/** A value's start: its number, its dice rolled (seeded by `key`), or 0. */
+function startOf(start: number | string | undefined, key: string): number {
+  if (typeof start !== 'string') return start ?? 0
+  const n = resolveChange(start, {}, momentRoller(key))
+  return typeof n === 'number' ? n : 0
+}
+
 /** A new character with the sheet's defaults (a value without one starts at 0), then `init`. */
 export function createCharacter(
   sheet: Sheet,
@@ -566,7 +583,11 @@ export function createCharacter(
   items?: ItemLookup,
 ): CharacterState {
   const values = Object.fromEntries(
-    Object.entries(sheet.values).map(([id, v]) => [id, v.default ?? 0]),
+    Object.entries(sheet.values).map(([id, v]) => [
+      id,
+      // Dice are rolled once for each character, the same for the same one (its id).
+      init.values?.[id] ?? startOf(v.default, `${sheetId}|${init.id}|${id}`),
+    ]),
   )
   const made: CharacterState = {
     sheet: sheetId,

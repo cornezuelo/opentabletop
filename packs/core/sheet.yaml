@@ -42,7 +42,7 @@ name: Party
 description: |-
   The party of the Generic rules, as a whole: its morale and its food.
 
-  **Shows:** the smallest party sheet: a value with bounds, drawn as boxes, and a supply as a plain value of the party (it starts at its default and never goes below 0; the rules eat it).
+  **Shows:** the smallest party sheet: a value with bounds, drawn as boxes, and a supply as a plain value of the party (it starts rolled, `default: '{{2d3+2}}'`, and never goes below 0; the rules eat it).
 values:
   morale:
     name: Morale
@@ -53,6 +53,7 @@ values:
     display: boxes
   food:
     name: Food
-    description: Days of food the party carries between them; a day is eaten as each day ends, and it never goes below 0.
-    default: 6
+    description: Days of food the party carries between them, rolled when it sets out (2d3+2); a day is eaten as each day ends, and it never goes below 0.
+    # Rolled for each new party (dice as a default): 4 to 8.
+    default: '{{2d3+2}}'
     min: 0

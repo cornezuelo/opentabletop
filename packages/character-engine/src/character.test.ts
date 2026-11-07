@@ -577,3 +577,41 @@ describe('what holds by itself', () => {
     expect(c.values.a).toBe(6)
   })
 })
+
+describe('values that start rolled', () => {
+  const { sheet: rolled, errors } = parseSheet({
+    kind: 'sheet',
+    id: 'rolled',
+    values: {
+      might: { default: '{{3d6}}' },
+      wits: { default: '{{3d6}}' },
+      health: { default: '{{1d6+10}}', min: 0 },
+      luck: { default: 2 },
+    },
+  })
+
+  it('roll their dice for each new character, the same for the same one', () => {
+    expect(errors).toEqual([])
+    const a = createCharacter(rolled!, 'test/rolled', { id: 'a' })
+    expect(a.values.health).toBeGreaterThanOrEqual(11)
+    expect(a.values.health).toBeLessThanOrEqual(16)
+    expect(a.values.luck).toBe(2)
+    expect(createCharacter(rolled!, 'test/rolled', { id: 'a' }).values).toEqual(a.values)
+    // Each value rolls its own dice, and each character its own.
+    const many = Array.from({ length: 20 }, (_, i) =>
+      createCharacter(rolled!, 'test/rolled', { id: `c${i}` }),
+    )
+    expect(new Set(many.map((c) => c.values.might)).size).toBeGreaterThan(3)
+    expect(many.some((c) => c.values.might !== c.values.wits)).toBe(true)
+    // What it's given wins over the dice.
+    expect(
+      createCharacter(rolled!, 'test/rolled', { id: 'a', values: { might: 18 } }).values.might,
+    ).toBe(18)
+  })
+
+  it('are dice in {{…}} or numbers, never other words', () => {
+    expect(
+      parseSheet({ kind: 'sheet', id: 'x', values: { a: { default: 'ten' } } }).errors.length,
+    ).toBeGreaterThan(0)
+  })
+})
