@@ -236,6 +236,8 @@ Cuando la campaña tiene su reloj del mundo (el panel Mundo de Mapa, la aplicaci
 
 Una tabla atada como `discover.piece` ve también `exit.kind` y `exit.tags`, la salida que se cruza, y lo colocado en este mapa: `pieces.total` y `pieces.<id>`. Mira [Piezas](../packs/24-pieces.md).
 
+Las comprobaciones en `trip.place-enter` leen el lugar ya descubierto: lo que se coloca o se decide allí va primero, al entrar el grupo, así que `place.tags` o `place.floor` de una pieza recién colocada valen de inmediato.
+
 - La tabla de **terreno** ve la casilla donde está el grupo (su terreno, etiquetas, valores y región), más `place.id` (la casilla que se decide), `from` (desde la que se ve: `from.id`, `from.terrain`…) y la tierra alrededor de la casilla que se decide: `around` cuenta los terrenos de sus vecinas conocidas (`around.lake: 2`), `aroundCount` cuántos se conocen, `common` el terreno más frecuente (en un empate gana el de la casilla desde la que se ve) y `commonCount` cuántos lo tienen.
 - La tabla de **contenido** ve la casilla a la que se entra (`place.terrain`, `place.tags`… y `terrain` en corto).
 - Las dos ven las características del grupo, `party` y los valores del día.

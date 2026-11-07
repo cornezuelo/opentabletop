@@ -51,6 +51,7 @@ In a table's or oracle's `roll`, a generator field's `roll`, and inside texts as
 | `2d6+1`, `1d6+1d4`, `1d20-2` | sums and differences                     |
 | `4d6kh3`, `2d20kl1`          | keep the highest 3, keep the lowest 1    |
 | `1d6 + {{place.danger}}`     | plus a value (missing counts as 0)       |
+| `1d{{party.values.tension}}` | a die of the size a value says           |
 
 Without `roll`, a table picks by `weight` (1 if none): `{ weight: 3, result: pilgrim }`.
 
