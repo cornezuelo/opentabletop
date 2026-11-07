@@ -295,34 +295,53 @@ export function defaultLayers(): Record<LayerId, LayerState> {
   ) as Record<LayerId, LayerState>
 }
 
-/**
- * The kinds of map a new one starts as (docs/places.md §10), presets of one model, all
- * changeable after: a **hexcrawl** (hexes, the natural palette, the system's scale), a
- * **dungeon** (squares of 3 m, the dungeon palette of floors and rock, faint glyphs) or a
- * **town** (squares of 3 m, streets, yards, gardens, grass, trees and water outside and the
- * floors of its buildings: the hybrid, ground outside and structures in).
- */
-export const MAP_KINDS = ['hexcrawl', 'dungeon', 'town'] as const
-export type MapKind = (typeof MAP_KINDS)[number]
+/** Every terrain of every set, once: what a blank map's palette starts with. */
+const ALL_TERRAINS: readonly TerrainType[] = [
+  ...new Map(
+    Object.values(TERRAIN_SETS)
+      .flat()
+      .map((t) => [t.id, t] as const),
+  ).values(),
+]
 
-export function createMap(name = '', kind: MapKind = 'hexcrawl'): HexMap {
+/**
+ * What a new map may start from (docs/places.md §10), shortcuts over one model, all changeable
+ * after: **blank** (hexes and every terrain, to draw anything), a **dungeon** (squares of 3 m,
+ * the palette of floors and rock) or a **town** (squares of 3 m, streets, yards, gardens,
+ * grass, trees and water outside and the floors of its buildings).
+ */
+export const MAP_TEMPLATES = ['blank', 'dungeon', 'town'] as const
+export type MapTemplate = (typeof MAP_TEMPLATES)[number]
+
+/** How a new map starts: a template, and what's chosen over it. */
+export interface MapStart {
+  template?: MapTemplate
+  cells?: 'hex' | 'square'
+  cellKm?: number
+}
+
+/** The km of a square, when nothing says: 3 m, a site's. */
+const SQUARE_KM = 0.003
+
+export function createMap(name = '', start: MapStart = {}): HexMap {
   const now = new Date().toISOString()
   const id = newId()
-  const dungeon = kind === 'dungeon'
-  const squares = kind !== 'hexcrawl'
+  const { template = 'blank' } = start
+  const squares = (start.cells ?? (template === 'blank' ? 'hex' : 'square')) === 'square'
+  const cellKm = start.cellKm ?? (squares ? SQUARE_KM : undefined)
   const natural = (id: string) => DEFAULT_TERRAINS.find((t) => t.id === id)!
   const terrains =
-    kind === 'town'
+    template === 'town'
       ? [natural('plains'), ...TERRAIN_SETS.town, natural('forest'), natural('lake')]
-      : dungeon
+      : template === 'dungeon'
         ? TERRAIN_SETS.dungeon
-        : DEFAULT_TERRAINS
+        : ALL_TERRAINS
   return {
     version: CURRENT_VERSION,
     // A new map makes a campaign of its own.
     meta: { id, name, created: now, modified: now, campaign: id },
     grid: squares ? { ...DEFAULT_GRID, kind: 'square', glyphs: 0.2 } : { ...DEFAULT_GRID },
-    scale: squares ? { cellKm: 0.003 } : {},
+    scale: cellKm ? { cellKm } : {},
     print: structuredClone(DEFAULT_PRINT),
     terrains: terrains.map((t) => ({ ...t })),
     hexes: {},

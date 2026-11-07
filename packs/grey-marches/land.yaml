@@ -45,3 +45,22 @@ next:
   rubble: { mine-gallery: 3, rock: 2 }
   black-water: { black-water: 3, mine-gallery: 2 }
 start: { rock: 3, mine-gallery: 1 }
+---
+kind: land
+id: village
+name: A village of the Marches
+description: |-
+  How a village of the Marches goes on: cobbled lanes between yards and houses, gardens at its edge, open land beyond. For the streets of a place like Ashford, filled in with Generate on a map of squares.
+
+  **Shows:**
+
+  - **A land model of ground and structures**: open terrains outside and floors inside on one map, walls drawing themselves round the floors
+  - A system's **third model**, beside the land and what lies under it
+next:
+  plains: { plains: 5, garden: 2, yard: 1 }
+  garden: { garden: 4, plains: 2, yard: 1 }
+  yard: { yard: 3, cobbles: 2, garden: 1, wood-floor: 2 }
+  cobbles: { cobbles: 5, yard: 2, wood-floor: 1, stone-floor: 1 }
+  wood-floor: { wood-floor: 6, yard: 1, cobbles: 1 }
+  stone-floor: { stone-floor: 6, cobbles: 1 }
+start: { plains: 3, cobbles: 1 }

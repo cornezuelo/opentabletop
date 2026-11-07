@@ -77,7 +77,7 @@ User, 2026-10-30: "para diseñar hazlo sencillo, pero estaría bien darle una vu
 
 User: "también poder dibujar ríos y masas de agua que se vean guay; para los hexes habría que pensar cómo hacer el embellecimiento, no tendría que ver con esto. Me pregunto, y esto sería para parar y preguntárselo bien antes de seguir, si tendremos que diferenciar distintos tipos de mapa, ya que entiendo que no se dibujará igual un mapa de una dungeon u otros interiores, de cómo se dibujaría un mapa de un outdoor de una ciudad, de cómo se diseñaría un hexcrawl o pointcrawl, o algo híbrido como Door Kickers donde ves interiores y también exterior".
 
-**Decided: kinds of map are presets over one model**, not separate models or apps. What really changes between a hexcrawl, a dungeon, a city or a Door Kickers street is four things, each already a setting of the model above:
+**Decided: kinds of map are presets over one model**, not separate models or apps (the last point of this section revises how they're offered). What really changes between a hexcrawl, a dungeon, a city or a Door Kickers street is four things, each already a setting of the model above:
 
 | Kind (preset)         | Grid   | Places                  | Drawing tools                                          | Time and scale        |
 | --------------------- | ------ | ----------------------- | ------------------------------------------------------ | --------------------- |
@@ -91,7 +91,8 @@ User: "también poder dibujar ríos y masas de agua que se vean guay; para los h
 - **Edges drawn by themselves are one mechanism**: where floor meets no floor the style draws a wall; where water meets land it draws a shore (a soft coastline, waves); between two terrains, a blended border. That gives nice **rivers and lakes** on square and point maps too: a lake is painted water cells with a shore drawn round it, a river is a path drawn as a widening curve, or painted water.
 - **Hexes' own look** (the user: "no tendría que ver con esto") stays apart: the same style idea (§9) applies to them later (terrain art per hex, blended borders, hand-drawn coast), but it isn't part of this work.
 - Choosing: **New map** asks for the kind (with a picture of each), which sets the grid, the tools in sight, the style and the scale; everything stays changeable in Map settings, so a kind is a starting point, not a cage. A system may say which kinds its maps use (the Grey Marches: hexcrawl, and dungeons under it).
-- **Decided (2026-10-30)**: kinds are presets of one model (as above); they come in the order hexcrawl → its dungeons as sub-maps → square maps with structures (the city, the hybrid) → the pointcrawl; a hex map holds no structures: a site inside a hex is a sub-map.
+- **Decided (2026-10-30)**: kinds are presets of one model (as above); they come in the order hexcrawl → its dungeons as sub-maps → square maps with structures (the city, the hybrid) → the pointcrawl.
+- **Revised (user, 2026-11-07: "no termino de entender que hace tan diferente…"):** there are no kinds of map. A map is its cells and its scale, drawn one way: any terrain on any grid, structures on hexes too, the blank palette every terrain. _Dungeon_ and _Town_ are templates of **New map** (`MAP_TEMPLATES`), and a sub-map is made in the same dialog. "A hex map holds no structures" is gone.
 
 ## 11. Phase 1's syntax (proposed 2026-10-30, decided with the user the same day)
 

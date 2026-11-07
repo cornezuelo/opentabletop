@@ -1,3 +1,4 @@
+import type { HexMap } from '@open-tabletop/map'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cellDistance, parseKey } from '@open-tabletop/hex'
 import type { LibraryEntry } from '@open-tabletop/storage'
@@ -41,6 +42,46 @@ describe('sub-maps', () => {
     maps.clear()
     kept.clear()
     localStorage.clear()
+  })
+
+  it('a map you have hangs from a cell, in this campaign, with its own sub-map', async () => {
+    vi.resetModules()
+    const { editor } = await import('../store/editor.svelte')
+    const { hangMap, mapsToHang } = await import('./submaps')
+    const { createMap, deserializeMap, serializeMap } = await import('@open-tabletop/map')
+
+    // A map of its own, with a sub-map under it, kept beside the one open.
+    const keep = (map: HexMap, parent?: string) =>
+      maps.set(map.meta.id, {
+        id: map.meta.id,
+        name: map.meta.name,
+        modified: map.meta.modified,
+        json: serializeMap(map),
+        ...(parent && { parent }),
+      })
+    const other = createMap('The Vale')
+    keep(other)
+    const below = createMap('The Cellar')
+    below.meta = {
+      ...below.meta,
+      campaign: other.meta.campaign,
+      parent: { map: other.meta.id, ways: [{ place: '2,2', entrance: '1,1' }] },
+    }
+    keep(below, other.meta.id)
+    const top = createMap('The Marches')
+    keep(top)
+    editor.load(top)
+    await settle()
+    expect((await mapsToHang()).map((m) => m.name)).toContain('The Vale')
+
+    expect(await hangMap(other.meta.id, '3,3')).toBe(true)
+    await settle()
+    const hung = deserializeMap(maps.get(other.meta.id)!.json)
+    expect(hung.meta.parent).toMatchObject({ map: top.meta.id, ways: [{ place: '3,3' }] })
+    expect(hung.meta.campaign).toBe(editor.map.meta.campaign)
+    expect(deserializeMap(maps.get(below.meta.id)!.json).meta.campaign).toBe(hung.meta.campaign)
+    // Hanging from nothing no more, and never one above the map itself.
+    expect((await mapsToHang()).map((m) => m.name)).not.toContain('The Vale')
   })
 
   it(

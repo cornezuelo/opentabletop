@@ -18,9 +18,11 @@
   import { getLocale, t } from './lib/i18n/index.svelte'
   import { editor } from './lib/store/editor.svelte'
   import Toolbar from './components/Toolbar.svelte'
+  import NewMapDialog from './components/NewMapDialog.svelte'
   import TopBar from './components/TopBar.svelte'
   import { library, startPersistence } from './lib/io/actions.svelte'
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
+  import { newMapDialog } from './lib/io/newMapDialog.svelte'
   import { bindShortcuts } from './lib/shortcuts'
   import { PANEL_WIDTH, panelWidth, setPanelWidth } from './lib/store/panelWidth.svelte'
   import { roster } from '@open-tabletop/character-ui'
@@ -155,6 +157,7 @@
 </div>
 <Toasts />
 <Dialogs />
+{#if newMapDialog.asked}<NewMapDialog asked={newMapDialog.asked} />{/if}
 
 <style>
   .layout {

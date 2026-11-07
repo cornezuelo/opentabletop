@@ -19,3 +19,12 @@ land/galleries:
     - **Un modelo de tierra en cuadrículas**: los terrenos de suelo crecen como pasillos en roca maciza, y los muros los siguen por sí solos
     - Un sistema con **dos modelos**, a elegir en Generar: uno para la tierra y otro para lo que hay debajo
     - `rock`, un terreno en el que no se puede entrar (`passable: false`), así que lo generado queda amurallado
+land/village:
+  name: Una aldea de las Marcas
+  description: |-
+    Cómo sigue una aldea de las Marcas: callejas adoquinadas entre patios y casas, huertos en el borde, campo abierto más allá. Para las calles de un sitio como Ashford, rellenas con Generar en un mapa de cuadrículas.
+
+    **Enseña:**
+
+    - **Un modelo de tierra de terreno y estructuras**: terrenos abiertos fuera y suelos dentro en un mismo mapa, con los muros dibujándose solos alrededor de los suelos
+    - Un **tercer modelo** del sistema, junto a la tierra y lo que hay debajo

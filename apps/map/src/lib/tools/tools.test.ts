@@ -72,7 +72,7 @@ describe('painting a dungeon', () => {
   })
 
   it('a new dungeon is squares of floors and rock, walked with the Generic rules round its walls', () => {
-    const map = createMap('Crypt', 'dungeon')
+    const map = createMap('Crypt', { template: 'dungeon' })
     expect(map.grid.kind).toBe('square')
     expect(map.scale.cellKm).toBe(0.003)
     expect(map.terrains.filter((t) => t.floor).map((t) => t.id)).toEqual([

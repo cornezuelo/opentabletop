@@ -35,7 +35,7 @@
   <div class="greeting">
     <Welcome title={t('welcome.title')} tagline={t('welcome.tagline')} body={t('welcome.body')}>
       <div class="start">
-        <button class="primary" onclick={newMap}>{t('actions.new')}</button>
+        <button class="primary" onclick={() => newMap()}>{t('actions.new')}</button>
         <button onclick={openMapFile}>{t('library.import')}</button>
         <button onclick={() => (dismissed = true)}>{t('welcome.empty')}</button>
       </div>

@@ -1,3 +1,4 @@
+import { createMap } from '@open-tabletop/map'
 import { loadPacks } from '@open-tabletop/oracle-engine'
 import { travelSystems } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
@@ -48,6 +49,17 @@ describe('Generate', () => {
     // One undo step takes it all back.
     done.command!.revert(map)
     expect(map.hexes).toEqual(painted)
+  })
+
+  it('grows a village from a lane: its own terrains, named by the system', () => {
+    const town = createMap('', { template: 'town' })
+    town.hexes['5,5'] = { terrain: 'cobbles' }
+    const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+    const done = generateEmpty(town, system.land!['grey-marches/village'], {}, 'more-streets')
+    expect(done.keys.length).toBeGreaterThan(0)
+    expect(done.terrains.some((t) => ['cobbles', 'yard', 'garden'].includes(t))).toBe(true)
+    for (const id of ['cobbles', 'yard', 'garden', 'wood-floor', 'stone-floor'])
+      expect(system.rules.terrains?.[id]?.name).toBeTruthy()
   })
 
   it("grows the clans' galleries round the old mine's squares: floor in rock, what's drawn kept", () => {

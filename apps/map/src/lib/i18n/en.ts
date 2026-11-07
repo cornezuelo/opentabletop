@@ -398,11 +398,15 @@ export const en = {
   },
   newMap: {
     title: 'New map',
-    kindMessage:
-      'What kind of map? A hexcrawl: hexes and the land’s terrains, at the system’s scale. A dungeon: squares of 3 m and a palette of floors (walls draw themselves round them) and rock. A town: squares of 3 m, streets, yards, gardens, grass, trees and water outside and the floors of its buildings, drawn in the Village style (roofs from outside, the inside while the party is in). Everything can be changed later in Map settings and Edit palette.',
-    hexcrawl: 'Hexcrawl',
-    dungeon: 'Dungeon',
-    town: 'Town',
+    subMapTitle: 'New sub-map',
+    name: 'Name',
+    template: 'Start from',
+    templateHelp:
+      'What the map starts with, all of it changeable later in **Map settings** and **Edit palette**. Every map draws the same way, with the same tools:\n• **Blank** — hexes and every terrain\n• **Dungeon** — squares of 3 m, floors whose walls draw themselves, and rock\n• **Town** — squares of 3 m, streets, yards and gardens outside, floors inside, drawn with roofs',
+    templates: { blank: 'Blank', dungeon: 'Dungeon', town: 'Town' },
+    under: 'Under this map, at {cell}',
+    underHint: 'To hang a map under this one, select a cell first: the way in starts there.',
+    make: 'Create',
     message:
       'The current map stays in Maps (this browser). Do you also want to save it to a file before creating a new one?',
     cancel: 'Cancel',
@@ -658,6 +662,10 @@ export const en = {
     new: 'New sub-map here',
     defaultName: 'Under the cell',
     created: '{name}: a sub-map under this cell, in Maps.',
+    hang: 'A map you have',
+    hung: '{name} now hangs from this cell, in this campaign.',
+    hangLeaves: 'Its world, «{name}», stays behind: the map joins this campaign.',
+    newUnder: 'New sub-map at the selected cell',
     anotherWay: 'Another way into…',
     addWay: 'Add',
     wayAdded: 'This cell is one more way into {name}: move its entrance in its Map settings.',
@@ -668,7 +676,7 @@ export const en = {
       "The open map and every map joined to it: each **sub-map** under the map it hangs from, with its **ways** to it. Each way shows its two ends, the cell above and the cell below, and its kind.\n• a map's name opens that map\n• a cell opens its map with that cell selected and in view\nIt shows every way, found on a trip or not, as the map itself does.",
     treeHere: 'open now',
     treeEmpty:
-      'This map has no sub-maps yet. Select a cell and use **+ Way into a map** to make one.',
+      'This map has no sub-maps yet. Select a cell and use **New sub-map at the selected cell** here, or **+ Way into a map** in its panel.',
     treeAbove: 'the map above, not kept here',
     inside: 'Inside',
     insideHelp:

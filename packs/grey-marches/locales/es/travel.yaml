@@ -272,6 +272,16 @@ travel-rules/default:
       name: Galería de mina
     black-water:
       name: Agua negra
+    cobbles:
+      name: Adoquines
+    yard:
+      name: Patio
+    garden:
+      name: Huerto
+    wood-floor:
+      name: Suelo de madera
+    stone-floor:
+      name: Suelo de piedra
   connections:
     ford:
       name: Vado

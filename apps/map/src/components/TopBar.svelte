@@ -78,7 +78,7 @@
       },
     ],
     [
-      { label: 'actions.new', glyph: 'new', run: newMap },
+      { label: 'actions.new', glyph: 'new', run: () => newMap() },
       { label: 'actions.open', glyph: 'folder', run: toggle('library'), panel: 'library' },
       { label: 'actions.save', glyph: 'save', run: saveMap },
       { label: 'actions.export', glyph: 'export', run: toggle('export'), panel: 'export' },

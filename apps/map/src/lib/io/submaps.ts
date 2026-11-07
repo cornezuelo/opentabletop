@@ -1,6 +1,5 @@
 import { formatCoord, parseKey } from '@open-tabletop/hex'
 import {
-  createMap,
   deserializeMap,
   newId,
   parseAreaPlace,
@@ -11,12 +10,32 @@ import {
   type HexKey,
   type HexMap,
   type MapParent,
+  type MapStart,
 } from '@open-tabletop/map'
-import { getLibraryMap, listLibrary, putLibraryMap } from '@open-tabletop/storage'
+import { hasWorld, landIn, leaveTrip, serializeCampaign } from '@open-tabletop/campaign'
+import {
+  deleteCampaign,
+  getLibraryMap,
+  listLibrary,
+  putCampaign,
+  putLibraryMap,
+} from '@open-tabletop/storage'
 import { serializeMap } from '@open-tabletop/map'
+import { confirmAction, showToast } from '@open-tabletop/ui-kit'
+import { t } from '../i18n/index.svelte'
+import { mapSystem } from '../play/systems'
 import { editor } from '../store/editor.svelte'
 import { view } from '../store/view'
-import { keepOpenMap, library, openLibraryMap } from './actions.svelte'
+import {
+  keepOpenMap,
+  keptCampaign,
+  library,
+  openLibraryMap,
+  othersInCampaign,
+  startMap,
+  subMapsBelow,
+} from './actions.svelte'
+import { askNewMap, type NewMapAnswer } from './newMapDialog.svelte'
 
 /** A map kept in the library, read, or undefined if it isn't (or can't be read). */
 async function kept(id: string): Promise<HexMap | undefined> {
@@ -241,14 +260,18 @@ export async function addWayInto(id: string, place: HexKey): Promise<void> {
 
 /**
  * Makes a new sub-map under a place of the open map, in its campaign, and keeps it in the
- * library (not opened). Its entrance is its middle hex; `kind`, the way in's.
+ * library (not opened). Its entrance is its middle hex; `kind`, the way in's. It starts as
+ * chosen, a site (a dungeon) if nothing says.
  */
-export async function newSubMap(place: HexKey, name: string, kind?: string): Promise<HexMap> {
+export async function newSubMap(
+  place: HexKey,
+  name: string,
+  kind?: string,
+  start: MapStart = { template: 'dungeon' },
+): Promise<HexMap> {
   // It hangs from the open map, which has to be there to go back to.
   if (library.untouched) await keepOpenMap()
-  // A site under a place is a dungeon at first (squares, floors and rock); Map settings and
-  // Edit palette change it.
-  const map = createMap('', 'dungeon')
+  const map = startMap('', start)
   const { width, height } = map.grid
   const parent: MapParent = {
     map: editor.map.meta.id,
@@ -272,4 +295,107 @@ export async function newSubMap(place: HexKey, name: string, kind?: string): Pro
   library.version++
   await loadLinks()
   return map
+}
+
+/** The kind of a new way in: the system's for one, if it has it. */
+function wayInKind(): string | undefined {
+  return mapSystem().rules.connections?.['way-in'] ? 'way-in' : undefined
+}
+
+/** The sub-map New map chose. */
+export async function makeSubMap(answer: NewMapAnswer): Promise<void> {
+  if (!answer.under) return
+  const made = await newSubMap(
+    answer.under,
+    answer.name || t('submap.defaultName'),
+    wayInKind(),
+    answer.start,
+  )
+  showToast(t('submap.created', { name: made.meta.name }))
+}
+
+/** New sub-map on a cell: the dialog of New map, for that cell. */
+export async function askSubMap(place: HexKey, name: string): Promise<void> {
+  const answer = await askNewMap({ place, name, subMap: true })
+  if (answer) await makeSubMap({ ...answer, under: place })
+}
+
+/** The maps kept here that could hang from the open map: on top of a tree that isn't this one. */
+export async function mapsToHang(): Promise<{ id: string; name: string }[]> {
+  const id = editor.map.meta.id
+  const here = { id, name: editor.map.meta.name, parent: editor.map.meta.parent?.map }
+  const entries = (await listLibrary().catch(() => [])).filter((e) => e.id !== id)
+  const ours = new Set(treeAround([...entries, here], id).map(({ item }) => item.id))
+  return entries
+    .filter((e) => !e.parent && !ours.has(e.id))
+    .map(({ id, name }) => ({ id, name }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Hangs a map kept here from a place of the open map, with its own sub-maps, in the open
+ * map's campaign, as a sub-map made here would be: its entrance its middle cell. A world of
+ * its own stays behind, after asking; a campaign nothing else plays in goes.
+ */
+export async function hangMap(id: string, place: HexKey): Promise<boolean> {
+  const entry = await getLibraryMap(id).catch(() => null)
+  if (!entry) return false
+  if (library.untouched) await keepOpenMap()
+  const map = deserializeMap(entry.json)
+  const to = editor.campaign
+  const leaving = map.meta.campaign === to.id ? null : map.meta.campaign
+  const from = leaving ? await keptCampaign(leaving) : null
+  if (from && hasWorld(from)) {
+    const name = from.name || t('map.untitled')
+    if (!(await confirmAction(t('submap.hangLeaves', { name })))) return false
+  }
+  const below = await subMapsBelow(id)
+  const inHere = (m: HexMap): HexMap => ({
+    ...m,
+    meta: { ...m.meta, campaign: to.id },
+    territories: landIn(to, m.territories),
+  })
+  const { width, height } = map.grid
+  const kind = wayInKind()
+  const parent: MapParent = {
+    map: editor.map.meta.id,
+    ways: [
+      {
+        place,
+        entrance: `${Math.floor(width / 2)},${Math.floor(height / 2)}` as HexKey,
+        ...(kind && { kind }),
+      },
+    ],
+  }
+  const hung = inHere(map)
+  hung.meta = { ...hung.meta, parent, modified: new Date().toISOString() }
+  await putLibraryMap({
+    ...entry,
+    modified: hung.meta.modified,
+    json: serializeMap(hung),
+    parent: parent.map,
+  })
+  for (const sub of below) {
+    const read = deserializeMap(sub.json)
+    if (read.meta.campaign === leaving)
+      await putLibraryMap({ ...sub, json: serializeMap(inHere(read)) })
+  }
+  if (from) {
+    const left = leaveTrip(from, { app: 'map', id })
+    const moved = new Set([id, ...below.map((e) => e.id)])
+    const others = (await othersInCampaign(from.id)).filter(
+      (p) => p.app !== 'map' || !moved.has(p.id),
+    )
+    if (others.length)
+      await putCampaign({
+        id: left.id,
+        name: left.name,
+        modified: new Date().toISOString(),
+        json: serializeCampaign(left),
+      })
+    else await deleteCampaign(from.id)
+  }
+  library.version++
+  await loadLinks()
+  return true
 }

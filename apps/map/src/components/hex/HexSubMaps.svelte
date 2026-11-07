@@ -2,16 +2,25 @@
   import type { HexKey } from '@open-tabletop/map'
   import { InfoTip, showToast } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n/index.svelte'
-  import { addWayInto, newSubMap, openMapAt, waysAt, type WayHere } from '../../lib/io/submaps'
+  import { library } from '../../lib/io/actions.svelte'
+  import {
+    addWayInto,
+    askSubMap,
+    hangMap,
+    mapsToHang,
+    openMapAt,
+    waysAt,
+    type WayHere,
+  } from '../../lib/io/submaps'
   import { partyAt, sessionOf, step } from '../../lib/play/play'
-  import { connectionName, mapSystem } from '../../lib/play/systems'
+  import { connectionName } from '../../lib/play/systems'
   import { editor } from '../../lib/store/editor.svelte'
   import WayArrow from './WayArrow.svelte'
 
   /**
    * The ways a cell leads into other maps: into the sub-maps under it and out of this
    * sub-map (Open; Go in or out while the party is there on a trip), and, while editing,
-   * New sub-map and another way into a sub-map of this map. In Play, only the ways.
+   * New sub-map, another way into a sub-map of this map, and a map kept here hung from it. In Play, only the ways.
    */
   let {
     key,
@@ -24,6 +33,13 @@
   const others = $derived(
     (editor.linked.children ?? []).filter((c) => !ways.some((w) => w.map === c.meta.id)),
   )
+  /** The maps kept here that could hang from this cell. */
+  let free = $state<{ id: string; name: string }[]>([])
+  $effect(() => {
+    void library.version
+    void editor.linked
+    if (editing) void mapsToHang().then((list) => (free = list))
+  })
   let another = $state('')
   /** The party is here on a trip (in the room the cell is in, too): it can head through the way. */
   const here = $derived.by(() => {
@@ -38,22 +54,16 @@
     showToast(t('submap.headed'), 'info', 6000)
   }
 
-  async function create() {
-    const kinds = Object.keys(mapSystem().rules.connections ?? {})
-    const made = await newSubMap(
-      key,
-      name || t('submap.defaultName'),
-      kinds.includes('way-in') ? 'way-in' : undefined,
-    )
-    showToast(t('submap.created', { name: made.meta.name }))
-  }
-
   async function addWay() {
     const child = others.find((c) => c.meta.id === another)
-    if (!child) return
-    await addWayInto(child.meta.id, key)
+    const hanging = free.find((m) => m.id === another)
+    if (hanging && (await hangMap(hanging.id, key)))
+      showToast(t('submap.hung', { name: hanging.name || t('map.untitled') }))
+    if (child) {
+      await addWayInto(child.meta.id, key)
+      showToast(t('submap.wayAdded', { name: child.meta.name || t('map.untitled') }))
+    }
     another = ''
-    showToast(t('submap.wayAdded', { name: child.meta.name || t('map.untitled') }))
   }
 </script>
 
@@ -85,14 +95,21 @@
       </div>
     {/each}
     {#if editing}
-      <button class="new" onclick={create}>{t('submap.new')}</button>
-      {#if others.length}
+      <button class="new" onclick={() => askSubMap(key, name)}>{t('submap.new')}</button>
+      {#if others.length || free.length}
         <div class="way">
           <select bind:value={another} aria-label={t('submap.anotherWay')}>
             <option value="">{t('submap.anotherWay')}</option>
             {#each others as child (child.meta.id)}
               <option value={child.meta.id}>{child.meta.name || t('map.untitled')}</option>
             {/each}
+            {#if free.length}
+              <optgroup label={t('submap.hang')}>
+                {#each free as map (map.id)}
+                  <option value={map.id}>{map.name || t('map.untitled')}</option>
+                {/each}
+              </optgroup>
+            {/if}
           </select>
           <button disabled={!another} onclick={addWay}>{t('submap.addWay')}</button>
         </div>

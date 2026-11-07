@@ -30,7 +30,7 @@ describe('the bundled map styles', () => {
   it('Village draws roofs over a town’s buildings and art on every terrain of a new town', () => {
     const s = style('core/village')
     expect(s.roofs).toEqual({ kind: 'tiles', color: '#a5563a', shadow: 0.3 })
-    const town = createMap('', 'town')
+    const town = createMap('', { template: 'town' })
     expect(town.grid.kind).toBe('square')
     for (const t of town.terrains.filter((t) => !t.floor))
       expect(s.art.terrains[t.id], t.id).toBeDefined()

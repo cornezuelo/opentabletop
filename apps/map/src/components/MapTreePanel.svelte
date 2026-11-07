@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Markdown } from '@open-tabletop/ui-kit'
   import { t } from '../lib/i18n/index.svelte'
-  import { library, openLibraryMap } from '../lib/io/actions.svelte'
+  import { library, newMap, openLibraryMap } from '../lib/io/actions.svelte'
   import { mapsTree, openMapAt, type TreeNode, type WayEnd } from '../lib/io/submaps'
   import { connectionName } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
@@ -51,11 +51,21 @@
     </li>
   {/each}
 </ul>
+{#if editor.mode === 'edit'}
+  <button class="new" disabled={!editor.selected} onclick={() => newMap(true)}
+    >{t('submap.newUnder')}</button
+  >
+  {#if !editor.selected}<p class="hint">{t('newMap.underHint')}</p>{/if}
+{/if}
 {#if nodes.length === 1 && !nodes[0].ways.length}
   <div class="empty"><Markdown text={t('submap.treeEmpty')} /></div>
 {/if}
 
 <style>
+  .new {
+    margin-top: 12px;
+  }
+
   ul {
     display: flex;
     flex-direction: column;

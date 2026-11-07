@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createMap } from './defaults'
 import { fieldValues, hasMetadata, isEmptyHex, normalizeHex, sameHex } from './hex'
 
 describe('normalizeHex', () => {
@@ -49,5 +50,22 @@ describe('field values as tables read them', () => {
       { key: 'empty', value: '' },
     ])
     expect(values).toEqual({ danger: 3, open: true, haunted: false, lord: 'Brenna', empty: '' })
+  })
+})
+
+describe('createMap', () => {
+  it('a blank map has hexes and every terrain; a template only starts differently', () => {
+    const blank = createMap()
+    expect(blank.grid.kind).toBeUndefined()
+    expect(blank.terrains.map((t) => t.id)).toEqual(
+      expect.arrayContaining(['plains', 'wood-floor', 'rock']),
+    )
+    expect(new Set(blank.terrains.map((t) => t.id)).size).toBe(blank.terrains.length)
+    const dungeon = createMap('', { template: 'dungeon' })
+    expect([dungeon.grid.kind, dungeon.scale.cellKm]).toEqual(['square', 0.003])
+    // What's chosen goes over the template: a dungeon on hexes, at its own scale.
+    const hexes = createMap('', { template: 'dungeon', cells: 'hex', cellKm: 0.01 })
+    expect([hexes.grid.kind, hexes.scale.cellKm]).toEqual([undefined, 0.01])
+    expect(hexes.terrains.some((t) => t.floor)).toBe(true)
   })
 })

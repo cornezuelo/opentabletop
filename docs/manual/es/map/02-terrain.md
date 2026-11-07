@@ -26,7 +26,7 @@ La paleta lista los terrenos del mapa, agrupados:
 
 Tus propios terrenos van en **Otros**. Cada mapa conserva la paleta con la que se creó. **Editar paleta** enseña el **id** de cada terreno junto a su nombre (`dense-forest`): lo que escriben las tablas, las condiciones y las reglas de viaje (`place.terrain: dense-forest`), sea cual sea el idioma de su nombre. Un terreno sin nombre propio en el mapa se llama como lo nombra el sistema del mapa (un terreno propio del sistema, en tu idioma: [Reglas → Terrenos](../packs/05-rules.md#terrenos-agua-y-caminos)), o si no como llama la aplicación a los habituales; un nombre escrito en **Editar paleta** manda sobre ambos, pero se queda en el idioma en que se escribió.
 
-No todo es fantasía. En **Editar paleta**, **Añadir terrenos de…** añade un conjunto entero de una vez (solo los terrenos que le faltan al mapa), cada uno con su símbolo y una velocidad en las reglas genéricas (las de Core):
+Un mapa nuevo **En blanco** tiene todos los terrenos de abajo; uno empezado desde una plantilla, solo los suyos. En **Editar paleta**, **Añadir terrenos de…** añade un conjunto entero de una vez (solo los terrenos que le faltan al mapa), cada uno con su símbolo y una velocidad en las reglas genéricas (las de Core):
 
 | Conjunto                  | Terrenos                                                                                                                                                                   |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

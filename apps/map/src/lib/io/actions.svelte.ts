@@ -2,6 +2,7 @@ import { getLocale, t } from '../i18n/index.svelte'
 import {
   applyStyle,
   createMap,
+  type MapStart,
   deserializeMap,
   type HexMap,
   MapFormatError,
@@ -25,6 +26,8 @@ import {
 import { DEFAULT_SYSTEM, systemIdOf, systemName } from '@open-tabletop/session'
 import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { editor, isCampaignChange } from '../store/editor.svelte'
+import { askNewMap } from './newMapDialog.svelte'
+import { makeSubMap } from './submaps'
 import { getSystem } from '../play/systems'
 import { ask, confirmAction, freeCampaignName, playing, showToast } from '@open-tabletop/ui-kit'
 import {
@@ -160,7 +163,7 @@ async function named(campaign: Campaign): Promise<Campaign> {
 }
 
 /** A campaign kept in this browser, or null if there's none (or it can't be read). */
-async function keptCampaign(id: string): Promise<Campaign | null> {
+export async function keptCampaign(id: string): Promise<Campaign | null> {
   const entry = await getCampaign(id).catch(() => null)
   return entry ? safeCampaign(entry.json) : null
 }
@@ -188,18 +191,21 @@ function asCopy(opening: Opening): Opening {
   return { map, ...(campaign && { campaign }) }
 }
 
+/** A new map as chosen. A town starts drawn in Core's Village style (its roofs), when it's loaded. */
+export function startMap(name: string, start: MapStart): HexMap {
+  const map = createMap(name, start)
+  const village = start.template === 'town' && loadedStyles().find((s) => s.ref === TOWN_STYLE)
+  return village ? applyStyle(map, village.ref, village.style) : map
+}
+
 /**
- * Asks what kind of map (a hexcrawl, a dungeon, a town), then whether to save the current one
- * to a file. A town starts drawn in Core's Village style (its roofs), when it's loaded.
+ * Asks how to start a map, then whether to save the current one to a file. With a cell
+ * selected it may hang from it (`under` starts ticked): a sub-map, kept and not opened.
  */
-export async function newMap(): Promise<void> {
-  const kind = await ask(t('newMap.title'), t('newMap.kindMessage'), [
-    { value: 'cancel', label: t('newMap.cancel') },
-    { value: 'town', label: t('newMap.town') },
-    { value: 'dungeon', label: t('newMap.dungeon') },
-    { value: 'hexcrawl', label: t('newMap.hexcrawl'), kind: 'primary' },
-  ])
-  if (kind !== 'hexcrawl' && kind !== 'dungeon' && kind !== 'town') return
+export async function newMap(under = false): Promise<void> {
+  const answer = await askNewMap({ place: editor.selected ?? undefined, under })
+  if (!answer) return
+  if (answer.under) return makeSubMap(answer)
   // A new map no one has touched isn't kept yet: nothing to lose, nothing to ask.
   const choice = library.untouched
     ? 'create'
@@ -210,10 +216,7 @@ export async function newMap(): Promise<void> {
       ])
   if (choice !== 'create' && choice !== 'save') return
   if (choice === 'save') saveMap()
-  let map = createMap('', kind)
-  const village = kind === 'town' && loadedStyles().find((s) => s.ref === TOWN_STYLE)
-  if (village) map = applyStyle(map, village.ref, village.style)
-  await switchTo({ map })
+  await switchTo({ map: startMap(answer.name, answer.start) })
 }
 
 /** The style a new town starts in. */
@@ -592,13 +595,13 @@ async function campaignInUse(campaign: string): Promise<boolean> {
 }
 
 /** The maps and trips of the open map's campaign besides this map. */
-async function othersInCampaign(campaign = editor.campaign.id): Promise<CampaignPlace[]> {
+export async function othersInCampaign(campaign = editor.campaign.id): Promise<CampaignPlace[]> {
   const id = editor.map.meta.id
   return (await campaignPlaces(campaign)).filter((p) => p.app !== 'map' || p.id !== id)
 }
 
 /** The maps of the library that hang under one, at any depth (its sub-maps, theirs…). */
-async function subMapsBelow(parent: string): Promise<LibraryEntry[]> {
+export async function subMapsBelow(parent: string): Promise<LibraryEntry[]> {
   const all = await listLibrary()
   const out: LibraryEntry[] = []
   const walk = async (id: string) => {

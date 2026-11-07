@@ -5,7 +5,7 @@ import { createMap } from './defaults'
 
 /** A square map with a floor and ground, painted from rows of text: `#` floor, `.` ground. */
 function village(rows: string[], regions: Record<string, string> = {}) {
-  const map = createMap('Village', 'dungeon')
+  const map = createMap('Village', { template: 'dungeon' })
   map.grid = { ...map.grid, width: rows[0].length, height: rows.length }
   map.terrains = [
     { id: 'floor', color: '#ffffff', floor: true },

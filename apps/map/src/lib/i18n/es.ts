@@ -401,11 +401,15 @@ export const es: Messages = {
   },
   newMap: {
     title: 'Nuevo mapa',
-    kindMessage:
-      '¿Qué tipo de mapa? Un hexcrawl: hexágonos y los terrenos de la tierra, a la escala del sistema. Una mazmorra: casillas cuadradas de 3 m y una paleta de suelos (los muros se dibujan solos a su alrededor) y roca. Un pueblo: casillas cuadradas de 3 m, calles, patios, huertos, hierba, árboles y agua fuera y los suelos de sus edificios, dibujado con el estilo Aldea (tejados desde fuera, el interior mientras la party está dentro). Todo se puede cambiar después en Ajustes del mapa y Editar paleta.',
-    hexcrawl: 'Hexcrawl',
-    dungeon: 'Mazmorra',
-    town: 'Pueblo',
+    subMapTitle: 'Nuevo submapa',
+    name: 'Nombre',
+    template: 'Empezar desde',
+    templateHelp:
+      'Con qué empieza el mapa, todo cambiable después en **Ajustes del mapa** y **Editar paleta**. Todos los mapas se dibujan igual, con las mismas herramientas:\n• **En blanco** — hexágonos y todos los terrenos\n• **Mazmorra** — cuadrados de 3 m, suelos cuyos muros se dibujan solos, y roca\n• **Pueblo** — cuadrados de 3 m, calles, patios y huertos fuera, suelos dentro, dibujado con tejados',
+    templates: { blank: 'En blanco', dungeon: 'Mazmorra', town: 'Pueblo' },
+    under: 'Bajo este mapa, en {cell}',
+    underHint: 'Para colgar un mapa de este, selecciona antes una casilla: ahí empieza la entrada.',
+    make: 'Crear',
     message:
       'El mapa actual se queda en Mapas (este navegador). ¿Quieres además guardarlo en un fichero antes de crear uno nuevo?',
     cancel: 'Cancelar',
@@ -665,6 +669,10 @@ export const es: Messages = {
     new: 'Nuevo submapa aquí',
     defaultName: 'Bajo la casilla',
     created: '{name}: un submapa bajo esta casilla, en Mapas.',
+    hang: 'Un mapa que ya tienes',
+    hung: '{name} cuelga ahora de esta casilla, en esta campaña.',
+    hangLeaves: 'Su mundo, «{name}», se queda atrás: el mapa pasa a esta campaña.',
+    newUnder: 'Nuevo submapa en la casilla seleccionada',
     anotherWay: 'Otro camino a…',
     addWay: 'Añadir',
     wayAdded: 'Esta casilla es un camino más a {name}: mueve su entrada en sus Ajustes del mapa.',
@@ -675,7 +683,7 @@ export const es: Messages = {
       'El mapa abierto y todos los unidos a él: cada **submapa** bajo el mapa del que cuelga, con sus **caminos** a él. Cada camino muestra sus dos extremos, la casilla de arriba y la de abajo, y su tipo.\n• el nombre de un mapa abre ese mapa\n• una casilla abre su mapa con esa casilla seleccionada y a la vista\nMuestra todos los caminos, se hayan encontrado en un viaje o no, igual que el propio mapa.',
     treeHere: 'abierto',
     treeEmpty:
-      'Este mapa aún no tiene submapas. Selecciona una casilla y usa **+ Camino a un mapa** para crear uno.',
+      'Este mapa aún no tiene submapas. Selecciona una casilla y usa aquí **Nuevo submapa en la casilla seleccionada**, o **+ Camino a un mapa** en su panel.',
     treeAbove: 'el mapa de arriba, que no está guardado aquí',
     inside: 'Dentro de',
     insideHelp:

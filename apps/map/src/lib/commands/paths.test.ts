@@ -111,11 +111,11 @@ describe('path offsets', () => {
     ).toEqual([[0.123, 0], null])
   })
 
-  it('marks lakes, seas and the deep sea as water by default', () => {
+  it('marks lakes, seas, the deep sea and pools as water by default', () => {
     const water = createMap()
       .terrains.filter((t) => t.water)
       .map((t) => t.id)
-    expect(water).toEqual(['lake', 'sea', 'deep-sea'])
+    expect(water).toEqual(['lake', 'sea', 'deep-sea', 'pool'])
   })
 })
 

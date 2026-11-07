@@ -53,6 +53,13 @@ terrains:
   rock: { name: Solid rock, passable: false }
   rubble: { multiplier: 0.5 }
   black-water: { name: Black water, passable: false }
+  # In a village (Ashford, a sub-map of the frontier): streets and yards walked as open
+  # ground, gardens a little slower, and the floors of its buildings.
+  cobbles: { name: Cobbles, multiplier: 1 }
+  yard: { name: Yard, multiplier: 1 }
+  garden: { name: Garden, multiplier: 0.75 }
+  wood-floor: { name: Wooden floor, multiplier: 1 }
+  stone-floor: { name: Stone floor, multiplier: 1 }
 # Lakes and the sea are water on the map (Edit palette → Water): nobody walks on them…
 water: { passable: false }
 defaultTerrain: { multiplier: 1 }
