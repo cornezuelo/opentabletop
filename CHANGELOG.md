@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.42.0] - 2026-11-07
+
 ### Apps
 
 - Map: on a trip the party walks: dragging its token or pressing an arrow key takes it there by the map's ways, never through a wall.
