@@ -62,3 +62,7 @@ Each terrain can draw a subtle symbol on its cells (a tree, a mountain, waves…
 - A terrain the model draws that the map's palette lacks is said in a message: add it with **Edit palette**.
 
 With the Generic rules, _The plain land_ grows plains, farmland, forests, hills, mountains, lakes and marshes. The Grey Marches' example map leaves its east blank: **Fill the empty cells** draws it with _The lie of the Marches_ (hills that rise into ranges east of the Hollow Hills), or leave it blank to discover it as you travel ([Play](08-play.md)).
+
+## Drawing with the keyboard
+
+In the Terrain tool an **arrow** extends a corridor in the palette's terrain from the selected cell (the first one starts in the middle of the map), on hexes as on squares. <kbd>Shift</kbd>+arrow only moves. <kbd>R</kbd> paints a room round the cell, <kbd>D</kbd> a door to the cell it came from (the system's `door`, or the kind chosen in Connections), and <kbd>Esc</kbd> lets go, so <kbd>R</kbd> is Roads and rivers again. Each key is one undo step.

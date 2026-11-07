@@ -26,3 +26,5 @@
 | <kbd>Intro</kbd> / <kbd>Retroceso</kbd>                                      | Terminar una línea / quitar su último punto                                                                          |
 | <kbd>Ctrl</kbd>+clic                                                         | Coger el terreno, la región o el icono bajo el cursor                                                                |
 | <kbd>Mayús</kbd>+arrastrar                                                   | Pintar un rectángulo de terreno o región                                                                             |
+
+Mira [Terreno](02-terrain.md#dibujar-con-el-teclado) para dibujar pasillos y salas con las flechas.

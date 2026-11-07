@@ -336,6 +336,52 @@ describe('Edit and Play', () => {
     expect(editor.panelView).toBe('tool')
   })
 
+  it('draws with the keyboard: a corridor, a room and a door', async () => {
+    const { drawByKey } = await import('./keyboardDraw')
+    editor.load(createMap('', { template: 'dungeon' }))
+    editor.tool = 'terrain'
+    editor.terrainId = 'stone-floor'
+    // The first arrow starts in the middle of the map; each next one extends the corridor.
+    drawByKey('arrowright', false)
+    const start = editor.selected!
+    drawByKey('arrowright', false)
+    drawByKey('arrowdown', false)
+    const [col, row] = start.split(',').map(Number)
+    expect(editor.selected).toBe(`${col + 1},${row + 1}`)
+    expect(editor.map.hexes[`${col + 1},${row}`]?.terrain).toBe('stone-floor')
+    // With Shift it only moves.
+    drawByKey('arrowright', true)
+    expect(editor.map.hexes[editor.selected!]).toBeUndefined()
+    // A room round it, in one undo step.
+    expect(drawByKey('r', false)).toBe(true)
+    expect(editor.map.hexes[editor.selected!]?.terrain).toBe('stone-floor')
+    editor.undo()
+    expect(editor.map.hexes[editor.selected!]).toBeUndefined()
+    // A door to the cell it came from, once a kind is known.
+    editor.connectionKind = 'door'
+    drawByKey('d', false)
+    expect(editor.map.connections).toHaveLength(1)
+    expect(drawByKey('escape', false)).toBe(true)
+    expect(editor.selected).toBeNull()
+    // Keys go back to what they do: R is Roads again, and other tools don't draw.
+    expect(drawByKey('r', false)).toBe(false)
+    editor.tool = 'select'
+    expect(drawByKey('arrowright', false)).toBe(false)
+  })
+
+  it('draws with the keyboard on hexes too', async () => {
+    const { drawByKey } = await import('./keyboardDraw')
+    editor.load(createMap())
+    editor.tool = 'terrain'
+    editor.terrainId = 'plains'
+    drawByKey('arrowright', false)
+    const start = editor.selected
+    drawByKey('arrowright', false)
+    expect(editor.selected).not.toBe(start)
+    expect(Object.keys(editor.map.hexes)).toHaveLength(2)
+    editor.selected = null
+  })
+
   it('going to a tool that edits leaves Play, as a link to a token does', () => {
     editor.load(createMap())
     editor.switchMode('play')

@@ -26,3 +26,5 @@
 | <kbd>Enter</kbd> / <kbd>Backspace</kbd>                                      | Finish a line / remove its last point                                                             |
 | <kbd>Ctrl</kbd>+click                                                        | Pick the terrain, region or icon under the cursor                                                 |
 | <kbd>Shift</kbd>+drag                                                        | Paint a rectangle of terrain or region                                                            |
+
+See [Terrain](02-terrain.md#drawing-with-the-keyboard) to draw corridors and rooms with the arrows.

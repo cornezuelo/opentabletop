@@ -62,3 +62,7 @@ Cada terreno puede dibujar un símbolo discreto en sus casillas (un árbol, una 
 - Si el modelo saca un terreno que la paleta del mapa no tiene, un mensaje lo dice: añádelo con **Editar paleta**.
 
 Con las reglas genéricas, _La tierra sencilla_ hace crecer llanuras, cultivos, bosques, colinas, montañas, lagos y marismas. El mapa de ejemplo de las Marcas Grises deja su este en blanco: **Rellenar las casillas vacías** lo dibuja con _La tierra de las Marcas_ (colinas que se alzan en cordilleras al este de las Hollow Hills), o déjalo en blanco para descubrirlo al viajar ([Jugar](08-play.md)).
+
+## Dibujar con el teclado
+
+En la herramienta Terreno una **flecha** alarga un pasillo con el terreno de la paleta desde la casilla seleccionada (la primera empieza en el centro del mapa), en hexágonos como en cuadrados. <kbd>Shift</kbd>+flecha solo se mueve. <kbd>R</kbd> pinta una sala alrededor de la casilla, <kbd>D</kbd> una puerta a la casilla de la que vino (la `door` del sistema, o el tipo elegido en Conexiones), y <kbd>Esc</kbd> suelta, así que <kbd>R</kbd> vuelve a ser Caminos y ríos. Cada tecla es un paso de deshacer.

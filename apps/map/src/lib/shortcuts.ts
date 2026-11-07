@@ -1,3 +1,4 @@
+import { drawByKey } from './tools/keyboardDraw'
 import { openMapFile, saveMap } from './io/actions.svelte'
 import { isTyping } from './render/MapRenderer'
 import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
@@ -38,6 +39,11 @@ export function bindShortcuts(): () => void {
       return
     }
     if (e.altKey) return
+
+    if (drawByKey(key, e.shiftKey)) {
+      e.preventDefault()
+      return
+    }
 
     if (editor.pathDraft) {
       const handled: Record<string, () => void> = {
