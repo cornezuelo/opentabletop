@@ -290,8 +290,8 @@ class Run {
           if (field.when && !this.holds(field.when, scope, node)) continue
           const fieldContext = { ...scope, ...this.evalValues(field.context, scope, node) }
           let value: unknown
-          if (field.kind === 'table' || field.kind === 'generator') {
-            const child = this.follow(def, field.ref!, fieldContext, depth)
+          if (field.kind === 'table' || field.kind === 'generator' || field.kind === 'deck') {
+            const child = this.follow(def, field.ref!, fieldContext, depth, field.shuffle)
             node.children.push(child)
             value = child.text !== undefined ? { ...child.value, text: child.text } : child.value
             const { effects: changes, pause, ...set } = child.value
@@ -522,6 +522,7 @@ class Run {
     ref: Ref,
     context: Record<string, unknown>,
     depth: number,
+    shuffle = false,
   ): Resolution {
     let target = ref.target
     if (ref.dynamic) {
@@ -530,6 +531,13 @@ class Run {
     }
     const def = this.registry.definitions.get(target)
     if (!def) throw new OracleError(`Unknown ${ref.kind} "${target}" referenced by "${from.id}"`)
+    if (ref.kind === 'deck' && def.kind !== 'deck')
+      throw new OracleError(`"${target}" is not a deck`)
+    if (shuffle) {
+      // With no saved piles, the draw starts from every card, freshly shuffled.
+      delete this.state.decks[def.id]
+      this.onEvent?.({ type: 'DECK_RESHUFFLED', source: def.id })
+    }
     return this.resolve(def, context, depth + 1)
   }
 

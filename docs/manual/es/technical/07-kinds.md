@@ -65,7 +65,7 @@ variants:
 
 ## Generadores
 
-Campos que se tiran en orden (cada uno ve los anteriores), unidos por una plantilla (`template`). Un campo es una `table`, un `generator`, dados (`roll`) o un valor fijo (`value`), y puede tener `when` / `unless` (solo se tira entonces; si no, queda vacío) y su propio `context`.
+Campos que se tiran en orden (cada uno ve los anteriores), unidos por una plantilla (`template`). Un campo es una `table`, un `generator`, un `deck`, dados (`roll`) o un valor fijo (`value`), y puede tener `when` / `unless` (solo se tira entonces; si no, queda vacío) y su propio `context`.
 
 ```yaml
 kind: generator
@@ -74,6 +74,23 @@ fields:
   name: { table: table.npc-names }
   might: { roll: 4d6kh3 }
 template: '{{name}} (fuerza {{might}})'
+```
+
+Un campo `deck` roba una carta, que queda fuera como cualquier carta robada. Con `shuffle: true`, todas las cartas vuelven y el mazo se baraja antes de ese robo: en el primer campo de una mano o una tirada, empieza del mazo entero y nunca repite carta.
+
+```yaml
+kind: generator
+id: reading
+fields:
+  past: { deck: deck.omens, shuffle: true }
+  future: { deck: deck.omens }
+template: '{{past}}, luego {{future}}'
+---
+kind: deck
+id: omens
+cards:
+  - { id: crows, result: Crows }
+  - { id: storm, result: A storm }
 ```
 
 **Qué ven otras tablas:** cada campo por su nombre, dentro del generador (`{{name}}`), y desde un generador que tire este, como `{{npc.name}}`. Lo que fijan, cambian y pausan sus tablas llega al viaje (o a lo que lo tiró) como lo de una tabla: sus valores `set` (con el mismo nombre, ganan sus propios campos), sus `effects` sumados, y una `pause` en cualquiera de ellas detiene el viaje.

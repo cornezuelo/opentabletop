@@ -275,11 +275,20 @@ export const en = {
     insertField: 'Add to the template',
     fields: 'Fields',
     fieldsHelp:
-      'Each field is rolled **in order**; later fields and tables can use earlier values (`{{danger}}`). A field comes from:\n• a **Table** — `ruins`\n• a **Generator** — another generator\n• **Dice** — `2d6kl1`, `d%`\n• a **Fixed value** — `3`, or a text with variables: `danger {{danger}} of 6`',
+      'Each field is rolled **in order**; later fields and tables can use earlier values (`{{danger}}`). A field comes from:\n• a **Table** — `ruins`\n• a **Generator** — another generator\n• a **Deck** — `deck.omens`: a card drawn, gone until the deck is shuffled\n• **Dice** — `2d6kl1`, `d%`\n• a **Fixed value** — `3`, or a text with variables: `danger {{danger}} of 6`',
     fieldName: 'Name',
     fieldSource: 'From',
-    fieldValue: 'Table, dice or value',
-    sources: { table: 'Table', generator: 'Generator', roll: 'Dice', value: 'Fixed value' },
+    fieldValue: 'Table, deck, dice or value',
+    sources: {
+      table: 'Table',
+      generator: 'Generator',
+      deck: 'Deck',
+      roll: 'Dice',
+      value: 'Fixed value',
+    },
+    fieldShuffle: 'Shuffle first',
+    fieldShuffleHelp:
+      "Every card goes back and the deck is shuffled **before this draw**, so a hand or a spread never repeats a card nor depends on earlier draws. Tick it on the first field that draws; the next ones take what's left.\n• `first: { deck: deck.omens, shuffle: true }`\n• `second: { deck: deck.omens }`\nOff: the card comes from what's left of the deck.",
     fieldMore: 'Conditions and context',
     fieldWhenHelp:
       '**Only if**: the field is rolled only when this holds, built as rows (what it reads · comparison · value), on what the generator sees (its inputs, earlier fields, the map or trip); otherwise it stays empty.\n• `time.season: winter`\n• `danger: { lte: 2 }` — an earlier field\n**Unless**: not when this matches:\n• `untouched: { lt: 90 }`\nEmpty: always.',

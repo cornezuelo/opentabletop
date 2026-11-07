@@ -635,6 +635,75 @@ entries:
 describe('decks', () => {
   const { registry } = load()
 
+  describe('drawn by a generator', () => {
+    const files: PackFile[] = [
+      { path: 'cards/pack.yaml', content: 'id: cards\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },
+      {
+        path: 'cards/cards.yaml',
+        content: `
+kind: deck
+id: three
+cards:
+  - { id: a, result: Ace, set: { suit: spades }, effects: { party.stats.luck: 1 } }
+  - { id: b, result: Bee, set: { suit: hearts }, effects: { party.stats.luck: 1 } }
+  - { id: c, result: Sea, set: { suit: clubs }, effects: { party.stats.luck: 1 } }
+---
+kind: generator
+id: hand
+fields:
+  first: { deck: deck.three, shuffle: true }
+  second: { deck: deck.three }
+template: '{{first}} and {{second}} ({{first.suit}})'
+---
+kind: generator
+id: next
+fields:
+  card: { deck: deck.three }
+`,
+      },
+    ]
+    const cards = loadPacks(files)
+
+    it('never repeats a card in a hand, however often it is dealt', () => {
+      const engine = createOracleEngine({ registry: cards.registry, random: seeded(3) })
+      let state = emptyState()
+      for (let i = 0; i < 20; i++) {
+        const outcome = engine.resolve('cards/hand', {}, state)
+        state = outcome.state
+        const [first, second] = outcome.resolution.children.map((c) => c.entry)
+        expect(first).not.toBe(second)
+        expect(state.decks['cards/three'].draw).toHaveLength(1)
+      }
+    })
+
+    it('reads a card by its field, and adds up the effects', () => {
+      const engine = createOracleEngine({ registry: cards.registry, random: seeded(3) })
+      const { resolution } = engine.resolve('cards/hand', {})
+      expect(resolution.text).toMatch(/^\w+ and \w+ \((spades|hearts|clubs)\)$/)
+      expect(resolution.value.effects).toEqual({ 'party.stats.luck': 2 })
+    })
+
+    it('leaves the deck as it is without shuffle', () => {
+      const engine = createOracleEngine({ registry: cards.registry, random: seeded(3) })
+      const first = engine.resolve('cards/next', {})
+      const second = engine.resolve('cards/next', {}, first.state)
+      expect(second.state.decks['cards/three'].discard).toHaveLength(2)
+    })
+
+    it('refuses what is no deck, and a shuffle without one', () => {
+      const broken = (fields: string) =>
+        loadPacks([
+          files[0],
+          { path: 'cards/g.yaml', content: `kind: generator\nid: g\nfields:\n  ${fields}\n` },
+          { path: 'cards/t.yaml', content: 'kind: table\nid: t\nentries: [{ result: x }]\n' },
+        ]).diagnostics.map(formatDiagnostic)
+      expect(broken('a: { deck: table.t }').join()).toContain('is not a deck')
+      expect(broken('a: { table: table.t, shuffle: true }').join()).toContain(
+        'only a field that draws from a deck can shuffle it',
+      )
+    })
+  })
+
   it('draws without replacement and reshuffles when empty', () => {
     const engine = createOracleEngine({ registry, random: seeded(5) })
     let state = emptyState()

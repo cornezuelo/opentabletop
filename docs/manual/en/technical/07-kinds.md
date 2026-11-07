@@ -66,7 +66,7 @@ variants:
 
 ## Generators
 
-Fields rolled in order (each sees the ones before it), joined by a `template`. A field is a `table`, a `generator`, dice (`roll`) or a fixed `value`, and may have `when` / `unless` (rolled only then; otherwise empty) and its own `context`.
+Fields rolled in order (each sees the ones before it), joined by a `template`. A field is a `table`, a `generator`, a `deck`, dice (`roll`) or a fixed `value`, and may have `when` / `unless` (rolled only then; otherwise empty) and its own `context`.
 
 ```yaml
 kind: generator
@@ -75,6 +75,23 @@ fields:
   name: { table: table.npc-names }
   might: { roll: 4d6kh3 }
 template: '{{name}} (might {{might}})'
+```
+
+A `deck` field draws a card, which stays out as any drawn card does. With `shuffle: true`, every card goes back and the deck is shuffled before that draw: on the first field of a hand or a spread, it starts from the whole deck and never repeats a card.
+
+```yaml
+kind: generator
+id: reading
+fields:
+  past: { deck: deck.omens, shuffle: true }
+  future: { deck: deck.omens }
+template: '{{past}}, then {{future}}'
+---
+kind: deck
+id: omens
+cards:
+  - { id: crows, result: Crows }
+  - { id: storm, result: A storm }
 ```
 
 **What other tables see:** each field by its name, inside the generator (`{{name}}`), and from a generator that rolls this one, as `{{npc.name}}`. What its tables set, change and pause reaches a trip (or whatever rolled it) as a table's does: their `set` values (its own fields win a name they share), their `effects` added up, and a `pause` in any of them stops the trip.

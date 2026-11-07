@@ -17,3 +17,32 @@ omens:
     cache: 'El escondrijo de un cazador: comida para dos días'
     wyrm-sign: Árboles chamuscados y olor a azufre
     twist: 'El camino se vuelve extraño: {{result}}'
+hedge-cards:
+  name: Las cartas de la bruja de los setos
+  description: |-
+    Las cartas gastadas con las que lee una bruja de los setos de las Marcas, repartidas por _La lectura de la bruja de los setos_ o robadas a mano.
+
+    **Enseña:**
+
+    - Cartas con **efectos** sobre el grupo y sobre un reloj de progreso, para que las reparta un generador
+  cards:
+    lantern: El Farol, un camino seguro a casa
+    crow: El Cuervo, un aviso que llega tarde
+    ford: El Vado, una travesía con un precio
+    hearth: El Hogar, una acogida inesperada
+    wyrm: La Sierpe, algo antiguo que despierta
+    salt: La Sal, una promesa que ata
+    thorn: La Espina, un amigo que hiere
+hedge-reading:
+  name: La lectura de la bruja de los setos
+  description: |-
+    Tres cartas que echa una bruja de los setos: lo que te sigue, lo que te espera y lo que debes temer. Lo que dicen se cumple: sus efectos llegan al grupo y al reloj de la Sierpe.
+
+    **Enseña:**
+
+    - Un campo de generador que **roba de un mazo** (`deck: deck.hedge-cards`), con `shuffle: true` en el primero para que cada lectura empiece del mazo entero y nunca repita carta
+    - Los `effects` de las cartas sumados por el generador, como los de una tabla
+  template: |-
+    Detrás de ti: {{behind}}
+    Delante de ti: {{ahead}}
+    Lo que debes temer: {{fear}}

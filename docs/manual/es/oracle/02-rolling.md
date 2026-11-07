@@ -26,7 +26,7 @@ Cambia el contexto o el modo y las probabilidades lo siguen: en _¿Quién va?_ d
 
 ## Mazos y entradas de una vez
 
-Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.
+Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Un generador también puede robar de un mazo, y las manos y tiradas de Core (_Mano de póker_, _Tirada de tres cartas_…) lo barajan antes: cada una empieza del mazo entero. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.
 
 ## Tirar en una campaña
 

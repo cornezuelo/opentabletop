@@ -137,9 +137,10 @@ const ENUMS: Record<string, readonly string[]> = {
   display: ['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels'],
   behind: ['stay', 'leave'],
   leaves: ['true', 'false'],
+  shuffle: ['true', 'false'],
 }
 /** Keys whose value is a reference to something rolled: a table, oracle, generator or deck. */
-const REF_KEYS = new Set(['table', 'generator', 'resolve', 'turn'])
+const REF_KEYS = new Set(['table', 'generator', 'deck', 'resolve', 'turn'])
 /** Keys whose value names another engine's definition, by the kind it names. */
 const NAMED_KEYS: Record<string, string> = {
   sheet: 'sheet',
@@ -178,6 +179,8 @@ const KEYS = [
   'result',
   'table',
   'generator',
+  'deck',
+  'shuffle',
   'set',
   'effects',
   'pause',

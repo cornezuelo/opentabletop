@@ -26,3 +26,46 @@ cards:
     effects: { world.clocks.the-greywood-wyrm-wakes: 1 }
   # Another pack's table, through the alias in pack.yaml (table.twist → core/table.twists).
   - { id: twist, result: 'The road turns strange: {{result}}', table: table.twist }
+---
+# Cards a generator deals: the deck is gathered first, so a reading never repeats a card.
+kind: deck
+id: hedge-cards
+tags: [omens]
+name: The hedge-witch's cards
+description: |-
+  The worn cards a hedge-witch of the Marches reads from, dealt by _A hedge-witch's reading_ or drawn by hand.
+
+  **Shows:**
+
+  - Cards with **effects** on the party and on a progress clock, for a generator to deal
+reshuffle: when-empty
+cards:
+  - { id: lantern, result: 'The Lantern, a safe way home', effects: { party.stats.morale: 1 } }
+  - { id: crow, result: 'The Crow, a warning heeded too late', effects: { party.stats.morale: -1 } }
+  - { id: ford, result: 'The Ford, a crossing with a price' }
+  - { id: hearth, result: 'The Hearth, a welcome where none was looked for' }
+  - id: wyrm
+    result: The Wyrm, an old thing stirring
+    effects: { world.clocks.the-greywood-wyrm-wakes: 1 }
+  - { id: salt, result: 'The Salt, a promise that binds' }
+  - { id: thorn, result: 'The Thorn, a friend who wounds' }
+---
+kind: generator
+id: hedge-reading
+tags: [omens]
+name: A hedge-witch's reading
+description: |-
+  Three cards laid out by a hedge-witch: what follows you, what waits and what you should fear. What they say comes true: their effects reach the party and the Wyrm's clock.
+
+  **Shows:**
+
+  - A generator's field that **draws from a deck** (`deck: deck.hedge-cards`), `shuffle: true` on the first one so every reading starts from the whole deck and never repeats a card
+  - The cards' `effects` added up by the generator, like a table's
+fields:
+  behind: { deck: deck.hedge-cards, shuffle: true }
+  ahead: { deck: deck.hedge-cards }
+  fear: { deck: deck.hedge-cards }
+template: |-
+  Behind you: {{behind}}
+  Ahead of you: {{ahead}}
+  What to fear: {{fear}}

@@ -9,22 +9,25 @@
   import TextField from './TextField.svelte'
 
   /**
-   * A generator: named fields (each from a table, a generator, dice or a fixed value)
+   * A generator: named fields (each from a table, a generator, a deck, dice or a fixed value)
    * put together by a template that writes {{field}} where each value goes.
    */
   let { doc }: { doc: DefinitionForm } = $props()
   const t: Translate = (key, params) => doc.ui.t(key, params)
   const getLocale = () => doc.ui.locale()
 
-  const SOURCES = ['table', 'generator', 'roll', 'value'] as const
+  const SOURCES = ['table', 'generator', 'deck', 'roll', 'value'] as const
   type Source = (typeof SOURCES)[number]
   type RawField = Partial<Record<Source, unknown>> & {
     when?: unknown
     unless?: unknown
     context?: unknown
+    shuffle?: boolean
   }
   /** What a field may have besides its source: its conditions and what it passes on. */
   const EXTRAS = ['when', 'unless', 'context'] as const
+  /** Sources whose value is a reference, suggested as it's typed. */
+  const LISTED = ['table', 'generator', 'deck'] as const
 
   const conditionHints = $derived(contextSuggestions(doc.ui.library.registry))
   const setHints = $derived(setSuggestions(doc.ui.library.registry))
@@ -44,6 +47,9 @@
     doc.save(renameKey(doc.content, id, ['fields'], name, to))
   }
 
+  const targetsOf = (source: Source) =>
+    doc.targets.filter((x) => (source === 'deck' ? x.deck : x.kind === source))
+
   /** Switching the source keeps the text typed so far when it still makes sense. */
   function setSource(name: string, field: RawField, source: Source) {
     const current = field[sourceOf(field)]
@@ -53,11 +59,12 @@
         ? '1d6'
         : source === 'value'
           ? (current ?? 0)
-          : doc.targets.some((x) => x.kind === source && x.ref === text)
+          : targetsOf(source).some((x) => x.ref === text)
             ? text
-            : (doc.targets.find((x) => x.kind === source)?.ref ?? text) || name
+            : (targetsOf(source)[0]?.ref ?? text) || name
     let out = doc.content
     for (const s of SOURCES) out = setIn(out, id, ['fields', name, s], undefined)
+    out = setIn(out, id, ['fields', name, 'shuffle'], undefined)
     doc.save(setIn(out, id, ['fields', name, source], value))
   }
 
@@ -141,11 +148,23 @@
             {:else}
               <input
                 type="text"
-                list={source === 'table' || source === 'generator' ? `gen-${source}` : undefined}
+                list={LISTED.some((s) => s === source) ? `gen-${source}` : undefined}
                 value={String(field[source] ?? '')}
                 disabled={doc.translating}
                 onchange={(e) => setValue(name, source, e.currentTarget.value)}
               />
+            {/if}
+            {#if source === 'deck'}
+              <label class="shuffle">
+                <input
+                  type="checkbox"
+                  checked={field.shuffle === true}
+                  disabled={doc.translating}
+                  onchange={(e) =>
+                    doc.edit(['fields', name, 'shuffle'], e.currentTarget.checked || undefined)}
+                />
+                <span>{t('edit.fieldShuffle')}<InfoTip text={t('edit.fieldShuffleHelp')} /></span>
+              </label>
             {/if}
             {#if !doc.translating}
               <button class="more" onclick={() => (open[name] = !(open[name] ?? hasExtras(field)))}
@@ -212,10 +231,9 @@
       {/each}
     </tbody>
   </table>
-  {#each ['table', 'generator'] as const as kind (kind)}
+  {#each LISTED as kind (kind)}
     <datalist id="gen-{kind}">
-      {#each doc.targets.filter((x) => x.kind === kind) as x (x.ref)}<option value={x.ref}
-        ></option>{/each}
+      {#each targetsOf(kind) as x (x.ref)}<option value={x.ref}></option>{/each}
     </datalist>
   {/each}
   {#if !doc.translating}
@@ -304,6 +322,19 @@
   small {
     display: block;
     color: var(--danger-text);
+  }
+
+  .shuffle {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .shuffle input {
+    width: auto;
   }
 
   .more {

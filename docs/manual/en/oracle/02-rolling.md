@@ -26,7 +26,7 @@ Change the context or the mode and the odds follow: in the Grey Marches' _Who go
 
 ## Decks and once-only entries
 
-A deck shows how many cards are left and has **Shuffle**. Entries marked `once` can only come up once. **New session** (in the history) forgets both: every card goes back and once-only entries are available again. **Clear** empties the history.
+A deck shows how many cards are left and has **Shuffle**. A generator can draw from a deck too, and Core's hands and readings (_Poker hand_, _Three-card reading_…) shuffle it first: each one starts from the whole deck. Entries marked `once` can only come up once. **New session** (in the history) forgets both: every card goes back and once-only entries are available again. **Clear** empties the history.
 
 ## Rolling in a campaign
 

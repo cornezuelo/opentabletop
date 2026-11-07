@@ -1,0 +1,870 @@
+# Cards to draw, for any game: what each deck is, and hands and readings made with them.
+# Every card says what it is (`set`), so a table rolled with it can read its suit or rank.
+kind: deck
+id: playing-cards
+tags: [cards]
+name: Playing cards
+description: |-
+  The **poker deck**: four suits of thirteen and two jokers. A drawn card stays out until the deck runs out, or until you **Shuffle**.
+
+  Each card sets its `suit` (`spades`, `hearts`, `diamonds`, `clubs` or `joker`) and its `rank` (ace 1, jack 11, queen 12, king 13, joker 0).
+reshuffle: when-empty
+cards:
+  - { id: spades-a, result: 'Ace of spades ♠', set: { suit: spades, rank: 1 } }
+  - { id: spades-2, result: 'Two of spades ♠', set: { suit: spades, rank: 2 } }
+  - { id: spades-3, result: 'Three of spades ♠', set: { suit: spades, rank: 3 } }
+  - { id: spades-4, result: 'Four of spades ♠', set: { suit: spades, rank: 4 } }
+  - { id: spades-5, result: 'Five of spades ♠', set: { suit: spades, rank: 5 } }
+  - { id: spades-6, result: 'Six of spades ♠', set: { suit: spades, rank: 6 } }
+  - { id: spades-7, result: 'Seven of spades ♠', set: { suit: spades, rank: 7 } }
+  - { id: spades-8, result: 'Eight of spades ♠', set: { suit: spades, rank: 8 } }
+  - { id: spades-9, result: 'Nine of spades ♠', set: { suit: spades, rank: 9 } }
+  - { id: spades-10, result: 'Ten of spades ♠', set: { suit: spades, rank: 10 } }
+  - { id: spades-j, result: 'Jack of spades ♠', set: { suit: spades, rank: 11 } }
+  - { id: spades-q, result: 'Queen of spades ♠', set: { suit: spades, rank: 12 } }
+  - { id: spades-k, result: 'King of spades ♠', set: { suit: spades, rank: 13 } }
+  - { id: hearts-a, result: 'Ace of hearts ♥', set: { suit: hearts, rank: 1 } }
+  - { id: hearts-2, result: 'Two of hearts ♥', set: { suit: hearts, rank: 2 } }
+  - { id: hearts-3, result: 'Three of hearts ♥', set: { suit: hearts, rank: 3 } }
+  - { id: hearts-4, result: 'Four of hearts ♥', set: { suit: hearts, rank: 4 } }
+  - { id: hearts-5, result: 'Five of hearts ♥', set: { suit: hearts, rank: 5 } }
+  - { id: hearts-6, result: 'Six of hearts ♥', set: { suit: hearts, rank: 6 } }
+  - { id: hearts-7, result: 'Seven of hearts ♥', set: { suit: hearts, rank: 7 } }
+  - { id: hearts-8, result: 'Eight of hearts ♥', set: { suit: hearts, rank: 8 } }
+  - { id: hearts-9, result: 'Nine of hearts ♥', set: { suit: hearts, rank: 9 } }
+  - { id: hearts-10, result: 'Ten of hearts ♥', set: { suit: hearts, rank: 10 } }
+  - { id: hearts-j, result: 'Jack of hearts ♥', set: { suit: hearts, rank: 11 } }
+  - { id: hearts-q, result: 'Queen of hearts ♥', set: { suit: hearts, rank: 12 } }
+  - { id: hearts-k, result: 'King of hearts ♥', set: { suit: hearts, rank: 13 } }
+  - { id: diamonds-a, result: 'Ace of diamonds ♦', set: { suit: diamonds, rank: 1 } }
+  - { id: diamonds-2, result: 'Two of diamonds ♦', set: { suit: diamonds, rank: 2 } }
+  - { id: diamonds-3, result: 'Three of diamonds ♦', set: { suit: diamonds, rank: 3 } }
+  - { id: diamonds-4, result: 'Four of diamonds ♦', set: { suit: diamonds, rank: 4 } }
+  - { id: diamonds-5, result: 'Five of diamonds ♦', set: { suit: diamonds, rank: 5 } }
+  - { id: diamonds-6, result: 'Six of diamonds ♦', set: { suit: diamonds, rank: 6 } }
+  - { id: diamonds-7, result: 'Seven of diamonds ♦', set: { suit: diamonds, rank: 7 } }
+  - { id: diamonds-8, result: 'Eight of diamonds ♦', set: { suit: diamonds, rank: 8 } }
+  - { id: diamonds-9, result: 'Nine of diamonds ♦', set: { suit: diamonds, rank: 9 } }
+  - { id: diamonds-10, result: 'Ten of diamonds ♦', set: { suit: diamonds, rank: 10 } }
+  - { id: diamonds-j, result: 'Jack of diamonds ♦', set: { suit: diamonds, rank: 11 } }
+  - { id: diamonds-q, result: 'Queen of diamonds ♦', set: { suit: diamonds, rank: 12 } }
+  - { id: diamonds-k, result: 'King of diamonds ♦', set: { suit: diamonds, rank: 13 } }
+  - { id: clubs-a, result: 'Ace of clubs ♣', set: { suit: clubs, rank: 1 } }
+  - { id: clubs-2, result: 'Two of clubs ♣', set: { suit: clubs, rank: 2 } }
+  - { id: clubs-3, result: 'Three of clubs ♣', set: { suit: clubs, rank: 3 } }
+  - { id: clubs-4, result: 'Four of clubs ♣', set: { suit: clubs, rank: 4 } }
+  - { id: clubs-5, result: 'Five of clubs ♣', set: { suit: clubs, rank: 5 } }
+  - { id: clubs-6, result: 'Six of clubs ♣', set: { suit: clubs, rank: 6 } }
+  - { id: clubs-7, result: 'Seven of clubs ♣', set: { suit: clubs, rank: 7 } }
+  - { id: clubs-8, result: 'Eight of clubs ♣', set: { suit: clubs, rank: 8 } }
+  - { id: clubs-9, result: 'Nine of clubs ♣', set: { suit: clubs, rank: 9 } }
+  - { id: clubs-10, result: 'Ten of clubs ♣', set: { suit: clubs, rank: 10 } }
+  - { id: clubs-j, result: 'Jack of clubs ♣', set: { suit: clubs, rank: 11 } }
+  - { id: clubs-q, result: 'Queen of clubs ♣', set: { suit: clubs, rank: 12 } }
+  - { id: clubs-k, result: 'King of clubs ♣', set: { suit: clubs, rank: 13 } }
+  - { id: joker-red, result: 'Red joker', set: { suit: joker, rank: 0 } }
+  - { id: joker-black, result: 'Black joker', set: { suit: joker, rank: 0 } }
+---
+kind: deck
+id: spanish-deck
+tags: [cards]
+name: Spanish deck
+description: |-
+  The **Spanish deck** of forty cards: coins, cups, swords and clubs, from the ace to the seven, then knave, knight and king.
+
+  Each card sets its `suit` (`coins`, `cups`, `swords` or `clubs`) and its `rank` (1 to 7; knave 10, knight 11, king 12).
+reshuffle: when-empty
+cards:
+  - { id: coins-1, result: 'Ace of coins', set: { suit: coins, rank: 1 } }
+  - { id: coins-2, result: 'Two of coins', set: { suit: coins, rank: 2 } }
+  - { id: coins-3, result: 'Three of coins', set: { suit: coins, rank: 3 } }
+  - { id: coins-4, result: 'Four of coins', set: { suit: coins, rank: 4 } }
+  - { id: coins-5, result: 'Five of coins', set: { suit: coins, rank: 5 } }
+  - { id: coins-6, result: 'Six of coins', set: { suit: coins, rank: 6 } }
+  - { id: coins-7, result: 'Seven of coins', set: { suit: coins, rank: 7 } }
+  - { id: coins-sota, result: 'Knave of coins', set: { suit: coins, rank: 10 } }
+  - { id: coins-caballo, result: 'Knight of coins', set: { suit: coins, rank: 11 } }
+  - { id: coins-rey, result: 'King of coins', set: { suit: coins, rank: 12 } }
+  - { id: cups-1, result: 'Ace of cups', set: { suit: cups, rank: 1 } }
+  - { id: cups-2, result: 'Two of cups', set: { suit: cups, rank: 2 } }
+  - { id: cups-3, result: 'Three of cups', set: { suit: cups, rank: 3 } }
+  - { id: cups-4, result: 'Four of cups', set: { suit: cups, rank: 4 } }
+  - { id: cups-5, result: 'Five of cups', set: { suit: cups, rank: 5 } }
+  - { id: cups-6, result: 'Six of cups', set: { suit: cups, rank: 6 } }
+  - { id: cups-7, result: 'Seven of cups', set: { suit: cups, rank: 7 } }
+  - { id: cups-sota, result: 'Knave of cups', set: { suit: cups, rank: 10 } }
+  - { id: cups-caballo, result: 'Knight of cups', set: { suit: cups, rank: 11 } }
+  - { id: cups-rey, result: 'King of cups', set: { suit: cups, rank: 12 } }
+  - { id: swords-1, result: 'Ace of swords', set: { suit: swords, rank: 1 } }
+  - { id: swords-2, result: 'Two of swords', set: { suit: swords, rank: 2 } }
+  - { id: swords-3, result: 'Three of swords', set: { suit: swords, rank: 3 } }
+  - { id: swords-4, result: 'Four of swords', set: { suit: swords, rank: 4 } }
+  - { id: swords-5, result: 'Five of swords', set: { suit: swords, rank: 5 } }
+  - { id: swords-6, result: 'Six of swords', set: { suit: swords, rank: 6 } }
+  - { id: swords-7, result: 'Seven of swords', set: { suit: swords, rank: 7 } }
+  - { id: swords-sota, result: 'Knave of swords', set: { suit: swords, rank: 10 } }
+  - { id: swords-caballo, result: 'Knight of swords', set: { suit: swords, rank: 11 } }
+  - { id: swords-rey, result: 'King of swords', set: { suit: swords, rank: 12 } }
+  - { id: clubs-1, result: 'Ace of clubs', set: { suit: clubs, rank: 1 } }
+  - { id: clubs-2, result: 'Two of clubs', set: { suit: clubs, rank: 2 } }
+  - { id: clubs-3, result: 'Three of clubs', set: { suit: clubs, rank: 3 } }
+  - { id: clubs-4, result: 'Four of clubs', set: { suit: clubs, rank: 4 } }
+  - { id: clubs-5, result: 'Five of clubs', set: { suit: clubs, rank: 5 } }
+  - { id: clubs-6, result: 'Six of clubs', set: { suit: clubs, rank: 6 } }
+  - { id: clubs-7, result: 'Seven of clubs', set: { suit: clubs, rank: 7 } }
+  - { id: clubs-sota, result: 'Knave of clubs', set: { suit: clubs, rank: 10 } }
+  - { id: clubs-caballo, result: 'Knight of clubs', set: { suit: clubs, rank: 11 } }
+  - { id: clubs-rey, result: 'King of clubs', set: { suit: clubs, rank: 12 } }
+---
+kind: table
+id: tarot-way
+tags: [cards]
+name: Which way up
+description: |-
+  How a _Tarot_ card comes out. **Upright**, it means what it says; **reversed**, the same thing blocked, late, turned inward or gone too far.
+roll: 1d2
+entries:
+  - { id: upright, range: 1, result: upright }
+  - { id: reversed, range: 2, result: reversed }
+---
+kind: deck
+id: tarot
+tags: [cards]
+name: Tarot
+description: |-
+  The **tarot** of 78 cards: the 22 of the major arcana and the four suits of the minor ones, each comes out upright or reversed (_Which way up_). Read what it says freely, for a scene, a person or a place.
+
+  Each card sets its `arcana` (`major` or `minor`) and its `rank` (the major arcana 0 to 21; the minor ones ace 1, page 11, knight 12, queen 13, king 14), and a minor card its `suit` (`wands`, `cups`, `swords` or `pentacles`).
+reshuffle: when-empty
+cards:
+  - {
+      id: fool,
+      result: 'The Fool, {{result}}: a leap into the unknown',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 0 },
+    }
+  - {
+      id: magician,
+      result: 'The Magician, {{result}}: skill and will at work',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 1 },
+    }
+  - {
+      id: high-priestess,
+      result: 'The High Priestess, {{result}}: a secret kept, a truth felt',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 2 },
+    }
+  - {
+      id: empress,
+      result: 'The Empress, {{result}}: abundance and care',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 3 },
+    }
+  - {
+      id: emperor,
+      result: 'The Emperor, {{result}}: order, rule and authority',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 4 },
+    }
+  - {
+      id: hierophant,
+      result: 'The Hierophant, {{result}}: tradition and its teachers',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 5 },
+    }
+  - {
+      id: lovers,
+      result: 'The Lovers, {{result}}: a bond and a choice',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 6 },
+    }
+  - {
+      id: chariot,
+      result: 'The Chariot, {{result}}: victory by drive and control',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 7 },
+    }
+  - {
+      id: strength,
+      result: 'Strength, {{result}}: courage and patience, not force',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 8 },
+    }
+  - {
+      id: hermit,
+      result: 'The Hermit, {{result}}: searching alone, a light in the dark',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 9 },
+    }
+  - {
+      id: wheel,
+      result: 'The Wheel of Fortune, {{result}}: luck turns',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 10 },
+    }
+  - {
+      id: justice,
+      result: 'Justice, {{result}}: a fair judgment, a debt paid',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 11 },
+    }
+  - {
+      id: hanged-man,
+      result: 'The Hanged Man, {{result}}: a sacrifice, seeing things differently',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 12 },
+    }
+  - {
+      id: death,
+      result: 'Death, {{result}}: an ending that makes room',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 13 },
+    }
+  - {
+      id: temperance,
+      result: 'Temperance, {{result}}: balance and mixing opposites',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 14 },
+    }
+  - {
+      id: devil,
+      result: 'The Devil, {{result}}: chains, temptation, a bad bargain',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 15 },
+    }
+  - {
+      id: tower,
+      result: 'The Tower, {{result}}: sudden collapse, a harsh truth',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 16 },
+    }
+  - {
+      id: star,
+      result: 'The Star, {{result}}: hope and healing',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 17 },
+    }
+  - {
+      id: moon,
+      result: 'The Moon, {{result}}: fear, illusion, the hidden path',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 18 },
+    }
+  - {
+      id: sun,
+      result: 'The Sun, {{result}}: joy, clarity, success',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 19 },
+    }
+  - {
+      id: judgement,
+      result: 'Judgement, {{result}}: a call, a reckoning, a second chance',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 20 },
+    }
+  - {
+      id: world,
+      result: 'The World, {{result}}: completion, a journey ended',
+      table: table.tarot-way,
+      set: { arcana: major, rank: 21 },
+    }
+  - {
+      id: wands-ace,
+      result: 'Ace of Wands, {{result}}: a spark, a bold beginning',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 1 },
+    }
+  - {
+      id: wands-2,
+      result: 'Two of Wands, {{result}}: a plan, looking beyond the walls',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 2 },
+    }
+  - {
+      id: wands-3,
+      result: 'Three of Wands, {{result}}: help on the way, ships coming in',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 3 },
+    }
+  - {
+      id: wands-4,
+      result: 'Four of Wands, {{result}}: a homecoming, a feast',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 4 },
+    }
+  - {
+      id: wands-5,
+      result: 'Five of Wands, {{result}}: a brawl, rivals at odds',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 5 },
+    }
+  - {
+      id: wands-6,
+      result: 'Six of Wands, {{result}}: a victory parade',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 6 },
+    }
+  - {
+      id: wands-7,
+      result: 'Seven of Wands, {{result}}: holding the high ground',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 7 },
+    }
+  - {
+      id: wands-8,
+      result: 'Eight of Wands, {{result}}: swift news, things speed up',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 8 },
+    }
+  - {
+      id: wands-9,
+      result: 'Nine of Wands, {{result}}: wounded but standing guard',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 9 },
+    }
+  - {
+      id: wands-10,
+      result: 'Ten of Wands, {{result}}: a burden too heavy',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 10 },
+    }
+  - {
+      id: wands-page,
+      result: 'Page of Wands, {{result}}: an eager messenger',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 11 },
+    }
+  - {
+      id: wands-knight,
+      result: 'Knight of Wands, {{result}}: a daring rider, reckless haste',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 12 },
+    }
+  - {
+      id: wands-queen,
+      result: 'Queen of Wands, {{result}}: a confident host, warm and fierce',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 13 },
+    }
+  - {
+      id: wands-king,
+      result: 'King of Wands, {{result}}: a bold leader',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: wands, rank: 14 },
+    }
+  - {
+      id: cups-ace,
+      result: 'Ace of Cups, {{result}}: love, a heart filling up',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 1 },
+    }
+  - {
+      id: cups-2,
+      result: 'Two of Cups, {{result}}: a pact between two',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 2 },
+    }
+  - {
+      id: cups-3,
+      result: 'Three of Cups, {{result}}: friends raising a toast',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 3 },
+    }
+  - {
+      id: cups-4,
+      result: 'Four of Cups, {{result}}: boredom, an offer ignored',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 4 },
+    }
+  - {
+      id: cups-5,
+      result: 'Five of Cups, {{result}}: grief over what was spilled',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 5 },
+    }
+  - {
+      id: cups-6,
+      result: 'Six of Cups, {{result}}: an old memory, a childhood friend',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 6 },
+    }
+  - {
+      id: cups-7,
+      result: 'Seven of Cups, {{result}}: daydreams, too many choices',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 7 },
+    }
+  - {
+      id: cups-8,
+      result: 'Eight of Cups, {{result}}: walking away from it all',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 8 },
+    }
+  - {
+      id: cups-9,
+      result: 'Nine of Cups, {{result}}: a wish granted',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 9 },
+    }
+  - {
+      id: cups-10,
+      result: 'Ten of Cups, {{result}}: a happy home',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 10 },
+    }
+  - {
+      id: cups-page,
+      result: 'Page of Cups, {{result}}: a dreamer with a strange message',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 11 },
+    }
+  - {
+      id: cups-knight,
+      result: 'Knight of Cups, {{result}}: a charming envoy',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 12 },
+    }
+  - {
+      id: cups-queen,
+      result: 'Queen of Cups, {{result}}: a kind and knowing healer',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 13 },
+    }
+  - {
+      id: cups-king,
+      result: 'King of Cups, {{result}}: a calm hand in rough water',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: cups, rank: 14 },
+    }
+  - {
+      id: swords-ace,
+      result: 'Ace of Swords, {{result}}: a truth that cuts',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 1 },
+    }
+  - {
+      id: swords-2,
+      result: 'Two of Swords, {{result}}: a stalemate, eyes shut',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 2 },
+    }
+  - {
+      id: swords-3,
+      result: 'Three of Swords, {{result}}: heartbreak, a betrayal',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 3 },
+    }
+  - {
+      id: swords-4,
+      result: 'Four of Swords, {{result}}: rest after the fight',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 4 },
+    }
+  - {
+      id: swords-5,
+      result: 'Five of Swords, {{result}}: a hollow victory',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 5 },
+    }
+  - {
+      id: swords-6,
+      result: 'Six of Swords, {{result}}: leaving troubles behind, a crossing',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 6 },
+    }
+  - {
+      id: swords-7,
+      result: 'Seven of Swords, {{result}}: theft, a plan in the shadows',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 7 },
+    }
+  - {
+      id: swords-8,
+      result: 'Eight of Swords, {{result}}: bound by fear',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 8 },
+    }
+  - {
+      id: swords-9,
+      result: 'Nine of Swords, {{result}}: sleepless dread',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 9 },
+    }
+  - {
+      id: swords-10,
+      result: 'Ten of Swords, {{result}}: ruin, the worst has passed',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 10 },
+    }
+  - {
+      id: swords-page,
+      result: 'Page of Swords, {{result}}: a spy, sharp and curious',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 11 },
+    }
+  - {
+      id: swords-knight,
+      result: 'Knight of Swords, {{result}}: a charge without thinking',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 12 },
+    }
+  - {
+      id: swords-queen,
+      result: 'Queen of Swords, {{result}}: a stern judge of character',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 13 },
+    }
+  - {
+      id: swords-king,
+      result: 'King of Swords, {{result}}: cold reason, a hard ruling',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: swords, rank: 14 },
+    }
+  - {
+      id: pentacles-ace,
+      result: 'Ace of Pentacles, {{result}}: a windfall, a new venture',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 1 },
+    }
+  - {
+      id: pentacles-2,
+      result: 'Two of Pentacles, {{result}}: juggling two debts',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 2 },
+    }
+  - {
+      id: pentacles-3,
+      result: 'Three of Pentacles, {{result}}: skilled work, a guild',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 3 },
+    }
+  - {
+      id: pentacles-4,
+      result: 'Four of Pentacles, {{result}}: hoarding, a tight fist',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 4 },
+    }
+  - {
+      id: pentacles-5,
+      result: 'Five of Pentacles, {{result}}: poverty, out in the cold',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 5 },
+    }
+  - {
+      id: pentacles-6,
+      result: 'Six of Pentacles, {{result}}: charity, a fair share',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 6 },
+    }
+  - {
+      id: pentacles-7,
+      result: 'Seven of Pentacles, {{result}}: waiting for the harvest',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 7 },
+    }
+  - {
+      id: pentacles-8,
+      result: 'Eight of Pentacles, {{result}}: patient craft',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 8 },
+    }
+  - {
+      id: pentacles-9,
+      result: 'Nine of Pentacles, {{result}}: comfort earned alone',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 9 },
+    }
+  - {
+      id: pentacles-10,
+      result: 'Ten of Pentacles, {{result}}: an inheritance, a family fortune',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 10 },
+    }
+  - {
+      id: pentacles-page,
+      result: 'Page of Pentacles, {{result}}: a keen student',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 11 },
+    }
+  - {
+      id: pentacles-knight,
+      result: 'Knight of Pentacles, {{result}}: a steady, tireless worker',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 12 },
+    }
+  - {
+      id: pentacles-queen,
+      result: 'Queen of Pentacles, {{result}}: a generous provider',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 13 },
+    }
+  - {
+      id: pentacles-king,
+      result: 'King of Pentacles, {{result}}: a wealthy patron',
+      table: table.tarot-way,
+      set: { arcana: minor, suit: pentacles, rank: 14 },
+    }
+---
+kind: deck
+id: lenormand
+tags: [cards]
+name: Lenormand
+description: |-
+  The **Lenormand** of 36 picture cards: plain things that read one after another like words of a sentence.
+reshuffle: when-empty
+cards:
+  - { id: rider, result: 'Rider: news, a visitor' }
+  - { id: clover, result: 'Clover: a small stroke of luck' }
+  - { id: ship, result: 'Ship: a journey, trade, distance' }
+  - { id: house, result: 'House: home, family, what is safe' }
+  - { id: tree, result: 'Tree: health, roots, slow growth' }
+  - { id: clouds, result: 'Clouds: confusion, trouble ahead' }
+  - { id: snake, result: 'Snake: deceit, a winding way, a rival' }
+  - { id: coffin, result: 'Coffin: an ending, sickness, a closed box' }
+  - { id: bouquet, result: 'Bouquet: a gift, a pleasant surprise' }
+  - { id: scythe, result: 'Scythe: a sudden cut, danger, harvest' }
+  - { id: whip, result: 'Whip: quarrels, punishment, repetition' }
+  - { id: birds, result: 'Birds: gossip, nerves, chatter' }
+  - { id: child, result: 'Child: something new, innocence, small' }
+  - { id: fox, result: 'Fox: cunning, a trick, self-interest' }
+  - { id: bear, result: 'Bear: power, a protector, a heavy hand' }
+  - { id: stars, result: 'Stars: guidance, hope, clear sight' }
+  - { id: stork, result: 'Stork: change, a move, a return' }
+  - { id: dog, result: 'Dog: a loyal friend' }
+  - { id: tower, result: 'Tower: authority, isolation, an institution' }
+  - { id: garden, result: 'Garden: a public place, a gathering' }
+  - { id: mountain, result: 'Mountain: an obstacle, a long delay' }
+  - { id: crossroads, result: 'Crossroads: a choice of ways' }
+  - { id: mice, result: 'Mice: loss, theft, slow decay' }
+  - { id: heart, result: 'Heart: love, what is dear' }
+  - { id: ring, result: 'Ring: a pact, a promise, a cycle' }
+  - { id: book, result: 'Book: a secret, knowledge, what is unknown' }
+  - { id: letter, result: 'Letter: a message, a document' }
+  - { id: man, result: 'Man: a man, the one who asks' }
+  - { id: woman, result: 'Woman: a woman, the one who asks' }
+  - { id: lily, result: 'Lily: peace, age, virtue' }
+  - { id: sun, result: 'Sun: success, warmth, energy' }
+  - { id: moon, result: 'Moon: fame, dreams, feelings' }
+  - { id: key, result: 'Key: an answer, what opens the way' }
+  - { id: fish, result: 'Fish: money, trade, plenty' }
+  - { id: anchor, result: 'Anchor: stability, a goal reached' }
+  - { id: cross, result: 'Cross: a burden, fate, faith' }
+---
+kind: deck
+id: runes
+tags: [cards]
+name: Runes
+description: |-
+  The 24 **runes** of the Elder Futhark, as a bag of stones: draw one and it stays out of the bag until the bag is empty, or until you **Shuffle**.
+reshuffle: when-empty
+cards:
+  - { id: fehu, result: 'ᚠ Fehu: wealth, cattle, what you own' }
+  - { id: uruz, result: 'ᚢ Uruz: raw strength, the wild ox' }
+  - { id: thurisaz, result: 'ᚦ Thurisaz: a thorn, a giant, danger' }
+  - { id: ansuz, result: 'ᚨ Ansuz: a god speaks, a message' }
+  - { id: raidho, result: 'ᚱ Raidho: the road, a ride, a journey' }
+  - { id: kenaz, result: 'ᚲ Kenaz: a torch, craft, knowledge' }
+  - { id: gebo, result: 'ᚷ Gebo: a gift, a debt between equals' }
+  - { id: wunjo, result: 'ᚹ Wunjo: joy, fellowship' }
+  - { id: hagalaz, result: 'ᚺ Hagalaz: hail, sudden ruin' }
+  - { id: nauthiz, result: 'ᚾ Nauthiz: need, hardship' }
+  - { id: isa, result: 'ᛁ Isa: ice, everything stops' }
+  - { id: jera, result: 'ᛃ Jera: the harvest, a year’s reward' }
+  - { id: eihwaz, result: 'ᛇ Eihwaz: the yew, endurance, death and life' }
+  - { id: perthro, result: 'ᛈ Perthro: the lot cup, chance, a mystery' }
+  - { id: algiz, result: 'ᛉ Algiz: the elk, protection' }
+  - { id: sowilo, result: 'ᛋ Sowilo: the sun, victory' }
+  - { id: tiwaz, result: 'ᛏ Tiwaz: the war god, justice, sacrifice' }
+  - { id: berkano, result: 'ᛒ Berkano: the birch, birth, growth' }
+  - { id: ehwaz, result: 'ᛖ Ehwaz: the horse, trust, partnership' }
+  - { id: mannaz, result: 'ᛗ Mannaz: mankind, kin, oneself' }
+  - { id: laguz, result: 'ᛚ Laguz: water, the unseen flow' }
+  - { id: ingwaz, result: 'ᛜ Ingwaz: the seed, a time of waiting' }
+  - { id: dagaz, result: 'ᛞ Dagaz: daybreak, a sudden change' }
+  - { id: othala, result: 'ᛟ Othala: the homeland, inheritance' }
+---
+kind: deck
+id: dominoes
+tags: [cards]
+name: Dominoes
+description: |-
+  The **double-six** set of 28 tiles, face down: a tile drawn stays out until they run out, or until you **Shuffle**.
+
+  Each tile sets its two ends (`high`, `low`) and its `pips`, what they add up to.
+reshuffle: when-empty
+cards:
+  - { id: tile-6-6, result: '[6|6]', set: { high: 6, low: 6, pips: 12 } }
+  - { id: tile-6-5, result: '[6|5]', set: { high: 6, low: 5, pips: 11 } }
+  - { id: tile-6-4, result: '[6|4]', set: { high: 6, low: 4, pips: 10 } }
+  - { id: tile-6-3, result: '[6|3]', set: { high: 6, low: 3, pips: 9 } }
+  - { id: tile-6-2, result: '[6|2]', set: { high: 6, low: 2, pips: 8 } }
+  - { id: tile-6-1, result: '[6|1]', set: { high: 6, low: 1, pips: 7 } }
+  - { id: tile-6-0, result: '[6|0]', set: { high: 6, low: 0, pips: 6 } }
+  - { id: tile-5-5, result: '[5|5]', set: { high: 5, low: 5, pips: 10 } }
+  - { id: tile-5-4, result: '[5|4]', set: { high: 5, low: 4, pips: 9 } }
+  - { id: tile-5-3, result: '[5|3]', set: { high: 5, low: 3, pips: 8 } }
+  - { id: tile-5-2, result: '[5|2]', set: { high: 5, low: 2, pips: 7 } }
+  - { id: tile-5-1, result: '[5|1]', set: { high: 5, low: 1, pips: 6 } }
+  - { id: tile-5-0, result: '[5|0]', set: { high: 5, low: 0, pips: 5 } }
+  - { id: tile-4-4, result: '[4|4]', set: { high: 4, low: 4, pips: 8 } }
+  - { id: tile-4-3, result: '[4|3]', set: { high: 4, low: 3, pips: 7 } }
+  - { id: tile-4-2, result: '[4|2]', set: { high: 4, low: 2, pips: 6 } }
+  - { id: tile-4-1, result: '[4|1]', set: { high: 4, low: 1, pips: 5 } }
+  - { id: tile-4-0, result: '[4|0]', set: { high: 4, low: 0, pips: 4 } }
+  - { id: tile-3-3, result: '[3|3]', set: { high: 3, low: 3, pips: 6 } }
+  - { id: tile-3-2, result: '[3|2]', set: { high: 3, low: 2, pips: 5 } }
+  - { id: tile-3-1, result: '[3|1]', set: { high: 3, low: 1, pips: 4 } }
+  - { id: tile-3-0, result: '[3|0]', set: { high: 3, low: 0, pips: 3 } }
+  - { id: tile-2-2, result: '[2|2]', set: { high: 2, low: 2, pips: 4 } }
+  - { id: tile-2-1, result: '[2|1]', set: { high: 2, low: 1, pips: 3 } }
+  - { id: tile-2-0, result: '[2|0]', set: { high: 2, low: 0, pips: 2 } }
+  - { id: tile-1-1, result: '[1|1]', set: { high: 1, low: 1, pips: 2 } }
+  - { id: tile-1-0, result: '[1|0]', set: { high: 1, low: 0, pips: 1 } }
+  - { id: tile-0-0, result: '[0|0]', set: { high: 0, low: 0, pips: 0 } }
+---
+kind: table
+id: suit-meaning
+tags: [cards]
+name: What the suit speaks of
+description: |-
+  What a card of the _Playing cards_ is about, by its suit: rolled by _A card for the scene_, which gives it the card drawn (`card.suit`).
+entries:
+  - {
+      id: hearts,
+      when: { card.suit: hearts },
+      result: 'People and feelings: a friend, a love, a grudge.',
+    }
+  - {
+      id: diamonds,
+      when: { card.suit: diamonds },
+      result: 'Wealth and trade: a price, a prize, a debt.',
+    }
+  - {
+      id: clubs,
+      when: { card.suit: clubs },
+      result: 'Work and conflict: a task, a fight, a rival.',
+    }
+  - {
+      id: spades,
+      when: { card.suit: spades },
+      result: 'Danger and secrets: a threat, a loss, a hidden truth.',
+    }
+  # Jokers, and when it's rolled by hand with no card.
+  - id: joker
+    unless: { card.suit: [hearts, diamonds, clubs, spades] }
+    result: 'Anything at all: the unexpected walks in.'
+---
+kind: generator
+id: card-for-the-scene
+tags: [cards]
+name: A card for the scene
+description: |-
+  One card from a whole deck and **what its suit speaks of**: a quick idea for what a scene is about.
+fields:
+  card: { deck: deck.playing-cards, shuffle: true }
+  meaning: { table: table.suit-meaning }
+template: '{{card}}. {{meaning}}'
+---
+kind: generator
+id: poker-hand
+tags: [cards]
+name: Poker hand
+description: |-
+  **Five cards** dealt from a whole deck, jokers included: a hand never repeats a card. For a game of cards at the inn, or a bet.
+fields:
+  first: { deck: deck.playing-cards, shuffle: true }
+  second: { deck: deck.playing-cards }
+  third: { deck: deck.playing-cards }
+  fourth: { deck: deck.playing-cards }
+  fifth: { deck: deck.playing-cards }
+template: '{{first}} · {{second}} · {{third}} · {{fourth}} · {{fifth}}'
+---
+kind: generator
+id: three-card-reading
+tags: [cards]
+name: Three-card reading
+description: |-
+  The simplest **tarot spread**, from a whole deck: where it comes from, where it stands, where it goes.
+fields:
+  past: { deck: deck.tarot, shuffle: true }
+  present: { deck: deck.tarot }
+  future: { deck: deck.tarot }
+template: |-
+  Past: {{past}}
+  Present: {{present}}
+  Future: {{future}}
+---
+kind: generator
+id: celtic-cross
+tags: [cards]
+name: Celtic cross
+description: |-
+  The classic **ten-card tarot spread**, from a whole deck: for the question that drives a whole adventure.
+fields:
+  situation: { deck: deck.tarot, shuffle: true }
+  challenge: { deck: deck.tarot }
+  root: { deck: deck.tarot }
+  past: { deck: deck.tarot }
+  crown: { deck: deck.tarot }
+  future: { deck: deck.tarot }
+  self: { deck: deck.tarot }
+  surroundings: { deck: deck.tarot }
+  hopes: { deck: deck.tarot }
+  outcome: { deck: deck.tarot }
+template: |-
+  The situation: {{situation}}
+  What crosses it: {{challenge}}
+  Its root: {{root}}
+  What is passing: {{past}}
+  What may crown it: {{crown}}
+  What is coming: {{future}}
+  You: {{self}}
+  Those around you: {{surroundings}}
+  Hopes and fears: {{hopes}}
+  The outcome: {{outcome}}
+---
+kind: generator
+id: tarot-character
+tags: [cards, people]
+name: A character from the tarot
+description: |-
+  **Three cards** that sketch someone, from a whole deck: who they are, what they want and what stands in their way.
+fields:
+  who: { deck: deck.tarot, shuffle: true }
+  wants: { deck: deck.tarot }
+  obstacle: { deck: deck.tarot }
+template: |-
+  Who they are: {{who}}
+  What they want: {{wants}}
+  What stands in the way: {{obstacle}}
+---
+kind: generator
+id: lenormand-line
+tags: [cards]
+name: Lenormand line
+description: |-
+  **Three cards** in a line, from a whole deck, read like a sentence: who, what happens, how it ends.
+fields:
+  subject: { deck: deck.lenormand, shuffle: true }
+  action: { deck: deck.lenormand }
+  end: { deck: deck.lenormand }
+template: |-
+  Who: {{subject}}
+  What happens: {{action}}
+  How it ends: {{end}}
+---
+kind: generator
+id: rune-cast
+tags: [cards]
+name: Rune cast
+description: |-
+  **Three stones** from a full bag: the problem, the way, the result.
+fields:
+  problem: { deck: deck.runes, shuffle: true }
+  way: { deck: deck.runes }
+  result: { deck: deck.runes }
+template: |-
+  The problem: {{problem}}
+  The way: {{way}}
+  The result: {{result}}

@@ -278,11 +278,20 @@ export const es: Messages<typeof en> = {
     insertField: 'Añadir a la plantilla',
     fields: 'Campos',
     fieldsHelp:
-      'Cada campo se tira **en orden**; los campos y tablas siguientes pueden usar los valores anteriores (`{{danger}}`). Un campo sale de:\n• una **Tabla** — `ruins`\n• un **Generador** — otro generador\n• **Dados** — `2d6kl1`, `d%`\n• un **Valor fijo** — `3`, o un texto con variables: `peligro {{danger}} de 6`',
+      'Cada campo se tira **en orden**; los campos y tablas siguientes pueden usar los valores anteriores (`{{danger}}`). Un campo sale de:\n• una **Tabla** — `ruins`\n• un **Generador** — otro generador\n• un **Mazo** — `deck.omens`: se roba una carta, que no vuelve hasta barajar\n• **Dados** — `2d6kl1`, `d%`\n• un **Valor fijo** — `3`, o un texto con variables: `peligro {{danger}} de 6`',
     fieldName: 'Nombre',
     fieldSource: 'Sale de',
-    fieldValue: 'Tabla, dados o valor',
-    sources: { table: 'Tabla', generator: 'Generador', roll: 'Dados', value: 'Valor fijo' },
+    fieldValue: 'Tabla, mazo, dados o valor',
+    sources: {
+      table: 'Tabla',
+      generator: 'Generador',
+      deck: 'Mazo',
+      roll: 'Dados',
+      value: 'Valor fijo',
+    },
+    fieldShuffle: 'Barajar antes',
+    fieldShuffleHelp:
+      'Todas las cartas vuelven y el mazo se baraja **antes de este robo**, así una mano o una tirada nunca repite carta ni depende de robos anteriores. Márcalo en el primer campo que roba; los siguientes toman lo que queda.\n• `first: { deck: deck.omens, shuffle: true }`\n• `second: { deck: deck.omens }`\nDesmarcado: la carta sale de lo que queda del mazo.',
     fieldMore: 'Condiciones y contexto',
     fieldWhenHelp:
       '**Solo si**: el campo solo se tira cuando se cumple, en filas (qué lee · comparación · valor), sobre lo que ve el generador (sus entradas, campos anteriores, el mapa o el viaje); si no, queda vacío.\n• `time.season: winter`\n• `danger: { lte: 2 }` — un campo anterior\n**Salvo**: no cuando se cumple:\n• `untouched: { lt: 90 }`\nVacío: siempre.',

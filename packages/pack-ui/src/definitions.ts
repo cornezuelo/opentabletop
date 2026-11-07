@@ -157,7 +157,7 @@ export function hasKind(pack: PackSource, kind: string): boolean {
   return pack.files.some((f) => new RegExp(`^kind:\\s*${kind}\\s*$`, 'm').test(f.content))
 }
 
-const REF_KEYS = ['table', 'generator'] as const
+const REF_KEYS = ['table', 'generator', 'deck'] as const
 
 /**
  * References to the pack's own definitions ("table.weather") made to name the pack

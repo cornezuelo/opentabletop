@@ -41,7 +41,7 @@ Una **entrada** (su id, una **etiqueta** que mostrar y sus **opciones**, cada un
 
 ## Generadores
 
-Los **campos** se tiran en orden; cada uno (**Añadir campo**) tiene un nombre y **Sale de** una tabla, un generador, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo. **Condiciones y contexto**, bajo cada campo: **Solo si** / **Salvo** en filas (el campo solo se tira entonces; si no, queda vacío, p. ej. la trampa de _Explorar una ruina_ solo cuando `place.danger` **es como mucho** `2`) y **Contexto**, una fila por valor que recibe la tabla o generador que tira (`timeOfDay` · `night`, `danger` · `3`).
+Los **campos** se tiran en orden; cada uno (**Añadir campo**) tiene un nombre y **Sale de** una tabla, un generador, un mazo, unos dados o un valor fijo, y los siguientes pueden usar los anteriores. Un campo de mazo tiene **Barajar antes**: todas las cartas vuelven antes de ese robo, así una mano o una tirada empieza del mazo entero. La **plantilla** escribe el resultado: haz clic en un `{{campo}}` para añadirlo. **Condiciones y contexto**, bajo cada campo: **Solo si** / **Salvo** en filas (el campo solo se tira entonces; si no, queda vacío, p. ej. la trampa de _Explorar una ruina_ solo cuando `place.danger` **es como mucho** `2`) y **Contexto**, una fila por valor que recibe la tabla o generador que tira (`timeOfDay` · `night`, `danger` · `3`).
 
 ## Mazos
 

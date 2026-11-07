@@ -1,0 +1,343 @@
+playing-cards:
+  name: Baraja de póker
+  description: |-
+    La **baraja de póker**: cuatro palos de trece y dos comodines. Una carta robada queda fuera hasta que se acaba el mazo, o hasta que pulsas **Barajar**.
+
+    Cada carta pone su `suit` (`spades`, `hearts`, `diamonds`, `clubs` o `joker`) y su `rank` (as 1, jota 11, reina 12, rey 13, comodín 0).
+  cards:
+    spades-a: As de picas ♠
+    spades-2: Dos de picas ♠
+    spades-3: Tres de picas ♠
+    spades-4: Cuatro de picas ♠
+    spades-5: Cinco de picas ♠
+    spades-6: Seis de picas ♠
+    spades-7: Siete de picas ♠
+    spades-8: Ocho de picas ♠
+    spades-9: Nueve de picas ♠
+    spades-10: Diez de picas ♠
+    spades-j: Jota de picas ♠
+    spades-q: Reina de picas ♠
+    spades-k: Rey de picas ♠
+    hearts-a: As de corazones ♥
+    hearts-2: Dos de corazones ♥
+    hearts-3: Tres de corazones ♥
+    hearts-4: Cuatro de corazones ♥
+    hearts-5: Cinco de corazones ♥
+    hearts-6: Seis de corazones ♥
+    hearts-7: Siete de corazones ♥
+    hearts-8: Ocho de corazones ♥
+    hearts-9: Nueve de corazones ♥
+    hearts-10: Diez de corazones ♥
+    hearts-j: Jota de corazones ♥
+    hearts-q: Reina de corazones ♥
+    hearts-k: Rey de corazones ♥
+    diamonds-a: As de diamantes ♦
+    diamonds-2: Dos de diamantes ♦
+    diamonds-3: Tres de diamantes ♦
+    diamonds-4: Cuatro de diamantes ♦
+    diamonds-5: Cinco de diamantes ♦
+    diamonds-6: Seis de diamantes ♦
+    diamonds-7: Siete de diamantes ♦
+    diamonds-8: Ocho de diamantes ♦
+    diamonds-9: Nueve de diamantes ♦
+    diamonds-10: Diez de diamantes ♦
+    diamonds-j: Jota de diamantes ♦
+    diamonds-q: Reina de diamantes ♦
+    diamonds-k: Rey de diamantes ♦
+    clubs-a: As de tréboles ♣
+    clubs-2: Dos de tréboles ♣
+    clubs-3: Tres de tréboles ♣
+    clubs-4: Cuatro de tréboles ♣
+    clubs-5: Cinco de tréboles ♣
+    clubs-6: Seis de tréboles ♣
+    clubs-7: Siete de tréboles ♣
+    clubs-8: Ocho de tréboles ♣
+    clubs-9: Nueve de tréboles ♣
+    clubs-10: Diez de tréboles ♣
+    clubs-j: Jota de tréboles ♣
+    clubs-q: Reina de tréboles ♣
+    clubs-k: Rey de tréboles ♣
+    joker-red: Comodín rojo
+    joker-black: Comodín negro
+spanish-deck:
+  name: Baraja española
+  description: |-
+    La **baraja española** de cuarenta cartas: oros, copas, espadas y bastos, del as al siete, y luego sota, caballo y rey.
+
+    Cada carta pone su `suit` (`coins`, `cups`, `swords` o `clubs`) y su `rank` (del 1 al 7; sota 10, caballo 11, rey 12).
+  cards:
+    coins-1: As de oros
+    coins-2: Dos de oros
+    coins-3: Tres de oros
+    coins-4: Cuatro de oros
+    coins-5: Cinco de oros
+    coins-6: Seis de oros
+    coins-7: Siete de oros
+    coins-sota: Sota de oros
+    coins-caballo: Caballo de oros
+    coins-rey: Rey de oros
+    cups-1: As de copas
+    cups-2: Dos de copas
+    cups-3: Tres de copas
+    cups-4: Cuatro de copas
+    cups-5: Cinco de copas
+    cups-6: Seis de copas
+    cups-7: Siete de copas
+    cups-sota: Sota de copas
+    cups-caballo: Caballo de copas
+    cups-rey: Rey de copas
+    swords-1: As de espadas
+    swords-2: Dos de espadas
+    swords-3: Tres de espadas
+    swords-4: Cuatro de espadas
+    swords-5: Cinco de espadas
+    swords-6: Seis de espadas
+    swords-7: Siete de espadas
+    swords-sota: Sota de espadas
+    swords-caballo: Caballo de espadas
+    swords-rey: Rey de espadas
+    clubs-1: As de bastos
+    clubs-2: Dos de bastos
+    clubs-3: Tres de bastos
+    clubs-4: Cuatro de bastos
+    clubs-5: Cinco de bastos
+    clubs-6: Seis de bastos
+    clubs-7: Siete de bastos
+    clubs-sota: Sota de bastos
+    clubs-caballo: Caballo de bastos
+    clubs-rey: Rey de bastos
+tarot-way:
+  name: De qué lado sale
+  description: |-
+    Cómo sale una carta del _Tarot_. **Al derecho**, significa lo que dice; **del revés**, lo mismo pero bloqueado, tardío, vuelto hacia dentro o llevado demasiado lejos.
+  entries:
+    upright: al derecho
+    reversed: del revés
+tarot:
+  name: Tarot
+  description: |-
+    El **tarot** de 78 cartas: las 22 de los arcanos mayores y los cuatro palos de los menores, que salen al derecho o del revés (_De qué lado sale_). Lee lo que dice con libertad, para una escena, una persona o un lugar.
+
+    Cada carta pone su `arcana` (`major` o `minor`) y su `rank` (los arcanos mayores del 0 al 21; los menores as 1, sota 11, caballero 12, reina 13, rey 14), y una carta menor su `suit` (`wands`, `cups`, `swords` o `pentacles`).
+  cards:
+    fool: 'El Loco, {{result}}: un salto a lo desconocido'
+    magician: 'El Mago, {{result}}: habilidad y voluntad en marcha'
+    high-priestess: 'La Sacerdotisa, {{result}}: un secreto guardado, una verdad intuida'
+    empress: 'La Emperatriz, {{result}}: abundancia y cuidados'
+    emperor: 'El Emperador, {{result}}: orden, mando y autoridad'
+    hierophant: 'El Sumo Sacerdote, {{result}}: la tradición y sus maestros'
+    lovers: 'Los Enamorados, {{result}}: un vínculo y una elección'
+    chariot: 'El Carro, {{result}}: victoria a fuerza de empuje y control'
+    strength: 'La Fuerza, {{result}}: valor y paciencia, no fuerza bruta'
+    hermit: 'El Ermitaño, {{result}}: buscar a solas, una luz en la oscuridad'
+    wheel: 'La Rueda de la Fortuna, {{result}}: la suerte cambia'
+    justice: 'La Justicia, {{result}}: un juicio justo, una deuda saldada'
+    hanged-man: 'El Colgado, {{result}}: un sacrificio, verlo todo de otra manera'
+    death: 'La Muerte, {{result}}: un final que deja sitio'
+    temperance: 'La Templanza, {{result}}: equilibrio y mezcla de contrarios'
+    devil: 'El Diablo, {{result}}: cadenas, tentación, un mal trato'
+    tower: 'La Torre, {{result}}: un derrumbe repentino, una verdad dura'
+    star: 'La Estrella, {{result}}: esperanza y sanación'
+    moon: 'La Luna, {{result}}: miedo, ilusión, el camino oculto'
+    sun: 'El Sol, {{result}}: alegría, claridad, éxito'
+    judgement: 'El Juicio, {{result}}: una llamada, un ajuste de cuentas, una segunda oportunidad'
+    world: 'El Mundo, {{result}}: plenitud, un viaje que termina'
+    wands-ace: 'As de bastos, {{result}}: una chispa, un comienzo audaz'
+    wands-2: 'Dos de bastos, {{result}}: un plan, mirar más allá de los muros'
+    wands-3: 'Tres de bastos, {{result}}: ayuda en camino, llegan los barcos'
+    wands-4: 'Cuatro de bastos, {{result}}: un regreso a casa, una fiesta'
+    wands-5: 'Cinco de bastos, {{result}}: una pelea, rivales enfrentados'
+    wands-6: 'Seis de bastos, {{result}}: un desfile de victoria'
+    wands-7: 'Siete de bastos, {{result}}: defender la posición'
+    wands-8: 'Ocho de bastos, {{result}}: noticias rápidas, todo se acelera'
+    wands-9: 'Nueve de bastos, {{result}}: herido pero en guardia'
+    wands-10: 'Diez de bastos, {{result}}: una carga demasiado pesada'
+    wands-page: 'Sota de bastos, {{result}}: un mensajero entusiasta'
+    wands-knight: 'Caballero de bastos, {{result}}: un jinete atrevido, prisa temeraria'
+    wands-queen: 'Reina de bastos, {{result}}: una anfitriona segura, cálida y fiera'
+    wands-king: 'Rey de bastos, {{result}}: un líder audaz'
+    cups-ace: 'As de copas, {{result}}: amor, un corazón que se llena'
+    cups-2: 'Dos de copas, {{result}}: un pacto entre dos'
+    cups-3: 'Tres de copas, {{result}}: amigos brindando'
+    cups-4: 'Cuatro de copas, {{result}}: hastío, una oferta ignorada'
+    cups-5: 'Cinco de copas, {{result}}: duelo por lo derramado'
+    cups-6: 'Seis de copas, {{result}}: un viejo recuerdo, una amistad de la infancia'
+    cups-7: 'Siete de copas, {{result}}: fantasías, demasiadas opciones'
+    cups-8: 'Ocho de copas, {{result}}: dejarlo todo atrás'
+    cups-9: 'Nueve de copas, {{result}}: un deseo cumplido'
+    cups-10: 'Diez de copas, {{result}}: un hogar feliz'
+    cups-page: 'Sota de copas, {{result}}: un soñador con un mensaje extraño'
+    cups-knight: 'Caballero de copas, {{result}}: un enviado encantador'
+    cups-queen: 'Reina de copas, {{result}}: una sanadora bondadosa y sabia'
+    cups-king: 'Rey de copas, {{result}}: una mano tranquila en aguas revueltas'
+    swords-ace: 'As de espadas, {{result}}: una verdad que corta'
+    swords-2: 'Dos de espadas, {{result}}: un punto muerto, ojos cerrados'
+    swords-3: 'Tres de espadas, {{result}}: un corazón roto, una traición'
+    swords-4: 'Cuatro de espadas, {{result}}: descanso tras la lucha'
+    swords-5: 'Cinco de espadas, {{result}}: una victoria hueca'
+    swords-6: 'Seis de espadas, {{result}}: dejar atrás los problemas, una travesía'
+    swords-7: 'Siete de espadas, {{result}}: un robo, un plan en la sombra'
+    swords-8: 'Ocho de espadas, {{result}}: atado por el miedo'
+    swords-9: 'Nueve de espadas, {{result}}: angustia que quita el sueño'
+    swords-10: 'Diez de espadas, {{result}}: la ruina, lo peor ya pasó'
+    swords-page: 'Sota de espadas, {{result}}: un espía, agudo y curioso'
+    swords-knight: 'Caballero de espadas, {{result}}: una carga sin pensar'
+    swords-queen: 'Reina de espadas, {{result}}: una jueza severa'
+    swords-king: 'Rey de espadas, {{result}}: razón fría, un fallo duro'
+    pentacles-ace: 'As de oros, {{result}}: un golpe de suerte, una empresa nueva'
+    pentacles-2: 'Dos de oros, {{result}}: hacer malabares con dos deudas'
+    pentacles-3: 'Tres de oros, {{result}}: trabajo experto, un gremio'
+    pentacles-4: 'Cuatro de oros, {{result}}: acumular, el puño cerrado'
+    pentacles-5: 'Cinco de oros, {{result}}: pobreza, a la intemperie'
+    pentacles-6: 'Seis de oros, {{result}}: caridad, un reparto justo'
+    pentacles-7: 'Siete de oros, {{result}}: esperar la cosecha'
+    pentacles-8: 'Ocho de oros, {{result}}: oficio paciente'
+    pentacles-9: 'Nueve de oros, {{result}}: comodidad ganada a pulso'
+    pentacles-10: 'Diez de oros, {{result}}: una herencia, la fortuna de una familia'
+    pentacles-page: 'Sota de oros, {{result}}: un aprendiz aplicado'
+    pentacles-knight: 'Caballero de oros, {{result}}: un trabajador firme e incansable'
+    pentacles-queen: 'Reina de oros, {{result}}: una protectora generosa'
+    pentacles-king: 'Rey de oros, {{result}}: un rico mecenas'
+lenormand:
+  name: Lenormand
+  description: |-
+    El **Lenormand** de 36 cartas con dibujos: cosas sencillas que se leen una tras otra, como las palabras de una frase.
+  cards:
+    rider: 'El Jinete: noticias, una visita'
+    clover: 'El Trébol: un pequeño golpe de suerte'
+    ship: 'El Barco: un viaje, comercio, distancia'
+    house: 'La Casa: el hogar, la familia, lo seguro'
+    tree: 'El Árbol: salud, raíces, crecimiento lento'
+    clouds: 'Las Nubes: confusión, problemas a la vista'
+    snake: 'La Serpiente: engaño, un camino tortuoso, una rival'
+    coffin: 'El Ataúd: un final, enfermedad, una caja cerrada'
+    bouquet: 'El Ramo: un regalo, una sorpresa agradable'
+    scythe: 'La Guadaña: un corte repentino, peligro, cosecha'
+    whip: 'El Látigo: disputas, castigo, repetición'
+    birds: 'Los Pájaros: habladurías, nervios, cháchara'
+    child: 'El Niño: algo nuevo, inocencia, pequeñez'
+    fox: 'El Zorro: astucia, un truco, interés propio'
+    bear: 'El Oso: poder, un protector, mano dura'
+    stars: 'Las Estrellas: guía, esperanza, ver con claridad'
+    stork: 'La Cigüeña: cambio, una mudanza, un regreso'
+    dog: 'El Perro: un amigo leal'
+    tower: 'La Torre: autoridad, aislamiento, una institución'
+    garden: 'El Jardín: un lugar público, una reunión'
+    mountain: 'La Montaña: un obstáculo, una larga demora'
+    crossroads: 'La Encrucijada: una elección de caminos'
+    mice: 'Los Ratones: pérdida, robo, un lento deterioro'
+    heart: 'El Corazón: amor, lo que más importa'
+    ring: 'El Anillo: un pacto, una promesa, un ciclo'
+    book: 'El Libro: un secreto, saber, lo desconocido'
+    letter: 'La Carta: un mensaje, un documento'
+    man: 'El Hombre: un hombre, quien pregunta'
+    woman: 'La Mujer: una mujer, quien pregunta'
+    lily: 'El Lirio: paz, vejez, virtud'
+    sun: 'El Sol: éxito, calor, energía'
+    moon: 'La Luna: fama, sueños, sentimientos'
+    key: 'La Llave: una respuesta, lo que abre el camino'
+    fish: 'Los Peces: dinero, comercio, abundancia'
+    anchor: 'El Ancla: estabilidad, una meta alcanzada'
+    cross: 'La Cruz: una carga, el destino, la fe'
+runes:
+  name: Runas
+  description: |-
+    Las 24 **runas** del futhark antiguo, como una bolsa de piedras: sacas una y se queda fuera hasta que la bolsa se vacía, o hasta que pulsas **Barajar**.
+  cards:
+    fehu: 'ᚠ Fehu: riqueza, ganado, lo que posees'
+    uruz: 'ᚢ Uruz: fuerza bruta, el uro salvaje'
+    thurisaz: 'ᚦ Thurisaz: una espina, un gigante, peligro'
+    ansuz: 'ᚨ Ansuz: habla un dios, un mensaje'
+    raidho: 'ᚱ Raidho: el camino, cabalgar, un viaje'
+    kenaz: 'ᚲ Kenaz: una antorcha, oficio, saber'
+    gebo: 'ᚷ Gebo: un regalo, una deuda entre iguales'
+    wunjo: 'ᚹ Wunjo: alegría, compañerismo'
+    hagalaz: 'ᚺ Hagalaz: granizo, ruina repentina'
+    nauthiz: 'ᚾ Nauthiz: necesidad, penurias'
+    isa: 'ᛁ Isa: hielo, todo se detiene'
+    jera: 'ᛃ Jera: la cosecha, el premio de un año'
+    eihwaz: 'ᛇ Eihwaz: el tejo, aguante, muerte y vida'
+    perthro: 'ᛈ Perthro: el cubilete, el azar, un misterio'
+    algiz: 'ᛉ Algiz: el alce, protección'
+    sowilo: 'ᛋ Sowilo: el sol, victoria'
+    tiwaz: 'ᛏ Tiwaz: el dios de la guerra, justicia, sacrificio'
+    berkano: 'ᛒ Berkano: el abedul, nacimiento, crecimiento'
+    ehwaz: 'ᛖ Ehwaz: el caballo, confianza, compañía'
+    mannaz: 'ᛗ Mannaz: la humanidad, los tuyos, uno mismo'
+    laguz: 'ᛚ Laguz: el agua, la corriente invisible'
+    ingwaz: 'ᛜ Ingwaz: la semilla, un tiempo de espera'
+    dagaz: 'ᛞ Dagaz: el amanecer, un cambio súbito'
+    othala: 'ᛟ Othala: la tierra natal, la herencia'
+dominoes:
+  name: Dominó
+  description: |-
+    El juego de **doble seis** de 28 fichas, boca abajo: una ficha robada queda fuera hasta que se acaban, o hasta que pulsas **Barajar**.
+
+    Cada ficha pone sus dos extremos (`high`, `low`) y sus `pips`, lo que suman.
+suit-meaning:
+  name: De qué habla el palo
+  description: |-
+    De qué trata una carta de la _Baraja de póker_, según su palo: la tira _Una carta para la escena_, que le da la carta robada (`card.suit`).
+  entries:
+    hearts: 'Gente y sentimientos: un amigo, un amor, un rencor.'
+    diamonds: 'Riqueza y comercio: un precio, un premio, una deuda.'
+    clubs: 'Trabajo y conflicto: una tarea, una pelea, un rival.'
+    spades: 'Peligro y secretos: una amenaza, una pérdida, una verdad oculta.'
+    joker: 'Cualquier cosa: entra en escena lo inesperado.'
+card-for-the-scene:
+  name: Una carta para la escena
+  description: |-
+    Una carta de un mazo entero y **de qué habla su palo**: una idea rápida de qué trata una escena.
+  template: '{{card}}. {{meaning}}'
+poker-hand:
+  name: Mano de póker
+  description: |-
+    **Cinco cartas** repartidas de un mazo entero, comodines incluidos: una mano nunca repite carta. Para una partida en la posada, o una apuesta.
+  template: '{{first}} · {{second}} · {{third}} · {{fourth}} · {{fifth}}'
+three-card-reading:
+  name: Tirada de tres cartas
+  description: |-
+    La **tirada de tarot** más sencilla, de un mazo entero: de dónde viene, dónde está, adónde va.
+  template: |-
+    Pasado: {{past}}
+    Presente: {{present}}
+    Futuro: {{future}}
+celtic-cross:
+  name: Cruz celta
+  description: |-
+    La clásica **tirada de tarot de diez cartas**, de un mazo entero: para la pregunta que mueve toda una aventura.
+  template: |-
+    La situación: {{situation}}
+    Lo que la cruza: {{challenge}}
+    Su raíz: {{root}}
+    Lo que pasa: {{past}}
+    Lo que puede coronarla: {{crown}}
+    Lo que viene: {{future}}
+    Tú: {{self}}
+    Quienes te rodean: {{surroundings}}
+    Esperanzas y miedos: {{hopes}}
+    El desenlace: {{outcome}}
+tarot-character:
+  name: Un personaje del tarot
+  description: |-
+    **Tres cartas** que esbozan a alguien, de un mazo entero: quién es, qué quiere y qué se lo impide.
+  template: |-
+    Quién es: {{who}}
+    Qué quiere: {{wants}}
+    Qué se lo impide: {{obstacle}}
+lenormand-line:
+  name: Línea de Lenormand
+  description: |-
+    **Tres cartas** en línea, de un mazo entero, que se leen como una frase: quién, qué pasa, cómo acaba.
+  template: |-
+    Quién: {{subject}}
+    Qué pasa: {{action}}
+    Cómo acaba: {{end}}
+rune-cast:
+  name: Tirada de runas
+  description: |-
+    **Tres piedras** de una bolsa llena: el problema, el camino, el resultado.
+  template: |-
+    El problema: {{problem}}
+    El camino: {{way}}
+    El resultado: {{result}}

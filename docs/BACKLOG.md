@@ -489,6 +489,8 @@ Ecosystem, in the order it was built:
 
 ### Pending
 
+- [ ] **Cards with pictures** (user, 2026-11-07: "estaría bien que tuvieran componente gráfico aunque esto puedes apuntarlo para más adelante cuando tengamos centralizado el tema de imágenes"): Core's decks (poker, Spanish, tarot, Lenormand, runes, dominoes) shown as drawn cards, a card's own image in the Oracle's result and in hands and spreads laid out. To take up after the image library ([character-pictures.md](character-pictures.md) §8); art under a licence that allows bundling (the 1909 Rider-Waite-Smith is public domain, to check), or drawn by code for the suited decks.
+- [x] ✅ (2026-11-07) **Tarot and playing cards in Core** (user, same day: "cartas de tarot y playcards (baraja de póker y otras que se te ocurran) como generadores del core"): `packs/core/cards.yaml`: poker (54), Spanish (40), tarot (78, with meanings, upright or reversed), Lenormand (36), runes (24), dominoes (28); hands and readings as generators (_Poker hand_, _A card for the scene_, _Three-card reading_, _Celtic cross_, _A character from the tarot_, _Lenormand line_, _Rune cast_). New for it: a generator's field `deck:` with `shuffle: true`, so a hand never repeats a card, with its form; the Grey Marches' _A hedge-witch's reading_ uses it.
 - [x] ✅ (2026-10-09: **Odds** in the roll panel: each entry's chance by rolling the definition a few thousand times with the context and mode (`entryOdds` in oracle-ui), how often nothing applies (coverage), and each total's exact chance (`distribution` in dice, with roll modes as order statistics); Rolling page en/es) Roll statistics (distribution of a table) and coverage view.
 
 ### Done

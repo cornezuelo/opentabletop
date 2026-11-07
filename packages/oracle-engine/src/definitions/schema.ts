@@ -117,6 +117,9 @@ const field = z
   .object({
     table: ref.optional(),
     generator: ref.optional(),
+    deck: ref.optional(),
+    /** With `deck`: every card goes back and the deck is shuffled before this draw. */
+    shuffle: z.boolean().optional(),
     roll: z.string().optional(),
     value: z.unknown().optional(),
     when: condition.optional(),
@@ -125,11 +128,15 @@ const field = z
   })
   .strict()
   .refine(
-    (f) => [f.table, f.generator, f.roll, f.value].filter((x) => x !== undefined).length === 1,
+    (f) =>
+      [f.table, f.generator, f.deck, f.roll, f.value].filter((x) => x !== undefined).length === 1,
     {
-      message: 'a field needs exactly one of table, generator, roll or value',
+      message: 'a field needs exactly one of table, generator, deck, roll or value',
     },
   )
+  .refine((f) => f.shuffle === undefined || f.deck !== undefined, {
+    message: 'only a field that draws from a deck can shuffle it',
+  })
 
 export const generatorSchema = z
   .object({

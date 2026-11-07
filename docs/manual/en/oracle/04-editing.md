@@ -41,7 +41,7 @@ An **input** (its id, a **label** to show, and its **options**, each with a labe
 
 ## Generators
 
-**Fields** are rolled in order; each (**Add field**) has a name and comes **From** a table, a generator, dice or a fixed value, and later fields can use earlier ones. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** as rows (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only when `place.danger` **is at most** `2`) and **Context**, a row per value given to the table or generator it rolls (`timeOfDay` · `night`, `danger` · `3`).
+**Fields** are rolled in order; each (**Add field**) has a name and comes **From** a table, a generator, a deck, dice or a fixed value, and later fields can use earlier ones. A deck's field has **Shuffle first**: every card goes back before that draw, so a hand or a spread starts from the whole deck. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** as rows (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only when `place.danger` **is at most** `2`) and **Context**, a row per value given to the table or generator it rolls (`timeOfDay` · `night`, `danger` · `3`).
 
 ## Decks
 

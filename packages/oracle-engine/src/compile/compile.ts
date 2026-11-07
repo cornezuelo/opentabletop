@@ -20,7 +20,7 @@ import {
 import { foldSystemTexts } from './systemTexts'
 
 export interface Ref {
-  kind: 'table' | 'generator'
+  kind: 'table' | 'generator' | 'deck'
   /** Resolved full id (`pack/id`), or the reference as written for dynamic ones. */
   target: string
   dynamic: boolean
@@ -108,8 +108,10 @@ export interface CompiledOracle extends Base, WithRollModes {
 
 export interface CompiledField {
   name: string
-  kind: 'table' | 'generator' | 'roll' | 'value'
+  kind: 'table' | 'generator' | 'deck' | 'roll' | 'value'
   ref?: Ref
+  /** A deck field: all its cards go back and it's shuffled before this draw. */
+  shuffle?: boolean
   roll?: string
   parsedRoll?: DiceExpression
   value?: unknown
@@ -313,6 +315,15 @@ class CompileContext {
                 when: applies(f),
                 context: f.context,
               }
+            if (f.deck)
+              return {
+                name,
+                kind: 'deck',
+                ref: this.ref('deck', f.deck, at),
+                ...(f.shuffle && { shuffle: true }),
+                when: applies(f),
+                context: f.context,
+              }
             if (f.roll !== undefined)
               return {
                 name,
@@ -429,7 +440,7 @@ class CompileContext {
     }
   }
 
-  private ref(kind: 'table' | 'generator', ref: string, at: string): Ref {
+  private ref(kind: Ref['kind'], ref: string, at: string): Ref {
     if (isDynamicRef(ref)) {
       // Built when rolled: only what it names can be checked now.
       const named = dynamicKind(ref)
@@ -446,6 +457,8 @@ class CompileContext {
       this.error(at, refProblem(scope, ref, kind, ROLLABLE_KINDS))
       return { kind, target: ref, dynamic: false }
     }
+    if (kind === 'deck' && this.raw.get(target)?.definition.kind !== 'deck')
+      this.error(at, `"${ref}" is not a deck`)
     return { kind, target, dynamic: false }
   }
 

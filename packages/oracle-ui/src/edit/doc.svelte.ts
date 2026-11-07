@@ -25,13 +25,14 @@ export function definitionForm(ui: OracleUi, source: () => { def: Compiled; root
   const overlay = $derived(translating ? workspace.readFile(root, overlayFile) : undefined)
   /** Tables and generators a reference can point at: this pack's first, by local id. */
   // What an entry can roll, as it's written (`table.ruins`, `core/oracle.odds`): under
-  // `generator:` the generators, under `table:` the rest.
+  // `generator:` the generators, under `table:` the rest (`deck:`, in a field, its decks).
   const targets = $derived(
     [...workspace.registry.definitions.values()]
       .sort((a, b) => Number(a.pack !== def.pack) - Number(b.pack !== def.pack))
       .map((d) => ({
         kind: d.kind === 'generator' ? ('generator' as const) : ('table' as const),
         ref: writeRef(d.kind, d.localId, d.pack === def.pack ? undefined : d.pack),
+        deck: d.kind === 'deck',
       })),
   )
 

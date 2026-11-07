@@ -124,6 +124,7 @@ fields:
   size: { table: settlement-size }
   faction: { table: settlement-faction }
   npc: { generator: npc } # composition
+  omen: { deck: omens, shuffle: true } # a card; `shuffle` gathers the deck first
   conflict: { table: settlement-conflict, context: { size: '{{size.value}}' } }
 template: '{{size}} ruled by {{faction}}. {{npc}}'
 ```
