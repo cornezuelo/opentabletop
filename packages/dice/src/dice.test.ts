@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { seeded, sequence } from '@open-tabletop/random'
 import {
   bounds,
+  diceFacts,
   diceText,
+  isDiceRoll,
+  isDiceTerm,
   DiceSyntaxError,
   distribution,
   parseDice,
   possibleTotals,
   roll,
+  swapDigits,
   withExtraDice,
 } from './index'
 
@@ -163,5 +167,77 @@ describe('withExtraDice', () => {
   it('leaves dice that already keep some as they are', () => {
     const own = parseDice('4d6kh3')
     expect(withExtraDice(own, 1, 'highest')).toEqual(own)
+  })
+})
+
+describe('exploding dice', () => {
+  it('reads `!` and `!n`; only dice of 2 or more sides explode', () => {
+    expect(parseDice('2d6!').terms[0]).toMatchObject({ count: 2, sides: 6, explode: 100 })
+    expect(parseDice('1d6!1+2').terms[0]).toMatchObject({ explode: 1 })
+    expect(parseDice('4d6!kh3').terms[0]).toMatchObject({ explode: 100, keep: { count: 3 } })
+    for (const bad of ['1dF!', '1d66!', '1d1!', '1d6!0'])
+      expect(() => parseDice(bad), bad).toThrow()
+  })
+
+  it('a die on its highest face is rolled again and added, as many times as it may', () => {
+    const r = roll('1d6!', faces(6, 6, 6, 2))
+    expect(r.total).toBe(14)
+    expect(r.terms[0]).toMatchObject({ rolls: [14], chains: [[6, 6, 2]] })
+    expect(diceText(r)).toBe('1d6! → 14  [6+6+2]')
+    // Once at most: the second six stays.
+    expect(roll('1d6!1', faces(6, 6, 6, 2)).total).toBe(12)
+    // Kept after exploding: 6+3 is the highest.
+    expect(roll('2d6!kh1', faces(6, 6, 3, 5)).total).toBe(9)
+  })
+
+  it('knows its bounds, its totals and their chances', () => {
+    expect(bounds('1d6!1')).toEqual({ min: 1, max: 12 })
+    expect(possibleTotals('1d6!1')).toEqual([1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12])
+    const dist = distribution('1d6!1')!
+    expect(dist.get(3)).toBeCloseTo(1 / 6)
+    expect(dist.get(9)).toBeCloseTo(1 / 36)
+    expect(dist.has(6)).toBe(false)
+    expect([...dist.values()].reduce((a, b) => a + b, 0)).toBeCloseTo(1)
+    // A plain `!`: the chances of the long chains are left out, the rest add up.
+    expect([...distribution('2d6!')!.values()].reduce((a, b) => a + b, 0)).toBeCloseTo(1, 6)
+  })
+})
+
+describe('telling dice from names', () => {
+  it('a term of dice, or dice plus or minus a number', () => {
+    for (const dice of ['2d6', 'd%', 'd66', '4dF', '4d6kh3', '1d6!', '2d6!1kh1'])
+      expect(isDiceTerm(dice), dice).toBe(true)
+    expect(isDiceTerm('1d6+2')).toBe(false)
+    expect(isDiceRoll(' 1d6! + 2 ')).toBe(true)
+    for (const name of ['danger', 'place.danger', 'd', '2x6'])
+      expect(isDiceRoll(name), name).toBe(false)
+  })
+})
+
+describe('what the dice show', () => {
+  it('doubles: two kept dice alike, or a percentile die whose digits match', () => {
+    expect(diceFacts(roll('2d6', faces(6, 4, 4)))).toEqual({ doubles: true, faces: [4, 4] })
+    expect(diceFacts(roll('2d6', faces(6, 4, 5))).doubles).toBe(false)
+    // Only the dice kept count.
+    expect(diceFacts(roll('3d6kh2', faces(6, 2, 2, 5))).doubles).toBe(false)
+    expect(diceFacts(roll('d%', faces(100, 33))).doubles).toBe(true)
+    expect(diceFacts(roll('d%', faces(100, 100))).doubles).toBe(true)
+    expect(diceFacts(roll('d%', faces(100, 30))).doubles).toBe(false)
+    expect(diceFacts(roll('d66', faces(6, 5, 5))).doubles).toBe(true)
+  })
+})
+
+describe('swapping a percentile die’s digits', () => {
+  it('reads tens as units when it gives the total kept', () => {
+    expect([73, 10, 100, 5].map(swapDigits)).toEqual([37, 1, 100, 50])
+    const low = roll('d%', faces(100, 73), { swap: 'lowest' })
+    expect(low.total).toBe(37)
+    expect(low.discarded?.map((d) => d.total)).toEqual([73])
+    expect(roll('d%', faces(100, 73), { swap: 'highest' }).total).toBe(73)
+    expect(roll('d66', faces(6, 2, 5), { swap: 'highest' }).total).toBe(52)
+    // With a modifier, the die alone is swapped.
+    expect(roll('d% + 5', faces(100, 91), { swap: 'lowest' }).total).toBe(24)
+    // No percentile die: nothing to swap.
+    expect(roll('2d6', faces(6, 1, 2), { swap: 'highest' }).total).toBe(3)
   })
 })

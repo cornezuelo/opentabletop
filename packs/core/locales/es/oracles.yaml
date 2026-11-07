@@ -47,3 +47,14 @@ npc-motive:
     loyalty: lealtad
     curiosity: curiosidad
     duty: deber
+against-the-odds:
+  name: Contra pronóstico
+  description: |-
+    Tira **por debajo de una probabilidad** sobre cien: si sale igual o menos, pasa. Unos dobles (11, 22… 00) lo hacen más que eso, para bien o para mal.
+
+    **Enseña:** dados de porcentaje tirados por debajo de un valor (`when: { chance: { gte: '{{roll}}' } }`), los dobles (`dice.doubles`) y _Del derecho o del revés_, un modo de tirada que cambia las decenas y las unidades del dado (`swap`).
+  entries:
+    and: '{{roll}} contra {{chance}}: pasa, y algo más'
+    yes: '{{roll}} contra {{chance}}: pasa'
+    worse: '{{roll}} contra {{chance}}: falla, y va a peor'
+    no: '{{roll}} contra {{chance}}: no pasa'

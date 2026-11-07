@@ -49,6 +49,12 @@
         min: 1,
       },
       {
+        field: 'swap',
+        label: t('modes.swap'),
+        help: t('modes.swapHelp'),
+        type: 'check',
+      },
+      {
         field: 'keep',
         label: t('modes.keep'),
         help: t('modes.keepHelp'),

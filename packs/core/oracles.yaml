@@ -102,3 +102,31 @@ entries:
   - { id: loyalty, weight: 1, result: loyalty }
   - { id: curiosity, weight: 1, result: curiosity }
   - { id: duty, weight: 1, result: duty }
+---
+# Rolling under a chance on percentile dice: the chance is a value given when rolling (the
+# Oracle asks for it), doubles read by the entries (`dice.doubles`), and the roll mode that
+# reads the die either way round offered.
+kind: table
+id: against-the-odds
+tags: [questions]
+name: Against the odds
+description: |-
+  Roll **under a chance** in a hundred: at or under it, it happens. Doubles (11, 22… 00) make it more than that, for better or worse.
+
+  **Shows:** percentile dice rolled under a value (`when: { chance: { gte: '{{roll}}' } }`), doubles (`dice.doubles`), and _Either way_, a roll mode that swaps the die's tens and units (`swap`).
+roll: d%
+modes: [roll-modes.either-way]
+entries:
+  - id: and
+    range: 1-100
+    when: { all: [{ dice.doubles: true }, { chance: { gte: '{{roll}}' } }] }
+    result: '{{roll}} against {{chance}}: it happens, and something more'
+  - id: yes
+    range: 1-100
+    when: { chance: { gte: '{{roll}}' } }
+    result: '{{roll}} against {{chance}}: it happens'
+  - id: worse
+    range: 1-100
+    when: { dice.doubles: true }
+    result: '{{roll}} against {{chance}}: it fails, and it gets worse'
+  - { id: no, range: 1-100, result: "{{roll}} against {{chance}}: it doesn't happen" }

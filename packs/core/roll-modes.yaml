@@ -11,6 +11,13 @@ modes:
     keep: highest
     # Advantage and disadvantage together give a normal roll.
     cancels: roll-modes.disadvantage
+  # A percentile die read either way round, its tens and units swapped (`swap`), the lower
+  # kept: for rolling under a chance (_Against the odds_, oracles.yaml).
+  either-way:
+    name: Either way
+    description: Read the percentile die either way round, its tens and units swapped, and keep the lower.
+    swap: true
+    keep: lowest
   disadvantage:
     name: Disadvantage
     description: Roll twice and keep the lower total.

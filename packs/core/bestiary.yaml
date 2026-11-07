@@ -23,11 +23,12 @@ name: Trouble on the road
 description: |-
   **Foes** block the way: how many, and they're there.
 
-  **Shows:** a result that makes copies of a template (`present.foe: '{{foes}}'`), as many as its `set` rolls and its text says.
+  **Shows:** a result that makes copies of a template (`present.foe: '{{foes}}'`), as many as its `set` rolls and its text says; a die that explodes once (`1d3!1`: on a 3, another 1d3 more).
 roll: 1d1
 entries:
   - id: foes
     range: 1
-    set: { foes: '{{1d3}}' }
+    # Dice that explode once: on a 3, another 1d3 come.
+    set: { foes: '{{1d3!1}}' }
     result: '{{foes}} foes block the way'
     effects: { present.foe: '{{foes}}' }

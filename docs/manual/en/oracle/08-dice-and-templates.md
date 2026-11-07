@@ -16,9 +16,11 @@ Dice go in a table's or oracle's **roll** (Dice in the form), in generator field
 | `2d6+1`, `1d20-2`, `1d6+1d4` | Add or subtract constants and other dice.                                                                                            |
 | `4d6kh3`                     | Roll 4d6 and **keep the highest** 3 (`kh`).                                                                                          |
 | `2d20kl1`                    | Roll 2d20 and **keep the lowest** 1 (`kl`).                                                                                          |
+| `1d6!`, `2d10!`              | **Exploding** dice: a die showing its highest face is rolled again and added, again and again (`6`, `6`, `2` is 14).                 |
+| `1d6!1`, `3d6!2kh2`          | Exploding at most that many times per die: `1d6!1` is 1 to 5, or a 6 and one more d6 (7 to 12).                                      |
 | `1d6 + {{place.danger}}`     | Add a value from the context (see below). If it's missing it counts as 0; if it isn't a number, the roll fails with a clear message. |
 
-**Roll modes** (advantage, disadvantage… whatever the system declares, see [Kinds of definition](../technical/07-kinds.md#roll-modes)) roll the whole expression several times and keep the highest, lowest or middle total. The result card shows every die, with discarded ones crossed out.
+**Roll modes** (advantage, disadvantage… whatever the system declares, see [Kinds of definition](../technical/07-kinds.md#roll-modes)) roll the whole expression several times and keep the highest, lowest or middle total, add a die and keep the best ones, or read a percentile die either way round (a `73` as `37`). The result card shows every die, with discarded ones crossed out, and each roll of an exploding die (`6+6+2`).
 
 ## Without dice: weights
 
@@ -81,6 +83,25 @@ entries:
 ```
 
 Both entries cover every total; the first whose condition holds comes up. The Grey Marches' _Fishing_ works like this.
+
+Its entries also read what its **dice show**, as `dice.*`: `dice.doubles` holds when two of the dice kept show the same face (a `4` and a `4` on `2d6`) or a percentile die's tens and units match (`33`, `100` read as `00`), and `dice.faces` is the list of the dice kept. A made-up example, a critical on doubles:
+
+```yaml
+kind: table
+id: swing-the-axe
+roll: 2d6
+entries:
+  - {
+      id: critical,
+      range: 2-12,
+      when: { dice.doubles: true },
+      result: 'Doubles ({{dice.faces}}): a mighty blow',
+    }
+  - { id: hit, range: 8-12, result: 'A {{roll}}: a hit' }
+  - { id: miss, range: 2-7, result: 'A {{roll}}: a miss' }
+```
+
+Core's _Against the odds_ rolls under a chance in a hundred with doubles for more; the Grey Marches' hoard finds a hidden cache on doubles.
 
 ## Where context values come from
 

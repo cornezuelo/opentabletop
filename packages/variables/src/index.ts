@@ -12,13 +12,11 @@
  * no code, and a parser of our own (never `eval`). Ids may hold a hyphen
  * (`actions.night-march`), so a minus between names is written with spaces (`a - b`).
  */
-import { parseDice, roll, DiceSyntaxError, type DiceResult } from '@open-tabletop/dice'
+import { isDiceRoll, parseDice, roll, DiceSyntaxError, type DiceResult } from '@open-tabletop/dice'
 import { seeded, type RandomSource } from '@open-tabletop/random'
 
 const VARIABLE = /\{\{\s*([^}]+?)\s*\}\}/g
 const WHOLE = /^\s*\{\{\s*([^}]+?)\s*\}\}\s*$/
-/** Dice an expression may roll: `2d6`, `d20`, `1d6+2`, `4d6kh3`, `dF`, `d%`, `d66`. */
-const DICE = /^\s*\d*d(\d+|%|f)(k[hl]\d*)?(\s*[+-]\s*\d+)?\s*$/i
 
 /** What a variable reads: the value of a name, or a roll's total. */
 export type Lookup = (expression: string) => unknown
@@ -38,7 +36,7 @@ export function hasVariables(text: unknown): boolean {
 
 /** Whether an expression is dice (`2d6`) rather than a variable's name. */
 export function isRoll(expression: string): boolean {
-  return DICE.test(expression)
+  return isDiceRoll(expression)
 }
 
 /** Reads `a.b.c` from nested plain objects; never touches prototypes. */

@@ -152,6 +152,15 @@ modes:
   edge: { name: Edge, extra: 1, keep: highest } # 2d6 becomes 3d6, the best two added
 ```
 
+Or `swap: true`: a percentile die (`d%`, `d66`) is read either way round, its tens and units swapped when that gives the total kept (the highest or the lowest); a roll with no percentile die is rolled as it is. A made-up example, for rolling under a chance:
+
+```yaml
+kind: roll-modes
+id: luck
+modes:
+  lucky: { name: Lucky, swap: true, keep: lowest } # a 73 can be read as 37
+```
+
 A table or oracle uses them with:
 
 - `modes: [roll-modes.advantage, roll-modes.disadvantage]`: offered when rolling by hand (the choice next to **Roll**).

@@ -1,5 +1,6 @@
 import { matches, resolvePath, type Condition } from '@open-tabletop/conditions'
 import {
+  diceFacts,
   parseDice,
   roll,
   withExtraDice,
@@ -376,19 +377,24 @@ class Run {
     const exhausted = (e: CompiledEntry) => this.exhausted(def.id, variant, e)
     const mode = this.modeFor(def, context, chosen, node)
     if (mode) node.mode = mode.id
-    // The list's own roll comes first, so its entries read its total as `roll`: in their
-    // conditions (a roll-under: `when: { party.stats.survival: { gte: '{{roll}}' } }`),
-    // texts, `set` and effects.
-    let total = list.roll
-      ? this.roll(list.parsedRoll ?? list.roll, context, node, mode).total
+    // The list's own roll comes first, so its entries read its total as `roll` and what its
+    // dice show as `dice.*` (`dice.doubles`): in their conditions (a roll-under:
+    // `when: { party.stats.survival: { gte: '{{roll}}' } }`), texts, `set` and effects.
+    let rolled = list.roll
+      ? this.roll(list.parsedRoll ?? list.roll, context, node, mode)
       : undefined
-    const scope = total === undefined ? context : { ...context, roll: total }
+    let total = rolled?.total
+    const withRoll = () =>
+      rolled ? { ...context, roll: rolled.total, dice: diceFacts(rolled) } : context
+    const scope = withRoll()
     const candidates = list.entries.filter((e) => !e.when || this.holds(e.when, scope, node))
     if (candidates.length === 0) return node
 
     const pick = (from: CompiledEntry[], again: boolean) => {
-      if (again && list.roll)
-        total = this.roll(list.parsedRoll ?? list.roll, context, node, mode).total
+      if (again && list.roll) {
+        rolled = this.roll(list.parsedRoll ?? list.roll, context, node, mode)
+        total = rolled.total
+      }
       return this.pick(from, total, def.clamp ?? true)
     }
     let entry = pick(candidates, false)
@@ -417,7 +423,7 @@ class Run {
       def,
       entry,
       this.text(def.id, 'entries', entry.key) ?? entry.result,
-      total === undefined ? context : { ...context, roll: total },
+      withRoll(),
       depth,
       node,
     )
@@ -583,9 +589,12 @@ class Run {
             }),
           )
         : expression
+    const keep = mode?.keep as 'highest' | 'lowest'
     const result = mode?.extra
-      ? roll(withExtraDice(parsed, mode.extra, mode.keep as 'highest' | 'lowest'), this.random)
-      : roll(parsed, this.random, mode && { repeat: mode.repeat, keep: mode.keep })
+      ? roll(withExtraDice(parsed, mode.extra, keep), this.random)
+      : mode?.swap
+        ? roll(parsed, this.random, { swap: keep })
+        : roll(parsed, this.random, mode && { repeat: mode.repeat, keep: mode.keep })
     node?.rolls.push(result)
     return result
   }

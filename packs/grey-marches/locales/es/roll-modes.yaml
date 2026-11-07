@@ -3,6 +3,9 @@ roll-modes/default:
     careful:
       name: Con cuidado
       description: 'Tira tres veces y quédate con el total del medio: ni lo peor ni lo mejor.'
+    lucky:
+      name: Una búsqueda con suerte
+      description: 'Lee el dado de porcentaje de las dos maneras, con decenas y unidades cambiadas, y quédate con el más alto.'
     charm:
       name: Con buena labia
       description: 'Tira dos veces y quédate con el total más bajo: donde bajo es bueno, ayuda.'

@@ -11,6 +11,13 @@ modes:
     keep: middle
   # Rolled twice keeping the lower total: where a low roll is good (the gates). The gates
   # take it by themselves when the party's Charisma beats the guards (a variable).
+  # A percentile die read either way round (`swap`), the higher kept: a lucky search of a
+  # hoard reads a 37 as 73. Offered by the hoard (treasure.yaml).
+  lucky:
+    name: A lucky search
+    description: 'Read the percentile die either way round, its tens and units swapped, and keep the higher.'
+    swap: true
+    keep: highest
   charm:
     name: Talking your way in
     description: 'Roll twice and keep the lower total: where low is good, it helps.'

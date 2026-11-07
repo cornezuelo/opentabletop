@@ -681,17 +681,20 @@ export const en = {
   },
   modes: {
     title: 'Roll modes',
-    help: 'Each mode rolls the whole roll several times and keeps one:\n• `advantage` — 2 rolls, keep the highest, cancels `disadvantage`\n• `careful` — 3 rolls, keep the middle one',
+    help: 'Each mode rolls the whole roll several times and keeps one, rolls a die more, or reads a percentile die either way round:\n• `advantage` — 2 rolls, keep the highest, cancels `disadvantage`\n• `careful` — 3 rolls, keep the middle one\n• `edge` — 1 extra die, keep the highest\n• `lucky` — either way, keep the lowest',
     name: 'Name',
     repeat: 'Rolls',
     repeatHelp:
-      'How many times the whole roll is made, keeping one total.\n• `2` — roll twice\n• `3` — roll three times\nLeave it empty to use **Extra dice** instead.',
+      'How many times the whole roll is made, keeping one total.\n• `2` — roll twice\n• `3` — roll three times\nLeave it empty to use **Extra dice** or **Either way** instead.',
     extra: 'Extra dice',
     extraHelp:
-      'How many more dice are rolled, keeping as many as the roll had.\n• `1` on `2d6`, keeping the highest — rolls `3d6` and adds the best two\n• `1` on `1d20`, keeping the lowest — rolls `2d20` and takes the lower\nLeave it empty to use **Rolls** instead: a mode has one or the other.',
+      'How many more dice are rolled, keeping as many as the roll had.\n• `1` on `2d6`, keeping the highest — rolls `3d6` and adds the best two\n• `1` on `1d20`, keeping the lowest — rolls `2d20` and takes the lower\nLeave it empty to use **Rolls** or **Either way** instead: a mode has one of the three.',
+    swap: 'Either way',
+    swapHelp:
+      'A percentile die (`d%`, `d66`) read either way round, its tens and units swapped when that gives the total kept.\n• on, keeping the lowest — a `73` can be read as `37`\n• on, keeping the highest — a `25` can be read as `52`\nA roll with no percentile die is rolled as it is.',
     keep: 'Keep',
     keepHelp:
-      'Which total is kept: `highest`, `lowest` or `middle` (of an even count, the lower middle one).',
+      'Which total is kept: `highest`, `lowest` or `middle` (of an even count, the lower middle one). **Extra dice** and **Either way** keep the highest or the lowest.',
     cancels: 'Cancels',
     cancelsHelp:
       'Modes this one cancels out with: when both apply, neither does (a normal roll).\n• `disadvantage`',

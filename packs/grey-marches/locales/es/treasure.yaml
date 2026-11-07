@@ -5,10 +5,12 @@ treasure:
 
     **Enseña:**
 
-    - Dados de porcentaje: `d100`, también `d%`
-    - Dados tirados una vez con `set`, leídos por el texto y los `effects`: la plata hallada es la que recibe la Compañía
+    - Dados de porcentaje: `d100`, también `d%`, que se ofrecen leídos de las dos maneras (_Una búsqueda con suerte_: un modo de tirada con `swap`)
+    - Lo que enseñan los dados (`dice.doubles`): unos dobles (11, 22… 00) encuentran un escondrijo antes que nada
+    - Dados tirados una vez con `set`, leídos por el texto y los `effects`: la plata hallada es la que recibe la Compañía; dados que explotan (`3d6!`: un seis se vuelve a tirar y se suma)
     - Cascadas a _Rumores_ y _Un premio raro_
   entries:
+    cache: 'Un escondrijo bajo el suelo: {{coins}} monedas de plata, y un premio raro'
     coins: '{{coins}} monedas de plata'
     gems: '{{gems}} gemas de {{worth}} monedas de plata cada una'
     map: 'Un mapa de las Colinas Huecas; una nota dice que {{result}}'

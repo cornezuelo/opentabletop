@@ -14,6 +14,11 @@ export interface DiceTerm {
   sides: number | 'F' | 'd66'
   /** Keep the highest/lowest N dice, if any. */
   keep?: { mode: 'highest' | 'lowest'; count: number }
+  /**
+   * Exploding dice (`d6!`, `d6!1`): a die showing its highest face is rolled again and
+   * added, at most this many times (`EXPLODE_MAX` for a plain `!`).
+   */
+  explode?: number
 }
 
 export interface ConstTerm {
@@ -31,6 +36,8 @@ export interface DiceTermResult {
   /** Indices into `rolls` of the dice that count. */
   kept: number[]
   subtotal: number
+  /** Exploding dice: each die's faces in the order rolled (`[6, 6, 2]` for a 14). */
+  chains?: number[][]
 }
 
 export interface ConstTermResult {

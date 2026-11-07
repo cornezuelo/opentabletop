@@ -227,10 +227,11 @@ When the campaign has its world clock (Map's World panel, the Campaign app), on 
 
 ## What the bindings add
 
-| Name                    | Kind         | Values                                                                                                                                                                                            |
-| ----------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _the binding's context_ | any          | What the bindings add for that check only (Packs → **Checks** → each check's Context): `context: { timeOfDay: night }`; for an oracle, its input (`odds: even`, one of the oracle's own options). |
-| `roll`, `result`        | number, text | Inside a table with a roll of its own: `roll` is its total, for its entries' conditions, texts, `set` and effects (`when: { party.stats.survival: { gte: '{{roll}}' } }`, a roll-under).          |
+| Name                         | Kind         | Values                                                                                                                                                                                            |
+| ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _the binding's context_      | any          | What the bindings add for that check only (Packs → **Checks** → each check's Context): `context: { timeOfDay: night }`; for an oracle, its input (`odds: even`, one of the oracle's own options). |
+| `roll`, `result`             | number, text | Inside a table with a roll of its own: `roll` is its total, for its entries' conditions, texts, `set` and effects (`when: { party.stats.survival: { gte: '{{roll}}' } }`, a roll-under).          |
+| `dice.doubles`, `dice.faces` | yes/no, list | Beside `roll`, what its dice show: `dice.doubles` when two dice kept match, or a percentile die's tens and units (`33`, `00`); `dice.faces`, the dice kept (`[4, 4]`).                            |
 
 ## Discovering the map
 

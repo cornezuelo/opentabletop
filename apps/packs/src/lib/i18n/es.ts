@@ -694,17 +694,20 @@ export const es: Messages<typeof en> = {
   },
   modes: {
     title: 'Modos de tirada',
-    help: 'Cada modo hace la tirada entera varias veces y se queda con una:\n• `advantage` — 2 tiradas, la más alta, anula `disadvantage`\n• `careful` — 3 tiradas, la del medio',
+    help: 'Cada modo hace la tirada entera varias veces y se queda con una, tira un dado más o lee un dado de porcentaje de las dos maneras:\n• `advantage` — 2 tiradas, la más alta, anula `disadvantage`\n• `careful` — 3 tiradas, la del medio\n• `edge` — 1 dado extra, el más alto\n• `lucky` — del derecho o del revés, la más baja',
     name: 'Nombre',
     repeat: 'Tiradas',
     repeatHelp:
-      'Cuántas veces se hace la tirada entera, quedándose con un total.\n• `2` — tira dos veces\n• `3` — tira tres veces\nDéjalo vacío para usar **Dados extra**.',
+      'Cuántas veces se hace la tirada entera, quedándose con un total.\n• `2` — tira dos veces\n• `3` — tira tres veces\nDéjalo vacío para usar **Dados extra** o **Del derecho o del revés**.',
     extra: 'Dados extra',
     extraHelp:
-      'Cuántos dados más se tiran, quedándose con tantos como tenía la tirada.\n• `1` sobre `2d6`, los más altos — tira `3d6` y suma los dos mejores\n• `1` sobre `1d20`, los más bajos — tira `2d20` y toma el menor\nDéjalo vacío para usar **Tiradas**: un modo tiene una cosa o la otra.',
+      'Cuántos dados más se tiran, quedándose con tantos como tenía la tirada.\n• `1` sobre `2d6`, los más altos — tira `3d6` y suma los dos mejores\n• `1` sobre `1d20`, los más bajos — tira `2d20` y toma el menor\nDéjalo vacío para usar **Tiradas** o **Del derecho o del revés**: un modo tiene una de las tres.',
+    swap: 'Del derecho o del revés',
+    swapHelp:
+      'Un dado de porcentaje (`d%`, `d66`) leído de las dos maneras, con decenas y unidades cambiadas cuando eso da el total que se queda.\n• activado, quedándose con el más bajo — un `73` puede leerse como `37`\n• activado, quedándose con el más alto — un `25` puede leerse como `52`\nUna tirada sin dado de porcentaje se tira tal cual.',
     keep: 'Quedarse con',
     keepHelp:
-      'Qué total se queda: `highest` (el más alto), `lowest` (el más bajo) o `middle` (el del medio; con un número par, el menor de los dos del medio).',
+      'Qué total se queda: `highest` (el más alto), `lowest` (el más bajo) o `middle` (el del medio; con un número par, el menor de los dos del medio). **Dados extra** y **Del derecho o del revés** se quedan con el más alto o el más bajo.',
     cancels: 'Anula',
     cancelsHelp:
       'Modos con los que se anula: si se aplican los dos, no se aplica ninguno (una tirada normal).\n• `disadvantage`',

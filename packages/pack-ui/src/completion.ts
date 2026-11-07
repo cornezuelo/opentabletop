@@ -169,6 +169,8 @@ const KEYS = [
   'modeUnless',
   'reads',
   'repeat',
+  'extra',
+  'swap',
   'keep',
   'cancels',
   'clamp',

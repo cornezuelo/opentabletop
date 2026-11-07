@@ -16,9 +16,11 @@ Los dados van en la **tirada** de una tabla u oráculo (Dados en el formulario),
 | `2d6+1`, `1d20-2`, `1d6+1d4` | Suma o resta constantes y otros dados.                                                                                                     |
 | `4d6kh3`                     | Tira 4d6 y **quédate con los 3 más altos** (`kh`).                                                                                         |
 | `2d20kl1`                    | Tira 2d20 y **quédate con el más bajo** (`kl`).                                                                                            |
+| `1d6!`, `2d10!`              | Dados que **explotan**: un dado que saca su cara más alta se vuelve a tirar y se suma, una y otra vez (`6`, `6`, `2` es 14).               |
+| `1d6!1`, `3d6!2kh2`          | Que explotan como mucho esas veces por dado: `1d6!1` es de 1 a 5, o un 6 y otro d6 más (de 7 a 12).                                        |
 | `1d6 + {{place.danger}}`     | Suma un valor del contexto (ver abajo). Si falta cuenta como 0; si no es un número, la tirada falla con un mensaje claro.                  |
 
-**Los modos de tirada** (ventaja, desventaja… lo que declare el sistema, ver [Tipos de definición](../technical/07-kinds.md#modos-de-tirada)) tiran la expresión entera varias veces y se quedan con el total más alto, el más bajo o el del medio. La tarjeta del resultado muestra cada dado, con los descartados tachados.
+**Los modos de tirada** (ventaja, desventaja… lo que declare el sistema, ver [Tipos de definición](../technical/07-kinds.md#modos-de-tirada)) tiran la expresión entera varias veces y se quedan con el total más alto, el más bajo o el del medio, añaden un dado y se quedan con los mejores, o leen un dado de porcentaje de las dos maneras (un `73` como `37`). La tarjeta del resultado muestra cada dado, con los descartados tachados, y cada tirada de un dado que explota (`6+6+2`).
 
 ## Sin dados: pesos
 
@@ -81,6 +83,25 @@ entries:
 ```
 
 Las dos entradas cubren todos los totales; sale la primera cuya condición se cumple. Así funciona la _Pesca_ de las Marcas Grises.
+
+Sus entradas leen también lo que **enseñan sus dados**, como `dice.*`: `dice.doubles` se cumple cuando dos de los dados que se quedan sacan la misma cara (un `4` y un `4` en `2d6`) o cuando coinciden las decenas y las unidades de un dado de porcentaje (`33`, `100` leído como `00`), y `dice.faces` es la lista de los dados que se quedan. Un ejemplo inventado, un crítico con dobles:
+
+```yaml
+kind: table
+id: swing-the-axe
+roll: 2d6
+entries:
+  - {
+      id: critical,
+      range: 2-12,
+      when: { dice.doubles: true },
+      result: 'Dobles ({{dice.faces}}): un golpe tremendo',
+    }
+  - { id: hit, range: 8-12, result: 'Un {{roll}}: acierta' }
+  - { id: miss, range: 2-7, result: 'Un {{roll}}: falla' }
+```
+
+_Contra pronóstico_, de Core, tira por debajo de una probabilidad sobre cien con dobles para algo más; el tesoro de las Marcas Grises encuentra un escondrijo con dobles.
 
 ## De dónde salen los valores del contexto
 

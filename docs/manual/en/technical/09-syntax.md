@@ -42,16 +42,17 @@ Most boxes and most of the YAML are `key: value` pairs.
 
 In a table's or oracle's `roll`, a generator field's `roll`, and inside texts as `{{…}}`. More: [Dice, variables and context](../oracle/08-dice-and-templates.md).
 
-| Write                        | Rolls                                    |
-| ---------------------------- | ---------------------------------------- |
-| `1d6`, `3d8`, `d20`          | N dice of M sides, added (`dM` is `1dM`) |
-| `d%`, `d100`                 | 1 to 100                                 |
-| `d66`                        | two d6 as tens and units: 11 … 66        |
-| `4dF`                        | Fudge dice, −4 to +4                     |
-| `2d6+1`, `1d6+1d4`, `1d20-2` | sums and differences                     |
-| `4d6kh3`, `2d20kl1`          | keep the highest 3, keep the lowest 1    |
-| `1d6 + {{place.danger}}`     | plus a value (missing counts as 0)       |
-| `1d{{party.values.tension}}` | a die of the size a value says           |
+| Write                        | Rolls                                     |
+| ---------------------------- | ----------------------------------------- |
+| `1d6`, `3d8`, `d20`          | N dice of M sides, added (`dM` is `1dM`)  |
+| `d%`, `d100`                 | 1 to 100                                  |
+| `d66`                        | two d6 as tens and units: 11 … 66         |
+| `4dF`                        | Fudge dice, −4 to +4                      |
+| `2d6+1`, `1d6+1d4`, `1d20-2` | sums and differences                      |
+| `4d6kh3`, `2d20kl1`          | keep the highest 3, keep the lowest 1     |
+| `1d6!`, `1d6!1`              | exploding: a 6 rolls again (at most once) |
+| `1d6 + {{place.danger}}`     | plus a value (missing counts as 0)        |
+| `1d{{party.values.tension}}` | a die of the size a value says            |
 
 Without `roll`, a table picks by `weight` (1 if none): `{ weight: 3, result: pilgrim }`.
 

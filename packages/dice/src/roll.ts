@@ -1,6 +1,6 @@
 import { randomInt, type RandomSource } from '@open-tabletop/random'
 import { parseDice } from './parse'
-import type { DiceExpression, DiceResult, DiceTerm, TermResult } from './types'
+import type { DiceExpression, DiceResult, DiceTerm, DiceTermResult, TermResult } from './types'
 
 /** Which of several totals of the same expression is kept. */
 export type Keep = 'highest' | 'lowest' | 'middle'
@@ -12,6 +12,11 @@ export interface RollOptions {
    */
   repeat?: number
   keep?: Keep
+  /**
+   * Instead, a percentile die's (`d%`, `d66`) tens and units swapped when it gives the higher
+   * or lower total: 73 read as 37 (`lowest`). The total not kept is returned as `discarded`.
+   */
+  swap?: 'highest' | 'lowest'
 }
 
 /** Rolls an expression (string or parsed) with a full breakdown of every die. */
@@ -21,6 +26,7 @@ export function roll(
   options: RollOptions = {},
 ): DiceResult {
   const parsed = typeof expression === 'string' ? parseDice(expression) : expression
+  if (options.swap) return swapped(parsed.source, rollOnce(parsed, random), options.swap)
   const times = Math.max(1, Math.floor(options.repeat ?? 1))
   const rolls = Array.from({ length: times }, () => rollOnce(parsed, random))
   if (times === 1) return { expression: parsed.source, ...rolls[0] }
@@ -42,22 +48,72 @@ export function roll(
   }
 }
 
+/** A roll with its percentile die's digits swapped, if that's the total kept. */
+function swapped(
+  expression: string,
+  rolled: { terms: TermResult[]; total: number },
+  keep: 'highest' | 'lowest',
+): DiceResult {
+  const at = rolled.terms.findIndex(
+    (t) => t.kind === 'dice' && t.rolls.length === 1 && (t.sides === 100 || t.sides === 'd66'),
+  )
+  if (at < 0) return { expression, ...rolled }
+  const term = rolled.terms[at] as DiceTermResult
+  const value = term.rolls[0]
+  const digits = swapDigits(value)
+  const terms = [...rolled.terms]
+  terms[at] = { ...term, rolls: [digits], subtotal: digits }
+  const other = { terms, total: rolled.total + term.sign * (digits - value) }
+  const better = keep === 'highest' ? other.total > rolled.total : other.total < rolled.total
+  const [kept, not] = better ? [other, rolled] : [rolled, other]
+  return { expression, ...kept, discarded: [not] }
+}
+
+/** Tens and units swapped: 73 → 37, 10 → 1, 100 (00) stays 100, 5 (05) → 50. */
+export function swapDigits(value: number): number {
+  const tens = Math.floor((value % 100) / 10)
+  const units = value % 10
+  return units * 10 + tens || 100
+}
+
 function rollOnce(
   parsed: DiceExpression,
   random: RandomSource,
 ): { terms: TermResult[]; total: number } {
   const terms = parsed.terms.map((term): TermResult => {
     if (term.kind === 'const') return term
-    const rolls = Array.from({ length: term.count }, () => rollDie(term.sides, random))
+    const chains = term.explode
+      ? Array.from({ length: term.count }, () =>
+          explodeDie(term.sides as number, term.explode!, random),
+        )
+      : undefined
+    const rolls = chains
+      ? chains.map((c) => c.reduce((a, b) => a + b, 0))
+      : Array.from({ length: term.count }, () => rollDie(term.sides, random))
     const kept = keptIndices(rolls, term)
     const subtotal = kept.reduce((sum, i) => sum + rolls[i], 0)
-    return { kind: 'dice', sign: term.sign, sides: term.sides, rolls, kept, subtotal }
+    return {
+      kind: 'dice',
+      sign: term.sign,
+      sides: term.sides,
+      rolls,
+      kept,
+      subtotal,
+      ...(chains && { chains }),
+    }
   })
   const total = terms.reduce(
     (sum, t) => sum + t.sign * (t.kind === 'const' ? t.value : t.subtotal),
     0,
   )
   return { terms, total }
+}
+
+/** An exploding die: rolled again on its highest face, at most `times` more times. */
+function explodeDie(sides: number, times: number, random: RandomSource): number[] {
+  const faces = [randomInt(random, 1, sides)]
+  while (faces.at(-1) === sides && faces.length <= times) faces.push(randomInt(random, 1, sides))
+  return faces
 }
 
 function rollDie(sides: DiceTerm['sides'], random: RandomSource): number {

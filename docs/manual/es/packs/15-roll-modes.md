@@ -2,4 +2,4 @@
 
 La pestaña **Modos de tirada** muestra los modos de tirada de los packs que trae el sistema: los suyos y, de solo lectura, los de otro pack que trae (como la ventaja de Core): los comparten todos los sistemas que traen ese pack, así que aquí no se copian; para cambiarlos en este sistema, haz los tuyos. **Nuevos modos de tirada** los añade a su propio pack. El YAML: [Modos de tirada](../technical/07-kinds.md#modos-de-tirada).
 
-Cada uno tiene su nombre, cuántas **tiradas**, con qué total se **queda** (`highest`, `lowest`, `middle`) y los modos que **anula**.
+Cada uno tiene su nombre y una de tres maneras de tirar: cuántas **Tiradas** de la tirada entera, cuántos **Dados extra**, o **Del derecho o del revés** (un dado de porcentaje, `d%` o `d66`, leído con las decenas y las unidades cambiadas cuando eso es mejor: un 73 como 37); después con qué total se **queda** (`highest`, `lowest`, `middle`; los dados extra y del derecho o del revés se quedan con el más alto o el más bajo) y los modos que **anula**. Si un modo se queda con el más bajo de un dado de porcentaje leído de las dos maneras, un 73 contra una probabilidad de 40 se lee como 37, por debajo.

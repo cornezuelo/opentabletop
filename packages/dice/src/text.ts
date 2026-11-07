@@ -8,7 +8,13 @@ import type { DiceResult } from './types'
 export function diceText(r: DiceResult): string {
   const parts = r.terms.map((term) =>
     term.kind === 'dice'
-      ? `[${term.rolls.map((v, i) => (term.kept.includes(i) ? v : `~${v}~`)).join(', ')}]`
+      ? `[${term.rolls
+          .map((v, i) => {
+            // An exploding die shows each face it rolled: `6+6+2`.
+            const die = term.chains?.[i] && term.chains[i].length > 1 ? term.chains[i].join('+') : v
+            return term.kept.includes(i) ? die : `~${die}~`
+          })
+          .join(', ')}]`
       : `${term.sign < 0 ? '−' : '+'}${term.value}`,
   )
   // Rolls not kept (a roll mode); older histories kept a single one.

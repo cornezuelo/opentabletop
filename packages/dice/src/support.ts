@@ -13,7 +13,9 @@ export function bounds(expression: string | DiceExpression): { min: number; max:
       continue
     }
     const kept = term.keep?.count ?? term.count
-    const [lo, hi] = faceRange(term.sides)
+    const [lo, one] = faceRange(term.sides)
+    // An exploding die reaches its highest face once more for each time it may explode.
+    const hi = one * ((term.explode ?? 0) + 1)
     const [a, b] = term.sign > 0 ? [lo * kept, hi * kept] : [-hi * kept, -lo * kept]
     min += a
     max += b
@@ -47,10 +49,12 @@ export function possibleTotals(
 }
 
 function termTotals(term: DiceTerm, limit: number): Set<number> | null {
-  const faces = faceValues(term.sides)
+  const faces = term.explode
+    ? [...explodedFaces(term.sides as number, term.explode).keys()]
+    : faceValues(term.sides)
   if (Math.pow(faces.length, term.count) > limit) {
     // Without keep, sums of identical dice are contiguous between bounds.
-    if (!term.keep && term.sides !== 'd66') {
+    if (!term.keep && term.sides !== 'd66' && !term.explode) {
       const [lo, hi] = faceRange(term.sides)
       const set = new Set<number>()
       for (let v = lo * term.count; v <= hi * term.count; v++) set.add(v)
@@ -69,6 +73,20 @@ function termTotals(term: DiceTerm, limit: number): Set<number> | null {
     for (const face of faces) walk([...rolled, face])
   }
   walk([])
+  return out
+}
+
+/**
+ * What one exploding die can total, with its chance: `d6!1` is 1–5, or 6 and then 1–6
+ * (7–12). Totals too unlikely to matter (a long chain of a plain `!`) are left out.
+ */
+function explodedFaces(sides: number, times: number): Map<number, number> {
+  const out = new Map<number, number>()
+  const one = 1 / sides
+  for (let k = 0, p = one; k <= times && p > 1e-12; k++, p *= one)
+    for (let face = 1; face <= sides; face++)
+      // The highest face explodes again, except on the last roll allowed.
+      if (face < sides || k === times) out.set(k * sides + face, p)
   return out
 }
 
@@ -142,16 +160,22 @@ export function distribution(
 function termDistribution(term: DiceTerm, limit: number): Map<number, number> | null {
   const faces = faceValues(term.sides)
   const one = 1 / faces.length
+  const die = term.explode
+    ? explodedFaces(term.sides as number, term.explode)
+    : new Map(faces.map((face) => [face, one]))
   if (!term.keep) {
     let dist = new Map<number, number>([[0, 1]])
     for (let i = 0; i < term.count; i++) {
       const next = new Map<number, number>()
       for (const [a, pa] of dist)
-        for (const face of faces) next.set(a + face, (next.get(a + face) ?? 0) + pa * one)
+        for (const [face, p] of die) next.set(a + face, (next.get(a + face) ?? 0) + pa * p)
       dist = next
+      if (dist.size > limit) return null
     }
     return dist
   }
+  // Exploding dice kept by some: too many chains to count.
+  if (term.explode) return null
   if (Math.pow(faces.length, term.count) > limit) return null
   const kept = term.keep.count
   const out = new Map<number, number>()

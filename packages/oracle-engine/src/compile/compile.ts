@@ -77,6 +77,8 @@ export interface RollMode {
   repeat?: number
   /** Or this many more dice rolled, as many as before kept. */
   extra?: number
+  /** Or a percentile die's tens and units swapped, when that's the total kept. */
+  swap?: true
   keep: 'highest' | 'lowest' | 'middle'
   /** Full ids of the modes it cancels out with. */
   cancels: string[]
@@ -572,6 +574,7 @@ function compileRollModes(loaded: LoadedPack[], registry: Registry, diagnostics:
           description: m.description,
           ...(m.repeat !== undefined && { repeat: m.repeat }),
           ...(m.extra !== undefined && { extra: m.extra }),
+          ...(m.swap && { swap: true as const }),
           keep: m.keep,
           cancels: [],
         }

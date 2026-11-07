@@ -115,6 +115,26 @@ entries:
   - { id: missed, range: 1-6, result: '{{roll}}, over {{skill}}' }
 ---
 kind: table
+id: doubles
+roll: 2d6
+entries:
+  - { id: crit, range: 2-12, when: { dice.doubles: true }, result: 'Double {{dice.faces}}' }
+  - { id: plain, range: 2-12, result: '{{roll}}' }
+---
+kind: roll-modes
+id: swaps
+modes:
+  either-way: { name: Either way, swap: true, keep: lowest }
+---
+kind: table
+id: percentile
+roll: d%
+modes: [roll-modes.either-way]
+entries:
+  - { id: low, range: 1-50, result: '{{roll}}' }
+  - { id: high, range: 51-100, result: '{{roll}}' }
+---
+kind: table
 id: weather-by-season
 roll: 1d2
 entries:
@@ -408,6 +428,28 @@ describe('tables', () => {
     expect(made.value.effects).toEqual({ gold: 2 })
     expect(made.rolls).toHaveLength(1)
     expect(roll(4, 3)).toMatchObject({ entry: 'missed', text: '4, over 3' })
+  })
+
+  it('reads what its dice show as `dice.*`: doubles and faces', () => {
+    const at = (...values: number[]) =>
+      createOracleEngine({ registry, random: faces(6, ...values) }).resolve('test/doubles')
+        .resolution
+    expect(at(4, 4)).toMatchObject({ entry: 'crit', text: 'Double 4, 4' })
+    expect(at(4, 5)).toMatchObject({ entry: 'plain', text: '9' })
+  })
+
+  it('a roll mode may read a percentile die either way round (`swap`)', () => {
+    const at = (value: number, mode?: string) =>
+      createOracleEngine({ registry, random: faces(100, value) }).resolve(
+        'test/percentile',
+        {},
+        undefined,
+        mode ? { mode } : undefined,
+      ).resolution
+    expect(at(73)).toMatchObject({ entry: 'high', text: '73' })
+    const swapped = at(73, 'test/either-way')
+    expect(swapped).toMatchObject({ entry: 'low', text: '37', mode: 'test/either-way' })
+    expect(swapped.rolls[0].discarded?.map((d) => d.total)).toEqual([73])
   })
 
   it('filters entries by conditions on the context', () => {

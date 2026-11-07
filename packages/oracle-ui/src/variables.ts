@@ -1,3 +1,4 @@
+import { isDiceTerm } from '@open-tabletop/dice'
 import type { Compiled, EntryList, Ref, Registry } from '@open-tabletop/oracle-engine'
 
 /** A context variable a definition (or anything it delegates to) reads. */
@@ -8,7 +9,6 @@ export interface Variable {
 }
 
 const TEMPLATE = /\{\{\s*([\w.]+)\s*\}\}/g
-const DICE = /^\d*d(\d+|%|f)(k[hl]\d*)?$/i
 const OPERATORS = new Set(['all', 'any', 'not'])
 const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists'])
 
@@ -28,7 +28,7 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
   const scanText = (text: unknown) => {
     if (typeof text !== 'string') return
     // Inline dice ({{2d6}}) are rolled, not asked for.
-    for (const m of text.matchAll(TEMPLATE)) if (!DICE.test(m[1])) use(m[1])
+    for (const m of text.matchAll(TEMPLATE)) if (!isDiceTerm(m[1])) use(m[1])
   }
   const scanCondition = (cond: unknown): void => {
     if (typeof cond !== 'object' || cond === null) return
@@ -56,8 +56,8 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
   }
   const entries = (list: EntryList) => {
     scanText(list.roll)
-    // A list with a roll gives its entries its total as `roll`.
-    if (list.roll) produced.add('roll')
+    // A list with a roll gives its entries its total as `roll`, and what its dice show.
+    if (list.roll) produced.add('roll').add('dice')
     for (const e of list.entries) {
       scanCondition(e.when)
       follow(e.ref)

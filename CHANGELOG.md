@@ -11,6 +11,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- Dice that explode: `1d6!` rolls a 6 again and adds it, `1d6!1` at most once.
+- Tables read what their dice show: `dice.doubles` (two dice alike, or a percentile die's 11, 22… 00) and `dice.faces`.
+- Roll modes: `swap`, a percentile die read either way round (a 73 as 37), the better kept; in Packs' form as **Either way**.
+- Core: _Against the odds_, rolling under a chance in a hundred with doubles, and the _Either way_ roll mode; _Trouble on the road_ brings more foes on a 3.
+- The Grey Marches: a hoard finds a hidden cache on doubles, its silver on dice that explode, and _A lucky search_ reads it either way.
 - The Grey Marches: the Deep Barrows have barred doors: **Force the door** opens them, and the noise may bring _The restless dead_, as a crypt's sleeper does.
 
 ### Fixes

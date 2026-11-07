@@ -283,7 +283,8 @@ const text = z.union([z.string(), z.record(z.string(), z.string())])
 
 /**
  * `kind: roll-modes`: a system's ways of rolling a table's whole roll several times and
- * keeping one total, e.g. advantage (2, the highest) or "steady" (3, the middle one).
+ * keeping one total, e.g. advantage (2, the highest) or "steady" (3, the middle one); a die
+ * more, the best kept (`extra`); or a percentile die read either way round (`swap`).
  */
 export const rollModesSchema = z
   .object({
@@ -299,17 +300,19 @@ export const rollModesSchema = z
           repeat: z.number().int().min(2).optional(),
           /** Instead, how many more dice are rolled, as many as before kept (`2d6` → `3d6kh2`). */
           extra: z.number().int().min(1).optional(),
+          /** Instead, a percentile die's (`d%`, `d66`) tens and units swapped if it's better. */
+          swap: z.literal(true).optional(),
           /** Which total (or which dice, with `extra`) is kept. */
           keep: z.enum(['highest', 'lowest', 'middle']),
           /** Modes that, when both apply, cancel each other out (e.g. advantage and disadvantage). */
           cancels: z.union([ref, z.array(ref)]).optional(),
         })
         .strict()
-        .refine((m) => (m.repeat === undefined) !== (m.extra === undefined), {
-          message: 'a roll mode has either repeat or extra',
+        .refine((m) => [m.repeat, m.extra, m.swap].filter((x) => x !== undefined).length === 1, {
+          message: 'a roll mode has one of repeat, extra or swap',
         })
-        .refine((m) => m.extra === undefined || m.keep !== 'middle', {
-          message: 'extra dice keep the highest or the lowest',
+        .refine((m) => (m.extra === undefined && !m.swap) || m.keep !== 'middle', {
+          message: 'extra dice and swapped digits keep the highest or the lowest',
         }),
     ),
   })

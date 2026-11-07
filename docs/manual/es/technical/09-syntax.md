@@ -42,16 +42,17 @@ Casi todas las casillas y casi todo el YAML son pares `clave: valor`.
 
 En el `roll` de una tabla u oráculo, en el `roll` de un campo de generador y dentro de los textos como `{{…}}`. Más: [Dados, variables y contexto](../oracle/08-dice-and-templates.md).
 
-| Escribe                      | Tira                                          |
-| ---------------------------- | --------------------------------------------- |
-| `1d6`, `3d8`, `d20`          | N dados de M caras, sumados (`dM` es `1dM`)   |
-| `d%`, `d100`                 | de 1 a 100                                    |
-| `d66`                        | dos d6 como decenas y unidades: 11 … 66       |
-| `4dF`                        | dados Fudge, de −4 a +4                       |
-| `2d6+1`, `1d6+1d4`, `1d20-2` | sumas y restas                                |
-| `4d6kh3`, `2d20kl1`          | quedarse con los 3 más altos, con el más bajo |
-| `1d6 + {{place.danger}}`     | más un valor (si falta, cuenta como 0)        |
-| `1d{{party.values.tension}}` | un dado del tamaño que diga un valor          |
+| Escribe                      | Tira                                               |
+| ---------------------------- | -------------------------------------------------- |
+| `1d6`, `3d8`, `d20`          | N dados de M caras, sumados (`dM` es `1dM`)        |
+| `d%`, `d100`                 | de 1 a 100                                         |
+| `d66`                        | dos d6 como decenas y unidades: 11 … 66            |
+| `4dF`                        | dados Fudge, de −4 a +4                            |
+| `2d6+1`, `1d6+1d4`, `1d20-2` | sumas y restas                                     |
+| `4d6kh3`, `2d20kl1`          | quedarse con los 3 más altos, con el más bajo      |
+| `1d6!`, `1d6!1`              | explotan: un 6 vuelve a tirar (una vez como mucho) |
+| `1d6 + {{place.danger}}`     | más un valor (si falta, cuenta como 0)             |
+| `1d{{party.values.tension}}` | un dado del tamaño que diga un valor               |
 
 Sin `roll`, una tabla elige por `weight` (1 si no tiene): `{ weight: 3, result: peregrino }`.
 

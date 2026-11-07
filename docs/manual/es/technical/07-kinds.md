@@ -151,6 +151,15 @@ modes:
   edge: { name: Ventaja, extra: 1, keep: highest } # 2d6 pasa a 3d6, los dos mejores sumados
 ```
 
+O `swap: true`: un dado de porcentaje (`d%`, `d66`) se lee de las dos maneras, con decenas y unidades cambiadas cuando eso da el total que se queda (el más alto o el más bajo); una tirada sin dado de porcentaje se tira tal cual. Un ejemplo inventado, para tirar por debajo de una probabilidad:
+
+```yaml
+kind: roll-modes
+id: luck
+modes:
+  lucky: { name: Con suerte, swap: true, keep: lowest } # un 73 puede leerse como 37
+```
+
 Una tabla u oráculo los usa con:
 
 - `modes: [roll-modes.advantage, roll-modes.disadvantage]`: se ofrecen al tirar a mano (la opción junto a **Tirar**).
