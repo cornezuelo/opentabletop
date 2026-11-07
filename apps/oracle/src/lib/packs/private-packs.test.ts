@@ -141,4 +141,22 @@ describe.skipIf(!iron)('Ironsworn', () => {
     }
     expect(seen.size).toBe(3)
   })
+
+  it('asks the oracle: the odds choose the line, a match in the dice is a twist', () => {
+    const ask = (face: number, odds: string) =>
+      createOracleEngine({ registry, random: { next: () => (face - 0.5) / 100 } }).resolve(
+        'ironsworn/ask',
+        { odds },
+      ).resolution.entry
+    expect(ask(30, 'likely')).toBe('yes')
+    expect(ask(30, 'fifty-fifty')).toBe('no')
+    expect(ask(33, 'likely')).toBe('yes-twist')
+    expect(ask(22, 'fifty-fifty')).toBe('no-twist')
+    expect(ask(100, 'small-chance')).toBe('yes-twist')
+    // Every table of the oracles chapter covers its d100.
+    const engine = createOracleEngine({ registry, random: seeded('oracles') })
+    for (const id of ['action', 'theme', 'combat-action', 'plot-twist', 'challenge-rank'])
+      for (let i = 0; i < 50; i++)
+        expect(engine.resolve(`ironsworn/${id}`).resolution.text, id).toBeTruthy()
+  })
 })
