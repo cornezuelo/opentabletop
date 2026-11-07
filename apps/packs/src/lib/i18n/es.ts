@@ -739,6 +739,9 @@ export const es: Messages<typeof en> = {
     tries: 'Intentos',
     triesHelp: 'Tiradas antes de rendirse cuando lo que sale no cabe. Vacío: 3.',
     otherwise: 'Si no',
+    keepOpen: 'Mantenerlo abierto',
+    keepOpenHelp:
+      'Si el lugar puede cerrarse por azar. Marcado, una pieza que no dejaría ninguna salida por cruzar en todo el mapa no encaja, y se vuelve a sacar (**Si no** se sigue colocando cuando nada encajó). Sin condición es siempre así; con una, mientras se cumple.\n• marcado, sin condición — el lugar nunca se cierra por sí solo\n• `pieces.total: { lt: 8 }` — abierto hasta que haya 8 piezas, y después puede acabar',
     otherwiseHelp:
       'La pieza que se coloca cuando ninguna ha cabido. Una pieza de una casilla siempre cabe.\n• `dead-end`',
   },

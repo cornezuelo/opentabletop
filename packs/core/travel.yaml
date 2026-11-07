@@ -187,9 +187,10 @@ actions:
 # The Generic rules' bindings (system.yaml): what resolves each check of their travel rules.
 kind: bindings
 id: default
-# A map played by discovering it grows piece by piece (pieces.yaml).
+# A map played by discovering it grows piece by piece (pieces.yaml), and never closes by
+# chance (keepOpen): a dead end only comes while another way waits.
 discover:
-  piece: { resolve: table.next-piece, first: room, otherwise: dead-end }
+  piece: { resolve: table.next-piece, first: room, otherwise: dead-end, keepOpen: true }
   reveal: pieces
 on:
   # Weather with inertia: a weather model (weather.yaml) instead of a table.

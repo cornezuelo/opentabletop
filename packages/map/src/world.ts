@@ -336,6 +336,7 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       gate: (a) => a,
       laid,
       floors: map.terrains.filter((t) => t.floor).map((t) => t.id),
+      exits: map.connections.map((c) => c.between as [string, string]),
     },
     // A connection between far hexes measures its own `km`, else the hexes between its ends;
     // a way into another map, none.

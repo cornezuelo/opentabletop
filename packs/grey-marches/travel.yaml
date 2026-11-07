@@ -1064,8 +1064,13 @@ reads:
 discover:
   terrain: { resolve: table.next-terrain }
   contents: { resolve: table.hex-contents }
-  # A map played piece by piece (the Deep Barrows): pieces.yaml.
-  piece: { resolve: table.next-barrow, first: stair-foot, otherwise: dead-end }
+  # A map played piece by piece (the Deep Barrows): pieces.yaml. Kept open (a condition) until
+  # the last tomb can come: a fall of stone never closes the last way on before that.
+  piece:
+    resolve: table.next-barrow
+    first: stair-foot
+    otherwise: dead-end
+    keepOpen: { pieces.total: { lt: 8 } }
   reveal: neighbors
 on:
   # Weather with inertia: a model (sky.yaml) instead of a table.

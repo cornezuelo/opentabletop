@@ -3,6 +3,7 @@ import type { OracleEngine, OracleState } from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { onceRoller } from '@open-tabletop/variables'
+import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import { definitionId } from './refs'
 import { effectsOf } from './effects'
 import { layPiece, type LaidPiece, type Piece, type PieceLookup } from './pieces'
@@ -37,12 +38,14 @@ export interface DiscoverBindings {
 /**
  * `discover.piece`: what names the next piece (a table's `set: { piece: <id> }`), `first` what
  * an empty map starts with, up to `tries` rolls when what came up doesn't fit, and `otherwise`
- * laid when nothing did.
+ * laid when nothing did. `keepOpen` (true, or while a condition holds): a piece that would
+ * leave no exit waiting on the map doesn't fit, so the place never closes by chance.
  */
 export interface PieceBinding extends DiscoverBinding {
   first?: string
   tries: number
   otherwise?: string
+  keepOpen?: true | Condition
 }
 
 export type RevealMode = 'neighbors' | 'entered' | 'pieces'
@@ -129,11 +132,17 @@ function parsePieceBinding(
     errors.push('bindings.discover.piece.tries: expected a whole number, 1 or more')
   const id = (key: 'first' | 'otherwise') =>
     typeof value[key] === 'string' && value[key] ? { [key]: value[key] as string } : {}
+  const keepOpen = value.keepOpen
+  if (keepOpen !== undefined && keepOpen !== true && keepOpen !== false)
+    errors.push(...validateCondition(keepOpen, 'bindings.discover.piece.keepOpen'))
   return {
     resolve: definitionId(value.resolve, pack),
     tries: typeof tries === 'number' && tries >= 1 ? Math.floor(tries) : 3,
     ...id('first'),
     ...id('otherwise'),
+    ...((keepOpen === true || (typeof keepOpen === 'object' && keepOpen !== null)) && {
+      keepOpen: keepOpen as true | Condition,
+    }),
     ...(typeof value.context === 'object' &&
       value.context !== null && { context: value.context as Record<string, unknown> }),
   }
@@ -300,11 +309,34 @@ export function createDiscovery(options: {
       free: (cell: string) => isEmpty(world, cell),
       floor: (cell: string) => !!world.place(cell)?.floor,
     }
-    const named = (id: unknown): boolean => {
+    /** Whether some exit of the map would still wait to be crossed with `done` laid. */
+    const leavesOpen = (done: LaidPiece) => {
+      const filled = new Set(Object.keys(done.cells))
+      const empty = (cell: string) => !filled.has(cell) && isEmpty(world, cell)
+      return [
+        ...(ground.exits ?? []),
+        ...[...laid, done].flatMap((p) => p.connections.map((c) => c.between)),
+      ].some(([a, b]) => empty(a) !== empty(b))
+    }
+    const facts = {
+      ...(world.place(gate) ?? {}),
+      from: { ...(world.place(gate) ?? {}), id: gate },
+      place: { id: hex },
+      exit: {
+        kind: base.connectionOf?.(from, hex)?.kind,
+        tags: base.connectionOf?.(from, hex)?.tags ?? [],
+      },
+      pieces: { ...counts, total },
+    }
+    const keepOpen =
+      binding.keepOpen === true || (!!binding.keepOpen && matches(binding.keepOpen, facts))
+    const named = (id: unknown, last = false): boolean => {
       if (typeof id !== 'string' || !id) return false
       const piece: Piece | undefined = options.pieces!(id, layout)
       const done = piece && layPiece(id, piece, fit, hex, gate, random, locale)
       if (!piece || !done) return false
+      // Kept open: a piece that closes the place doesn't fit (but what's laid when nothing did).
+      if (keepOpen && !last && !leavesOpen(done)) return false
       laid.push(done)
       for (const [cell, terrain] of Object.entries(done.cells))
         record(cell, { terrain, ...(piece.tags && { tags: piece.tags }) })
@@ -312,19 +344,11 @@ export function createDiscovery(options: {
       return true
     }
     if (!total && binding.first && named(binding.first)) return true
-    const here = world.place(gate) ?? {}
-    const exit = base.connectionOf?.(from, hex)
     for (let i = 0; i < binding.tries; i++) {
-      const { value } = roll(binding, {
-        ...here,
-        from: { ...here, id: gate },
-        place: { id: hex },
-        exit: { kind: exit?.kind, tags: exit?.tags ?? [] },
-        pieces: { ...counts, total },
-      })
+      const { value } = roll(binding, facts)
       if (named(value.piece)) return true
     }
-    return named(binding.otherwise)
+    return named(binding.otherwise, true)
   }
 
   /** Rolls with the Oracle's state in `state`. */

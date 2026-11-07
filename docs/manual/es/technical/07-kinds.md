@@ -308,7 +308,7 @@ reads: # nombres para otros valores que leen sus tablas (en el panel de tirada y
 discover: # tablas que deciden las casillas vacías según viaja el grupo
   terrain: { resolve: table.next-terrain } # o un modelo de tierra: { land: land.default }
   contents: { resolve: table.hex-contents }
-  piece: { resolve: table.next-piece, first: room, otherwise: dead-end } # see Pieces
+  piece: { resolve: table.next-piece, first: room, otherwise: dead-end, keepOpen: true } # see Pieces
   reveal: neighbors # or entered, or pieces
 on: # por evento de comprobación: qué la responde
   WEATHER_CHECK_REQUIRED: { weather: weather.sky } # un modelo de clima
@@ -640,7 +640,7 @@ pieces:
 - Una primera línea que empieza más adentro que la siguiente necesita `|2` tras `cells:`, para que YAML conserve sus espacios.
 - Una pieza sin salidas se coloca desde cualquier lado.
 - `exits` admite también `name`, `tags` y `fields`: `C: { kind: hidden-path, fields: { state: hidden } }` es un camino que encuentra una comprobación, y `B: { kind: door, fields: { state: barred } }` una puerta colocada cerrada, que el `passable` de su tipo mantiene así hasta que una acción cambia su estado.
-- Se ata como `discover.piece` en los [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end }`, una tabla o un mazo cuyos resultados hacen `set: { piece: <id> }`.
+- Se ata como `discover.piece` en los [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end, keepOpen: true }`, una tabla o un mazo cuyos resultados hacen `set: { piece: <id> }`. `keepOpen` (`true`, o una condición sobre lo que ve la tabla, `{ pieces.total: { lt: 8 } }`): mientras se cumple, una pieza que no dejaría ninguna salida por cruzar en todo el mapa no cabe; `otherwise` se coloca igualmente.
 - Se traduce con la clave `pieces/<id>`, por pieza (`pieces: { passage: { name: Pasillo } }`).
 
 ## Facciones

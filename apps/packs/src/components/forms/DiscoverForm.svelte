@@ -2,7 +2,8 @@
   import { writeRef } from '@open-tabletop/oracle-engine'
   import type { TravelSystem } from '@open-tabletop/session'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { t } from '../../lib/i18n'
+  import { ConditionEditor } from '@open-tabletop/pack-ui'
+  import { getLocale, t } from '../../lib/i18n'
   import { partChoices, partName } from '../../lib/newSystem'
   import { ROLLABLE, type SystemDoc } from '../../lib/systemDoc.svelte'
 
@@ -153,11 +154,47 @@
       />
     </label>
   </div>
+  <div class="open">
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={piece.keepOpen !== undefined}
+        disabled={disabled || !piece.resolve}
+        onchange={(e) => bindPiece({ keepOpen: e.currentTarget.checked ? true : '' })}
+      />
+      {t('discover.keepOpen')}<InfoTip text={t('discover.keepOpenHelp')} />
+    </label>
+    {#if piece.keepOpen !== undefined}
+      <!-- Empty: always kept open; a condition: while it holds. -->
+      <ConditionEditor
+        value={typeof piece.keepOpen === 'object' ? piece.keepOpen : undefined}
+        suggestions={{ 'pieces.total': [] }}
+        locale={getLocale()}
+        {disabled}
+        label={t('discover.keepOpen')}
+        onchange={(c) => bindPiece({ keepOpen: c ?? true })}
+      />
+    {/if}
+  </div>
 </section>
 
 <style>
   h3 {
     margin: 0 0 8px;
+  }
+
+  .open {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 820px;
+    margin-top: 10px;
+  }
+
+  .check {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
   }
 
   .row {

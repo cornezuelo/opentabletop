@@ -95,6 +95,8 @@ export interface TravelWorld {
     laid: Record<string, number>
     /** The terrains that are a structure's floor here. */
     floors?: string[]
+    /** The two cells of each drawn connection (doors, exits): which still lead nowhere. */
+    exits?: [string, string][]
   }
 }
 

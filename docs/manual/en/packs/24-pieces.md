@@ -20,7 +20,7 @@ One catalogue at a time; **New catalogue of pieces** makes a small one and adds 
 
 ## What chooses the next piece
 
-**Checks → Discovering the map**: **Next piece** is a table or deck whose results say `set: { piece: <id> }`, **Starts with** the piece an empty map starts with, **Tries** how many rolls before giving up when what came up doesn't fit (3 if empty), and **Otherwise** the piece laid when none did. A piece of one cell always fits, so it makes a good **Otherwise**: without one, the party stays on its side of the door, and the journal says so.
+**Checks → Discovering the map**: **Next piece** is a table or deck whose results say `set: { piece: <id> }`, **Starts with** the piece an empty map starts with, **Tries** how many rolls before giving up when what came up doesn't fit (3 if empty), and **Otherwise** the piece laid when none did. A piece of one cell always fits, so it makes a good **Otherwise**: without one, the party stays on its side of the door, and the journal says so. **Kept open** keeps the place from closing by chance: a piece that would leave no exit waiting anywhere on the map doesn't fit, so it's drawn again (always, or while a condition holds: `pieces.total: { lt: 8 }`, open until eight are laid, then it may end).
 
 The table sees what `discover.terrain` sees, plus the exit being crossed (`exit.kind`, `exit.tags`) and what has been laid on this map (`pieces.total`, `pieces.<id>`): _the third crypt is the last_, or _the tomb after eight pieces_. A deck works as it does everywhere: cards drawn stay drawn, so the place doesn't repeat itself.
 
@@ -28,7 +28,7 @@ The table sees what `discover.terrain` sees, plus the exit being crossed (`exit.
 
 1. The party steps into an empty cell, through an exit or from any side on a map without walls.
 2. The binding names a piece. Every way of laying it is tried, in a random order: each way in, each turn and mirror. A way fits when the cell the party entered is one of the piece's, the way in meets the cell it came from, and every cell falls inside the map on nothing.
-3. If none fits, it's rolled again up to **Tries**, then **Otherwise**. A piece that would run off the map doesn't fit: the edge is rock.
+3. If none fits, it's rolled again up to **Tries**, then **Otherwise**. A piece that would run off the map doesn't fit: the edge is rock; kept open, nor does one that would leave no way on.
 4. Its other exits: one with nothing beyond it stays waiting; one that falls on floor opens there, a door between the two; one against anything else is dropped, silently, as a wall.
 5. The step ends there: what's beyond was unknown, so no route went through it.
 

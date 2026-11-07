@@ -128,7 +128,7 @@ name: What lies beyond
 description: |-
   Bound as `discover.piece`: the way down goes on, until enough has been laid for the last tomb.
 
-  **Shows:** what a table sees of the pieces laid: `pieces.total`; a table handing over to a deck.
+  **Shows:** what a table sees of the pieces laid: `pieces.total`; a table handing over to a deck; the place kept open while a condition holds (`keepOpen: { pieces.total: { lt: 8 } }` in `travel.yaml`): no fall of stone closes the last way on before the tomb.
 entries:
   - {
       id: on,

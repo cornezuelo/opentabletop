@@ -20,7 +20,7 @@ Un catálogo cada vez; **Nuevo catálogo de piezas** crea uno pequeño y lo aña
 
 ## Qué elige la siguiente pieza
 
-**Comprobaciones → Descubrir el mapa**: **Siguiente pieza** es una tabla o un mazo cuyos resultados dicen `set: { piece: <id> }`, **Empieza con** la pieza con la que empieza un mapa vacío, **Intentos** cuántas tiradas antes de rendirse cuando lo que sale no cabe (3 si está vacío) y **Si no** la pieza que se coloca cuando ninguna ha cabido. Una pieza de una casilla siempre cabe, así que es un buen **Si no**: sin ella, el grupo se queda a su lado de la puerta y el diario lo dice.
+**Comprobaciones → Descubrir el mapa**: **Siguiente pieza** es una tabla o un mazo cuyos resultados dicen `set: { piece: <id> }`, **Empieza con** la pieza con la que empieza un mapa vacío, **Intentos** cuántas tiradas antes de rendirse cuando lo que sale no cabe (3 si está vacío) y **Si no** la pieza que se coloca cuando ninguna ha cabido. Una pieza de una casilla siempre cabe, así que es un buen **Si no**: sin ella, el grupo se queda a su lado de la puerta y el diario lo dice. **Mantenerlo abierto** evita que el lugar se cierre por azar: una pieza que no dejaría ninguna salida por cruzar en todo el mapa no cabe, así que se vuelve a sacar (siempre, o mientras se cumple una condición: `pieces.total: { lt: 8 }`, abierto hasta que haya ocho, y después puede acabar).
 
 La tabla ve lo mismo que `discover.terrain`, más la salida que se cruza (`exit.kind`, `exit.tags`) y lo colocado en este mapa (`pieces.total`, `pieces.<id>`): _la tercera cripta es la última_, o _la tumba tras ocho piezas_. Un mazo funciona como en todas partes: las cartas robadas siguen robadas, así que el sitio no se repite.
 
@@ -28,7 +28,7 @@ La tabla ve lo mismo que `discover.terrain`, más la salida que se cruza (`exit.
 
 1. El grupo entra en una casilla vacía, por una salida o desde cualquier lado en un mapa sin muros.
 2. El binding nombra una pieza. Se prueban todas las formas de colocarla, en orden aleatorio: cada entrada, cada giro y reflejo. Una forma cabe cuando la casilla a la que entró el grupo es de la pieza, la entrada encaja con la casilla de la que vino y todas las casillas caen dentro del mapa y sobre nada.
-3. Si ninguna cabe, se tira otra vez hasta **Intentos**, y luego **Si no**. Una pieza que se saldría del mapa no cabe: el borde es roca.
+3. Si ninguna cabe, se tira otra vez hasta **Intentos**, y luego **Si no**. Una pieza que se saldría del mapa no cabe: el borde es roca; manteniéndolo abierto, tampoco una que no dejaría camino.
 4. Sus otras salidas: una sin nada detrás se queda esperando; una que cae sobre suelo se abre ahí, una puerta entre las dos; una contra cualquier otra cosa se quita, sin decir nada, como un muro.
 5. El paso termina ahí: lo de más allá era desconocido, así que ninguna ruta pasaba por ello.
 

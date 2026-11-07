@@ -175,3 +175,55 @@ describe('a barred door in the Deep Barrows', () => {
     ).toBe('15,14')
   })
 })
+
+describe('a place kept open', () => {
+  it('never closes by chance: a dead end at the last way on is drawn again', () => {
+    start(createMap('', { template: 'dungeon', cells: 'square' }))
+    const core = getSystem('core')
+    // Only dead ends come up: with the place kept open, the last way on can't take one.
+    const closing = (keepOpen: boolean): TravelSystem => ({
+      ...core,
+      bindings: {
+        ...core.bindings!,
+        discover: {
+          ...core.bindings!.discover!,
+          piece: {
+            resolve: 'core/next-piece',
+            tries: 3,
+            otherwise: 'passage',
+            ...(keepOpen && { keepOpen: true }),
+          },
+        },
+      },
+    })
+    const laidThrough = (system: TravelSystem) => {
+      start(createMap('', { template: 'dungeon', cells: 'square' }))
+      const { session } = startTrip({ system, location: '15,15', season: 'summer' })
+      return through(system, session, '15,14', 3).laid
+    }
+    // `next-piece` gives dead ends only once 6 are laid: here, a table of dead ends alone.
+    library.addPack({
+      root: 'ends',
+      origin: 'user',
+      files: [
+        {
+          path: 'pack.yaml',
+          content: 'id: ends\nname: Ends\nversion: 0.1.0\nlocale: en\nformat: 15\n',
+        },
+        {
+          path: 'ends.yaml',
+          content:
+            'kind: table\nid: only-ends\nentries:\n  - { id: end, result: An end, set: { piece: dead-end } }\n',
+        },
+      ],
+    })
+    const ends = (keepOpen: boolean) => {
+      const system = closing(keepOpen)
+      system.bindings!.discover!.piece!.resolve = 'ends/only-ends'
+      return laidThrough(system)
+    }
+    expect(ends(false).map((p) => p.id)).toEqual(['dead-end'])
+    // Kept open, the three dead ends don't fit: what's laid when nothing did comes instead.
+    expect(ends(true).map((p) => p.id)).toEqual(['passage'])
+  })
+})

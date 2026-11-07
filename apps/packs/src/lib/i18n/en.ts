@@ -728,6 +728,9 @@ export const en = {
     otherwise: 'Otherwise',
     otherwiseHelp:
       'The piece laid when none fitted. A piece of one cell always fits.\n• `dead-end`',
+    keepOpen: 'Kept open',
+    keepOpenHelp:
+      'Whether the place may close by chance. Ticked, a piece that would leave no exit waiting anywhere on the map doesn\u2019t fit, and is drawn again (**Otherwise** is still laid when nothing did). With no condition it\u2019s always so; with one, while it holds.\n• ticked, no condition — the place never closes by itself\n• `pieces.total: { lt: 8 }` — open until 8 pieces are laid, then it may end',
   },
   overview: {
     sheet: 'Characters’ sheet',

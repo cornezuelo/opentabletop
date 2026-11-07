@@ -309,7 +309,7 @@ reads: # names for other values its tables read (shown in the roll panel and on 
 discover: # tables that decide empty cells as the party travels
   terrain: { resolve: table.next-terrain } # or a land model: { land: land.default }
   contents: { resolve: table.hex-contents }
-  piece: { resolve: table.next-piece, first: room, otherwise: dead-end } # see Pieces
+  piece: { resolve: table.next-piece, first: room, otherwise: dead-end, keepOpen: true } # see Pieces
   reveal: neighbors # or entered, or pieces
 on: # per check event: what answers it
   WEATHER_CHECK_REQUIRED: { weather: weather.sky } # a weather model
@@ -639,7 +639,7 @@ pieces:
 - A first line that starts further in than the next needs `|2` after `cells:`, so YAML keeps its spaces.
 - A piece with no exits is laid from any side.
 - `exits` take `name`, `tags` and `fields` too: `C: { kind: hidden-path, fields: { state: hidden } }` is a way a check finds, and `B: { kind: door, fields: { state: barred } }` a door laid shut, kept so by its kind's `passable` until an action changes its state.
-- Bound as `discover.piece` in [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end }`, a table or deck whose results `set: { piece: <id> }`.
+- Bound as `discover.piece` in [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end, keepOpen: true }`, a table or deck whose results `set: { piece: <id> }`. `keepOpen` (`true`, or a condition on what the table sees, `{ pieces.total: { lt: 8 } }`): while it holds, a piece that would leave no exit waiting anywhere on the map doesn't fit; `otherwise` is laid even so.
 - Translated keyed `pieces/<id>`, by piece (`pieces: { passage: { name: Pasillo } }`).
 
 ## Factions

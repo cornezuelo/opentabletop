@@ -37,7 +37,7 @@ next-barrow:
   description: |-
     Atada como `discover.piece`: el camino hacia abajo sigue, hasta que se ha colocado bastante para la última tumba.
 
-    **Enseña:** lo que ve una tabla de las piezas colocadas: `pieces.total`; una tabla que pasa la decisión a un mazo.
+    **Enseña:** lo que ve una tabla de las piezas colocadas: `pieces.total`; una tabla que pasa la decisión a un mazo; el lugar mantenido abierto mientras se cumple una condición (`keepOpen: { pieces.total: { lt: 8 } }` en `travel.yaml`): ningún derrumbe cierra el último camino antes de la tumba.
   entries:
     on: El camino sigue
     last: La última tumba

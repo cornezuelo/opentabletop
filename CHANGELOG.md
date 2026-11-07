@@ -12,6 +12,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Packs
 
 - Sheets: a value may start rolled (`default: '{{3d6}}'`), for each new character; the Grey Marches roll a companion's Max health, Core the party's food.
+- Pieces: **Kept open** (`keepOpen`), always or while a condition holds: a piece that would close the place by chance is drawn again. Core's rooms never close by themselves, and the Deep Barrows not before the last tomb.
 - Dice that explode: `1d6!` rolls a 6 again and adds it, `1d6!1` at most once.
 - Tables read what their dice show: `dice.doubles` (two dice alike, or a percentile die's 11, 22… 00) and `dice.faces`.
 - Roll modes: `swap`, a percentile die read either way round (a 73 as 37), the better kept; in Packs' form as **Either way**.
