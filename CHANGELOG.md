@@ -11,6 +11,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Map: a campaign has one party, drawn only where its trip is.
 - Map: a map that's discovered by playing says so when blank, with **Start playing**; a map laid piece by piece shows its first piece as soon as the party stands on it, and marks the exits nobody has crossed.
 - Map: **March** is off once the party has arrived.
+- Map: on a map laid piece by piece, the party can't be sent across what nobody has opened yet: a route ends past an exit.
 
 - Trips: a check on entering a place reads what was just discovered there (a piece, a terrain).
 

@@ -87,6 +87,14 @@ describe('walking', () => {
     expect(['6,3', '7,3']).toContain(location())
   })
 
+  it('on a map laid piece by piece, the unknown is rock: no way across it', () => {
+    corridor()
+    play.updatePlay((p) => ({ ...p, discover: { on: true, reveal: 'pieces' } }))
+    // Beyond the rooms, in the blank: no route reaches it, through no wall and no exit.
+    play.walkTo('5,8')
+    expect(at()).toBe('3,3')
+  })
+
   it('a campaign has one party: not drawn while another trip goes on', () => {
     corridor()
     expect(partyElsewhere()).toBe(false)

@@ -185,6 +185,11 @@ export function createDiscovery(options: {
   const world: TravelWorld = {
     ...base,
     entering: (hex, from) => opener?.(hex, from) ?? true,
+    // Laid piece by piece, what nobody has opened is rock until a piece is laid there: a step
+    // may end on an empty cell past an exit, never go on through it.
+    ...(reveal === 'pieces' && {
+      neighbors: (hex: string) => (isEmpty(world, hex) ? [] : base.neighbors(hex)),
+    }),
     place(hex) {
       const cell = base.place(hex)
       const extra = found.get(hex)
