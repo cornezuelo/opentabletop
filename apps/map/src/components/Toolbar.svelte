@@ -14,6 +14,7 @@
     [
       { id: 'terrain', label: 'tools.terrain', glyph: 'terrain' },
       { id: 'region', label: 'tools.region', glyph: 'region' },
+      { id: 'faction', label: 'tools.faction', glyph: 'faction' },
       { id: 'path', label: 'tools.path', glyph: 'path' },
       { id: 'wall', label: 'tools.wall', glyph: 'wall' },
     ],
@@ -47,15 +48,17 @@
     {/each}
   {/each}
   <span class="sep" aria-hidden="true"></span>
-  <!-- The world clock (the campaign's date, events and progress clocks), next to Play. -->
-  <button
-    class:active={editor.panelView === 'world'}
-    use:tooltip={t('actions.world')}
-    aria-label={t('actions.world')}
-    aria-pressed={editor.panelView === 'world'}
-    onclick={() => (editor.panelView = editor.panelView === 'world' ? 'tool' : 'world')}
-    ><LineIcon name="world" /></button
-  >
+  <!-- The world clock (the campaign's date, events and progress clocks) is played. -->
+  {#if editor.mode === 'play'}
+    <button
+      class:active={editor.panelView === 'world'}
+      use:tooltip={t('actions.world')}
+      aria-label={t('actions.world')}
+      aria-pressed={editor.panelView === 'world'}
+      onclick={() => (editor.panelView = editor.panelView === 'world' ? 'tool' : 'world')}
+      ><LineIcon name="world" /></button
+    >
+  {/if}
   <!-- The Oracle is used while mapping and playing: with the tools, under Play and the World. -->
   <button
     class:active={editor.panelView === 'oracle'}

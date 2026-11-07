@@ -38,7 +38,7 @@ Guiding idea (the user's, 2026-10-07): mechanics like fatigue, morale, reputatio
 
 **A town's terrains in the Grey Marches** (user, 2026-11-07: "donde estan los tiles de aldea de las marcas grises? solo veo mazmorras o tierra del hexmap"): checked: the system declares no town terrains and no land model for one. Ashford's cobbles, yards, gardens and wooden floors live in that map's palette and in Core's rules and style, so Packs doesn't show them under the Grey Marches and Ashford's terrains have no rule of the system's. To do, with (2) above: the Grey Marches declare them, named and translated, with a land model for a village.
 
-**World and the Oracle in Edit** (user, 2026-11-07: "tiene sentido en el mapa tener en editar los iconos de mundo y de oraculo, si estan en jugar ya?"): [map-ui.md](map-ui.md) put them in both. To decide with the user.
+✅ (2026-11-07, the user's choice of Claude's proposal: the **Factions** tool (L) in Edit, with the brush; World only in Play; the Oracle in both, for making things up while drawing) **World and the Oracle in Edit** (user, 2026-11-07: "tiene sentido en el mapa tener en editar los iconos de mundo y de oraculo, si estan en jugar ya?").
 
 **Making a sub-map isn't clear** (user, 2026-11-06: "como se crea un mapa hijo de otro? en la interfaz de mapas no queda muy claro"): today only from a cell in Edit, **+ Way into a map** → **New sub-map here**; neither **New map** nor **Maps** offer it, and a map you already have can't be made a child of another (**Another way into…** lists only this map's sub-maps). To propose: **New sub-map** from **Maps** and **Tree of maps**, a choice of parent in **New map**, and joining an existing map.
 

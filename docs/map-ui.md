@@ -49,7 +49,7 @@ What the editors compared share: the mode you're in decides what's on screen. A 
 
 - **Edit:** the rail holds the editing tools, grouped: Select · Terrain, Regions, Roads and rivers, Walls · Connections · Icons, Text, Tokens.
 - **Play:** the rail holds what play uses: Select, Trip, World, Oracle. The editing tools' keys do nothing; a change to the map needs a step back to Edit.
-- World and the Oracle are in both.
+- The Oracle is in both; World only in Play (user, 2026-11-07), a faction's land painted with the **Factions** tool in Edit.
 
 Every tool's icon drawn in one set (`LineIcon` exists; the glyphs become entries in it).
 

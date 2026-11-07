@@ -14,6 +14,7 @@ export const en = {
     out: '↑ Out to {name}',
   },
   tools: {
+    faction: 'Factions (L)',
     label: 'Tools',
     show: 'Show the tools',
     hide: 'Hide the tools (more room for the map; their keys still work)',
@@ -86,6 +87,7 @@ export const en = {
     help: 'Rolls read the selected cell (or the party’s): terrain, tags and fields. On a trip with rules they also read the season, weather and party stats, and results go to the journal. Your packs from the Oracle app appear here when both apps run on the same site.',
   },
   panel: {
+    factions: 'Factions',
     width: 'Width of the panel',
     grow: 'More room for the panel',
     noSelectionPlay: 'Click a cell to read it, or choose The trip on the left to play.',
@@ -499,10 +501,11 @@ export const en = {
       "Gives this faction cells by hand: with it on, a click or a drag on the map makes the cells its own (taken from whoever held them), and a right click takes them away. Water and cells off the map stay nobody's. It isn't undone with Ctrl+Z, like a world turn: paint them back.",
     title: campaignTexts.en.factions.title,
     intro:
-      'The powers of this world, each holding land on the map in its colour. Open one to see its sheet; ✎ paints its land.',
+      'The powers of this world, each holding land on the map in its colour. Open one to see its sheet.',
+    paintIntro: '✎ paints its land.',
     land: 'Their land',
     landHelp:
-      "Which cells each faction holds (`place.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the cells that hold the condition the system gives it (Packs → **Factions** → **Starts on**: a region, a tag…), given when you **bring in its factions**\n• **by hand** — open a faction and **Paint its land**: click or drag on the map; a right click takes cells away\n• **world turns** — its turn table may win or lose ground cell by cell (`faction.territory: 1` takes a cell from its border, `-1` gives one up)\nA cell has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
+      "Which cells each faction holds (`place.faction`), drawn in its colour in the **Factions** layer. It comes from three places:\n• **where it starts** — the cells that hold the condition the system gives it (Packs → **Factions** → **Starts on**: a region, a tag…), given when you **bring in its factions**\n• **by hand** — in Edit, the **Factions** tool, ✎ on a faction: click or drag on the map; a right click takes cells away\n• **world turns** — its turn table may win or lose ground cell by cell (`faction.territory: 1` takes a cell from its border, `-1` gives one up)\nA cell has one holder at most: taking it from another faction takes it from them. Water stays nobody's.",
     help: campaignTexts.en.factions.help,
     none: "The map's system has factions, not yet on this map: bring them in, each holding the land the system says it starts with.",
     bring: campaignTexts.en.factions.bring,

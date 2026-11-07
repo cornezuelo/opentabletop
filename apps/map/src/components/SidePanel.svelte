@@ -12,6 +12,7 @@
   import MapTreePanel from './MapTreePanel.svelte'
   import MapSystem from './MapSystem.svelte'
   import WorldPanel from './WorldPanel.svelte'
+  import FactionsPanel from './FactionsPanel.svelte'
   import MapSize from './MapSize.svelte'
   import PathPanel from './PathPanel.svelte'
   import ConnectionPanel from './ConnectionPanel.svelte'
@@ -39,6 +40,7 @@
     select: 'panel.hex',
     terrain: 'panel.terrain',
     region: 'panel.regions',
+    faction: 'panel.factions',
     path: 'panel.paths',
     connection: 'panel.connections',
     wall: 'panel.walls',
@@ -211,6 +213,8 @@
       <TerrainPanel />
     {:else if shown === 'region'}
       <RegionPanel />
+    {:else if shown === 'faction'}
+      <FactionsPanel paint />
     {:else if shown === 'path'}
       <PathPanel />
     {:else if shown === 'connection'}

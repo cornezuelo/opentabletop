@@ -955,8 +955,8 @@ export class MapRenderer {
     this.factionShapes.alpha = focus.factionsAlpha
     // A hidden layer (Layers) shows nothing chosen on it either.
     const hidden =
-      (editor.panelView === 'world' && layers.factions?.visible === false) ||
-      (editor.panelView !== 'world' && !layers.regions.visible)
+      (focus.regionsAlpha < 1 && layers.factions?.visible === false) ||
+      (focus.regionsAlpha === 1 && !layers.regions.visible)
     const cells = focus.selected.map(parseKey).filter((c) => inBounds(c, grid))
     if (!cells.length || hidden) return
     const chosen = new Set(cells.map(keyOf))

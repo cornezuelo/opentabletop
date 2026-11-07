@@ -103,7 +103,7 @@ export function bindShortcuts(): () => void {
     }
 
     // The tools that edit the map have no keys in Play: a slip can't turn a click into a stroke.
-    if (editor.mode === 'play' && 'bgeritckwn'.includes(key)) return
+    if (editor.mode === 'play' && 'bgeritckwnl'.includes(key)) return
 
     switch (key) {
       case 'v':
@@ -119,6 +119,9 @@ export function bindShortcuts(): () => void {
         break
       case 'r':
         editor.tool = 'path'
+        break
+      case 'l':
+        editor.tool = 'faction'
         break
       case 'c':
         editor.tool = 'connection'
@@ -163,7 +166,7 @@ export function bindShortcuts(): () => void {
       default:
         return
     }
-    if ('vbgeritkn'.includes(key)) editor.panelView = 'tool'
+    if ('vbgeritkncwl'.includes(key)) editor.panelView = 'tool'
     e.preventDefault()
   }
   window.addEventListener('keydown', handler)

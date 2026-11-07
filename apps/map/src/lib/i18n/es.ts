@@ -14,6 +14,7 @@ export const es: Messages = {
     out: '↑ Sale a {name}',
   },
   tools: {
+    faction: 'Facciones (L)',
     label: 'Herramientas',
     show: 'Mostrar las herramientas',
     hide: 'Ocultar las herramientas (más sitio para el mapa; sus teclas siguen funcionando)',
@@ -86,6 +87,7 @@ export const es: Messages = {
     help: 'Las tiradas leen la casilla seleccionada (o la del grupo): terreno, etiquetas y campos. En un viaje con reglas también leen la estación, el clima y las estadísticas del grupo, y los resultados van al diario. Tus packs de la aplicación Oráculo aparecen aquí cuando ambas aplicaciones están en el mismo sitio.',
   },
   panel: {
+    factions: 'Facciones',
     width: 'Ancho del panel',
     grow: 'Más sitio para el panel',
     noSelectionPlay:
@@ -506,10 +508,11 @@ export const es: Messages = {
       'Le da casillas a esta facción a mano: activado, un clic o arrastrar en el mapa hace suyas las casillas (quitándoselas a quien las tuviera), y un clic derecho se las quita. El agua y las casillas fuera del mapa siguen sin ser de nadie. No se deshace con Ctrl+Z, como un turno del mundo: vuelve a pintarlos.',
     title: campaignTexts.es.factions.title,
     intro:
-      'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja; ✎ pinta su tierra.',
+      'Los poderes de este mundo, cada uno con su tierra en el mapa, en su color. Abre una para ver su hoja.',
+    paintIntro: '✎ pinta su tierra.',
     land: 'Su tierra',
     landHelp:
-      'Qué casillas tiene cada facción (`place.faction`), dibujadas en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las casillas que cumplen la condición que le da el sistema (Packs → **Facciones** → **Empieza en**: una región, una etiqueta…), al **traer sus facciones**\n• **a mano** — abre una facción y pulsa **Pintar su tierra**: clic o arrastrar en el mapa; un clic derecho quita casillas\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno casilla a casilla (`faction.territory: 1` coge una casilla de su frontera, `-1` cede una)\nUna casilla tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
+      'Qué casillas tiene cada facción (`place.faction`), dibujadas en su color en la capa **Facciones**. Sale de tres sitios:\n• **dónde empieza** — las casillas que cumplen la condición que le da el sistema (Packs → **Facciones** → **Empieza en**: una región, una etiqueta…), al **traer sus facciones**\n• **a mano** — en Editar, la herramienta **Facciones**, ✎ en una facción: clic o arrastrar en el mapa; un clic derecho quita casillas\n• **los turnos del mundo** — su tabla de turno puede ganar o perder terreno casilla a casilla (`faction.territory: 1` coge una casilla de su frontera, `-1` cede una)\nUna casilla tiene como mucho un dueño: quitárselo a otra facción es quitárselo de verdad. El agua no es de nadie.',
     help: campaignTexts.es.factions.help,
     none: 'El sistema del mapa tiene facciones, aún no en este mapa: tráelas, cada una con la tierra con la que el sistema dice que empieza.',
     bring: campaignTexts.es.factions.bring,

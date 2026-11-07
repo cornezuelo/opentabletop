@@ -6,7 +6,7 @@ export interface MapFocusInput {
   panelView: string
   /** The region the Regions tool paints. */
   regionId: string | null
-  /** The faction whose land a click paints (the World panel's brush). */
+  /** The faction whose land a click paints (the Factions tool's brush). */
   factionBrush: string | null
   /** The regions each hex is in (its own and those it lies inside), by hex. */
   regionsOf: (key: HexKey) => readonly string[]
@@ -28,8 +28,8 @@ export const FADED = 0.35
 
 /**
  * What the map brings forward: with the Regions tool, the regions (the factions faded)
- * and the region it paints; with the World panel open, the factions (the regions faded)
- * and the faction its brush paints. Otherwise both in full and nothing chosen.
+ * and the region it paints; with the Factions tool or the World panel, the factions (the
+ * regions faded) and the faction the brush paints. Otherwise both in full and nothing chosen.
  */
 export function mapFocus(input: MapFocusInput): MapFocus {
   if (input.tool === 'region' && input.panelView === 'tool') {
@@ -40,7 +40,7 @@ export function mapFocus(input: MapFocusInput): MapFocus {
       selected: id ? input.hexes.filter((k) => input.regionsOf(k).includes(id)) : [],
     }
   }
-  if (input.panelView === 'world') {
+  if (input.panelView === 'world' || (input.tool === 'faction' && input.panelView === 'tool')) {
     const brush = input.factionBrush
     return {
       regionsAlpha: FADED,

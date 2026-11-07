@@ -6,6 +6,7 @@
 | <kbd>B</kbd> / <kbd>G</kbd> / <kbd>E</kbd>                                   | Terrain: brush / fill / erase                                                                     |
 | <kbd>[</kbd> <kbd>]</kbd>                                                    | Smaller / bigger brush                                                                            |
 | <kbd>N</kbd>                                                                 | Regions                                                                                           |
+| <kbd>L</kbd>                                                                 | Factions                                                                                          |
 | <kbd>R</kbd>                                                                 | Roads and rivers                                                                                  |
 | <kbd>C</kbd>                                                                 | Connections                                                                                       |
 | <kbd>W</kbd>                                                                 | Walls                                                                                             |

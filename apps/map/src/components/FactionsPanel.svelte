@@ -14,7 +14,9 @@
   /**
    * The factions on the map: brought from its system, each with its colour, the hexes it
    * holds and its sheet; a world turn by hand, and turns by themselves with the world clock.
+   * With `paint` (the Factions tool, in Edit) each has its brush.
    */
+  let { paint = false }: { paint?: boolean } = $props()
   const own = $derived(editor.factions)
   const offered = $derived.by(() => {
     void editor.meta
@@ -50,18 +52,22 @@
   {/if}
 {/snippet}
 
-<!-- The World panel's Factions tab: a line per faction with its brush; its sheet unfolds. -->
+<!-- A line per faction; its sheet unfolds. -->
 <div class="field">
   {#if own && system}
-    <p class="help">{t('factions.intro')}<InfoTip markdown={t('factions.help')} /></p>
+    <p class="help">
+      {t('factions.intro')}{paint ? ` ${t('factions.paintIntro')}` : ''}<InfoTip
+        markdown={t('factions.help')}
+      />
+    </p>
     <span class="help what">{t('factions.land')}<InfoTip markdown={t('factions.landHelp')} /></span>
     <FactionCards
       {own}
       {system}
       locale={getLocale()}
       territories={own.territories}
-      head={brush}
-      top={paintHint}
+      head={paint ? brush : undefined}
+      top={paint ? paintHint : undefined}
       onchange={(next) => editor.setFactions(next)}
       onturn={() => worldTurnNow()}
     />

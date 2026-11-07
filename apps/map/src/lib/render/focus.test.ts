@@ -28,6 +28,7 @@ describe('what the map brings forward', () => {
 
   it('with the World panel: the factions, and the faction its brush paints', () => {
     const world = { ...base, tool: 'region', panelView: 'world' }
+    expect(mapFocus({ ...base, tool: 'faction' }).regionsAlpha).toBeLessThan(1)
     expect(mapFocus(world)).toEqual({ regionsAlpha: FADED, factionsAlpha: 1, selected: [] })
     expect(mapFocus({ ...world, factionBrush: 'clans' }).selected).toEqual(['3,3'])
   })

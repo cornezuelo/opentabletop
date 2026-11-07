@@ -17,6 +17,7 @@
     | 'path'
     | 'connection'
     | 'wall'
+    | 'faction'
     | 'icon'
     | 'text'
     | 'token'
@@ -68,6 +69,8 @@
   {:else if name === 'region'}
     <path d="M4.5 8.5 9 4l6.5 2 4 5-2 7.5-7 2-5.5-4z" stroke-dasharray="2.6 2.2" />
     <circle cx="11.5" cy="12" r="1.6" />
+  {:else if name === 'faction'}
+    <path d="M6 21V3.5M6 4.5h12l-3 4 3 4H6" />
   {:else if name === 'select'}
     <path d="M5.5 3.5v14.5l4-3.5 2.6 6 2.8-1.2-2.6-6h5.2z" />
   {:else if name === 'terrain'}

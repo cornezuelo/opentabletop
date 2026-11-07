@@ -6,6 +6,7 @@
 | <kbd>B</kbd> / <kbd>G</kbd> / <kbd>E</kbd>                                   | Terreno: pincel / rellenar / borrar                                                                                  |
 | <kbd>[</kbd> <kbd>]</kbd>                                                    | Pincel más pequeño / más grande                                                                                      |
 | <kbd>N</kbd>                                                                 | Regiones                                                                                                             |
+| <kbd>L</kbd>                                                                 | Facciones                                                                                                            |
 | <kbd>R</kbd>                                                                 | Caminos y ríos                                                                                                       |
 | <kbd>C</kbd>                                                                 | Conexiones                                                                                                           |
 | <kbd>W</kbd>                                                                 | Muros                                                                                                                |

@@ -1022,7 +1022,7 @@ const playTool: Tool = {
 }
 
 /**
- * A faction's land, painted by hand (the World panel's **Paint its land**): a click or a
+ * A faction's land, painted by hand (the Factions tool's **Paint its land**): a click or a
  * drag gives it hexes, a right click takes them away.
  */
 class FactionTool implements Tool {
@@ -1193,6 +1193,7 @@ class WallTool implements Tool {
 const tools: Record<ToolId, Tool> = {
   play: playTool,
   region: new RegionTool(),
+  faction: factionTool,
   token: {
     down: (cell, info) => void tokenTool.down(cell, info),
     move: (cell, info) => tokenTool.move(cell, info),
@@ -1211,7 +1212,7 @@ export function getTool(id: ToolId): Tool {
   return tools[id]
 }
 
-/** What a click on the map does now: painting a faction's land while the World panel asks, else the tool's. */
+/** What a click on the map does now. */
 export function currentTool(): Tool {
-  return editor.factionBrush && editor.panelView === 'world' ? factionTool : tools[editor.tool]
+  return tools[editor.tool]
 }

@@ -318,14 +318,22 @@ describe('Edit and Play', () => {
     editor.load(createMap())
     editor.tool = 'select'
     editor.selected = '2,3'
-    editor.panelView = 'world'
+    editor.panelView = 'oracle'
     editor.switchMode('play')
     expect([editor.mode, editor.tool, editor.selected]).toEqual(['play', 'select', '2,3'])
-    expect(editor.panelView).toBe('world')
+    expect(editor.panelView).toBe('oracle')
     editor.switchMode('edit')
     expect([editor.mode, editor.tool, editor.selected]).toEqual(['edit', 'select', '2,3'])
-    expect(editor.panelView).toBe('world')
+    expect(editor.panelView).toBe('oracle')
     editor.panelView = 'tool'
+  })
+
+  it('the World is played: going back to Edit closes it', () => {
+    editor.load(createMap())
+    editor.switchMode('play')
+    editor.panelView = 'world'
+    editor.switchMode('edit')
+    expect(editor.panelView).toBe('tool')
   })
 
   it('going to a tool that edits leaves Play, as a link to a token does', () => {

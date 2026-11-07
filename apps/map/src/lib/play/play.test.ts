@@ -1648,8 +1648,8 @@ describe('the powers of the Marches: factions on the map', () => {
     grey()
     const land = (id: string) => editor.factionsOnMap!.territories[id]
     expect(land('fort-keld')).toEqual(['15,9'])
-    // With the brush on and the World panel open, the map's clicks paint.
-    editor.panelView = 'world'
+    // With the Factions tool and a brush on, the map's clicks paint.
+    editor.tool = 'faction'
     editor.factionBrush = 'fort-keld'
     const tool = currentTool()
     const at = (key: string) => {
@@ -1680,8 +1680,8 @@ describe('the powers of the Marches: factions on the map', () => {
     )![0]
     paintTerritory('fort-keld', [lake], true)
     expect(land('fort-keld')).not.toContain(lake)
-    // Another panel, or no brush: the tool's own clicks again; a new map forgets the brush.
-    editor.panelView = 'tool'
+    // Another tool: its own clicks again; a new map forgets the brush.
+    editor.tool = 'select'
     expect(currentTool()).not.toBe(tool)
     editor.load(createMap())
     expect(editor.factionBrush).toBeNull()

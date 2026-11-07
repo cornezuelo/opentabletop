@@ -44,6 +44,7 @@ export type ToolId =
   | 'select'
   | 'terrain'
   | 'region'
+  | 'faction'
   | 'path'
   | 'connection'
   | 'wall'
@@ -174,11 +175,13 @@ class Editor {
   }
   /**
    * Editing or playing, as the bar's switch does. What both have stays as it is: Select with
-   * what it selected, and the panel open (World, the Oracle…). Otherwise Play goes to the trip
+   * what it selected, and the panel open (the Oracle…). Otherwise Play goes to the trip
    * and Edit comes back to the last editing tool.
    */
   switchMode(mode: 'edit' | 'play'): void {
     if (mode === this.mode) return
+    // The World is played: it isn't on Edit's rail.
+    if (mode === 'edit' && this.panelView === 'world') this.panelView = 'tool'
     if (this.#tool === 'select') {
       this.mode = mode
       return
