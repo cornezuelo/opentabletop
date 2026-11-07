@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.41.0] - 2026-11-07
+
 ### Apps
 
 - Every app: headings follow one scale, always bigger than the text they head, and the small labels of side menus look alike.
