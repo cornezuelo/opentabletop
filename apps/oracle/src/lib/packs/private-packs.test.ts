@@ -118,3 +118,27 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(system.pieces?.length).toBeGreaterThan(0)
   })
 })
+
+const iron = personal.some((p) => p.root === 'ironsworn')
+
+describe.skipIf(!iron)('Ironsworn', () => {
+  const { registry, diagnostics } = loadPacks(engineFiles(bundledPacks))
+
+  it('loads without problems', () => {
+    const own = diagnostics.filter((d) => d.pack === 'ironsworn')
+    expect(own.map(formatDiagnostic)).toEqual([])
+  })
+
+  it('reads an action against two challenge dice: strong, weak or a miss', () => {
+    const engine = createOracleEngine({ registry, random: seeded('iron') })
+    const seen = new Set<string>()
+    for (let i = 0; i < 200; i++) {
+      const { resolution } = engine.resolve('ironsworn/action-roll', { stat: 3 })
+      const { action, c1, c2 } = resolution.value as Record<string, number>
+      const wins = [c1, c2].filter((c) => action > c).length
+      expect(resolution.text).toContain(['Fallo', 'Acierto débil', 'Acierto fuerte'][wins])
+      seen.add(String(wins))
+    }
+    expect(seen.size).toBe(3)
+  })
+})
