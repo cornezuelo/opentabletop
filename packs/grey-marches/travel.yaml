@@ -192,8 +192,8 @@ actions:
         name: How far
         choices:
           - { id: destination, name: To the destination }
-          - { id: place, name: One hex }
-          - { id: 3, name: Three hexes }
+          - { id: place, name: One cell }
+          - { id: 3, name: Three cells }
     when:
       any:
         - { time.tags: { not: dark }, trip.marched: { lt: '{{system.hoursPerDay}}' } }
@@ -706,7 +706,7 @@ checks:
     description: Every dawn on the road, a card of the Omens of the road, and one more as the Wyrm stirs (its clock at 4).
     # Also a moment written as a condition: once, as the Wyrm's clock reaches 4.
     at: [time.part.morning, { when: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }]
-    unless: { trip.arrived: true }
+    unless: { any: [{ trip.arrived: true }, { place.floor: true }] }
   # Off roads and rivers, and not by boat: any / connections / mode. The checks of one moment are
   # decided one by one, in this order: at the same dawn, this one already sees the weather
   # just rolled (`trip.weather`): nobody travels in a storm, so nobody gets lost.
@@ -715,7 +715,15 @@ checks:
     description: Every dawn off roads and rivers (not by boat), unless a storm keeps the Company in. Navigation helps; fog makes it harder.
     at: time.part.morning
     unless:
-      { any: [{ trip.connections: [road, river] }, { trip.mode: boat }, { trip.weather: storm }] }
+      {
+        any:
+          [
+            { trip.connections: [road, river] },
+            { trip.mode: boat },
+            { trip.weather: storm },
+            { place.floor: true },
+          ],
+      }
   # Encounters where the map says there is danger (a hex field) over the party's Stealth (a
   # variable: a stealthy party slips through the safer hexes unseen), never on the road;
   # also when resting somewhere dangerous enough. Two moments (at: a list), told apart by

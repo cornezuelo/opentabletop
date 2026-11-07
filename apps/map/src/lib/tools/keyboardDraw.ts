@@ -15,7 +15,7 @@ import { mapSystem } from '../play/systems'
 import { editor } from '../store/editor.svelte'
 
 /** Where each arrow heads, on the screen. */
-const ARROWS: Record<string, { x: number; y: number }> = {
+export const ARROWS: Record<string, { x: number; y: number }> = {
   arrowup: { x: 0, y: -1 },
   arrowdown: { x: 0, y: 1 },
   arrowleft: { x: -1, y: 0 },

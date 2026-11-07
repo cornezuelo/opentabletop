@@ -12,7 +12,7 @@
     waysAt,
     type WayHere,
   } from '../../lib/io/submaps'
-  import { partyAt, sessionOf, step } from '../../lib/play/play'
+  import { partyAt, sessionOf, walkTo } from '../../lib/play/play'
   import { connectionName } from '../../lib/play/systems'
   import { editor } from '../../lib/store/editor.svelte'
   import WayArrow from './WayArrow.svelte'
@@ -50,8 +50,7 @@
 
   /** The way's other end becomes the destination: the trip's march takes it. */
   function head(way: WayHere) {
-    step({ type: 'setDestination', place: way.there })
-    showToast(t('submap.headed'), 'info', 6000)
+    walkTo(way.there)
   }
 
   async function addWay() {

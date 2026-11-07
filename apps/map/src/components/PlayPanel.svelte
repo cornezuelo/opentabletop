@@ -18,6 +18,7 @@
     updatePlay,
     type Season,
     playWorld,
+    destinationHelp,
   } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
   import { mapPlace } from '../lib/play/roster'
@@ -240,8 +241,8 @@
     facts={worldFactsNow()}
     title={editor.map.meta.name || t('map.untitled')}
     nameOf={oracleUi.nameOf}
-    destinationHint={t('play.destinationHelp')}
-    arrivedHint={t('play.newDestination')}
+    destinationHint={destinationHelp()}
+    arrivedHint={destinationHelp(true)}
     onstep={step}
     place={rosterPlace}
     systemWhere={t('play.systemWhere')}

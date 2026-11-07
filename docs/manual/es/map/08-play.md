@@ -22,7 +22,7 @@ Un viaje sigue con el sistema con el que empezó. Si después cambia el sistema 
 
 **Las conexiones al jugar**: una conexión dibujada en el mapa (una verja, un vado, una senda oculta: [Conexiones](04-roads-and-rivers.md#conexiones)) que el viaje no puede cruzar ahora, según el **Abierto cuando** / **Cerrado cuando** de su tipo en el sistema y su estado en el viaje, sale en gris con el rombo tachado; las rutas la rodean, o llegan hasta ella y se paran. Lo que las acciones y los resultados cambian de ella (una verja abierta, una senda encontrada) es del viaje, nunca del mapa: seleccionada con la herramienta **Conexiones**, su panel dice en **En el viaje en curso** si se puede cruzar ahora y qué valores suyos ha cambiado el viaje. El diario cuenta cada cambio.
 
-**A un submapa**: en una casilla que lleva a un [submapa](13-sub-maps.md), **Entrar ↗** en el panel Jugar (o en el de la casilla) hace de la entrada el destino; al pasar, el viaje sigue en el submapa, que se abre (el mismo viaje), y el mapa que deja lo dice en Jugar. Un submapa con varios caminos (un túnel) se cruza: a un destino más allá se puede llegar atravesándolo, entrando por un camino y saliendo por otro.
+**A un submapa**: en una casilla que lleva a un [submapa](13-sub-maps.md), **Entrar ↗** en el panel Jugar (o en el de la casilla) lo cruza directamente; al pasar, el viaje sigue en el submapa, que se abre (el mismo viaje), y el mapa que deja lo dice en Jugar. Un submapa con varios caminos (un túnel) se cruza: a un destino más allá se puede llegar atravesándolo, entrando por un camino y saliendo por otro.
 
 ## Comprobaciones y diario
 
@@ -40,7 +40,7 @@ El terreno, los caminos y ríos, las etiquetas, campos y región de la casilla, 
 
 ## Mover a mano
 
-Arrastra el token del grupo para ponerlo en otro sitio: el rastro le sigue, y durante un viaje es un salto (no pasa el tiempo). Hacer clic en un token (sin arrastrarlo) lo selecciona y es también un clic en su casilla: para viajar hasta el dragón, haz clic en el dragón.
+**En un viaje el grupo camina.** Arrastra su token a una casilla o pulsa una **flecha**: va hasta allí por los caminos del mapa, cruzando puertas y conexiones y nunca un muro, y las reglas del sistema se aplican como en cualquier marcha. Si ningún camino llega, se queda donde está y lo dice. Una flecha toma el lugar junto al grupo que queda en esa dirección, igual en hexes, cuadrados y salas. En el modo Simple, sin reglas, arrastrar pone al grupo en cualquier sitio; para moverlo a mano en un viaje, usa **Editar**. Hacer clic en un token (sin arrastrarlo) lo selecciona y es también un clic en su casilla: para viajar hasta el dragón, haz clic en el dragón.
 
 ## Descubrir el mapa
 
@@ -53,6 +53,8 @@ Con un sistema que sepa descubrir (las Marcas Grises saben; su mapa de ejemplo d
 **Qué se descubre**: _los casillas alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlas, así que rutas y velocidades son reales) o _solo la casilla a la que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.
 
 Con un sistema que tiene [piezas](../packs/24-pieces.md), también _por las salidas, pieza a pieza_: el mapa crece una forma cada vez por donde va el grupo.
+
+Un mapa que se descubre y aún no tiene nada lo dice al abrirlo en Jugar, con **Empezar a jugar**: el grupo se coloca en el camino que lleva allí, o en el centro del mapa. Un mapa por piezas empieza con su primera pieza bajo el grupo, y una flecha marca cada salida que nadie ha cruzado aún.
 
 Las casillas que pintaste nunca se cambian, así que puedes preparar parte del mapa y dejar el resto por descubrir. Los descubrimientos son parte de la partida, como el diario: <kbd>Ctrl</kbd>+<kbd>Z</kbd> no los deshace; repinta o borra a mano. En el diario solo se apunta lo que merece la pena.
 

@@ -1,3 +1,4 @@
+import { walkByKey } from './play/play'
 import { drawByKey } from './tools/keyboardDraw'
 import { openMapFile, saveMap } from './io/actions.svelte'
 import { isTyping } from './render/MapRenderer'
@@ -40,7 +41,7 @@ export function bindShortcuts(): () => void {
     }
     if (e.altKey) return
 
-    if (drawByKey(key, e.shiftKey)) {
+    if (drawByKey(key, e.shiftKey) || walkByKey(key)) {
       e.preventDefault()
       return
     }

@@ -2,7 +2,7 @@
 
 > The old kingdom ends where the road gives out. Past Ashford, the Keld Road crosses the river on a toll bridge and climbs to Fort Keld, whose garrison hasn't been paid in a year. North, the Greywood keeps its own counsel — lights between the trees at night, and something large asleep under the roots. South, the Hollow Hills ring with bandits, and the Saltmere lies flat and grey, crossed only by Brenna's ferry. East of the hills, nobody has drawn the map.
 
-**The Grey Marches** is a small frontier to play and to learn from. It's a bundled pack (MIT) with its own **travel system** and **five example maps in one campaign** (two of the land and three sub-maps), and between them they use every feature of OpenTabletop. Read its files in the Oracle app as worked examples: each one has comments saying what it shows, and every table, oracle, generator and deck says in its description what it is for and which features it shows ("Shows: d66 dice…"), so the Oracle's list doubles as a tour.
+**The Grey Marches** is a small frontier to play and to learn from. It's a bundled pack (MIT) with its own **travel system** and **six example maps in one campaign** (two of the land and three sub-maps), and between them they use every feature of OpenTabletop. Read its files in the Oracle app as worked examples: each one has comments saying what it shows, and every table, oracle, generator and deck says in its description what it is for and which features it shows ("Shows: d66 dice…"), so the Oracle's list doubles as a tour.
 
 ## Playing it
 
@@ -18,7 +18,7 @@ The same system plays without a map in the Travel app.
 
 ## The maps, piece by piece
 
-The Grey Marches bring **five example maps in one campaign** (_The Grey Marches_): two of the land, drawn at different scales, two [sub-maps](../map/13-sub-maps.md) under the second, and a town under the first's Ashford. Below, each map: what it is, where it hangs, and every piece on it (regions, places, points of interest, connections, ways, tokens and their values) with what it shows and what it sets moving in play (which check, value, clock or faction it touches). Cells are given by their coordinates as the map shows them (`0503` is column 5, row 3). What the checks and tables named here do in detail is in [What is rolled, and when](#what-is-rolled-and-when).
+The Grey Marches bring **six example maps in one campaign** (_The Grey Marches_): two of the land, drawn at different scales, two [sub-maps](../map/13-sub-maps.md) under the second, and a town under the first's Ashford. Below, each map: what it is, where it hangs, and every piece on it (regions, places, points of interest, connections, ways, tokens and their values) with what it shows and what it sets moving in play (which check, value, clock or faction it touches). Cells are given by their coordinates as the map shows them (`0503` is column 5, row 3). What the checks and tables named here do in detail is in [What is rolled, and when](#what-is-rolled-and-when).
 
 ### The Grey Marches (the frontier)
 

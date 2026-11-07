@@ -133,7 +133,7 @@ actions:
         name: How far
         choices:
           - { id: destination, name: To the destination }
-          - { id: place, name: One hex }
+          - { id: place, name: One cell }
     when:
       time.tags: { not: dark }
       trip.marched: { lt: '{{system.hoursPerDay}}' }

@@ -1,4 +1,4 @@
-import { type HexKey } from '@open-tabletop/hex'
+import { cellCenter, keyOf, parseKey, type HexKey } from '@open-tabletop/hex'
 import { loadLinks, placeLabel } from '../io/submaps'
 import { askTimePassed, highlightText, timeBehind } from '@open-tabletop/travel-ui'
 import {
@@ -16,7 +16,7 @@ import {
   type TravelSystem,
   travels,
 } from '@open-tabletop/session'
-import type { TravelAction } from '@open-tabletop/travel-engine'
+import { movingActions, type TravelAction } from '@open-tabletop/travel-engine'
 import { getLocale, t } from '../i18n/index.svelte'
 import {
   cellOfPlace,
@@ -36,6 +36,7 @@ import {
   type CampaignTrip,
 } from '@open-tabletop/campaign'
 import { chooseSystem, keepOpenMap, openLibraryMap } from '../io/actions.svelte'
+import { ARROWS } from '../tools/keyboardDraw'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld, parsePlaceOn } from '@open-tabletop/map'
 import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
@@ -176,6 +177,10 @@ export function clickHex(key: HexKey): void {
   const play = current()
   // The trip went on into another map: this one waits for it, untouched.
   if (play.away) return void showToast(t('submap.awayHere'), 'info', 6000)
+  // A campaign has one party: a trip starting here pauses the one going on elsewhere first.
+  const other = otherTrip(editor.campaign, mapTrip())
+  if (play.mode === 'rules' && other && !sessionOf(play))
+    return void claimThen(other, () => clickHex(key))
   const location = partyLocation()
   // The party is placed and a system chosen, but the trip hasn't started: it starts
   // where the party is, heading for the hex clicked.
@@ -183,6 +188,7 @@ export function clickHex(key: HexKey): void {
     // A system without travel rules plays no trips (Play says so).
     if (!travels(getSystem(mapSystemId()))) return
     save(newSession(play, location, mapSystemId()))
+    layFirstPiece()
     const to = placeOfCell(editor.map, key)
     if (placeOfCell(editor.map, location) !== to) step({ type: 'setDestination', place: to })
     return
@@ -191,11 +197,101 @@ export function clickHex(key: HexKey): void {
     if (location === key && (play.mode === 'simple' || sessionOf(play))) return
     placeParty(key)
     if (play.trail.at(-1) !== key) play.trail = [...play.trail, key]
-    if (play.mode === 'rules') return save(newSession(play, key, mapSystemId()))
-    return save(play)
+    if (play.mode !== 'rules') return save(play)
+    save(newSession(play, key, mapSystemId()))
+    return layFirstPiece()
   }
   // A cell of a room is the room.
   step({ type: 'setDestination', place: placeOfCell(editor.map, key) })
+}
+
+/** A map laid piece by piece starts under the party's feet, as soon as a trip stands on it. */
+function layFirstPiece(): void {
+  const session = sessionOf(current())
+  if (!session || current().discover?.on !== true || current().discover?.reveal !== 'pieces') return
+  if (session.travel.destination) return
+  step({ type: 'setDestination', place: session.travel.location })
+  editSession((s) => {
+    const travel = { ...s.travel }
+    delete travel.destination
+    return { ...s, travel }
+  })
+}
+
+/** Whether a map has nothing drawn yet: what a trip finds is all it will have. */
+export const blankMap = (): boolean =>
+  !Object.values(editor.map.hexes).some((hex) => hex.terrain) &&
+  !editor.map.tokens.some((token) => token.kind === 'party')
+
+/**
+ * Starts playing a blank map: the party at the way that leads here, or in the middle of the
+ * map, on a trip of the map's system.
+ */
+export function startOnBlankMap(): void {
+  const { width, height } = editor.map.grid
+  const start = editor.map.meta.parent?.ways[0]?.entrance
+  editor.tool = 'play'
+  setMode('rules')
+  clickHex((start ?? keyOf({ col: Math.floor(width / 2), row: Math.floor(height / 2) })) as HexKey)
+}
+
+/**
+ * The party walks to a place: the route planned as for a click, and the system's way of going
+ * on taken at once. A place no route reaches stays out of reach: nothing moves, and it says so.
+ */
+export function walkTo(place: string): void {
+  const session = sessionOf(current())
+  if (!session || session.travel.pendingChecks.length || place === session.travel.location) return
+  step({ type: 'setDestination', place })
+  const travel = sessionOf(current())?.travel
+  if (!travel?.route || travel.route.length < 2)
+    return void showToast(t('play.noWayThere'), 'info', 5000)
+  const rules = getSystem(mapSystemId()).rules
+  const onward = rules.travel.onward
+  const id = onward ? onward.do.replace(/^actions\./, '') : movingActions(rules)[0]
+  if (id) step({ type: 'action', id, ...(onward?.with && { with: onward.with }) })
+}
+
+/** What to do next, in words: where to head (`again`: having arrived), or which exit to open. */
+export function destinationHelp(again = false): string {
+  if (current().discover?.on && current().discover?.reveal === 'pieces') return t('play.exitsHelp')
+  return t(again ? 'play.newDestination' : 'play.destinationHelp')
+}
+
+/** Whether a trip goes on here: what the party does then follows its rules. */
+export const onTrip = (): boolean =>
+  current().mode === 'rules' && !current().away && !!sessionOf(current())
+
+/** Playing with the keyboard: an arrow walks the party one place that way. True if it was for it. */
+export function walkByKey(key: string): boolean {
+  const direction = ARROWS[key]
+  if (!direction || editor.mode !== 'play' || !onTrip()) return false
+  const place = placeToward(direction)
+  if (place) walkTo(place)
+  else showToast(t('play.noWayThere'), 'info', 5000)
+  return true
+}
+
+/**
+ * The place next to the party's that lies in a direction on the screen, of those a step can
+ * reach: through a door, out of a room, along a connection. Walls and the map's edge have none.
+ */
+export function placeToward(direction: { x: number; y: number }): string | undefined {
+  const session = sessionOf(current())
+  const here = partyLocation()
+  if (!session || !here) return undefined
+  const { grid } = editor.map
+  const from = cellCenter(parseKey(here), grid, 1)
+  let best: { place: string; fit: number } | undefined
+  for (const place of playWorld(getSystem(mapSystemId())).neighbors(session.travel.location)) {
+    const cell = cellOfPlace(editor.map, place, here)
+    if (!cell) continue
+    const to = cellCenter(parseKey(cell), grid, 1)
+    const [x, y] = [to.x - from.x, to.y - from.y]
+    const fit = (x * direction.x + y * direction.y) / (Math.hypot(x, y) || 1)
+    if (fit > 0.4 && fit > (best?.fit ?? 0)) best = { place, fit }
+  }
+  return best?.place
 }
 
 export function setMode(mode: PlayState['mode']): void {
@@ -239,12 +335,13 @@ const mapTrip = (): CampaignTrip => ({
 
 /**
  * Makes the map's trip the one going on in its campaign: if another trip played there last
- * (one of Travel's, another map's), asks to pause it; then plays `action`.
+ * (one of Travel's, another map's), asks to pause it; then goes on with `then`.
  */
-async function claimThen(other: CampaignTrip, action: TravelAction): Promise<void> {
+async function claimThen(other: CampaignTrip, then: () => void): Promise<void> {
   if (!(await confirmAction(t('play.pauseOther', { trip: other.name })))) return
   editor.setPlaying(mapTrip())
-  step(action)
+  editor.notify({ kind: 'tokens' })
+  then()
 }
 
 /** Plays `action`, hearing the world's moments before and after it. */
@@ -284,7 +381,7 @@ export function step(action: TravelAction, heard = 0): void {
   if (heard === 0 && worldBlocked()) return
   // One trip at a time in a campaign: another one that played there last is paused first.
   const other = otherTrip(editor.campaign, mapTrip())
-  if (other) return void claimThen(other, action)
+  if (other) return void claimThen(other, () => step(action))
   if (playTrip(editor.campaign, mapTrip()) !== editor.campaign) editor.setPlaying(mapTrip())
   const time = editor.campaign.world?.time
   if (heard === 0 && timeBehind(session, time)) return void catchUpThen(time, action)

@@ -188,6 +188,7 @@ export function createDiscovery(options: {
       return {
         ...cell,
         ...(extra.terrain && { terrain: extra.terrain }),
+        ...(extra.terrain && base.ground?.floors?.includes(extra.terrain) && { floor: true }),
         ...(extra.tags && { tags: [...new Set([...(cell.tags ?? []), ...extra.tags])] }),
         ...(extra.name && { name: extra.name }),
       }

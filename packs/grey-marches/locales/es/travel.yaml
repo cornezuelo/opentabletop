@@ -33,8 +33,8 @@ travel-rules/default:
           name: Hasta dónde
           choices:
             destination: Hasta el destino
-            place: Un hex
-            '3': Tres hexes
+            place: Una casilla
+            '3': Tres casillas
     camp:
       name: Acampar
       description: 'Termina el día: las comprobaciones de la noche, y despertáis al alba. Una noche tras un día con comida suficiente quita 1 de fatiga y devuelve 1 de salud a cada compañero; con la moral en 1 o menos, la guardia es inquieta: +1 de fatiga. Solo con comida y fatiga por debajo de vuestro Aguante: si no, la noche pasa a la intemperie, sin descanso.'

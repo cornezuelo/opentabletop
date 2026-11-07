@@ -260,6 +260,13 @@ roll: 2d6
 entries:
   - { id: water, range: 2-12, when: { place.water: true }, result: Open water, set: { poi: false } }
   - {
+      id: underground,
+      range: 2-12,
+      when: { place.floor: true },
+      result: Bare stone,
+      set: { poi: false },
+    }
+  - {
       id: lair,
       range: 2,
       once: true,

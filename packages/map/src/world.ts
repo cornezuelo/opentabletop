@@ -331,7 +331,12 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
   const laid: Record<string, number> = {}
   for (const { id } of map.pieces ?? []) laid[id] = (laid[id] ?? 0) + 1
   return {
-    ground: { layout: grid, gate: (a) => a, laid },
+    ground: {
+      layout: grid,
+      gate: (a) => a,
+      laid,
+      floors: map.terrains.filter((t) => t.floor).map((t) => t.id),
+    },
     // A connection between far hexes measures its own `km`, else the hexes between its ends;
     // a way into another map, none.
     km(a, b) {

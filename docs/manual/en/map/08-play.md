@@ -22,7 +22,7 @@ A trip keeps the system it started with. If its campaign's system changes later 
 
 **Connections in play**: a connection drawn on the map (a gate, a ford, a hidden path: [Connections](04-roads-and-rivers.md#connections)) that the trip can't cross now, by its kind's **Open when** / **Closed when** in the system and its state in the trip, is drawn greyed with its diamond crossed out; routes go round it, or up to it and stop. What actions and results change of it (a gate opened, a path found) is the trip's, never the map's: selected with the **Connections** tool, its panel says under **In the trip going on** whether it can be crossed now and which of its values the trip changed. The journal says each change.
 
-**Into a sub-map**: on a cell that leads into a [sub-map](13-sub-maps.md), **Go in ↗** in the Play panel (or the cell's) makes the way in the destination; once through, the trip goes on in the sub-map, which opens (the same trip), and the map it left says so in Play. A sub-map with several ways (a tunnel) is crossed: a destination beyond it may be reached through it, in by one way and out by another.
+**Into a sub-map**: on a cell that leads into a [sub-map](13-sub-maps.md), **Go in ↗** in the Play panel (or the cell's) takes it at once; once through, the trip goes on in the sub-map, which opens (the same trip), and the map it left says so in Play. A sub-map with several ways (a tunnel) is crossed: a destination beyond it may be reached through it, in by one way and out by another.
 
 ## Checks and the journal
 
@@ -40,7 +40,7 @@ Terrain, roads and rivers, the cell's tags, fields and region, the season and to
 
 ## Moving by hand
 
-Drag the party token to put it somewhere else: the trail follows, and during a trip it's a jump (no time passes). Clicking a token (without dragging it) selects it and is a click on its cell too: to travel to the dragon, click the dragon.
+**On a trip the party walks.** Drag its token to a cell, or press an **arrow key**: it goes there by the map's ways, through doors and connections and never through a wall, and the system's rules apply as on any march. Where no way leads, it stays put and says so. An arrow takes the place next to the party that lies that way, on hexes, squares and rooms alike. In Simple mode, with no rules, dragging puts the party anywhere; to move it by hand on a trip, use **Edit**. Clicking a token (without dragging it) selects it and is a click on its cell too: to travel to the dragon, click the dragon.
 
 ## Discovering the map
 
@@ -51,6 +51,8 @@ With a system that can discover (the Grey Marches can; their example map leaves 
 - **Places from templates**: a system with [catalogues of places](../technical/07-kinds.md#places) can make a found place from one (the Grey Marches' ruins, wayside shrines and the dragon's lair): a point of interest with the template's name, text, icon and fields, its tags on the cell (a `ruins` cell can be delved). Any result of a trip can make one on the party's cell the same way (Core's **Explore**, on a 6, a _Landmark_). The point of interest says **Made from** its template, and is yours to edit or remove like any other.
 
 **What is discovered**: _the cells around the party_ (what it sees: their terrain is known before you step in, so routes and speeds are real), _only the cell the party enters_, or, with a system that has [pieces](../packs/24-pieces.md), _through exits, piece by piece_: the map grows a shape at a time where the party goes. The system chooses one; you can change it for your game.
+
+A map that is discovered and has nothing yet says so on opening it in Play, with **Start playing**: the party stands at the way that leads there, or in the middle of the map. A map laid piece by piece starts with its first piece under the party, and an arrow marks each exit nobody has crossed yet.
 
 Cells you painted are never changed, so you can prepare part of the map and leave the rest unknown. Discoveries are part of the game, like the journal: <kbd>Ctrl</kbd>+<kbd>Z</kbd> doesn't undo them; repaint or delete by hand. Only noteworthy finds go in the journal.
 

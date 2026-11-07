@@ -36,6 +36,6 @@ A laid piece stays, and is part of the map from then on: it can be edited in Edi
 
 ## Playing it
 
-In Map, on a map whose system has pieces: **Play**, tick **Discover the map as you travel** and choose **Through exits, piece by piece**. It's chosen per map, so a system can discover its land cell by cell and lay its dungeons in pieces. Set a destination beyond a door, or a blank map's first cell, and march.
+In Map, on a map whose system has pieces: **Play**, tick **Discover the map as you travel** and choose **Through exits, piece by piece**. It's chosen per map, so a system can discover its land cell by cell and lay its dungeons in pieces. **Start playing** puts the party on a blank map, with the first piece under it. An arrow marks each exit nobody has crossed: click beyond it, or walk with the arrow keys, and what lies there is laid.
 
 The Grey Marches' _Deep Barrows_ show all of it, on a map under the Barrow-halls; Core's _Rooms and passages_ are the smallest that works, on squares and on hexes. For the syntax, see [Kinds](../technical/07-kinds.md#pieces).

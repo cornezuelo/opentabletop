@@ -19,6 +19,7 @@ import {
   type Present,
   type TravelSystem,
 } from '@open-tabletop/session'
+import { otherTrip } from '@open-tabletop/campaign'
 import { showToast } from '@open-tabletop/ui-kit'
 import { t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
@@ -140,11 +141,22 @@ export function tokenFromBestiary(
 export const isCopy = (token: LaidToken): token is CopyToken => token.id.startsWith(PRESENT_ID)
 
 /**
+ * Whether the campaign's party is somewhere else: its trip went on into another map, or
+ * another trip of the campaign is the one going on. A campaign has one party, drawn where it is.
+ */
+export function partyElsewhere(): boolean {
+  const here = { app: 'map', id: editor.map.meta.id, name: editor.map.meta.name }
+  return !!editor.map.play?.away || !!otherTrip(editor.campaign, here)
+}
+
+/**
  * Where every token is drawn: the map's, and in Play those present; copies of a template
  * grouped past what fits on a hex, unless the play settings draw them apart.
  */
 export function drawnTokens(map: HexMap = editor.map): TokenPlacement<MapToken | CopyToken>[] {
-  return layoutTokens<MapToken | CopyToken>([...map.tokens, ...copyTokens(map)], {
+  const elsewhere = map === editor.map && partyElsewhere()
+  const tokens = map.tokens.filter((token) => !elsewhere || token.kind !== 'party')
+  return layoutTokens<MapToken | CopyToken>([...tokens, ...copyTokens(map)], {
     group: !map.play?.copiesApart,
   })
 }

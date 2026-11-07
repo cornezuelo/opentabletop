@@ -36,6 +36,6 @@ Una pieza colocada se queda y es parte del mapa desde entonces: se puede editar 
 
 ## Jugarlo
 
-En Mapa, en un mapa cuyo sistema tiene piezas: **Jugar**, marca **Descubrir el mapa al viajar** y elige **Por las salidas, pieza a pieza**. Se elige por mapa, así que un sistema puede descubrir su tierra casilla a casilla y colocar sus mazmorras por piezas. Pon un destino más allá de una puerta, o la primera casilla de un mapa en blanco, y marcha.
+En Mapa, en un mapa cuyo sistema tiene piezas: **Jugar**, marca **Descubrir el mapa al viajar** y elige **Por las salidas, pieza a pieza**. Se elige por mapa, así que un sistema puede descubrir su tierra casilla a casilla y colocar sus mazmorras por piezas. **Empezar a jugar** coloca al grupo en un mapa en blanco, con la primera pieza bajo sus pies. Una flecha marca cada salida que nadie ha cruzado: haz clic más allá, o camina con las flechas, y se coloca lo que haya.
 
 Los _Deep Barrows_ de las Marcas Grises lo enseñan todo, en un mapa bajo las Barrow-halls; las _Salas y pasillos_ de Core son lo más pequeño que funciona, en cuadrados y en hexágonos. Para la sintaxis, mira [Tipos](../technical/07-kinds.md#piezas).

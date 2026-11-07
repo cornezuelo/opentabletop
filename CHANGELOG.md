@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: on a trip the party walks: dragging its token or pressing an arrow key takes it there by the map's ways, never through a wall.
+- Map: **Go in** and **Go out** take the way at once, instead of only setting it as the destination.
+- Map: a campaign has one party, drawn only where its trip is.
+- Map: a map that's discovered by playing says so when blank, with **Start playing**; a map laid piece by piece shows its first piece as soon as the party stands on it, and marks the exits nobody has crossed.
+- Map: **March** is off once the party has arrived.
+
+### Packs
+
+- The Grey Marches: the Deep Barrows no longer find land's ruins and landmarks, omens or getting lost underground; marching says "one cell" (also in Core).
+
 ## [0.41.0] - 2026-11-07
 
 ### Apps

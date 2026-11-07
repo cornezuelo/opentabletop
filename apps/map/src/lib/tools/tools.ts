@@ -21,8 +21,9 @@ import {
   nextTokenName,
   nodeFlags,
   normalizePath,
+  placeOfCell,
 } from '@open-tabletop/map'
-import { clickHex, partyMoved } from '../play/play'
+import { clickHex, onTrip, partyMoved, walkTo } from '../play/play'
 import { paintTerritory } from '../play/factions'
 import { copyOf, dragCopy, drawnTokens, isCopy, moveCopy, tokenFromBestiary } from '../play/present'
 import { showPresent } from '@open-tabletop/travel-ui'
@@ -248,6 +249,13 @@ class TokenTool implements Tool {
     if (!drag) return pressed?.id ?? null
     const after = editor.getToken(drag.id)
     if (!after || after.hex === drag.before.hex) return null
+    // On a trip, the party goes there by walking: walls and rules hold, and it may not reach.
+    if (after.kind === 'party' && editor.mode === 'play' && onTrip()) {
+      editor.map.tokens = editor.map.tokens.map((t) => (t.id === drag.id ? drag.before : t))
+      editor.notify({ kind: 'tokens' })
+      walkTo(placeOfCell(editor.map, after.hex as HexKey))
+      return null
+    }
     editor.record(new ReplaceTokenCommand(drag.before, structuredClone(after)))
     if (after.kind === 'party') partyMoved(after.hex as HexKey)
     return null

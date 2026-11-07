@@ -80,7 +80,7 @@ import {
 } from '@open-tabletop/hex'
 import { editor } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
-import { drawnTokens, isCopy } from '../play/present'
+import { drawnTokens, isCopy, partyElsewhere } from '../play/present'
 import { currentTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 /** Each side of a ragged cell is cut in this many pieces (walls follow the same points). */
@@ -1341,6 +1341,9 @@ export class MapRenderer {
       const place = placeBetween(from, to, shared, hexSize)
       if (look.symbol === 'badge') this.drawBadge(g, place.at, 'in')
       else this.drawSymbol(g, look.symbol, place, color)
+      // A way nobody has opened: something stands on one side, nothing yet on the other.
+      const [here, there] = connection.between.map((key) => !!editor.map.hexes[key]?.terrain)
+      if (here !== there) this.drawUnopened(g, here ? from : to, here ? to : from)
       if (shut && look.symbol !== 'none') {
         // Barred: a line across the symbol, from one place towards the other.
         const { at, across } = place
@@ -1387,6 +1390,24 @@ export class MapRenderer {
   }
 
   /** A way's badge: a disc with an arrow down (in, to a sub-map) or up (out, to the parent). */
+  /** An exit waiting to be crossed: an arrow in the empty cell, pointing away from the floor. */
+  private drawUnopened(g: Graphics, from: Point, to: Point): void {
+    const { hexSize } = editor.map.grid
+    const length = Math.hypot(to.x - from.x, to.y - from.y) || 1
+    const [x, y] = [(to.x - from.x) / length, (to.y - from.y) / length]
+    const r = 0.3 * hexSize
+    g.poly([
+      to.x + x * r,
+      to.y + y * r,
+      to.x - x * r * 0.6 - y * r,
+      to.y - y * r * 0.6 + x * r,
+      to.x - x * r * 0.6 + y * r,
+      to.y - y * r * 0.6 - x * r,
+    ])
+    g.fill({ color: WAY_OUT })
+    g.stroke({ width: 0.05 * hexSize, color: CONNECTION_OUTLINE })
+  }
+
   private drawBadge(g: Graphics, at: Point, way: 'in' | 'out'): void {
     const { hexSize } = editor.map.grid
     const r = 0.25 * hexSize
@@ -1486,7 +1507,7 @@ export class MapRenderer {
     const threads = this.relationLines.clear()
     const play = editor.map.play
     const { grid } = editor.map
-    if (!play) return
+    if (!play || partyElsewhere()) return
     const center = (key: string) => this.centerOf(parseKey(key as HexKey))
     const hs = grid.hexSize
     const party = partyToken(editor.map)

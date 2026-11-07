@@ -223,6 +223,8 @@
   const actions = $derived(availableActions(system.rules))
   /** The actions that move the party (a `travel.move` step): they need a route. */
   const movers = $derived(new Set(movingActions(system.rules)))
+  /** Whether there's somewhere to go: a route, and not already at its end. */
+  const heading = $derived(!!travel.route && travel.destination !== travel.location)
   /** How the trip goes on by itself (`travel.onward`), if the system says. */
   const onward = $derived(system.rules.travel.onward)
   /** The action it takes, by its id (`actions.march` is `march`). */
@@ -351,9 +353,7 @@
     if (goingOn) return why(blocked.travel)
     if (!main) return ''
     // With the status here, it says where to head itself.
-    return (
-      why(blocked[main]) || (movers.has(main) && !travel.route && !status ? destinationHint : '')
-    )
+    return why(blocked[main]) || (movers.has(main) && !heading && !status ? destinationHint : '')
   })
   /** Nothing goes on while a share waits for who gives it, or an item for room. */
   const held = $derived(
@@ -738,7 +738,7 @@
           <button
             class:primary={id === main}
             use:tooltip={tipWith(actionTip(id), id)}
-            disabled={!!blocked[id] || (movers.has(id) && !travel.route)}
+            disabled={!!blocked[id] || (movers.has(id) && !heading)}
             onclick={() => take(id)}>{buttonText(id)}</button
           >
           {#each params as [key, param] (key)}

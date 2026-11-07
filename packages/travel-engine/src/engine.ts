@@ -88,6 +88,8 @@ export interface TravelWorld {
     gate(a: string, b: string): string
     /** The pieces laid here, how many of each. */
     laid: Record<string, number>
+    /** The terrains that are a structure's floor here. */
+    floors?: string[]
   }
 }
 

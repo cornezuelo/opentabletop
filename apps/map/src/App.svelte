@@ -4,6 +4,7 @@
   import MapCanvas from './components/MapCanvas.svelte'
   import MapBar from './components/MapBar.svelte'
   import MapWelcome from './components/MapWelcome.svelte'
+  import BlankMapStart from './components/BlankMapStart.svelte'
   import PlayStrip from './components/PlayStrip.svelte'
   import SidePanel from './components/SidePanel.svelte'
   import {
@@ -114,6 +115,7 @@
     {/if}
     {#if linksFollowed}<MapWelcome />{/if}
     <PlayStrip />
+    <BlankMapStart />
     {#if !editor.panelHidden}
       <div class="edge">
         <ResizeHandle

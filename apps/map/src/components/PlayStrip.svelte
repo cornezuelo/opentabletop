@@ -1,9 +1,9 @@
 <script lang="ts">
   import { travels } from '@open-tabletop/session'
   import { TripStatus } from '@open-tabletop/travel-ui'
-  import { getLocale, t } from '../lib/i18n/index.svelte'
+  import { getLocale } from '../lib/i18n/index.svelte'
   import { placeLabel } from '../lib/io/submaps'
-  import { sessionOf } from '../lib/play/play'
+  import { destinationHelp, sessionOf } from '../lib/play/play'
   import { activeSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
 
@@ -26,7 +26,7 @@
       startDay={play.rules.startDay}
       locale={getLocale()}
       hexLabel={coord}
-      arrivedHint={t('play.newDestination')}
+      arrivedHint={destinationHelp(true)}
     />
   </div>
 {/if}

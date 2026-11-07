@@ -614,10 +614,16 @@ export const en = {
       "Those present (the copies a trip's results make from the system's bestiary) are drawn on the cells where they were made. Up to six tokens on a cell are drawn apart; past that, the copies of one template are one token with how many (×6), and what still doesn't fit is a chip (+3). Ticked, every copy is drawn apart, however many. Selecting a cell lists everything on it under **Here**.",
     placeHelp: 'Click a cell to place the party.',
     simpleHelp: 'The party is at {hex}: click a cell to move it there.',
-    destinationHelp: 'Click a cell to set the destination.',
+    destinationHelp: 'Click a cell to set the destination, or walk with the arrow keys.',
     clearTrail: 'Clear trail',
     removeParty: 'Remove party',
-    newDestination: 'Click a cell to set a new destination.',
+    newDestination: 'Click a cell to set a new destination, or walk with the arrow keys.',
+    exitsHelp: 'Click beyond a marked exit to open it, or walk with the arrow keys.',
+    noWayThere:
+      'No way there from here: a wall, the edge of the map or a closed way stands between.',
+    blankTitle: 'This map is discovered by playing',
+    blankHelp: 'Nothing is drawn yet: what the party finds appears as it goes.',
+    blankStart: 'Start playing',
   },
   pathKinds: vocabulary.en.pathKinds,
   walls: {
@@ -670,7 +676,6 @@ export const en = {
     anotherWay: 'Another way into…',
     addWay: 'Add',
     wayAdded: 'This cell is one more way into {name}: move its entrance in its Map settings.',
-    headed: 'The way through is the destination: march to take it.',
     missing: "The map at the other end isn't kept in this browser.",
     breadcrumb: 'Where this map hangs',
     treeHelp:
