@@ -83,6 +83,7 @@ docs/
   bestiary.md               # The bestiary and results that make things design (templates, those present), decided
   map-styles.md             # Map styles design (a beautiful map, the schematic one kept), decided
   map-ui.md                 # Map's UI/UX review and proposal (modes, the Play panel, the cell), to review
+  faction-choices.md        # Factions that choose (targets by conditions, priorities), to review
   packs-app.md              # The Packs app: its screens (two views, a pack's page, a system's rail), the Oracle after it, land for any map, decided
 ```
 
