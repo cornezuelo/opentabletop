@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.44.0] - 2026-11-07
+
 ### Apps
 
 - Map: a paused trip says so in the strip over the map, outlined, with **Continue** (or **Choose…**), and a message when the trip's panel isn't in sight.
