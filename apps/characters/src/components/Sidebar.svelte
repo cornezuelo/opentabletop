@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import { roster, sheetText } from '@open-tabletop/character-ui'
   import { systemName } from '@open-tabletop/session'
   import {
@@ -20,6 +21,7 @@
   import { templatesOf, templateUrl } from '../lib/bestiary'
   import {
     filterByCampaign,
+    filterShowing,
     filterEntries,
     groupEntries,
     type CampaignFilter,
@@ -67,16 +69,17 @@
    * in, read again when maps or trips change; and the campaigns' names.
    */
   let placeCampaign = $state<Record<string, string>>({})
+  let placesRead = $state(false)
   let campaignName = $state('')
   let version = $state(0)
   $effect(() => onLibraryChange(() => version++))
   $effect(() => {
     void version
     void roster.roster
-    void allPlaces().then(
-      (places) =>
-        (placeCampaign = Object.fromEntries(places.map((p) => [`${p.app}:${p.id}`, p.campaign]))),
-    )
+    void allPlaces().then((places) => {
+      placeCampaign = Object.fromEntries(places.map((p) => [`${p.app}:${p.id}`, p.campaign]))
+      placesRead = true
+    })
   })
   $effect(() => {
     const id = playing.id
@@ -125,6 +128,22 @@
     ),
   )
   const shownCharacters = $derived(filterByCampaign(characters, filter, playing.id))
+  // A character opened or just made from a template is listed: the filter moves to show it,
+  // once for each one, so choosing another filter afterwards stays chosen.
+  let revealed: string | undefined
+  $effect(() => {
+    const id = nav.view.name === 'character' ? nav.view.id : nav.reveal
+    if (id === revealed) return
+    const entry = characters.find((e) => e.key === id)
+    if (id && (!entry || !placesRead)) return
+    revealed = id
+    if (entry)
+      campaignFilter = filterShowing(
+        entry,
+        untrack(() => filter),
+        playing.id,
+      )
+  })
   const entries = $derived(tab === 'characters' ? shownCharacters : templates)
   const allTags = $derived([...new Set(entries.flatMap((e) => e.tags))])
   const groups = $derived(

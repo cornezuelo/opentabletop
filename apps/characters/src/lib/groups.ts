@@ -29,6 +29,16 @@ export function filterByCampaign(
   return [...entries]
 }
 
+/** The filter to go on with so an entry is listed: this one if it shows it, else one that does. */
+export function filterShowing(
+  entry: ListEntry,
+  filter: CampaignFilter,
+  playing: string | undefined,
+): CampaignFilter {
+  if (filterByCampaign([entry], filter, playing).length) return filter
+  return entry.campaign ? 'all' : 'none'
+}
+
 /** A system's entries, by the sheets they're made with. */
 export interface ListGroup {
   system: string

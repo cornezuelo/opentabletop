@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { filterByCampaign, filterEntries, groupEntries, type ListEntry } from './groups'
+import {
+  filterByCampaign,
+  filterEntries,
+  filterShowing,
+  groupEntries,
+  type ListEntry,
+} from './groups'
 
 /** The left column's lists: by system, then by the sheet each is made with; search and tags. */
 const entry = (key: string, system: string, sheet: string, tags: string[] = []): ListEntry => ({
@@ -52,5 +58,15 @@ describe('characters by the campaign they play in', () => {
     expect(keys(filterByCampaign(cast, 'none', 'winter'))).toEqual(['tobin'])
     // Playing in none: the campaign filter shows them all.
     expect(keys(filterByCampaign(cast, 'playing', undefined))).toHaveLength(3)
+  })
+
+  it('moves to a filter that lists the character opened', () => {
+    const [kael, hrolf, tobin] = cast
+    expect(filterShowing(kael, 'playing', 'winter')).toBe('playing')
+    // Just made from a template: it plays nowhere, so the list goes to No campaign.
+    expect(filterShowing(tobin, 'playing', 'winter')).toBe('none')
+    expect(filterShowing(hrolf, 'playing', 'winter')).toBe('all')
+    expect(filterShowing(kael, 'none', 'winter')).toBe('all')
+    expect(filterShowing(tobin, 'all', 'winter')).toBe('all')
   })
 })

@@ -4,7 +4,7 @@
   import { confirmAction, InfoTip, Markdown, showToast } from '@open-tabletop/ui-kit'
   import { copiesOf, deleteCopies, makeCopies, templatesOf, templateUrl } from '../lib/bestiary'
   import { getLocale, t } from '../lib/i18n'
-  import { go } from '../lib/nav.svelte'
+  import { go, nav } from '../lib/nav.svelte'
   import { systems } from '../lib/packs.svelte'
 
   /**
@@ -32,6 +32,7 @@
     const ids = makeCopies(system, entry, Math.max(1, Math.floor(how) || 1), getLocale())
     if (!ids.length) return showToast(t('bestiary.cantMake'), 'error')
     if (ids.length === 1) return go({ name: 'character', id: ids[0] })
+    nav.reveal = ids[0]
     showToast(t('bestiary.made', { count: ids.length, name: entry.name }))
   }
   async function clear() {

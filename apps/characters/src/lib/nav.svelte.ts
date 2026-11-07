@@ -27,7 +27,11 @@ const format = (view: View): string =>
           : '#/bestiary'
         : '#/'
 
-export const nav = $state<{ view: View }>({ view: parse(location.hash) })
+export const nav = $state<{
+  view: View
+  /** A character to list even if it isn't opened (the first of several just made). */
+  reveal?: string
+}>({ view: parse(location.hash) })
 
 /** Shows a view; `replace` takes the place of the current history entry instead of adding one. */
 export function go(view: View, replace = false): void {

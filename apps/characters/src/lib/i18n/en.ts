@@ -28,7 +28,7 @@ export const en = {
     clearTags: 'Show all, whatever their tags',
     campaign: 'Campaign',
     campaignHelp:
-      'Which characters the list shows, by where they play:\n• the campaign you’re playing (**Playing** at the top, the default) — those in its trips and on its maps’ tokens\n• **All campaigns** — the whole roster\n• **No campaign** — those playing nowhere',
+      'Which characters the list shows, by where they play:\n• the campaign you’re playing (**Playing** at the top, the default) — those in its trips and on its maps’ tokens\n• **All campaigns** — the whole roster\n• **No campaign** — those playing nowhere\nOpening a character the list leaves out (one just made from a template) moves it to where that character is listed.',
     allCampaigns: 'All campaigns',
     noCampaign: 'No campaign',
     noneInCampaign: 'No character plays in it: choose “All campaigns” to see the whole roster.',

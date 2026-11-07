@@ -29,7 +29,7 @@ export const es: Messages<typeof en> = {
     clearTags: 'Mostrar todos, tengan las etiquetas que tengan',
     campaign: 'Campaña',
     campaignHelp:
-      'Qué personajes muestra la lista, según dónde juegan:\n• la campaña en la que juegas (**Jugando** arriba, por defecto) — los de sus viajes y los de las fichas de sus mapas\n• **Todas las campañas** — todo el plantel\n• **Sin campaña** — los que no juegan en ninguna parte',
+      'Qué personajes muestra la lista, según dónde juegan:\n• la campaña en la que juegas (**Jugando** arriba, por defecto) — los de sus viajes y los de las fichas de sus mapas\n• **Todas las campañas** — todo el plantel\n• **Sin campaña** — los que no juegan en ninguna parte\nAl abrir un personaje que la lista deja fuera (uno recién hecho de una plantilla), pasa a donde ese personaje aparece.',
     allCampaigns: 'Todas las campañas',
     noCampaign: 'Sin campaña',
     noneInCampaign:

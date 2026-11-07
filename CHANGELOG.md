@@ -18,6 +18,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - Core: cards to draw: poker, Spanish, tarot, Lenormand, runes and dominoes, with hands and readings (_Poker hand_, _Three-card reading_, _Celtic cross_…).
 - The Grey Marches: _A hedge-witch's reading_, three cards whose effects reach the party and the Wyrm's clock.
 - Oracle and Packs: a generator's field can draw from a deck, and **Shuffle first** starts it from the whole deck, so a hand never repeats a card.
+- Characters: a character opened that the list leaves out, like one just made from a template, moves the **Campaign** filter to show it.
 
 ## [0.40.0] - 2026-11-07
 
