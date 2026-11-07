@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.43.0] - 2026-11-07
+
 ### Apps
 
 - Map: the strip over the map says what happened last, the journal's newest line, instead of _You've arrived_ again and again.
