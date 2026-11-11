@@ -14,6 +14,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Map: sent to a cell of a room (a house, a hall), the party stands on that cell once there, not at the door it came in by; in the room already, it steps across at once.
+- Map: placing the party in **Simple** mode, or switching to **With rules**, while another trip of the campaign goes on asks to pause it first; the party was put where it wasn't drawn, and then appeared with its whole trail.
 - Map: a party that can't move on (lost for the day, a check waiting, a rule of the system) says why when dragged or walked with the keys, instead of staying put in silence.
 
 ## [0.44.0] - 2026-11-07

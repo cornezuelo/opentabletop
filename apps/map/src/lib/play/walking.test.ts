@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cellCenter, parseKey } from '@open-tabletop/hex'
-import { toasts } from '@open-tabletop/ui-kit'
+import { dialog, toasts } from '@open-tabletop/ui-kit'
 import { createMap, partyToken, type HexKey } from '@open-tabletop/map'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
@@ -35,6 +35,7 @@ function room() {
     ...map.terrains.filter((t) => t.id !== 'floor'),
     { id: 'floor', name: 'Floor', color: '#cccccc', floor: true },
   ]
+  map.scale = { ...map.scale, cellKm: 0.005 }
   map.regions = [{ id: 'hall', name: 'The hall', color: '#888888', onePlace: true }]
   for (const cell of ['3,3', '4,3', '5,3', '3,4', '4,4', '5,4'])
     map.hexes[cell as HexKey] = { terrain: 'floor', region: 'hall' }
@@ -198,5 +199,52 @@ describe('walking', () => {
       expect(skipped).toContain('NAVIGATION_CHECK_REQUIRED')
       expect(skipped).toContain('NIGHT_NAVIGATION_CHECK_REQUIRED')
     }
+  })
+
+  it('placing the party while another trip of the campaign goes on asks to pause it first', async () => {
+    const elsewhere = { app: 'map', id: 'another', name: 'Elsewhere' }
+    // Simple: the party isn't put where it wouldn't be drawn.
+    editor.open(parseMapFile(exampleMaps().find((m) => m.id === 'ashford1')!.json))
+    editor.mode = 'play'
+    editor.tool = 'play'
+    editor.setPlaying(elsewhere)
+    play.clickHex('15,6' as HexKey)
+    await vi.waitFor(() => expect(dialog.current?.message).toMatch(/Elsewhere/))
+    dialog.current!.resolve('cancel')
+    await vi.waitFor(() => expect(dialog.current).toBeNull())
+    expect(at()).toBeUndefined()
+    play.clickHex('15,6' as HexKey)
+    await vi.waitFor(() => expect(dialog.current).not.toBeNull())
+    dialog.current!.resolve('ok')
+    await vi.waitFor(() => expect(at()).toBe('15,6'))
+    expect(partyElsewhere()).toBe(false)
+    // With rules: the trip starts here only once the other one is paused.
+    editor.setPlaying(elsewhere)
+    play.setMode('rules')
+    expect(play.sessionOf(editor.map.play!)).toBeNull()
+    await vi.waitFor(() => expect(dialog.current).not.toBeNull())
+    dialog.current!.resolve('ok')
+    await vi.waitFor(() => expect(play.sessionOf(editor.map.play!)).not.toBeNull())
+    expect(partyElsewhere()).toBe(false)
+  })
+
+  it('sent to a cell of a room, the party stands there, not at its door', () => {
+    room()
+    // From the corridor, dragged deep into the room: the trip heads for the room.
+    play.walkTo('6,3')
+    expect(location()).toBe('6,3')
+    play.walkTo('area:hall', '3,4' as HexKey)
+    expect(location()).toBe('area:hall')
+    expect(at()).toBe('3,4')
+    // Another cell of the same room: it steps across at once, no time passes.
+    const time = play.sessionOf(editor.map.play!)!.travel.time
+    play.clickHex('5,3' as HexKey)
+    expect(at()).toBe('5,3')
+    expect(play.sessionOf(editor.map.play!)!.travel.time).toBe(time)
+    // A walk by the keys lands where the way in is, as before.
+    play.walkByKey('d')
+    expect(location()).toBe('6,3')
+    play.walkByKey('a')
+    expect(at()).toBe('5,3')
   })
 })

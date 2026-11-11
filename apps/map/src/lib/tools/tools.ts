@@ -253,7 +253,7 @@ class TokenTool implements Tool {
     if (after.kind === 'party' && editor.mode === 'play' && onTrip()) {
       editor.map.tokens = editor.map.tokens.map((t) => (t.id === drag.id ? drag.before : t))
       editor.notify({ kind: 'tokens' })
-      walkTo(placeOfCell(editor.map, after.hex as HexKey))
+      walkTo(placeOfCell(editor.map, after.hex as HexKey), after.hex as HexKey)
       return null
     }
     editor.record(new ReplaceTokenCommand(drag.before, structuredClone(after)))

@@ -227,7 +227,7 @@ describe('sub-maps', () => {
 
       // The halls are squares with rooms: clicking a cell of the chief's tomb heads for the
       // tomb, and the march goes square to square along the corridor, then room to room, the
-      // party's token on the cell it came in by.
+      // party's token on the cell it came in by, and at last on the cell clicked.
       expect(editor.map.grid.kind).toBe('square')
       expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('area:barrowstair1')
       const trail = editor.map.play!.trail.length
@@ -244,9 +244,10 @@ describe('sub-maps', () => {
         '3,3',
         '4,3',
         '7,3',
+        '8,4',
       ])
-      expect(partyToken(editor.map)?.hex).toBe('7,3')
-      for (let i = 1; i < walked.length - 1; i++)
+      expect(partyToken(editor.map)?.hex).toBe('8,4')
+      for (let i = 1; i < walked.length - 2; i++)
         expect(cellDistance(walked[i - 1], walked[i], editor.map.grid)).toBe(1)
 
       // And back out, the same trip, to the hex it went down from.

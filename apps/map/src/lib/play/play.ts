@@ -187,9 +187,10 @@ export function clickHex(key: HexKey): void {
   const play = current()
   // The trip went on into another map: this one waits for it, untouched.
   if (play.away) return void showToast(t('submap.awayHere'), 'info', 6000)
-  // A campaign has one party: a trip starting here pauses the one going on elsewhere first.
+  // A campaign has one party: placing it here (Simple) or a trip starting here pauses the one
+  // going on elsewhere first, else the party would be put where it isn't drawn.
   const other = otherTrip(editor.campaign, mapTrip())
-  if (play.mode === 'rules' && other && !sessionOf(play))
+  if (other && (play.mode === 'simple' || !sessionOf(play)))
     return void claimThen(other, () => clickHex(key))
   const location = partyLocation()
   // The party is placed and a system chosen, but the trip hasn't started: it starts
@@ -211,8 +212,42 @@ export function clickHex(key: HexKey): void {
     save(newSession(play, key, mapSystemId()))
     return layFirstPiece()
   }
-  // A cell of a room is the room.
-  step({ type: 'setDestination', place: placeOfCell(editor.map, key) })
+  headFor(key)
+}
+
+/**
+ * The cell of a room the party was sent to: the trip heads for the room (one place to the
+ * rules), and the party stands on that cell once it's there.
+ */
+let aimed: HexKey | undefined
+
+/**
+ * The trip heads for a cell's place (a cell of a room is the room), and the party will stand
+ * on that cell. Already in its room, it steps across to it at once: no time passes.
+ */
+function headFor(cell: HexKey): void {
+  const place = placeOfCell(editor.map, cell)
+  aimed = parseAreaPlace(place) ? cell : undefined
+  step({ type: 'setDestination', place })
+}
+
+/** The party stands on another cell of its room: only its token and trail move. */
+function standAt(cell: HexKey): void {
+  const play = current()
+  if (play.trail.at(-1) !== cell) play.trail = [...play.trail, cell]
+  save(play)
+  placeParty(cell)
+}
+
+/** Where the party is drawn in a place it stepped to: the cell it was sent to, if it's there. */
+function cellThere(
+  { location, destination }: { location: string; destination?: string },
+  near: string | undefined,
+): HexKey | undefined {
+  const there = aimed && placeOfCell(editor.map, aimed) === location
+  return there && (!destination || destination === location)
+    ? aimed
+    : cellOfPlace(editor.map, location, near)
 }
 
 /** A map laid piece by piece starts under the party's feet, as soon as a trip stands on it. */
@@ -249,15 +284,20 @@ export function startOnBlankMap(): void {
  * The party walks to a place: the route planned as for a click, and the system's way of going
  * on taken at once. A place no route reaches stays out of reach: nothing moves, and it says so.
  */
-export function walkTo(place: string): void {
+export function walkTo(place: string, cell?: HexKey): void {
   const session = sessionOf(current())
-  if (!session || place === session.travel.location) return
+  if (!session) return
+  if (place === session.travel.location) {
+    if (cell && parseAreaPlace(place)) standAt(cell)
+    return
+  }
   const rules = getSystem(mapSystemId()).rules
   const onward = rules.travel.onward
   const id = onward ? onward.do.replace(/^actions\./, '') : movingActions(rules)[0]
   // Lost for the day, a check waiting, a rule of the system: nothing moves, and it says why.
   const why = walkBlocked(id)
   if (why) return void showToast(why, 'info', 6000)
+  aimed = cell && placeOfCell(editor.map, cell) === place ? cell : undefined
   step({ type: 'setDestination', place })
   const travel = sessionOf(current())?.travel
   if (!travel?.route || travel.route.length < 2)
@@ -353,10 +393,7 @@ function stepInRoom(direction: { x: number; y: number }): void {
     return void showToast(t('play.noWayThere'), 'info', 5000)
   const place = placeOfCell(editor.map, next)
   if (place !== placeOfCell(editor.map, here)) return walkTo(place)
-  const play = current()
-  if (play.trail.at(-1) !== next) play.trail = [...play.trail, next]
-  save(play)
-  placeParty(next)
+  standAt(next)
 }
 
 /**
@@ -403,9 +440,14 @@ export function setMode(mode: PlayState['mode']): void {
   const play = current()
   play.mode = mode
   const location = partyLocation()
-  if (mode === 'rules' && location && !sessionOf(play))
-    return save(newSession(play, location, mapSystemId()))
-  save(play)
+  if (mode !== 'rules' || !location || sessionOf(play)) return save(play)
+  // A trip starting here pauses the one going on elsewhere in the campaign first.
+  const other = otherTrip(editor.campaign, mapTrip())
+  if (other) {
+    save(play)
+    return void claimThen(other, () => save(newSession(current(), location, mapSystemId())))
+  }
+  save(newSession(play, location, mapSystemId()))
 }
 
 /**
@@ -562,7 +604,13 @@ function stepOnly(action: TravelAction): void {
     return at ? [at] : []
   })
   const into = parsePlaceOn(state.travel.location)
-  if (!into) placeParty(cellOfPlace(editor.map, state.travel.location, near))
+  // In the room it was sent to, the party stands on the cell chosen.
+  const stands = !into ? cellThere(state.travel, near) : undefined
+  if (stands && stands === aimed) {
+    if (stands !== entered.at(-1)) entered.push(stands)
+    aimed = undefined
+  }
+  if (!into) placeParty(stands)
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
