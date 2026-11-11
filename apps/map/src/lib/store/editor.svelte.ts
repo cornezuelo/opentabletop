@@ -609,6 +609,7 @@ class Editor {
     )
       this.notify({ kind: 'world' })
     if (campaign.oracle !== before.oracle) this.notify({ kind: 'oracle' })
+    if (campaign.mapSheets !== before.mapSheets) this.notify({ kind: 'campaign' })
     if (campaign.factions !== before.factions || land !== beforeLand)
       this.notify({ kind: 'factions' })
   }

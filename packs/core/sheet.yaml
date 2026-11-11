@@ -57,3 +57,18 @@ values:
     # Rolled for each new party (dice as a default): 4 to 8.
     default: '{{2d3+2}}'
     min: 0
+---
+# Each map's own (the system's `mapSheet`): kept for each map, read as `map.values.*`.
+kind: sheet
+id: map
+name: This map
+description: |-
+  What each map keeps of its own in the Generic rules: how many times the party has explored it.
+
+  **Shows:** the smallest sheet of each map (`mapSheet`): one value each map keeps (`map.values.explored`), which an action raises (`map.values.explored: 1`) and the trip finds again when it comes back to the map.
+values:
+  explored:
+    name: Explored
+    description: How many times the party has explored this map (Explore). Your tables may read it.
+    default: 0
+    min: 0

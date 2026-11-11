@@ -117,6 +117,10 @@ export const es: Messages<typeof en> = {
     ask: 'Preguntar en cada tirada',
     help: 'De quién toman el valor las características del sistema hechas de un solo personaje (`from: { pick: charisma }` en sus bindings): **El mejor** (por defecto) o un personaje, en todas las tiradas hasta que lo cambies. Marca **Preguntar en cada tirada** para elegir antes de cada comprobación que se tira en una tabla: espera, con esta elección junto a **Continuar**.',
   },
+  mapSheet: {
+    title: 'Este mapa',
+    help: 'Lo que este mapa guarda como suyo, con la hoja de mapa de su sistema: cada mapa tiene una, que se guarda cuando el grupo se va y vuelve a estar cuando regresa; un mapa nuevo empieza con sus valores por defecto.\nLas condiciones y las tablas la leen:\n• `map.values.alarm: { gte: 2 }`\n• `map.conditions: roused`\nLos efectos la cambian:\n• `map.values.alarm: 1`\nSin mapa (un viaje en Viajes), el viaje guarda una propia.',
+  },
   partySheet: {
     title: 'El grupo',
     help: 'El propio grupo, con la hoja de grupo de su sistema: lo que es de todo el grupo (moral, fatiga, mercenarios…), sean quienes sean sus personajes. Los personajes pueden unirse e irse; esto se queda.\nLas condiciones y las tablas lo leen:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nLos efectos lo cambian:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nUna característica del grupo hecha de uno de sus valores (`from: { party: morale }`) es ese valor: se edita aquí.',

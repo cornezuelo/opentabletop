@@ -299,3 +299,26 @@ conditions:
     name: Shaken
     description: Lost in the dark and frightened; no forced march until the Company rests.
     blocks: [actions.forced-march]
+---
+# Each map's own (the system's `mapSheet`): kept for each map, found again when the Company
+# comes back, read and changed on a trip as `map.values.*`.
+kind: sheet
+id: this-place
+name: This place
+description: |-
+  What a map of the Marches keeps of its own: how stirred its dead are. Forcing a door of the Deep Barrows stirs them, and once they're stirring the noise of the next one is always heard. Each map has its own, kept when the Company leaves and found again when it comes back.
+
+  **Shows:** a map's own sheet (`mapSheet`): a value each map keeps (`map.values.unrest`), rolled for each map as it's first played (`default: '{{1d2-1}}'`), raised by an action's effect (`map.values.unrest: 1`), a condition of the map that holds by itself (`stirring`, `when: { self.values.unrest: { gte: 2 } }`) and a table's entry that reads it (`unless: { map.conditions: stirring }`).
+values:
+  unrest:
+    name: Restless dead
+    description: How stirred the dead of this place are, from 0 to 3. Each door forced here adds 1; at 2 or more they're stirring.
+    default: '{{1d2-1}}'
+    min: 0
+    max: 3
+    track: true
+conditions:
+  stirring:
+    name: The dead are stirring
+    description: The dead of this place are awake to every sound; the noise of a door forced here is always heard.
+    when: { self.values.unrest: { gte: 2 } }

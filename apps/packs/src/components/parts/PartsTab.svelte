@@ -44,18 +44,25 @@
   )
   /** A sheet for the party itself, beside its characters'. */
   const canCreateParty = $derived(editable && kind === 'sheet' && !system.partySheet)
+  /** A sheet for each map, its own values. */
+  const canCreateMap = $derived(editable && kind === 'sheet' && !system.mapSheet)
   /** Whether a sheet is the party's own (`partySheet`), not its characters'. */
   const isParty = (p: { id: string }) =>
     kind === 'sheet' && !!system.partySheet?.id.endsWith(`/${p.id}`)
   /** Whose sheet it is, for its tab: its characters', the party's or the factions'. */
   const sheetTab = (p: { id: string }) =>
-    (({ members: 'charactersTab', party: 'partyTab', factions: 'factionsTab' }) as const)[
-      sheetScope(system, p.id) ?? 'members'
-    ]
+    (
+      ({
+        members: 'charactersTab',
+        party: 'partyTab',
+        map: 'mapTab',
+        factions: 'factionsTab',
+      }) as const
+    )[sheetScope(system, p.id) ?? 'members']
   const key = $derived(kind === 'roll-modes' ? 'modes' : kind)
 
-  function create(party = false, land?: LandStart) {
-    const id = createSystemPart(system, kind, party, land)
+  function create(whose?: 'party' | 'map', land?: LandStart) {
+    const id = createSystemPart(system, kind, whose, land)
     if (id) chosen = systemParts(system, kind).findIndex((p) => p.id === id && p.root === root)
   }
 </script>
@@ -94,14 +101,19 @@
     <MoreMenu label={t('parts.land.create')} align="left">
       {#snippet button()}{t('parts.land.create')} ▾{/snippet}
       {#each Object.keys(LAND_STARTS) as LandStart[] as start (start)}
-        <button onclick={() => create(false, start)}>{t(`parts.land.starts.${start}`)}</button>
+        <button onclick={() => create(undefined, start)}>{t(`parts.land.starts.${start}`)}</button>
       {/each}
     </MoreMenu>
   {:else if canCreate}
     <button class="button add" onclick={() => create()}>{t(`parts.${key}.create`)}</button>
   {/if}
   {#if canCreateParty}
-    <button class="button add" onclick={() => create(true)}>{t('parts.sheet.createParty')}</button>
+    <button class="button add" onclick={() => create('party')}
+      >{t('parts.sheet.createParty')}</button
+    >
+  {/if}
+  {#if canCreateMap}
+    <button class="button add" onclick={() => create('map')}>{t('parts.sheet.createMap')}</button>
   {/if}
 </div>
 

@@ -562,15 +562,16 @@ actions:
   # A barred door leaving the place (`place.connections.door.state`, a door laid shut by the
   # Deep Barrows' pieces): ten minutes with shoulder and crowbar, and every door here is open
   # for the rest of the trip (an effect on the connections leaving the place, never on the
-  # map); then the noise of it, rolled on a table that may bring one of the dead.
+  # map); the dead of this map stir (its own sheet, `map.values`); then the noise of it,
+  # rolled on a table that may bring one of the dead.
   force-door:
     name: Force the door
-    description: 'At a barred door: ten minutes to break it open, and the noise may bring what sleeps below (_The noise of it_).'
+    description: 'At a barred door: ten minutes to break it open; the dead of this place stir (Restless dead +1), and the noise may bring what sleeps below (_The noise of it_).'
     when: { place.connections.door.state: barred }
     hideWhenUnavailable: true
     do:
       - { time: 10 }
-      - { effects: { place.connections.door.state: forced } }
+      - { effects: { place.connections.door.state: forced, map.values.unrest: 1 } }
       - { id: forced, say: 'The bar splinters and the door gives way.' }
       - { roll: table.door-noise }
   delve:

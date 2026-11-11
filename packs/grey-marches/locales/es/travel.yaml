@@ -128,7 +128,7 @@ travel-rules/default:
       description: 'Una noche bajo techo, pagando cada uno el precio de la posada, dos por habitación: despertáis al alba con 2 de fatiga menos, 1 de moral más, cada compañero con 1 de salud más y sin el miedo en el cuerpo.'
     force-door:
       name: Forzar la puerta
-      description: 'Ante una puerta atrancada: diez minutos para echarla abajo, y el ruido puede traer lo que duerme abajo (_El ruido_).'
+      description: 'Ante una puerta atrancada: diez minutos para echarla abajo; los muertos de este lugar se agitan (Muertos inquietos +1), y el ruido puede traer lo que duerme abajo (_El ruido_).'
       do:
         forced:
           say: 'La tranca se astilla y la puerta cede.'

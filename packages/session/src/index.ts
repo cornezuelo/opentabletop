@@ -246,6 +246,12 @@ export interface SessionState {
   /** The party itself, a character of the system's party sheet (none without one). */
   party?: CharacterState
   /**
+   * The map the party is on, a character of the system's map sheet (`mapSheet`), read and
+   * changed as `map.values.*`: its id the map's. A host with maps keeps one per map and hands
+   * the trip the one it's on (`withMapSheet`); without a host, the trip's own.
+   */
+  map?: CharacterState
+  /**
    * The roster party the party is (its id there), while the roster says it plays here: its
    * sheet and members are kept in step with the roster's (docs/characters-app.md §8). Absent:
    * the trip's own.
@@ -319,6 +325,12 @@ export function partyValues(s: SessionState, rules: PartyRules = {}): Record<str
   }
 }
 
+/** The map the party is on as tables read it: `map.values.lair`, `map.conditions`, `map.tags`. */
+function mapFacts(map: CharacterState): Record<string, unknown> {
+  const { values, conditions, tags } = characterFacts(map)
+  return { values, conditions, tags }
+}
+
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 
@@ -358,6 +370,7 @@ export function tripContext(
     ...facts,
     ...memberFacts(s, party),
     party: { ...host, ...partyValues(s, party) },
+    ...(s.map && { map: mapFacts(s.map) }),
     today,
     yesterday,
     ...extra,
@@ -478,6 +491,8 @@ export function createSession(options: {
   sheet?: PartyRules['sheet']
   /** The party's own sheet (the system's `partySheet`), if it has one. */
   partySheet?: PartyRules['partySheet']
+  /** The sheet of the map the party is on (the system's `mapSheet`), if it has one. */
+  mapSheet?: PartyRules['mapSheet']
   /** The system's item catalogues, for effects that give an item. */
   items?: PartyRules['items']
   /** The system's templates (its bestiaries), for effects that make copies of them. */
@@ -499,6 +514,7 @@ export function createSession(options: {
   const party: PartyRules = {
     sheet: options.sheet,
     partySheet: options.partySheet,
+    mapSheet: options.mapSheet,
     bindings: options.bindings,
     items: options.items,
     ...(options.places && { places: options.places }),

@@ -1,3 +1,5 @@
+import type { CharacterState } from '@open-tabletop/character-engine'
+import { withMapSheet, type SessionState, type TravelSystem } from '@open-tabletop/session'
 import type { Campaign, CampaignTrip } from './types'
 
 /**
@@ -29,4 +31,23 @@ export function leaveTrip(campaign: Campaign, trip: Pick<CampaignTrip, 'app' | '
   // What the world had waiting for it is nobody's now.
   delete rest.moments
   return rest
+}
+
+/**
+ * A trip on a map of the campaign, with that map's own sheet (its system's `mapSheet`): the
+ * one the campaign keeps for it, else a new one for that map.
+ */
+export function tripOnMap(
+  campaign: Campaign,
+  session: SessionState,
+  system: TravelSystem,
+  map: string,
+): SessionState {
+  return withMapSheet(session, system, map, campaign.mapSheets?.[map])
+}
+
+/** The campaign keeping a trip's map sheet as the trip left it (unchanged without one). */
+export function keepMapSheet(campaign: Campaign, sheet: CharacterState | undefined): Campaign {
+  if (!sheet || campaign.mapSheets?.[sheet.id] === sheet) return campaign
+  return { ...campaign, mapSheets: { ...campaign.mapSheets, [sheet.id]: sheet } }
 }

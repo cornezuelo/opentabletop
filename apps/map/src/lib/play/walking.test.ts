@@ -247,4 +247,12 @@ describe('walking', () => {
     play.walkByKey('a')
     expect(at()).toBe('5,3')
   })
+
+  it("Core's Explore counts on the map's own sheet, which the campaign keeps for that map", () => {
+    room()
+    expect(play.sessionOf(editor.map.play!)!.map).toMatchObject({ values: { explored: 0 } })
+    play.step({ type: 'action', id: 'explore' })
+    expect(play.sessionOf(editor.map.play!)!.map?.values.explored).toBe(1)
+    expect(editor.campaign.mapSheets?.[editor.map.meta.id]?.values.explored).toBe(1)
+  })
 })

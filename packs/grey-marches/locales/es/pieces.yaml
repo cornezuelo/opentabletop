@@ -62,9 +62,9 @@ last-tomb:
 door-noise:
   name: El ruido
   description: |-
-    Se tira cuando cede una puerta atrancada de los Túmulos Hondos (_Forzar la puerta_): si algo lo ha oído.
+    Se tira cuando cede una puerta atrancada de los Túmulos Hondos (_Forzar la puerta_): si algo lo ha oído. Una vez que los muertos del lugar se agitan, algo lo oye siempre.
 
-    **Enseña:** una tabla que tira una acción (`roll:`), cuyo resultado pone a uno entre los presentes (`present.barrow-dead`) y detiene el viaje (`pause`).
+    **Enseña:** una tabla que tira una acción (`roll:`), cuyo resultado pone a uno entre los presentes (`present.barrow-dead`) y detiene el viaje (`pause`), y una entrada que se deja fuera por lo que el mapa guarda como suyo (`unless: { map.conditions: stirring }`).
   entries:
     silence: El eco se apaga; nada se mueve
     heard: Algo en la oscuridad lo ha oído, y viene

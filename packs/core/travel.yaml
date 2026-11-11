@@ -160,10 +160,12 @@ actions:
       - { id: empty, when: { trip.below: party.values.food }, say: There is nothing left to eat. }
   explore:
     name: Explore
-    description: 'An hour looking around, by day: an idea of what you find (an action and a subject, Core’s Prompt), and on a 6 a landmark worth marking.'
+    description: 'An hour looking around, by day: an idea of what you find (an action and a subject, Core’s Prompt), and on a 6 a landmark worth marking. Counted on the map (Explored).'
     when: { time.tags: { not: dark } }
     do:
       - { time: 60 }
+      # The map's own sheet: how many times this map has been explored.
+      - { effects: { map.values.explored: 1 } }
       - { id: idea, say: 'You look around. What you find, as an idea to read freely:' }
       - { roll: generator.prompt }
       - { roll: table.place-found }

@@ -179,11 +179,15 @@ id: door-noise
 tags: [rules]
 name: The noise of it
 description: |-
-  Rolled as a barred door of the Deep Barrows gives way (_Force the door_): whether anything heard it.
+  Rolled as a barred door of the Deep Barrows gives way (_Force the door_): whether anything heard it. Once the dead of the place are stirring, something always does.
 
-  **Shows:** a table an action rolls (`roll:`), its result making one of those present (`present.barrow-dead`) and stopping the trip (`pause`).
+  **Shows:** a table an action rolls (`roll:`), its result making one of those present (`present.barrow-dead`) and stopping the trip (`pause`), and an entry left out by what the map keeps of its own (`unless: { map.conditions: stirring }`).
 entries:
-  - { id: silence, weight: 3, result: The echo dies away; nothing stirs }
+  - id: silence
+    weight: 3
+    result: The echo dies away; nothing stirs
+    # The map's own sheet: where the dead are stirring, nothing goes unheard.
+    unless: { map.conditions: stirring }
   - id: heard
     weight: 1
     result: Something in the dark heard it, and comes

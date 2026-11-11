@@ -507,6 +507,18 @@ relations: # tipos de relación que un personaje puede tener con cualquier cosa 
 - Las condiciones y tablas leen cada personaje como `characters.<id>.…`, al que actúa ahora como `acting.…`, y los ids del grupo como `party.members`; los efectos los cambian (`party.members.values.health: 1`, `acting.conditions.wounded: true`). Mira [Lo que ven las tablas](04-what-tables-see.md#personajes).
 - Se traduce como cualquier otro tipo, con la clave `sheet/<id>`, por valor, grupo, estado y relación (`values: { health: { name: Salud } }`), y los niveles por id (`values: { harm: { levels: { unhurt: Ileso } } }`).
 - **La hoja del propio grupo** (`partySheet:` en su [sistema](#sistemas)) es una hoja como esta para el grupo en sí: lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje, mientras los personajes se unen y se van. Las tablas la leen como `party.values.<id>`, `party.conditions` y `party.tags`; los efectos la cambian (`party.values.morale: -1`, `party.conditions.shaken: true`), dentro de sus límites; un viaje nuevo empieza con el `default` de cada valor. Lo que lleva el grupo es un valor de ella (`party.values.food`), u objetos: `party.items.<objeto>` son los suyos y los de sus personajes juntos (`party.items.ration.count`, todo objeto de los catálogos está ahí desde 0), un efecto sobre ellos (`party.items.ration: -3`) quita primero de los suyos y luego de los personajes según el `share` de su hoja, y lo ganado va a los personajes igual (a los suyos si no tiene ninguno); los `blocks` de sus estados detienen a todo el grupo. Una característica del grupo puede ser uno de sus valores (`stats: { morale: { from: { party: morale } } }`): la característica es ese valor, toma sus límites, y los efectos sobre `party.stats.morale` cambian la hoja. El viaje enseña su ficha encima de los personajes.
+- **La hoja propia de cada mapa** (`mapSheet:` en su [sistema](#sistemas)) es una hoja como esta para cada mapa: lo que un mapa guarda como suyo (la alarma de una mazmorra, los dados de un dominio, cuán inquietos están sus muertos), llegue quien llegue. Las tablas leen la del mapa en el que está el grupo como `map.values.<id>`, `map.conditions` y `map.tags`; los efectos la cambian (`map.values.alarm: 1`), dentro de sus límites; sus estados se cumplen por sí solos con `when` (`self.values.alarm: { gte: 3 }`). Cada mapa tiene la suya, que guarda su campaña: un mapa empieza con el `default` de cada valor la primera vez que un viaje juega en él (los tirados, `'{{1d6}}'`, tirados para ese mapa), y un viaje que se va y vuelve, o un viaje nuevo allí, la encuentra como la dejó. Un viaje sin mapa (Viajes) guarda una propia. El viaje enseña su tarjeta en la pestaña **Grupo**, con el nombre que le da la hoja (_Este mapa_ si no tiene).
+
+```yaml
+kind: sheet
+id: dungeon
+name: La mazmorra
+values:
+  alarm: { name: Alarma, default: 0, min: 0, max: 3 }
+  depth: { name: Profundidad, default: '{{1d6}}' } # tirada para cada mapa
+conditions:
+  roused: { name: Alerta, when: { self.values.alarm: { gte: 3 } } }
+```
 
 ## Catálogos de objetos
 
@@ -761,6 +773,7 @@ bindings: bindings.default # sus bindings
 calendar: calendar.marcher-reckoning # su calendario
 sheet: sheet.companion # la hoja de sus personajes
 partySheet: sheet.company # la hoja del propio grupo
+mapSheet: sheet.this-place # la hoja propia de cada mapa
 factions: factions.default # los poderes de su mundo
 clocks: clocks.default # los relojes de progreso con los que empieza su mundo
 world: world.default # lo que su mundo hace por sí solo
@@ -775,7 +788,7 @@ maps: [maps/grey-marches.otd.json] # mapas de ejemplo, ficheros de este pack
 style: core/parchment # el estilo con el que empiezan sus mapas en blanco
 ```
 
-- Todas las partes son opcionales. Sin `travel`, el sistema no viaja (Jugar y Viajes lo dicen; su mundo, su oráculo y sus facciones se siguen jugando), y cualquier sistema puede nombrar las de Core, `travel: core/travel-rules.default`, las **reglas genéricas** (con `calendar: core/calendar.default`, cuyas partes del día nombran, y `bindings: core/bindings.default` con `weather: [core/weather.default]`, que tiran su comprobación de clima); sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `land`, no tiene modelo de tierra con el que descubrir o generar; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `partySheet`, el grupo no tiene hoja propia; sin `sheet`, su grupo se juega como un todo; sin `bestiary`, sus resultados no hacen copias de plantillas; sin `places`, no crean lugares con plantillas. El propio sistema de Core, `core`, es el que juega un mapa que no elige ninguno: [las reglas genéricas](../bundled/01-core.md#las-reglas-genericas).
+- Todas las partes son opcionales. Sin `travel`, el sistema no viaja (Jugar y Viajes lo dicen; su mundo, su oráculo y sus facciones se siguen jugando), y cualquier sistema puede nombrar las de Core, `travel: core/travel-rules.default`, las **reglas genéricas** (con `calendar: core/calendar.default`, cuyas partes del día nombran, y `bindings: core/bindings.default` con `weather: [core/weather.default]`, que tiran su comprobación de clima); sin `bindings`, ninguna tabla responde a sus comprobaciones (solo se apuntan en el diario, y detienen el viaje solo con `pause: true`) y el grupo no tiene características; sin `calendar`, el de por defecto; sin `weather`, sus bindings no pueden nombrar un modelo de clima; sin `land`, no tiene modelo de tierra con el que descubrir o generar; sin `clocks`, su mundo empieza sin relojes de progreso (se pueden seguir creando a mano); sin `partySheet`, el grupo no tiene hoja propia; sin `mapSheet`, los mapas no guardan valores propios; sin `sheet`, su grupo se juega como un todo; sin `bestiary`, sus resultados no hacen copias de plantillas; sin `places`, no crean lugares con plantillas. El propio sistema de Core, `core`, es el que juega un mapa que no elige ninguno: [las reglas genéricas](../bundled/01-core.md#las-reglas-genericas).
 - Cada parte es una definición de este pack, por su kind y su id (`travel: travel-rules.default`), o de un pack del que depende (`travel: core/travel-rules.slow`, con `core` en sus `dependencies`). `packs` también lista dependencias; el pack del propio sistema siempre va incluido.
 - **Su id:** un sistema con `id: default` se elige por el id de su pack (`grey-marches`), cualquier otro por pack e id (`grey-marches/winter`). Un pack puede declarar varios, p. ej. la misma tierra en verano y en invierno con otras reglas de viaje.
 - `name` y `description` son lo que leen los jugadores (si falta el nombre, es el del pack); se traducen en `locales/<idioma>/` con la clave `system/<id>`, como los demás tipos.

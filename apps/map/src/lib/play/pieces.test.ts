@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { createMap, mapWorld, type HexKey, type HexMap } from '@open-tabletop/map'
 import { createOracleEngine } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
-import { startTrip, stepTrip, type TravelSystem } from '@open-tabletop/session'
+import {
+  newMapSheet,
+  partyOf,
+  startTrip,
+  stepTrip,
+  type TravelSystem,
+} from '@open-tabletop/session'
+import { tripOnMap } from '@open-tabletop/campaign'
+import * as play from './play'
 import { editor } from '../store/editor.svelte'
 import { library } from './packs'
 import { getSystem } from './systems'
@@ -173,6 +181,48 @@ describe('a barred door in the Deep Barrows', () => {
     expect(
       run({ type: 'action', id: 'march', with: { until: 'destination' } }, 3).state.travel.location,
     ).toBe('15,14')
+  })
+})
+
+describe("each map's own sheet, in the Deep Barrows", () => {
+  it('forcing a door stirs the dead of that map, kept by the campaign for it alone', () => {
+    const map = createMap('', { template: 'dungeon', cells: 'square' })
+    map.grid = { ...map.grid, width: 30, height: 30 }
+    map.hexes['15,15' as HexKey] = { terrain: 'barrow-floor' }
+    map.hexes['15,14' as HexKey] = { terrain: 'barrow-floor' }
+    map.connections = [
+      {
+        id: 'bar',
+        between: ['15,15', '15,14'],
+        kind: 'door',
+        fields: [{ key: 'state', value: 'barred' }],
+      },
+    ]
+    editor.load(map)
+    editor.setCampaignSetup({ system: 'grey-marches' })
+    const system = getSystem('grey-marches')
+    const id = editor.map.meta.id
+    // The dead here are already restless (1): one more door and they stir.
+    const restless = { ...newMapSheet(partyOf(system), id)!, values: { unrest: 1 } }
+    editor.takeWorld({ campaign: { ...editor.campaign, mapSheets: { [id]: restless } } })
+    editor.mode = 'play'
+    editor.tool = 'play'
+    play.setMode('rules')
+    play.clickHex('15,15' as HexKey)
+    const trip = () => play.sessionOf(editor.map.play!)!
+    expect(trip().map).toMatchObject({ id, values: { unrest: 1 } })
+    play.step({ type: 'action', id: 'force-door' })
+    // Stirring now: the noise is always heard, and one of the dead comes.
+    expect(trip().map?.values.unrest).toBe(2)
+    expect(trip().map?.conditions).toHaveProperty('stirring')
+    expect(JSON.stringify(trip().present)).toContain('barrow-dead')
+    // The campaign keeps it for this map; a new trip here finds it, another map starts afresh.
+    expect(editor.campaign.mapSheets?.[id]?.values.unrest).toBe(2)
+    const fresh = startTrip({ system, location: '15,15' }).session
+    expect(tripOnMap(editor.campaign, fresh, system, id).map?.values.unrest).toBe(2)
+    const other = tripOnMap(editor.campaign, fresh, system, 'elsewhere').map!
+    expect(other.id).toBe('elsewhere')
+    expect([0, 1]).toContain(other.values.unrest)
   })
 })
 

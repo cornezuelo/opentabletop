@@ -31,3 +31,13 @@ sheet/party:
     food:
       name: Comida
       description: Días de comida que lleva el grupo entre todos, tirados al ponerse en marcha (2d3+2); se come un día al acabar cada día, y nunca baja de 0.
+sheet/map:
+  name: Este mapa
+  description: |-
+    Lo que guarda cada mapa como suyo en las reglas genéricas: cuántas veces lo ha explorado el grupo.
+
+    **Enseña:** la hoja de cada mapa más pequeña (`mapSheet`): un valor que guarda cada mapa (`map.values.explored`), que sube una acción (`map.values.explored: 1`) y que el viaje vuelve a encontrar cuando regresa al mapa.
+  values:
+    explored:
+      name: Explorado
+      description: Cuántas veces ha explorado el grupo este mapa (Explorar). Tus tablas pueden leerlo.

@@ -272,6 +272,17 @@ export const PARTY_SHEET = (id: string): Record<string, unknown> => ({
   conditions: { 'condition-1': { name: 'Condition 1' } },
 })
 
+/**
+ * A sheet for each map (a system's `mapSheet`): one made-up value to rename (what a map keeps
+ * of its own, a dungeon's alarm or a domain's dice, is the system's to say).
+ */
+export const MAP_SHEET = (id: string): Record<string, unknown> => ({
+  kind: 'sheet',
+  id,
+  name: 'The map',
+  values: { 'value-1': { name: 'Value 1', default: 0, min: 0 } },
+})
+
 /** The sheet a new factions definition names, when its pack has none (`faction`). */
 export const FACTION_SHEET = (): Record<string, unknown> => ({
   kind: 'sheet',

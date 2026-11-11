@@ -39,10 +39,12 @@ import {
 import { editor } from '../store/editor.svelte'
 import { confirmAction, showToast } from '@open-tabletop/ui-kit'
 import {
+  keepMapSheet,
   MAX_HEARD,
   otherTrip,
   playTrip,
   takeMoments,
+  tripOnMap,
   type CampaignTrip,
 } from '@open-tabletop/campaign'
 import { chooseSystem, keepOpenMap, openLibraryMap } from '../io/actions.svelte'
@@ -179,7 +181,9 @@ function newSession(
     // What the trip's rolls in conditions are seeded with: each trip its own.
     seed: Math.random().toString(36).slice(2, 10),
   })
-  return { ...play, rules: { system, startDay, session } }
+  // The map's own sheet: the one the campaign keeps for it.
+  const here = tripOnMap(editor.campaign, session, getSystem(system), editor.map.meta.id)
+  return { ...play, rules: { system, startDay, session: here } }
 }
 
 /** Play tool click: place the party, move it (simple) or set the destination (rules). */
@@ -580,17 +584,20 @@ function stepOnly(action: TravelAction): void {
     discover: discoverMode(play, system),
     facts: worldFactsNow(),
   }
-  // Checks roll with the map's Oracle state, the same one hand rolls use.
+  // Checks roll with the map's Oracle state, the same one hand rolls use; the map's own
+  // sheet is the one the campaign keeps for this map.
   const shared = editor.campaign.oracle
+  const here = tripOnMap(editor.campaign, session, system, editor.map.meta.id)
   let result
   try {
-    result = stepTrip(options, shared ? { ...session, oracle: shared.state } : session, action)
+    result = stepTrip(options, shared ? { ...here, oracle: shared.state } : here, action)
   } catch (error) {
     // A broken pack shouldn't silently stop play: say what failed.
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
     return
   }
   const { state, entries, discovered, laid } = result
+  editor.takeWorld({ campaign: keepMapSheet(editor.campaign, state.map) })
   editor.applyDiscovery(discovered)
   editor.applyLaid(laid)
   // Places of another map (a way in or out) are that map's trail, not this one's; a room is
@@ -660,11 +667,13 @@ export async function goOnIn(map: string): Promise<boolean> {
     .find((e) => placeOfCell(editor.map, e) === moved.travel.location)
   const location = cellOfPlace(editor.map, moved.travel.location, entrance)
   placeParty(location)
+  // This map's own sheet now: the one the campaign keeps for it.
+  const onMap = tripOnMap(editor.campaign, moved, getSystem(rules.system), editor.map.meta.id)
   save({
     ...here,
     mode: 'rules',
     trail: !location || here.trail.at(-1) === location ? here.trail : [...here.trail, location],
-    rules: { system: rules.system, startDay: rules.startDay, session: moved },
+    rules: { system: rules.system, startDay: rules.startDay, session: onMap },
     // A map says how it's discovered; one that doesn't goes on as the trip was.
     ...((here.discover ?? discover) && { discover: here.discover ?? discover }),
   })
@@ -727,6 +736,9 @@ export function editSession(update: (session: SessionState) => SessionState): vo
     update(structuredClone(session)),
   ).state
   save({ ...play, rules: { ...play.rules, session: next } })
+  // The map's own sheet, changed by hand, is the campaign's for this map.
+  if (next.map?.id === editor.map.meta.id)
+    editor.takeWorld({ campaign: keepMapSheet(editor.campaign, next.map) })
   // What the edit told worth keeping (a character leaving) goes to the timeline too.
   const added = next.journal.slice(session.journal.length)
   tripHighlights(highlightsOf(added, system))

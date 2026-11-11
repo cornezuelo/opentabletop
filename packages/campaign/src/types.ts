@@ -87,6 +87,11 @@ export interface Campaign {
   /** The trip that played in it last, which another asks to pause. */
   playing?: CampaignTrip
   /**
+   * Each map's own sheet (its system's `mapSheet`), by map id: what a map keeps of its own
+   * (`map.values.*`), handed to the trip on it and kept back after each step.
+   */
+  mapSheets?: Record<string, CharacterState>
+  /**
    * The moments of the world waiting for the trip going on (`playing`), heard on its next
    * step: clocks that filled by any means (by hand, a faction's turn, a trip's effects) and
    * world turns (due on the way, by hand, brought by a trip's `do: world.turn`).

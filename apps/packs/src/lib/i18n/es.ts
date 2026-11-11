@@ -189,12 +189,14 @@ export const es: Messages<typeof en> = {
     sheet: {
       title: 'Sus hojas: el grupo y sus personajes',
       intro:
-        'Dos hojas, las dos opcionales. **La del propio grupo** (`partySheet`): lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje. **La de sus personajes** (`sheet`): lo que tiene cada personaje, para que el grupo pueda estar hecho de personajes que se unen y se van; la pestaña **Comprobaciones** dice qué características del grupo salen de ellos, y los objetos del grupo son los suyos juntos. Cada una tiene valores con sus límites, contadores, estados y relaciones. Si el sistema tiene facciones, **su hoja** (elegida en la pestaña **Facciones**) se edita aquí también.',
-      help: 'Nombradas en su **Resumen** (`partySheet:`, `sheet:`). Las condiciones y las tablas leen la hoja del grupo y cada personaje:\n• `party.values.morale: { gte: 3 }` — el grupo\n• `characters.kael.values.health: { lte: 1 }` — uno por su id\n• `acting.values.wits: { gte: 3 }` — el que actúa ahora\nLos efectos los cambian:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — a todos los personajes\nUna característica del grupo puede ser un valor de la hoja de grupo: `from: { party: morale }` (en **Comprobaciones**).',
+        'Dos hojas, las dos opcionales. **La del propio grupo** (`partySheet`): lo que es de todo el grupo (moral, fatiga, mercenarios…), en cada viaje, viaje quien viaje. **La de sus personajes** (`sheet`): lo que tiene cada personaje, para que el grupo pueda estar hecho de personajes que se unen y se van; la pestaña **Comprobaciones** dice qué características del grupo salen de ellos, y los objetos del grupo son los suyos juntos. **La de cada mapa** (`mapSheet`): lo que guarda un mapa como suyo (la alarma de una mazmorra, los dados de un dominio), guardado para cada mapa y recordado cuando el grupo vuelve. Cada una tiene valores con sus límites, contadores, estados y relaciones. Si el sistema tiene facciones, **su hoja** (elegida en la pestaña **Facciones**) se edita aquí también.',
+      help: 'Nombradas en su **Resumen** (`partySheet:`, `sheet:`, `mapSheet:`). Las condiciones y las tablas leen la hoja del grupo, cada personaje y el mapa en el que está el grupo:\n• `party.values.morale: { gte: 3 }` — el grupo\n• `map.values.alarm: { gte: 2 }` — el mapa\n• `characters.kael.values.health: { lte: 1 }` — uno por su id\n• `acting.values.wits: { gte: 3 }` — el que actúa ahora\nLos efectos los cambian:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — a todos los personajes\nUna característica del grupo puede ser un valor de la hoja de grupo: `from: { party: morale }` (en **Comprobaciones**).',
       none: 'Este sistema no tiene hoja: su grupo se juega como un todo, con sus características.',
       create: 'Nueva hoja de personajes',
       createParty: 'Nueva hoja de grupo',
+      createMap: 'Nueva hoja de mapa',
       partyTab: 'el grupo',
+      mapTab: 'cada mapa',
       charactersTab: 'sus personajes',
       factionsTab: 'las facciones',
       onlyParty:
@@ -752,6 +754,9 @@ export const es: Messages<typeof en> = {
     partySheet: 'Hoja del grupo',
     partySheetHelp:
       'Una hoja del propio grupo, además de la de sus personajes (`partySheet:`).\n• `sheet.party`',
+    mapSheet: 'Hoja de cada mapa',
+    mapSheetHelp:
+      'Una hoja que cada mapa tiene como suya (`mapSheet:`): lo que guarda un mapa, que en un viaje se lee y se cambia como `map.values.<id>`, guardado para cada mapa y recordado cuando el grupo vuelve. Un mapa nuevo empieza con sus valores por defecto, los tirados tirados para ese mapa.\n• `sheet.dungeon`\n• `map.values.alarm: 1` — un efecto en el mapa en el que está el grupo',
     factions: 'Facciones',
     factionsHelp:
       'Los poderes de su mundo (`factions:`). Se editan en **Facciones**.\n• `factions.default`',
@@ -802,6 +807,7 @@ export const es: Messages<typeof en> = {
     no: {
       sheet: '(ninguna)',
       partySheet: '(ninguna)',
+      mapSheet: '(ninguna)',
       factions: '(ninguna)',
       clocks: '(ninguno)',
       world: '(ninguna)',

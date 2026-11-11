@@ -14,6 +14,7 @@ Each value has a **full name** that says where it comes from (`place.terrain`) a
 | `trip.*`             | [the trip](#the-trip-trip): its day, way of travelling, weather, what it has done              |
 | `world.*`            | [the world clock](#the-world-world-and-factions) (a campaign's)                                |
 | `party.*`            | [the party](#the-party-party): its stats, its sheet, its items and characters                  |
+| `map.*`              | [the map](#the-map-map): its own sheet's values, conditions and tags, kept for each map        |
 | `present.*`          | [those present](#those-present-present): copies of the system's templates where the party is   |
 | `today.*`            | [the values of the day](#the-day-s-values-today-yesterday), and `yesterday.*` the day before's |
 | `from.*`, `around.*` | [the cell left and the cells around](#around-the-party-from-around)                            |
@@ -164,6 +165,15 @@ An effect `place.connections.<kind>.<key>` does the same to every connection of 
 | _each party stat_                | number      | `{{charisma}}`: the stat by its own name (the short way).                                                                                                                                                                                          |
 
 Also in hand rolls during a trip.
+
+## The map, `map.*`
+
+The own sheet of the map the party is on (its system's `mapSheet`: [Sheets](07-kinds.md#sheets)), kept for each map by its campaign; a trip without a map has one of its own. Without a map sheet, there's nothing here.
+
+| Name                         | Kind        | What it is                                                                                                                                 |
+| ---------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `map.values.<value>`         | number      | The values of the map the party is on, its own sheet's (Packs → **Sheet**, each map's: `mapSheet`), kept for each map: `map.values.alarm`. |
+| `map.conditions`, `map.tags` | list of ids | The conditions and tags of the map's own sheet: `map.conditions: roused`.                                                                  |
 
 ## The day's values, `today.*`, `yesterday.*`
 

@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, its gear, the bestiary its encounters make foes from, the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -18,6 +18,8 @@ calendar: calendar.marcher-reckoning
 sheet: sheet.companion
 # The Company itself (sheet.yaml): morale, fatigue, hirelings, whoever travels.
 partySheet: sheet.company
+# What each map keeps of its own (sheet.yaml): how stirred its dead are, remembered there.
+mapSheet: sheet.this-place
 # The powers of the Marches (factions.yaml): their territory and their world turns.
 factions: factions.default
 # The Company's gear (items.yaml): what its companions may carry.

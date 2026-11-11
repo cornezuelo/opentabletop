@@ -52,6 +52,8 @@ import {
 export interface PartyRules extends PresentRules {
   sheet?: { id: string; def: Sheet }
   partySheet?: { id: string; def: Sheet }
+  /** The sheet of the map the party is on (`mapSheet`): its own values, kept per map. */
+  mapSheet?: { id: string; def: Sheet }
   bindings?: Bindings
   /** The system's item catalogues: what an effect gives when a character has none yet. */
   items?: ItemLookup
@@ -63,11 +65,18 @@ export interface PartyRules extends PresentRules {
 
 /** The id of the party's own character (made with the party sheet). */
 export const PARTY_ID = 'party'
+/** The id of a trip's map sheet when no host names the map (a trip without one, in Travel). */
+export const MAP_ID = 'map'
 
 /** What the session keeps of the members (a trip's state has more). */
 export interface PartyTarget {
   /** The party itself, a character of the system's party sheet (none without one). */
   party?: CharacterState
+  /**
+   * The map the party is on, a character of the system's map sheet (`map.values.*`), its id
+   * the map's: the host keeps one per map and hands the trip the one it's on. None without one.
+   */
+  map?: CharacterState
   members?: CharacterState[]
   /** The copies of templates the trip made, where each was made (docs/bestiary.md). */
   present?: Present[]
@@ -108,7 +117,9 @@ export const sheetOf =
       ? rules.sheet.def
       : rules.partySheet && member.sheet === rules.partySheet.id
         ? rules.partySheet.def
-        : rules.sheets?.[member.sheet]
+        : rules.mapSheet && member.sheet === rules.mapSheet.id
+          ? rules.mapSheet.def
+          : rules.sheets?.[member.sheet]
 
 /** Whether the system has stats made of one character the player chooses (`from: { pick }`). */
 export const picksWho = (rules: PartyRules): boolean =>
@@ -137,6 +148,21 @@ function ensureParty(s: PartyTarget, rules: PartyRules): void {
     ),
   )
   s.party = createCharacter(own.def, own.id, { id: PARTY_ID, values }, rules.items)
+}
+
+/**
+ * A map's own sheet as it starts: the system's map sheet's defaults, rolled ones rolled for
+ * that map (its id); undefined for a system without one.
+ */
+export function newMapSheet(rules: PartyRules, map: string): CharacterState | undefined {
+  const own = rules.mapSheet
+  return own && createCharacter(own.def, own.id, { id: map }, rules.items)
+}
+
+/** The trip's map sheet is the system's (in place): a new one if it had none, or none. */
+function ensureMap(s: PartyTarget, rules: PartyRules): void {
+  if (!rules.mapSheet) delete s.map
+  else if (s.map?.sheet !== rules.mapSheet.id) s.map = newMapSheet(rules, MAP_ID)
 }
 
 /** A new member of the system's sheet, with its defaults and `init`. */
@@ -169,6 +195,7 @@ const hasMembers = (s: PartyTarget): s is PartyTarget & { members: CharacterStat
  */
 export function refreshParty(s: PartyTarget, rules: PartyRules): void {
   ensureParty(s, rules)
+  ensureMap(s, rules)
   syncPartySheet(s, rules)
   if (!hasMembers(s)) return
   for (const [id, stat] of Object.entries(rules.bindings?.stats ?? {}))
@@ -254,7 +281,7 @@ export function partyNumbers(
  * the party's items by id (read as their `count`, never under 0).
  */
 export function keptNumbers(
-  s: Pick<PartyTarget, 'party' | 'members'>,
+  s: Pick<PartyTarget, 'party' | 'members' | 'map'>,
   rules: PartyRules,
 ): Record<string, Bounds & { read?: string }> {
   const out: Record<string, Bounds & { read?: string }> = {}
@@ -262,6 +289,10 @@ export function keptNumbers(
   if (s.party && sheet)
     for (const [id, value] of Object.entries(sheet.values))
       if (value.from === undefined) out[`party.values.${id}`] = boundsOf(sheet, s.party, id)
+  const mapSheet = rules.mapSheet?.def
+  if (s.map && mapSheet)
+    for (const [id, value] of Object.entries(mapSheet.values))
+      if (value.from === undefined) out[`map.values.${id}`] = boundsOf(mapSheet, s.map, id)
   for (const path of Object.keys(partyNumbers(s, rules)))
     if (path.startsWith('party.items.')) out[path] = { min: 0, read: `${path}.count` }
   return out
@@ -324,11 +355,11 @@ export function memberFacts(
  * `characters.<id>`, `acting`, `roles.<id>` (whoever holds the role).
  */
 export const MEMBER_PATH =
-  /^(party\.members|party|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions|items)\.(.+)$/
+  /^(party\.members|party|map|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions|items)\.(.+)$/
 
 /** Whether an effect's path is about members (`party.members.…`, `characters.<id>.…`, `acting.…`). */
 export const isMemberPath = (path: string): boolean =>
-  MEMBER_PATH.exec(path)?.[1] !== undefined && MEMBER_PATH.exec(path)?.[1] !== 'party'
+  !['party', 'map', undefined].includes(MEMBER_PATH.exec(path)?.[1])
 
 /** Whether an effect's path is about the party's own sheet (`party.values.…`, `party.conditions.…`). */
 export const isPartySheetPath = (path: string): boolean => MEMBER_PATH.exec(path)?.[1] === 'party'
@@ -377,8 +408,9 @@ export function applyMemberEffects(
   const places: { at: string; place: MadePlace }[] = []
   const unknownPlaces: string[] = []
   const connections: ConnectionChange[] = []
-  // A party played as a whole, without a sheet of its own: only those present are changed.
+  // A party played as a whole, without a sheet of its own: only those present (and the map) are changed.
   const whole = !s.members?.length && !s.party
+  const mapPath = (path: string) => !!s.map && MEMBER_PATH.exec(path)?.[1] === 'map'
   /** One copy by its id (`characters.wolf-2.…`), which a party played as a whole may change. */
   const copyPath = (path: string) => {
     const who = MEMBER_PATH.exec(path)?.[1]
@@ -390,7 +422,12 @@ export function applyMemberEffects(
   if (
     whole &&
     !Object.keys(effects).some(
-      (p) => PRESENT_PATH.test(p) || PLACE_PATH.test(p) || CONNECTION_EFFECT.test(p) || copyPath(p),
+      (p) =>
+        PRESENT_PATH.test(p) ||
+        PLACE_PATH.test(p) ||
+        CONNECTION_EFFECT.test(p) ||
+        copyPath(p) ||
+        mapPath(p),
     )
   )
     return { limits, events, nobody, unknown, present, places, unknownPlaces, connections }
@@ -419,7 +456,9 @@ export function applyMemberEffects(
   /** A character's new state in the party, with what happened to it. */
   const keep = (target: CharacterState, next: CharacterState, happened: CharacterEvent[]) => {
     const own = target.id === PARTY_ID && target === s.party
-    if (own) {
+    const map = target === s.map
+    if (map) s.map = next
+    else if (own) {
       s.party = next
       // The values changed (the one written, and those made of it): the stats follow them.
       const moved = new Set(happened.flatMap((e) => (e.type === 'VALUE_CHANGED' ? [e.value] : [])))
@@ -434,7 +473,11 @@ export function applyMemberEffects(
       events.push(e)
       if (e.type === 'LIMIT_REACHED')
         limits.push({
-          path: own ? `party.values.${e.value}` : `characters.${target.id}.values.${e.value}`,
+          path: own
+            ? `party.values.${e.value}`
+            : map
+              ? `map.values.${e.value}`
+              : `characters.${target.id}.values.${e.value}`,
           limit: e.limit,
           value: next.values[e.value],
         })
@@ -550,7 +593,7 @@ export function applyMemberEffects(
       }
       continue
     }
-    if (whole && !copyPath(path)) continue
+    if (whole && !copyPath(path) && !mapPath(path)) continue
     const [, who, part, id] = MEMBER_PATH.exec(path) ?? []
     if (!who) continue
     if (who === 'party' && part === 'items') {
@@ -573,13 +616,17 @@ export function applyMemberEffects(
         ? s.party
           ? [s.party]
           : []
-        : who === 'party.members'
-          ? members
-          : who === 'acting'
-            ? members.filter((m) => m.id === s.acting)
-            : who.startsWith('roles.')
-              ? members.filter((m) => m.id === holder)
-              : characterById(who.slice('characters.'.length))
+        : who === 'map'
+          ? s.map
+            ? [s.map]
+            : []
+          : who === 'party.members'
+            ? members
+            : who === 'acting'
+              ? members.filter((m) => m.id === s.acting)
+              : who.startsWith('roles.')
+                ? members.filter((m) => m.id === holder)
+                : characterById(who.slice('characters.'.length))
     if (!targets.length) {
       // Nobody acting, or nobody holding the role: nothing happens, and the journal says so.
       ;(who === 'acting' || who.startsWith('roles.') ? nobody : unknown).push(path)
@@ -594,9 +641,11 @@ export function applyMemberEffects(
       const now =
         target.id === PARTY_ID && who === 'party'
           ? s.party!
-          : ((s.members ?? []).find((m) => m.id === target.id) ??
-            s.present?.find((p) => p.character.id === target.id)?.character ??
-            target)
+          : who === 'map'
+            ? s.map!
+            : ((s.members ?? []).find((m) => m.id === target.id) ??
+              s.present?.find((p) => p.character.id === target.id)?.character ??
+              target)
       applyTo(now, rest, change)
     }
   }
@@ -632,6 +681,13 @@ export function settleStates(
       s.party = done.state
       events.push(...done.events)
       syncPartySheet(s, rules)
+    }
+  }
+  if (s.map && rules.mapSheet?.def) {
+    const done = settleCharacter(rules.mapSheet.def, s.map, options)
+    if (done.events.length) {
+      s.map = done.state
+      events.push(...done.events)
     }
   }
   if (s.members?.length)

@@ -63,7 +63,7 @@ export type Declared =
   /** A part of a division of its calendar's day: `morning` of `part`. */
   | { kind: 'day-part'; division: string; id: string }
 
-export type SheetScope = 'members' | 'party' | 'factions'
+export type SheetScope = 'members' | 'party' | 'map' | 'factions'
 
 const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists'])
 /**
@@ -223,7 +223,12 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
   }
 
   // Its sheets: a bound may read another value of the same sheet (`max: '{{self.values.maxHealth}}'`).
-  const sheets = [system.sheet?.id, system.partySheet?.id, system.factions?.sheet.id]
+  const sheets = [
+    system.sheet?.id,
+    system.partySheet?.id,
+    system.mapSheet?.id,
+    system.factions?.sheet.id,
+  ]
   for (const id of new Set(sheets.filter((s): s is string => !!s))) {
     const def = extra('sheet', id)
     if (!def) continue
@@ -463,12 +468,13 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       break
     default: {
       const part = { 'sheet-value': 'values', 'sheet-condition': 'conditions' }[declared.kind]
-      const who = { members: MEMBER, party: 'party', factions: FACTION }[declared.sheet]
+      const who = { members: MEMBER, party: 'party', map: 'map', factions: FACTION }[declared.sheet]
       const named = new RegExp(`^${who}\\.${part}\\.${id}$`)
       const listed = new RegExp(`^${who}\\.${part}$`)
       const sheetId = {
         members: system?.sheet?.id,
         party: system?.partySheet?.id,
+        map: system?.mapSheet?.id,
         factions: system?.factions?.sheet.id,
       }[declared.sheet]
       const own = (u: Use) =>
@@ -482,12 +488,14 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
             declared.sheet === 'party' && part === 'values' && s.from?.party === declared.id,
         )
         .map(([s]) => `party.stats.${s}`)
-      // The party's values: what the trip spent and gained of them, and their bounds hit.
-      const full = `party.values.${declared.id}`
+      // The party's values: what the trip spent and gained of them, and their bounds hit; the
+      // map's: their bounds hit.
+      const full = `${declared.sheet}.values.${declared.id}`
       const party = (u: Use) =>
-        declared.sheet === 'party' &&
         part === 'values' &&
-        (u.name === `trip.spent.${full}` || u.name === `trip.gained.${full}` || bound(u, full))
+        ((declared.sheet === 'party' &&
+          (u.name === `trip.spent.${full}` || u.name === `trip.gained.${full}`)) ||
+          (['party', 'map'].includes(declared.sheet) && bound(u, full)))
       match = (u) =>
         named.test(u.name) ||
         (listed.test(u.name) && has(u)) ||
@@ -542,6 +550,7 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
   const sheets: [SheetScope, { values?: unknown; conditions?: unknown } | undefined][] = [
     ['members', system.sheet?.def],
     ['party', system.partySheet?.def],
+    ['map', system.mapSheet?.def],
     ['factions', system.factions?.sheet.def],
   ]
   for (const [sheet, def] of sheets) {

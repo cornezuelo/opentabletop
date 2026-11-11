@@ -506,6 +506,18 @@ relations: # kinds of relation a character may hold to anything with a reference
 - Conditions and tables read each character as `characters.<id>.…`, the one acting now as `acting.…`, and the party's ids as `party.members`; effects change them (`party.members.values.health: 1`, `acting.conditions.wounded: true`). See [What tables see](04-what-tables-see.md#characters).
 - Translated like any other kind, keyed `sheet/<id>`, by value, group, condition and relation (`values: { health: { name: Salud } }`), and levels by id (`values: { harm: { levels: { unhurt: Ileso } } }`).
 - **The party's own sheet** (`partySheet:` in its [system](#systems)) is a sheet like this one for the party itself: what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels, while characters join and leave. Tables read it as `party.values.<id>`, `party.conditions` and `party.tags`; effects change it (`party.values.morale: -1`, `party.conditions.shaken: true`), within its bounds; a new trip starts with each value's `default`. What the party carries is a value of it (`party.values.food`), or items: `party.items.<item>` are its own and its characters' together (`party.items.ration.count`, every item of the catalogues there from 0), an effect on them (`party.items.ration: -3`) takes from its own first, then from the characters by their sheet's `share`, and a gain goes to the characters so (to its own when it has none); its conditions' `blocks` stop the whole party. A party stat can be one of its values (`stats: { morale: { from: { party: morale } } }`): the stat is that value, takes its bounds, and effects on `party.stats.morale` change the sheet. The trip shows its card above the characters.
+- **Each map's own sheet** (`mapSheet:` in its [system](#systems)) is a sheet like this one for each map: what a map keeps of its own (a dungeon's alarm, a domain's dice, how stirred its dead are), whoever comes. Tables read the one of the map the party is on as `map.values.<id>`, `map.conditions` and `map.tags`; effects change it (`map.values.alarm: 1`), within its bounds; its conditions hold by themselves with `when` (`self.values.alarm: { gte: 3 }`). Each map has its own, kept by its campaign: a map starts with each value's `default` the first time a trip plays on it (rolled defaults, `'{{1d6}}'`, rolled for that map), and a trip that leaves and comes back, or a new trip there, finds it as it was left. A trip without a map (Travel) keeps one of its own. The trip shows its card in the **Party** tab, under the map's name for it (_This map_ without one).
+
+```yaml
+kind: sheet
+id: dungeon
+name: The dungeon
+values:
+  alarm: { name: Alarm, default: 0, min: 0, max: 3 }
+  depth: { name: Depth, default: '{{1d6}}' } # rolled for each map
+conditions:
+  roused: { name: Roused, when: { self.values.alarm: { gte: 3 } } }
+```
 
 ## Item catalogues
 
@@ -760,6 +772,7 @@ bindings: bindings.default # its bindings
 calendar: calendar.marcher-reckoning # its calendar
 sheet: sheet.companion # its characters' sheet
 partySheet: sheet.company # the party's own sheet
+mapSheet: sheet.this-place # each map's own sheet
 factions: factions.default # the powers of its world
 clocks: clocks.default # the progress clocks its world starts with
 world: world.default # what its world does by itself
@@ -774,7 +787,7 @@ maps: [maps/grey-marches.otd.json] # example maps, files of this pack
 style: core/parchment # the map style its new blank maps start in
 ```
 
-- Every part is optional. Without `travel`, the system doesn't travel (Play and Travel say so; its world, oracle and factions still play), and any system can name Core's, `travel: core/travel-rules.default`, the **Generic rules** (with `calendar: core/calendar.default`, whose parts of the day they name, and `bindings: core/bindings.default` with `weather: [core/weather.default]`, which roll their weather check); without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `land`, it has no land model to discover or generate with; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `sheet`, its party is played as a whole; without `bestiary`, its results make no copies of templates; without `places`, they make no places from templates. Core's own system, `core`, is the one a map plays when it chooses none: [the Generic rules](../bundled/01-core.md#the-generic-rules).
+- Every part is optional. Without `travel`, the system doesn't travel (Play and Travel say so; its world, oracle and factions still play), and any system can name Core's, `travel: core/travel-rules.default`, the **Generic rules** (with `calendar: core/calendar.default`, whose parts of the day they name, and `bindings: core/bindings.default` with `weather: [core/weather.default]`, which roll their weather check); without `bindings`, no table answers its checks (they're only written in the journal, and stop the trip only with `pause: true`) and the party has no stats; without `calendar`, the default one; without `weather`, its bindings can't name a weather model; without `land`, it has no land model to discover or generate with; without `clocks`, its world starts with no progress clocks (they can still be made by hand); without `partySheet`, the party has no sheet of its own; without `mapSheet`, maps keep no values of their own; without `sheet`, its party is played as a whole; without `bestiary`, its results make no copies of templates; without `places`, they make no places from templates. Core's own system, `core`, is the one a map plays when it chooses none: [the Generic rules](../bundled/01-core.md#the-generic-rules).
 - Each part is a definition of this pack, by its kind and id (`travel: travel-rules.default`), or of a pack it depends on (`travel: core/travel-rules.slow`, with `core` in its `dependencies`). `packs` lists dependencies too; the system's own pack is always included.
 - **Its id:** a system with `id: default` is chosen by its pack's id (`grey-marches`), any other by pack and id (`grey-marches/winter`). A pack may declare several, e.g. the same land in summer and in winter with other travel rules.
 - `name` and `description` are what players read (the name is the pack's when missing); translate them in `locales/<language>/` keyed `system/<id>`, like the other kinds.

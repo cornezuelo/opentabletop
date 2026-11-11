@@ -6,10 +6,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- Map and Travel: a system's **sheet of each map** (`mapSheet`) shows in the trip's **Party** tab as the map's own card (_This map_), edited like the party's; each map's is kept by the campaign (campaigns v8) and in the map's file.
+- Packs: **Each map's sheet** in a system's Overview, and **New map sheet** in Sheet.
 - Map: in Play, **W A S D** walk the party as the arrows do; in a room, a key steps one cell (no time passes, the room being one place), and a step onto a door or a corridor out of it is a step of the trip.
 
 ### Packs
 
+- **Values kept per map** (`mapSheet: sheet.<id>` in `kind: system`): a sheet each map has of its own, read and changed on a trip as `map.values.<id>`, `map.conditions`, `map.tags`, within its bounds, its rolled starts rolled for each map; a trip that leaves and comes back finds it as it was. Core's _This map_ counts Explore; the Grey Marches' _This place_ keeps how stirred each map's dead are (Force the door stirs them, and once they stir the noise is always heard).
 - The Grey Marches: nobody gets lost in Ashford: the village is a region with a value (`settled`), which Getting lost and Lost in the dark leave out.
 
 ### Fixes

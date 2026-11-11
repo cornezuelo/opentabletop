@@ -68,7 +68,7 @@
   import PartyMembers from './PartyMembers.svelte'
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
-  import { CharacterCard, SheetOrigin } from '@open-tabletop/character-ui'
+  import { CharacterCard, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import { WorldWaiting } from '@open-tabletop/campaign-ui'
 
@@ -219,6 +219,10 @@
       editPartySheet(copy, partyOf(system), next)
       return copy
     })
+  }
+  /** The map's own sheet changed by hand. */
+  function editMap(next: NonNullable<SessionState['map']>) {
+    onedit((s) => ({ ...s, map: next }))
   }
   const actions = $derived(availableActions(system.rules))
   /** The actions that move the party (a `travel.move` step): they need a route. */
@@ -870,6 +874,25 @@
           {nameOf}
           {onedit}
         />
+      {/if}
+      {#if system.mapSheet && session.map}
+        <Section
+          title={sheetText(system.mapSheet.def.name, locale) || t('mapSheet.title')}
+          help={t('mapSheet.help')}
+        >
+          <SheetOrigin sheet={system.mapSheet} {system} {locale} where={systemWhere} />
+          <CharacterCard
+            sheet={system.mapSheet.def}
+            character={session.map}
+            catalogues={system.items}
+            {locale}
+            names={blockName}
+            path="map"
+            time={session.travel.time}
+            named={false}
+            onchange={editMap}
+          />
+        </Section>
       {/if}
       {#if system.bestiary?.length || session.present?.length}
         <PresentHere

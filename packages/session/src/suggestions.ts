@@ -114,6 +114,7 @@ export function contextSuggestions(
     calendar,
     sheet,
     partySheet,
+    mapSheet,
     factions,
     clocks,
     items,
@@ -219,12 +220,17 @@ export function contextSuggestions(
     // and what hit a bound, by full name.
     const numbers = [
       ...Object.keys(partySheet?.def.values ?? {}).map((v) => `party.values.${v}`),
+      ...Object.keys(mapSheet?.def.values ?? {}).map((v) => `map.values.${v}`),
       ...[...new Set((items ?? []).flatMap((c) => Object.keys(c.def.items)))].map(
         (id) => `party.items.${id}`,
       ),
     ]
     for (const value of Object.keys(partySheet?.def.values ?? {})) add(`party.values.${value}`)
     if (partySheet) add('party.conditions', ...Object.keys(partySheet.def.conditions))
+    // The map the party is on: its own sheet.
+    for (const value of Object.keys(mapSheet?.def.values ?? {})) add(`map.values.${value}`)
+    if (mapSheet) add('map.conditions', ...Object.keys(mapSheet.def.conditions))
+    if (mapSheet) add('map.tags')
     for (const c of items ?? [])
       for (const [id, item] of Object.entries(c.def.items)) {
         add(`party.items.${id}.count`)
@@ -401,6 +407,7 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     bindings,
     sheet,
     partySheet,
+    mapSheet,
     factions,
     clocks,
     items,
@@ -450,6 +457,10 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     for (const value of Object.keys(partySheet?.def.values ?? {})) out[`party.values.${value}`] = []
     for (const c of Object.keys(partySheet?.def.conditions ?? {}))
       out[`party.conditions.${c}`] = ['true', 'false']
+    // The map the party is on: its own sheet.
+    for (const value of Object.keys(mapSheet?.def.values ?? {})) out[`map.values.${value}`] = []
+    for (const c of Object.keys(mapSheet?.def.conditions ?? {}))
+      out[`map.conditions.${c}`] = ['true', 'false']
     for (const c of items ?? [])
       for (const id of Object.keys(c.def.items)) out[`party.items.${id}`] = ['1', '-1']
     // Its characters: every member, the one acting, one by id.

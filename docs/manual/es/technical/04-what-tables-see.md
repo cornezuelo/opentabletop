@@ -6,17 +6,18 @@ Cada tirada recibe un **contexto**: valores que una tabla puede usar en sus dado
 
 Cada valor tiene un **nombre completo** que dice de dónde sale (`place.terrain`) y casi todos también un **nombre corto** (`terrain`). Los dos leen el mismo valor: `terrain: forest` y `place.terrain: forest` se cumplen en las mismas casillas, y `{{season}}` escribe lo mismo que `{{time.season}}`.
 
-| Nombres completos    | De qué tratan                                                                                     |
-| -------------------- | ------------------------------------------------------------------------------------------------- |
-| `place.*`            | [el sitio](#el-sitio-place): su id, terreno, etiquetas, región, icono y sus propios valores       |
-| `time.*`             | [el momento](#el-momento-time): estación, día, hora, las partes del día y el calendario           |
-| `system.*`           | [el día del propio sistema](#el-dia-del-sistema-system), como números                             |
-| `trip.*`             | [el viaje](#el-viaje-trip): su día, la forma de viajar, el clima, lo que ha hecho                 |
-| `world.*`            | [el reloj del mundo](#el-mundo-world-y-las-facciones) (el de la campaña)                          |
-| `party.*`            | [el grupo](#el-grupo-party): sus características, su hoja, sus objetos y personajes               |
-| `present.*`          | [los presentes](#los-presentes-present): copias de las plantillas del sistema donde está el grupo |
-| `today.*`            | [los valores del día](#los-valores-del-dia-today-yesterday), y `yesterday.*` los del día anterior |
-| `from.*`, `around.*` | [la casilla que se deja y los de alrededor](#alrededor-del-grupo-from-around)                     |
+| Nombres completos    | De qué tratan                                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| `place.*`            | [el sitio](#el-sitio-place): su id, terreno, etiquetas, región, icono y sus propios valores          |
+| `time.*`             | [el momento](#el-momento-time): estación, día, hora, las partes del día y el calendario              |
+| `system.*`           | [el día del propio sistema](#el-dia-del-sistema-system), como números                                |
+| `trip.*`             | [el viaje](#el-viaje-trip): su día, la forma de viajar, el clima, lo que ha hecho                    |
+| `world.*`            | [el reloj del mundo](#el-mundo-world-y-las-facciones) (el de la campaña)                             |
+| `party.*`            | [el grupo](#el-grupo-party): sus características, su hoja, sus objetos y personajes                  |
+| `map.*`              | [el mapa](#el-mapa-map): los valores, estados y etiquetas de su hoja propia, guardada para cada mapa |
+| `present.*`          | [los presentes](#los-presentes-present): copias de las plantillas del sistema donde está el grupo    |
+| `today.*`            | [los valores del día](#los-valores-del-dia-today-yesterday), y `yesterday.*` los del día anterior    |
+| `from.*`, `around.*` | [la casilla que se deja y los de alrededor](#alrededor-del-grupo-from-around)                        |
 
 - **Los nombres cortos** se escriben antes, y son los que escribes en la caja **Contexto** del Oráculo: `terrain: forest` ahí también rellena `place.terrain`.
 - **Los nombres completos** no se pueden tapar: una característica del grupo, un valor del día o el contexto de un binding llamado `weather` o `day` ocupa el nombre corto (ver [Qué valor gana](#que-valor-gana)), nunca el completo. Las reglas de viaje de las Marcas Grises y las reglas genéricas los usan.
@@ -164,6 +165,15 @@ Un efecto `place.connections.<tipo>.<clave>` hace lo mismo con cada conexión de
 | _cada característica_            | número       | `{{charisma}}`: la característica por su propio nombre (la forma corta).                                                                                                                                                                                                           |
 
 También en las tiradas a mano durante un viaje.
+
+## El mapa, `map.*`
+
+La hoja propia del mapa en el que está el grupo (la `mapSheet` de su sistema: [Hojas](07-kinds.md#hojas)), que su campaña guarda para cada mapa; un viaje sin mapa tiene una propia. Sin hoja de mapa, aquí no hay nada.
+
+| Nombre                       | Tipo         | Qué es                                                                                                                                                             |
+| ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `map.values.<valor>`         | número       | Los valores del mapa en el que está el grupo, los de su hoja propia (Packs → **Hoja**, la de cada mapa: `mapSheet`), guardados para cada mapa: `map.values.alarm`. |
+| `map.conditions`, `map.tags` | lista de ids | Los estados y etiquetas de la hoja propia del mapa: `map.conditions: roused`.                                                                                      |
 
 ## Los valores del día, `today.*`, `yesterday.*`
 

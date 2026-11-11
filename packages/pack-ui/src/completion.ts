@@ -145,6 +145,7 @@ const REF_KEYS = new Set(['table', 'generator', 'deck', 'resolve', 'turn'])
 const NAMED_KEYS: Record<string, string> = {
   sheet: 'sheet',
   partySheet: 'sheet',
+  mapSheet: 'sheet',
   calendar: 'calendar',
   bindings: 'bindings',
   factions: 'factions',

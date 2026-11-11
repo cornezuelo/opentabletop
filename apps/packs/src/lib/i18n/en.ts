@@ -187,12 +187,14 @@ export const en = {
     sheet: {
       title: 'Its sheets: the party and its characters',
       intro:
-        "Two sheets, both optional. **The party's own** (`partySheet`): what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels. **Its characters'** (`sheet`): what each character has, so the party can be made of characters who join and leave; the **Checks** tab says which party stats come from them, and the party's items are theirs together. Each has values with their bounds, tracks, conditions and relations. When the system has factions, **their sheet** (chosen in the **Factions** tab) is edited here too.",
-      help: "Named in its **Overview** (`partySheet:`, `sheet:`). Conditions and tables read the party's sheet and each character:\n• `party.values.morale: { gte: 3 }` — the party\n• `characters.kael.values.health: { lte: 1 }` — one by id\n• `acting.values.wits: { gte: 3 }` — the one acting now\nEffects change them:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — every character\nA party stat can be a value of the party sheet: `from: { party: morale }` (in **Checks**).",
+        "Two sheets, both optional. **The party's own** (`partySheet`): what belongs to the whole party (morale, fatigue, hirelings…), in every trip whoever travels. **Its characters'** (`sheet`): what each character has, so the party can be made of characters who join and leave; the **Checks** tab says which party stats come from them, and the party's items are theirs together. **Each map's** (`mapSheet`): what a map keeps of its own (a dungeon's alarm, a domain's dice), kept for each map and remembered when the party comes back. Each has values with their bounds, tracks, conditions and relations. When the system has factions, **their sheet** (chosen in the **Factions** tab) is edited here too.",
+      help: "Named in its **Overview** (`partySheet:`, `sheet:`, `mapSheet:`). Conditions and tables read the party's sheet, each character and the map the party is on:\n• `party.values.morale: { gte: 3 }` — the party\n• `map.values.alarm: { gte: 2 }` — the map\n• `characters.kael.values.health: { lte: 1 }` — one by id\n• `acting.values.wits: { gte: 3 }` — the one acting now\nEffects change them:\n• `party.values.morale: -1`\n• `party.members.values.health: -1` — every character\nA party stat can be a value of the party sheet: `from: { party: morale }` (in **Checks**).",
       none: 'This system has no sheet: its party is played as a whole, with its stats.',
       create: 'New characters sheet',
       createParty: 'New party sheet',
+      createMap: 'New map sheet',
       partyTab: 'the party',
+      mapTab: 'each map',
       charactersTab: 'its characters',
       factionsTab: 'the factions',
       onlyParty: "This is the party's own sheet; the system has none for its characters yet.",
@@ -739,6 +741,9 @@ export const en = {
     partySheet: 'The party’s sheet',
     partySheetHelp:
       'A sheet of the party itself, beside its characters’ (`partySheet:`).\n• `sheet.party`',
+    mapSheet: 'Each map’s sheet',
+    mapSheetHelp:
+      'A sheet each map has of its own (`mapSheet:`): what a map keeps, read and changed on a trip as `map.values.<id>`, kept for each map and remembered when the party comes back. A new map starts with its defaults, rolled ones rolled for that map.\n• `sheet.dungeon`\n• `map.values.alarm: 1` — an effect on the map the party is on',
     factions: 'Factions',
     factionsHelp:
       'The powers of its world (`factions:`). Edited in **Factions**.\n• `factions.default`',
@@ -787,6 +792,7 @@ export const en = {
     no: {
       sheet: '(none)',
       partySheet: '(none)',
+      mapSheet: '(none)',
       factions: '(none)',
       clocks: '(none)',
       world: '(none)',

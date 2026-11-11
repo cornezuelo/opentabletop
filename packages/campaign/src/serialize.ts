@@ -24,9 +24,10 @@ import type {
  * when next seen is taken as seen); v6: a moment waiting names what it's heard by (`at`),
  * world turns too, not only clocks (`{ clock, ids }` before), and what the world waits for
  * the player to answer (`waiting`), none in older campaigns; v7: the trip going on in a map
- * is in the app `map` (`hexmapper` before the app was called Map).
+ * is in the app `map` (`hexmapper` before the app was called Map); v8: each map's own sheet
+ * (`mapSheets`), none in older campaigns.
  */
-export const CAMPAIGN_VERSION = 7
+export const CAMPAIGN_VERSION = 8
 
 const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {
   5: (data) =>
@@ -110,9 +111,21 @@ export function deserializeCampaign(json: string): Campaign {
     ...readSetup(data),
     ...readParts(data),
     ...(isTrip(data.playing) && { playing: data.playing }),
+    ...readMapSheets(data.mapSheets),
     ...readMoments(data.moments),
     ...readWaiting(data.waiting),
   }
+}
+
+/** Each map's own sheet, those that are one (a character with its sheet). */
+export function readMapSheets(raw: unknown): Pick<Campaign, 'mapSheets'> {
+  if (!isRecord(raw)) return {}
+  const sheets = Object.fromEntries(
+    Object.entries(raw).filter(
+      ([, c]) => isRecord(c) && typeof c.id === 'string' && typeof c.sheet === 'string',
+    ),
+  ) as Record<string, CharacterState>
+  return Object.keys(sheets).length ? { mapSheets: sheets } : {}
 }
 
 const REST_KINDS = ['steps', 'reactions', 'clocks', 'clockThen', 'effects', 'turns']

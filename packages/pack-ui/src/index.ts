@@ -11,6 +11,7 @@ export { completeYaml, yamlHints, type YamlHints } from './completion'
 export {
   FACTION_SHEET,
   PARTY_SHEET,
+  MAP_SHEET,
   PART_KINDS,
   SYSTEM_KINDS,
   LAND_STARTS,

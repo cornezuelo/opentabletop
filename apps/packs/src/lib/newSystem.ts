@@ -13,6 +13,7 @@ import {
   MANIFEST_FILE,
   manifestOf,
   PARTY_SHEET,
+  MAP_SHEET,
   SYSTEM_TEMPLATES,
   type LandStart,
   type PackFile,
@@ -480,14 +481,14 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
   else if (kind === 'sheet') {
-    // Its characters' sheet, then the party's own, then its factions' (unless it's one of those).
+    // Its characters' sheet, the party's own, the map's, then its factions' (unless it's one of those).
     refs = data
-      ? (['sheet', 'partySheet'] as const).flatMap((key) =>
+      ? (['sheet', 'partySheet', 'mapSheet'] as const).flatMap((key) =>
           typeof data[key] === 'string' ? [data[key] as string] : [],
         )
       : ownOfKind(pack).slice(0, 1)
     const factions = system.factions?.sheet.id
-    const taken = [system.sheet?.id, system.partySheet?.id]
+    const taken = [system.sheet?.id, system.partySheet?.id, system.mapSheet?.id]
     if (factions && !taken.includes(factions)) {
       const [owner, id] = factions.split('/', 2)
       refs.push(writeRef('sheet', id, owner === pack ? undefined : owner))
@@ -515,8 +516,8 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
 export function createSystemPart(
   system: TravelSystem,
   kind: PartTabKind,
-  /** A sheet for the party itself (`partySheet`), not for its characters. */
-  party = false,
+  /** A sheet for the party itself (`partySheet`) or for each map (`mapSheet`), not for its characters. */
+  whose?: 'party' | 'map',
   /** What a land model starts from. */
   land: LandStart = 'open',
 ): string | null {
@@ -526,8 +527,8 @@ export function createSystemPart(
   const taken = (library.registry.extras.get(pack) ?? [])
     .filter((e) => e.kind === kind)
     .map((e) => e.id ?? 'default')
-  const base = party
-    ? 'party'
+  const base = whose
+    ? whose
     : kind === 'calendar' || kind === 'weather' || kind === 'sheet' || kind === 'land'
       ? kind
       : kind === 'items'
@@ -544,13 +545,15 @@ export function createSystemPart(
       file,
       appendDefinition(
         library.readFile(root, file) ?? '',
-        party
+        whose === 'party'
           ? PARTY_SHEET(id)
-          : kind === 'bestiary'
-            ? bestiaryTemplate(id, system)
-            : kind === 'land'
-              ? LAND_STARTS[land](id)
-              : SYSTEM_TEMPLATES[kind](id),
+          : whose === 'map'
+            ? MAP_SHEET(id)
+            : kind === 'bestiary'
+              ? bestiaryTemplate(id, system)
+              : kind === 'land'
+                ? LAND_STARTS[land](id)
+                : SYSTEM_TEMPLATES[kind](id),
       ),
     )
     // New factions name a sheet `faction`: written beside them when the pack has none.
@@ -580,7 +583,7 @@ export function createSystemPart(
     library.writeFile(
       root,
       declared.path,
-      setIn(text, selector, [party ? 'partySheet' : kind], value),
+      setIn(text, selector, [whose ? `${whose}Sheet` : kind], value),
     )
   })
   return id

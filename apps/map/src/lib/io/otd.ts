@@ -17,6 +17,7 @@ import {
   createCampaign,
   factionsOn,
   openMap,
+  readMapSheets,
   withNotes,
   withSetup,
   type Campaign,
@@ -155,6 +156,8 @@ interface MapExt {
   names?: Record<string, Partial<Pick<HexData, 'showName' | 'nameStyle' | 'nameOffset'>>>
   /** The campaign's hand rolls (the Oracle state itself is the bundle's state.oracle). */
   oracleHistory?: NonNullable<Campaign['oracle']>['history']
+  /** The map's own sheet (its system's `mapSheet`), as the campaign keeps it. */
+  mapSheet?: NonNullable<Campaign['mapSheets']>[string]
 }
 
 /** A map read from a file, with its campaign. */
@@ -237,6 +240,7 @@ export function mapToBundle(
     icons,
     ...(Object.keys(names).length && { names }),
     ...(campaign.oracle?.history.length && { oracleHistory: campaign.oracle.history }),
+    ...(campaign.mapSheets?.[map.meta.id] && { mapSheet: campaign.mapSheets[map.meta.id] }),
   }
   const otdMap: OtdMap = {
     id: map.meta.id,
@@ -729,6 +733,9 @@ export function bundleToMap(raw: unknown): OpenedMap {
     ...(typeof times?.created === 'string' && { created: times.created }),
     ...(typeof times?.modified === 'string' && { modified: times.modified }),
   }
+  // The map's own sheet goes back to the campaign.
+  const sheet = readMapSheets({ [opened.map.meta.id]: ext.mapSheet }).mapSheets
+  if (sheet) campaign.mapSheets = { ...campaign.mapSheets, ...sheet }
   return { map: opened.map, campaign }
 }
 

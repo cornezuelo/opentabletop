@@ -149,3 +149,17 @@ sheet/company:
     shaken:
       name: Desanimada
       description: Perdida en la oscuridad y asustada; no hay marcha forzada hasta que la Compañía descanse.
+sheet/this-place:
+  name: Este lugar
+  description: |-
+    Lo que un mapa de las Marcas guarda como suyo: cuán inquietos están sus muertos. Forzar una puerta de los Túmulos Hondos los agita, y una vez agitados el ruido de la siguiente se oye siempre. Cada mapa tiene el suyo, que se guarda cuando la Compañía se va y vuelve a estar cuando regresa.
+
+    **Enseña:** una hoja propia de cada mapa (`mapSheet`): un valor que guarda cada mapa (`map.values.unrest`), tirado para cada mapa la primera vez que se juega (`default: '{{1d2-1}}'`), subido por el efecto de una acción (`map.values.unrest: 1`), un estado del mapa que se cumple por sí solo (`stirring`, `when: { self.values.unrest: { gte: 2 } }`) y una entrada de tabla que lo lee (`unless: { map.conditions: stirring }`).
+  values:
+    unrest:
+      name: Muertos inquietos
+      description: Cuán agitados están los muertos de este lugar, de 0 a 3. Cada puerta forzada aquí suma 1; con 2 o más se agitan.
+  conditions:
+    stirring:
+      name: Los muertos se agitan
+      description: Los muertos de este lugar están atentos a cada sonido; el ruido de una puerta forzada aquí se oye siempre.
