@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.45.0] - 2026-11-12
+
 ### Apps
 
 - Map and Travel: a system's **sheet of each map** (`mapSheet`) shows in the trip's **Party** tab as the map's own card (_This map_), edited like the party's; each map's is kept by the campaign (campaigns v8) and in the map's file.
