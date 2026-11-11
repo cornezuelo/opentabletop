@@ -357,3 +357,25 @@ export function createMap(name = '', start: MapStart = {}): HexMap {
     layers: defaultLayers(),
   }
 }
+
+/**
+ * A new, empty map drawn like `map`: its grid, scale, print, palette, imported pictures,
+ * captions, style and layers, with nothing on it (a level further down, made in play).
+ */
+export function blankLike(map: HexMap, name = ''): HexMap {
+  const blank = createMap(name)
+  const { grid, scale, print, terrains, assets, captions, regionStyle, layers } =
+    structuredClone(map)
+  return {
+    ...blank,
+    meta: { ...blank.meta, ...(map.meta.style && { style: map.meta.style }) },
+    grid,
+    scale,
+    print,
+    terrains,
+    assets,
+    captions,
+    regionStyle,
+    layers,
+  }
+}

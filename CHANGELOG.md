@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- Pieces: an exit into a **new map** (`newMap: true`, or `{ name: … }`): laying its piece makes a blank sub-map under it, drawn like the map, taken with **Go in ↗** and laid piece by piece in turn. Packs' pieces form: **New map**. Core's _Stairs down_ lead to a level below; the Grey Marches' _A stair further down_ to _The deeper barrows_.
+
+### Fixes
+
+- Map: on a map laid piece by piece, going through a way into a sub-map no longer tries to lay a piece on the other map's place, which stopped the party at the way.
+
 ## [0.45.0] - 2026-11-12
 
 ### Apps

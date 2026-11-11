@@ -293,6 +293,10 @@ export const en = {
     noKind: '(choose)',
     entry: 'Way in',
     entryHelp: 'This exit may be the one the party comes in by. With none ticked, any may.',
+    newMap: 'New map',
+    newMapHelp:
+      "This exit leads into a **map of its own**, made when the piece is laid: a sub-map hanging from the piece's cell beside the letter, drawn like this map and blank, discovered the same way once the party goes in. The way is of the exit's kind, and the party takes it with **Go in**, as any way into a sub-map. It's never a way in.\n• **New map** ticked, name empty — the new map is called after this one (_Below The Deep Ways_)\n• name `The deeper ways` — that name, numbered if a map has it already",
+    newMapName: "New map's name",
     noExits: 'No letters in the drawing: laid from any side.',
   },
   placesForm: {

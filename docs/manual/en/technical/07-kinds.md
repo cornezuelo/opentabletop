@@ -632,6 +632,15 @@ pieces:
     exits: # each letter stands on the cell beyond the piece, next to one of its cells
       A: { kind: door, entry: true } # entry: it may be the way in (none says: any)
       B: { kind: door, tags: [narrow] }
+  stairs:
+    name: Stairs down
+    cells: |
+      A
+      .
+      B
+    exits:
+      A: { kind: door }
+      B: { kind: way-in, newMap: { name: The deeper ways } } # a map of its own, made as it's laid
   crypt:
     name: Crypt
     room: true # played as one place
@@ -651,6 +660,7 @@ pieces:
 - A first line that starts further in than the next needs `|2` after `cells:`, so YAML keeps its spaces.
 - A piece with no exits is laid from any side.
 - `exits` take `name`, `tags` and `fields` too: `C: { kind: hidden-path, fields: { state: hidden } }` is a way a check finds, and `B: { kind: door, fields: { state: barred } }` a door laid shut, kept so by its kind's `passable` until an action changes its state.
+- `newMap: true` (or `newMap: { name: … }`, the new map's name, translated like other texts): the exit leads into a map of its own, made when the piece is laid: a blank [sub-map](../map/13-sub-maps.md) drawn like the map, hanging from the piece's cell beside the letter, its way of the exit's `kind`; unnamed, it's called after the map above. It's never the way in, and leaves no connection beyond. [Pieces](../packs/24-pieces.md#an-exit-into-a-new-map).
 - Bound as `discover.piece` in [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end, keepOpen: true }`, a table or deck whose results `set: { piece: <id> }`. `keepOpen` (`true`, or a condition on what the table sees, `{ pieces.total: { lt: 8 } }`): while it holds, a piece that would leave no exit waiting anywhere on the map doesn't fit; `otherwise` is laid even so.
 - Translated keyed `pieces/<id>`, by piece (`pieces: { passage: { name: Pasillo } }`).
 

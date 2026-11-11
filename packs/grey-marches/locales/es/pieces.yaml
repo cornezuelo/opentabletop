@@ -12,25 +12,30 @@ pieces/deep-barrows:
     - `entry: true`: por qué salidas se puede entrar en una pieza
     - Una salida con valores (`fields: { state: hidden }`): un camino oculto que se encuentra con una comprobación
     - Una puerta colocada cerrada (`fields: { state: barred }`): no hay camino hasta que el grupo la fuerza (_Forzar la puerta_), y el ruido puede despertar lo que duerme aquí
+    - Una salida a un mapa nuevo (`newMap`): _Una escalera más abajo_ crea _Los túmulos más hondos_, un mapa propio colocado pieza a pieza como estos, con su propia hoja (_Este lugar_)
   pieces:
     stair-foot: { name: El pie de la escalera }
     passage: { name: Pasillo }
     flooded: { name: El pasillo inundado }
-    crypt: { name: Cripta }
+    crypt: { name: Cripta, exits: { C: { name: Una grieta tras los huesos } } }
     tomb: { name: La última tumba }
-    barred-passage: { name: Una puerta atrancada }
+    barred-passage: { name: Una puerta atrancada, exits: { B: { name: Una puerta atrancada } } }
+    stair-down:
+      name: Una escalera más abajo
+      exits: { B: { name: Una escalera más abajo, newMap: { name: Los túmulos más hondos } } }
     dead-end: { name: Un derrumbe }
 deep-barrows:
   name: El camino hacia abajo
   description: |-
     A qué da el siguiente camino. Las cartas robadas siguen robadas hasta que se acaba el mazo, así que los Túmulos Hondos no se repiten como lo haría una tabla.
 
-    **Enseña:** un **mazo** que nombra piezas (`set: { piece: crypt }`): cada carta robada es una pieza menos de su tipo.
+    **Enseña:** un **mazo** que nombra piezas (`set: { piece: crypt }`): cada carta robada es una pieza menos de su tipo; una carta es una escalera más abajo, a un mapa nuevo.
   cards:
     passage: Un pasillo
     flooded: Un pasillo inundado
     crypt: Una cripta
     barred: Una puerta atrancada
+    stair: Una escalera más abajo
     fall: Un derrumbe
 next-barrow:
   name: Qué hay más allá

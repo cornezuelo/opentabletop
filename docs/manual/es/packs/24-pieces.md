@@ -12,7 +12,7 @@ Un catálogo cada vez; **Nuevo catálogo de piezas** crea uno pequeño y lo aña
 - Sus **Marcas**: qué coloca cada marca de un dibujo, por id de terreno (`.` coloca `stone-floor`). Un terreno con **Suelo** en la paleta recibe sus muros de forma automática.
 - Sus **Piezas**, cada una por un **Id** (con el que la nombra una tabla), con su **Nombre** y:
   - su **Dibujo**, con la pieza tal como se verá a su lado. Una marca por casilla, un espacio para nada y una letra mayúscula por cada salida, en la casilla **más allá** de la pieza, junto a exactamente una de sus casillas: eso da la dirección de la salida. En hexágonos cada fila va a media casilla de la siguiente, así que las marcas quedan a dos caracteres unas de otras;
-  - sus **Salidas**, una por letra: el **Tipo** de conexión que deja en el mapa y **Entrada** si el grupo puede entrar por ella (si ninguna está marcada, por cualquiera);
+  - sus **Salidas**, una por letra: el **Tipo** de conexión que deja en el mapa, **Entrada** si el grupo puede entrar por ella (si ninguna está marcada, por cualquiera) y **Mapa nuevo** si lleva a un mapa propio ([abajo](#una-salida-a-un-mapa-nuevo));
   - **Una sala**: se juega como un solo lugar, un paso para entrar y una comprobación, igual que una región con **Se juega como un solo lugar** marcado;
   - **Se puede girar**: activado, se gira y se refleja para que encaje; sin activar, se coloca como está dibujada;
   - su **Contenido**, lo que se tira al entrar en lugar de lo del sistema (`table.crypt-contents`);
@@ -34,8 +34,14 @@ La tabla ve lo mismo que `discover.terrain`, más la salida que se cruza (`exit.
 
 Una pieza colocada se queda y es parte del mapa desde entonces: se puede editar en Editar, y <kbd>Ctrl</kbd>+<kbd>Z</kbd> no la deshace. Antes de cruzar no se ve nada: una salida solo muestra su tipo. Un sistema que quiera mirar por una puerta tiene una acción para ello.
 
+## Una salida a un mapa nuevo
+
+Una salida con **Mapa nuevo** marcado lleva a otra parte: una escalera más abajo, la salida de un nivel al siguiente. Al colocar su pieza se crea un mapa nuevo, un [submapa](../map/13-sub-maps.md) que cuelga de la casilla de la pieza junto a la letra, con un camino del **Tipo** de la salida. Está en blanco y dibujado como el mapa del que cuelga (su rejilla, escala, paleta y estilo), en la misma campaña, y se guarda en **Mapas**. Se llama como dice la salida (**Nombre del mapa nuevo**), o si no como el mapa de arriba (_Bajo Los Caminos Hondos_), con un número si ya hay un mapa con ese nombre.
+
+El grupo lo toma como cualquier camino a un submapa, con **Entrar ↗** en esa casilla; el viaje sigue allí y su primera pieza se coloca bajo el grupo, del mismo modo, así que un lugar puede bajar nivel tras nivel. El mapa nuevo tiene su propia [hoja](07-sheet.md) si el sistema tiene una para cada mapa (sus valores empiezan de nuevo). Una salida así nunca es una entrada, y no deja nada en la casilla de más allá. Al colocar una pieza mantenida abierta, un camino a un mapa nuevo cuenta como camino para seguir.
+
 ## Jugarlo
 
 En Mapa, en un mapa cuyo sistema tiene piezas: **Jugar**, marca **Descubrir el mapa al viajar** y elige **Por las salidas, pieza a pieza**. Se elige por mapa, así que un sistema puede descubrir su tierra casilla a casilla y colocar sus mazmorras por piezas. **Empezar a jugar** coloca al grupo en un mapa en blanco, con la primera pieza bajo sus pies. Una flecha marca cada salida que nadie ha cruzado: haz clic más allá, o camina con las flechas, y se coloca lo que haya.
 
-Los _Deep Barrows_ de las Marcas Grises lo enseñan todo, en un mapa bajo las Barrow-halls; las _Salas y pasillos_ de Core son lo más pequeño que funciona, en cuadrados y en hexágonos. Para la sintaxis, mira [Tipos](../technical/07-kinds.md#piezas).
+Los _Deep Barrows_ de las Marcas Grises lo enseñan todo, en un mapa bajo las Barrow-halls, con _Una escalera más abajo_ hacia _Los túmulos más hondos_; las _Salas y pasillos_ de Core son lo más pequeño que funciona, en cuadrados y en hexágonos, con su _Escalera abajo_ a un nivel inferior. Para la sintaxis, mira [Tipos](../technical/07-kinds.md#piezas).

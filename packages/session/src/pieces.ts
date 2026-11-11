@@ -27,11 +27,16 @@ export interface PieceExit {
   letter: string
   /** The connection's kind, as the system names it. */
   kind: string
-  name?: string
+  name?: LocalizedText
   tags?: string[]
   fields?: Record<string, string | number>
   /** It may be the way in. */
   entry: boolean
+  /**
+   * It leads into a map of its own, made when the piece is laid (`newMap`): a way from the
+   * piece's cell beside it, not a connection to the cell beyond. Its name, if it says one.
+   */
+  newMap?: { name?: LocalizedText }
   at: PieceCell
   floor: PieceCell
 }
@@ -62,7 +67,7 @@ export interface PiecesCatalogue {
 
 const CATALOGUE_KEYS = ['kind', 'id', 'name', 'description', 'grid', 'marks', 'pieces']
 const PIECE_KEYS = ['name', 'room', 'tags', 'fields', 'cells', 'exits', 'contents', 'turn']
-const EXIT_KEYS = ['kind', 'name', 'tags', 'fields', 'entry']
+const EXIT_KEYS = ['kind', 'name', 'tags', 'fields', 'entry', 'newMap']
 
 const isText = (v: unknown): v is LocalizedText =>
   (typeof v === 'string' && v !== '') ||
@@ -154,10 +159,21 @@ export function parsePieces(
       const tags = tagsOf(exit.tags)
       if (exit.fields !== undefined && !isValues(exit.fields))
         errors.push(`${where}.fields: expected values by key`)
+      if (exit.name !== undefined && !isText(exit.name))
+        errors.push(`${where}.name: expected a text`)
+      const newMap = exit.newMap
+      const made = newMap === true || (isRecord(newMap) && isText(newMap.name))
+      if (newMap !== undefined && newMap !== false && !made)
+        errors.push(`${where}.newMap: expected true, or the new map's name (\`{ name: … }\`)`)
+      if (made && exit.entry === true)
+        errors.push(`${where}: an exit into a new map can't be the way in`)
       exits.push({
         letter,
         kind: exit.kind,
-        ...(typeof exit.name === 'string' && exit.name && { name: exit.name }),
+        ...(isText(exit.name) && { name: exit.name }),
+        ...(made && {
+          newMap: isRecord(newMap) ? { name: newMap.name as LocalizedText } : {},
+        }),
         ...(tags?.length && { tags }),
         ...(isValues(exit.fields) && { fields: exit.fields }),
         entry: exit.entry === true,
@@ -236,6 +252,18 @@ export interface LaidPiece {
   /** The terrain of each cell it lays, by cell. */
   cells: Record<string, string>
   connections: LaidConnection[]
+  /** Ways into maps made with it (exits with `newMap`), for the host to make. */
+  ways?: LaidWay[]
+}
+
+/** A way from a laid piece into a new map, for the host to make: the map and the way into it. */
+export interface LaidWay {
+  /** The piece's cell it leads from. */
+  at: string
+  /** The connection's kind the way is. */
+  kind: string
+  /** The new map's name, in the language played, if the exit says one. */
+  name?: string
 }
 
 /** What fitting needs of the map. */
@@ -283,7 +311,8 @@ export function layPiece(
   const there = pieceCellOf(parseKey(from as HexKey), layout)
   const beside = sidesOf(layout).some((s) => here.x + s.x === there.x && here.y + s.y === there.y)
   const anyEntry = piece.exits.some((e) => e.entry)
-  const entries = piece.exits.filter((e) => e.entry || !anyEntry)
+  // An exit into a new map is never the way in: it leads elsewhere.
+  const entries = piece.exits.filter((e) => !e.newMap && (e.entry || !anyEntry))
   // With no exits, a piece is laid from any side, any of its cells where the party stands.
   const anchors = entries.length
     ? entries.map((exit) => ({ exit, floor: exit.floor }))
@@ -307,10 +336,11 @@ export function layPiece(
     const cells = Object.fromEntries(piece.cells.map((c) => [placed(c), c.terrain]))
     if (!Object.keys(cells).every((cell) => ground.free(cell))) continue
     const connections = piece.exits.flatMap((other): LaidConnection[] => {
-      if (other === exit) return []
+      if (other === exit || other.newMap) return []
       const beyond = placed(other.at)
       if (cells[beyond] || !(ground.free(beyond) || ground.floor(beyond))) return []
-      const { kind, name, tags } = other
+      const { kind, tags } = other
+      const name = other.name && localize(other.name, locale, 'en')
       const fields = valuesOf(other.fields)
       return [
         {
@@ -321,6 +351,11 @@ export function layPiece(
           ...(fields && { fields }),
         },
       ]
+    })
+    const ways = piece.exits.flatMap((other): LaidWay[] => {
+      if (!other.newMap) return []
+      const name = other.newMap.name && localize(other.newMap.name, locale, 'en')
+      return [{ at: placed(other.floor), kind: other.kind, ...(name && { name }) }]
     })
     const fields = valuesOf(piece.fields)
     return {
@@ -333,6 +368,7 @@ export function layPiece(
       mirror,
       cells,
       connections,
+      ...(ways.length && { ways }),
     }
   }
   return null

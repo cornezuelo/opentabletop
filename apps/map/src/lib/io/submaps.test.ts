@@ -113,6 +113,85 @@ describe('sub-maps', () => {
     },
   )
 
+  it(
+    'a stair further down makes a new map under the piece, and going in lays its first piece',
+    { timeout: 30_000 },
+    async () => {
+      vi.resetModules()
+      const actions = await import('./actions.svelte')
+      const { exampleMaps } = await import('./examples')
+      const { editor } = await import('../store/editor.svelte')
+      const { loadLinks, makeLaidWays, waysAt } = await import('./submaps')
+      const play = await import('../play/play')
+      const { getSystem } = await import('../play/systems')
+      const { layPiece, lookupPieces } = await import('@open-tabletop/session')
+      const { mapWorld } = await import('@open-tabletop/map')
+      const { seeded } = await import('@open-tabletop/random')
+      const deep = exampleMaps().find((m) => m.id === 'deepbarrows1')!
+      await actions.openExampleMap(exampleMaps().find((m) => m.id === 'hollowhills1')!)
+      await settle()
+      await actions.openExampleMap(deep)
+      await settle()
+      expect(editor.map.meta.id).toBe('deepbarrows1')
+      play.startOnBlankMap()
+      await settle()
+      const session = () => play.sessionOf(editor.map.play!)!
+      // The foot of the stair is laid under the party; a stair further down beyond its door.
+      const system = getSystem('grey-marches')
+      const open = play.playWorld(system).neighbors(session().travel.location)
+      const door = editor.map.connections.find(
+        (c) => c.kind === 'door' && c.between.some((cell) => open.includes(cell)),
+      )!
+      const [inside, beyond] = open.includes(door.between[1])
+        ? door.between
+        : [door.between[1], door.between[0]]
+      const piece = lookupPieces(system.pieces!)('stair-down', editor.map.grid)!
+      const world = mapWorld(editor.map)
+      const laid = layPiece(
+        'stair-down',
+        piece,
+        {
+          layout: editor.map.grid,
+          free: (cell) => !world.place(cell)?.terrain,
+          floor: (cell) => !!world.place(cell)?.floor,
+        },
+        beyond,
+        inside,
+        seeded(1),
+      )!
+      expect(laid.ways).toEqual([
+        { at: expect.any(String), kind: 'way-in', name: 'The deeper barrows' },
+      ])
+      // The stair's far end is no door to the cell beyond: it's the way down.
+      expect(laid.connections).toEqual([])
+      for (const [cell, terrain] of Object.entries(laid.cells))
+        editor.map.hexes[cell as keyof typeof editor.map.hexes] = { terrain }
+      editor.applyLaid([laid])
+      await makeLaidWays([laid])
+      await settle()
+      const below = [...maps.values()].find((m) => m.name === 'The deeper barrows')!
+      expect(below).toMatchObject({ parent: 'deepbarrows1' })
+      const way = waysAt(laid.ways![0].at)
+      expect(way.map((w) => w.map)).toEqual([below.id])
+
+      // Going down, by the stair: the new map opens, drawn like this one, its first piece laid.
+      play.step({ type: 'setDestination', place: way[0].there })
+      for (let i = 0; i < 12 && editor.map.meta.id === 'deepbarrows1'; i++) {
+        for (const c of session().travel.pendingChecks) play.resolvePending(c.id)
+        play.step({ type: 'action', id: 'march', with: { until: 'place' } })
+        await settle()
+      }
+      expect(editor.map.meta.id).toBe(below.id)
+      expect(editor.map.grid.kind).toBe('square')
+      expect(editor.map.meta.parent?.ways[0].kind).toBe('way-in')
+      expect(editor.map.pieces?.map((p) => p.id)).toEqual(['stair-foot'])
+      expect(session().travel.location).toBeTruthy()
+      // Its own sheet: what this map keeps starts afresh.
+      await loadLinks()
+      expect(editor.linked.parent?.meta.id).toBe('deepbarrows1')
+    },
+  )
+
   it('a map you have hangs from a cell, in this campaign, with its own sub-map', async () => {
     vi.resetModules()
     const { editor } = await import('../store/editor.svelte')

@@ -1,5 +1,6 @@
 import { formatCoord, parseKey } from '@open-tabletop/hex'
 import {
+  blankLike,
   deserializeMap,
   newId,
   parseAreaPlace,
@@ -12,7 +13,8 @@ import {
   type MapParent,
   type MapStart,
 } from '@open-tabletop/map'
-import { hasWorld, landIn, leaveTrip, serializeCampaign } from '@open-tabletop/campaign'
+import { freeName, hasWorld, landIn, leaveTrip, serializeCampaign } from '@open-tabletop/campaign'
+import type { LaidPiece } from '@open-tabletop/session'
 import {
   deleteCampaign,
   getLibraryMap,
@@ -267,11 +269,11 @@ export async function newSubMap(
   place: HexKey,
   name: string,
   kind?: string,
-  start: MapStart = { template: 'dungeon' },
+  start: MapStart | HexMap = { template: 'dungeon' },
 ): Promise<HexMap> {
   // It hangs from the open map, which has to be there to go back to.
   if (library.untouched) await keepOpenMap()
-  const map = startMap('', start, mapSystem())
+  const map = 'meta' in start ? start : startMap('', start, mapSystem())
   const { width, height } = map.grid
   const parent: MapParent = {
     map: editor.map.meta.id,
@@ -295,6 +297,22 @@ export async function newSubMap(
   library.version++
   await loadLinks()
   return map
+}
+
+/**
+ * The ways into new maps a trip's pieces laid (exits with `newMap`): each a blank map drawn
+ * like this one, hanging from the piece's cell, the way of the exit's kind. Named as the exit
+ * says, else after this map, numbered if another map has the name.
+ */
+export async function makeLaidWays(laid: LaidPiece[]): Promise<void> {
+  const ways = laid.flatMap((piece) => piece.ways ?? [])
+  if (!ways.length) return
+  const taken = (await listLibrary().catch(() => [])).map((e) => e.name)
+  for (const way of ways) {
+    const name = freeName(way.name ?? t('submap.below', { map: editor.map.meta.name }), taken)
+    taken.push(name)
+    await newSubMap(way.at as HexKey, name, way.kind, blankLike(editor.map))
+  }
 }
 
 /** The kind of a new way in: the system's for one, if it has it. */

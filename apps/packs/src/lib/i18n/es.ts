@@ -299,6 +299,10 @@ export const es: Messages<typeof en> = {
     noKind: '(elige)',
     entry: 'Entrada',
     entryHelp: 'El grupo puede entrar por esta salida. Si ninguna está marcada, por cualquiera.',
+    newMap: 'Mapa nuevo',
+    newMapHelp:
+      'Esta salida lleva a un **mapa propio**, creado al colocar la pieza: un submapa que cuelga de la casilla de la pieza junto a la letra, dibujado como este mapa y en blanco, que se descubre del mismo modo cuando el grupo entra. La vía es del tipo de la salida, y el grupo la toma con **Entrar**, como cualquier vía a un submapa. Nunca es una entrada.\n• **Mapa nuevo** marcado, sin nombre — el mapa nuevo se llama como este (_Bajo Los Caminos Hondos_)\n• nombre `Los caminos más hondos` — ese nombre, numerado si ya lo tiene un mapa',
+    newMapName: 'Nombre del mapa nuevo',
     noExits: 'No hay letras en el dibujo: se coloca desde cualquier lado.',
   },
   placesForm: {

@@ -1,5 +1,5 @@
 import { cellCenter, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
-import { loadLinks, placeLabel } from '../io/submaps'
+import { loadLinks, makeLaidWays, placeLabel } from '../io/submaps'
 import {
   askTimePassed,
   highlightText,
@@ -600,6 +600,10 @@ function stepOnly(action: TravelAction): void {
   editor.takeWorld({ campaign: keepMapSheet(editor.campaign, state.map) })
   editor.applyDiscovery(discovered)
   editor.applyLaid(laid)
+  // Exits into maps of their own: each new map made and kept, hanging from its piece's cell.
+  void makeLaidWays(laid).catch((error) =>
+    showToast(error instanceof Error ? error.message : String(error), 'error', 8000),
+  )
   // Places of another map (a way in or out) are that map's trail, not this one's; a room is
   // drawn on its cell where the party came in.
   let near: string | undefined = partyLocation()

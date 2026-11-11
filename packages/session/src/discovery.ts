@@ -149,7 +149,9 @@ function parsePieceBinding(
 }
 
 /** A hex the map leaves open to discovery: inside the map, with no terrain yet. */
+/** A cell of this map nobody has decided yet; a place of another map (`@<map>/…`) never is. */
 const isEmpty = (world: TravelWorld, hex: string) => {
+  if (hex.startsWith('@')) return false
   const cell = world.place(hex)
   return cell !== null && !cell.terrain
 }
@@ -309,8 +311,12 @@ export function createDiscovery(options: {
       free: (cell: string) => isEmpty(world, cell),
       floor: (cell: string) => !!world.place(cell)?.floor,
     }
-    /** Whether some exit of the map would still wait to be crossed with `done` laid. */
+    /**
+     * Whether some exit of the map would still wait to be crossed with `done` laid; a way into
+     * a new map laid now is a way on too.
+     */
     const leavesOpen = (done: LaidPiece) => {
+      if ([...laid, done].some((p) => p.ways?.length)) return true
       const filled = new Set(Object.keys(done.cells))
       const empty = (cell: string) => !filled.has(cell) && isEmpty(world, cell)
       return [

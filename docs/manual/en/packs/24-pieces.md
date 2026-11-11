@@ -12,7 +12,7 @@ One catalogue at a time; **New catalogue of pieces** makes a small one and adds 
 - Its **Marks**: what each mark of a drawing lays, by terrain id (`.` lays `stone-floor`). A terrain with **Floor** in the palette gets its walls by itself.
 - Its **Pieces**, each by an **Id** (what a table names it with), with its **Name** and:
   - its **Drawing**, with the piece as it will look beside it. A mark a cell, a space for nothing, and an upper-case letter for each exit, on the cell **beyond** the piece, next to exactly one of its cells: that gives the exit's direction. On hexes each row stands half a cell from the next, so marks stand two characters apart;
-  - its **Exits**, one per letter: the **Kind** of connection it leaves on the map, and **Way in** if the party may come in by it (with none ticked, by any);
+  - its **Exits**, one per letter: the **Kind** of connection it leaves on the map, **Way in** if the party may come in by it (with none ticked, by any), and **New map** if it leads into a map of its own ([below](#an-exit-into-a-new-map));
   - **A room**: played as one place, one step in and one check, as a region ticked **Played as one place** is;
   - **May be turned**: on, it's turned and mirrored to fit; off, it's laid as drawn;
   - its **Contents**, what's rolled on coming in instead of the system's (`table.crypt-contents`);
@@ -34,8 +34,14 @@ The table sees what `discover.terrain` sees, plus the exit being crossed (`exit.
 
 A laid piece stays, and is part of the map from then on: it can be edited in Edit, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> doesn't undo it. Nothing is seen before crossing: an exit shows only its kind. A system wanting a look through a door has an action for it.
 
+## An exit into a new map
+
+An exit with **New map** ticked leads somewhere else: a stair further down, the way out of a level into the next. When its piece is laid, a new map is made, a [sub-map](../map/13-sub-maps.md) hanging from the piece's cell beside the letter, its way of the exit's **Kind**. It's blank and drawn like the map it hangs from (its grid, scale, palette and style), in the same campaign, and kept in **Maps**. It's named as the exit says (**New map's name**), else after the map above (_Below The Deep Ways_), with a number if a map has that name already.
+
+The party takes it as any way into a sub-map, with **Go in ↗** on that cell; the trip goes on there and its first piece is laid under the party, the same way, so a place can go down level after level. The new map has its own [sheet](07-sheet.md) if the system has one for each map (its values start again). Such an exit is never a way in, and leaves nothing on the cell beyond. While a piece kept open is laid, a way into a new map counts as a way on.
+
 ## Playing it
 
 In Map, on a map whose system has pieces: **Play**, tick **Discover the map as you travel** and choose **Through exits, piece by piece**. It's chosen per map, so a system can discover its land cell by cell and lay its dungeons in pieces. **Start playing** puts the party on a blank map, with the first piece under it. An arrow marks each exit nobody has crossed: click beyond it, or walk with the arrow keys, and what lies there is laid.
 
-The Grey Marches' _Deep Barrows_ show all of it, on a map under the Barrow-halls; Core's _Rooms and passages_ are the smallest that works, on squares and on hexes. For the syntax, see [Kinds](../technical/07-kinds.md#pieces).
+The Grey Marches' _Deep Barrows_ show all of it, on a map under the Barrow-halls, with _A stair further down_ into _The deeper barrows_; Core's _Rooms and passages_ are the smallest that works, on squares and on hexes, their _Stairs down_ into a level below. For the syntax, see [Kinds](../technical/07-kinds.md#pieces).

@@ -113,6 +113,29 @@
         />
         <span>{t('piecesForm.entry')}<InfoTip text={t('piecesForm.entryHelp')} /></span>
       </label>
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={!!exit.newMap}
+          disabled={field.disabled}
+          onchange={(e) =>
+            setExit(field, letter, { newMap: e.currentTarget.checked ? true : undefined })}
+        />
+        <span>{t('piecesForm.newMap')}<InfoTip text={t('piecesForm.newMapHelp')} /></span>
+      </label>
+      {#if exit.newMap}
+        {@const named = typeof exit.newMap === 'object' ? (exit.newMap as Raw).name : undefined}
+        <input
+          aria-label={t('piecesForm.newMapName')}
+          placeholder={t('piecesForm.newMapName')}
+          value={typeof named === 'string' ? named : ''}
+          disabled={field.disabled}
+          onchange={(e) => {
+            const name = e.currentTarget.value.trim()
+            setExit(field, letter, { newMap: name ? { name } : true })
+          }}
+        />
+      {/if}
     </div>
   {:else}
     <p class="hint">{t('piecesForm.noExits')}</p>

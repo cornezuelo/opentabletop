@@ -316,6 +316,7 @@ const KEYS = [
   'cells',
   'exits',
   'entry',
+  'newMap',
   'contents',
   // Map styles: the grid, the glyphs, the names and the regions.
   'grid',

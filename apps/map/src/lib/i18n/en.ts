@@ -672,6 +672,7 @@ export const en = {
     wayOut: 'Way out to {name}',
     new: 'New sub-map here',
     defaultName: 'Under the cell',
+    below: 'Below {map}',
     created: '{name}: a sub-map under this cell, in Maps.',
     hang: 'A map you have',
     hung: '{name} now hangs from this cell, in this campaign.',

@@ -679,6 +679,7 @@ export const es: Messages = {
     wayOut: 'Salida a {name}',
     new: 'Nuevo submapa aquí',
     defaultName: 'Bajo la casilla',
+    below: 'Bajo {map}',
     created: '{name}: un submapa bajo esta casilla, en Mapas.',
     hang: 'Un mapa que ya tienes',
     hung: '{name} cuelga ahora de esta casilla, en esta campaña.',

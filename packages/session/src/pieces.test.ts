@@ -112,4 +112,36 @@ describe('layPiece', () => {
     expect(Object.keys(laid.cells)).toHaveLength(4)
     expect(laid.connections).toEqual([])
   })
+
+  it('an exit into a new map is a way from the piece, never a door beyond, nor the way in', () => {
+    const stairs = {
+      name: 'Stairs',
+      cells: 'A\n.\nB\n',
+      exits: {
+        A: { kind: 'door' },
+        B: { kind: 'way-in', newMap: { name: { en: 'Below', es: 'Abajo' } } },
+      },
+    }
+    const piece = parsed(catalogue({ stairs })).pieces!.pieces.stairs
+    for (let seed = 1; seed < 8; seed++) {
+      const laid = layPiece('stairs', piece, ground(12), '5,5', '4,5', seeded(seed), 'es')!
+      // Always in by A: the stair down leads elsewhere.
+      expect(laid.connections).toEqual([])
+      expect(laid.ways).toEqual([{ at: '5,5', kind: 'way-in', name: 'Abajo' }])
+    }
+    const plain = { ...stairs, exits: { A: { kind: 'door' }, B: { kind: 'way-in', newMap: true } } }
+    const laid = layPiece(
+      's',
+      parsed(catalogue({ s: plain })).pieces!.pieces.s,
+      ground(12),
+      '5,5',
+      '4,5',
+      seeded(1),
+    )!
+    expect(laid.ways).toEqual([{ at: '5,5', kind: 'way-in' }])
+    const errors = (exit: unknown) =>
+      parsed(catalogue({ s: { ...stairs, exits: { A: { kind: 'door' }, B: exit } } })).errors.join()
+    expect(errors({ kind: 'way-in', newMap: 3 })).toMatch(/newMap: expected true/)
+    expect(errors({ kind: 'way-in', newMap: true, entry: true })).toMatch(/can't be the way in/)
+  })
 })

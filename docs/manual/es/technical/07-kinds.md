@@ -633,6 +633,15 @@ pieces:
     exits: # each letter stands on the cell beyond the piece, next to one of its cells
       A: { kind: door, entry: true } # entry: it may be the way in (none says: any)
       B: { kind: door, tags: [narrow] }
+  stairs:
+    name: Stairs down
+    cells: |
+      A
+      .
+      B
+    exits:
+      A: { kind: door }
+      B: { kind: way-in, newMap: { name: The deeper ways } } # a map of its own, made as it's laid
   crypt:
     name: Crypt
     room: true # played as one place
@@ -652,6 +661,7 @@ pieces:
 - Una primera línea que empieza más adentro que la siguiente necesita `|2` tras `cells:`, para que YAML conserve sus espacios.
 - Una pieza sin salidas se coloca desde cualquier lado.
 - `exits` admite también `name`, `tags` y `fields`: `C: { kind: hidden-path, fields: { state: hidden } }` es un camino que encuentra una comprobación, y `B: { kind: door, fields: { state: barred } }` una puerta colocada cerrada, que el `passable` de su tipo mantiene así hasta que una acción cambia su estado.
+- `newMap: true` (o `newMap: { name: … }`, el nombre del mapa nuevo, traducido como los demás textos): la salida lleva a un mapa propio, creado al colocar la pieza: un [submapa](../map/13-sub-maps.md) en blanco dibujado como el mapa, que cuelga de la casilla de la pieza junto a la letra, con un camino del `kind` de la salida; sin nombre, se llama como el mapa de arriba. Nunca es la entrada, y no deja conexión más allá. [Piezas](../packs/24-pieces.md#una-salida-a-un-mapa-nuevo).
 - Se ata como `discover.piece` en los [bindings](#bindings): `piece: { resolve: table.next-piece, first: room, tries: 3, otherwise: dead-end, keepOpen: true }`, una tabla o un mazo cuyos resultados hacen `set: { piece: <id> }`. `keepOpen` (`true`, o una condición sobre lo que ve la tabla, `{ pieces.total: { lt: 8 } }`): mientras se cumple, una pieza que no dejaría ninguna salida por cruzar en todo el mapa no cabe; `otherwise` se coloca igualmente.
 - Se traduce con la clave `pieces/<id>`, por pieza (`pieces: { passage: { name: Pasillo } }`).
 
