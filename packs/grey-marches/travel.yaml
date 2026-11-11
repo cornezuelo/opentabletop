@@ -723,10 +723,11 @@ checks:
     unless: { any: [{ trip.arrived: true }, { place.floor: true }] }
   # Off roads and rivers, and not by boat: any / connections / mode. The checks of one moment are
   # decided one by one, in this order: at the same dawn, this one already sees the weather
-  # just rolled (`trip.weather`): nobody travels in a storm, so nobody gets lost.
+  # just rolled (`trip.weather`): nobody travels in a storm, so nobody gets lost. Nor among
+  # houses and yards: a map's region says so with a value (`settled: true`, Ashford's).
   - event: NAVIGATION_CHECK_REQUIRED
     name: Getting lost
-    description: Every dawn off roads and rivers (not by boat), unless a storm keeps the Company in. Navigation helps; fog makes it harder.
+    description: Every dawn off roads and rivers (not by boat), unless a storm keeps the Company in; never in a village. Navigation helps; fog makes it harder.
     at: time.part.morning
     unless:
       {
@@ -736,6 +737,7 @@ checks:
             { trip.mode: boat },
             { trip.weather: storm },
             { place.floor: true },
+            { place.settled: true },
           ],
       }
   # Encounters where the map says there is danger (a hex field) over the party's Stealth (a
@@ -835,10 +837,10 @@ checks:
   # rolled on the same table as in the morning (it sees `time.tags: dark`).
   - event: NIGHT_NAVIGATION_CHECK_REQUIRED
     name: Lost in the dark
-    description: Each hex entered after nightfall, off the road. The dark makes it easy to lose your way.
+    description: Each hex entered after nightfall, off the road and outside a village. The dark makes it easy to lose your way.
     at: trip.place-enter
     when: { time.tags: dark }
-    unless: { trip.connections: road }
+    unless: { any: [{ trip.connections: road }, { place.settled: true }] }
   # Conditions on the party: a day ending with no rations left (party.items.ration.count:
   # the Company's and its companions' together, 0 when nobody has one), when the party can't
   # camp either (camp needs food): the night out in the open, hungry.

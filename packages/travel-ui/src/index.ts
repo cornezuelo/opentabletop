@@ -4,6 +4,7 @@ export { default as TripRoom } from './TripRoom.svelte'
 export { default as TripSetup } from './TripSetup.svelte'
 export { default as WayEditor } from './WayEditor.svelte'
 export { idText, translator, type Translate, type TravelUiKey } from './i18n'
+export { journalContext } from './journalContext'
 export {
   entryText,
   highlightText,

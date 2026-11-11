@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- Map: in Play, **W A S D** walk the party as the arrows do; in a room, a key steps one cell (no time passes, the room being one place), and a step onto a door or a corridor out of it is a step of the trip.
+
+### Packs
+
+- The Grey Marches: nobody gets lost in Ashford: the village is a region with a value (`settled`), which Getting lost and Lost in the dark leave out.
+
+### Fixes
+
+- Map: a party that can't move on (lost for the day, a check waiting, a rule of the system) says why when dragged or walked with the keys, instead of staying put in silence.
+
 ## [0.44.0] - 2026-11-07
 
 ### Apps

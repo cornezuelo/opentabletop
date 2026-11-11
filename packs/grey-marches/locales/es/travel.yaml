@@ -208,7 +208,7 @@ travel-rules/default:
       description: Cada alba en el camino, una carta de los Presagios del camino, y otra cuando la Sierpe se agita (su reloj en 4).
     NAVIGATION_CHECK_REQUIRED:
       name: Perderse
-      description: Cada alba fuera de caminos y ríos (no en barca), salvo si una tormenta retiene a la Compañía. La Orientación ayuda; la niebla lo complica.
+      description: Cada alba fuera de caminos y ríos (no en barca), salvo si una tormenta retiene a la Compañía; nunca en un pueblo. La Orientación ayuda; la niebla lo complica.
     ENCOUNTER_CHECK_REQUIRED:
       name: Encuentro
       description: Al entrar de día en un hex cuyo peligro supera vuestro Sigilo (el Bosque Gris, las Colinas Huecas), salvo si llegas por camino; o al descansar donde el peligro es 3 o más.
@@ -241,7 +241,7 @@ travel-rules/default:
       description: Dormidos en el campamento donde el peligro es 3 o más, sin nadie de guardia, las luces encantadas se acercan en la guardia de en medio. El pavor de cada compañero +1.
     NIGHT_NAVIGATION_CHECK_REQUIRED:
       name: Perdidos en la oscuridad
-      description: En cada hex en el que se entra pasado el anochecer, fuera del camino. A oscuras es fácil perder el rumbo.
+      description: En cada hex en el que se entra pasado el anochecer, fuera del camino y de los pueblos. A oscuras es fácil perder el rumbo.
     HUNGER_CHECK_REQUIRED:
       name: Hambre
       description: Un día que acaba sin comida, y una noche a la intemperie. La moral decide cómo va.

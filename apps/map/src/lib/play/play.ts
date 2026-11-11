@@ -1,6 +1,13 @@
-import { cellCenter, keyOf, parseKey, type HexKey } from '@open-tabletop/hex'
+import { cellCenter, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
 import { loadLinks, placeLabel } from '../io/submaps'
-import { askTimePassed, highlightText, timeBehind } from '@open-tabletop/travel-ui'
+import {
+  askTimePassed,
+  highlightText,
+  journalContext,
+  timeBehind,
+  translator,
+  whyText,
+} from '@open-tabletop/travel-ui'
 import {
   addEntry,
   calendarOf,
@@ -15,13 +22,16 @@ import {
   type SessionState,
   type TravelSystem,
   travels,
+  tripAvailability,
 } from '@open-tabletop/session'
 import { movingActions, type TravelAction } from '@open-tabletop/travel-engine'
 import { getLocale, t } from '../i18n/index.svelte'
 import {
   cellOfPlace,
   DEFAULT_TOKEN_ICONS,
+  mapWalls,
   newId,
+  parseAreaPlace,
   partyToken,
   placeOfCell,
   type PlayState,
@@ -241,15 +251,41 @@ export function startOnBlankMap(): void {
  */
 export function walkTo(place: string): void {
   const session = sessionOf(current())
-  if (!session || session.travel.pendingChecks.length || place === session.travel.location) return
+  if (!session || place === session.travel.location) return
+  const rules = getSystem(mapSystemId()).rules
+  const onward = rules.travel.onward
+  const id = onward ? onward.do.replace(/^actions\./, '') : movingActions(rules)[0]
+  // Lost for the day, a check waiting, a rule of the system: nothing moves, and it says why.
+  const why = walkBlocked(id)
+  if (why) return void showToast(why, 'info', 6000)
   step({ type: 'setDestination', place })
   const travel = sessionOf(current())?.travel
   if (!travel?.route || travel.route.length < 2)
     return void showToast(t('play.noWayThere'), 'info', 5000)
-  const rules = getSystem(mapSystemId()).rules
-  const onward = rules.travel.onward
-  const id = onward ? onward.do.replace(/^actions\./, '') : movingActions(rules)[0]
   if (id) step({ type: 'action', id, ...(onward?.with && { with: onward.with }) })
+}
+
+/** Why the party can't walk now (the trip held, or its way of going on), in words; '' if it can. */
+function walkBlocked(action: string | undefined): string {
+  const play = current()
+  const session = sessionOf(play)
+  if (!session || !play.rules) return ''
+  const system = getSystem(play.rules.system)
+  const blocked = tripAvailability(
+    { system, world: playWorld(system), facts: worldFactsNow() },
+    session,
+  )
+  const because = blocked.travel ?? (action ? blocked[action] : undefined)
+  if (!because) return ''
+  const context = journalContext({
+    system,
+    session,
+    locale: getLocale(),
+    t: translator(getLocale),
+    startDay: play.rules.startDay,
+    facts: worldFactsNow(),
+  })
+  return whyText(because, context) || t('play.noWayThere')
 }
 
 /** What to do next, in words: where to head (`again`: having arrived), or which exit to open. */
@@ -273,14 +309,75 @@ export function showPlayPanel(): void {
 export const onTrip = (): boolean =>
   current().mode === 'rules' && !current().away && !!sessionOf(current())
 
-/** Playing with the keyboard: an arrow walks the party one place that way. True if it was for it. */
+/** W A S D, as the arrows in Play. */
+const WASD: Record<string, string> = {
+  w: 'arrowup',
+  a: 'arrowleft',
+  s: 'arrowdown',
+  d: 'arrowright',
+}
+
+/**
+ * Playing with the keyboard: an arrow (or W A S D) walks the party one place that way; in a
+ * room, one cell (`stepInRoom`). True if it was for it.
+ */
 export function walkByKey(key: string): boolean {
-  const direction = ARROWS[key]
+  const direction = ARROWS[WASD[key] ?? key]
   if (!direction || editor.mode !== 'play' || !onTrip()) return false
+  if (parseAreaPlace(sessionOf(current())?.travel.location ?? '')) {
+    stepInRoom(direction)
+    return true
+  }
   const place = placeToward(direction)
   if (place) walkTo(place)
   else showToast(t('play.noWayThere'), 'info', 5000)
   return true
+}
+
+/**
+ * In a room (a region played as one place), a key steps one cell: within the room only where
+ * the party stands changes (no time passes, as the room is one place to the rules); onto a
+ * cell of another place, through a door or an opening, it's a step of the trip there. A wall
+ * stops it.
+ */
+function stepInRoom(direction: { x: number; y: number }): void {
+  const here = partyLocation()
+  if (!here) return
+  const { grid } = editor.map
+  const next = towards(
+    here,
+    direction,
+    neighborCells(parseKey(here), grid).map((cell) => [keyOf(cell), keyOf(cell)]),
+  )
+  if (!next || mapWalls(editor.map).between(here, next))
+    return void showToast(t('play.noWayThere'), 'info', 5000)
+  const place = placeOfCell(editor.map, next)
+  if (place !== placeOfCell(editor.map, here)) return walkTo(place)
+  const play = current()
+  if (play.trail.at(-1) !== next) play.trail = [...play.trail, next]
+  save(play)
+  placeParty(next)
+}
+
+/**
+ * Of some things drawn on cells (`[thing, cell]`), the one that lies most nearly in a direction
+ * on the screen from a cell, if any lies that way at all.
+ */
+function towards<T>(
+  from: HexKey,
+  direction: { x: number; y: number },
+  candidates: [T, HexKey][],
+): T | undefined {
+  const { grid } = editor.map
+  const start = cellCenter(parseKey(from), grid, 1)
+  let best: { thing: T; fit: number } | undefined
+  for (const [thing, cell] of candidates) {
+    const to = cellCenter(parseKey(cell), grid, 1)
+    const [x, y] = [to.x - start.x, to.y - start.y]
+    const fit = (x * direction.x + y * direction.y) / (Math.hypot(x, y) || 1)
+    if (fit > 0.4 && fit > (best?.fit ?? 0)) best = { thing, fit }
+  }
+  return best?.thing
 }
 
 /**
@@ -291,18 +388,15 @@ export function placeToward(direction: { x: number; y: number }): string | undef
   const session = sessionOf(current())
   const here = partyLocation()
   if (!session || !here) return undefined
-  const { grid } = editor.map
-  const from = cellCenter(parseKey(here), grid, 1)
-  let best: { place: string; fit: number } | undefined
-  for (const place of playWorld(getSystem(mapSystemId())).neighbors(session.travel.location)) {
-    const cell = cellOfPlace(editor.map, place, here)
-    if (!cell) continue
-    const to = cellCenter(parseKey(cell), grid, 1)
-    const [x, y] = [to.x - from.x, to.y - from.y]
-    const fit = (x * direction.x + y * direction.y) / (Math.hypot(x, y) || 1)
-    if (fit > 0.4 && fit > (best?.fit ?? 0)) best = { place, fit }
-  }
-  return best?.place
+  const places = playWorld(getSystem(mapSystemId())).neighbors(session.travel.location)
+  return towards(
+    here,
+    direction,
+    places.flatMap((place): [string, HexKey][] => {
+      const cell = cellOfPlace(editor.map, place, here)
+      return cell ? [[place, cell]] : []
+    }),
+  )
 }
 
 export function setMode(mode: PlayState['mode']): void {

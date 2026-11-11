@@ -623,11 +623,14 @@ export const es: Messages = {
     placeFirst: 'El viaje empieza donde está el grupo: haz clic en una casilla para ponerlo.',
     paused: 'El viaje está en pausa y te espera: sigue desde la franja sobre el mapa.',
     simpleHelp: 'El grupo está en {hex}: haz clic en una casilla para moverlo allí.',
-    destinationHelp: 'Haz clic en una casilla para fijar el destino, o camina con las flechas.',
+    destinationHelp:
+      'Haz clic en una casilla para fijar el destino, o camina con las flechas (o W A S D).',
     clearTrail: 'Borrar rastro',
     removeParty: 'Quitar grupo',
-    newDestination: 'Haz clic en una casilla para fijar otro destino, o camina con las flechas.',
-    exitsHelp: 'Haz clic más allá de una salida marcada para abrirla, o camina con las flechas.',
+    newDestination:
+      'Haz clic en una casilla para fijar otro destino, o camina con las flechas (o W A S D).',
+    exitsHelp:
+      'Haz clic más allá de una salida marcada para abrirla, o camina con las flechas (o W A S D).',
     noWayThere: 'Por ahí no hay camino: hay un muro, el borde del mapa o un paso cerrado.',
     blankTitle: 'Este mapa se descubre jugando',
     blankHelp: 'Aún no hay nada dibujado: lo que encuentre el grupo aparece a medida que avanza.',

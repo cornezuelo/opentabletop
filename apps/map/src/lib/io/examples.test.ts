@@ -472,8 +472,10 @@ describe('example maps', () => {
     expect(inside.world.connections('6,6', room)).toEqual(['door'])
     expect(inside.world.connections(room, 'area:kitchen1')).toEqual(['door'])
     expect(inside.world.place(room)).toMatchObject({ name: 'The Wet Ferret', floor: true })
+    // Every room is in Ashford, the village nobody gets lost in.
     expect(inside.world.place('area:kitchen1')).toMatchObject({
-      region: ['The kitchen', 'The Wet Ferret'],
+      region: ['The kitchen', 'The Wet Ferret', 'Ashford'],
+      settled: true,
     })
     // No way into a house but by its door: the cottage's wall stands on the street's side.
     expect(inside.world.neighbors('16,9')).toContain('area:cottage1')

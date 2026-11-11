@@ -616,11 +616,13 @@ export const en = {
     placeFirst: 'The trip starts where the party stands: click a cell to place it.',
     paused: 'The trip is paused and waits for you: go on from the strip over the map.',
     simpleHelp: 'The party is at {hex}: click a cell to move it there.',
-    destinationHelp: 'Click a cell to set the destination, or walk with the arrow keys.',
+    destinationHelp:
+      'Click a cell to set the destination, or walk with the arrow keys (or W A S D).',
     clearTrail: 'Clear trail',
     removeParty: 'Remove party',
-    newDestination: 'Click a cell to set a new destination, or walk with the arrow keys.',
-    exitsHelp: 'Click beyond a marked exit to open it, or walk with the arrow keys.',
+    newDestination:
+      'Click a cell to set a new destination, or walk with the arrow keys (or W A S D).',
+    exitsHelp: 'Click beyond a marked exit to open it, or walk with the arrow keys (or W A S D).',
     noWayThere:
       'No way there from here: a wall, the edge of the map or a closed way stands between.',
     blankTitle: 'This map is discovered by playing',

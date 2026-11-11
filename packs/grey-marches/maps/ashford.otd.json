@@ -88,160 +88,212 @@
       ],
       "hexes": {
         "0,0": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "1,0": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "2,0": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "3,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "4,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "5,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "6,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "7,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "8,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "9,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "10,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "11,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,0": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "18,0": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "19,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "20,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,0": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,0": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "23,0": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "0,1": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "1,1": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "2,1": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "3,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "4,1": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "5,1": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "6,1": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "7,1": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "8,1": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "9,1": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "10,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "11,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,1": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "20,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,1": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,1": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "0,2": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "1,2": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "2,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,2": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "4,2": {
           "terrain": "wood-floor",
@@ -272,22 +324,28 @@
           "region": "kitchen1"
         },
         "11,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,2": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,2": {
           "terrain": "wood-floor",
@@ -306,25 +364,32 @@
           "region": "miller1"
         },
         "21,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,2": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,3": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "1,3": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,3": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,3": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "4,3": {
           "terrain": "wood-floor",
@@ -357,13 +422,16 @@
           "region": "kitchen1"
         },
         "11,3": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,3": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,3": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,3": {
           "terrain": "wood-floor",
@@ -394,25 +462,32 @@
           "region": "miller1"
         },
         "21,3": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,3": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,3": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,4": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "4,4": {
           "terrain": "wood-floor",
@@ -443,13 +518,16 @@
           "region": "rooms1"
         },
         "11,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,4": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,4": {
           "terrain": "wood-floor",
@@ -464,7 +542,8 @@
           "region": "reeve1"
         },
         "17,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,4": {
           "terrain": "wood-floor",
@@ -475,28 +554,36 @@
           "region": "miller1"
         },
         "20,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,4": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,5": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "4,5": {
           "terrain": "wood-floor",
@@ -527,13 +614,16 @@
           "region": "rooms1"
         },
         "11,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,5": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,5": {
           "terrain": "wood-floor",
@@ -548,7 +638,8 @@
           "region": "reeve1"
         },
         "17,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,5": {
           "terrain": "wood-floor",
@@ -559,119 +650,157 @@
           "region": "miller1"
         },
         "20,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,5": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "4,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "5,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "6,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "7,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "8,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "9,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "10,6": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "11,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,6": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "20,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,6": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,7": {
           "terrain": "cobbles",
-          "name": "The west road"
+          "name": "The west road",
+          "region": "ashford0"
         },
         "1,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "2,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "3,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "4,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "5,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "6,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "7,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "8,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "9,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "10,7": {
           "terrain": "cobbles",
@@ -696,62 +825,81 @@
           "region": "square1"
         },
         "15,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "16,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "17,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "18,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "19,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "20,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "21,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "22,7": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "23,7": {
           "terrain": "cobbles",
-          "name": "The east road"
+          "name": "The east road",
+          "region": "ashford0"
         },
         "0,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "1,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "2,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "3,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "4,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "5,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "6,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "7,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "8,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "9,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "10,8": {
           "terrain": "cobbles",
@@ -774,115 +922,152 @@
           "region": "square1"
         },
         "15,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "16,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "17,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "18,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "19,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "20,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "21,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "22,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "23,8": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "0,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,9": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "4,9": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "5,9": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "6,9": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "7,9": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "8,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "9,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "10,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "11,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,9": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "20,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,9": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,10": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "4,10": {
           "terrain": "stone-floor",
@@ -901,25 +1086,32 @@
           "region": "smithy1"
         },
         "8,10": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "9,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "10,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "11,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,10": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,10": {
           "terrain": "wood-floor",
@@ -934,7 +1126,8 @@
           "region": "cottage1"
         },
         "18,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,10": {
           "terrain": "wood-floor",
@@ -953,19 +1146,24 @@
           "region": "cottage3"
         },
         "23,10": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,11": {
-          "terrain": "lake"
+          "terrain": "lake",
+          "region": "ashford0"
         },
         "2,11": {
-          "terrain": "lake"
+          "terrain": "lake",
+          "region": "ashford0"
         },
         "3,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "4,11": {
           "terrain": "stone-floor",
@@ -986,25 +1184,32 @@
           "region": "smithy1"
         },
         "8,11": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "9,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "10,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "11,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,11": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,11": {
           "terrain": "wood-floor",
@@ -1019,7 +1224,8 @@
           "region": "cottage1"
         },
         "18,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,11": {
           "terrain": "wood-floor",
@@ -1038,20 +1244,25 @@
           "region": "cottage3"
         },
         "23,11": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,12": {
-          "terrain": "lake"
+          "terrain": "lake",
+          "region": "ashford0"
         },
         "1,12": {
           "terrain": "lake",
-          "name": "The duck pond"
+          "name": "The duck pond",
+          "region": "ashford0"
         },
         "2,12": {
-          "terrain": "lake"
+          "terrain": "lake",
+          "region": "ashford0"
         },
         "3,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "4,12": {
           "terrain": "stone-floor",
@@ -1070,25 +1281,32 @@
           "region": "smithy1"
         },
         "8,12": {
-          "terrain": "yard"
+          "terrain": "yard",
+          "region": "ashford0"
         },
         "9,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "10,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "11,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,12": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,12": {
           "terrain": "wood-floor",
@@ -1103,7 +1321,8 @@
           "region": "cottage1"
         },
         "18,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,12": {
           "terrain": "wood-floor",
@@ -1122,223 +1341,296 @@
           "region": "cottage3"
         },
         "23,12": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,13": {
-          "terrain": "lake"
+          "terrain": "lake",
+          "region": "ashford0"
         },
         "1,13": {
-          "terrain": "lake"
+          "terrain": "lake",
+          "region": "ashford0"
         },
         "2,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "4,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "5,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "6,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "7,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "8,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "9,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "10,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "11,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "12,13": {
-          "terrain": "cobbles"
+          "terrain": "cobbles",
+          "region": "ashford0"
         },
         "13,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "14,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "20,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "23,13": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "0,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "4,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "5,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "6,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "7,14": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "8,14": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "9,14": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "10,14": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "11,14": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "12,14": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "13,14": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "14,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "20,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,14": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "22,14": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "23,14": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "0,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "1,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "2,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "3,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "4,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "5,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "6,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "7,15": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "8,15": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "9,15": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "10,15": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "11,15": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "12,15": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "13,15": {
-          "terrain": "garden"
+          "terrain": "garden",
+          "region": "ashford0"
         },
         "14,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "15,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "16,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "17,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "18,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "19,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "20,15": {
-          "terrain": "plains"
+          "terrain": "plains",
+          "region": "ashford0"
         },
         "21,15": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "22,15": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         },
         "23,15": {
-          "terrain": "forest"
+          "terrain": "forest",
+          "region": "ashford0"
         }
       },
       "paths": [],
@@ -1480,10 +1772,27 @@
           "labels": [],
           "regions": [
             {
+              "id": "ashford0",
+              "name": "Ashford",
+              "color": "#8a7a5a",
+              "showName": false,
+              "fields": [
+                {
+                  "key": "settled",
+                  "value": "true"
+                }
+              ],
+              "style": {
+                "fill": 0,
+                "border": 0
+              }
+            },
+            {
               "id": "wetferret1",
               "name": "The Wet Ferret",
               "color": "#8a5a2b",
-              "onePlace": true
+              "onePlace": true,
+              "parent": "ashford0"
             },
             {
               "id": "kitchen1",
@@ -1503,42 +1812,49 @@
               "id": "smithy1",
               "name": "Old Brenna’s smithy",
               "color": "#5a5a5a",
-              "onePlace": true
+              "onePlace": true,
+              "parent": "ashford0"
             },
             {
               "id": "reeve1",
               "name": "The reeve’s house",
               "color": "#7a6040",
-              "onePlace": true
+              "onePlace": true,
+              "parent": "ashford0"
             },
             {
               "id": "miller1",
               "name": "The miller’s house",
               "color": "#7a6040",
-              "onePlace": true
+              "onePlace": true,
+              "parent": "ashford0"
             },
             {
               "id": "cottage1",
               "name": "Weaver’s cottage",
               "color": "#7a6040",
-              "onePlace": true
+              "onePlace": true,
+              "parent": "ashford0"
             },
             {
               "id": "cottage2",
               "name": "Cooper’s cottage",
               "color": "#7a6040",
-              "onePlace": true
+              "onePlace": true,
+              "parent": "ashford0"
             },
             {
               "id": "cottage3",
               "name": "Widow Hale’s cottage",
               "color": "#7a6040",
-              "onePlace": true
+              "onePlace": true,
+              "parent": "ashford0"
             },
             {
               "id": "square1",
               "name": "The market square",
-              "color": "#c8a050"
+              "color": "#c8a050",
+              "parent": "ashford0"
             }
           ],
           "captions": {
