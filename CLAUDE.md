@@ -85,6 +85,7 @@ docs/
   map-ui.md                 # Map's UI/UX review and proposal (modes, the Play panel, the cell), to review
   faction-choices.md        # Factions that choose (targets by conditions, priorities), to review
   packs-app.md              # The Packs app: its screens (two views, a pack's page, a system's rail), the Oracle after it, land for any map, decided
+  conflicts.md              # Conflicts: combat and contests (an encounter in the session, turns, foes that act), to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
