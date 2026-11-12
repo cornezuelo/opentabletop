@@ -32,3 +32,21 @@ entries:
     set: { foes: '{{1d3!1}}' }
     result: '{{foes}} foes block the way'
     effects: { present.foe: '{{foes}}' }
+---
+# What a foe does on its turn in a fight (system.yaml: `encounter.foes`): it strikes one of
+# the party's members, rolled, as a Strike does a foe.
+kind: table
+id: foe-turn
+tags: [encounters]
+name: A foe's turn
+description: |-
+  What a foe does on its turn in a fight: a blow at one of you.
+
+  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; a result aimed at someone (`set: { target: party.members.random }`), its effect on them (`characters[target].values.health`).
+roll: 1d1
+entries:
+  - id: blow
+    range: 1
+    set: { target: party.members.random }
+    result: The foe strikes
+    effects: { 'characters[target].values.health': '-{{1d3}}' }

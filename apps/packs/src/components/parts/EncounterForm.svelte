@@ -16,11 +16,14 @@
     value,
     disabled,
     actionName = () => '',
+    rolls = [],
     onchange,
   }: {
     system: TravelSystem
     /** An action's name in the UI language ('' if it has none). */
     actionName?: (id: string) => string
+    /** What the Oracle can roll, as the system writes it (`table.foe-turn`), for **A foe's turn**. */
+    rolls?: readonly string[]
     /** The system's `encounter:` as written (absent: its fights are played as a whole). */
     value: unknown
     disabled: boolean
@@ -156,6 +159,20 @@
           </label>
         {/if}
       {/if}
+      <label>
+        <span>{t('encounter.foes')}<InfoTip markdown={t('encounter.foesHelp')} /></span>
+        <input
+          type="text"
+          list="encounter-rolls"
+          value={typeof raw.foes === 'string' ? raw.foes : ''}
+          placeholder="table.foe-turn"
+          {disabled}
+          onchange={(e) => set('foes', e.currentTarget.value.trim() || undefined)}
+        />
+        <datalist id="encounter-rolls">
+          {#each rolls as ref (ref)}<option value={ref}></option>{/each}
+        </datalist>
+      </label>
       <label>
         <span>{t('encounter.minutes')}<InfoTip markdown={t('encounter.minutesHelp')} /></span>
         <input

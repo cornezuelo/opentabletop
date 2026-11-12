@@ -84,3 +84,8 @@ As agreed on 2026-10-29: (a) **the theatre of the mind** is this proposal; (b) *
 2. **It's the campaign's**: Campaign plays and keeps its scenes. The Oracle, when a result brings those present, offers to open a scene with them in the campaign chosen.
 3. **It moves the world's clock**, as a trip does: while it goes on it's what plays in the campaign, and its minutes move the world on (clocks, events, factions).
 4. **The party's side is the campaign's cast**: the characters (or the party) that are in the campaign without a trip, chosen as the scene opens; what happens to them goes back to the roster, as on a trip.
+
+### Foes that act (decided with the user, 2026-11-12)
+
+1. **A target in a short form** for now: what a foe's turn strikes is written in its table (`target: party.members.random`, `target: party.lowest.health`), read as who `target` is for its effects; it joins the candidates-and-conditions mechanism of _Factions that choose_ when that exists.
+2. **A foe's table is its template's** (`actions: table.wolf-turn` in the bestiary), with the system's (`encounter.foes`) for the templates that have none.

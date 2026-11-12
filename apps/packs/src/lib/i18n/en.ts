@@ -337,6 +337,7 @@ export const en = {
     conditions: 'Conditions',
     items: 'Items',
     tags: 'Tags',
+    actions: 'On its turn',
     names: 'Names',
     noSheet:
       "Its sheet isn't found: choose one above, or give the bestiary a **Sheet**, to edit its values.",
@@ -765,6 +766,9 @@ export const en = {
     value: 'What each one rolls',
     partyRolls: "What the party's side rolls",
     foesRolls: "What the foes' side rolls",
+    foes: "A foe's turn",
+    foesHelp:
+      "What a foe does on its turn: a table (or anything the Oracle rolls) rolled for it, acting as it (`acting.values.harm`), for the foes whose template says nothing (a template's **On its turn**, in the Bestiary, comes first). A result aims at someone with `set: { target: … }`, and its effects name them as `characters[target]`. Empty: a foe's turn is only its moment (`encounter.turn`), for the system's actions.\n• `table.foe-turn`\n• `set: { target: party.members.random }` — in an entry: one of the party, rolled\n• `characters[target].values.health: '-{{acting.values.harm}}'` — its effect",
     minutes: 'Minutes a round takes',
     minutesHelp:
       'The time a round takes, so lights burn down and clocks move during a fight. Empty: no time passes.\n• `1` — a minute a round\n• `0.1` — six seconds',

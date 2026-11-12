@@ -27,6 +27,7 @@ import { rolledNodes } from './journal'
 import { settlePresent, type Present, type PresentEvent } from './present'
 import { encounterFacts, type Encounter } from './encounter'
 import { definitionId } from './refs'
+import { chooseTarget, isTargetForm } from './target'
 import {
   pullFromRoster,
   rosterEntry,
@@ -1189,6 +1190,12 @@ export function createSession(options: {
             })
             continue
           }
+          // Whom it aims at, written short (`target: party.members.random`): one of them now.
+          if (isTargetForm(value.target)) {
+            const roller = momentRolls(s.travel, s.travel.location, `target|${s.nextEntry}`)
+            const target = chooseTarget(value.target, s, roller)
+            value = { ...value, target: target ?? '' }
+          }
           // Its effects with the variables they name read now (`'-{{party.stats.mouths}}'`;
           // the Oracle reads its own entries' first): the journal says what they did.
           const seen = {
@@ -1698,6 +1705,7 @@ export { FACT_GROUPS, FACT_PATHS, placeIdOf, qualify } from '@open-tabletop/trav
 export * from './party'
 export * from './present'
 export * from './encounter'
+export * from './target'
 export * from './places'
 export * from './factions'
 export * from './clocks'

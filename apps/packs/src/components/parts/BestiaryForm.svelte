@@ -3,6 +3,9 @@
   import { roster, TemplateEditor } from '@open-tabletop/character-ui'
   import { tagsInUse, type TravelSystem } from '@open-tabletop/session'
   import { InfoTip } from '@open-tabletop/ui-kit'
+  import { writeRef } from '@open-tabletop/oracle-engine'
+  import { manifestOf } from '@open-tabletop/pack-ui'
+  import { ROLLABLE } from '../../lib/systemDoc.svelte'
   import { bestiaryOf, shownTemplate, writeTemplate } from '../../lib/bestiary'
   import { getLocale, t } from '../../lib/i18n'
   import { library } from '../../lib/packs.svelte'
@@ -35,6 +38,15 @@
   const read = $derived(bestiaryOf(system, { root: doc.root, id }))
   const sheetOf = (template: string) => system.templateSheets?.[read?.sheets[template] ?? '']
   const tagChoices = $derived(tagsInUse(system, roster.roster))
+  /** What the Oracle rolls, written from this bestiary's pack (`table.wolf-turn`, `core/table.x`). */
+  const rolls = $derived.by(() => {
+    const own = library.pack(doc.root)
+    const pack = (own && manifestOf(own).id) || doc.root
+    return [...library.registry.definitions.values()]
+      .filter((d) => (ROLLABLE as readonly string[]).includes(d.kind))
+      .map((d) => writeRef(d.kind, d.localId, d.pack === pack ? undefined : d.pack))
+      .sort()
+  })
   /** What a folded card says and the search finds; an unfolded card is the template's editor. */
   const columns = $derived<Column[]>([
     { field: 'name', label: t('bestiaryForm.templateName'), type: 'text' },
@@ -45,6 +57,7 @@
     { field: 'items', label: t('bestiaryForm.items'), type: 'pairs' },
     { field: 'tags', label: t('bestiaryForm.tags'), type: 'list' },
     { field: 'names', label: t('bestiaryForm.names'), type: 'value' },
+    { field: 'actions', label: t('bestiaryForm.actions'), type: 'value' },
     { field: 'behind', label: t('bestiaryForm.behind'), type: 'select' },
   ])
 </script>
@@ -127,6 +140,7 @@
               others={templates.filter((x) => x !== template)}
               items={itemIds}
               {tagChoices}
+              {rolls}
               onchange={(next) => writeTemplate(doc, template, raw, shown, next)}
             />
           {:else}

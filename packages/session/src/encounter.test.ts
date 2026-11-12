@@ -4,7 +4,8 @@ import { createCharacter } from '@open-tabletop/character-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { encounterView, fightStarters } from './encounter'
-import { startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
+import { applyResult } from './index'
+import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
 /**
  * A made-up system whose fights go in turns: an ambush brings two goblins and starts a
@@ -35,6 +36,19 @@ id: foes
 sheet: sheet.foe
 templates:
   goblin: { name: Goblin }
+  ogre: { name: Ogre, actions: table.ogre-turn }
+---
+kind: table
+id: ogre-turn
+roll: 1d1
+entries:
+  - { range: 1, result: The ogre smashes, set: { target: party.members.highest.values.health }, effects: { 'characters[target].values.health': -3 } }
+---
+kind: table
+id: foe-turn
+roll: 1d1
+entries:
+  - { range: 1, result: A blow, set: { target: party.members.random }, effects: { 'characters[target].values.health': -1 } }
 ---
 kind: travel-rules
 travel: { hoursPerDay: 8, start: '07:00' }
@@ -217,6 +231,25 @@ describe('an encounter: a fight in turns', () => {
       ['mira', true, false, false],
       ['goblin-2', false, false, false],
     ])
+  })
+
+  it("foes act: a template's own table, else the system's, each aimed at a member", () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',
+    )
+    const s = applyResult(session, { effects: { 'present.ogre': 1 } }, {}, partyOf(options.system))
+    const health = (st: typeof s, id: string) => st.members!.find((m) => m.id === id)!.values.health
+    let done = stepTrip(options, s, { type: 'action', id: 'ambush' })
+    // Kael and Mara strike the goblins; then the foes' turns: each goblin hears the moment
+    // (a bite at Kael) and rolls the system's table (a blow at one of them); the ogre rolls
+    // its own: a smash at whoever has the most health.
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    const rolled = done.entries.filter((e) => e.code === 'ORACLE_RESULT').map((e) => e.data?.table)
+    expect(rolled).toEqual(['brawl/ogre-turn', 'brawl/foe-turn'])
+    // 20 health between them before; the bites (-1 each, two foes left), the blow (-1), the smash (-3).
+    expect(health(done.state, 'kael') + health(done.state, 'mira')).toBe(20 - 2 - 1 - 3)
+    expect(done.state.encounter?.round).toBe(2)
   })
 
   it('by participant: each one by the value it rolls, highest first', () => {

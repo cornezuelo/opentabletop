@@ -34,6 +34,8 @@ encounter:
     by: participant
     value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' }
   actions: [actions.strike, actions.fall-back]
+  # What a foe does on its turn, unless its template says (the wolves: bestiary.yaml).
+  foes: table.foe-turn
   minutes: 1
   ends: { present.count: 0 }
 # The places of the Marches (places.yaml): what discovery's contents make on a hex.

@@ -16,3 +16,11 @@ trouble:
     **Enseña:** un resultado que hace copias de una plantilla (`present.foe: '{{foes}}'`), tantas como tira su `set` y dice su texto; un dado que explota una vez (`1d3!1`: con un 3, otro 1d3 más).
   entries:
     foes: '{{foes}} enemigos cortan el paso'
+foe-turn:
+  name: El turno de un enemigo
+  description: |-
+    Lo que hace un enemigo en su turno en un combate: un golpe a uno de vosotros.
+
+    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo; un resultado dirigido a alguien (`set: { target: party.members.random }`) y su efecto sobre él (`characters[target].values.health`).
+  entries:
+    blow: El enemigo golpea

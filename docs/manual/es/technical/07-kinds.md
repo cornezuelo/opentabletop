@@ -558,6 +558,7 @@ templates:
     name: Wolf
     tags: [beast, pack]
     values: { health: '{{1d4+1}}', bite: 1 } # cada copia tira la suya
+    actions: table.wolf-turn # lo que hace en su turno en un combate (sin él: lo del sistema)
     token: { icon: 'game:wolf-head', kind: enemy } # cómo se dibuja en un mapa
   leader:
     like: wolf # una variante: lo del lobo, y lo que cambia
@@ -573,7 +574,7 @@ templates:
     behind: stay # esta se queda donde se la encontró
 ```
 
-- Cada plantilla, por un id con el que la nombran los efectos y las tablas (nunca `all`, `count`, `tags` ni `ids`, sin puntos): `name`, `description`, `sheet` (una [hoja](#hojas) de este pack o de una dependencia; sin ella: la del bestiario), `values` (números, o `{{…}}` que tira cada copia; sin ellos: el `default` de la hoja), los `conditions` y `tags` con los que empieza, `cards`, `items` (cuántos de cada uno, de los [catálogos](#catalogos-de-objetos) del sistema, números o tiradas; sin ellos: el `items.start` de la hoja), `names` (una tabla, oráculo o generador que se tira para el nombre de cada copia), `token` (cómo se dibuja en un mapa: `icon`, `kind`, uno de `pc`, `npc` o `enemy`, y `color`), `behind` y `like`.
+- Cada plantilla, por un id con el que la nombran los efectos y las tablas (nunca `all`, `count`, `tags` ni `ids`, sin puntos): `name`, `description`, `sheet` (una [hoja](#hojas) de este pack o de una dependencia; sin ella: la del bestiario), `values` (números, o `{{…}}` que tira cada copia; sin ellos: el `default` de la hoja), los `conditions` y `tags` con los que empieza, `cards`, `items` (cuántos de cada uno, de los [catálogos](#catalogos-de-objetos) del sistema, números o tiradas; sin ellos: el `items.start` de la hoja), `names` (una tabla, oráculo o generador que se tira para el nombre de cada copia), `actions` (lo que hace una copia en su turno en un [combate por turnos](#combates-por-turnos): una tabla que se tira por ella, actuando como ella), `token` (cómo se dibuja en un mapa: `icon`, `kind`, uno de `pc`, `npc` o `enemy`, y `color`), `behind` y `like`.
 - `like`: una variante de otra plantilla de este bestiario: toma la hoja, los valores, los objetos, los textos y el token de esa, y añade sus etiquetas, estados y cartas; lo que escribe ella gana. Una plantilla que es variante de sí misma se rechaza.
 - `behind`: qué pasa con las copias cuando el grupo deja su sitio: `stay` (lo normal: siguen ahí, y vuelven a estar presentes si el grupo vuelve) o `leave` (desaparecen, con una línea en el diario, así que la siguiente visita tira su encuentro de nuevo). El del bestiario, salvo que una plantilla diga otra cosa. Una copia que el jugador arrastra a otro lugar en un mapa no se deja atrás: se queda allí.
 - Una copia se hace una vez: los cambios posteriores de la plantilla no tocan las copias ya hechas. Su id es el de la plantilla (`wolf`, `wolf-2`, `wolf-3`), y su nombre el de la plantilla, numerado (_Lobo 2_), o tirado en `names`.
@@ -822,6 +823,7 @@ encounter: # (en un kind: system, junto a travel, sheet…)
   # por bando (`acting.*` es quien tira).
   # order: { by: participant, value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' } }
   actions: [actions.strike, actions.fall-back] # lo que hace un miembro en su turno
+  foes: table.foe-turn # lo que hace un enemigo en su turno, salvo que su plantilla lo diga
   minutes: 1 # lo que dura una ronda (sin él, no pasa el tiempo)
   ends: { present.count: 0 } # cuándo acaba por sí solo, leído tras cada turno
 ```
@@ -830,7 +832,22 @@ encounter: # (en un kind: system, junto a travel, sheet…)
 - **Quién participa**: los miembros del grupo (o el grupo, si se juega como un todo) y los presentes en el lugar del grupo. Quienes llegan durante el combate se suman al final de la ronda siguiente; quienes se van pierden sus turnos.
 - **El orden** se lee una vez, tras el momento `encounter.start`: sus acciones pueden decir qué bando va primero con un efecto, `encounter.first: foes` (una emboscada), por encima de `first`. Por participante, los empates son para el bando del grupo.
 - **Un turno del grupo** espera al jugador: quien tiene el turno es quien actúa (`acting.*`), y solo están abiertas las acciones de `actions` (con sus propios `when`, `needs` y `ask`); viajar y lo demás esperan a que acabe el combate. Tomar una termina el turno cuando acaba. Fuera de un combate, esas acciones están tan abiertas como diga su `when`: escribid `when: { encounter.round: { gte: 1 } }` para una que solo sea de combate.
-- **El turno de un enemigo** pasa por sí solo: ocurren las acciones `on: encounter.turn`, con `acting.*` el enemigo (`when: { encounter.side: foes }`), y luego llega el turno siguiente.
+- **El turno de un enemigo** pasa por sí solo: ocurren las acciones `on: encounter.turn`, con `acting.*` el enemigo (`when: { encounter.side: foes }`); luego, si sigue ahí, se tira su tabla actuando como él: el `actions` de su plantilla ([Bestiarios](#bestiarios)), o si no el `foes` del sistema; y llega el turno siguiente. Un resultado apunta a alguien con `set: { target: … }`, y sus efectos lo nombran como `characters[target]`:
+
+```yaml
+kind: table
+id: wolf-turn
+roll: 1d6
+entries:
+  - { range: 1-2, result: '{{acting.name}} ronda, gruñendo' }
+  - range: 3-6
+    set: { target: party.members.lowest.values.health } # el más herido de ellos
+    result: '{{acting.name}} va a por el más débil de vosotros'
+    effects: { 'characters[target].values.health': '-{{acting.values.bite}}' }
+```
+
+`target` toma el id de un miembro, o una de las formas cortas: `party.members.random` (uno de ellos, tirado), `party.members.lowest.values.<id>` y `party.members.highest.values.<id>` (el que tiene menos o más de un valor, el primero en un empate). Sin miembros no se apunta a nadie, y esos efectos no hacen nada.
+
 - **Momentos**: `encounter.start`, `encounter.round` (el comienzo de cada ronda), `encounter.turn` (el comienzo de cada turno), `encounter.end`, para el `on:` de las acciones y el `at:` de las comprobaciones. Las condiciones leen `encounter.round`, `encounter.turn` (de quién es el turno: un id), `encounter.side` (`party` o `foes`) y `encounter.order` ([Lo que ven las tablas](04-what-tables-see.md#un-encuentro-encounter)).
 - El diario cuenta cada parte: _Empieza un combate_, _Ronda 2_, _Turno de Mara_, _Se acabó el combate_.
 

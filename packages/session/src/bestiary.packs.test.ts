@@ -262,6 +262,7 @@ describe('the bundled packs fight in turns', () => {
     expect(core.encounter).toEqual({
       order: { by: 'side', first: 'party' },
       actions: ['strike'],
+      foes: 'table.foe-turn',
       ends: { 'present.count': 0 },
     })
     const { state, lines } = fight(core, 'fight', 'c')
@@ -278,6 +279,65 @@ describe('the bundled packs fight in turns', () => {
   it('both start their fights with an action of their own: Stand and fight, Fight', () => {
     expect(fightStarters(marches.rules)).toEqual(['stand'])
     expect(fightStarters(core.rules)).toEqual(['fight'])
+  })
+
+  it('foes act on their turns: Core’s blow, the Marches’ wolves going for the weakest', () => {
+    // Core: each foe's turn rolls the system's table, a blow at one of the party (when a foe
+    // still stands by its turn: in some fights the party fells them all first).
+    const blows = ['c', 'd', 'e', 'f', 'g'].filter((seed) =>
+      fight(core, 'fight', seed).lines.includes('ORACLE_RESULT'),
+    )
+    expect(blows.length).toBeGreaterThan(0)
+    // The Grey Marches: wolves with their leader (without it they run) and a bandit; the
+    // wolves roll their own table, the bandit the system's.
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'w',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(3) }),
+    }
+    let s = applyResult(
+      session,
+      { effects: { 'present.pack-leader': 1, 'present.grey-wolf': 2, 'present.bandit': 1 } },
+      {},
+      partyOf(marches),
+    )
+    // Mara is hurt: the wolves that bite go for her.
+    s = {
+      ...s,
+      members: s.members!.map((m) =>
+        m.id === 'mara' ? { ...m, values: { ...m.values, health: 1 } } : m,
+      ),
+    }
+    const tables: unknown[] = []
+    const bitten: unknown[] = []
+    let done = stepTrip(options, s, { type: 'action', id: 'stand' })
+    for (let turn = 0; turn < 12 && done.state.encounter; turn++) {
+      for (const e of done.entries)
+        if (e.code === 'ORACLE_RESULT') {
+          tables.push(e.data?.table)
+          const value = e.data?.value as Record<string, unknown>
+          if (e.data?.table === 'grey-marches/wolf-turn' && value.target) bitten.push(value.target)
+        }
+      // The Company strikes the wolves of the pack (not its leader, or they'd run), so the
+      // others get their turns.
+      const here = done.state.present?.filter((p) => p.at === done.state.travel.location) ?? []
+      const foe = (here.find((p) => p.character.id.startsWith('grey-wolf')) ?? here.at(-1))
+        ?.character.id
+      if (!foe) break
+      done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe } })
+      if (done.state.travel.waiting)
+        done = stepTrip(options, done.state, { type: 'resume', choice: foe })
+    }
+    expect(tables).toContain('grey-marches/wolf-turn')
+    expect(tables).toContain('grey-marches/foe-turn')
+    expect(new Set(bitten)).toEqual(new Set(bitten.length ? ['mara'] : []))
   })
 
   it('the Grey Marches: a fight started by hand with those here, shown in turns, and called off', () => {

@@ -75,6 +75,9 @@ export const en = {
     names: 'Names from',
     namesHelp:
       "A table or generator rolled for each copy's name. Empty: the template's name, numbered.\n• `names/generator.folk`",
+    actions: 'On its turn',
+    actionsHelp:
+      "What a copy does on its turn in a fight in turns: a table (or anything the Oracle rolls) its system rolls for it, acting as it (`acting.values.harm`). A result aims at someone with `set: { target: … }` and its effects name them as `characters[target]`. Empty: what the system says its foes do (`encounter.foes`), else only the turn's moment. A variant takes it from the template it's like.\n• `table.wolf-turn`\n• `set: { target: party.members.lowest.values.health }` — in an entry: the one with the least health",
     behind: 'Left behind',
     behindHelp:
       "What becomes of copies when the party leaves the place they were made: they **stay** there, or **leave**. It is the system's to decide; empty takes the bestiary's, else they stay.",

@@ -343,6 +343,7 @@ export const es: Messages<typeof en> = {
     conditions: 'Condiciones',
     items: 'Objetos',
     tags: 'Etiquetas',
+    actions: 'En su turno',
     names: 'Nombres',
     noSheet:
       'No se encuentra su hoja: elige una arriba, o da al bestiario una **Hoja**, para editar sus valores.',
@@ -777,6 +778,9 @@ export const es: Messages<typeof en> = {
     value: 'Lo que tira cada uno',
     partyRolls: 'Lo que tira el bando del grupo',
     foesRolls: 'Lo que tira el bando de los enemigos',
+    foes: 'El turno de un enemigo',
+    foesHelp:
+      "Lo que hace un enemigo en su turno: una tabla (o cualquier cosa que tire el Oráculo) que se tira por él, actuando como él (`acting.values.harm`), para los enemigos cuya plantilla no dice nada (el **En su turno** de una plantilla, en el Bestiario, va primero). Un resultado apunta a alguien con `set: { target: … }`, y sus efectos lo nombran como `characters[target]`. Vacío: el turno de un enemigo es solo su momento (`encounter.turn`), para las acciones del sistema.\n• `table.foe-turn`\n• `set: { target: party.members.random }` — en una entrada: uno del grupo, tirado\n• `characters[target].values.health: '-{{acting.values.harm}}'` — su efecto",
     minutes: 'Minutos que dura una ronda',
     minutesHelp:
       'El tiempo que dura una ronda, para que las luces se gasten y los relojes avancen durante un combate. Vacío: no pasa el tiempo.\n• `1` — un minuto por ronda\n• `0.1` — seis segundos',

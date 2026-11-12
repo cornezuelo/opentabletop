@@ -40,6 +40,7 @@ bestiary/marches:
     - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
     - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
     - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
+    - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada); las demás hacen lo que dice el sistema (`encounter.foes`)
     - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, y los muertos inquietos, en su túmulo (`behind: stay`)
   templates:
     traveller:
@@ -69,3 +70,21 @@ bestiary/marches:
     vale-rider:
       name: Jinete del Valle
       description: Uno de la patrulla del Valle, que recorre sus caminos y sus lindes.
+foe-turn:
+  name: El turno de un enemigo
+  description: |-
+    Lo que hace un enemigo en su turno en un combate, cuando su especie no tiene un turno propio: lanza un golpe a uno de la Compañía, tirado, y acierta la mitad de las veces, por su Daño.
+
+    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); un resultado dirigido a alguien (`set: { target: party.members.random }`) y su efecto sobre él (`characters[target].values.health`); un turno que no hace nada.
+  entries:
+    miss: '{{acting.name}} lanza un golpe, y falla'
+    hit: '{{acting.name}} acierta un golpe'
+wolf-turn:
+  name: El turno de un lobo
+  description: |-
+    Lo que hace un lobo gris (o el jefe de la manada) en su turno en un combate: va a por el más débil de la Compañía y muerde, por su Daño, salvo que solo ronde.
+
+    **Enseña:** el turno propio de una plantilla (`actions: table.wolf-turn` en el bestiario, que su variante toma por `like`) por encima del del sistema; un objetivo elegido por un valor (`set: { target: party.members.lowest.values.health }`).
+  entries:
+    circle: '{{acting.name}} ronda, gruñendo'
+    bite: '{{acting.name}} va a por el más débil de vosotros'

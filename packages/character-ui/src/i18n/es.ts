@@ -76,6 +76,9 @@ export const es: Messages<typeof en> = {
     names: 'Nombres de',
     namesHelp:
       'Una tabla o generador que se tira para el nombre de cada copia. Vacío: el nombre de la plantilla, numerado.\n• `names/generator.folk`',
+    actions: 'En su turno',
+    actionsHelp:
+      'Lo que hace una copia en su turno en un combate por turnos: una tabla (o cualquier cosa que tire el Oráculo) que su sistema tira por ella, actuando como ella (`acting.values.harm`). Un resultado apunta a alguien con `set: { target: … }` y sus efectos lo nombran como `characters[target]`. Vacío: lo que el sistema dice que hacen sus enemigos (`encounter.foes`), o si no solo el momento del turno. Una variante lo toma de la plantilla a la que se parece.\n• `table.wolf-turn`\n• `set: { target: party.members.lowest.values.health }` — en una entrada: el de menos salud',
     behind: 'Al dejarlas atrás',
     behindHelp:
       'Qué pasa con las copias cuando el grupo deja el lugar donde se hicieron: se **quedan** allí o **se van**. Lo decide el sistema; vacío toma lo del bestiario, y si no, se quedan.',

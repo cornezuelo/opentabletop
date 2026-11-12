@@ -221,6 +221,7 @@
         const action = ((doc.rules.actions ?? {}) as Raw)[id] as Raw | undefined
         return doc.text('travel-rules', action?.name, ['actions', id, 'name']) || ''
       }}
+      rolls={doc.targets.map((target) => target.ref)}
       onchange={(encounter) => doc.edit('system', ['encounter'], encounter)}
     />
 

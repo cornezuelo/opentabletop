@@ -653,6 +653,11 @@ export type TravelAction =
    * checks that name it (`on:` / `at:`) happen now, as at any moment.
    */
   | { type: 'moment'; at: string }
+  /**
+   * Rolls something the host resolves now (`table.wolf-turn`), as a step's `roll:` would:
+   * a check pending until the host resolves it, seeing `facts` besides the trip's.
+   */
+  | { type: 'roll'; resolve: string; facts?: Record<string, unknown> }
 
 /**
  * What the host knows that conditions may read besides the trip's facts: the party's
@@ -2711,6 +2716,18 @@ export function createTravelEngine(options: {
           // A moment of the world, or one written as a condition that just turned true.
           if (isHostMoment(action.at) || isReactionMoment(action.at))
             schedule(state, action.at, events, undefined, doingFacts())
+          break
+        case 'roll':
+          // A moment nothing names: only the roll comes of it.
+          schedule(
+            state,
+            'roll',
+            events,
+            undefined,
+            { ...doingFacts(), ...action.facts },
+            undefined,
+            action.resolve,
+          )
           break
       }
       return { state, events }

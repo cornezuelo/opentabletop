@@ -33,6 +33,11 @@ const template = z
     like: z.string().min(1).optional(),
     /** A table or generator rolled for each copy's name; absent: the template's, numbered. */
     names: z.string().min(1).optional(),
+    /**
+     * What a copy does on its turn in a fight (`table.wolf-turn`): a table (or anything the
+     * Oracle rolls) its system rolls for it, acting as that copy; absent: the system's.
+     */
+    actions: z.string().min(1).optional(),
     tags: z.array(z.string().min(1)).optional(),
     conditions: z.array(z.string().min(1)).optional(),
     cards: z.array(z.string().min(1)).optional(),
@@ -121,6 +126,8 @@ export interface Template {
   /** Its sheet as written (`sheet.beast`), for the system to find. */
   sheet?: string
   names?: string
+  /** What a copy does on its turn in a fight (`table.wolf-turn`), as written. */
+  actions?: string
   tags: string[]
   conditions: string[]
   cards: string[]
@@ -142,7 +149,7 @@ export function resolveTemplate(def: Bestiary, id: string): Template | undefined
   const out: Template = { id, tags: [], conditions: [], cards: [], values: {}, behind: 'stay' }
   // The furthest first, so each variant writes over what it's like.
   for (const t of [...chain].reverse()) {
-    for (const key of ['name', 'description', 'sheet', 'names', 'token'] as const)
+    for (const key of ['name', 'description', 'sheet', 'names', 'actions', 'token'] as const)
       if (t[key] !== undefined) (out as unknown as Record<string, unknown>)[key] = t[key]
     for (const key of ['tags', 'conditions', 'cards'] as const)
       for (const v of t[key] ?? []) if (!out[key].includes(v)) out[key].push(v)

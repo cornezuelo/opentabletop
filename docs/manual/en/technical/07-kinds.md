@@ -557,6 +557,7 @@ templates:
     name: Wolf
     tags: [beast, pack]
     values: { health: '{{1d4+1}}', bite: 1 } # each copy rolls its own
+    actions: table.wolf-turn # what it does on its turn in a fight (missing: the system's)
     token: { icon: 'game:wolf-head', kind: enemy } # how it's drawn on a map
   leader:
     like: wolf # a variant: the wolf's, and what changes
@@ -572,7 +573,7 @@ templates:
     behind: stay # this one stays where it was met
 ```
 
-- Each template, by an id effects and tables name it with (never `all`, `count`, `tags` or `ids`, no dots): `name`, `description`, `sheet` (a [sheet](#sheets) of this pack or a dependency's; missing: the bestiary's), `values` (numbers, or `{{…}}` rolled for each copy; missing: the sheet's `default`), `conditions` and `tags` it starts with, `cards`, `items` (how many of each, from the system's [catalogues](#item-catalogues), numbers or rolls; missing: the sheet's `items.start`), `names` (a table, oracle or generator rolled for each copy's name), `token` (how it's drawn on a map: `icon`, `kind`, one of `pc`, `npc` or `enemy`, and `color`), `behind` and `like`.
+- Each template, by an id effects and tables name it with (never `all`, `count`, `tags` or `ids`, no dots): `name`, `description`, `sheet` (a [sheet](#sheets) of this pack or a dependency's; missing: the bestiary's), `values` (numbers, or `{{…}}` rolled for each copy; missing: the sheet's `default`), `conditions` and `tags` it starts with, `cards`, `items` (how many of each, from the system's [catalogues](#item-catalogues), numbers or rolls; missing: the sheet's `items.start`), `names` (a table, oracle or generator rolled for each copy's name), `actions` (what a copy does on its turn in a [fight in turns](#fights-in-turns): a table rolled for it, acting as it), `token` (how it's drawn on a map: `icon`, `kind`, one of `pc`, `npc` or `enemy`, and `color`), `behind` and `like`.
 - `like`: a variant of another template of this bestiary: it takes that one's sheet, values, items, texts and token, and adds its tags, conditions and cards; what it writes wins. A template that's a variant of itself is refused.
 - `behind`: what becomes of copies once the party leaves their place: `stay` (the default: still there, and present again when the party comes back) or `leave` (gone, with a line in the journal, so the next visit rolls its encounter afresh). The bestiary's, unless a template says otherwise. A copy the player drags to another place on a map isn't left behind: it stays there.
 - A copy is made once: later changes to the template don't touch copies already made. Its id is the template's (`wolf`, `wolf-2`, `wolf-3`), its name the template's, numbered (_Wolf 2_), or rolled on `names`.
@@ -821,6 +822,7 @@ encounter: # (in a kind: system, beside travel, sheet…)
   # for each side (`acting.*` is the one rolling).
   # order: { by: participant, value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' } }
   actions: [actions.strike, actions.fall-back] # what a member does on its turn
+  foes: table.foe-turn # what a foe does on its turn, unless its template says
   minutes: 1 # a round's length (absent: no time passes)
   ends: { present.count: 0 } # when it ends by itself, read after every turn
 ```
@@ -829,7 +831,22 @@ encounter: # (in a kind: system, beside travel, sheet…)
 - **Who takes part**: the party's members (or the party, played as a whole) and those present at the party's place. Those who come during the fight join at the end of the next round; those who leave lose their turns.
 - **The order** is read once, after the moment `encounter.start`: its actions may say which side goes first with an effect, `encounter.first: foes` (an ambush), over `first`. By participant, ties go to the party's side.
 - **A turn of the party's** waits for the player: whoever's turn it is is the one acting (`acting.*`), and only the actions in `actions` are open (with their own `when`, `needs` and `ask`); travelling and the rest wait until the fight is over. Taking one ends the turn once it's done. Outside a fight, those actions are as open as their `when` says: write `when: { encounter.round: { gte: 1 } }` for one only in fights.
-- **A foe's turn** goes by itself: the actions `on: encounter.turn` happen, with `acting.*` the foe (`when: { encounter.side: foes }`), then the next turn comes.
+- **A foe's turn** goes by itself: the actions `on: encounter.turn` happen, with `acting.*` the foe (`when: { encounter.side: foes }`); then, if it's still there, its table is rolled acting as it: its template's `actions` ([Bestiaries](#bestiaries)), else the system's `foes`; then the next turn comes. A result aims at someone with `set: { target: … }`, and its effects name them as `characters[target]`:
+
+```yaml
+kind: table
+id: wolf-turn
+roll: 1d6
+entries:
+  - { range: 1-2, result: '{{acting.name}} circles, snarling' }
+  - range: 3-6
+    set: { target: party.members.lowest.values.health } # the most hurt of them
+    result: '{{acting.name}} goes for the weakest of you'
+    effects: { 'characters[target].values.health': '-{{acting.values.bite}}' }
+```
+
+`target` takes a member's id, or one of the short forms: `party.members.random` (one of them, rolled), `party.members.lowest.values.<id>` and `party.members.highest.values.<id>` (the one with the least or the most of a value, the first on a tie). Without members, nobody is aimed at, and those effects do nothing.
+
 - **Moments**: `encounter.start`, `encounter.round` (each round's start), `encounter.turn` (each turn's start), `encounter.end`, for actions' `on:` and checks' `at:`. Conditions read `encounter.round`, `encounter.turn` (whose turn: an id), `encounter.side` (`party` or `foes`) and `encounter.order` ([What tables see](04-what-tables-see.md#an-encounter-encounter)).
 - The journal says each part: _A fight begins_, _Round 2_, _Mara's turn_, _The fight is over_.
 

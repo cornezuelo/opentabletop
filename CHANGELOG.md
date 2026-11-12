@@ -14,6 +14,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Oracle: **Open a scene ↗** under a result that brings people (`present.<template>: n`), in a campaign: a new scene of it in Campaign with them.
 
+- **Foes that act**: on a foe's turn in a fight, its template's table (`actions: table.wolf-turn` in the bestiary) or the system's (`encounter.foes`) is rolled acting as it; a result aims at one of the party with `set: { target: party.members.random }` (or `party.members.lowest.values.<id>` / `highest`), its effects naming them as `characters[target]`. Packs: **On its turn** on a template, **A foe's turn** in the Overview. Core's foes strike one of you; the Grey Marches' wolves go for the most hurt, the rest swing at anyone.
+
 - Pieces: an exit into a **new map** (`newMap: true`, or `{ name: … }`): laying its piece makes a blank sub-map under it, drawn like the map, taken with **Go in ↗** and laid piece by piece in turn. Packs' pieces form: **New map**. Core's _Stairs down_ lead to a level below; the Grey Marches' _A stair further down_ to _The deeper barrows_.
 
 - Sheets: **values that step** (`steps: [4, 6, 8]`): the only numbers a value may be, a die's sizes; an effect's `-1` takes it a step down (a d8 to a d6), `'=N'` to the step nearest. Shown as a die (`display: die`, **d8**), chosen from its steps. Packs' sheet form: **Steps**. The Grey Marches' Nerve is one (d4 to d12; saved companions' nerve becomes the nearest die); Core's maps have a **Finds die**, a d6 that drops to a d4 once a landmark is found.

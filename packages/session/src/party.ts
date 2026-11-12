@@ -326,13 +326,17 @@ export function memberFacts(
     s.present?.length || rules.templateIds?.length
       ? presentFacts({ present: s.present, travel: s.travel ?? {} }, rules)
       : undefined
-  if (!s.members?.length)
+  if (!s.members?.length) {
+    // A copy acting (a foe's turn) is `acting` too.
+    const copy = s.acting !== undefined ? copies?.characters[s.acting] : undefined
     return copies
       ? {
           present: copies.present,
           ...(Object.keys(copies.characters).length && { characters: copies.characters }),
+          ...(copy !== undefined && { acting: copy }),
         }
       : {}
+  }
   const characters = {
     ...copies?.characters,
     ...Object.fromEntries(s.members.map((m) => [m.id, characterFacts(m, sheetOf(rules)(m))])),

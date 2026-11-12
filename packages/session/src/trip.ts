@@ -1233,7 +1233,9 @@ function undeclaredEffects(
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
     if (typeof effects !== 'object' || effects === null) return
-    for (const path of Object.keys(effects)) {
+    for (const written of Object.keys(effects)) {
+      // A part named by brackets (`characters[target]`): whoever it is, checked as one of them.
+      const path = written.replace(/\[[^\]]*\]/g, '.named')
       const statId = /^party\.stats\.(.+)$/.exec(path)?.[1]
       // A member's value or condition: its sheet's.
       const [, who, part, partId] = MEMBER_PATH.exec(path) ?? []
@@ -1247,7 +1249,7 @@ function undeclaredEffects(
       // The encounter: started or ended (`encounter: start`), or which side goes first.
       const encounterPart = ENCOUNTER_EFFECT.exec(path)
       if (encounterPart) {
-        const value = (effects as Record<string, unknown>)[path]
+        const value = (effects as Record<string, unknown>)[written]
         const allowed = encounterPart[1] === 'first' ? ['party', 'foes'] : ['start', 'end']
         if (!allowed.includes(String(value)))
           out.push({
@@ -1561,6 +1563,7 @@ export function stepTrip(
     first,
     (s, a) => played.step(s, a),
     (s) => tripContext(s, options.facts ?? {}, {}, partyOf(system)),
+    (s, id) => foeTable(system, s, id),
   )
   // What the step did, the encounter's lines with it, from its first line on.
   if (result.state !== first.state) result.state.lastStep = first.state.lastStep
@@ -1576,6 +1579,19 @@ export function stepTrip(
  * (`{ type: 'encounter', what: 'start' }`).
  */
 export type TripAction = TravelAction | { type: 'encounter'; what: 'start' | 'end' }
+
+/**
+ * What a foe rolls on its turn, as a full id: its template's `actions` (from its bestiary's
+ * pack), else the system's `encounter.foes`; none, and it only hears the moment.
+ */
+function foeTable(system: TravelSystem, s: SessionState, id: string): string | undefined {
+  const made = s.present?.find((p) => p.character.id === id)?.character.template
+  const found = made && partyOf(system).bestiary?.(made.id)
+  const own = found?.template.actions
+  if (found && own) return definitionId(own, found.bestiary.split('/')[0])
+  const foes = system.encounter?.foes
+  return foes && definitionId(foes, system.sources?.rules?.pack ?? system.pack)
+}
 
 /** Whether an encounter going on closes this action: travelling, or what isn't its turn's. */
 function encounterCloses(

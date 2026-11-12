@@ -32,6 +32,11 @@ export interface EncounterRules {
     | { by: 'participant'; value: string | Record<Side, string> }
   /** The system's actions a member takes on its turn (ids): the only ones open in a fight. */
   actions: string[]
+  /**
+   * What a foe does on its turn when its template says nothing (`table.foe-turn`): rolled
+   * acting as that foe (its template's `actions` first).
+   */
+  foes?: string
   /** Minutes a round takes (absent: none pass). */
   minutes?: number
   /** When it ends by itself: read after the encounter starts and after every turn. */
@@ -67,7 +72,7 @@ export interface Encounter {
 export const ENCOUNTER_EFFECT = /^encounter(?:\.(first))?$/
 
 /** The keys `encounter:` may have. */
-const KEYS = new Set(['order', 'actions', 'minutes', 'ends'])
+const KEYS = new Set(['order', 'actions', 'foes', 'minutes', 'ends'])
 
 /** A system's `encounter:` read, with what's wrong in it (paths from `encounter`). */
 export function parseEncounter(
@@ -129,6 +134,8 @@ export function parseEncounter(
       errors.push(`encounter.actions.${i}: the system has no action "${String(a)}"`)
     else actions.push(id)
   })
+  if (raw.foes !== undefined && (typeof raw.foes !== 'string' || !raw.foes))
+    errors.push('encounter.foes: expected what a foe does on its turn (table.foe-turn)')
   if (raw.minutes !== undefined && (typeof raw.minutes !== 'number' || raw.minutes < 0))
     errors.push('encounter.minutes: expected the minutes a round takes')
   if (raw.ends !== undefined) errors.push(...validateCondition(raw.ends, 'encounter.ends'))
@@ -137,6 +144,7 @@ export function parseEncounter(
     rules: {
       order,
       actions,
+      ...(typeof raw.foes === 'string' && raw.foes && { foes: raw.foes }),
       ...(typeof raw.minutes === 'number' && { minutes: raw.minutes }),
       ...(raw.ends !== undefined && { ends: raw.ends as Condition }),
     },
@@ -298,6 +306,11 @@ export function driveEncounter(
   step: (s: SessionState, action: TravelAction) => { state: SessionState; entries: JournalEntry[] },
   /** What conditions read now (the trip's context), for the order and `ends`. */
   context: (s: SessionState) => Record<string, unknown>,
+  /**
+   * What a foe rolls on its turn (full id): its template's `actions`, else the rules'
+   * `foes`; none, and its turn is only the moment.
+   */
+  foeTable: (s: SessionState, id: string) => string | undefined = () => undefined,
 ): { state: SessionState; entries: JournalEntry[] } {
   let { state } = input
   const entries = [...input.entries]
@@ -371,6 +384,9 @@ export function driveEncounter(
         })
         line('ENCOUNTER_TURN', { id, name: participantName(state, id), side, round: e.round })
         say({ type: 'moment', at: 'encounter.turn' })
+        // A foe still standing does what its table says, acting as itself.
+        const table = side === 'foes' && stillHere(state, id) ? foeTable(state, id) : undefined
+        if (table && !waits(state)) say({ type: 'roll', resolve: table })
         break
       }
       case 'acting':

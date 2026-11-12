@@ -25,6 +25,7 @@
     others = [],
     items = [],
     tagChoices = [],
+    rolls = [],
     onchange,
   }: {
     /** Its id in its bestiary: what tables and effects name its copies with (`present.<id>`). */
@@ -39,6 +40,8 @@
     items?: readonly string[]
     /** Tags to suggest (those its system's characters already use: session's `tagsInUse`). */
     tagChoices?: readonly string[]
+    /** What the Oracle can roll, as its bestiary writes it (`table.wolf-turn`), for **Names from** and **On its turn**. */
+    rolls?: readonly string[]
     onchange: (next: TemplateDef) => void
   } = $props()
 
@@ -143,11 +146,25 @@
       <span>{t('template.names')}<InfoTip markdown={t('template.namesHelp')} /></span>
       <input
         type="text"
+        list="rolls-{id}"
         value={written(template.names)}
         {disabled}
         onchange={(e) => set('names', e.currentTarget.value.trim())}
       />
     </label>
+    <label>
+      <span>{t('template.actions')}<InfoTip markdown={t('template.actionsHelp')} /></span>
+      <input
+        type="text"
+        list="rolls-{id}"
+        value={written(template.actions)}
+        {disabled}
+        onchange={(e) => set('actions', e.currentTarget.value.trim())}
+      />
+    </label>
+    <datalist id="rolls-{id}">
+      {#each rolls as ref (ref)}<option value={ref}></option>{/each}
+    </datalist>
     <label>
       <span>{t('template.behind')}<InfoTip markdown={t('template.behindHelp')} /></span>
       <select
