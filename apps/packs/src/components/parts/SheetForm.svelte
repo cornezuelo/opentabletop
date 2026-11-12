@@ -299,6 +299,14 @@
           placeholder: t('sheet.byEffects'),
           hints: whenHints,
         },
+        {
+          field: 'lasts',
+          label: t('sheet.lasts'),
+          help: t('sheet.lastsHelp'),
+          type: 'select',
+          choices: ['rounds', 'turns'],
+          off: (row) => row.when !== undefined,
+        },
       ]}
     />
   </section>

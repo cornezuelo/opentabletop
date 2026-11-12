@@ -64,7 +64,7 @@ travel-rules/default:
           say: 'El más duro de ellos tiene {{present.highest.values.health}} de salud.'
     strike:
       name: Golpear
-      description: 'En el turno de un miembro, en un combate: un golpe a un enemigo de los que están aquí, el que elijáis, por 1d3 de daño.'
+      description: 'En el turno de un miembro, en un combate: un golpe a un enemigo de los que están aquí, el que elijáis, por 1d3 de daño; un 1, de refilón, lo deja tambaleándose una ronda.'
       params:
         foe: { name: ¿A quién? }
     explore:

@@ -27,6 +27,10 @@ export const en = {
   lastSeen:
     'It reads the world (the trip, the time, the cell…), so it follows it while the character travels; away from a trip (in the roster) it stays as it was last seen.',
   blocks: 'While someone has it, the party can’t: {list}.',
+  lasts:
+    'Given for a while in a fight: {unit} counted down as each begins, gone with the fight. What’s left is read as {key}.',
+  lastsUnit: { rounds: 'rounds', turns: 'its own turns' },
+  left: '{n} left',
   less: 'Less {name}',
   more: 'More {name}',
   box: '{value} of {max}',

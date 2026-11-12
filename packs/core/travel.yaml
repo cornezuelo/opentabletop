@@ -190,13 +190,13 @@ actions:
   # The one action a member takes on its turn in a fight: a blow at one foe here, chosen.
   strike:
     name: Strike
-    description: 'On a member’s turn in a fight: a blow at one foe here, the one you choose, for 1d3 harm.'
+    description: 'On a member’s turn in a fight: a blow at one foe here, the one you choose, for 1d3 harm; a glancing 1 staggers it for a round.'
     params:
       foe: { name: Whom?, from: present.ids }
     do:
       - { ask: params.foe }
-      - effects:
-          characters[params.foe].values.health: '-{{1d3}}'
+      # A blow of 1d3; a glancing 1 staggers it for a round (bestiary.yaml's _A strike_).
+      - { roll: table.strike }
   # A moment written as a condition (a reaction): once, as morale reaches 0.
   despair:
     name: Despair

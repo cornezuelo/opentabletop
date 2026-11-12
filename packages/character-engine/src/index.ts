@@ -192,6 +192,13 @@ const condition = z
      * as it has this condition: killed, fled, bought off. Nothing for the party's own.
      */
     leaves: z.boolean().optional(),
+    /**
+     * Given for a while by an effect's number (`conditions.dazed: 2`, `'{{1d4}}'`): that many
+     * of a fight's `rounds`, or of the character's own `turns`, counted down as they begin
+     * (more given adds up); gone when none is left, or when the fight ends. `true` gives it
+     * with no end.
+     */
+    lasts: z.enum(['rounds', 'turns']).optional(),
   })
   .strict()
 
@@ -359,6 +366,8 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
   for (const [id, c] of Object.entries(sheet.conditions)) {
     if (c.blocks?.some((b) => !b.trim())) errors.push(`conditions.${id}.blocks: empty entry`)
     if (c.when !== undefined) errors.push(...validateCondition(c.when, `conditions.${id}.when`))
+    if (c.when !== undefined && c.lasts !== undefined)
+      errors.push(`conditions.${id}.lasts: one that holds by itself (when) isn't given for a while`)
   }
   return errors.length ? { errors } : { sheet, errors }
 }
@@ -585,8 +594,11 @@ export interface CharacterState {
   sheet: string
   name?: string
   values: Record<string, number>
-  /** The conditions the character has, each with when it began (game time), if known. */
-  conditions: Record<string, { since?: number }>
+  /**
+   * The conditions the character has, each with when it began (game time), if known, and
+   * how many rounds or turns are left of one given for a while (`lasts`).
+   */
+  conditions: Record<string, { since?: number; left?: number }>
   tags: string[]
   /** Abilities, moves, talents… by their definitions' full ids. */
   cards: string[]
@@ -810,6 +822,25 @@ export function applyCharacter(
         if (scope === 'conditions') {
           if (!sheet.conditions[id])
             events.push({ type: 'UNKNOWN_CONDITION', character: who, condition: id })
+          // One that lasts a while, given a number of rounds or turns: added to what's left.
+          const lasting = sheet.conditions[id]?.lasts !== undefined && typeof written !== 'boolean'
+          const n = lasting ? resolveChange(written, seen, options.roller) : undefined
+          if (n !== undefined && written !== 'true' && written !== 'false') {
+            const had = state.conditions[id]
+            const left =
+              typeof n === 'string' ? Number(n.slice(1)) : (had ? (had.left ?? 0) : 0) + n
+            if (left > 0) {
+              if (!had) events.push({ type: 'CONDITION_SET', character: who, condition: id })
+              state.conditions[id] = {
+                ...(had ?? (action.time !== undefined ? { since: action.time } : {})),
+                left,
+              }
+            } else if (had) {
+              delete state.conditions[id]
+              events.push({ type: 'CONDITION_CLEARED', character: who, condition: id })
+            }
+            continue
+          }
           const on = written === true || written === 'true' || written === 1
           if (on && !state.conditions[id]) {
             state.conditions[id] = action.time !== undefined ? { since: action.time } : {}
@@ -1021,6 +1052,32 @@ function settle(
 }
 
 /**
+ * Conditions given for a while (`lasts`) counted down (a new round begins: `rounds`; the
+ * character's own turn: `turns`), each gone when none is left; or all of them gone, the
+ * fight over (`end`). Those given with no end stay.
+ */
+export function lapseConditions(
+  sheet: Sheet,
+  input: CharacterState,
+  unit: 'rounds' | 'turns' | 'end',
+): { state: CharacterState; events: CharacterEvent[] } {
+  const events: CharacterEvent[] = []
+  let state = input
+  for (const [id, c] of Object.entries(input.conditions)) {
+    const lasts = sheet.conditions[id]?.lasts
+    if (lasts === undefined || c.left === undefined || (unit !== 'end' && unit !== lasts)) continue
+    if (state === input) state = structuredClone(input)
+    const left = unit === 'end' ? 0 : c.left - 1
+    if (left > 0) state.conditions[id] = { ...c, left }
+    else {
+      delete state.conditions[id]
+      events.push({ type: 'CONDITION_CLEARED', character: input.id, condition: id })
+    }
+  }
+  return { state, events }
+}
+
+/**
  * What conditions and tables read of a character: `values.<id>` (and each value by its
  * own name), `conditions` (a list of the ones it has), `tags`, `cards`, `relations` by
  * kind (`relations.bond: [character:kael, poi:ashford]`), with each one's number as
@@ -1040,6 +1097,12 @@ export function characterFacts(state: CharacterState, sheet?: Sheet): Record<str
     ...(state.name !== undefined && { name: state.name }),
     values: { ...state.values },
     conditions: Object.keys(state.conditions),
+    // What's left of those given for a while (`left.dazed: 2`).
+    left: Object.fromEntries(
+      Object.entries(state.conditions).flatMap(([id, c]) =>
+        c.left !== undefined ? [[id, c.left]] : [],
+      ),
+    ),
     tags: [...state.tags],
     cards: [...state.cards],
     relations: byKind,

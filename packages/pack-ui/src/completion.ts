@@ -309,6 +309,7 @@ const KEYS = [
   'icon',
   'behind',
   'leaves',
+  'lasts',
   // Catalogues of places: the places, what each gives its point of interest and its hex.
   'places',
   'fields',

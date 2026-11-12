@@ -1592,6 +1592,7 @@ export function stepTrip(
       const def = options.oracle?.get(table)
       return def?.kind === 'table' ? def.roll : undefined
     },
+    (s, unit, who) => played.lapse(s, unit, who),
   )
   // What the step did, the encounter's lines with it, from its first line on.
   if (result.state !== first.state) result.state.lastStep = first.state.lastStep

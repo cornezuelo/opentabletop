@@ -1063,11 +1063,17 @@ describe('Packs → Sheet: the company of three plays as the page says', () => {
 
   it('loads (steps 1–7)', () => {
     expect(diagnostics.map(formatDiagnostic)).toEqual([])
-    // Explore rolls Core's prompt and whether a place is found, which this test doesn't bring.
+    // Explore rolls Core's prompt and whether a place is found, and Strike Core's blow, which
+    // this test doesn't bring.
     expect(
       travelSystems(registry)
         .problems.map(formatDiagnostic)
-        .filter((p) => !p.includes('generator.prompt') && !p.includes('table.place-found')),
+        .filter(
+          (p) =>
+            !p.includes('generator.prompt') &&
+            !p.includes('table.place-found') &&
+            !p.includes('table.strike'),
+        ),
     ).toEqual([])
     expect(system.sheet?.id).toBe('co/sheet')
     expect(system.partySheet?.id).toBe('co/party')

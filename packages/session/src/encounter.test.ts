@@ -35,6 +35,8 @@ id: foe
 values: { health: { default: 8, min: 0 }, speed: { default: 3 }, rage: { default: 0 } }
 conditions:
   down: { when: { self.values.health: { lte: 0 } }, leaves: true }
+  dazed: { lasts: rounds }
+  braced: { lasts: turns }
 ---
 kind: bestiary
 id: foes
@@ -79,6 +81,9 @@ actions:
     params: { foe: { from: present.ids } }
     do: [{ effects: { 'characters[params.foe].values.health': -4 } }]
   flee: { do: [{ effects: { encounter: end } }] }
+  daze:
+    params: { foe: { from: present.ids } }
+    do: [{ effects: { 'characters[params.foe].conditions.dazed': 2, 'characters[params.foe].conditions.braced': 1 } }]
   bite:
     on: encounter.turn
     when: { encounter.side: foes }
@@ -358,6 +363,42 @@ describe('an encounter: a fight in turns', () => {
     }
     const done = stepTrip(options, session, { type: 'action', id: 'ambush' })
     expect(done.state.encounter?.order).toEqual(['goblin', 'goblin-2', 'kael', 'mira'])
+  })
+
+  it('conditions given for a while: counted down by rounds or by its own turns, gone with the fight', () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.daze, actions.strike, actions.flee] }',
+    )
+    const goblin = (st: typeof session) =>
+      st.present!.find((p) => p.character.id === 'goblin')!.character.conditions
+    let done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    // Kael's turn (round 1): two rounds dazed, braced until its next turn.
+    done = stepTrip(options, done.state, { type: 'action', id: 'daze', with: { foe: 'goblin' } })
+    expect(goblin(done.state)).toMatchObject({ dazed: { left: 2 }, braced: { left: 1 } })
+    // Mira's turn; then the goblins': braced is gone at the goblin's own turn, and round 2
+    // begins with one round of dazed left.
+    done = stepTrip(options, done.state, {
+      type: 'action',
+      id: 'strike',
+      with: { foe: 'goblin-2' },
+    })
+    expect(done.state.encounter?.round).toBe(2)
+    expect(goblin(done.state)).toEqual({ dazed: { since: 480, left: 1 } })
+    expect(
+      done.entries.some((e) => e.code === 'CHANGED' && JSON.stringify(e).includes('braced')),
+    ).toBe(true)
+    // Round 3: gone.
+    done = stepTrip(options, done.state, { type: 'action', id: 'daze', with: { foe: 'goblin-2' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    expect(done.state.encounter?.round).toBe(3)
+    expect(goblin(done.state).dazed).toBeUndefined()
+    // The fight over, whatever was given for a while is gone (goblin-2's last round).
+    const second = (st: typeof session) =>
+      st.present!.find((p) => p.character.id === 'goblin-2')?.character.conditions
+    expect(second(done.state)?.dazed).toEqual({ since: 480, left: 1 })
+    done = stepTrip(options, done.state, { type: 'action', id: 'flee' })
+    expect(done.state.encounter).toBeUndefined()
+    expect(second(done.state)?.dazed).toBeUndefined()
   })
 
   it("effects on a copy's values are checked against the bestiary's sheets too", () => {

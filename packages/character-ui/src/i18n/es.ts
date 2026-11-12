@@ -21,6 +21,10 @@ export const es: Messages<typeof en> = {
   unrelate: 'Quitar la relación',
   noConditions: 'Ninguno',
   readAs: 'Las tablas y condiciones lo leen como {keys}.',
+  lasts:
+    'Se da por un tiempo en un combate: {unit} que se descuentan al empezar cada uno, y se va con el combate. Lo que queda se lee como {key}.',
+  lastsUnit: { rounds: 'rondas', turns: 'sus propios turnos' },
+  left: 'quedan {n}',
   min: 'Como mínimo {min}.',
   max: 'Como máximo {max}.',
   madeOf: 'Sale de otros valores; no se cambia a mano ni con efectos: {from}.',

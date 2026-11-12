@@ -179,6 +179,8 @@
       def.when !== undefined && t('holdsWhen', { when: `\`${inline(def.when)}\`` }),
       readsWorld(sheet, id) && t('lastSeen'),
       def.blocks?.length && t('blocks', { list: def.blocks.map(names).join(', ') }),
+      def.lasts &&
+        t('lasts', { unit: t(`lastsUnit.${def.lasts}`), key: `\`${where}.left.${id}\`` }),
       t('readAs', { keys: `\`${where}.conditions: ${id}\`` }),
     ]
       .filter(Boolean)
@@ -248,6 +250,9 @@
             <span
               >{text(sheet.conditions[id].name, id)}<InfoTip markdown={conditionHelp(id)} /></span
             >
+            {#if character.conditions[id]?.left !== undefined}
+              <small class="left">{t('left', { n: character.conditions[id].left })}</small>
+            {/if}
           </label>
         {/each}
       </div>
@@ -418,6 +423,10 @@
 
   .condition.on span {
     color: var(--accent);
+  }
+
+  .condition .left {
+    color: var(--text-muted);
   }
 
   /* Holds by itself: shown, never ticked by hand. */

@@ -4,7 +4,7 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { corePack, greyMarchesPack } from './core.testing'
 import { encounterView, fightStarters } from './encounter'
-import { applyResult } from './index'
+import { applyResult, type JournalEntry } from './index'
 import { newMember } from './party'
 import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
@@ -214,10 +214,12 @@ describe('the bundled packs fight in turns', () => {
       partyOf(system),
     )
     const lines: string[] = []
+    const all: JournalEntry[] = []
     let done = stepTrip(options, s, { type: 'action', id: start })
     const first = done.state.encounter?.order ?? []
     for (let turn = 0; turn < 60 && done.state.encounter; turn++) {
       lines.push(...done.entries.map((e) => e.code))
+      all.push(...done.entries)
       s = done.state
       const foe = s.present!.find((p) => p.at === s.travel.location)!.character.id
       done = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe } })
@@ -226,7 +228,8 @@ describe('the bundled packs fight in turns', () => {
         done = stepTrip(options, done.state, { type: 'resume', choice: foe })
     }
     lines.push(...done.entries.map((e) => e.code))
-    return { state: done.state, lines, first }
+    all.push(...done.entries)
+    return { state: done.state, lines, first, all }
   }
 
   it('the Grey Marches: Stand and fight, turns by what each one rolls, foes whose nerve breaks, over when none is left', () => {
@@ -516,5 +519,25 @@ describe('the bundled packs fight in turns', () => {
     const left =
       done.state.present?.find((p) => p.character.id === foe.id)?.character.values.health ?? 0
     expect(left).toBe(Math.max(0, before.values.health - harm))
+  })
+
+  it("conditions given for a while: Core's staggered foe reels, the Grey Marches' rattled companion; both wear off", () => {
+    const texts = (all: JournalEntry[]) => all.map((e) => JSON.stringify(e))
+    const seeds = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    const core1 = seeds.map((seed) => texts(fight(core, 'fight', seed).all))
+    // A glancing 1 staggers a foe (Core's _A strike_), which reels on its turn; it wears off.
+    expect(core1.some((t) => t.some((x) => x.includes('staggers')))).toBe(true)
+    expect(core1.some((t) => t.some((x) => x.includes('The foe reels')))).toBe(true)
+    expect(
+      core1.some((t) => t.some((x) => x.includes('conditions.staggered') && x.includes('"to":0'))),
+    ).toBe(true)
+    // A heavy blow rattles a companion for 1d2 rounds; it wears off by itself.
+    const marches1 = Array.from({ length: 40 }, (_, i) =>
+      texts(fight(marches, 'stand', `m${i}`).all),
+    )
+    expect(marches1.some((t) => t.some((x) => x.includes('heavy blow')))).toBe(true)
+    expect(
+      marches1.some((t) => t.some((x) => x.includes('conditions.rattled') && x.includes('"to":0'))),
+    ).toBe(true)
   })
 })

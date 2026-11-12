@@ -6,7 +6,7 @@ name: Character
 description: |-
   A character of the Generic rules: their health, the harm they've taken, whether they're wounded and whether they're down.
 
-  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects and one that holds by itself (`when:`), and a room in all for what they carry (`items.room`, ten things, no more).
+  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects, one given for a while in a fight (_Staggered_, `lasts: rounds`) and one that holds by itself (`when:`), and a room in all for what they carry (`items.room`, ten things, no more).
 values:
   health:
     name: Health
@@ -23,6 +23,12 @@ conditions:
   wounded:
     name: Wounded
     description: Hurt badly enough to matter until it's cleared; your tables and rules say what it stops.
+  # Given for some rounds of a fight (`characters[params.foe].conditions.staggered: 1`), gone
+  # by itself as they pass.
+  staggered:
+    name: Staggered
+    description: Reeling from a hard blow; loses its turns in a fight while it lasts, a round at a time.
+    lasts: rounds
   down:
     name: Down
     description: Out of the fight while their health is 0; it lifts by itself when health comes back. A foe made from the bestiary is gone once down.

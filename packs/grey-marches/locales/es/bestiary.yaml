@@ -75,10 +75,11 @@ foe-turn:
   description: |-
     Lo que hace un enemigo en su turno en un combate, cuando su especie no tiene un turno propio: lanza un golpe a uno de la Compañía, tirado, y acierta la mitad de las veces, por su Daño.
 
-    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); un resultado dirigido a alguien (`set: { target: party.members.random }`) y su efecto sobre él (`characters[target].values.health`); un turno que no hace nada.
+    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); un resultado dirigido a alguien (`set: { target: party.members.random }`) y su efecto sobre él (`characters[target].values.health`); un estado dado por un tiempo (`characters[target].conditions.rattled: '{{1d2}}'`: rondas del combate); un turno que no hace nada.
   entries:
     miss: '{{acting.name}} lanza un golpe, y falla'
     hit: '{{acting.name}} acierta un golpe'
+    heavy: '{{acting.name}} acierta un golpe fuerte'
 wolf-turn:
   name: El turno de un lobo
   description: |-
@@ -99,9 +100,9 @@ parting-blow:
 blow:
   name: Un golpe
   description: |-
-    El daño que hace el golpe de un compañero al enemigo elegido: 1d6, tirado dos veces y el menor a oscuras, el mayor cuando ese enemigo es el único que queda aquí.
+    El daño que hace el golpe de un compañero al enemigo elegido: 1d6, tirado dos veces y el menor a oscuras o aturdido, el mayor cuando ese enemigo es el único que queda aquí.
 
-    **Enseña:** modos de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`: la ventaja y la desventaja de Core, que se anulan a oscuras contra un enemigo solo); la tabla de un campo que cambia el viaje (`'characters[params.foe].values.health': '-{{harm}}'`), tirado por el paso de una acción con sus parámetros.
+    **Enseña:** modos de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`: la ventaja y la desventaja de Core, que se anulan a oscuras contra un enemigo solo; desventaja mientras quien golpea está aturdido, un estado que se da por unas rondas); la tabla de un campo que cambia el viaje (`'characters[params.foe].values.health': '-{{harm}}'`), tirado por el paso de una acción con sus parámetros.
   template: '{{harm}} de daño'
 blow-lands:
   name: El golpe acierta

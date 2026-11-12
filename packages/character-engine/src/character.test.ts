@@ -7,6 +7,7 @@ import {
   boundsOf,
   characterFacts,
   createCharacter,
+  lapseConditions,
   membersBlock,
   parseSheet,
   partySource,
@@ -37,6 +38,8 @@ const raw = {
   conditions: {
     wounded: { name: 'Wounded', blocks: ['actions.forced-march'] },
     hungry: { blocks: ['actions.rest', 'travel.move'] },
+    dazed: { name: 'Dazed', lasts: 'rounds' },
+    braced: { name: 'Braced', lasts: 'turns' },
   },
   relations: {
     bond: { name: 'Bond', value: { min: 0, max: 10 } },
@@ -304,6 +307,39 @@ describe('characters', () => {
       effects: { 'conditions.cursed': true },
     })
     expect(odd.events.map((e) => e.type)).toEqual(['UNKNOWN_CONDITION', 'CONDITION_SET'])
+  })
+
+  it('get a condition for a while: rounds or turns, counted down, adding up, gone at the end', () => {
+    const change = (c: CharacterState, effects: Record<string, number | string | boolean>) =>
+      applyCharacter(
+        sheet!,
+        c,
+        { type: 'change', effects },
+        { roller: onceRoller(sequence([0.5])) },
+      )
+    let c = change(kael(), { 'conditions.dazed': 2, 'conditions.braced': 1 }).state
+    expect(c.conditions).toEqual({ dazed: { left: 2 }, braced: { left: 1 } })
+    expect(characterFacts(c).left).toEqual({ dazed: 2, braced: 1 })
+    // Given again, it adds up; '=N' sets what's left; a roll too.
+    expect(change(c, { 'conditions.dazed': 2 }).state.conditions.dazed.left).toBe(4)
+    expect(change(c, { 'conditions.dazed': '=1' }).state.conditions.dazed.left).toBe(1)
+    expect(change(c, { 'conditions.dazed': '{{1d4}}' }).state.conditions.dazed.left).toBe(5)
+    // A new round counts the rounds down, a turn of its own the turns.
+    let lapsed = lapseConditions(sheet!, c, 'rounds')
+    expect(lapsed.state.conditions).toEqual({ dazed: { left: 1 }, braced: { left: 1 } })
+    lapsed = lapseConditions(sheet!, lapsed.state, 'turns')
+    expect(lapsed.state.conditions).toEqual({ dazed: { left: 1 } })
+    expect(lapsed.events).toEqual([
+      { type: 'CONDITION_CLEARED', character: 'kael', condition: 'braced' },
+    ])
+    // Given with no end, it stays; the fight over, the rest go.
+    c = change(lapsed.state, { 'conditions.braced': true }).state
+    const over = lapseConditions(sheet!, c, 'end')
+    expect(over.state.conditions).toEqual({ braced: {} })
+    // One that holds by itself isn't given for a while.
+    expect(
+      parseSheet({ ...raw, conditions: { odd: { when: { wits: 1 }, lasts: 'rounds' } } }).errors,
+    ).toContain("conditions.odd.lasts: one that holds by itself (when) isn't given for a while")
   })
 
   it('hold tags, cards and relations (bonds with a number within its bounds)', () => {

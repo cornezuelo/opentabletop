@@ -10,6 +10,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Roll modes on one roll of a generator**: a `roll` field takes `modeWhen` / `modeUnless` as a table does, used for that roll alone (advantage on an attack, the defence rolled as it is). Packs' generator form: **Roll modes** under a dice field. Core's _A contest_ (your d% against theirs, yours with advantage when you have the edge); the Grey Marches' **Strike one down** rolls _A blow_, with disadvantage in the dark and advantage on a foe left alone.
 
+- **Conditions given for a while** in a fight: a sheet's condition with `lasts: rounds` (or `turns`) is given by an effect's number (`acting.conditions.dazed: 2`, `'{{1d4}}'`), counted down as each round (or the character's own turn) begins, and gone when none is left or the fight ends; read as `characters.<id>.left.<condition>`. Packs' sheet form: **Lasts**; a character's card says what's left. Core's foes are _Staggered_ by a glancing blow (_A strike_) and reel on their turn; the Grey Marches' heavy blows leave a companion _Rattled_ for 1d2 rounds, their own blows worse meanwhile.
+
 ### Fixes
 
 - A table's result (a check's, or one rolled by an action) that starts or ends a fight, or says which side goes first (`encounter: start`, `encounter.first: foes`), now does: only actions' own effects did.

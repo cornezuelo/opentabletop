@@ -225,6 +225,37 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(attackRolls(false)[0]).not.toMatch(/1d100.*\(/)
   })
 
+  it('a Stunned creature loses its turn, and the Stun wears off by itself', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'e', name: 'E', values: { perception: 1, dodge: 40 } })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor' }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded('st') }),
+    }
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'st' })
+    let s = applyResult(session, { effects: { 'present.necropede': 1 } }, {}, rules)
+    s = applyResult(s, { effects: { 'present.all.conditions.stunned': 1 } }, {}, rules)
+    expect(s.present![0].character.conditions.stunned).toMatchObject({ left: 1 })
+    const done = stepTrip(options, s, { type: 'action', id: 'fight' })
+    const results = done.entries.filter((e) => e.code === 'ORACLE_RESULT').map((e) => e.text)
+    // Its turn in round 1: nothing. By round 2 the Stun is over.
+    expect(results).toContain("Necropede can't act")
+    expect(done.state.present![0].character.conditions.stunned).toMatchObject({ left: 1 })
+    // Fled or not, it's over: round 2 began, or the fight ended.
+    const later = stepTrip(options, done.state, { type: 'action', id: 'flee' })
+    expect(later.state.present![0].character.conditions.stunned).toBeUndefined()
+  })
+
   it('three Rotwalkers: humanoid hit locations, Reactions counted each round, the Initiative deciding who acts first', () => {
     let wounds = 0
     for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {

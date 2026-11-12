@@ -10,6 +10,7 @@ import {
   boundsOf,
   countOf,
   itemsFacts,
+  lapseConditions,
   type CharacterEvent,
   type CharacterState,
   type ItemLookup,
@@ -36,6 +37,7 @@ import { makePlace, PLACE_PATH, WAY_PATH, type MadePlace, type PlaceLookup } fro
 import { changeEncounter, ENCOUNTER_EFFECT, type Encounter } from './encounter'
 import {
   changePresent,
+  copySheet,
   presentFacts,
   presentHere,
   PRESENT_PATH,
@@ -298,6 +300,43 @@ export function keptNumbers(
   for (const path of Object.keys(partyNumbers(s, rules)))
     if (path.startsWith('party.items.')) out[path] = { min: 0, read: `${path}.count` }
   return out
+}
+
+/**
+ * Conditions given for a while counted down (in place), as a fight goes: a new round's
+ * (`rounds`, everyone in it), one's own turn (`turns`, only `who`), or the fight over (`end`,
+ * everyone). The party's, its members' and those present here.
+ */
+export function lapseStates(
+  s: PartyTarget,
+  rules: PartyRules,
+  unit: 'rounds' | 'turns' | 'end',
+  who?: string,
+): CharacterEvent[] {
+  const events: CharacterEvent[] = []
+  const lapse = (sheet: Sheet | undefined, c: CharacterState) => {
+    if (!sheet || (who !== undefined && c.id !== who)) return c
+    const done = lapseConditions(sheet, c, unit)
+    events.push(...done.events)
+    return done.state
+  }
+  if (s.party && rules.partySheet?.def) {
+    const next = lapse(rules.partySheet.def, s.party)
+    if (next !== s.party) {
+      s.party = next
+      syncPartySheet(s, rules)
+    }
+  }
+  if (s.members?.length) s.members = s.members.map((m) => lapse(sheetOf(rules)(m), m))
+  if (s.present?.length) {
+    const here = new Set(presentHere(s).map((p) => p.character.id))
+    s.present = s.present.map((p) =>
+      here.has(p.character.id)
+        ? { ...p, character: lapse(copySheet(rules)(p.character), p.character) }
+        : p,
+    )
+  }
+  return events
 }
 
 /** What the members' conditions block for the party (`party.blocked` for the travel engine). */

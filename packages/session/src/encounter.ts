@@ -330,6 +330,12 @@ export function driveEncounter(
   foeTable: (s: SessionState, id: string) => string | undefined = () => undefined,
   /** A table's dice as written (`1d6`), for the player rolling it by hand. */
   diceOf: (table: string) => string | undefined = () => undefined,
+  /** Counts down the conditions given for a while (a new round, one's turn, the end). */
+  lapse: (
+    s: SessionState,
+    unit: 'rounds' | 'turns' | 'end',
+    who?: string,
+  ) => { state: SessionState; entries: JournalEntry[] } = (state) => ({ state, entries: [] }),
 ): { state: SessionState; entries: JournalEntry[] } {
   let { state } = input
   const entries = [...input.entries]
@@ -384,11 +390,18 @@ export function driveEncounter(
         if (ends()) edit((e) => (e.stage = 'end'))
         break
       }
-      case 'round':
+      case 'round': {
         edit((e) => (e.stage = 'turn'))
         line('ENCOUNTER_ROUND', { round: e.round })
+        // What was given for some rounds counts one down (after the first round).
+        if (e.round > 1) {
+          const done = lapse(state, 'rounds')
+          state = done.state
+          entries.push(...done.entries)
+        }
         say({ type: 'moment', at: 'encounter.round' })
         break
+      }
       case 'turn': {
         const id = e.order[e.turn]
         if (id === undefined || !stillHere(state, id)) {
@@ -404,6 +417,10 @@ export function driveEncounter(
           if (id !== PARTY_ID) s.acting = id
         })
         line('ENCOUNTER_TURN', { id, name: participantName(state, id), side, round: e.round })
+        // What it was given until its own turn counts one down.
+        const lapsed = lapse(state, 'turns', id)
+        state = lapsed.state
+        entries.push(...lapsed.entries)
         say({ type: 'moment', at: 'encounter.turn' })
         // A foe still standing does what its table says, acting as itself: rolled now, or
         // by the player when the trip rolls the foes by hand.
@@ -460,6 +477,10 @@ export function driveEncounter(
           delete s.encounter
         })
         line('ENCOUNTER_ENDED', { rounds })
+        // What was given for a while ends with the fight.
+        const over = lapse(state, 'end')
+        state = over.state
+        entries.push(...over.entries)
         say({ type: 'moment', at: 'encounter.end' })
         break
       }

@@ -522,6 +522,9 @@ export const es: Messages<typeof en> = {
     holdsWhenHelp:
       "Un estado que se cumple por sí solo mientras esto sea cierto; no se pone ni se quita a mano ni con efectos: es un estado, no algo que pasa. Lee al personaje como `self` y, en un viaje, también el mundo:\n• `self.values.dread: { gte: 6 }` — mientras el pavor esté lleno\n• `self.values.load: { gt: '{{self.values.capacity}}' }` — mientras lleve más de lo que puede\n• `trip.mode: boat` — mientras el grupo viaje en barco\n• `time.season: winter` y `self.values.health: { lt: 2 }` — herido en invierno\nUno que lee el mundo lo sigue en el viaje; en el roster se queda como estaba la última vez. Lo que deba pasar una vez (una línea, un efecto) es una acción, no un estado. Vacío: lo ponen y lo quitan los efectos.",
     byEffects: 'lo ponen los efectos',
+    lasts: 'Dura',
+    lastsHelp:
+      "Un estado que se da **por un tiempo** en un combate: el número de un efecto lo da durante tantos, que se descuentan al empezar cada uno, y se va cuando no queda ninguno o cuando acaba el combate:\n• **rounds** (rondas) — `acting.conditions.dazed: 2`: dos rondas\n• **turns** (turnos) — `characters[target].conditions.braced: 1`: hasta su próximo turno\n• `'{{1d4}}'` — una tirada de ellos; dado otra vez, se suman; `'=0'` lo acaba\n`true` sigue dándolo sin fin. Las condiciones leen lo que queda como `acting.left.dazed`. Vacío: dura hasta que se quite. No para uno que se cumple por sí solo.",
     relations: 'Tipos de relación',
     relationsHelp:
       'Relaciones que un personaje puede tener con cualquier cosa que tenga referencia (otro personaje, un lugar, una facción, una nota), como los vínculos de Ironsworn. Un tipo con límites lleva un número:\n• `bond` — mín. `0`, máx. `10`\n• `home` — sin número',

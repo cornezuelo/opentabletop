@@ -18,7 +18,8 @@ description: |-
   a bar whose tone falls with it, dread as boxes that turn red,
   nerve as a die that steps from d4 to d12 (`steps: [4, 6, 8, 10, 12]`, `display: die`), a bond's number as pips), a
   value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action, a
-  way of travelling or travel itself, conditions that hold by themselves (`when:`: _Terrified_
+  way of travelling or travel itself, a condition given for some rounds of a fight (_Rattled_,
+  `lasts: rounds`), conditions that hold by themselves (`when:`: _Terrified_
   while dread is full, _Seasick_ while the party travels by boat, reading the world, _Burdened_
   while the load is over the capacity), kinds of relation (a bond with a number, a home), and
   items (`items:`): fields every item has (slots, uses that run out as pips, armour), places
@@ -165,6 +166,12 @@ conditions:
     name: Saddle-sore
     description: Can't bear another day on horseback.
     blocks: [modes.horse]
+  # Given for some rounds of a fight (a foe's turn, bestiary.yaml), gone by itself as they
+  # pass: the companion's blows are worse meanwhile (_A blow_).
+  rattled:
+    name: Rattled
+    description: Shaken by a heavy blow; their own blows land worse for a round or two of the fight.
+    lasts: rounds
   # Holds by itself while dread is full: nothing sets it, and the rite that empties dread
   # clears it.
   terrified:

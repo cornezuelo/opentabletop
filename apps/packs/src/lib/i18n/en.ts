@@ -509,6 +509,9 @@ export const en = {
     holdsWhenHelp:
       "A condition that holds by itself while this is true, never set or cleared by hand nor by effects: a state, not something that happens. It reads the character as `self` and, on a trip, the world too:\n• `self.values.dread: { gte: 6 }` — while dread is full\n• `self.values.load: { gt: '{{self.values.capacity}}' }` — while carrying more than it can\n• `trip.mode: boat` — while the party travels by boat\n• `time.season: winter` and `self.values.health: { lt: 2 }` — hurt in winter\nOne that reads the world follows it on the trip; in the roster it stays as last seen. Something that should happen once (a line, an effect) is an action, not a condition. Empty: effects set and clear it.",
     byEffects: 'set by effects',
+    lasts: 'Lasts',
+    lastsHelp:
+      "A condition given **for a while** in a fight: an effect's number gives it for that many, counted down as each one begins, and it's gone when none is left or when the fight ends:\n• **rounds** — `acting.conditions.dazed: 2`: two rounds\n• **turns** — `characters[target].conditions.braced: 1`: until its next turn\n• `'{{1d4}}'` — a roll of them; given again, they add up; `'=0'` ends it\n`true` still gives it with no end. Conditions read what's left as `acting.left.dazed`. Empty: it lasts until cleared. Not for one that holds by itself.",
     relations: 'Kinds of relation',
     relationsHelp:
       "Relations a character may hold to anything with a reference (another character, a place, a faction, a note), like Ironsworn's bonds. A kind with bounds carries a number:\n• `bond` — min `0`, max `10`\n• `home` — no number",

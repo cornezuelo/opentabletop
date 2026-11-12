@@ -42,11 +42,39 @@ name: A foe's turn
 description: |-
   What a foe does on its turn in a fight: a blow at one of you.
 
-  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; a result aimed at someone (`set: { target: party.members.random }`), its effect on them (`characters[target].values.health`).
+  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; a result aimed at someone (`set: { target: party.members.random }`), its effect on them (`characters[target].values.health`); a turn lost while a condition given for a while lasts (`acting.conditions: staggered`).
 roll: 1d1
 entries:
+  # Staggered (sheet.yaml, `lasts: rounds`): it loses its turn while it lasts.
+  - { id: reels, range: 1, when: { acting.conditions: staggered }, result: The foe reels }
   - id: blow
     range: 1
     set: { target: party.members.random }
     result: The foe strikes
     effects: { 'characters[target].values.health': '-{{1d3}}' }
+---
+# A member's blow (travel.yaml's Strike): 1d3 harm; a glancing 1 staggers the foe for a round.
+kind: table
+id: strike
+tags: [encounters]
+name: A strike
+description: |-
+  A blow at the foe chosen: 1d3 harm; a glancing 1 throws it off balance, staggered for a round, and it loses its turn.
+
+  **Shows:** a condition given for a while (`characters[params.foe].conditions.staggered: 1`: one round, the sheet's `lasts: rounds`), counted down by the fight.
+roll: 1d3
+entries:
+  - id: glancing
+    range: 1
+    result: 1 harm, and it staggers
+    effects:
+      {
+        'characters[params.foe].values.health': -1,
+        'characters[params.foe].conditions.staggered': 1,
+      }
+  - {
+      id: blow,
+      range: 2-3,
+      result: '{{roll}} harm',
+      effects: { 'characters[params.foe].values.health': '-{{roll}}' },
+    }

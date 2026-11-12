@@ -45,6 +45,7 @@ import {
 import {
   applyMemberEffects,
   isMemberPath,
+  lapseStates,
   memberFacts,
   sheetOf,
   PARTY_ID,
@@ -436,6 +437,15 @@ export interface Session {
    * party's and its members' conditions that read the world, with their journal lines.
    */
   settle(state: SessionState): { state: SessionState; entries: JournalEntry[] }
+  /**
+   * Conditions given for a while counted down, as a fight goes (`rounds`: a new round;
+   * `turns`: `who`'s own turn; `end`: the fight over), with a line for each one gone.
+   */
+  lapse(
+    state: SessionState,
+    unit: 'rounds' | 'turns' | 'end',
+    who?: string,
+  ): { state: SessionState; entries: JournalEntry[] }
   /**
    * Answers the first share waiting (**Ask who gives**): `moved`, what each member gives
    * (negative) or takes instead of the rule's share (absent: the rule's stands), then
@@ -1392,6 +1402,16 @@ export function createSession(options: {
       if (!done.entries.length && input.lastStep !== undefined) done.state.lastStep = input.lastStep
       else if (!done.entries.length) delete done.state.lastStep
       return done
+    },
+    lapse(input, unit, who) {
+      const s = structuredClone(input)
+      const entries: JournalEntry[] = []
+      const events = lapseStates(s, party, unit, who)
+      // Counted down, nothing gone: the same trip with what's left changed.
+      if (!events.length) return { state: s, entries }
+      told(s, entries, events, s.travel.time)
+      settleCopies(s, entries)
+      return { state: s, entries }
     },
     share(input, moved) {
       const s = structuredClone(input)
