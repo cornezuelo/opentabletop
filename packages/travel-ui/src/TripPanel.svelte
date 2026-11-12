@@ -109,6 +109,7 @@
     worldWaiting,
     onworld,
     status = true,
+    scene = false,
     here,
     options,
   }: {
@@ -158,6 +159,11 @@
     onworld?: (choice?: string) => void
     /** Whether it shows where the trip stands; false when the host draws `TripStatus` itself. */
     status?: boolean
+    /**
+     * A scene (Campaign's fights without a trip): a trip standing at one place, with no way
+     * of travelling, march or destination; what moves the party is left out.
+     */
+    scene?: boolean
     /** The host's actions for where the party stands, above the system's. */
     here?: Snippet
     /** The host's options for the trip, first in the Options tab. */
@@ -255,7 +261,9 @@
             because &&
             !('condition' in because && because.condition === 'needs')) ||
           // In a fight, only its own actions show.
-          (!!session.encounter && !system.encounter?.actions.includes(id))
+          (!!session.encounter && !system.encounter?.actions.includes(id)) ||
+          // A scene goes nowhere.
+          (scene && movers.has(id))
         return !actions.all[id].on && !hidden
       })
       .sort((a, b) => Number(movers.has(b)) - Number(movers.has(a))),
@@ -279,7 +287,7 @@
   const goingOn = $derived(travel.moving?.frames.at(-1)?.action)
   /** The button that stands out: going on, else the way the trip goes on by itself. */
   const main = $derived(
-    goingOn ? undefined : (onwardAction ?? buttons.find((id) => movers.has(id))),
+    goingOn || scene ? undefined : (onwardAction ?? buttons.find((id) => movers.has(id))),
   )
 
   /** The choices made in each action's parameters, by action and parameter (none: its default). */
@@ -376,7 +384,7 @@
   /** Why the button that stands out can't be pressed: said under it, not only in its tooltip. */
   const stuck = $derived.by(() => {
     // In a fight, its panel says what goes on.
-    if (session.encounter) return ''
+    if (session.encounter || scene) return ''
     if (goingOn) return why(blocked.travel)
     if (!main) return ''
     // With the status here, it says where to head itself.
@@ -579,7 +587,16 @@
 
 <div class="trip">
   {#if status}
-    <TripStatus {system} {session} {startDay} {locale} {hexLabel} {destinationHint} {arrivedHint} />
+    <TripStatus
+      {system}
+      {session}
+      {startDay}
+      {locale}
+      {hexLabel}
+      {destinationHint}
+      {arrivedHint}
+      {scene}
+    />
   {/if}
 
   <!-- What the party can do stays in sight while what's below scrolls. -->
@@ -587,7 +604,16 @@
     {@render here?.()}
     <!-- A fight in turns: whose turn it is, above what the party can do on it. -->
     {#if fight}
-      <FightPanel {...fight} {locale} onend={endFight} />
+      <FightPanel
+        {...fight}
+        {locale}
+        held={travel.pendingChecks.length
+          ? t('blocked.pending')
+          : waiting || session.asking?.length
+            ? t('blocked.held')
+            : ''}
+        onend={endFight}
+      />
     {/if}
 
     <!-- What needs you first, then what the party can do: right under where it is. -->
@@ -716,7 +742,7 @@
 
     <!-- Nothing goes on while a share waits for who gives it, or an item for room. -->
     <div class="actions" class:held inert={held}>
-      {#if goingOn && !waiting && !session.encounter}
+      {#if goingOn && !waiting && !session.encounter && !scene}
         <button
           class="primary"
           use:tooltip={tipWith(t('tips.goOn', { action: actionName(goingOn) }), 'travel')}
@@ -757,7 +783,7 @@
           onclick={() => onstep({ type: 'encounter', what: 'start' })}>{t('fight.start')}</button
         >
       {/if}
-      {#if onward && !session.encounter}
+      {#if onward && !session.encounter && !scene}
         <button
           use:tooltip={travel.pendingChecks.length || waiting
             ? tipWith(
@@ -772,7 +798,7 @@
     </div>
     {#if stuck && !held}<p class="stuck">{stuck}</p>{/if}
 
-    <div class="mode">
+    <div class="mode" hidden={scene}>
       <label class="field">
         <span
           >{t(

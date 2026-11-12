@@ -13,6 +13,7 @@
     fighters,
     choosing,
     locale,
+    held = '',
     onend,
   }: {
     round: number
@@ -20,6 +21,8 @@
     /** Whether it's a turn of the party's: the player chooses what that one does. */
     choosing: boolean
     locale: string
+    /** Why it can't be ended now (the trip waits for the player), in words; '' if it can. */
+    held?: string
     /** Ends the fight by hand (absent: it can't be). */
     onend?: () => void
   } = $props()
@@ -35,7 +38,9 @@
   <header>
     <h4>{t('fight.title', { round })}<InfoTip markdown={t('fight.help')} /></h4>
     {#if onend}
-      <button use:tooltip={t('fight.endTip')} onclick={onend}>{t('fight.end')}</button>
+      <button use:tooltip={held || t('fight.endTip')} disabled={!!held} onclick={onend}
+        >{t('fight.end')}</button
+      >
     {/if}
   </header>
   <ol class="order" aria-label={t('fight.order')}>
@@ -59,7 +64,9 @@
         ? wholeParty(acting)
           ? t('fight.partyTurn')
           : t('fight.yourTurn', { name: nameOf(acting) })
-        : t('fight.theirTurn', { name: nameOf(acting) })}
+        : wholeParty(acting)
+          ? t('fight.partyTurnNow')
+          : t('fight.theirTurn', { name: nameOf(acting) })}
     </p>
   {/if}
 </section>
@@ -84,6 +91,11 @@
 
   h4 {
     margin: 0;
+  }
+
+  header button:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 
   header button {

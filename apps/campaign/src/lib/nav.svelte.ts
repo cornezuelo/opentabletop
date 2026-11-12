@@ -1,13 +1,15 @@
 /**
  * What the main area shows, mirrored in the URL hash so views can be linked (the other
  * apps' **Open in Campaign**): #/campaign/<id> (its Overview), #/campaign/<id>/<tab>,
- * #/campaign/<id>/factions/<faction> (that faction's card open), #/new.
+ * #/campaign/<id>/factions/<faction> (that faction's card open), #/campaign/<id>/scenes/<scene>
+ * (that scene open), #/scene/<scene> (a scene, wherever it is: a roster character's link), #/new.
  */
 export const TABS = [
   'overview',
   'world',
   'maps',
   'trips',
+  'scenes',
   'characters',
   'factions',
   'timeline',
@@ -17,7 +19,8 @@ export type Tab = (typeof TABS)[number]
 export type View =
   | { name: 'welcome' }
   | { name: 'new' }
-  | { name: 'campaign'; id: string; tab: Tab; faction?: string }
+  | { name: 'campaign'; id: string; tab: Tab; faction?: string; scene?: string }
+  | { name: 'scene'; id: string }
 
 const isTab = (value: string | undefined): value is Tab => TABS.includes(value as Tab)
 
@@ -26,8 +29,11 @@ export function parseView(hash: string): View {
   if (name === 'campaign' && id)
     return tab === 'factions' && faction
       ? { name, id, tab, faction }
-      : // Older links: `places` was its maps and trips together.
-        { name, id, tab: tab === 'places' ? 'maps' : isTab(tab) ? tab : 'overview' }
+      : tab === 'scenes' && faction
+        ? { name, id, tab, scene: faction }
+        : // Older links: `places` was its maps and trips together.
+          { name, id, tab: tab === 'places' ? 'maps' : isTab(tab) ? tab : 'overview' }
+  if (name === 'scene' && id) return { name, id }
   if (name === 'new') return { name }
   return { name: 'welcome' }
 }
@@ -35,11 +41,13 @@ export function parseView(hash: string): View {
 export const formatView = (view: View): string =>
   view.name === 'campaign'
     ? `#/campaign/${encodeURIComponent(view.id)}${view.tab === 'overview' ? '' : `/${view.tab}`}${
-        view.faction ? `/${encodeURIComponent(view.faction)}` : ''
+        view.faction || view.scene ? `/${encodeURIComponent(view.faction ?? view.scene!)}` : ''
       }`
-    : view.name === 'new'
-      ? '#/new'
-      : '#/'
+    : view.name === 'scene'
+      ? `#/scene/${encodeURIComponent(view.id)}`
+      : view.name === 'new'
+        ? '#/new'
+        : '#/'
 
 export const nav = $state<{ view: View }>({ view: parseView(location.hash) })
 

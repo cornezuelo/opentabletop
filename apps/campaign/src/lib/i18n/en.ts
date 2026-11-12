@@ -56,6 +56,7 @@ export const en = {
     notesHelp:
       'Its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it. The notes app is chosen in **Preferences**. Its story and lore live there: a campaign keeps only what the rules play with.',
     playing: 'A trip is going on in it: “{name}” ({app}).',
+    playingScene: 'A scene is going on in it: “{name}”.',
     playingHelp:
       'One trip goes on in a campaign at a time, since its time is the campaign’s. Moving time on here, that trip waits until the new date when it next steps.',
     open: 'Open',
@@ -102,6 +103,7 @@ export const en = {
     world: 'World',
     maps: 'Maps',
     trips: 'Trips',
+    scenes: 'Scenes',
     characters: 'Characters',
     factions: campaignTexts.en.factions.title,
     timeline: 'Timeline',

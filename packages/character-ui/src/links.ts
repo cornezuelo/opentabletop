@@ -10,9 +10,14 @@ export function placeUrl(place: RosterPlace): string | undefined {
   if (place.app === 'campaign') return campaignUrl(place.id, 'characters')
   if (place.app === 'map') return `${appUrl('map')}#/${encodeURIComponent(place.id)}`
   if (place.app === 'travel') return `${appUrl('travel')}#/trip/${encodeURIComponent(place.id)}`
+  if (place.app === 'scene') return `${appUrl('campaign')}#/scene/${encodeURIComponent(place.id)}`
   return undefined
 }
 
-/** The app a place is in, by its id, when it's one of ours. */
-export const placeApp = (place: RosterPlace): AppId | undefined =>
-  place.app === 'map' || place.app === 'travel' ? place.app : undefined
+/** The app a place is in, by its id, when it's one of ours (a scene is Campaign's). */
+export const placeApp = (place: Pick<RosterPlace, 'app'>): AppId | undefined =>
+  place.app === 'map' || place.app === 'travel' || place.app === 'campaign'
+    ? place.app
+    : place.app === 'scene'
+      ? 'campaign'
+      : undefined

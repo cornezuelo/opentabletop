@@ -35,7 +35,7 @@ import {
   putCampaign,
   putLibraryMap,
 } from '@open-tabletop/storage'
-import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
+import { campaignPlaces, SCENES_KEY, TripStore, type CampaignPlace } from '@open-tabletop/travel-ui'
 import { CampaignKeeper, confirmAction, freeCampaignName, showToast } from '@open-tabletop/ui-kit'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { getLocale, t } from './i18n'
@@ -160,7 +160,8 @@ const sameLand = (a: HexMap['territories'], b: HexMap['territories']) =>
 
 /** The campaign open in the app. */
 class OpenCampaign {
-  private readonly keeper = new CampaignKeeper()
+  /** Shared with its scenes (`scenes`): one keeper per page hears every change. */
+  readonly keeper = new CampaignKeeper()
   /** The id asked for, and whether it's kept here (false: not in this browser). */
   id = $state('')
   found = $state<boolean | undefined>(undefined)
@@ -400,6 +401,23 @@ class OpenCampaign {
 }
 
 export const open = new OpenCampaign()
+
+/**
+ * The campaigns' scenes (fights without a trip, docs/conflicts.md): trips standing at one
+ * place, each in its campaign, with its cast; they play in it as a trip does (its clock,
+ * one at a time), with the open campaign's keeper.
+ */
+export const scenes = new TripStore({
+  key: SCENES_KEY,
+  systems: () => systems.list,
+  oracle: () => library.engine,
+  registry: () => library.registry,
+  locale: getLocale,
+  rosterApp: 'scene',
+  campaignApp: 'scene',
+  keeper: open.keeper,
+  scenes: true,
+})
 
 /** What a new campaign starts with besides its name and system. */
 export interface NewCampaignOptions {

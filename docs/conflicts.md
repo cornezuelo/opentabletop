@@ -77,3 +77,10 @@ As agreed on 2026-10-29: (a) **the theatre of the mind** is this proposal; (b) *
 3. **Foes' turns are rolled by the system** by default (solo play); a user preference asks for each one with the same waiting box, to roll it by hand.
 4. **A fight exists without a trip too**: the encounter is not the trip's alone; the Oracle and the Campaign app can open one (a scene with those present), as Travel and Map's Play do.
 5. **A shared fight panel**: a component of its own in a `*-ui` package (the backlog's _Initiative tracker and combat ledger_), mounted by Travel, Map's Play, the Oracle and Campaign: whose turn, the round, those present and what each may do.
+
+### Fights without a trip (decided with the user, 2026-11-12)
+
+1. **A scene**: a fight without a trip is a trip with no way and no map, standing at one place: the same session state (the party, those present, the journal, the clock), so the trip's panel, the fight panel, actions and those present serve it as they are; what is about travelling is hidden.
+2. **It's the campaign's**: Campaign plays and keeps its scenes. The Oracle, when a result brings those present, offers to open a scene with them in the campaign chosen.
+3. **It moves the world's clock**, as a trip does: while it goes on it's what plays in the campaign, and its minutes move the world on (clocks, events, factions).
+4. **The party's side is the campaign's cast**: the characters (or the party) that are in the campaign without a trip, chosen as the scene opens; what happens to them goes back to the roster, as on a trip.

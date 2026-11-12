@@ -34,6 +34,7 @@ import {
   settlePlace,
   setMembers,
   keepPartyInRoster,
+  partyInCampaign,
   takeFromRoster,
   renameMember,
   characterId,
@@ -1547,6 +1548,56 @@ export function bringParty(
   out.partyRef = id
   editPartySheet(out, rules, { ...taken.character, id: PARTY_ID })
   return { roster: settleSession(next, out, place, now), session: out }
+}
+
+/**
+ * Brings a campaign's cast to a scene (a trip standing at one place, docs/conflicts.md): the
+ * party in the campaign without a trip, if one of the system's party sheet is, with its
+ * members, and every other character there of the system's sheet, as the party's members.
+ * Each plays in the scene from now on, until `castBack`.
+ */
+export function bringCast(
+  roster: Roster,
+  s: SessionState,
+  campaign: string,
+  place: RosterPlace,
+  rules: PartyRules,
+  now: string,
+): { roster: Roster; session: SessionState } {
+  let next = { roster, session: s }
+  const party = rules.partySheet && partyInCampaign(roster, campaign, rules.partySheet.id)
+  if (party) next = bringParty(roster, s, party.character.id, place, rules, now)
+  const loose = next.roster.characters.filter(
+    (e) =>
+      !e.members &&
+      e.character.sheet === rules.sheet?.id &&
+      e.playing?.app === 'campaign' &&
+      e.playing.id === campaign,
+  )
+  if (!loose.length) return next
+  let r = next.roster
+  const out = structuredClone(next.session)
+  for (const e of loose) {
+    const taken = takeFromRoster(r, e.character.id, place, now)
+    if (!taken || out.members?.some((m) => m.id === e.character.id)) continue
+    r = taken.roster
+    out.members = [...(out.members ?? []), taken.character]
+  }
+  return { roster: settleSession(r, out, place, now), session: out }
+}
+
+/**
+ * The characters that played in a scene go back to its campaign without a trip (the scene
+ * ended): they're its cast again, as they were before it.
+ */
+export function castBack(roster: Roster, place: RosterPlace, campaign: RosterPlace): Roster {
+  let changed = false
+  const characters = roster.characters.map((e) => {
+    if (!samePlace(e.playing, place)) return e
+    changed = true
+    return { ...e, playing: campaign }
+  })
+  return changed ? { characters } : roster
 }
 
 /**

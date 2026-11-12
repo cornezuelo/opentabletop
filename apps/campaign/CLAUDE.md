@@ -9,9 +9,9 @@ The campaigns of this browser. It is one app of the OpenTabletop ecosystem: read
 ```
 src/
   lib/
-    campaign.svelte.ts  # the campaigns kept (list), the open one (CampaignKeeper), its maps, the map its land plays on, its world's controls and factions
+    campaign.svelte.ts  # the campaigns kept (list), the open one (CampaignKeeper), its maps, the map its land plays on, its world's controls and factions; its scenes (travel-ui's TripStore with `scenes: true`, sharing the keeper)
     packs.svelte.ts     # PackLibrary (shared with the other apps) and the systems
-    nav.svelte.ts       # #/campaign/<id>[/<tab>] (overview|world|maps|trips|characters|factions|timeline; `places` read as maps), #/campaign/<id>/factions/<faction>, #/new
+    nav.svelte.ts       # #/campaign/<id>[/<tab>] (overview|world|maps|trips|scenes|characters|factions|timeline; `places` read as maps), #/campaign/<id>/factions/<faction>, #/campaign/<id>/scenes/<scene>, #/scene/<scene>, #/new
     i18n/               # typed en/es dictionaries
   components/           # Sidebar (the campaigns, each with its system and date), NewCampaign (also the first-run Start your campaign), CampaignView (header with ⋯, tabs),
                         # Overview, PlaceList (Maps or Trips: cards, new/bring links), Cast (Characters), Factions, LandMap (the minimap)
@@ -20,6 +20,7 @@ src/
 - The campaign's model and what acts on it are `@open-tabletop/campaign`'s; the world clock's UI is `@open-tabletop/campaign-ui`'s (`WorldClock`, `WorldTimeline`, Map's World panel too), driven here by `WorldControls` without a trip, on the map chosen in **Factions** (where turns change land; written back to the map library, which Map hears).
 - **Campaign is the landing**: the site's root redirects here (`scripts/build-site.mjs`); opened without a campaign it opens the one being played (`opentabletop.campaign.current`, ui-kit's `readCurrentCampaign` / `rememberCampaign`), else the newest, else **Start your campaign**.
 - New maps and trips, and bringing existing ones, are done by Map and Travel: Campaign links to them with `inCampaignUrl` (`#/in-campaign/<campaign>[/<id>]`), and they move the map or trip as their own settings do (asking what stays).
+- **Scenes** (fights without a trip, `docs/conflicts.md`) are played here, with travel-ui's `SceneRoom`: trips standing at one place, kept under `opentabletop.campaign.scenes`, taking the campaign's cast and giving it back when they end.
 - Campaigns live in IndexedDB (`@open-tabletop/storage`), announced on `opentabletop.campaigns`: a change here reaches the other apps at once, and theirs reach this one.
 
 ## Roadmap

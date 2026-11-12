@@ -302,6 +302,14 @@ describe('the bundled packs fight in turns', () => {
     expect(view.fighters.map((f) => f.id).sort()).toEqual(['bandit', 'bandit-2', 'kael', 'mara'])
     expect(view.fighters.filter((f) => f.acting)).toHaveLength(1)
     expect(tripAvailability(options, done.state).travel).toEqual({ encounter: 'fight' })
+    // A strike asks whom: while it waits, the turn is still that one's.
+    const acting = view.fighters.find((f) => f.acting)!.id
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike' })
+    expect(done.state.travel.waiting?.ask).toBe('foe')
+    const waiting = encounterView(done.state)!
+    expect(waiting.fighters.find((f) => f.acting)?.id).toBe(acting)
+    expect(waiting.fighters.find((f) => f.id === acting)?.done).toBe(false)
+    done = stepTrip(options, done.state, { type: 'resume', choice: 'bandit' })
     done = stepTrip(options, done.state, { type: 'encounter', what: 'end' })
     expect(done.entries.map((e) => e.code)).toContain('ENCOUNTER_ENDED')
     expect(done.state.encounter).toBeUndefined()

@@ -42,6 +42,7 @@ export const es: Messages<typeof en> = {
   dateLine: '{weekday}, {day} de {month}, año {year}',
   moonPhases: vocabulary.es.moonPhases,
   dayLine: 'Día {day} del viaje · {clock} · {season}',
+  sceneLine: '{clock} · {season}',
   at: 'En {hex}',
   weather: 'Clima: {weather}',
   destination: 'Rumbo a {hex}',
@@ -214,6 +215,7 @@ export const es: Messages<typeof en> = {
     foes: 'enemigos',
     yourTurn: 'Turno de {name}: elige qué hace.',
     partyTurn: 'Turno del grupo: elige qué hace.',
+    partyTurnNow: 'Turno del grupo.',
     theirTurn: 'Turno de {name}.',
     acted: 'ya ha actuado esta ronda',
     gone: 'se ha ido: sale del orden la ronda que viene',
@@ -432,6 +434,17 @@ export const es: Messages<typeof en> = {
     ownCampaigns: 'Cada uno en una campaña propia',
     delete: 'Borrar',
     deleteConfirm: '¿Borrar el viaje «{trip}» y su diario?',
+  },
+  scenes: {
+    title: 'Escena',
+    help: 'Una escena es un combate (o cualquier momento) sin viaje: el elenco de la campaña quieto en un sitio con los presentes, jugado como un viaje que no va a ninguna parte. **Nueva escena** se lleva el elenco: el grupo que está en la campaña sin viaje, con sus miembros, y cada otro personaje de la hoja del sistema que esté en ella; lo que les pase vuelve al plantel, y el tiempo de la escena mueve el reloj del mundo de la campaña, como el de un viaje. Añade a quien se enfrentan en su pestaña **Grupo** (**Añadir del bestiario**, o del plantel) y luchad: el panel de combate dice de quién es el turno. **Terminar la escena** devuelve el elenco a la campaña.',
+    none: 'No hay escenas en esta campaña.',
+    new: 'Nueva escena',
+    end: 'Terminar la escena',
+    endConfirm:
+      '¿Terminar la escena «{scene}»? Su elenco vuelve a la campaña y su diario se descarta.',
+    unnamed: 'Escena {n}',
+    systemWhere: 'Una escena se juega con el sistema de su campaña.',
   },
   play: {
     systemWhere: 'Un viaje se queda con el sistema con el que empezó: otro sistema es otro viaje.',

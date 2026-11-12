@@ -8,7 +8,10 @@ import {
   migrateTotals,
   missingSystem,
   leavePlace,
+  bringCast,
   bringParty,
+  campaignPlace,
+  castBack,
   partyInCampaign,
   partyOf,
   pullMembers,
@@ -125,6 +128,17 @@ export interface TripStoreOptions {
    * own Oracle and no world (Packs' Try it).
    */
   campaignApp?: string
+  /**
+   * The host's keeper of the campaign it shows, shared with its trips (Campaign's scenes):
+   * two keepers in one page don't hear each other's changes. Absent: one of their own.
+   */
+  keeper?: CampaignKeeper
+  /**
+   * Its trips are scenes (Campaign's fights without a trip, docs/conflicts.md): each in a
+   * campaign kept already, never one of its own; a new one takes the campaign's cast, which
+   * goes back to the campaign when it's deleted, and the campaign stays.
+   */
+  scenes?: boolean
 }
 
 /** The loaded packs, as session reads them. */
@@ -230,9 +244,10 @@ export class TripStore {
 
   constructor(private readonly options: TripStoreOptions) {
     this.stored = readTrips(options.key, options.oldKey)
-    if (options.campaignApp) this.keeper = new CampaignKeeper()
+    if (options.campaignApp) this.keeper = options.keeper ?? new CampaignKeeper()
     this.pullRoster()
-    void this.openCampaign()
+    // A scene's campaign is the host's to open: a shared keeper opens one at a time.
+    if (!options.scenes) void this.openCampaign()
   }
 
   /** Whether trips play in campaigns here. */
@@ -332,9 +347,10 @@ export class TripStore {
     return true
   }
 
-  /** The maps and trips in a campaign besides the open trip. */
+  /** The maps, trips and scenes in a campaign besides the open trip. */
   private async othersIn(campaign: string, me = this.saved.id): Promise<CampaignPlace[]> {
-    return (await campaignPlaces(campaign)).filter((p) => p.app !== 'travel' || p.id !== me)
+    const app = this.options.scenes ? 'scene' : 'travel'
+    return (await campaignPlaces(campaign)).filter((p) => p.app !== app || p.id !== me)
   }
 
   /**
@@ -415,6 +431,11 @@ export class TripStore {
     void this.openCampaign()
   }
 
+  /** The saved trips of a campaign that have started (a scene's list), oldest first. */
+  tripsIn(campaign: string): Saved[] {
+    return this.stored.trips.filter((t) => t.campaign === campaign && t.session)
+  }
+
   /**
    * A new trip (kept beside the others) with a system and season, and opens it: in a
    * campaign of its own, or in `campaign` (its time the campaign's world clock).
@@ -429,7 +450,8 @@ export class TripStore {
     return opening.then(async () => {
       await this.chooseSystem(system)
       this.start(system, season)
-      await this.offerParty()
+      if (this.options.scenes) this.takeCast()
+      else await this.offerParty()
     })
   }
 
@@ -451,6 +473,24 @@ export class TripStore {
         roster.roster,
         s,
         party.character.id,
+        place,
+        partyOf(this.system),
+        now(),
+      )
+      roster.set(brought.roster)
+      return brought.session
+    })
+  }
+
+  /** A new scene takes its campaign's cast: the party in it without a trip, and the others. */
+  private takeCast(): void {
+    const place = this.place
+    if (!place || !this.saved.session) return
+    this.edit((s) => {
+      const brought = bringCast(
+        roster.roster,
+        s,
+        this.saved.campaign,
         place,
         partyOf(this.system),
         now(),
@@ -490,13 +530,21 @@ export class TripStore {
 
   /** Deletes the open trip (the last one left is emptied instead) and opens another. */
   remove(): void {
-    // Its roster characters stay in the roster, playing nowhere.
+    // Its roster characters stay in the roster, playing nowhere; a scene's go back to its
+    // campaign's cast.
     const place = this.place
-    if (place) roster.set(leavePlace(roster.roster, place))
-    // Its campaign no longer has it going on (or goes with it, if nothing else is in it).
     const campaign = this.campaign
     const me = this.me
-    if (campaign && me)
+    if (place)
+      roster.set(
+        this.options.scenes && campaign
+          ? castBack(roster.roster, place, campaignPlace(campaign.id, campaign.name))
+          : leavePlace(roster.roster, place),
+      )
+    // Its campaign no longer has it going on (or goes with it, if nothing else is in it; a
+    // scene's always stays).
+    if (campaign && me && this.options.scenes) this.keeper?.set(leaveTrip(campaign, me))
+    else if (campaign && me)
       void this.othersIn(campaign.id, me.id).then((others) =>
         others.length
           ? this.keeper?.write(leaveTrip(campaign, me))
@@ -506,7 +554,7 @@ export class TripStore {
     const trips = rest.length ? rest : [blank(this.saved.system)]
     this.stored = { ...this.stored, current: trips.at(-1)!.id, trips }
     this.save()
-    void this.openCampaign()
+    if (!this.options.scenes) void this.openCampaign()
   }
 
   /**

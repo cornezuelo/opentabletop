@@ -6,7 +6,7 @@
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
-  import { campaigns } from './lib/campaign.svelte'
+  import { campaigns, scenes } from './lib/campaign.svelte'
 
   // Opened without a campaign (the site's root, Home): the one being played, else the
   // newest; with none yet, making one is all it offers.
@@ -15,6 +15,18 @@
     const current = playing.id
     const to = campaigns.list.find((c) => c.id === current) ?? campaigns.list[0]
     if (to) go({ name: 'campaign', id: to.id, tab: 'overview' }, true)
+  })
+  // A scene asked for wherever it is (a roster character's link): its campaign's Scenes.
+  $effect(() => {
+    if (nav.view.name !== 'scene') return
+    const id = nav.view.id
+    const scene = scenes.trips.find((s) => s.id === id)
+    go(
+      scene
+        ? { name: 'campaign', id: scene.campaign, tab: 'scenes', scene: id }
+        : { name: 'welcome' },
+      true,
+    )
   })
 </script>
 
@@ -37,7 +49,12 @@
   {#snippet sidebar()}<Sidebar />{/snippet}
   {#snippet help()}<HelpPanel app="campaign" locale={getLocale()} />{/snippet}
   {#if nav.view.name === 'campaign'}
-    <CampaignView id={nav.view.id} tab={nav.view.tab} faction={nav.view.faction} />
+    <CampaignView
+      id={nav.view.id}
+      tab={nav.view.tab}
+      faction={nav.view.faction}
+      scene={nav.view.scene}
+    />
   {:else if nav.view.name === 'new'}
     <NewCampaign />
   {:else if campaigns.loaded && !campaigns.list.length}

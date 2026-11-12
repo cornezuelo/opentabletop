@@ -57,6 +57,7 @@ export const es: Messages<typeof en> = {
     notesHelp:
       'Su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre. La aplicación de notas se elige en **Preferencias**. Su historia y su trasfondo viven allí: una campaña guarda solo aquello con lo que juegan las reglas.',
     playing: 'Hay un viaje en marcha en ella: «{name}» ({app}).',
+    playingScene: 'Hay una escena en marcha en ella: «{name}».',
     playingHelp:
       'En una campaña hay un viaje en marcha a la vez, ya que su tiempo es el de la campaña. Si avanzas el tiempo aquí, ese viaje espera hasta la nueva fecha cuando dé su siguiente paso.',
     open: 'Abrir',
@@ -103,6 +104,7 @@ export const es: Messages<typeof en> = {
     world: 'Mundo',
     maps: 'Mapas',
     trips: 'Viajes',
+    scenes: 'Escenas',
     characters: 'Personajes',
     factions: campaignTexts.es.factions.title,
     timeline: 'Cronología',

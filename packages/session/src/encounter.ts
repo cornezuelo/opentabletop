@@ -209,6 +209,9 @@ export function encounterView(
 ): { round: number; fighters: Fighter[]; choosing: boolean } | undefined {
   const e = s.encounter
   if (!e || e.round === 0) return undefined
+  // A turn taken whose action waits for the player (whom to strike) is still going on.
+  const busy = e.stage === 'acted' && waits(s)
+  const now = e.stage === 'acting' || e.stage === 'turn' || busy
   return {
     round: e.round,
     choosing: e.stage === 'acting',
@@ -216,8 +219,8 @@ export function encounterView(
       id,
       name: participantName(s, id),
       side: sideOf(s, id),
-      acting: i === e.turn && (e.stage === 'acting' || e.stage === 'turn'),
-      done: i < e.turn || (i === e.turn && e.stage === 'acted'),
+      acting: i === e.turn && now,
+      done: i < e.turn || (i === e.turn && e.stage === 'acted' && !busy),
       gone: !stillHere(s, id),
     })),
   }

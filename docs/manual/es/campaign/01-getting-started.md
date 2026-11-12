@@ -103,6 +103,17 @@ Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fi
 
 Si el mapa o el viaje trae un mundo propio (un reloj del mundo, facciones, tiradas del Oráculo), su aplicación pregunta cuál se queda: **Mantener el de la campaña** o **Traer el propio**. La campaña que deja se borra si no queda nada más en ella.
 
+### Escenas
+
+Una **escena** es un combate (o cualquier momento) sin viaje: el elenco de la campaña quieto en un sitio con quienes se enfrentan a él, jugado aquí como un viaje que no va a ninguna parte, con el mismo panel que el de Viajes ([Jugar un viaje](../travel/02-playing.md)): sus acciones, la pestaña **Grupo** y el diario.
+
+- **Nueva escena** hace una con el sistema de la campaña y se lleva su elenco: el grupo que está en la campaña sin viaje (si hay uno de la hoja de grupo del sistema), con sus miembros, y cada otro personaje de la hoja del sistema que esté en ella sin viaje ([Personajes](#personajes)). Sin elenco, el grupo se juega como un todo.
+- Añade a quienes se enfrentan en su pestaña **Grupo**, bajo **Aquí**: **Añadir del bestiario**, o **Del plantel**. Luego luchad: la acción propia del sistema empieza un combate por turnos (**Luchar** en Core, **Plantar cara** en las Marcas Grises), y el panel de combate muestra la ronda y de quién es el turno ([Un combate por turnos](../travel/02-playing.md#personajes)).
+- Lo que le pase al elenco vuelve al plantel según ocurre, y el tiempo de la escena mueve el reloj del mundo de la campaña, como el de un viaje: mientras se juega una escena es lo que está en marcha en la campaña (**Jugando** lo dice), una cada vez con sus viajes.
+- **Escena** elige entre las escenas de la campaña, **Nombre** cambia el de una, **Terminar la escena** (pregunta antes) devuelve su elenco a la campaña, sin viaje otra vez, y descarta su diario; lo que merecía una línea ya está en la **Cronología**.
+
+La dirección de una escena es `#/campaign/<id>/scenes/<escena>`; un personaje del plantel que juega en una enlaza a ella desde Personajes.
+
 ### Personajes
 
 Los personajes de tu plantel ([Personajes](../characters/01-getting-started.md)) que juegan en la campaña: en el grupo de sus viajes, entre los presentes, en los tokens de sus mapas o en ella **sin viaje** (una partida rápida: **En una campaña** en su página de Personajes), cada uno con dónde juega y **Abrir ↗**. Un nombre abre el personaje en la aplicación Personajes; **Abrir el plantel ↗** abre la aplicación.

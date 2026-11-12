@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CharacterCard, placeUrl, roster, sheetText } from '@open-tabletop/character-ui'
+  import { CharacterCard, placeApp, placeUrl, roster, sheetText } from '@open-tabletop/character-ui'
   import type { CharacterState } from '@open-tabletop/character-engine'
   import {
     campaignPlace,
@@ -13,9 +13,7 @@
     type RosterPlace,
   } from '@open-tabletop/session'
   import {
-    APPS,
     appName,
-    type AppId,
     appUrl,
     campaignUrl,
     confirmAction,
@@ -92,8 +90,10 @@
     })
   }
 
-  const nameOf = (place: RosterPlace) =>
-    APPS.some((a) => a.id === place.app) ? appName(place.app as AppId, getLocale()) : place.app
+  const nameOf = (place: RosterPlace) => {
+    const app = placeApp(place)
+    return app ? appName(app, getLocale()) : place.app
+  }
   const placeText = (place: RosterPlace) =>
     place.app === 'campaign'
       ? t('character.inCampaignOnly', { campaign: place.name })

@@ -30,6 +30,7 @@
     arrivedHint = '',
     strip = false,
     latest = false,
+    scene = false,
     terrainName,
     nameOf,
     facts,
@@ -47,6 +48,8 @@
     arrivedHint?: string
     strip?: boolean
     latest?: boolean
+    /** A scene (a trip standing at one place): no march, no way on, no destination. */
+    scene?: boolean
     /** For the latest line, in the journal's words: a terrain's and a definition's names. */
     terrainName?: (id: string) => string
     nameOf?: (id: string) => string
@@ -163,15 +166,18 @@
 {/snippet}
 
 <div class="status" class:strip class:more>
-  <strong>{t('dayLine', time)}</strong>
+  <!-- A scene has no days of its own: the world's date says when. -->
+  <strong>{t(scene ? 'sceneLine' : 'dayLine', time)}</strong>
   {#if !strip}{@render longForm()}{/if}
-  <span>{t('at', { hex: hexLabel(travel.location) })}</span>
-  <span class="minor"
-    >{t('marched', { used: marched.used, limit: marched.limit })}<InfoTip
-      text={t('tips.marched')}
-    /></span
-  >
-  {#if travel.progress > 0 && travel.route?.[1]}
+  {#if !scene}
+    <span>{t('at', { hex: hexLabel(travel.location) })}</span>
+    <span class="minor"
+      >{t('marched', { used: marched.used, limit: marched.limit })}<InfoTip
+        text={t('tips.marched')}
+      /></span
+    >
+  {/if}
+  {#if !scene && travel.progress > 0 && travel.route?.[1]}
     <span class="minor"
       >{t('onTheWay', {
         hex: hexLabel(travel.route[1]),
@@ -194,6 +200,8 @@
         <button class="go" onclick={onshow}>{t('status.choose')}</button>
       {/if}</span
     >
+  {:else if scene}
+    <!-- A scene goes nowhere. -->
   {:else if travel.destination && travel.destination === travel.location}
     <!-- What happened last says the arrival: only what to do next is left. -->
     <span>{lastLine ? arrivedHint : `${t('arrived')} ${arrivedHint}`}</span>

@@ -41,6 +41,7 @@ export const en = {
   dateLine: '{weekday}, {day} {month}, year {year}',
   moonPhases: vocabulary.en.moonPhases,
   dayLine: 'Day {day} of the trip · {clock} · {season}',
+  sceneLine: '{clock} · {season}',
   at: 'At {hex}',
   weather: 'Weather: {weather}',
   destination: 'Heading to {hex}',
@@ -219,6 +220,7 @@ export const en = {
     foes: 'foes',
     yourTurn: '{name}’s turn: choose what they do.',
     partyTurn: 'The party’s turn: choose what it does.',
+    partyTurnNow: 'The party’s turn.',
     theirTurn: '{name}’s turn.',
     acted: 'has acted this round',
     gone: 'gone: leaves the order next round',
@@ -439,6 +441,18 @@ export const en = {
     ownCampaigns: 'Each in a campaign of its own',
     delete: 'Delete',
     deleteConfirm: 'Delete the trip “{trip}” and its journal?',
+  },
+  /** A campaign's scenes: fights without a trip. */
+  scenes: {
+    title: 'Scene',
+    help: "A scene is a fight (or any moment) without a trip: the campaign's cast standing at one place with those present, played as a trip that goes nowhere. **New scene** takes the cast, the party in the campaign without a trip with its members and every other character of the system's sheet there; what happens to them goes back to the roster, and the scene's time moves the campaign's world clock, as a trip's does. Add who they face in its **Party** tab (**Add from the bestiary**, or from the roster), then fight: the fight panel shows whose turn it is. **End the scene** gives the cast back to the campaign.",
+    none: 'No scenes in this campaign.',
+    new: 'New scene',
+    end: 'End the scene',
+    endConfirm:
+      'End the scene “{scene}”? Its cast goes back to the campaign, and its journal is discarded.',
+    unnamed: 'Scene {n}',
+    systemWhere: 'A scene plays with its campaign’s system.',
   },
   play: {
     systemWhere: 'A trip keeps the system it started with: another system is another trip.',

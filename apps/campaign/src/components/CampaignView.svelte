@@ -1,11 +1,11 @@
 <script lang="ts">
   import { WorldClock, WorldTimeline, WorldWaiting } from '@open-tabletop/campaign-ui'
-  import { placeUrl } from '@open-tabletop/character-ui'
-  import { calendarOf, systemName } from '@open-tabletop/session'
+  import { placeApp, placeUrl } from '@open-tabletop/character-ui'
+  import { calendarOf, systemName, systemUses } from '@open-tabletop/session'
+  import { SceneRoom } from '@open-tabletop/travel-ui'
+  import { packTexts } from '@open-tabletop/oracle-ui'
   import {
-    APPS,
     appName,
-    type AppId,
     appUrl,
     InfoTip,
     Markdown,
@@ -15,7 +15,8 @@
     playIn,
     Tabs,
   } from '@open-tabletop/ui-kit'
-  import { open, removeCampaign } from '../lib/campaign.svelte'
+  import { open, removeCampaign, scenes } from '../lib/campaign.svelte'
+  import { library, systems } from '../lib/packs.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go, TABS, type Tab } from '../lib/nav.svelte'
   import Cast from './Cast.svelte'
@@ -27,7 +28,8 @@
    * A campaign: its name, system and notes, and its world in tabs (an Overview first). The
    * one opened is the one being played: Campaign opens it again next time.
    */
-  let { id, tab, faction }: { id: string; tab: Tab; faction?: string } = $props()
+  let { id, tab, faction, scene }: { id: string; tab: Tab; faction?: string; scene?: string } =
+    $props()
 
   $effect(() => {
     void open.open(id)
@@ -39,8 +41,11 @@
   const system = $derived(open.system)
   const calendar = $derived(calendarOf(system))
   const label = $derived(campaign?.name || t('nav.untitled'))
-  const nameOf = (app: string) =>
-    APPS.some((a) => a.id === app) ? appName(app as AppId, getLocale()) : app
+  const texts = packTexts(() => library.registry, getLocale)
+  const nameOf = (app: string) => {
+    const of = placeApp({ app })
+    return of ? appName(of, getLocale()) : app
+  }
 
   function rename(input: HTMLInputElement) {
     const name = input.value.trim()
@@ -106,10 +111,12 @@
     {#if campaign.playing}
       {@const url = placeUrl(campaign.playing)}
       <p class="playing">
-        {t('campaign.playing', {
-          name: campaign.playing.name || label,
-          app: nameOf(campaign.playing.app),
-        })}<InfoTip markdown={t('campaign.playingHelp')} />
+        {campaign.playing.app === 'scene'
+          ? t('campaign.playingScene', { name: campaign.playing.name || label })
+          : t('campaign.playing', {
+              name: campaign.playing.name || label,
+              app: nameOf(campaign.playing.app),
+            })}<InfoTip markdown={t('campaign.playingHelp')} />
         {#if url}<a href={url}>{t('campaign.open')}</a>{/if}
       </p>
     {/if}
@@ -167,6 +174,17 @@
         <PlaceList {campaign} app="map" />
       {:else if tab === 'trips'}
         <PlaceList {campaign} app="travel" />
+      {:else if tab === 'scenes'}
+        <SceneRoom
+          {scenes}
+          {campaign}
+          systems={systems.list}
+          locale={getLocale()}
+          open={scene}
+          nameOf={texts.nameOf}
+          uses={systemUses(library.registry, system)}
+          onopen={(each) => go({ name: 'campaign', id, tab: 'scenes', scene: each }, true)}
+        />
       {:else}
         <Cast {campaign} />
       {/if}

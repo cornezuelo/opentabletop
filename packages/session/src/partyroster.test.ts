@@ -2,7 +2,9 @@ import type { CharacterState } from '@open-tabletop/character-engine'
 import { loadPacks } from '@open-tabletop/oracle-engine'
 import { describe, expect, it } from 'vitest'
 import {
+  bringCast,
   bringParty,
+  castBack,
   keepParty,
   partyTaking,
   placeCharacters,
@@ -11,7 +13,9 @@ import {
 } from './index'
 import { newMember } from './party'
 import {
+  campaignPlace,
   deleteFromRoster,
+  putInCampaign,
   duplicateInRoster,
   editInRoster,
   emptyRoster,
@@ -309,5 +313,36 @@ describe('parties in the roster', () => {
     r = setMembers(r, 'the-company', ['kael'], T)
     r = setMembers(r, 'the-company', ['kael', 'mara'], T)
     expect(rosterEntry(r, 'mara')?.playing).toEqual(trip)
+  })
+})
+
+describe("a scene takes the campaign's cast", () => {
+  const scene: RosterPlace = { app: 'scene', id: 's1', name: 'Ambush' }
+  const vale = campaignPlace('vale', 'The Vale')
+
+  it('the party in the campaign comes with its members, a lone character of the sheet too; all go back after', () => {
+    let r = company()
+    r = putInCampaign(r, 'the-company', vale, T)
+    r = keepInRoster(r, member('odo'), T).roster
+    r = putInCampaign(r, 'odo', vale, T)
+    // Someone of the campaign elsewhere stays where it is.
+    r = keepInRoster(r, member('ysa'), T).roster
+    const start = startTrip({ system: band, location: '0' }).session
+    const brought = bringCast(r, start, 'vale', scene, rules, T)
+    expect(brought.session.members?.map((m) => m.id)).toEqual(['kael', 'mara', 'odo'])
+    expect(brought.session.partyRef).toBe('the-company')
+    const playing = (id: string, roster: Roster) =>
+      roster.characters.find((e) => e.character.id === id)?.playing?.app
+    expect(['the-company', 'kael', 'mara', 'odo'].map((id) => playing(id, brought.roster))).toEqual(
+      ['scene', 'scene', 'scene', 'scene'],
+    )
+    expect(playing('ysa', brought.roster)).toBeUndefined()
+    const back = castBack(brought.roster, scene, vale)
+    expect(['the-company', 'kael', 'mara', 'odo'].map((id) => playing(id, back))).toEqual([
+      'campaign',
+      'campaign',
+      'campaign',
+      'campaign',
+    ])
   })
 })
