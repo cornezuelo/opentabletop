@@ -134,7 +134,7 @@
         : String(v)
 
   /** The displays that take a whole row of their group. */
-  const WIDE: readonly Display[] = ['bar', 'boxes', 'pips']
+  const WIDE: readonly Display[] = ['bar', 'boxes', 'ticks', 'pips']
   /** How a value looks now, as its sheet says. */
   const viewOf = (id: string) => {
     const def = sheet.values[id]

@@ -12,6 +12,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - A part of a name **named by another value**, in brackets: `acting.values[params.skill]` is the skill a parameter names, in conditions and variables, so one table tests whichever skill an action asked for; what an action's `roll:` step rolls now sees its `params`. The Grey Marches: **Scout ahead**, by stealth or by the lie of the land, and _Scouting ahead_, one table for both.
 
+- Sheets: a value **shown as ticks** (`display: ticks`): boxes filled a tick at a time, four to a box (or `ticks: 1`–`4`), a progress track at max 40. Packs' sheet form: **Ticks a box**. The Grey Marches: the Company's **Legend**, a tick for the rite of the Ember Moon, a box for the last tomb.
+
 ### Fixes
 
 - Map: on a map laid piece by piece, going through a way into a sub-map no longer tries to lay a piece on the other map's place, which stopped the party at the way.

@@ -1,6 +1,7 @@
 import {
   displayOf,
   levelId,
+  TICKS_PER_BOX,
   toneOf,
   type Display,
   type SheetText,
@@ -14,6 +15,7 @@ export interface Looks {
   track?: boolean
   levels?: (string | { id: string; name?: SheetText; description?: SheetText })[]
   tones?: Record<string, Tone>
+  ticks?: number
 }
 
 /** What a value looks like now, for drawing it. */
@@ -34,6 +36,9 @@ export interface ValueView {
   /** For levels: each level's name and description, and which one it's at (or none). */
   levels?: { id: string; name: string; description?: string }[]
   level?: number
+  /** For ticks: how many ticks fill a box, and how many each box has now. */
+  ticks?: number
+  boxes?: number[]
 }
 
 /**
@@ -60,6 +65,13 @@ export function valueView(
     const span = against - from
     view.fill =
       span > 0 ? Math.min(1, Math.max(0, (value - from) / span)) : value >= against ? 1 : 0
+  }
+  if (display === 'ticks' && bounds.max !== undefined) {
+    const per = looks.ticks ?? TICKS_PER_BOX
+    view.ticks = per
+    view.boxes = Array.from({ length: Math.max(0, Math.ceil(bounds.max / per)) }, (_, i) =>
+      Math.min(per, Math.max(0, value - i * per)),
+    )
   }
   if (display === 'levels' && looks.levels) {
     view.levels = looks.levels.map((l) => {

@@ -6,7 +6,7 @@
 
   /**
    * One number of a sheet drawn as the sheet says (`display:`): a number box, the number
-   * with its max, a bar, boxes, rating dots, a round dial, a choice of named levels or of
+   * with its max, a bar, boxes, boxes of ticks, rating dots, a round dial, a choice of named levels or of
    * its steps (a die's sizes, `d8`, with `display: die`), in
    * the tone of the threshold it has reached. Clicking it asks for a new value (`onset`);
    * the host keeps it within its bounds.
@@ -106,6 +106,45 @@
         ></button>
       {/each}
     </div>
+  {:else if view.display === 'ticks' && view.boxes && view.ticks}
+    {@const per = view.ticks}
+    <span class="ticks-row">
+      {#if !disabled}<button
+          type="button"
+          class="step"
+          aria-label={t('less', { name: label })}
+          onclick={() => step(-1)}>−</button
+        >{/if}
+      <span class="marks" role="group" aria-label={`${label}: ${view.value} / ${view.max}`}>
+        {#each view.boxes as filled, i (i)}
+          <button
+            type="button"
+            class="tick-box"
+            class:on={filled === per}
+            aria-label={t('box', { value: i + 1, max: view.boxes.length })}
+            aria-pressed={filled === per}
+            {disabled}
+            onclick={() =>
+              onset(
+                Math.max(view.min ?? 0, view.value === (i + 1) * per ? i * per : (i + 1) * per),
+              )}
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              {#if filled >= 1}<line x1="3" y1="3" x2="13" y2="13" />{/if}
+              {#if filled >= 2}<line x1="13" y1="3" x2="3" y2="13" />{/if}
+              {#if filled >= 3}<line x1="8" y1="2" x2="8" y2="14" />{/if}
+              {#if filled >= 4}<line x1="2" y1="8" x2="14" y2="8" />{/if}
+            </svg>
+          </button>
+        {/each}
+      </span>
+      {#if !disabled}<button
+          type="button"
+          class="step"
+          aria-label={t('more', { name: label })}
+          onclick={() => step(1)}>+</button
+        >{/if}
+    </span>
   {:else if view.display === 'dial'}
     <span class="dial-row">
       <ClockDial
@@ -184,6 +223,7 @@
   }
 
   .control.die,
+  .ticks-row,
   .of,
   .bar-row,
   .dial-row {
@@ -269,6 +309,19 @@
   .marks button.on {
     background: var(--accent);
     border-color: var(--accent);
+  }
+
+  .tick-box svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .marks button.tick-box.on {
+    background: var(--bg);
   }
 
   .marks button:disabled {

@@ -52,7 +52,7 @@ travel-rules/default:
       description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga, y el grupo sigue marchando hasta su destino. Solo de día con horas de marcha por delante, con fatiga menor de 2 y la Compañía sin desanimar, una vez al día.'
     rite:
       name: Rito de la Luna Ascua
-      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga, se vacía el pavor de cada compañero y su temple sube un dado.'
+      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga, se vacía el pavor de cada compañero y su temple sube un dado; una marca de leyenda.'
     grumble:
       name: Los mercenarios refunfuñan
       description: Tras un día sin comida suficiente, los mercenarios se niegan a marchar.

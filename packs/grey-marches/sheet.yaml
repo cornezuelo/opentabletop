@@ -240,9 +240,9 @@ kind: sheet
 id: company
 name: The Company
 description: |-
-  The Company as a whole: its morale, its fatigue, its silver, the sell-swords it has hired, how much it can take, the horses' fodder and its stores of rations. It stays the same as companions join and fall: every trip has it.
+  The Company as a whole: its morale, its fatigue, its silver, the sell-swords it has hired, how much it can take, the horses' fodder, its legend and its stores of rations. It stays the same as companions join and fall: every trip has it.
 
-  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
+  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), a progress track (legend, ten boxes of four ticks, `display: ticks`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
 values:
   morale:
     name: Morale
@@ -289,6 +289,14 @@ values:
     max: 12
     # The count beside its max: 6 / 12.
     display: of
+  # A progress track: ten boxes filled a tick at a time (four to a box), marked by deeds.
+  legend:
+    name: Legend
+    description: What the Marches tell of the Company, a tick at a time. The rite of the Ember Moon marks a tick; the last tomb of the Deep Barrows a whole box.
+    default: 0
+    min: 0
+    max: 40
+    display: ticks
 # The Company's own stores: six rations a new trip starts with, eaten before the companions'.
 items:
   start: { ration: 6 }

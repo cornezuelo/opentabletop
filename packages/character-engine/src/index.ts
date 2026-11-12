@@ -64,13 +64,26 @@ const bound = z.union([z.number(), z.string().min(1)])
 /**
  * How a number is shown: as itself (`number`, the default), with its max (`of`: `3 / 5`),
  * as a bar filled to its max, as boxes (stress, a vow's progress), rating dots (`pips`), a
- * round segmented clock (`dial`), the name of one of the sheet's `levels` or a die's size
- * (`die`: `d8`).
+ * round segmented clock (`dial`), the name of one of the sheet's `levels`, a die's size
+ * (`die`: `d8`) or boxes filled a tick at a time (`ticks`: a progress track, ten boxes of
+ * four ticks for a max of 40).
  */
-export const DISPLAYS = ['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels', 'die'] as const
+export const DISPLAYS = [
+  'number',
+  'of',
+  'bar',
+  'boxes',
+  'ticks',
+  'pips',
+  'dial',
+  'levels',
+  'die',
+] as const
 export type Display = (typeof DISPLAYS)[number]
 /** The displays drawn up to a max, which the value must have. */
-export const DISPLAYS_WITH_MAX: readonly Display[] = ['of', 'bar', 'boxes', 'pips', 'dial']
+export const DISPLAYS_WITH_MAX: readonly Display[] = ['of', 'bar', 'boxes', 'ticks', 'pips', 'dial']
+/** How many ticks a box of `display: ticks` takes when the value doesn't say (`ticks:`). */
+export const TICKS_PER_BOX = 4
 /** The theme's tones a value may take (never free colours, so they read in every theme). */
 export const TONES = ['good', 'warning', 'danger', 'accent'] as const
 export type Tone = (typeof TONES)[number]
@@ -85,6 +98,8 @@ const looks = {
   display: z.enum(DISPLAYS).optional(),
   /** With `display: levels`, the names the value picks, from its min (or 0) up. */
   levels: z.array(level).min(1).optional(),
+  /** With `display: ticks`, how many ticks fill a box (1 to 4; `TICKS_PER_BOX` if missing). */
+  ticks: z.number().int().min(1).max(4).optional(),
   /**
    * A tone from each value up: `{ 0: danger, 2: warning, 4: good }`, from a share of its
    * max (`{ 0: danger, 50%: warning, 75%: good }`), which follows a max that changes, or
@@ -527,6 +542,7 @@ function looksErrors(
     of?: unknown
     tones?: Record<string, Tone>
     levels?: (string | { id: string })[]
+    ticks?: number
   },
   at: string,
   own = false,
@@ -548,6 +564,8 @@ function looksErrors(
     errors.push(`${at}.tones: a whole number or a share (50%) here`)
   if (display === 'levels' && !v.levels) errors.push(`${at}: display: levels needs its levels`)
   if (v.levels && display !== 'levels') errors.push(`${at}.levels: only with display: levels`)
+  if (v.ticks !== undefined && display !== 'ticks')
+    errors.push(`${at}.ticks: only with display: ticks`)
   const ids = (v.levels ?? []).map(levelId)
   const twice = ids.find((id, i) => ids.indexOf(id) !== i)
   if (twice) errors.push(`${at}.levels: "${twice}" twice`)

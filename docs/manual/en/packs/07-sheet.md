@@ -40,17 +40,19 @@ What the party takes from its characters is said in [Checks](06-checks.md) (**Fr
 
 Each value says how it's drawn wherever a character is shown (a trip's **Party** tab, a token's sheet, a faction on the World panel, the Characters app), in its **Shown as** column. It changes nothing of how the value plays: tables and effects read and change the same number.
 
-| Shown as | Looks like                                                  | For                                                  |
-| -------- | ----------------------------------------------------------- | ---------------------------------------------------- |
-| (empty)  | a box with the number                                       | anything; values without a max                       |
-| `of`     | the number beside its max: **2 / 6**                        | what's carried, what's left                          |
-| `bar`    | a bar filled up to its max, with **−** and **+**            | health, hit points, a pool that empties              |
-| `boxes`  | boxes to tick, as many as its max                           | stress, xp, a vow's progress; one box is a yes or no |
-| `pips`   | round dots, as many as its max                              | ratings from 1 to 5, a bond from 0 to 3              |
-| `dial`   | a round clock with as many segments as its max              | a faction's strength, a countdown                    |
-| `levels` | a list of names to choose from                              | harm (_Unhurt_ … _Dying_), how a faction regards you |
-| `die`    | a die of its size, **d8**; with **Steps**, chosen from them | a usage die, a die that steps up and down            |
+| Shown as | Looks like                                                                                             | For                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| (empty)  | a box with the number                                                                                  | anything; values without a max                       |
+| `of`     | the number beside its max: **2 / 6**                                                                   | what's carried, what's left                          |
+| `bar`    | a bar filled up to its max, with **−** and **+**                                                       | health, hit points, a pool that empties              |
+| `boxes`  | boxes to tick, as many as its max                                                                      | stress, xp, a vow's progress; one box is a yes or no |
+| `ticks`  | boxes filled a tick at a time, four to a box (**Ticks a box**), its max in ticks, with **−** and **+** | a progress track (max 40: ten boxes), a slow clock   |
+| `pips`   | round dots, as many as its max                                                                         | ratings from 1 to 5, a bond from 0 to 3              |
+| `dial`   | a round clock with as many segments as its max                                                         | a faction's strength, a countdown                    |
+| `levels` | a list of names to choose from                                                                         | harm (_Unhurt_ … _Dying_), how a faction regards you |
+| `die`    | a die of its size, **d8**; with **Steps**, chosen from them                                            | a usage die, a die that steps up and down            |
 
+- **Ticks** count marks, drawn as strokes in a box (one, a cross, a cross and a line, a star): a value of 9 with max 40 is two full boxes and one tick in the third, of ten. **Ticks a box** makes a box take fewer (1 to 4). Clicking a box fills up to it; clicking the last full one empties it; **−** and **+** take or add one tick.
 - **All but the empty one, `levels` and `die` need a Max**, a number or another value (a bar up to the character's Toughness grows and shrinks with it). Clicking a box, dot or segment sets the value to it; clicking the last filled one empties it; never below the **Min**.
 - **Steps** are the only numbers a value may be, in place of a **Min** and a **Max**: `4, 6, 8` is a die of four, six or eight sides. An effect's `-1` takes it a step down (a d8 to a d6) and `+1` a step up, never past the first or the last; `'=7'` sets it to the step nearest. Tables roll it as it is: `roll: '1d{{map.values.exit}}'`, and read it as a number (`map.values.exit: 4`, at its last step). With **Shown as** `die` it's drawn as `d8`; with any other, as the number.
 - **Levels** are names in order, each one a pill (Enter or a comma adds it): the first stands for the value's **Min** (0 without one), the next for one more, and so on. With Min `-3`, `hated, cold, wary, neutral, liked, trusted, beloved` makes −3 _Hated_ and 3 _Beloved_. Beyond the last one, the number is shown. Their names (and a description, shown in the value's help) are translated like the rest of the sheet, by id; a level without a name shows its id (`d8`).
@@ -59,7 +61,7 @@ Each value says how it's drawn wherever a character is shown (a trip's **Party**
 - **A threshold of Tones can be another value**, in braces: `0: good, '{{self.values.capacity}}': danger` turns red from the capacity up, following it as it changes.
 - **A kind of relation** with a number has its own **Shown as** (not `levels`): a bond from 0 to 3 as `pips`.
 
-The Grey Marches use each one: skills as dots, health as a bar whose tone falls with it, the Company's fodder as `6 / 12`, a companion's load against their capacity (`9 / 8`, red), dread as boxes that turn red, nerve as a die that steps from d4 to d12, a bond as dots, and their factions' strength as a dial and reputation as named levels with tones, from _Hostile_ to _Sworn friends_ ([their page](../bundled/02-grey-marches.md)).
+The Grey Marches use each one: skills as dots, health as a bar whose tone falls with it, the Company's fodder as `6 / 12`, a companion's load against their capacity (`9 / 8`, red), dread as boxes that turn red, the Company's legend as a progress track of ticks, nerve as a die that steps from d4 to d12, a bond as dots, and their factions' strength as a dial and reputation as named levels with tones, from _Hostile_ to _Sworn friends_ ([their page](../bundled/02-grey-marches.md)).
 
 ## Items
 

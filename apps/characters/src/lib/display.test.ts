@@ -21,7 +21,7 @@ describe('how the bundled sheets show their values', () => {
       ...Object.values(s.factions!.sheet.def.values),
     ].map(displayOf)
     expect(new Set(shown)).toEqual(
-      new Set(['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels', 'die']),
+      new Set(['number', 'of', 'bar', 'boxes', 'ticks', 'pips', 'dial', 'levels', 'die']),
     )
     expect(s.sheet.def.relations.bond.value?.display).toBe('pips')
   })
@@ -73,6 +73,17 @@ describe('how the bundled sheets show their values', () => {
     expect(step(4, -1)).toBe(4)
     expect(step(10, 1)).toBe(12)
     expect(step(12, 1)).toBe(12)
+  })
+
+  it('the Company’s legend is a progress track: ten boxes of four ticks', () => {
+    const legend = marches().partySheet!.def.values.legend
+    const view = valueView(legend, 9, { min: 0, max: 40 }, 'en')
+    expect(view).toMatchObject({ display: 'ticks', ticks: 4 })
+    expect(view.boxes).toEqual([4, 4, 1, 0, 0, 0, 0, 0, 0, 0])
+    // Two ticks a box: six boxes for a max of 12.
+    expect(valueView({ ...legend, ticks: 2 }, 5, { max: 12 }, 'en').boxes).toEqual([
+      2, 2, 1, 0, 0, 0,
+    ])
   })
 
   it('a faction’s reputation is a named level, the first at its min, in every language', () => {

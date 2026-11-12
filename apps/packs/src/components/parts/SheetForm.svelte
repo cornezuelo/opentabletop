@@ -207,6 +207,15 @@
           off: (row) => row.display !== 'levels',
         },
         {
+          field: 'ticks',
+          label: t('sheet.ticks'),
+          help: t('sheet.ticksHelp'),
+          type: 'number',
+          min: 1,
+          placeholder: '4',
+          off: (row) => row.display !== 'ticks',
+        },
+        {
           field: 'tones',
           label: t('sheet.tones'),
           help: t('sheet.tonesHelp'),

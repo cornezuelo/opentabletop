@@ -40,17 +40,19 @@ Lo que el grupo toma de sus personajes se dice en [Comprobaciones](06-checks.md)
 
 Cada valor dice cómo se dibuja allí donde se muestra un personaje (la pestaña **Grupo** de un viaje, la hoja de un token, una facción en el panel del Mundo, la aplicación Personajes), en su columna **Se muestra como**. No cambia nada de cómo juega el valor: las tablas y los efectos leen y cambian el mismo número.
 
-| Se muestra como | Se ve como                                                           | Para                                                                        |
-| --------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| (vacío)         | una casilla con el número                                            | cualquier cosa; valores sin máximo                                          |
-| `of`            | el número junto a su máximo: **2 / 6**                               | lo que se lleva, lo que queda                                               |
-| `bar`           | una barra llena hasta su máximo, con **−** y **+**                   | la salud, los puntos de golpe, una reserva que se vacía                     |
-| `boxes`         | casillas que marcar, tantas como su máximo                           | estrés, experiencia, el progreso de un juramento; una casilla es un sí o no |
-| `pips`          | puntos redondos, tantos como su máximo                               | puntuaciones de 1 a 5, un vínculo de 0 a 3                                  |
-| `dial`          | un reloj redondo con tantos segmentos como su máximo                 | la fuerza de una facción, una cuenta atrás                                  |
-| `levels`        | una lista de nombres entre los que elegir                            | el daño (_Ileso_ … _Moribundo_), cómo te ve una facción                     |
-| `die`           | un dado de su tamaño, **d8**; con **Escalones**, elegido entre ellos | un dado de uso, un dado que sube y baja de paso                             |
+| Se muestra como | Se ve como                                                                                                                | Para                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| (vacío)         | una casilla con el número                                                                                                 | cualquier cosa; valores sin máximo                                          |
+| `of`            | el número junto a su máximo: **2 / 6**                                                                                    | lo que se lleva, lo que queda                                               |
+| `bar`           | una barra llena hasta su máximo, con **−** y **+**                                                                        | la salud, los puntos de golpe, una reserva que se vacía                     |
+| `boxes`         | casillas que marcar, tantas como su máximo                                                                                | estrés, experiencia, el progreso de un juramento; una casilla es un sí o no |
+| `ticks`         | casillas que se llenan marca a marca, cuatro por casilla (**Marcas por casilla**), su máximo en marcas, con **−** y **+** | una pista de progreso (máximo 40: diez casillas), un reloj lento            |
+| `pips`          | puntos redondos, tantos como su máximo                                                                                    | puntuaciones de 1 a 5, un vínculo de 0 a 3                                  |
+| `dial`          | un reloj redondo con tantos segmentos como su máximo                                                                      | la fuerza de una facción, una cuenta atrás                                  |
+| `levels`        | una lista de nombres entre los que elegir                                                                                 | el daño (_Ileso_ … _Moribundo_), cómo te ve una facción                     |
+| `die`           | un dado de su tamaño, **d8**; con **Escalones**, elegido entre ellos                                                      | un dado de uso, un dado que sube y baja de paso                             |
 
+- **Las marcas** se cuentan, dibujadas como trazos en una casilla (uno, una cruz, una cruz y una línea, una estrella): un valor de 9 con máximo 40 son dos casillas llenas y una marca en la tercera, de diez. **Marcas por casilla** hace que una casilla tome menos (de 1 a 4). Hacer clic en una casilla llena hasta ella; hacer clic en la última llena la vacía; **−** y **+** quitan o añaden una marca.
 - **Todos menos el vacío, `levels` y `die` necesitan un Máx.**, un número u otro valor (una barra hasta la Dureza del personaje crece y mengua con ella). Hacer clic en una casilla, punto o segmento pone el valor en él; hacer clic en el último lleno lo vacía; nunca por debajo del **Mín.**
 - **Los escalones** son los únicos números que puede ser un valor, en lugar de un **Mín.** y un **Máx.**: `4, 6, 8` es un dado de cuatro, seis u ocho caras. El `-1` de un efecto lo baja un escalón (de d8 a d6) y `+1` lo sube uno, nunca más allá del primero ni del último; `'=7'` lo pone en el escalón más cercano. Las tablas lo tiran tal cual: `roll: '1d{{map.values.exit}}'`, y lo leen como un número (`map.values.exit: 4`, en su último escalón). Con **Se muestra como** `die` se dibuja como `d8`; con cualquier otro, como el número.
 - **Los niveles** son nombres en orden, cada uno una pastilla (Intro o una coma lo añade): el primero es el **Mín.** del valor (0 si no tiene), el siguiente uno más, y así. Con Mín. `-3`, `hated, cold, wary, neutral, liked, trusted, beloved` hace −3 _Odiado_ y 3 _Querido_ (con esos nombres traducidos). Más allá del último se muestra el número. Sus nombres (y una descripción, que sale en la ayuda del valor) se traducen como el resto de la hoja, por id; un nivel sin nombre enseña su id (`d8`).
@@ -59,7 +61,7 @@ Cada valor dice cómo se dibuja allí donde se muestra un personaje (la pestaña
 - **Un umbral de Tonos puede ser otro valor**, entre llaves: `0: good, '{{self.values.capacity}}': danger` se pone rojo desde la capacidad, siguiéndola cuando cambia.
 - **Un tipo de relación** con número tiene su propio **Se muestra como** (no `levels`): un vínculo de 0 a 3 como `pips`.
 
-Las Marcas Grises usan cada uno: las habilidades como puntos, la salud como una barra cuyo tono baja con ella, el forraje de la Compañía como `6 / 12`, la carga de un compañero frente a su capacidad (`9 / 8`, en rojo), el pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12, un vínculo como puntos, y la fuerza de sus facciones como un dial y la reputación como niveles con nombre y tonos, de _Hostil_ a _Amigos jurados_ ([su página](../bundled/02-grey-marches.md)).
+Las Marcas Grises usan cada uno: las habilidades como puntos, la salud como una barra cuyo tono baja con ella, el forraje de la Compañía como `6 / 12`, la carga de un compañero frente a su capacidad (`9 / 8`, en rojo), el pavor como casillas que se ponen rojas, la leyenda de la Compañía como una pista de progreso de marcas, el temple como un dado que sube de paso de d4 a d12, un vínculo como puntos, y la fuerza de sus facciones como un dial y la reputación como niveles con nombre y tonos, de _Hostil_ a _Amigos jurados_ ([su página](../bundled/02-grey-marches.md)).
 
 ## Objetos
 

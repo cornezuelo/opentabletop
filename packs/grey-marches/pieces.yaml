@@ -186,7 +186,11 @@ description: |-
 
   **Shows:** a piece that ends a place, reached by what's been laid, not by where it lies.
 entries:
-  - { id: king, result: 'A king of the old folk, and his crown' }
+  - {
+      id: king,
+      result: 'A king of the old folk, and his crown',
+      effects: { party.values.legend: 4 },
+    }
 ---
 kind: table
 id: door-noise
