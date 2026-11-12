@@ -58,6 +58,8 @@ when:
 
 _Explorando el camino_ de las Marcas Grises es una.
 
+Lo que nombra la parte puede ser cualquier valor que vea la tabla, también uno que da una entrada (`set:`): así varias filas comparten una regla, y cada una nombra su parte. Donde cae un golpe, cada fila dice qué armadura cuenta ahí (`set: { armor: armor-legs }`, y luego `table: table.hurt`), y la única tabla que tiran la lee: `'{{max(0, dmg - characters[params.foe].values[armor])}}'`.
+
 **Una tirada es la misma durante todo un momento.** Donde se vuelva a leer en el mismo momento, los mismos dados dan el mismo total, así que lo que decide no cambia al volver a mirarlo:
 
 - En un **viaje** (comprobaciones, acciones y sus pasos, la marcha, formas de viajar, terrenos y `through`), un momento es el día, la casilla y lo que está pasando: un momento como `trip.place-enter` o `time.day-end`, o la acción que se hace (`march` para la marcha). Una acción cuyo `when` tira `'{{1d20}}'` está disponible o no todo el día en esa casilla, la ruta no cambia mientras la planeas, y los efectos de la acción ven la misma tirada. Cada viaje tira las suyas.

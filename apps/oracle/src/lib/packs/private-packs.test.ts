@@ -214,6 +214,34 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(rolls.length).toBe(2)
   })
 
+  it('where a blow lands names its Armor and Weak Spot, and one table deals the damage there', () => {
+    const dealt: string[] = []
+    const taken: number[] = []
+    for (const seed of ['a', 'b', 'c', 'd']) {
+      const { entries } = fight({ rotwalker: 2 }, seed)
+      for (const e of entries) {
+        if (e.code !== 'ORACLE_RESULT') continue
+        const value = e.data?.value as Record<string, unknown> & {
+          effects?: Record<string, number>
+        }
+        // The PC's hit: the location named its Armor and Weak Spot, the damage dealt there.
+        if (e.data?.table === 'ker-nethalas/attack' && value.armor) {
+          expect(value.weak).toBe(String(value.armor).replace('armor-', 'weak-'))
+          const [, n] = Object.entries(value.effects!).find(([k]) => k.endsWith('.values.health'))!
+          // Twice the die on the Weak Spot (a Rotwalker's head) or a Critical, else the die.
+          const twice = value.armor === 'armor-head' || (value.outcome as { crit: number }).crit
+          expect(-n).toBe(Math.max(0, (value.dmg as number) * (twice ? 2 : 1)))
+          dealt.push(String(value.armor))
+        }
+        // A creature's hit on the PC: the harm where it landed, against the Armor worn there.
+        const wound = value?.wound as { harm?: number; armor?: string } | undefined
+        if (wound?.armor) taken.push(wound.harm!)
+      }
+    }
+    expect(dealt.length).toBeGreaterThan(0)
+    expect(taken.every((n) => Number.isInteger(n) && n >= 0)).toBe(true)
+  })
+
   it('a Prone foe is attacked with Advantage: the d100 read either way round, the lower kept', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
