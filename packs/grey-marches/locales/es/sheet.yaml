@@ -106,6 +106,9 @@ sheet/companion:
         name: Usos
         description: Lo que le queda (las horas de una antorcha); a 0 se gasta uno, y el siguiente empieza lleno.
       armour: { name: Armadura, description: Cuánto protege si se lleva puesto. }
+      wear:
+        name: Desgaste
+        description: El desgaste que le queda a una pieza de armadura, un dado; tras un combate se tira, y un 1–2 lo baja un escalón (un d4 que saca 1–2 queda destrozado).
     places:
       hands: Manos
       body: { name: Cuerpo, description: Lo que se lleva puesto. }

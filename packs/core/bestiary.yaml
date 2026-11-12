@@ -42,7 +42,7 @@ name: A foe's turn
 description: |-
   What a foe does on its turn in a fight: a blow at one of you.
 
-  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; a result aimed at someone (`set: { target: party.members.random }`), its effect on them (`characters[target].values.health`); a turn lost while a condition given for a while lasts (`acting.conditions: staggered`).
+  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; a result aimed at someone (`set: { target: party.members.random }`), its effect on them (`characters[target].values.health`, and their shield's wear die a step down, `characters[target].items.shield.wear: -1`, nothing for whoever carries none); a turn lost while a condition given for a while lasts (`acting.conditions: staggered`).
 roll: 1d1
 entries:
   # Staggered (sheet.yaml, `lasts: rounds`): it loses its turn while it lasts.
@@ -51,7 +51,9 @@ entries:
     range: 1
     set: { target: party.members.random }
     result: The foe strikes
-    effects: { 'characters[target].values.health': '-{{1d3}}' }
+    # The shield of whoever it hits, if they carry one, drops a step (d6 to d4).
+    effects:
+      { 'characters[target].values.health': '-{{1d3}}', 'characters[target].items.shield.wear': -1 }
 ---
 # A member's blow (travel.yaml's Strike): 1d3 harm; a glancing 1 staggers the foe for a round.
 kind: table

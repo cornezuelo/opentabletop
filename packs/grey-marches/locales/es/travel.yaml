@@ -164,6 +164,11 @@ travel-rules/default:
       do:
         back:
           say: 'La Compañía se repliega, paso a paso, con las armas en alto.'
+    mind-the-mail:
+      name: Revisar la malla
+      description: 'Tras un combate, cada pieza que lleva puesta el compañero que actúa tira su dado de desgaste: un 1–2 lo baja un escalón, y un d4 que saca 1–2 queda destrozado.'
+      params:
+        piece: { name: Pieza }
     nerve-breaks:
       name: Se les quiebra el ánimo
       description: 'En el turno de cada enemigo, en un combate: 2d6 por encima de su Moral y huye, salvo que esté enfurecido.'

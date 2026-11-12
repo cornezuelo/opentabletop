@@ -1307,7 +1307,9 @@ function undeclaredEffects(
         !!own?.items?.fields?.[f] || (who === 'party' && !!sheet?.items?.fields?.[f])
       const known = part
         ? part === 'items'
-          ? itemIds.includes(itemId) && (field === undefined || fieldKnown(field))
+          ? // One named by brackets (`acting.items[params.piece]`): whichever it is, by its key.
+            (itemId === 'named' || itemIds.includes(itemId)) &&
+            (field === undefined || fieldKnown(field))
           : !!own?.[part as 'values' | 'conditions'][partId] ||
             // One that may be a copy of a template (by id, by brackets, the one acting).
             (who !== 'party' &&

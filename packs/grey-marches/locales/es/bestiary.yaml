@@ -109,3 +109,13 @@ blow-lands:
   description: El daño de _Un golpe_, quitado al enemigo elegido.
   entries:
     lands: '{{harm}} de daño'
+wear-and-tear:
+  name: Desgaste
+  description: |-
+    Una pieza de armadura revisada tras un combate: se tira su propio dado de desgaste; con 1–2 baja un escalón (de d8 a d6), y un d4 que saca 1–2 queda destrozado y se tira.
+
+    **Enseña:** una tirada por cada objeto que se lleva puesto (el paso `roll:` de una acción con `each: params.piece`, el parámetro listado por el viaje como `acting.places.body.keys`); un dado cuyo tamaño es un campo con escalones de un objeto (`1d{{max(acting.items[params.piece].wear, 4)}}`, el `wear: { steps: [4, 6, 8] }` de la ficha); un objeto nombrado por su clave en condiciones y efectos (`acting.items[params.piece].wear: -1`, `acting.items[params.piece]: -1`).
+  entries:
+    ruined: 'La armadura de {{acting.name}} queda destrozada sin arreglo, y se tira'
+    rent: 'La armadura de {{acting.name}} se desgarra: su dado de desgaste baja un escalón'
+    holds: 'La armadura de {{acting.name}} aguanta'

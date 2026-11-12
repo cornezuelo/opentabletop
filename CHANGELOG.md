@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **Gear that wears**: an item's field may be a die that steps (`steps: [4, 6, 8]`, `display: die`), each item its own (an armour's wear, d8 to d4); one item is told from another of the same by its key (`acting.items.mail-2.wear`, `places.<place>.keys`), and an action's `roll:` step goes **once for each** one a parameter listed by the trip lists (`each: params.piece`, `from: acting.places.body.keys`). Packs: **Steps** on an item field, **For each** on a roll step. Core's shield dents when a foe's blow lands; the Grey Marches' mail shirt has a wear die, and **Mind the mail** rolls _Wear and tear_ for each piece worn after a fight.
+- `min` and `max` in `{{…}}` leave out a value that's missing (`max(map.values.exit, 4)` is 4 where there's no map).
+
 ## [0.47.0] - 2026-11-12
 
 ### Packs

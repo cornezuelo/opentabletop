@@ -10,7 +10,7 @@ description: |-
   **Shows:** an item catalogue (`kind: items`): items with tags (`climbing`, `light`) that
   rules read (the ford's roll counts the companions with a rope, `party.stats.roped`; the
   night march burns the torches' uses), numbers for the sheet's fields (slots, uses,
-  armour), where an item fits (`fits: { place.tags: worn }`), a container
+  armour, a wear die that steps down: `steps: [4, 6, 8]`), where an item fits (`fits: { place.tags: worn }`), a container
   (`holds: { room: 6, tags: [pack], over: allow }`, that takes more than its room where the
   sheet's places don't), an item given by a table's result, and the party's
   food as items (rations, eaten by the party as a whole: `party.items.ration`).
@@ -36,9 +36,11 @@ items:
     holds: { room: 6, tags: [pack], over: allow }
   mail:
     name: Mail shirt
-    description: Heavy, and only good worn.
+    description: Heavy, and only good worn. Its wear die starts at d8 and drops as fights rend it.
     slots: 2
     armour: 2
+    # Its wear die (the sheet's `wear`, steps of a die): a d8 when new.
+    wear: 8
     fits: { place.tags: worn }
     tags: [armour]
   sword-of-keld:

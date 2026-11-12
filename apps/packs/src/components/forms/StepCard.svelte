@@ -112,6 +112,7 @@
       !parsed ||
       does.length !== 1 ||
       ('with' in parsed && does[0] !== 'do') ||
+      ('each' in parsed && does[0] !== 'roll') ||
       'limit' in parsed !== (does[0] === 'wait')
     )
       return showToast(t('actions.badStep'), 'error')
@@ -296,6 +297,27 @@
             </label>
           {/if}
         </div>
+
+        {#if kind === 'roll' && (ctx.params.some((p) => p.listed) || s.each !== undefined)}
+          <div class="sub">
+            <label class="inline">
+              <span>{t('steps.fields.each')}<InfoTip text={t('steps.help.each')} /></span>
+              <select
+                value={String(s.each ?? '')}
+                {disabled}
+                onchange={(e) => put('each', e.currentTarget.value || undefined)}
+              >
+                <option value="">{t('steps.each.once')}</option>
+                {#if s.each !== undefined && !ctx.params.some((p) => `params.${p.id}` === s.each)}<option
+                    value={String(s.each)}>{String(s.each)}</option
+                  >{/if}
+                {#each ctx.params.filter((p) => p.listed) as p (p.id)}<option
+                    value={`params.${p.id}`}>{p.name}</option
+                  >{/each}
+              </select>
+            </label>
+          </div>
+        {/if}
 
         {#if kind === 'ask' && !ctx.params.length}
           <small class="muted">{t('steps.noParams')}</small>

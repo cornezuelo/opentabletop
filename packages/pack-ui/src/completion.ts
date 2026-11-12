@@ -231,6 +231,7 @@ const KEYS = [
   'say',
   'pause',
   'ask',
+  'each',
   'wait',
   'limit',
   'with',

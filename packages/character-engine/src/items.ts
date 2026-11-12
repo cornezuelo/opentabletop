@@ -142,6 +142,8 @@ export interface ItemField {
   default?: number
   min?: number | string
   max?: number | string
+  /** The only numbers it may be, its bounds (an armour's Integrity die, `[4, 6, 8]`). */
+  steps?: number[]
   /** Reaching its min uses one up: the count goes down and the next starts again. */
   spent?: boolean
 }
@@ -188,6 +190,10 @@ export function fieldBounds(
   values: Record<string, number>,
 ): Bounds {
   const def = items?.fields?.[field]
+  if (def?.steps) {
+    const steps = [...def.steps].sort((a, b) => a - b)
+    return { min: steps[0], max: steps.at(-1)!, steps }
+  }
   const min = readOwn(def?.min, values)
   const max = readOwn(def?.max, values)
   return { ...(min !== undefined && { min }), ...(max !== undefined && { max }) }
@@ -568,7 +574,8 @@ export function itemsValue(
  * What conditions and tables read of a character's items: `items.<id>` (`count` of all of
  * them, and the first one's tags, place and fields: `items.torch.uses`), `items.tags`
  * (every tag of every item), `places.<id>` (its `room`, how much is `used`, its `tags`
- * and the `items` right in it, by id), and `carried` (the total `room` and how much is `used`).
+ * and the `items` right in it, by id, and their `keys`), and `carried` (the total `room` and how
+ * much is `used`). An item whose key isn't its id is also there by its key (`items.mail-2`).
  */
 export function itemsFacts(
   items: SheetItems | undefined,
@@ -593,6 +600,15 @@ export function itemsFacts(
         ...(item.place !== undefined && { place: item.place }),
       }
   }
+  // Each one by its key too, where that isn't its id (`items.mail-2.integrity`).
+  for (const item of all)
+    if (item.key !== item.id && !(item.key in byId))
+      byId[item.key] = {
+        ...item.fields,
+        count: item.count,
+        tags: item.tags ?? [],
+        ...(item.place !== undefined && { place: item.place }),
+      }
   const used = roomUsed(items, state)
   const places = Object.fromEntries(
     placesOf(items, state).map((p) => [
@@ -602,6 +618,8 @@ export function itemsFacts(
         used: used[p.id] ?? 0,
         tags: p.tags,
         items: [...new Set(all.filter((i) => i.place === p.id).map((i) => i.id))],
+        // Each one right in it by its key, to name one of them (`each: params.piece`).
+        keys: all.filter((i) => i.place === p.id).map((i) => i.key),
       },
     ]),
   )
@@ -919,7 +937,9 @@ export function itemEffect(
 ): void {
   const [id, field] = path.split('.', 2)
   const all = (state.items ??= [])
-  const mine = all.filter((i) => i.id === id)
+  // By the item's id (all of them), or by one's key when no item has that id (`mail-2`).
+  const byId = all.filter((i) => i.id === id)
+  const mine = byId.length ? byId : all.filter((i) => i.key === id)
   // A field of one it doesn't have: nothing to change (a torch's uses, with no torch).
   if (field !== undefined) {
     if (mine[0]) changeItem(items, state, mine[0].key, field, change, events)
@@ -968,7 +988,16 @@ export function sheetItemsErrors(
     if (id.includes('.')) errors.push(`items.fields.${id}: an id without dots`)
     for (const key of ['min', 'max'] as const)
       if (typeof f[key] === 'string') errors.push(...ownErrors(f[key], `items.fields.${id}.${key}`))
-    if (f.spent && f.min === undefined)
+    if (f.steps) {
+      for (const key of ['min', 'max'] as const)
+        if (f[key] !== undefined)
+          errors.push(`items.fields.${id}.${key}: not with steps (they are its bounds)`)
+      if (new Set(f.steps).size !== f.steps.length)
+        errors.push(`items.fields.${id}.steps: a step twice`)
+      if (f.default !== undefined && !f.steps.includes(f.default))
+        errors.push(`items.fields.${id}.default: one of its steps (${f.steps.join(', ')})`)
+    }
+    if (f.spent && f.min === undefined && !f.steps)
       errors.push(`items.fields.${id}.spent: needs a min to run out at`)
   }
   for (const [id, p] of Object.entries(items.places ?? {}))

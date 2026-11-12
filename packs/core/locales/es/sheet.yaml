@@ -3,7 +3,7 @@ sheet/character:
   description: |-
     Un personaje de las reglas genéricas: su salud, el daño recibido, si está herido y si ha caído.
 
-    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra, otro que sale de él (`from:`), un estado que ponen los efectos, otro que se da por un tiempo en un combate (_Tambaleándose_, `lasts: rounds`) y otro que se cumple por sí solo (`when:`), y un sitio en total para lo que lleva (`items.room`, diez cosas, no más).
+    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra, otro que sale de él (`from:`), un estado que ponen los efectos, otro que se da por un tiempo en un combate (_Tambaleándose_, `lasts: rounds`), otro que se cumple por sí solo (`when:`), un sitio en total para lo que lleva (`items.room`, diez cosas, no más) y un campo de los objetos que es un dado que baja por escalones (`wear: { steps: [4, 6] }`).
   values:
     health:
       name: Salud
@@ -21,6 +21,11 @@ sheet/character:
     down:
       name: Caído
       description: Fuera de combate mientras su salud sea 0; se le pasa por sí solo cuando recupera salud. Un enemigo sacado del bestiario se va en cuanto cae.
+  items:
+    fields:
+      wear:
+        name: Desgaste
+        description: Cuánto aguanta aún una pieza de equipo, un dado que baja por escalones según le caen golpes.
 sheet/party:
   name: Grupo
   description: |-

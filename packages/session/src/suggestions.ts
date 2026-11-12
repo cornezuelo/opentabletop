@@ -181,6 +181,7 @@ export function contextSuggestions(
         for (const place of Object.keys(sheet.def.items?.places ?? {})) {
           add(`${who}.places.${place}.used`)
           add(`${who}.places.${place}.room`)
+          add(`${who}.places.${place}.keys`)
         }
         if (sheet.def.items !== undefined) {
           add(`${who}.carried.used`)

@@ -470,7 +470,7 @@ export const en = {
       "A value worked out from the sheet's other values, never set by hand nor by effects: it follows them at once (after every change, within its own min and max). Write the values in braces, with `+ - * /`, brackets and `floor`, `ceil`, `round`, `min`, `max`, `abs`; a minus between names takes spaces (ids may hold a hyphen):\n• `'{{self.values.might * 2 + 4}}'` — twice Might, plus 4\n• `'{{self.values.maxHealth - self.values.health}}'` — the wounds taken\n• `'{{floor(self.values.wits / 2)}}'` — half Wits, rounded down\nOr made of the items, as a map (`{ … }`): `sum`, `max` or `min` of a field, or `count: items`, among those its `where` lets in (it reads `item.*` and `place.*`):\n• `{ sum: items.slots }` — the load: every item's slots\n• `{ max: items.armour, where: { place.tags: worn } }` — the best armour worn\n• `{ count: items, where: { item.tags: light } }` — how many lights\nA **Max** caps it without stopping anything being carried: for a limit, see **Shown against** and **Over its room**.\nNo dice (it would change each time it's read). Empty: a value set by hand and by effects.",
     steps: 'Steps',
     stepsHelp:
-      "The only numbers the value may be, instead of a **Min** and a **Max**: a die that steps down and up a chain of sizes (a usage die, a step die). An effect's `-1` takes it one step down, `+1` one up, never past the first or the last; `'=N'` sets it to the step nearest N. Read in dice as it is: `1d{{map.values.exit}}`.\n• `4, 6, 8` — a d8 that drops to a d6, then a d4\n• `6, 8, 10, 12` — a die that grows as the value rises\nWith **Shown as** `die`, it's shown as `d8` and chosen from its steps.",
+      "The only numbers the value may be, instead of a **Min** and a **Max**: a die that steps down and up a chain of sizes (a usage die, a step die). An effect's `-1` takes it one step down, `+1` one up, never past the first or the last; `'=N'` sets it to the step nearest N. Read in dice as it is: `1d{{map.values.exit}}`.\n• `4, 6, 8` — a d8 that drops to a d6, then a d4\n• `6, 8, 10, 12` — a die that grows as the value rises\n• on an item's field, `4, 6, 8, 10, 12` — each piece of armour's own wear die, stepped down by `acting.items[params.piece].wear: -1`\nWith **Shown as** `die`, it's shown as `d8` and chosen from its steps.",
     display: 'Shown as',
     displayHelp:
       'How the value is drawn wherever a character is shown (empty: a number box). All but **number**, **levels** and **die** need a max:\n• `number` — a number box\n• `of` — the number and its max (or its **Shown against**): **3 / 5**\n• `bar` — a bar filled up to its max (or its **Shown against**)\n• `boxes` — boxes to tick, as many as its max (stress, xp, a vow)\n• `ticks` — boxes filled a tick at a time, its max in ticks (a progress track: max 40, ten boxes of four)\n• `pips` — round dots, as many as its max (a rating from 1 to 5)\n• `dial` — a round clock of as many segments as its max\n• `levels` — the name of one of its **Levels**: the first is its min (or 0), the next one more…\n• `die` — a die of its size, `d8`; with **Steps**, chosen from them',
@@ -1060,7 +1060,7 @@ export const en = {
     onAfter: 'After: {action}',
     step: 'Step',
     badStep:
-      "A step does one thing: time: 60, travel.move: destination, travel.speed: 0.5, travel.advance: 1, travel.mode: modes.<way>, effects: { … }, set: { … }, do: <action> (and its with: { … }), roll: checks.<check>, say: <text>, pause: true, ask: <parameter> or wait: { … } with limit: '18:00'.",
+      "A step does one thing: time: 60, travel.move: destination, travel.speed: 0.5, travel.advance: 1, travel.mode: modes.<way>, effects: { … }, set: { … }, do: <action> (and its with: { … }), roll: checks.<check> (and its each: params.<…>), say: <text>, pause: true, ask: <parameter> or wait: { … } with limit: '18:00'.",
     up: 'Move up',
     down: 'Move down',
     reading: {
@@ -1110,6 +1110,7 @@ export const en = {
       ask: 'Parameter',
       wait: 'Until',
       limit: 'At most until',
+      each: 'For each',
     },
     help: {
       time: "Minutes that pass, or until when time passes, living everything on the way (each moment's checks and actions, the day ending):\n• `180` — three hours\n• `'14:00'` — until the clock next strikes 14:00\n• `time.part.morning` — until that part of the calendar's day next begins",
@@ -1131,8 +1132,12 @@ export const en = {
         'The trip waits here until the player presses **Continue**, then goes on with the rest. Empty: it just waits; with a text, the waiting box and the journal say it (`The ferry is on the far bank.`).',
       ask: "The trip waits for the player to choose one of this action's **Parameters**, with a button per choice; later steps read the answer, e.g. **Only when** `params.how` is `swim`.",
       wait: 'Time passes until this condition holds, minute by minute, living the moments on the way. If it already holds, no time passes.\n• `today.ferry` is `true` — set by an action at noon\n• `time.part` is one of `afternoon, evening`',
+      each: 'Rolls it once for every choice a parameter **listed by the trip** has now, that parameter being each one in turn (what it rolls reads it as `params.<id>`); with none listed, nothing is rolled. Empty: once.\n• **piece** listed by `acting.places.body.keys`, rolling `table.wear` — once for every item worn on the body, its effects naming that one as `acting.items[params.piece].wear: -1`\n• **foe** listed by `present.ids` — once for each of those here',
       limit:
         "The most it waits, written like **Pass time**:\n• `60` — minutes from now\n• `'18:00'`\n• `time.part.night`",
+    },
+    each: {
+      once: 'once',
     },
     with: {
       default: 'its default',
@@ -1169,6 +1174,7 @@ export const en = {
       doWith: 'Take {action} ({with})',
       doWorldTurn: 'Bring a world turn',
       roll: 'Roll {check}',
+      rollEach: 'Roll {check} for each {param}',
       say: 'Say “{text}”',
       pause: 'Pause until Continue',
       pauseText: 'Pause: “{text}”',

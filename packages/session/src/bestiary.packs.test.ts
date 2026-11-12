@@ -246,7 +246,8 @@ describe('the bundled packs fight in turns', () => {
     // Kael rolls 1d6 and his Stealth (3), Mara 1d6 and hers (0), each bandit 1d6 and its Harm.
     const order = fight(marches, 'stand', 'g').first
     expect(order).toEqual(['kael', 'bandit-2', 'bandit', 'mara'])
-    expect(lines.at(-1)).toBe('ENCOUNTER_ENDED')
+    // Its end is a moment (Mind the mail's), heard last; nobody wears armour here.
+    expect(lines.slice(-2)).toEqual(['ENCOUNTER_ENDED', 'MOMENT_REACHED'])
     expect(state.encounter).toBeUndefined()
     expect(state.present?.filter((p) => p.at === state.travel.location) ?? []).toEqual([])
     // Rounds of a minute: time went on as the rounds came.
@@ -473,6 +474,101 @@ describe('the bundled packs fight in turns', () => {
       en: `The toughest of them has ${toughest} health.`,
       es: `El más duro de ellos tiene ${toughest} de salud.`,
     })
+  })
+
+  it('the Grey Marches: after a fight, each piece the companion acting wears rolls its wear die', () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'w',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(4) }),
+    }
+    // Kael acts, wearing two mail shirts: a new one (d8) and a worn one (d4).
+    let s = applyResult(
+      { ...session, acting: 'kael' },
+      { effects: { 'present.bandit': 1, 'characters.kael.items.mail': 1 } },
+      {},
+      partyOf(marches),
+    )
+    const kael = s.members!.find((m) => m.id === 'kael')!
+    kael.items = [
+      ...kael.items!,
+      { ...kael.items!.find((i) => i.id === 'mail')!, key: 'mail-2', fields: { wear: 4 } },
+    ]
+    const worn = (st: typeof s) =>
+      st.members!.find((m) => m.id === 'kael')!.items!.filter((i) => i.place === 'body')
+    expect(worn(s).map((i) => [i.key, i.fields.wear])).toEqual([
+      ['mail', 8],
+      ['mail-2', 4],
+    ])
+    let rolled = 0
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const play = { ...options, oracle: createOracleEngine({ registry, random: seeded(seed) }) }
+      s = stepTrip(play, s, { type: 'action', id: 'stand' }).state
+      const back = stepTrip(play, s, { type: 'action', id: 'fall-back' })
+      const lines = back.entries.filter(
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'grey-marches/wear-and-tear',
+      )
+      // One roll for each piece worn, each of its own die.
+      expect(lines.length).toBe(2)
+      rolled += lines.length
+      if (worn(back.state).length < 2) {
+        // The worn one, ruined at d4, thrown away; the other still a die of its steps.
+        expect(worn(back.state).map((i) => i.key)).toEqual(['mail'])
+        expect([4, 6, 8]).toContain(worn(back.state)[0].fields.wear)
+        return
+      }
+      s = { ...back.state, travel: { ...back.state.travel } }
+    }
+    expect(rolled).toBeGreaterThan(0)
+    throw new Error('the worn mail was never ruined in eight fights')
+  })
+
+  it('Core: a foe’s blow that lands takes the shield of whoever it hits a step down', () => {
+    const dented: string[] = []
+    for (const [n, seed] of ['c', 'd', 'e', 'f', 'g', 'h'].entries()) {
+      const { session } = startTrip({ system: core, location: 'a', members: people(core), seed })
+      const options = {
+        system: core,
+        world: heath,
+        oracle: createOracleEngine({ registry, random: seeded(n + 1) }),
+      }
+      const armed = applyResult(
+        session,
+        {
+          effects: {
+            'present.foe': 4,
+            'characters.kael.items.shield': 1,
+            'characters.mara.items.shield': 1,
+          },
+        },
+        {},
+        partyOf(core),
+      )
+      expect(armed.members!.map((m) => m.items![0].fields.wear)).toEqual([6, 6])
+      let done = stepTrip(options, armed, { type: 'action', id: 'fight' })
+      for (let turn = 0; turn < 30 && done.state.encounter; turn++) {
+        for (const e of done.entries) {
+          if (e.code === 'CHANGED' && /items\.shield\.wear$/.test(String(e.data?.path)))
+            dented.push(`${e.data?.from}→${e.data?.to}`)
+        }
+        const foe = done.state.present?.find((p) => p.at === done.state.travel.location)?.character
+          .id
+        if (!foe) break
+        done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe } })
+        if (done.state.travel.waiting)
+          done = stepTrip(options, done.state, { type: 'resume', choice: foe })
+      }
+    }
+    // A d6 to a d4, and never further: the last of its steps.
+    expect(dented).toContain('6→4')
+    expect(dented.every((d) => d === '6→4')).toBe(true)
   })
 
   it("a roll mode on one roll of a generator: Core's contest, the Grey Marches' blow on a lone foe", () => {

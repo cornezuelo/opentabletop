@@ -336,6 +336,14 @@
         },
         { field: 'min', label: t('sheet.min'), help: t('sheet.boundHelp'), type: 'value' },
         { field: 'max', label: t('sheet.max'), help: t('sheet.boundHelp'), type: 'value' },
+        {
+          field: 'steps',
+          label: t('sheet.steps'),
+          help: t('sheet.stepsHelp'),
+          type: 'list',
+          numbers: true,
+          off: (row) => row.min !== undefined || row.max !== undefined,
+        },
         { field: 'spent', label: t('sheet.spent'), help: t('sheet.spentHelp'), type: 'check' },
         {
           field: 'display',

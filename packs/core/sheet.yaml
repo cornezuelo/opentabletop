@@ -6,7 +6,7 @@ name: Character
 description: |-
   A character of the Generic rules: their health, the harm they've taken, whether they're wounded and whether they're down.
 
-  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects, one given for a while in a fight (_Staggered_, `lasts: rounds`) and one that holds by itself (`when:`), and a room in all for what they carry (`items.room`, ten things, no more).
+  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects, one given for a while in a fight (_Staggered_, `lasts: rounds`), one that holds by itself (`when:`), a room in all for what they carry (`items.room`, ten things, no more), and an item field that is a die stepping down (`wear: { steps: [4, 6] }`).
 values:
   health:
     name: Health
@@ -37,10 +37,17 @@ conditions:
     # characters never leave this way.
     leaves: true
 # What they carry is one list (no places): ten things in all, each counted as one; what's
-# given past it is left behind, said in the journal.
+# given past it is left behind, said in the journal. Only a shield has a field: its wear,
+# a die that steps down (d6, then d4).
 items:
   room: 10
   over: refuse
+  fields:
+    wear:
+      name: Wear
+      description: How much a piece of gear can still take, a die that steps down as blows land on it.
+      steps: [4, 6]
+      display: die
 ---
 kind: sheet
 id: party

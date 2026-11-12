@@ -246,8 +246,10 @@ function calculate(
         return b === 0 ? undefined : a / b
       }
       case 'call': {
-        const args = n.args.map(go)
-        if (args.some((a) => a === undefined)) return undefined
+        // `min` and `max` leave out what's missing (`max(map.values.exit, 4)` with no map: 4).
+        const all = n.args.map(go)
+        const args = n.fn === 'min' || n.fn === 'max' ? all.filter((a) => a !== undefined) : all
+        if (!args.length || args.some((a) => a === undefined)) return undefined
         const v = FUNCTIONS[n.fn](...(args as number[]))
         return Number.isFinite(v) ? v : undefined
       }

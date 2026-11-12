@@ -74,7 +74,7 @@ El `range` de una entrada son los totales que cubre: `3`, `2-5`, `-1` (un total 
 | `{{roll}}`                        | en las entradas de una tabla, el total de su propia tirada                   |
 | `{{field}}`                       | un campo de un generador, en su plantilla                                    |
 
-**Aritmética.** Dentro de las llaves se pueden sumar, restar, multiplicar y dividir números, valores y dados, con paréntesis y las funciones `floor`, `ceil`, `round` (a un número entero hacia abajo, hacia arriba, el más cercano), `min`, `max` (el menor o el mayor de varios) y `abs`. Los ids pueden tener guiones (`night-march`), así que un menos entre dos nombres lleva espacios: `a - b`. Un valor que no es un número, o una división entre 0, no da nada. Aritmética, nunca lógica: para un _si_, escribe una [condición](08-conditions.md).
+**Aritmética.** Dentro de las llaves se pueden sumar, restar, multiplicar y dividir números, valores y dados, con paréntesis y las funciones `floor`, `ceil`, `round` (a un número entero hacia abajo, hacia arriba, el más cercano), `min`, `max` (el menor o el mayor de varios, dejando fuera un valor que falta: `max(map.values.exit, 4)` es 4 donde no hay mapa) y `abs`. Los ids pueden tener guiones (`night-march`), así que un menos entre dos nombres lleva espacios: `a - b`. Un valor que no es un número, o una división entre 0, no da nada. Aritmética, nunca lógica: para un _si_, escribe una [condición](08-conditions.md).
 
 | Escribe                                            | Es                                             |
 | -------------------------------------------------- | ---------------------------------------------- |
@@ -155,6 +155,7 @@ En entradas, cartas, comprobaciones y pasos de acciones. Cada clave es un valor 
 | `roles.lookout.values.health: -1`                                                   | quien tenga un rol de viaje                                                                                                                                                                                                                              |
 | `acting.items.torch: -1`, `characters.kael.items.rope: 2`                           | un objeto menos (empezando por los últimos; a 0 desaparece), o más (de los [catálogos](07-kinds.md#catalogos-de-objetos) del sistema si no tiene ninguno)                                                                                                |
 | `party.members.items.torch.uses: -1`                                                | un campo de la primera antorcha de cada uno (nada para quien no tenga); un campo que se gasta acaba con uno al llegar a su mínimo                                                                                                                        |
+| `acting.items[params.piece].wear: -1`, `acting.items.mail-2: -1`                    | un objeto por su clave (nombrado por un parámetro, o escrita): un campo de ese solo (un escalón abajo de un dado, para un campo con `steps`), o ese quitado                                                                                              |
 | `faction.territory: 1`, `faction.values.strength: -1`                               | en la tabla de turno de una facción: sus tierras, sus valores                                                                                                                                                                                            |
 | `world.clocks.the-siege: 1`                                                         | avanza un reloj de progreso (el turno de una facción, una reacción del mundo, o el resultado de un viaje en un mapa); `'=0'` lo fija                                                                                                                     |
 | `present.wolf: 3`, `present.wolf: '{{wolves}}'`                                     | hace copias de una [plantilla](07-kinds.md#bestiarios) donde está el grupo (los presentes), cada una con sus propias tiradas; `-1` quita la última, `'=0'` todas                                                                                         |
@@ -194,27 +195,28 @@ Una comprobación sin `at` solo la tira un paso (`roll:`); una acción sin `on` 
 
 El `do:` de una acción es una lista de pasos, en orden; cada uno hace una cosa y puede tener su propio `when` / `unless`.
 
-| Paso                                                            | Hace                                                                    |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `time: 120`                                                     | pasan 120 minutos                                                       |
-| `time: '14:00'`                                                 | hasta que vuelve a dar esa hora                                         |
-| `time: time.meal.luncheon`                                      | hasta que vuelve a empezar una parte del día del calendario             |
-| `travel.move: destination`                                      | se mueve por la ruta mientras se cumplen sus condiciones                |
-| `travel.move: '{{params.until}}'`                               | hasta donde diga su parámetro (`place`, `3`…)                           |
-| `travel.speed: 0.5`                                             | el resto del movimiento de hoy, a media velocidad                       |
-| `effects: { party.stats.fatigue: -1 }`                          | cambia el grupo                                                         |
-| `set: { lost: true }`                                           | da un valor del día                                                     |
-| `do: actions.forage`                                            | hace otra acción, si se cumplen sus condiciones                         |
-| `{ do: actions.march, with: { until: place } }`                 | otra acción, con sus parámetros                                         |
-| `roll: checks.ENCOUNTER_CHECK_REQUIRED`                         | tira una comprobación ya (o `roll: table.ruins`: una tabla del Oráculo) |
-| `travel.advance: 1`                                             | avanza una casilla por la ruta, sin que pase el tiempo                  |
-| `travel.mode: modes.boat`                                       | viaja de otra forma, si se puede elegir ahora                           |
-| `say: Los porteadores cantan`                                   | una línea propia del sistema en el diario                               |
-| `pause: true`                                                   | el viaje espera a **Continuar** (o un texto)                            |
-| `ask: params.how`                                               | el jugador elige ya el parámetro `how`                                  |
-| `{ wait: { today.ferry: true }, limit: '18:00' }`               | pasa el tiempo hasta que se cumpla, como mucho el límite                |
-| `{ id: song, say: … }`                                          | da nombre a un paso para sus traducciones                               |
-| `{ unless: { trip.below: party.values.food }, effects: { … } }` | solo cuando se cumple su condición                                      |
+| Paso                                                            | Hace                                                                     |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `time: 120`                                                     | pasan 120 minutos                                                        |
+| `time: '14:00'`                                                 | hasta que vuelve a dar esa hora                                          |
+| `time: time.meal.luncheon`                                      | hasta que vuelve a empezar una parte del día del calendario              |
+| `travel.move: destination`                                      | se mueve por la ruta mientras se cumplen sus condiciones                 |
+| `travel.move: '{{params.until}}'`                               | hasta donde diga su parámetro (`place`, `3`…)                            |
+| `travel.speed: 0.5`                                             | el resto del movimiento de hoy, a media velocidad                        |
+| `effects: { party.stats.fatigue: -1 }`                          | cambia el grupo                                                          |
+| `set: { lost: true }`                                           | da un valor del día                                                      |
+| `do: actions.forage`                                            | hace otra acción, si se cumplen sus condiciones                          |
+| `{ do: actions.march, with: { until: place } }`                 | otra acción, con sus parámetros                                          |
+| `roll: checks.ENCOUNTER_CHECK_REQUIRED`                         | tira una comprobación ya (o `roll: table.ruins`: una tabla del Oráculo)  |
+| `{ roll: table.wear, each: params.piece }`                      | lo tira una vez por cada uno que liste un parámetro listado por el viaje |
+| `travel.advance: 1`                                             | avanza una casilla por la ruta, sin que pase el tiempo                   |
+| `travel.mode: modes.boat`                                       | viaja de otra forma, si se puede elegir ahora                            |
+| `say: Los porteadores cantan`                                   | una línea propia del sistema en el diario                                |
+| `pause: true`                                                   | el viaje espera a **Continuar** (o un texto)                             |
+| `ask: params.how`                                               | el jugador elige ya el parámetro `how`                                   |
+| `{ wait: { today.ferry: true }, limit: '18:00' }`               | pasa el tiempo hasta que se cumpla, como mucho el límite                 |
+| `{ id: song, say: … }`                                          | da nombre a un paso para sus traducciones                                |
+| `{ unless: { trip.below: party.values.food }, effects: { … } }` | solo cuando se cumple su condición                                       |
 
 Marchar es una acción con un paso `travel.move`, comprobada mientras el grupo se mueve: su `when` / `unless` (ninguno: siempre que nada más lo impida; de día 8 horas: `when: { time.hour: { gte: 6, lt: 20 }, trip.marched: { lt: '{{system.hoursPerDay}}' } }`). Los `params` de una acción son lo que se elige al hacerla: `params: { until: { choices: [destination, place, 3] } }`, leído como `{{params.until}}`. Cómo sigue el viaje por sí solo, `travel: { onward: { do: actions.march, with: { until: destination } } }`. La parada, `travel: { halt: { at: '20:00', do: actions.camp } }`, es lo que hace un grupo que no puede marchar mientras el tiempo avanza solo. Todos los pasos, con ejemplos: [Acciones y pasos](10-actions-and-steps.md). Además de `do`, una acción tiene `name`, `description`, `params`, `when` / `unless`, `on`, `oncePerDay: true`, `hideWhenUnavailable: true` (su botón se oculta mientras no se puede hacer) y `nothing` (lo que dice el diario cuando no se aplica ninguna de sus comprobaciones). Completo: [Tu propio sistema de viaje](../oracle/07-connecting.md#5-tu-propio-sistema-de-viaje).
 

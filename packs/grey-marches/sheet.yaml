@@ -204,6 +204,12 @@ items:
       display: pips
       spent: true
     armour: { name: Armour, description: How well it protects when worn., min: 0 }
+    # A die that steps down as a piece of armour wears (d8, d6, d4), rolled after a fight.
+    wear:
+      name: Wear
+      description: How much wear a piece of armour has left, a die; after a fight it's rolled, and 1–2 takes it a step down (a d4 that rolls 1–2 is ruined).
+      steps: [4, 6, 8]
+      display: die
   places:
     hands: { name: Hands, tags: [hand], room: 2 }
     body: { name: Body, description: What is worn., tags: [worn], room: 2 }

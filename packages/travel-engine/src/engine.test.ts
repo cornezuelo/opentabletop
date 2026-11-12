@@ -2671,12 +2671,17 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
       // Only with a boatman.
       boat: { kmPerDay: 480, when: { 'today.boatman': true } },
     },
-    values: { ferry: {}, boatman: {} },
+    values: { ferry: {}, boatman: {}, worn: {} },
     resources: { gold: {} },
     actions: {
       march: {
         params: { until: { choices: ['destination', 'place', 3] } },
         do: [{ 'travel.move': '{{params.until}}' }],
+      },
+      // Each piece worn rolls for its wear, as itself.
+      wear: {
+        params: { piece: { from: 'today.worn' } },
+        do: [{ set: { worn: ['helm', 'mail-2'] } }, { roll: 'table.wear', each: 'params.piece' }],
       },
       sing: {
         do: [{ id: 'song', say: 'The porters sing for {{party.values.gold}} gold' }, { time: 10 }],
@@ -2730,6 +2735,13 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
         a: {
           do: [{ ask: 'params.how' }, { 'travel.mode': 'modes.zeppelin' }, { wait: { day: 2 } }],
         },
+        c: {
+          params: { n: { choices: [1, 2] } },
+          do: [
+            { roll: 'table.wear', each: 'params.n' },
+            { say: 'x', each: 'params.n' },
+          ],
+        },
         b: {
           do: [
             { time: 10, limit: 30 },
@@ -2740,10 +2752,21 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
     })
     expect(bad.errors).toEqual([
       'actions.a.do.2.limit: wait: needs a limit: (the most it waits), and limit: goes with wait:',
+      'actions.c.do.1.each: each: rolls a roll: step once for every choice of a parameter',
       'actions.b.do.0.limit: wait: needs a limit: (the most it waits), and limit: goes with wait:',
       'actions.b.do.1: a step does one thing: time, travel.move, travel.speed, travel.advance, travel.mode, effects, do, roll, set, say, pause, ask or wait',
       'actions.a.do.0.ask: a has no parameters to ask',
       'actions.a.do.1.travel.mode: expected modes.fast, modes.boat or a variable',
+      'actions.c.do.0.each: c has no parameter listed by the trip (from:) to roll for each of',
+    ])
+  })
+
+  it('each: rolls a step once for every choice its parameter lists now, as that choice', () => {
+    const { events } = take(begin(), 'wear')
+    const rolled = events.flatMap((e) => (e.type === 'CHECK_REQUIRED' ? [e.check] : []))
+    expect(rolled.map((c) => [c.resolve, (c.context.params as { piece: string }).piece])).toEqual([
+      ['table.wear', 'helm'],
+      ['table.wear', 'mail-2'],
     ])
   })
 

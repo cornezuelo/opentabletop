@@ -172,3 +172,15 @@ describe('a part named by another value', () => {
     expect(render('Agility {{acting.values[params.skill]}}', lookupIn(context))).toBe('Agility 12')
   })
 })
+
+describe('min and max', () => {
+  it('leave out a value that is missing, and give nothing when every one is', () => {
+    const read = lookupIn({ map: { values: { exit: 8 } } })
+    expect(read('max(map.values.exit, 4)')).toBe(8)
+    expect(read('max(map.values.gone, 4)')).toBe(4)
+    expect(read('min(acting.items[params.piece].wear, 6)')).toBe(6)
+    expect(read('max(map.values.gone, map.values.none)')).toBeUndefined()
+    // Other functions still need every value.
+    expect(read('floor(map.values.gone)')).toBeUndefined()
+  })
+})

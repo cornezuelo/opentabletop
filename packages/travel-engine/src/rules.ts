@@ -221,6 +221,11 @@ const step = z
     /** With `do:`, the values of that action's parameters (`with: { until: place }`). */
     with: given.optional(),
     roll: z.string().min(1).optional(),
+    /**
+     * With `roll:`, rolls it once for every choice a parameter's `from` lists now
+     * (`each: params.piece`), the parameter being each in turn: one roll per piece of armour.
+     */
+    each: z.string().min(1).optional(),
     set: z.record(z.string(), z.unknown()).optional(),
     /** A line of the system's own in the journal; `{{…}}` in it read at that moment. */
     say: text.optional(),
@@ -247,6 +252,10 @@ const step = z
   .refine((s) => s.with === undefined || s.do !== undefined, {
     message: 'with: gives the parameters of the action a do: step takes',
     path: ['with'],
+  })
+  .refine((s) => s.each === undefined || s.roll !== undefined, {
+    message: 'each: rolls a roll: step once for every choice of a parameter',
+    path: ['each'],
   })
   .refine((s) => (s.limit !== undefined) === (s.wait !== undefined), {
     message: 'wait: needs a limit: (the most it waits), and limit: goes with wait:',
@@ -684,6 +693,19 @@ export const travelRulesSchema = z
             path: ['actions', id, 'do', i, 'travel.mode'],
             message: `expected ${modes.join(', ')} or a variable${meant(mode, modes)}`,
           })
+        const each = refId('params', st.each)
+        if (st.roll !== undefined && st.each !== undefined && !(each && a.params?.[each]?.from)) {
+          const listed = Object.entries(a.params ?? {}).flatMap(([p, d]) =>
+            d.from ? [ref('params', p)] : [],
+          )
+          ctx.addIssue({
+            code: 'custom',
+            path: ['actions', id, 'do', i, 'each'],
+            message: listed.length
+              ? `expected one of its parameters listed by the trip: ${listed.join(', ')}${meant(st.each, listed)}`
+              : `${id} has no parameter listed by the trip (from:) to roll for each of`,
+          })
+        }
         const asked = refId('params', st.ask)
         if (st.ask !== undefined && !(asked && a.params?.[asked])) {
           const params = Object.keys(a.params ?? {}).map((p) => ref('params', p))

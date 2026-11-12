@@ -216,6 +216,8 @@ const sheetItems = z
             default: z.number().optional(),
             min: bound.optional(),
             max: bound.optional(),
+            /** The only numbers it may be, its bounds (an Integrity die's sizes, `[4, 6, 8]`). */
+            steps: z.array(z.number()).min(2).optional(),
             ...looks,
             /** Reaching its min uses one up: the count goes down and the next starts again. */
             spent: z.boolean().optional(),

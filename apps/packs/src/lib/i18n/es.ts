@@ -482,7 +482,7 @@ export const es: Messages<typeof en> = {
       "Un valor que se calcula a partir de los otros valores de la hoja; no se cambia a mano ni con efectos: los sigue al momento (tras cada cambio, dentro de su propio mín. y máx.). Escribe los valores entre llaves, con `+ - * /`, paréntesis y `floor`, `ceil`, `round`, `min`, `max`, `abs`; un menos entre nombres lleva espacios (los ids pueden tener guiones):\n• `'{{self.values.might * 2 + 4}}'` — el doble de Might, más 4\n• `'{{self.values.maxHealth - self.values.health}}'` — las heridas recibidas\n• `'{{floor(self.values.wits / 2)}}'` — la mitad de Wits, redondeando hacia abajo\nO calculado a partir de los objetos, como un mapa (`{ … }`): `sum`, `max` o `min` de un campo, o `count: items`, entre los que deje pasar su `where` (lee `item.*` y `place.*`):\n• `{ sum: items.slots }` — la carga: los huecos de todos los objetos\n• `{ max: items.armour, where: { place.tags: worn } }` — la mejor armadura puesta\n• `{ count: items, where: { item.tags: light } }` — cuántas luces\nUn **Máx.** lo limita sin impedir que se lleve nada: para un límite, mira **Frente a** y **Más de lo que cabe**.\nSin dados (cambiaría cada vez que se lee). Vacío: un valor que se cambia a mano y con efectos.",
     steps: 'Escalones',
     stepsHelp:
-      "Los únicos números que puede ser el valor, en lugar de un **Mínimo** y un **Máximo**: un dado que baja y sube por una cadena de tamaños (un dado de uso, un dado escalonado). El `-1` de un efecto lo baja un escalón, `+1` lo sube uno, nunca más allá del primero ni del último; `'=N'` lo pone en el escalón más cercano a N. Se lee en los dados tal cual: `1d{{map.values.exit}}`.\n• `4, 6, 8` — un d8 que baja a d6 y luego a d4\n• `6, 8, 10, 12` — un dado que crece según sube el valor\nCon **Se muestra como** `die`, se muestra como `d8` y se elige entre sus escalones.",
+      "Los únicos números que puede ser el valor, en lugar de un **Mínimo** y un **Máximo**: un dado que baja y sube por una cadena de tamaños (un dado de uso, un dado escalonado). El `-1` de un efecto lo baja un escalón, `+1` lo sube uno, nunca más allá del primero ni del último; `'=N'` lo pone en el escalón más cercano a N. Se lee en los dados tal cual: `1d{{map.values.exit}}`.\n• `4, 6, 8` — un d8 que baja a d6 y luego a d4\n• `6, 8, 10, 12` — un dado que crece según sube el valor\n• en un campo de los objetos, `4, 6, 8, 10, 12` — el dado de desgaste de cada pieza de armadura, que baja con `acting.items[params.piece].wear: -1`\nCon **Se muestra como** `die`, se muestra como `d8` y se elige entre sus escalones.",
     display: 'Se muestra como',
     displayHelp:
       'Cómo se dibuja el valor allí donde se muestra un personaje (vacío: una casilla con el número). Todos menos **number**, **levels** y **die** necesitan un máximo:\n• `number` — una casilla con el número\n• `of` — el número y su máximo (o su **Frente a**): **3 / 5**\n• `bar` — una barra llena hasta su máximo (o su **Frente a**)\n• `boxes` — casillas que marcar, tantas como su máximo (estrés, experiencia, un juramento)\n• `ticks` — casillas que se llenan marca a marca, su máximo en marcas (una pista de progreso: máximo 40, diez casillas de cuatro)\n• `pips` — puntos redondos, tantos como su máximo (una puntuación de 1 a 5)\n• `dial` — un reloj redondo con tantos segmentos como su máximo\n• `levels` — el nombre de uno de sus **Niveles**: el primero es su mínimo (o 0), el siguiente uno más…\n• `die` — un dado de su tamaño, `d8`; con **Escalones**, elegido entre ellos',
@@ -1074,7 +1074,7 @@ export const es: Messages<typeof en> = {
     onAfter: 'Tras: {action}',
     step: 'Paso',
     badStep:
-      "Un paso hace una cosa: time: 60, travel.move: destination, travel.speed: 0.5, travel.advance: 1, travel.mode: modes.<forma>, effects: { … }, set: { … }, do: <acción> (y su with: { … }), roll: checks.<comprobación>, say: <texto>, pause: true, ask: <parámetro> o wait: { … } con limit: '18:00'.",
+      "Un paso hace una cosa: time: 60, travel.move: destination, travel.speed: 0.5, travel.advance: 1, travel.mode: modes.<forma>, effects: { … }, set: { … }, do: <acción> (y su with: { … }), roll: checks.<comprobación> (y su each: params.<…>), say: <texto>, pause: true, ask: <parámetro> o wait: { … } con limit: '18:00'.",
     up: 'Subir',
     down: 'Bajar',
     reading: {
@@ -1124,6 +1124,7 @@ export const es: Messages<typeof en> = {
       ask: 'Parámetro',
       wait: 'Hasta que',
       limit: 'Como mucho hasta',
+      each: 'Por cada',
     },
     help: {
       time: "Minutos que pasan, o hasta cuándo pasa el tiempo, viviendo todo lo que hay por el camino (las comprobaciones y acciones de cada momento, el final del día):\n• `180` — tres horas\n• `'14:00'` — hasta que el reloj vuelva a dar las 14:00\n• `time.part.morning` — hasta que vuelva a empezar esa parte del día del calendario",
@@ -1145,8 +1146,12 @@ export const es: Messages<typeof en> = {
         'El viaje espera aquí hasta que el jugador pulse **Continuar**, y luego sigue con el resto. Vacío: solo espera; con un texto, la caja de espera y el diario lo dicen (`La barca está en la otra orilla.`).',
       ask: 'El viaje espera a que el jugador elija uno de los **Parámetros** de esta acción, con un botón por opción; los pasos siguientes leen la respuesta, p. ej. **Solo si** `params.how` es `swim`.',
       wait: 'Pasa el tiempo hasta que se cumple esta condición, minuto a minuto, viviendo los momentos del camino. Si ya se cumple, no pasa el tiempo.\n• `today.ferry` es `true` — lo da una acción a mediodía\n• `time.part` es uno de `afternoon, evening`',
+      each: 'Lo tira una vez por cada opción que tenga ahora un parámetro **listado por el viaje**, con ese parámetro valiendo cada una por turno (lo que tira lo lee como `params.<id>`); si no lista ninguna, no se tira nada. Vacío: una vez.\n• **piece** listado por `acting.places.body.keys`, tirando `table.wear` — una vez por cada objeto llevado en el cuerpo, y sus efectos nombran ese como `acting.items[params.piece].wear: -1`\n• **foe** listado por `present.ids` — una vez por cada uno de los que están aquí',
       limit:
         "Lo máximo que espera, escrito como en **Pasar el tiempo**:\n• `60` — minutos desde ahora\n• `'18:00'`\n• `time.part.night`",
+    },
+    each: {
+      once: 'una vez',
     },
     with: {
       default: 'el de por defecto',
@@ -1183,6 +1188,7 @@ export const es: Messages<typeof en> = {
       doWith: 'Hacer {action} ({with})',
       doWorldTurn: 'Traer un turno del mundo',
       roll: 'Tirar {check}',
+      rollEach: 'Tirar {check} por cada {param}',
       say: 'Decir «{text}»',
       pause: 'Pausar hasta Continuar',
       pauseText: 'Pausar: «{text}»',

@@ -2318,16 +2318,25 @@ export function createTravelEngine(options: {
       } else if (step.roll !== undefined) {
         // A check of the system, or anything else the host rolls (`table.ruins`).
         const check = refId('checks', step.roll)
-        // What it rolls sees the action's parameters (`params.skill`, a choice just asked).
-        schedule(
-          state,
-          ref('actions', id),
-          events,
-          undefined,
-          { ...options.facts, params },
-          check,
-          check ? undefined : step.roll,
-        )
+        // What it rolls sees the action's parameters (`params.skill`, a choice just asked);
+        // with `each:`, once for every choice its parameter lists now, as that choice.
+        const each = refId('params', step.each)
+        const from = each !== undefined ? actions.all[id]?.params?.[each]?.from : undefined
+        const listed = from ? lookupIn(qualify(context))(from) : undefined
+        const rounds =
+          each === undefined
+            ? [params]
+            : (Array.isArray(listed) ? listed : []).map((v) => ({ ...params, [each]: String(v) }))
+        for (const given of rounds)
+          schedule(
+            state,
+            ref('actions', id),
+            events,
+            undefined,
+            { ...options.facts, params: given },
+            check,
+            check ? undefined : step.roll,
+          )
       } else if (step.set) state.today = { ...state.today, ...step.set }
       else if (step.say !== undefined)
         events.push({ type: 'SAID', action: id, text: written(step.say), time: state.time })

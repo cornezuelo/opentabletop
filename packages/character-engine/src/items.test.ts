@@ -488,3 +488,67 @@ describe('a total room', () => {
     expect(loose.members.some(waitsForRoom)).toBe(true)
   })
 })
+
+describe('a field that steps, and one item named by its key', () => {
+  // Made up: armour whose Integrity is a die, worn in a place of several.
+  const { sheet: worn, errors: wrong } = parseSheet({
+    kind: 'sheet',
+    id: 'knight',
+    values: {},
+    items: {
+      fields: { integrity: { steps: [4, 6, 8], display: 'die' } },
+      places: { body: { tags: ['worn'] } },
+    },
+  })
+  const armoury = lookupItems([
+    {
+      id: 'test/armoury',
+      def: parseCatalogue({ kind: 'items', id: 'armoury', items: { mail: { integrity: 8 } } })
+        .catalogue!,
+    },
+  ])
+  const change = (s: CharacterState, effects: Record<string, number | string>) =>
+    applyCharacter(worn!, s, { type: 'change', effects }, { items: armoury })
+
+  it('are read and checked', () => {
+    expect(wrong).toEqual([])
+    expect(
+      parseSheet({
+        kind: 'sheet',
+        id: 'x',
+        values: {},
+        items: { fields: { integrity: { steps: [4, 6], min: 4, default: 5 } } },
+      }).errors,
+    ).toEqual([
+      'items.fields.integrity.min: not with steps (they are its bounds)',
+      'items.fields.integrity.default: one of its steps (4, 6)',
+    ])
+  })
+
+  it('step down a die, and reach one item by its key in effects and reads', () => {
+    let s = createCharacter(worn!, 'test/knight', { id: 'ser' })
+    s = change(s, { 'items.mail': 1 }).state
+    s = applyCharacter(worn!, s, {
+      type: 'addItem',
+      item: { id: 'mail', count: 1, fields: { integrity: 6 }, place: 'body' },
+    }).state
+    expect(s.items!.map((i) => [i.key, i.fields.integrity])).toEqual([
+      ['mail', 8],
+      ['mail-2', 6],
+    ])
+    // The second by its key: a step down, never below the last step.
+    s = change(s, { 'items.mail-2.integrity': -1 }).state
+    expect(s.items![1].fields.integrity).toBe(4)
+    expect(change(s, { 'items.mail-2.integrity': -1 }).state.items![1].fields.integrity).toBe(4)
+    const facts = characterFacts(s, worn) as {
+      items: Record<string, { integrity: number }>
+      places: { body: { keys: string[] } }
+    }
+    expect(facts.items['mail-2'].integrity).toBe(4)
+    expect(facts.items.mail.integrity).toBe(8)
+    expect(facts.places.body.keys).toEqual(['mail', 'mail-2'])
+    // Discarded by its key, the other kept.
+    s = change(s, { 'items.mail-2': -1 }).state
+    expect(s.items!.map((i) => i.key)).toEqual(['mail'])
+  })
+})

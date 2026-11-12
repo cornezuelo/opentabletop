@@ -133,7 +133,7 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     const pc = newMember(rules, {
       id: 'erthos',
       name: 'Erthos',
-      values: { bladed: 73, dodge: 40, parry: 73, perception: 50, 'armor-arms': 1 },
+      values: { bladed: 73, dodge: 40, parry: 73, perception: 50 },
     })
     const room: TravelWorld = {
       km: () => 0.01,
@@ -149,7 +149,13 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     }
     const { session } = startTrip({ system, location: 'a', members: [pc], seed })
     const present = Object.fromEntries(Object.entries(foes).map(([t, n]) => [`present.${t}`, n]))
-    let s = applyResult(session, { effects: present }, {}, rules)
+    // A longsword in hand, mail and light vambraces worn.
+    const gear = {
+      'characters.erthos.items.longsword': 1,
+      'characters.erthos.items.mail': 1,
+      'characters.erthos.items.light-vambraces': 1,
+    }
+    let s = applyResult(session, { effects: { ...present, ...gear } }, {}, rules)
     let done = stepTrip(options, s, { type: 'action', id: 'fight' })
     const entries = [...done.entries]
     for (let turn = 0; turn < 80 && done.state.encounter; turn++) {
@@ -182,6 +188,30 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     // Either the Necropede is destroyed, or the PC took damage on the way.
     const party = state.party!.values
     expect(state.present?.length === 0 || party.toughness! < 30).toBe(true)
+  })
+
+  it('fights with gear: the weapon in hand and the Armor worn count, and each piece worn rolls its Integrity after', () => {
+    const { state, entries } = fight({ necropede: 1 }, 'g')
+    const pc = state.members!.find((m) => m.id === 'erthos')!
+    // Made of the gear: a Parrying longsword, mail on chest and abdomen, vambraces on the arms.
+    expect(pc.values).toMatchObject({
+      speed: 0,
+      parries: 1,
+      'armor-arms': 1,
+      'armor-head': 0,
+      maneuver: 15,
+    })
+    // In one fight a piece drops a stage at most: none is discarded yet.
+    expect(pc.items!.map((i) => [i.id, i.place])).toEqual([
+      ['longsword', 'hands'],
+      ['mail', 'body'],
+      ['light-vambraces', 'body'],
+    ])
+    // After the fight, one Integrity roll for each piece worn (the sword has none).
+    const rolls = entries.filter(
+      (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/integrity',
+    )
+    expect(rolls.length).toBe(2)
   })
 
   it('a Prone foe is attacked with Advantage: the d100 read either way round, the lower kept', () => {

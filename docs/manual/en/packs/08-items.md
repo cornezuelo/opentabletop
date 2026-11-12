@@ -7,7 +7,7 @@ The **Items** tab edits the system's **item catalogues** (`kind: items`): what i
 A character **has items**, each with **how many** (a count), and, when the sheet gives items fields, a number for each (a torch's 3 uses, a mail shirt's 2 slots). Nothing about them is built in: what an item's numbers mean, what fills a place and what happens over a limit are all the system's.
 
 - **From a catalogue or by hand.** On a character's card, **Add an item** suggests the catalogues' items by name; any other name makes an item by hand, with the sheet's defaults. An item taken from a catalogue keeps a copy of what it had there (its tags, its numbers), so the character reads the same whatever packs are loaded.
-- **Fields, declared by the sheet.** The sheet's **Fields of every item** are numbers like values, with bounds and how they're shown. A field that **Runs out** (a torch's uses) uses one item up when it reaches its min: the count goes down and the next starts again at its number; the last one is gone. One that doesn't stays empty (a lantern without oil).
+- **Fields, declared by the sheet.** The sheet's **Fields of every item** are numbers like values, with bounds (or **Steps**, each item's own die) and how they're shown. A field that **Runs out** (a torch's uses) uses one item up when it reaches its min: the count goes down and the next starts again at its number; the last one is gone. One that doesn't stays empty (a lantern without oil).
 - **Places, for any body.** The sheet may declare **places** (hands, body, belt, back; a three-headed beast's three heads), each with **tags** and **room**. An item says where it **Fits** by the place's tags (`place.tags: worn` for a mail shirt), never by its name, so the same catalogue serves any body. On the card, an item is moved by dragging its handle (⠿) onto a place, or by picking the place; only the places it fits are offered (hold Shift as you drop it to move only one of a stack). Without places, items are one list.
 - **Containers.** An item that **Holds** something is a place too (a backpack, saddlebags): items go inside it if they fit its tags, and they go with it (dropping the backpack drops what's in it).
 - **Room** is counted with the field the sheet names in **What fills a place** (slots × how many), or one per item. By default a place over its room only shows its count in red, and the system says what it means, with a condition (below). A sheet (or a place, or a container) whose **Over its room** is `refuse` takes nothing that hasn't room left: the card offers no full place and a move there is refused; what an effect gives goes to the first place it fits with room (then a container with room, then a place that allows more). A sheet's **Room in all** counts everything a character carries. What still has no room is left behind, or waits on the card for the player, as **When it doesn't fit** says. [Limits to carrying](#limits-to-carrying) below.
@@ -21,6 +21,8 @@ One catalogue at a time; with several, a row of buttons chooses. **New catalogue
 
 - Its **Name** (_Gear_, _Weapons_).
 - Its **Items**, each by an id (what effects and tables name it with), with its **Name**, **Description**, **Tags**, a box for each field the sheet gives items (empty: the field's default), where it **Fits** (a [condition](../technical/08-conditions.md) on the place: `place.tags` · **is** · `head`) and, for a container, what it **Holds** (its room) and **Holds as** (its tags as a place).
+
+A field may be a die that steps, as a value may ([Sheet](07-sheet.md)): **Steps** `4, 6, 8` and **Shown as** `die` make each item's own die (an armour's wear, d8, d6, d4), stepped down by `acting.items.mail.wear: -1`. Two of the same item are told apart by their **key** (`mail`, then `mail-2`), so one of them alone can be read and changed (`acting.items.mail-2.wear`), and an action can roll once for every item in a place (`each:`, [Actions and steps](../technical/10-actions-and-steps.md#other-actions-and-checks-do-and-roll); the Grey Marches' _Mind the mail_).
 
 A field a catalogue gives that the sheet doesn't declare is a warning among the system's problems. The YAML: [Item catalogues](../technical/07-kinds.md#item-catalogues).
 
@@ -73,7 +75,7 @@ items:
 
 And the system names the catalogue (`items: [items.gear]` in its `kind: system`).
 
-The Grey Marches carry gear on four places of a body (a rope that helps at the ford, torches that burn on night marches, a backpack, a mail shirt, the Sword of Keld from a hoard): their [page](../bundled/02-grey-marches.md). Core's catalogue is the smallest: three items and no fields ([Core](../bundled/01-core.md)).
+The Grey Marches carry gear on four places of a body (a rope that helps at the ford, torches that burn on night marches, a backpack, a mail shirt, the Sword of Keld from a hoard): their [page](../bundled/02-grey-marches.md). Core's catalogue is the smallest: four items and one field, a shield's wear die ([Core](../bundled/01-core.md)).
 
 ## Limits to carrying
 

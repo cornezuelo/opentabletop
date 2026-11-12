@@ -27,7 +27,7 @@ items/gear:
       description: Se lleva a la espalda; guarda seis huecos de equipo, y más si la atiborras.
     mail:
       name: Cota de malla
-      description: Pesada, y solo sirve puesta.
+      description: Pesada, y solo sirve puesta. Su dado de desgaste empieza en d8 y baja según la desgarran los combates.
     sword-of-keld:
       name: La Espada de Keld
       description: Perdida hace cien años; el tesoro se la da a quien la encuentre.

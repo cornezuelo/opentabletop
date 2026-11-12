@@ -16,7 +16,7 @@ import { t } from './i18n'
 export type StepKind = (typeof STEP_KINDS)[number]
 
 /** Keys of a step that go with what it does, not a kind of their own. */
-const COMPANIONS = ['with', 'limit']
+const COMPANIONS = ['with', 'limit', 'each']
 
 /** What a step does (its one kind), if it does one thing the engine knows. */
 export function stepKind(step: ActionStep): StepKind | undefined {
@@ -26,7 +26,7 @@ export function stepKind(step: ActionStep): StepKind | undefined {
 
 /**
  * The same step doing something else: its condition and `id` kept, what it did before (and
- * a `do:`'s `with:`, a `wait:`'s `limit:`) dropped, the new kind with a value that works.
+ * a `do:`'s `with:`, a `wait:`'s `limit:`, a `roll:`'s `each:`) dropped, the new kind with a value that works.
  */
 export function withKind(step: ActionStep, kind: StepKind, value: unknown): ActionStep {
   const out: Record<string, unknown> = {}
@@ -133,10 +133,13 @@ export function stepSummary(step: ActionStep, names: StepNames): string {
         ? t('steps.say.doWith', { action, with: bare(s.with) })
         : t('steps.say.do', { action })
     }
-    case 'roll':
-      return t('steps.say.roll', {
-        check: refId('checks', v) ? names.check(refId('checks', v)!) : names.rolled(String(v)),
-      })
+    case 'roll': {
+      const check = refId('checks', v) ? names.check(refId('checks', v)!) : names.rolled(String(v))
+      const each = refId('params', s.each)
+      return each !== undefined
+        ? t('steps.say.rollEach', { check, param: names.param(each) })
+        : t('steps.say.roll', { check })
+    }
     case 'say':
       return t('steps.say.say', { text: String(v) })
     case 'pause':
@@ -159,8 +162,11 @@ export function stepSummary(step: ActionStep, names: StepNames): string {
 export interface StepContext {
   /** The actions a `do:` step can take (not this one), each with its parameters' choices. */
   actions: { id: string; name: string; params: { id: string; name: string; choices: string[] }[] }[]
-  /** This action's parameters: what `ask:` asks and `'{{params.<id>}}'` reads. */
-  params: { id: string; name: string }[]
+  /**
+   * This action's parameters: what `ask:` asks and `'{{params.<id>}}'` reads; `listed` when
+   * the trip lists its choices (`from:`), so a `roll:` may go for each of them.
+   */
+  params: { id: string; name: string; listed?: boolean }[]
   modes: { id: string; name: string }[]
   checks: { event: string; name: string }[]
   /** What the Oracle rolls in the system's packs (`table.ruins`, `core/table.twists`). */
