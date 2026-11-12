@@ -142,6 +142,16 @@ travel-rules/default:
           choices:
             stealth: 'Sin ser vistos, con sigilo'
             pathfinding: 'Leyendo el terreno'
+    strike:
+      name: Golpear a uno
+      description: 'Con enemigos aquí: quien actúa va a por uno de ellos, el que elijáis, por 1d6 de daño; los caídos se van.'
+      params:
+        foe:
+          name: ¿A quién golpeáis?
+          description: Uno de los que están aquí.
+      do:
+        struck:
+          say: 'Un golpe, a uno de ellos.'
     delve:
       name: Explorar la ruina
       description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'

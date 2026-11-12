@@ -683,10 +683,11 @@ describe('example maps', () => {
       'stormy-dawn': { condition: 'when' }, // no storm
       'out-of-the-wood': { condition: 'when' }, // not leaving the Greywood
       'drive-off': { condition: 'when' }, // nobody here to drive off
+      strike: { condition: 'when' }, // nobody here to strike
       'buy-off': { condition: 'when' }, // no outlaws here
       'force-door': { condition: 'when' }, // no barred door here
     })
-    expect(Object.keys(unavailable)).toHaveLength(21)
+    expect(Object.keys(unavailable)).toHaveLength(22)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

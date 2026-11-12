@@ -10,7 +10,7 @@ import {
 import { divisionName, partName } from './dayParts'
 import { idText, type Translate } from './i18n'
 import { actionNothingOf, type JournalContext } from './journal'
-import { memberNamer } from './members'
+import { memberNamer, whoNamed } from './members'
 import { connectionName } from './terrains'
 
 /**
@@ -100,11 +100,12 @@ export function journalContext(o: {
       return param ? (text(param.name) ?? key) : key
     },
     choiceName: (action: string, key: string, choice: string) => {
-      const c = actions.all[action]?.params?.[key]?.choices.find(
+      const c = actions.all[action]?.params?.[key]?.choices?.find(
         (c) => String(choiceId(c)) === choice,
       )
+      // One the trip listed (`from: present.ids`): whoever it is, by name.
       return c === undefined
-        ? choice
+        ? (whoNamed(session, choice) ?? choice)
         : ((typeof c === 'object' ? text(c.name) : undefined) ??
             String(choiceId(c)).replaceAll('-', ' '))
     },

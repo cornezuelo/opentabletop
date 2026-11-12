@@ -56,6 +56,15 @@ function partsOf(context: Record<string, unknown>, path: string): string[] | und
 }
 
 /**
+ * A name with its parts in brackets read (`characters[params.foe].values.health` →
+ * `characters.wolf-2.values.health`): what an effect's key names. Undefined if a part
+ * names nothing; a name without brackets is itself.
+ */
+export function namedPath(context: Record<string, unknown>, path: string): string | undefined {
+  return partsOf(context, path)?.join('.')
+}
+
+/**
  * Reads `a.b.c` from nested plain objects; never touches prototypes. A part in brackets is
  * named by another value: `acting.values[params.skill]` reads the value the parameter names.
  */

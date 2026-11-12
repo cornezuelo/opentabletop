@@ -10,6 +10,7 @@ import {
   factionName,
   localize,
   MEMBER_PATH,
+  type SessionState,
   type TravelSystem,
 } from '@open-tabletop/session'
 import type { Translate } from './i18n'
@@ -156,4 +157,13 @@ export function statSource(
   const who = names[0]
   if (source.chosen) return t('partySheet.chosen', { value, who })
   return t(from.min !== undefined ? 'partySheet.lowest' : 'partySheet.highest', { value, who })
+}
+
+/** Someone of the trip by id (the party, one of its characters, a copy present), by name. */
+export function whoNamed(session: SessionState, id: string): string | undefined {
+  return [
+    session.party,
+    ...(session.members ?? []),
+    ...(session.present ?? []).map((p) => p.character),
+  ].find((c) => c?.id === id)?.name
 }

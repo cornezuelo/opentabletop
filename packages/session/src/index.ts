@@ -18,6 +18,7 @@ import {
 import {
   applyEffects,
   effectsOf,
+  namedEffects,
   type AppliedEffect,
   type Effects,
   type LimitReached,
@@ -400,8 +401,8 @@ export function applyResult(
 ): SessionState {
   const s = structuredClone(input)
   refreshParty(s, party)
-  const effects = effectsOf(value)
   const context = { ...tripContext(s, {}, {}, party), ...value }
+  const effects = namedEffects(effectsOf(value), context)
   applyEffects(s, effects, stats, context)
   applyMemberEffects(s, effects, party, context, s.travel.time)
   refreshParty(s, party)
@@ -869,7 +870,7 @@ export function createSession(options: {
           const at = time ?? s.travel.time
           const seen = { ...tripContext(s, hostOf(s), {}, party), ...changes.context }
           const effects = Object.fromEntries(
-            Object.entries(changes.effects).map(([p, c]) => [
+            Object.entries(namedEffects(changes.effects, seen)).map(([p, c]) => [
               p,
               resolveChange(c, seen, momentRolls(s.travel, hex, momentOf(seen))),
             ]),
@@ -1189,7 +1190,7 @@ export function createSession(options: {
             ...tripContext(s, { ...host, ...event.check.context }, {}, party),
             ...value,
           }
-          const written = effectsOf(value)
+          const written = namedEffects(effectsOf(value), seen)
           const effects = Object.fromEntries(
             Object.entries(written).map(([p, c]) => [
               p,

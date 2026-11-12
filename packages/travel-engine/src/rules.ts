@@ -277,16 +277,22 @@ const choice = z.union([
 
 /**
  * A parameter of an action (`params.until`): the choices it offers (the first is its
- * default, unless `default` says another), read by its steps as `{{params.<id>}}`.
+ * default, unless `default` says another), read by its steps as `{{params.<id>}}`; or, with
+ * `from`, the ids a value of the trip lists when it's asked (`from: present.ids`, whom to
+ * strike), which only an `ask:` step chooses and which has no default.
  */
 const param = z
   .object({
     name: text.optional(),
     description: text.optional(),
-    choices: z.array(choice).min(1),
+    choices: z.array(choice).min(1).optional(),
+    from: z.string().min(1).optional(),
     default: paramValue.optional(),
   })
   .strict()
+  .refine((p) => !!p.choices !== !!p.from, {
+    message: 'a parameter has its choices, or `from` (a list of the trip: present.ids), not both',
+  })
 
 /**
  * An action of the party (`actions.forage`, and camp and rest too): what it does as steps
@@ -722,14 +728,17 @@ export type ActionDefinition = z.infer<typeof action>
 export type ActionParam = z.infer<typeof param>
 export type ParamChoice = z.infer<typeof choice>
 
-/** A parameter's choices by their values, as text (`['destination', 'place', '3']`). */
+/**
+ * A parameter's choices by their values, as text (`['destination', 'place', '3']`); none for
+ * one whose choices come from the trip (`from`).
+ */
 export function choiceIds(param: ActionParam): string[] {
-  return param.choices.map((c) => String(typeof c === 'object' ? c.id : c))
+  return (param.choices ?? []).map((c) => String(typeof c === 'object' ? c.id : c))
 }
 
-/** A parameter's default: its `default`, or its first choice. */
-export function paramDefault(param: ActionParam): string | number {
-  const first = param.choices[0]
+/** A parameter's default: its `default`, or its first choice (none for one with `from`). */
+export function paramDefault(param: ActionParam): string | number | undefined {
+  const first = param.choices?.[0]
   return param.default ?? (typeof first === 'object' ? first.id : first)
 }
 
@@ -742,7 +751,12 @@ export function paramsOf(
   given: Record<string, unknown> = {},
 ): Record<string, unknown> {
   return {
-    ...Object.fromEntries(Object.entries(def?.params ?? {}).map(([k, p]) => [k, paramDefault(p)])),
+    ...Object.fromEntries(
+      Object.entries(def?.params ?? {}).flatMap(([k, p]) => {
+        const value = paramDefault(p)
+        return value === undefined ? [] : [[k, value]]
+      }),
+    ),
     ...given,
   }
 }

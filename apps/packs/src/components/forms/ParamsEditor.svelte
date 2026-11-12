@@ -58,6 +58,20 @@
       doc.edit(kind, [...at, p, 'default'], undefined)
   }
 
+  /** What the trip lists for a parameter's choices (`from`), offered as it's typed. */
+  const LISTS = ['present.ids', 'party.members']
+  /** Its choices written, or listed by the trip as it's asked (`from: present.ids`). */
+  function setFrom(p: string, from: string | undefined) {
+    const name = params[p]?.name
+    doc.edit(
+      kind,
+      [...at, p],
+      from === undefined
+        ? { ...(name !== undefined && { name }), choices: ['yes', 'no'] }
+        : { ...(name !== undefined && { name }), from },
+    )
+  }
+
   function rename(p: string, next: string) {
     const to = next.trim()
     if (!to || to === p) return
@@ -118,27 +132,51 @@
               e.currentTarget.value,
             )}
         />
-        <TagInput
-          label={t('actions.paramChoices')}
-          removeLabel={t('forms.removeItem')}
-          value={choices.map(idOf)}
-          reorder
-          {disabled}
-          onchange={(items) => setChoices(p, items)}
-        />
-        {#if defaults}<select
+        {#if params[p]?.from !== undefined}
+          <input
+            type="text"
+            list="param-lists"
+            aria-label={t('actions.paramFrom')}
+            value={String(params[p].from)}
+            {disabled}
+            onchange={(e) =>
+              e.currentTarget.value.trim() &&
+              doc.edit(kind, [...at, p, 'from'], e.currentTarget.value.trim())}
+          />
+        {:else}
+          <TagInput
+            label={t('actions.paramChoices')}
+            removeLabel={t('forms.removeItem')}
+            value={choices.map(idOf)}
+            reorder
+            {disabled}
+            onchange={(items) => setChoices(p, items)}
+          />
+        {/if}
+        {#if defaults && params[p]?.from !== undefined}<select
+            aria-label={t('actions.paramDefault')}
+            value="from"
+            {disabled}
+            onchange={(e) => e.currentTarget.value !== 'from' && setFrom(p, undefined)}
+          >
+            <option value="from">{t('actions.paramListed')}</option>
+            <option value="written">{t('actions.paramWritten')}</option>
+          </select>{:else if defaults}<select
             aria-label={t('actions.paramDefault')}
             value={params[p]?.default === undefined ? '' : String(params[p].default)}
             {disabled}
             onchange={(e) =>
-              doc.edit(
-                kind,
-                [...at, p, 'default'],
-                e.currentTarget.value === '' ? undefined : typed(e.currentTarget.value),
-              )}
+              e.currentTarget.value === '#from'
+                ? setFrom(p, LISTS[0])
+                : doc.edit(
+                    kind,
+                    [...at, p, 'default'],
+                    e.currentTarget.value === '' ? undefined : typed(e.currentTarget.value),
+                  )}
           >
             <option value="">{t('actions.paramFirst')}</option>
             {#each choices as c (idOf(c))}<option value={idOf(c)}>{idOf(c)}</option>{/each}
+            <option value="#from">{t('actions.paramListed')}</option>
           </select>{/if}
         {#if !disabled}
           <button
@@ -153,6 +191,9 @@
       <span class="none">{t('actions.noParams')}</span>
     {/each}
   {/if}
+  <datalist id="param-lists">
+    {#each LISTS as list (list)}<option value={list}></option>{/each}
+  </datalist>
   <div class="tools">
     {#if !disabled && !yaml}<button class="link" onclick={add}>{t('actions.addParam')}</button>{/if}
     <button class="link" aria-pressed={yaml} onclick={() => (yaml = !yaml)}

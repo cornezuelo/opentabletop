@@ -1,6 +1,13 @@
 import { explain, matches, type Condition, type FailedPair } from '@open-tabletop/conditions'
 import { findPath, type CellLayout } from '@open-tabletop/hex'
-import { evaluate, lookupIn, momentRoller, render, type Roller } from '@open-tabletop/variables'
+import {
+  evaluate,
+  lookupIn,
+  momentRoller,
+  namedPath,
+  render,
+  type Roller,
+} from '@open-tabletop/variables'
 import {
   defaultCalendar,
   nextAt,
@@ -443,6 +450,8 @@ export interface Waiting {
   text?: string | Record<string, string>
   /** `ask:`: the parameter of the action the player chooses. */
   ask?: string
+  /** What it may be, for a parameter whose choices come from the trip (`from: present.ids`). */
+  choices?: string[]
   time: GameTime
 }
 
@@ -2014,12 +2023,19 @@ export function createTravelEngine(options: {
     events: TravelEvent[],
     /** The rolls they make (`'-{{1d3}}'`): the step's moment's. */
     roller: Roller,
+    /** What a key's parts in brackets read (`characters[params.foe]…`): the step's context. */
+    seen?: Record<string, unknown>,
   ): void => {
     const limits: TravelEvent[] = []
-    // The variables they name (`'-{{party.stats.mouths}}'`) are read now, before any changes.
+    // The variables they name (`'-{{party.stats.mouths}}'`) are read now, before any changes;
+    // a key's parts in brackets too (`characters[params.foe].values.health`): one naming
+    // nothing changes nothing.
     const now = checkContext(state, [], hostFacts)
     const effects = Object.fromEntries(
-      Object.entries(written).map(([path, change]) => [path, resolveChange(change, now, roller)]),
+      Object.entries(written).flatMap(([written, change]) => {
+        const path = written.includes('[') ? namedPath(qualify(seen ?? now), written) : written
+        return path ? [[path, resolveChange(change, now, roller)]] : []
+      }),
     )
     for (const [path, change] of Object.entries(effects)) {
       // The step's connection: changed now, so the steps after it see it (a door opened).
@@ -2275,7 +2291,7 @@ export function createTravelEngine(options: {
         )
         advance(state, typeof legs === 'number' ? Math.floor(legs) : 0, events)
       } else if (step.effects)
-        applyEffects(state, id, step.effects, events, rollsOf(state, context, id))
+        applyEffects(state, id, step.effects, events, rollsOf(state, context, id), context)
       else if (step.do !== undefined && isHostMoment(step.do))
         events.push({ type: 'WORLD_DO', action: id, do: step.do, time: state.time })
       else if (step.do !== undefined) {
@@ -2313,10 +2329,17 @@ export function createTravelEngine(options: {
       else if (step.pause !== undefined || step.ask !== undefined) {
         // Another step already waits for the player: this one comes after it, again.
         if (state.waiting) return { frames: [{ ...frame(i), next: i }], held: true }
+        const ask = step.ask !== undefined ? (refId('params', step.ask) ?? step.ask) : undefined
+        // Choices the trip lists now (`from: present.ids`): none, and there's nothing to ask.
+        const from = ask ? actions.all[id]?.params?.[ask]?.from : undefined
+        const listed = from ? lookupIn(qualify(context))(from) : undefined
+        const choices = Array.isArray(listed) ? listed.map(String) : []
+        if (from && !choices.length) continue
         state.waiting = {
           action: id,
           ...(step.pause !== undefined && step.pause !== true && { text: written(step.pause) }),
-          ...(step.ask !== undefined && { ask: refId('params', step.ask) ?? step.ask }),
+          ...(ask !== undefined && { ask }),
+          ...(from && { choices }),
           time: state.time,
         }
         events.push({ type: 'HELD', waiting: { ...state.waiting }, time: state.time })
@@ -2666,10 +2689,10 @@ export function createTravelEngine(options: {
             while (held && !held.held) held = held.then
             const frame = held?.frames[0]
             const given = action.choice ?? frame?.params?.[waiting.ask]
-            // The choice as the action declares it (`3`, not `'3'`).
-            choice = param?.choices
-              .map((c) => (typeof c === 'object' ? c.id : c))
-              .find((c) => String(c) === String(given))
+            // The choice as the action declares it (`3`, not `'3'`), or one the trip listed.
+            choice = (
+              param?.choices?.map((c) => (typeof c === 'object' ? c.id : c)) ?? waiting.choices
+            )?.find((c) => String(c) === String(given))
             if (choice === undefined) break
             if (frame) frame.params = { ...frame.params, [waiting.ask]: choice }
           }

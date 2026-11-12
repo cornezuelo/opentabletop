@@ -16,6 +16,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - A result can make **a way into a new map** where the party stands (`place.ways.<kind>: 1`): on a map, a blank sub-map under the party's cell. The Grey Marches: under the king of the last tomb, a way further down.
 
+- An action's parameter can take its choices **from the trip** as it's asked (`from: present.ids`, `from: party.members`), each shown by name, and effects can name the one chosen in brackets (`characters[params.foe].values.health: -1`). Packs' parameters: **listed by the trip**. The Grey Marches: **Strike one down**, one foe of those here, chosen.
+
 ### Fixes
 
 - Oracle: a table whose die's size is a value of the trip (`1d{{map.values.exit}}`), rolled by hand where that value isn't, says which value it needs instead of failing on a die of 0 sides.

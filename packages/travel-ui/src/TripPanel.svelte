@@ -59,7 +59,7 @@
   } from '@open-tabletop/session'
   import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
-  import { memberLabel, statSource } from './members'
+  import { memberLabel, statSource, whoNamed } from './members'
   import Section from './Section.svelte'
   import TripStatus from './TripStatus.svelte'
   import { journalContext } from './journalContext'
@@ -274,6 +274,8 @@
     String(choiceId(c)).replaceAll('-', ' ')
   const choiceTip = (c: ParamChoice) =>
     typeof c === 'object' ? (localize(c.description, locale, 'en') ?? '') : ''
+  /** Someone the trip lists, by id: a character of the party or a copy present, by name. */
+  const whoName = (id: string) => whoNamed(session, id) ?? id.replaceAll('-', ' ')
   /** The step waiting for the player (`pause:`, `ask:`), and what it asks. */
   const waiting = $derived(travel.waiting)
   const asked = $derived(
@@ -288,7 +290,7 @@
     return Object.fromEntries(
       params.map(([key, param]) => {
         const value = choiceOf(id, key, param)
-        return [key, param.choices.map(choiceId).find((c) => String(c) === value) ?? value]
+        return [key, param.choices?.map(choiceId).find((c) => String(c) === value) ?? value]
       }),
     )
   }
@@ -661,8 +663,13 @@
               markdown={localize(asked.description, locale, 'en')}
             />{/if}</span
         >
-        {#if asked}
-          {#each asked.choices as c (String(choiceId(c)))}
+        {#if asked && waiting.choices}
+          <!-- Choices the trip listed (`from: present.ids`): whoever they are, by name. -->
+          {#each waiting.choices as id (id)}
+            <button onclick={() => onstep({ type: 'resume', choice: id })}>{whoName(id)}</button>
+          {/each}
+        {:else if asked}
+          {#each asked.choices ?? [] as c (String(choiceId(c)))}
             <button
               use:tooltip={choiceTip(c)}
               onclick={() => onstep({ type: 'resume', choice: choiceId(c) })}>{askedName(c)}</button
@@ -687,7 +694,7 @@
       {#each buttons as id (id)}
         <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
         {@const params = Object.entries(actions.all[id].params ?? {}).filter(
-          ([key]) => !askedParams(actions.all[id]).includes(key),
+          ([key, param]) => !param.from && !askedParams(actions.all[id]).includes(key),
         )}
         <span class="take" class:joined={params.length > 0}>
           <button
@@ -704,8 +711,8 @@
               onchange={(e) =>
                 (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
             >
-              {#each param.choices as c (String(choiceId(c)))}<option value={String(choiceId(c))}
-                  >{choiceName(c)}</option
+              {#each param.choices ?? [] as c (String(choiceId(c)))}<option
+                  value={String(choiceId(c))}>{choiceName(c)}</option
                 >{/each}
             </select>
           {/each}

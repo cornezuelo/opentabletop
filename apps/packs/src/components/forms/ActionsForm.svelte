@@ -103,7 +103,7 @@
     Object.entries(def(id).params ?? {}).map(([p, d]) => ({
       id: p,
       name: doc.text('travel-rules', d.name, ['actions', id, 'params', p, 'name']) || p,
-      choices: d.choices.map((c) => String(typeof c === 'object' ? c.id : c)),
+      choices: (d.choices ?? []).map((c) => String(typeof c === 'object' ? c.id : c)),
     }))
   const checkName = (event: string) => {
     const check = ((doc.rules.checks ?? []) as Raw[]).find((c) => c.event === event)

@@ -709,6 +709,27 @@ actions:
       - unless: { acting.values.survival: { gte: 2 } }
         effects: { acting.values.health: -1 }
       - { id: fought, say: 'Steel and fire on the road.' }
+  # One of those present, chosen: a parameter whose choices are those here now (`from:
+  # present.ids`), asked as the action goes, and an effect on the one chosen
+  # (`characters[params.foe].…`, its id read from the parameter).
+  strike:
+    name: Strike one down
+    description: 'With foes here: whoever acts goes for one of them, the one you choose, for 1d6 harm; the fallen are gone.'
+    when: { present.count: { gte: 1 } }
+    unless: { present.tags: vale }
+    needs: { acting: { exists: true } }
+    hideWhenUnavailable: true
+    params:
+      foe:
+        name: Whom do you strike?
+        description: One of those here.
+        from: present.ids
+    do:
+      - { ask: params.foe }
+      - { time: 2 }
+      - effects:
+          characters[params.foe].values.health: '-{{1d6}}'
+      - { id: struck, say: 'A blow, aimed at one of them.' }
   # Outlaws among those present (a tag of their template): a ration for each of them
   # (`'-{{present.count}}'`), and a condition that takes them off (`bought-off`).
   buy-off:

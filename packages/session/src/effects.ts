@@ -9,6 +9,7 @@ import {
   type TravelState,
   type TripTotals,
 } from '@open-tabletop/travel-engine'
+import { namedPath } from '@open-tabletop/variables'
 
 /**
  * Effects: changes to the values a system declares, keyed by the path tables read them
@@ -261,4 +262,17 @@ export function migrateSupplies<
       party: { ...session.party, values: { ...resources, ...session.party.values } },
     }),
   }
+}
+
+/**
+ * Effects with their keys' parts in brackets read (`characters[params.foe].values.health` →
+ * `characters.wolf-2.values.health`); one whose part names nothing is left out.
+ */
+export function namedEffects(effects: Effects, context: Record<string, unknown>): Effects {
+  return Object.fromEntries(
+    Object.entries(effects).flatMap(([key, change]) => {
+      const path = key.includes('[') ? namedPath(context, key) : key
+      return path ? [[path, change]] : []
+    }),
+  )
 }

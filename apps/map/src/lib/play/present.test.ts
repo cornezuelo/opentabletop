@@ -63,6 +63,35 @@ describe('those present on the map', () => {
     expect(copyTokens()).toEqual([])
   })
 
+  it('strikes one of those present, chosen among them as the action asks', () => {
+    editor.open(greyMarches())
+    clickHex('7,7')
+    const rules = partyOf(activeSystem())
+    editSession((s) => ({
+      ...applyResult(s, { effects: { 'present.bandit': 3 } }, {}, rules),
+      acting: 'mara',
+    }))
+    const trip = () => sessionOf(editor.map.play!)!
+    const ids = trip().present!.map((p) => p.character.id)
+    expect(ids).toHaveLength(3)
+    step({ type: 'action', id: 'strike' })
+    // The choices are those here now (`from: present.ids`), not written in the pack.
+    expect(trip().travel.waiting).toMatchObject({ action: 'strike', ask: 'foe', choices: ids })
+    const before = trip().present!.map((p) => p.character.values.health)
+    // Not one of them: still asking.
+    step({ type: 'resume', choice: 'nobody' })
+    expect(trip().travel.waiting).toMatchObject({ ask: 'foe' })
+    step({ type: 'resume', choice: ids[1] })
+    expect(trip().travel.waiting).toBeUndefined()
+    const after = (id: string) =>
+      trip().present!.find((p) => p.character.id === id)?.character.values.health
+    // Only the one chosen took the blow (or fell, and is gone).
+    expect(after(ids[0])).toBe(before[0])
+    expect(after(ids[2])).toBe(before[2])
+    const hit = after(ids[1])
+    expect(hit === undefined || hit < before[1]).toBe(true)
+  })
+
   it('places a token from the bestiary: the template’s look and a sheet of its own', () => {
     editor.open(greyMarches())
     // The example map's Wyrm in its lair: a token placed from the bestiary, with its sheet.
