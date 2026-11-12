@@ -795,6 +795,9 @@ export function createSession(options: {
           })
         for (const template of done.unknownPlaces)
           add(s, entries, { source: 'travel', code: 'UNKNOWN_PLACE', time, data: { template } })
+        // Ways into new maps: the host makes each map, hanging from the party's place.
+        for (const { at, kind } of done.ways)
+          add(s, entries, { source: 'travel', code: 'WAY_MADE', time, data: { place: at, kind } })
         // A connection's value changed in play (a door opened).
         for (const { id, name, key, value } of done.connections)
           add(s, entries, {
@@ -834,7 +837,7 @@ export function createSession(options: {
           })
           return false
         }
-        const { text, discovered, piece, unlaid } = outcome
+        const { text, discovered, piece, unlaid, effects: changes } = outcome
         // Nothing fits past the exit: the party stays on its side.
         if (unlaid && from) {
           add(s, entries, {
@@ -853,15 +856,38 @@ export function createSession(options: {
             ...(time !== undefined && { time }),
             data: { hex, piece: piece.id, name: piece.name },
           })
+        if (discovered)
+          add(s, entries, {
+            source: 'oracle',
+            code: 'HEX_DISCOVERED',
+            ...(time !== undefined && { time }),
+            ...(text && { text }),
+            data: { hex, ...discovered },
+          })
+        // What the contents change (those present, the party, a way on), as a check's result.
+        if (changes) {
+          const at = time ?? s.travel.time
+          const seen = { ...tripContext(s, hostOf(s), {}, party), ...changes.context }
+          const effects = Object.fromEntries(
+            Object.entries(changes.effects).map(([p, c]) => [
+              p,
+              resolveChange(c, seen, momentRolls(s.travel, hex, momentOf(seen))),
+            ]),
+          )
+          const done = applyEffects(s, effects, stats)
+          changed(s, entries, done.applied, at)
+          const limits = [...done.limits, ...memberEffects(effects, seen, at)]
+          settle()
+          for (const limit of limits)
+            add(s, entries, {
+              source: 'travel',
+              code: 'LIMIT_REACHED',
+              time: at,
+              data: { ...limit },
+            })
+        }
         // What's beyond was unknown: a route can't go on through it.
         if (!discovered) return !!piece
-        add(s, entries, {
-          source: 'oracle',
-          code: 'HEX_DISCOVERED',
-          ...(time !== undefined && { time }),
-          ...(text && { text }),
-          data: { hex, ...discovered },
-        })
         return !!piece || !!discovered.poi || !!discovered.places?.length
       }
       // Going on, an action that moves the party (march…), or going on from a step that

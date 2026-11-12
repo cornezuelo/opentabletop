@@ -81,6 +81,7 @@ import {
   lookupPlaces,
   parsePlaces,
   PLACE_PATH,
+  WAY_PATH,
   type MadePlace,
   type PlacesCatalogue,
 } from './places'
@@ -1217,6 +1218,18 @@ function undeclaredEffects(
       if (/^place\.connections\./.test(path)) continue
       // Copies of a template, those present: the bestiaries' (read with the trip's).
       if (/^present\./.test(path)) continue
+      // A way into a new map: of a kind of connection the system declares.
+      const wayKind = WAY_PATH.exec(path)?.[1]
+      if (wayKind !== undefined) {
+        if (!rules.connections?.[wayKind])
+          out.push({
+            severity: 'warning',
+            message: `Effect on "${path}": this system has no kind of connection "${wayKind}"`,
+            pack,
+            ...where,
+          })
+        continue
+      }
       // Places made on the party's hex: its catalogues' (`placeIds`).
       const placeId = PLACE_PATH.exec(path)?.[1]
       if (placeId !== undefined) {

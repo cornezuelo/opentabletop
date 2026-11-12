@@ -136,6 +136,12 @@ export interface MadePlace {
 export const PLACE_PATH = /^place\.pois\.([^.]+)$/
 
 /**
+ * A path that makes a way into a new map from the party's place: `place.ways.<kind>`, the
+ * way of that kind of connection (the host makes the map, as for a piece's `newMap` exit).
+ */
+export const WAY_PATH = /^place\.ways\.([^.]+)$/
+
+/**
  * Makes one place from its template: texts in `locale` (the pack's base one as fallback),
  * `{{…}}` read from `context` (the result that makes it, the trip's facts) and rolled.
  */

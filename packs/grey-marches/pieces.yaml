@@ -182,15 +182,13 @@ id: last-tomb
 tags: [discovery, rules]
 name: The last tomb
 description: |-
-  What waits at the bottom of the Deep Barrows.
+  What waits at the bottom of the Deep Barrows: a king of the old folk, and under his bier a way down nobody has taken.
 
-  **Shows:** a piece that ends a place, reached by what's been laid, not by where it lies.
+  **Shows:** a piece that ends a place, reached by what's been laid, not by where it lies; a result that makes a way into a new map from where the party stands (`place.ways.way-in: 1`), and a box of a progress track (`party.values.legend: 4`).
 entries:
-  - {
-      id: king,
-      result: 'A king of the old folk, and his crown',
-      effects: { party.values.legend: 4 },
-    }
+  - id: king
+    result: 'A king of the old folk, and his crown; under his bier, a way down'
+    effects: { party.values.legend: 4, place.ways.way-in: 1 }
 ---
 kind: table
 id: door-noise

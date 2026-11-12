@@ -5,7 +5,7 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { onceRoller } from '@open-tabletop/variables'
 import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import { definitionId } from './refs'
-import { effectsOf } from './effects'
+import { effectsOf, type Effects } from './effects'
 import { layPiece, type LaidPiece, type Piece, type PieceLookup } from './pieces'
 import { makePlace, PLACE_PATH, type MadePlace, type PlaceLookup } from './places'
 
@@ -430,6 +430,11 @@ export function createDiscovery(options: {
       piece?: LaidPiece
       /** No piece fitted: the party can't stand here. */
       unlaid?: boolean
+      /**
+       * What the contents rolled change besides the places they make (`present.wolf: 1`,
+       * `party.values.legend: 4`, `place.ways.way-in: 1`), with what they read: for the trip.
+       */
+      effects?: { effects: Effects; context: Record<string, unknown> }
     } {
       const roll = rollerOf(state, context)
       if (!open(state, roll, hex, from)) return { unlaid: true }
@@ -458,6 +463,10 @@ export function createDiscovery(options: {
           const count = typeof change === 'number' ? Math.max(0, Math.floor(change)) : 1
           return Array.from({ length: count }, () => made)
         })
+        const rest = Object.fromEntries(
+          Object.entries(effectsOf(value)).filter(([path]) => !PLACE_PATH.test(path)),
+        )
+        if (Object.keys(rest).length) result = { effects: { effects: rest, context } }
         const tags = [
           ...new Set([...(tagsOf(value.tags) ?? []), ...places.flatMap((p) => p.tags ?? [])]),
         ]
@@ -478,7 +487,7 @@ export function createDiscovery(options: {
         // "Nothing of note" (no point of interest, tags or name) isn't worth a journal line.
         if (Object.keys(patch).length) {
           record(hex, patch)
-          result = { text, discovered: patch }
+          result = { ...result, text, discovered: patch }
         }
       } else pending.delete(hex)
       if (reveal === 'neighbors')

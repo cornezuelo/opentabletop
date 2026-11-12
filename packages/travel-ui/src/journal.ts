@@ -605,6 +605,13 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       })
     case 'UNKNOWN_PLACE':
       return t('journal.unknownPlace', { name: String(d.template ?? '') })
+    // A way into a new map from the party's place (`place.ways.<kind>`): on a map, made there.
+    case 'WAY_MADE':
+      return t('journal.wayMade', {
+        kind:
+          context.connectionName?.(String(d.kind ?? '')) ??
+          String(d.kind ?? '').replaceAll('-', ' '),
+      })
     // A value of the connection the step takes changed in play (a door opened).
     case 'CONNECTION_CHANGED':
       return t('journal.connectionChanged', {

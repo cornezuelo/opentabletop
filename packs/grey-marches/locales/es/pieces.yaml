@@ -59,11 +59,11 @@ crypt-contents:
 last-tomb:
   name: La última tumba
   description: |-
-    Lo que espera en el fondo de los Túmulos Hondos.
+    Lo que espera en el fondo de los Túmulos Hondos: un rey del pueblo antiguo y, bajo su túmulo, un camino hacia abajo que nadie ha tomado.
 
-    **Enseña:** una pieza que acaba un sitio, a la que se llega por lo colocado, no por dónde está.
+    **Enseña:** una pieza que acaba un sitio, a la que se llega por lo colocado, no por dónde está; un resultado que crea un camino a un mapa nuevo desde donde está el grupo (`place.ways.way-in: 1`), y una casilla de una pista de progreso (`party.values.legend: 4`).
   entries:
-    king: Un rey del pueblo antiguo, y su corona
+    king: Un rey del pueblo antiguo, y su corona; bajo su túmulo, un camino hacia abajo
 door-noise:
   name: El ruido
   description: |-

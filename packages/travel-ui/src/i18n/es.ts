@@ -276,6 +276,7 @@ export const es: Messages<typeof en> = {
     memberLeft: '{name} deja el grupo',
     presentCame: 'Ahora aquí: {names}',
     placeMade: 'Un lugar aquí: {name}{what}',
+    wayMade: 'Un camino desde aquí, a un mapa nuevo: {kind}',
     unknownPlace: 'Ningún catálogo de lugares del sistema tiene «{name}», así que no se crea nada',
     connectionChanged: '{name}: {key} {value}',
     presentLeft: '{name} se va',

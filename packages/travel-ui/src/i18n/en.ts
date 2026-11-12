@@ -282,6 +282,7 @@ export const en = {
     memberLeft: '{name} leaves the party',
     presentCame: 'Here now: {names}',
     placeMade: 'A place here: {name}{what}',
+    wayMade: 'A way on from here, into a new map: {kind}',
     unknownPlace: 'No catalogue of places of the system has “{name}”, so nothing is made',
     connectionChanged: '{name}: {key} {value}',
     presentLeft: '{name} is gone',

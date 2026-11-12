@@ -32,7 +32,7 @@ import {
 } from '@open-tabletop/travel-engine'
 import type { Bindings } from './index'
 import type { Effects, LimitReached } from './effects'
-import { makePlace, PLACE_PATH, type MadePlace, type PlaceLookup } from './places'
+import { makePlace, PLACE_PATH, WAY_PATH, type MadePlace, type PlaceLookup } from './places'
 import {
   changePresent,
   presentFacts,
@@ -396,6 +396,8 @@ export function applyMemberEffects(
   /** Places made on the party's place (`place.pois.<template>`), and the templates nobody has. */
   places: { at: string; place: MadePlace }[]
   unknownPlaces: string[]
+  /** Ways into new maps made from the party's place (`place.ways.<kind>`), by kind. */
+  ways: { at: string; kind: string }[]
   /** What changed of the step's connection (`connection.state: open`), by its id. */
   connections: ConnectionChange[]
 } {
@@ -406,6 +408,7 @@ export function applyMemberEffects(
   const present: PresentEvent[] = []
   const places: { at: string; place: MadePlace }[] = []
   const unknownPlaces: string[] = []
+  const ways: { at: string; kind: string }[] = []
   const connections: ConnectionChange[] = []
   // A party played as a whole, without a sheet of its own: only those present (and the map) are changed.
   const whole = !s.members?.length && !s.party
@@ -424,12 +427,13 @@ export function applyMemberEffects(
       (p) =>
         PRESENT_PATH.test(p) ||
         PLACE_PATH.test(p) ||
+        WAY_PATH.test(p) ||
         CONNECTION_EFFECT.test(p) ||
         copyPath(p) ||
         mapPath(p),
     )
   )
-    return { limits, events, nobody, unknown, present, places, unknownPlaces, connections }
+    return { limits, events, nobody, unknown, present, places, unknownPlaces, ways, connections }
   const { travel } = s
   const roller =
     travel.day !== undefined
@@ -575,6 +579,17 @@ export function applyMemberEffects(
       for (let i = 0; i < count; i++) places.push({ at: travel.location ?? '', place: made })
       continue
     }
+    // Ways into new maps from the party's place: as many as the change says (the host makes them).
+    const wayKind = WAY_PATH.exec(path)?.[1]
+    if (wayKind !== undefined) {
+      if (typeof change === 'boolean') continue
+      const count = Math.max(
+        0,
+        Math.floor(changeValue(0, resolveChange(change, context, roller)).to),
+      )
+      for (let i = 0; i < count; i++) ways.push({ at: travel.location ?? '', kind: wayKind })
+      continue
+    }
     // Those present: a template's copies made or taken away, or each of them changed.
     const [, template, copyPart, copyRest] = PRESENT_PATH.exec(path) ?? []
     if (template !== undefined) {
@@ -658,7 +673,7 @@ export function applyMemberEffects(
   const after = partyNumbers(s, rules)
   for (const path of new Set([...Object.keys(before), ...Object.keys(after)]))
     tallyChange(travel, path, before[path] ?? 0, after[path] ?? 0)
-  return { limits, events, nobody, unknown, present, places, unknownPlaces, connections }
+  return { limits, events, nobody, unknown, present, places, unknownPlaces, ways, connections }
 }
 
 /**

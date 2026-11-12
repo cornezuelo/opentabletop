@@ -14,7 +14,7 @@ import {
   type MapStart,
 } from '@open-tabletop/map'
 import { freeName, hasWorld, landIn, leaveTrip, serializeCampaign } from '@open-tabletop/campaign'
-import type { LaidPiece } from '@open-tabletop/session'
+import type { LaidWay } from '@open-tabletop/session'
 import {
   deleteCampaign,
   getLibraryMap,
@@ -300,12 +300,11 @@ export async function newSubMap(
 }
 
 /**
- * The ways into new maps a trip's pieces laid (exits with `newMap`): each a blank map drawn
- * like this one, hanging from the piece's cell, the way of the exit's kind. Named as the exit
- * says, else after this map, numbered if another map has the name.
+ * The ways into new maps a trip made (a piece's exit with `newMap`, a result's
+ * `place.ways.<kind>`): each a blank map drawn like this one, hanging from its cell, the way
+ * of its kind. Named as the exit says, else after this map, numbered if another map has the name.
  */
-export async function makeLaidWays(laid: LaidPiece[]): Promise<void> {
-  const ways = laid.flatMap((piece) => piece.ways ?? [])
+export async function makeLaidWays(ways: LaidWay[]): Promise<void> {
   if (!ways.length) return
   const taken = (await listLibrary().catch(() => [])).map((e) => e.name)
   for (const way of ways) {

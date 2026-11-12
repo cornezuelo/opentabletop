@@ -38,7 +38,7 @@ A laid piece stays, and is part of the map from then on: it can be edited in Edi
 
 An exit with **New map** ticked leads somewhere else: a stair further down, the way out of a level into the next. When its piece is laid, a new map is made, a [sub-map](../map/13-sub-maps.md) hanging from the piece's cell beside the letter, its way of the exit's **Kind**. It's blank and drawn like the map it hangs from (its grid, scale, palette and style), in the same campaign, and kept in **Maps**. It's named as the exit says (**New map's name**), else after the map above (_Below The Deep Ways_), with a number if a map has that name already.
 
-The party takes it as any way into a sub-map, with **Go in ↗** on that cell; the trip goes on there and its first piece is laid under the party, the same way, so a place can go down level after level. The new map has its own [sheet](07-sheet.md) if the system has one for each map (its values start again). Such an exit is never a way in, and leaves nothing on the cell beyond. While a piece kept open is laid, a way into a new map counts as a way on.
+The party takes it as any way into a sub-map, with **Go in ↗** on that cell; the trip goes on there and its first piece is laid under the party, the same way, so a place can go down level after level. The new map has its own [sheet](07-sheet.md) if the system has one for each map (its values start again). Such an exit is never a way in, and leaves nothing on the cell beyond. A result can make the same way where the party stands, with no piece: `place.ways.<kind>: 1` (the way out of a level, found by a check in the room the party is in). While a piece kept open is laid, a way into a new map counts as a way on.
 
 ## Playing it
 

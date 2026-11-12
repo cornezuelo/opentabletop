@@ -417,8 +417,11 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     rules,
   } of travelSystems(registry).systems) {
     // The connections of a kind leaving the party's place (a hidden path found).
-    for (const kind of Object.keys(rules.connections ?? {}))
+    // and a way of a kind into a new map, made from it.
+    for (const kind of Object.keys(rules.connections ?? {})) {
       out[`place.connections.${kind}.state`] = ['open', 'shut']
+      out[`place.ways.${kind}`] = ['1']
+    }
     // Places made on the party's hex from its catalogues.
     for (const c of places ?? [])
       for (const id of Object.keys(c.def.places)) out[`place.pois.${id}`] = ['1']

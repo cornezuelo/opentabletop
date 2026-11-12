@@ -104,6 +104,13 @@ describe('sub-maps', () => {
       const laid = editor.map.pieces!.map((p) => p.id)
       expect(laid).toContain('tomb')
       expect(laid.length).toBeGreaterThanOrEqual(9)
+      // Under the king's bier, a way down (`place.ways.way-in`): a new map, hanging from the tomb.
+      await settle()
+      expect(session().journal.some((e) => e.code === 'WAY_MADE')).toBe(true)
+      // What the tomb's contents change reaches the trip: a box of the Company's legend.
+      expect(session().party?.values.legend).toBeGreaterThanOrEqual(4)
+      const below = [...maps.values()].find((m) => m.name === 'Below The Deep Barrows')
+      expect(below).toMatchObject({ parent: 'deepbarrows1' })
       // The deck was drawn from, and the journal told it.
       expect(Object.keys(session().oracle.decks)).toContain('grey-marches/deep-barrows')
       expect(session().journal.filter((e) => e.code === 'PIECE_LAID').length).toBe(laid.length)
@@ -167,7 +174,7 @@ describe('sub-maps', () => {
       for (const [cell, terrain] of Object.entries(laid.cells))
         editor.map.hexes[cell as keyof typeof editor.map.hexes] = { terrain }
       editor.applyLaid([laid])
-      await makeLaidWays([laid])
+      await makeLaidWays(laid.ways!)
       await settle()
       const below = [...maps.values()].find((m) => m.name === 'The deeper barrows')!
       expect(below).toMatchObject({ parent: 'deepbarrows1' })

@@ -14,8 +14,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Sheets: a value **shown as ticks** (`display: ticks`): boxes filled a tick at a time, four to a box (or `ticks: 1`–`4`), a progress track at max 40. Packs' sheet form: **Ticks a box**. The Grey Marches: the Company's **Legend**, a tick for the rite of the Ember Moon, a box for the last tomb.
 
+- A result can make **a way into a new map** where the party stands (`place.ways.<kind>: 1`): on a map, a blank sub-map under the party's cell. The Grey Marches: under the king of the last tomb, a way further down.
+
 ### Fixes
 
+- What a place's contents change when the party comes in (those present, the party's values, a way on) now reaches the trip: only the places they made did, so a crypt's sleeper never woke.
 - Map: on a map laid piece by piece, going through a way into a sub-map no longer tries to lay a piece on the other map's place, which stopped the party at the way.
 
 ## [0.45.0] - 2026-11-12

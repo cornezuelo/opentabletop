@@ -600,8 +600,18 @@ function stepOnly(action: TravelAction): void {
   editor.takeWorld({ campaign: keepMapSheet(editor.campaign, state.map) })
   editor.applyDiscovery(discovered)
   editor.applyLaid(laid)
-  // Exits into maps of their own: each new map made and kept, hanging from its piece's cell.
-  void makeLaidWays(laid).catch((error) =>
+  // Ways into maps of their own (a piece's exit, a result's `place.ways.<kind>`): each new map
+  // made and kept, hanging from its cell (the party's, for a result).
+  const ways = [
+    ...laid.flatMap((piece) => piece.ways ?? []),
+    ...entries.flatMap((e) => {
+      const place = String(e.data?.place ?? '')
+      if (e.code !== 'WAY_MADE' || !place || parsePlaceOn(place)) return []
+      const at = cellOfPlace(editor.map, place, partyLocation())
+      return at ? [{ at, kind: String(e.data?.kind) }] : []
+    }),
+  ]
+  void makeLaidWays(ways).catch((error) =>
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000),
   )
   // Places of another map (a way in or out) are that map's trail, not this one's; a room is
