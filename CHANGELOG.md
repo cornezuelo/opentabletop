@@ -10,6 +10,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Sheets: **values that step** (`steps: [4, 6, 8]`): the only numbers a value may be, a die's sizes; an effect's `-1` takes it a step down (a d8 to a d6), `'=N'` to the step nearest. Shown as a die (`display: die`, **d8**), chosen from its steps. Packs' sheet form: **Steps**. The Grey Marches' Nerve is one (d4 to d12; saved companions' nerve becomes the nearest die); Core's maps have a **Finds die**, a d6 that drops to a d4 once a landmark is found.
 
+- A part of a name **named by another value**, in brackets: `acting.values[params.skill]` is the skill a parameter names, in conditions and variables, so one table tests whichever skill an action asked for; what an action's `roll:` step rolls now sees its `params`. The Grey Marches: **Scout ahead**, by stealth or by the lie of the land, and _Scouting ahead_, one table for both.
+
 ### Fixes
 
 - Map: on a map laid piece by piece, going through a way into a sub-map no longer tries to lay a piece on the other map's place, which stopped the party at the way.

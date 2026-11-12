@@ -11,6 +11,7 @@ import {
   momentRoller,
   onceRoller,
   render,
+  resolvePath,
   variableOf,
 } from './index'
 
@@ -154,5 +155,20 @@ describe('changeValue with steps', () => {
     expect(changeValue(8, '=7', die)).toEqual({ to: 6 })
     expect(changeValue(20, 0, die)).toEqual({ to: 8 })
     expect(changeValue(7, -1, die)).toEqual({ to: 4 })
+  })
+})
+
+describe('a part named by another value', () => {
+  const context = {
+    acting: { values: { agility: 12, wits: 9 } },
+    params: { skill: 'agility', mod: 2 },
+    picks: { 3: 'third' },
+  }
+
+  it('reads the value a parameter names, also in arithmetic', () => {
+    expect(resolvePath(context, 'acting.values[params.skill]')).toBe(12)
+    expect(resolvePath(context, 'picks[params.missing]')).toBeUndefined()
+    expect(lookupIn(context)('acting.values[params.skill] + params.mod')).toBe(14)
+    expect(render('Agility {{acting.values[params.skill]}}', lookupIn(context))).toBe('Agility 12')
   })
 })

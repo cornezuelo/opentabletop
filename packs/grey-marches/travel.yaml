@@ -574,6 +574,26 @@ actions:
       - { effects: { place.connections.door.state: forced, map.values.unrest: 1 } }
       - { id: forced, say: 'The bar splinters and the door gives way.' }
       - { roll: table.door-noise }
+  # A test that names its skill: the player chooses which of the acting companion's skills
+  # to trust (`ask`), and one table rolls under whichever it is (`acting.values[params.skill]`
+  # in _Scouting ahead_): no table per skill.
+  scout:
+    name: Scout ahead
+    description: 'By day: half an hour scouting the way on, by stealth or by pathfinding, as you choose. Whoever acts rolls a d6 at or under that skill: the way is clear and the Company takes heart (morale +1).'
+    when: { time.tags: { not: dark } }
+    hideWhenUnavailable: true
+    oncePerDay: true
+    params:
+      skill:
+        name: How do you scout?
+        description: The skill of whoever acts that the d6 must roll under.
+        choices:
+          - { id: stealth, name: 'Unseen, by stealth' }
+          - { id: pathfinding, name: 'By the lie of the land' }
+    do:
+      - { ask: params.skill }
+      - { time: 30 }
+      - { roll: table.scouting }
   delve:
     name: Delve the ruin
     description: 'In a ruin, by day: three hours searching it, then what it holds and what guards it, rolled on _Delving a ruin_. Once a day.'

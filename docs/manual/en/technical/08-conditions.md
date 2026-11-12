@@ -48,6 +48,16 @@ A value written as `'{{name}}'` is a **variable**: another value of the context,
 
 A variable that isn't there (or isn't a number, after `gte`…) never holds. Only a whole value is a variable: `'the {{rival}}'` is that text, as written.
 
+**A part named by another value.** A part of a name in brackets is read first, and names the part: `acting.values[params.skill]` is the value of whoever acts that the parameter `skill` names (`acting.values.stealth` when the player chose stealth), so one table tests whichever skill an action asked for. It goes in keys and in variables alike. In YAML, a key with brackets is written outside braces, or quoted inside them (brackets start a list there):
+
+```yaml
+when:
+  acting.values[params.skill]: { gte: '{{roll}}' } # a roll-under on the skill chosen
+… # an excerpt of a table's entry
+```
+
+The Grey Marches' _Scouting ahead_ is one.
+
 **A roll is the same all through a moment.** Wherever it's read again in the same moment, the same dice give the same total, so what it decides doesn't change when you look again:
 
 - In a **trip** (checks, actions and their steps, marching, ways of travelling, terrains and `through`), a moment is the day, the cell and what's happening: a moment like `trip.place-enter` or `time.day-end`, or the action being taken (`march` for marching). An action whose `when` rolls `'{{1d20}}'` is available or not for the whole day in that cell, the route doesn't change as you plan it, and the action's effects see the same roll. Each trip rolls its own.

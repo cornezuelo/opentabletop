@@ -48,6 +48,16 @@ Un valor escrito como `'{{nombre}}'` es una **variable**: otro valor del context
 
 Una variable que no está (o que no es un número, tras `gte`…) nunca se cumple. Solo un valor entero es una variable: `'the {{rival}}'` es ese texto, tal cual.
 
+**Una parte nombrada por otro valor.** Una parte de un nombre entre corchetes se lee primero, y nombra esa parte: `acting.values[params.skill]` es el valor de quien actúa que nombra el parámetro `skill` (`acting.values.stealth` si el jugador eligió el sigilo), así que una tabla prueba la habilidad que una acción haya preguntado. Vale en claves y en variables por igual. En YAML, una clave con corchetes se escribe fuera de llaves, o entre comillas dentro de ellas (ahí los corchetes abren una lista):
+
+```yaml
+when:
+  acting.values[params.skill]: { gte: '{{roll}}' } # una tirada por debajo de la habilidad elegida
+… # un fragmento de la entrada de una tabla
+```
+
+_Explorando el camino_ de las Marcas Grises es una.
+
 **Una tirada es la misma durante todo un momento.** Donde se vuelva a leer en el mismo momento, los mismos dados dan el mismo total, así que lo que decide no cambia al volver a mirarlo:
 
 - En un **viaje** (comprobaciones, acciones y sus pasos, la marcha, formas de viajar, terrenos y `through`), un momento es el día, la casilla y lo que está pasando: un momento como `trip.place-enter` o `time.day-end`, o la acción que se hace (`march` para la marcha). Una acción cuyo `when` tira `'{{1d20}}'` está disponible o no todo el día en esa casilla, la ruta no cambia mientras la planeas, y los efectos de la acción ven la misma tirada. Cada viaje tira las suyas.

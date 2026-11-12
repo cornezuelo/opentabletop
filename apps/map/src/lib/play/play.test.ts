@@ -1469,6 +1469,39 @@ describe('the Company: a party made of characters', () => {
     expect(trip().travel.mode).toBe('foot')
   })
 
+  it('scouting asks which skill, and one table rolls under the one chosen', () => {
+    /** What a d6 on `face` gives Mara (stealth 3, pathfinding 0) scouting by `skill`. */
+    const scout = (skill: string, face: number) => {
+      grey()
+      clickHex('7,7')
+      editSession((s) => {
+        s.acting = 'mara'
+        s.members = s.members!.map((m) =>
+          m.id === 'mara' ? { ...m, values: { ...m.values, stealth: 3, pathfinding: 0 } } : m,
+        )
+        return s
+      })
+      const before = trip().journal.length
+      step({ type: 'action', id: 'scout' })
+      expect(trip().travel.waiting).toMatchObject({ action: 'scout', ask: 'skill' })
+      vi.spyOn(Math, 'random').mockReturnValue((face - 0.5) / 6)
+      step({ type: 'resume', choice: skill })
+      for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
+      vi.restoreAllMocks()
+      const rolled = trip()
+        .journal.slice(before)
+        .find((e) => e.code === 'ROLLED' && e.data?.check === 'table.scouting')
+      return (rolled?.data?.rolls as { entry: string }[] | undefined)?.[0]?.entry
+    }
+    expect([1, 3, 4, 6].map((face) => scout('stealth', face))).toEqual([
+      'clear',
+      'clear',
+      'nothing',
+      'nothing',
+    ])
+    expect([1, 6].map((face) => scout('pathfinding', face))).toEqual(['nothing', 'nothing'])
+  })
+
   it('a sprained ankle stops the party, and the stop says whose', () => {
     grey()
     clickHex('7,7')

@@ -64,14 +64,15 @@ An entry's `range` is the totals it covers: `3`, `2-5`, `-1` (a total below zero
 
 `{{name}}` is a **variable**: the value with that name. `{{2d6}}` is a **roll**. Inside a text, each is written in its place; a value that is a whole `'{{…}}'` is what it names (a number stays a number, a list a list). More: [Dice, variables and context](../oracle/08-dice-and-templates.md#variables-in-texts).
 
-| Write             | Is                                                    |
-| ----------------- | ----------------------------------------------------- |
-| `{{2d6}}`         | a roll: `'{{2d6}} wolves'` → "7 wolves"               |
-| `{{time.season}}` | a variable: a value of the context                    |
-| `{{npc.role}}`    | a part of a value                                     |
-| `{{result}}`      | the text of the table an entry rolled next (`table:`) |
-| `{{roll}}`        | in a table's entries, the total of its own roll       |
-| `{{field}}`       | a generator's field, in its template                  |
+| Write                             | Is                                                                          |
+| --------------------------------- | --------------------------------------------------------------------------- |
+| `{{2d6}}`                         | a roll: `'{{2d6}} wolves'` → "7 wolves"                                     |
+| `{{time.season}}`                 | a variable: a value of the context                                          |
+| `{{npc.role}}`                    | a part of a value                                                           |
+| `{{acting.values[params.skill]}}` | the part another value names ([more](08-conditions.md#variables-and-rolls)) |
+| `{{result}}`                      | the text of the table an entry rolled next (`table:`)                       |
+| `{{roll}}`                        | in a table's entries, the total of its own roll                             |
+| `{{field}}`                       | a generator's field, in its template                                        |
 
 **Arithmetic.** Inside the braces, numbers, values and dice can be added, taken away, multiplied and divided, with brackets and the functions `floor`, `ceil`, `round` (to a whole number down, up, nearest), `min`, `max` (the smallest or largest of several) and `abs`. Ids may hold a hyphen (`night-march`), so a minus between two names takes spaces: `a - b`. A value that isn't a number, or a division by 0, gives nothing. Arithmetic, never logic: for _if_, write a [condition](08-conditions.md).
 

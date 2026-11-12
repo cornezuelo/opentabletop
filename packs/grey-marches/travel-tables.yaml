@@ -362,3 +362,26 @@ entries:
       once: true,
       result: 'a note is pinned to your pack: “The Greywood is no place for me.”',
     }
+---
+kind: table
+id: scouting
+tags: [travel, rules]
+name: Scouting ahead
+description: |-
+  Rolled by _Scout ahead_: a d6 at or under the skill the player chose, of whoever acts.
+
+  **Shows:** a test naming its skill by a parameter (`acting.values[params.skill]`): one table for every skill the action may ask for; a roll-under (`gte: '{{roll}}'`), each result its own branch.
+roll: 1d6
+entries:
+  - id: clear
+    range: 1-6
+    # A key with brackets is written outside braces (or quoted inside them).
+    when:
+      acting.values[params.skill]: { gte: '{{roll}}' }
+    result: 'The way ahead is clear ({{roll}} against {{acting.values[params.skill]}})'
+    effects: { party.stats.morale: 1 }
+  - id: nothing
+    range: 1-6
+    unless:
+      acting.values[params.skill]: { gte: '{{roll}}' }
+    result: 'Nothing to be learnt out there ({{roll}} against {{acting.values[params.skill]}})'

@@ -39,10 +39,31 @@ export function isRoll(expression: string): boolean {
   return isDiceRoll(expression)
 }
 
-/** Reads `a.b.c` from nested plain objects; never touches prototypes. */
+/** A name's parts: `a.b[c.d].e` is `a`, `b`, the value of `c.d`, `e`; undefined if it can't be read. */
+function partsOf(context: Record<string, unknown>, path: string): string[] | undefined {
+  if (!path.includes('[')) return path.split('.')
+  const parts: string[] = []
+  for (const piece of path.split(/(\[[^\]]*\])/)) {
+    if (!piece) continue
+    if (piece.startsWith('[')) {
+      // A part named by another value (`acting.values[params.skill]`): its text, or nothing.
+      const named = resolvePath(context, piece.slice(1, -1).trim())
+      if (typeof named !== 'string' && typeof named !== 'number') return undefined
+      parts.push(String(named))
+    } else parts.push(...piece.split('.').filter(Boolean))
+  }
+  return parts
+}
+
+/**
+ * Reads `a.b.c` from nested plain objects; never touches prototypes. A part in brackets is
+ * named by another value: `acting.values[params.skill]` reads the value the parameter names.
+ */
 export function resolvePath(context: Record<string, unknown>, path: string): unknown {
   let node: unknown = context
-  for (const part of path.split('.')) {
+  const parts = partsOf(context, path)
+  if (!parts) return undefined
+  for (const part of parts) {
     if (!isObject(node) || !Object.prototype.hasOwnProperty.call(node, part)) return undefined
     node = (node as Record<string, unknown>)[part]
   }
@@ -113,7 +134,7 @@ type Node =
   | { type: 'call'; fn: string; args: Node[] }
 
 const TOKEN =
-  /\s*(?:(\d*d(?:\d+|%|f)(?:k[hl]\d*)?)(?![\w.])|(\d+(?:\.\d+)?)(?![\w.])|([A-Za-z_][A-Za-z0-9_]*(?:[.-][A-Za-z0-9_]+)*)|([-+*/(),]))/iy
+  /\s*(?:(\d*d(?:\d+|%|f)(?:k[hl]\d*)?)(?![\w.])|(\d+(?:\.\d+)?)(?![\w.])|([A-Za-z_][A-Za-z0-9_]*(?:[.-][A-Za-z0-9_]+|\[[A-Za-z_][\w.-]*\])*)|([-+*/(),]))/iy
 
 /**
  * An expression read as arithmetic, or undefined when it isn't (a lone name stays a name,

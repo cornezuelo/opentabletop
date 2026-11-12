@@ -2297,12 +2297,13 @@ export function createTravelEngine(options: {
       } else if (step.roll !== undefined) {
         // A check of the system, or anything else the host rolls (`table.ruins`).
         const check = refId('checks', step.roll)
+        // What it rolls sees the action's parameters (`params.skill`, a choice just asked).
         schedule(
           state,
           ref('actions', id),
           events,
           undefined,
-          options.facts,
+          { ...options.facts, params },
           check,
           check ? undefined : step.roll,
         )

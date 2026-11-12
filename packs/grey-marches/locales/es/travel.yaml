@@ -132,6 +132,16 @@ travel-rules/default:
       do:
         forced:
           say: 'La tranca se astilla y la puerta cede.'
+    scout:
+      name: Explorar el camino
+      description: 'De día: media hora explorando el camino, con sigilo o por el terreno, como elijáis. Quien actúa tira un d6 igual o menor que esa habilidad: el camino está despejado y la Compañía se anima (moral +1).'
+      params:
+        skill:
+          name: ¿Cómo exploráis?
+          description: La habilidad de quien actúa bajo la que debe salir el d6.
+          choices:
+            stealth: 'Sin ser vistos, con sigilo'
+            pathfinding: 'Leyendo el terreno'
     delve:
       name: Explorar la ruina
       description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'

@@ -162,3 +162,12 @@ desertion:
     food: '{{result}} se escabulle con el último pan'
     torch: '{{result}} se ha ido al alba, y las antorchas también'
     note: 'hay una nota clavada en tu mochila: «El Bosque Gris no es lugar para mí.»'
+scouting:
+  name: Explorando el camino
+  description: |-
+    La tira _Explorar el camino_: un d6 igual o menor que la habilidad que eligió el jugador, de quien actúa.
+
+    **Enseña:** una prueba que nombra su habilidad con un parámetro (`acting.values[params.skill]`): una tabla para cada habilidad que la acción pueda preguntar; una tirada por debajo (`gte: '{{roll}}'`), cada resultado su propia rama.
+  entries:
+    clear: 'El camino está despejado ({{roll}} contra {{acting.values[params.skill]}})'
+    nothing: 'No hay nada que sacar de ahí fuera ({{roll}} contra {{acting.values[params.skill]}})'

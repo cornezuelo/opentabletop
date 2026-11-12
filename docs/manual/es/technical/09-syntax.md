@@ -64,14 +64,15 @@ El `range` de una entrada son los totales que cubre: `3`, `2-5`, `-1` (un total 
 
 `{{nombre}}` es una **variable**: el valor con ese nombre. `{{2d6}}` es una **tirada**. Dentro de un texto, cada una se escribe en su sitio; un valor que es entero un `'{{…}}'` es lo que nombra (un número sigue siendo un número; una lista, una lista). Más: [Dados, variables y contexto](../oracle/08-dice-and-templates.md#variables-en-los-textos).
 
-| Escribe           | Es                                                           |
-| ----------------- | ------------------------------------------------------------ |
-| `{{2d6}}`         | una tirada: `'{{2d6}} lobos'` → «7 lobos»                    |
-| `{{time.season}}` | una variable: un valor del contexto                          |
-| `{{npc.role}}`    | una parte de un valor                                        |
-| `{{result}}`      | el texto de la tabla que una entrada tiró después (`table:`) |
-| `{{roll}}`        | en las entradas de una tabla, el total de su propia tirada   |
-| `{{field}}`       | un campo de un generador, en su plantilla                    |
+| Escribe                           | Es                                                                           |
+| --------------------------------- | ---------------------------------------------------------------------------- |
+| `{{2d6}}`                         | una tirada: `'{{2d6}} lobos'` → «7 lobos»                                    |
+| `{{time.season}}`                 | una variable: un valor del contexto                                          |
+| `{{npc.role}}`                    | una parte de un valor                                                        |
+| `{{acting.values[params.skill]}}` | la parte que nombra otro valor ([más](08-conditions.md#variables-y-tiradas)) |
+| `{{result}}`                      | el texto de la tabla que una entrada tiró después (`table:`)                 |
+| `{{roll}}`                        | en las entradas de una tabla, el total de su propia tirada                   |
+| `{{field}}`                       | un campo de un generador, en su plantilla                                    |
 
 **Aritmética.** Dentro de las llaves se pueden sumar, restar, multiplicar y dividir números, valores y dados, con paréntesis y las funciones `floor`, `ceil`, `round` (a un número entero hacia abajo, hacia arriba, el más cercano), `min`, `max` (el menor o el mayor de varios) y `abs`. Los ids pueden tener guiones (`night-march`), así que un menos entre dos nombres lleva espacios: `a - b`. Un valor que no es un número, o una división entre 0, no da nada. Aritmética, nunca lógica: para un _si_, escribe una [condición](08-conditions.md).
 
