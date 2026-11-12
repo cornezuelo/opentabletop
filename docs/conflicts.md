@@ -1,6 +1,6 @@
 # Conflicts: combat and contests
 
-**Status: a proposal, to review with the user** (written 2026-11-12 on autopilot; nothing here is decided or built). It answers point 9 of the user's eleven (backlog: _Conflicts (combat, chases, debates, contests), only if a generic machine falls short_) and the **Combat** gap the real systems found (Ker Nethalas first, Kal-Arath, The One Ring, Twilight 2000…).
+**Status: decided with the user on 2026-11-12** (written the same day on autopilot; the answers are in section 6). Phase 1 is built; phases 2 and 3 are next. It answers point 9 of the user's eleven (backlog: _Conflicts (combat, chases, debates, contests), only if a generic machine falls short_) and the **Combat** gap the real systems found (Ker Nethalas first, Kal-Arath, The One Ring, Twilight 2000…).
 
 The user's rule for it (2026-10-20): "lo implementaría solo si se demuestra que una máquina de estados genérica reutilizando Session y Character Engine no es suficiente". So this document first says what the tools already do, then the smallest additions that make a turn-by-turn fight playable, each one a generic mechanism a system declares, never a game's rule.
 
@@ -70,10 +70,10 @@ As agreed on 2026-10-29: (a) **the theatre of the mind** is this proposal; (b) *
 4. **Ker Nethalas' combat to the letter** with it (opposed attack and defence, Defensive Moves, hit locations, the damage pool, armour integrity, Reactions), noting what's still missing.
 5. **Zones**, then **the grid**, only when a system needs them.
 
-## 6. To decide with the user
+## 6. Decided with the user (2026-11-12)
 
-1. Is a turn-by-turn encounter worth it, or should fights stay played as a whole (actions on `present`) with only phase 1 added?
-2. Where the order comes from: `by: side` and `by: participant` enough, or should the system write its own ordering table?
-3. Foes' turns: rolled by the system by default (solo play), with a preference to roll them by hand?
-4. Does a fight belong to the trip (Travel, Map's Play) only, or also to a scene without a trip (the Oracle, the Campaign app)?
-5. The UI: whose turn and the round in the trip panel's waiting box, or a fight panel of its own (the _Initiative tracker and combat ledger_ of the backlog)?
+1. **A fight in turns is worth it**: phases 2 and 3 are built; a system without `encounter:` still plays fights as a whole.
+2. **The order** comes from `by: side` (a table's result says which side goes first) or `by: participant` (a value rolled once each); no ordering table of the system's own.
+3. **Foes' turns are rolled by the system** by default (solo play); a user preference asks for each one with the same waiting box, to roll it by hand.
+4. **A fight exists without a trip too**: the encounter is not the trip's alone; the Oracle and the Campaign app can open one (a scene with those present), as Travel and Map's Play do.
+5. **A shared fight panel**: a component of its own in a `*-ui` package (the backlog's _Initiative tracker and combat ledger_), mounted by Travel, Map's Play, the Oracle and Campaign: whose turn, the round, those present and what each may do.
