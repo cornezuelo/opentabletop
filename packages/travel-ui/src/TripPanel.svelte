@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte'
   import {
     encounterView,
+    fightStarters,
     presentHere,
     usesOf,
     type Declared,
@@ -261,9 +262,15 @@
   )
   /** A fight in turns going on (round, who acts in order), if any. */
   const fight = $derived(encounterView(session))
-  /** Whether a fight in turns can start by hand: the system's fights go in turns, someone's here. */
+  /**
+   * Whether a fight in turns can start by hand: the system's fights go in turns, someone's
+   * here, and none of its own actions starts one (that one is the button).
+   */
   const canFight = $derived(
-    !!system.encounter && !session.encounter && presentHere(session).length > 0,
+    !!system.encounter &&
+      !session.encounter &&
+      presentHere(session).length > 0 &&
+      !fightStarters(system.rules).length,
   )
   async function endFight() {
     if (await confirmAction(t('fight.confirmEnd'))) onstep({ type: 'encounter', what: 'end' })

@@ -772,20 +772,28 @@ export function paramsOf(
 }
 
 /**
- * The actions that move the party: a `travel.move` step of their own, or a `do:` that takes
- * one that does (whatever their steps' conditions).
+ * The actions with a step that `test` holds for, of their own or of an action a `do:` of theirs
+ * takes (whatever their steps' conditions).
  */
-export function movingActions(rules: TravelRules): string[] {
+export function actionsWhere(rules: TravelRules, test: (step: ActionStep) => boolean): string[] {
   const all = availableActions(rules).all
-  const moves = (id: string, seen: Set<string>): boolean => {
+  const has = (id: string, seen: Set<string>): boolean => {
     if (seen.has(id)) return false
     seen.add(id)
     return actionSteps(all[id] ?? {}).some((s) => {
       const next = refId('actions', s.do)
-      return s['travel.move'] !== undefined || (next !== undefined && moves(next, seen))
+      return test(s) || (next !== undefined && has(next, seen))
     })
   }
-  return Object.keys(all).filter((id) => moves(id, new Set()))
+  return Object.keys(all).filter((id) => has(id, new Set()))
+}
+
+/**
+ * The actions that move the party: a `travel.move` step of their own, or a `do:` that takes
+ * one that does (whatever their steps' conditions).
+ */
+export function movingActions(rules: TravelRules): string[] {
+  return actionsWhere(rules, (s) => s['travel.move'] !== undefined)
 }
 export type ActionStep = z.infer<typeof step> & {
   when?: Condition

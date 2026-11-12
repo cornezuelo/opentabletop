@@ -3,7 +3,7 @@ import { seeded } from '@open-tabletop/random'
 import { createCharacter } from '@open-tabletop/character-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { encounterView } from './encounter'
+import { encounterView, fightStarters } from './encounter'
 import { startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
 /**
@@ -184,6 +184,11 @@ describe('an encounter: a fight in turns', () => {
     expect(codes(done.entries)).toEqual(['ENCOUNTER_STARTED', 'ENCOUNTER_ROUND', 'turn kael'])
     done = stepTrip(options, done.state, { type: 'encounter', what: 'end' })
     expect(codes(done.entries)).toEqual(['ENCOUNTER_ENDED'])
+  })
+
+  it("the player's actions that start a fight: the host's own button isn't needed", () => {
+    const { system } = systemOf(BY_SIDE)
+    expect(fightStarters(system.rules)).toEqual(['ambush'])
   })
 
   it('a fight panel sees the round, who acts in order, whose turn it is and who has acted', () => {

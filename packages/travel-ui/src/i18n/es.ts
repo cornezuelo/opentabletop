@@ -219,7 +219,7 @@ export const es: Messages<typeof en> = {
     gone: 'se ha ido: sale del orden la ronda que viene',
     start: 'Empezar un combate',
     startTip:
-      'Empieza un combate por turnos con los que están aquí, como van los combates del sistema: se lee el orden y llega el primer turno.',
+      'Empieza un combate por turnos con los que están aquí, como van los combates del sistema: se lee el orden y llega el primer turno. Aparece cuando ninguna acción del sistema empieza uno.',
     end: 'Terminar el combate',
     endTip:
       'Da el combate por acabado a mano: se hacen las acciones del sistema para su final, y el viaje sigue.',

@@ -3,7 +3,7 @@ import { seeded } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { corePack, greyMarchesPack } from './core.testing'
-import { encounterView } from './encounter'
+import { encounterView, fightStarters } from './encounter'
 import { applyResult } from './index'
 import { newMember } from './party'
 import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
@@ -273,6 +273,11 @@ describe('the bundled packs fight in turns', () => {
     ])
     expect(lines.at(-1)).toBe('ENCOUNTER_ENDED')
     expect(state.encounter).toBeUndefined()
+  })
+
+  it('both start their fights with an action of their own: Stand and fight, Fight', () => {
+    expect(fightStarters(marches.rules)).toEqual(['stand'])
+    expect(fightStarters(core.rules)).toEqual(['fight'])
   })
 
   it('the Grey Marches: a fight started by hand with those here, shown in turns, and called off', () => {

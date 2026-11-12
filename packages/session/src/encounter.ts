@@ -1,9 +1,11 @@
 import { matches, validateCondition, type Condition } from '@open-tabletop/conditions'
 import {
+  actionsWhere,
   momentRolls,
   qualify,
   refId,
   type TravelAction,
+  type TravelRules,
   type Unavailable,
 } from '@open-tabletop/travel-engine'
 import { resolveChange } from '@open-tabletop/variables'
@@ -141,6 +143,16 @@ export function parseEncounter(
     errors,
   }
 }
+
+/**
+ * The player's actions that start a fight (an effect `encounter: start` of theirs, or of an
+ * action they take): with one, a host needs no button of its own to start one by hand.
+ */
+export const fightStarters = (rules: TravelRules): string[] =>
+  actionsWhere(
+    rules,
+    (s) => (s.effects as Record<string, unknown> | undefined)?.encounter === 'start',
+  ).filter((id) => !rules.actions?.[id]?.on)
 
 /** The party's side: its members, or the party itself when it's played as a whole. */
 const partySide = (s: SessionState): string[] =>

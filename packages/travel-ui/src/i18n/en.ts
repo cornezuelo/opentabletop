@@ -224,7 +224,7 @@ export const en = {
     gone: 'gone: leaves the order next round',
     start: 'Start a fight',
     startTip:
-      "Starts a fight in turns with those here, as the system's fights go: the order is read, and the first turn comes.",
+      "Starts a fight in turns with those here, as the system's fights go: the order is read, and the first turn comes. It shows when no action of the system starts one.",
     end: 'End the fight',
     endTip:
       'Calls the fight off by hand: the system’s actions for its end are taken, and the trip goes on.',

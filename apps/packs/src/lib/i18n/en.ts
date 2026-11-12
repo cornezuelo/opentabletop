@@ -747,7 +747,7 @@ export const en = {
   /** A system's fights in turns (`encounter:`), on the Overview. */
   encounter: {
     title: 'Fights in turns',
-    help: "How the system's fights go, turn by turn (`encounter:`): who acts first, what a member of the party may do on its turn, how long a round takes and when a fight ends by itself. Without it a fight is played as a whole, by the actions and tables that tell it. A fight starts with an effect `encounter: start` (an action, a check's result) or by hand with **Start a fight** on a trip, and ends with `encounter: end`, with its rule (**Ends when**) or by hand.\n• `encounter: { order: { by: side }, actions: [actions.strike] }` — the party first, its members striking in turn",
+    help: "How the system's fights go, turn by turn (`encounter:`): who acts first, what a member of the party may do on its turn, how long a round takes and when a fight ends by itself. Without it a fight is played as a whole, by the actions and tables that tell it. A fight starts with an effect `encounter: start` (an action, a check's result) or by hand with **Start a fight** on a trip (shown only when no action of the system starts one), and ends with `encounter: end`, with its rule (**Ends when**) or by hand.\n• `encounter: { order: { by: side }, actions: [actions.strike] }` — the party first, its members striking in turn",
     on: 'Its fights go in turns',
     by: 'Who acts first',
     byHelp:

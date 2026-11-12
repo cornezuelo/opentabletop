@@ -759,7 +759,7 @@ export const es: Messages<typeof en> = {
   },
   encounter: {
     title: 'Combates por turnos',
-    help: 'Cómo van los combates del sistema, turno a turno (`encounter:`): quién actúa primero, qué puede hacer un miembro del grupo en su turno, cuánto dura una ronda y cuándo acaba un combate por sí solo. Sin esto, un combate se juega de una vez, con las acciones y tablas que lo cuentan. Un combate empieza con un efecto `encounter: start` (una acción, el resultado de una comprobación) o a mano con **Empezar un combate** en un viaje, y acaba con `encounter: end`, con su regla (**Acaba cuando**) o a mano.\n• `encounter: { order: { by: side }, actions: [actions.strike] }` — el grupo primero, sus miembros golpeando por turnos',
+    help: 'Cómo van los combates del sistema, turno a turno (`encounter:`): quién actúa primero, qué puede hacer un miembro del grupo en su turno, cuánto dura una ronda y cuándo acaba un combate por sí solo. Sin esto, un combate se juega de una vez, con las acciones y tablas que lo cuentan. Un combate empieza con un efecto `encounter: start` (una acción, el resultado de una comprobación) o a mano con **Empezar un combate** en un viaje (solo aparece si ninguna acción del sistema empieza uno), y acaba con `encounter: end`, con su regla (**Acaba cuando**) o a mano.\n• `encounter: { order: { by: side }, actions: [actions.strike] }` — el grupo primero, sus miembros golpeando por turnos',
     on: 'Sus combates van por turnos',
     by: 'Quién actúa primero',
     byHelp:
