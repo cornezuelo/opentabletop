@@ -268,6 +268,7 @@ describe('the bundled packs fight in turns', () => {
       actions: ['strike'],
       foes: 'table.foe-turn',
       ends: { 'present.count': 0 },
+      skip: { 'acting.conditions': 'staggered' },
     })
     const { state, lines } = fight(core, 'fight', 'c')
     expect(lines.slice(0, 5)).toEqual([
@@ -377,7 +378,7 @@ describe('the bundled packs fight in turns', () => {
       if (e.stage === 'rolling') {
         expect(encounterView(done.state)).toMatchObject({ rolling: e.rolling, dice: '1d6' })
         asked.push(e.rolling!)
-        const total = e.rolling === 'grey-marches/wolf-turn' ? 6 : 1
+        const total = e.rolling === 'grey-marches/wolf-turn' ? 5 : 1
         done = stepTrip(options, done.state, { type: 'encounter', what: 'roll', total })
         continue
       }
@@ -621,9 +622,10 @@ describe('the bundled packs fight in turns', () => {
     const texts = (all: JournalEntry[]) => all.map((e) => JSON.stringify(e))
     const seeds = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     const core1 = seeds.map((seed) => texts(fight(core, 'fight', seed).all))
-    // A glancing 1 staggers a foe (Core's _A strike_), which reels on its turn; it wears off.
+    // A glancing 1 staggers a foe (Core's _A strike_), which loses its turn (the system's
+    // `skip`); it wears off.
     expect(core1.some((t) => t.some((x) => x.includes('staggers')))).toBe(true)
-    expect(core1.some((t) => t.some((x) => x.includes('The foe reels')))).toBe(true)
+    expect(core1.some((t) => t.some((x) => x.includes('ENCOUNTER_SKIPPED')))).toBe(true)
     expect(
       core1.some((t) => t.some((x) => x.includes('conditions.staggered') && x.includes('"to":0'))),
     ).toBe(true)
@@ -635,5 +637,59 @@ describe('the bundled packs fight in turns', () => {
     expect(
       marches1.some((t) => t.some((x) => x.includes('conditions.rattled') && x.includes('"to":0'))),
     ).toBe(true)
+  })
+
+  it('the Grey Marches: a wolf drags a companion down, and that one loses their next turn', () => {
+    let lost = 0
+    for (let n = 1; n <= 30 && !lost; n++) {
+      const { session } = startTrip({
+        system: marches,
+        location: 'a',
+        members: people(marches),
+        seed: `d${n}`,
+        time: 9 * 60,
+      })
+      const options = {
+        system: marches,
+        world: heath,
+        oracle: createOracleEngine({ registry, random: seeded(n) }),
+      }
+      const s = applyResult(
+        session,
+        // Enraged, their nerve never breaks: they bite on every turn.
+        {
+          effects: {
+            'present.pack-leader': 1,
+            'present.grey-wolf': 3,
+            'present.all.conditions.enraged': true,
+          },
+        },
+        {},
+        partyOf(marches),
+      )
+      let done = stepTrip(options, s, { type: 'action', id: 'stand' })
+      const all = [...done.entries]
+      for (let turn = 0; turn < 8 && done.state.encounter; turn++) {
+        const here = done.state.present?.filter((p) => p.at === done.state.travel.location) ?? []
+        const foe = here.find((p) => p.character.id.startsWith('grey-wolf'))?.character.id
+        if (!foe) break
+        done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe } })
+        if (done.state.travel.waiting)
+          done = stepTrip(options, done.state, { type: 'resume', choice: foe })
+        all.push(...done.entries)
+      }
+      const dragged = all.findIndex(
+        (e) => e.code === 'CHANGED' && String(e.data?.path).endsWith('conditions.dragged-down'),
+      )
+      if (dragged < 0) continue
+      const who = String(all[dragged].data?.path).split('.')[1]
+      // That one's next turn is lost, and the condition with it.
+      const next = all.slice(dragged).find((e) => e.code === 'ENCOUNTER_TURN' && e.data?.id === who)
+      if (!next) continue
+      const after = all[all.indexOf(next) + 1]
+      expect(after.code).toBe('ENCOUNTER_SKIPPED')
+      lost++
+    }
+    expect(lost).toBe(1)
   })
 })

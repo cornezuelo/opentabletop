@@ -14,7 +14,7 @@ description: |-
   **Shows:** the smallest system: travel rules with a march, a camp, a rest and eating;
   a weather check bound to a weather model by season (today's follows yesterday's);
   a calendar whose day is named by parts (the night tagged `dark`); a character sheet,
-  a party sheet, a sheet of each map and a catalogue of gear; a bestiary of one template; fights in turns (the party first, one action on a member's turn, a blow on a foe's, over when no foe is left); a catalogue of one place exploring may find; a land model for generating land.
+  a party sheet, a sheet of each map and a catalogue of gear; a bestiary of one template; fights in turns (the party first, one action on a member's turn, a blow on a foe's, a turn lost while staggered, over when no foe is left); a catalogue of one place exploring may find; a land model for generating land.
 travel: travel-rules.default
 # What resolves its checks (travel.yaml): the weather check rolls the plain sky.
 bindings: bindings.default
@@ -34,6 +34,8 @@ encounter:
   actions: [actions.strike]
   foes: table.foe-turn
   ends: { present.count: 0 }
+  # A staggered foe (sheet.yaml, `lasts: rounds`) loses its turns while it lasts.
+  skip: { acting.conditions: staggered }
 # What exploring may find (places.yaml): a place written on the map's hex.
 places: [places.default]
 # What a map discovered through its exits is laid with (pieces.yaml): on squares and on hexes.

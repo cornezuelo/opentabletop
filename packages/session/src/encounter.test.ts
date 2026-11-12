@@ -401,6 +401,30 @@ describe('an encounter: a fight in turns', () => {
     expect(second(done.state)?.dazed).toBeUndefined()
   })
 
+  it('a turn is lost while the system says so, its moment still said, and counted down after', () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.daze, actions.strike, actions.flee], skip: { acting.conditions: braced } }',
+    )
+    let done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    // Kael braces the goblin until its next turn: that turn is lost.
+    done = stepTrip(options, done.state, { type: 'action', id: 'daze', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, {
+      type: 'action',
+      id: 'strike',
+      with: { foe: 'goblin-2' },
+    })
+    const skipped = done.entries.filter((e) => e.code === 'ENCOUNTER_SKIPPED')
+    expect(skipped.map((e) => e.data?.id)).toEqual(['goblin'])
+    // Its moment still came: the goblins bite Kael on each of their turns, the lost one too.
+    expect(done.state.members!.find((m) => m.id === 'kael')!.values.health).toBe(8)
+    // Braced was counted down at that turn, after it was read: gone.
+    const goblin = done.state.present!.find((p) => p.character.id === 'goblin')!.character
+    expect(goblin.conditions.braced).toBeUndefined()
+    // Back to Kael, round 2.
+    expect(done.state.encounter).toMatchObject({ round: 2, stage: 'acting' })
+    expect(systemOf('{ actions: [actions.strike], skip: { not: 1 } }').problems.length).toBe(1)
+  })
+
   it("effects on a copy's values are checked against the bestiary's sheets too", () => {
     const { problems } = systemOf(BY_SIDE)
     const messages = problems.map((p) => p.message).filter((m) => m.includes('rage'))

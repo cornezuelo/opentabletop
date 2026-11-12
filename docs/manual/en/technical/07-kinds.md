@@ -838,12 +838,14 @@ encounter: # (in a kind: system, beside travel, sheet…)
   foes: table.foe-turn # what a foe does on its turn, unless its template says
   minutes: 1 # a round's length (absent: no time passes)
   ends: { present.count: 0 } # when it ends by itself, read after every turn
+  skip: { acting.conditions: stunned } # when a turn is lost, read as each one begins
 ```
 
 - **It starts and ends by an effect**: `encounter: start` (an action's step, a check's or a table's result: _Fight_, an ambush) and `encounter: end` (_Fall back_, a parley). It ends by itself when `ends` holds, or when nobody is left on one side. The player can also start one by hand (**Start a fight**, with those present, in a system with no action of its own that does) or end it (**End the fight**), in the fight panel of Travel, Map's Play and Campaign's scenes (a fight without a trip). Packs' **Overview** writes `encounter:` with a form.
 - **Who takes part**: the party's members (or the party, played as a whole) and those present at the party's place. Those who come during the fight join at the end of the next round; those who leave lose their turns.
 - **The order** is read once, after the moment `encounter.start`: its actions may say which side goes first with an effect, `encounter.first: foes` (an ambush), over `first`. By participant, ties go to the party's side.
 - **A turn of the party's** waits for the player: whoever's turn it is is the one acting (`acting.*`), and only the actions in `actions` are open (with their own `when`, `needs` and `ask`); travelling and the rest wait until the fight is over. Taking one ends the turn once it's done. Outside a fight, those actions are as open as their `when` says: write `when: { encounter.round: { gte: 1 } }` for one only in fights.
+- **A turn lost**: as each turn begins, `skip` is read acting as whoever's turn it is; while it holds, that turn passes by itself (the journal says _Kael loses the turn_): no table is rolled for a foe, and a member's turn doesn't wait for the player. The moment `encounter.turn` still comes (what happens on every turn, bleeding, still happens). It's read before what was given until that one's turn counts down, so a condition with `lasts: turns` given `1` loses exactly one turn: _Taken by surprise_, Core's _Staggered_ foe, the Grey Marches' companion _Dragged down_ by a wolf.
 - **A foe's turn** goes by itself: the actions `on: encounter.turn` happen, with `acting.*` the foe (`when: { encounter.side: foes }`); then, if it's still there, its table is rolled acting as it: its template's `actions` ([Bestiaries](#bestiaries)), else the system's `foes`; then the next turn comes. A result aims at someone with `set: { target: … }`, and its effects name them as `characters[target]`:
 
 ```yaml

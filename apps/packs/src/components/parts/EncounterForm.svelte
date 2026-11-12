@@ -221,6 +221,17 @@
         onchange={(c) => set('ends', c)}
       />
     </div>
+    <div class="ends">
+      <span class="label">{t('encounter.skip')}<InfoTip markdown={t('encounter.skipHelp')} /></span>
+      <ConditionEditor
+        value={raw.skip}
+        suggestions={hints}
+        locale={getLocale()}
+        {disabled}
+        label={t('encounter.skip')}
+        onchange={(c) => set('skip', c)}
+      />
+    </div>
   {/if}
 </section>
 

@@ -27,6 +27,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 - **Minutes a round takes**: so lights burn down and clocks move during a fight; empty, no time passes.
 - **What a member does on its turn**: the system's actions ticked, the only ones open in a fight; taking one ends the turn. A target is a parameter whose choices are those present (`from: present.ids`), in [Rules](05-rules.md).
 - **Ends when**: a condition read after every turn (`present.count: 0`, nobody left); empty, only an action's `encounter: end` or the player end it.
+- **A turn is lost when**: a condition read as each turn begins, acting as whoever's turn it is (`acting.conditions: stunned`); while it holds, that turn passes by itself, its moment still said. Empty: no turn is lost.
 
 ## Packs it brings
 

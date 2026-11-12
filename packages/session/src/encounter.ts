@@ -41,6 +41,12 @@ export interface EncounterRules {
   minutes?: number
   /** When it ends by itself: read after the encounter starts and after every turn. */
   ends?: Condition
+  /**
+   * When a turn is lost: read as each turn begins, acting as whoever's turn it is
+   * (`acting.conditions: stunned`), before what was given until that turn counts down. Its
+   * moment still comes; nothing else is done on it.
+   */
+  skip?: Condition
 }
 
 /**
@@ -78,7 +84,7 @@ export interface Encounter {
 export const ENCOUNTER_EFFECT = /^encounter(?:\.(first))?$/
 
 /** The keys `encounter:` may have. */
-const KEYS = new Set(['order', 'actions', 'foes', 'minutes', 'ends'])
+const KEYS = new Set(['order', 'actions', 'foes', 'minutes', 'ends', 'skip'])
 
 /** A system's `encounter:` read, with what's wrong in it (paths from `encounter`). */
 export function parseEncounter(
@@ -145,6 +151,7 @@ export function parseEncounter(
   if (raw.minutes !== undefined && (typeof raw.minutes !== 'number' || raw.minutes < 0))
     errors.push('encounter.minutes: expected the minutes a round takes')
   if (raw.ends !== undefined) errors.push(...validateCondition(raw.ends, 'encounter.ends'))
+  if (raw.skip !== undefined) errors.push(...validateCondition(raw.skip, 'encounter.skip'))
   if (errors.length) return { errors }
   return {
     rules: {
@@ -153,6 +160,7 @@ export function parseEncounter(
       ...(typeof raw.foes === 'string' && raw.foes && { foes: raw.foes }),
       ...(typeof raw.minutes === 'number' && { minutes: raw.minutes }),
       ...(raw.ends !== undefined && { ends: raw.ends as Condition }),
+      ...(raw.skip !== undefined && { skip: raw.skip as Condition }),
     },
     errors,
   }
@@ -409,14 +417,25 @@ export function driveEncounter(
           break
         }
         const side = sideOf(state, id)
-        // The party's turns wait for the player; the foes' go by themselves (for now).
         edit((e, s) => {
-          e.stage = side === 'party' ? 'acting' : 'acted'
           delete e.rolling
           delete e.dice
           if (id !== PARTY_ID) s.acting = id
         })
+        // A turn lost (the system's `skip`, acting as this one) passes, its moment said.
+        const skipped =
+          !!rules.skip &&
+          matches(rules.skip, qualify(context(state)), {
+            roller: momentRolls(
+              state.travel,
+              state.travel.location,
+              `encounter.skip|${state.nextEntry}`,
+            ),
+          })
+        // The party's turns wait for the player; the foes' go by themselves (for now).
+        edit((e) => (e.stage = side === 'party' && !skipped ? 'acting' : 'acted'))
         line('ENCOUNTER_TURN', { id, name: participantName(state, id), side, round: e.round })
+        if (skipped) line('ENCOUNTER_SKIPPED', { id, name: participantName(state, id) })
         // What it was given until its own turn counts one down.
         const lapsed = lapse(state, 'turns', id)
         state = lapsed.state
@@ -424,7 +443,8 @@ export function driveEncounter(
         say({ type: 'moment', at: 'encounter.turn' })
         // A foe still standing does what its table says, acting as itself: rolled now, or
         // by the player when the trip rolls the foes by hand.
-        const table = side === 'foes' && stillHere(state, id) ? foeTable(state, id) : undefined
+        const table =
+          side === 'foes' && !skipped && stillHere(state, id) ? foeTable(state, id) : undefined
         if (table && !waits(state)) {
           if (!state.foesByHand) say({ type: 'roll', resolve: table })
           else {

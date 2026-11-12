@@ -96,6 +96,9 @@ sheet/companion:
     rattled:
       name: Aturdido
       description: Sacudido por un golpe fuerte; sus propios golpes aciertan peor durante una o dos rondas del combate.
+    dragged-down:
+      name: Derribado
+      description: Tirado al suelo por un lobo; el compañero pierde su siguiente turno en el combate.
     burdened:
       name: Cargado
       description: Lleva más de lo que puede; ni marcha forzada ni marcha nocturna hasta que suelte algo.

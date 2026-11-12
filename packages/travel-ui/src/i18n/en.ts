@@ -322,6 +322,7 @@ export const en = {
     encounterRound: 'Round {round}',
     encounterTurn: '{name}’s turn',
     encounterRolls: '{name}’s turn: waiting for you to roll {table}',
+    encounterSkipped: '{name} loses the turn',
     byHand: '(by hand)',
     encounterPartyTurn: 'The party’s turn',
     encounterEnded: 'The fight is over, in round {rounds}',

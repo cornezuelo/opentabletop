@@ -85,10 +85,11 @@ wolf-turn:
   description: |-
     Lo que hace un lobo gris (o el jefe de la manada) en su turno en un combate: va a por el más débil de la Compañía y muerde, por su Daño, salvo que solo ronde.
 
-    **Enseña:** el turno propio de una plantilla (`actions: table.wolf-turn` en el bestiario, que su variante toma por `like`) por encima del del sistema; un objetivo elegido por un valor (`set: { target: party.members.lowest.values.health }`).
+    **Enseña:** el turno propio de una plantilla (`actions: table.wolf-turn` en el bestiario, que su variante toma por `like`) por encima del del sistema; un objetivo elegido por un valor (`set: { target: party.members.lowest.values.health }`); el turno perdido de un compañero (_Derribado_ durante uno de sus turnos, `lasts: turns`, que lee el `encounter.skip` del sistema).
   entries:
     circle: '{{acting.name}} ronda, gruñendo'
     bite: '{{acting.name}} va a por el más débil de vosotros'
+    drag: '{{acting.name}} derriba al más débil de vosotros'
 parting-blow:
   name: Un golpe al retirarse
   description: |-

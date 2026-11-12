@@ -298,20 +298,89 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     const options = {
       system,
       world: room,
-      oracle: createOracleEngine({ registry, random: seeded('st') }),
+      oracle: createOracleEngine({ registry, random: seeded('s2') }),
     }
-    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'st' })
+    // (A seed whose Initiative is no Critical Failure: the PC's turn waits in round 1.)
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 's2' })
     let s = applyResult(session, { effects: { 'present.necropede': 1 } }, {}, rules)
     s = applyResult(s, { effects: { 'present.all.conditions.stunned': 1 } }, {}, rules)
     expect(s.present![0].character.conditions.stunned).toMatchObject({ left: 1 })
     const done = stepTrip(options, s, { type: 'action', id: 'fight' })
-    const results = done.entries.filter((e) => e.code === 'ORACLE_RESULT').map((e) => e.text)
-    // Its turn in round 1: nothing. By round 2 the Stun is over.
-    expect(results).toContain("Necropede can't act")
+    // Its turn in round 1 is lost (the system's `skip`). By round 2 the Stun is over.
+    expect(done.entries.find((e) => e.code === 'ENCOUNTER_SKIPPED')?.data?.id).toBe('necropede')
     expect(done.state.present![0].character.conditions.stunned).toMatchObject({ left: 1 })
     // Fled or not, it's over: round 2 began, or the fight ended.
     const later = stepTrip(options, done.state, { type: 'action', id: 'flee' })
     expect(later.state.present![0].character.conditions.stunned).toBeUndefined()
+  })
+
+  it('an ambush before a fight: won, the Initiative and +20; noticed, Initiative at -20', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor' }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const ambush = (stealth: number, seed: string) => {
+      const pc = newMember(rules, { id: 'e', name: 'E', values: { stealth, perception: 50 } })
+      const options = {
+        system,
+        world: room,
+        oracle: createOracleEngine({ registry, random: seeded(seed) }),
+      }
+      const { session } = startTrip({ system, location: 'a', members: [pc], seed })
+      const s = applyResult(session, { effects: { 'present.necropede': 1 } }, {}, rules)
+      return stepTrip(options, { ...s, acting: 'e' }, { type: 'action', id: 'ambush' })
+    }
+    // Stealth 99: always won (unless both crit), the PC first, no Initiative rolled.
+    const won = ambush(99, 'w')
+    const rolled = (d: typeof won) =>
+      d.entries.filter((e) => e.code === 'ROLLED').map((e) => String(e.data?.check))
+    expect(won.state.encounter).toBeDefined()
+    expect(rolled(won)).toEqual(['generator.surprise'])
+    expect(won.state.encounter!.order[won.state.encounter!.turn]).toBe('e')
+    expect(won.state.members![0].values.bonus).toBe(20)
+    expect(won.state.party!.values.ambush).toBe(1)
+    // Stealth 0: noticed, and the Initiative rolled with Perception 50 - 20.
+    const lost = ambush(0, 'l')
+    expect(rolled(lost).slice(0, 2)).toEqual(['generator.surprise', 'generator.initiative'])
+    const initiative = lost.entries.find(
+      (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/initiative',
+    )
+    expect((initiative?.data?.value as { aim: number }).aim).toBe(30)
+    // Over, the ambush counts no more.
+    const fled = stepTrip(
+      {
+        system,
+        world: room,
+        oracle: createOracleEngine({ registry, random: seeded('f') }),
+      },
+      won.state,
+      { type: 'action', id: 'flee' },
+    )
+    if (!fled.state.encounter) expect(fled.state.party!.values.ambush).toBe(0)
+  })
+
+  it("the Initiative's Critical Failure: Taken by Surprise, the PC's first turn lost", () => {
+    let caught = 0
+    // Until one is caught (each fight is long to play).
+    for (let n = 0; n < 60 && !caught; n++) {
+      const { entries } = fight({ rotwalker: 1 }, `i${n}`)
+      const initiative = entries.find(
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/initiative',
+      )
+      const value = initiative?.data?.value as { caught?: unknown; snap?: unknown }
+      if (value?.caught) {
+        caught++
+        expect(entries.find((e) => e.code === 'ENCOUNTER_SKIPPED')?.data?.id).toBe('erthos')
+      }
+    }
+    // Perception 50: doubles over it (55, 66, 77, 88, 99) come about once in twenty.
+    expect(caught).toBeGreaterThan(0)
   })
 
   it('three Rotwalkers: humanoid hit locations, Reactions counted each round, the Initiative deciding who acts first', () => {

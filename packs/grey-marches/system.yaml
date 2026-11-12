@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -38,6 +38,8 @@ encounter:
   foes: table.foe-turn
   minutes: 1
   ends: { present.count: 0 }
+  # A companion dragged down by a wolf (sheet.yaml) loses their next turn.
+  skip: { acting.conditions: dragged-down }
 # The places of the Marches (places.yaml): what discovery's contents make on a hex.
 places: [places.default]
 # The threats of the Marches (clocks.yaml): the progress clocks its world clock starts with.

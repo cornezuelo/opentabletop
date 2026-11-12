@@ -42,11 +42,9 @@ name: A foe's turn
 description: |-
   What a foe does on its turn in a fight: a blow at one of you.
 
-  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; a result aimed at someone (`set: { target: party.members.random }`), its effect on them (`characters[target].values.health`, and their shield's wear die a step down, `characters[target].items.shield.wear: -1`, nothing for whoever carries none); a turn lost while a condition given for a while lasts (`acting.conditions: staggered`).
+  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; a result aimed at someone (`set: { target: party.members.random }`), its effect on them (`characters[target].values.health`, and their shield's wear die a step down, `characters[target].items.shield.wear: -1`, nothing for whoever carries none). A staggered foe never rolls it: its turn is lost (the system's `encounter.skip`).
 roll: 1d1
 entries:
-  # Staggered (sheet.yaml, `lasts: rounds`): it loses its turn while it lasts.
-  - { id: reels, range: 1, when: { acting.conditions: staggered }, result: The foe reels }
   - id: blow
     range: 1
     set: { target: party.members.random }

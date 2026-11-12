@@ -27,6 +27,7 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 - **Minutos que dura una ronda**: para que las luces se gasten y los relojes avancen durante un combate; vacío, no pasa el tiempo.
 - **Qué hace un miembro en su turno**: las acciones del sistema marcadas, las únicas abiertas en un combate; hacer una termina el turno. Un objetivo es un parámetro cuyas opciones son los presentes (`from: present.ids`), en [Reglas](05-rules.md).
 - **Acaba cuando**: una condición que se lee después de cada turno (`present.count: 0`, no queda nadie); vacía, solo lo acaban el `encounter: end` de una acción o el jugador.
+- **Se pierde un turno cuando**: una condición que se lee al empezar cada turno, actuando como aquel de quien es el turno (`acting.conditions: stunned`); mientras se cumple, ese turno pasa solo, y su momento llega igualmente. Vacía: no se pierde ningún turno.
 
 ## Packs que trae
 

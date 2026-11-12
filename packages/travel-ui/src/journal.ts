@@ -630,6 +630,9 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         name: String(d.name || d.id || ''),
         table: nameOf(String(d.table ?? '')),
       })
+    // A turn lost (the system's `encounter.skip`).
+    case 'ENCOUNTER_SKIPPED':
+      return t('journal.encounterSkipped', { name: String(d.name || d.id || '') })
     case 'ENCOUNTER_ENDED':
       return t('journal.encounterEnded', { rounds: Number(d.rounds ?? 0) })
     // A value of the connection the step takes changed in play (a door opened).

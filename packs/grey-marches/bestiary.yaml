@@ -179,15 +179,24 @@ name: A wolf's turn
 description: |-
   What a grey wolf (or the pack's leader) does on its turn in a fight: it goes for whoever of the Company is weakest, and bites, for its Harm, unless it only circles.
 
-  **Shows:** a template's own turn (`actions: table.wolf-turn` in the bestiary, taken by its variant through `like`) over the system's; a target chosen by a value (`set: { target: party.members.lowest.values.health }`).
+  **Shows:** a template's own turn (`actions: table.wolf-turn` in the bestiary, taken by its variant through `like`) over the system's; a target chosen by a value (`set: { target: party.members.lowest.values.health }`); a companion's turn lost (_Dragged down_ for one of their turns, `lasts: turns`, read by the system's `encounter.skip`).
 roll: 1d6
 entries:
   - { id: circle, range: 1-2, result: '{{acting.name}} circles, snarling' }
   - id: bite
-    range: 3-6
+    range: 3-5
     set: { target: party.members.lowest.values.health }
     result: '{{acting.name}} goes for the weakest of you'
     effects: { 'characters[target].values.health': '-{{acting.values.harm}}' }
+  # Dragged down (sheet.yaml, `lasts: turns`): that one loses their next turn (the system's
+  # `encounter.skip`).
+  - id: drag
+    range: 6
+    set: { target: party.members.lowest.values.health }
+    result: '{{acting.name}} drags the weakest of you down'
+    effects:
+      'characters[target].values.health': '-{{acting.values.harm}}'
+      'characters[target].conditions.dragged-down': 1
 ---
 # Falling back (travel.yaml's Fall back) past a foe fiercer than the clumsiest companion.
 kind: table

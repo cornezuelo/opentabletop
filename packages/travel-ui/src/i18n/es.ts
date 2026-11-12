@@ -315,6 +315,7 @@ export const es: Messages<typeof en> = {
     encounterRound: 'Ronda {round}',
     encounterTurn: 'Turno de {name}',
     encounterRolls: 'Turno de {name}: esperando a que tires {table}',
+    encounterSkipped: '{name} pierde el turno',
     byHand: '(a mano)',
     encounterPartyTurn: 'Turno del grupo',
     encounterEnded: 'Se acabó el combate, en la ronda {rounds}',

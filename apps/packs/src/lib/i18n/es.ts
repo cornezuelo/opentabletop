@@ -794,6 +794,9 @@ export const es: Messages<typeof en> = {
     ends: 'Acaba cuando',
     endsHelp:
       'Cuándo acaba un combate por sí solo: se lee al empezar y después de cada turno. Vacío: solo lo acaban un efecto o el jugador.\n• `present.count: 0` — no queda nadie\n• `party.conditions: fled` — el grupo ha huido',
+    skip: 'Se pierde un turno cuando',
+    skipHelp:
+      'Cuándo pierde su turno uno de los que luchan: se lee al empezar cada turno, actuando como aquel de quien es el turno, antes de que cuente hacia atrás lo que se le dio hasta su turno. El turno pasa solo (el diario lo dice); su momento (`encounter.turn`) llega igualmente, así que lo que pasa en cada turno sigue pasando. Vacío: no se pierde ningún turno.\n• `acting.conditions: stunned` — mientras está aturdido\n• `acting.conditions: surprised` — con `lasts: turns` en la hoja y dado `1`: pierde el primer turno y se le pasa',
   },
   overview: {
     sheet: 'Hoja de personajes',
