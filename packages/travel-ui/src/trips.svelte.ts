@@ -508,7 +508,7 @@ export class TripStore {
       this.edit((input) => {
         const s = structuredClone(input)
         const events = brought.flatMap(([template, n]) =>
-          changePresent(s, partyOf(this.system), template, n),
+          changePresent(s, partyOf(this.system, this.options.locale()), template, n),
         )
         return addHandEntries(s, events)
       })

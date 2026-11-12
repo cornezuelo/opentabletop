@@ -106,7 +106,7 @@
   }
 
   function add(id: string) {
-    edit((s) => changePresent(s, partyOf(system), id, 1))
+    edit((s) => changePresent(s, partyOf(system, locale), id, 1))
   }
 
   async function remove(c: CharacterState) {

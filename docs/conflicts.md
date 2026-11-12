@@ -74,7 +74,7 @@ As agreed on 2026-10-29: (a) **the theatre of the mind** is this proposal; (b) *
 
 1. **A fight in turns is worth it**: phases 2 and 3 are built; a system without `encounter:` still plays fights as a whole.
 2. **The order** comes from `by: side` (a table's result says which side goes first) or `by: participant` (a value rolled once each); no ordering table of the system's own.
-3. **Foes' turns are rolled by the system** by default (solo play); a user preference asks for each one with the same waiting box, to roll it by hand.
+3. **Foes' turns are rolled by the system** by default (solo play); an option of the trip asks for each one, to roll it by hand (see _Foes that act_).
 4. **A fight exists without a trip too**: the encounter is not the trip's alone; the Oracle and the Campaign app can open one (a scene with those present), as Travel and Map's Play do.
 5. **A shared fight panel**: a component of its own in a `*-ui` package (the backlog's _Initiative tracker and combat ledger_), mounted by Travel, Map's Play, the Oracle and Campaign: whose turn, the round, those present and what each may do.
 
@@ -89,3 +89,6 @@ As agreed on 2026-10-29: (a) **the theatre of the mind** is this proposal; (b) *
 
 1. **A target in a short form** for now: what a foe's turn strikes is written in its table (`target: party.members.random`, `target: party.lowest.health`), read as who `target` is for its effects; it joins the candidates-and-conditions mechanism of _Factions that choose_ when that exists.
 2. **A foe's table is its template's** (`actions: table.wolf-turn` in the bestiary), with the system's (`encounter.foes`) for the templates that have none.
+3. **Rolling foes' turns by hand** is an option of the trip (or scene), not a user preference: with it on, each foe's turn stops the trip with **Continue**, and the player chooses the result of its table instead of the system rolling it. (Decided 2026-11-12.)
+4. **A party played as a whole** (no members) is the target of a foe's attack itself: `characters[target]` reaches the party's sheet. (Decided 2026-11-12.)
+5. **`round.*` values wait for phase 4**, designed with Ker Nethalas' Reactions. (Decided 2026-11-12.)

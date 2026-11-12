@@ -8,15 +8,16 @@ import type { SessionState } from './index'
  * • `party.members.random` — one of them, rolled
  * • `party.members.lowest.values.health` / `party.members.highest.values.health` — the one
  *   with the least or the most of a value (the first of them on a tie)
- * Anything else is kept as written (an id, a variable already read). Without members there's
- * nobody to aim at: none.
+ * Anything else is kept as written (an id, a variable already read). A party played as a
+ * whole (no members) is aimed at itself, through its own sheet (`characters.party`); without
+ * one either, there's nobody to aim at: none.
  */
 export function chooseTarget(
   written: string,
-  s: Pick<SessionState, 'members'>,
+  s: Pick<SessionState, 'members' | 'party'>,
   roll: Roller,
 ): string | undefined {
-  const members = s.members ?? []
+  const members = s.members?.length ? s.members : s.party ? [s.party] : []
   if (written === 'party.members.random') {
     if (!members.length) return undefined
     const n = roll(`1d${members.length}`) ?? 1

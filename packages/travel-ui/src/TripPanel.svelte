@@ -947,7 +947,8 @@
           {onedit}
         />
       {/if}
-      {#if system.mapSheet && session.map}
+      <!-- A scene stands on no map. -->
+      {#if system.mapSheet && session.map && !scene}
         <Section
           title={sheetText(system.mapSheet.def.name, locale) || t('mapSheet.title')}
           help={t('mapSheet.help')}

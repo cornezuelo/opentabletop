@@ -630,10 +630,11 @@ export function applyMemberEffects(
     }
     const rest = `${part}.${id}`
     const members: CharacterState[] = s.members ?? []
-    /** A member by id, or a copy of a template the trip made. */
+    /** A member by id, a copy of a template the trip made, or the party aimed at as a whole. */
     const characterById = (wanted: string): CharacterState[] => {
       const member = members.filter((m) => m.id === wanted)
       if (member.length) return member
+      if (!members.length && s.party?.id === wanted) return [s.party]
       const copy = s.present?.find((p) => p.character.id === wanted)
       return copy ? [copy.character] : []
     }

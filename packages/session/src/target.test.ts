@@ -15,11 +15,15 @@ describe('whom a result aims at', () => {
     expect(chooseTarget('party.members.lowest.values.wits', s, () => 1)).toBeUndefined()
   })
 
-  it('one of them rolled, an id kept as written, nobody without members', () => {
+  it('one of them rolled, an id kept as written, the party as a whole, or nobody', () => {
     expect(chooseTarget('party.members.random', s, () => 3)).toBe('odo')
     expect(chooseTarget('party.members.random', s, () => 1)).toBe('kael')
     expect(chooseTarget('mara', s, () => 1)).toBe('mara')
     expect(chooseTarget('party.members.random', {}, () => 1)).toBeUndefined()
+    // A party played as a whole is aimed at through its own sheet.
+    const whole = { party: member('party', 4) }
+    expect(chooseTarget('party.members.random', whole, () => 1)).toBe('party')
+    expect(chooseTarget('party.members.lowest.values.health', whole, () => 1)).toBe('party')
     expect(isTargetForm('party.members.random')).toBe(true)
     expect(isTargetForm('kael')).toBe(false)
   })

@@ -1429,8 +1429,12 @@ export function withMapSheet(
   return sheet ? { ...session, map: structuredClone(sheet) } : session
 }
 
-/** What a system says of its party's members: their sheet and its bindings. */
-export const partyOf = (system: TravelSystem): PartyRules => ({
+/**
+ * What a system says of its party's members: their sheet and its bindings; with `locale`,
+ * the language copies of its templates are named in.
+ */
+export const partyOf = (system: TravelSystem, locale?: string): PartyRules => ({
+  ...(locale && { locale }),
   sheet: system.sheet,
   partySheet: system.partySheet,
   mapSheet: system.mapSheet,

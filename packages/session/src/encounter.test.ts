@@ -10,13 +10,14 @@ import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFact
 /**
  * A made-up system whose fights go in turns: an ambush brings two goblins and starts a
  * fight; the party's members strike one goblin chosen, or flee; on each foe's turn the
- * goblins bite whoever leads; a round takes a minute; it ends with no goblin left.
+ * goblins bite whoever leads; a round takes a minute; it ends with no goblin left. A party
+ * played as a whole has a sheet of its own, that foes may hit too.
  */
 const pack = (encounter: string) => [
   { path: 'brawl/pack.yaml', content: 'id: brawl\nversion: 0.1.0\nlocale: en\nformat: 15\n' },
   {
     path: 'brawl/system.yaml',
-    content: `kind: system\nname: Brawl\ntravel: travel-rules.default\nsheet: sheet.fighter\nbestiary: [bestiary.foes]\nencounter: ${encounter}\n`,
+    content: `kind: system\nname: Brawl\ntravel: travel-rules.default\nsheet: sheet.fighter\npartySheet: sheet.band\nbestiary: [bestiary.foes]\nencounter: ${encounter}\n`,
   },
   {
     path: 'brawl/rules.yaml',
@@ -24,6 +25,10 @@ const pack = (encounter: string) => [
 kind: sheet
 id: fighter
 values: { health: { default: 10, min: 0 }, speed: { default: 1 } }
+---
+kind: sheet
+id: band
+values: { health: { default: 10, min: 0 } }
 ---
 kind: sheet
 id: foe
@@ -250,6 +255,20 @@ describe('an encounter: a fight in turns', () => {
     // 20 health between them before; the bites (-1 each, two foes left), the blow (-1), the smash (-3).
     expect(health(done.state, 'kael') + health(done.state, 'mira')).toBe(20 - 2 - 1 - 3)
     expect(done.state.encounter?.round).toBe(2)
+  })
+
+  it('foes aim at a party played as a whole through its own sheet', () => {
+    const { system, registry } = systemOf(
+      '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',
+    )
+    const options = { system, world, oracle: createOracleEngine({ registry, random: seeded(1) }) }
+    const { session } = startTrip({ system, location: 'a', time: 8 * 60, seed: 's' })
+    const s = applyResult(session, { effects: { 'present.ogre': 1 } }, {}, partyOf(system))
+    let done = stepTrip(options, s, { type: 'action', id: 'ambush' })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    // The two goblins' blows (-1 each) and the ogre's smash (-3) land on the party; the bites
+    // at Kael find nobody.
+    expect(done.state.party!.values.health).toBe(10 - 1 - 1 - 3)
   })
 
   it('by participant: each one by the value it rolls, highest first', () => {

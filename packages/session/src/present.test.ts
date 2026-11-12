@@ -100,6 +100,10 @@ roll: 1d1
 entries: [{ range: 1, result: Hrolf }]
 `,
   },
+  {
+    path: 'wilds/locales/es/rules.yaml',
+    content: 'bestiary/beasts:\n  templates:\n    wolf: { name: Lobo }\n',
+  },
 ]
 
 const { registry, diagnostics } = loadPacks(PACK)
@@ -250,6 +254,14 @@ describe('those present: copies of templates in a trip', () => {
     expect(s.present!.map((p) => p.character.id)).toEqual(['wolf-2'])
     s = applyResult(s, { effects: { 'present.wolf': '=0' } }, {}, rules)
     expect(s.present).toEqual([])
+  })
+
+  it('copies added are named in the language asked for, else the pack’s', () => {
+    const { session } = startTrip({ system: wilds, location: 'a', time: 8 * 60 })
+    const s = applyResult(session, { effects: { 'present.wolf': 2 } }, {}, partyOf(wilds, 'es'))
+    expect(s.present!.map((p) => p.character.name)).toEqual(['Lobo', 'Lobo 2'])
+    const t = applyResult(session, { effects: { 'present.wolf': 1 } }, {}, partyOf(wilds))
+    expect(t.present![0].character.name).toBe('Wolf')
   })
 
   it('the player moves a copy to another place, and back to the party', () => {

@@ -845,7 +845,7 @@ entries:
     effects: { 'characters[target].values.health': '-{{acting.values.bite}}' }
 ```
 
-`target` takes a member's id, or one of the short forms: `party.members.random` (one of them, rolled), `party.members.lowest.values.<id>` and `party.members.highest.values.<id>` (the one with the least or the most of a value, the first on a tie). Without members, nobody is aimed at, and those effects do nothing.
+`target` takes a member's id, or one of the short forms: `party.members.random` (one of them, rolled), `party.members.lowest.values.<id>` and `party.members.highest.values.<id>` (the one with the least or the most of a value, the first on a tie). A party played as a whole (no members) is aimed at itself, through its party sheet (`characters[target]` is the party's sheet, so `characters[target].values.health` changes the party's `health`, if its sheet has one); with no party sheet either, nobody is aimed at, and those effects do nothing.
 
 - **Moments**: `encounter.start`, `encounter.round` (each round's start), `encounter.turn` (each turn's start), `encounter.end`, for actions' `on:` and checks' `at:`. Conditions read `encounter.round`, `encounter.turn` (whose turn: an id), `encounter.side` (`party` or `foes`) and `encounter.order` ([What tables see](04-what-tables-see.md#an-encounter-encounter)).
 - The journal says each part: _A fight begins_, _Round 2_, _Mara's turn_, _The fight is over_.
