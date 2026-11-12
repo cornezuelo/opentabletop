@@ -209,6 +209,27 @@ export const en = {
     behindHelp:
       "Copies made at another place, which the party left: they stay there and are here again if it comes back. Whether those left behind stay or go is the system's (each template's `behind`).",
   },
+  /** A fight in turns: the shared fight panel. */
+  fight: {
+    title: 'Fight, round {round}',
+    help: "A fight in turns, as the system says its fights go (`encounter:` in its rules): who acts in order, round by round. On a turn of the party's, the trip waits for you to choose what that one does among the fight's actions; the foes' turns go by themselves. Travelling and the trip's other actions wait until it ends. It ends by itself when the system's rule says (`ends`), when an action ends it, or by hand with **End the fight**.\n• `encounter: start` — an effect that starts one (the system's **Fight**, an ambush)\n• `ends: { present.count: 0 }` — over when nobody is left",
+    order: 'Who acts, in order',
+    theParty: 'The party',
+    party: 'party',
+    foes: 'foes',
+    yourTurn: '{name}’s turn: choose what they do.',
+    partyTurn: 'The party’s turn: choose what it does.',
+    theirTurn: '{name}’s turn.',
+    acted: 'has acted this round',
+    gone: 'gone: leaves the order next round',
+    start: 'Start a fight',
+    startTip:
+      "Starts a fight in turns with those here, as the system's fights go: the order is read, and the first turn comes.",
+    end: 'End the fight',
+    endTip:
+      'Calls the fight off by hand: the system’s actions for its end are taken, and the trip goes on.',
+    confirmEnd: 'End the fight now?',
+  },
   /** Why a button is disabled. */
   blocked: {
     value: '{name}: not possible for the rest of the day.',
@@ -288,6 +309,7 @@ export const en = {
     encounterStarted: 'A fight begins',
     encounterRound: 'Round {round}',
     encounterTurn: '{name}’s turn',
+    encounterPartyTurn: 'The party’s turn',
     encounterEnded: 'The fight is over, in round {rounds}',
     unknownPlace: 'No catalogue of places of the system has “{name}”, so nothing is made',
     connectionChanged: '{name}: {key} {value}',

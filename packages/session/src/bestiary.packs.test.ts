@@ -3,6 +3,7 @@ import { seeded } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { corePack, greyMarchesPack } from './core.testing'
+import { encounterView } from './encounter'
 import { applyResult } from './index'
 import { newMember } from './party'
 import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
@@ -272,5 +273,34 @@ describe('the bundled packs fight in turns', () => {
     ])
     expect(lines.at(-1)).toBe('ENCOUNTER_ENDED')
     expect(state.encounter).toBeUndefined()
+  })
+
+  it('the Grey Marches: a fight started by hand with those here, shown in turns, and called off', () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'h',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(2) }),
+    }
+    const s = applyResult(session, { effects: { 'present.bandit': 2 } }, {}, partyOf(marches))
+    let done = stepTrip(options, s, { type: 'encounter', what: 'start' })
+    expect(done.entries.map((e) => e.code)).toContain('ENCOUNTER_STARTED')
+    // The panel: round 1, the four in the order rolled, someone's turn.
+    const view = encounterView(done.state)!
+    expect(view.round).toBe(1)
+    expect(view.fighters.map((f) => f.id).sort()).toEqual(['bandit', 'bandit-2', 'kael', 'mara'])
+    expect(view.fighters.filter((f) => f.acting)).toHaveLength(1)
+    expect(tripAvailability(options, done.state).travel).toEqual({ encounter: 'fight' })
+    done = stepTrip(options, done.state, { type: 'encounter', what: 'end' })
+    expect(done.entries.map((e) => e.code)).toContain('ENCOUNTER_ENDED')
+    expect(done.state.encounter).toBeUndefined()
+    expect(encounterView(done.state)).toBeUndefined()
+    expect(tripAvailability(options, done.state).travel).toBeUndefined()
   })
 })

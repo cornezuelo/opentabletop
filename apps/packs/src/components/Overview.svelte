@@ -19,10 +19,12 @@
   import { exportSystem, systemZipPacks } from '../lib/transfer'
   import { ROLLABLE, type SystemDoc } from '../lib/systemDoc.svelte'
   import FindName from './uses/FindName.svelte'
+  import EncounterForm from './parts/EncounterForm.svelte'
 
   /**
    * A system at a glance, and its own definition (`kind: system`) as a form: its name and
-   * description, the parts it uses (travel rules, bindings, calendar, weather models) and
+   * description, the parts it uses (travel rules, bindings, calendar, weather models), how its fights go in
+   * turns and
    * the packs it brings. An older pack's implicit system can be declared from here.
    */
   let { system, doc }: { system: TravelSystem; doc: SystemDoc | null } = $props()
@@ -210,6 +212,17 @@
         </select>
       </label>
     </section>
+
+    <EncounterForm
+      {system}
+      value={data.encounter}
+      {disabled}
+      actionName={(id) => {
+        const action = ((doc.rules.actions ?? {}) as Raw)[id] as Raw | undefined
+        return doc.text('travel-rules', action?.name, ['actions', id, 'name']) || ''
+      }}
+      onchange={(encounter) => doc.edit('system', ['encounter'], encounter)}
+    />
 
     {#each LISTS as key (key)}
       {@const list = listOf(key)}

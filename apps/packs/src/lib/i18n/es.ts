@@ -757,6 +757,37 @@ export const es: Messages<typeof en> = {
     otherwiseHelp:
       'La pieza que se coloca cuando ninguna ha cabido. Una pieza de una casilla siempre cabe.\n• `dead-end`',
   },
+  encounter: {
+    title: 'Combates por turnos',
+    help: 'Cómo van los combates del sistema, turno a turno (`encounter:`): quién actúa primero, qué puede hacer un miembro del grupo en su turno, cuánto dura una ronda y cuándo acaba un combate por sí solo. Sin esto, un combate se juega de una vez, con las acciones y tablas que lo cuentan. Un combate empieza con un efecto `encounter: start` (una acción, el resultado de una comprobación) o a mano con **Empezar un combate** en un viaje, y acaba con `encounter: end`, con su regla (**Acaba cuando**) o a mano.\n• `encounter: { order: { by: side }, actions: [actions.strike] }` — el grupo primero, sus miembros golpeando por turnos',
+    on: 'Sus combates van por turnos',
+    by: 'Quién actúa primero',
+    byHelp:
+      'Cómo se lee el orden cuando empieza un combate:\n• **Por bando** — todo un bando y luego el otro; un efecto de un momento `encounter.start` puede decir cuál (`encounter.first: foes`), a partir del resultado de una tabla: una tirada de iniciativa\n• **Cada uno por lo que tira** — cada uno de los que toman parte tira una vez, el más alto primero (en un empate, primero el bando del grupo)',
+    bySide: 'Por bando',
+    byParticipant: 'Cada uno por lo que tira',
+    first: 'El bando que va primero',
+    firstHelp:
+      'Qué bando actúa primero, salvo que un efecto de `encounter.start` diga otra cosa (`encounter.first: foes`).\n• **El grupo** — lo normal\n• **Los enemigos** — un sistema en el que al grupo siempre lo pillan por sorpresa',
+    firstParty: 'El grupo',
+    firstFoes: 'Los enemigos',
+    perSide: 'Uno para cada bando',
+    valueHelp:
+      "Lo que tira cada uno de los que toman parte por su sitio en el orden, una vez al empezar el combate, el más alto primero. `acting` es quien tira. Uno para todos, o uno para el bando del grupo y otro para el de los enemigos.\n• `'{{acting.values.agility + 1d6}}'` — su agilidad y un dado\n• `'{{1d10}}'` — solo un dado\n• grupo `'{{acting.values.speed}}'`, enemigos `'{{1d6}}'` — los del grupo por un valor, los enemigos al azar",
+    value: 'Lo que tira cada uno',
+    partyRolls: 'Lo que tira el bando del grupo',
+    foesRolls: 'Lo que tira el bando de los enemigos',
+    minutes: 'Minutos que dura una ronda',
+    minutesHelp:
+      'El tiempo que dura una ronda, para que las luces se gasten y los relojes avancen durante un combate. Vacío: no pasa el tiempo.\n• `1` — un minuto por ronda\n• `0.1` — seis segundos',
+    actions: 'Qué hace un miembro en su turno',
+    actionsHelp:
+      'Las acciones del sistema que un miembro del grupo puede hacer en su turno: las únicas abiertas durante un combate (viajar y lo demás esperan a que acabe). Hacer una termina el turno. Cada una conserva su `when`, sus costes y sus parámetros: un objetivo es un parámetro cuyas opciones son los presentes (`from: present.ids`).\n• `actions.strike` — un golpe a un enemigo elegido\n• `actions.flee` — cuyo efecto es `encounter: end`',
+    noActions: 'El sistema no tiene acciones que haga un jugador: añádelas en **Reglas**.',
+    ends: 'Acaba cuando',
+    endsHelp:
+      'Cuándo acaba un combate por sí solo: se lee al empezar y después de cada turno. Vacío: solo lo acaban un efecto o el jugador.\n• `present.count: 0` — no queda nadie\n• `party.conditions: fled` — el grupo ha huido',
+  },
   overview: {
     sheet: 'Hoja de personajes',
     sheetHelp:

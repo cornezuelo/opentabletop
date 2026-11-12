@@ -744,6 +744,38 @@ export const en = {
     keepOpenHelp:
       'Whether the place may close by chance. Ticked, a piece that would leave no exit waiting anywhere on the map doesn\u2019t fit, and is drawn again (**Otherwise** is still laid when nothing did). With no condition it\u2019s always so; with one, while it holds.\n• ticked, no condition — the place never closes by itself\n• `pieces.total: { lt: 8 }` — open until 8 pieces are laid, then it may end',
   },
+  /** A system's fights in turns (`encounter:`), on the Overview. */
+  encounter: {
+    title: 'Fights in turns',
+    help: "How the system's fights go, turn by turn (`encounter:`): who acts first, what a member of the party may do on its turn, how long a round takes and when a fight ends by itself. Without it a fight is played as a whole, by the actions and tables that tell it. A fight starts with an effect `encounter: start` (an action, a check's result) or by hand with **Start a fight** on a trip, and ends with `encounter: end`, with its rule (**Ends when**) or by hand.\n• `encounter: { order: { by: side }, actions: [actions.strike] }` — the party first, its members striking in turn",
+    on: 'Its fights go in turns',
+    by: 'Who acts first',
+    byHelp:
+      "How the order is read when a fight begins:\n• **By side** — one side all, then the other; an effect of a moment `encounter.start` can say which (`encounter.first: foes`), from a table's result: an initiative roll\n• **Each one by what it rolls** — every one taking part rolls once, highest first (on a tie, the party's side first)",
+    bySide: 'By side',
+    byParticipant: 'Each one by what it rolls',
+    first: 'The side that goes first',
+    firstHelp:
+      'Which side acts first, unless an effect of `encounter.start` says otherwise (`encounter.first: foes`).\n• **The party** — the default\n• **The foes** — a system where the party is always taken by surprise',
+    firstParty: 'The party',
+    firstFoes: 'The foes',
+    perSide: 'One for each side',
+    valueHelp:
+      "What each one taking part rolls for its place in the order, once when the fight begins, highest first. `acting` is the one rolling. One for everyone, or one for the party's side and another for the foes'.\n• `'{{acting.values.agility + 1d6}}'` — its agility and a die\n• `'{{1d10}}'` — a die alone\n• party `'{{acting.values.speed}}'`, foes `'{{1d6}}'` — the party's by a value, the foes' by chance",
+    value: 'What each one rolls',
+    partyRolls: "What the party's side rolls",
+    foesRolls: "What the foes' side rolls",
+    minutes: 'Minutes a round takes',
+    minutesHelp:
+      'The time a round takes, so lights burn down and clocks move during a fight. Empty: no time passes.\n• `1` — a minute a round\n• `0.1` — six seconds',
+    actions: 'What a member does on its turn',
+    actionsHelp:
+      "The system's actions a member of the party may take on its turn: the only ones open during a fight (travelling and the rest wait until it ends). Taking one ends the turn. Each keeps its own `when`, costs and parameters: a target is a parameter whose choices are those present (`from: present.ids`).\n• `actions.strike` — a blow at one foe chosen\n• `actions.flee` — whose effect is `encounter: end`",
+    noActions: 'The system has no actions a player takes: add them in **Rules**.',
+    ends: 'Ends when',
+    endsHelp:
+      'When a fight ends by itself: read when it begins and after every turn. Empty: only an effect or the player end it.\n• `present.count: 0` — nobody is left\n• `party.conditions: fled` — the party has run',
+  },
   overview: {
     sheet: 'Characters’ sheet',
     sheetHelp:

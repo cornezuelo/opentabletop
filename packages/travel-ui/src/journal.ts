@@ -621,7 +621,9 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'ENCOUNTER_ROUND':
       return t('journal.encounterRound', { round: Number(d.round ?? 1) })
     case 'ENCOUNTER_TURN':
-      return t('journal.encounterTurn', { name: String(d.name ?? d.id ?? '') })
+      return d.name || d.id !== 'party'
+        ? t('journal.encounterTurn', { name: String(d.name || d.id || '') })
+        : t('journal.encounterPartyTurn')
     case 'ENCOUNTER_ENDED':
       return t('journal.encounterEnded', { rounds: Number(d.rounds ?? 0) })
     // A value of the connection the step takes changed in play (a door opened).

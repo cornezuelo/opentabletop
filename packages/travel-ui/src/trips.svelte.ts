@@ -25,11 +25,11 @@ import {
   type Season,
   type SessionState,
   type TravelSystem,
+  type TripAction,
   addEntry,
   calendarOf,
   withAddedPacks,
 } from '@open-tabletop/session'
-import type { TravelAction } from '@open-tabletop/travel-engine'
 import {
   createCampaign,
   hasWorld,
@@ -592,12 +592,12 @@ export class TripStore {
    * Plays an action. In a campaign, the trip first takes its place as the one going on
    * (asking, if another trip played there last) and catches up with the campaign's clock.
    */
-  step(action: TravelAction): void | Promise<void> {
+  step(action: TripAction): void | Promise<void> {
     if (!this.keeper) return this.stepNow(action)
     return this.stepInCampaign(action)
   }
 
-  private async stepInCampaign(action: TravelAction): Promise<void> {
+  private async stepInCampaign(action: TripAction): Promise<void> {
     const trip = this.saved.id
     await this.openCampaign()
     // The campaign's world waits for the player: the trip doesn't move until it's answered.
@@ -698,7 +698,7 @@ export class TripStore {
    * wasn't stepping (a clock filled by hand, in another app), and then those its step made
    * happen (a clock filling).
    */
-  private stepNow(action: TravelAction, heard = 0): void {
+  private stepNow(action: TripAction, heard = 0): void {
     if (!this.saved.session) return
     if (heard === 0) this.hearWorld()
     this.stepOnly(action)
@@ -747,7 +747,7 @@ export class TripStore {
   }
 
   /** Plays an action, and what it did in the campaign's world. */
-  private stepOnly(action: TravelAction): void {
+  private stepOnly(action: TripAction): void {
     const session = this.saved.session
     if (!session) return
     const campaign = this.campaign

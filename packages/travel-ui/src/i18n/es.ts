@@ -205,6 +205,26 @@ export const es: Messages<typeof en> = {
     behindHelp:
       'Copias hechas en otro lugar, que el grupo dejó: se quedan allí y vuelven a estar aquí si regresa. Si los que se quedan atrás siguen allí o se van lo decide el sistema (el `behind` de cada plantilla).',
   },
+  fight: {
+    title: 'Combate, ronda {round}',
+    help: 'Un combate por turnos, como dice el sistema que van sus combates (`encounter:` en sus reglas): quién actúa en orden, ronda a ronda. En un turno del grupo, el viaje espera a que elijas qué hace ese personaje entre las acciones del combate; los turnos de los enemigos van solos. Viajar y las demás acciones del viaje esperan a que acabe. Acaba por sí solo cuando lo dice la regla del sistema (`ends`), cuando una acción lo termina, o a mano con **Terminar el combate**.\n• `encounter: start` — un efecto que empieza uno (el **Luchar** del sistema, una emboscada)\n• `ends: { present.count: 0 }` — acaba cuando no queda nadie',
+    order: 'Quién actúa, en orden',
+    theParty: 'El grupo',
+    party: 'grupo',
+    foes: 'enemigos',
+    yourTurn: 'Turno de {name}: elige qué hace.',
+    partyTurn: 'Turno del grupo: elige qué hace.',
+    theirTurn: 'Turno de {name}.',
+    acted: 'ya ha actuado esta ronda',
+    gone: 'se ha ido: sale del orden la ronda que viene',
+    start: 'Empezar un combate',
+    startTip:
+      'Empieza un combate por turnos con los que están aquí, como van los combates del sistema: se lee el orden y llega el primer turno.',
+    end: 'Terminar el combate',
+    endTip:
+      'Da el combate por acabado a mano: se hacen las acciones del sistema para su final, y el viaje sigue.',
+    confirmEnd: '¿Terminar el combate ahora?',
+  },
   blocked: {
     value: '{name}: no es posible el resto del día.',
     once: 'Una vez al día: ya se ha hecho hoy.',
@@ -282,6 +302,7 @@ export const es: Messages<typeof en> = {
     encounterStarted: 'Empieza un combate',
     encounterRound: 'Ronda {round}',
     encounterTurn: 'Turno de {name}',
+    encounterPartyTurn: 'Turno del grupo',
     encounterEnded: 'Se acabó el combate, en la ronda {rounds}',
     unknownPlace: 'Ningún catálogo de lugares del sistema tiene «{name}», así que no se crea nada',
     connectionChanged: '{name}: {key} {value}',

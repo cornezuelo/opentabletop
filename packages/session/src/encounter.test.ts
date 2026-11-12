@@ -3,14 +3,8 @@ import { seeded } from '@open-tabletop/random'
 import { createCharacter } from '@open-tabletop/character-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import {
-  encounterTrip,
-  startTrip,
-  stepTrip,
-  travelSystems,
-  tripAvailability,
-  tripFacts,
-} from './trip'
+import { encounterView } from './encounter'
+import { startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
 /**
  * A made-up system whose fights go in turns: an ambush brings two goblins and starts a
@@ -186,10 +180,38 @@ describe('an encounter: a fight in turns', () => {
     expect(codes(done.entries)).toEqual(['ENCOUNTER_ENDED'])
     expect(done.state.encounter).toBeUndefined()
     // Started by hand with the goblins still here, then called off.
-    done = encounterTrip(options, done.state, 'start')
+    done = stepTrip(options, done.state, { type: 'encounter', what: 'start' })
     expect(codes(done.entries)).toEqual(['ENCOUNTER_STARTED', 'ENCOUNTER_ROUND', 'turn kael'])
-    done = encounterTrip(options, done.state, 'end')
+    done = stepTrip(options, done.state, { type: 'encounter', what: 'end' })
     expect(codes(done.entries)).toEqual(['ENCOUNTER_ENDED'])
+  })
+
+  it('a fight panel sees the round, who acts in order, whose turn it is and who has acted', () => {
+    const { options, session } = begin()
+    expect(encounterView(session)).toBeUndefined()
+    let done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    // Round 2, Kael's turn: the first goblin fell and left the order, the second still here.
+    const view = encounterView(done.state)!
+    expect(view.round).toBe(2)
+    expect(view.choosing).toBe(true)
+    expect(view.fighters.map((f) => [f.name, f.side, f.acting, f.done])).toEqual([
+      ['Kael', 'party', true, false],
+      ['Mira', 'party', false, false],
+      ['Goblin 2', 'foes', false, false],
+    ])
+    done = stepTrip(options, done.state, {
+      type: 'action',
+      id: 'strike',
+      with: { foe: 'goblin-2' },
+    })
+    const after = encounterView(done.state)!
+    expect(after.fighters.map((f) => [f.id, f.acting, f.done, f.gone])).toEqual([
+      ['kael', false, true, false],
+      ['mira', true, false, false],
+      ['goblin-2', false, false, false],
+    ])
   })
 
   it('by participant: each one by the value it rolls, highest first', () => {

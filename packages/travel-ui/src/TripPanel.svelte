@@ -1,9 +1,12 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
   import {
+    encounterView,
+    presentHere,
     usesOf,
     type Declared,
     type EncounterUnavailable,
+    type TripAction,
     type Use,
   } from '@open-tabletop/session'
   import { usesHelp } from './uses'
@@ -51,7 +54,6 @@
     checkInfo,
     type ActionParam,
     type ParamChoice,
-    type TravelAction,
     type TravelWorld,
     type Unavailable,
   } from '@open-tabletop/travel-engine'
@@ -62,7 +64,7 @@
     sharingRoom,
     waitingForRoom,
   } from '@open-tabletop/session'
-  import { InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import { memberLabel, statSource, whoNamed } from './members'
   import Section from './Section.svelte'
@@ -73,6 +75,7 @@
   import PartyMembers from './PartyMembers.svelte'
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
+  import FightPanel from './FightPanel.svelte'
   import { CharacterCard, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import { WorldWaiting } from '@open-tabletop/campaign-ui'
@@ -127,7 +130,7 @@
     arrivedHint?: string
     /** Title of the exported journal (and its file name), e.g. the map's or system's name. */
     title?: string
-    onstep: (action: TravelAction) => void
+    onstep: (action: TripAction) => void
     /** What the characters' relations may point at, besides each other (places, regions…). */
     relationTargets?: { ref: string; label: string }[]
     /** The trip as a place of the roster: its characters can come from it and be kept in it. */
@@ -247,13 +250,24 @@
       .filter((id) => {
         const because = blocked[id]
         const hidden =
-          actions.all[id].hideWhenUnavailable &&
-          because &&
-          !('condition' in because && because.condition === 'needs')
+          (actions.all[id].hideWhenUnavailable &&
+            because &&
+            !('condition' in because && because.condition === 'needs')) ||
+          // In a fight, only its own actions show.
+          (!!session.encounter && !system.encounter?.actions.includes(id))
         return !actions.all[id].on && !hidden
       })
       .sort((a, b) => Number(movers.has(b)) - Number(movers.has(a))),
   )
+  /** A fight in turns going on (round, who acts in order), if any. */
+  const fight = $derived(encounterView(session))
+  /** Whether a fight in turns can start by hand: the system's fights go in turns, someone's here. */
+  const canFight = $derived(
+    !!system.encounter && !session.encounter && presentHere(session).length > 0,
+  )
+  async function endFight() {
+    if (await confirmAction(t('fight.confirmEnd'))) onstep({ type: 'encounter', what: 'end' })
+  }
   /** The action whose move is under way (stopped by a check): **Go on** goes on with it. */
   const goingOn = $derived(travel.moving?.frames.at(-1)?.action)
   /** The button that stands out: going on, else the way the trip goes on by itself. */
@@ -354,6 +368,8 @@
   const roomless = $derived(waitingForRoom(session))
   /** Why the button that stands out can't be pressed: said under it, not only in its tooltip. */
   const stuck = $derived.by(() => {
+    // In a fight, its panel says what goes on.
+    if (session.encounter) return ''
     if (goingOn) return why(blocked.travel)
     if (!main) return ''
     // With the status here, it says where to head itself.
@@ -562,6 +578,11 @@
   <!-- What the party can do stays in sight while what's below scrolls. -->
   <div class="do">
     {@render here?.()}
+    <!-- A fight in turns: whose turn it is, above what the party can do on it. -->
+    {#if fight}
+      <FightPanel {...fight} {locale} onend={endFight} />
+    {/if}
+
     <!-- What needs you first, then what the party can do: right under where it is. -->
     {#each travel.pendingChecks as check (check.id)}
       <div class="pending" class:asks={session.asking?.includes(check.id)}>
@@ -688,7 +709,7 @@
 
     <!-- Nothing goes on while a share waits for who gives it, or an item for room. -->
     <div class="actions" class:held inert={held}>
-      {#if goingOn && !waiting}
+      {#if goingOn && !waiting && !session.encounter}
         <button
           class="primary"
           use:tooltip={tipWith(t('tips.goOn', { action: actionName(goingOn) }), 'travel')}
@@ -723,7 +744,13 @@
           {/each}
         </span>
       {/each}
-      {#if onward}
+      {#if canFight}
+        <button
+          use:tooltip={t('fight.startTip')}
+          onclick={() => onstep({ type: 'encounter', what: 'start' })}>{t('fight.start')}</button
+        >
+      {/if}
+      {#if onward && !session.encounter}
         <button
           use:tooltip={travel.pendingChecks.length || waiting
             ? tipWith(

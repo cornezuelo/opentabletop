@@ -150,9 +150,11 @@ La caja **Aquí**, en la pestaña **Grupo** bajo los personajes, los muestra: lo
 
 Un sistema puede jugar sus combates por turnos ([Combates por turnos](../technical/07-kinds.md#sistemas)): los empieza una acción o un resultado (**Plantar cara** en las Marcas Grises, **Luchar** en Core). El diario lo cuenta (_Empieza un combate_, _Ronda 1_, _Turno de Kael_), y mientras dura el viaje espera:
 
-- **En el turno de un personaje** es él quien actúa, y solo están abiertas las acciones de combate del sistema (**Golpear a uno** y **Replegarse** en las Marcas Grises); los demás botones dicen _No durante un combate_. Tomar una termina el turno.
+- **En el turno de un personaje** es él quien actúa, y solo están abiertas las acciones de combate del sistema (**Golpear a uno** y **Replegarse** en las Marcas Grises); los demás se ocultan hasta que acaba. Tomar una termina el turno.
 - **Los turnos de los enemigos** pasan por sí solos: ocurre lo que el sistema hace en ellos (en las Marcas Grises, un enemigo al que se le quiebra el ánimo huye) y llega el turno siguiente.
 - **Las rondas** se suceden, cada una con los minutos que diga el sistema, hasta que no queda ningún enemigo, lo acaba la regla del sistema o una acción (**Replegarse**): _Se acabó el combate_.
+
+Un **panel de combate** sobre los botones lo muestra mientras dura: _Combate, ronda 2_, quién actúa en orden (cada uno con su bando, el del grupo o el de los enemigos; recuadrado aquel de quien es el turno, atenuados los que ya han actuado esta ronda, tachado el que se ha ido) y _Turno de Kael: elige qué hace_ cuando te toca. **Terminar el combate** lo da por acabado a mano (pregunta antes): se hacen las acciones del sistema para su final, y el viaje sigue. En un sistema cuyos combates van por turnos, **Empezar un combate**, entre los botones mientras haya alguien aquí, empieza uno a mano con los presentes, como haría un efecto `encounter: start`: para un combate que no trajeron las tablas, o uno añadido del bestiario.
 
 ### Lugares creados por el camino
 

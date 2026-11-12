@@ -150,9 +150,11 @@ The **Here** box, in the **Party** tab under the characters, shows them: those a
 
 A system may play its fights in turns ([Fights in turns](../technical/07-kinds.md#systems)): an action or a result starts one (the Grey Marches' **Stand and fight**, Core's **Fight**). The journal says it (_A fight begins_, _Round 1_, _Kael's turn_), and while it lasts the trip waits:
 
-- **On a character's turn** that one is acting, and only the system's fight actions are open (the Grey Marches' **Strike one down** and **Fall back**); the other buttons say _Not during a fight_. Taking one ends the turn.
+- **On a character's turn** that one is acting, and only the system's fight actions are open (the Grey Marches' **Strike one down** and **Fall back**); the others hide until it ends. Taking one ends the turn.
 - **The foes' turns** go by themselves: what the system does on them happens (in the Grey Marches, a foe whose nerve breaks runs), and the next turn comes.
 - **Rounds** follow one another, each taking the minutes the system says, until no foe is left, the system's rule ends it, or an action does (**Fall back**): _The fight is over_.
+
+A **fight panel** above the buttons shows it as it goes: _Fight, round 2_, who acts in order (each with its side, the party's or the foes'; the one whose turn it is outlined, those who have acted this round faded, one gone struck through), and _Kael's turn: choose what they do_ when it's yours. **End the fight** calls it off by hand (asked first): the system's actions for its end are taken, and the trip goes on. In a system whose fights go in turns, **Start a fight**, among the buttons while someone is here, starts one by hand with those present, as an effect `encounter: start` would: for a fight the tables didn't bring, or one added from the bestiary.
 
 ### Places made on the way
 

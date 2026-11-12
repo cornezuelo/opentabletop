@@ -311,6 +311,12 @@ describe('steps that speak and wait', () => {
       }),
     ).toBe('Hi')
   })
+
+  it("tell a fight's turns by name, the party played as a whole as the party", () => {
+    expect(line('ENCOUNTER_TURN', { id: 'kael', name: 'Kael' })).toBe('Kael’s turn')
+    expect(line('ENCOUNTER_TURN', { id: 'party', name: '' })).toBe('The party’s turn')
+    expect(line('ENCOUNTER_TURN', { id: 'party', name: 'The Company' })).toBe('The Company’s turn')
+  })
 })
 
 describe('what results did to characters and the world', () => {

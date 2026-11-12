@@ -21,10 +21,11 @@ import {
   moveTrip,
   type SessionState,
   type TravelSystem,
+  type TripAction,
   travels,
   tripAvailability,
 } from '@open-tabletop/session'
-import { movingActions, type TravelAction } from '@open-tabletop/travel-engine'
+import { movingActions } from '@open-tabletop/travel-engine'
 import { getLocale, t } from '../i18n/index.svelte'
 import {
   cellOfPlace,
@@ -499,14 +500,14 @@ async function claimThen(other: CampaignTrip, then: () => void): Promise<void> {
 }
 
 /** Plays `action`, hearing the world's moments before and after it. */
-function stepHearing(action: TravelAction, heard = 0): void {
+function stepHearing(action: TripAction, heard = 0): void {
   if (heard === 0) hearWorld()
   stepOnly(action)
   hearWorld(heard)
 }
 
 /** The campaign's clock went on without the trip: the party lives that time or skips it. */
-async function catchUpThen(until: number, action: TravelAction): Promise<void> {
+async function catchUpThen(until: number, action: TripAction): Promise<void> {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
@@ -527,7 +528,7 @@ async function catchUpThen(until: number, action: TravelAction): Promise<void> {
  * the moments of the world first, those that came while it wasn't stepping (a clock filled
  * by hand, in another app), and then those its step made happen.
  */
-export function step(action: TravelAction, heard = 0): void {
+export function step(action: TripAction, heard = 0): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
@@ -571,7 +572,7 @@ export function hearWorld(heard = 0): void {
 }
 
 /** Runs a travel action through the session, and what it did in the world. */
-function stepOnly(action: TravelAction): void {
+function stepOnly(action: TripAction): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return

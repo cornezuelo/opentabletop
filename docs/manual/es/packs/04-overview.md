@@ -18,6 +18,15 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 - **Catálogos de piezas** (`pieces:`, una lista): las formas con las que pueden crecer sus mapas; se crean, eligen y editan en [Piezas](24-pieces.md).
 - **El estilo de sus mapas** (`style:`): el [estilo de mapa](20-map-styles.md) con el que empieza un mapa en blanco del sistema, y un submapa en blanco bajo uno de sus mapas.
 
+## Combates por turnos
+
+**Sus combates van por turnos**, marcado, escribe `encounter:` en el sistema: un combate se juega turno a turno, con un panel en el viaje que dice de quién es el turno ([Un combate por turnos](../travel/02-playing.md#personajes)). Sin marcar, los combates se juegan de una vez, con las acciones y tablas que los cuentan. El YAML: [Combates por turnos](../technical/07-kinds.md#sistemas).
+
+- **Quién actúa primero**: **Por bando**, un bando y luego el otro (**El bando que va primero**: el grupo o los enemigos; un efecto de `encounter.start` puede decir otra cosa, tras una tirada de iniciativa), o **Cada uno por lo que tira**, una vez al empezar el combate, el más alto primero: una tirada para todos (`{{acting.values.agility + 1d6}}`), o **Uno para cada bando**.
+- **Minutos que dura una ronda**: para que las luces se gasten y los relojes avancen durante un combate; vacío, no pasa el tiempo.
+- **Qué hace un miembro en su turno**: las acciones del sistema marcadas, las únicas abiertas en un combate; hacer una termina el turno. Un objetivo es un parámetro cuyas opciones son los presentes (`from: present.ids`), en [Reglas](05-rules.md).
+- **Acaba cuando**: una condición que se lee después de cada turno (`present.count: 0`, no queda nadie); vacía, solo lo acaban el `encounter: end` de una acción o el jugador.
+
 ## Packs que trae
 
 El suyo siempre, y las dependencias que marques, cuyas tablas vienen con él: un mapa que se juega con él las muestra en su panel del Oráculo. Para traer otro pack, añádelo a las dependencias en `pack.yaml`.

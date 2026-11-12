@@ -152,9 +152,9 @@ const foesSide = (s: SessionState): string[] => presentHere(s).map((p) => p.char
 export const sideOf = (s: SessionState, id: string): Side =>
   partySide(s).includes(id) ? 'party' : 'foes'
 
-/** A participant's name: a member's or a copy's (its id if none). */
+/** A participant's name: a member's or a copy's (its id if none); the party's ('' if none). */
 export function participantName(s: SessionState, id: string): string {
-  if (id === PARTY_ID) return s.party?.name ?? id
+  if (id === PARTY_ID) return s.party?.name ?? ''
   const c =
     s.members?.find((m) => m.id === id) ?? s.present?.find((p) => p.character.id === id)?.character
   return c?.name ?? id
@@ -172,6 +172,42 @@ export function encounterFacts(s: SessionState): Record<string, unknown> | undef
     round: e.round,
     order: [...e.order],
     ...(turn !== undefined && e.round > 0 && { turn, side: sideOf(s, turn) }),
+  }
+}
+
+/** One taking part in an encounter, as a fight panel shows it. */
+export interface Fighter {
+  id: string
+  name: string
+  side: Side
+  /** Whether it's this one's turn now. */
+  acting: boolean
+  /** Whether it has had its turn this round. */
+  done: boolean
+  /** Whether it's gone (fled, fallen, left the place): it leaves the order next round. */
+  gone: boolean
+}
+
+/**
+ * An encounter as a fight panel shows it: the round, who acts in order and whose turn it is,
+ * and whether the player is to choose (a turn of the party's); nothing before it begins.
+ */
+export function encounterView(
+  s: SessionState,
+): { round: number; fighters: Fighter[]; choosing: boolean } | undefined {
+  const e = s.encounter
+  if (!e || e.round === 0) return undefined
+  return {
+    round: e.round,
+    choosing: e.stage === 'acting',
+    fighters: e.order.map((id, i) => ({
+      id,
+      name: participantName(s, id),
+      side: sideOf(s, id),
+      acting: i === e.turn && (e.stage === 'acting' || e.stage === 'turn'),
+      done: i < e.turn || (i === e.turn && e.stage === 'acted'),
+      gone: !stillHere(s, id),
+    })),
   }
 }
 

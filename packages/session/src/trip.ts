@@ -1489,7 +1489,7 @@ export function stepTrip(
     facts?: Record<string, unknown>
   },
   session: SessionState,
-  action: TravelAction,
+  action: TripAction,
 ): {
   state: SessionState
   entries: JournalEntry[]
@@ -1498,6 +1498,16 @@ export function stepTrip(
   laid: LaidPiece[]
 } {
   const { system } = options
+  // An encounter started or ended by hand (a **Fight** button, or the player calling it off),
+  // as the effects `encounter: start` / `encounter: end` would, played on as far as it goes
+  // with a moment that names nothing; nothing changes in a system whose fights have no turns.
+  if (action.type === 'encounter') {
+    if (!system.encounter) return { state: session, entries: [], discovered: {}, laid: [] }
+    const s = structuredClone(session)
+    s.lastStep = s.nextEntry
+    changeEncounter(s, 'encounter', action.what)
+    return stepTrip(options, s, { type: 'moment', at: 'encounter.none' })
+  }
   // The members' relations to the places they come to (`place.related`).
   const world = relatedWorld(options.world, session.members)
   const discover = system.bindings?.discover
@@ -1561,6 +1571,12 @@ export function stepTrip(
   }
 }
 
+/**
+ * What a trip's step plays: a travel action, or an encounter started or ended by hand
+ * (`{ type: 'encounter', what: 'start' }`).
+ */
+export type TripAction = TravelAction | { type: 'encounter'; what: 'start' | 'end' }
+
 /** Whether an encounter going on closes this action: travelling, or what isn't its turn's. */
 function encounterCloses(
   system: TravelSystem,
@@ -1572,24 +1588,6 @@ function encounterCloses(
   if (action.type === 'action')
     return !rules.actions.includes(action.id) || session.encounter.stage !== 'acting'
   return ['setDestination', 'travel', 'wait', 'skip', 'waitForMarch'].includes(action.type)
-}
-
-/**
- * Starts or ends an encounter by hand (a **Fight** button, or the player calling it off), as
- * the effects `encounter: start` / `encounter: end` would, and plays it on as far as it goes
- * by itself. The options are `stepTrip`'s; nothing changes in a system whose fights have no turns.
- */
-export function encounterTrip(
-  options: Parameters<typeof stepTrip>[0],
-  session: SessionState,
-  what: 'start' | 'end',
-): ReturnType<typeof stepTrip> {
-  if (!options.system.encounter) return { state: session, entries: [], discovered: {}, laid: [] }
-  const s = structuredClone(session)
-  s.lastStep = s.nextEntry
-  changeEncounter(s, 'encounter', what)
-  // Played on with a moment that names nothing: what the encounter does comes after it.
-  return stepTrip(options, s, { type: 'moment', at: 'encounter.none' })
 }
 
 /**

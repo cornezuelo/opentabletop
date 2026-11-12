@@ -18,6 +18,15 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 - **Catalogues of pieces** (`pieces:`, a list): the shapes its maps may grow with; made, chosen and edited in [Pieces](24-pieces.md).
 - **Its maps' style** (`style:`): the [map style](20-map-styles.md) a new blank map of the system starts in, and a blank sub-map under one of its maps.
 
+## Fights in turns
+
+**Its fights go in turns**, ticked, writes `encounter:` in the system: a fight is played turn by turn, with a panel on the trip saying whose turn it is ([A fight in turns](../travel/02-playing.md#characters)). Unticked, fights are played as a whole, with the actions and tables that tell them. The YAML: [Fights in turns](../technical/07-kinds.md#systems).
+
+- **Who acts first**: **By side**, one side then the other (**The side that goes first**: the party, or the foes; an effect of `encounter.start` can say otherwise, after an initiative roll), or **Each one by what it rolls**, once as the fight begins, highest first: one roll for all (`{{acting.values.agility + 1d6}}`), or **One for each side**.
+- **Minutes a round takes**: so lights burn down and clocks move during a fight; empty, no time passes.
+- **What a member does on its turn**: the system's actions ticked, the only ones open in a fight; taking one ends the turn. A target is a parameter whose choices are those present (`from: present.ids`), in [Rules](05-rules.md).
+- **Ends when**: a condition read after every turn (`present.count: 0`, nobody left); empty, only an action's `encounter: end` or the player end it.
+
 ## Packs it brings
 
 Its own always, and the dependencies you tick, whose tables come with it: a map playing it shows them in its Oracle panel. To bring another pack, add it to the dependencies in `pack.yaml`.
