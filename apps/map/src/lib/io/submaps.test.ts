@@ -1,5 +1,5 @@
 import type { HexMap } from '@open-tabletop/map'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cellDistance, parseKey } from '@open-tabletop/hex'
 import type { LibraryEntry } from '@open-tabletop/storage'
 
@@ -43,11 +43,20 @@ describe('sub-maps', () => {
     kept.clear()
     localStorage.clear()
   })
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
   it(
     'the Deep Barrows lay themselves under the trip, down to the last tomb',
     { timeout: 30_000 },
     async () => {
+      // The trip rolls with Math.random: a fixed sequence makes every run the same.
+      let seed = 42
+      vi.spyOn(Math, 'random').mockImplementation(() => {
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        return seed / 2147483648
+      })
       vi.resetModules()
       const actions = await import('./actions.svelte')
       const { exampleMaps } = await import('./examples')
