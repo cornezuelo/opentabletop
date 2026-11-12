@@ -7,6 +7,7 @@ import {
   startTrip,
   stepTrip,
   travelSystems,
+  type TravelSystem,
 } from '@open-tabletop/session'
 import {
   createTravelEngine,
@@ -126,9 +127,17 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   })
 
   /** Plays a fight against `foes` to its end: each of the PC's turns an Attack at the first one here. */
+  // Loaded once: every fight plays the same packs.
+  let loaded: { registry: ReturnType<typeof loadPacks>['registry']; system: TravelSystem }
   function fight(foes: Record<string, number>, seed: string) {
-    const { registry } = loadPacks(engineFiles(bundledPacks))
-    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    loaded ??= (() => {
+      const { registry } = loadPacks(engineFiles(bundledPacks))
+      return {
+        registry,
+        system: travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!,
+      }
+    })()
+    const { registry, system } = loaded
     const rules = partyOf(system)
     const pc = newMember(rules, {
       id: 'erthos',
@@ -241,6 +250,25 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(dealt.length).toBeGreaterThan(0)
     expect(taken.every((n) => Number.isInteger(n) && n >= 0)).toBe(true)
   })
+
+  it('every creature of the Combat Encounters fights to its end, its Actions rolled without a problem', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const templates = system.bestiary!.flatMap((b) => Object.keys(b.def.templates))
+    expect(templates.length).toBeGreaterThanOrEqual(43)
+    const acted = new Set<string>()
+    for (const id of templates) {
+      const { entries, state } = fight({ [id]: 1 }, id)
+      expect(entries.filter((e) => e.code === 'CHECK_FAILED').map((e) => e.text)).toEqual([])
+      // Over within the turns played, or still going with the PC standing.
+      expect(state.encounter === undefined || state.party!.values.health! > 0).toBe(true)
+      for (const e of entries)
+        if (e.code === 'ORACLE_RESULT' && e.data?.table === `ker-nethalas/${id}`) acted.add(id)
+    }
+    // Most get a turn before they fall (some may fall first).
+    expect(acted.size).toBeGreaterThan(templates.length / 2)
+    // Forty-odd fights: longer than a test usually takes.
+  }, 60_000)
 
   it('a Prone foe is attacked with Advantage: the d100 read either way round, the lower kept', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))

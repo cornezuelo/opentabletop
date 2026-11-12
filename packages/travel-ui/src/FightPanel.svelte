@@ -66,7 +66,7 @@
     {/if}
   </header>
   <ol class="order" aria-label={t('fight.order')}>
-    {#each fighters as f (f.id)}
+    {#each fighters as f, i (`${f.id}|${i}`)}
       <li
         class={f.side}
         class:acting={f.acting}

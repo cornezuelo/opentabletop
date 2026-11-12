@@ -8,9 +8,10 @@ import * as play from './play'
 const here = bundledPacks.some((p) => p.personal && p.root === 'ker-nethalas')
 
 describe.skipIf(!here)('Ker Nethalas', () => {
-  // The Oracle rolls with Math.random: a fixed sequence makes every run the same.
+  // The Oracle rolls with Math.random: a fixed sequence makes every run the same. (A Domain
+  // may close on itself, its last rooms with no exit: this sequence's keeps growing.)
   beforeEach(() => {
-    let seed = 7
+    let seed = 11
     vi.spyOn(Math, 'random').mockImplementation(() => {
       seed = (seed * 1103515245 + 12345) % 2147483648
       return seed / 2147483648
@@ -36,6 +37,8 @@ describe.skipIf(!here)('Ker Nethalas', () => {
         c.between.filter((cell) => !editor.map.hexes[cell as HexKey]?.terrain),
       )
       if (!waiting.length) break
+      // A fight met on the way is called off: this walks the Domain.
+      if (session().encounter) play.step({ type: 'encounter', what: 'end' })
       play.walkTo(waiting[i % waiting.length])
       for (let j = 0; j < 8; j++) {
         const [check] = session().travel.pendingChecks

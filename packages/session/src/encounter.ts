@@ -37,6 +37,11 @@ export interface EncounterRules {
    * acting as that foe (its template's `actions` first).
    */
   foes?: string
+  /**
+   * How many turns each one takes in a round, one after another, read acting as each as
+   * the round begins (`'{{1 + acting.values.ruthless}}'`); absent: one.
+   */
+  turns?: string
   /** Minutes a round takes (absent: none pass). */
   minutes?: number
   /** When it ends by itself: read after the encounter starts and after every turn. */
@@ -84,7 +89,7 @@ export interface Encounter {
 export const ENCOUNTER_EFFECT = /^encounter(?:\.(first))?$/
 
 /** The keys `encounter:` may have. */
-const KEYS = new Set(['order', 'actions', 'foes', 'minutes', 'ends', 'skip'])
+const KEYS = new Set(['order', 'actions', 'foes', 'turns', 'minutes', 'ends', 'skip'])
 
 /** A system's `encounter:` read, with what's wrong in it (paths from `encounter`). */
 export function parseEncounter(
@@ -148,6 +153,10 @@ export function parseEncounter(
   })
   if (raw.foes !== undefined && (typeof raw.foes !== 'string' || !raw.foes))
     errors.push('encounter.foes: expected what a foe does on its turn (table.foe-turn)')
+  if (raw.turns !== undefined && typeof raw.turns !== 'string' && typeof raw.turns !== 'number')
+    errors.push(
+      "encounter.turns: expected how many turns each one takes ('{{1 + acting.values.extra}}')",
+    )
   if (raw.minutes !== undefined && (typeof raw.minutes !== 'number' || raw.minutes < 0))
     errors.push('encounter.minutes: expected the minutes a round takes')
   if (raw.ends !== undefined) errors.push(...validateCondition(raw.ends, 'encounter.ends'))
@@ -158,6 +167,9 @@ export function parseEncounter(
       order,
       actions,
       ...(typeof raw.foes === 'string' && raw.foes && { foes: raw.foes }),
+      ...((typeof raw.turns === 'string' || typeof raw.turns === 'number') && {
+        turns: String(raw.turns),
+      }),
       ...(typeof raw.minutes === 'number' && { minutes: raw.minutes }),
       ...(raw.ends !== undefined && { ends: raw.ends as Condition }),
       ...(raw.skip !== undefined && { skip: raw.skip as Condition }),
@@ -310,6 +322,27 @@ function orderOf(
   return rolled.map((r) => r.id)
 }
 
+/**
+ * The order with each one as many times in a row as the turns it takes this round (the
+ * rules' `turns`, read acting as each; at least one).
+ */
+function withTurns(
+  s: SessionState,
+  rules: EncounterRules,
+  context: Record<string, unknown>,
+  order: string[],
+): string[] {
+  const once = order.filter((id, i) => order.indexOf(id) === i)
+  if (rules.turns === undefined) return once
+  const characters = (context.characters ?? {}) as Record<string, unknown>
+  return once.flatMap((id) => {
+    const roller = momentRolls(s.travel, s.travel.location, `encounter.turns|${s.nextEntry}|${id}`)
+    const read = { ...context, acting: characters[id] ?? {} }
+    const n = Number(String(resolveChange(`=${rules.turns}`, read, roller)).slice(1))
+    return Array.from({ length: Number.isFinite(n) ? Math.max(1, Math.floor(n)) : 1 }, () => id)
+  })
+}
+
 /** Whether the trip waits for the player before an encounter can go on. */
 const waits = (s: SessionState): boolean =>
   !!s.travel.pendingChecks.length || !!s.travel.waiting || !!s.sharing?.length || !!s.asking?.length
@@ -393,7 +426,7 @@ export function driveEncounter(
         say({ type: 'moment', at: 'encounter.start' })
         break
       case 'begun': {
-        const order = orderOf(state, rules, context(state))
+        const order = withTurns(state, rules, context(state), orderOf(state, rules, context(state)))
         edit((e) => Object.assign(e, { order, round: 1, turn: 0, stage: 'round' }))
         if (ends()) edit((e) => (e.stage = 'end'))
         break
@@ -481,7 +514,7 @@ export function driveEncounter(
         }
         edit((e) =>
           Object.assign(e, {
-            order: [...kept, ...come],
+            order: withTurns(state, rules, context(state), [...kept, ...come]),
             turn: 0,
             round: e.round + 1,
             stage: 'round',

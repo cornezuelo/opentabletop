@@ -8,6 +8,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Gear that wears**: an item's field may be a die that steps (`steps: [4, 6, 8]`, `display: die`), each item its own (an armour's wear, d8 to d4); one item is told from another of the same by its key (`acting.items.mail-2.wear`, `places.<place>.keys`), and an action's `roll:` step goes **once for each** one a parameter listed by the trip lists (`each: params.piece`, `from: acting.places.body.keys`). Packs: **Steps** on an item field, **For each** on a roll step. Core's shield dents when a foe's blow lands; the Grey Marches' mail shirt has a wear die, and **Mind the mail** rolls _Wear and tear_ for each piece worn after a fight.
 - **Turns lost**: a system's fights say when a turn is lost (`skip:` in `encounter:`, read as each turn begins, `acting.conditions: stunned`); that turn passes by itself, its moment still said, and the journal says so. Packs' Overview: **A turn is lost when**. Core's staggered foe loses its turn (no more _The foe reels_ row); the Grey Marches' wolves drag the weakest down on a 6, and that companion loses their next turn (_Dragged down_).
+- **Several turns a round**: a fight's `turns:` says how many turns each one takes in a round, one after another (`'{{1 + acting.values.extra}}'`); the fight panel shows each.
+- Names in brackets may hold brackets of their own (`present[characters[params.foe].template].count`, how many of that foe's kind are here); a copy of a template knows its `template`.
 - `min` and `max` in `{{…}}` leave out a value that's missing (`max(map.values.exit, 4)` is 4 where there's no map).
 
 ## [0.47.0] - 2026-11-12

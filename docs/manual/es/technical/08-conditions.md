@@ -58,6 +58,8 @@ when:
 
 _Explorando el camino_ de las Marcas Grises es una.
 
+Un nombre entre corchetes puede tener corchetes propios, que se leen de dentro afuera: `present[characters[params.foe].template].count` es cuántas copias de la plantilla del enemigo elegido hay aquí (cada copia sabe su `template`).
+
 Lo que nombra la parte puede ser cualquier valor que vea la tabla, también uno que da una entrada (`set:`): así varias filas comparten una regla, y cada una nombra su parte. Donde cae un golpe, cada fila dice qué armadura cuenta ahí (`set: { armor: armor-legs }`, y luego `table: table.hurt`), y la única tabla que tiran la lee: `'{{max(0, dmg - characters[params.foe].values[armor])}}'`.
 
 **Una tirada es la misma durante todo un momento.** Donde se vuelva a leer en el mismo momento, los mismos dados dan el mismo total, así que lo que decide no cambia al volver a mirarlo:

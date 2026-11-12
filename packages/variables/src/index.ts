@@ -39,19 +39,31 @@ export function isRoll(expression: string): boolean {
   return isDiceRoll(expression)
 }
 
-/** A name's parts: `a.b[c.d].e` is `a`, `b`, the value of `c.d`, `e`; undefined if it can't be read. */
+/**
+ * A name's parts: `a.b[c.d].e` is `a`, `b`, the value of `c.d`, `e`; undefined if it can't be
+ * read. A name in brackets may have brackets of its own (`present[characters[x].template]`).
+ */
 function partsOf(context: Record<string, unknown>, path: string): string[] | undefined {
   if (!path.includes('[')) return path.split('.')
   const parts: string[] = []
-  for (const piece of path.split(/(\[[^\]]*\])/)) {
-    if (!piece) continue
-    if (piece.startsWith('[')) {
+  let depth = 0
+  let piece = ''
+  const plain = () => {
+    parts.push(...piece.split('.').filter(Boolean))
+    piece = ''
+  }
+  for (const ch of path) {
+    if (ch === '[' && depth++ === 0) plain()
+    else if (ch === ']' && depth > 0 && --depth === 0) {
       // A part named by another value (`acting.values[params.skill]`): its text, or nothing.
-      const named = resolvePath(context, piece.slice(1, -1).trim())
+      const named = resolvePath(context, piece.trim())
       if (typeof named !== 'string' && typeof named !== 'number') return undefined
       parts.push(String(named))
-    } else parts.push(...piece.split('.').filter(Boolean))
+      piece = ''
+    } else piece += ch
   }
+  if (depth) return undefined
+  plain()
   return parts
 }
 
@@ -143,7 +155,7 @@ type Node =
   | { type: 'call'; fn: string; args: Node[] }
 
 const TOKEN =
-  /\s*(?:(\d*d(?:\d+|%|f)(?:k[hl]\d*)?)(?![\w.])|(\d+(?:\.\d+)?)(?![\w.])|([A-Za-z_][A-Za-z0-9_]*(?:[.-][A-Za-z0-9_]+|\[[A-Za-z_][\w.-]*\])*)|([-+*/(),]))/iy
+  /\s*(?:(\d*d(?:\d+|%|f)(?:k[hl]\d*)?)(?![\w.])|(\d+(?:\.\d+)?)(?![\w.])|([A-Za-z_][A-Za-z0-9_]*(?:[.-][A-Za-z0-9_]+|\[[A-Za-z_][\w.-]*(?:\[[A-Za-z_][\w.-]*\][\w.-]*)*\])*)|([-+*/(),]))/iy
 
 /**
  * An expression read as arithmetic, or undefined when it isn't (a lone name stays a name,

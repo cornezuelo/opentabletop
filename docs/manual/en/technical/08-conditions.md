@@ -58,6 +58,8 @@ when:
 
 The Grey Marches' _Scouting ahead_ is one.
 
+A name in brackets may have brackets of its own, read from the inside out: `present[characters[params.foe].template].count` is how many copies of the chosen foe's template are here (each copy knows its `template`).
+
 What names the part may be any value the table sees, a value an entry gives (`set:`) included: so several rows can share one rule, each naming its part. Where a blow lands, each row says which armour counts there (`set: { armor: armor-legs }`, then `table: table.hurt`), and the one table they roll reads it: `'{{max(0, dmg - characters[params.foe].values[armor])}}'`.
 
 **A roll is the same all through a moment.** Wherever it's read again in the same moment, the same dice give the same total, so what it decides doesn't change when you look again:

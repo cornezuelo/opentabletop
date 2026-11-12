@@ -11,6 +11,7 @@ import {
   momentRoller,
   onceRoller,
   render,
+  namedPath,
   resolvePath,
   variableOf,
 } from './index'
@@ -182,5 +183,23 @@ describe('min and max', () => {
     expect(read('max(map.values.gone, map.values.none)')).toBeUndefined()
     // Other functions still need every value.
     expect(read('floor(map.values.gone)')).toBeUndefined()
+  })
+})
+
+describe('names in brackets within brackets', () => {
+  it('read the inner name first', () => {
+    const context = {
+      params: { foe: 'wolf-2' },
+      characters: { 'wolf-2': { template: 'wolf' } },
+      present: { wolf: { count: 3 } },
+    }
+    expect(resolvePath(context, 'present[characters[params.foe].template].count')).toBe(3)
+    expect(lookupIn(context)('present[characters[params.foe].template].count * 5 - 5')).toBe(10)
+    expect(namedPath(context, 'present[characters[params.foe].template].count')).toBe(
+      'present.wolf.count',
+    )
+    // Unbalanced, or naming nothing: nothing.
+    expect(resolvePath(context, 'present[characters[params.foe].template.count')).toBeUndefined()
+    expect(resolvePath(context, 'present[characters[params.none].template].count')).toBeUndefined()
   })
 })

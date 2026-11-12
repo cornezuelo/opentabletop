@@ -364,8 +364,15 @@ export function presentFacts(
     t.count++
     t.ids.push(p.character.id)
   }
+  // Each copy, with the template it's a copy of (`characters[params.foe].template`).
   const characters = Object.fromEntries(
-    here.map((p) => [p.character.id, characterFacts(p.character, copySheet(rules)(p.character))]),
+    here.map((p) => [
+      p.character.id,
+      {
+        ...characterFacts(p.character, copySheet(rules)(p.character)),
+        ...(p.character.template && { template: p.character.template.id }),
+      },
+    ]),
   )
   return {
     present: {

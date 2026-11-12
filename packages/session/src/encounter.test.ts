@@ -3,7 +3,7 @@ import { seeded } from '@open-tabletop/random'
 import { createCharacter } from '@open-tabletop/character-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { encounterView, fightStarters } from './encounter'
+import { encounterView, fightStarters, parseEncounter } from './encounter'
 import { applyResult } from './index'
 import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
@@ -423,6 +423,33 @@ describe('an encounter: a fight in turns', () => {
     // Back to Kael, round 2.
     expect(done.state.encounter).toMatchObject({ round: 2, stage: 'acting' })
     expect(systemOf('{ actions: [actions.strike], skip: { not: 1 } }').problems.length).toBe(1)
+  })
+
+  it('several turns a round: each one as many times in a row as its turns say', () => {
+    const { options, session } = begin(
+      "{ order: { by: side }, actions: [actions.strike, actions.flee], turns: '{{acting.values.speed}}' }",
+    )
+    // Members' speed 1, the goblins' 3.
+    let done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    const order = done.state.encounter!.order
+    expect(order).toEqual([
+      'kael',
+      'mira',
+      ...Array(3).fill('goblin'),
+      ...Array(3).fill('goblin-2'),
+    ])
+    expect(encounterView(done.state)!.fighters).toHaveLength(8)
+    // Kael and Mira strike; the goblins then take their three turns each (the bite on each).
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    const turns = done.entries.filter((e) => e.code === 'ENCOUNTER_TURN').map((e) => e.data?.id)
+    expect(turns.filter((id) => id === 'goblin-2')).toHaveLength(3)
+    expect(done.state.members!.find((m) => m.id === 'kael')!.values.health).toBe(10 - 3)
+    // The goblin felled, round 2's order keeps the rest, with their turns again.
+    expect(done.state.encounter!.order).toEqual(['kael', 'mira', ...Array(3).fill('goblin-2')])
+    expect(parseEncounter({ actions: [], turns: [2] }, []).errors).toEqual([
+      "encounter.turns: expected how many turns each one takes ('{{1 + acting.values.extra}}')",
+    ])
   })
 
   it("effects on a copy's values are checked against the bestiary's sheets too", () => {
