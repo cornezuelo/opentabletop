@@ -2,6 +2,7 @@
   import {
     calendarOf,
     localize,
+    participantName,
     shownAt,
     type SessionState,
     type TravelSystem,
@@ -143,6 +144,14 @@
         text: t(key, { event: eventName(t, check.event, context.checkName) }),
         ...(!asks && { go: { type: 'resolveCheck', id: check.id } }),
       }
+    }
+    // A foe's turn waiting for the player to roll its table: chosen in the trip's panel.
+    const fight = session.encounter
+    if (fight?.stage === 'rolling') {
+      const id = fight.order[fight.turn] ?? ''
+      const line = { id: '', at: '', time: travel.time, source: 'travel' as const }
+      const data = { id, name: participantName(session, id), table: fight.rolling }
+      return { text: entryText({ ...line, code: 'ENCOUNTER_ROLLS', data }, context) }
     }
     const waiting = travel.waiting
     if (!waiting) return null

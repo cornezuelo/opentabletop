@@ -624,6 +624,12 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return d.name || d.id !== 'party'
         ? t('journal.encounterTurn', { name: String(d.name || d.id || '') })
         : t('journal.encounterPartyTurn')
+    // A foe's turn waiting for the player to roll its table by hand.
+    case 'ENCOUNTER_ROLLS':
+      return t('journal.encounterRolls', {
+        name: String(d.name || d.id || ''),
+        table: nameOf(String(d.table ?? '')),
+      })
     case 'ENCOUNTER_ENDED':
       return t('journal.encounterEnded', { rounds: Number(d.rounds ?? 0) })
     // A value of the connection the step takes changed in play (a door opened).
@@ -658,7 +664,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
           .map((r) => {
             const chose = r.entry !== undefined ? ` → ${r.entry}` : ''
             const dice = r.dice.length ? `: ${r.dice.join(', ')}` : ''
-            return `${nameOf(r.source)}${dice}${chose}`
+            const hand = r.byHand ? ` ${t('journal.byHand')}` : ''
+            return `${nameOf(r.source)}${dice}${hand}${chose}`
           })
           .join('; '),
       })

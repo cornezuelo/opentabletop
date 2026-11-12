@@ -86,6 +86,12 @@ export interface ResolveOptions {
   locale?: string
   /** A roll mode the definition offers (full id), chosen by hand for the top-level roll. */
   mode?: string
+  /**
+   * The top-level roll's total, rolled by the player with dice of their own: its entry is
+   * the one that total falls on (a reroll it asks for is the engine's). Dice within the
+   * entry, and a list with no roll, are still rolled.
+   */
+  total?: number
 }
 
 export type OracleEvent =
@@ -163,6 +169,7 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       maxDepth,
       options.onEvent,
     )
+    if (opts.total !== undefined) session.given = opts.total
     const resolution = session.resolve(def, context, 0, opts.mode)
     return {
       resolution,
@@ -228,6 +235,9 @@ class Run {
     private maxDepth: number,
     private onEvent?: (event: OracleEvent) => void,
   ) {}
+
+  /** The first roll of a list's own, given by the player (`ResolveOptions.total`). */
+  given: number | undefined
 
   /** Where the dice conditions roll are told (the node being resolved). */
   private rollingFor: Resolution | undefined
@@ -381,7 +391,9 @@ class Run {
     // dice show as `dice.*` (`dice.doubles`): in their conditions (a roll-under:
     // `when: { party.stats.survival: { gte: '{{roll}}' } }`), texts, `set` and effects.
     let rolled = list.roll
-      ? this.roll(list.parsedRoll ?? list.roll, context, node, mode)
+      ? depth === 0 && this.given !== undefined
+        ? this.handRoll(list.roll, node)
+        : this.roll(list.parsedRoll ?? list.roll, context, node, mode)
       : undefined
     let total = rolled?.total
     const withRoll = () =>
@@ -551,6 +563,14 @@ class Run {
       this.onEvent?.({ type: 'DECK_RESHUFFLED', source: def.id })
     }
     return this.resolve(def, context, depth + 1)
+  }
+
+  /** The total the player rolled, kept as the roll (no dice of the engine's), used once. */
+  private handRoll(expression: string, node: Resolution): DiceResult {
+    const result: DiceResult = { expression, terms: [], total: this.given!, byHand: true }
+    this.given = undefined
+    node.rolls.push(result)
+    return result
   }
 
   private roll(

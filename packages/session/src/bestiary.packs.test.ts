@@ -340,6 +340,57 @@ describe('the bundled packs fight in turns', () => {
     expect(new Set(bitten)).toEqual(new Set(bitten.length ? ['mara'] : []))
   })
 
+  it('the Grey Marches: foes rolled by hand, each turn waiting for the total the player rolled', () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'w',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(3) }),
+    }
+    const s = applyResult(
+      { ...session, foesByHand: true },
+      { effects: { 'present.pack-leader': 1, 'present.grey-wolf': 2, 'present.bandit': 1 } },
+      {},
+      partyOf(marches),
+    )
+    // The player's dice: a 6 for a wolf (it bites), a 1 for anyone else (it swings and misses).
+    const asked: string[] = []
+    const rows: string[] = []
+    let done = stepTrip(options, s, { type: 'action', id: 'stand' })
+    for (let turn = 0; turn < 30 && done.state.encounter; turn++) {
+      for (const e of done.entries)
+        if (e.code === 'ROLLED')
+          for (const r of e.data?.rolls as { source: string; entry?: string; byHand?: true }[])
+            if (r.byHand) rows.push(`${r.source}:${r.entry}`)
+      const e = done.state.encounter
+      if (e.stage === 'rolling') {
+        expect(encounterView(done.state)).toMatchObject({ rolling: e.rolling, dice: '1d6' })
+        asked.push(e.rolling!)
+        const total = e.rolling === 'grey-marches/wolf-turn' ? 6 : 1
+        done = stepTrip(options, done.state, { type: 'encounter', what: 'roll', total })
+        continue
+      }
+      const here = done.state.present?.filter((p) => p.at === done.state.travel.location) ?? []
+      const foe = (here.find((p) => p.character.id.startsWith('grey-wolf')) ?? here.at(-1))
+        ?.character.id
+      if (!foe) break
+      done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe } })
+      if (done.state.travel.waiting)
+        done = stepTrip(options, done.state, { type: 'resume', choice: foe })
+    }
+    expect(asked).toContain('grey-marches/wolf-turn')
+    expect(asked).toContain('grey-marches/foe-turn')
+    expect(new Set(rows)).toEqual(
+      new Set(['grey-marches/wolf-turn:bite', 'grey-marches/foe-turn:miss']),
+    )
+  })
+
   it('the Grey Marches: a fight started by hand with those here, shown in turns, and called off', () => {
     const { session } = startTrip({
       system: marches,

@@ -613,6 +613,9 @@
             ? t('blocked.held')
             : ''}
         onend={endFight}
+        tableName={fight.rolling ? (nameOf?.(fight.rolling) ?? fight.rolling) : undefined}
+        onroll={(total) =>
+          onstep({ type: 'encounter', what: 'roll', ...(total !== undefined && { total }) })}
       />
     {/if}
 
@@ -1041,6 +1044,23 @@
           }}
         /><span>{t('skipPauses')}<InfoTip text={t('skipPausesHelp')} /></span></label
       >
+      {#if system.encounter}
+        <label class="check skip"
+          ><input
+            type="checkbox"
+            checked={!!session.foesByHand}
+            onchange={(e) => {
+              const on = e.currentTarget.checked
+              onedit((s) => {
+                const next = { ...s }
+                if (on) next.foesByHand = true
+                else delete next.foesByHand
+                return next
+              })
+            }}
+          /><span>{t('foesByHand')}<InfoTip text={t('foesByHandHelp')} /></span></label
+        >
+      {/if}
       {#if onshare && system.sheet?.def.items && (session.members?.length ?? 0) > 1}
         <label class="check skip"
           ><input

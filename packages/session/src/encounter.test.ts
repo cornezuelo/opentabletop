@@ -257,6 +257,53 @@ describe('an encounter: a fight in turns', () => {
     expect(done.state.encounter?.round).toBe(2)
   })
 
+  it("foes rolled by hand: each foe's turn waits for the total the player rolled, or rolls it for them", () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',
+    )
+    let done = stepTrip(options, { ...session, foesByHand: true }, { type: 'action', id: 'ambush' })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    // The first goblin is down; the other's turn waits (after its moment: the bite at Kael).
+    expect(done.state.encounter).toMatchObject({
+      stage: 'rolling',
+      rolling: 'brawl/foe-turn',
+      dice: '1d1',
+    })
+    expect(encounterView(done.state)?.rolling).toBe('brawl/foe-turn')
+    expect(done.entries.at(-1)).toMatchObject({
+      code: 'ENCOUNTER_ROLLS',
+      data: { id: 'goblin-2', table: 'brawl/foe-turn' },
+    })
+    // Meanwhile the party's actions wait too.
+    const closed = stepTrip(options, done.state, {
+      type: 'action',
+      id: 'strike',
+      with: { foe: 'goblin-2' },
+    })
+    expect(closed.state).toBe(done.state)
+    // The player's 1 is its blow; the round ends, and the party's turn comes again.
+    const rolled = stepTrip(options, done.state, { type: 'encounter', what: 'roll', total: 1 })
+    const roll = rolled.entries.find((e) => e.code === 'ROLLED')
+    expect(roll?.data?.rolls).toEqual([
+      expect.objectContaining({ source: 'brawl/foe-turn', byHand: true }),
+    ])
+    expect(rolled.state.handTotal).toBeUndefined()
+    expect(rolled.state.encounter?.dice).toBeUndefined()
+    expect(rolled.state.encounter).toMatchObject({ stage: 'acting', round: 2 })
+    const kael = rolled.state.members!.find((m) => m.id === 'kael')!.values.health
+    const mira = rolled.state.members!.find((m) => m.id === 'mira')!.values.health
+    // The goblin standing bit Kael (-1), then its blow landed (-1); the fallen one had no turn.
+    expect(kael + mira).toBe(20 - 1 - 1)
+    // Rolled for them, it plays as the system's roll; with nothing waiting, nothing happens.
+    expect(
+      stepTrip(options, done.state, { type: 'encounter', what: 'roll' }).state.encounter?.round,
+    ).toBe(2)
+    expect(stepTrip(options, rolled.state, { type: 'encounter', what: 'roll' }).state).toBe(
+      rolled.state,
+    )
+  })
+
   it('foes aim at a party played as a whole through its own sheet', () => {
     const { system, registry } = systemOf(
       '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',

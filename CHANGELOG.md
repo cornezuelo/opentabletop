@@ -16,6 +16,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Foes that act**: on a foe's turn in a fight, its template's table (`actions: table.wolf-turn` in the bestiary) or the system's (`encounter.foes`) is rolled acting as it; a result aims at one of the party with `set: { target: party.members.random }` (or `party.members.lowest.values.<id>` / `highest`), its effects naming them as `characters[target]`. Packs: **On its turn** on a template, **A foe's turn** in the Overview. Core's foes strike one of you; the Grey Marches' wolves go for the most hurt, the rest swing at anyone.
 
+- Fights: **Roll the foes by hand**, an option of the trip (Travel, Map, Campaign's scenes): each foe's turn waits for the total you rolled for its table (or **Roll it for me**), and its row happens as if the system had rolled it; the journal marks it _(by hand)_. The Oracle engine takes a top-level roll's total (`total` in `resolve`'s options).
+
 - Fights: a party played as a whole (no members) takes a foe's blow on its own party sheet; copies added by hand or brought into a scene are named in the app's language; a scene's **Party** tab no longer shows a map's sheet.
 
 - Pieces: an exit into a **new map** (`newMap: true`, or `{ name: … }`): laying its piece makes a blank sub-map under it, drawn like the map, taken with **Go in ↗** and laid piece by piece in turn. Packs' pieces form: **New map**. Core's _Stairs down_ lead to a level below; the Grey Marches' _A stair further down_ to _The deeper barrows_.

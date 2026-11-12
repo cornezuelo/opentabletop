@@ -52,6 +52,7 @@ const STORY = new Set([
   'ENCOUNTER_STARTED',
   'ENCOUNTER_ROUND',
   'ENCOUNTER_TURN',
+  'ENCOUNTER_ROLLS',
   'ENCOUNTER_ENDED',
   'WORLD_EVENT',
   'HOLIDAY',
@@ -128,6 +129,8 @@ export interface RolledNode {
   mode?: string
   /** Each roll as one line (`2d6 → 7  [3, 4]`). */
   dice: string[]
+  /** Whether its roll was the player's, the total given by hand (a foe's turn rolled by hand). */
+  byHand?: true
   /** How deep in the roll (0: the one the check named). */
   depth: number
 }
@@ -142,6 +145,7 @@ export function rolledNodes(r: Resolution, depth = 0): RolledNode[] {
             ...(r.entry !== undefined && { entry: r.entry }),
             ...(r.mode && { mode: r.mode }),
             dice: r.rolls.map(diceText),
+            ...(r.rolls.some((d) => d.byHand) && { byHand: true as const }),
             depth,
           },
         ]

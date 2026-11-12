@@ -316,6 +316,9 @@ describe('steps that speak and wait', () => {
     expect(line('ENCOUNTER_TURN', { id: 'kael', name: 'Kael' })).toBe('Kael’s turn')
     expect(line('ENCOUNTER_TURN', { id: 'party', name: '' })).toBe('The party’s turn')
     expect(line('ENCOUNTER_TURN', { id: 'party', name: 'The Company' })).toBe('The Company’s turn')
+    expect(line('ENCOUNTER_ROLLS', { id: 'wolf', name: 'Wolf', table: 'p/wolf-turn' })).toMatch(
+      /^Wolf’s turn: waiting for you to roll /,
+    )
   })
 })
 

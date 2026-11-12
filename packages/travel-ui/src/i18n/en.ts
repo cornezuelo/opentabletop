@@ -98,6 +98,9 @@ export const en = {
       'Time passes where the party is until it can take “{action}” again (how the trip goes on by itself, as the system says), living it: if it could now, that chance goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t go on, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
     actionUntil: 'Lasts until {moment}.',
   },
+  foesByHand: 'Roll the foes by hand',
+  foesByHandHelp:
+    "In a fight in turns, each foe's turn waits for you: roll its table's dice yourself and type the total (or **Roll it for me**), and the row it falls on happens as if the system had rolled it. Dice within that row (a blow's damage) are still rolled by the system.\n• Unticked, the foes' turns go by themselves\n• A table with no dice (rolled by weight) is always rolled by the system",
   skipPauses: 'Skip pauses',
   skipPausesHelp:
     "Play everything by itself: whatever would stop the trip for you (a check that pauses, a result that pauses, an action's `pause:` step, a pause of the campaign's world) is written down and the trip goes on.\n• Questions still wait for you (an action's `ask:`), since they need a choice\n• Checks that wait for who rolls (**Ask at every roll**) still wait\nUntick it to stop at pauses again.",
@@ -231,6 +234,13 @@ export const en = {
     endTip:
       'Calls the fight off by hand: the system’s actions for its end are taken, and the trip goes on.',
     confirmEnd: 'End the fight now?',
+    roll: '{name}’s turn: roll {table}',
+    rollDice: '{name}’s turn: roll {table} ({dice})',
+    total: 'Total',
+    apply: 'Apply',
+    applyTip: 'Its row happens as if the system had rolled this total.',
+    rollForMe: 'Roll it for me',
+    rollForMeTip: 'The system rolls it, as when the foes aren’t rolled by hand.',
   },
   /** Why a button is disabled. */
   blocked: {
@@ -311,6 +321,8 @@ export const en = {
     encounterStarted: 'A fight begins',
     encounterRound: 'Round {round}',
     encounterTurn: '{name}’s turn',
+    encounterRolls: '{name}’s turn: waiting for you to roll {table}',
+    byHand: '(by hand)',
     encounterPartyTurn: 'The party’s turn',
     encounterEnded: 'The fight is over, in round {rounds}',
     unknownPlace: 'No catalogue of places of the system has “{name}”, so nothing is made',

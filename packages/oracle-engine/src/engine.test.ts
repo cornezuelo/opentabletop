@@ -385,6 +385,20 @@ describe('tables', () => {
     expect(resolution.text).toBe('7 lobos')
   })
 
+  it('a total rolled by the player picks the entry; the dice within it, and nested tables, are rolled', () => {
+    // The player's 2 is wolves; the engine rolls their count (2d6 → 3 + 4).
+    const engine = createOracleEngine({ registry, random: faces(6, 3, 4) })
+    const { resolution, record } = engine.resolve('test/encounters', {}, undefined, { total: 2 })
+    expect(resolution.entry).toBe('wolves')
+    expect(resolution.text).toBe('7 lobos')
+    expect(record.rolls[0]).toEqual({ expression: '1d6', terms: [], total: 2, byHand: true })
+    // A 5 follows the ruins, whose own roll (1d2 → 2) is the engine's.
+    const nested = createOracleEngine({ registry, random: sequence([0.75]) })
+    expect(nested.resolve('test/encounters', {}, undefined, { total: 5 }).resolution.text).toBe(
+      'Cripta',
+    )
+  })
+
   it('follows nested tables and merges their values', () => {
     const engine = createOracleEngine({ registry, random: sequence([4.5 / 6, 0.75]) })
     const { resolution } = engine.resolve('test/encounters')

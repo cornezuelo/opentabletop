@@ -54,6 +54,8 @@ export interface DiceResult {
   total: number
   /** Rolled several times (a system's roll mode): the totals not kept, in order. */
   discarded?: { terms: TermResult[]; total: number }[]
+  /** Rolled by the player with dice of their own, the total given: no terms. */
+  byHand?: true
 }
 
 export class DiceSyntaxError extends Error {

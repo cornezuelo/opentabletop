@@ -1511,6 +1511,16 @@ export function stepTrip(
     if (!system.encounter) return { state: session, entries: [], discovered: {}, laid: [] }
     const s = structuredClone(session)
     s.lastStep = s.nextEntry
+    // A foe's table rolled by the player (its total), or for them: the turn is done with it.
+    if (action.what === 'roll') {
+      const table = s.encounter?.stage === 'rolling' ? s.encounter.rolling : undefined
+      if (!table) return { state: session, entries: [], discovered: {}, laid: [] }
+      s.encounter!.stage = 'acted'
+      delete s.encounter!.rolling
+      delete s.encounter!.dice
+      if (action.total !== undefined) s.handTotal = action.total
+      return stepTrip(options, s, { type: 'roll', resolve: table })
+    }
     changeEncounter(s, 'encounter', action.what)
     return stepTrip(options, s, { type: 'moment', at: 'encounter.none' })
   }
@@ -1568,6 +1578,10 @@ export function stepTrip(
     (s, a) => played.step(s, a),
     (s) => tripContext(s, options.facts ?? {}, {}, partyOf(system)),
     (s, id) => foeTable(system, s, id),
+    (table) => {
+      const def = options.oracle?.get(table)
+      return def?.kind === 'table' ? def.roll : undefined
+    },
   )
   // What the step did, the encounter's lines with it, from its first line on.
   if (result.state !== first.state) result.state.lastStep = first.state.lastStep
@@ -1579,10 +1593,14 @@ export function stepTrip(
 }
 
 /**
- * What a trip's step plays: a travel action, or an encounter started or ended by hand
- * (`{ type: 'encounter', what: 'start' }`).
+ * What a trip's step plays: a travel action, an encounter started or ended by hand
+ * (`{ type: 'encounter', what: 'start' }`), or a foe's table rolled by hand (`what: 'roll'`,
+ * the `total` the player rolled; none, rolled for them).
  */
-export type TripAction = TravelAction | { type: 'encounter'; what: 'start' | 'end' }
+export type TripAction =
+  | TravelAction
+  | { type: 'encounter'; what: 'start' | 'end' }
+  | { type: 'encounter'; what: 'roll'; total?: number }
 
 /**
  * What a foe rolls on its turn, as a full id: its template's `actions` (from its bestiary's

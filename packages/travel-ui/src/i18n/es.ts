@@ -96,6 +96,9 @@ export const es: Messages<typeof en> = {
       'El tiempo pasa donde está el grupo hasta que pueda volver a hacer «{action}» (cómo sigue el viaje por sí solo, según diga el sistema), viviéndolo: si ahora pudiera, primero deja pasar esa ocasión. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede seguir, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
     actionUntil: 'Dura hasta {moment}.',
   },
+  foesByHand: 'Tirar a mano por los enemigos',
+  foesByHandHelp:
+    'En un combate por turnos, el turno de cada enemigo te espera: tira tú los dados de su tabla y escribe el total (o **Tíralo por mí**), y la fila que salga ocurre como si la hubiera tirado el sistema. Los dados dentro de esa fila (el daño de un golpe) los sigue tirando el sistema.\n• Desmarcada, los turnos de los enemigos se juegan por sí solos\n• Una tabla sin dados (que se tira por pesos) la tira siempre el sistema',
   skipPauses: 'Saltar las pausas',
   skipPausesHelp:
     'Que todo se juegue por sí solo: lo que detendría el viaje para ti (una comprobación que pausa, un resultado que pausa, el paso `pause:` de una acción, una pausa del mundo de la campaña) se apunta y el viaje sigue.\n• Las preguntas siguen esperándote (el `ask:` de una acción), porque necesitan una elección\n• Las comprobaciones que esperan a quién tira (**Preguntar en cada tirada**) siguen esperando\nDesmárcala para volver a parar en las pausas.',
@@ -226,6 +229,13 @@ export const es: Messages<typeof en> = {
     endTip:
       'Da el combate por acabado a mano: se hacen las acciones del sistema para su final, y el viaje sigue.',
     confirmEnd: '¿Terminar el combate ahora?',
+    roll: 'Turno de {name}: tira {table}',
+    rollDice: 'Turno de {name}: tira {table} ({dice})',
+    total: 'Total',
+    apply: 'Aplicar',
+    applyTip: 'Su fila ocurre como si el sistema hubiera sacado este total.',
+    rollForMe: 'Tíralo por mí',
+    rollForMeTip: 'Lo tira el sistema, como cuando no se tira a mano por los enemigos.',
   },
   blocked: {
     value: '{name}: no es posible el resto del día.',
@@ -304,6 +314,8 @@ export const es: Messages<typeof en> = {
     encounterStarted: 'Empieza un combate',
     encounterRound: 'Ronda {round}',
     encounterTurn: 'Turno de {name}',
+    encounterRolls: 'Turno de {name}: esperando a que tires {table}',
+    byHand: '(a mano)',
     encounterPartyTurn: 'Turno del grupo',
     encounterEnded: 'Se acabó el combate, en la ronda {rounds}',
     unknownPlace: 'Ningún catálogo de lugares del sistema tiene «{name}», así que no se crea nada',

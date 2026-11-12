@@ -289,6 +289,13 @@ export interface SessionState {
    * result's, a step's) is written in the journal and the trip goes on. Questions still ask.
    */
   skipPauses?: boolean
+  /**
+   * The player's choice to roll the foes' turns in a fight by hand (**Roll the foes by hand**):
+   * each one waits for the total of its table's dice (docs/conflicts.md, _Foes that act_).
+   */
+  foesByHand?: boolean
+  /** The total the player rolled for the next table a step rolls, used once (a foe's turn). */
+  handTotal?: number
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
   weatherAt?: string
   /**
@@ -1154,8 +1161,12 @@ export function createSession(options: {
               value = day.value
               text = localize(day.name, options.locale ?? 'en', 'en') ?? day.weather
             } else {
+              // A total the player rolled by hand picks its entry (once).
+              const total = s.handTotal
+              delete s.handTotal
               const out = options.oracle.resolve(binding.resolve!, context, s.oracle, {
                 locale: options.locale,
+                ...(total !== undefined && { total }),
               })
               s.oracle = out.state
               // Behind the result: each roll's dice, and the rows or cards chosen.
