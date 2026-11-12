@@ -18,6 +18,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- Oracle: a table whose die's size is a value of the trip (`1d{{map.values.exit}}`), rolled by hand where that value isn't, says which value it needs instead of failing on a die of 0 sides.
 - What a place's contents change when the party comes in (those present, the party's values, a way on) now reaches the trip: only the places they made did, so a crypt's sleeper never woke.
 - Map: on a map laid piece by piece, going through a way into a sub-map no longer tries to lay a piece on the other map's place, which stopped the party at the way.
 

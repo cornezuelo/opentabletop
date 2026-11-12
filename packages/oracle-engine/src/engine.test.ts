@@ -115,6 +115,13 @@ entries:
   - { id: missed, range: 1-6, result: '{{roll}}, over {{skill}}' }
 ---
 kind: table
+id: usage-die
+roll: '1d{{usage}}'
+entries:
+  - { id: drop, range: 1-2, result: It drops }
+  - { id: hold, range: 3-12, result: It holds }
+---
+kind: table
 id: doubles
 roll: 2d6
 entries:
@@ -416,6 +423,12 @@ describe('tables', () => {
     // A mode the table doesn't offer isn't used.
     const plain = engine.resolve('test/terrain-encounter', {}, undefined, mode).resolution
     expect(plain.mode).toBeUndefined()
+  })
+
+  it('a die whose size is a value says what it needs when the value is missing', () => {
+    const engine = () => createOracleEngine({ registry, random: faces(8, 7) })
+    expect(engine().resolve('test/usage-die', { usage: 8 }).resolution.entry).toBe('hold')
+    expect(() => engine().resolve('test/usage-die', {})).toThrow(/needs "usage" for its die's size/)
   })
 
   it("reads the table's own roll as `roll`: in conditions, texts and effects", () => {

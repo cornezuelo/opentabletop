@@ -562,7 +562,7 @@ class Run {
     const parsed =
       typeof expression === 'string'
         ? parseDice(
-            expression.replace(/\{\{\s*([^}]*?)\s*\}\}/g, (_, path: string) => {
+            expression.replace(/\{\{\s*([^}]*?)\s*\}\}/g, (_, path: string, at: number) => {
               // Missing values count as 0 (e.g. no weather modifier today); wrong types are
               // errors. Arithmetic (`{{min(party.stats.roped, 1)}}`) reads its names.
               const value = /^[\w.]+$/.test(path)
@@ -584,6 +584,12 @@ class Run {
                   )
               if (typeof value !== 'number' || !Number.isFinite(value))
                 throw new OracleError(`Roll "${expression}" needs a number for "${path}"`)
+              // A die's size (`1d{{map.values.exit}}`) that isn't here (rolled by hand, away
+              // from the trip that has it): say what it needs, not that a die has 0 sides.
+              if (/d$/i.test(expression.slice(0, at)) && value < 1)
+                throw new OracleError(
+                  `Roll "${expression}" needs "${path}" for its die's size, and it isn't here (a value of the trip, or of the map, has it)`,
+                )
               // Negative numbers become "- n" so the dice grammar stays simple.
               return value < 0 ? `0 - ${-value}` : String(value)
             }),
