@@ -293,6 +293,9 @@ export const es: Messages<typeof en> = {
     fieldShuffle: 'Barajar antes',
     fieldShuffleHelp:
       'Todas las cartas vuelven y el mazo se baraja **antes de este robo**, así una mano o una tirada nunca repite carta ni depende de robos anteriores. Márcalo en el primer campo que roba; los siguientes toman lo que queda.\n• `first: { deck: deck.omens, shuffle: true }`\n• `second: { deck: deck.omens }`\nDesmarcado: la carta sale de lo que queda del mazo.',
+    fieldModes: 'Modos de tirada',
+    fieldModesHelp:
+      'Formas de tirar que declara su sistema (`kind: roll-modes`), usadas **solo en la tirada de este campo** cuando se cumple su condición; las demás tiradas del generador quedan como están: ventaja en una de dos tiradas que se comparan.\n**Solo cuando**: se usa cuando se cumple, sobre lo que ve el generador (sus entradas, campos anteriores, el viaje):\n• `acting.values.edge: { gte: 1 }` — quien tira tiene ventaja\n• `danger: { gte: 3 }` — un campo anterior\n**Salvo**: no se usa cuando se cumple (escrito solo, se usa siempre salvo entonces).\nDos modos que se anulan entre sí, juntos, dan una tirada normal.',
     fieldMore: 'Condiciones y contexto',
     fieldWhenHelp:
       '**Solo si**: el campo solo se tira cuando se cumple, en filas (qué lee · comparación · valor), sobre lo que ve el generador (sus entradas, campos anteriores, el mapa o el viaje); si no, queda vacío.\n• `time.season: winter`\n• `danger: { lte: 2 }` — un campo anterior\n**Salvo**: no cuando se cumple:\n• `untouched: { lt: 90 }`\nVacío: siempre.',

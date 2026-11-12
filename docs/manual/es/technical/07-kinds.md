@@ -93,6 +93,18 @@ cards:
   - { id: storm, result: A storm }
 ```
 
+Un campo `roll` puede llevar [modos de tirada](#modos-de-tirada) propios, `modeWhen` y `modeUnless` como una tabla, usados **solo en esa tirada** cuando se cumplen sus condiciones (nunca se ofrecen a mano): dos tiradas que se comparan, ventaja en una de ellas.
+
+```yaml
+kind: generator
+id: duel
+fields:
+  # Leída en los dos sentidos cuando quien ataca tiene ventaja; la defensa se tira tal cual.
+  attack: { roll: d%, modeWhen: { core/roll-modes.either-way: { acting.values.edge: { gte: 1 } } } }
+  defence: { roll: d% }
+template: '{{attack}} contra {{defence}}'
+```
+
 **Qué ven otras tablas:** cada campo por su nombre, dentro del generador (`{{name}}`), y desde un generador que tire este, como `{{npc.name}}`. Lo que fijan, cambian y pausan sus tablas llega al viaje (o a lo que lo tiró) como lo de una tabla: sus valores `set` (con el mismo nombre, ganan sus propios campos), sus `effects` sumados, y una `pause` en cualquiera de ellas detiene el viaje.
 
 ## Mazos
@@ -160,7 +172,7 @@ modes:
   lucky: { name: Con suerte, swap: true, keep: lowest } # un 73 puede leerse como 37
 ```
 
-Una tabla u oráculo los usa con:
+Una tabla u oráculo los usa con (el campo `roll` de un generador también lleva `modeWhen` y `modeUnless`, solo para su tirada: [Generadores](#generadores)):
 
 - `modes: [roll-modes.advantage, roll-modes.disadvantage]`: se ofrecen al tirar a mano (la opción junto a **Tirar**).
 - `modeWhen: { roll-modes.advantage: { party.stats.explorer: { gte: 1 } } }`: se usa por sí solo cuando se cumple la condición, también en un viaje. Un modo puede estar en `modeWhen` sin estar en `modes`.

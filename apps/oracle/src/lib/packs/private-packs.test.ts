@@ -184,6 +184,47 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(state.present?.length === 0 || party.toughness! < 30).toBe(true)
   })
 
+  it('a Prone foe is attacked with Advantage: the d100 read either way round, the lower kept', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'e', name: 'E', values: { bladed: 60, perception: 80 } })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor' }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const attackRolls = (prone: boolean) => {
+      const options = {
+        system,
+        world: room,
+        oracle: createOracleEngine({ registry, random: seeded('adv') }),
+      }
+      const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'adv' })
+      let s = applyResult(session, { effects: { 'present.necropede': 1 } }, {}, rules)
+      if (prone)
+        s = applyResult(s, { effects: { 'present.all.conditions.prone': true } }, {}, rules)
+      let done = stepTrip(options, s, { type: 'action', id: 'fight' })
+      for (let i = 0; i < 6 && done.state.encounter?.order[done.state.encounter.turn] !== 'e'; i++)
+        done = stepTrip(options, done.state, { type: 'resume' })
+      done = stepTrip(options, done.state, {
+        type: 'action',
+        id: 'attack',
+        with: { foe: 'necropede', skill: 'bladed' },
+      })
+      done = stepTrip(options, done.state, { type: 'resume', choice: 'necropede' })
+      const rolled = done.entries.find(
+        (e) => e.code === 'ROLLED' && e.data?.check === 'generator.attack',
+      )
+      return (rolled?.data?.rolls as { dice: string[] }[])[0].dice
+    }
+    // The attack's own d100 alone is read either way round: one swapped reading discarded.
+    expect(attackRolls(true)[0]).toMatch(/1d100.*\(/)
+    expect(attackRolls(false)[0]).not.toMatch(/1d100.*\(/)
+  })
+
   it('three Rotwalkers: humanoid hit locations, Reactions counted each round, the Initiative deciding who acts first', () => {
     let wounds = 0
     for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {

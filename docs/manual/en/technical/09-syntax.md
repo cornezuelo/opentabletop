@@ -109,17 +109,17 @@ When something applies. The same syntax everywhere: `when` (must hold) and `unle
 
 **Where they go:**
 
-| Where                                    | Keys                                                 |
-| ---------------------------------------- | ---------------------------------------------------- |
-| table and oracle entries                 | `when`, `unless`                                     |
-| generator fields                         | `when`, `unless`                                     |
-| roll modes used by themselves            | `modeWhen`, `modeUnless` (by mode id)                |
-| party stats from the characters (`from`) | `when`, `unless` (read for each character)           |
-| a step that waits                        | `wait` (with `limit`)                                |
-| travel checks                            | `when`, `unless`                                     |
-| actions, and each of their steps         | `when`, `unless`                                     |
-| ways of travelling                       | `when`, `unless` (chosen), `through` (where it goes) |
-| terrains and water                       | `passable: { when, unless }`                         |
+| Where                                    | Keys                                                                                       |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------ |
+| table and oracle entries                 | `when`, `unless`                                                                           |
+| generator fields                         | `when`, `unless`                                                                           |
+| roll modes used by themselves            | `modeWhen`, `modeUnless` (by mode id), on a table, an oracle or a generator's `roll` field |
+| party stats from the characters (`from`) | `when`, `unless` (read for each character)                                                 |
+| a step that waits                        | `wait` (with `limit`)                                                                      |
+| travel checks                            | `when`, `unless`                                                                           |
+| actions, and each of their steps         | `when`, `unless`                                                                           |
+| ways of travelling                       | `when`, `unless` (chosen), `through` (where it goes)                                       |
+| terrains and water                       | `passable: { when, unless }`                                                               |
 
 ## Setting values: `set`
 

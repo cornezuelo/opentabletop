@@ -8,6 +8,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **The most and the least of a value in a group**: `present.highest.values.<id>` / `present.lowest.values.<id>` among those present (the sharpest foe's Mind), `party.highest.values.<id>` / `party.lowest.values.<id>` among the party's characters (the clumsiest one's Stealth), in conditions, variables and effects; suggested where conditions are written. Core's **Fight** says how tough the toughest foe is; the Grey Marches' **Fall back** costs the clumsiest companion a parting blow when the fiercest foe outdoes them (_A parting blow_).
 
+- **Roll modes on one roll of a generator**: a `roll` field takes `modeWhen` / `modeUnless` as a table does, used for that roll alone (advantage on an attack, the defence rolled as it is). Packs' generator form: **Roll modes** under a dice field. Core's _A contest_ (your d% against theirs, yours with advantage when you have the edge); the Grey Marches' **Strike one down** rolls _A blow_, with disadvantage in the dark and advantage on a foe left alone.
+
 ### Fixes
 
 - A table's result (a check's, or one rolled by an action) that starts or ends a fight, or says which side goes first (`encounter: start`, `encounter.first: foes`), now does: only actions' own effects did.

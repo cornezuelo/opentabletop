@@ -109,17 +109,17 @@ Cuándo se aplica algo. La misma sintaxis en todas partes: `when` (debe cumplirs
 
 **Dónde van:**
 
-| Dónde                                                | Claves                                                |
-| ---------------------------------------------------- | ----------------------------------------------------- |
-| entradas de tablas y oráculos                        | `when`, `unless`                                      |
-| campos de generador                                  | `when`, `unless`                                      |
-| modos de tirada que se usan por sí solos             | `modeWhen`, `modeUnless` (por id del modo)            |
-| características que salen de los personajes (`from`) | `when`, `unless` (leídas con cada personaje)          |
-| un paso que espera                                   | `wait` (con `limit`)                                  |
-| comprobaciones de viaje                              | `when`, `unless`                                      |
-| acciones, y cada uno de sus pasos                    | `when`, `unless`                                      |
-| formas de viajar                                     | `when`, `unless` (elegirla), `through` (por dónde va) |
-| terrenos y agua                                      | `passable: { when, unless }`                          |
+| Dónde                                                | Claves                                                                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| entradas de tablas y oráculos                        | `when`, `unless`                                                                                       |
+| campos de generador                                  | `when`, `unless`                                                                                       |
+| modos de tirada que se usan por sí solos             | `modeWhen`, `modeUnless` (por id del modo), en una tabla, un oráculo o el campo `roll` de un generador |
+| características que salen de los personajes (`from`) | `when`, `unless` (leídas con cada personaje)                                                           |
+| un paso que espera                                   | `wait` (con `limit`)                                                                                   |
+| comprobaciones de viaje                              | `when`, `unless`                                                                                       |
+| acciones, y cada uno de sus pasos                    | `when`, `unless`                                                                                       |
+| formas de viajar                                     | `when`, `unless` (elegirla), `through` (por dónde va)                                                  |
+| terrenos y agua                                      | `passable: { when, unless }`                                                                           |
 
 ## Dar valores: `set`
 

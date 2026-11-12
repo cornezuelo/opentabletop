@@ -471,4 +471,50 @@ describe('the bundled packs fight in turns', () => {
       es: `El más duro de ellos tiene ${toughest} de salud.`,
     })
   })
+
+  it("a roll mode on one roll of a generator: Core's contest, the Grey Marches' blow on a lone foe", () => {
+    const contest = (edge: boolean) =>
+      createOracleEngine({ registry, random: seeded(5) }).resolve('core/generator.contest', {
+        edge,
+      }).resolution
+    // With an edge, yours is rolled twice (one kept, one discarded); theirs once.
+    const rolls = (r: ReturnType<typeof contest>) => r.rolls.map((x) => x.discarded?.length ?? 0)
+    expect(rolls(contest(true))).toEqual([1, 0])
+    expect(rolls(contest(false))).toEqual([0, 0])
+
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'b',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(6) }),
+    }
+    const s = applyResult(session, { effects: { 'present.bandit': 1 } }, {}, partyOf(marches))
+    const foe = s.present![0].character
+    // In a fight, on a companion's turn.
+    const fight = stepTrip(options, s, { type: 'action', id: 'stand' })
+    const before = fight.state.present!.find((p) => p.character.id === foe.id)!.character
+    let done = stepTrip(options, fight.state, {
+      type: 'action',
+      id: 'strike',
+      with: { foe: foe.id },
+    })
+    if (done.state.travel.waiting)
+      done = stepTrip(options, done.state, { type: 'resume', choice: foe.id })
+    const rolled = done.entries.find(
+      (e) => e.code === 'ROLLED' && e.data?.check === 'generator.blow',
+    )
+    // Alone, by day: rolled twice, the higher kept, and taken from its health.
+    const dice = (rolled?.data?.rolls as { dice: string[] }[])[0].dice[0]
+    expect(dice).toMatch(/^1d6 →.*\(/)
+    const harm = Number(/→ (\d+)/.exec(dice)![1])
+    const left =
+      done.state.present?.find((p) => p.character.id === foe.id)?.character.values.health ?? 0
+    expect(left).toBe(Math.max(0, before.values.health - harm))
+  })
 })

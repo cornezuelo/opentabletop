@@ -47,6 +47,13 @@ npc-motive:
     loyalty: lealtad
     curiosity: curiosidad
     duty: deber
+contest:
+  name: Un pulso
+  description: |-
+    **Tu tirada contra la suya**, dados de porcentaje cada una, gana la más alta. Con ventaja (un valor que se da al tirar), la tuya se tira con ventaja, dos veces y se queda la más alta; la suya se tira tal cual.
+
+    **Enseña:** un modo de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`), aquí _Ventaja_ mientras `edge` es verdadero.
+  template: '{{yours}} contra {{theirs}}'
 against-the-odds:
   name: Contra pronóstico
   description: |-

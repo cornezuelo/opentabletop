@@ -198,3 +198,32 @@ entries:
     result: The clumsiest of you is caught as you fall back
     effects:
       'characters[target].values.health': '-{{present.highest.values.harm - party.lowest.values.stealth}}'
+---
+# A companion's blow (travel.yaml's Strike one down): 1d6 harm, with disadvantage in the dark
+# and advantage on a foe left alone, each a roll mode on this roll alone.
+kind: generator
+id: blow
+tags: [encounters]
+name: A blow
+description: |-
+  The harm a companion's blow does to the foe chosen: 1d6, rolled twice and the lower kept in the dark, the higher kept when that foe is the only one left here.
+
+  **Shows:** roll modes on one roll of a generator alone (`modeWhen` on a `roll` field: Core's advantage and disadvantage, cancelling each other in the dark against a lone foe); a field's table that changes the trip (`'characters[params.foe].values.health': '-{{harm}}'`), rolled by an action's step with its parameters.
+fields:
+  harm:
+    roll: 1d6
+    modeWhen:
+      roll-modes.advantage: { present.count: 1 }
+      roll-modes.disadvantage: { time.tags: dark }
+  lands: { table: table.blow-lands }
+template: '{{harm}} harm'
+---
+kind: table
+id: blow-lands
+tags: [encounters]
+name: The blow lands
+description: The harm of _A blow_ taken from the foe chosen.
+entries:
+  - id: lands
+    result: '{{harm}} harm'
+    effects: { 'characters[params.foe].values.health': '-{{harm}}' }

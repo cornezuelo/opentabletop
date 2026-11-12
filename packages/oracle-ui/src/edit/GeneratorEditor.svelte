@@ -6,6 +6,7 @@
   import type { OracleUiKey, Translate } from '../i18n'
   import { slugify } from '@open-tabletop/pack-ui'
   import { nextId, type DefinitionForm } from './doc.svelte'
+  import RollModesEditor from './RollModesEditor.svelte'
   import TextField from './TextField.svelte'
 
   /**
@@ -23,9 +24,11 @@
     unless?: unknown
     context?: unknown
     shuffle?: boolean
+    modeWhen?: unknown
+    modeUnless?: unknown
   }
-  /** What a field may have besides its source: its conditions and what it passes on. */
-  const EXTRAS = ['when', 'unless', 'context'] as const
+  /** What a field may have besides its source: its conditions, what it passes on, its roll's modes. */
+  const EXTRAS = ['when', 'unless', 'context', 'modeWhen', 'modeUnless'] as const
   /** Sources whose value is a reference, suggested as it's typed. */
   const LISTED = ['table', 'generator', 'deck'] as const
 
@@ -64,7 +67,8 @@
             : (targetsOf(source)[0]?.ref ?? text) || name
     let out = doc.content
     for (const s of SOURCES) out = setIn(out, id, ['fields', name, s], undefined)
-    out = setIn(out, id, ['fields', name, 'shuffle'], undefined)
+    for (const k of ['shuffle', 'modeWhen', 'modeUnless'])
+      out = setIn(out, id, ['fields', name, k], undefined)
     doc.save(setIn(out, id, ['fields', name, source], value))
   }
 
@@ -185,6 +189,12 @@
                     />
                   </div>
                 {/each}
+                {#if source === 'roll'}
+                  <div class="extra wide">
+                    <span>{t('edit.fieldModes')}<InfoTip text={t('edit.fieldModesHelp')} /></span>
+                    <RollModesEditor {doc} path={['fields', name]} raw={field} />
+                  </div>
+                {/if}
                 <div class="extra wide">
                   <span>{t('edit.fieldContext')}<InfoTip text={t('edit.fieldContextHelp')} /></span>
                   <PairEditor

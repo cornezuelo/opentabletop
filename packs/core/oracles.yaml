@@ -103,6 +103,20 @@ entries:
   - { id: curiosity, weight: 1, result: curiosity }
   - { id: duty, weight: 1, result: duty }
 ---
+# Two rolls compared, one with an edge: a roll mode on one field alone (`modeWhen`).
+kind: generator
+id: contest
+tags: [questions]
+name: A contest
+description: |-
+  **Your roll against theirs**, percentile dice each, the higher wins. With an edge (a value given when rolling), yours is rolled with advantage, twice and the higher kept; theirs is rolled as it is.
+
+  **Shows:** a roll mode on one roll of a generator alone (`modeWhen` on a `roll` field), here _Advantage_ while `edge` is true.
+fields:
+  yours: { roll: d%, modeWhen: { roll-modes.advantage: { edge: true } } }
+  theirs: { roll: d% }
+template: '{{yours}} against {{theirs}}'
+---
 # Rolling under a chance on percentile dice: the chance is a value given when rolling (the
 # Oracle asks for it), doubles read by the entries (`dice.doubles`), and the roll mode that
 # reads the die either way round offered.

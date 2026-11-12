@@ -290,6 +290,9 @@ export const en = {
     fieldShuffle: 'Shuffle first',
     fieldShuffleHelp:
       "Every card goes back and the deck is shuffled **before this draw**, so a hand or a spread never repeats a card nor depends on earlier draws. Tick it on the first field that draws; the next ones take what's left.\n• `first: { deck: deck.omens, shuffle: true }`\n• `second: { deck: deck.omens }`\nOff: the card comes from what's left of the deck.",
+    fieldModes: 'Roll modes',
+    fieldModesHelp:
+      "Ways of rolling that its system declares (`kind: roll-modes`), used for **this field's roll alone** when their condition holds, the generator's other rolls as they are: advantage on one of two rolls compared.\n**By itself when**: used when this holds, on what the generator sees (its inputs, earlier fields, the trip):\n• `acting.values.edge: { gte: 1 }` — whoever rolls has an edge\n• `danger: { gte: 3 }` — an earlier field\n**Unless**: not used when this holds (written alone, used always but then).\nTwo modes that cancel each other out, together, give a normal roll.",
     fieldMore: 'Conditions and context',
     fieldWhenHelp:
       '**Only if**: the field is rolled only when this holds, built as rows (what it reads · comparison · value), on what the generator sees (its inputs, earlier fields, the map or trip); otherwise it stays empty.\n• `time.season: winter`\n• `danger: { lte: 2 }` — an earlier field\n**Unless**: not when this matches:\n• `untouched: { lt: 90 }`\nEmpty: always.',

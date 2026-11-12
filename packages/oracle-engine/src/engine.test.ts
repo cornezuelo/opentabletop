@@ -141,6 +141,14 @@ entries:
   - { id: low, range: 1-50, result: '{{roll}}' }
   - { id: high, range: 51-100, result: '{{roll}}' }
 ---
+# Two rolls, Advantage on the first alone when it's had (Ker Nethalas' attack).
+kind: generator
+id: duel
+fields:
+  atk: { roll: d%, modeWhen: { roll-modes.either-way: { edge: true } } }
+  def: { roll: d% }
+template: '{{atk}} against {{def}}'
+---
 kind: table
 id: weather-by-season
 roll: 1d2
@@ -477,6 +485,15 @@ describe('tables', () => {
     const swapped = at(73, 'test/either-way')
     expect(swapped).toMatchObject({ entry: 'low', text: '37', mode: 'test/either-way' })
     expect(swapped.rolls[0].discarded?.map((d) => d.total)).toEqual([73])
+  })
+
+  it("a generator's rolled field may take roll modes of its own, when they hold", () => {
+    const duel = (context: Record<string, unknown>) =>
+      createOracleEngine({ registry, random: faces(100, 73, 73) }).resolve('test/duel', context)
+        .resolution
+    expect(duel({}).text).toBe('73 against 73')
+    // With the edge, the first roll is read either way round, the lower kept; the second isn't.
+    expect(duel({ edge: true }).text).toBe('37 against 73')
   })
 
   it('filters entries by conditions on the context', () => {

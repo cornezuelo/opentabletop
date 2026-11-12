@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { writeRef, type Compiled } from '@open-tabletop/oracle-engine'
-  import { ConditionEditor } from '@open-tabletop/pack-ui'
-  import { contextSuggestions, definitionId } from '@open-tabletop/session'
+  import type { Compiled } from '@open-tabletop/oracle-engine'
   import { InfoTip, TagInput } from '@open-tabletop/ui-kit'
   import type { Translate } from '../i18n'
   import type { OracleUi } from '../ui'
@@ -10,6 +8,7 @@
   import EntriesEditor from './EntriesEditor.svelte'
   import GeneratorEditor from './GeneratorEditor.svelte'
   import OracleEditor from './OracleEditor.svelte'
+  import RollModesEditor from './RollModesEditor.svelte'
   import TextField from './TextField.svelte'
 
   /** Form editor of any definition: common texts and language, then its kind's form. */
@@ -18,53 +17,12 @@
   // svelte-ignore state_referenced_locally
   const doc = definitionForm(ui, () => ({ def, root }))
   const t: Translate = (key, params) => doc.ui.t(key, params)
-  const getLocale = () => doc.ui.locale()
   const dice = $derived(def.kind === 'table' || def.kind === 'oracle')
-
-  /**
-   * The roll modes this definition can use (its pack's and its dependencies'), each offered
-   * by hand (`modes`) and/or applied by itself on a condition (`modeWhen` / `modeUnless`).
-   */
-  const available = $derived.by(() => {
-    const deps = doc.ui.library.registry.packs.get(def.pack)?.dependencies ?? []
-    return [...doc.ui.library.registry.rollModes.values()]
-      .filter((m) => m.pack === def.pack || deps.includes(m.pack))
-      .map((m) => ({
-        mode: m,
-        ref: writeRef('roll-modes', m.localId, m.pack === def.pack ? undefined : m.pack),
-      }))
-  })
-  const refsOf = (value: unknown) => (Array.isArray(value) ? value.map(String) : [])
-  const whenOf = (value: unknown) =>
-    (typeof value === 'object' && value !== null ? value : {}) as Record<string, unknown>
-  const resolves = (ref: string, id: string) => definitionId(ref, def.pack) === id
-  const offered = (id: string) => refsOf(doc.raw.modes).some((r) => resolves(r, id))
-  type ModeKey = 'modeWhen' | 'modeUnless'
-  const conditionFor = (key: ModeKey, id: string) =>
-    Object.entries(whenOf(doc.raw[key])).find(([r]) => resolves(r, id))?.[1]
-
-  function setOffered(id: string, ref: string, on: boolean) {
-    const rest = refsOf(doc.raw.modes).filter((r) => !resolves(r, id))
-    const modes = on ? [...rest, ref] : rest
-    doc.edit(['modes'], modes.length ? modes : undefined)
-    if (doc.raw.advantage !== undefined) doc.edit(['advantage'], undefined)
-  }
 
   /** Tags other definitions already have, to suggest. */
   const knownTags = $derived([
     ...new Set([...doc.ui.library.registry.definitions.values()].flatMap((d) => d.tags)),
   ])
-
-  /** What a mode's condition can read. */
-  const conditionHints = $derived(contextSuggestions(doc.ui.library.registry))
-  /** A mode's condition, built as rows; none removes it. */
-  function setCondition(key: ModeKey, id: string, ref: string, value: unknown) {
-    const rest = Object.fromEntries(
-      Object.entries(whenOf(doc.raw[key])).filter(([r]) => !resolves(r, id)),
-    )
-    const next = value === undefined ? rest : { ...rest, [ref]: value }
-    doc.edit([key], Object.keys(next).length ? next : undefined)
-  }
 </script>
 
 <div class="editor">
@@ -139,36 +97,7 @@
     </div>
     <div class="field">
       <span>{t('edit.modes')}<InfoTip text={t('edit.modesHelp')} /></span>
-      {#if available.length}
-        <div class="modes">
-          {#each available as { mode, ref } (mode.id)}
-            <label class="check">
-              <input
-                type="checkbox"
-                checked={offered(mode.id)}
-                disabled={doc.translating}
-                onchange={(e) => setOffered(mode.id, ref, e.currentTarget.checked)}
-              />
-              {ui.modeName(mode)}
-            </label>
-            {#each ['modeWhen', 'modeUnless'] as const as key (key)}
-              <div class="when">
-                <span>{t(`edit.${key}`)}</span>
-                <ConditionEditor
-                  value={conditionFor(key, mode.id)}
-                  suggestions={conditionHints}
-                  locale={getLocale()}
-                  disabled={doc.translating}
-                  label={t(`edit.${key}`)}
-                  onchange={(c) => setCondition(key, mode.id, ref, c)}
-                />
-              </div>
-            {/each}
-          {/each}
-        </div>
-      {:else}
-        <p class="help">{t('edit.noModes')}</p>
-      {/if}
+      <RollModesEditor {doc} raw={doc.raw} offer />
     </div>
   {/if}
 
@@ -184,27 +113,6 @@
 </div>
 
 <style>
-  /* Each mode on a line: offered by hand, then its two conditions as rows. */
-  .modes {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 8px 16px;
-  }
-
-  .modes .check {
-    padding-top: 18px;
-  }
-
-  .modes .when {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
   .editor {
     display: flex;
     flex-direction: column;

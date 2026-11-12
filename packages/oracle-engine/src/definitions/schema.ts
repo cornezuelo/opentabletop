@@ -121,6 +121,9 @@ const field = z
     /** With `deck`: every card goes back and the deck is shuffled before this draw. */
     shuffle: z.boolean().optional(),
     roll: z.string().optional(),
+    /** With `roll`: roll modes that apply to this roll alone when their conditions hold. */
+    modeWhen: z.record(ref, condition).optional(),
+    modeUnless: z.record(ref, condition).optional(),
     value: z.unknown().optional(),
     when: condition.optional(),
     unless: condition.optional(),
@@ -136,6 +139,9 @@ const field = z
   )
   .refine((f) => f.shuffle === undefined || f.deck !== undefined, {
     message: 'only a field that draws from a deck can shuffle it',
+  })
+  .refine((f) => (f.modeWhen === undefined && f.modeUnless === undefined) || f.roll !== undefined, {
+    message: 'only a field that rolls takes roll modes (modeWhen, modeUnless)',
   })
 
 export const generatorSchema = z

@@ -96,3 +96,15 @@ parting-blow:
     **Enseña:** lo más y lo menos de un valor en un grupo, `present.highest.values.harm` (el enemigo más fiero aquí) y `party.lowest.values.stealth` (el compañero más torpe), en la condición de un paso y en un efecto; un objetivo elegido por ese mismo valor (`set: { target: party.members.lowest.values.stealth }`).
   entries:
     caught: Al replegaros, alcanzan al más torpe de vosotros
+blow:
+  name: Un golpe
+  description: |-
+    El daño que hace el golpe de un compañero al enemigo elegido: 1d6, tirado dos veces y el menor a oscuras, el mayor cuando ese enemigo es el único que queda aquí.
+
+    **Enseña:** modos de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`: la ventaja y la desventaja de Core, que se anulan a oscuras contra un enemigo solo); la tabla de un campo que cambia el viaje (`'characters[params.foe].values.health': '-{{harm}}'`), tirado por el paso de una acción con sus parámetros.
+  template: '{{harm}} de daño'
+blow-lands:
+  name: El golpe acierta
+  description: El daño de _Un golpe_, quitado al enemigo elegido.
+  entries:
+    lands: '{{harm}} de daño'

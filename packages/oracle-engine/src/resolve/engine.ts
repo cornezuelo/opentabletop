@@ -24,9 +24,11 @@ import {
   type CompiledCard,
   type CompiledDeck,
   type CompiledEntry,
+  type CompiledField,
   type EntryList,
   type Ref,
   type Registry,
+  type WithRollModes,
 } from '../compile/compile'
 
 /** Mutable session data kept outside definitions (serializable, goes into the OTD bundle). */
@@ -317,7 +319,9 @@ class Run {
             effects = mergeEffects(effects, changes as Record<string, number | string> | undefined)
             if (pause) paused = true
           } else if (field.kind === 'roll') {
-            value = this.roll(field.parsedRoll ?? field.roll!, fieldContext, node).total
+            // Its own roll modes, when they hold (Advantage on this roll alone).
+            const mode = this.modeFor(field, fieldContext, undefined, node)
+            value = this.roll(field.parsedRoll ?? field.roll!, fieldContext, node, mode).total
           } else {
             value =
               typeof field.value === 'string'
@@ -352,18 +356,22 @@ class Run {
    * `modeWhen` order, then `modeUnless`) is used.
    */
   private modeFor(
-    def: Compiled,
+    /** A table or an oracle, or a generator's rolled field (its own modes alone). */
+    def: Compiled | CompiledField,
     context: Record<string, unknown>,
     chosen: string | undefined,
     node: Resolution,
   ): RollMode | undefined {
-    if (def.kind !== 'table' && def.kind !== 'oracle') return undefined
+    if (def.kind === 'generator' || def.kind === 'deck') return undefined
+    const own = def as Partial<WithRollModes>
+    const modeWhen = own.modeWhen ?? {}
+    const modeUnless = own.modeUnless ?? {}
     const active = [
-      ...(chosen && def.modes.includes(chosen) ? [chosen] : []),
-      ...[...Object.keys(def.modeWhen), ...Object.keys(def.modeUnless)].filter(
+      ...(chosen && own.modes?.includes(chosen) ? [chosen] : []),
+      ...[...Object.keys(modeWhen), ...Object.keys(modeUnless)].filter(
         (id) =>
-          this.holds(def.modeWhen[id], context, node) &&
-          !(def.modeUnless[id] && this.holds(def.modeUnless[id], context, node)),
+          this.holds(modeWhen[id], context, node) &&
+          !(modeUnless[id] && this.holds(modeUnless[id], context, node)),
       ),
     ]
       .filter((id, i, all) => all.indexOf(id) === i)

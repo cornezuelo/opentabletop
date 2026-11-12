@@ -41,7 +41,7 @@ An **input** (its id, a **label** to show, and its **options**, each with a labe
 
 ## Generators
 
-**Fields** are rolled in order; each (**Add field**) has a name and comes **From** a table, a generator, a deck, dice or a fixed value, and later fields can use earlier ones. A deck's field has **Shuffle first**: every card goes back before that draw, so a hand or a spread starts from the whole deck. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** as rows (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only when `place.danger` **is at most** `2`) and **Context**, a row per value given to the table or generator it rolls (`timeOfDay` · `night`, `danger` · `3`).
+**Fields** are rolled in order; each (**Add field**) has a name and comes **From** a table, a generator, a deck, dice or a fixed value, and later fields can use earlier ones. A deck's field has **Shuffle first**: every card goes back before that draw, so a hand or a spread starts from the whole deck. The **template** writes the result: click a `{{field}}` chip to add it. **Conditions and context**, under each field: **Only if** / **Unless** as rows (the field is rolled only then; otherwise it stays empty, e.g. _Delving a ruin_'s trap only when `place.danger` **is at most** `2`) and **Context**, a row per value given to the table or generator it rolls (`timeOfDay` · `night`, `danger` · `3`). A dice field has **Roll modes** there too: each of the system's modes with its **by itself when** / **unless** rows, used for that field's roll alone (advantage on an attack, the defence rolled as it is; see [Generators](../technical/07-kinds.md#generators)).
 
 ## Decks
 

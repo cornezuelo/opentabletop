@@ -94,6 +94,18 @@ cards:
   - { id: storm, result: A storm }
 ```
 
+A `roll` field can take [roll modes](#roll-modes) of its own, `modeWhen` and `modeUnless` as a table does, used for **that roll alone** when their conditions hold (never offered by hand): two rolls compared, advantage on one of them.
+
+```yaml
+kind: generator
+id: duel
+fields:
+  # Read either way round when whoever attacks has an edge; the defence rolls as it is.
+  attack: { roll: d%, modeWhen: { core/roll-modes.either-way: { acting.values.edge: { gte: 1 } } } }
+  defence: { roll: d% }
+template: '{{attack}} against {{defence}}'
+```
+
 **What other tables see:** each field by its name, inside the generator (`{{name}}`), and from a generator that rolls this one, as `{{npc.name}}`. What its tables set, change and pause reaches a trip (or whatever rolled it) as a table's does: their `set` values (its own fields win a name they share), their `effects` added up, and a `pause` in any of them stops the trip.
 
 ## Decks
@@ -161,7 +173,7 @@ modes:
   lucky: { name: Lucky, swap: true, keep: lowest } # a 73 can be read as 37
 ```
 
-A table or oracle uses them with:
+A table or oracle uses them with (a generator's `roll` field takes `modeWhen` and `modeUnless` too, for its roll alone: [Generators](#generators)):
 
 - `modes: [roll-modes.advantage, roll-modes.disadvantage]`: offered when rolling by hand (the choice next to **Roll**).
 - `modeWhen: { roll-modes.advantage: { party.stats.explorer: { gte: 1 } } }`: used by itself when the condition holds, also on a trip. A mode can be in `modeWhen` without being in `modes`.

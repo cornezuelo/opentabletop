@@ -119,6 +119,9 @@ export interface CompiledField {
   shuffle?: boolean
   roll?: string
   parsedRoll?: DiceExpression
+  /** A rolled field's roll modes that apply by themselves (as a table's). */
+  modeWhen?: Record<string, Condition>
+  modeUnless?: Record<string, Condition>
   value?: unknown
   when?: Condition
   context?: Record<string, unknown>
@@ -329,14 +332,21 @@ class CompileContext {
                 when: applies(f),
                 context: f.context,
               }
-            if (f.roll !== undefined)
+            if (f.roll !== undefined) {
+              const { modeWhen, modeUnless } = this.rollModes({
+                modeWhen: f.modeWhen,
+                modeUnless: f.modeUnless,
+              })
               return {
                 name,
                 kind: 'roll',
                 ...this.roll(f.roll, `${at}.roll`),
+                ...(Object.keys(modeWhen).length && { modeWhen }),
+                ...(Object.keys(modeUnless).length && { modeUnless }),
                 when: applies(f),
                 context: f.context,
               }
+            }
             return {
               name,
               kind: 'value',

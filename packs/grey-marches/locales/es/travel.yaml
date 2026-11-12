@@ -144,7 +144,7 @@ travel-rules/default:
             pathfinding: 'Leyendo el terreno'
     strike:
       name: Golpear a uno
-      description: 'Con enemigos aquí: quien actúa va a por uno de ellos, el que elijáis, por 1d6 de daño; los caídos se van.'
+      description: 'Con enemigos aquí: quien actúa va a por uno de ellos, el que elijáis, por 1d6 de daño (tirado dos veces y el menor a oscuras; el mayor contra un enemigo que queda solo); los caídos se van.'
       params:
         foe:
           name: ¿A quién golpeáis?

@@ -714,7 +714,7 @@ actions:
   # (`characters[params.foe].…`, its id read from the parameter).
   strike:
     name: Strike one down
-    description: 'With foes here: whoever acts goes for one of them, the one you choose, for 1d6 harm; the fallen are gone.'
+    description: 'With foes here: whoever acts goes for one of them, the one you choose, for 1d6 harm (rolled twice, the lower kept, in the dark; the higher kept on a foe left alone); the fallen are gone.'
     when: { present.count: { gte: 1 } }
     unless: { present.tags: vale }
     needs: { acting: { exists: true } }
@@ -727,8 +727,8 @@ actions:
     do:
       - { ask: params.foe }
       - { time: 2 }
-      - effects:
-          characters[params.foe].values.health: '-{{1d6}}'
+      # The blow (bestiary.yaml's _A blow_): worse in the dark, better on a foe left alone.
+      - { roll: generator.blow }
       - { id: struck, say: 'A blow, aimed at one of them.' }
   # Outlaws among those present (a tag of their template): a ration for each of them
   # (`'-{{present.count}}'`), and a condition that takes them off (`bought-off`).
