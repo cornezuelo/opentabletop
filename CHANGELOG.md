@@ -4,9 +4,9 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
-### Packs
+## [0.46.0] - 2026-11-12
 
-- **Fights in turns** (`encounter:` in `kind: system`): an effect starts one (`encounter: start`) and ends it (`encounter: end`); who acts goes by side (`order: { by: side }`, an ambush saying `encounter.first: foes`) or by what each one rolls (`by: participant`, one value for all or one for each side); on a character's turn only the system's fight actions are open, the foes' turns go by themselves (`on: encounter.turn`, with the foe as `acting`), each round takes its `minutes`, and `ends` closes it. New moments `encounter.start`, `.round`, `.turn`, `.end` and facts `encounter.*`; the journal tells it round by round. Core's **Fight** and **Strike**; the Grey Marches' **Stand and fight**, **Fall back** and **Nerve breaks**.
+### Apps
 
 - Travel and Map's Play: a **fight panel** while a fight in turns goes on (the round, who acts in order and on which side, whose turn it is, **End the fight**), only the fight's actions shown meanwhile; **Start a fight** starts one by hand with those present. Packs' Overview: **Fights in turns**, a form for `encounter:` (who acts first, the actions of a turn, a round's minutes, when it ends).
 
@@ -14,11 +14,15 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Oracle: **Open a scene ↗** under a result that brings people (`present.<template>: n`), in a campaign: a new scene of it in Campaign with them.
 
-- **Foes that act**: on a foe's turn in a fight, its template's table (`actions: table.wolf-turn` in the bestiary) or the system's (`encounter.foes`) is rolled acting as it; a result aims at one of the party with `set: { target: party.members.random }` (or `party.members.lowest.values.<id>` / `highest`), its effects naming them as `characters[target]`. Packs: **On its turn** on a template, **A foe's turn** in the Overview. Core's foes strike one of you; the Grey Marches' wolves go for the most hurt, the rest swing at anyone.
-
 - Fights: **Roll the foes by hand**, an option of the trip (Travel, Map, Campaign's scenes): each foe's turn waits for the total you rolled for its table (or **Roll it for me**), and its row happens as if the system had rolled it; the journal marks it _(by hand)_. The Oracle engine takes a top-level roll's total (`total` in `resolve`'s options).
 
 - Fights: a party played as a whole (no members) takes a foe's blow on its own party sheet; copies added by hand or brought into a scene are named in the app's language; a scene's **Party** tab no longer shows a map's sheet.
+
+### Packs
+
+- **Fights in turns** (`encounter:` in `kind: system`): an effect starts one (`encounter: start`) and ends it (`encounter: end`); who acts goes by side (`order: { by: side }`, an ambush saying `encounter.first: foes`) or by what each one rolls (`by: participant`, one value for all or one for each side); on a character's turn only the system's fight actions are open, the foes' turns go by themselves (`on: encounter.turn`, with the foe as `acting`), each round takes its `minutes`, and `ends` closes it. New moments `encounter.start`, `.round`, `.turn`, `.end` and facts `encounter.*`; the journal tells it round by round. Core's **Fight** and **Strike**; the Grey Marches' **Stand and fight**, **Fall back** and **Nerve breaks**.
+
+- **Foes that act**: on a foe's turn in a fight, its template's table (`actions: table.wolf-turn` in the bestiary) or the system's (`encounter.foes`) is rolled acting as it; a result aims at one of the party with `set: { target: party.members.random }` (or `party.members.lowest.values.<id>` / `highest`), its effects naming them as `characters[target]`. Packs: **On its turn** on a template, **A foe's turn** in the Overview. Core's foes strike one of you; the Grey Marches' wolves go for the most hurt, the rest swing at anyone.
 
 - Pieces: an exit into a **new map** (`newMap: true`, or `{ name: … }`): laying its piece makes a blank sub-map under it, drawn like the map, taken with **Go in ↗** and laid piece by piece in turn. Packs' pieces form: **New map**. Core's _Stairs down_ lead to a level below; the Grey Marches' _A stair further down_ to _The deeper barrows_.
 
