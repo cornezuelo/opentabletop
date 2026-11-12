@@ -92,3 +92,10 @@ As agreed on 2026-10-29: (a) **the theatre of the mind** is this proposal; (b) *
 3. **Rolling foes' turns by hand** is an option of the trip (or scene), not a user preference: with it on, each foe's turn stops the trip with **Continue**, and the player rolls its table's dice and types the total (or has the system roll it), and the row it falls on is played as if the system had rolled it; the dice within the row (a blow's `1d3`) are still the system's. (Decided 2026-11-12.)
 4. **A party played as a whole** (no members) is the target of a foe's attack itself: `characters[target]` reaches the party's sheet. (Decided 2026-11-12.)
 5. **`round.*` values wait for phase 4**, designed with Ker Nethalas' Reactions. (Decided 2026-11-12.)
+
+### Phase 4, Ker Nethalas' combat (2026-11-12, on autopilot, to review)
+
+1. **No `round:` in `encounter:`.** Ker Nethalas' Reactions are a value of each one's sheet (`reactions`), counted up by every defence and set back to 0 by an action `on: encounter.round` (`party.members.values.reactions: '=0'`, `present.all.values.reactions: '=0'`). One mechanism, already there, instead of values of the round beside values of the day.
+2. **An opposed check is a generator**: two rolls as fields (`atk`, `def`), the two scores as fields (`aim`, `guard`), and one table that compares them, used by every opposed check of the system (Initiative, an attack, a creature's attack). What comes after (where it lands, a Defensive Move, a Fumble) are fields with their own `when`.
+3. **A check against a group goes by its best or its worst**: `present.highest.values.<id>`, `party.lowest.values.<id>` (built with it).
+4. What's still missing is listed in the backlog's Combat item: Advantage on one roll, effects that last some rounds, weapons and armour as gear, a value named by a written-out name, Surprise and magical Actions.

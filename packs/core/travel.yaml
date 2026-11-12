@@ -179,12 +179,14 @@ actions:
       - { time: 10 }
       - { effects: { connection.state: open } }
   # A fight in turns (system.yaml: `encounter:`): started by an effect, while foes are here.
+  # It says how tough the toughest of them is (`present.highest.values.health`).
   fight:
     name: Fight
     description: 'With foes here: a fight in turns begins, the party first.'
     when: { present.count: { gte: 1 } }
     do:
       - { effects: { encounter: start } }
+      - { id: toughest, say: 'The toughest of them has {{present.highest.values.health}} health.' }
   # The one action a member takes on its turn in a fight: a blow at one foe here, chosen.
   strike:
     name: Strike

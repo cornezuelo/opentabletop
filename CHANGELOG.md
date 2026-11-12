@@ -4,6 +4,15 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **The most and the least of a value in a group**: `present.highest.values.<id>` / `present.lowest.values.<id>` among those present (the sharpest foe's Mind), `party.highest.values.<id>` / `party.lowest.values.<id>` among the party's characters (the clumsiest one's Stealth), in conditions, variables and effects; suggested where conditions are written. Core's **Fight** says how tough the toughest foe is; the Grey Marches' **Fall back** costs the clumsiest companion a parting blow when the fiercest foe outdoes them (_A parting blow_).
+
+### Fixes
+
+- A table's result (a check's, or one rolled by an action) that starts or ends a fight, or says which side goes first (`encounter: start`, `encounter.first: foes`), now does: only actions' own effects did.
+- Packs: an effect on a value only those present have (`characters[params.foe].values.health`, `acting.…`, when the characters' sheet has none) is no longer flagged as undeclared: the bestiary's sheets are checked too.
+
 ## [0.46.0] - 2026-11-12
 
 ### Apps

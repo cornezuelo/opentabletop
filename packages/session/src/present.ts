@@ -321,8 +321,29 @@ export function settlePresent(
 }
 
 /**
+ * The highest and the lowest of each value among some characters' facts, read as
+ * `<group>.highest.values.<id>` and `.lowest.values.<id>` (the highest Mind of the foes here,
+ * the party's lowest Stealth); a value none of them has is missing.
+ */
+export function extremes(facts: readonly Record<string, unknown>[]): {
+  highest: { values: Record<string, number> }
+  lowest: { values: Record<string, number> }
+} {
+  const highest: Record<string, number> = {}
+  const lowest: Record<string, number> = {}
+  for (const f of facts)
+    for (const [id, n] of Object.entries((f.values ?? {}) as Record<string, unknown>)) {
+      if (typeof n !== 'number') continue
+      if (!(id in highest) || n > highest[id]) highest[id] = n
+      if (!(id in lowest) || n < lowest[id]) lowest[id] = n
+    }
+  return { highest: { values: highest }, lowest: { values: lowest } }
+}
+
+/**
  * What conditions and tables read of those present: `present.ids`, `present.count`,
- * `present.tags` (every tag of those here) and each template's `present.<id>.count` and
+ * `present.tags` (every tag of those here), `present.highest.values.<id>` and `.lowest`
+ * (the most and least of a value among them) and each template's `present.<id>.count` and
  * `.ids` (every template of the system, at 0 when none is here); and each copy here as a
  * character (`characters.<id>.*`), beside the members.
  */
@@ -343,15 +364,17 @@ export function presentFacts(
     t.count++
     t.ids.push(p.character.id)
   }
+  const characters = Object.fromEntries(
+    here.map((p) => [p.character.id, characterFacts(p.character, copySheet(rules)(p.character))]),
+  )
   return {
     present: {
       ...byTemplate,
       ids: here.map((p) => p.character.id),
       count: here.length,
       tags: [...tags],
+      ...extremes(Object.values(characters)),
     },
-    characters: Object.fromEntries(
-      here.map((p) => [p.character.id, characterFacts(p.character, copySheet(rules)(p.character))]),
-    ),
+    characters,
   }
 }

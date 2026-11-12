@@ -160,7 +160,7 @@ travel-rules/default:
           say: 'Aceros fuera: la Compañía no cede.'
     fall-back:
       name: Replegarse
-      description: 'En un combate, en el turno de un compañero: la Compañía cede terreno y el combate acaba; los enemigos siguen aquí.'
+      description: 'En un combate, en el turno de un compañero: la Compañía cede terreno y el combate acaba; los enemigos siguen aquí. Si el Daño del enemigo más fiero supera el Sigilo del compañero más torpe, a ese le alcanza un golpe al retirarse.'
       do:
         back:
           say: 'La Compañía se repliega, paso a paso, con las armas en alto.'

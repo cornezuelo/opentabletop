@@ -10,6 +10,7 @@ import {
   type TripTotals,
 } from '@open-tabletop/travel-engine'
 import { namedPath } from '@open-tabletop/variables'
+import { ENCOUNTER_EFFECT } from './encounter'
 
 /**
  * Effects: changes to the values a system declares, keyed by the path tables read them
@@ -69,6 +70,8 @@ export function effectsOf(value: Record<string, unknown>): Effects {
     // A connection's value set to a word (`connection.state: open`, a hidden path `found`).
     else if (typeof change === 'string' && /^(connection|place\.connections)\./.test(path))
       out[path] = change
+    // The encounter started or ended, or a side said to go first (`encounter.first: foes`).
+    else if (typeof change === 'string' && ENCOUNTER_EFFECT.test(path)) out[path] = change
   }
   const record = (v: unknown) =>
     typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {}

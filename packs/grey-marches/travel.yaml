@@ -753,13 +753,16 @@ actions:
       - { effects: { encounter: start } }
       - { id: steel, say: 'Steel out: the Company stands its ground.' }
   # Ending a fight by an effect (`encounter: end`): the Company gives ground, and the foes
-  # stay where they are.
+  # stay where they are. If the fiercest of them (`present.highest.values.harm`) outdoes the
+  # clumsiest of the Company (`party.lowest.values.stealth`), that one takes a parting blow.
   fall-back:
     name: Fall back
-    description: 'In a fight, on a companion’s turn: the Company gives ground and the fight ends; the foes are still here.'
+    description: 'In a fight, on a companion’s turn: the Company gives ground and the fight ends; the foes are still here. If the fiercest foe’s Harm is over the clumsiest companion’s Stealth, that one takes a parting blow.'
     when: { encounter.round: { gte: 1 } }
     hideWhenUnavailable: true
     do:
+      - when: { present.highest.values.harm: { gt: '{{party.lowest.values.stealth}}' } }
+        roll: table.parting-blow
       - { effects: { encounter: end } }
       - { id: back, say: 'The Company falls back, step by step, weapons up.' }
   # On each foe's turn (`on: encounter.turn`, `encounter.side: foes`), whoever's turn it is

@@ -88,3 +88,11 @@ wolf-turn:
   entries:
     circle: '{{acting.name}} ronda, gruñendo'
     bite: '{{acting.name}} va a por el más débil de vosotros'
+parting-blow:
+  name: Un golpe al retirarse
+  description: |-
+    Al replegarse la Compañía, el enemigo más fiero alcanza al compañero más torpe: tanto daño como lo que el Daño de ese enemigo supera el Sigilo del compañero.
+
+    **Enseña:** lo más y lo menos de un valor en un grupo, `present.highest.values.harm` (el enemigo más fiero aquí) y `party.lowest.values.stealth` (el compañero más torpe), en la condición de un paso y en un efecto; un objetivo elegido por ese mismo valor (`set: { target: party.members.lowest.values.stealth }`).
+  entries:
+    caught: Al replegaros, alcanzan al más torpe de vosotros

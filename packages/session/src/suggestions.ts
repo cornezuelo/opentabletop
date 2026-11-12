@@ -160,6 +160,11 @@ export function contextSuggestions(
       const values = Object.keys(sheet.def.values)
       const conditions = Object.keys(sheet.def.conditions)
       const roles = Object.keys(bindings?.roles ?? {}).map((r) => `roles.${r}`)
+      // The most and the least of each value among them.
+      for (const value of values) {
+        add(`party.highest.values.${value}`)
+        add(`party.lowest.values.${value}`)
+      }
       for (const who of ['acting', 'characters.<id>', ...roles]) {
         for (const value of values) add(`${who}.values.${value}`)
         add(`${who}.conditions`, ...conditions)
@@ -196,9 +201,14 @@ export function contextSuggestions(
         add(`present.${id}.count`)
         add(`present.${id}.ids`)
       }
-      // Each copy by its id, with its sheet's values and conditions.
+      // Each copy by its id, with its sheet's values and conditions; the most and the least
+      // of each value among them.
       for (const sheet of Object.values(templateSheets ?? {})) {
-        for (const value of Object.keys(sheet.values)) add(`characters.<id>.values.${value}`)
+        for (const value of Object.keys(sheet.values)) {
+          add(`characters.<id>.values.${value}`)
+          add(`present.highest.values.${value}`)
+          add(`present.lowest.values.${value}`)
+        }
         add('characters.<id>.conditions', ...Object.keys(sheet.conditions))
       }
     }

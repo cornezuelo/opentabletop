@@ -801,31 +801,6 @@ export function travelSystems(registry: Registry): {
           ),
         ),
       )
-    if (parts.rules)
-      problems.push(
-        ...undeclaredEffects(
-          registry,
-          pack,
-          rules,
-          bindings,
-          parts.rules.file,
-          parts.rules.id,
-          sheet?.def,
-          factions,
-          partySheet?.def,
-          (parts.items ?? []).flatMap((e) =>
-            typeof e.data.items === 'object' && e.data.items !== null
-              ? Object.keys(e.data.items)
-              : [],
-          ),
-          (parts.places ?? []).flatMap((e) =>
-            typeof e.data.places === 'object' && e.data.places !== null
-              ? Object.keys(e.data.places)
-              : [],
-          ),
-          mapSheet?.def,
-        ),
-      )
     // Its item catalogues, each field one its sheet declares.
     const items: { id: string; def: Catalogue }[] = []
     for (const extra of parts.items ?? []) {
@@ -852,6 +827,33 @@ export function travelSystems(registry: Registry): {
       items,
     )
     problems.push(...read.problems)
+    // Effects on what nobody declares (the bestiaries' sheets known, for copies).
+    if (parts.rules)
+      problems.push(
+        ...undeclaredEffects(
+          registry,
+          pack,
+          rules,
+          bindings,
+          parts.rules.file,
+          parts.rules.id,
+          sheet?.def,
+          factions,
+          partySheet?.def,
+          (parts.items ?? []).flatMap((e) =>
+            typeof e.data.items === 'object' && e.data.items !== null
+              ? Object.keys(e.data.items)
+              : [],
+          ),
+          (parts.places ?? []).flatMap((e) =>
+            typeof e.data.places === 'object' && e.data.places !== null
+              ? Object.keys(e.data.places)
+              : [],
+          ),
+          mapSheet?.def,
+          Object.values(read.sheets),
+        ),
+      )
     // Its catalogues of places.
     const places = readPlaces(
       (parts.places ?? []).map((extra) => ({ extra, owner: ownerOf(extra) ?? pack })),
@@ -1229,6 +1231,8 @@ function undeclaredEffects(
   /** The ids of the places its catalogues have. */
   placeIds: string[] = [],
   mapSheet?: Sheet,
+  /** The sheets of its templates: a copy (`characters[params.foe]`, `acting`) has theirs. */
+  templateSheets: Sheet[] = [],
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
@@ -1304,7 +1308,13 @@ function undeclaredEffects(
       const known = part
         ? part === 'items'
           ? itemIds.includes(itemId) && (field === undefined || fieldKnown(field))
-          : !!own?.[part as 'values' | 'conditions'][partId]
+          : !!own?.[part as 'values' | 'conditions'][partId] ||
+            // One that may be a copy of a template (by id, by brackets, the one acting).
+            (who !== 'party' &&
+              who !== 'map' &&
+              who !== 'party.members' &&
+              !who.startsWith('roles.') &&
+              templateSheets.some((t) => !!t[part as 'values' | 'conditions'][partId]))
         : statId !== undefined
           ? !!bindings?.stats?.[statId]
           : false

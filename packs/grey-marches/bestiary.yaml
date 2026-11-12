@@ -180,3 +180,21 @@ entries:
     set: { target: party.members.lowest.values.health }
     result: '{{acting.name}} goes for the weakest of you'
     effects: { 'characters[target].values.health': '-{{acting.values.harm}}' }
+---
+# Falling back (travel.yaml's Fall back) past a foe fiercer than the clumsiest companion.
+kind: table
+id: parting-blow
+tags: [encounters]
+name: A parting blow
+description: |-
+  As the Company falls back, its clumsiest companion is caught by the fiercest foe: as much harm as that foe's Harm is over the companion's Stealth.
+
+  **Shows:** the most and the least of a value in a group, `present.highest.values.harm` (the fiercest foe here) and `party.lowest.values.stealth` (the clumsiest companion), in a step's condition and an effect; a target picked by the same value (`set: { target: party.members.lowest.values.stealth }`).
+roll: 1d1
+entries:
+  - id: caught
+    range: 1
+    set: { target: party.members.lowest.values.stealth }
+    result: The clumsiest of you is caught as you fall back
+    effects:
+      'characters[target].values.health': '-{{present.highest.values.harm - party.lowest.values.stealth}}'

@@ -24,7 +24,7 @@ import {
   type LimitReached,
 } from './effects'
 import { rolledNodes } from './journal'
-import { settlePresent, type Present, type PresentEvent } from './present'
+import { extremes, settlePresent, type Present, type PresentEvent } from './present'
 import { encounterFacts, type Encounter } from './encounter'
 import { definitionId } from './refs'
 import { aimed, chooseTarget, isTargetForm } from './target'
@@ -46,6 +46,7 @@ import {
   applyMemberEffects,
   isMemberPath,
   memberFacts,
+  sheetOf,
   PARTY_ID,
   partyBlocks,
   picksWho,
@@ -335,6 +336,8 @@ export function partyValues(s: SessionState, rules: PartyRules = {}): Record<str
     stats: { ...s.stats },
     mode: s.travel.mode,
     ...(s.members?.length && { members: s.members.map((m) => m.id) }),
+    // The most and least of each value among its members (`party.lowest.values.stealth`).
+    ...(s.members?.length && extremes(s.members.map((m) => characterFacts(m, sheetOf(rules)(m))))),
   }
 }
 

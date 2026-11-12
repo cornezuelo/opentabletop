@@ -193,7 +193,7 @@ export const es: Messages<typeof en> = {
   },
   present: {
     title: 'Aquí',
-    help: 'Los presentes: a quien encuentra el viaje, hechos con las plantillas del bestiario del sistema (un encuentro que trae tres lobos hace tres copias, cada una con sus propios valores tirados). Los que están donde está el grupo están aquí; las tablas, chequeos y acciones los leen y sus efectos los alcanzan, según el sistema:\n• `present.wolf: 3` — llegan tres lobos\n• `present.count: { gte: 1 }` — si hay alguien aquí\n• `present.wolf.values.health: -2` — cada lobo de aquí\n• `characters.wolf-2.values.health: -2` — uno de ellos\nUna copia cuya hoja tiene un estado que la quita (un enemigo abatido a 0 de salud) se va por sí sola cuando se cumple.\nEn un mapa, un clic en su token abre aquí su tarjeta, y arrastrarlo lo mueve en el viaje.',
+    help: 'Los presentes: a quien encuentra el viaje, hechos con las plantillas del bestiario del sistema (un encuentro que trae tres lobos hace tres copias, cada una con sus propios valores tirados). Los que están donde está el grupo están aquí; las tablas, chequeos y acciones los leen y sus efectos los alcanzan, según el sistema:\n• `present.wolf: 3` — llegan tres lobos\n• `present.count: { gte: 1 }` — si hay alguien aquí\n• `present.highest.values.mind` — lo más de un valor entre ellos (`lowest`: lo menos)\n• `present.wolf.values.health: -2` — cada lobo de aquí\n• `characters.wolf-2.values.health: -2` — uno de ellos\nUna copia cuya hoja tiene un estado que la quita (un enemigo abatido a 0 de salud) se va por sí sola cuando se cumple.\nEn un mapa, un clic en su token abre aquí su tarjeta, y arrastrarlo lo mueve en el viaje.',
     none: 'No hay nadie.',
     add: 'Añadir del bestiario',
     addHelp:

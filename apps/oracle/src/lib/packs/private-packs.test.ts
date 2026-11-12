@@ -1,6 +1,13 @@
 import { createOracleEngine, formatDiagnostic, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
-import { startTrip, stepTrip, travelSystems } from '@open-tabletop/session'
+import {
+  applyResult,
+  newMember,
+  partyOf,
+  startTrip,
+  stepTrip,
+  travelSystems,
+} from '@open-tabletop/session'
 import {
   createTravelEngine,
   initialTravelState,
@@ -116,6 +123,81 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
     expect(system.pieces?.length).toBeGreaterThan(0)
+  })
+
+  /** Plays a fight against `foes` to its end: each of the PC's turns an Attack at the first one here. */
+  function fight(foes: Record<string, number>, seed: string) {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, {
+      id: 'erthos',
+      name: 'Erthos',
+      values: { bladed: 73, dodge: 40, parry: 73, perception: 50, 'armor-arms': 1 },
+    })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded(seed) }),
+    }
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed })
+    const present = Object.fromEntries(Object.entries(foes).map(([t, n]) => [`present.${t}`, n]))
+    let s = applyResult(session, { effects: present }, {}, rules)
+    let done = stepTrip(options, s, { type: 'action', id: 'fight' })
+    const entries = [...done.entries]
+    for (let turn = 0; turn < 80 && done.state.encounter; turn++) {
+      s = done.state
+      if (s.travel.waiting) done = stepTrip(options, s, { type: 'resume' })
+      else {
+        const foe = s.present!.find((p) => p.at === s.travel.location)!.character.id
+        done = stepTrip(options, s, {
+          type: 'action',
+          id: 'attack',
+          with: { foe, skill: 'bladed' },
+        })
+        if (done.state.travel.waiting)
+          done = stepTrip(options, done.state, { type: 'resume', choice: foe })
+      }
+      entries.push(...done.entries)
+    }
+    return { state: done.state, entries }
+  }
+
+  it('fights a Necropede: Initiative, opposed attacks, where blows land, Toughness before Health', () => {
+    const { state, entries } = fight({ necropede: 1 }, 'n')
+    const codes = entries.map((e) => e.code)
+    expect(codes).toContain('ENCOUNTER_STARTED')
+    expect(codes).toContain('ENCOUNTER_ENDED')
+    expect(state.encounter).toBeUndefined()
+    const rolled = entries.filter((e) => e.code === 'ROLLED').map((e) => JSON.stringify(e))
+    expect(rolled.some((r) => r.includes('initiative'))).toBe(true)
+    expect(rolled.some((r) => r.includes('wound-serpentoid'))).toBe(true)
+    // Either the Necropede is destroyed, or the PC took damage on the way.
+    const party = state.party!.values
+    expect(state.present?.length === 0 || party.toughness! < 30).toBe(true)
+  })
+
+  it('three Rotwalkers: humanoid hit locations, Reactions counted each round, the Initiative deciding who acts first', () => {
+    let wounds = 0
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {
+      const { entries } = fight({ rotwalker: 3 }, seed)
+      const json = entries.map((e) => JSON.stringify(e))
+      wounds += json.filter((j) => j.includes('wound-humanoid')).length
+      // Whoever wins the Initiative acts first: the PC unless the creatures fended it off.
+      const initiative = entries.find((e) => e.code === 'ORACLE_RESULT')!.text!
+      const first = entries.find((e) => e.code === 'ENCOUNTER_TURN')!
+      expect(first.data?.side).toBe(/Fended off/.test(initiative) ? 'foes' : 'party')
+      // Each round, Reactions count again from 0.
+      expect(json.some((j) => j.includes('present.all.values.reactions'))).toBe(true)
+    }
+    expect(wounds).toBeGreaterThan(0)
   })
 })
 

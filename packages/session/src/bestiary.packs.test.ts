@@ -266,8 +266,9 @@ describe('the bundled packs fight in turns', () => {
       ends: { 'present.count': 0 },
     })
     const { state, lines } = fight(core, 'fight', 'c')
-    expect(lines.slice(0, 4)).toEqual([
+    expect(lines.slice(0, 5)).toEqual([
       'ACTION_TAKEN',
+      'SAID',
       'ENCOUNTER_STARTED',
       'ENCOUNTER_ROUND',
       'ENCOUNTER_TURN',
@@ -426,5 +427,48 @@ describe('the bundled packs fight in turns', () => {
     expect(done.state.encounter).toBeUndefined()
     expect(encounterView(done.state)).toBeUndefined()
     expect(tripAvailability(options, done.state).travel).toBeUndefined()
+  })
+
+  it('the Grey Marches: falling back, the clumsiest takes a blow from the fiercest; Core says how tough the toughest is', () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'p',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(4) }),
+    }
+    const s = applyResult(
+      session,
+      { effects: { 'present.bandit-chief': 1, 'present.bandit': 1 } },
+      {},
+      partyOf(marches),
+    )
+    const started = stepTrip(options, s, { type: 'action', id: 'stand' })
+    const health = (st: typeof s, id: string) => st.members!.find((m) => m.id === id)!.values.health
+    // The chief's Harm (2) is over Mara's Stealth (0): she takes the difference.
+    const before = health(started.state, 'mara')
+    const back = stepTrip(options, started.state, { type: 'action', id: 'fall-back' })
+    expect(back.state.encounter).toBeUndefined()
+    expect(health(back.state, 'mara')).toBe(before - 2)
+    expect(health(back.state, 'kael')).toBe(health(started.state, 'kael'))
+
+    const { session: trip } = startTrip({
+      system: core,
+      location: 'a',
+      members: people(core),
+      seed: 'c',
+    })
+    const foes = applyResult(trip, { effects: { 'present.foe': 2 } }, {}, partyOf(core))
+    const toughest = Math.max(...foes.present!.map((p) => p.character.values.health))
+    const said = stepTrip({ ...options, system: core }, foes, { type: 'action', id: 'fight' })
+    expect(said.entries.find((e) => e.code === 'SAID')?.data?.text).toMatchObject({
+      en: `The toughest of them has ${toughest} health.`,
+      es: `El más duro de ellos tiene ${toughest} de salud.`,
+    })
   })
 })

@@ -32,7 +32,7 @@ values: { health: { default: 10, min: 0 } }
 ---
 kind: sheet
 id: foe
-values: { health: { default: 8, min: 0 }, speed: { default: 3 } }
+values: { health: { default: 8, min: 0 }, speed: { default: 3 }, rage: { default: 0 } }
 conditions:
   down: { when: { self.values.health: { lte: 0 } }, leaves: true }
 ---
@@ -54,6 +54,18 @@ id: foe-turn
 roll: 1d1
 entries:
   - { range: 1, result: A blow, set: { target: party.members.random }, effects: { 'characters[target].values.health': -1 } }
+---
+kind: table
+id: lurk
+roll: 1d1
+entries:
+  - { range: 1, result: They were waiting, effects: { present.goblin: 2, encounter: start, encounter.first: foes } }
+---
+kind: table
+id: taunt
+roll: 1d1
+entries:
+  - { range: 1, result: Taunted, effects: { 'characters[params.foe].values.rage': 1, acting.values.rage: 1, characters.kael.values.rage: 1, acting.values.fury: 1 } }
 ---
 kind: travel-rules
 travel: { hoursPerDay: 8, start: '07:00' }
@@ -346,5 +358,51 @@ describe('an encounter: a fight in turns', () => {
     }
     const done = stepTrip(options, session, { type: 'action', id: 'ambush' })
     expect(done.state.encounter?.order).toEqual(['goblin', 'goblin-2', 'kael', 'mira'])
+  })
+
+  it("effects on a copy's values are checked against the bestiary's sheets too", () => {
+    const { problems } = systemOf(BY_SIDE)
+    const messages = problems.map((p) => p.message).filter((m) => m.includes('rage'))
+    // `rage` is only on the foes' sheet: a copy's (by brackets, by its id, the one acting)
+    // is known, since any of them may be one of those present.
+    expect(messages).toEqual([])
+    // A value nobody's sheet has is still a problem.
+    expect(problems.map((p) => p.message)).toContain(
+      'Effect on "acting.values.fury", which the members\' sheet doesn\'t declare',
+    )
+  })
+
+  it('a table rolled may start a fight and say which side goes first', () => {
+    const { options, session } = begin()
+    const rules = options.system.rules
+    rules.actions = { ...rules.actions, lurk: { do: [{ roll: 'table.lurk' }] } }
+    const done = stepTrip(options, session, { type: 'action', id: 'lurk' })
+    expect(done.state.encounter?.first).toBe('foes')
+    expect(done.state.encounter?.order).toEqual(['goblin', 'goblin-2', 'kael', 'mira'])
+  })
+
+  it('reads the highest and the lowest of a value among those present and the members', () => {
+    const { options, session } = begin()
+    let s = applyResult(session, { effects: { 'present.goblin': 2 } }, {}, partyOf(options.system))
+    s = applyResult(
+      s,
+      { effects: { 'characters.goblin-2.values.speed': 2, 'characters.mira.values.speed': 4 } },
+      {},
+      partyOf(options.system),
+    )
+    const facts = tripFacts(options, s) as {
+      present: {
+        highest: { values: Record<string, number> }
+        lowest: { values: Record<string, number> }
+      }
+      party: {
+        highest: { values: Record<string, number> }
+        lowest: { values: Record<string, number> }
+      }
+    }
+    expect(facts.present.highest.values.speed).toBe(5)
+    expect(facts.present.lowest.values.speed).toBe(3)
+    expect(facts.party.highest.values.speed).toBe(5)
+    expect(facts.party.lowest.values.speed).toBe(1)
   })
 })
