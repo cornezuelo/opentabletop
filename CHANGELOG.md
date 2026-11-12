@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.47.0] - 2026-11-12
+
 ### Packs
 
 - **The most and the least of a value in a group**: `present.highest.values.<id>` / `present.lowest.values.<id>` among those present (the sharpest foe's Mind), `party.highest.values.<id>` / `party.lowest.values.<id>` among the party's characters (the clumsiest one's Stealth), in conditions, variables and effects; suggested where conditions are written. Core's **Fight** says how tough the toughest foe is; the Grey Marches' **Fall back** costs the clumsiest companion a parting blow when the fiercest foe outdoes them (_A parting blow_).
