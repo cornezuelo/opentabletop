@@ -746,7 +746,7 @@ describe('the system’s own actions', () => {
     ])
     const bad = parseTravelRules({ ...foraging, checks: [{ event: 'X', at: 'actions.fish' }] })
     expect(bad.errors).toEqual([
-      'checks.0.at: expected trip.place-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, checks.X, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'checks.0.at: expected trip.place-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.forage, actions.pray, checks.X, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper), a moment of the world (world.turn, world.clocks.<id>.full) or of an encounter (encounter.start, encounter.round, encounter.turn, encounter.end)',
     ])
   })
 
@@ -1362,7 +1362,7 @@ describe('actions the system triggers, and bounded values', () => {
     }
     const bad = { event: 'BAD', at: ['06:00', 'actions.nowhere'] }
     expect(parseTravelRules({ ...triggered!, checks: [sight, bad] }).errors).toContain(
-      'checks.1.at.1: expected trip.place-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, checks.SIGHT, checks.BAD, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'checks.1.at.1: expected trip.place-enter, time.day-end, actions.camp, actions.rest, actions.march, actions.eat, actions.drink, actions.pray, actions.feast, actions.chant, checks.SIGHT, checks.BAD, the end of an action (actions.camp.done), a clock (06:00), a part of the day (time.meal.supper), a moment of the world (world.turn, world.clocks.<id>.full) or of an encounter (encounter.start, encounter.round, encounter.turn, encounter.end)',
     )
     const { rules: several, errors } = parseTravelRules({
       ...triggered!,
@@ -1420,8 +1420,8 @@ describe('actions the system triggers, and bounded values', () => {
     })
     expect(bad.errors).toEqual([
       // (pray is gone, so is the moment of its check)
-      'checks.1.at: expected trip.place-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
-      'actions.a.on: expected trip.place-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)',
+      'checks.1.at: expected trip.place-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper), a moment of the world (world.turn, world.clocks.<id>.full) or of an encounter (encounter.start, encounter.round, encounter.turn, encounter.end)',
+      'actions.a.on: expected trip.place-enter, time.day-end, actions.a, actions.b, actions.c, actions.d, actions.e, checks.HUNGER, checks.OMEN, checks.AMBUSH, the end of an action (actions.a.done), a clock (06:00), a part of the day (time.meal.supper), a moment of the world (world.turn, world.clocks.<id>.full) or of an encounter (encounter.start, encounter.round, encounter.turn, encounter.end)',
       'actions.a.do.1.roll: expected checks.HUNGER, checks.OMEN, checks.AMBUSH, table.<id>',
       'actions.a.do.2.set.nope: expected lost, weary',
       // (camp is gone too, and the halt named it)

@@ -146,6 +146,14 @@ A system with a [bestiary](../technical/07-kinds.md#bestiaries) can make **those
 
 The **Here** box, in the **Party** tab under the characters, shows them: those at the party's place as folded cards grouped by template (_Grey wolf ×4_), each unfolding into its character card, edited by hand like a member's. **×** takes one off (asked first: Ctrl+Z can't bring it back), **Keep in the roster** makes it a character of the [Characters app](../characters/01-getting-started.md), linked to this trip; **Add from the bestiary** makes one by hand, as an effect `present.<template>: 1` would, and **From the roster** brings a character of the roster made with the sheet of the system's characters or of its templates (a creature or NPC made in the Characters app), linked to this trip, as one of those present: tables and rules read it like the others (in the Grey Marches, a grey wolf brought alone runs at once, since the pack breaks without its leader). The ones made at places the party left are counted under the list (_4 left behind elsewhere_), unfolding into the same cards with where each is. On a map, a click on one's token opens its card here, and a drag moves it ([Play](../map/08-play.md)). A campaign that adds packs adds their templates to the system's bestiary too.
 
+### A fight in turns
+
+A system may play its fights in turns ([Fights in turns](../technical/07-kinds.md#systems)): an action or a result starts one (the Grey Marches' **Stand and fight**, Core's **Fight**). The journal says it (_A fight begins_, _Round 1_, _Kael's turn_), and while it lasts the trip waits:
+
+- **On a character's turn** that one is acting, and only the system's fight actions are open (the Grey Marches' **Strike one down** and **Fall back**); the other buttons say _Not during a fight_. Taking one ends the turn.
+- **The foes' turns** go by themselves: what the system does on them happens (in the Grey Marches, a foe whose nerve breaks runs), and the next turn comes.
+- **Rounds** follow one another, each taking the minutes the system says, until no foe is left, the system's rule ends it, or an action does (**Fall back**): _The fight is over_.
+
 ### Places made on the way
 
 A system with [catalogues of places](../technical/07-kinds.md#places) can make a place where the party is (Core's **Explore**, on a 6: a _Landmark_). A trip without a map has no cells to write it on, so the journal notes it (_A place here: Landmark — Something worth finding again._); played on a map in the Map app, it becomes a point of interest of the cell.

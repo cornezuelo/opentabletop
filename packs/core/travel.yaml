@@ -178,6 +178,23 @@ actions:
     do:
       - { time: 10 }
       - { effects: { connection.state: open } }
+  # A fight in turns (system.yaml: `encounter:`): started by an effect, while foes are here.
+  fight:
+    name: Fight
+    description: 'With foes here: a fight in turns begins, the party first.'
+    when: { present.count: { gte: 1 } }
+    do:
+      - { effects: { encounter: start } }
+  # The one action a member takes on its turn in a fight: a blow at one foe here, chosen.
+  strike:
+    name: Strike
+    description: 'On a member’s turn in a fight: a blow at one foe here, the one you choose, for 1d3 harm.'
+    params:
+      foe: { name: Whom?, from: present.ids }
+    do:
+      - { ask: params.foe }
+      - effects:
+          characters[params.foe].values.health: '-{{1d3}}'
   # A moment written as a condition (a reaction): once, as morale reaches 0.
   despair:
     name: Despair

@@ -33,6 +33,7 @@ import {
 import type { Bindings } from './index'
 import type { Effects, LimitReached } from './effects'
 import { makePlace, PLACE_PATH, WAY_PATH, type MadePlace, type PlaceLookup } from './places'
+import { changeEncounter, ENCOUNTER_EFFECT, type Encounter } from './encounter'
 import {
   changePresent,
   presentFacts,
@@ -81,6 +82,8 @@ export interface PartyTarget {
   /** The copies of templates the trip made, where each was made (docs/bestiary.md). */
   present?: Present[]
   acting?: string
+  /** The encounter going on, which effects start, end or order (`encounter: start`). */
+  encounter?: Encounter
   /** Who holds each of the system's journey roles (`roles.<id>.*`), by role id. */
   roles?: Record<string, string>
   /** Who rolls for the stats made of one character (`from: { pick }`); absent: the best. */
@@ -428,6 +431,7 @@ export function applyMemberEffects(
         PRESENT_PATH.test(p) ||
         PLACE_PATH.test(p) ||
         WAY_PATH.test(p) ||
+        ENCOUNTER_EFFECT.test(p) ||
         CONNECTION_EFFECT.test(p) ||
         copyPath(p) ||
         mapPath(p),
@@ -590,6 +594,11 @@ export function applyMemberEffects(
       for (let i = 0; i < count; i++) ways.push({ at: travel.location ?? '', kind: wayKind })
       continue
     }
+    // The encounter: started or ended, or which side goes first (`encounter.first: foes`).
+    if (ENCOUNTER_EFFECT.test(path)) {
+      changeEncounter(s, path, change)
+      continue
+    }
     // Those present: a template's copies made or taken away, or each of them changed.
     const [, template, copyPart, copyRest] = PRESENT_PATH.exec(path) ?? []
     if (template !== undefined) {
@@ -637,7 +646,9 @@ export function applyMemberEffects(
           : who === 'party.members'
             ? members
             : who === 'acting'
-              ? members.filter((m) => m.id === s.acting)
+              ? s.acting !== undefined
+                ? characterById(s.acting)
+                : []
               : who.startsWith('roles.')
                 ? members.filter((m) => m.id === holder)
                 : characterById(who.slice('characters.'.length))

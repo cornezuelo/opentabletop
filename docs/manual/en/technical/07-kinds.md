@@ -809,6 +809,30 @@ style: core/parchment # the map style its new blank maps start in
 
 The Packs app writes one for every new system, edits it in the system's **Overview**, and declares an older pack's (**Declare it**). The Grey Marches declare theirs in `system.yaml`.
 
+### Fights in turns
+
+A system whose fights go in turns says how with `encounter:` (absent: fights are played as a whole, with actions on [those present](#bestiaries)). It's an excerpt of a `kind: system`:
+
+```yaml
+encounter: # (in a kind: system, beside travel, sheet…)
+  # Who acts first: by side, the party's or the foes' (`first`, the party if missing)…
+  order: { by: side, first: party }
+  # …or each one in the order of what it rolls, highest first: one value for all, or one
+  # for each side (`acting.*` is the one rolling).
+  # order: { by: participant, value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' } }
+  actions: [actions.strike, actions.fall-back] # what a member does on its turn
+  minutes: 1 # a round's length (absent: no time passes)
+  ends: { present.count: 0 } # when it ends by itself, read after every turn
+```
+
+- **It starts and ends by an effect**: `encounter: start` (an action's step, a check's or a table's result: _Fight_, an ambush) and `encounter: end` (_Fall back_, a parley). It ends by itself when `ends` holds, or when nobody is left on one side.
+- **Who takes part**: the party's members (or the party, played as a whole) and those present at the party's place. Those who come during the fight join at the end of the next round; those who leave lose their turns.
+- **The order** is read once, after the moment `encounter.start`: its actions may say which side goes first with an effect, `encounter.first: foes` (an ambush), over `first`. By participant, ties go to the party's side.
+- **A turn of the party's** waits for the player: whoever's turn it is is the one acting (`acting.*`), and only the actions in `actions` are open (with their own `when`, `needs` and `ask`); travelling and the rest wait until the fight is over. Taking one ends the turn once it's done. Outside a fight, those actions are as open as their `when` says: write `when: { encounter.round: { gte: 1 } }` for one only in fights.
+- **A foe's turn** goes by itself: the actions `on: encounter.turn` happen, with `acting.*` the foe (`when: { encounter.side: foes }`), then the next turn comes.
+- **Moments**: `encounter.start`, `encounter.round` (each round's start), `encounter.turn` (each turn's start), `encounter.end`, for actions' `on:` and checks' `at:`. Conditions read `encounter.round`, `encounter.turn` (whose turn: an id), `encounter.side` (`party` or `foes`) and `encounter.order` ([What tables see](04-what-tables-see.md#an-encounter-encounter)).
+- The journal says each part: _A fight begins_, _Round 2_, _Mara's turn_, _The fight is over_.
+
 ## Map styles
 
 How a map is drawn, never what it holds: Map's **Map settings → Style** offers every loaded pack's styles, and the map names the one it's drawn in. Core brings seven: **Schematic** (flat colours and a glyph per terrain, every cell with its coordinates), the look of every map without a style; **Parchment** (ink on old paper) and **Painted** (colours that melt into each other, art lit and shaded) and **Relief** (Painted's ground with mountains, hills and trees as pictures); and, for maps with floor, **Classic dungeon** (white floor, black walls, the rock hatched) and **Cave** (rough walls, stippled rock); and, for towns, **Village** (cobbled streets, buildings under tiled roofs). Choosing a style **copies** some of its settings into the map (its names', regions', coordinates' and glyphs' settings), which you then change freely in Map settings and the Terrain panel; the rest (the grid's line, the paper, the ground, the art, the shores, the paths' look, the floors, the walls, the roofs and how connections are drawn) is read from the style while the map is drawn, so a change to the style shows at once.

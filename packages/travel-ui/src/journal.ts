@@ -8,6 +8,7 @@ import {
   type JournalLevel,
   type JournalTopic,
   type RolledNode,
+  type EncounterUnavailable,
 } from '@open-tabletop/session'
 import {
   availableActions,
@@ -176,13 +177,15 @@ export function failedText(
 
 /** Why something can't be done now, in words ('' when the system simply has no such thing). */
 export function whyText(
-  because: Unavailable | undefined,
+  because: Unavailable | EncounterUnavailable | undefined,
   context: Pick<JournalContext, 't' | 'dayValues' | 'memberName' | 'valueName' | 'terrainName'>,
 ): string {
   const { t, dayValues, memberName } = context
   if (!because || 'off' in because) return ''
   if ('pending' in because) return t('blocked.pending')
   if ('held' in because) return t('blocked.held')
+  if ('encounter' in because)
+    return t(because.encounter === 'fight' ? 'blocked.fight' : 'blocked.notTurn')
   // A member's condition: who has it, until it's cleared.
   if ('value' in because && because.who !== undefined)
     return t('blocked.member', {
@@ -612,6 +615,15 @@ export function entryText(e: JournalEntry, context: JournalContext) {
           context.connectionName?.(String(d.kind ?? '')) ??
           String(d.kind ?? '').replaceAll('-', ' '),
       })
+    // A fight in turns (docs/conflicts.md): its start, each round and turn, its end.
+    case 'ENCOUNTER_STARTED':
+      return t('journal.encounterStarted')
+    case 'ENCOUNTER_ROUND':
+      return t('journal.encounterRound', { round: Number(d.round ?? 1) })
+    case 'ENCOUNTER_TURN':
+      return t('journal.encounterTurn', { name: String(d.name ?? d.id ?? '') })
+    case 'ENCOUNTER_ENDED':
+      return t('journal.encounterEnded', { rounds: Number(d.rounds ?? 0) })
     // A value of the connection the step takes changed in play (a door opened).
     case 'CONNECTION_CHANGED':
       return t('journal.connectionChanged', {

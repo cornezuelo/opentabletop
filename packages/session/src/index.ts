@@ -25,6 +25,7 @@ import {
 } from './effects'
 import { rolledNodes } from './journal'
 import { settlePresent, type Present, type PresentEvent } from './present'
+import { encounterFacts, type Encounter } from './encounter'
 import { definitionId } from './refs'
 import {
   pullFromRoster,
@@ -265,8 +266,10 @@ export interface SessionState {
    * the party's place are what tables see (`present.*`, docs/bestiary.md). Absent: none.
    */
   present?: Present[]
-  /** The member acting now (`acting.*`), chosen by the player. */
+  /** The member acting now (`acting.*`), chosen by the player, or whoever's turn it is in a fight. */
   acting?: string
+  /** The encounter going on, a fight in turns (docs/conflicts.md); absent: none. */
+  encounter?: Encounter
   /** Who holds each of the system's journey roles (`roles.<id>.*`), chosen by the player. */
   roles?: Record<string, string>
   /** Who rolls for the stats made of one character (`from: { pick }`); absent: the best. */
@@ -372,6 +375,7 @@ export function tripContext(
     ...memberFacts(s, party),
     party: { ...host, ...partyValues(s, party) },
     ...(s.map && { map: mapFacts(s.map) }),
+    ...(encounterFacts(s) && { encounter: encounterFacts(s) }),
     today,
     yesterday,
     ...extra,
@@ -1642,6 +1646,7 @@ export * from './suggestions'
 export { FACT_GROUPS, FACT_PATHS, placeIdOf, qualify } from '@open-tabletop/travel-engine'
 export * from './party'
 export * from './present'
+export * from './encounter'
 export * from './places'
 export * from './factions'
 export * from './clocks'

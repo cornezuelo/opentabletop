@@ -810,6 +810,30 @@ style: core/parchment # el estilo con el que empiezan sus mapas en blanco
 
 La aplicación Packs escribe uno en cada sistema nuevo, lo edita en el **Resumen** del sistema y declara el de un pack antiguo (**Declararlo**). Las Marcas Grises declaran el suyo en `system.yaml`.
 
+### Combates por turnos
+
+Un sistema cuyos combates van por turnos dice cómo con `encounter:` (sin él, los combates se juegan como un todo, con acciones sobre [los presentes](#bestiarios)). Es un extracto de un `kind: system`:
+
+```yaml
+encounter: # (en un kind: system, junto a travel, sheet…)
+  # Quién actúa primero: por bandos, el del grupo o el de los enemigos (`first`, el grupo si falta)…
+  order: { by: side, first: party }
+  # …o cada uno en el orden de lo que saca, de mayor a menor: un valor para todos, o uno
+  # por bando (`acting.*` es quien tira).
+  # order: { by: participant, value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' } }
+  actions: [actions.strike, actions.fall-back] # lo que hace un miembro en su turno
+  minutes: 1 # lo que dura una ronda (sin él, no pasa el tiempo)
+  ends: { present.count: 0 } # cuándo acaba por sí solo, leído tras cada turno
+```
+
+- **Empieza y acaba con un efecto**: `encounter: start` (el paso de una acción, el resultado de una comprobación o de una tabla: _Luchar_, una emboscada) y `encounter: end` (_Replegarse_, un parlamento). Acaba por sí solo cuando se cumple `ends`, o cuando no queda nadie en un bando.
+- **Quién participa**: los miembros del grupo (o el grupo, si se juega como un todo) y los presentes en el lugar del grupo. Quienes llegan durante el combate se suman al final de la ronda siguiente; quienes se van pierden sus turnos.
+- **El orden** se lee una vez, tras el momento `encounter.start`: sus acciones pueden decir qué bando va primero con un efecto, `encounter.first: foes` (una emboscada), por encima de `first`. Por participante, los empates son para el bando del grupo.
+- **Un turno del grupo** espera al jugador: quien tiene el turno es quien actúa (`acting.*`), y solo están abiertas las acciones de `actions` (con sus propios `when`, `needs` y `ask`); viajar y lo demás esperan a que acabe el combate. Tomar una termina el turno cuando acaba. Fuera de un combate, esas acciones están tan abiertas como diga su `when`: escribid `when: { encounter.round: { gte: 1 } }` para una que solo sea de combate.
+- **El turno de un enemigo** pasa por sí solo: ocurren las acciones `on: encounter.turn`, con `acting.*` el enemigo (`when: { encounter.side: foes }`), y luego llega el turno siguiente.
+- **Momentos**: `encounter.start`, `encounter.round` (el comienzo de cada ronda), `encounter.turn` (el comienzo de cada turno), `encounter.end`, para el `on:` de las acciones y el `at:` de las comprobaciones. Las condiciones leen `encounter.round`, `encounter.turn` (de quién es el turno: un id), `encounter.side` (`party` o `foes`) y `encounter.order` ([Lo que ven las tablas](04-what-tables-see.md#un-encuentro-encounter)).
+- El diario cuenta cada parte: _Empieza un combate_, _Ronda 2_, _Turno de Mara_, _Se acabó el combate_.
+
 ## Estilos de mapa
 
 Cómo se dibuja un mapa, nunca lo que contiene: **Ajustes del mapa → Estilo** en Mapa ofrece los estilos de todos los packs cargados, y el mapa nombra aquel en el que se dibuja. Core trae siete: **Esquemático** (colores planos y un símbolo por terreno, cada casilla con sus coordenadas), el aspecto de todo mapa sin estilo; **Pergamino** (tinta sobre papel viejo) y **Pintado** (colores que se funden entre sí, dibujos con luz y sombra) y **Relieve** (el terreno de Pintado con las montañas, colinas y árboles como dibujos); y, para mapas con suelo, **Mazmorra clásica** (suelo blanco, muros negros, la roca rayada) y **Cueva** (muros toscos, roca punteada); y, para pueblos, **Aldea** (calles empedradas, edificios bajo tejados de tejas). Elegir un estilo **copia** parte de sus ajustes al mapa (los de sus nombres, regiones, coordenadas y símbolos), que luego cambias a tu gusto en Ajustes del mapa y en el panel Terreno; el resto (la línea de la rejilla, el papel, el terreno, el arte, las costas, el aspecto de los caminos, los suelos, los muros y cómo se dibujan las conexiones) se lee del estilo mientras se dibuja el mapa, así que un cambio en el estilo se ve enseguida.

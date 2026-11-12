@@ -11,18 +11,19 @@ They don't call each other: each hears the other's moments through the campaign 
 
 ## Every moment
 
-| Moment                                                  | Heard by       | When                                                                                                 |
-| ------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
-| a clock (`'06:00'`)                                     | trip           | as it strikes, marching, waiting or asleep in camp                                                   |
-| a part of the day (`time.part.morning`)                 | trip           | as the calendar's part begins                                                                        |
-| `trip.place-enter`                                      | trip           | entering each cell                                                                                   |
-| `time.day-end`                                          | trip           | as each day of the trip ends, at midnight                                                            |
-| an action (`actions.camp`)                              | trip           | as the party takes it, before its steps                                                              |
-| an action's end (`actions.camp.done`)                   | trip           | once its steps are done                                                                              |
-| a check (`checks.WEATHER_CHECK_REQUIRED`)               | trip           | right after it's resolved (after **Continue**, if it paused)                                         |
-| a clock of the world filling (`world.clocks.<id>.full`) | world and trip | as one of the campaign's progress clocks fills, whatever fills it                                    |
-| a world turn (`world.turn`)                             | world and trip | after every faction has taken its turn, whatever brought it (days passing, a hand, `do: world.turn`) |
-| a condition turning true (`{ when: … }`)                | world and trip | once, as it turns true, whatever changed it; again only after it stopped holding                     |
+| Moment                                                           | Heard by       | When                                                                                                     |
+| ---------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------- |
+| a clock (`'06:00'`)                                              | trip           | as it strikes, marching, waiting or asleep in camp                                                       |
+| a part of the day (`time.part.morning`)                          | trip           | as the calendar's part begins                                                                            |
+| `trip.place-enter`                                               | trip           | entering each cell                                                                                       |
+| `time.day-end`                                                   | trip           | as each day of the trip ends, at midnight                                                                |
+| an action (`actions.camp`)                                       | trip           | as the party takes it, before its steps                                                                  |
+| an action's end (`actions.camp.done`)                            | trip           | once its steps are done                                                                                  |
+| a check (`checks.WEATHER_CHECK_REQUIRED`)                        | trip           | right after it's resolved (after **Continue**, if it paused)                                             |
+| a clock of the world filling (`world.clocks.<id>.full`)          | world and trip | as one of the campaign's progress clocks fills, whatever fills it                                        |
+| a world turn (`world.turn`)                                      | world and trip | after every faction has taken its turn, whatever brought it (days passing, a hand, `do: world.turn`)     |
+| a fight's moments (`encounter.start`, `.round`, `.turn`, `.end`) | trip           | in a [fight in turns](07-kinds.md#systems), as it begins, as each round and each turn begins, as it ends |
+| a condition turning true (`{ when: … }`)                         | world and trip | once, as it turns true, whatever changed it; again only after it stopped holding                         |
 
 A condition is the moment for everything that has no name of its own: a character's condition or value (`party.members.conditions.wounded`, with `for: party.members`), a value reaching a bound (`trip.below: party.values.food`), the weather changing (`trip.weather: storm`), an event's or holiday's day (`world.events: market-day`), a faction's value (`factions.fort-keld.values.strength: { lte: 0 }`), a season (`time.season: winter`). The trip's conditions read what tables see on a trip ([What tables see](04-what-tables-see.md)); the world's read the world only.
 

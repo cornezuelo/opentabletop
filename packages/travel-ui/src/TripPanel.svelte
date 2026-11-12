@@ -1,6 +1,11 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
-  import { usesOf, type Declared, type Use } from '@open-tabletop/session'
+  import {
+    usesOf,
+    type Declared,
+    type EncounterUnavailable,
+    type Use,
+  } from '@open-tabletop/session'
   import { usesHelp } from './uses'
   import {
     localize,
@@ -310,7 +315,7 @@
   /** The party's characters' values and conditions in words ("Kael: Health"). */
   const memberName = $derived(context.memberName)
   /** Why a button is disabled, in words ('' when it isn't). */
-  const why = (because: Unavailable | undefined): string =>
+  const why = (because: Unavailable | EncounterUnavailable | undefined): string =>
     whyText(because, { t, dayValues, memberName, valueName, terrainName })
   /** With characters, the stats made of theirs follow them. */
   const hasMembers = $derived(!!system.sheet && !!session.members?.length)

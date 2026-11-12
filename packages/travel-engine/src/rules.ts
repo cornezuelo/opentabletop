@@ -27,11 +27,21 @@ export const PLACE_ENTER = 'trip.place-enter'
 /** The moment each day ends. */
 export const DAY_END = 'time.day-end'
 /**
- * A moment of the world the host says came (`world.turn`, `world.clocks.<id>.full`), not one
- * the trip keeps: the engine only knows it by name, and happens it when told (`{ type:
- * 'moment' }`). A `do:` naming one (`do: world.turn`) is the host's to do too (`WORLD_DO`).
+ * A moment the host says came, not one the trip keeps: of the world (`world.turn`,
+ * `world.clocks.<id>.full`) or of an encounter (`encounter.start`, `encounter.round`,
+ * `encounter.turn`, `encounter.end`). The engine only knows it by name, and happens it when
+ * told (`{ type: 'moment' }`). A `do:` naming one (`do: world.turn`) is the host's to do too
+ * (`WORLD_DO`).
  */
-export const HOST_MOMENT = /^world\.[A-Za-z0-9][\w-]*(\.[\w-]+)*$/
+export const HOST_MOMENT =
+  /^(?:world\.[A-Za-z0-9][\w-]*(\.[\w-]+)*|encounter\.(?:start|round|turn|end))$/
+/** The moments of an encounter, in the order they come (the host says them). */
+export const ENCOUNTER_MOMENTS = [
+  'encounter.start',
+  'encounter.round',
+  'encounter.turn',
+  'encounter.end',
+] as const
 /** What a step can ask the world to do (`do: world.turn`), and the moment it brings. */
 export const WORLD_DO_TURN = 'world.turn'
 /** Whether a moment is one the host says (`world.…`). */
@@ -591,7 +601,7 @@ export const travelRulesSchema = z
           ctx.addIssue({
             code: 'custom',
             path: Array.isArray(value) ? [...path, j] : path,
-            message: `expected ${[...CHECK_MOMENTS, ...taken, ...checked].join(', ')}, the end of an action (${taken[0] ?? 'actions.<id>'}.done), a clock (06:00), a part of the day (time.meal.supper) or a moment of the world (world.turn, world.clocks.<id>.full)${meant(moment, moments)}`,
+            message: `expected ${[...CHECK_MOMENTS, ...taken, ...checked].join(', ')}, the end of an action (${taken[0] ?? 'actions.<id>'}.done), a clock (06:00), a part of the day (time.meal.supper), a moment of the world (world.turn, world.clocks.<id>.full) or of an encounter (${ENCOUNTER_MOMENTS.join(', ')})${meant(moment, moments)}`,
           })
       })
     rules.checks?.forEach((check, i) => badMoments(check.at, ['checks', i, 'at']))

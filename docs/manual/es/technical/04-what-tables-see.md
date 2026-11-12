@@ -221,6 +221,19 @@ Cuando el sistema tiene un [bestiario](07-kinds.md#bestiarios) y un resultado ha
 
 Los efectos llegan a ellas con los mismos nombres ([Sintaxis](09-syntax.md#cambiar-el-grupo-effects)): `present.wolf: 2` (dos lobos más), `present.wolf.values.health: -1` (cada lobo de aquí), `present.all.conditions.routed: true` (todos los de aquí), `characters.wolf-2.values.health: -1` (uno). Las copias que el grupo dejó atrás no están aquí, y las de una plantilla con `behind: leave` desaparecen; una copia con un estado que `leaves` desaparece al momento.
 
+## Un encuentro, `encounter.*`
+
+Mientras dura un [combate por turnos](07-kinds.md#sistemas) (el `encounter:` de su sistema); fuera de él no existe, así que `encounter.round: { gte: 1 }` solo se cumple en un combate.
+
+| Nombre            | Tipo         | Valores                                                                                               |
+| ----------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| `encounter.round` | número       | La ronda, 1 la primera.                                                                               |
+| `encounter.turn`  | id           | De quién es el turno: el id de un miembro (`party` si el grupo se juega como un todo) o de una copia. |
+| `encounter.side`  | id           | Su bando: `party` o `foes`.                                                                           |
+| `encounter.order` | lista de ids | Quién actúa, en orden.                                                                                |
+
+Quien tiene el turno es también `acting.*`, un miembro o una copia: `acting.values.morale` en el turno de un enemigo es la de ese enemigo. Los efectos llegan a él con el mismo nombre (`acting.conditions.routed: true`).
+
 ## El mundo, `world.*`, y las facciones
 
 Cuando la campaña tiene su reloj del mundo (el panel Mundo de Mapa, la aplicación Campaña), en sus mapas y en los viajes de la aplicación Viajes que se juegan en ella; también en las tiradas a mano.

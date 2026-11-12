@@ -161,6 +161,7 @@ On entries, cards, checks and action steps. Each key is a value the system decla
 | `present.wolf.values.health: -2`, `present.all.conditions.routed: true` | every copy of one template here, or every copy here; one copy by its id: `characters.wolf-2.values.health: -2`                                                                                                                                |
 | `place.pois.ruins: 1`                                                   | makes a [place](07-kinds.md#places) on the party's cell from its template: on a map, a point of interest with its tags on the cell; without one, a line in the journal                                                                        |
 | `place.ways.way-in: 1`                                                  | makes a way of that kind of connection from the party's place into a new map: on a map, a blank [sub-map](../map/13-sub-maps.md) drawn like it, hanging from the party's cell, named after it (_Below …_); without one, a line in the journal |
+| `encounter: start`, `encounter: end`, `encounter.first: foes`           | starts or ends a [fight in turns](07-kinds.md#systems), or says which side goes first (from `encounter.start`'s actions); only in a system with `encounter:`                                                                                  |
 
 A change stops at the value's `min` / `max`; what hit one that day is seen afterwards as `trip.below` / `trip.above` (lists of full names: `trip.below: party.values.food`). Without bounds a value may go anywhere, negative too. Characters' values stop at their sheet's bounds; effects on characters do nothing while the party has none, and `acting.…` nothing while nobody acts (the journal says so). See [Characters](04-what-tables-see.md#characters).
 
@@ -168,18 +169,19 @@ A change stops at the value's `min` / `max`; what hit one that day is seen after
 
 When a check is rolled (`at:`) or an action is taken by the system itself (`on:`). One moment, or several as a list (`[trip.place-enter, actions.rest]`); conditions and tables see which one as `trip.moment`.
 
-| Moment                                                                     | When                                                                                               |
-| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| a clock (`'06:00'`)                                                        | as it strikes, marching, waiting or asleep in camp                                                 |
-| a part of the day (`time.part.morning`)                                    | as the calendar's part begins, the same way                                                        |
-| `trip.place-enter`                                                         | entering each cell                                                                                 |
-| `time.day-end`                                                             | as each day ends, camping or not (actions first, then checks)                                      |
-| an action (`actions.camp`)                                                 | when the party takes that action, before its steps (a check that waits holds them)                 |
-| an action's end (`actions.forage.done`)                                    | once its steps are done                                                                            |
-| a check (`checks.WEATHER_CHECK_REQUIRED`)                                  | right after it's resolved (after **Continue**, if it paused), before the next checks of its moment |
-| a clock of the world filling (`world.clocks.<id>.full`)                    | as one of the campaign's progress clocks fills, whatever fills it                                  |
-| a world turn (`world.turn`)                                                | after a world turn of the campaign, whatever brought it (time, a hand, a step's `do: world.turn`)  |
-| a condition turning true (`{ when: { party.values.morale: { lte: 0 } } }`) | once, as it turns true, whatever changed it; again only after it stopped holding                   |
+| Moment                                                                                      | When                                                                                                                                   |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| a clock (`'06:00'`)                                                                         | as it strikes, marching, waiting or asleep in camp                                                                                     |
+| a part of the day (`time.part.morning`)                                                     | as the calendar's part begins, the same way                                                                                            |
+| `trip.place-enter`                                                                          | entering each cell                                                                                                                     |
+| `time.day-end`                                                                              | as each day ends, camping or not (actions first, then checks)                                                                          |
+| an action (`actions.camp`)                                                                  | when the party takes that action, before its steps (a check that waits holds them)                                                     |
+| an action's end (`actions.forage.done`)                                                     | once its steps are done                                                                                                                |
+| a check (`checks.WEATHER_CHECK_REQUIRED`)                                                   | right after it's resolved (after **Continue**, if it paused), before the next checks of its moment                                     |
+| a clock of the world filling (`world.clocks.<id>.full`)                                     | as one of the campaign's progress clocks fills, whatever fills it                                                                      |
+| a world turn (`world.turn`)                                                                 | after a world turn of the campaign, whatever brought it (time, a hand, a step's `do: world.turn`)                                      |
+| a fight's moments (`encounter.start`, `encounter.round`, `encounter.turn`, `encounter.end`) | in a [fight in turns](07-kinds.md#systems): as it begins, as each round and each turn begins (whoever's turn it is acting), as it ends |
+| a condition turning true (`{ when: { party.values.morale: { lte: 0 } } }`)                  | once, as it turns true, whatever changed it; again only after it stopped holding                                                       |
 
 A check without `at` is rolled only by a step (`roll:`); an action without `on` is a button. Every moment, who hears it and in which order they come when several happen at once: [What reacts to what](11-what-reacts-to-what.md).
 

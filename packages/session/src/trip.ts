@@ -64,6 +64,16 @@ import type { SystemFactions } from './factions'
 import { samePlace, type Roster, type RosterEntry, type RosterPlace } from './roster'
 import type { SystemClocks } from './clocks'
 import type { SystemWorld } from './world'
+import {
+  changeEncounter,
+  driveEncounter,
+  ENCOUNTER_EFFECT,
+  encounterAvailability,
+  parseEncounter,
+  takingTurn,
+  type EncounterRules,
+  type EncounterUnavailable,
+} from './encounter'
 import { definitionId } from './refs'
 import {
   MEMBER_PATH,
@@ -152,6 +162,8 @@ export interface TravelSystem {
   clocks?: SystemClocks
   /** Its world's rules (`world` in `kind: system`): what the world does by itself. */
   world?: SystemWorld
+  /** How its fights go in turns (`encounter` in `kind: system`); absent: played as a whole. */
+  encounter?: EncounterRules
   /** Its item catalogues (`items` in `kind: system`), by `pack/id`, in the order it lists them. */
   items?: { id: string; def: Catalogue }[]
   /**
@@ -359,6 +371,7 @@ const SYSTEM_KEYS = new Set([
   'factions',
   'clocks',
   'world',
+  'encounter',
   'items',
   'bestiary',
   'places',
@@ -738,6 +751,12 @@ export function travelSystems(registry: Registry): {
         momentsOf(value).forEach((m, j) => {
           if (!isHostMoment(m)) return
           const at = Array.isArray(value) ? `${path}.${j}` : path
+          // An encounter's moments come only in a system whose fights go in turns.
+          if (m.startsWith('encounter.')) {
+            if (parts.system?.data.encounter === undefined)
+              report(at, 'the system declares no encounter: its fights have no turns', 'warning')
+            return
+          }
           const id = /^world\.clocks\.(.+)\.full$/.exec(m)?.[1]
           if (m === WORLD_DO_TURN) {
             if (!factions)
@@ -757,6 +776,18 @@ export function travelSystems(registry: Registry): {
       for (const [id, a] of Object.entries(rules.actions ?? {}))
         worldMoments(a.on, `actions.${id}.on`)
       ;(rules.checks ?? []).forEach((c, i) => worldMoments(c.at, `checks.${i}.at`))
+    }
+    // How its fights go (`encounter:`), with the actions its rules have.
+    let encounter: EncounterRules | undefined
+    const encounterData = parts.system?.data.encounter
+    if (parts.system && encounterData !== undefined) {
+      const parsed = parseEncounter(encounterData, Object.keys(rules.actions ?? {}))
+      problems.push(
+        ...parsed.errors.map((e) =>
+          problem(pack, parts.system!.file, 'system', e, parts.system!.id),
+        ),
+      )
+      encounter = parsed.rules
     }
     if (parts.bindings && bindings)
       problems.push(
@@ -853,6 +884,7 @@ export function travelSystems(registry: Registry): {
       ...(factions && { factions }),
       ...(clocks && { clocks }),
       ...(world && { world }),
+      ...(encounter && { encounter }),
       ...(items.length && { items }),
       ...(read.bestiary.length && { bestiary: read.bestiary, templateSheets: read.sheets }),
       ...(places.places.length && { places: places.places }),
@@ -1212,6 +1244,20 @@ function undeclaredEffects(
       const [, factionPart, factionId] =
         /^(?:faction|factions\.[^.]+)\.(values|conditions|territory)(?:\.(.+))?$/.exec(path) ?? []
       if (/^world\.clocks\./.test(path)) continue
+      // The encounter: started or ended (`encounter: start`), or which side goes first.
+      const encounterPart = ENCOUNTER_EFFECT.exec(path)
+      if (encounterPart) {
+        const value = (effects as Record<string, unknown>)[path]
+        const allowed = encounterPart[1] === 'first' ? ['party', 'foes'] : ['start', 'end']
+        if (!allowed.includes(String(value)))
+          out.push({
+            severity: 'warning',
+            message: `Effect on "${path}": expected ${allowed.join(' or ')}`,
+            pack,
+            ...where,
+          })
+        continue
+      }
       // The step's connection (`connection.state: open`): any value it may have.
       if (/^connection\./.test(path)) continue
       // Those leaving the place (`place.connections.gate.state: open`): any of their values.
@@ -1469,7 +1515,7 @@ export function stepTrip(
           ...(system.pieces && { pieces: lookupPieces(system.pieces) }),
         })
       : undefined
-  const result = createSession({
+  const played = createSession({
     travel: createTravelEngine({
       world: discovery?.world ?? world,
       rules: system.rules,
@@ -1493,12 +1539,57 @@ export function stepTrip(
     items: partyOf(system).items,
     templates: partyOf(system),
     places: partyOf(system).places,
-  }).step(session, action)
+  })
+  // In a fight, only what it allows (a member's turn, going on from what waits).
+  if (encounterCloses(system, session, action))
+    return { state: session, entries: [], discovered: {}, laid: [] }
+  const input = system.encounter && session.encounter ? structuredClone(session) : session
+  takingTurn(input, system.encounter, action)
+  const first = played.step(input, action)
+  const result = driveEncounter(
+    system.encounter,
+    first,
+    (s, a) => played.step(s, a),
+    (s) => tripContext(s, options.facts ?? {}, {}, partyOf(system)),
+  )
+  // What the step did, the encounter's lines with it, from its first line on.
+  if (result.state !== first.state) result.state.lastStep = first.state.lastStep
   return {
     ...result,
     discovered: withPlacesMade(Object.fromEntries(discovery?.found ?? []), result.entries),
     laid: discovery?.laid ?? [],
   }
+}
+
+/** Whether an encounter going on closes this action: travelling, or what isn't its turn's. */
+function encounterCloses(
+  system: TravelSystem,
+  session: SessionState,
+  action: TravelAction,
+): boolean {
+  const rules = system.encounter
+  if (!rules || !session.encounter) return false
+  if (action.type === 'action')
+    return !rules.actions.includes(action.id) || session.encounter.stage !== 'acting'
+  return ['setDestination', 'travel', 'wait', 'skip', 'waitForMarch'].includes(action.type)
+}
+
+/**
+ * Starts or ends an encounter by hand (a **Fight** button, or the player calling it off), as
+ * the effects `encounter: start` / `encounter: end` would, and plays it on as far as it goes
+ * by itself. The options are `stepTrip`'s; nothing changes in a system whose fights have no turns.
+ */
+export function encounterTrip(
+  options: Parameters<typeof stepTrip>[0],
+  session: SessionState,
+  what: 'start' | 'end',
+): ReturnType<typeof stepTrip> {
+  if (!options.system.encounter) return { state: session, entries: [], discovered: {}, laid: [] }
+  const s = structuredClone(session)
+  s.lastStep = s.nextEntry
+  changeEncounter(s, 'encounter', what)
+  // Played on with a moment that names nothing: what the encounter does comes after it.
+  return stepTrip(options, s, { type: 'moment', at: 'encounter.none' })
 }
 
 /**
@@ -1624,7 +1715,7 @@ const copyOf = (session: SessionState): SessionState => JSON.parse(JSON.stringif
 export function tripAvailability(
   options: { system: TravelSystem; world?: TravelWorld; facts?: Record<string, unknown> },
   session: SessionState,
-): Record<string, Unavailable> {
+): Record<string, Unavailable | EncounterUnavailable> {
   const engine = createTravelEngine({
     world: relatedWorld(options.world ?? NO_WORLD, session.members),
     rules: options.system.rules,
@@ -1634,7 +1725,7 @@ export function tripAvailability(
   })
   const current = copyOf(session)
   refreshParty(current, partyOf(options.system))
-  return engine.availability(
+  const out: Record<string, Unavailable | EncounterUnavailable> = engine.availability(
     current.travel,
     tripContext(
       current,
@@ -1643,6 +1734,14 @@ export function tripAvailability(
       partyOf(options.system),
     ),
   )
+  // What a fight closes, or opens only in one.
+  encounterAvailability(
+    current,
+    options.system.encounter,
+    Object.keys(options.system.rules.actions ?? {}),
+    out,
+  )
+  return out
 }
 
 /**

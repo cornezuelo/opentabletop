@@ -221,6 +221,19 @@ When the system has a [bestiary](07-kinds.md#bestiaries) and a result made copie
 
 Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party-effects)): `present.wolf: 2` (two more wolves), `present.wolf.values.health: -1` (every wolf here), `present.all.conditions.routed: true` (everyone here), `characters.wolf-2.values.health: -1` (one). Copies the party left behind aren't here, and those whose template says `behind: leave` are gone; a copy with a condition that `leaves` is gone at once.
 
+## An encounter, `encounter.*`
+
+While a [fight in turns](07-kinds.md#systems) goes on (its system's `encounter:`); absent otherwise, so `encounter.round: { gte: 1 }` holds only in a fight.
+
+| Name              | Kind        | Values                                                                               |
+| ----------------- | ----------- | ------------------------------------------------------------------------------------ |
+| `encounter.round` | number      | The round, 1 the first.                                                              |
+| `encounter.turn`  | id          | Whose turn it is: a member's id (`party` for a party played as a whole) or a copy's. |
+| `encounter.side`  | id          | That one's side: `party` or `foes`.                                                  |
+| `encounter.order` | list of ids | Who acts, in order.                                                                  |
+
+Whoever's turn it is is also `acting.*`, a member or a copy: `acting.values.morale` on a foe's turn is that foe's. Effects reach it by the same name (`acting.conditions.routed: true`).
+
 ## The world, `world.*`, and factions
 
 When the campaign has its world clock (Map's World panel, the Campaign app), on its maps and in Travel's trips played in it; also in hand rolls.

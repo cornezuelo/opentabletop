@@ -152,6 +152,24 @@ travel-rules/default:
       do:
         struck:
           say: 'Un golpe, a uno de ellos.'
+    stand:
+      name: Plantar cara
+      description: 'Con enemigos aquí: un combate por turnos, cada uno en el orden de lo que saca (1d6 y Sigilo, o el Daño de un enemigo), un minuto por ronda, hasta que no quede ningún enemigo. Golpear a uno en vuestros turnos, o replegaros.'
+      do:
+        steel:
+          say: 'Aceros fuera: la Compañía no cede.'
+    fall-back:
+      name: Replegarse
+      description: 'En un combate, en el turno de un compañero: la Compañía cede terreno y el combate acaba; los enemigos siguen aquí.'
+      do:
+        back:
+          say: 'La Compañía se repliega, paso a paso, con las armas en alto.'
+    nerve-breaks:
+      name: Se les quiebra el ánimo
+      description: 'En el turno de cada enemigo, en un combate: 2d6 por encima de su Moral y huye, salvo que esté enfurecido.'
+      do:
+        runs:
+          say: 'Uno de ellos pierde el valor y huye.'
     delve:
       name: Explorar la ruina
       description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'

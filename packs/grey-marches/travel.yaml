@@ -741,6 +741,38 @@ actions:
       - effects:
           { party.items.ration: '-{{present.count}}', present.all.conditions.bought-off: true }
       - { id: paid, say: 'The outlaws take the food and melt back into the hills.' }
+  # A fight in turns (system.yaml: `encounter:`), begun by an effect (`encounter: start`). In
+  # it only Strike one down and Fall back are open, on a companion's turn; the rest wait.
+  stand:
+    name: Stand and fight
+    description: 'With foes here: a fight in turns, each one in the order of what it rolls (1d6 and Stealth, or a foe’s Harm), a minute a round, until no foe is left. Strike one down on your turns, or fall back.'
+    when: { present.count: { gte: 1 } }
+    unless: { present.tags: vale }
+    hideWhenUnavailable: true
+    do:
+      - { effects: { encounter: start } }
+      - { id: steel, say: 'Steel out: the Company stands its ground.' }
+  # Ending a fight by an effect (`encounter: end`): the Company gives ground, and the foes
+  # stay where they are.
+  fall-back:
+    name: Fall back
+    description: 'In a fight, on a companion’s turn: the Company gives ground and the fight ends; the foes are still here.'
+    when: { encounter.round: { gte: 1 } }
+    hideWhenUnavailable: true
+    do:
+      - { effects: { encounter: end } }
+      - { id: back, say: 'The Company falls back, step by step, weapons up.' }
+  # On each foe's turn (`on: encounter.turn`, `encounter.side: foes`), whoever's turn it is
+  # acts (`acting.*`, the copy): 2d6 over its Morale and it runs, unless it's enraged.
+  nerve-breaks:
+    name: Nerve breaks
+    description: 'On each foe’s turn in a fight: 2d6 over its Morale and it runs, unless it’s enraged.'
+    on: encounter.turn
+    when: { encounter.side: foes, acting.values.morale: { lt: '{{2d6}}' } }
+    unless: { acting.conditions: enraged }
+    do:
+      - { effects: { acting.conditions.routed: true } }
+      - { id: runs, say: 'One of them loses its nerve and runs.' }
   # A reaction on those present (a moment written as a condition): once the pack leader is
   # gone (down, by hand…) with grey wolves still here, the rest of the pack runs.
   pack-breaks:

@@ -3,6 +3,7 @@ import type { Compiled, Registry } from '@open-tabletop/oracle-engine'
 import {
   availableActions,
   CHECK_MOMENTS,
+  ENCOUNTER_MOMENTS,
   declaredValues,
   FACT_PATHS,
   choiceIds,
@@ -120,6 +121,7 @@ export function contextSuggestions(
     items,
     bestiary,
     templateSheets,
+    encounter,
   } of systems) {
     // A system that isn't loaded names nothing.
     if (pack !== undefined && !ours(pack)) continue
@@ -131,6 +133,13 @@ export function contextSuggestions(
       if (!(d.id in FACT_PATHS)) add(d.id, ...parts)
       add('time.tags', ...d.parts.flatMap((p) => p.tags))
       for (const p of d.parts) add(`system.${d.id}.${p.id}`)
+    }
+    // Its fights in turns: the round, whose turn it is and that one's side.
+    if (encounter) {
+      add('encounter.round', 1, 2, 3)
+      add('encounter.turn')
+      add('encounter.side', 'party', 'foes')
+      add('encounter.order')
     }
     // Its progress clocks, by their declared ids: how many segments are filled.
     for (const [id, c] of Object.entries(clocks?.def.clocks ?? {}))
@@ -257,6 +266,7 @@ export function contextSuggestions(
     add('doing', ...taken)
     add('doneToday', ...taken)
     add('moment', ...CHECK_MOMENTS, ...taken.map((a) => ref('actions', a)))
+    if (encounter) add('moment', ...ENCOUNTER_MOMENTS)
     for (const id of taken) add(`trip.taken.${id}`)
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)
@@ -415,12 +425,18 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     templateSheets,
     places,
     rules,
+    encounter,
   } of travelSystems(registry).systems) {
     // The connections of a kind leaving the party's place (a hidden path found).
     // and a way of a kind into a new map, made from it.
     for (const kind of Object.keys(rules.connections ?? {})) {
       out[`place.connections.${kind}.state`] = ['open', 'shut']
       out[`place.ways.${kind}`] = ['1']
+    }
+    // A fight in turns started or ended, and which side goes first.
+    if (encounter) {
+      out.encounter = ['start', 'end']
+      out['encounter.first'] = ['party', 'foes']
     }
     // Places made on the party's hex from its catalogues.
     for (const c of places ?? [])

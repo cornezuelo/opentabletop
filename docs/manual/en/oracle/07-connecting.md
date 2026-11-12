@@ -363,6 +363,7 @@ The Grey Marches' **Ride with a carter** uses it on the road.
 - another check (`checks.<event>`): right after it's resolved (`at: checks.WEATHER_CHECK_REQUIRED`);
 - several, as a list: the Grey Marches roll encounters `at: [trip.place-enter, actions.rest]`, and their condition tells the two apart with `trip.moment` (the table sees it too);
 - a moment of the world (below): `at: world.turn`, `at: world.clocks.<id>.full`;
+- a fight's moment, in a system whose fights go in turns: `at: encounter.start`, `encounter.round`, `encounter.turn`, `encounter.end` ([Fights in turns](../technical/07-kinds.md#systems));
 - a condition turning true (below): `at: { when: { world.clocks.the-siege: { gte: 6 } } }`, once as it does;
 - none: only a step's `roll:` rolls it.
 

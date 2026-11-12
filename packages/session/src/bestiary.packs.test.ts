@@ -183,3 +183,94 @@ describe('the bundled packs make foes from their bestiaries', () => {
     expect(done.state.present).toEqual([])
   })
 })
+
+describe('the bundled packs fight in turns', () => {
+  const people = (system: typeof marches) => {
+    const rules = partyOf(system)
+    return [
+      newMember(rules, { id: 'kael', name: 'Kael', values: { stealth: 3 } }),
+      newMember(rules, { id: 'mara', name: 'Mara', values: { stealth: 0 } }),
+    ]
+  }
+  /** Plays a fight to its end: each companion's turn a Strike one down at the first foe here. */
+  function fight(system: typeof marches, start: string, seed: string) {
+    const { session } = startTrip({
+      system,
+      location: 'a',
+      members: people(system),
+      seed,
+      time: 9 * 60,
+    })
+    const options = {
+      system,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(2) }),
+    }
+    let s = applyResult(
+      session,
+      { effects: { 'present.bandit': 2, 'present.foe': 2 } },
+      {},
+      partyOf(system),
+    )
+    const lines: string[] = []
+    let done = stepTrip(options, s, { type: 'action', id: start })
+    const first = done.state.encounter?.order ?? []
+    for (let turn = 0; turn < 60 && done.state.encounter; turn++) {
+      lines.push(...done.entries.map((e) => e.code))
+      s = done.state
+      const foe = s.present!.find((p) => p.at === s.travel.location)!.character.id
+      done = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe } })
+      // Its ask: who to strike, answered with the one given.
+      if (done.state.travel.waiting)
+        done = stepTrip(options, done.state, { type: 'resume', choice: foe })
+    }
+    lines.push(...done.entries.map((e) => e.code))
+    return { state: done.state, lines, first }
+  }
+
+  it('the Grey Marches: Stand and fight, turns by what each one rolls, foes whose nerve breaks, over when none is left', () => {
+    // (The example maps aren't loaded here.)
+    expect(problems.filter((p) => !p.at?.includes('.maps.'))).toEqual([])
+    expect(marches.encounter?.order).toEqual({
+      by: 'participant',
+      value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' },
+    })
+    const { state, lines } = fight(marches, 'stand', 'g')
+    expect(lines[0]).toBe('ACTION_TAKEN')
+    expect(lines).toContain('ENCOUNTER_STARTED')
+    expect(lines.filter((l) => l === 'ENCOUNTER_TURN').length).toBeGreaterThan(2)
+    // Kael rolls 1d6 and his Stealth (3), Mara 1d6 and hers (0), each bandit 1d6 and its Harm.
+    const order = fight(marches, 'stand', 'g').first
+    expect(order).toEqual(['kael', 'bandit-2', 'bandit', 'mara'])
+    expect(lines.at(-1)).toBe('ENCOUNTER_ENDED')
+    expect(state.encounter).toBeUndefined()
+    expect(state.present?.filter((p) => p.at === state.travel.location) ?? []).toEqual([])
+    // Rounds of a minute: time went on as the rounds came.
+    const rounds = lines.filter((l) => l === 'ENCOUNTER_ROUND').length
+    expect(state.travel.time).toBeGreaterThanOrEqual(9 * 60 + rounds - 1)
+  })
+
+  it("a foe's nerve breaks on its turn: 2d6 over its Morale and it runs", () => {
+    let ran = 0
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f'])
+      ran += fight(marches, 'stand', seed).lines.filter((l) => l === 'PRESENT_LEFT').length
+    expect(ran).toBeGreaterThan(0)
+  })
+
+  it('Core: Fight, the party first, a Strike on each turn, over when no foe is left', () => {
+    expect(core.encounter).toEqual({
+      order: { by: 'side', first: 'party' },
+      actions: ['strike'],
+      ends: { 'present.count': 0 },
+    })
+    const { state, lines } = fight(core, 'fight', 'c')
+    expect(lines.slice(0, 4)).toEqual([
+      'ACTION_TAKEN',
+      'ENCOUNTER_STARTED',
+      'ENCOUNTER_ROUND',
+      'ENCOUNTER_TURN',
+    ])
+    expect(lines.at(-1)).toBe('ENCOUNTER_ENDED')
+    expect(state.encounter).toBeUndefined()
+  })
+})

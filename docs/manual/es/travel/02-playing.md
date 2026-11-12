@@ -146,6 +146,14 @@ Un sistema con un [bestiario](../technical/07-kinds.md#bestiarios) puede hacer *
 
 La caja **Aquí**, en la pestaña **Grupo** bajo los personajes, los muestra: los que están donde el grupo, como tarjetas plegadas agrupadas por plantilla (_Lobo gris ×4_), cada una con su ficha al desplegarla, que se edita a mano como la de un miembro. **×** quita uno (pregunta antes: Ctrl+Z no lo recupera), **Guardar en el plantel** lo convierte en un personaje de la [app Personajes](../characters/01-getting-started.md), enlazado a este viaje; **Añadir del bestiario** hace uno a mano, como haría un efecto `present.<plantilla>: 1`, y **Del plantel** trae un personaje del plantel hecho con la hoja de los personajes del sistema o de sus plantillas (una criatura o un PNJ hechos en la aplicación Personajes), enlazado a este viaje, como uno de los presentes: las tablas y las reglas lo leen como a los demás (en las Marcas Grises, un lobo gris traído solo huye enseguida, porque la manada se rompe sin su jefe). Los hechos en lugares que el grupo dejó se cuentan bajo la lista (_4 dejados atrás en otros lugares_), que se despliega en las mismas tarjetas con dónde está cada uno. En un mapa, un clic en su token abre aquí su tarjeta, y arrastrarlo lo mueve ([Jugar](../map/08-play.md)). Una campaña que añade packs suma también sus plantillas al bestiario del sistema.
 
+### Un combate por turnos
+
+Un sistema puede jugar sus combates por turnos ([Combates por turnos](../technical/07-kinds.md#sistemas)): los empieza una acción o un resultado (**Plantar cara** en las Marcas Grises, **Luchar** en Core). El diario lo cuenta (_Empieza un combate_, _Ronda 1_, _Turno de Kael_), y mientras dura el viaje espera:
+
+- **En el turno de un personaje** es él quien actúa, y solo están abiertas las acciones de combate del sistema (**Golpear a uno** y **Replegarse** en las Marcas Grises); los demás botones dicen _No durante un combate_. Tomar una termina el turno.
+- **Los turnos de los enemigos** pasan por sí solos: ocurre lo que el sistema hace en ellos (en las Marcas Grises, un enemigo al que se le quiebra el ánimo huye) y llega el turno siguiente.
+- **Las rondas** se suceden, cada una con los minutos que diga el sistema, hasta que no queda ningún enemigo, lo acaba la regla del sistema o una acción (**Replegarse**): _Se acabó el combate_.
+
 ### Lugares creados por el camino
 
 Un sistema con [catálogos de lugares](../technical/07-kinds.md#lugares) puede crear un lugar donde está el grupo (el **Explorar** de Core, con un 6: un _Hito_). Un viaje sin mapa no tiene casillas donde escribirlo, así que lo anota el diario (_Un lugar aquí: Hito — Algo que merece la pena volver a encontrar._); jugado sobre un mapa en la aplicación Mapa, se convierte en un punto de interés de la casilla.

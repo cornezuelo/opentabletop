@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -26,6 +26,16 @@ factions: factions.default
 items: [items.gear]
 # Who walks the Marches (bestiary.yaml): the templates its encounters make copies of.
 bestiary: [bestiary.marches]
+# Its fights in turns (travel.yaml's Stand and fight, Strike one down, Fall back): each one in
+# the order of what it rolls, 1d6 and its Stealth for a companion, 1d6 and its Harm for a foe;
+# a round is a minute; over once no foe is left. A foe's turn tests its nerve (Nerve breaks).
+encounter:
+  order:
+    by: participant
+    value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' }
+  actions: [actions.strike, actions.fall-back]
+  minutes: 1
+  ends: { present.count: 0 }
 # The places of the Marches (places.yaml): what discovery's contents make on a hex.
 places: [places.default]
 # The threats of the Marches (clocks.yaml): the progress clocks its world clock starts with.

@@ -1,6 +1,6 @@
 # Conflicts: combat and contests
 
-**Status: decided with the user on 2026-11-12** (written the same day on autopilot; the answers are in section 6). Phase 1 is built; phases 2 and 3 are next. It answers point 9 of the user's eleven (backlog: _Conflicts (combat, chases, debates, contests), only if a generic machine falls short_) and the **Combat** gap the real systems found (Ker Nethalas first, Kal-Arath, The One Ring, Twilight 2000…).
+**Status: decided with the user on 2026-11-12** (written the same day on autopilot; the answers are in section 6). Phase 1 is built; phase 2's headless part too (2026-11-12: `session`'s encounter, Core and the Grey Marches); the fight panel, fights without a trip and foes' action tables are next. It answers point 9 of the user's eleven (backlog: _Conflicts (combat, chases, debates, contests), only if a generic machine falls short_) and the **Combat** gap the real systems found (Ker Nethalas first, Kal-Arath, The One Ring, Twilight 2000…).
 
 The user's rule for it (2026-10-20): "lo implementaría solo si se demuestra que una máquina de estados genérica reutilizando Session y Character Engine no es suficiente". So this document first says what the tools already do, then the smallest additions that make a turn-by-turn fight playable, each one a generic mechanism a system declares, never a game's rule.
 

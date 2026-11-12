@@ -11,18 +11,19 @@ No se llaman entre sí: cada uno oye los momentos del otro a través de la campa
 
 ## Todos los momentos
 
-| Momento                                                    | Lo oye        | Cuándo                                                                                                           |
-| ---------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------- |
-| una hora (`'06:00'`)                                       | viaje         | cuando suena, marchando, esperando o durmiendo en el campamento                                                  |
-| una parte del día (`time.part.morning`)                    | viaje         | cuando empieza esa parte del calendario                                                                          |
-| `trip.place-enter`                                         | viaje         | al entrar en cada casilla                                                                                        |
-| `time.day-end`                                             | viaje         | al acabar cada día del viaje, a medianoche                                                                       |
-| una acción (`actions.camp`)                                | viaje         | cuando el grupo la hace, antes de sus pasos                                                                      |
-| el final de una acción (`actions.camp.done`)               | viaje         | cuando acaban sus pasos                                                                                          |
-| una comprobación (`checks.WEATHER_CHECK_REQUIRED`)         | viaje         | justo después de resolverse (después de **Continuar**, si pausaba)                                               |
-| un reloj del mundo que se llena (`world.clocks.<id>.full`) | mundo y viaje | cuando se llena uno de los relojes de progreso de la campaña, lo llene lo que lo llene                           |
-| un turno del mundo (`world.turn`)                          | mundo y viaje | cuando todas las facciones han hecho su turno, lo traiga lo que lo traiga (los días, una mano, `do: world.turn`) |
-| una condición que pasa a cumplirse (`{ when: … }`)         | mundo y viaje | una vez, cuando pasa a cumplirse, la cambie lo que la cambie; otra vez solo después de dejar de cumplirse        |
+| Momento                                                                   | Lo oye        | Cuándo                                                                                                           |
+| ------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------- |
+| una hora (`'06:00'`)                                                      | viaje         | cuando suena, marchando, esperando o durmiendo en el campamento                                                  |
+| una parte del día (`time.part.morning`)                                   | viaje         | cuando empieza esa parte del calendario                                                                          |
+| `trip.place-enter`                                                        | viaje         | al entrar en cada casilla                                                                                        |
+| `time.day-end`                                                            | viaje         | al acabar cada día del viaje, a medianoche                                                                       |
+| una acción (`actions.camp`)                                               | viaje         | cuando el grupo la hace, antes de sus pasos                                                                      |
+| el final de una acción (`actions.camp.done`)                              | viaje         | cuando acaban sus pasos                                                                                          |
+| una comprobación (`checks.WEATHER_CHECK_REQUIRED`)                        | viaje         | justo después de resolverse (después de **Continuar**, si pausaba)                                               |
+| un reloj del mundo que se llena (`world.clocks.<id>.full`)                | mundo y viaje | cuando se llena uno de los relojes de progreso de la campaña, lo llene lo que lo llene                           |
+| un turno del mundo (`world.turn`)                                         | mundo y viaje | cuando todas las facciones han hecho su turno, lo traiga lo que lo traiga (los días, una mano, `do: world.turn`) |
+| los momentos de un combate (`encounter.start`, `.round`, `.turn`, `.end`) | viaje         | en un [combate por turnos](07-kinds.md#sistemas), al empezar, al empezar cada ronda y cada turno, al acabar      |
+| una condición que pasa a cumplirse (`{ when: … }`)                        | mundo y viaje | una vez, cuando pasa a cumplirse, la cambie lo que la cambie; otra vez solo después de dejar de cumplirse        |
 
 Una condición es el momento de todo lo que no tiene nombre propio: una condición o un valor de un personaje (`party.members.conditions.wounded`, con `for: party.members`), un valor que llega a su límite (`trip.below: party.values.food`), un cambio de clima (`trip.weather: storm`), el día de un evento o una festividad (`world.events: market-day`), un valor de una facción (`factions.fort-keld.values.strength: { lte: 0 }`), una estación (`time.season: winter`). Las condiciones del viaje leen lo que ven las tablas en un viaje ([Lo que ven las tablas](04-what-tables-see.md)); las del mundo, solo el mundo.
 
