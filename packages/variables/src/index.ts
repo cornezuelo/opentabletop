@@ -287,10 +287,19 @@ export function onceRoller(random: RandomSource, onRoll?: (result: DiceResult) =
   }
 }
 
-/** The bounds a value declares: its `min` / `max`, or none. */
+/**
+ * The bounds a value declares: its `min` / `max`, or none; and its `steps`, the only numbers
+ * it may be (a die's sizes, `[4, 6, 8]`), which adding moves along one by one.
+ */
 export interface Bounds {
   min?: number
   max?: number
+  steps?: number[]
+}
+
+/** The step nearest to `n` (the lower of two as near). */
+function nearestStep(n: number, steps: number[]): number {
+  return steps.reduce((best, s) => (Math.abs(s - n) < Math.abs(best - n) ? s : best), steps[0])
 }
 
 /**
@@ -328,7 +337,9 @@ export function resolveChange(
 
 /**
  * A value changed by an effect: a number adds (also as text, '+2'), '=3' sets; the result
- * stops at the bounds, and `limit` says which one it was cut by.
+ * stops at the bounds, and `limit` says which one it was cut by. A value with `steps` is
+ * always one of them: adding moves that many steps up (or down, `-1`: a d8 to a d6), past the
+ * last one cut there; setting takes the step nearest.
  */
 export function changeValue(
   from: number,
@@ -343,6 +354,14 @@ export function changeValue(
         : undefined
   const set =
     typeof change === 'string' && change.startsWith('=') ? number(change.slice(1)) : undefined
+  const steps = bounds.steps?.length ? [...bounds.steps].sort((a, b) => a - b) : undefined
+  if (steps) {
+    if (set !== undefined) return { to: nearestStep(set, steps) }
+    const at = steps.indexOf(nearestStep(from, steps)) + Math.trunc(number(change) ?? 0)
+    if (at < 0) return { to: steps[0], limit: 'min' }
+    if (at >= steps.length) return { to: steps.at(-1)!, limit: 'max' }
+    return { to: steps[at] }
+  }
   const wanted = set !== undefined ? set : from + (number(change) ?? 0)
   if (bounds.min !== undefined && wanted < bounds.min) return { to: bounds.min, limit: 'min' }
   if (bounds.max !== undefined && wanted > bounds.max) return { to: bounds.max, limit: 'max' }

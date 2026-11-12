@@ -12,7 +12,7 @@ sheet/companion:
     `default: '{{1d3+2}}'`), cada valor mostrado a su manera (las habilidades
     como puntos, la salud como una barra cuyo tono baja con ella, el
     pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12
-    (`display: levels`), el número de un vínculo como puntos), un valor que sale de otros (las
+    (`steps: [4, 6, 8, 10, 12]`, `display: die`), el número de un vínculo como puntos), un valor que sale de otros (las
     heridas, `from: '{{self.values.maxHealth - self.values.health}}'`), grupos con nombre, estados que bloquean una
     acción, una forma de viajar o el propio viaje, estados que se cumplen por sí solos (`when:`:
     _Aterrado_ mientras el pavor está lleno, _Mareado_ mientras el grupo viaja en barco, leyendo el

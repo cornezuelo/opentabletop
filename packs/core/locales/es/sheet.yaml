@@ -34,10 +34,13 @@ sheet/party:
 sheet/map:
   name: Este mapa
   description: |-
-    Lo que guarda cada mapa como suyo en las reglas genéricas: cuántas veces lo ha explorado el grupo.
+    Lo que guarda cada mapa como suyo en las reglas genéricas: cuántas veces lo ha explorado el grupo, y el dado que tira explorar para un hito.
 
-    **Enseña:** la hoja de cada mapa más pequeña (`mapSheet`): un valor que guarda cada mapa (`map.values.explored`), que sube una acción (`map.values.explored: 1`) y que el viaje vuelve a encontrar cuando regresa al mapa.
+    **Enseña:** la hoja de cada mapa más pequeña (`mapSheet`): un valor que guarda cada mapa (`map.values.explored`), que sube una acción (`map.values.explored: 1`) y que el viaje vuelve a encontrar cuando regresa al mapa; y el dado escalonado más pequeño (`steps: [4, 6]`, `display: die`), un d6 que baja a d4 (`map.values.finds: -1`).
   values:
     explored:
       name: Explorado
       description: Cuántas veces ha explorado el grupo este mapa (Explorar). Tus tablas pueden leerlo.
+    finds:
+      name: Dado de hallazgos
+      description: El dado que tira Explorar para un hito en este mapa; un 6 encuentra uno. Cuando se encuentra uno, baja a d4.

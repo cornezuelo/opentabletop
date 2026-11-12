@@ -217,10 +217,9 @@ function syncPartySheet(s: PartyTarget, rules: PartyRules): void {
       s.stats[stat] = s.party.values[value] ?? 0
       continue
     }
-    const { min, max } = boundsOf(sheet, s.party, value)
-    const at = s.stats[stat] ?? s.party.values[value]
+    const at: number | undefined = s.stats[stat] ?? s.party.values[value]
     if (at === undefined) continue
-    const to = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, at))
+    const to: number = changeValue(at, 0, boundsOf(sheet, s.party, value)).to
     s.stats[stat] = to
     if (s.party.values[value] !== to)
       s.party = { ...s.party, values: { ...s.party.values, [value]: to } }

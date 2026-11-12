@@ -266,7 +266,7 @@
         "maxHealth": 3,
         "health": 3,
         "dread": 0,
-        "nerve": 2
+        "nerve": 8
       },
       "ext": {
         "character": {
@@ -333,7 +333,7 @@
         "maxHealth": 3,
         "health": 3,
         "dread": 0,
-        "nerve": 2
+        "nerve": 8
       },
       "ext": {
         "character": {
@@ -388,7 +388,7 @@
         "maxHealth": 4,
         "health": 4,
         "dread": 0,
-        "nerve": 2
+        "nerve": 8
       },
       "ext": {
         "character": {
@@ -494,7 +494,7 @@
             "maxHealth": 3,
             "health": 3,
             "dread": 0,
-            "nerve": 2
+            "nerve": 8
           },
           "relations": [
             {

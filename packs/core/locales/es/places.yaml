@@ -11,9 +11,9 @@ places/default:
 place-found:
   name: ¿Un lugar?
   description: |-
-    Si explorar encuentra un lugar que merece la pena marcar: con un 6, un **Hito**.
+    Si explorar encuentra un lugar que merece la pena marcar: con un 6, un **Hito**. Tira el dado de Hallazgos del mapa, un d6 que baja a d4 cuando se encuentra un hito, así que un mapa tiene uno.
 
-    **Enseña:** un resultado que crea un lugar con una plantilla (`effects: { place.pois.landmark: 1 }`).
+    **Enseña:** un resultado que crea un lugar con una plantilla (`effects: { place.pois.landmark: 1 }`); un dado cuyo tamaño es un valor escalonado (`roll: '1d{{max(map.values.finds, 4)}}'`, `map.values.finds: -1`).
   entries:
     nothing: Nada que merezca la pena marcar
     landmark: Un hito que merece la pena marcar

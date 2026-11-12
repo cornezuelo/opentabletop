@@ -25,6 +25,8 @@ export interface ValueView {
   max?: number
   /** What it's drawn against when that isn't its max (`of:`, a load against a capacity). */
   of?: number
+  /** The only numbers it may be (`steps:`, a die's sizes), in order. */
+  steps?: number[]
   /** The tone of its threshold reached, if the sheet gives tones. */
   tone?: Tone
   /** How full it is, 0 to 1 (for bars), against its `of` or its max. */
@@ -42,7 +44,7 @@ export interface ValueView {
 export function valueView(
   looks: Looks,
   value: number,
-  bounds: { min?: number; max?: number; of?: number },
+  bounds: { min?: number; max?: number; of?: number; steps?: number[] },
   locale: string,
 ): ValueView {
   const display = displayOf(looks)

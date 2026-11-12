@@ -63,12 +63,20 @@ kind: sheet
 id: map
 name: This map
 description: |-
-  What each map keeps of its own in the Generic rules: how many times the party has explored it.
+  What each map keeps of its own in the Generic rules: how many times the party has explored it, and the die exploring rolls for a landmark.
 
-  **Shows:** the smallest sheet of each map (`mapSheet`): one value each map keeps (`map.values.explored`), which an action raises (`map.values.explored: 1`) and the trip finds again when it comes back to the map.
+  **Shows:** the smallest sheet of each map (`mapSheet`): a value each map keeps (`map.values.explored`), which an action raises (`map.values.explored: 1`) and the trip finds again when it comes back to the map; and the smallest die that steps (`steps: [4, 6]`, `display: die`), a d6 that drops to a d4 (`map.values.finds: -1`).
 values:
   explored:
     name: Explored
     description: How many times the party has explored this map (Explore). Your tables may read it.
     default: 0
     min: 0
+  # A die that steps down: a d6 until a landmark is found here, then a d4, which can't roll
+  # the 6 another one needs (places.yaml).
+  finds:
+    name: Finds die
+    description: The die Explore rolls for a landmark on this map, a 6 finding one. Once one is found it drops to a d4.
+    default: 6
+    steps: [4, 6]
+    display: die

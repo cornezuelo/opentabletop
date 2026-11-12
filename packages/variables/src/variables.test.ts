@@ -1,6 +1,7 @@
 import { seeded, sequence } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import {
+  changeValue,
   evaluate,
   hasVariables,
   isRoll,
@@ -134,5 +135,24 @@ describe('rolls', () => {
     expect(roller('1d6')).toBe(1)
     expect(heard).toEqual([11, 1])
     expect(onceRoller(seeded(1))('dawn')).toBeUndefined()
+  })
+})
+
+describe('changeValue with steps', () => {
+  const die = { steps: [8, 4, 6] }
+
+  it('adding moves along the steps, a d8 down to a d6, cut at the last one', () => {
+    expect(changeValue(8, -1, die)).toEqual({ to: 6 })
+    expect(changeValue(8, '-2', die)).toEqual({ to: 4 })
+    expect(changeValue(4, -1, die)).toEqual({ to: 4, limit: 'min' })
+    expect(changeValue(6, 3, die)).toEqual({ to: 8, limit: 'max' })
+    expect(changeValue(6, 0, die)).toEqual({ to: 6 })
+  })
+
+  it('setting, or a value off the steps, takes the nearest step', () => {
+    expect(changeValue(8, '=5', die)).toEqual({ to: 4 })
+    expect(changeValue(8, '=7', die)).toEqual({ to: 6 })
+    expect(changeValue(20, 0, die)).toEqual({ to: 8 })
+    expect(changeValue(7, -1, die)).toEqual({ to: 4 })
   })
 })

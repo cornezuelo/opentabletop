@@ -40,17 +40,19 @@ What the party takes from its characters is said in [Checks](06-checks.md) (**Fr
 
 Each value says how it's drawn wherever a character is shown (a trip's **Party** tab, a token's sheet, a faction on the World panel, the Characters app), in its **Shown as** column. It changes nothing of how the value plays: tables and effects read and change the same number.
 
-| Shown as | Looks like                                       | For                                                                             |
-| -------- | ------------------------------------------------ | ------------------------------------------------------------------------------- |
-| (empty)  | a box with the number                            | anything; values without a max                                                  |
-| `of`     | the number beside its max: **2 / 6**             | what's carried, what's left                                                     |
-| `bar`    | a bar filled up to its max, with **−** and **+** | health, hit points, a pool that empties                                         |
-| `boxes`  | boxes to tick, as many as its max                | stress, xp, a vow's progress; one box is a yes or no                            |
-| `pips`   | round dots, as many as its max                   | ratings from 1 to 5, a bond from 0 to 3                                         |
-| `dial`   | a round clock with as many segments as its max   | a faction's strength, a countdown                                               |
-| `levels` | a list of names to choose from                   | harm (_Unhurt_ … _Dying_), a die size (`d4` … `d12`), how a faction regards you |
+| Shown as | Looks like                                                  | For                                                  |
+| -------- | ----------------------------------------------------------- | ---------------------------------------------------- |
+| (empty)  | a box with the number                                       | anything; values without a max                       |
+| `of`     | the number beside its max: **2 / 6**                        | what's carried, what's left                          |
+| `bar`    | a bar filled up to its max, with **−** and **+**            | health, hit points, a pool that empties              |
+| `boxes`  | boxes to tick, as many as its max                           | stress, xp, a vow's progress; one box is a yes or no |
+| `pips`   | round dots, as many as its max                              | ratings from 1 to 5, a bond from 0 to 3              |
+| `dial`   | a round clock with as many segments as its max              | a faction's strength, a countdown                    |
+| `levels` | a list of names to choose from                              | harm (_Unhurt_ … _Dying_), how a faction regards you |
+| `die`    | a die of its size, **d8**; with **Steps**, chosen from them | a usage die, a die that steps up and down            |
 
-- **All but the empty one and `levels` need a Max**, a number or another value (a bar up to the character's Toughness grows and shrinks with it). Clicking a box, dot or segment sets the value to it; clicking the last filled one empties it; never below the **Min**.
+- **All but the empty one, `levels` and `die` need a Max**, a number or another value (a bar up to the character's Toughness grows and shrinks with it). Clicking a box, dot or segment sets the value to it; clicking the last filled one empties it; never below the **Min**.
+- **Steps** are the only numbers a value may be, in place of a **Min** and a **Max**: `4, 6, 8` is a die of four, six or eight sides. An effect's `-1` takes it a step down (a d8 to a d6) and `+1` a step up, never past the first or the last; `'=7'` sets it to the step nearest. Tables roll it as it is: `roll: '1d{{map.values.exit}}'`, and read it as a number (`map.values.exit: 4`, at its last step). With **Shown as** `die` it's drawn as `d8`; with any other, as the number.
 - **Levels** are names in order, each one a pill (Enter or a comma adds it): the first stands for the value's **Min** (0 without one), the next for one more, and so on. With Min `-3`, `hated, cold, wary, neutral, liked, trusted, beloved` makes −3 _Hated_ and 3 _Beloved_. Beyond the last one, the number is shown. Their names (and a description, shown in the value's help) are translated like the rest of the sheet, by id; a level without a name shows its id (`d8`).
 - **Tones** colour the value from a number up, with the theme's colours: `good` (green), `warning` (amber), `danger` (red) and `accent` (the usual). `0: danger, 2: warning, 4: good` is red at 0 and 1, amber at 2 and 3, green from 4; `5: danger` only turns red at 5. A threshold can be a **share of the Max** instead, which follows a Max that changes: `0: danger, 50%: warning, 75%: good` is red under half, amber from half, green from three quarters (with Max 3: red at 0 and 1, amber at 2, green at 3; with Max 6: green from 5). Bars, boxes, dots, dials and numbers all take it; an empty bar keeps its tone on its frame.
 - **Shown against** another value, when what it's measured by isn't its max: with `of` or `bar`, **Shown against** `'{{self.values.capacity}}'` draws a load as **9 / 8** and a bar full to the brim. It's never a bound (unlike a **Max**, the value goes past it), and the shares in **Tones** are shares of it: `0: good, 100%: warning, 101%: danger` is green under the capacity, amber at it, red over it.

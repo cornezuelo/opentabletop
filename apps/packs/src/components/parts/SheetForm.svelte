@@ -167,6 +167,14 @@
         },
         { field: 'max', label: t('sheet.max'), help: t('sheet.boundHelp'), type: 'value' },
         {
+          field: 'steps',
+          label: t('sheet.steps'),
+          help: t('sheet.stepsHelp'),
+          type: 'list',
+          numbers: true,
+          off: (row) => row.min !== undefined || row.max !== undefined || row.from !== undefined,
+        },
+        {
           field: 'default',
           label: t('sheet.default'),
           help: t('sheet.startRolledHelp'),

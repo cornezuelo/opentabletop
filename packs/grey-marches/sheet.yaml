@@ -16,7 +16,7 @@ description: |-
   `max: '{{self.values.maxHealth}}'`, itself rolled for each new companion,
   `default: '{{1d3+2}}'`), each value shown its own way (skills as pips, health as
   a bar whose tone falls with it, dread as boxes that turn red,
-  nerve as a die that steps from d4 to d12 (`display: levels`), a bond's number as pips), a
+  nerve as a die that steps from d4 to d12 (`steps: [4, 6, 8, 10, 12]`, `display: die`), a bond's number as pips), a
   value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action, a
   way of travelling or travel itself, conditions that hold by themselves (`when:`: _Terrified_
   while dread is full, _Seasick_ while the party travels by boat, reading the world, _Burdened_
@@ -128,16 +128,14 @@ values:
     display: boxes
     tones: { 4: warning, 6: danger }
     group: body
-  # A die that steps up and down (d4 … d12): the value is the step, its levels name the
-  # die. The rite at a shrine steps it up, the Wyrm waking steps it down (travel.yaml).
+  # A die that steps up and down (d4 … d12): the value is the die's size, one of its steps.
+  # The rite at a shrine steps it up (+1), the Wyrm waking steps it down (-1, travel.yaml).
   nerve:
     name: Nerve
     description: The die a companion's courage is, from d4 to d12, rolled when fear takes hold. The Wyrm waking steps it down a die, the rite at a shrine back up.
-    default: 2
-    min: 0
-    max: 4
-    display: levels
-    levels: [d4, d6, d8, d10, d12]
+    default: 8
+    steps: [4, 6, 8, 10, 12]
+    display: die
     group: body
 # The headings the values are shown under, in this order.
 # Each group's description is its help where the sheet is shown, like every part's.
@@ -178,7 +176,7 @@ conditions:
   seasick:
     name: Seasick
     description: On a boat with a nerve of d6 or less. Can't forage while it lasts; it passes on landing.
-    when: { trip.mode: boat, self.values.nerve: { lte: 1 } }
+    when: { trip.mode: boat, self.values.nerve: { lte: 6 } }
     blocks: [actions.forage]
   # Holds by itself while the load is over the capacity: the companion's own items say so.
   burdened:

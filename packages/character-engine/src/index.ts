@@ -64,9 +64,10 @@ const bound = z.union([z.number(), z.string().min(1)])
 /**
  * How a number is shown: as itself (`number`, the default), with its max (`of`: `3 / 5`),
  * as a bar filled to its max, as boxes (stress, a vow's progress), rating dots (`pips`), a
- * round segmented clock (`dial`) or the name of one of the sheet's `levels`.
+ * round segmented clock (`dial`), the name of one of the sheet's `levels` or a die's size
+ * (`die`: `d8`).
  */
-export const DISPLAYS = ['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels'] as const
+export const DISPLAYS = ['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels', 'die'] as const
 export type Display = (typeof DISPLAYS)[number]
 /** The displays drawn up to a max, which the value must have. */
 export const DISPLAYS_WITH_MAX: readonly Display[] = ['of', 'bar', 'boxes', 'pips', 'dial']
@@ -138,6 +139,11 @@ const value = z
     from: z.union([z.string().min(1), itemsFrom]).optional(),
     min: bound.optional(),
     max: bound.optional(),
+    /**
+     * The only numbers it may be, its bounds (a die's sizes, `[4, 6, 8]`): an effect's `-1`
+     * takes it a step down (a d8 to a d6), `'=N'` to the step nearest N.
+     */
+    steps: z.array(z.number()).min(2).optional(),
     /**
      * What it's shown against, never a bound (a load against a capacity): `display: of` and
      * `bar` draw it in place of the max, and shares in `tones` are shares of it.
@@ -305,6 +311,14 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
       )
       if (v.default !== undefined)
         errors.push(`values.${id}.default: not with from (it is made of other values)`)
+    }
+    if (v.steps) {
+      for (const key of ['min', 'max', 'from'] as const)
+        if (v[key] !== undefined)
+          errors.push(`values.${id}.${key}: not with steps (they are its bounds)`)
+      if (new Set(v.steps).size !== v.steps.length) errors.push(`values.${id}.steps: a step twice`)
+      if (typeof v.default === 'number' && !v.steps.includes(v.default))
+        errors.push(`values.${id}.default: one of its steps (${v.steps.join(', ')})`)
     }
     errors.push(...looksErrors(v, `values.${id}`, true))
     for (const key of Object.keys(v.tones ?? {}))
@@ -736,6 +750,10 @@ export function boundsOf(sheet: Sheet, state: CharacterState, id: string): Bound
   if (!def) return {}
   const read = (b: number | string | undefined): number | undefined =>
     typeof b === 'number' ? b : b === undefined ? undefined : readOwn(b, state.values)
+  if (def.steps) {
+    const steps = [...def.steps].sort((a, b) => a - b)
+    return { min: steps[0], max: steps.at(-1)!, steps }
+  }
   const min = read(def.min)
   const max = read(def.max)
   return { ...(min !== undefined && { min }), ...(max !== undefined && { max }) }

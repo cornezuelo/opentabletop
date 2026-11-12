@@ -23,15 +23,17 @@ id: place-found
 tags: [places]
 name: A place found?
 description: |-
-  Whether exploring finds a place worth marking: on a 6, a **Landmark**.
+  Whether exploring finds a place worth marking: on a 6, a **Landmark**. It rolls the map's Finds die, a d6 that drops to a d4 once a landmark is found, so a map has one.
 
-  **Shows:** a result that makes a place from a template (`effects: { place.pois.landmark: 1 }`).
-roll: 1d6
+  **Shows:** a result that makes a place from a template (`effects: { place.pois.landmark: 1 }`); a die whose size is a value that steps (`roll: '1d{{max(map.values.finds, 4)}}'`, `map.values.finds: -1`).
+# At least a d4: rolled in the Oracle, with no map, it has no Finds die.
+# At least a d4: rolled in the Oracle, with no map, there is no Finds die.
+roll: '1d{{max(map.values.finds, 4)}}'
 entries:
   - { id: nothing, range: 1-5, result: Nothing worth marking }
   - {
       id: landmark,
       range: 6,
       result: A landmark worth marking,
-      effects: { place.pois.landmark: 1 },
+      effects: { place.pois.landmark: 1, map.values.finds: -1 },
     }

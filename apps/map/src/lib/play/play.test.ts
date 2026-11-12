@@ -263,7 +263,7 @@ describe('playing on the map', () => {
     // Dread from the lights and the haunted watch, and one more as the Wyrm wakes.
     expect(session.members![0].values.dread).toBe(3)
     // And their nerve a die lower: d8 → d6.
-    expect(session.members![0].values.nerve).toBe(1)
+    expect(session.members![0].values.nerve).toBe(6)
   })
 
   it('a trip hears a clock filled by hand: at once here, on its next step if elsewhere', () => {
@@ -972,7 +972,7 @@ describe('the Company: a party made of characters', () => {
     // as the trip changes and said in the journal; no forage while it lasts.
     editSession((s) => {
       s.members = s.members!.map((m) =>
-        m.id === 'mara' ? { ...m, values: { ...m.values, nerve: 1 } } : m,
+        m.id === 'mara' ? { ...m, values: { ...m.values, nerve: 6 } } : m,
       )
       s.travel = { ...s.travel, mode: 'boat' }
       return s

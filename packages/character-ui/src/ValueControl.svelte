@@ -6,7 +6,8 @@
 
   /**
    * One number of a sheet drawn as the sheet says (`display:`): a number box, the number
-   * with its max, a bar, boxes, rating dots, a round dial or a choice of named levels, in
+   * with its max, a bar, boxes, rating dots, a round dial, a choice of named levels or of
+   * its steps (a die's sizes, `d8`, with `display: die`), in
    * the tone of the threshold it has reached. Clicking it asks for a new value (`onset`);
    * the host keeps it within its bounds.
    */
@@ -128,7 +129,21 @@
         <option value={String(i)}>{level.name}</option>
       {/each}
     </select>
+  {:else if view.steps}
+    <select
+      aria-label={label}
+      value={String(view.value)}
+      {disabled}
+      onchange={(e) => onset(Number(e.currentTarget.value))}
+    >
+      {#if !view.steps.includes(view.value)}<option value={String(view.value)}>{view.value}</option
+        >{/if}
+      {#each view.steps as n (n)}
+        <option value={String(n)}>{view.display === 'die' ? `d${n}` : n}</option>
+      {/each}
+    </select>
   {:else}
+    {#if view.display === 'die'}<span class="die">d</span>{/if}
     <input
       type="number"
       step="any"
@@ -168,6 +183,7 @@
     min-width: 0;
   }
 
+  .control.die,
   .of,
   .bar-row,
   .dial-row {
@@ -180,6 +196,7 @@
     width: 4em;
   }
 
+  .die,
   .max,
   .count {
     color: var(--text-muted);

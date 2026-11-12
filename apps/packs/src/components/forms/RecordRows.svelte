@@ -28,6 +28,8 @@
       | 'custom'
     /** A list's separator as it's typed: commas, or spaces for words with commas (`15,9`). */
     separator?: 'comma' | 'space'
+    /** A list of numbers (`[4, 6, 8]`): what isn't one is left out. */
+    numbers?: boolean
     placeholder?: string
     /** For checks, the value meant when the field is missing. */
     default?: boolean
@@ -272,7 +274,9 @@
     // Items written with more than their id (`{ id: hostile, name: Hostile }`) keep it.
     const before = valueAt(record[id], column.field)
     const kept = Array.isArray(before) ? before : []
-    const items = ids.map((item) => kept.find((k) => itemId(k) === item) ?? item)
+    const items = column.numbers
+      ? ids.map(Number).filter((n) => ids.length && Number.isFinite(n))
+      : ids.map((item) => kept.find((k) => itemId(k) === item) ?? item)
     write(id, column.field, items.length ? items : undefined)
   }
 

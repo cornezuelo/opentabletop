@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { boundsOf, createCharacter, displayOf } from '@open-tabletop/character-engine'
+import {
+  applyCharacter,
+  boundsOf,
+  createCharacter,
+  displayOf,
+} from '@open-tabletop/character-engine'
 import { valueView } from '@open-tabletop/character-ui'
 import { systems } from './packs.svelte'
 
@@ -16,7 +21,7 @@ describe('how the bundled sheets show their values', () => {
       ...Object.values(s.factions!.sheet.def.values),
     ].map(displayOf)
     expect(new Set(shown)).toEqual(
-      new Set(['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels']),
+      new Set(['number', 'of', 'bar', 'boxes', 'pips', 'dial', 'levels', 'die']),
     )
     expect(s.sheet.def.relations.bond.value?.display).toBe('pips')
   })
@@ -47,13 +52,27 @@ describe('how the bundled sheets show their values', () => {
 
   it('a companion’s nerve is a die that steps from d4 to d12', () => {
     const sheet = marches().sheet.def
-    const nerve = (v: number) => valueView(sheet.values.nerve, v, { min: 0, max: 4 }, 'en')
-    expect(nerve(2).levels?.map((l) => l.name)).toEqual(['d4', 'd6', 'd8', 'd10', 'd12'])
-    expect([0, 2, 4].map((v) => nerve(v).levels![nerve(v).level!].name)).toEqual([
-      'd4',
-      'd8',
-      'd12',
-    ])
+    const kael = createCharacter(sheet, marches().sheet.id, { id: 'kael' })
+    expect(kael.values.nerve).toBe(8)
+    const bounds = boundsOf(sheet, kael, 'nerve')
+    expect(valueView(sheet.values.nerve, 8, bounds, 'en')).toMatchObject({
+      display: 'die',
+      steps: [4, 6, 8, 10, 12],
+    })
+    // The Wyrm waking: a die lower; at a d4, no lower.
+    const step = (v: number, by: number) =>
+      applyCharacter(
+        sheet,
+        { ...kael, values: { ...kael.values, nerve: v } },
+        {
+          type: 'change',
+          effects: { 'values.nerve': by },
+        },
+      ).state.values.nerve
+    expect(step(8, -1)).toBe(6)
+    expect(step(4, -1)).toBe(4)
+    expect(step(10, 1)).toBe(12)
+    expect(step(12, 1)).toBe(12)
   })
 
   it('a faction’s reputation is a named level, the first at its min, in every language', () => {
