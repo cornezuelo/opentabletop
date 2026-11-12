@@ -6,7 +6,9 @@
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
-  import { campaigns, scenes } from './lib/campaign.svelte'
+  import { campaigns, open, scenes } from './lib/campaign.svelte'
+  import { systems } from './lib/packs.svelte'
+  import { sceneSystem, translator } from '@open-tabletop/travel-ui'
 
   // Opened without a campaign (the site's root, Home): the one being played, else the
   // newest; with none yet, making one is all it offers.
@@ -15,6 +17,22 @@
     const current = playing.id
     const to = campaigns.list.find((c) => c.id === current) ?? campaigns.list[0]
     if (to) go({ name: 'campaign', id: to.id, tab: 'overview' }, true)
+  })
+  // A new scene asked for (the Oracle's Open a scene): made once, with who the result brought.
+  let making = ''
+  $effect(() => {
+    const view = nav.view
+    if (view.name !== 'newScene' || making === location.hash) return
+    making = location.hash
+    void (async () => {
+      await open.open(view.campaign)
+      const campaign = open.campaign
+      if (!campaign) return go({ name: 'welcome' }, true)
+      const n = scenes.tripsIn(campaign.id).length + 1
+      const name = translator(getLocale)('scenes.unnamed', { n })
+      await scenes.createScene(sceneSystem(campaign, systems.list), campaign.id, name, view.present)
+      go({ name: 'campaign', id: campaign.id, tab: 'scenes', scene: scenes.saved.id }, true)
+    })()
   })
   // A scene asked for wherever it is (a roster character's link): its campaign's Scenes.
   $effect(() => {

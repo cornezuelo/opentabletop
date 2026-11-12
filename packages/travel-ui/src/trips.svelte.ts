@@ -30,7 +30,9 @@ import {
   type TravelSystem,
   type TripAction,
   addEntry,
+  addHandEntries,
   calendarOf,
+  changePresent,
   withAddedPacks,
 } from '@open-tabletop/session'
 import {
@@ -233,6 +235,12 @@ export function readTrips(
   }
   const trip = blank()
   return { version: VERSION, current: trip.id, trips: [trip] }
+}
+
+/** The system a campaign's scenes play: its own, if loaded, else the first there is. */
+export function sceneSystem(campaign: Pick<Campaign, 'system'>, systems: TravelSystem[]): string {
+  const id = systemIdOf(campaign.system ?? '')
+  return (systems.find((s) => s.id === id) ?? systems[0])?.id ?? id
 }
 
 /** Every trip a host keeps in this browser, and which one is open. */
@@ -480,6 +488,30 @@ export class TripStore {
       roster.set(brought.roster)
       return brought.session
     })
+  }
+
+  /**
+   * A new scene in a campaign (kept already), named `name`, with its cast and those a result
+   * brings (`present`: by template, as `present.<template>: n` effects would), and opens it.
+   */
+  async createScene(
+    system: string,
+    campaign: string,
+    name: string,
+    present: Record<string, number> = {},
+  ): Promise<void> {
+    await this.create(system, this.saved.season, campaign)
+    this.rename(name)
+    // They come as those added from the bestiary do: each made, and said in the journal.
+    const brought = Object.entries(present)
+    if (brought.length)
+      this.edit((input) => {
+        const s = structuredClone(input)
+        const events = brought.flatMap(([template, n]) =>
+          changePresent(s, partyOf(this.system), template, n),
+        )
+        return addHandEntries(s, events)
+      })
   }
 
   /** A new scene takes its campaign's cast: the party in it without a trip, and the others. */

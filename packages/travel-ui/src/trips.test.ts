@@ -3,6 +3,8 @@ import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import { corePack, coreSystem } from '../../session/src/core.testing'
 import { describe, expect, it, vi } from 'vitest'
+import { createCampaign, type Campaign } from '@open-tabletop/campaign'
+import type { CampaignKeeper } from '@open-tabletop/ui-kit'
 import { readTrips, TripStore } from './trips.svelte'
 
 const KEY = 'opentabletop.travel.trips'
@@ -128,5 +130,45 @@ describe('a trip store', () => {
     store.start('core', 'spring')
     store.step({ type: 'travel' })
     expect(store.location).toBeLessThanOrEqual(1)
+  })
+
+  it('scenes: one in a campaign kept already, with those a result brings; ending it keeps the campaign', async () => {
+    let campaign: Campaign = { ...createCampaign('vale', 'The Vale'), system: 'core' }
+    const removed: string[] = []
+    // The host's keeper (Campaign's), shared with its scenes.
+    const keeper = {
+      get campaign() {
+        return campaign
+      },
+      open: async () => campaign,
+      read: async () => campaign,
+      set: (next: Campaign) => (campaign = next),
+      write: (next: Campaign) => (campaign = next),
+      remove: (id: string) => removed.push(id),
+    } as unknown as CampaignKeeper
+    const system = coreSystem()
+    const store = new TripStore({
+      key: 'opentabletop.test.scenes',
+      systems: () => [system],
+      oracle: () => undefined,
+      locale: () => 'en',
+      rosterApp: 'scene',
+      campaignApp: 'scene',
+      keeper,
+      scenes: true,
+    })
+    await store.createScene('core', 'vale', 'Scene 1', { foe: 2 })
+    expect(store.tripsIn('vale').map((s) => s.name)).toEqual(['Scene 1'])
+    const session = store.saved.session!
+    expect(session.present?.map((p) => p.character.id)).toEqual(['foe', 'foe-2'])
+    expect(session.journal.length).toBeGreaterThan(0)
+    // It plays in the campaign as a trip does.
+    await store.step({ type: 'action', id: 'fight' })
+    expect(campaign.playing).toMatchObject({ app: 'scene', id: store.saved.id })
+    expect(store.saved.session!.encounter).toBeDefined()
+    store.remove()
+    expect(store.tripsIn('vale')).toEqual([])
+    expect(campaign.playing).toBeUndefined()
+    expect(removed).toEqual([])
   })
 })

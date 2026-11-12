@@ -107,6 +107,7 @@ If the map or trip brings a world of its own (a world clock, factions, Oracle ro
 
 A **scene** is a fight (or any moment) without a trip: the campaign's cast standing at one place with whoever they face, played here as a trip that goes nowhere, with the same panel as Travel's ([Playing a trip](../travel/02-playing.md)): its actions, **Party** tab and journal.
 
+- The Oracle's **Open a scene ↗**, under a result that brings people, opens a new one here with them ([Rolling](../oracle/02-rolling.md)).
 - **New scene** makes one with the campaign's system and takes its cast: the party in the campaign without a trip (if one of the system's party sheet is), with its members, and every other character of the system's sheet in it without a trip ([Characters](#characters)). Without a cast, the party is played as a whole.
 - Add who they face in its **Party** tab, under **Here**: **Add from the bestiary**, or **From the roster**. Then fight: the system's own action starts a fight in turns (Core's **Fight**, the Grey Marches' **Stand and fight**), and the fight panel shows the round and whose turn it is ([A fight in turns](../travel/02-playing.md#characters)).
 - What happens to the cast goes back to the roster as it happens, and the scene's time moves the campaign's world clock, as a trip's does: while a scene plays it's the one going on in the campaign (**Playing** says so), one at a time with its trips.

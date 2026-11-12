@@ -32,6 +32,10 @@ Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Un generador tambié
 
 Tus tiradas guardan sus mazos, sus resultados de una sola vez y su historial en **la campaña en la que juegas**: la que dice **Jugando** en la barra de arriba, la misma en todas las aplicaciones ([La campaña en la que juegas](../campaign/01-getting-started.md#la-campaña-en-la-que-juegas)); **Campaña**, arriba del historial, dice cuál. Haz clic en **Jugando** para elegir otra, o en **No jugar en ninguna campaña** para los propios del Oráculo, en este navegador. Abrir un mapa o un viaje en otra aplicación también la cambia, y el Oráculo la sigue. En una campaña tiras en su mundo: una carta que robas aquí ya no está en el mazo para los viajes de ese mapa, un resultado de una sola vez que salió allí no sale aquí, y el historial es el que muestra el panel del Oráculo del mapa. **Nueva sesión** y **Borrar** actúan entonces sobre los de la campaña. Cuando el mapa o un viaje la cambian en otra ventana, el Oráculo la vuelve a leer. Tu semilla sigue siendo la de este navegador en ambos casos. En una campaña, **Abrir en Campaña ↗**, debajo, la muestra en la aplicación [Campaña](../campaign/01-getting-started.md).
 
+### Quienes trae un resultado: una escena
+
+Un resultado cuyos efectos traen gente (`present.grey-wolf: 3`: una manada de lobos, una banda de bandidos, alguien que se cruza en el camino) muestra **Abrir una escena ↗** debajo mientras tiras en una campaña: abre la aplicación [Campaña](../campaign/01-getting-started.md) en una **escena** nueva de esa campaña con ellos, hechos con el bestiario del sistema, cada uno con sus propios valores tirados, frente al elenco de la campaña. Allí luchas con ellos, por turnos si los combates del sistema van por turnos. Sin campaña, dice que una escena necesita una. Tirados aquí, son solo palabras: no se hace nada hasta que se abre la escena.
+
 ## Tiradas repetibles
 
 En **Preferencias** (el engranaje), **Semilla de las tiradas** hace las tiradas repetibles: con la misma semilla, las mismas tiradas en el mismo orden dan los mismos resultados. El historial muestra la semilla mientras está puesta.

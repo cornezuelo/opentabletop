@@ -67,11 +67,40 @@ export function appUrl(id: AppId): string {
 
 /** A tab of a campaign in the Campaign app. */
 export type CampaignTab =
-  'overview' | 'world' | 'maps' | 'trips' | 'characters' | 'factions' | 'timeline'
+  'overview' | 'world' | 'maps' | 'trips' | 'scenes' | 'characters' | 'factions' | 'timeline'
 
 /** A campaign in the Campaign app (the other apps' **Open in Campaign ↗**), at one of its tabs. */
 export const campaignUrl = (id: string, tab?: CampaignTab): string =>
   `${appUrl('campaign')}#/campaign/${encodeURIComponent(id)}${tab && tab !== 'overview' ? `/${tab}` : ''}`
+
+/**
+ * A new scene of a campaign in the Campaign app, with those a result brings (by template:
+ * the Oracle's **Open a scene**): `#/new-scene/<campaign>/<template>=<n>,…`.
+ */
+export const newSceneUrl = (campaign: string, present: Record<string, number>): string =>
+  `${appUrl('campaign')}#/new-scene/${encodeURIComponent(campaign)}/${Object.entries(present)
+    .map(([template, n]) => `${encodeURIComponent(template)}=${n}`)
+    .join(',')}`
+
+/** Reads `#/new-scene/<campaign>/<present>` (see `newSceneUrl`); null for anything else. */
+export function parseNewScene(
+  hash: string,
+): { campaign: string; present: Record<string, number> } | null {
+  const match = /^#\/new-scene\/([^/]+)(?:\/([^/]*))?\/?$/.exec(hash)
+  if (!match) return null
+  try {
+    const present: Record<string, number> = {}
+    for (const part of (match[2] ?? '').split(',').filter(Boolean)) {
+      const [template, n] = part.split('=')
+      const count = Number(n)
+      if (template && Number.isInteger(count) && count > 0)
+        present[decodeURIComponent(template)] = count
+    }
+    return { campaign: decodeURIComponent(match[1]), present }
+  } catch {
+    return null
+  }
+}
 
 /** The Campaign app making a new campaign. */
 export const newCampaignUrl = (): string => `${appUrl('campaign')}#/new`

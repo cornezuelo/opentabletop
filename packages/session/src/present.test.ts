@@ -17,6 +17,7 @@ import {
 import {
   addPresent,
   movePresent,
+  presentBrought,
   presentHere,
   removePresent,
   settlePresent,
@@ -375,5 +376,22 @@ describe('the tags in use', () => {
       'npc',
       'pack',
     ])
+  })
+})
+
+describe('who a result brings', () => {
+  it('the copies its effects make, by template; not changes to them, nor counts taken away', () => {
+    expect(
+      presentBrought({
+        'present.wolf': 3,
+        'present.bandit': '2',
+        'present.wolf.values.health': -1,
+        'present.all.values.morale': -1,
+        'present.ghost': -1,
+        'present.shade': '{{n}}',
+        'party.stats.morale': 1,
+      }),
+    ).toEqual({ wolf: 3, bandit: 2 })
+    expect(presentBrought(undefined)).toEqual({})
   })
 })

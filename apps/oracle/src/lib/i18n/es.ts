@@ -43,6 +43,11 @@ export const es: Messages<typeof en> = {
     none: 'Sin campaña',
     help: 'Dónde guardan las tiradas a mano sus mazos, sus resultados de una sola vez y su historial: la campaña en la que juegas, elegida en **Jugando** arriba (la misma en todas las aplicaciones).\n• **Sin campaña** — los propios del Oráculo, en este navegador\n• una campaña — compartidos con sus mapas y viajes: una carta robada aquí ya no sale en los viajes de ese mapa, y las tiradas aparecen en su panel del Oráculo\nTu semilla (Preferencias) sigue siendo la de este navegador en ambos casos.',
   },
+  scene: {
+    open: 'Abrir una escena ↗',
+    noCampaign: 'Una escena con ellos necesita una campaña: elige una en Jugando, arriba.',
+    help: 'Este resultado trae gente (efectos como `present.wolf: 3`). **Abrir una escena ↗** hace una escena con ellos en la campaña en la que juegas, en la aplicación Campaña: un combate (o cualquier momento) sin viaje, con el elenco de la campaña frente a ellos, por turnos si los combates del sistema van por turnos. Tirados aquí son solo palabras; en una escena son personajes con sus propios valores.',
+  },
   prefs: {
     seed: 'Semilla de las tiradas',
     seedPlaceholder: 'Vacío: al azar',

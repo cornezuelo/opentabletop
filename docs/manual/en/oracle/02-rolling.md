@@ -32,6 +32,10 @@ A deck shows how many cards are left and has **Shuffle**. A generator can draw f
 
 Your rolls keep their decks, once-only results and history in **the campaign you're playing**: the one **Playing** says in the bar at the top, shared by every app ([The campaign you play in](../campaign/01-getting-started.md#the-campaign-you-play-in)); **Campaign**, at the top of the history, says which. Click **Playing** to choose another, or **Play in no campaign** for the Oracle's own, kept in this browser. Opening a map or trip in another app changes it too, and the Oracle follows. In a campaign you roll in its world: a card you draw here is gone from the deck for that map's trips too, a once-only result that came up there won't come up here, and the history is the one the map's Oracle panel shows. **New session** and **Clear** act on the campaign's then. When the map or a trip changes it in another window, the Oracle reads it again. Your seed stays this browser's own either way. In a campaign, **Open in Campaign ↗** under it shows it in the [Campaign](../campaign/01-getting-started.md) app.
 
+### Those a result brings: a scene
+
+A result whose effects bring people (`present.grey-wolf: 3`: a pack of wolves, a band of robbers, someone met on the way) shows **Open a scene ↗** under it while you roll in a campaign: it opens the [Campaign](../campaign/01-getting-started.md) app on a new **scene** of that campaign with them, made from the system's bestiary, each with its own rolled values, facing the campaign's cast. There you fight them, turn by turn if the system's fights go in turns. In no campaign it says a scene needs one. Rolled here, they're only words: nothing is made until the scene opens.
+
 ## Repeatable rolls
 
 In **Preferences** (the gear), **Seed for rolls** makes rolls repeatable: with the same seed, the same rolls in the same order give the same results. The history shows the seed while it's on.

@@ -12,6 +12,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - Campaign: **Scenes**, fights (or any moment) without a trip: a scene takes the campaign's cast (the party in it without a trip, with its members, and the other characters of the system's sheet), those it faces are added from the bestiary or the roster, it plays with the trip's panel and the fight panel, its time moves the world's clock, and **End the scene** gives the cast back. **End the fight** waits while the trip waits for an answer.
 
+- Oracle: **Open a scene ↗** under a result that brings people (`present.<template>: n`), in a campaign: a new scene of it in Campaign with them.
+
 - Pieces: an exit into a **new map** (`newMap: true`, or `{ name: … }`): laying its piece makes a blank sub-map under it, drawn like the map, taken with **Go in ↗** and laid piece by piece in turn. Packs' pieces form: **New map**. Core's _Stairs down_ lead to a level below; the Grey Marches' _A stair further down_ to _The deeper barrows_.
 
 - Sheets: **values that step** (`steps: [4, 6, 8]`): the only numbers a value may be, a die's sizes; an effect's `-1` takes it a step down (a d8 to a d6), `'=N'` to the step nearest. Shown as a die (`display: die`, **d8**), chosen from its steps. Packs' sheet form: **Steps**. The Grey Marches' Nerve is one (d4 to d12; saved companions' nerve becomes the nearest die); Core's maps have a **Finds die**, a d6 that drops to a d4 once a landmark is found.

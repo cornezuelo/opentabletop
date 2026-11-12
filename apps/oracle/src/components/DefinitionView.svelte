@@ -1,7 +1,9 @@
 <script lang="ts">
   import { getLocale, t } from '../lib/i18n'
   import { displayDescription, displayName } from '../lib/names'
-  import { appUrl, Markdown } from '@open-tabletop/ui-kit'
+  import { appUrl, InfoTip, Markdown, newSceneUrl } from '@open-tabletop/ui-kit'
+  import { presentBrought } from '@open-tabletop/session'
+  import { campaignChoice } from '../lib/oracle.svelte'
   import { go } from '../lib/nav.svelte'
   import { favorites, RollPanel } from '@open-tabletop/oracle-ui'
   import { oracleUi } from '../lib/oracle.svelte'
@@ -105,7 +107,27 @@
 
     <div class="body">
       {#if tab === 'roll'}
-        <RollPanel ui={oracleUi} {def} />
+        <RollPanel ui={oracleUi} {def}>
+          {#snippet actions(item)}
+            <!-- A result that brings people (an encounter): a scene with them, in the campaign. -->
+            {@const present = presentBrought(
+              item.resolution.value.effects as Record<string, unknown> | undefined,
+            )}
+            {#if Object.keys(present).length}
+              <span class="scene">
+                {#if campaignChoice.id}
+                  <a href={newSceneUrl(campaignChoice.id, present)}>{t('scene.open')}</a><InfoTip
+                    markdown={t('scene.help')}
+                  />
+                {:else}
+                  <span class="muted">{t('scene.noCampaign')}</span><InfoTip
+                    markdown={t('scene.help')}
+                  />
+                {/if}
+              </span>
+            {/if}
+          {/snippet}
+        </RollPanel>
       {:else if !editable}
         <ReadOnlyNotice
           library={workspace}
@@ -123,6 +145,18 @@
 {/if}
 
 <style>
+  .scene {
+    font-size: 13px;
+  }
+
+  .scene a {
+    color: var(--accent);
+  }
+
+  .scene .muted {
+    color: var(--text-muted);
+  }
+
   .definition {
     display: flex;
     flex-direction: column;

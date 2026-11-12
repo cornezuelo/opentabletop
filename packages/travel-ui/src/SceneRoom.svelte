@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { Campaign } from '@open-tabletop/campaign'
   import { roster } from '@open-tabletop/character-ui'
-  import { systemIdOf, type TravelSystem, type Use } from '@open-tabletop/session'
+  import type { TravelSystem, Use } from '@open-tabletop/session'
   import { busy, confirmAction, InfoTip } from '@open-tabletop/ui-kit'
   import { untrack } from 'svelte'
   import { translator } from './i18n'
   import { terrainName } from './terrains'
   import TripPanel from './TripPanel.svelte'
-  import type { Saved, TripStore } from './trips.svelte'
+  import { sceneSystem, type Saved, type TripStore } from './trips.svelte'
   import { wayWorld } from './way'
 
   /**
@@ -68,11 +68,11 @@
   async function create() {
     making = true
     try {
-      const n = list.length + 1
-      const id = systemIdOf(campaign.system ?? '')
-      const of = systems.find((s) => s.id === id) ?? systems[0]
-      await scenes.create(of?.id ?? id, scenes.saved.season, campaign.id)
-      scenes.rename(t('scenes.unnamed', { n }))
+      await scenes.createScene(
+        sceneSystem(campaign, systems),
+        campaign.id,
+        t('scenes.unnamed', { n: list.length + 1 }),
+      )
       onopen(scenes.saved.id)
     } finally {
       making = false

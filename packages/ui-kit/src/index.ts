@@ -30,6 +30,8 @@ export {
   campaignUrl,
   newCampaignUrl,
   inCampaignUrl,
+  newSceneUrl,
+  parseNewScene,
   logoUrl,
   parseInCampaign,
   REPO,

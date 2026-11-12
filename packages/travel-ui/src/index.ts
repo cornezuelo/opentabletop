@@ -31,7 +31,13 @@ export {
   type CampaignPlace,
   type PlaceInCampaign,
 } from './places'
-export { readTrips, TripStore, type Saved, type TripStoreOptions } from './trips.svelte'
+export {
+  readTrips,
+  sceneSystem,
+  TripStore,
+  type Saved,
+  type TripStoreOptions,
+} from './trips.svelte'
 export { askTimePassed, timeBehind } from './timePassed'
 export { WATER, wayWorld, type WayHex } from './way'
 export { default as PartyMembers } from './PartyMembers.svelte'

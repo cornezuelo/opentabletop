@@ -80,6 +80,24 @@ interface PresentTarget {
  */
 export const PRESENT_PATH = /^present\.([^.]+)(?:\.(values|conditions|items)\.(.+))?$/
 
+/**
+ * Who a result's effects bring (`present.<template>: 2`), by template: what a scene opened
+ * with them starts with (the Oracle's **Open a scene**). Changes to copies, counts written as
+ * variables and those taken away aren't.
+ */
+export function presentBrought(
+  effects: Record<string, unknown> | undefined,
+): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const [path, change] of Object.entries(effects ?? {})) {
+    const [, template, part] = PRESENT_PATH.exec(path) ?? []
+    if (!template || part || template === 'all') continue
+    const n = typeof change === 'number' ? change : Number(change)
+    if (Number.isInteger(n) && n > 0) out[template] = (out[template] ?? 0) + n
+  }
+  return out
+}
+
 /** The copies at the party's place now. */
 export const presentHere = (s: Pick<PresentTarget, 'present' | 'travel'>): Present[] =>
   (s.present ?? []).filter((p) => p.at === s.travel.location)

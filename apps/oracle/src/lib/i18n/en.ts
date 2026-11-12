@@ -42,6 +42,12 @@ export const en = {
     none: 'No campaign',
     help: "Where hand rolls keep their decks, once-only results and history: the campaign you're playing, chosen in **Playing** at the top (shared by every app).\n• **No campaign** — the Oracle's own, kept in this browser\n• a campaign — shared with its maps and trips: a card drawn here is gone on that map's trips too, and the rolls show in its Oracle panel\nYour seed (Preferences) stays this browser's own either way.",
   },
+  /** A result that brings people: a scene with them in the campaign (Campaign's Scenes). */
+  scene: {
+    open: 'Open a scene ↗',
+    noCampaign: 'A scene with them needs a campaign: choose one in Playing, at the top.',
+    help: "This result brings people (effects like `present.wolf: 3`). **Open a scene ↗** makes a scene with them in the campaign you're playing, in the Campaign app: a fight (or any moment) without a trip, with the campaign's cast facing them, played turn by turn if the system's fights go in turns. Rolled here they're only words; in a scene they're characters with their own values.",
+  },
   prefs: {
     seed: 'Seed for rolls',
     seedPlaceholder: 'Empty: at random',

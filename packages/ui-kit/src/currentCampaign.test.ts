@@ -42,3 +42,17 @@ describe('links that put a map or trip in a campaign', () => {
     expect(parseInCampaign('#/baaxk4h7qdfl/0304')).toBeNull()
   })
 })
+
+describe('a link that opens a scene with those a result brings', () => {
+  it('names the campaign and who comes, and reads back', async () => {
+    const { newSceneUrl, parseNewScene } = await import('./apps')
+    const url = newSceneUrl('winter', { 'grey-wolf': 3, bandit: 1 })
+    expect(url).toMatch(/campaign\/#\/new-scene\/winter\/grey-wolf=3,bandit=1$/)
+    expect(parseNewScene(url.slice(url.indexOf('#')))).toEqual({
+      campaign: 'winter',
+      present: { 'grey-wolf': 3, bandit: 1 },
+    })
+    expect(parseNewScene('#/new-scene/winter')).toEqual({ campaign: 'winter', present: {} })
+    expect(parseNewScene('#/campaign/winter')).toBeNull()
+  })
+})

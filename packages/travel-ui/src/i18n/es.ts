@@ -437,7 +437,7 @@ export const es: Messages<typeof en> = {
   },
   scenes: {
     title: 'Escena',
-    help: 'Una escena es un combate (o cualquier momento) sin viaje: el elenco de la campaña quieto en un sitio con los presentes, jugado como un viaje que no va a ninguna parte. **Nueva escena** se lleva el elenco: el grupo que está en la campaña sin viaje, con sus miembros, y cada otro personaje de la hoja del sistema que esté en ella; lo que les pase vuelve al plantel, y el tiempo de la escena mueve el reloj del mundo de la campaña, como el de un viaje. Añade a quien se enfrentan en su pestaña **Grupo** (**Añadir del bestiario**, o del plantel) y luchad: el panel de combate dice de quién es el turno. **Terminar la escena** devuelve el elenco a la campaña.',
+    help: 'Una escena es un combate (o cualquier momento) sin viaje: el elenco de la campaña quieto en un sitio con los presentes, jugado como un viaje que no va a ninguna parte. **Nueva escena** se lleva el elenco: el grupo que está en la campaña sin viaje, con sus miembros, y cada otro personaje de la hoja del sistema que esté en ella; lo que les pase vuelve al plantel, y el tiempo de la escena mueve el reloj del mundo de la campaña, como el de un viaje. Añade a quien se enfrentan en su pestaña **Grupo** (**Añadir del bestiario**, o del plantel) y luchad: el panel de combate dice de quién es el turno. **Terminar la escena** devuelve el elenco a la campaña.\n• **Abrir una escena ↗** del Oráculo, bajo un resultado que trae gente, hace una con ellos',
     none: 'No hay escenas en esta campaña.',
     new: 'Nueva escena',
     end: 'Terminar la escena',
