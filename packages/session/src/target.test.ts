@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chooseTarget, isTargetForm } from './target'
+import { aimed, chooseTarget, isTargetForm } from './target'
 
 const member = (id: string, health: number) =>
   ({ id, values: { health } }) as unknown as NonNullable<
@@ -22,5 +22,17 @@ describe('whom a result aims at', () => {
     expect(chooseTarget('party.members.random', {}, () => 1)).toBeUndefined()
     expect(isTargetForm('party.members.random')).toBe(true)
     expect(isTargetForm('kael')).toBe(false)
+  })
+
+  it('with nobody to aim at, the effects on the target are left out', () => {
+    const value = {
+      target: 'party.members.random',
+      effects: { 'characters[target].values.health': -1, 'party.stats.morale': -1 },
+    }
+    expect(aimed(value, 'kael')).toEqual({ ...value, target: 'kael' })
+    expect(aimed(value, undefined)).toEqual({ effects: { 'party.stats.morale': -1 } })
+    expect(
+      aimed({ target: 'x', effects: { 'characters[target].values.health': -1 } }, undefined),
+    ).toEqual({})
   })
 })

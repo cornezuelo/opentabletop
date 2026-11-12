@@ -39,3 +39,22 @@ export function chooseTarget(
 /** Whether a written target is one of the short forms (`party.members.…`). */
 export const isTargetForm = (written: unknown): written is string =>
   typeof written === 'string' && written.startsWith('party.members.')
+
+/**
+ * A result with its target chosen: `target` the id, or, with nobody to aim at, none, and the
+ * effects that name it (`characters[target].…`) left out, so they neither apply nor show.
+ */
+export function aimed(
+  value: Record<string, unknown>,
+  target: string | undefined,
+): Record<string, unknown> {
+  if (target !== undefined) return { ...value, target }
+  const rest = { ...value }
+  delete rest.target
+  const effects = value.effects as Record<string, unknown> | undefined
+  if (!effects) return rest
+  const kept = Object.entries(effects).filter(([path]) => !/\[target\]/.test(path))
+  if (kept.length) rest.effects = Object.fromEntries(kept)
+  else delete rest.effects
+  return rest
+}
