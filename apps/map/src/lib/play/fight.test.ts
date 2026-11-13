@@ -1,0 +1,64 @@
+import { describe, expect, it, vi } from 'vitest'
+import { render } from 'svelte/server'
+import { applyResult, partyOf } from '@open-tabletop/session'
+import PlayPanel from '../../components/PlayPanel.svelte'
+import { exampleMaps } from '../io/examples'
+import { parseMapFile } from '../io/otd'
+import { editor } from '../store/editor.svelte'
+import { shownPanelWidth, FIGHT_WIDTH } from '../store/panelWidth.svelte'
+import { chooseOnMap, clickHex, editSession, restartRules, sessionOf, setMode, step } from './play'
+import { activeSystem } from './systems'
+
+/**
+ * The fight view in Map's Play: the Grey Marches' Company stands against a grey wolf and its pack leader;
+ * everyone is a card in the order of play (each one's health, the one acting large), the
+ * wolf to strike is chosen on the map, and the blow shows on its card and in the fight's log.
+ */
+describe('the fight view', () => {
+  it('everyone as a card, the target chosen on the map, the blow told', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.4)
+    editor.open(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
+    editor.switchMode('play')
+    clickHex('7,7')
+    setMode('rules')
+    await restartRules(editor.campaign.system!, 'spring')
+    const session = () => sessionOf(editor.map.play!)!
+    const rules = partyOf(activeSystem())
+    editSession((s) =>
+      applyResult(s, { effects: { 'present.grey-wolf': 1, 'present.pack-leader': 1 } }, {}, rules),
+    )
+    step({ type: 'action', id: 'stand' })
+    // The foes go by themselves until a companion's turn waits for you.
+    expect(session().encounter?.stage).toBe('acting')
+    expect(shownPanelWidth(true)).toBeGreaterThanOrEqual(FIGHT_WIDTH)
+    let html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
+    const fighters = session().encounter!.order.length
+    expect(html.match(/class="fighter/g)).toHaveLength(fighters)
+    expect(html).toContain('aria-current="step"')
+    expect(html).toContain('Grey wolf')
+    expect(html).toContain('Pack leader')
+    // Each one's main value, as its sheet draws it.
+    expect(html).toMatch(/class="glance/)
+    expect(html).toMatch(/class="main/)
+
+    // Strike: the trip asks whom, and the wolves' cards are what's clicked.
+    step({ type: 'action', id: 'strike' })
+    const choices = session().travel.waiting?.choices ?? []
+    expect(choices.length).toBe(2)
+    html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
+    expect(html.match(/<button class="pick/g)).toHaveLength(2)
+    expect(html).toContain('Click one of them above.')
+    const wolf = choices[0]!
+    const before = session().present!.find((p) => p.character.id === wolf)!.character.values.health!
+    // Clicked on the map, as its card would be.
+    expect(chooseOnMap(wolf)).toBe(true)
+    const hit = session().present?.find((p) => p.character.id === wolf)?.character.values.health
+    expect(hit === undefined || hit < before).toBe(true)
+    html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
+    // The fight's moments under the cards.
+    expect(html).toContain('class="log')
+    expect(chooseOnMap('nobody')).toBe(false)
+    editor.switchMode('edit')
+    vi.restoreAllMocks()
+  })
+})

@@ -6,6 +6,10 @@
     fromCatalogue,
     presentHere,
     usesOf,
+    beatsOf,
+    lastStepEntries,
+    PARTY_ID,
+    systemSheets,
     type Declared,
     type EncounterUnavailable,
     type TripAction,
@@ -80,6 +84,7 @@
   import { journalBeats, lastStepBeats, tellBeat, type BeatTold } from './beats'
   import { beatsSeen } from './beatsSeen.svelte'
   import { CharacterCard, itemName, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
+  import { mainValue } from '@open-tabletop/character-engine'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import { WorldWaiting } from '@open-tabletop/campaign-ui'
 
@@ -319,6 +324,46 @@
   )
   /** Whether what's asked lists a catalogue's entries (`from: items.knacks`): named as items. */
   const listsItems = $derived(fromCatalogue(asked?.from))
+
+  /** The sheets of the system's characters, by id: a fighter's card draws its values. */
+  const sheets = $derived(systemSheets(system))
+  /** Whom a choice asked for in a fight is among (whom to strike): chosen by their cards. */
+  const targets = $derived(
+    fight &&
+      waiting?.choices?.length &&
+      waiting.choices.every((id) => fight.fighters.some((f) => f.id === id))
+      ? waiting.choices
+      : [],
+  )
+  /** What the last step did to each fighter's main value (a blow's −2), by id. */
+  const fightChanges = $derived.by(() => {
+    const out: Record<string, number> = {}
+    if (!fight) return out
+    const lines = lastStepEntries(session).filter((e) => e.code === 'CHANGED')
+    for (const f of fight.fighters) {
+      const sheet = f.character && sheets[f.character.sheet]
+      const main = sheet && mainValue(sheet)
+      if (!main) continue
+      const path = f.id === PARTY_ID ? `party.values.${main}` : `characters.${f.id}.values.${main}`
+      const delta = lines
+        .filter((e) => e.data?.path === path)
+        .reduce((sum, e) => sum + (Number(e.data?.to) - Number(e.data?.from) || 0), 0)
+      if (delta) out[f.id] = delta
+    }
+    return out
+  })
+  /** The fight's moments, newest first: from its start on, the last few. */
+  const fightLog = $derived.by(() => {
+    if (!fight) return []
+    // The whole moment that started it (the ambush, Fight), from its first line.
+    const started = session.journal.findLast((e) => e.code === 'ENCOUNTER_STARTED')
+    const first = started?.beat !== undefined ? `j${started.beat}` : started?.id
+    const start = session.journal.findIndex((e) => e.id === first)
+    return beatsOf(session.journal.slice(Math.max(0, start)))
+      .slice(-8)
+      .reverse()
+      .map((b) => tellBeat(b, context, 'story'))
+  })
   const choiceOf = (id: string, key: string, param: ActionParam) =>
     chosen[id]?.[key] ?? String(paramDefault(param))
   /** What an action is taken with: each parameter's choice, as the pack wrote it (`3`, not `'3'`). */
@@ -632,6 +677,11 @@
             ? t('blocked.held')
             : ''}
         onend={endFight}
+        sheetOf={(c) => sheets[c.sheet]}
+        changes={fightChanges}
+        {targets}
+        log={fightLog}
+        ontarget={(id) => onstep({ type: 'resume', choice: id })}
         tableName={fight.rolling ? (nameOf?.(fight.rolling) ?? fight.rolling) : undefined}
         onroll={(total) =>
           onstep({ type: 'encounter', what: 'roll', ...(total !== undefined && { total }) })}
@@ -744,7 +794,10 @@
               markdown={localize(asked.description, locale, 'en')}
             />{/if}</span
         >
-        {#if asked && waiting.choices}
+        {#if asked && waiting.choices && targets.length}
+          <!-- Chosen in the fight, by their cards. -->
+          <span class="help">{t('fight.clickTarget')}</span>
+        {:else if asked && waiting.choices}
           <!-- Choices the trip listed (`from: present.ids`): whoever they are, by name. -->
           {#each waiting.choices as id (id)}
             <button onclick={() => onstep({ type: 'resume', choice: id })}

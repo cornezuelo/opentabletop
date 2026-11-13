@@ -551,6 +551,10 @@ export const en = {
     shareHelp:
       "How what the party spends or gains of an item (`party.items.ration: -3`, `party.items.ration: 2`) is shared out among the characters of this sheet: the party's own items go first, then theirs.\n• **even** (the default): taken from whoever has most, given to whoever has least, one at a time\n• **in order**: the first character gives (or takes) all it can, then the next\nWithout characters, the party's own sheet keeps them.",
     shareEven: 'even (default)',
+    main: 'Main value',
+    mainHelp:
+      'The value that says at a glance how a character of this sheet is, drawn beside its name where there’s no room for the whole sheet (a fight’s cards), as the value says it’s shown.\n• **The first with a max** — the first value drawn against a max (a bar, boxes, ticks, `of`, a dial), or none\n• `main: health` — health, even shown as a plain number',
+    mainFirst: 'The first with a max',
     over: 'Over its room',
     overHelp:
       "Whether a place with a **Room** takes more than fits in it:\n• **allow** (the default): its room is only shown, and goes red when it's over; a condition says what being over means (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: nothing goes in that hasn't room left. Characters' cards offer no full place, a move there is refused, and what an effect gives goes where there's room; with none, **When it doesn't fit** says what becomes of it\nOn the sheet it's every place's, and the **Room in all**'s; a place may say otherwise in its own column (a pack that holds more, worn hands that don't). A room that shrinks later leaves what's there.",

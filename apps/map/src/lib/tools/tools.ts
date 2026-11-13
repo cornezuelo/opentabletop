@@ -24,7 +24,7 @@ import {
   partyToken,
   placeOfCell,
 } from '@open-tabletop/map'
-import { clickHex, onTrip, partyMoved, walkTo } from '../play/play'
+import { chooseOnMap, clickHex, onTrip, partyMoved, walkTo } from '../play/play'
 import { paintTerritory } from '../play/factions'
 import {
   copyOf,
@@ -1008,6 +1008,8 @@ class CopyDragger {
     this.pressed = null
     if (!pressed) return
     if (!pressed.hex) {
+      // Whom the trip asks for (whom to strike): clicking one on the map chooses it.
+      if (chooseOnMap(pressed.id)) return
       editor.selectedToken = `${PRESENT_ID}${pressed.id}`
       return showPresent(pressed.id)
     }

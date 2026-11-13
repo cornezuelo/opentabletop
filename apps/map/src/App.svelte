@@ -25,7 +25,13 @@
   import { startDeepLinks } from './lib/io/deepLinkSync.svelte'
   import { newMapDialog } from './lib/io/newMapDialog.svelte'
   import { bindShortcuts } from './lib/shortcuts'
-  import { PANEL_WIDTH, panelWidth, setPanelWidth } from './lib/store/panelWidth.svelte'
+  import {
+    PANEL_WIDTH,
+    panelWidth,
+    setPanelWidth,
+    shownPanelWidth,
+  } from './lib/store/panelWidth.svelte'
+  import { sessionOf } from './lib/play/play'
   import { roster } from '@open-tabletop/character-ui'
   import { pullMap } from './lib/play/roster'
   import { loadLinks } from './lib/io/submaps'
@@ -92,6 +98,11 @@
     if (ready) untrack(() => void loadLinks())
   })
 
+  /** A fight goes on in Play: the panel widens by itself while it lasts. */
+  const fighting = $derived(
+    editor.mode === 'play' && !!(editor.play && sessionOf(editor.play)?.encounter),
+  )
+
   // The roster changed (the Characters app, another tab): the map's characters catch up.
   $effect(() => {
     void roster.roster
@@ -104,7 +115,7 @@
   class:hidden={editor.panelHidden}
   class:with-help={editor.helpOpen}
   class:sheet-full={editor.sheetFull}
-  style:--panel-width={`${panelWidth.value}px`}
+  style:--panel-width={`${shownPanelWidth(fighting)}px`}
 >
   <TopBar />
   {#if !editor.toolsHidden}<Toolbar />{:else}<span aria-hidden="true"></span>{/if}

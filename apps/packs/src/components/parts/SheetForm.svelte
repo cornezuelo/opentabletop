@@ -224,6 +224,18 @@
         },
       ]}
     />
+    <label class="name">
+      <span>{t('sheet.main')}<InfoTip markdown={t('sheet.mainHelp')} /></span>
+      <select
+        value={typeof data.main === 'string' ? data.main : ''}
+        {disabled}
+        onchange={(e) => doc.edit('', ['main'], e.currentTarget.value || undefined)}
+      >
+        <option value="">{t('sheet.mainFirst')}</option>
+        {#each Object.keys((data.values as object) ?? {}) as id (id)}<option value={id}>{id}</option
+          >{/each}
+      </select>
+    </label>
   </section>
 
   <section>

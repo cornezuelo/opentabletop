@@ -9,6 +9,7 @@ import {
   type Unavailable,
 } from '@open-tabletop/travel-engine'
 import { resolveChange } from '@open-tabletop/variables'
+import type { CharacterState } from '@open-tabletop/character-engine'
 import { PARTY_ID } from './party'
 import { presentHere } from './present'
 import type { JournalEntry, SessionState } from './index'
@@ -201,9 +202,18 @@ export const sideOf = (s: SessionState, id: string): Side =>
 /** A participant's name: a member's or a copy's (its id if none); the party's ('' if none). */
 export function participantName(s: SessionState, id: string): string {
   if (id === PARTY_ID) return s.party?.name ?? ''
-  const c =
+  return participant(s, id)?.name ?? id
+}
+
+/**
+ * One taking part in a fight as a character: a member, one of those present, or the party
+ * played as a whole (its own sheet); none when it isn't one.
+ */
+export function participant(s: SessionState, id: string): CharacterState | undefined {
+  if (id === PARTY_ID) return s.party
+  return (
     s.members?.find((m) => m.id === id) ?? s.present?.find((p) => p.character.id === id)?.character
-  return c?.name ?? id
+  )
 }
 
 /**
@@ -232,6 +242,8 @@ export interface Fighter {
   done: boolean
   /** Whether it's gone (fled, fallen, left the place): it leaves the order next round. */
   gone: boolean
+  /** Its character (its values and conditions, and the sheet they're of), if it's one. */
+  character?: CharacterState
 }
 
 /**
@@ -266,6 +278,7 @@ export function encounterView(s: SessionState):
       acting: i === e.turn && now,
       done: i < e.turn || (i === e.turn && e.stage === 'acted' && !busy),
       gone: !stillHere(s, id),
+      ...(participant(s, id) && { character: participant(s, id) }),
     })),
   }
 }

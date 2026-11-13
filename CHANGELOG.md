@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Travel and Map
+
+- **The fight view**: everyone in a fight is a card, the party's side and the foes' apart, in the order of play: each one's main value as its sheet draws it (health as a bar), what just happened to it (_−2_), its conditions with what's left; the one acting large, those who acted faded, the fallen struck through. Whom to strike is chosen by clicking a foe's card (in Map, its token too), and the fight's moments are told under the cards, with their dice. Map's panel widens by itself while a fight lasts.
+
+### Packs
+
+- **A sheet's main value** (`main:`, Packs' **Main value**): the value drawn beside a character's name where the whole sheet doesn't fit (a fight's cards); by default the first drawn against a max. The Grey Marches' companions and foes show their health.
+
 ### Oracle
 
 - **Dice you can see**: a result's dice are drawn, each as its shape with its face (d4 to d20, d%, Fudge, d66 as two d6), those a keep leaves out faded, exploding faces chained, then what's added and the total, a roll mode's other rolls small beside it. A roll just made tumbles for a moment: **Dice tumble as they're rolled** in **Preferences** (every app) turns it off, and so does the system's reduce motion.

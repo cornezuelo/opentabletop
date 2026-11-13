@@ -14,6 +14,13 @@ function read(): number {
   }
 }
 
+/** Room for a fight: its sides' cards side by side. */
+export const FIGHT_WIDTH = 460
+
+/** The side panel's width as shown: wider by itself while a fight goes on, as chosen after. */
+export const shownPanelWidth = (fighting: boolean): number =>
+  fighting ? Math.max(panelWidth.value, FIGHT_WIDTH) : panelWidth.value
+
 /** The side panel's width: a preference of this browser. */
 export const panelWidth = $state({ value: read() })
 

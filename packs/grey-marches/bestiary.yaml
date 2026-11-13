@@ -11,7 +11,8 @@ name: Foe
 description: |-
   What the Company meets on the road and has to deal with: beasts, outlaws, the Hunt.
 
-  **Shows:** a sheet for creatures and NPC types, lighter than a companion's; conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); items, so a template may carry some.
+  **Shows:** a sheet for creatures and NPC types, lighter than a companion's, its main value its health though it has no max (`main: health`, shown as a number on a fight's cards); conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); items, so a template may carry some.
+main: health
 values:
   health:
     name: Health

@@ -564,6 +564,10 @@ export const es: Messages<typeof en> = {
     shareHelp:
       'Cómo se reparte entre los personajes de esta hoja lo que el grupo gasta o gana de un objeto (`party.items.ration: -3`, `party.items.ration: 2`): primero los objetos del propio grupo, luego los suyos.\n• **even** (por defecto): se quita a quien más tiene y se da a quien menos, de uno en uno\n• **order**: el primer personaje da (o recibe) todo lo que pueda, luego el siguiente\nSin personajes, los guarda la propia hoja del grupo.',
     shareEven: 'even (por defecto)',
+    main: 'Valor principal',
+    mainHelp:
+      'El valor que dice de un vistazo cómo está un personaje de esta hoja, dibujado junto a su nombre donde no cabe la hoja entera (las tarjetas de un combate), como dice el valor que se muestra.\n• **El primero con máximo** — el primer valor dibujado contra un máximo (una barra, casillas, marcas, `of`, un dial), o ninguno\n• `main: health` — la salud, aunque se muestre como un simple número',
+    mainFirst: 'El primero con máximo',
     over: 'Más de lo que cabe',
     overHelp:
       "Si un lugar con **Sitio** admite más de lo que le cabe:\n• **allow** (por defecto): su sitio solo se muestra, y se pone en rojo cuando se pasa; una condición dice qué supone pasarse (`self.values.load: { gt: '{{self.values.capacity}}' }`)\n• **refuse**: no entra nada que no tenga sitio. Las tarjetas de los personajes no ofrecen lugares llenos, se rechaza moverlo ahí y lo que dé un efecto va adonde haya sitio; si no hay, **Si no cabe** dice qué pasa con ello\nEn la hoja vale para todos los lugares y para el **Sitio en total**; cada lugar puede decir otra cosa en su propia columna (una mochila que admite más, unas manos que no). Si el sitio encoge después, lo que ya hay se queda.",

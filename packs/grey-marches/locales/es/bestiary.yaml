@@ -3,7 +3,7 @@ sheet/foe:
   description: |-
     Lo que la Compañía encuentra en el camino y con lo que tiene que lidiar: bestias, forajidos, la Cacería.
 
-    **Enseña:** una hoja para criaturas y tipos de PNJ, más ligera que la de un compañero; estados que quitan una copia de los presentes por sí solos (`leaves: true`): uno que se cumple por sí solo (_Abatido_, con salud 0) y otros que ponen los efectos (_En desbandada_, _Sobornado_); objetos, para que una plantilla pueda llevar alguno.
+    **Enseña:** una hoja para criaturas y tipos de PNJ, más ligera que la de un compañero, con la salud como valor principal aunque no tenga máximo (`main: health`, mostrada como número en las tarjetas de un combate); estados que quitan una copia de los presentes por sí solos (`leaves: true`): uno que se cumple por sí solo (_Abatido_, con salud 0) y otros que ponen los efectos (_En desbandada_, _Sobornado_); objetos, para que una plantilla pueda llevar alguno.
   values:
     health:
       name: Salud

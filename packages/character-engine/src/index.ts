@@ -308,6 +308,12 @@ export const sheetSchema = z
     conditions: z.record(z.string().min(1), condition).default({}),
     relations: z.record(z.string().min(1), relation).default({}),
     items: sheetItems.optional(),
+    /**
+     * The value that says at a glance how a character is (health, stress): drawn beside its
+     * name where there's no room for the whole sheet (a fight's cards). Absent: the first
+     * value drawn against a max (a bar, boxes, ticks, `of`, a dial).
+     */
+    main: z.string().min(1).optional(),
     /** The headings values are shown under (`group:`), with their names; in this order. */
     groups: z
       .record(
@@ -330,6 +336,8 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
     }
   const sheet = parsed.data
   const errors: string[] = []
+  if (sheet.main !== undefined && !sheet.values[sheet.main])
+    errors.push(`main: the sheet has no value "${sheet.main}"`)
   for (const [id, v] of Object.entries(sheet.values)) {
     for (const key of ['min', 'max', 'of'] as const) {
       const b = v[key]
@@ -530,6 +538,18 @@ export function shownAgainst(sheet: Sheet, state: CharacterState, id: string): n
   const of = sheet.values[id]?.of
   if (of === undefined) return boundsOf(sheet, state, id).max
   return typeof of === 'number' ? of : readOwn(of, state.values)
+}
+
+/** The displays drawn against a max: what a sheet's main value is by default. */
+const MEASURED: readonly Display[] = ['bar', 'boxes', 'ticks', 'of', 'dial']
+
+/**
+ * The value that says at a glance how a character of this sheet is: its `main`, else its
+ * first value drawn against a max; none when it has neither.
+ */
+export function mainValue(sheet: Pick<Sheet, 'main' | 'values'>): string | undefined {
+  if (sheet.main !== undefined) return sheet.values[sheet.main] ? sheet.main : undefined
+  return Object.entries(sheet.values).find(([, v]) => MEASURED.includes(displayOf(v)))?.[0]
 }
 
 /** How a value of a sheet (or a relation's number) is shown; `track: true` is `boxes`. */

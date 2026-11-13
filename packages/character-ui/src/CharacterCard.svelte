@@ -2,8 +2,6 @@
   import {
     applyCharacter,
     boundsOf,
-    shownAgainst,
-    tonesNow,
     lookupItems,
     holdsByItself,
     isMadeOf,
@@ -15,7 +13,7 @@
     type Sheet,
   } from '@open-tabletop/character-engine'
   import { InfoTip, SuggestInput, TagInput, tooltip } from '@open-tabletop/ui-kit'
-  import { levelValue, valueView } from './display'
+  import { characterValueView, levelValue, valueView } from './display'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
   import ValueControl from './ValueControl.svelte'
@@ -136,16 +134,7 @@
   /** The displays that take a whole row of their group. */
   const WIDE: readonly Display[] = ['bar', 'boxes', 'ticks', 'pips']
   /** How a value looks now, as its sheet says. */
-  const viewOf = (id: string) => {
-    const def = sheet.values[id]
-    const of = def.of === undefined ? undefined : shownAgainst(sheet, character, id)
-    return valueView(
-      { ...def, tones: tonesNow(def.tones, character.values) },
-      character.values[id] ?? 0,
-      { ...boundsOf(sheet, character, id), ...(of !== undefined && { of }) },
-      locale,
-    )
-  }
+  const viewOf = (id: string) => characterValueView(sheet, character, id, locale)
 
   /** A value's explanation: its description, its levels, its bounds, how tables read it. */
   function valueHelp(id: string): string {

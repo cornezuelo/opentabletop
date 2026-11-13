@@ -3,6 +3,7 @@ import { onceRoller } from '@open-tabletop/variables'
 import { sequence } from '@open-tabletop/random'
 import {
   applyCharacter,
+  mainValue,
   blockedBy,
   boundsOf,
   characterFacts,
@@ -647,5 +648,28 @@ describe('values that start rolled', () => {
     expect(
       parseSheet({ kind: 'sheet', id: 'x', values: { a: { default: 'ten' } } }).errors.length,
     ).toBeGreaterThan(0)
+  })
+})
+
+describe('a sheet’s main value', () => {
+  it('its `main`, else the first value drawn against a max; one it doesn’t have is a problem', () => {
+    const read = (raw: Record<string, unknown>) => parseSheet({ kind: 'sheet', id: 's', ...raw })
+    const plain = read({
+      values: {
+        might: {},
+        health: { max: 6, display: 'bar' },
+        stress: { max: 3, display: 'boxes' },
+      },
+    })
+    expect(mainValue(plain.sheet!)).toBe('health')
+    expect(
+      mainValue(
+        read({ main: 'might', values: { might: {}, health: { max: 6, display: 'bar' } } }).sheet!,
+      ),
+    ).toBe('might')
+    expect(mainValue(read({ values: { might: {} } }).sheet!)).toBeUndefined()
+    expect(read({ main: 'luck', values: { might: {} } }).errors).toEqual([
+      'main: the sheet has no value "luck"',
+    ])
   })
 })

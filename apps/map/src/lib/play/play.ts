@@ -775,6 +775,17 @@ export function setDiscover(discover: PlayState['discover']): void {
   updatePlay((play) => ({ ...play, discover }))
 }
 
+/**
+ * One of those present clicked on the map while the trip asks to choose among them (whom to
+ * strike): it's chosen, as its card in the fight would be. False when nothing asks for it.
+ */
+export function chooseOnMap(id: string): boolean {
+  const session = sessionOf(current())
+  if (!session?.travel.waiting?.choices?.includes(id)) return false
+  step({ type: 'resume', choice: id })
+  return true
+}
+
 /** Edits the session directly (stats, mode, the party) without a travel step. */
 export function editSession(update: (session: SessionState) => SessionState): void {
   const play = current()

@@ -12,7 +12,8 @@ description: |-
   wounds keep some of them back, a rope helps at the ford and torches burn on night marches.
   A new companion sets out with two rations.
 
-  **Shows:** a sheet of values with bounds (one bounded by another value,
+  **Shows:** its main value, health (`main: health`), drawn beside each one's name on a
+  fight's cards; a sheet of values with bounds (one bounded by another value,
   `max: '{{self.values.maxHealth}}'`, itself rolled for each new companion,
   `default: '{{1d3+2}}'`), each value shown its own way (skills as pips, health as
   a bar whose tone falls with it, dread as boxes that turn red,
@@ -33,6 +34,7 @@ description: |-
   make room), what a new companion carries (`start: { ration: 2 }`) and
   how what the party spends is shared out among them (`share: even`: from whoever carries
   most); every part with a description, shown as its help where the sheet is met.
+main: health
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
   survival:

@@ -1,6 +1,11 @@
 import {
+  boundsOf,
   displayOf,
   levelId,
+  shownAgainst,
+  tonesNow,
+  type CharacterState,
+  type Sheet,
   TICKS_PER_BOX,
   toneOf,
   type Display,
@@ -89,6 +94,23 @@ export function valueView(
     if (Number.isInteger(at) && at >= 0 && at < view.levels.length) view.level = at
   }
   return view
+}
+
+/** How a character's value looks now, as its sheet says: its bounds and what it's drawn against read. */
+export function characterValueView(
+  sheet: Sheet,
+  character: CharacterState,
+  id: string,
+  locale: string,
+): ValueView {
+  const def = sheet.values[id]!
+  const of = def.of === undefined ? undefined : shownAgainst(sheet, character, id)
+  return valueView(
+    { ...def, tones: tonesNow(def.tones, character.values) },
+    character.values[id] ?? 0,
+    { ...boundsOf(sheet, character, id), ...(of !== undefined && { of }) },
+    locale,
+  )
 }
 
 /** The value a level stands for (the first is the min, or 0). */

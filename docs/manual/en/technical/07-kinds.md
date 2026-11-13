@@ -501,6 +501,7 @@ values: # numbers each character has, with the bounds the system gives them (non
       ]
   wounds: # made of other values, never set: it follows them
     { name: Wounds, from: '{{self.values.maxHealth - self.values.health}}', min: 0, group: body }
+main: health # the value drawn beside the name where the whole sheet doesn't fit (a fight's cards); absent: the first drawn against a max
 groups: # the cards values are shown in, in this order
   skills: { name: Skills }
   body: { name: Body }

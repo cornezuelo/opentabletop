@@ -7,7 +7,8 @@ sheet/companion:
     heridas retienen a algunos, una cuerda ayuda en el vado y las antorchas arden en las
     marchas nocturnas. Un compañero nuevo sale con dos raciones.
 
-    **Enseña:** una hoja de valores con límites (uno limitado por otro valor,
+    **Enseña:** su valor principal, la salud (`main: health`), dibujado junto al nombre de
+    cada uno en las tarjetas de un combate; una hoja de valores con límites (uno limitado por otro valor,
     `max: '{{self.values.maxHealth}}'`, que se tira para cada compañero nuevo,
     `default: '{{1d3+2}}'`), cada valor mostrado a su manera (las habilidades
     como puntos, la salud como una barra cuyo tono baja con ella, el

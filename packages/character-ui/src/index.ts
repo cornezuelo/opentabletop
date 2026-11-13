@@ -1,6 +1,7 @@
 export { default as CharacterCard } from './CharacterCard.svelte'
 export { default as ValueControl } from './ValueControl.svelte'
-export { valueView, type Looks, type ValueView } from './display'
+export { default as CharacterGlance } from './CharacterGlance.svelte'
+export { characterValueView, valueView, type Looks, type ValueView } from './display'
 export { default as SheetOrigin } from './SheetOrigin.svelte'
 export { translator, type CharacterUiKey, type Translate } from './i18n'
 export { idName, itemId, itemName, sheetText } from './texts'
