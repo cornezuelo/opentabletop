@@ -50,6 +50,7 @@ import {
 } from '@open-tabletop/campaign'
 import { chooseSystem, keepOpenMap, openLibraryMap } from '../io/actions.svelte'
 import { ARROWS } from '../tools/keyboardDraw'
+import { terrainLabel } from '../terrainName'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld, parsePlaceOn } from '@open-tabletop/map'
 import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
@@ -287,9 +288,10 @@ export function startOnBlankMap(): void {
 
 /**
  * The party walks to a place: the route planned as for a click, and the system's way of going
- * on taken at once. A place no route reaches stays out of reach: nothing moves, and it says so.
+ * on taken at once. A place no route reaches stays out of reach: nothing moves, and it says so
+ * (`refused`).
  */
-export function walkTo(place: string, cell?: HexKey): void {
+export function walkTo(place: string, cell?: HexKey, refused = t('play.noWayThere')): void {
   const session = sessionOf(current())
   if (!session) return
   if (place === session.travel.location) {
@@ -305,8 +307,7 @@ export function walkTo(place: string, cell?: HexKey): void {
   aimed = cell && placeOfCell(editor.map, cell) === place ? cell : undefined
   step({ type: 'setDestination', place })
   const travel = sessionOf(current())?.travel
-  if (!travel?.route || travel.route.length < 2)
-    return void showToast(t('play.noWayThere'), 'info', 5000)
+  if (!travel?.route || travel.route.length < 2) return void showToast(refused, 'info', 5000)
   if (id) step({ type: 'action', id, ...(onward?.with && { with: onward.with }) })
 }
 
@@ -363,81 +364,61 @@ const WASD: Record<string, string> = {
 }
 
 /**
- * Playing with the keyboard: an arrow (or W A S D) walks the party one place that way; in a
- * room, one cell (`stepInRoom`). True if it was for it.
+ * Playing with the keyboard: an arrow (or W A S D) steps the party onto the cell that way. In
+ * a room (a region played as one place) a cell of the same room is only where the party
+ * stands (no time passes, as the room is one place to the rules); a cell of another place,
+ * through a door or an opening, is a step of the trip there, and the party stands on that
+ * cell. A wall, the map's edge or a place no step reaches stops it: never another cell
+ * instead. True if the key was for it.
  */
 export function walkByKey(key: string): boolean {
   const direction = ARROWS[WASD[key] ?? key]
   if (!direction || editor.mode !== 'play' || !onTrip()) return false
-  if (parseAreaPlace(sessionOf(current())?.travel.location ?? '')) {
-    stepInRoom(direction)
-    return true
+  const next = cellToward(direction)
+  const place = next && placeOfCell(editor.map, next)
+  if (!next || !place) showToast(t('play.noWayThere'), 'info', 5000)
+  else if (place === placeOfCell(editor.map, partyLocation()!)) standAt(next)
+  else {
+    const terrain = editor.map.hexes[next]?.terrain
+    walkTo(place, next, t('play.notThrough', { terrain: terrain ? terrainLabel(terrain) : next }))
   }
-  const place = placeToward(direction)
-  if (place) walkTo(place)
-  else showToast(t('play.noWayThere'), 'info', 5000)
   return true
 }
 
 /**
- * In a room (a region played as one place), a key steps one cell: within the room only where
- * the party stands changes (no time passes, as the room is one place to the rules); onto a
- * cell of another place, through a door or an opening, it's a step of the trip there. A wall
- * stops it.
+ * The cell a key's direction on the screen steps onto from the party's: of the cells next to
+ * it lying most nearly that way (on hexes two may, where none lies straight that way), the
+ * first with no wall between that is its own room or a place a step reaches; else the far end
+ * of a connection drawn from its cell straight that way (a door across a thick wall).
  */
-function stepInRoom(direction: { x: number; y: number }): void {
+export function cellToward(direction: { x: number; y: number }): HexKey | undefined {
   const here = partyLocation()
-  if (!here) return
+  if (!sessionOf(current()) || !here) return undefined
   const { grid } = editor.map
-  const next = towards(
-    here,
-    direction,
-    neighborCells(parseKey(here), grid).map((cell) => [keyOf(cell), keyOf(cell)]),
-  )
-  if (!next || mapWalls(editor.map).between(here, next))
-    return void showToast(t('play.noWayThere'), 'info', 5000)
-  const place = placeOfCell(editor.map, next)
-  if (place !== placeOfCell(editor.map, here)) return walkTo(place)
-  standAt(next)
-}
-
-/**
- * Of some things drawn on cells (`[thing, cell]`), the one that lies most nearly in a direction
- * on the screen from a cell, if any lies that way at all.
- */
-function towards<T>(
-  from: HexKey,
-  direction: { x: number; y: number },
-  candidates: [T, HexKey][],
-): T | undefined {
-  const { grid } = editor.map
-  const start = cellCenter(parseKey(from), grid, 1)
-  let best: { thing: T; fit: number } | undefined
-  for (const [thing, cell] of candidates) {
+  const start = cellCenter(parseKey(here), grid, 1)
+  const fit = (cell: HexKey) => {
     const to = cellCenter(parseKey(cell), grid, 1)
     const [x, y] = [to.x - start.x, to.y - start.y]
-    const fit = (x * direction.x + y * direction.y) / (Math.hypot(x, y) || 1)
-    if (fit > 0.4 && fit > (best?.fit ?? 0)) best = { thing, fit }
+    return (x * direction.x + y * direction.y) / (Math.hypot(x, y) || 1)
   }
-  return best?.thing
-}
-
-/**
- * The place next to the party's that lies in a direction on the screen, of those a step can
- * reach: through a door, out of a room, along a connection. Walls and the map's edge have none.
- */
-export function placeToward(direction: { x: number; y: number }): string | undefined {
-  const session = sessionOf(current())
-  const here = partyLocation()
-  if (!session || !here) return undefined
-  const places = playWorld(getSystem(mapSystemId())).neighbors(session.travel.location)
-  return towards(
-    here,
-    direction,
-    places.flatMap((place): [string, HexKey][] => {
-      const cell = cellOfPlace(editor.map, place, here)
-      return cell ? [[place, cell]] : []
-    }),
+  const location = placeOfCell(editor.map, here)
+  const reached = new Set(playWorld(getSystem(mapSystemId())).neighbors(location))
+  const reaches = (cell: HexKey) => {
+    const place = placeOfCell(editor.map, cell)
+    return place === location || reached.has(place)
+  }
+  const near = neighborCells(parseKey(here), grid).map((cell) => keyOf(cell) as HexKey)
+  const best = Math.max(...near.map(fit))
+  const walls = mapWalls(editor.map)
+  const next =
+    best > 0.4
+      ? near.find((cell) => fit(cell) >= best - 0.01 && !walls.between(here, cell) && reaches(cell))
+      : undefined
+  return (
+    next ??
+    editor.map.connections
+      .flatMap(({ between: [a, b] }) => (a === here ? [b] : b === here ? [a] : []))
+      .find((cell) => !near.includes(cell) && fit(cell) > 0.9 && reaches(cell))
   )
 }
 
@@ -571,6 +552,28 @@ export function hearWorld(heard = 0): void {
   }
 }
 
+/**
+ * A room laid on cells the trip stood on or was heading for takes them in: the trip is (or
+ * heads for) the room, one place to the rules, as a cell of a room always is.
+ */
+function intoRooms(state: SessionState): SessionState {
+  const place = (p: string) => (parsePlaceOn(p) ? p : placeOfCell(editor.map, p))
+  const { location, destination, route } = state.travel
+  const travel = { ...state.travel, location: place(location) }
+  if (destination) travel.destination = place(destination)
+  if (route) {
+    const places = route.map(place).filter((p, i, all) => p !== all[i - 1])
+    if (places.length > 1) travel.route = places
+    else delete travel.route
+  }
+  if (travel.route?.join() !== route?.join()) travel.progress = 0
+  const same =
+    travel.location === location &&
+    travel.destination === destination &&
+    travel.route?.join() === route?.join()
+  return same ? state : { ...state, travel }
+}
+
 /** Runs a travel action through the session, and what it did in the world. */
 function stepOnly(action: TripAction): void {
   const play = current()
@@ -597,10 +600,11 @@ function stepOnly(action: TripAction): void {
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000)
     return
   }
-  const { state, entries, discovered, laid } = result
-  editor.takeWorld({ campaign: keepMapSheet(editor.campaign, state.map) })
+  const { entries, discovered, laid } = result
+  editor.takeWorld({ campaign: keepMapSheet(editor.campaign, result.state.map) })
   editor.applyDiscovery(discovered)
   editor.applyLaid(laid)
+  const state = intoRooms(result.state)
   // Ways into maps of their own (a piece's exit, a result's `place.ways.<kind>`): each new map
   // made and kept, hanging from its cell (the party's, for a result).
   const ways = [

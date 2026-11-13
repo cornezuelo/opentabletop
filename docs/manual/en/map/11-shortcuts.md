@@ -17,7 +17,7 @@
 | <kbd>O</kbd>                                                                 | Oracle panel                                                                                      |
 | <kbd>?</kbd>                                                                 | Help and manual                                                                                   |
 | <kbd>F</kbd>                                                                 | Fit the map                                                                                       |
-| Arrows, <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>                  | In Play, on a trip: walk the party ([Play](08-play.md)); in a room, one cell                      |
+| Arrows, <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>                  | In Play, on a trip: the party steps one cell that way ([Play](08-play.md))                        |
 | <kbd>Space</kbd> + drag, middle button                                       | Pan                                                                                               |
 | Wheel                                                                        | Zoom                                                                                              |
 | <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> | Undo / redo                                                                                       |

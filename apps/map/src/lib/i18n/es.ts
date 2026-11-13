@@ -631,6 +631,8 @@ export const es: Messages = {
       'Haz clic en una casilla para fijar otro destino, o camina con las flechas (o W A S D).',
     exitsHelp:
       'Haz clic más allá de una salida marcada para abrirla, o camina con las flechas (o W A S D).',
+    notThrough:
+      'Las reglas del sistema no dejan al grupo entrar en «{terrain}» desde aquí: su terreno, la forma de viajar o un paso cerrado.',
     noWayThere: 'Por ahí no hay camino: hay un muro, el borde del mapa o un paso cerrado.',
     blankTitle: 'Este mapa se descubre jugando',
     blankHelp: 'Aún no hay nada dibujado: lo que encuentre el grupo aparece a medida que avanza.',

@@ -623,6 +623,8 @@ export const en = {
     newDestination:
       'Click a cell to set a new destination, or walk with the arrow keys (or W A S D).',
     exitsHelp: 'Click beyond a marked exit to open it, or walk with the arrow keys (or W A S D).',
+    notThrough:
+      "The system's rules don't let the party into “{terrain}” from here: its terrain, the way of travelling or a closed way.",
     noWayThere:
       'No way there from here: a wall, the edge of the map or a closed way stands between.',
     blankTitle: 'This map is discovered by playing',

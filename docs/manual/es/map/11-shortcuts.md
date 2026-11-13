@@ -17,7 +17,7 @@
 | <kbd>O</kbd>                                                                 | Panel de Oráculo                                                                                                     |
 | <kbd>?</kbd>                                                                 | Ayuda y manual                                                                                                       |
 | <kbd>F</kbd>                                                                 | Encuadrar el mapa                                                                                                    |
-| Flechas, <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>                 | En Jugar, en un viaje: el grupo camina ([Jugar](08-play.md)); en una sala, una casilla                               |
+| Flechas, <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>                 | En Jugar, en un viaje: el grupo pasa a la casilla de esa dirección ([Jugar](08-play.md))                             |
 | <kbd>Espacio</kbd> + arrastrar, botón central                                | Desplazar                                                                                                            |
 | Rueda                                                                        | Zoom                                                                                                                 |
 | <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> | Deshacer / rehacer                                                                                                   |

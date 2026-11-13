@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cellCenter, parseKey } from '@open-tabletop/hex'
 import { dialog, toasts } from '@open-tabletop/ui-kit'
-import { createMap, partyToken, type HexKey } from '@open-tabletop/map'
+import { createMap, mapWalls, partyToken, placeOfCell, type HexKey } from '@open-tabletop/map'
+import { seeded } from '@open-tabletop/random'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
 import { editor } from '../store/editor.svelte'
@@ -255,4 +256,50 @@ describe('walking', () => {
     expect(play.sessionOf(editor.map.play!)!.map?.values.explored).toBe(1)
     expect(editor.campaign.mapSheets?.[editor.map.meta.id]?.values.explored).toBe(1)
   })
+
+  it.each(['deepbarrows1', 'barrowhalls1'])(
+    'in %s every key steps onto the cell that way, or says why it does not',
+    (id) => {
+      const random = seeded(7)
+      vi.spyOn(Math, 'random').mockImplementation(() => random.next())
+      editor.open(parseMapFile(exampleMaps().find((m) => m.id === id)!.json))
+      editor.mode = 'play'
+      editor.tool = 'play'
+      play.setMode('rules')
+      play.clickHex((at() ?? editor.map.meta.parent!.ways[0].entrance) as HexKey)
+      const { grid } = editor.map
+      const keys = { w: [0, -1], a: [-1, 0], s: [0, 1], d: [1, 0] } as const
+      let moves = 0
+      for (let i = 0; i < 120; i++) {
+        // What the trip waits for is answered, as a player would.
+        const waiting = play.sessionOf(editor.map.play!)!.travel
+        if (waiting.pendingChecks[0])
+          play.step({ type: 'resolveCheck', id: waiting.pendingChecks[0].id })
+        else if (waiting.waiting) play.step({ type: 'resume' })
+        const key = 'wasd'[Math.floor(random.next() * 4)] as keyof typeof keys
+        const [x, y] = keys[key]
+        const from = at()!
+        toasts.length = 0
+        play.walkByKey(key)
+        const to = at()!
+        // The trip stands where its token does: a room laid on its cell takes it in.
+        expect(placeOfCell(editor.map, to)).toBe(location())
+        if (to === from) {
+          expect(toasts.length).toBeGreaterThan(0)
+          continue
+        }
+        moves++
+        // Never round a corner, nor through a wall: the cell that way, or across a door.
+        const a = cellCenter(parseKey(from), grid, 1)
+        const b = cellCenter(parseKey(to), grid, 1)
+        const fit = ((b.x - a.x) * x + (b.y - a.y) * y) / Math.hypot(b.x - a.x, b.y - a.y)
+        expect(fit).toBeGreaterThan(0.99)
+        const door = editor.map.connections.some(
+          (c) => c.between.includes(from) && c.between.includes(to),
+        )
+        if (!door) expect(mapWalls(editor.map).between(from, to)).toBe(false)
+      }
+      expect(moves).toBeGreaterThan(40)
+    },
+  )
 })

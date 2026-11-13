@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Map
+
+- **Walking with the keys** steps onto the cell that way, never another round a corner; a room laid under the party takes it in, so keys no longer jump; a room entered by key is entered on the cell ahead; and a step refused says whether a wall or the system's rules (a terrain it can't cross, a shut door) stop it.
+
 ### Packs
 
 - **One of those present leaving**: a new moment, `present.leave`, for actions' `on:` and checks' `at:`, as a copy of a template leaves those present (fallen, run off, taken away, left behind), the one leaving acting as it was when it left (`acting.conditions: down`, `acting.tags`, `acting.template`, what it carried). Core's **Search the fallen** (_What the fallen carry_); the Grey Marches' **Strip the fallen** (_What the fallen leave_: an outlaw's purse and rations, the bandit chief's hoard, the grave goods of the dead).
