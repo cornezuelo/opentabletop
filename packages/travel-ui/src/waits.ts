@@ -1,5 +1,9 @@
-import { participantName, type SessionState } from '@open-tabletop/session'
-import type { TravelAction } from '@open-tabletop/travel-engine'
+import {
+  encounterView,
+  participantName,
+  type SessionState,
+  type TripAction,
+} from '@open-tabletop/session'
 import type { Translate } from './i18n'
 import { entryText, eventName, type JournalContext } from './journal'
 
@@ -11,7 +15,7 @@ export function tripWaits(
   session: SessionState,
   context: JournalContext,
   t: Translate,
-): { text: string; go?: TravelAction } | null {
+): { text: string; go?: TripAction; label?: 'next' } | null {
   const travel = session.travel
   const check = travel.pendingChecks[0]
   if (check) {
@@ -22,8 +26,21 @@ export function tripWaits(
       ...(!asks && { go: { type: 'resolveCheck', id: check.id } }),
     }
   }
-  // A foe's turn waiting for the player to roll its table: chosen in the trip's panel.
   const fight = session.encounter
+  // A foe's turn done, read before the next: Next goes on.
+  if (fight?.stage === 'shown') {
+    const id = fight.order[fight.turn] ?? ''
+    const next = encounterView(session)?.next
+    return {
+      text: t('fight.shown', {
+        name: participantName(session, id),
+        next: next ? participantName(session, next) : '',
+      }),
+      go: { type: 'encounter', what: 'next' },
+      label: 'next',
+    }
+  }
+  // A foe's turn waiting for the player to roll its table: chosen in the trip's panel.
   if (fight?.stage === 'rolling') {
     const id = fight.order[fight.turn] ?? ''
     const line = { id: '', at: '', time: travel.time, source: 'travel' as const }

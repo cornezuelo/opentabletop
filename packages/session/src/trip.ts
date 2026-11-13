@@ -1572,6 +1572,13 @@ export function stepTrip(
       if (action.total !== undefined) s.handTotal = action.total
       return stepTrip(options, s, { type: 'roll', resolve: table })
     }
+    // A foe's turn read: on to the next one.
+    if (action.what === 'next') {
+      if (s.encounter?.stage !== 'shown')
+        return { state: session, entries: [], discovered: {}, laid: [] }
+      s.encounter.stage = 'onward'
+      return stepTrip(options, s, { type: 'moment', at: 'encounter.none' })
+    }
     changeEncounter(s, 'encounter', action.what)
     return stepTrip(options, s, { type: 'moment', at: 'encounter.none' })
   }
@@ -1648,12 +1655,13 @@ export function stepTrip(
 
 /**
  * What a trip's step plays: a travel action, an encounter started or ended by hand
- * (`{ type: 'encounter', what: 'start' }`), or a foe's table rolled by hand (`what: 'roll'`,
- * the `total` the player rolled; none, rolled for them).
+ * (`{ type: 'encounter', what: 'start' }`), a foe's table rolled by hand (`what: 'roll'`,
+ * the `total` the player rolled; none, rolled for them), or on from a foe's turn read
+ * (`what: 'next'`).
  */
 export type TripAction =
   | TravelAction
-  | { type: 'encounter'; what: 'start' | 'end' }
+  | { type: 'encounter'; what: 'start' | 'end' | 'next' }
   | { type: 'encounter'; what: 'roll'; total?: number }
 
 /**

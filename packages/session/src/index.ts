@@ -315,6 +315,11 @@ export interface SessionState {
    * each one waits for the total of its table's dice (docs/conflicts.md, _Foes that act_).
    */
   foesByHand?: boolean
+  /**
+   * The player's choice to play the foes' turns in a fight one after another at once
+   * (**Foes' turns at once**); absent, each foe's turn waits for **Next** before another's.
+   */
+  foesAtOnce?: boolean
   /** The total the player rolled for the next table a step rolls, used once (a foe's turn). */
   handTotal?: number
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */

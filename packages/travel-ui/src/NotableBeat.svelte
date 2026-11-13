@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { SessionState } from '@open-tabletop/session'
-  import type { TravelAction } from '@open-tabletop/travel-engine'
+  import type { TripAction } from '@open-tabletop/session'
   import { tooltip } from '@open-tabletop/ui-kit'
   import BeatView from './BeatView.svelte'
   import { tellBeat } from './beats'
@@ -26,7 +26,7 @@
     session: SessionState
     context: JournalContext
     locale: string
-    onstep?: (action: TravelAction) => void
+    onstep?: (action: TripAction) => void
     onshow?: () => void
   } = $props()
 
@@ -47,7 +47,7 @@
           onclick={() => {
             putAway()
             onstep(waits.go!)
-          }}>{t('continue')}</button
+          }}>{waits.label === 'next' ? t('fight.next') : t('continue')}</button
         >
       {:else if waits && onshow}
         <button class="primary" onclick={onshow}>{t('status.choose')}</button>

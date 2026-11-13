@@ -7,7 +7,7 @@
     type SessionState,
     type TravelSystem,
   } from '@open-tabletop/session'
-  import type { TravelAction } from '@open-tabletop/travel-engine'
+  import type { TripAction } from '@open-tabletop/session'
   import { formatClock } from '@open-tabletop/time'
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { dayPartsLine } from './dayParts'
@@ -61,7 +61,7 @@
     /** The host's facts (the world clock's), for members' values made of them. */
     facts?: Record<string, unknown>
     /** Goes on from a pause (a check, a step that waits) from the strip. */
-    onstep?: (action: TravelAction) => void
+    onstep?: (action: TripAction) => void
     /** Shows the trip's panel, for a pause that asks for a choice. */
     onshow?: () => void
   } = $props()
@@ -237,7 +237,9 @@
         <span class="waits" role="status"
           >⏸ {waits.text}
           {#if waits.go && onstep}
-            <button class="go" onclick={() => onstep(waits.go!)}>{t('continue')}</button>
+            <button class="go" onclick={() => onstep(waits.go!)}
+              >{waits.label === 'next' ? t('fight.next') : t('continue')}</button
+            >
           {:else if !waits.go && onshow}
             <button class="go" onclick={onshow}>{t('status.choose')}</button>
           {/if}</span

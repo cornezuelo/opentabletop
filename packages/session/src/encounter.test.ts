@@ -1,3 +1,4 @@
+import type { SessionState } from './index'
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import { createCharacter } from '@open-tabletop/character-engine'
@@ -6,7 +7,24 @@ import { describe, expect, it } from 'vitest'
 import { encounterView, fightStarters, parseEncounter } from './encounter'
 import { applyResult } from './index'
 import { beatsOf, notableLines } from './journal'
-import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
+import {
+  partyOf,
+  startTrip as startPaced,
+  stepTrip,
+  travelSystems,
+  tripAvailability,
+  tripFacts,
+} from './trip'
+
+/**
+ * Trips whose foes play their turns one after another at once (**Foes' turns at once**): what
+ * these tests read is each fight's whole round; waiting for Next is tested apart.
+ */
+const startTrip = (o: Parameters<typeof startPaced>[0]) => {
+  const started = startPaced(o)
+  const session: SessionState = { ...started.session, foesAtOnce: true }
+  return { ...started, session }
+}
 
 /**
  * A made-up system whose fights go in turns: an ambush brings two goblins and starts a
@@ -629,5 +647,45 @@ describe('moments of play (beats)', () => {
         line('CLOCK_FILLED', {}),
       ]).map((e) => e.code),
     ).toEqual(['CLOCK_FILLED'])
+  })
+})
+
+describe('the foes’ turns one at a time', () => {
+  it('each foe’s turn waits for Next before another foe’s; a turn of the party’s needs none', () => {
+    const { options, session } = begin()
+    const paced = { ...session, foesAtOnce: undefined }
+    let done = stepTrip(options, paced, { type: 'action', id: 'ambush' })
+    const strike = (foe: string) =>
+      (done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe } }))
+    strike('goblin')
+    strike('goblin-2')
+    // The first goblin's turn, read: the fight waits, the second goblin up next.
+    expect(codes(done.entries)).toEqual(['turn goblin'])
+    expect(done.state.encounter?.stage).toBe('shown')
+    expect(encounterView(done.state)).toMatchObject({ next: 'goblin-2', choosing: false })
+    expect(encounterView(done.state)!.fighters[2]).toMatchObject({ id: 'goblin', done: true })
+    // Nothing else goes on meanwhile.
+    expect(
+      stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+        .state,
+    ).toBe(done.state)
+    // Next: the second goblin's turn, then round 2 and Kael's, which waits by itself.
+    done = stepTrip(options, done.state, { type: 'encounter', what: 'next' })
+    expect(codes(done.entries)).toEqual(['turn goblin-2', 'ENCOUNTER_ROUND', 'turn kael'])
+    expect(done.state.encounter?.stage).toBe('acting')
+    // Next when nothing waits for it does nothing.
+    expect(stepTrip(options, done.state, { type: 'encounter', what: 'next' }).state).toBe(
+      done.state,
+    )
+    // Skipping pauses plays them at once too.
+    const skipping = stepTrip(
+      options,
+      { ...paced, skipPauses: true },
+      { type: 'action', id: 'ambush' },
+    )
+    let s = skipping.state
+    for (const foe of ['goblin', 'goblin-2'])
+      s = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe } }).state
+    expect(s.encounter?.stage).toBe('acting')
   })
 })

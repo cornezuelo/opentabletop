@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { render } from 'svelte/server'
 import { applyResult, partyOf } from '@open-tabletop/session'
 import PlayPanel from '../../components/PlayPanel.svelte'
+import PlayStrip from '../../components/PlayStrip.svelte'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
 import { editor } from '../store/editor.svelte'
@@ -58,6 +59,24 @@ describe('the fight view', () => {
     // The fight's moments under the cards.
     expect(html).toContain('class="log')
     expect(chooseOnMap('nobody')).toBe(false)
+
+    // Fought on: a foe's turn before another foe's waits for Next, in the panel and the strip.
+    let read = false
+    for (let i = 0; i < 20 && session().encounter && !read; i++) {
+      const fight = session().encounter!
+      if (fight.stage === 'shown') {
+        html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
+        expect(html).toMatch(/<button class="primary[^>]*>Next</)
+        expect(html).toContain('has acted. Next:')
+        expect(render(PlayStrip).body).toMatch(/>\s*Next\s*</)
+        step({ type: 'encounter', what: 'next' })
+        expect(session().encounter?.stage).not.toBe('shown')
+        read = true
+      } else if (session().travel.waiting?.choices?.length)
+        chooseOnMap(session().travel.waiting!.choices![0]!)
+      else step({ type: 'action', id: 'strike' })
+    }
+    expect(read).toBe(true)
     editor.switchMode('edit')
     vi.restoreAllMocks()
   })

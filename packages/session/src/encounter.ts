@@ -59,10 +59,12 @@ export interface EncounterRules {
  * Where an encounter is: `start` (asked for, not begun), `begun` (its start's actions done,
  * the order to read), `round` (a round to begin), `turn` (a turn to begin), `acting` (a
  * member's turn: the player chooses what to do), `rolling` (a foe's turn, its table waiting
- * for the player to roll it by hand), `acted` (the turn is done), `end` (to end).
+ * for the player to roll it by hand), `acted` (the turn is done), `shown` (a foe's turn
+ * done, waiting for **Next** before another foe's, so each is read), `onward` (done and
+ * read: on to the next), `end` (to end).
  */
 export type EncounterStage =
-  'start' | 'begun' | 'round' | 'turn' | 'acting' | 'rolling' | 'acted' | 'end'
+  'start' | 'begun' | 'round' | 'turn' | 'acting' | 'rolling' | 'acted' | 'shown' | 'onward' | 'end'
 
 /** An encounter going on in a trip (play state, saved with it). */
 export interface Encounter {
@@ -259,24 +261,30 @@ export function encounterView(s: SessionState):
       rolling?: string
       /** Its dice (`1d6`); absent: rolled by weight, so only the system can roll it. */
       dice?: string
+      /** A foe's turn done, the fight waiting for Next: who acts next (its id). */
+      next?: string
     }
   | undefined {
   const e = s.encounter
   if (!e || e.round === 0) return undefined
   // A turn taken whose action waits for the player (whom to strike) is still going on.
   const busy = e.stage === 'acted' && waits(s)
+  const shown = e.stage === 'shown'
   const now = e.stage === 'acting' || e.stage === 'rolling' || e.stage === 'turn' || busy
   return {
     round: e.round,
     choosing: e.stage === 'acting',
     ...(e.stage === 'rolling' && e.rolling && { rolling: e.rolling }),
     ...(e.stage === 'rolling' && e.dice && { dice: e.dice }),
+    ...(shown && {
+      next: [...e.order.slice(e.turn + 1), ...e.order].find((id) => stillHere(s, id)),
+    }),
     fighters: e.order.map((id, i) => ({
       id,
       name: participantName(s, id),
       side: sideOf(s, id),
       acting: i === e.turn && now,
-      done: i < e.turn || (i === e.turn && e.stage === 'acted' && !busy),
+      done: i < e.turn || (i === e.turn && (e.stage === 'acted' || shown) && !busy),
       gone: !stillHere(s, id),
       ...(participant(s, id) && { character: participant(s, id) }),
     })),
@@ -505,11 +513,28 @@ export function driveEncounter(
       }
       case 'acting':
       case 'rolling':
+      case 'shown':
         return { state, entries }
-      case 'acted': {
+      case 'acted':
+      case 'onward': {
         if (ends()) {
           edit((e) => (e.stage = 'end'))
           break
+        }
+        // A foe's turn is read before another foe's: the fight waits for Next (unless the
+        // player plays them at once, or skips pauses). A turn of the party's waits anyway.
+        if (e.stage === 'acted' && !state.foesAtOnce && !state.skipPauses) {
+          const id = e.order[e.turn]
+          const next = [...e.order.slice(e.turn + 1), ...e.order].find((o) => stillHere(state, o))
+          if (
+            id !== undefined &&
+            sideOf(state, id) === 'foes' &&
+            next &&
+            sideOf(state, next) === 'foes'
+          ) {
+            edit((e) => (e.stage = 'shown'))
+            return { state, entries }
+          }
         }
         if (e.turn + 1 < e.order.length) {
           edit((e) => {

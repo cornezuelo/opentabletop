@@ -30,6 +30,8 @@
     changes = {},
     targets = [],
     log = [],
+    next,
+    onnext,
     onend,
     onroll,
     ontarget,
@@ -55,6 +57,10 @@
     targets?: readonly string[]
     /** The fight's moments, newest first. */
     log?: BeatTold[]
+    /** A foe's turn done, the fight waiting for Next: who acts next (its id). */
+    next?: string
+    /** Goes on to the next turn. */
+    onnext?: () => void
     /** One of `targets` chosen. */
     ontarget?: (id: string) => void
     /** Ends the fight by hand (absent: it can't be). */
@@ -165,6 +171,15 @@
         >
       </div>
     </form>
+  {:else if next !== undefined && onnext}
+    {@const done = fighters.findLast((f) => f.done && f.side === 'foes')}
+    {@const up = fighters.find((f) => f.id === next)}
+    <div class="next">
+      <p class="turn">
+        {t('fight.shown', { name: done ? nameOf(done) : '', next: up ? nameOf(up) : '' })}
+      </p>
+      <button class="primary" onclick={onnext}>{t('fight.next')}</button>
+    </div>
   {:else if acting}
     <p class="turn">
       {choosing
@@ -306,6 +321,14 @@
   .turn {
     margin: 0;
     font-size: 13px;
+  }
+
+  .next {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .roll {

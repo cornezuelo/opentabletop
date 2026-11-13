@@ -682,6 +682,7 @@
         {targets}
         log={fightLog}
         ontarget={(id) => onstep({ type: 'resume', choice: id })}
+        onnext={() => onstep({ type: 'encounter', what: 'next' })}
         tableName={fight.rolling ? (nameOf?.(fight.rolling) ?? fight.rolling) : undefined}
         onroll={(total) =>
           onstep({ type: 'encounter', what: 'roll', ...(total !== undefined && { total }) })}
@@ -1150,6 +1151,21 @@
               })
             }}
           /><span>{t('foesByHand')}<InfoTip text={t('foesByHandHelp')} /></span></label
+        >
+        <label class="check skip"
+          ><input
+            type="checkbox"
+            checked={!!session.foesAtOnce}
+            onchange={(e) => {
+              const on = e.currentTarget.checked
+              onedit((s) => {
+                const next = { ...s }
+                if (on) next.foesAtOnce = true
+                else delete next.foesAtOnce
+                return next
+              })
+            }}
+          /><span>{t('foesAtOnce')}<InfoTip text={t('foesAtOnceHelp')} /></span></label
         >
       {/if}
       {#if onshare && system.sheet?.def.items && (session.members?.length ?? 0) > 1}

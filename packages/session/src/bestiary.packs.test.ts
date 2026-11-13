@@ -1,3 +1,4 @@
+import type { SessionState } from './index'
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
@@ -6,7 +7,24 @@ import { corePack, greyMarchesPack } from './core.testing'
 import { encounterView, fightStarters } from './encounter'
 import { applyResult, type JournalEntry } from './index'
 import { newMember } from './party'
-import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
+import {
+  partyOf,
+  startTrip as startPaced,
+  stepTrip,
+  travelSystems,
+  tripAvailability,
+  tripFacts,
+} from './trip'
+
+/**
+ * Trips whose foes play their turns one after another at once (**Foes' turns at once**): what
+ * these tests read is each fight's whole round; waiting for Next is tested apart.
+ */
+const startTrip = (o: Parameters<typeof startPaced>[0]) => {
+  const started = startPaced(o)
+  const session: SessionState = { ...started.session, foesAtOnce: true }
+  return { ...started, session }
+}
 
 const { registry } = loadPacks([...corePack(), ...greyMarchesPack()])
 const { systems, problems } = travelSystems(registry)

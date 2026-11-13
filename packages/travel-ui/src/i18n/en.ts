@@ -113,6 +113,9 @@ export const en = {
   foesByHand: 'Roll the foes by hand',
   foesByHandHelp:
     "In a fight in turns, each foe's turn waits for you: roll its table's dice yourself and type the total (or **Roll it for me**), and the row it falls on happens as if the system had rolled it. Dice within that row (a blow's damage) are still rolled by the system.\n• Unticked, the foes' turns go by themselves\n• A table with no dice (rolled by weight) is always rolled by the system",
+  foesAtOnce: 'Foes’ turns at once',
+  foesAtOnceHelp:
+    'In a fight, each foe’s turn waits for **Next** before another foe’s, so you read what it did. Ticked, the foes’ turns go one after another at once, until a turn of the party’s (Skip pauses does the same).',
   skipPauses: 'Skip pauses',
   skipPausesHelp:
     "Play everything by itself: whatever would stop the trip for you (a check that pauses, a result that pauses, an action's `pause:` step, a pause of the campaign's world) is written down and the trip goes on.\n• Questions still wait for you (an action's `ask:`), since they need a choice\n• Checks that wait for who rolls (**Ask at every roll**) still wait\nUntick it to stop at pauses again.",
@@ -235,6 +238,8 @@ export const en = {
     choose: 'Choose {name}',
     log: 'What happened in the fight',
     clickTarget: 'Click one of them above.',
+    shown: '{name} has acted. Next: {next}.',
+    next: 'Next',
     theParty: 'The party',
     party: 'party',
     foes: 'foes',

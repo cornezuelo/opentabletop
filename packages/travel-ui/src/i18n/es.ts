@@ -110,6 +110,9 @@ export const es: Messages<typeof en> = {
   foesByHand: 'Tirar a mano por los enemigos',
   foesByHandHelp:
     'En un combate por turnos, el turno de cada enemigo te espera: tira tú los dados de su tabla y escribe el total (o **Tíralo por mí**), y la fila que salga ocurre como si la hubiera tirado el sistema. Los dados dentro de esa fila (el daño de un golpe) los sigue tirando el sistema.\n• Desmarcada, los turnos de los enemigos se juegan por sí solos\n• Una tabla sin dados (que se tira por pesos) la tira siempre el sistema',
+  foesAtOnce: 'Turnos enemigos de una vez',
+  foesAtOnceHelp:
+    'En un combate, el turno de cada enemigo espera a **Siguiente** antes del de otro enemigo, para que leas lo que ha hecho. Marcado, los turnos de los enemigos van uno tras otro de una vez, hasta un turno del grupo (Saltar las pausas hace lo mismo).',
   skipPauses: 'Saltar las pausas',
   skipPausesHelp:
     'Que todo se juegue por sí solo: lo que detendría el viaje para ti (una comprobación que pausa, un resultado que pausa, el paso `pause:` de una acción, una pausa del mundo de la campaña) se apunta y el viaje sigue.\n• Las preguntas siguen esperándote (el `ask:` de una acción), porque necesitan una elección\n• Las comprobaciones que esperan a quién tira (**Preguntar en cada tirada**) siguen esperando\nDesmárcala para volver a parar en las pausas.',
@@ -229,6 +232,8 @@ export const es: Messages<typeof en> = {
     choose: 'Elegir a {name}',
     log: 'Lo que ha pasado en el combate',
     clickTarget: 'Pulsa uno de ellos arriba.',
+    shown: '{name} ha actuado. Le toca a: {next}.',
+    next: 'Siguiente',
     theParty: 'El grupo',
     party: 'grupo',
     foes: 'enemigos',
