@@ -87,6 +87,7 @@ docs/
   packs-app.md              # The Packs app: its screens (two views, a pack's page, a system's rail), the Oracle after it, land for any map, decided
   conflicts.md              # Conflicts: combat and contests (an encounter in the session, turns, foes that act), to review
   advancement.md            # Advancement and abilities (XP, levels, choices, abilities as things held), to review
+  play-ux.md                # Playing reads well: a review of the UI/UX of play (beats, dice, rolling yourself, the fight view), to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
