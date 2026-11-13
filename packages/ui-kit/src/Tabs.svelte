@@ -2,7 +2,9 @@
   /**
    * A row of tabs that never wraps: when its tabs don't fit the room it has (a side panel,
    * a narrow window), it becomes a choice of the same tabs. The host draws the tab's panel
-   * with `id="<prefix>-panel"` and `aria-labelledby="<prefix>-tab-<chosen>"`.
+   * with `id="<prefix>-panel"` and `aria-labelledby="<prefix>-tab-<chosen>"`. A tab's `count`
+   * (what's new there) is shown beside its name when above 0, its room always kept, so a
+   * count coming and going never turns the tabs into a choice.
    */
   let {
     tabs,
@@ -11,7 +13,7 @@
     prefix,
     onchange,
   }: {
-    tabs: { id: Id; label: string }[]
+    tabs: { id: Id; label: string; count?: number }[]
     value: Id
     /** What the tabs are, for screen readers (and the choice's name when narrow). */
     label: string
@@ -30,7 +32,9 @@
 <div class="tabs" bind:clientWidth={room}>
   <!-- The tabs side by side, out of sight, only to know whether they fit. -->
   <div class="measure" aria-hidden="true" bind:clientWidth={needed}>
-    {#each tabs as tab (tab.id)}<span class="tab">{tab.label}</span>{/each}
+    {#each tabs as tab (tab.id)}<span class="tab"
+        >{tab.label}{#if tab.count !== undefined}<span class="count">99</span>{/if}</span
+      >{/each}
   </div>
   {#if narrow}
     <select
@@ -40,7 +44,9 @@
       {value}
       onchange={(e) => onchange(e.currentTarget.value as Id)}
     >
-      {#each tabs as tab (tab.id)}<option value={tab.id}>{tab.label}</option>{/each}
+      {#each tabs as tab (tab.id)}<option value={tab.id}
+          >{tab.count ? `${tab.label} (${tab.count})` : tab.label}</option
+        >{/each}
     </select>
   {:else}
     <div class="row" role="tablist" aria-label={label}>
@@ -52,7 +58,8 @@
           aria-selected={value === tab.id}
           aria-controls="{prefix}-panel"
           class:on={value === tab.id}
-          onclick={() => onchange(tab.id)}>{tab.label}</button
+          onclick={() => onchange(tab.id)}
+          >{tab.label}{#if tab.count}<span class="count">{tab.count}</span>{/if}</button
         >
       {/each}
     </div>
@@ -102,6 +109,19 @@
     background: var(--bg);
     border-color: var(--panel-border);
     border-bottom-color: var(--bg);
+  }
+
+  .count {
+    display: inline-block;
+    min-width: 16px;
+    margin-left: 5px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    color: var(--bg);
+    background: var(--accent);
+    border-radius: 8px;
   }
 
   select {

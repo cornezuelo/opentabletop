@@ -7,6 +7,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Fixes
 
 - Map: a fight met as a room is laid (an encounter on entering it) no longer ends as soon as it starts: those it brings are in the room with the party.
+- Play's tabs (Travel, Map, Campaign's scenes) no longer turn into a list when the Journal counts what's new: the count is a badge whose room is always kept.
+- Characters: the bestiary's **Make a character** and **Make copies** look like the rest of the buttons.
 
 ## [0.49.0] - 2026-11-13
 

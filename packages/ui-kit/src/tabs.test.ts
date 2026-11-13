@@ -22,4 +22,20 @@ describe('Tabs', () => {
     expect(body).toMatch(/id="trip-tab-party"[^>]*aria-selected="false"/)
     expect(body.match(/aria-controls="trip-panel"/g)).toHaveLength(2)
   })
+
+  it('shows a count above 0 beside its tab, and keeps its room measured even at 0', () => {
+    const count = (n: number) => ({
+      ...props,
+      tabs: [{ id: 'journal', label: 'Journal', count: n }, props.tabs[0]],
+      value: 'party',
+    })
+    // Without Svelte's hydration marks.
+    const body = (n: number) => render(Tabs, { props: count(n) }).body.replace(/<!--[^>]*-->/g, '')
+    const shown = body(3)
+    expect(shown).toMatch(/id="trip-tab-journal"[^>]*>Journal<span class="count[^"]*">3<\/span>/)
+    const none = body(0)
+    expect(none).not.toMatch(/id="trip-tab-journal"[^>]*>Journal<span/)
+    // The measure always has the count's room: the tabs fit or don't, whatever the count.
+    expect(none).toMatch(/aria-hidden="true"[\s\S]*Journal<span class="count[^"]*">99<\/span>/)
+  })
 })

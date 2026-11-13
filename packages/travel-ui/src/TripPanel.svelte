@@ -537,9 +537,7 @@
     id === 'party'
       ? t('tabs.party')
       : id === 'journal'
-        ? tab !== 'journal' && latest.size
-          ? `${t('journalTitle')} (${latest.size})`
-          : t('journalTitle')
+        ? t('journalTitle')
         : id === 'options'
           ? t('tabs.options')
           : t('tabs.totals')
@@ -856,7 +854,12 @@
   <!-- The rest, a tab at a time (the one chosen is remembered per viewer); what waits for
        Continue and the buttons above are always there. -->
   <Tabs
-    tabs={tabs.map((id) => ({ id, label: tabName(id) }))}
+    tabs={tabs.map((id) => ({
+      id,
+      label: tabName(id),
+      // What the last step wrote, counted while another tab is shown.
+      ...(id === 'journal' && { count: tab !== 'journal' ? latest.size : 0 }),
+    }))}
     value={tab}
     label={t('tabs.label')}
     prefix="trip"

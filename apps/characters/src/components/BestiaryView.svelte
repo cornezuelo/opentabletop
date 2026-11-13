@@ -65,7 +65,7 @@
         >{t('bestiary.inRoster')}<InfoTip markdown={t('bestiary.inRosterHelp')} /></span
       >
       <div class="make">
-        <button class="primary" onclick={() => make(1)} disabled={!entry.sheet}
+        <button class="button primary" onclick={() => make(1)} disabled={!entry.sheet}
           >{t('bestiary.makeOne')}</button
         >
         <span class="or">{t('bestiary.or')}</span>
@@ -76,13 +76,14 @@
           bind:value={count}
           disabled={!entry.sheet}
         />
-        <button onclick={() => make(count)} disabled={!entry.sheet}>{t('bestiary.makeMany')}</button
+        <button class="button" onclick={() => make(count)} disabled={!entry.sheet}
+          >{t('bestiary.makeMany')}</button
         >
       </div>
       {#if copies.length}
         <p class="copies">
           {t('bestiary.copies', { count: copies.length })}
-          <button class="danger" onclick={clear}>{t('bestiary.clear')}</button>
+          <button class="link danger" onclick={clear}>{t('bestiary.clear')}</button>
         </p>
       {/if}
     </div>
@@ -158,12 +159,6 @@
 
   .copies button {
     margin-left: 6px;
-    padding: 0;
-    font-size: 13px;
-    text-decoration: underline;
-    background: none;
-    border: none;
-    cursor: pointer;
   }
 
   .danger {
