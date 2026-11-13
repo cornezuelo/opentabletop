@@ -200,7 +200,9 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   })
 
   it('fights with gear: the weapon in hand and the Armor worn count, and each piece worn rolls its Integrity after', () => {
-    const { state, entries } = fight({ necropede: 1 }, 'g')
+    // A fight that ends on the PC's turn: the Integrity rolls are for whoever acts as it ends
+    // (backlog: an action on a moment for each member).
+    const { state, entries } = fight({ necropede: 1 }, 'h')
     const pc = state.members!.find((m) => m.id === 'erthos')!
     // Made of the gear: a Parrying longsword, mail on chest and abdomen, vambraces on the arms.
     expect(pc.values).toMatchObject({
@@ -237,9 +239,12 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
         if (e.data?.table === 'ker-nethalas/attack' && value.armor) {
           expect(value.weak).toBe(String(value.armor).replace('armor-', 'weak-'))
           const [, n] = Object.entries(value.effects!).find(([k]) => k.endsWith('.values.health'))!
-          // Twice the die on the Weak Spot (a Rotwalker's head) or a Critical, else the die.
+          // Twice the die on the Weak Spot (a Rotwalker's head) or a Critical, else the die; a
+          // longsword's Slashing adds 1 when that's 3 or less.
           const twice = value.armor === 'armor-head' || (value.outcome as { crit: number }).crit
-          expect(-n).toBe(Math.max(0, (value.dmg as number) * (twice ? 2 : 1)))
+          const through = Math.max(0, (value.dmg as number) * (twice ? 2 : 1))
+          expect(value.blow).toMatchObject({ taken: 'taken-slashing' })
+          expect(-n).toBe(through + (through <= 3 ? 1 : 0))
           dealt.push(String(value.armor))
         }
         // A creature's hit on the PC: the harm where it landed, against the Armor worn there.
@@ -282,7 +287,57 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(riders).toContain('paralyzed')
   })
 
-  it('a creature Resistant to Physical, non-Magical damage takes half a weapon’s', () => {
+  it('damage types: the weapon in hand names its type, its Armor rule and what the creature takes of it', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const engine = createOracleEngine({ registry, random: seeded('types') })
+    const type = (values: Record<string, number>) =>
+      engine.resolve('ker-nethalas/blow-type', { acting: { values } }).resolution.value
+    expect(type({ slashing: 1, piercing: 1, bludgeoning: 0 })).toMatchObject({
+      taken: 'taken-slashing',
+      cut: 1,
+    })
+    expect(type({ slashing: 0, piercing: 1, bludgeoning: 0 })).toMatchObject({
+      taken: 'taken-piercing',
+      pierce: 1,
+    })
+    // Fists, or a blunt weapon: Bludgeoning, which ignores 1 point of Armor.
+    expect(type({ slashing: 0, piercing: 0, bludgeoning: 0 })).toMatchObject({
+      taken: 'taken-bludgeoning',
+      ignores: 1,
+    })
+    /** What a blow of `dmg` deals on the chest (Armor 2), as `blow`, on a foe that takes `taken`. */
+    const hurt = (blow: string, dmg: number, taken = 1, crit = 0) => {
+      const how = type({
+        slashing: +(blow === 'slashing'),
+        piercing: +(blow === 'piercing'),
+        bludgeoning: 0,
+      })
+      const context = {
+        dmg,
+        blow: how,
+        outcome: { crit },
+        armor: 'armor-chest',
+        weak: 'weak-chest',
+        params: { foe: 'x' },
+        characters: {
+          x: { values: { 'armor-chest': 2, 'weak-chest': 0, [String(how.taken)]: taken } },
+        },
+      }
+      const effects = engine.resolve('ker-nethalas/foe-harmed', context).resolution.value
+        .effects as Record<string, number | string>
+      return 0 - Number(effects['characters[params.foe].values.health'])
+    }
+    expect(hurt('bludgeoning', 5)).toBe(4) // Armor 2, 1 of it ignored
+    expect(hurt('slashing', 5)).toBe(3 + 1) // 3 after Armor, +1 at 3 or less
+    expect(hurt('slashing', 7)).toBe(5) // 5 after Armor: no +1
+    expect(hurt('piercing', 5, 1, 1)).toBe(10 - 2 + 2) // a Critical doubles the die; +2 not doubled
+    expect(hurt('bludgeoning', 5, 2)).toBe(8) // Vulnerable: doubled
+    expect(hurt('bludgeoning', 5, 0.5)).toBe(2) // Resistant: halved
+    expect(hurt('bludgeoning', 5, 0)).toBe(0) // Immune
+    expect(hurt('bludgeoning', 5, -1)).toBe(-4) // Restored: it heals as much
+  })
+
+  it('a creature Resistant to Physical damage takes half a weapon’s (taken-slashing: 0.5)', () => {
     let checked = 0
     for (let n = 0; n < 10 && !checked; n++) {
       // A Voidweaver: no Armor, its head its Weak Spot.
@@ -295,7 +350,8 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
           continue
         const [, hurt] = Object.entries(value.effects!).find(([k]) => k.endsWith('.values.health'))!
         const twice = value.armor === 'armor-head' || (value.outcome as { crit: number }).crit
-        expect(-hurt).toBe(Math.floor(((value.dmg as number) * (twice ? 2 : 1)) / 2))
+        const through = (value.dmg as number) * (twice ? 2 : 1)
+        expect(-hurt).toBe(Math.floor((through + (through <= 3 ? 1 : 0)) / 2))
         checked++
       }
     }
