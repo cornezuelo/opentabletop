@@ -282,6 +282,26 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(riders).toContain('paralyzed')
   })
 
+  it('a creature Resistant to Physical, non-Magical damage takes half a weapon’s', () => {
+    let checked = 0
+    for (let n = 0; n < 10 && !checked; n++) {
+      // A Voidweaver: no Armor, its head its Weak Spot.
+      const { entries } = fight({ voidweaver: 1 }, `v${n}`)
+      for (const e of entries) {
+        const value = e.data?.value as Record<string, unknown> & {
+          effects?: Record<string, number>
+        }
+        if (e.code !== 'ORACLE_RESULT' || e.data?.table !== 'ker-nethalas/attack' || !value.armor)
+          continue
+        const [, hurt] = Object.entries(value.effects!).find(([k]) => k.endsWith('.values.health'))!
+        const twice = value.armor === 'armor-head' || (value.outcome as { crit: number }).crit
+        expect(-hurt).toBe(Math.floor(((value.dmg as number) * (twice ? 2 : 1)) / 2))
+        checked++
+      }
+    }
+    expect(checked).toBeGreaterThan(0)
+  })
+
   it('a Prone foe is attacked with Advantage: the d100 read either way round, the lower kept', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
