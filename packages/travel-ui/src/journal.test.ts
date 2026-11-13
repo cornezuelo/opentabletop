@@ -354,7 +354,6 @@ describe('what results did to characters and the world', () => {
     values: {},
     conditions: {},
     tags: [],
-    cards: [],
     relations: [],
   }
   const line = (members: (typeof kael)[] | undefined, world?: Record<string, unknown>) =>

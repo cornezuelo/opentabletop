@@ -552,3 +552,67 @@ describe('a field that steps, and one item named by its key', () => {
     expect(s.items!.map((i) => i.key)).toEqual(['mail'])
   })
 })
+
+describe('a place of abilities (docs/advancement.md)', () => {
+  // Gear anywhere it fits; abilities only in their place, which takes nothing else and
+  // isn't carried, shown as cards.
+  const { sheet: knows, errors: wrong } = parseSheet({
+    kind: 'sheet',
+    id: 'knower',
+    values: {
+      capacity: { default: 3 },
+      tough: { from: { count: 'items', where: { 'item.id': 'tough' } } },
+      health: { max: '{{3 + self.values.tough}}', default: 3 },
+    },
+    items: {
+      fields: { slots: { default: 1, min: 0 } },
+      places: {
+        pack: { room: '{{self.values.capacity}}' },
+        knacks: {
+          tags: ['ability'],
+          takes: { 'item.tags': 'ability' },
+          carried: false,
+          display: 'cards',
+        },
+      },
+      size: 'slots',
+      room: '{{self.values.capacity}}',
+      over: 'refuse',
+    },
+  })
+  const { catalogue: known } = parseCatalogue({
+    kind: 'items',
+    id: 'knacks',
+    items: {
+      rope: { name: 'Rope', slots: 1 },
+      tough: { name: 'Tough', slots: 1, tags: ['ability'], fits: { 'place.tags': 'ability' } },
+    },
+  })
+  const look = lookupItems([{ id: 'test/knacks', def: known! }])
+  const give = (s: CharacterState, id: string) =>
+    applyCharacter(knows!, s, {
+      type: 'addItem',
+      item: itemFromCatalogue(knows!.items, 'test/knacks', id, look(id)!.item, 1),
+    }).state
+
+  it('takes only what it takes, weighs nothing, and its items make values', () => {
+    expect(wrong).toEqual([])
+    expect(knows!.items!.places!.knacks.display).toBe('cards')
+    let s = createCharacter(knows!, 'test/knower', { id: 'ana' })
+    s = give(s, 'rope')
+    s = give(s, 'tough')
+    // The rope in the pack (the knacks take only abilities), Tough among the knacks.
+    expect(s.items!.map((i) => [i.id, i.place])).toEqual([
+      ['rope', 'pack'],
+      ['tough', 'knacks'],
+    ])
+    // Tough isn't carried: one slot used of three, and two more ropes still fit.
+    expect(carriedOf(knows!.items, s).used).toBe(1)
+    s = give(give(s, 'rope'), 'rope')
+    expect(countOf(s, 'rope')).toBe(3)
+    // What it gives: a value made of it, a bound read from that.
+    expect(s.values.tough).toBe(1)
+    s = applyCharacter(knows!, s, { type: 'change', effects: { 'values.health': 9 } }).state
+    expect(s.values.health).toBe(4)
+  })
+})

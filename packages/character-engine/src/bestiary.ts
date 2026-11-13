@@ -40,7 +40,6 @@ const template = z
     actions: z.string().min(1).optional(),
     tags: z.array(z.string().min(1)).optional(),
     conditions: z.array(z.string().min(1)).optional(),
-    cards: z.array(z.string().min(1)).optional(),
     values: z.record(z.string().min(1), written).optional(),
     /** What it carries, from the system's catalogues: `{ knife: 1, ration: '{{1d2}}' }`. */
     items: z.record(z.string().min(1), written).optional(),
@@ -130,7 +129,6 @@ export interface Template {
   actions?: string
   tags: string[]
   conditions: string[]
-  cards: string[]
   values: Record<string, number | string>
   /** Absent: the sheet's `items.start`. */
   items?: Record<string, number | string>
@@ -140,18 +138,18 @@ export interface Template {
 
 /**
  * A template of the bestiary as a copy is made of it: a variant takes what it doesn't say
- * from the one it's `like` (its values and items merged, its tags, conditions and cards
+ * from the one it's `like` (its values and items merged, its tags and conditions
  * added); the bestiary gives the sheet and `behind` none of them says.
  */
 export function resolveTemplate(def: Bestiary, id: string): Template | undefined {
   const { chain, loop } = likeChain(def, id)
   if (!chain.length || loop) return undefined
-  const out: Template = { id, tags: [], conditions: [], cards: [], values: {}, behind: 'stay' }
+  const out: Template = { id, tags: [], conditions: [], values: {}, behind: 'stay' }
   // The furthest first, so each variant writes over what it's like.
   for (const t of [...chain].reverse()) {
     for (const key of ['name', 'description', 'sheet', 'names', 'actions', 'token'] as const)
       if (t[key] !== undefined) (out as unknown as Record<string, unknown>)[key] = t[key]
-    for (const key of ['tags', 'conditions', 'cards'] as const)
+    for (const key of ['tags', 'conditions'] as const)
       for (const v of t[key] ?? []) if (!out[key].includes(v)) out[key].push(v)
     Object.assign(out.values, t.values)
     if (t.items) out.items = { ...out.items, ...t.items }

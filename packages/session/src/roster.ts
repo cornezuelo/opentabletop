@@ -499,7 +499,6 @@ export function readRoster(raw: unknown): Roster {
         values: c.values ?? {},
         conditions: c.conditions ?? {},
         tags: c.tags ?? [],
-        cards: c.cards ?? [],
         relations: c.relations ?? [],
       },
       modified: typeof e!.modified === 'string' ? e!.modified : new Date(0).toISOString(),

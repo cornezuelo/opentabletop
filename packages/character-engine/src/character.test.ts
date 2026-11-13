@@ -342,12 +342,11 @@ describe('characters', () => {
     ).toContain("conditions.odd.lasts: one that holds by itself (when) isn't given for a while")
   })
 
-  it('hold tags, cards and relations (bonds with a number within its bounds)', () => {
+  it('hold tags and relations (bonds with a number within its bounds)', () => {
     let c = kael()
     const step = (action: Parameters<typeof applyCharacter>[2]) =>
       (c = applyCharacter(sheet!, c, action).state)
     step({ type: 'tag', tag: 'oathbound' })
-    step({ type: 'addCard', card: 'test/explorer' })
     step({ type: 'relate', to: 'poi:ashford', kind: 'home' })
     step({ type: 'relate', to: 'character:brenna', kind: 'bond', value: 1 })
     step({ type: 'relate', to: 'character:brenna', kind: 'bond', value: 12 })
@@ -360,7 +359,6 @@ describe('characters', () => {
       values: { wits: 2 },
       conditions: [],
       tags: ['oathbound'],
-      cards: ['test/explorer'],
       relations: { home: ['poi:ashford'], bond: ['character:brenna'] },
       bonds: { bond: { 'character:brenna': 10 } },
     })

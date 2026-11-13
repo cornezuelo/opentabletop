@@ -155,6 +155,12 @@ export interface SheetPlace {
   tags?: string[]
   room?: number | string
   over?: Over
+  /** What it takes, a condition on the item (`item.tags: ability`); absent: anything that fits. */
+  takes?: unknown
+  /** `false`: what's in it isn't carried (abilities, a stash): it counts in no total room. */
+  carried?: boolean
+  /** How it's shown: `list` (the default) or `cards`. */
+  display?: 'list' | 'cards'
 }
 
 /** What the sheet says of items: their fields, places and what fills a place's room. */
@@ -207,6 +213,12 @@ export interface Place {
   room?: number
   /** It takes nothing that hasn't room left in it (`over: refuse`). */
   refuses?: boolean
+  /** What it takes, a condition on the item (the sheet's place's `takes`). */
+  takes?: Condition
+  /** What's in it isn't carried (`carried: false`): it counts in no total room. */
+  apart?: boolean
+  /** Shown as cards (`display: cards`: abilities), not as a list with counts. */
+  cards?: boolean
   /** The container's key, when the place is an item. */
   item?: string
 }
@@ -227,6 +239,9 @@ export function placesOf(
       tags: p.tags ?? [],
       ...(room !== undefined && { room }),
       ...refuses(p.over, room),
+      ...(p.takes !== undefined && { takes: p.takes as Condition }),
+      ...(p.carried === false && { apart: true }),
+      ...(p.display === 'cards' && { cards: true }),
     })
   }
   for (const [id, p] of Object.entries(state.places ?? {}))
@@ -267,7 +282,13 @@ export function carriedOf(
   state: { values: Record<string, number>; items?: ItemState[] },
 ): { room?: number; used: number; refuses: boolean } {
   const room = readOwn(items?.room, state.values)
-  const used = (state.items ?? []).reduce((n, i) => n + sizeOf(items, i), 0)
+  // What's in a place that isn't carried (`carried: false`: abilities, a stash) counts not.
+  const apart = new Set(
+    Object.entries(items?.places ?? {}).flatMap(([id, p]) => (p.carried === false ? [id] : [])),
+  )
+  const used = (state.items ?? [])
+    .filter((i) => i.place === undefined || !apart.has(i.place))
+    .reduce((n, i) => n + sizeOf(items, i), 0)
   return {
     ...(room !== undefined && { room }),
     used,
@@ -316,7 +337,7 @@ export function hasRoom(
 
 /** Whether an item fits a place (its `fits`, read with the place as `place.*`), and isn't itself or inside itself. */
 export function fitsIn(
-  item: Pick<ItemState, 'key' | 'fits'>,
+  item: Pick<ItemState, 'key' | 'fits'> & Partial<Pick<ItemState, 'id' | 'tags' | 'fields'>>,
   place: Place,
   all: ItemState[] = [],
 ): boolean {
@@ -328,6 +349,14 @@ export function fitsIn(
       at = all.find((i) => i.key === at)?.place
     }
   }
+  // What the place takes, read of the item (its id, tags and fields).
+  if (
+    place.takes !== undefined &&
+    !matches(place.takes, {
+      item: { id: item.id, tags: item.tags ?? [], fields: item.fields ?? {} },
+    })
+  )
+    return false
   return matches(item.fits, { place: { id: place.id, tags: place.tags } })
 }
 
@@ -412,12 +441,13 @@ function placeFor(
 ): { place?: string; full?: boolean } {
   const all = state.items ?? []
   const used = roomUsed(items, state)
-  const fitting = placesOf(items, state).filter((p) =>
-    fitsIn({ key: item.key ?? '', fits: item.fits }, p, all),
-  )
   const size = sizeOf(items, { ...item, key: item.key ?? '' })
-  // More than the character may carry in all: no place takes it.
-  if (!totalTakes(items, state, size)) return { full: true }
+  // More than the character may carry in all: only a place that isn't carried takes it.
+  const carryable = totalTakes(items, state, size)
+  const fitting = placesOf(items, state).filter(
+    (p) => fitsIn({ ...item, key: item.key ?? '' }, p, all) && (carryable || p.apart),
+  )
+  if (!fitting.length && !carryable) return { full: true }
   const roomy = (p: Place) => p.room === undefined || (used[p.id] ?? 0) + size <= p.room
   const own = fitting.filter((p) => p.item === undefined)
   const inside = fitting.filter((p) => p.item !== undefined)
@@ -751,13 +781,16 @@ export function addItem(
     place = placeFor(items, state, draft).place
   } else if (place !== undefined) {
     const where = placesOf(items, state).find((p) => p.id === place)
-    if (where && !fitsIn({ key: '', fits: input.fits }, where, all)) {
+    if (where && !fitsIn({ ...input, key: '' }, where, all)) {
       events.push({ type: 'ITEM_DOESNT_FIT', character: state.id, item: input.id, key: '', place })
       return undefined
     }
     // No room where it was put: it goes wherever it has room, as if nothing said where.
     const size = sizeOf(items, { ...draft, key: '' })
-    if (where && (!hasRoom(items, state, where, size) || !totalTakes(items, state, size)))
+    if (
+      where &&
+      (!hasRoom(items, state, where, size) || (!where.apart && !totalTakes(items, state, size)))
+    )
       return addItem(items, state, { ...input, place: undefined }, events)
   }
   // The same item in the same place, alike in everything: one more of it.

@@ -394,6 +394,27 @@
           placeholder: t('sheet.overSheet'),
           off: (row) => row.room === undefined,
         },
+        {
+          field: 'takes',
+          label: t('sheet.placeTakes'),
+          help: t('sheet.placeTakesHelp'),
+          type: 'condition',
+        },
+        {
+          field: 'carried',
+          label: t('sheet.placeCarried'),
+          help: t('sheet.placeCarriedHelp'),
+          type: 'check',
+          default: true,
+        },
+        {
+          field: 'display',
+          label: t('sheet.placeDisplay'),
+          help: t('sheet.placeDisplayHelp'),
+          type: 'select',
+          choices: ['cards'],
+          placeholder: t('sheet.placeDisplayList'),
+        },
       ]}
     />
     <label class="name">

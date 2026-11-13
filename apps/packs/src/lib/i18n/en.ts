@@ -529,6 +529,16 @@ export const en = {
       "Where items may be (hands, belt, pack, a horse's saddlebags…), each with tags items fit by (an item's **Fits**) and how much room (a number, or the sheet's values: `'{{self.values.might}}'`). Any body: a three-headed beast declares three places tagged `head`. Empty: items are one list.\n• `hands` — tags `hand`, room `2`\n• `pack` — tags `pack`, room `'{{self.values.capacity}}'`",
     placeName: 'Name',
     placeTags: 'Tags',
+    placeTakes: 'Takes',
+    placeTakesHelp:
+      'What the place takes, a condition on the item (its `item.tags`, `item.id`, `item.fields.<id>`), besides where the item **Fits**: a place for abilities takes only abilities, so gear never lands there.\n• `item.tags: ability` — only abilities\n• `item.fields.slots: 0` — only what weighs nothing\nEmpty: anything that fits it.',
+    placeCarried: 'Carried',
+    placeCarriedHelp:
+      "Whether what's in it is carried. Unticked, it counts in no **Room in all**: abilities a character knows, a stash left at home. Its own **Room** still counts.",
+    placeDisplay: 'Shown as',
+    placeDisplayHelp:
+      "How the character's card shows it:\n• **list** (the default): names, counts and where each goes\n• **cards**: each one a card with its description and fields, for abilities, knacks, talents",
+    placeDisplayList: 'list (default)',
     room: 'Room',
     size: 'What fills a place',
     sizeHelp:

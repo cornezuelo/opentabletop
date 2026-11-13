@@ -789,7 +789,7 @@ export function settleStates(
 
 /**
  * A character as an OTD `character` entity: its values as `stats`, its tags, and what only
- * the character engine reads (its sheet, conditions, cards, relations) in `ext.character`.
+ * the character engine reads (its sheet, conditions, relations) in `ext.character`.
  * `kind` says what it is in play (`pc` for the party's members).
  */
 export function characterToOtd(
@@ -815,7 +815,6 @@ export function characterToOtd(
       character: {
         sheet: member.sheet,
         ...(Object.keys(member.conditions).length && { conditions: member.conditions }),
-        ...(member.cards.length && { cards: member.cards }),
         ...(member.relations.length && { relations: member.relations }),
         ...(member.items?.length && { items: member.items }),
         ...(member.places && { places: member.places }),
@@ -850,7 +849,6 @@ export function characterFromOtd(raw: {
     values,
     conditions: record(own.conditions),
     tags: Array.isArray(raw.tags) ? raw.tags.filter((t) => typeof t === 'string') : [],
-    cards: Array.isArray(own.cards) ? own.cards.filter((c) => typeof c === 'string') : [],
     relations: Array.isArray(own.relations) ? (own.relations as CharacterState['relations']) : [],
     ...(Array.isArray(own.items) && { items: own.items as CharacterState['items'] }),
     ...(typeof own.places === 'object' &&

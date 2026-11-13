@@ -28,7 +28,6 @@ const character = (id: string, health = 5): CharacterState => ({
   values: { health },
   conditions: {},
   tags: [],
-  cards: [],
   relations: [],
 })
 
@@ -142,7 +141,6 @@ describe('the roster', () => {
           values: {},
           conditions: {},
           tags: [],
-          cards: [],
           relations: [],
         },
         modified: 'T',

@@ -542,6 +542,16 @@ export const es: Messages<typeof en> = {
       "Dónde pueden ir los objetos (manos, cinturón, mochila, las alforjas de un caballo…), cada uno con etiquetas por las que caben los objetos (el **Cabe en** de un objeto) y cuánto sitio (un número, o valores de la hoja: `'{{self.values.might}}'`). Cualquier cuerpo: una bestia de tres cabezas declara tres lugares con la etiqueta `head`. Vacío: los objetos son una sola lista.\n• `hands` — etiquetas `hand`, sitio `2`\n• `pack` — etiquetas `pack`, sitio `'{{self.values.capacity}}'`",
     placeName: 'Nombre',
     placeTags: 'Etiquetas',
+    placeTakes: 'Acepta',
+    placeTakesHelp:
+      'Lo que acepta el lugar, una condición sobre el objeto (sus `item.tags`, `item.id`, `item.fields.<id>`), además del **Cabe en** del objeto: un lugar de capacidades solo acepta capacidades, así que el equipo nunca acaba ahí.\n• `item.tags: ability` — solo capacidades\n• `item.fields.slots: 0` — solo lo que no pesa\nVacío: cualquier cosa que quepa.',
+    placeCarried: 'Se carga',
+    placeCarriedHelp:
+      'Si lo que hay en él se lleva encima. Sin marcar, no cuenta en el **Sitio en total**: las capacidades que conoce un personaje, un alijo que se deja en casa. Su propio **Sitio** sigue contando.',
+    placeDisplay: 'Se muestra como',
+    placeDisplayHelp:
+      'Cómo lo enseña la ficha del personaje:\n• **lista** (por defecto): nombres, cantidades y adónde va cada uno\n• **cartas**: cada uno una carta con su descripción y sus campos, para capacidades, mañas, talentos',
+    placeDisplayList: 'lista (por defecto)',
     room: 'Sitio',
     size: 'Lo que ocupa un lugar',
     sizeHelp:

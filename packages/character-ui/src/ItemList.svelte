@@ -16,7 +16,7 @@
     type Place,
     type Sheet,
   } from '@open-tabletop/character-engine'
-  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, Markdown, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { valueView } from './display'
   import { translator } from './i18n'
   import { idName, itemId, itemName, sheetText } from './texts'
@@ -180,11 +180,12 @@
   }
 
   /** An item's explanation: its description, tags and how tables read it. */
+  /** What its catalogue says of an item, if anything. */
+  const descriptionOf = (item: ItemState): string =>
+    text(catalogues.find((c) => c.id === item.from)?.def.items[item.id]?.description)
   function itemHelp(item: ItemState): string {
-    const catalogue = catalogues.find((c) => c.id === item.from)
-    const def = catalogue?.def.items[item.id]
     return [
-      text(def?.description),
+      descriptionOf(item),
       item.tags?.length && t('items.tagsOf', { list: item.tags.join(', ') }),
       !item.from && t('items.byHand'),
       t('items.readAs', { path, id: item.id, field: fields[0]?.[0] ?? 'count' }),
@@ -235,90 +236,129 @@
             >
           {/if}
         </h5>
-      {:else if places.length}
+      {:else if places.some((p) => !p.cards)}
         <h5 class="subhead">{t('items.nowhere')}</h5>
       {/if}
       {#each group.items as item (item.key)}
-        <div class="item" class:moving={dragging?.key === item.key} class:loose={item.loose}>
-          {#if !disabled && (places.length || item.count > 1)}
-            <span
-              class="grip"
-              role="button"
-              tabindex="-1"
-              aria-label={t('items.drag')}
-              draggable="true"
-              ondragstart={(e) => startDrag(e, item)}
-              ondragend={() => (dragging = dragOver = undefined)}
-              use:tooltip={t('items.drag')}>⠿</span
-            >
-          {/if}
-          <span class="item-name">{nameOf(item)}<InfoTip markdown={itemHelp(item)} /></span>
-          <label class="count">
-            <span>{t('items.count')}</span>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={item.count}
-              {disabled}
-              onchange={(e) =>
-                onaction({
-                  type: 'editItem',
-                  key: item.key,
-                  count: `=${Math.max(0, Number(e.currentTarget.value) || 0)}`,
-                })}
-            />
-          </label>
-          {#each fields as [id, def] (id)}
-            {#if item.fields[id] !== undefined}
-              <div class="item-field">
-                <span
-                  >{text(def.name, id)}{#if fieldHelp(id)}<InfoTip
-                      markdown={fieldHelp(id)}
-                    />{/if}</span
+        {#if group.place?.cards}
+          <!-- A place shown as cards (abilities): each one with what it says and its fields. -->
+          <article class="card">
+            <h6>
+              {nameOf(item)}{#if item.count > 1}<span class="ranks">×{item.count}</span>{/if}
+              <InfoTip markdown={itemHelp(item)} />
+              {#if !disabled}
+                <button
+                  class="icon"
+                  aria-label={t('items.remove')}
+                  use:tooltip={t('items.remove')}
+                  onclick={() => onaction({ type: 'removeItem', key: item.key })}>×</button
                 >
-                <ValueControl
-                  view={valueView(
-                    def,
-                    item.fields[id],
-                    fieldBounds(sheet.items, id, character.values),
-                    locale,
-                  )}
-                  label={text(def.name, id)}
-                  {locale}
-                  {disabled}
-                  onset={(v) =>
-                    onaction({ type: 'editItem', key: item.key, fields: { [id]: `=${v}` } })}
-                />
-              </div>
+              {/if}
+            </h6>
+            {#if descriptionOf(item)}<Markdown text={descriptionOf(item)} />{/if}
+            {#each fields as [id, def] (id)}
+              {#if item.fields[id] !== undefined}
+                <div class="item-field">
+                  <span>{text(def.name, id)}</span>
+                  <ValueControl
+                    view={valueView(
+                      def,
+                      item.fields[id],
+                      fieldBounds(sheet.items, id, character.values),
+                      locale,
+                    )}
+                    label={text(def.name, id)}
+                    {locale}
+                    {disabled}
+                    onset={(v) =>
+                      onaction({ type: 'editItem', key: item.key, fields: { [id]: `=${v}` } })}
+                  />
+                </div>
+              {/if}
+            {/each}
+          </article>
+        {:else}
+          <div class="item" class:moving={dragging?.key === item.key} class:loose={item.loose}>
+            {#if !disabled && (places.length || item.count > 1)}
+              <span
+                class="grip"
+                role="button"
+                tabindex="-1"
+                aria-label={t('items.drag')}
+                draggable="true"
+                ondragstart={(e) => startDrag(e, item)}
+                ondragend={() => (dragging = dragOver = undefined)}
+                use:tooltip={t('items.drag')}>⠿</span
+              >
             {/if}
-          {/each}
-          {#if places.length}
-            <select
-              aria-label={t('items.moveTo')}
-              value={item.place ?? ''}
-              {disabled}
-              onchange={(e) =>
-                onaction({
-                  type: 'moveItem',
-                  key: item.key,
-                  place: e.currentTarget.value || undefined,
-                })}
-            >
-              <option value="">{t('items.nowhere')}</option>
-              {#each fitting(item) as p (p.id)}<option value={p.id}>{placeName(p)}</option>{/each}
-            </select>
-          {/if}
-          {#if !disabled}
-            <button
-              class="icon"
-              aria-label={t('items.remove')}
-              use:tooltip={t('items.remove')}
-              onclick={() => onaction({ type: 'removeItem', key: item.key })}>×</button
-            >
-          {/if}
-          {#if item.loose}<p class="loose-note">{t('items.loose')}</p>{/if}
-        </div>
+            <span class="item-name">{nameOf(item)}<InfoTip markdown={itemHelp(item)} /></span>
+            <label class="count">
+              <span>{t('items.count')}</span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={item.count}
+                {disabled}
+                onchange={(e) =>
+                  onaction({
+                    type: 'editItem',
+                    key: item.key,
+                    count: `=${Math.max(0, Number(e.currentTarget.value) || 0)}`,
+                  })}
+              />
+            </label>
+            {#each fields as [id, def] (id)}
+              {#if item.fields[id] !== undefined}
+                <div class="item-field">
+                  <span
+                    >{text(def.name, id)}{#if fieldHelp(id)}<InfoTip
+                        markdown={fieldHelp(id)}
+                      />{/if}</span
+                  >
+                  <ValueControl
+                    view={valueView(
+                      def,
+                      item.fields[id],
+                      fieldBounds(sheet.items, id, character.values),
+                      locale,
+                    )}
+                    label={text(def.name, id)}
+                    {locale}
+                    {disabled}
+                    onset={(v) =>
+                      onaction({ type: 'editItem', key: item.key, fields: { [id]: `=${v}` } })}
+                  />
+                </div>
+              {/if}
+            {/each}
+            {#if places.length}
+              <select
+                aria-label={t('items.moveTo')}
+                value={item.place ?? ''}
+                {disabled}
+                onchange={(e) =>
+                  onaction({
+                    type: 'moveItem',
+                    key: item.key,
+                    place: e.currentTarget.value || undefined,
+                  })}
+              >
+                <option value="">{t('items.nowhere')}</option>
+                {#each fitting(item) as p (p.id)}<option value={p.id}>{placeName(p)}</option>{/each}
+              </select>
+            {/if}
+            {#if !disabled}
+              <button
+                class="icon"
+                aria-label={t('items.remove')}
+                use:tooltip={t('items.remove')}
+                onclick={() => onaction({ type: 'removeItem', key: item.key })}>×</button
+              >
+            {/if}
+            {#if item.loose}<p class="loose-note">{t('items.loose')}</p>{/if}
+          </div>
+        {/if}
       {:else}
         <p class="empty">{t('items.empty')}</p>
       {/each}
@@ -501,6 +541,31 @@
   .own summary {
     cursor: pointer;
     font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 8px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    background: var(--panel);
+  }
+
+  .card h6 {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+  }
+
+  .card .icon {
+    margin-left: auto;
+  }
+
+  .ranks {
     color: var(--text-muted);
   }
 

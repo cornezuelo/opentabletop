@@ -604,6 +604,32 @@ describe('the bundled packs fight in turns', () => {
     expect(health('mara')).toBe(0)
   })
 
+  it("Core's place of abilities: Tough goes there and nowhere else, weighs nothing, and raises the most health", () => {
+    const { session } = startTrip({ system: core, location: 'a', members: people(core), seed: 't' })
+    const s = applyResult(
+      session,
+      {
+        effects: {
+          'characters.kael.items.rope': 3,
+          'characters.kael.items.tough': 1,
+          'characters.kael.values.health': '=9',
+        },
+      },
+      {},
+      partyOf(core),
+    )
+    const kael = s.members!.find((m) => m.id === 'kael')!
+    // The rope in no place (Core's gear is a plain list), Tough among the abilities.
+    expect(kael.items!.map((i) => [i.id, i.place])).toEqual([
+      ['rope', undefined],
+      ['tough', 'abilities'],
+    ])
+    // Tough: one more health at most, so 4 though 9 were asked for.
+    expect(kael.values).toMatchObject({ tough: 1, health: 4, harm: 0 })
+    // Mara, without it, stays at 3.
+    expect(s.members!.find((m) => m.id === 'mara')!.values.health).toBe(3)
+  })
+
   it('the Grey Marches: falling back, the clumsiest takes a blow from the fiercest; Core says how tough the toughest is', () => {
     const { session } = startTrip({
       system: marches,

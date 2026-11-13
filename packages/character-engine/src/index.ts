@@ -237,6 +237,22 @@ const sheetItems = z
             room: bound.optional(),
             /** Whether it takes more than its room; absent: the sheet's `over`. */
             over: z.enum(['allow', 'refuse']).optional(),
+            /**
+             * What it takes, a condition on the item (`item.tags: ability`), besides where
+             * the item fits; absent: anything that fits it.
+             */
+            takes: z
+              .custom<Condition>((v) => typeof v === 'object' && v !== null && !Array.isArray(v), {
+                message: 'a condition',
+              })
+              .optional(),
+            /**
+             * `false`: what's in it isn't carried (abilities, a stash left at home): it counts
+             * in no total room.
+             */
+            carried: z.boolean().optional(),
+            /** How it's shown: `list` (names and counts, the default) or `cards` (abilities). */
+            display: z.enum(['list', 'cards']).optional(),
           })
           .strict(),
       )
@@ -371,6 +387,9 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
     if (c.when !== undefined && c.lasts !== undefined)
       errors.push(`conditions.${id}.lasts: one that holds by itself (when) isn't given for a while`)
   }
+  for (const [id, p] of Object.entries(sheet.items?.places ?? {}))
+    if (p.takes !== undefined)
+      errors.push(...validateCondition(p.takes, `items.places.${id}.takes`))
   return errors.length ? { errors } : { sheet, errors }
 }
 
@@ -602,8 +621,6 @@ export interface CharacterState {
    */
   conditions: Record<string, { since?: number; left?: number }>
   tags: string[]
-  /** Abilities, moves, talents… by their definitions' full ids. */
-  cards: string[]
   relations: Relation[]
   /** What it has (absent: nothing), in the order shown. */
   items?: ItemState[]
@@ -639,7 +656,6 @@ export function createCharacter(
     sheet: sheetId,
     conditions: {},
     tags: [],
-    cards: [],
     relations: [],
     ...init,
     values: { ...values, ...init.values },
@@ -656,7 +672,7 @@ export function createCharacter(
 
 /**
  * A copy of a template (docs/bestiary.md): a new character of its sheet with the template's
- * values, conditions, tags, cards and items, each `{{…}}` read with `roller` and `context`
+ * values, conditions, tags and items, each `{{…}}` read with `roller` and `context`
  * (so each copy rolls its own: `health: '{{2d4}}'`); what the template leaves out takes the
  * sheet's defaults, and its items the sheet's `items.start`.
  */
@@ -689,7 +705,6 @@ export function copyOf(
       values,
       conditions: Object.fromEntries(template.conditions.map((c) => [c, {}])),
       tags: [...template.tags],
-      cards: [...template.cards],
       ...(template.items && { items: [] }),
       template: { id: template.id, from: init.from },
     },
@@ -709,7 +724,6 @@ export type CharacterAction =
    */
   | { type: 'change'; effects: Record<string, number | string | boolean>; time?: number }
   | { type: 'tag' | 'untag'; tag: string }
-  | { type: 'addCard' | 'removeCard'; card: string }
   /** Adds the relation, or changes its value if it's there (`value` adds, like an effect). */
   | { type: 'relate'; to: string; kind: string; value?: number | string }
   | { type: 'unrelate'; to: string; kind?: string }
@@ -742,7 +756,6 @@ export type CharacterEvent =
   | { type: 'LIMIT_REACHED'; character: string; value: string; limit: 'min' | 'max' }
   | { type: 'CONDITION_SET' | 'CONDITION_CLEARED'; character: string; condition: string }
   | { type: 'TAGGED' | 'UNTAGGED'; character: string; tag: string }
-  | { type: 'CARD_ADDED' | 'CARD_REMOVED'; character: string; card: string }
   | { type: 'RELATION_ADDED' | 'RELATION_REMOVED'; character: string; to: string; kind: string }
   | {
       type: 'RELATION_CHANGED'
@@ -872,18 +885,6 @@ export function applyCharacter(
       } else if (action.type === 'untag' && has) {
         state.tags = state.tags.filter((t) => t !== action.tag)
         events.push({ type: 'UNTAGGED', character: who, tag: action.tag })
-      }
-      break
-    }
-    case 'addCard':
-    case 'removeCard': {
-      const has = state.cards.includes(action.card)
-      if (action.type === 'addCard' && !has) {
-        state.cards.push(action.card)
-        events.push({ type: 'CARD_ADDED', character: who, card: action.card })
-      } else if (action.type === 'removeCard' && has) {
-        state.cards = state.cards.filter((c) => c !== action.card)
-        events.push({ type: 'CARD_REMOVED', character: who, card: action.card })
       }
       break
     }
@@ -1081,7 +1082,7 @@ export function lapseConditions(
 
 /**
  * What conditions and tables read of a character: `values.<id>` (and each value by its
- * own name), `conditions` (a list of the ones it has), `tags`, `cards`, `relations` by
+ * own name), `conditions` (a list of the ones it has), `tags`, `relations` by
  * kind (`relations.bond: [character:kael, poi:ashford]`), with each one's number as
  * `bonds.<kind>.<to>`, and its `items` and `places` (see `itemsFacts`; the sheet gives its
  * places and what fills them).
@@ -1106,7 +1107,6 @@ export function characterFacts(state: CharacterState, sheet?: Sheet): Record<str
       ),
     ),
     tags: [...state.tags],
-    cards: [...state.cards],
     relations: byKind,
     bonds: numbers,
     ...itemsFacts(sheet?.items, state),

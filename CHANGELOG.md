@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Characters
+
+- **Abilities as things held**: a place of a sheet can say what it **Takes** (a condition on the item), whether it's **Carried** (unticked, it counts in no room in all) and be **Shown as cards**, so a sheet keeps abilities (talents, knacks) as items of their own catalogue; a character's card shows them as cards. Core's characters have a place _Abilities_ and one ability, _Tough_ (one more health at most).
+
 ### Map
 
 - **Walking with the keys** steps onto the cell that way, never another round a corner; a room laid under the party takes it in, so keys no longer jump; a room entered by key is entered on the cell ahead; and a step refused says whether a wall or the system's rules (a terrain it can't cross, a shut door) stop it. While the trip waits (a check, a pause, a fight) the party no longer moves across its room either.

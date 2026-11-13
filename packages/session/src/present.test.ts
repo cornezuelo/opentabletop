@@ -377,7 +377,6 @@ describe('the tags in use', () => {
       values: {},
       conditions: {},
       tags,
-      cards: [],
       relations: [],
     })
     let roster = keepInRoster(emptyRoster(), character('rolf', 'wilds/beast', ['npc']), 't').roster

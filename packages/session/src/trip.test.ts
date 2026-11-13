@@ -754,7 +754,6 @@ describe("Core's system: the Generic rules as data", () => {
       values: {},
       conditions: {},
       tags: [],
-      cards: [],
       relations: [],
     })
     const old = {

@@ -1,6 +1,6 @@
 # Advancement and abilities — design
 
-**Status: proposal, to review with the user** (written 2026-11-13). It answers the backlog's _Masteries and levels_ (Ker Nethalas), the _advancement (marked skills, levels, trees of abilities)_ still open under _Sheets with rolled starts_, and the `kind: ability` that [character-engine.md](character-engine.md) §2.5 planned and nobody built (a character's `cards` are there, empty). The user, asked whether to do Ker Nethalas' Level Adaptation on a bare `level` first (2026-11-13): "Maestrías y niveles antes"; and on the way: "espero que todo esto que estamos haciendo se ejercite también en marcas grises y no quede en desarrollos super específicos para ker nethalas". So: generic mechanisms first, the Grey Marches as the first system to use them at full power, Core the smallest, Ker Nethalas to the letter after.
+**Status: decided with the user on 2026-11-13** (written the same day; the answers are in section 6). It answers the backlog's _Masteries and levels_ (Ker Nethalas), the _advancement (marked skills, levels, trees of abilities)_ still open under _Sheets with rolled starts_, and the `kind: ability` that [character-engine.md](character-engine.md) §2.5 planned and nobody built (a character's `cards` are there, empty). The user, asked whether to do Ker Nethalas' Level Adaptation on a bare `level` first (2026-11-13): "Maestrías y niveles antes"; and on the way: "espero que todo esto que estamos haciendo se ejercite también en marcas grises y no quede en desarrollos super específicos para ker nethalas". So: generic mechanisms first, the Grey Marches as the first system to use them at full power, Core the smallest, Ker Nethalas to the letter after.
 
 ## 1. How games do it
 
@@ -120,15 +120,15 @@ XP earned by the system's own deeds: an effect where they happen (a fight won, `
 
 ## 5. Phases
 
-1. **Places that hold abilities** and `display: cards` (character-engine, character-ui), the character's `cards` gone; Core's _Tough_.
+1. ✅ (2026-11-13) **Places that hold abilities**: a place's `takes` (a condition on the item), `carried: false` (no total room, and the total never stops what goes there) and `display: cards` (character-engine, character-ui's `ItemList`, Packs' place columns); the character's `cards` gone (state, templates, facts, OTD); Core's place _Abilities_ and _Tough_.
 2. **A parameter listed from a catalogue by a condition**, with **requirements** on entries (travel-engine's params, session, character-engine), shared with _Factions that choose_; the Packs forms (an item's **Needs**, a parameter's **From a catalogue**).
 3. **The Grey Marches' Renown, ranks and knacks**; Core's XP and level; tests that play a companion rising and learning.
 4. **Ker Nethalas' Masteries and levels**, then its Level Adaptation.
 5. Skill marks and improvement at camp (Ker Nethalas; the Grey Marches if a skill improves by use).
 
-## 6. To decide
+## 6. Decided with the user (2026-11-13)
 
-1. Abilities as **items in a place of their own** (one machinery, recommended) or a **kind of their own**?
-2. The Grey Marches' **Renown, ranks and knacks** as above, or another shape you'd rather see?
-3. **Requirements** (`needs:` on a catalogue entry) checked when given by hand too (refused, saying why), or only when offered?
-4. XP and level **per character** (each member's own, as Ker Nethalas and most games) — and a party played as a whole keeps them on its party sheet?
+1. **Abilities are items in a place of their own** (one machinery; a place with `display: cards` shows them as cards); the character's empty `cards` go.
+2. **The Grey Marches: Renown, ranks 1–5 and a catalogue of knacks** with a tree of requirements, as in section 4.
+3. **Requirements are checked when an ability is offered** (a level-up lists only those that hold); given by hand (the player, an effect) it's given all the same, with a warning.
+4. **XP and level are each character's**, as their sheet says; a party played as a whole keeps them on its party sheet. Each system decides with its sheets.

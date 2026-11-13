@@ -7,7 +7,6 @@ const kael = {
   values: { health: 5 },
   conditions: {},
   tags: [],
-  cards: [],
   relations: [],
 }
 

@@ -4,10 +4,13 @@ items/gear:
     Unas pocas cosas que lleva cualquier grupo, para elegirlas en la tarjeta de un personaje.
 
     **Enseña:** el catálogo de objetos más pequeño: objetos con nombre, descripción y
-    etiquetas (`light`, `food`), en una hoja sin lugares (una lista con cantidades) y con un
-    campo, un dado que baja por escalones (el `wear: 6` del escudo).
+    etiquetas (`light`, `food`), en ningún lugar de la hoja (una lista con cantidades) y con un
+    campo, un dado que baja por escalones (el `wear: 6` del escudo); una capacidad también es
+    un objeto (_Duro_, con la etiqueta `ability`, que solo cabe en el lugar de capacidades de
+    la hoja).
   items:
     rope: { name: Cuerda, description: Un buen trozo de cuerda. }
     torch: { name: Antorcha, description: Luz para unas horas. }
     ration: { name: Ración, description: La comida de un día para uno. }
     shield: { name: Escudo, description: Se lleva las abolladuras de los golpes que te alcanzan. }
+    tough: { name: Duro, description: Más recio que la mayoría; un punto más de salud máxima. }

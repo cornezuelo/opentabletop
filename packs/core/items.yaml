@@ -1,6 +1,6 @@
 # The Generic rules' gear (system.yaml: `items: [items.gear]`): a few things any party
-# carries. The sheet declares no places, so items are a plain list, each with how many;
-# its one field is the shield's wear.
+# carries, in no place, so they're a plain list, each with how many; its one field is the
+# shield's wear. And one ability, which goes only to the sheet's place of abilities.
 kind: items
 id: gear
 name: Gear
@@ -8,8 +8,9 @@ description: |-
   A few things any party carries, to pick on a character's card.
 
   **Shows:** the smallest item catalogue: items with a name, a description and tags
-  (`light`, `food`), on a sheet with no places (a list with counts) and one field, a die
-  that steps down (the shield's `wear: 6`).
+  (`light`, `food`), in no place of the sheet (a list with counts) and one field, a die
+  that steps down (the shield's `wear: 6`); an ability is an item too (_Tough_, tagged
+  `ability`, fitting only the sheet's place of abilities).
 items:
   rope: { name: Rope, description: A good length of rope., tags: [climbing] }
   torch: { name: Torch, description: Light for a few hours., tags: [light] }
@@ -21,4 +22,13 @@ items:
       description: Takes the dents of the blows that land on you.,
       wear: 6,
       tags: [armour],
+    }
+  # An ability: it fits only the sheet's place of abilities (tagged `ability`), weighs
+  # nothing there, and the sheet's `tough` counts it.
+  tough:
+    {
+      name: Tough,
+      description: Hardier than most; one more health at most.,
+      tags: [ability],
+      fits: { place.tags: ability },
     }

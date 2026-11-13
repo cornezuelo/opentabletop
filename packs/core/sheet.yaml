@@ -6,19 +6,25 @@ name: Character
 description: |-
   A character of the Generic rules: their health, the harm they've taken, whether they're wounded and whether they're down.
 
-  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects, one given for a while in a fight (_Staggered_, `lasts: rounds`), one that holds by itself (`when:`), a room in all for what they carry (`items.room`, ten things, no more), and an item field that is a die stepping down (`wear: { steps: [4, 6] }`).
+  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar, one made of it (`from:`), a condition set by effects, one given for a while in a fight (_Staggered_, `lasts: rounds`), one that holds by itself (`when:`), a room in all for what they carry (`items.room`, ten things, no more), an item field that is a die stepping down (`wear: { steps: [4, 6] }`), and a place of abilities (`takes: { item.tags: ability }`, not carried, shown as cards) whose _Tough_ raises the most health they can have (a value made of it, `tough`, read by the bound).
 values:
   health:
     name: Health
     description: How much harm the character can still take; at 0 they're down. Your tables say what costs or restores it.
     default: 3
     min: 0
-    max: 3
+    # One more with the Tough ability (items.yaml).
+    max: '{{3 + self.values.tough}}'
     display: bar
   harm:
     name: Harm
     description: The health lost, worked out from it; never set by hand.
-    from: '{{3 - self.values.health}}'
+    from: '{{3 + self.values.tough - self.values.health}}'
+  # 1 while they have the Tough ability: a value made of what they hold.
+  tough:
+    name: Tough
+    description: 1 while they have the Tough ability, else 0; it adds to the most health they can have.
+    from: { count: items, where: { item.id: tough } }
 conditions:
   wounded:
     name: Wounded
@@ -36,12 +42,20 @@ conditions:
     # Copies of a template (bestiary.yaml) that are down leave those present; a party's
     # characters never leave this way.
     leaves: true
-# What they carry is one list (no places): ten things in all, each counted as one; what's
+# What they carry is one list (in no place): ten things in all, each counted as one; what's
 # given past it is left behind, said in the journal. Only a shield has a field: its wear,
-# a die that steps down (d6, then d4).
+# a die that steps down (d6, then d4). Their abilities are a place of their own, which takes
+# nothing else and isn't carried (docs/advancement.md).
 items:
   room: 10
   over: refuse
+  places:
+    abilities:
+      name: Abilities
+      tags: [ability]
+      takes: { item.tags: ability }
+      carried: false
+      display: cards
   fields:
     wear:
       name: Wear

@@ -295,7 +295,6 @@ describe('play state in OTD', () => {
       values: {},
       conditions: {},
       tags: [],
-      cards: [],
       relations: [],
     }
     const campaign = {
