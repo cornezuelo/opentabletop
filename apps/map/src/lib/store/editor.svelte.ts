@@ -182,22 +182,19 @@ class Editor {
       tool === 'play' ? (this.map.tokens.find((t) => t.kind === 'party')?.id ?? null) : token
   }
   /**
-   * Editing or playing, as the bar's switch does. What both have stays as it is: Select with
-   * what it selected, and the panel open (the Oracle…). Otherwise Play goes to the trip
-   * and Edit comes back to the last editing tool.
+   * Editing or playing, as the bar's switch does. Play always opens on the trip, whatever
+   * tool or view was open (a cell is still a click on the map with Select); Edit comes back
+   * to the last editing tool.
    */
   switchMode(mode: 'edit' | 'play'): void {
     if (mode === this.mode) return
-    // The World is played: it isn't on Edit's rail.
-    if (mode === 'edit' && this.panelView === 'world') this.panelView = 'tool'
-    if (this.#tool === 'select') {
-      this.mode = mode
-      return
-    }
     if (mode === 'play') {
+      this.panelView = 'tool'
       this.tool = 'play'
       return
     }
+    // The World is played: it isn't on Edit's rail.
+    if (this.panelView === 'world') this.panelView = 'tool'
     this.mode = 'edit'
     this.tool = this.#editTool
   }

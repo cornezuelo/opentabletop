@@ -105,6 +105,7 @@
       bind:season={newSeason}
       startNote={editor.world ? t('play.worldStart') : undefined}
       systemNote={t('play.systemNote')}
+      primary={!session}
       onrestart={async (system, season) =>
         (play?.away
           ? await confirmAction(t('submap.confirmNewTrip', { name: awayName(play.away) }))

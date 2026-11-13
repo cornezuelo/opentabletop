@@ -314,18 +314,15 @@ describe('Edit and Play', () => {
     expect([editor.mode, editor.tool]).toEqual(['edit', 'terrain'])
   })
 
-  it('what both modes have stays: Select with its cell, the panel open', () => {
+  it('Play opens on the trip, whatever was open; Edit comes back to Select', () => {
     editor.load(createMap())
     editor.tool = 'select'
     editor.selected = '2,3'
     editor.panelView = 'oracle'
     editor.switchMode('play')
-    expect([editor.mode, editor.tool, editor.selected]).toEqual(['play', 'select', '2,3'])
-    expect(editor.panelView).toBe('oracle')
+    expect([editor.mode, editor.tool, editor.panelView]).toEqual(['play', 'play', 'tool'])
     editor.switchMode('edit')
-    expect([editor.mode, editor.tool, editor.selected]).toEqual(['edit', 'select', '2,3'])
-    expect(editor.panelView).toBe('oracle')
-    editor.panelView = 'tool'
+    expect([editor.mode, editor.tool]).toEqual(['edit', 'select'])
   })
 
   it('the World is played: going back to Edit closes it', () => {

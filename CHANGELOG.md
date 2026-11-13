@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Map
+
+- **Play opens on the trip**, whatever tool or panel was open; with no trip yet, **New trip** stands out.
+- **The strip over the map reads as a story**: the trip's facts above (the weather in the system's words, no longer its id), and below the last step's story lines, the newest brightest, instead of the journal's newest rules line.
+
 ### Campaign
 
 - **Playing ▾ takes you to the campaign chosen**: Map opens its map where its trip goes on (else its map changed last), Travel its trip going on (else its newest), Campaign its page; with none there, its Maps or Trips in Campaign. Before, Map and Travel could leave you on a map or trip of another campaign.

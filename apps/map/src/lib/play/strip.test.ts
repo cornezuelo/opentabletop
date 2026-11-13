@@ -4,7 +4,9 @@ import { createMap } from '@open-tabletop/map'
 import { shownAt } from '@open-tabletop/session'
 import PlayStrip from '../../components/PlayStrip.svelte'
 import { editor } from '../store/editor.svelte'
-import { clickHex, editSession, sessionOf, setMode, step } from './play'
+import { exampleMaps } from '../io/examples'
+import { parseMapFile } from '../io/otd'
+import { clickHex, editSession, restartRules, sessionOf, setMode, step } from './play'
 
 describe('the strip over the map', () => {
   it('says what happened last, the journal’s newest line, and what to do next', () => {
@@ -52,5 +54,32 @@ describe('the strip over the map', () => {
     expect(html).toMatch(/<button class="go[^>]*>Continue</)
     editor.panelView = 'tool'
     editor.switchMode('edit')
+  })
+
+  it('tells the story of the last step first, and the weather by its name', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.3)
+    editor.open(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
+    editor.switchMode('play')
+    clickHex('7,7')
+    setMode('rules')
+    await restartRules(editor.campaign.system!, 'spring')
+    const session = () => sessionOf(editor.map.play!)!
+    step({ type: 'action', id: 'camp' })
+    const weather = session().travel.weather!
+    expect(weather).toBeTruthy()
+    const html = render(PlayStrip).body.replace(/<!--[^>]*-->/g, '')
+    // The weather as the table said it, never its id alone.
+    const told = session().journal.findLast(
+      (e) => e.code === 'ORACLE_RESULT' && (e.data?.value as { weather?: string })?.weather,
+    )!.text!
+    expect(html).toContain(`Weather: ${told}`)
+    expect(html).not.toContain(`Weather: ${weather}<`)
+    // What happened: the story lines of the camp, each apart, the newest marked.
+    const lines = html.match(/class="last[^"]*"/g) ?? []
+    expect(lines.length).toBeGreaterThan(0)
+    expect(lines.length).toBeLessThanOrEqual(3)
+    expect(html).toMatch(/class="last[^"]*newest/)
+    editor.switchMode('edit')
+    vi.restoreAllMocks()
   })
 })

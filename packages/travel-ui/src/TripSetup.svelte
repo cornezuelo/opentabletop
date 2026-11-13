@@ -12,6 +12,7 @@
     onrestart,
     startNote,
     systemNote,
+    primary = false,
   }: {
     systems: TravelSystem[]
     /** Id of the current system. */
@@ -26,6 +27,8 @@
      * map's): said in the help.
      */
     systemNote?: string
+    /** No trip yet: **New trip** is the thing to do, and looks it. */
+    primary?: boolean
   } = $props()
 
   const t = translator(() => locale)
@@ -77,7 +80,7 @@
       {/each}
     </select>
   {/if}
-  <button use:tooltip={t('tips.newTrip')} onclick={() => onrestart(system, season)}
+  <button class:primary use:tooltip={t('tips.newTrip')} onclick={() => onrestart(system, season)}
     >{t('newTrip')}</button
   >
 </div>
@@ -117,5 +120,10 @@
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
+  }
+
+  button.primary {
+    color: var(--accent);
+    border-color: var(--accent);
   }
 </style>

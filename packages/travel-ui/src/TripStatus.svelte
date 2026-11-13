@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     calendarOf,
+    lastStepEntries,
     localize,
     participantName,
     shownAt,
@@ -124,13 +125,46 @@
    */
   const SAID = new Set(['DESTINATION_REACHED', 'PLACE_ENTERED', 'ROUTE_PLANNED'])
 
-  /** The journal's newest line (the story and the rules, not what happened behind), in words. */
-  const lastLine = $derived.by(() => {
-    if (!latest) return ''
+  /** The strip's room: the last three things that happened. */
+  const NEWS = 3
+
+  const said = (entry: Parameters<typeof entryText>[0]) =>
+    entryText(entry, context).replace(/\s*\n\s*/g, ' ')
+
+  /**
+   * What happened last, story first: the story lines of the last step (the toll, the omen, a
+   * blow), oldest first, the last few; with none, the journal's newest line of the rules.
+   */
+  const news = $derived.by((): string[] => {
+    if (!latest) return []
+    // The weather it set is said above, among the facts.
+    const story = lastStepEntries(session).filter(
+      (e) =>
+        !SAID.has(e.code) &&
+        shownAt(e, { level: 'story' }) &&
+        (e.data?.value as { weather?: unknown } | undefined)?.weather === undefined,
+    )
+    if (story.length) return story.slice(-NEWS).map(said)
     const entry = session.journal.findLast(
       (e) => !SAID.has(e.code) && shownAt(e, { level: 'mechanics' }),
     )
-    return entry ? entryText(entry, context).replace(/\s*\n\s*/g, ' ') : ''
+    return entry ? [said(entry)] : []
+  })
+  /**
+   * The weather in the system's words: the result of the table that set it (_Grey and mild_),
+   * else its weather model's name for it, else its id.
+   */
+  const weather = $derived.by(() => {
+    const id = travel.weather
+    if (!id) return ''
+    const told = session.journal.findLast(
+      (e) => e.code === 'ORACLE_RESULT' && (e.data?.value as { weather?: unknown })?.weather === id,
+    )?.text
+    if (told) return told
+    const models = system.weather ?? {}
+    const rolled = session.journal.findLast((e) => e.code === 'WEATHER_ROLLED')?.data?.model
+    const model = [models[String(rolled)], ...Object.values(models)].find((m) => m?.states?.[id])
+    return localize(model?.states[id]?.name, locale, 'en') ?? id.replaceAll('-', ' ')
   })
 
   /** What the trip waits for (a check, a step's pause), and what goes on from it, if not a choice. */
@@ -175,58 +209,66 @@
 {/snippet}
 
 <div class="status" class:strip class:more>
-  <!-- A scene has no days of its own: the world's date says when. -->
-  <strong>{t(scene ? 'sceneLine' : 'dayLine', time)}</strong>
-  {#if !strip}{@render longForm()}{/if}
-  {#if !scene}
-    <span>{t('at', { hex: hexLabel(travel.location) })}</span>
-    <span class="minor"
-      >{t('marched', { used: marched.used, limit: marched.limit })}<InfoTip
-        text={t('tips.marched')}
-      /></span
-    >
-  {/if}
-  {#if !scene && travel.progress > 0 && travel.route?.[1]}
-    <span class="minor"
-      >{t('onTheWay', {
-        hex: hexLabel(travel.route[1]),
-        time: durationText(travel.progress),
-      })}</span
-    >
-  {/if}
-  {#if travel.weather}
-    <span class="minor">{t('weather', { weather: travel.weather.replaceAll('-', ' ') })}</span>
-  {/if}
-  {#if lastLine}
-    <span class="last" use:tooltip={lastLine}>{lastLine}</span>
-  {/if}
-  {#if waits}
-    <span class="waits" role="status"
-      >⏸ {waits.text}
-      {#if waits.go && onstep}
-        <button class="go" onclick={() => onstep(waits.go!)}>{t('continue')}</button>
-      {:else if !waits.go && onshow}
-        <button class="go" onclick={onshow}>{t('status.choose')}</button>
-      {/if}</span
-    >
-  {:else if scene}
-    <!-- A scene goes nowhere. -->
-  {:else if travel.destination && travel.destination === travel.location}
-    <!-- What happened last says the arrival: only what to do next is left. -->
-    <span>{lastLine ? arrivedHint : `${t('arrived')} ${arrivedHint}`}</span>
-  {:else if travel.destination}
-    <span>{t('destination', { hex: hexLabel(travel.destination) })}</span>
-  {:else if destinationHint}
-    <span class="help">{destinationHint}</span>
-  {/if}
-  {#if strip && (time.parts || date)}
-    <button
-      use:tooltip={t('status.more')}
-      aria-label={t('status.more')}
-      aria-expanded={more}
-      onclick={() => (more = !more)}>{more ? '▴' : '▾'}</button
-    >
-    {#if more}<div class="long">{@render longForm()}</div>{/if}
+  <div class="facts">
+    <!-- A scene has no days of its own: the world's date says when. -->
+    <strong>{t(scene ? 'sceneLine' : 'dayLine', time)}</strong>
+    {#if !strip}{@render longForm()}{/if}
+    {#if !scene}
+      <span>{t('at', { hex: hexLabel(travel.location) })}</span>
+    {/if}
+    {#if weather}
+      <span>{t('weather', { weather })}</span>
+    {/if}
+    {#if !scene}
+      <span class="minor"
+        >{t('marched', { used: marched.used, limit: marched.limit })}<InfoTip
+          text={t('tips.marched')}
+        /></span
+      >
+    {/if}
+    {#if !scene && travel.progress > 0 && travel.route?.[1]}
+      <span class="minor"
+        >{t('onTheWay', {
+          hex: hexLabel(travel.route[1]),
+          time: durationText(travel.progress),
+        })}</span
+      >
+    {/if}
+    {#if strip && (time.parts || date)}
+      <button
+        use:tooltip={t('status.more')}
+        aria-label={t('status.more')}
+        aria-expanded={more}
+        onclick={() => (more = !more)}>{more ? '▴' : '▾'}</button
+      >
+    {/if}
+  </div>
+  {#if strip && more}<div class="long">{@render longForm()}</div>{/if}
+  {#if news.length || waits || !scene}
+    <div class="news">
+      {#each news as line, i (i)}
+        <span class="last" class:newest={i === news.length - 1} use:tooltip={line}>{line}</span>
+      {/each}
+      {#if waits}
+        <span class="waits" role="status"
+          >⏸ {waits.text}
+          {#if waits.go && onstep}
+            <button class="go" onclick={() => onstep(waits.go!)}>{t('continue')}</button>
+          {:else if !waits.go && onshow}
+            <button class="go" onclick={onshow}>{t('status.choose')}</button>
+          {/if}</span
+        >
+      {:else if scene}
+        <!-- A scene goes nowhere. -->
+      {:else if travel.destination && travel.destination === travel.location}
+        <!-- What happened last says the arrival: only what to do next is left. -->
+        <span class="help">{news.length ? arrivedHint : `${t('arrived')} ${arrivedHint}`}</span>
+      {:else if travel.destination}
+        <span class="help">{t('destination', { hex: hexLabel(travel.destination) })}</span>
+      {:else if destinationHint}
+        <span class="help">{destinationHint}</span>
+      {/if}
+    </div>
   {/if}
 </div>
 
@@ -246,15 +288,48 @@
     color: var(--accent);
   }
 
+  .facts,
+  .news {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
   .strip {
-    flex-flow: row wrap;
-    gap: 2px 14px;
-    align-items: center;
-    padding: 5px 10px;
+    gap: 4px;
+    padding: 6px 12px;
     font-size: 13px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
     border-left: 3px solid var(--accent);
+  }
+
+  .strip .facts,
+  .strip .news {
+    flex-flow: row wrap;
+    gap: 2px 14px;
+    align-items: center;
+  }
+
+  /* What happened: the strip's larger half, each thing apart, the newest brightest. */
+  .strip .news {
+    padding-top: 4px;
+    font-size: 14px;
+    border-top: 1px solid var(--panel-border);
+  }
+
+  .strip .news .last {
+    color: var(--text-muted);
+  }
+
+  .strip .news .last + .last::before {
+    margin-right: 14px;
+    color: var(--panel-border);
+    content: '›';
+  }
+
+  .strip .news .last.newest {
+    color: var(--text);
   }
 
   /* On a phone the strip is the moment and the place; its button opens the rest. */
@@ -286,8 +361,7 @@
 
   .last {
     overflow: hidden;
-    max-width: 60ch;
-    font-style: italic;
+    max-width: 48ch;
     text-overflow: ellipsis;
     white-space: nowrap;
   }

@@ -100,7 +100,7 @@ A march of several cells moves the token **cell by cell** on the map (a short st
 
 ## 4. Order proposed
 
-1. **G** and **F**'s first two points (Play opens on the trip, the strip readable): small, and everything after builds on the top of the panel.
+1. ✅ (2026-11-13: Map's `switchMode`; `TripStatus` in two rows, the last step's story lines (`lastStepEntries`, level story, three at most), the weather by the result that set it or its model's name; **New trip** primary with no trip; `strip.test.ts`, `tools.test.ts`; manual en/es: Play. Going into another map as a beat waits for A) **G** and **F**'s first two points (Play opens on the trip, the strip readable): small, and everything after builds on the top of the panel.
 2. **A**, beats and important beats: the base of everything else.
 3. **B**, the dice tray, in beats and the Oracle.
 4. **D**, the fight view (uses A and B).
