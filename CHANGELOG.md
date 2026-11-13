@@ -6,7 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Map
 
-- **Walking with the keys** steps onto the cell that way, never another round a corner; a room laid under the party takes it in, so keys no longer jump; a room entered by key is entered on the cell ahead; and a step refused says whether a wall or the system's rules (a terrain it can't cross, a shut door) stop it.
+- **Walking with the keys** steps onto the cell that way, never another round a corner; a room laid under the party takes it in, so keys no longer jump; a room entered by key is entered on the cell ahead; and a step refused says whether a wall or the system's rules (a terrain it can't cross, a shut door) stop it. While the trip waits (a check, a pause, a fight) the party no longer moves across its room either.
 
 ### Packs
 

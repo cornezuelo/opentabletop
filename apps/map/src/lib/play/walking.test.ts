@@ -162,6 +162,28 @@ describe('walking', () => {
     expect(location()).toBe('7,3')
   })
 
+  it('while the trip waits (a pause, a fight) the party keeps still, in its room too', () => {
+    room()
+    const hold = (travel: object) =>
+      play.updatePlay((p) => {
+        const session = play.sessionOf(p)!
+        return {
+          ...p,
+          rules: { ...p.rules!, session: { ...session, travel: { ...session.travel, ...travel } } },
+        }
+      })
+    hold({ waiting: { time: 0 } })
+    toasts.length = 0
+    // Neither a key nor a click moves it across the room, and it says why.
+    play.walkByKey('d')
+    play.clickHex('5,3' as HexKey)
+    expect(at()).toBe('3,4')
+    expect(toasts.length).toBeGreaterThan(0)
+    hold({ waiting: undefined })
+    play.walkByKey('d')
+    expect(at()).toBe('4,4')
+  })
+
   it("a trip that can't move on says why (lost for the day)", () => {
     editor.open(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
     editor.mode = 'play'

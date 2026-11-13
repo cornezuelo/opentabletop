@@ -233,6 +233,8 @@ let aimed: HexKey | undefined
  */
 function headFor(cell: HexKey): void {
   const place = placeOfCell(editor.map, cell)
+  if (parseAreaPlace(place) && place === sessionOf(current())?.travel.location)
+    return crossRoom(cell)
   aimed = parseAreaPlace(place) ? cell : undefined
   step({ type: 'setDestination', place })
 }
@@ -295,7 +297,7 @@ export function walkTo(place: string, cell?: HexKey, refused = t('play.noWayTher
   const session = sessionOf(current())
   if (!session) return
   if (place === session.travel.location) {
-    if (cell && parseAreaPlace(place)) standAt(cell)
+    if (cell && parseAreaPlace(place)) crossRoom(cell)
     return
   }
   const rules = getSystem(mapSystemId()).rules
@@ -309,6 +311,16 @@ export function walkTo(place: string, cell?: HexKey, refused = t('play.noWayTher
   const travel = sessionOf(current())?.travel
   if (!travel?.route || travel.route.length < 2) return void showToast(refused, 'info', 5000)
   if (id) step({ type: 'action', id, ...(onward?.with && { with: onward.with }) })
+}
+
+/**
+ * The party steps across its room to a cell: no time passes, but not while the trip is held
+ * (a check or a pause waiting for Continue, a fight): it says why.
+ */
+function crossRoom(cell: HexKey): void {
+  const why = walkBlocked(undefined)
+  if (why) return void showToast(why, 'info', 6000)
+  standAt(cell)
 }
 
 /** Why the party can't walk now (the trip held, or its way of going on), in words; '' if it can. */
@@ -377,7 +389,7 @@ export function walkByKey(key: string): boolean {
   const next = cellToward(direction)
   const place = next && placeOfCell(editor.map, next)
   if (!next || !place) showToast(t('play.noWayThere'), 'info', 5000)
-  else if (place === placeOfCell(editor.map, partyLocation()!)) standAt(next)
+  else if (place === placeOfCell(editor.map, partyLocation()!)) crossRoom(next)
   else {
     const terrain = editor.map.hexes[next]?.terrain
     walkTo(place, next, t('play.notThrough', { terrain: terrain ? terrainLabel(terrain) : next }))
