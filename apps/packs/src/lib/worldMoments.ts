@@ -1,5 +1,9 @@
 import { localize, type TravelSystem } from '@open-tabletop/session'
-import { ENCOUNTER_MOMENTS, WORLD_DO_TURN as WORLD_TURN } from '@open-tabletop/travel-engine'
+import {
+  ENCOUNTER_MOMENTS,
+  PRESENT_LEAVE,
+  WORLD_DO_TURN as WORLD_TURN,
+} from '@open-tabletop/travel-engine'
 
 /** A moment of the world a trip hears: one of the system's clocks filling. */
 const FULL = /^world\.clocks\.(.+)\.full$/
@@ -12,13 +16,15 @@ export function clockMoments(system: TravelSystem | undefined): string[] {
 /**
  * The moments of the world a system's actions (`on:`) and checks (`at:`) may name,
  * suggested in the forms: a world turn (`world.turn`), if it declares factions to take one,
- * each clock it declares filling, and an encounter's moments if its fights go in turns.
+ * each clock it declares filling, an encounter's moments if its fights go in turns, and one of
+ * those present leaving (`present.leave`) if it has a bestiary.
  */
 export function tripWorldMoments(system: TravelSystem | undefined): string[] {
   return [
     ...(system?.factions ? [WORLD_TURN] : []),
     ...clockMoments(system),
     ...(system?.encounter ? ENCOUNTER_MOMENTS : []),
+    ...(system?.bestiary?.length ? [PRESENT_LEAVE] : []),
   ]
 }
 

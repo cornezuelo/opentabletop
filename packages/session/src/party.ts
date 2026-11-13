@@ -37,6 +37,7 @@ import { makePlace, PLACE_PATH, WAY_PATH, type MadePlace, type PlaceLookup } fro
 import { changeEncounter, ENCOUNTER_EFFECT, type Encounter } from './encounter'
 import {
   changePresent,
+  copyFacts,
   copySheet,
   presentFacts,
   presentHere,
@@ -83,6 +84,11 @@ export interface PartyTarget {
   members?: CharacterState[]
   /** The copies of templates the trip made, where each was made (docs/bestiary.md). */
   present?: Present[]
+  /**
+   * Those present that left (fallen, taken away, left behind) whose moment (`present.leave`)
+   * is still to be played, the first first: read as characters (`acting`) until then.
+   */
+  leaving?: Present[]
   acting?: string
   /** The encounter going on, which effects start, end or order (`encounter: start`). */
   encounter?: Encounter
@@ -354,17 +360,28 @@ export function partyBlocks(
  * acting now, if any).
  */
 export function memberFacts(
-  s: Pick<PartyTarget, 'members' | 'acting' | 'roles' | 'present'> & {
+  s: Pick<PartyTarget, 'members' | 'acting' | 'roles' | 'present' | 'leaving'> & {
     travel?: PartyTarget['travel']
   },
   /** Their sheets, for their items' places. */
   rules: PartyRules = {},
 ): Record<string, unknown> {
-  // Those present (copies of templates here), read beside the members.
-  const copies =
-    s.present?.length || rules.templateIds?.length
+  // Those present (copies of templates here), read beside the members; and those that just
+  // left, until their moment (`present.leave`) is played, read as characters only.
+  const here =
+    s.present?.length || s.leaving?.length || rules.templateIds?.length
       ? presentFacts({ present: s.present, travel: s.travel ?? {} }, rules)
       : undefined
+  const copies =
+    here && s.leaving?.length
+      ? {
+          ...here,
+          characters: {
+            ...Object.fromEntries(s.leaving.map((p) => [p.character.id, copyFacts(p, rules)])),
+            ...here.characters,
+          },
+        }
+      : here
   if (!s.members?.length) {
     // A copy acting (a foe's turn) is `acting` too.
     const copy = s.acting !== undefined ? copies?.characters[s.acting] : undefined

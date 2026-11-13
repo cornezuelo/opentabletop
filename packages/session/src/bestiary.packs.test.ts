@@ -73,11 +73,22 @@ describe('the bundled packs make foes from their bestiaries', () => {
     expect(open['buy-off']).toMatchObject({ condition: 'when' })
     // The leader struck down by hand: the pack breaks and runs at the next step.
     s = applyResult(s, { effects: { 'characters.pack-leader.values.health': '=0' } }, {}, rules)
-    const done = stepTrip({ system: marches, world: heath }, s, {
+    const oracle = createOracleEngine({ registry, random: seeded(1) })
+    const done = stepTrip({ system: marches, world: heath, oracle }, s, {
       type: 'action',
       id: 'drive-off',
     })
     expect(done.state.present).toEqual([])
+    // The leader fell: stripped as it left (a beast leaves nothing); the wolves that ran, not.
+    const stripped = done.entries.filter(
+      (e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'strip-the-fallen',
+    )
+    expect(stripped).toHaveLength(1)
+    expect(
+      done.entries.find(
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'grey-marches/fallen',
+      )?.text,
+    ).toBe('Nothing worth taking')
     const codes = done.entries.map((e) => e.code)
     expect(codes).toContain('PRESENT_LEFT')
     expect(
@@ -180,8 +191,58 @@ describe('the bundled packs make foes from their bestiaries', () => {
     expect(s.present).toHaveLength(count)
     expect(s.present![0].character).toMatchObject({ name: 'Foe', sheet: 'core/character' })
     s = applyResult(s, { effects: { 'present.foe.values.health': '=0' } }, {}, rules)
-    const done = stepTrip({ system: core, world: heath }, s, { type: 'moment', at: '' })
+    const oracle = createOracleEngine({ registry, random: seeded(2) })
+    const food = s.party!.values.food
+    const done = stepTrip({ system: core, world: heath, oracle }, s, { type: 'moment', at: '' })
     expect(done.state.present).toEqual([])
+    // Each one that fell is searched as it leaves: a day's food on a 5 or a 6.
+    const found = done.entries.filter(
+      (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'core/fallen',
+    )
+    expect(found).toHaveLength(count)
+    const days = found.filter((e) => e.text === "A day's food").length
+    expect(done.state.party!.values.food).toBe(food + days)
+  })
+
+  it('the Grey Marches: the fallen are stripped as they leave, by who they were', () => {
+    const rules = partyOf(marches)
+    const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
+    const { session } = startTrip({ system: marches, location: 'a', members, seed: 'x' })
+    const hills = { ...heath, place: () => ({ terrain: 'hills', fields: { danger: '4' } }) }
+    const bandits = rollUntil(
+      'grey-marches/table.encounter',
+      'bandits',
+      tripFacts({ system: marches, world: hills }, session),
+    )
+    let s = applyResult(session, bandits.value, marches.bindings?.stats, rules)
+    const count = Number(bandits.text!.split(' ')[0])
+    // What they carry: each its rations (1d2 a bandit, 2 the chief).
+    const carried = s.present!.reduce(
+      (n, p) =>
+        n + (p.character.items ?? []).reduce((m, i) => m + (i.id === 'ration' ? i.count : 0), 0),
+      0,
+    )
+    const rations = () =>
+      (
+        tripFacts({ system: marches, world: hills }, s).party as {
+          items: Record<string, { count: number }>
+        }
+      ).items.ration.count
+    const before = { silver: s.party!.values.silver, rations: rations() }
+    // All of them struck down at once.
+    s = applyResult(s, { effects: { 'present.all.values.health': '=0' } }, {}, rules)
+    const oracle = createOracleEngine({ registry, random: seeded(4) })
+    const done = stepTrip({ system: marches, world: hills, oracle }, s, { type: 'moment', at: '' })
+    s = done.state
+    expect(s.present).toEqual([])
+    const texts = done.entries
+      .filter((e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'grey-marches/fallen')
+      .map((e) => e.text!)
+    // The bandits' purses, the chief's hoard (the treasure rolled on), every ration taken.
+    expect(texts.filter((t) => t.startsWith('A purse of '))).toHaveLength(count - 1)
+    expect(texts.filter((t) => t.startsWith('The chief’s hoard'))).toHaveLength(1)
+    expect(rations()).toBe(before.rations + carried)
+    expect(s.party!.values.silver).toBeGreaterThan(before.silver)
   })
 })
 

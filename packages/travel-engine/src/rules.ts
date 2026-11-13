@@ -28,13 +28,15 @@ export const PLACE_ENTER = 'trip.place-enter'
 export const DAY_END = 'time.day-end'
 /**
  * A moment the host says came, not one the trip keeps: of the world (`world.turn`,
- * `world.clocks.<id>.full`) or of an encounter (`encounter.start`, `encounter.round`,
- * `encounter.turn`, `encounter.end`). The engine only knows it by name, and happens it when
- * told (`{ type: 'moment' }`). A `do:` naming one (`do: world.turn`) is the host's to do too
- * (`WORLD_DO`).
+ * `world.clocks.<id>.full`), of an encounter (`encounter.start`, `encounter.round`,
+ * `encounter.turn`, `encounter.end`) or one of those present leaving (`present.leave`). The
+ * engine only knows it by name, and happens it when told (`{ type: 'moment' }`). A `do:`
+ * naming one (`do: world.turn`) is the host's to do too (`WORLD_DO`).
  */
 export const HOST_MOMENT =
-  /^(?:world\.[A-Za-z0-9][\w-]*(\.[\w-]+)*|encounter\.(?:start|round|turn|end))$/
+  /^(?:world\.[A-Za-z0-9][\w-]*(\.[\w-]+)*|encounter\.(?:start|round|turn|end)|present\.leave)$/
+/** The moment one of those present leaves (fallen, fled, left behind), with it acting. */
+export const PRESENT_LEAVE = 'present.leave'
 /** The moments of an encounter, in the order they come (the host says them). */
 export const ENCOUNTER_MOMENTS = [
   'encounter.start',

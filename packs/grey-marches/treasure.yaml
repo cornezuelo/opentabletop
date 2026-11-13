@@ -75,6 +75,43 @@ entries:
     set: { crowns: '{{2d6+6}}' }
     effects: { party.stats.silver: '{{crowns * 10}}' }
 ---
+# What a foe that fell leaves (travel.yaml's _Strip the fallen_, as it leaves those present),
+# read acting as it: by its template and its tags, the first entry that holds.
+kind: table
+id: fallen
+tags: [treasure, encounters]
+name: What the fallen leave
+description: |-
+  What a foe that **fell** leaves behind: an outlaw's purse and the rations it carried, a bandit chief's hoard, now and then the grave goods of the restless dead; a beast leaves nothing worth taking.
+
+  **Shows:**
+
+  - A table rolled as one of those present leaves (`on: present.leave`), only for one that fell (`when: { acting.conditions: down }`), read acting as it was when it left
+  - Entries chosen by who it was: its template (`acting.template: bandit-chief`) and its tags (`acting.tags: outlaw`), each over the whole roll, the first that holds
+  - What it carried taken by the party (`party.items.ration: '{{max(acting.items.ration.count, 0)}}'`: none when it had none)
+  - Cascades into _What is in the hoard?_ and _A rare prize_
+roll: 1d6
+entries:
+  - id: hoard
+    range: 1-6
+    when: { acting.template: bandit-chief }
+    result: 'The chief’s hoard, and {{rations}} rations'
+    set: { rations: '{{max(acting.items.ration.count, 0)}}' }
+    effects: { party.items.ration: '{{rations}}' }
+    table: table.treasure
+  - id: purse
+    range: 1-6
+    when: { acting.tags: outlaw }
+    result: 'A purse of {{coins}} silver, and {{rations}} rations'
+    set: { coins: '{{1d6}}', rations: '{{max(acting.items.ration.count, 0)}}' }
+    effects: { party.stats.silver: '{{coins}}', party.items.ration: '{{rations}}' }
+  - id: grave-goods
+    range: 6
+    when: { acting.tags: undead }
+    result: 'Grave goods among the bones'
+    table: table.prize
+  - { id: nothing, range: 1-6, result: Nothing worth taking }
+---
 # A generator using every kind of field: a table, dice (keep the lowest of 2d6: mostly
 # low), percentile dice, a fixed value with a template, a field only when another says so,
 # and a table rolled with its own context (the guardian is met at night, as dangerous as the

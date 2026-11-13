@@ -302,6 +302,26 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(checked).toBeGreaterThan(0)
   })
 
+  it('a creature Destroyed is looted as it leaves: Resources for vermin, Spoils for the rest', () => {
+    const looted = (id: string) => {
+      for (let n = 0; n < 10; n++) {
+        const { entries } = fight({ [id]: 1 }, `${id}${n}`)
+        const fell = entries.some((e) => e.code === 'PRESENT_LEFT' && e.data?.condition === 'dead')
+        if (!fell) continue
+        expect(entries.filter((e) => e.code === 'CHECK_FAILED').map((e) => e.text)).toEqual([])
+        return entries
+          .filter(
+            (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/creature-spoils',
+          )
+          .map((e) => String(e.text).split(/[—:]/)[0].trim())
+      }
+      throw new Error(`no ${id} fell in ten fights`)
+    }
+    // A Necropede leaves its remains; a Rotwalker what it carried.
+    expect(looted('necropede')).toEqual(['Its remains'])
+    expect(looted('rotwalker')).toEqual(['What it carried'])
+  })
+
   it('a Prone foe is attacked with Advantage: the d100 read either way round, the lower kept', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!

@@ -73,6 +73,8 @@ import {
   momentRolls,
   qualify,
   reactionsOf,
+  momentsOf,
+  PRESENT_LEAVE,
   resolveChange,
   movingActions,
   upgradeTravelState,
@@ -270,6 +272,12 @@ export interface SessionState {
    * the party's place are what tables see (`present.*`, docs/bestiary.md). Absent: none.
    */
   present?: Present[]
+  /**
+   * Those present that left (fallen, taken away, left behind) whose moment (`present.leave`)
+   * is still to be played, the first first: read as characters until then. Only kept when
+   * the rules hear that moment.
+   */
+  leaving?: Present[]
   /** The member acting now (`acting.*`), chosen by the player, or whoever's turn it is in a fight. */
   acting?: string
   /** The encounter going on, a fight in turns (docs/conflicts.md); absent: none. */
@@ -722,6 +730,26 @@ export function createSession(options: {
     const done = settlePresent(s, party, worldOf(s), s.travel.time)
     told(s, entries, done.events, s.travel.time)
     presentLines(s, entries, done.present, s.travel.time)
+    queueLeaving(s, done.gone, done.present)
+  }
+  /** Whether the rules take an action or roll a check as one of those present leaves. */
+  const hearsLeave =
+    !!options.rules &&
+    (Object.values(options.rules.actions ?? {}).some((a) =>
+      momentsOf(a.on).includes(PRESENT_LEAVE),
+    ) ||
+      (options.rules.checks ?? []).some((c) => momentsOf(c.at).includes(PRESENT_LEAVE)))
+  /**
+   * Those present that just left (not by the player's hand), queued for their moment
+   * (`present.leave`), as they were on leaving (found in `from`), when the rules hear it.
+   */
+  const queueLeaving = (s: SessionState, from: Present[], events: PresentEvent[]) => {
+    if (!hearsLeave) return
+    for (const e of events) {
+      if (e.type !== 'PRESENT_LEFT' || e.because === 'hand') continue
+      const p = from.find((c) => c.character.id === e.id)
+      if (p) s.leaving = [...(s.leaving ?? []), p]
+    }
   }
   /** The trip's world as conditions see it now (what tables see, by their full names). */
   const worldOf = (s: SessionState) =>
@@ -807,7 +835,9 @@ export function createSession(options: {
         /** Whether what hits a bound is noted for the day (an action's steps: the engine did). */
         noteReached = true,
       ): LimitReached[] => {
+        const before = s.present ?? []
         const done = applyMemberEffects(s, effects, party, context, time, noteReached)
+        queueLeaving(s, before, done.present)
         for (const path of done.nobody)
           add(s, entries, { source: 'travel', code: 'NOBODY_ACTING', time, data: { path } })
         told(s, entries, done.events, time)
@@ -968,9 +998,14 @@ export function createSession(options: {
       let reacting = false
       let after: TravelAction | undefined
       /** Who acted before a reaction played for a member made them act. */
-      let actingBefore: { acting?: string } | undefined
+      let actingBefore: { acting?: string; leaving?: string } | undefined
       const restoreActing = () => {
         if (!actingBefore) return
+        const gone = actingBefore.leaving
+        if (gone !== undefined) {
+          s.leaving = (s.leaving ?? []).filter((p) => p.character.id !== gone)
+          if (!s.leaving.length) delete s.leaving
+        }
         if (actingBefore.acting === undefined) delete s.acting
         else s.acting = actingBefore.acting
         actingBefore = undefined
@@ -1328,6 +1363,24 @@ export function createSession(options: {
             reacting = false
           }
           restoreActing()
+          // One of those present that left: its moment, with it acting (its spoils…).
+          const gone = s.leaving?.[0]
+          if (gone) {
+            actingBefore = { acting: s.acting }
+            s.acting = gone.character.id
+            const moment = options.travel.apply(
+              s.travel,
+              { type: 'moment', at: PRESENT_LEAVE },
+              tripContext(s, hostOf(s), {}, party),
+            )
+            // Read as a character while its moment is played, then gone (`restoreActing`).
+            actingBefore.leaving = gone.character.id
+            s.travel = moment.state
+            after = next
+            reacting = true
+            replay = moment.events
+            return true
+          }
           const r = nextReaction(s)
           if (!r) return false
           if (++reacted > MAX_REACTIONS) {

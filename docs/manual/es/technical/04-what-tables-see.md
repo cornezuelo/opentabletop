@@ -239,6 +239,8 @@ Mientras dura un [combate por turnos](07-kinds.md#sistemas) (el `encounter:` de 
 
 Quien tiene el turno es también `acting.*`, un miembro o una copia: `acting.values.morale` en el turno de un enemigo es la de ese enemigo. Los efectos llegan a él con el mismo nombre (`acting.conditions.routed: true`).
 
+Cuando se va uno de los presentes (el momento `present.leave`), el que se va es `acting.*`, tal como estaba al irse (`acting.conditions: down`, `acting.tags: outlaw`, `acting.template`, `acting.items.ration.count`), y `characters.<id>.*` hasta que acaba su momento; ya no está en `present.*`.
+
 ## El mundo, `world.*`, y las facciones
 
 Cuando la campaña tiene su reloj del mundo (el panel Mundo de Mapa, la aplicación Campaña), en sus mapas y en los viajes de la aplicación Viajes que se juegan en ella; también en las tiradas a mano.

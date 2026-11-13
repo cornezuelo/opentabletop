@@ -197,6 +197,15 @@ actions:
       - { ask: params.foe }
       # A blow of 1d3; a glancing 1 staggers it for a round (bestiary.yaml's _A strike_).
       - { roll: table.strike }
+  # As one of those present leaves (`present.leave`), with it acting: a foe that fell (not
+  # one that ran) is searched (bestiary.yaml's _What the fallen carry_).
+  search:
+    name: Search the fallen
+    description: 'As a foe falls: what it carried, rolled.'
+    on: present.leave
+    when: { acting.conditions: down }
+    do:
+      - { roll: table.fallen }
   # A moment written as a condition (a reaction): once, as morale reaches 0.
   despair:
     name: Despair

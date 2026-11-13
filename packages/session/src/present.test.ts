@@ -407,3 +407,70 @@ describe('who a result brings', () => {
     expect(presentBrought(undefined)).toEqual({})
   })
 })
+
+describe('one of those present leaving (present.leave)', () => {
+  // The same system, with what it does as each one leaves: those of the pack struck down
+  // leave a pelt; anyone who leaves is said, with what it had left.
+  const pack = PACK.map((f) =>
+    f.path === 'wilds/rules.yaml'
+      ? {
+          ...f,
+          content: f.content.replace(
+            '  howl:',
+            `  pelt:
+    on: present.leave
+    when: { acting.conditions: down, acting.tags: pack }
+    do: [{ say: 'A pelt from {{acting.template}} ({{acting.values.health}})' }]
+  gone:
+    on: present.leave
+    do: [{ say: 'Gone: {{acting.template}}' }]
+  howl:`,
+          ),
+        }
+      : f,
+  )
+  const loaded = loadPacks(pack)
+  const system = travelSystems(loaded.registry).systems.find((s) => s.id === 'wilds')!
+  const said = (entries: { code: string; data?: Record<string, unknown> }[]) =>
+    entries.filter((e) => e.code === 'SAID').map((e) => e.data?.text)
+
+  it('plays as each one leaves, with it acting as it was on leaving', () => {
+    const options = {
+      system,
+      world,
+      oracle: () => createOracleEngine({ registry: loaded.registry, random: seeded(3) }),
+    }
+    const { session } = startTrip({ system, location: 'a', time: 6 * 60, seed: 's' })
+    let done = stepTrip({ ...options, oracle: options.oracle() }, session, {
+      type: 'wait',
+      until: 8 * 60,
+    })
+    const wolves = done.state.present!.filter((p) => p.character.template?.id === 'wolf').length
+    // Struck down: each wolf leaves a pelt, its health as it fell; the leader stays.
+    done = stepTrip({ ...options, oracle: options.oracle() }, done.state, {
+      type: 'action',
+      id: 'strike',
+    })
+    const lines = said(done.entries)
+    expect(lines.filter((t) => t === 'A pelt from wolf (0)')).toHaveLength(wolves)
+    expect(lines.filter((t) => t === 'Gone: wolf')).toHaveLength(wolves)
+    // Nobody waits to be played, and nobody acts any more.
+    expect(done.state.leaving).toBeUndefined()
+    expect(done.state.acting).toBeUndefined()
+    // Left behind: its moment too, though it didn't fall (no pelt).
+    done = stepTrip({ ...options, oracle: options.oracle() }, done.state, {
+      type: 'setDestination',
+      place: 'b',
+    })
+    done = stepTrip({ ...options, oracle: options.oracle() }, done.state, { type: 'travel' })
+    expect(said(done.entries)).toEqual(['Gone: leader'])
+  })
+
+  it('a system that hears no such moment keeps nobody leaving', () => {
+    const { session } = startTrip({ system: wilds, location: 'a', time: 6 * 60, seed: 's' })
+    const options = { system: wilds, world, oracle: oracle() }
+    let done = stepTrip(options, session, { type: 'wait', until: 8 * 60 })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike' })
+    expect(done.state.leaving).toBeUndefined()
+  })
+})

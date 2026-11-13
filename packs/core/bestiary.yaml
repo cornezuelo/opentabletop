@@ -78,3 +78,17 @@ entries:
       result: '{{roll}} harm',
       effects: { 'characters[params.foe].values.health': '-{{roll}}' },
     }
+---
+# What a fallen foe carried (travel.yaml's _Search the fallen_, as it leaves those present).
+kind: table
+id: fallen
+tags: [encounters]
+name: What the fallen carry
+description: |-
+  What a foe that fell had on it: nothing much, or a day's food.
+
+  **Shows:** a table rolled as one of those present leaves (`on: present.leave`), only for one that fell (`when: { acting.conditions: down }`), read acting as it.
+roll: 1d6
+entries:
+  - { id: nothing, range: 1-4, result: Nothing worth taking }
+  - { id: food, range: 5-6, result: A day's food, effects: { party.values.food: 1 } }

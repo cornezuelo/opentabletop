@@ -239,6 +239,8 @@ While a [fight in turns](07-kinds.md#systems) goes on (its system's `encounter:`
 
 Whoever's turn it is is also `acting.*`, a member or a copy: `acting.values.morale` on a foe's turn is that foe's. Effects reach it by the same name (`acting.conditions.routed: true`).
 
+As one of those present leaves (the moment `present.leave`), the one leaving is `acting.*`, as it was when it left (`acting.conditions: down`, `acting.tags: outlaw`, `acting.template`, `acting.items.ration.count`), and `characters.<id>.*` until its moment is done; it's no longer in `present.*`.
+
 ## The world, `world.*`, and factions
 
 When the campaign has its world clock (Map's World panel, the Campaign app), on its maps and in Travel's trips played in it; also in hand rolls.

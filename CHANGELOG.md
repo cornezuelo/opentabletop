@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **One of those present leaving**: a new moment, `present.leave`, for actions' `on:` and checks' `at:`, as a copy of a template leaves those present (fallen, run off, taken away, left behind), the one leaving acting as it was when it left (`acting.conditions: down`, `acting.tags`, `acting.template`, what it carried). Core's **Search the fallen** (_What the fallen carry_); the Grey Marches' **Strip the fallen** (_What the fallen leave_: an outlaw's purse and rations, the bandit chief's hoard, the grave goods of the dead).
+
 ## [0.48.0] - 2026-11-13
 
 ### Packs

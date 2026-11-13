@@ -790,6 +790,16 @@ actions:
       piece: { name: Piece, from: acting.places.body.keys }
     do:
       - { roll: table.wear-and-tear, each: params.piece }
+  # As one of those present leaves (`present.leave`), the one leaving acting (`acting.*`, as
+  # it was when it left): one that fell (not one that ran or was paid off) is searched, and
+  # what it leaves depends on who it was (treasure.yaml's _What the fallen leave_).
+  strip-the-fallen:
+    name: Strip the fallen
+    description: 'As a foe falls: what it leaves depends on who it was. An outlaw’s purse and rations, a chief’s hoard, the grave goods of the dead; a beast, nothing.'
+    on: present.leave
+    when: { acting.conditions: down }
+    do:
+      - { roll: table.fallen }
   # A reaction on those present (a moment written as a condition): once the pack leader is
   # gone (down, by hand…) with grey wolves still here, the rest of the pack runs.
   pack-breaks:

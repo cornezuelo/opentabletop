@@ -27,6 +27,7 @@ import {
   createTravelEngine,
   isHostMoment,
   WORLD_DO_TURN,
+  PRESENT_LEAVE,
   momentsOf,
   type Moments,
   refId,
@@ -757,6 +758,8 @@ export function travelSystems(registry: Registry): {
               report(at, 'the system declares no encounter: its fights have no turns', 'warning')
             return
           }
+          // One of those present leaving: heard whatever brings them (a map's pack may).
+          if (m === PRESENT_LEAVE) return
           const id = /^world\.clocks\.(.+)\.full$/.exec(m)?.[1]
           if (m === WORLD_DO_TURN) {
             if (!factions)

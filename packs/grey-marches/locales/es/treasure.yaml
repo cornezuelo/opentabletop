@@ -15,6 +15,22 @@ treasure:
     gems: '{{gems}} gemas de {{worth}} monedas de plata cada una'
     map: 'Un mapa de las Colinas Huecas; una nota dice que {{result}}'
     potion: Un frasco del cordial de las brujas (quita toda la fatiga)
+fallen:
+  name: Lo que dejan los caídos
+  description: |-
+    Lo que deja un enemigo que **cayó**: la bolsa de un forajido y las raciones que llevaba, el tesoro de un cabecilla de bandidos, de vez en cuando el ajuar de los muertos inquietos; una bestia no deja nada que merezca la pena.
+
+    **Enseña:**
+
+    - Una tabla tirada cuando se va uno de los presentes (`on: present.leave`), solo por uno que cayó (`when: { acting.conditions: down }`), leída actuando como era al irse
+    - Entradas elegidas por quién era: su plantilla (`acting.template: bandit-chief`) y sus etiquetas (`acting.tags: outlaw`), cada una sobre toda la tirada, la primera que se cumple
+    - Lo que llevaba, para el grupo (`party.items.ration: '{{max(acting.items.ration.count, 0)}}'`: ninguna si no llevaba)
+    - Encadena con _¿Qué hay en el tesoro?_ y _Un premio raro_
+  entries:
+    hoard: 'El tesoro del cabecilla, y {{rations}} raciones'
+    purse: 'Una bolsa con {{coins}} de plata, y {{rations}} raciones'
+    grave-goods: 'Ajuar funerario entre los huesos'
+    nothing: Nada que merezca la pena
 prize:
   name: Un premio raro
   description: |-

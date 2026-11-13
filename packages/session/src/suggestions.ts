@@ -4,6 +4,7 @@ import {
   availableActions,
   CHECK_MOMENTS,
   ENCOUNTER_MOMENTS,
+  PRESENT_LEAVE,
   declaredValues,
   FACT_PATHS,
   choiceIds,
@@ -278,6 +279,7 @@ export function contextSuggestions(
     add('doneToday', ...taken)
     add('moment', ...CHECK_MOMENTS, ...taken.map((a) => ref('actions', a)))
     if (encounter) add('moment', ...ENCOUNTER_MOMENTS)
+    if (bestiary?.length) add('moment', PRESENT_LEAVE)
     for (const id of taken) add(`trip.taken.${id}`)
     for (const action of Object.values(availableActions(rules).all)) {
       condition(action.when, add)

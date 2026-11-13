@@ -282,23 +282,26 @@ export function movePresent(s: PresentTarget, id: string, at: string): PresentEv
 /**
  * Settles those present (in place): what holds by itself on each copy here, in `world`;
  * then takes off the copies with a condition that `leaves` and those left behind that go
- * (`behind: leave`). What changed on them, and who left.
+ * (`behind: leave`). What changed on them, and who left (`gone`: each as it was on leaving).
  */
 export function settlePresent(
   s: PresentTarget,
   rules: PresentRules,
   world: Record<string, unknown> = {},
   time?: number,
-): { events: CharacterEvent[]; present: PresentEvent[] } {
+): { events: CharacterEvent[]; present: PresentEvent[]; gone: Present[] } {
   const events: CharacterEvent[] = []
   const present: PresentEvent[] = []
-  if (!s.present?.length) return { events, present }
+  const gone: Present[] = []
+  if (!s.present?.length) return { events, present, gone }
   const options = { world, ...(time !== undefined && { time }) }
   const kept: Present[] = []
   for (const p of s.present) {
     if (p.at !== s.travel.location) {
-      if (p.behind === 'leave') present.push(left(p, 'behind'))
-      else kept.push(p)
+      if (p.behind === 'leave') {
+        present.push(left(p, 'behind'))
+        gone.push(p)
+      } else kept.push(p)
       continue
     }
     const sheet = copySheet(rules)(p.character)
@@ -310,14 +313,15 @@ export function settlePresent(
     events.push(...done.events)
     const leaving = Object.keys(done.state.conditions).find((c) => sheet.conditions[c]?.leaves)
     const next = done.events.length ? { ...p, character: done.state } : p
-    if (leaving)
+    if (leaving) {
       present.push(
         left(next, 'condition', leaving, textOf(sheet.conditions[leaving].name, rules.locale)),
       )
-    else kept.push(next)
+      gone.push(next)
+    } else kept.push(next)
   }
   s.present = kept
-  return { events, present }
+  return { events, present, gone }
 }
 
 /**
@@ -338,6 +342,14 @@ export function extremes(facts: readonly Record<string, unknown>[]): {
       if (!(id in lowest) || n < lowest[id]) lowest[id] = n
     }
   return { highest: { values: highest }, lowest: { values: lowest } }
+}
+
+/** A copy's facts, with the template it's a copy of (`characters[params.foe].template`). */
+export function copyFacts(p: Present, rules: PresentRules): Record<string, unknown> {
+  return {
+    ...characterFacts(p.character, copySheet(rules)(p.character)),
+    ...(p.character.template && { template: p.character.template.id }),
+  }
 }
 
 /**
@@ -364,16 +376,7 @@ export function presentFacts(
     t.count++
     t.ids.push(p.character.id)
   }
-  // Each copy, with the template it's a copy of (`characters[params.foe].template`).
-  const characters = Object.fromEntries(
-    here.map((p) => [
-      p.character.id,
-      {
-        ...characterFacts(p.character, copySheet(rules)(p.character)),
-        ...(p.character.template && { template: p.character.template.id }),
-      },
-    ]),
-  )
+  const characters = Object.fromEntries(here.map((p) => [p.character.id, copyFacts(p, rules)]))
   return {
     present: {
       ...byTemplate,

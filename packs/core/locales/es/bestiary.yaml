@@ -33,3 +33,12 @@ strike:
   entries:
     glancing: 1 de daño, y se tambalea
     blow: '{{roll}} de daño'
+fallen:
+  name: Lo que llevan los caídos
+  description: |-
+    Lo que llevaba encima un enemigo que cayó: poca cosa, o un día de comida.
+
+    **Enseña:** una tabla tirada cuando se va uno de los presentes (`on: present.leave`), solo por uno que cayó (`when: { acting.conditions: down }`), leída actuando como él.
+  entries:
+    nothing: Nada que merezca la pena
+    food: Un día de comida

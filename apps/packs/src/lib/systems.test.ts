@@ -175,6 +175,7 @@ describe('systems in the Packs app', () => {
       'open-gate',
       'fight',
       'strike',
+      'search',
       'despair',
     ])
     // …and the calendar whose parts of the day they name (Core's, a dependency).
