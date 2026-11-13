@@ -9,6 +9,7 @@ import {
   isLinked,
   keepInRoster,
   leavePlace,
+  leavePlaces,
   pullFromRoster,
   readRoster,
   renameMember,
@@ -109,6 +110,20 @@ describe('the roster', () => {
     expect(left.characters[1].playing).toBeUndefined()
     expect(leavePlace(left, trip).characters.every((e) => !e.playing)).toBe(true)
     expect(leavePlace(left, map)).toBe(left)
+  })
+
+  it('lets every character of several places leave, whichever token they are on', () => {
+    let { roster } = keepInRoster(emptyRoster(), character('kael'), 'T1', trip)
+    roster = keepInRoster(roster, character('mara'), 'T1', { ...map, token: 'tok' }).roster
+    roster = keepInRoster(roster, character('tobin'), 'T1', {
+      app: 'map',
+      id: 'other',
+      name: 'Other',
+    }).roster
+    const left = leavePlaces(roster, [trip, { app: 'map', id: map.id }])
+    expect(left.characters.map((e) => e.playing?.id)).toEqual([undefined, undefined, 'other'])
+    // Still in the roster.
+    expect(left.characters).toHaveLength(3)
   })
 
   it('duplicates and deletes', () => {

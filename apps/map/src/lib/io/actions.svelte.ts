@@ -583,14 +583,16 @@ export async function openLibraryMap(id: string): Promise<boolean> {
   }
 }
 
+/** Nothing of the open map may be saved again once it's gone. */
+function forgetOpen(): void {
+  clearTimeout(timer)
+  dirty = false
+  campaignDirty = false
+}
+
 export async function removeLibraryMap(id: string): Promise<void> {
   const open = id === editor.map.meta.id
-  // Nothing of the open map may be saved again once it's gone.
-  if (open) {
-    clearTimeout(timer)
-    dirty = false
-    campaignDirty = false
-  }
+  if (open) forgetOpen()
   const entry = await getLibraryMap(id)
   await deleteLibraryMap(id)
   forgetExample(id)
@@ -818,6 +820,11 @@ export async function startPersistence(): Promise<() => void> {
     library.version++
     if (change.type === 'put' && change.id === editor.map.meta.id)
       takeFromElsewhere().catch(console.error)
+    // Deleted elsewhere (its campaign deleted with all in it): a new map opens instead.
+    if (change.type === 'delete' && change.id === editor.map.meta.id) {
+      forgetOpen()
+      switchTo({ map: createMap() }).catch(console.error)
+    }
   })
   const stopHearingCampaigns = onCampaignChange((change) => {
     if (change.type === 'put' && change.id === editor.campaign.id)

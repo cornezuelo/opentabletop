@@ -35,7 +35,13 @@ import {
   putCampaign,
   putLibraryMap,
 } from '@open-tabletop/storage'
-import { campaignPlaces, SCENES_KEY, TripStore, type CampaignPlace } from '@open-tabletop/travel-ui'
+import {
+  campaignPlaces,
+  deleteAllIn,
+  SCENES_KEY,
+  TripStore,
+  type CampaignPlace,
+} from '@open-tabletop/travel-ui'
 import { CampaignKeeper, confirmAction, freeCampaignName, showToast } from '@open-tabletop/ui-kit'
 import type { WeatherModel } from '@open-tabletop/weather-engine'
 import { getLocale, t } from './i18n'
@@ -463,25 +469,31 @@ export async function newCampaign(
 export const placesIn = (id: string): Promise<CampaignPlace[]> => campaignPlaces(id).catch(() => [])
 
 /**
- * Deletes a campaign, only when nothing is in it (its maps and trips would lose their
- * world); asks first. True if deleted.
+ * Deletes a campaign; asks first. With maps, trips or scenes in it, the question names them,
+ * and they're deleted with it (`deleteAllIn`), its characters left in the roster. True if
+ * deleted.
  */
 export async function removeCampaign(campaign: Campaign): Promise<boolean> {
-  const places = await placesIn(campaign.id)
-  if (places.length) {
-    // Say which, so they can be found (a trip of Travel's is easy to forget).
-    const list = places
-      .map((p) =>
-        p.app === 'map'
-          ? `${t('tabs.maps')}: ${p.name || t('places.untitledMap')}`
-          : `${t('tabs.trips')}: ${p.name || t('places.untitledTrip')}`,
-      )
-      .join(' · ')
-    showToast(t('campaign.cantDelete', { list }), 'error', 10000)
-    return false
-  }
   const name = campaign.name || t('nav.untitled')
-  if (!(await confirmAction(t('campaign.confirmDelete', { name })))) return false
+  const places = await placesIn(campaign.id)
+  // Say which, so nobody deletes a trip of Travel's without knowing.
+  const list = places
+    .map((p) =>
+      p.app === 'map'
+        ? `${t('tabs.maps')}: ${p.name || t('places.untitledMap')}`
+        : `${t(p.app === 'scene' ? 'tabs.scenes' : 'tabs.trips')}: ${p.name || t('places.untitledTrip')}`,
+    )
+    .join(' · ')
+  const asked = places.length
+    ? confirmAction(t('campaign.confirmDeleteAll', { name, list }), {
+        confirm: t('campaign.deleteAll'),
+      })
+    : confirmAction(t('campaign.confirmDelete', { name }))
+  if (!(await asked)) return false
+  if (places.length) {
+    const gone = await deleteAllIn(campaign.id)
+    scenes.forget(gone.filter((p) => p.app === 'scene').map((p) => p.id))
+  }
   await deleteCampaign(campaign.id)
   await campaigns.refresh()
   showToast(t('campaign.deleted', { name }))

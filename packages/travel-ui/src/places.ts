@@ -1,4 +1,11 @@
-import { allLibraryMaps, getCampaign, getLibraryMap } from '@open-tabletop/storage'
+import { roster } from '@open-tabletop/character-ui'
+import { leavePlaces } from '@open-tabletop/session'
+import {
+  allLibraryMaps,
+  deleteLibraryMap,
+  getCampaign,
+  getLibraryMap,
+} from '@open-tabletop/storage'
 import { readTrips } from './trips.svelte'
 
 /** Where Travel keeps its trips (every app reads them there to know who's in a campaign). */
@@ -91,4 +98,39 @@ export async function placeCampaign(place: {
   if (!id) return undefined
   const campaign = await getCampaign(id).catch(() => null)
   return { id, name: campaign?.name ?? '' }
+}
+
+/** Leaves these trips out of those kept under a key (as Travel and Campaign keep them). */
+function dropTrips(key: string, ids: Set<string>): void {
+  try {
+    const raw = JSON.parse(localStorage.getItem(key) ?? 'null') as {
+      current?: string
+      trips?: { id?: unknown }[]
+    } | null
+    if (!raw || !Array.isArray(raw.trips)) return
+    const trips = raw.trips.filter((t) => !ids.has(String(t.id)))
+    if (trips.length === raw.trips.length) return
+    const current = trips.some((t) => t.id === raw.current) ? raw.current : trips.at(-1)?.id
+    localStorage.setItem(key, JSON.stringify({ ...raw, current, trips }))
+  } catch {
+    // Not kept: nothing to drop.
+  }
+}
+
+/**
+ * Deletes everything in a campaign (its maps of the library, Travel's trips and Campaign's
+ * scenes in it); the roster's characters that played in them, or in the campaign without a
+ * trip, stay in the roster, playing nowhere. The campaign itself is the caller's to delete,
+ * and a host keeping trips open (Campaign's scenes) forgets those of its own. What was
+ * deleted is returned.
+ */
+export async function deleteAllIn(campaign: string): Promise<CampaignPlace[]> {
+  const places = await campaignPlaces(campaign)
+  for (const place of places) if (place.app === 'map') await deleteLibraryMap(place.id)
+  const ids = (app: CampaignPlace['app']) =>
+    new Set(places.filter((p) => p.app === app).map((p) => p.id))
+  dropTrips(TRAVEL_TRIPS_KEY, ids('travel'))
+  dropTrips(SCENES_KEY, ids('scene'))
+  roster.set(leavePlaces(roster.roster, [...places, { app: 'campaign', id: campaign }]))
+  return places
 }

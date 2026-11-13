@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Campaign
+
+- **Deleting a campaign with what's in it**: **Delete** names its maps, trips and scenes and offers **Delete it all**, instead of asking you to move or delete each first; its characters stay in the roster. A map or trip deleted this way closes where it's open in another window.
+
 ### Fixes
 
 - Map: a fight met as a room is laid (an encounter on entering it) no longer ends as soon as it starts: those it brings are in the room with the party.

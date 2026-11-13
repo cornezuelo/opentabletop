@@ -19,6 +19,10 @@ vi.mock('@open-tabletop/storage', async (original) => ({
   getCampaign: async (id: string) => kept.get(id) ?? null,
   deleteCampaign: async (id: string) => void kept.delete(id),
   allLibraryMaps: async () => maps,
+  deleteLibraryMap: async (id: string) => {
+    const at = maps.findIndex((m) => m.id === id)
+    if (at >= 0) maps.splice(at, 1)
+  },
   putLibraryMap: async (entry: LibraryEntry) => {
     putMaps.push(entry)
     const at = maps.findIndex((m) => m.id === entry.id)
@@ -106,18 +110,73 @@ describe('the Campaign app', () => {
     // …and its weather is the trip's then: none shown here.
     expect(app.open.weather()).toBeUndefined()
 
-    // A map in it: the campaign can't be deleted until it leaves.
+    // A map and a trip of Travel in it, a character of the roster playing in the trip and
+    // one in the campaign without a trip: deleting asks, naming them.
     const map = { meta: { id: 'm1', name: 'The coast', campaign: id } }
     maps.push({ id: 'm1', name: 'The coast', modified: '', json: JSON.stringify(map) })
-    expect(await app.removeCampaign(app.open.campaign!)).toBe(false)
-    expect(kept.has(id)).toBe(true)
-    maps.length = 0
-    const removing = app.removeCampaign(app.open.campaign!)
+    const other = { meta: { id: 'm2', name: 'Elsewhere', campaign: 'another' } }
+    maps.push({ id: 'm2', name: 'Elsewhere', modified: '', json: JSON.stringify(other) })
+    const trip = (tid: string, campaign: string) => ({
+      id: tid,
+      name: tid,
+      campaign,
+      system: 'core',
+      season: 'spring',
+      way: [{ terrain: 'plains', tags: [], connections: [] }],
+      cellKm: 10,
+      startDay: 0,
+      session: null,
+    })
+    localStorage.setItem(
+      'opentabletop.travel.trips',
+      JSON.stringify({ version: 1, current: 't1', trips: [trip('t1', id), trip('t2', 'another')] }),
+    )
+    const { roster } = await import('@open-tabletop/character-ui')
+    const character = (cid: string) => ({ id: cid, name: cid, sheet: 'x', values: {} })
+    roster.set({
+      characters: [
+        {
+          character: character('kael'),
+          modified: '',
+          playing: { app: 'travel', id: 't1', name: 't1' },
+        },
+        { character: character('mara'), modified: '', playing: { app: 'campaign', id, name: '' } },
+        {
+          character: character('tobin'),
+          modified: '',
+          playing: { app: 'travel', id: 't2', name: 't2' },
+        },
+      ],
+    } as never)
+    let removing = app.removeCampaign(app.open.campaign!)
     await settle()
-    expect(dialog.current?.message).toMatch(/“The long winter”/)
+    expect(dialog.current?.message).toMatch(/“The long winter” with everything in it\? .*The coast/)
+    expect(dialog.current?.message).toMatch(/Trips: t1/)
+    // Cancelled: all stays.
+    dialog.current!.resolve('cancel')
+    expect(await removing).toBe(false)
+    expect(kept.has(id)).toBe(true)
+    expect(maps).toHaveLength(2)
+    removing = app.removeCampaign(app.open.campaign!)
+    await settle()
     dialog.current!.resolve('ok')
     expect(await removing).toBe(true)
+    // Its map and trip gone, the others' kept; its characters in the roster, playing nowhere.
+    expect(maps.map((m) => m.id)).toEqual(['m2'])
+    const trips = JSON.parse(localStorage.getItem('opentabletop.travel.trips')!)
+    expect(trips.trips.map((t: { id: string }) => t.id)).toEqual(['t2'])
+    expect(trips.current).toBe('t2')
+    expect(roster.roster.characters.map((e) => e.playing?.id)).toEqual([undefined, undefined, 't2'])
     expect(kept.has(id)).toBe(false)
+    expect(toasts.at(-1)?.message).toMatch(/deleted/)
+    // With nothing in it, a campaign is deleted as before.
+    const empty = await app.newCampaign('Empty', greyMarches.id)
+    await settle()
+    const plain = app.removeCampaign(c.deserializeCampaign(kept.get(empty)!.json))
+    await settle()
+    expect(dialog.current?.message).toMatch(/Nothing is in it/)
+    dialog.current!.resolve('ok')
+    expect(await plain).toBe(true)
     expect(app.campaigns.list).toEqual([])
   })
 

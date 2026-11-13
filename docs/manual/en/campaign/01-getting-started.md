@@ -65,7 +65,7 @@ At the top, its **name** (click it to change it; every app names the campaign wi
 - **Notes**: its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it.
 - With a trip going on in the campaign, a line says which one, with **Open**. One trip goes on in a campaign at a time, since its time is the campaign's ([One trip at a time](../travel/02-playing.md#the-campaign)).
 
-**Delete** is only possible when no map or trip is in the campaign: move them to another campaign (or delete them) first. It asks, and forgets the campaign's clock, timeline, factions and Oracle state.
+**Delete** asks first, and forgets the campaign's clock, timeline, factions and Oracle state. With maps, trips or scenes in the campaign, the question names each (_Maps: The coast · Trips: To the fair_) and **Delete it all** deletes them with it, so you needn't go map by map and trip by trip; a map or trip open in another window closes there. Its characters stay in the roster, playing nowhere (Characters keeps them). To keep a map or trip, move it to another campaign first (in Map's or Travel's settings).
 
 The campaign's tabs (a choice of them in a window too narrow for them side by side; the address of each, such as `#/campaign/<id>/timeline` or `#/campaign/<id>/factions`, can be linked; `#/campaign/<id>` is its Overview):
 

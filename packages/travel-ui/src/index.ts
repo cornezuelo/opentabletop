@@ -25,6 +25,7 @@ export {
 export {
   allPlaces,
   campaignPlaces,
+  deleteAllIn,
   placeCampaign,
   SCENES_KEY,
   TRAVEL_TRIPS_KEY,

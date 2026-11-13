@@ -292,6 +292,23 @@ export function leavePlace(roster: Roster, place: RosterPlace, ids?: string[]): 
   return changed ? { characters } : roster
 }
 
+/**
+ * The characters that leave every one of these places, whichever token they are on (a
+ * campaign deleted with all in it: its maps, trips and scenes, and the campaign itself as
+ * the place of its cast): they stay in the roster, playing nowhere.
+ */
+export function leavePlaces(roster: Roster, places: Pick<RosterPlace, 'app' | 'id'>[]): Roster {
+  const gone = new Set(places.map((p) => `${p.app}:${p.id}`))
+  return {
+    characters: roster.characters.map((e) => {
+      if (!e.playing || !gone.has(`${e.playing.app}:${e.playing.id}`)) return e
+      const rest = { ...e }
+      delete rest.playing
+      return rest
+    }),
+  }
+}
+
 /** The roster characters that play at a place. */
 export const playingAt = (roster: Roster, place: RosterPlace): RosterEntry[] =>
   roster.characters.filter((e) => samePlace(e.playing, place))

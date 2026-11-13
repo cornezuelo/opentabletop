@@ -55,6 +55,43 @@ describe('saved trips', () => {
     ).toBe('a')
   })
 
+  it('forgets trips deleted here or in another page, opening another', () => {
+    const trip = (id: string) => ({
+      id,
+      name: id,
+      system: 'core',
+      season: 'spring',
+      cellKm: 10,
+      way,
+      startDay: 1,
+      session: null,
+    })
+    const key = 'opentabletop.test.forget'
+    // A page to hear other pages' changes on (Node has none).
+    const page = new EventTarget()
+    ;(globalThis as { window?: EventTarget }).window = page
+    localStorage.setItem(
+      key,
+      JSON.stringify({ version: 1, current: 'b', trips: ['a', 'b', 'c'].map(trip) }),
+    )
+    const store = new TripStore({
+      key,
+      systems: () => [coreSystem()],
+      oracle: () => undefined,
+      locale: () => 'en',
+    })
+    store.forget(['b'])
+    expect(store.saved.id).toBe('c')
+    expect(readTrips(key).trips.map((t) => t.id)).toEqual(['a', 'c'])
+    // Another page dropped one: this one hears it and never saves it again.
+    localStorage.setItem(key, JSON.stringify({ version: 1, current: 'a', trips: [trip('a')] }))
+    page.dispatchEvent(Object.assign(new Event('storage'), { key }))
+    expect(store.saved.id).toBe('a')
+    store.open('a')
+    expect(readTrips(key).trips.map((t) => t.id)).toEqual(['a'])
+    delete (globalThis as { window?: EventTarget }).window
+  })
+
   it('starts with one empty trip', () => {
     const { trips } = readTrips(KEY, OLD_KEY, storage({}))
     expect(trips).toHaveLength(1)

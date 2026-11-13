@@ -65,7 +65,7 @@ Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran l
 - **Notas**: su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre.
 - Con un viaje en marcha en la campaña, una línea dice cuál, con **Abrir**. En una campaña hay un viaje en marcha a la vez, ya que su tiempo es el de la campaña ([Un viaje a la vez](../travel/02-playing.md#la-campaña)).
 
-**Borrar** solo se puede cuando no hay ningún mapa ni viaje en la campaña: llévalos a otra campaña (o bórralos) antes. Pregunta, y olvida el reloj, la cronología, las facciones y el estado del Oráculo de la campaña.
+**Borrar** pregunta antes, y olvida el reloj, la cronología, las facciones y el estado del Oráculo de la campaña. Con mapas, viajes o escenas en la campaña, la pregunta los nombra (_Mapas: La costa · Viajes: A la feria_) y **Borrarlo todo** los borra con ella, para no tener que ir mapa por mapa y viaje por viaje; un mapa o viaje abierto en otra ventana se cierra allí. Sus personajes siguen en el plantel, sin jugar en ningún sitio (Personajes los conserva). Para conservar un mapa o un viaje, llévalo antes a otra campaña (en los ajustes de Mapa o de Viajes).
 
 Las pestañas de la campaña (un desplegable con ellas en una ventana demasiado estrecha para tenerlas en fila; la dirección de cada una, como `#/campaign/<id>/timeline` o `#/campaign/<id>/factions`, se puede enlazar; `#/campaign/<id>` es su Resumen):
 

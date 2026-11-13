@@ -256,6 +256,15 @@ export class TripStore {
     this.pullRoster()
     // A scene's campaign is the host's to open: a shared keeper opens one at a time.
     if (!options.scenes) void this.openCampaign()
+    // Trips deleted in another page (their campaign deleted with all in it) are gone here
+    // too, never saved again from this one.
+    if (typeof window !== 'undefined')
+      window.addEventListener('storage', (e) => {
+        if (e.key !== options.key) return
+        const there = readTrips(options.key).trips.map((t) => t.id)
+        const gone = this.stored.trips.filter((t) => !there.includes(t.id)).map((t) => t.id)
+        if (gone.length) this.forget(gone, false)
+      })
   }
 
   /** Whether trips play in campaigns here. */
@@ -587,6 +596,23 @@ export class TripStore {
     this.stored = { ...this.stored, current: trips.at(-1)!.id, trips }
     this.save()
     if (!this.options.scenes) void this.openCampaign()
+  }
+
+  /**
+   * Forgets these trips, as they are (their campaign was deleted with all in it, their
+   * characters let go already); the open one gone, the newest left opens.
+   */
+  forget(ids: string[], save = true): void {
+    const rest = this.stored.trips.filter((t) => !ids.includes(t.id))
+    if (rest.length === this.stored.trips.length) return
+    const trips = rest.length ? rest : [blank(this.saved.system)]
+    const open = trips.some((t) => t.id === this.stored.current)
+    this.stored = { ...this.stored, current: open ? this.stored.current : trips.at(-1)!.id, trips }
+    if (save) this.save()
+    if (!open) {
+      this.pullRoster()
+      if (!this.options.scenes) void this.openCampaign()
+    }
   }
 
   /**
