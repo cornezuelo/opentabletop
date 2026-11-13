@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Characters
 
+- **Choosing from a catalogue**: a parameter can list a catalogue's entries (`from: items.knacks`) and keep only those a condition holds for (**Only those**, `where:`, which works on any list the trip gives: `party.members`, `present.ids`); an entry's **Needs** (`needs:`) leaves it out for whoever doesn't meet it, read with what happened just before (a level gained), and the journal says when one is given anyway.
 - **Abilities as things held**: a place of a sheet can say what it **Takes** (a condition on the item), whether it's **Carried** (unticked, it counts in no room in all) and be **Shown as cards**, so a sheet keeps abilities (talents, knacks) as items of their own catalogue; a character's card shows them as cards. Core's characters have a place _Abilities_ and one ability, _Tough_ (one more health at most).
 
 ### Map

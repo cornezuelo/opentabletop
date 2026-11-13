@@ -42,6 +42,7 @@ import {
   type Unavailable,
 } from '@open-tabletop/travel-engine'
 import {
+  entryFacts,
   ITEM_KEYS,
   lookupItems,
   lookupTemplates,
@@ -55,6 +56,7 @@ import {
   type Sheet,
 } from '@open-tabletop/character-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
+import { matches, type Condition } from '@open-tabletop/conditions'
 import {
   clockFullMoment,
   fullClockOf,
@@ -1450,6 +1452,37 @@ export function withMapSheet(
  * What a system says of its party's members: their sheet and its bindings; with `locale`,
  * the language copies of its templates are named in.
  */
+/**
+ * A parameter listing a catalogue's entries (`from: items.<catalogue>`, docs/advancement.md):
+ * those its `where` holds for, each read as `item.*` (and `candidate`, its id), whose own
+ * `needs` hold for the one acting as the trip sees them (`self`; the party, played as a
+ * whole). Undefined for any other list: the trip's own.
+ */
+/** Whether a parameter's `from:` lists a catalogue's entries (`items.knacks`), not the trip's. */
+export const fromCatalogue = (from: string | undefined): boolean =>
+  /^(?:[a-z0-9][a-z0-9-]*\/)?items\./.test(from ?? '')
+
+export function catalogueChoices(system: TravelSystem) {
+  return (
+    from: string,
+    where: Condition | undefined,
+    seen: Record<string, unknown>,
+  ): string[] | undefined => {
+    if (!fromCatalogue(from)) return undefined
+    const full = definitionId(from, system.pack)
+    const catalogue = system.items?.find((c) => c.id === full)
+    if (!catalogue) return []
+    const self = seen.acting ?? seen.party
+    return Object.entries(catalogue.def.items).flatMap(([id, entry]) => {
+      const item = entryFacts(id, entry)
+      if (where && !matches(where, { ...seen, item, candidate: id })) return []
+      if (entry.needs !== undefined && !matches(entry.needs as Condition, { ...seen, self, item }))
+        return []
+      return [id]
+    })
+  }
+}
+
 export const partyOf = (system: TravelSystem, locale?: string): PartyRules => ({
   ...(locale && { locale }),
   sheet: system.sheet,
@@ -1566,11 +1599,13 @@ export function stepTrip(
       stats: system.bindings?.stats,
       // The party's values and items, so an action's later steps see what earlier ones did.
       kept: keptNumbers(session, partyOf(system)),
+      listChoices: catalogueChoices(system),
     }),
     oracle: options.oracle,
     bindings: system.bindings,
     pack: system.sources?.rules?.pack ?? system.pack,
     rules: system.rules,
+    listChoices: catalogueChoices(system),
     locale: options.locale,
     discovery,
     weather: system.weather,
@@ -1703,10 +1738,12 @@ function handSession(
       calendar: calendarOf(system),
       stats: system.bindings?.stats,
       kept: keptNumbers(session, partyOf(system)),
+      listChoices: catalogueChoices(system),
     }),
     bindings: system.bindings,
     pack: system.sources?.rules?.pack ?? system.pack,
     rules: system.rules,
+    listChoices: catalogueChoices(system),
     locale: options.locale,
     weather: system.weather,
     facts: options.facts,

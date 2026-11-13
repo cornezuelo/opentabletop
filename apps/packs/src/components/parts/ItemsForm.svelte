@@ -45,6 +45,15 @@
       hints: { 'place.tags': placeTags, 'place.id': [] },
     },
     {
+      field: 'needs',
+      label: t('itemsForm.needs'),
+      help: t('itemsForm.needsHelp'),
+      type: 'condition',
+      hints: Object.fromEntries(
+        Object.keys(system.sheet?.def.values ?? {}).map((v) => [`self.values.${v}`, []]),
+      ),
+    },
+    {
       field: 'holds.room',
       label: t('itemsForm.holdsRoom'),
       help: t('itemsForm.holdsRoomHelp'),

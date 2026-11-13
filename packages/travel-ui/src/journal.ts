@@ -557,6 +557,11 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.unknownItem', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
       })
+    // Given by hand (an effect) without what its entry needs: given all the same.
+    case 'ITEM_NEEDS_UNMET':
+      return t('journal.itemNeedsUnmet', {
+        name: context.memberName?.(String(d.path)) ?? String(d.path),
+      })
     // Older trips' journals: what had no room was carried in no place.
     case 'ITEM_NO_ROOM':
       return t('journal.itemNoRoom', {

@@ -3,6 +3,7 @@
   import {
     encounterView,
     fightStarters,
+    fromCatalogue,
     presentHere,
     usesOf,
     type Declared,
@@ -77,7 +78,7 @@
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
   import FightPanel from './FightPanel.svelte'
-  import { CharacterCard, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
+  import { CharacterCard, itemName, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import { WorldWaiting } from '@open-tabletop/campaign-ui'
 
@@ -315,6 +316,8 @@
   const asked = $derived(
     waiting?.ask ? actions.all[waiting.action]?.params?.[waiting.ask] : undefined,
   )
+  /** Whether what's asked lists a catalogue's entries (`from: items.knacks`): named as items. */
+  const listsItems = $derived(fromCatalogue(asked?.from))
   const choiceOf = (id: string, key: string, param: ActionParam) =>
     chosen[id]?.[key] ?? String(paramDefault(param))
   /** What an action is taken with: each parameter's choice, as the pack wrote it (`3`, not `'3'`). */
@@ -728,7 +731,9 @@
         {#if asked && waiting.choices}
           <!-- Choices the trip listed (`from: present.ids`): whoever they are, by name. -->
           {#each waiting.choices as id (id)}
-            <button onclick={() => onstep({ type: 'resume', choice: id })}>{whoName(id)}</button>
+            <button onclick={() => onstep({ type: 'resume', choice: id })}
+              >{listsItems ? itemName({ id }, system.items ?? [], locale) : whoName(id)}</button
+            >
           {/each}
         {:else if asked}
           {#each asked.choices ?? [] as c (String(choiceId(c)))}

@@ -44,6 +44,7 @@ export const ITEM_KEYS = [
   'from',
   'start',
   'fields',
+  'needs',
 ] as const
 
 /** A catalogue's item: its texts, tags, where it fits, what it holds, and its fields' numbers. */
@@ -55,6 +56,12 @@ const catalogueItem = z
     /** The places it may go: a condition on the place (`place.tags: head`); absent: any. */
     fits: condition.optional(),
     holds: holds.optional(),
+    /**
+     * What a character needs to have it (an ability's tier before it, a level): a condition
+     * read with the character as `self` and the entry as `item`. Offered only when it holds
+     * (a parameter listing the catalogue); given anyway, it's said (`ITEM_NEEDS_UNMET`).
+     */
+    needs: condition.optional(),
   })
   .catchall(z.number())
 
@@ -84,6 +91,7 @@ export function parseCatalogue(raw: unknown): { catalogue?: Catalogue; errors: s
       errors.push(`items.tags: "tags" can't be an item's id (it reads every item's tags)`)
     if (id.includes('.')) errors.push(`items.${id}: an id without dots`)
     if (item.fits !== undefined) errors.push(...validateCondition(item.fits, `items.${id}.fits`))
+    if (item.needs !== undefined) errors.push(...validateCondition(item.needs, `items.${id}.needs`))
   }
   return errors.length ? { errors } : { catalogue: parsed.data, errors }
 }
@@ -601,6 +609,42 @@ export function itemsValue(
 }
 
 /**
+ * Whether what a catalogue's entry needs (`needs:`) holds for a character: read with the
+ * character as `self` (its values, tags, conditions, items and places) and the entry as
+ * `item` (its id, tags and numbers). Always, for an entry that needs nothing.
+ */
+export function needsHold(
+  items: SheetItems | undefined,
+  state: {
+    values: Record<string, number>
+    tags?: string[]
+    conditions?: Record<string, unknown>
+    items?: ItemState[]
+    places?: Record<string, OwnPlace>
+  },
+  id: string,
+  entry: CatalogueItem,
+): boolean {
+  if (entry.needs === undefined) return true
+  const self = {
+    ...state.values,
+    values: state.values,
+    tags: state.tags ?? [],
+    conditions: Object.keys(state.conditions ?? {}),
+    ...itemsFacts(items, state),
+  }
+  return matches(entry.needs as Condition, { self, item: entryFacts(id, entry) })
+}
+
+/** A catalogue's entry as conditions read it (`item.*`): its id, tags and numbers. */
+export function entryFacts(id: string, entry: CatalogueItem): Record<string, unknown> {
+  const fields = Object.fromEntries(
+    Object.entries(entry).filter(([, v]) => typeof v === 'number'),
+  ) as Record<string, number>
+  return { id, tags: entry.tags ?? [], fields, ...fields }
+}
+
+/**
  * What conditions and tables read of a character's items: `items.<id>` (`count` of all of
  * them, and the first one's tags, place and fields: `items.torch.uses`), `items.tags`
  * (every tag of every item), `places.<id>` (its `room`, how much is `used`, its `tags`
@@ -673,6 +717,8 @@ export type ItemEvent =
       to: number
     }
   | { type: 'ITEM_MOVED'; character: string; item: string; key: string; from?: string; to?: string }
+  /** Given though what its entry needs doesn't hold for the character (`needs:`). */
+  | { type: 'ITEM_NEEDS_UNMET'; character: string; item: string }
   /** One of an item was used up: a field that runs out reached its min. */
   | { type: 'ITEM_SPENT'; character: string; item: string; key: string; field: string }
   /** It can't go there: its `fits` says no, or it would be inside itself. */
@@ -998,6 +1044,9 @@ export function itemEffect(
     }
     const found = lookup?.(id)
     if (!found) return void events.push({ type: 'UNKNOWN_ITEM', character: state.id, item: id })
+    // Given all the same, but said, when what it needs doesn't hold (docs/advancement.md).
+    if (!needsHold(items, state, id, found.item))
+      events.push({ type: 'ITEM_NEEDS_UNMET', character: state.id, item: id })
     addItem(items, state, itemFromCatalogue(items, found.catalogue, id, found.item, delta), events)
     return
   }

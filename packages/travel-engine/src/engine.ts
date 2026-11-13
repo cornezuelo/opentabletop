@@ -841,6 +841,17 @@ export function createTravelEngine(options: {
    * applies them for real from the event. Each is in `trip.spent` / `trip.gained` from 0.
    */
   kept?: Record<string, Bounds & { read?: string }>
+  /**
+   * The choices a parameter lists that the host knows and the engine doesn't (`from:
+   * items.<catalogue>`: a catalogue's entries, each read as `item.*` against `where`, and
+   * those whose own requirements don't hold for the one acting left out). Undefined: not
+   * the host's; the engine reads `from` in what the trip sees.
+   */
+  listChoices?: (
+    from: string,
+    where: Condition | undefined,
+    seen: Record<string, unknown>,
+  ) => string[] | undefined
 }): TravelEngine {
   const rules = options.rules
   const world = rulesWorld(options.world, rules)
@@ -2101,6 +2112,26 @@ export function createTravelEngine(options: {
    * when its condition holds. Taken by the system (`on`, a `do:` step), it's `quiet`: when
    * it isn't available it just doesn't happen.
    */
+  /**
+   * What a parameter listed by the trip offers now (`from:`): the host's list, if it knows
+   * it (a catalogue's entries), else what the trip sees there; `where:` keeps those it holds
+   * for, each read as `candidate`.
+   */
+  const listOf = (
+    state: TravelState,
+    param: { from?: string; where?: unknown } | undefined,
+    context: Record<string, unknown>,
+  ): string[] => {
+    if (!param?.from) return []
+    const where = param.where as Condition | undefined
+    const hosted = options.listChoices?.(param.from, where, qualify(context))
+    if (hosted) return hosted
+    const listed = lookupIn(qualify(context))(param.from)
+    const all = Array.isArray(listed) ? listed.map(String) : []
+    return where === undefined
+      ? all
+      : all.filter((candidate) => test(state, where, { ...context, candidate }))
+  }
   const takeAction = (
     state: TravelState,
     id: string,
@@ -2336,12 +2367,9 @@ export function createTravelEngine(options: {
         // What it rolls sees the action's parameters (`params.skill`, a choice just asked);
         // with `each:`, once for every choice its parameter lists now, as that choice.
         const each = refId('params', step.each)
-        const from = each !== undefined ? actions.all[id]?.params?.[each]?.from : undefined
-        const listed = from ? lookupIn(qualify(context))(from) : undefined
-        const rounds =
-          each === undefined
-            ? [params]
-            : (Array.isArray(listed) ? listed : []).map((v) => ({ ...params, [each]: String(v) }))
+        const listed =
+          each !== undefined ? listOf(state, actions.all[id]?.params?.[each], context) : []
+        const rounds = each === undefined ? [params] : listed.map((v) => ({ ...params, [each]: v }))
         for (const given of rounds)
           schedule(
             state,
@@ -2361,8 +2389,7 @@ export function createTravelEngine(options: {
         const ask = step.ask !== undefined ? (refId('params', step.ask) ?? step.ask) : undefined
         // Choices the trip lists now (`from: present.ids`): none, and there's nothing to ask.
         const from = ask ? actions.all[id]?.params?.[ask]?.from : undefined
-        const listed = from ? lookupIn(qualify(context))(from) : undefined
-        const choices = Array.isArray(listed) ? listed.map(String) : []
+        const choices = ask ? listOf(state, actions.all[id]?.params?.[ask], context) : []
         if (from && !choices.length) continue
         state.waiting = {
           action: id,

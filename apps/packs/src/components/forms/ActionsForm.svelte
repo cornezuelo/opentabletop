@@ -50,6 +50,22 @@
   let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
   /** The parts of its calendar's day: moments and time steps may name them. */
   const parts = $derived(dayPartRefs(system))
+  /** The system's item catalogues, as lists a parameter may offer (`items.knacks`). */
+  const catalogueLists = $derived(
+    (system?.items ?? []).map((c) => {
+      const [pack, id] = c.id.split('/')
+      return pack === system?.pack ? `items.${id}` : `${pack}/items.${id}`
+    }),
+  )
+  /** Their entries' tags and ids, for a listed parameter's `where`. */
+  const itemTags = $derived([
+    ...new Set(
+      (system?.items ?? []).flatMap((c) => Object.values(c.def.items).flatMap((e) => e.tags ?? [])),
+    ),
+  ])
+  const itemIds = $derived([
+    ...new Set((system?.items ?? []).flatMap((c) => Object.keys(c.def.items))),
+  ])
 
   type Raw = Record<string, unknown>
   const disabled = $derived(!doc.editable)
@@ -444,7 +460,13 @@
             <span class="label"
               >{t('actions.params')}<InfoTip text={t('actions.paramsHelp')} /></span
             >
-            <ParamsEditor {doc} at={['actions', id, 'params']} {disabled} />
+            <ParamsEditor
+              {doc}
+              at={['actions', id, 'params']}
+              {disabled}
+              lists={catalogueLists}
+              hints={{ ...hints, 'item.tags': itemTags, 'item.id': itemIds }}
+            />
           </div>
           <label>
             <span>{t('actions.nothing')}<InfoTip text={t('actions.nothingHelp')} /></span>

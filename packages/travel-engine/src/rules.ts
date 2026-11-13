@@ -300,7 +300,9 @@ const choice = z.union([
  * A parameter of an action (`params.until`): the choices it offers (the first is its
  * default, unless `default` says another), read by its steps as `{{params.<id>}}`; or, with
  * `from`, the ids a value of the trip lists when it's asked (`from: present.ids`, whom to
- * strike), which only an `ask:` step chooses and which has no default.
+ * strike), which only an `ask:` step chooses and which has no default; `from:
+ * items.<catalogue>` lists a catalogue's entries (the host's), each read as `item.*`.
+ * `where:` keeps only the listed ones it holds for: each as `candidate` (or `item.*`).
  */
 const param = z
   .object({
@@ -308,11 +310,15 @@ const param = z
     description: text.optional(),
     choices: z.array(choice).min(1).optional(),
     from: z.string().min(1).optional(),
+    where: condition.optional(),
     default: paramValue.optional(),
   })
   .strict()
   .refine((p) => !!p.choices !== !!p.from, {
     message: 'a parameter has its choices, or `from` (a list of the trip: present.ids), not both',
+  })
+  .refine((p) => p.where === undefined || p.from !== undefined, {
+    message: 'where: is for a parameter listed by the trip (from:)',
   })
 
 /**

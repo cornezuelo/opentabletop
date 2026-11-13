@@ -121,7 +121,7 @@ XP earned by the system's own deeds: an effect where they happen (a fight won, `
 ## 5. Phases
 
 1. ✅ (2026-11-13) **Places that hold abilities**: a place's `takes` (a condition on the item), `carried: false` (no total room, and the total never stops what goes there) and `display: cards` (character-engine, character-ui's `ItemList`, Packs' place columns); the character's `cards` gone (state, templates, facts, OTD); Core's place _Abilities_ and _Tough_.
-2. **A parameter listed from a catalogue by a condition**, with **requirements** on entries (travel-engine's params, session, character-engine), shared with _Factions that choose_; the Packs forms (an item's **Needs**, a parameter's **From a catalogue**).
+2. ✅ (2026-11-13: a parameter's `where:` on any list, each as `candidate`; `from: items.<catalogue>` listed by the host (travel-engine's `listChoices`, session's `catalogueChoices`, read again with what the steps before did); a catalogue entry's `needs:` (`needsHold`, `ITEM_NEEDS_UNMET` when given anyway); the trip panel names the entries; Packs' **Only those** and **Needs**) **A parameter listed from a catalogue by a condition**, with **requirements** on entries (travel-engine's params, session, character-engine), shared with _Factions that choose_; the Packs forms (an item's **Needs**, a parameter's **From a catalogue**).
 3. **The Grey Marches' Renown, ranks and knacks**; Core's XP and level; tests that play a companion rising and learning.
 4. **Ker Nethalas' Masteries and levels**, then its Level Adaptation.
 5. Skill marks and improvement at camp (Ker Nethalas; the Grey Marches if a skill improves by use).

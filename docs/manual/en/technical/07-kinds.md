@@ -552,7 +552,7 @@ items:
   backpack: { name: Backpack, fits: { place.tags: back }, holds: { room: 6, tags: [pack] } }
 ```
 
-- Each item, by an id effects and tables name it with (never `tags`, no dots): `name`, `description`, `tags`, a number for each field the sheet declares (missing: the field's `default`; a field the sheet doesn't declare is a warning), `fits` (a [condition](08-conditions.md) on the place, `place.id` and `place.tags`; missing: any place) and `holds` (a container: `room`, how much fits inside, `tags`, what it is as a place, and `over`, `allow` or `refuse` as a sheet's place; missing: the sheet's).
+- Each item, by an id effects and tables name it with (never `tags`, no dots): `name`, `description`, `tags`, a number for each field the sheet declares (missing: the field's `default`; a field the sheet doesn't declare is a warning), `fits` (a [condition](08-conditions.md) on the place, `place.id` and `place.tags`; missing: any place) `holds` (a container: `room`, how much fits inside, `tags`, what it is as a place, and `over`, `allow` or `refuse` as a sheet's place; missing: the sheet's) and `needs` (what a character needs to have it, a condition read with them as `self` and the entry as `item`: `self.values.level: { gte: 3 }`, `self.items.quick.count: { gte: 1 }`; an action listing the catalogue offers only those whose `needs` hold, and one given anyway is given, with a journal line).
 - A character keeps a copy of what an item had when it was taken, so it reads the same whatever packs are loaded; an item written by hand has a name, how many, its tags and the sheet's defaults.
 - Two catalogues with the same id: the first listed wins.
 - Translated keyed `items/<id>`, by item (`items: { rope: { name: Cuerda } }`).

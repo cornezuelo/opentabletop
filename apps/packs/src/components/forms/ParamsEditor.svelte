@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { showToast, SuggestInput, TagInput, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, showToast, SuggestInput, TagInput, tooltip } from '@open-tabletop/ui-kit'
+  import { ConditionEditor } from '@open-tabletop/pack-ui'
   import { freeId } from '@open-tabletop/pack-ui/yaml'
   import { flowText, parseFlow } from '@open-tabletop/pack-ui/flow'
-  import { t } from '../../lib/i18n'
+  import { getLocale, t } from '../../lib/i18n'
   import type { RowsDoc } from '../../lib/partDoc.svelte'
 
   /**
@@ -17,6 +18,8 @@
     at,
     defaults = true,
     disabled = false,
+    lists = [],
+    hints = {},
   }: {
     doc: RowsDoc
     /** The document's part they're in (`travel-rules`; `''` for a definition's own). */
@@ -26,6 +29,10 @@
     /** Whether a parameter has a default (an action's; a question of the world's has none). */
     defaults?: boolean
     disabled?: boolean
+    /** More lists a parameter may take its choices from (the system's catalogues: `items.knacks`). */
+    lists?: readonly string[]
+    /** What its `where` may read (keys and their values), for its suggestions. */
+    hints?: Record<string, readonly string[]>
   } = $props()
 
   type Raw = Record<string, unknown>
@@ -59,7 +66,7 @@
   }
 
   /** What the trip lists for a parameter's choices (`from`), offered as it's typed. */
-  const LISTS = ['present.ids', 'party.members']
+  const LISTS = $derived(['present.ids', 'party.members', ...lists])
   /** Its choices written, or listed by the trip as it's asked (`from: present.ids`). */
   function setFrom(p: string, from: string | undefined) {
     const name = params[p]?.name
@@ -187,6 +194,22 @@
           >
         {/if}
       </div>
+      {#if params[p]?.from !== undefined}
+        <!-- Only those of the list it holds for: each as candidate (an entry also as item). -->
+        <div class="where">
+          <span class="label"
+            >{t('actions.paramWhere')}<InfoTip text={t('actions.paramWhereHelp')} /></span
+          >
+          <ConditionEditor
+            value={params[p].where}
+            suggestions={hints}
+            locale={getLocale()}
+            {disabled}
+            label={t('actions.paramWhere')}
+            onchange={(c) => doc.edit(kind, [...at, p, 'where'], c)}
+          />
+        </div>
+      {/if}
     {:else}
       <span class="none">{t('actions.noParams')}</span>
     {/each}
@@ -250,5 +273,17 @@
     .param {
       grid-template-columns: 1fr 1fr;
     }
+  }
+
+  .where {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0 0 6px 1.5em;
+  }
+
+  .where .label {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 </style>

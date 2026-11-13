@@ -338,6 +338,7 @@ export const en = {
     itemSpent: '{name}: one is used up',
     shared: '{name}, shared out: {list}',
     unknownItem: '{name}: no catalogue of the system has this item, so nothing is given',
+    itemNeedsUnmet: '{name}: given, though what it needs doesn’t hold for them',
     itemNoRoom: '{name}: no room left for it, so it is carried in no place',
     itemLeft: '{name}: no room left for {count}, left behind',
     itemLoose:

@@ -332,6 +332,7 @@ export const es: Messages<typeof en> = {
     itemSpent: '{name}: se gasta uno',
     shared: '{name}, repartido: {list}',
     unknownItem: '{name}: ningún catálogo del sistema tiene este objeto, así que no se da nada',
+    itemNeedsUnmet: '{name}: se da, aunque no cumple lo que pide',
     itemNoRoom: '{name}: no le queda sitio, así que lo lleva sin lugar',
     itemLeft: '{name}: no queda sitio para {count}, se queda atrás',
     itemLoose:

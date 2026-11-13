@@ -503,6 +503,16 @@ export function createSession(options: {
   oracle?: OracleEngine
   bindings?: Bindings
   /**
+   * The choices of a parameter listed from what the host knows (a catalogue's entries), as
+   * the travel engine's `listChoices`: read again when the trip asks, with what the steps
+   * before it did (a level gained just before the choice of what it brings).
+   */
+  listChoices?: (
+    from: string,
+    where: Condition | undefined,
+    seen: Record<string, unknown>,
+  ) => string[] | undefined
+  /**
    * The pack the travel rules are written in: what their steps roll (`roll: table.ruins`) is
    * found from there.
    */
@@ -661,7 +671,11 @@ export function createSession(options: {
           ...(time !== undefined && { time }),
           data: { path: `${whose(e.character)}.${e.path}` },
         })
-      else if (e.type === 'ITEM_SPENT' || e.type === 'UNKNOWN_ITEM')
+      else if (
+        e.type === 'ITEM_SPENT' ||
+        e.type === 'UNKNOWN_ITEM' ||
+        e.type === 'ITEM_NEEDS_UNMET'
+      )
         add(s, entries, {
           source: 'travel',
           code: e.type,
@@ -1055,6 +1069,20 @@ export function createSession(options: {
         )
         for (const event of result.events) {
           journalEvent(s, entries, event)
+          // A choice listed from what the host knows, read again now the steps before it are
+          // applied (the acting one's new level).
+          const asking = event.type === 'HELD' && s.travel.waiting?.ask
+          const param = asking
+            ? options.rules?.actions?.[s.travel.waiting!.action]?.params?.[asking]
+            : undefined
+          if (param?.from && options.listChoices && s.travel.waiting) {
+            const choices = options.listChoices(
+              param.from,
+              param.where as Condition | undefined,
+              worldOf(s),
+            )
+            if (choices) s.travel = { ...s.travel, waiting: { ...s.travel.waiting, choices } }
+          }
           // An action of the moment for each member: played for each in turn (`react`).
           if (event.type === 'ACTION_FOR_EACH') {
             const who = s.members?.length ? s.members.map((m) => m.id) : [undefined]
