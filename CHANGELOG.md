@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.51.0] - 2026-11-13
+
 ### Map
 
 - **Important moments up front**: when your last step ends on something that matters (a pause, a fight starting or ending, someone gaining a condition, a place made, a clock filled, something coming due in the world, a result its system marks as important), the strip over the map tells it in full, with **Continue** when the trip waits, else × to put it away. Going down into another map is one too (_You go into The Barrow-halls_), where before only a toast said so.
