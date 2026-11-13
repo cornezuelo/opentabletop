@@ -67,6 +67,9 @@ travel-rules/default:
       description: 'En el turno de un miembro, en un combate: un golpe a un enemigo de los que están aquí, el que elijáis, por 1d3 de daño; un 1, de refilón, lo deja tambaleándose una ronda.'
       params:
         foe: { name: ¿A quién? }
+    mend:
+      name: Recuperarse
+      description: 'Tras un descanso: cada miembro que sigue en pie recupera 1 de salud.'
     search:
       name: Registrar al caído
       description: 'Cuando cae un enemigo: lo que llevaba, tirado.'

@@ -366,6 +366,22 @@
             />
             {#if d.on}<small class="said">{saidMoments(d.on)}</small>{/if}
           </label>
+          {#if d.on !== undefined || d.for !== undefined}
+            <label class="inline">
+              <input
+                type="checkbox"
+                checked={d.for === 'party.members'}
+                {disabled}
+                onchange={(e) =>
+                  doc.edit(
+                    'travel-rules',
+                    ['actions', id, 'for'],
+                    e.currentTarget.checked ? 'party.members' : undefined,
+                  )}
+              />
+              <span>{t('reaction.each')}<InfoTip text={t('actions.forEachHelp')} /></span>
+            </label>
+          {/if}
           <ReactionEditor
             value={d.on}
             {hints}

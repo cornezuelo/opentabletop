@@ -91,6 +91,11 @@ actions:
   daze:
     params: { foe: { from: present.ids } }
     do: [{ effects: { 'characters[params.foe].conditions.dazed': 2, 'characters[params.foe].conditions.braced': 1 } }]
+  # After a fight, each of the party catches their breath: once each, with them acting.
+  breathe:
+    on: encounter.end
+    for: party.members
+    do: [{ effects: { acting.values.speed: 1 } }]
   bite:
     on: encounter.turn
     when: { encounter.side: foes }
@@ -379,6 +384,19 @@ describe('an encounter: a fight in turns', () => {
       if (kael !== lost) differ = true
     }
     expect(differ).toBe(true)
+  })
+
+  it('an action on a moment for each member (for: party.members): each of them acting in turn', () => {
+    const { options, session } = begin()
+    let done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    // Kael flees on his turn: the fight ends, and each of them catches their breath.
+    done = stepTrip(options, done.state, { type: 'action', id: 'flee' })
+    expect(done.state.encounter).toBeUndefined()
+    expect(done.state.members!.map((m) => [m.id, m.values.speed])).toEqual([
+      ['kael', 2],
+      ['mira', 2],
+    ])
+    expect(done.state.dueForEach).toBeUndefined()
   })
 
   it('by participant: each one by the value it rolls, highest first', () => {

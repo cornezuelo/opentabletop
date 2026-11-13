@@ -497,6 +497,11 @@ export type TravelEvent =
   | { type: 'CHECK_REQUIRED'; check: PendingCheck; time: GameTime }
   /** A moment some check or action names came (`at`): its actions and checks are looked at. */
   | { type: 'MOMENT_REACHED'; at: string; time: GameTime }
+  /**
+   * An action of the moment (`at`) the system takes for each member (`for: party.members`):
+   * the host takes it for each, one acting after another (`{ type: 'action', id, on: at }`).
+   */
+  | { type: 'ACTION_FOR_EACH'; action: string; at: string; time: GameTime }
   /** A check of the moment didn't come up: its `when` or `unless`, and the pairs that decided it. */
   | {
       type: 'CHECK_SKIPPED'
@@ -637,6 +642,11 @@ export type TravelAction =
       with?: Record<string, unknown>
       minutes?: number
       until?: 'place' | 'destination'
+      /**
+       * Taken as the moment it's on (`on:`) takes it, by itself: the host plays so an
+       * action due for each member (`ACTION_FOR_EACH`), with each one acting.
+       */
+      on?: string
     }
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
@@ -1315,6 +1325,11 @@ export function createTravelEngine(options: {
           }
         : {}
       for (const id of triggered.get(at) ?? []) {
+        // For each member: the host takes it, with each acting.
+        if (actions.all[id].for === 'party.members') {
+          events.push({ type: 'ACTION_FOR_EACH', action: id, at, time: state.time })
+          continue
+        }
         const still = takeAction(state, id, events, {
           on: at,
           facts: { ...facts, ...walked, moment: at },
@@ -2634,11 +2649,20 @@ export function createTravelEngine(options: {
           waitForMarch(state, events)
           break
         case 'action':
-          takeAction(state, action.id, events, {
-            minutes: action.minutes,
-            ...(action.with && { with: action.with }),
-            fresh: true,
-          })
+          // As its moment takes it (for one member, by the host), or by the player.
+          if (action.on !== undefined)
+            takeAction(state, action.id, events, {
+              on: action.on,
+              facts: { ...doingFacts(), moment: action.on },
+              quiet: true,
+              ...(action.with && { with: action.with }),
+            })
+          else
+            takeAction(state, action.id, events, {
+              minutes: action.minutes,
+              ...(action.with && { with: action.with }),
+              fresh: true,
+            })
           break
         case 'setMode': {
           if (action.mode === state.mode) break

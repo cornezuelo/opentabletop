@@ -261,6 +261,9 @@ actions:
     do: [{ time: 180 }, { travel.speed: 0.5 }]
   # no es un botón; la comida es un valor de la hoja del grupo (`partySheet` en su sistema)
   eat: { on: time.day-end, do: [{ effects: { party.values.food: -1 } }] }
+  # una vez por cada personaje, actuando cada uno
+  mend:
+    { on: actions.rest.done, for: party.members, do: [{ effects: { acting.values.health: 1 } }] }
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
   - {

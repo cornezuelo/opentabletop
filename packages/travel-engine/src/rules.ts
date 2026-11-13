@@ -343,6 +343,12 @@ const action = z
      * moment's checks, and its conditions see which moment it is (`moment`).
      */
     on: moments.optional(),
+    /**
+     * Taken by the system for each of the party's members, one after another, each acting
+     * (`acting.*`), instead of once with whoever acts then: `for: party.members`. The host
+     * plays it for each (the engine says it's due, `ACTION_FOR_EACH`).
+     */
+    for: z.literal('party.members').optional(),
     /** Only available when this holds (the trip's facts, today's values, the party). */
     when: condition.optional(),
     /** Not available when this holds, e.g. `{ forageImpossible: true }`. */
@@ -634,6 +640,13 @@ export const travelRulesSchema = z
     const values = Object.keys(declaredValues(rules as TravelRules))
     for (const [id, a] of Object.entries(rules.actions ?? {})) {
       badMoments(a.on, ['actions', id, 'on'])
+      // For each member, at its moments: without one the player takes it, once.
+      if (a.for !== undefined && a.on === undefined)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['actions', id, 'for'],
+          message: 'for: party.members is for an action the system takes at a moment (on:)',
+        })
       for (const [key, p] of Object.entries(a.params ?? {}))
         if (p.default !== undefined && !choiceIds(p).includes(String(p.default)))
           ctx.addIssue({

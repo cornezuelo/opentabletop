@@ -776,15 +776,16 @@ actions:
     do:
       - { effects: { acting.conditions.routed: true } }
       - { id: runs, say: 'One of them loses its nerve and runs.' }
-  # After a fight (`on: encounter.end`), what the companion acting wears is looked over (if
-  # they carry armour at all):
+  # After a fight (`on: encounter.end`), what each companion wears is looked over, one after
+  # another, each acting (`for: party.members`), if they carry armour at all:
   # one roll of _Wear and tear_ for each piece on their body (`each: params.piece`, its
   # choices listed by the trip: the keys of what's right in that place), each roll naming
   # its own piece (`acting.items[params.piece]`).
   mind-the-mail:
     name: Mind the mail
-    description: 'After a fight, each piece the companion acting wears rolls its wear die: 1–2 takes it a step down, and a d4 that rolls 1–2 is ruined.'
+    description: 'After a fight, each piece every companion wears rolls its wear die: 1–2 takes it a step down, and a d4 that rolls 1–2 is ruined.'
     on: encounter.end
+    for: party.members
     when: { acting.items.tags: armour }
     params:
       piece: { name: Piece, from: acting.places.body.keys }

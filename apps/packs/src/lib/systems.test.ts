@@ -175,6 +175,7 @@ describe('systems in the Packs app', () => {
       'open-gate',
       'fight',
       'strike',
+      'mend',
       'search',
       'despair',
     ])

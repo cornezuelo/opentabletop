@@ -564,6 +564,46 @@ describe('the bundled packs fight in turns', () => {
     expect(tripAvailability(options, done.state).travel).toBeUndefined()
   })
 
+  it("for each member: the Marches' Mind the mail looks over every companion's mail after a fight, Core's Mend heals each one standing after a rest", () => {
+    const begin = (system: typeof marches, effects: Record<string, unknown>) => {
+      const { session } = startTrip({
+        system,
+        location: 'a',
+        members: people(system),
+        seed: 'e',
+        time: 9 * 60,
+      })
+      const options = {
+        system,
+        world: heath,
+        oracle: createOracleEngine({ registry, random: seeded(5) }),
+      }
+      return { options, s: applyResult(session, { effects }, {}, partyOf(system)) }
+    }
+    // Both wear mail: each one's is rolled for after the fight, called off on whoever's turn.
+    const fight = begin(marches, {
+      'present.bandit': 1,
+      'characters.kael.items.mail': 1,
+      'characters.mara.items.mail': 1,
+    })
+    const started = stepTrip(fight.options, fight.s, { type: 'action', id: 'stand' })
+    const mail = stepTrip(fight.options, started.state, { type: 'encounter', what: 'end' })
+    expect(mail.entries.map((e) => e.code)).toContain('ENCOUNTER_ENDED')
+    const rolled = mail.entries.filter(
+      (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'grey-marches/wear-and-tear',
+    )
+    expect(rolled).toHaveLength(2)
+    // Core: Kael hurt (1), Mara down (0): after a rest only Kael mends.
+    const night = begin(core, {
+      'characters.kael.values.health': '=1',
+      'characters.mara.values.health': '=0',
+    })
+    const camped = stepTrip(night.options, night.s, { type: 'action', id: 'rest' })
+    const health = (id: string) => camped.state.members!.find((m) => m.id === id)!.values.health
+    expect(health('kael')).toBe(2)
+    expect(health('mara')).toBe(0)
+  })
+
   it('the Grey Marches: falling back, the clumsiest takes a blow from the fiercest; Core says how tough the toughest is', () => {
     const { session } = startTrip({
       system: marches,

@@ -165,4 +165,11 @@ describe('reactions: moments written as conditions', () => {
     expect(problems.map((p) => p.message).join('\n')).toMatch(/needs when or unless/)
     expect(problems.length).toBeGreaterThanOrEqual(2)
   })
+
+  it('refuses an action for each member that no moment takes', () => {
+    const { problems } = systemOf(`
+  lonely: { for: party.members, do: [{ time: 1 }] }
+`)
+    expect(problems.map((p) => p.message).join('\n')).toMatch(/for: party.members is for an action/)
+  })
 })

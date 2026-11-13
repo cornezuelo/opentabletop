@@ -200,9 +200,9 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   })
 
   it('fights with gear: the weapon in hand and the Armor worn count, and each piece worn rolls its Integrity after', () => {
-    // A fight that ends on the PC's turn: the Integrity rolls are for whoever acts as it ends
-    // (backlog: an action on a moment for each member).
-    const { state, entries } = fight({ necropede: 1 }, 'h')
+    // It ends on the Necropede's turn: the Integrity rolls are the PC's all the same
+    // (`for: party.members`).
+    const { state, entries } = fight({ necropede: 1 }, 'g')
     const pc = state.members!.find((m) => m.id === 'erthos')!
     // Made of the gear: a Parrying longsword, mail on chest and abdomen, vambraces on the arms.
     expect(pc.values).toMatchObject({

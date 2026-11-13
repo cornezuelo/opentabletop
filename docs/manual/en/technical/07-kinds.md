@@ -262,6 +262,9 @@ actions:
     do: [{ time: 180 }, { travel.speed: 0.5 }]
   # not a button; the food is a value of the party's sheet (`partySheet` in its system)
   eat: { on: time.day-end, do: [{ effects: { party.values.food: -1 } }] }
+  # once for each character, each acting
+  mend:
+    { on: actions.rest.done, for: party.members, do: [{ effects: { acting.values.health: 1 } }] }
 checks:
   - { event: WEATHER_CHECK_REQUIRED, at: '06:00' }
   - {

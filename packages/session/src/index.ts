@@ -278,6 +278,12 @@ export interface SessionState {
    * the rules hear that moment.
    */
   leaving?: Present[]
+  /**
+   * Actions of a moment the system takes for each member (`for: party.members`), still to
+   * be played, the first first: each with its member acting (none for a party played as a
+   * whole).
+   */
+  dueForEach?: { action: string; at: string; who?: string }[]
   /** The member acting now (`acting.*`), chosen by the player, or whoever's turn it is in a fight. */
   acting?: string
   /** The encounter going on, a fight in turns (docs/conflicts.md); absent: none. */
@@ -1049,6 +1055,18 @@ export function createSession(options: {
         )
         for (const event of result.events) {
           journalEvent(s, entries, event)
+          // An action of the moment for each member: played for each in turn (`react`).
+          if (event.type === 'ACTION_FOR_EACH') {
+            const who = s.members?.length ? s.members.map((m) => m.id) : [undefined]
+            s.dueForEach = [
+              ...(s.dueForEach ?? []),
+              ...who.map((id) => ({
+                action: event.action,
+                at: event.at,
+                ...(id !== undefined && { who: id }),
+              })),
+            ]
+          }
           // An action's step changes the party (the engine saw it for its later steps, and
           // told what hit a bound of the party's): applied, and told on the action's line.
           if (event.type === 'EFFECTS') {
@@ -1378,6 +1396,24 @@ export function createSession(options: {
             reacting = false
           }
           restoreActing()
+          // An action of a moment for each member: the next one, with them acting.
+          const due = s.dueForEach?.shift()
+          if (s.dueForEach && !s.dueForEach.length) delete s.dueForEach
+          if (due) {
+            actingBefore = { acting: s.acting }
+            if (due.who === undefined) delete s.acting
+            else s.acting = due.who
+            const taken = options.travel.apply(
+              s.travel,
+              { type: 'action', id: due.action, on: due.at },
+              tripContext(s, hostOf(s), {}, party),
+            )
+            s.travel = taken.state
+            after = next
+            reacting = true
+            replay = taken.events
+            return true
+          }
           // One of those present that left: its moment, with it acting (its spoils…).
           const gone = s.leaving?.[0]
           if (gone) {

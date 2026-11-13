@@ -235,14 +235,15 @@ Travel rules multiply speeds: a terrain's or road's `multiplier` (`0.5` half, `1
 
 ## Limits and stops
 
-| Write                                         | On                     | Does                            |
-| --------------------------------------------- | ---------------------- | ------------------------------- |
-| `once: true`                                  | entries                | comes up once a session         |
-| `maxOccurrences: 3`                           | entries                | at most 3 times a session       |
-| `onExhausted: reroll / next / none`           | tables, oracles        | what an exhausted entry does    |
-| `pause: true`                                 | entries, cards, checks | the trip stops for **Continue** |
-| `oncePerDay: true`                            | actions                | once a day                      |
-| `reshuffle: when-empty / manual / after-draw` | decks                  | when cards go back              |
+| Write                                         | On                     | Does                              |
+| --------------------------------------------- | ---------------------- | --------------------------------- |
+| `once: true`                                  | entries                | comes up once a session           |
+| `maxOccurrences: 3`                           | entries                | at most 3 times a session         |
+| `onExhausted: reroll / next / none`           | tables, oracles        | what an exhausted entry does      |
+| `pause: true`                                 | entries, cards, checks | the trip stops for **Continue**   |
+| `oncePerDay: true`                            | actions                | once a day                        |
+| `for: party.members`                          | actions with `on:`     | once for each member, each acting |
+| `reshuffle: when-empty / manual / after-draw` | decks                  | when cards go back                |
 
 ## Descriptions
 

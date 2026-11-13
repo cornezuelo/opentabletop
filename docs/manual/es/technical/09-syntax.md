@@ -235,14 +235,15 @@ Las reglas de viaje multiplican velocidades: el `multiplier` de un terreno o cam
 
 ## Límites y paradas
 
-| Escribe                                       | En                               | Hace                                 |
-| --------------------------------------------- | -------------------------------- | ------------------------------------ |
-| `once: true`                                  | entradas                         | sale una vez por sesión              |
-| `maxOccurrences: 3`                           | entradas                         | como mucho 3 veces por sesión        |
-| `onExhausted: reroll / next / none`           | tablas, oráculos                 | qué hace una entrada agotada         |
-| `pause: true`                                 | entradas, cartas, comprobaciones | el viaje se para hasta **Continuar** |
-| `oncePerDay: true`                            | acciones                         | una vez al día                       |
-| `reshuffle: when-empty / manual / after-draw` | mazos                            | cuándo vuelven las cartas            |
+| Escribe                                       | En                               | Hace                                   |
+| --------------------------------------------- | -------------------------------- | -------------------------------------- |
+| `once: true`                                  | entradas                         | sale una vez por sesión                |
+| `maxOccurrences: 3`                           | entradas                         | como mucho 3 veces por sesión          |
+| `onExhausted: reroll / next / none`           | tablas, oráculos                 | qué hace una entrada agotada           |
+| `pause: true`                                 | entradas, cartas, comprobaciones | el viaje se para hasta **Continuar**   |
+| `oncePerDay: true`                            | acciones                         | una vez al día                         |
+| `for: party.members`                          | acciones con `on:`               | una vez por miembro, actuando cada uno |
+| `reshuffle: when-empty / manual / after-draw` | mazos                            | cuándo vuelven las cartas              |
 
 ## Descripciones
 

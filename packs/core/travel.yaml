@@ -197,6 +197,16 @@ actions:
       - { ask: params.foe }
       # A blow of 1d3; a glancing 1 staggers it for a round (bestiary.yaml's _A strike_).
       - { roll: table.strike }
+  # After a rest, for each member (`for: party.members`), each acting in turn: whoever still
+  # stands gets 1 health back.
+  mend:
+    name: Mend
+    description: 'After a rest: each member still standing gets 1 health back.'
+    on: actions.rest.done
+    for: party.members
+    when: { acting.values.health: { gte: 1 } }
+    do:
+      - { effects: { acting.values.health: 1 } }
   # As one of those present leaves (`present.leave`), with it acting: a foe that fell (not
   # one that ran) is searched (bestiary.yaml's _What the fallen carry_).
   search:
