@@ -5,3 +5,5 @@ package-lock.json
 # Maps and trips stored by older releases, kept exactly as they wrote them
 apps/map/src/lib/play/old-maps/
 apps/travel/src/lib/old-trips/
+# Local tool settings, ignored by git outside the repo
+.claude/settings.local.json
