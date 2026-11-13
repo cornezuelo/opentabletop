@@ -8,6 +8,7 @@ import type { SessionState } from './index'
  * • `party.members.random` — one of them, rolled
  * • `party.members.lowest.values.health` / `party.members.highest.values.health` — the one
  *   with the least or the most of a value (the first of them on a tie)
+ * • `party.members.all` — each of them, the result played once for each (`targetsOf`)
  * Anything else is kept as written (an id, a variable already read). A party played as a
  * whole (no members) is aimed at itself, through its own sheet (`characters.party`); without
  * one either, there's nobody to aim at: none.
@@ -35,6 +36,20 @@ export function chooseTarget(
     return best?.id
   }
   return written
+}
+
+/**
+ * Whom a result aims at, as a list: each member for `party.members.all` (the party itself,
+ * played as a whole), else the one `chooseTarget` picks; `[undefined]` with nobody to aim at.
+ */
+export function targetsOf(
+  written: string,
+  s: Pick<SessionState, 'members' | 'party'>,
+  roll: Roller,
+): (string | undefined)[] {
+  if (written !== 'party.members.all') return [chooseTarget(written, s, roll)]
+  const members = s.members?.length ? s.members : s.party ? [s.party] : []
+  return members.length ? members.map((m) => m.id) : [undefined]
 }
 
 /** Whether a written target is one of the short forms (`party.members.…`). */

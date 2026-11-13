@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aimed, chooseTarget, isTargetForm } from './target'
+import { aimed, chooseTarget, isTargetForm, targetsOf } from './target'
 
 const member = (id: string, health: number) =>
   ({ id, values: { health } }) as unknown as NonNullable<
@@ -26,6 +26,16 @@ describe('whom a result aims at', () => {
     expect(chooseTarget('party.members.lowest.values.health', whole, () => 1)).toBe('party')
     expect(isTargetForm('party.members.random')).toBe(true)
     expect(isTargetForm('kael')).toBe(false)
+  })
+
+  it('everyone: each member, the party as a whole, or nobody', () => {
+    expect(targetsOf('party.members.all', s, () => 1)).toEqual(['kael', 'mara', 'odo'])
+    expect(targetsOf('party.members.all', { party: member('party', 4) }, () => 1)).toEqual([
+      'party',
+    ])
+    expect(targetsOf('party.members.all', {}, () => 1)).toEqual([undefined])
+    expect(targetsOf('party.members.random', s, () => 2)).toEqual(['mara'])
+    expect(isTargetForm('party.members.all')).toBe(true)
   })
 
   it('with nobody to aim at, the effects on the target are left out', () => {

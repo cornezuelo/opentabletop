@@ -94,6 +94,12 @@ export interface ResolveOptions {
    * entry, and a list with no roll, are still rolled.
    */
   total?: number
+  /**
+   * Names the host fills in itself after the roll (a trip's `target`, the one a result aims
+   * at): an entry that sets one leaves its effects as written (`'-{{1d4}}'`), for the host to
+   * read once it knows them, its dice rolled then (for each one aimed at).
+   */
+  hostReads?: string[]
 }
 
 export type OracleEvent =
@@ -172,6 +178,7 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       options.onEvent,
     )
     if (opts.total !== undefined) session.given = opts.total
+    session.hostReads = new Set(opts.hostReads)
     const resolution = session.resolve(def, context, 0, opts.mode)
     return {
       resolution,
@@ -240,6 +247,9 @@ class Run {
 
   /** The first roll of a list's own, given by the player (`ResolveOptions.total`). */
   given: number | undefined
+
+  /** Names the host reads after the roll (`ResolveOptions.hostReads`). */
+  hostReads = new Set<string>()
 
   /** Where the dice conditions roll are told (the node being resolved). */
   private rollingFor: Resolution | undefined
@@ -497,9 +507,13 @@ class Run {
     }
     node.value = { ...child?.value, ...set }
     // Effects add up with the ones of the table it rolled ('=value' sets: the last wins).
+    // An entry setting a name the host fills in later leaves its effects for the host.
+    const later = Object.keys(entry.set ?? {}).some((name) => this.hostReads.has(name))
     const effects = mergeEffects(
       child?.value.effects as Record<string, number | string> | undefined,
-      this.evalValues(entry.effects, { ...context, ...set }, node) as Record<
+      (later
+        ? entry.effects
+        : this.evalValues(entry.effects, { ...context, ...set }, node)) as Record<
         string,
         number | string
       >,

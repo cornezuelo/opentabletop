@@ -27,7 +27,7 @@ import { rolledNodes } from './journal'
 import { extremes, settlePresent, type Present, type PresentEvent } from './present'
 import { encounterFacts, type Encounter } from './encounter'
 import { definitionId } from './refs'
-import { aimed, chooseTarget, isTargetForm } from './target'
+import { aimed, isTargetForm, targetsOf } from './target'
 import {
   pullFromRoster,
   rosterEntry,
@@ -1212,8 +1212,10 @@ export function createSession(options: {
               // A total the player rolled by hand picks its entry (once).
               const total = s.handTotal
               delete s.handTotal
+              // Whom a row aims at is chosen after the roll: its effects are read then.
               const out = options.oracle.resolve(binding.resolve!, context, s.oracle, {
                 locale: options.locale,
+                hostReads: ['target'],
                 ...(total !== undefined && { total }),
               })
               s.oracle = out.state
@@ -1249,53 +1251,66 @@ export function createSession(options: {
             })
             continue
           }
-          // Whom it aims at, written short (`target: party.members.random`): one of them now.
-          if (isTargetForm(value.target)) {
-            const roller = momentRolls(s.travel, s.travel.location, `target|${s.nextEntry}`)
-            value = aimed(value, chooseTarget(value.target, s, roller))
-          }
-          // Its effects with the variables they name read now (`'-{{party.stats.mouths}}'`;
-          // the Oracle reads its own entries' first): the journal says what they did.
-          const seen = {
-            ...tripContext(s, { ...host, ...event.check.context }, {}, party),
-            ...value,
-          }
-          const written = namedEffects(effectsOf(value), seen)
-          const effects = Object.fromEntries(
-            Object.entries(written).map(([p, c]) => [
-              p,
-              resolveChange(c, seen, momentRolls(s.travel, hexOf(seen), momentOf(seen))),
-            ]),
-          )
-          // Written with variables (the Oracle renders its own: '-{{loss}}' comes as '-2'),
-          // the journal keeps them as numbers.
-          const withVariables = Object.values(
-            (value.effects ?? {}) as Record<string, unknown>,
-          ).some((c) => typeof c === 'string' && !c.trim().startsWith('='))
-          add(s, entries, {
-            source: 'oracle',
-            code: 'ORACLE_RESULT',
-            // When the check came up (e.g. a night encounter belongs to the camp, not dawn).
-            time: event.time,
-            text,
-            data: {
-              ...about,
-              ...(binding.weather ? { weather: binding.weather } : { table: binding.resolve }),
-              value: withVariables ? { ...value, effects } : value,
-            },
-          })
-          s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
-          const done = applyEffects(s, effects, stats)
-          changed(s, entries, done.applied, event.time)
-          const limits = [...done.limits, ...memberEffects(effects, seen, event.time)]
-          settle()
-          for (const limit of limits)
+          // Whom it aims at, written short (`target: party.members.random`): one of them now;
+          // `party.members.all`, each of them, its effects played for each with their own rolls.
+          const rolled = value
+          const aims = isTargetForm(value.target)
+            ? targetsOf(
+                value.target,
+                s,
+                momentRolls(s.travel, s.travel.location, `target|${s.nextEntry}`),
+              ).map((target) => aimed(rolled, target))
+            : [value]
+          for (const one of aims) {
+            value = one
+            // Its effects with the variables they name read now (`'-{{party.stats.mouths}}'`;
+            // the Oracle reads its own entries' first): the journal says what they did.
+            const seen = {
+              ...tripContext(s, { ...host, ...event.check.context }, {}, party),
+              ...value,
+            }
+            const each = aims.length > 1 ? `|${String(value.target)}` : ''
+            const written = namedEffects(effectsOf(value), seen)
+            const effects = Object.fromEntries(
+              Object.entries(written).map(([p, c]) => [
+                p,
+                resolveChange(
+                  c,
+                  seen,
+                  momentRolls(s.travel, hexOf(seen), `${momentOf(seen) ?? ''}${each}`),
+                ),
+              ]),
+            )
+            // Written with variables (the Oracle renders its own: '-{{loss}}' comes as '-2'),
+            // the journal keeps them as numbers.
+            const withVariables = Object.values(
+              (value.effects ?? {}) as Record<string, unknown>,
+            ).some((c) => typeof c === 'string' && !c.trim().startsWith('='))
             add(s, entries, {
-              source: 'travel',
-              code: 'LIMIT_REACHED',
+              source: 'oracle',
+              code: 'ORACLE_RESULT',
+              // When the check came up (e.g. a night encounter belongs to the camp, not dawn).
               time: event.time,
-              data: { ...limit },
+              text,
+              data: {
+                ...about,
+                ...(binding.weather ? { weather: binding.weather } : { table: binding.resolve }),
+                value: withVariables ? { ...value, effects } : value,
+              },
             })
+            s.dayVars = { ...s.dayVars, ...dayVariables(value, declared) }
+            const done = applyEffects(s, effects, stats)
+            changed(s, entries, done.applied, event.time)
+            const limits = [...done.limits, ...memberEffects(effects, seen, event.time)]
+            settle()
+            for (const limit of limits)
+              add(s, entries, {
+                source: 'travel',
+                code: 'LIMIT_REACHED',
+                time: event.time,
+                data: { ...limit },
+              })
+          }
           // A pause (the check's, or an entry's that came up) stops the trip after the roll:
           // the check waits, rolled, until the player presses Continue.
           const pauses = event.check.pause || value.pause === true

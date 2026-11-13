@@ -10,6 +10,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- **A blow at everyone**: a result's `set: { target: party.members.all }` lands on each of the party in turn, a line of the journal each; the effects of a result that aims at someone are read once it's known whom, so they can read that one's values (`characters[target].values.armour`) and roll their dice for each. Core's foes sweep at all of you on a 6; the Grey Marches' restless dead have a turn of their own, the chill of the grave over the whole Company, less for whoever wears armour.
 - **One of those present leaving**: a new moment, `present.leave`, for actions' `on:` and checks' `at:`, as a copy of a template leaves those present (fallen, run off, taken away, left behind), the one leaving acting as it was when it left (`acting.conditions: down`, `acting.tags`, `acting.template`, what it carried). Core's **Search the fallen** (_What the fallen carry_); the Grey Marches' **Strip the fallen** (_What the fallen leave_: an outlaw's purse and rations, the bandit chief's hoard, the grave goods of the dead).
 
 ## [0.48.0] - 2026-11-13

@@ -19,11 +19,12 @@ trouble:
 foe-turn:
   name: El turno de un enemigo
   description: |-
-    Lo que hace un enemigo en su turno en un combate: un golpe a uno de vosotros.
+    Lo que hace un enemigo en su turno en un combate: un golpe a uno de vosotros, o de vez en cuando un barrido contra todos.
 
-    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo; un resultado dirigido a alguien (`set: { target: party.members.random }`) y su efecto sobre él (`characters[target].values.health`, y el dado de desgaste de su escudo un escalón abajo, `characters[target].items.shield.wear: -1`, nada para quien no lleva). Un enemigo que se tambalea nunca la tira: pierde su turno (el `encounter.skip` del sistema).
+    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo; un resultado dirigido a alguien (`set: { target: party.members.random }`) y su efecto sobre él (`characters[target].values.health`, y el dado de desgaste de su escudo un escalón abajo, `characters[target].items.shield.wear: -1`, nada para quien no lleva); un resultado dirigido a todos (`set: { target: party.members.all }`), con su efecto jugado para cada uno y su dado tirado para cada uno. Un enemigo que se tambalea nunca la tira: pierde su turno (el `encounter.skip` del sistema).
   entries:
     blow: El enemigo golpea
+    sweep: El enemigo os lanza un barrido a todos
 strike:
   name: Un golpe
   description: |-

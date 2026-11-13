@@ -65,7 +65,7 @@ description: |-
   - Copies named from a table (`names: table.npc-names`): _Brenna_, _Corin_… instead of _Bandit 2_
   - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
   - How each is drawn on a map (`token:` its icon and kind)
-  - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader); the rest do what the system says (`encounter.foes`)
+  - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
   - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, and the restless dead, in their barrow (`behind: stay`)
 sheet: sheet.foe
 behind: leave
@@ -106,6 +106,7 @@ templates:
     tags: [undead]
     values: { health: '{{1d6+2}}', harm: 1, morale: 12 }
     token: { icon: 'game:death-skull', kind: enemy }
+    actions: table.dead-turn
     behind: stay
   bandit:
     name: Bandit
@@ -197,6 +198,31 @@ entries:
     effects:
       'characters[target].values.health': '-{{acting.values.harm}}'
       'characters[target].conditions.dragged-down': 1
+---
+# The restless dead's turn in a fight (bestiary.yaml's barrow-dead `actions:`): a hand at one
+# of you, or the grave's cold on all of you, each rolled for, less for whoever wears armour.
+kind: table
+id: dead-turn
+tags: [encounters]
+name: The restless dead's turn
+description: |-
+  What the restless dead do on their turn in a fight: a cold hand at one of the Company, for their Harm, or the chill of the grave over all of you at once: each takes 1d3 less the armour they wear.
+
+  **Shows:** a result aimed at everyone (`set: { target: party.members.all }`), played once for each of the Company, a line of the journal each: its effect read for each (`characters[target].values.armour`, the armour that one wears) and its dice rolled for each (`'-{{max(1d3 - characters[target].values.armour, 0)}}'`).
+roll: 1d6
+entries:
+  - id: claw
+    range: 1-4
+    set: { target: party.members.random }
+    result: '{{acting.name}} reaches for one of you'
+    effects: { 'characters[target].values.health': '-{{acting.values.harm}}' }
+  # Each of the Company in turn, each with their own 1d3, less their own armour.
+  - id: chill
+    range: 5-6
+    set: { target: party.members.all }
+    result: The chill of the grave washes over all of you
+    effects:
+      { 'characters[target].values.health': '-{{max(1d3 - characters[target].values.armour, 0)}}' }
 ---
 # Falling back (travel.yaml's Fall back) past a foe fiercer than the clumsiest companion.
 kind: table

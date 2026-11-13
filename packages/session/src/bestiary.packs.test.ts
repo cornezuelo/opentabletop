@@ -407,6 +407,75 @@ describe('the bundled packs fight in turns', () => {
     expect(new Set(bitten)).toEqual(new Set(bitten.length ? ['mara'] : []))
   })
 
+  it("a blow at everyone: Core's sweep and the restless dead's chill, on each, read and rolled for each", () => {
+    /** Plays a fight, foes rolled by hand with `total`, and the lines of `table`'s `row`. */
+    const play = (
+      system: typeof marches,
+      foes: string,
+      start: string,
+      table: string,
+      total: number,
+      items = {},
+    ) => {
+      const { session } = startTrip({
+        system,
+        location: 'a',
+        members: people(system),
+        seed: 'x',
+        time: 9 * 60,
+      })
+      const options = {
+        system,
+        world: heath,
+        oracle: createOracleEngine({ registry, random: seeded(4) }),
+      }
+      // Three of them: the party fells two a round at most, so one is left to act.
+      const brought = applyResult(
+        { ...session, foesByHand: true },
+        { effects: { [foes]: 3, ...items } },
+        {},
+        partyOf(system),
+      )
+      let done = stepTrip(options, brought, { type: 'action', id: start })
+      const hits: { target: string; effects: Record<string, number> }[] = []
+      for (let turn = 0; turn < 12 && done.state.encounter; turn++) {
+        for (const e of done.entries)
+          if (e.code === 'ORACLE_RESULT' && e.data?.table === table)
+            hits.push(e.data.value as (typeof hits)[number])
+        if (hits.length) break
+        if (done.state.encounter.stage === 'rolling') {
+          done = stepTrip(options, done.state, { type: 'encounter', what: 'roll', total })
+          continue
+        }
+        const foe = done.state.present?.find((p) => p.at === done.state.travel.location)?.character
+          .id
+        if (!foe) break
+        done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe } })
+        if (done.state.travel.waiting)
+          done = stepTrip(options, done.state, { type: 'resume', choice: foe })
+      }
+      return hits
+    }
+    // Core: a 6 is the sweep, at both of you, each losing their own 1d2.
+    const sweep = play(core, 'present.foe', 'fight', 'core/foe-turn', 6)
+    expect(sweep.map((h) => h.target)).toEqual(['kael', 'mara'])
+    for (const h of sweep) {
+      const lost = -Number(Object.values(h.effects)[0])
+      expect(lost).toBeGreaterThanOrEqual(1)
+      expect(lost).toBeLessThanOrEqual(2)
+    }
+    // The Grey Marches: a 5 is the grave's chill on all of the Company, 1d3 less each one's
+    // armour: Kael's mail (2) leaves him at most 1.
+    const chill = play(marches, 'present.barrow-dead', 'stand', 'grey-marches/dead-turn', 5, {
+      'characters.kael.items.mail': 1,
+    })
+    expect(chill.map((h) => h.target)).toEqual(['kael', 'mara'])
+    const [kael, mara] = chill.map((h) => -Number(Object.values(h.effects)[0]))
+    expect(kael).toBeLessThanOrEqual(1)
+    expect(mara).toBeGreaterThanOrEqual(1)
+    expect(mara).toBeLessThanOrEqual(3)
+  })
+
   it('the Grey Marches: foes rolled by hand, each turn waiting for the total the player rolled', () => {
     const { session } = startTrip({
       system: marches,

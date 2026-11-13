@@ -1261,6 +1261,44 @@ cards: [{ id: cache, result: A cache, effects: { party.resources.food: 2 } }]
   })
 })
 
+describe('names the host fills in after the roll (hostReads)', () => {
+  it('an entry setting one leaves its effects as written; the others are read as always', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'h/pack.yaml', content: 'id: h\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'h/t.yaml',
+        content: `kind: table
+id: sweep
+entries:
+  - { result: All of you, set: { target: party.members.all }, effects: { 'characters[target].values.health': '-{{1d4}}', party.stats.dread: '{{1d1}}' } }
+---
+kind: table
+id: blow
+entries:
+  - { result: A blow, effects: { party.stats.health: '-{{1d1}}' } }
+`,
+      },
+    ])
+    expect(diagnostics).toEqual([])
+    const engine = createOracleEngine({ registry, random: seeded('h') })
+    expect(
+      engine.resolve('h/sweep', {}, undefined, { hostReads: ['target'] }).resolution.value,
+    ).toEqual({
+      target: 'party.members.all',
+      effects: { 'characters[target].values.health': '-{{1d4}}', 'party.stats.dread': '{{1d1}}' },
+    })
+    expect(
+      engine.resolve('h/blow', {}, undefined, { hostReads: ['target'] }).resolution.value.effects,
+    ).toEqual({
+      'party.stats.health': '-1',
+    })
+    // Without it (the Oracle alone), read as always.
+    expect(engine.resolve('h/sweep').resolution.value.effects).toMatchObject({
+      'party.stats.dread': 1,
+    })
+  })
+})
+
 describe('a generator’s tables reach the host as a table’s do', () => {
   it('their set values, their effects added up and a pause; its own fields win', () => {
     const { registry, diagnostics } = loadPacks([

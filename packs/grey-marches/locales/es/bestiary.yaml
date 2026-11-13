@@ -40,7 +40,7 @@ bestiary/marches:
     - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
     - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
     - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
-    - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada); las demás hacen lo que dice el sistema (`encounter.foes`)
+    - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada), y el de los muertos inquietos (`actions: table.dead-turn`); las demás hacen lo que dice el sistema (`encounter.foes`)
     - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, y los muertos inquietos, en su túmulo (`behind: stay`)
   templates:
     traveller:
@@ -90,6 +90,15 @@ wolf-turn:
     circle: '{{acting.name}} ronda, gruñendo'
     bite: '{{acting.name}} va a por el más débil de vosotros'
     drag: '{{acting.name}} derriba al más débil de vosotros'
+dead-turn:
+  name: El turno de los muertos inquietos
+  description: |-
+    Lo que hacen los muertos inquietos en su turno en un combate: una mano helada contra uno de la Compañía, por su Daño, o el frío de la tumba sobre todos a la vez: cada uno recibe 1d3 menos la armadura que lleva.
+
+    **Enseña:** un resultado dirigido a todos (`set: { target: party.members.all }`), que se juega una vez por cada uno de la Compañía, con una línea del diario cada uno: su efecto se lee para cada uno (`characters[target].values.armour`, la armadura que lleva ese) y sus dados se tiran para cada uno (`'-{{max(1d3 - characters[target].values.armour, 0)}}'`).
+  entries:
+    claw: '{{acting.name}} alarga la mano hacia uno de vosotros'
+    chill: El frío de la tumba os envuelve a todos
 parting-blow:
   name: Un golpe al retirarse
   description: |-

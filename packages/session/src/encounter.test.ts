@@ -44,6 +44,13 @@ sheet: sheet.foe
 templates:
   goblin: { name: Goblin }
   ogre: { name: Ogre, actions: table.ogre-turn }
+  troll: { name: Troll, actions: table.troll-turn }
+---
+kind: table
+id: troll-turn
+roll: 1d1
+entries:
+  - { range: 1, result: The troll sweeps, set: { target: party.members.all }, effects: { 'characters[target].values.health': '-{{1d4 + characters[target].values.speed}}' } }
 ---
 kind: table
 id: ogre-turn
@@ -333,6 +340,45 @@ describe('an encounter: a fight in turns', () => {
     // The two goblins' blows (-1 each) and the ogre's smash (-3) land on the party; the bites
     // at Kael find nobody.
     expect(done.state.party!.values.health).toBe(10 - 1 - 1 - 3)
+  })
+
+  it('a blow at everyone (party.members.all) lands on each, read and rolled for each', () => {
+    const { system, registry } = systemOf(BY_SIDE)
+    const sheet = system.sheet!
+    const options = { system, world, oracle: createOracleEngine({ registry, random: seeded(1) }) }
+    const health = (
+      s: { members?: { id: string; values: Record<string, number> }[] },
+      id: string,
+    ) => s.members!.find((m) => m.id === id)!.values.health
+    let differ = false
+    for (let n = 0; n < 12; n++) {
+      const members = ['kael', 'mira'].map((id) =>
+        createCharacter(sheet.def, sheet.id, { id, name: id }),
+      )
+      const { session } = startTrip({ system, location: 'a', time: 8 * 60, seed: `s${n}`, members })
+      let s = applyResult(session, { effects: { 'present.troll': 1 } }, {}, partyOf(system))
+      s = stepTrip(options, s, { type: 'action', id: 'ambush' }).state
+      // Both of the party strike; then the foes' turns.
+      s = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe: 'goblin' } }).state
+      const done = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+      const sweeps = done.entries.filter(
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'brawl/troll-turn',
+      )
+      // One line for each of them, each with its own roll.
+      expect(sweeps.map((e) => (e.data?.value as { target: string }).target)).toEqual([
+        'kael',
+        'mira',
+      ])
+      const lost = 10 - health(done.state, 'mira')
+      // 1d4 and the target's own speed (1).
+      expect(lost).toBeGreaterThanOrEqual(2)
+      expect(lost).toBeLessThanOrEqual(5)
+      // Kael was bitten too, on each foe's turn (the troll's and the goblin left standing).
+      const kael = 10 - 2 - health(done.state, 'kael')
+      expect(kael).toBeGreaterThanOrEqual(2)
+      if (kael !== lost) differ = true
+    }
+    expect(differ).toBe(true)
   })
 
   it('by participant: each one by the value it rolls, highest first', () => {
