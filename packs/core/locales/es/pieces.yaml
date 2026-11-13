@@ -27,7 +27,7 @@ next-piece:
   description: |-
     Lo que hay tras una puerta que nadie ha abierto: sobre todo pasillos, a veces una sala, y una escalera abajo o un callejón sin salida cuando el sitio ya ha crecido.
 
-    **Enseña:** `discover.piece` en `travel.yaml`: el `set: { piece: <id> }` de una tabla, y `pieces.total`, lo colocado en este mapa; `keepOpen: true`, para que un callejón sin salida que cerraría el lugar se vuelva a sacar.
+    **Enseña:** `discover.piece` en `travel.yaml`: el `set: { piece: <id> }` de una tabla, y `pieces.total`, lo colocado en este mapa; `keepOpen: true`, para que un callejón sin salida que cerraría el lugar se vuelva a sacar; `notable: true`, una escalera abajo mostrada delante como momento importante.
   entries:
     passage: Un pasillo
     junction: Un cruce

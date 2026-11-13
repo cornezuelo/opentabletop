@@ -1337,3 +1337,41 @@ template: '{{site}}: {{loot}}, {{guard}}'
     })
   })
 })
+
+describe('a result says whether it’s an important moment (notable)', () => {
+  it('an entry’s or a card’s word comes up in the result, its own over what it rolled', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 'n/pack.yaml', content: 'id: n\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 'n/t.yaml',
+        content: `
+kind: table
+id: sign
+entries:
+  - { result: A dragon overhead, notable: true }
+---
+kind: table
+id: quiet
+entries:
+  - { result: Only the wind, table: table.sign, notable: false }
+---
+kind: table
+id: plain
+entries:
+  - { result: Rain }
+---
+kind: deck
+id: omens
+cards:
+  - { id: comet, result: A comet, notable: true }
+`,
+      },
+    ])
+    expect(diagnostics).toEqual([])
+    const oracle = createOracleEngine({ registry, random: seeded('n') })
+    expect(oracle.resolve('n/sign').resolution.value.notable).toBe(true)
+    expect(oracle.resolve('n/quiet').resolution.value.notable).toBe(false)
+    expect(oracle.resolve('n/plain').resolution.value).not.toHaveProperty('notable')
+    expect(oracle.resolve('n/omens').resolution.value.notable).toBe(true)
+  })
+})

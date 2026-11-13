@@ -34,6 +34,17 @@ export const es: Messages<typeof en> = {
   lastStep: {
     nothing: 'Nada que contar.',
   },
+  beats: {
+    why: 'Por qué',
+    changes: 'Lo que ha cambiado',
+    fold: 'Plegar',
+    unfold: 'Desplegar: lo que ha pasado en él',
+    notable: 'Lo que acaba de pasar',
+    putAway: 'Quitarlo',
+    stop: 'Parar en cada momento importante',
+    stopHelp:
+      'Un momento importante (una pausa, un combate que empieza o acaba, alguien que gana un estado, un sitio encontrado, un reloj lleno, algo que le toca al mundo, un resultado que su sistema marca como importante) se muestra delante: sobre el mapa, o arriba del viaje.\n• Sin marcar, solo las pausas esperan a **Continuar**: lo demás se quita con ×, o el viaje sigue y el siguiente paso lo sustituye\n• Marcado, cada uno espera a **Continuar** antes de que puedas hacer nada más\nUna preferencia de este navegador, para todos los viajes.',
+  },
   dayUnit: 'día',
   onTheWay: 'De camino a {hex}: {time} hasta ahora',
   stepSpeed: '{minutes} min por paso',
@@ -60,7 +71,7 @@ export const es: Messages<typeof en> = {
   filter: {
     level: 'Mostrar',
     levelHelp:
-      'Cuánto de lo que ha pasado muestra el diario. Todo se guarda siempre: esto solo elige qué ves y qué escribe **Exportar**.\n• **La historia** — lo que ha pasado en la partida: resultados de las tablas, descubrimientos, llegadas, lo que dice el sistema, tus notas\n• **Y las reglas** — también lo que han hecho las reglas: casillas en las que se entra, acciones, comprobaciones, cambios en el grupo y sus personajes, valores que llegan a su límite (lo que el diario mostraba siempre)\n• **Todo** — también lo que ha pasado por detrás: los dados de cada tirada y la fila o carta que ha salido (`Tirada de Encuentro: Encuentros salvajes: 2d6 → 7  [3, 4] → 7`), la tirada del clima, las comprobaciones que no han salido y por qué (`Emboscada no sale: el peligro del sitio es 1: necesita 2 o más`), cada momento del día que nombra alguna comprobación o acción, cada valor antes y después (`Comida: 5 → 3`) y las rutas planeadas\nPara saber por qué ha pasado algo, o por qué no, elige **Todo** y busca su nombre.',
+      'Cuánto de lo que ha pasado muestra el diario bajo el título de cada momento (lo que se ha hecho: _Marchar · 8 h_). Todo se guarda siempre: esto solo elige qué ves y qué escribe **Exportar**.\n• **La historia** — lo que ha pasado en la partida: resultados de las tablas, descubrimientos, llegadas, lo que dice el sistema, tus notas; las reglas de detrás de cada momento, plegadas bajo **Por qué**\n• **Y las reglas** — también lo que han hecho las reglas: casillas en las que se entra, acciones, comprobaciones, cambios en el grupo y sus personajes, valores que llegan a su límite\n• **Todo** — también lo que ha pasado por detrás: los dados de cada tirada y la fila o carta que ha salido (`Tirada de Encuentro: Encuentros salvajes: 2d6 → 7  [3, 4] → 7`), la tirada del clima, las comprobaciones que no han salido y por qué (`Emboscada no sale: el peligro del sitio es 1: necesita 2 o más`), cada momento del día que nombra alguna comprobación o acción, cada valor antes y después (`Comida: 5 → 3`) y las rutas planeadas\nPara saber por qué ha pasado algo, o por qué no, elige **Todo** y busca su nombre.',
     levels: { story: 'La historia', mechanics: 'Y las reglas', detail: 'Todo' },
     topics: {
       travel: 'Viaje',
@@ -311,6 +322,7 @@ export const es: Messages<typeof en> = {
     presentCame: 'Ahora aquí: {names}',
     placeMade: 'Un lugar aquí: {name}{what}',
     wayMade: 'Un camino desde aquí, a un mapa nuevo: {kind}',
+    mapEntered: 'Entráis en {name}',
     encounterStarted: 'Empieza un combate',
     encounterRound: 'Ronda {round}',
     encounterTurn: 'Turno de {name}',

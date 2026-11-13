@@ -41,6 +41,11 @@ export interface CompiledEntry {
   effects?: Record<string, number | string>
   /** Comes up as `pause: true` in the result: the host stops to let the player act. */
   pause?: boolean
+  /**
+   * Comes up as `notable` in the result: the host shows it up front (`true`), or not even
+   * what it sets off (`false`).
+   */
+  notable?: boolean
   /** Max times it may come up per session (once = 1). */
   limit?: number
 }
@@ -141,6 +146,7 @@ export interface CompiledCard {
   set?: Record<string, unknown>
   effects?: Record<string, number | string>
   pause?: boolean
+  notable?: boolean
 }
 
 export interface CompiledDeck extends Base {
@@ -373,6 +379,7 @@ class CompileContext {
             set: c.set,
             effects: c.effects,
             ...(c.pause && { pause: true }),
+            ...(c.notable !== undefined && { notable: c.notable }),
           })),
         }
     }
@@ -412,6 +419,7 @@ class CompileContext {
         set: e.set,
         effects: e.effects,
         ...(e.pause && { pause: true }),
+        ...(e.notable !== undefined && { notable: e.notable }),
         limit: e.once ? 1 : e.maxOccurrences,
       }
     })

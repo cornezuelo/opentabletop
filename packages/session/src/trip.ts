@@ -78,6 +78,7 @@ import {
   type EncounterUnavailable,
 } from './encounter'
 import { definitionId } from './refs'
+import { markBeats } from './journal'
 import {
   MEMBER_PATH,
   partyBlocks,
@@ -1639,7 +1640,7 @@ export function stepTrip(
   // What the step did, the encounter's lines with it, from its first line on.
   if (result.state !== first.state) result.state.lastStep = first.state.lastStep
   return {
-    ...result,
+    ...beaten(result, session.nextEntry),
     discovered: withPlacesMade(Object.fromEntries(discovery?.found ?? []), result.entries),
     laid: discovery?.laid ?? [],
   }
@@ -1709,7 +1710,7 @@ export function settleTrip(
   options: Omit<Parameters<typeof stepTrip>[0], 'discover' | 'oracle' | 'random'>,
   session: SessionState,
 ): { state: SessionState; entries: JournalEntry[] } {
-  return handSession(options, session).settle(session)
+  return beaten(handSession(options, session).settle(session), session.nextEntry)
 }
 
 /**
@@ -1722,7 +1723,22 @@ export function shareTrip(
   session: SessionState,
   moved?: Record<string, number>,
 ): { state: SessionState; entries: JournalEntry[] } {
-  return handSession(options, session).share(session, moved)
+  return beaten(handSession(options, session).share(session, moved), session.nextEntry)
+}
+
+/**
+ * A step's outcome with its lines marked with the moment each belongs to (`markBeats`), from
+ * line number `from` on; its `entries` are the state's own lines.
+ */
+function beaten<T extends { state: SessionState; entries: JournalEntry[] }>(
+  done: T,
+  from: number,
+): T {
+  if (!done.entries.length) return done
+  const journal = done.state.journal
+  markBeats(journal, from)
+  const lines = new Map(journal.slice(-done.entries.length - 1).map((e) => [e.id, e]))
+  return { ...done, entries: done.entries.map((e) => lines.get(e.id) ?? e) }
 }
 
 /** A session for changes by hand: no Oracle, no discovery. */

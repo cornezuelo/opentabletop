@@ -10,8 +10,8 @@ import type { JournalFilter } from './journal'
 const FILTER_KEY = 'opentabletop.trip.journal'
 
 class Filter {
-  /** Up to which level (the journal as it always was: the story and the rules). */
-  level = $state<JournalLevel>('mechanics')
+  /** Up to which level (the story: each moment's title says what was done, its rules folded). */
+  level = $state<JournalLevel>('story')
   /** The topics left out (none: every one). */
   hidden = $state<JournalTopic[]>([])
   search = $state('')

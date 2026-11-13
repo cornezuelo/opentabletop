@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Map
+
+- **Important moments up front**: when your last step ends on something that matters (a pause, a fight starting or ending, someone gaining a condition, a place made, a clock filled, something coming due in the world, a result its system marks as important), the strip over the map tells it in full, with **Continue** when the trip waits, else × to put it away. Going down into another map is one too (_You go into The Barrow-halls_), where before only a toast said so.
+
+### Travel
+
+- **The journal tells moments**: each step (a march, an action, a pause answered, a fight's turn) is one moment under its title (_March · 8 h_), with what happened, what it changed as labels (_Ration −1_) and, in **The story** (now the journal's default), the rules behind it folded under **Why**; older moments fold to their title. The important moment the last step ended on shows at the top of the trip, in Travel and in Campaign's scenes. **Stop at every important moment** (Options) makes each wait for **Continue**.
+
+### Packs
+
+- **Important results**: a table's entry or a deck's card may say it's an important moment (`notable: true`), or that it isn't, nor what it sets off (`notable: false`); Packs' entry and card forms: **Important**. Core's stairs down are one; the Grey Marches' haunted lights and the Wyrm's omen are, and the shrine's quiet hour isn't.
+
 ## [0.50.0] - 2026-11-13
 
 ### Map

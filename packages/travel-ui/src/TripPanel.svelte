@@ -18,12 +18,10 @@
     entryTopic,
     JOURNAL_LEVELS,
     JOURNAL_TOPICS,
-    lastStepEntries,
     partyOf,
     shownAt,
     picksWho,
     tripAvailability,
-    type JournalEntry,
     type RosterPlace,
     type SessionState,
     type StatDefinition,
@@ -38,7 +36,6 @@
     eventName,
     filterJournal,
     journalMarkdown,
-    journalByDay,
     tripDay,
     whyText,
   } from './journal'
@@ -78,6 +75,10 @@
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
   import FightPanel from './FightPanel.svelte'
+  import BeatView from './BeatView.svelte'
+  import NotableBeat from './NotableBeat.svelte'
+  import { journalBeats, lastStepBeats, tellBeat, type BeatTold } from './beats'
+  import { beatsSeen } from './beatsSeen.svelte'
   import { CharacterCard, itemName, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import { WorldWaiting } from '@open-tabletop/campaign-ui'
@@ -395,7 +396,10 @@
   })
   /** Nothing goes on while a share waits for who gives it, or an item for room. */
   const held = $derived(
-    (!!sharing && !!onshare) || roomless.length > 0 || (!!worldWaiting && !!onworld),
+    (!!sharing && !!onshare) ||
+      roomless.length > 0 ||
+      (!!worldWaiting && !!onworld) ||
+      beatsSeen.holds(session),
   )
   /** What a condition blocks, in words: moving on, an action or a way of travelling. */
   const blockName = (what: string) => {
@@ -484,7 +488,6 @@
     ]
     return parts.filter(Boolean).join(' ')
   }
-  const text = (e: JournalEntry) => entryText(e, context)
   const pendingName = (event: unknown) => eventName(t, event, checkName)
 
   /**
@@ -502,26 +505,39 @@
 
   /** The lines the Journal tab's filter lets through, oldest first (what Export writes). */
   const filtered = $derived(filterJournal(session.journal, journalFilter.current, context))
-  /** Newest first. */
-  const journalDays = $derived(journalByDay(filtered, startDay, calendar, 200))
+  /** The moments the filter lets through, newest first, by day (the latest 200). */
+  const journalDays = $derived.by(() => {
+    const groups: { day: number; beats: BeatTold[] }[] = []
+    for (const beat of journalBeats(session.journal, journalFilter.current, context).slice(
+      0,
+      200,
+    )) {
+      const told = tellBeat(beat, context, journalFilter.level)
+      const day = tripDay(told.first, startDay, calendar)
+      if (groups.at(-1)?.day !== day) groups.push({ day, beats: [] })
+      groups.at(-1)!.beats.push(told)
+    }
+    return groups
+  })
+  /** The newest moment shown: unfolded, as the last step's are; the older ones fold to their title. */
+  const newest = $derived(journalDays[0]?.beats[0]?.id)
+  /** Moments folded or unfolded by hand, by id. */
+  let unfolded = $state<Record<string, boolean>>({})
   /** The topics this journal has lines of: those the filter offers. */
   const topics = $derived(
     JOURNAL_TOPICS.filter((topic) => session.journal.some((e) => entryTopic(e) === topic)),
   )
   /**
-   * What the last step did, newest first like the journal (the story and the rules: what
-   * happened behind doesn't count as news).
+   * What the last step did, as moments (the story and the rules: one that only did things
+   * behind doesn't count as news), marked in the journal and counted on its tab.
    */
-  const lastDays = $derived(
-    journalByDay(
-      lastStepEntries(session).filter((e) => shownAt(e, { level: 'mechanics' })),
-      startDay,
-      calendar,
+  const latest = $derived(
+    new Set(
+      lastStepBeats(session)
+        .filter((b) => b.entries.some((e) => shownAt(e, { level: 'mechanics' })))
+        .map((b) => b.id),
     ),
   )
-
-  /** What the last step wrote, marked in the journal and counted on its tab. */
-  const latest = $derived(new Set(lastDays.flatMap((d) => d.entries.map((e) => e.id))))
 
   /** The tabs under the buttons: the party's only when the system has one. */
   const tabs = $derived<TripTab[]>([
@@ -602,6 +618,8 @@
 
   <!-- What the party can do stays in sight while what's below scrolls. -->
   <div class="do">
+    <!-- The important moment the last step ended on, up front (over a map, the strip has it). -->
+    {#if status}<NotableBeat {session} {context} {locale} />{/if}
     {@render here?.()}
     <!-- A fight in turns: whose turn it is, above what the party can do on it. -->
     {#if fight}
@@ -831,18 +849,23 @@
     </div>
   </div>
 
-  {#snippet lines(days: { day: number; entries: JournalEntry[] }[], empty: string)}
+  {#snippet moments(days: { day: number; beats: BeatTold[] }[], empty: string)}
     <ol class="journal" aria-live="polite">
       {#each days as group (group.day)}
         <li class="day">{t('journalDay', { day: group.day })}</li>
-        {#each group.entries as entry (entry.id)}
-          <li
-            class={entry.source}
-            class:detail={shownAt(entry, { level: 'mechanics' }) === false}
-            class:latest={latest.has(entry.id)}
-          >
-            <time>{entryClock(entry, calendar)}</time>
-            <span>{text(entry)}</span>
+        {#each group.beats as told (told.id)}
+          <li class="moment">
+            <BeatView
+              {told}
+              {locale}
+              clock={entryClock(told.first, calendar)}
+              foldable
+              latest={latest.has(told.id)}
+              bind:folded={
+                () => !(unfolded[told.id] ?? (told.id === newest || latest.has(told.id))),
+                (folded) => (unfolded = { ...unfolded, [told.id]: !folded })
+              }
+            />
           </li>
         {/each}
       {:else}
@@ -1031,10 +1054,10 @@
           bind:value={journalFilter.search}
         />
       </div>
-      {#if session.lastStep !== undefined && !lastDays.length}
+      {#if session.lastStep !== undefined && !latest.size}
         <p class="help">{t('lastStep.nothing')}</p>
       {/if}
-      {@render lines(journalDays, session.journal.length ? t('filter.none') : t('emptyJournal'))}
+      {@render moments(journalDays, session.journal.length ? t('filter.none') : t('emptyJournal'))}
     {:else if tab === 'options'}
       {@render options?.()}
       <label class="check skip"
@@ -1051,6 +1074,13 @@
             })
           }}
         /><span>{t('skipPauses')}<InfoTip text={t('skipPausesHelp')} /></span></label
+      >
+      <label class="check skip"
+        ><input
+          type="checkbox"
+          checked={beatsSeen.stop}
+          onchange={(e) => beatsSeen.setStop(e.currentTarget.checked)}
+        /><span>{t('beats.stop')}<InfoTip markdown={t('beats.stopHelp')} /></span></label
       >
       {#if system.encounter}
         <label class="check skip"
@@ -1394,21 +1424,8 @@
     font-size: 12px;
   }
 
-  /* What the last step wrote. */
-  .journal li.latest {
-    margin-left: -8px;
-    padding-left: 5px;
-    border-left: 3px solid var(--accent);
-  }
-
-  .journal li.oracle span {
-    color: var(--accent);
-  }
-
-  /* What happened behind: quieter than the story and the rules. */
-  .journal li.detail span {
-    color: var(--text-muted);
-    font-size: 11px;
+  .journal li.moment {
+    display: block;
   }
 
   .journal li.day {
@@ -1418,11 +1435,6 @@
     font-weight: 600;
     color: var(--accent);
     border-bottom: 1px solid var(--panel-border);
-  }
-
-  .journal time {
-    color: var(--text-muted);
-    font-family: ui-monospace, monospace;
   }
 
   .help {

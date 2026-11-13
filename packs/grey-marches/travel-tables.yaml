@@ -205,6 +205,7 @@ description: |-
   - Fatigue going down: `fatigue: -2`
   - A party stat going up: `morale`
   - `once`: the blessing comes a single time
+  - `notable: false`: a quiet hour isn't an important moment, though the shrine's check pauses the trip (it waits in the trip's panel, not up front)
 entries:
   - {
       id: blessing,
@@ -218,6 +219,7 @@ entries:
       weight: 3,
       result: A quiet hour at the shrine eases your legs,
       effects: { party.stats.fatigue: -1 },
+      notable: false,
     }
 ---
 # An oracle: its input `odds` comes from the bindings' context (FORD: odds even), or is

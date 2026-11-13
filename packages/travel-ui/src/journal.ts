@@ -213,7 +213,13 @@ const signed = (n: number) => (n > 0 ? `+${n}` : `−${-n}`)
  * What a check's result changed, for its journal line: "Food +2, Morale −1, lost for
  * today" (weather is left out: the result's text already says it).
  */
-export function changesText(
+export const changesText = (
+  value: Record<string, unknown>,
+  context: Pick<JournalContext, 't' | 'valueName' | 'dayValues' | 'memberName'>,
+): string => changeParts(value, context).join(', ')
+
+/** What a result changed, each change apart: "Food +2", "Morale −1", "lost for today". */
+export function changeParts(
   value: Record<string, unknown>,
   {
     t,
@@ -221,7 +227,7 @@ export function changesText(
     dayValues,
     memberName,
   }: Pick<JournalContext, 't' | 'valueName' | 'dayValues' | 'memberName'>,
-): string {
+): string[] {
   // Effects are by path (party.stats.morale): named by the value's id, or as the party's
   // sheet and items and the characters' are (`party.values.food`, `acting.items.torch`).
   const id = (path: string) => path.replace(/^party\.stats\./, '').replace(/^party\./, '')
@@ -250,7 +256,7 @@ export function changesText(
   // Values of the day the result sets (lost…), by the system's name.
   for (const [id, name] of Object.entries(dayValues ?? {}))
     if (value[id] !== undefined && value[id] !== false && value[id] !== null) parts.push(name)
-  return parts.join(', ')
+  return parts
 }
 
 /**
@@ -611,6 +617,9 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         name: String(d.name ?? ''),
         what: typeof d.description === 'string' && d.description ? ` — ${d.description}` : '',
       })
+    // The trip went on in another map (into a sub-map, or out of it): a host with maps says so.
+    case 'MAP_ENTERED':
+      return t('journal.mapEntered', { name: String(d.name || d.map || '') })
     case 'UNKNOWN_PLACE':
       return t('journal.unknownPlace', { name: String(d.template ?? '') })
     // A way into a new map from the party's place (`place.ways.<kind>`): on a map, made there.

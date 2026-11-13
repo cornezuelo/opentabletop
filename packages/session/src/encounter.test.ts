@@ -5,6 +5,7 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { encounterView, fightStarters, parseEncounter } from './encounter'
 import { applyResult } from './index'
+import { beatsOf, notableLines } from './journal'
 import { partyOf, startTrip, stepTrip, travelSystems, tripAvailability, tripFacts } from './trip'
 
 /**
@@ -560,5 +561,73 @@ describe('an encounter: a fight in turns', () => {
     expect(facts.present.lowest.values.speed).toBe(3)
     expect(facts.party.highest.values.speed).toBe(5)
     expect(facts.party.lowest.values.speed).toBe(1)
+  })
+})
+
+describe('moments of play (beats)', () => {
+  it('a step is one moment, each turn of a fight played on in it another, its round with the first', () => {
+    const { options, session } = begin()
+    let done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    // The ambush and the fight it starts; then the first round, with Kael's turn.
+    expect(beatsOf(done.entries).map((b) => codes(b.entries))).toEqual([
+      ['ENCOUNTER_STARTED'],
+      ['ENCOUNTER_ROUND', 'turn kael'],
+    ])
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, {
+      type: 'action',
+      id: 'strike',
+      with: { foe: 'goblin-2' },
+    })
+    // Mira's blow, each goblin's turn, then round 2 with Kael's turn.
+    const told = beatsOf(done.entries)
+    expect(told.map((b) => codes(b.entries))).toEqual([
+      [],
+      ['turn goblin'],
+      ['turn goblin-2'],
+      ['ENCOUNTER_ROUND', 'turn kael'],
+    ])
+    // The state's own lines, each marked with its moment's first line.
+    expect(done.entries.every((e) => done.state.journal.includes(e))).toBe(true)
+    expect(told[1]!.entries.every((e) => e.beat === Number(told[1]!.id.slice(1)))).toBe(true)
+    // The whole journal reads the same; a note written by hand is a moment of its own.
+    const all = beatsOf([
+      ...done.state.journal,
+      { id: 'j999', time: 0, at: '', source: 'user', code: 'NOTE' },
+    ])
+    expect(all.at(-1)!.entries.map((e) => e.code)).toEqual(['NOTE'])
+    expect(all.at(-2)!.id).toBe(told.at(-1)!.id)
+  })
+
+  it('important moments: a fight starting, a condition gained; a result says so or not', () => {
+    const { options, session } = begin()
+    const done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    const first = beatsOf(done.entries)[0]!
+    expect(notableLines(first.entries).map((e) => e.code)).toEqual(['ENCOUNTER_STARTED'])
+    const line = (code: string, data: Record<string, unknown>) => ({
+      id: 'j1',
+      code,
+      source: 'travel',
+      data,
+    })
+    expect(
+      notableLines([line('CHANGED', { path: 'characters.kael.conditions.down', from: 0, to: 1 })]),
+    ).toHaveLength(1)
+    expect(
+      notableLines([line('CHANGED', { path: 'characters.kael.conditions.down', from: 1, to: 0 })]),
+    ).toHaveLength(0)
+    expect(notableLines([line('ORACLE_RESULT', { value: { notable: true } })])).toHaveLength(1)
+    expect(
+      notableLines([line('ORACLE_RESULT', { value: {} }), line('CHECK_PAUSED', {})]),
+    ).toHaveLength(1)
+    // What a result that isn't important sets off isn't either, up to the next result.
+    expect(
+      notableLines([
+        line('ORACLE_RESULT', { value: { notable: false } }),
+        line('CHECK_PAUSED', {}),
+        line('ORACLE_RESULT', { value: {} }),
+        line('CLOCK_FILLED', {}),
+      ]).map((e) => e.code),
+    ).toEqual(['CLOCK_FILLED'])
   })
 })

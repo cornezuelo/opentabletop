@@ -130,7 +130,7 @@ name: Next piece
 description: |-
   What lies beyond a door nobody has opened: mostly passages, sometimes a room, and stairs down or a dead end once the place has grown.
 
-  **Shows:** `discover.piece` in `travel.yaml`: a table's `set: { piece: <id> }`, and `pieces.total`, what has been laid on this map; `keepOpen: true`, so a dead end that would close the place is drawn again.
+  **Shows:** `discover.piece` in `travel.yaml`: a table's `set: { piece: <id> }`, and `pieces.total`, what has been laid on this map; `keepOpen: true`, so a dead end that would close the place is drawn again; `notable: true`, stairs down shown up front as an important moment.
 entries:
   - { id: passage, weight: 3, result: A passage, set: { piece: passage } }
   - { id: junction, weight: 2, result: A junction, set: { piece: junction } }
@@ -141,6 +141,7 @@ entries:
       when: { pieces.total: { gte: 4 } },
       result: Stairs down,
       set: { piece: stairs },
+      notable: true,
     }
   - {
       id: dead-end,

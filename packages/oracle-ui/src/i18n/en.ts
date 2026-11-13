@@ -230,6 +230,12 @@ export const en = {
     pause: 'Pause',
     pauseHelp:
       'When this comes up **during a trip**, the trip stops after the roll and waits until you press **Continue**: time to describe the place, write lore or decide something.\n• a lair found in the forest\n• an ambush\nRolled by hand, it does nothing.',
+    notable: 'Important',
+    notableHelp:
+      'Whether this result is an **important moment** of a trip, shown up front (over the map, or at the top of the trip) rather than only in the journal.\n• **As usual** — important only when what it does is (a pause, a fight, a place made, a clock filled…)\n• **Yes** — always: an omen that matters, a sign of what is coming\n• **No** — never, nor what it sets off (its pause still waits in the trip’s panel): a quiet result of a check that always pauses\nRolled by hand, it does nothing.',
+    notableKind: 'As usual',
+    notableYes: 'Yes',
+    notableNo: 'No',
     maxOccurrences: 'At most',
     maxOccurrencesHelp:
       'Times it can come up per session:\n• `2` — twice, then **When exhausted**\nEmpty: no limit. Needs an **Id**.',

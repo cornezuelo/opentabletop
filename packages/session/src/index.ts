@@ -234,6 +234,11 @@ export interface JournalEntry {
   /** Free text (e.g. a rendered table result, already in the pack's language). */
   text?: string
   data?: Record<string, unknown>
+  /**
+   * The moment of play (beat) it belongs to: the number of that moment's first line, for the
+   * lines a step wrote (`markBeats`); absent, a moment of its own (a note, older journals).
+   */
+  beat?: number
 }
 
 export interface SessionState {

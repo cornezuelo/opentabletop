@@ -20,6 +20,7 @@
     set?: unknown
     effects?: unknown
     pause?: boolean
+    notable?: boolean
     count?: number
   }
 
@@ -151,7 +152,7 @@
                 onchange={(e) => edit(i, 'result', e.currentTarget.value)}
               />
             {/if}
-            {#if (card.set !== undefined || card.effects !== undefined || card.pause) && !open[i]}
+            {#if (card.set !== undefined || card.effects !== undefined || card.pause || card.notable !== undefined) && !open[i]}
               <small class="note">{t('edit.advanced')}</small>
             {/if}
           </td>
@@ -241,6 +242,22 @@
                     onchange={(e) => edit(i, 'pause', e.currentTarget.checked || undefined)}
                   />
                   {t('edit.pause')}<InfoTip text={t('edit.pauseHelp')} />
+                </label>
+                <label class="inline">
+                  {t('edit.notable')}<InfoTip text={t('edit.notableHelp')} />
+                  <select
+                    value={card.notable === undefined ? '' : String(card.notable)}
+                    onchange={(e) =>
+                      edit(
+                        i,
+                        'notable',
+                        e.currentTarget.value === '' ? undefined : e.currentTarget.value === 'true',
+                      )}
+                  >
+                    <option value="">{t('edit.notableKind')}</option>
+                    <option value="true">{t('edit.notableYes')}</option>
+                    <option value="false">{t('edit.notableNo')}</option>
+                  </select>
                 </label>
               </div>
             </td>

@@ -740,6 +740,24 @@ export async function goOnIn(map: string): Promise<boolean> {
         return { ...s, travel }
       })
   }
+  // Said where you look: a moment of its own, after what the step did here (written as it
+  // is: nothing to settle, and the last step's moments stay the news).
+  const there = current()
+  const trip = sessionOf(there)
+  const name = editor.map.meta.name || t('map.untitled')
+  if (trip && there.rules)
+    save({
+      ...there,
+      rules: {
+        ...there.rules,
+        session: addEntry(trip, {
+          source: 'travel',
+          code: 'MAP_ENTERED',
+          data: { map, name },
+          beat: trip.nextEntry,
+        }),
+      },
+    })
   return true
 }
 

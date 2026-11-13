@@ -3,7 +3,6 @@
     calendarOf,
     lastStepEntries,
     localize,
-    participantName,
     shownAt,
     type SessionState,
     type TravelSystem,
@@ -13,14 +12,18 @@
   import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { dayPartsLine } from './dayParts'
   import { idText, translator, type TravelUiKey } from './i18n'
-  import { durationText, entryText, eventName } from './journal'
+  import { durationText, entryText } from './journal'
   import { journalContext } from './journalContext'
+  import NotableBeat from './NotableBeat.svelte'
+  import { beatsSeen } from './beatsSeen.svelte'
+  import { tripWaits } from './waits'
 
   /**
    * Where a trip stands: day and time, the place, the march, the weather and where it's heading.
    * `strip`: one line for over a map, the calendar's long form behind a button; otherwise a box.
    * `latest`: what happened last too, the journal's newest line (a check, a piece laid…), and
-   * what the trip waits for (a check, a step's pause), with **Continue** when `onstep` is given.
+   * what the trip waits for (a check, a step's pause), with **Continue** when `onstep` is given;
+   * over a map, the important moment the last step ended on, in full, in their place.
    */
   let {
     system,
@@ -168,33 +171,9 @@
   })
 
   /** What the trip waits for (a check, a step's pause), and what goes on from it, if not a choice. */
-  const waits = $derived.by((): { text: string; go?: TravelAction } | null => {
-    if (!latest) return null
-    const check = travel.pendingChecks[0]
-    if (check) {
-      const asks = session.asking?.includes(check.id)
-      const key = asks ? 'journal.asks' : check.rolled ? 'journal.paused' : 'journal.pending'
-      return {
-        text: t(key, { event: eventName(t, check.event, context.checkName) }),
-        ...(!asks && { go: { type: 'resolveCheck', id: check.id } }),
-      }
-    }
-    // A foe's turn waiting for the player to roll its table: chosen in the trip's panel.
-    const fight = session.encounter
-    if (fight?.stage === 'rolling') {
-      const id = fight.order[fight.turn] ?? ''
-      const line = { id: '', at: '', time: travel.time, source: 'travel' as const }
-      const data = { id, name: participantName(session, id), table: fight.rolling }
-      return { text: entryText({ ...line, code: 'ENCOUNTER_ROLLS', data }, context) }
-    }
-    const waiting = travel.waiting
-    if (!waiting) return null
-    const line = { id: '', at: '', time: waiting.time, source: 'travel' as const, code: 'HELD' }
-    return {
-      text: entryText({ ...line, data: { waiting } }, context),
-      ...(!waiting.ask && { go: { type: 'resume' } }),
-    }
-  })
+  const waits = $derived(latest ? tripWaits(session, context, t) : null)
+  /** Over a map, the important moment the last step ended on takes the news' place. */
+  const notable = $derived(strip && latest && !!beatsSeen.showing(session))
 
   /** The strip's long form is open. */
   let more = $state(false)
@@ -244,7 +223,12 @@
     {/if}
   </div>
   {#if strip && more}<div class="long">{@render longForm()}</div>{/if}
-  {#if news.length || waits || !scene}
+  {#if notable}
+    <!-- An important moment: told in full, with what goes on from it. -->
+    <div class="up-front">
+      <NotableBeat {session} {context} {locale} {onstep} {onshow} />
+    </div>
+  {:else if news.length || waits || !scene}
     <div class="news">
       {#each news as line, i (i)}
         <span class="last" class:newest={i === news.length - 1} use:tooltip={line}>{line}</span>
@@ -330,6 +314,15 @@
 
   .strip .news .last.newest {
     color: var(--text);
+  }
+
+  .up-front {
+    padding-top: 6px;
+    border-top: 1px solid var(--panel-border);
+  }
+
+  .up-front :global(.notable) {
+    box-shadow: none;
   }
 
   /* On a phone the strip is the moment and the place; its button opens the rest. */

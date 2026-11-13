@@ -15,7 +15,7 @@ encounter:
     - El reloj del mundo: cuando _The Greywood Wyrm wakes_ está lleno (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), la Sierpe recorre el bosque desde peligro 3
     - Cascadas a _Reacción_ y a un generador
     - `set` de un valor para la tabla siguiente (`reactionModifier`) y de una característica del grupo (`morale`)
-    - Un efecto sobre cada compañero: las luces embrujadas llenan el pavor de cada uno, y hacen avanzar el _The Greywood Wyrm wakes_ del reloj del mundo (`world.clocks…`)
+    - Un efecto sobre cada compañero: las luces embrujadas llenan el pavor de cada uno, y hacen avanzar el _The Greywood Wyrm wakes_ del reloj del mundo (`world.clocks…`); `notable: true`, para que se muestren delante como momento importante aunque el viaje no se detenga
     - El valor de una facción en una condición: la patrulla del Valle comparte su pan cuando el Valle os aprecia (`factions.the-vale.values.reputation`)
     - Resultados que hacen copias de las plantillas del bestiario, que quedan como los presentes (`present.grey-wolf: '{{wolves - 1}}'`): tantas como tira un `set` y dice el texto (`{{wolves}} lobos grises`), con su jefe entre ellos; los bandidos y su cabecilla, los jinetes de la Cacería, la Sierpe, los jinetes del Valle
   entries:

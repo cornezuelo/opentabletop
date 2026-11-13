@@ -97,6 +97,7 @@ shrine:
     - La fatiga bajando: `fatigue: -2`
     - Una característica del grupo subiendo: `morale`
     - `once`: la bendición llega una sola vez
+    - `notable: false`: una hora tranquila no es un momento importante, aunque la comprobación del santuario pause el viaje (espera en el panel del viaje, no delante)
   entries:
     blessing: 'Una voz responde a tu plegaria: el camino será amable'
     rest: Una hora tranquila en el santuario alivia las piernas

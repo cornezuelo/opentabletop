@@ -43,7 +43,7 @@ entries:
   - { id: storm, range: 4-6, result: Tormenta, table: table.storm-damage }
 ```
 
-Las entradas tienen un `range` de totales (o un `weight`), un texto `result` y, si hace falta, `when` / `unless` (condiciones), `set` (valores que da el resultado), `table` / `generator` (tirar otra), `once` / `maxOccurrences` (límites por sesión), `effects` (cambios en los valores del grupo) y `pause` (detener el viaje cuando sale). La tabla puede tener además `clamp`, `onExhausted`, `modes`, `modeWhen` y `modeUnless`, y, como toda tabla, oráculo, generador y mazo, `tags`: palabras que la clasifican (`tags: [people, names]`), que lee el **Filtrar** del Oráculo y de Mapa; no significan nada más, y `rules` es solo la costumbre de nuestros packs para lo que tiran sus sistemas. Todo sobre ellas: [Editar](../oracle/04-editing.md) y [YAML](../packs/23-yaml-reference.md).
+Las entradas tienen un `range` de totales (o un `weight`), un texto `result` y, si hace falta, `when` / `unless` (condiciones), `set` (valores que da el resultado), `table` / `generator` (tirar otra), `once` / `maxOccurrences` (límites por sesión), `effects` (cambios en los valores del grupo), `pause` (detener el viaje cuando sale) y `notable` (`true`: un momento importante del viaje, que se muestra delante; `false`: nunca lo es, ni lo que provoca: su pausa, el combate que empieza). La tabla puede tener además `clamp`, `onExhausted`, `modes`, `modeWhen` y `modeUnless`, y, como toda tabla, oráculo, generador y mazo, `tags`: palabras que la clasifican (`tags: [people, names]`), que lee el **Filtrar** del Oráculo y de Mapa; no significan nada más, y `rules` es solo la costumbre de nuestros packs para lo que tiran sus sistemas. Todo sobre ellas: [Editar](../oracle/04-editing.md) y [YAML](../packs/23-yaml-reference.md).
 
 **Qué ven otras tablas:** una tabla tirada desde otra (`table:`) da su texto como `{{result}}` y sus valores `set` al viaje y a las comprobaciones siguientes del día (mira [Qué ven las tablas](04-what-tables-see.md)).
 
@@ -109,7 +109,7 @@ template: '{{attack}} contra {{defence}}'
 
 ## Mazos
 
-Cartas que se roban sin reponer hasta que se baraja (`reshuffle: when-empty`, `manual` o `after-draw`). Una carta puede tener copias (`count`), tirar una tabla, poner valores, tener `effects` y `pause`, como una entrada.
+Cartas que se roban sin reponer hasta que se baraja (`reshuffle: when-empty`, `manual` o `after-draw`). Una carta puede tener copias (`count`), tirar una tabla, poner valores, tener `effects`, `pause` y `notable`, como una entrada.
 
 ```yaml
 kind: deck

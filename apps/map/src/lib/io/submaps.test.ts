@@ -1,6 +1,7 @@
 import type { HexMap } from '@open-tabletop/map'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cellDistance, parseKey } from '@open-tabletop/hex'
+import { beatsOf, lastStepEntries, notableLines } from '@open-tabletop/session'
 import type { LibraryEntry } from '@open-tabletop/storage'
 
 /**
@@ -306,6 +307,13 @@ describe('sub-maps', () => {
       const below = play.sessionOf(editor.map.play!)!
       expect(below.travel.location).toBe('area:barrowstair1')
       expect(below.journal.length).toBeGreaterThan(journal)
+      // Going in is said where you look: a moment of its own, the important one up front.
+      expect(below.journal.at(-1)).toMatchObject({
+        code: 'MAP_ENTERED',
+        data: { map: 'barrowhalls1', name: editor.map.meta.name },
+      })
+      const going = beatsOf(lastStepEntries(below)).at(-1)!
+      expect(notableLines(going.entries).map((e) => e.code)).toEqual(['MAP_ENTERED'])
       expect(partyToken(editor.map)?.hex).toBe('0,3')
       expect(editor.campaign.playing).toMatchObject({ app: 'map', id: 'barrowhalls1' })
       // The hills keep where the party left from, and say where the trip went.

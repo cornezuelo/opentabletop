@@ -49,6 +49,7 @@ const STORY = new Set([
   'PRESENT_LEFT',
   'PLACE_MADE',
   'WAY_MADE',
+  'MAP_ENTERED',
   'ENCOUNTER_STARTED',
   'ENCOUNTER_ROUND',
   'ENCOUNTER_TURN',
@@ -166,4 +167,122 @@ export function pendingLine<E extends { code: string; data?: Record<string, unkn
   id: string,
 ): E | undefined {
   return journal.findLast((e) => WAITING_CODES.includes(e.code) && e.data?.id === id)
+}
+
+/**
+ * A journal line as beats read it: its number (`j12`), and the moment (beat) it belongs to,
+ * the number of that moment's first line; absent in lines written outside a step (a note, a
+ * table rolled by hand) and in older journals: each is a moment of its own.
+ */
+interface BeatLine extends Line {
+  id: string
+  beat?: number
+}
+
+/** The number of a journal line (`j12` → 12). */
+const lineNumber = (e: { id: string }) => Number(e.id.slice(1))
+
+/** Lines that start a moment of their own within a step: a fight's round, and each turn. */
+const TURN_CODES = new Set(['ENCOUNTER_ROUND', 'ENCOUNTER_TURN'])
+
+/**
+ * Marks the lines a step wrote (numbered `from` on) with the moment each belongs to (`beat`):
+ * the step is one moment, and each turn of a fight played on in it (a foe's) another.
+ */
+export function markBeats(journal: BeatLine[], from: number): void {
+  // The step's lines are the journal's last: from the first numbered `from` on.
+  let start = journal.length
+  while (start > 0 && lineNumber(journal[start - 1]!) >= from) start--
+  let beat = from
+  for (let i = start; i < journal.length; i++) {
+    const e = journal[i]!
+    // A round begins a moment, and so does a turn but the round's first.
+    const after = i > start ? journal[i - 1] : undefined
+    if (
+      after &&
+      TURN_CODES.has(e.code) &&
+      !(e.code === 'ENCOUNTER_TURN' && after.code === 'ENCOUNTER_ROUND')
+    )
+      beat = lineNumber(e)
+    e.beat = beat
+  }
+}
+
+/** One moment of play (a beat): the journal lines one step (or one turn of a fight) wrote. */
+export interface Beat<E> {
+  /** Its first line's id. */
+  id: string
+  entries: E[]
+}
+
+/** A journal's lines as moments, in the order they were written. */
+export function beatsOf<E extends BeatLine>(journal: readonly E[]): Beat<E>[] {
+  const beats: Beat<E>[] = []
+  let last: number | undefined
+  for (const e of journal) {
+    if (e.beat !== undefined && e.beat === last) beats.at(-1)!.entries.push(e)
+    else beats.push({ id: e.id, entries: [e] })
+    last = e.beat
+  }
+  return beats
+}
+
+/**
+ * Lines that make a moment important, shown up front: a pause, a fight starting or ending,
+ * someone leaving, a place made, going into another map, what came due in the world.
+ */
+const NOTABLE_CODES = new Set([
+  'CHECK_PAUSED',
+  'HELD',
+  'ENCOUNTER_STARTED',
+  'ENCOUNTER_ENDED',
+  'MEMBER_LEFT',
+  'PLACE_MADE',
+  'WAY_MADE',
+  'MAP_ENTERED',
+  'CLOCK_FILLED',
+  'WORLD_EVENT',
+  'WORLD_TURN',
+  'HOLIDAY',
+])
+
+/** A result of the Oracle (a table rolled, a card drawn) and its word on being important. */
+function resultNotable(e: Line): boolean | undefined {
+  if (e.code !== 'ORACLE_RESULT' && e.code !== 'ORACLE_ROLL') return undefined
+  const value = e.data?.value
+  const notable =
+    typeof value === 'object' && value !== null
+      ? (value as Record<string, unknown>).notable
+      : undefined
+  return typeof notable === 'boolean' ? notable : undefined
+}
+
+/**
+ * The lines of a moment that make it important, in its order: those of the kinds above, a
+ * condition someone gains (falling, a wound), and a result that says `notable: true`. A result
+ * that says `notable: false` isn't, nor is what it sets off (the lines after it up to the next
+ * result: its pause, the fight it starts, the place it makes).
+ */
+export function notableLines<E extends BeatLine>(entries: readonly E[]): E[] {
+  const out: E[] = []
+  let quiet = false
+  for (const e of entries) {
+    const said = resultNotable(e)
+    if (e.code === 'ORACLE_RESULT' || e.code === 'ORACLE_ROLL') quiet = said === false
+    if (quiet) continue
+    if (said === true || NOTABLE_CODES.has(e.code) || conditionGained(e)) out.push(e)
+  }
+  return out
+}
+
+/** A line of a condition someone gains (a change from not holding to holding). */
+function conditionGained(e: Line): boolean {
+  const path = e.data?.path
+  return (
+    e.code === 'CHANGED' &&
+    typeof path === 'string' &&
+    /\.conditions\./.test(path) &&
+    !Number(e.data?.from) &&
+    !!Number(e.data?.to)
+  )
 }

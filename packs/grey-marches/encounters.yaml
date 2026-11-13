@@ -22,7 +22,7 @@ description: |-
   - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
-  - An effect on every companion: the haunted lights fill each one's dread, and tick the world clock's _The Greywood Wyrm wakes_ (`world.clocks…`)
+  - An effect on every companion: the haunted lights fill each one's dread, and tick the world clock's _The Greywood Wyrm wakes_ (`world.clocks…`); `notable: true`, so they're shown up front as an important moment though the trip doesn't stop
   - Results that make copies of the bestiary's templates, kept as those present (`present.grey-wolf: '{{wolves - 1}}'`): as many as a `set` rolled and the text says (`{{wolves}} grey wolves`), their leader among them; the bandits and their chief, the Hunt's riders, the Wyrm, the Vale's riders
   - A faction's value in a condition: the Vale's patrol shares its bread when the Vale thinks well of you (`factions.the-vale.values.reputation`)
 roll: '1d6 + {{place.danger}}'
@@ -60,6 +60,8 @@ entries:
     result: Pale lights drift between the trees, calling your names
     # …and the Wyrm stirs: a progress clock of the world clock, ticked from a trip.
     effects: { party.members.values.dread: 1, world.clocks.the-greywood-wyrm-wakes: 1 }
+    # The trip doesn't stop for them, but they're shown up front: an important moment.
+    notable: true
   # Most of the time, nobody: the lower the danger, the likelier (a d6 over the hex's
   # danger; a roll in a condition). What's above comes whatever this says.
   - id: quiet

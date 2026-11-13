@@ -32,6 +32,18 @@ export const en = {
   lastStep: {
     nothing: 'Nothing to tell.',
   },
+  /** Moments of play (beats): each step told as one, its title what was done. */
+  beats: {
+    why: 'Why',
+    changes: 'What it changed',
+    fold: 'Fold',
+    unfold: 'Unfold: what happened in it',
+    notable: 'What just happened',
+    putAway: 'Put it away',
+    stop: 'Stop at every important moment',
+    stopHelp:
+      'An important moment (a pause, a fight starting or ending, someone gaining a condition, a place found, a clock filled, something coming due in the world, a result its system marks as important) is shown up front: over the map, or at the top of the trip.\n• Unticked, only pauses wait for **Continue**: the rest can be put away with ×, or the trip goes on and the next step replaces it\n• Ticked, each waits for **Continue** before you can do anything else\nA preference of this browser, for every trip.',
+  },
   dayUnit: 'day',
   onTheWay: 'On the way to {hex}: {time} so far',
   stepSpeed: '{minutes} min a step',
@@ -62,7 +74,7 @@ export const en = {
   filter: {
     level: 'Show',
     levelHelp:
-      'How much of what happened the journal shows. Everything is always kept: this only chooses what you see and what **Export** writes.\n• **The story** — what happened in the game: results of the tables, discoveries, arrivals, what the system says, your notes\n• **And the rules** — also what the rules did: cells entered, actions taken, checks, changes to the party and its characters, values that hit a bound (as the journal always showed)\n• **Everything** — also what happened behind: each roll’s dice and the row or card it chose (`Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7`), the weather’s roll, checks that didn’t come up and why (`Ambush doesn’t come up: the place’s danger is 1: it needs 2 or more`), each moment of the day that some check or action names, each value before and after (`Food: 5 → 3`) and the routes planned\nTo find out why something happened, or didn’t, choose **Everything** and search for its name.',
+      'How much of what happened the journal shows under each moment’s title (what was done: _March · 8 h_). Everything is always kept: this only chooses what you see and what **Export** writes.\n• **The story** — what happened in the game: results of the tables, discoveries, arrivals, what the system says, your notes; the rules behind each moment folded under **Why**\n• **And the rules** — also what the rules did: cells entered, actions taken, checks, changes to the party and its characters, values that hit a bound\n• **Everything** — also what happened behind: each roll’s dice and the row or card it chose (`Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7`), the weather’s roll, checks that didn’t come up and why (`Ambush doesn’t come up: the place’s danger is 1: it needs 2 or more`), each moment of the day that some check or action names, each value before and after (`Food: 5 → 3`) and the routes planned\nTo find out why something happened, or didn’t, choose **Everything** and search for its name.',
     levels: { story: 'The story', mechanics: 'And the rules', detail: 'Everything' },
     topics: {
       travel: 'Trip',
@@ -318,6 +330,7 @@ export const en = {
     presentCame: 'Here now: {names}',
     placeMade: 'A place here: {name}{what}',
     wayMade: 'A way on from here, into a new map: {kind}',
+    mapEntered: 'You go into {name}',
     encounterStarted: 'A fight begins',
     encounterRound: 'Round {round}',
     encounterTurn: '{name}’s turn',

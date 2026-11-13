@@ -19,6 +19,7 @@
     set?: unknown
     once?: boolean
     pause?: boolean
+    notable?: boolean
     effects?: unknown
     maxOccurrences?: number
   }
@@ -110,6 +111,7 @@
     e.effects !== undefined ||
     e.once ||
     e.pause ||
+    e.notable !== undefined ||
     e.maxOccurrences !== undefined
 
   /** What conditions can read and entries can set, from every loaded pack. */
@@ -317,6 +319,22 @@
                   onchange={(e) => edit(i, 'pause', e.currentTarget.checked || undefined)}
                 />
                 {t('edit.pause')}<InfoTip text={t('edit.pauseHelp')} />
+              </label>
+              <label class="inline">
+                {t('edit.notable')}<InfoTip text={t('edit.notableHelp')} />
+                <select
+                  value={entry.notable === undefined ? '' : String(entry.notable)}
+                  onchange={(e) =>
+                    edit(
+                      i,
+                      'notable',
+                      e.currentTarget.value === '' ? undefined : e.currentTarget.value === 'true',
+                    )}
+                >
+                  <option value="">{t('edit.notableKind')}</option>
+                  <option value="true">{t('edit.notableYes')}</option>
+                  <option value="false">{t('edit.notableNo')}</option>
+                </select>
               </label>
               <label class="inline">
                 {t('edit.maxOccurrences')}<InfoTip text={t('edit.maxOccurrencesHelp')} />
