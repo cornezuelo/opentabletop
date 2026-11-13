@@ -22,6 +22,7 @@
   import Section from './Section.svelte'
   import { translator } from './i18n'
   import { memberId, memberLabel } from './members'
+  import { revealed } from './revealed.svelte'
 
   /**
    * The party's characters, when the system has a sheet for them: each one's sheet, who
@@ -237,7 +238,7 @@
     </div>
   {/if}
   {#each members as member, i (member.id)}
-    <details class="member" open={members.length === 1}>
+    <details class="member" open={members.length === 1} use:revealed={member.id}>
       <summary>
         <strong>{memberLabel(member)}</strong>
         {#if session.acting === member.id}<em>{t('members.actingNow')}</em>{/if}

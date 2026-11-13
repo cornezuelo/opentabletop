@@ -263,7 +263,9 @@ name: The Company
 description: |-
   The Company as a whole: its morale, its fatigue, its silver, the sell-swords it has hired, how much it can take, the horses' fodder, its legend and its stores of rations. It stays the same as companions join and fall: every trip has it.
 
-  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), a progress track (legend, ten boxes of four ticks, `display: ticks`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting.
+  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), a progress track (legend, ten boxes of four ticks, `display: ticks`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting; its main value, morale (`main: morale`), drawn with the party at a glance.
+# What the party at a glance draws of it: its morale, not the first value with a max (fodder).
+main: morale
 values:
   morale:
     name: Morale

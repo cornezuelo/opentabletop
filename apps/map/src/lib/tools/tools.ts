@@ -35,7 +35,7 @@ import {
   PRESENT_ID,
   tokenFromBestiary,
 } from '../play/present'
-import { showPresent } from '@open-tabletop/travel-ui'
+import { showInParty } from '@open-tabletop/travel-ui'
 import { placeInHex } from '../render/pathGeometry'
 import {
   cellAt,
@@ -1011,7 +1011,7 @@ class CopyDragger {
       // Whom the trip asks for (whom to strike): clicking one on the map chooses it.
       if (chooseOnMap(pressed.id)) return
       editor.selectedToken = `${PRESENT_ID}${pressed.id}`
-      return showPresent(pressed.id)
+      return showInParty(pressed.id)
     }
     dragCopy(null)
     moveCopy(pressed.id, pressed.hex)

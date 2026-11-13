@@ -46,7 +46,8 @@
 <div class="glance">
   <span class="name">{name}</span>
   {#if view}
-    <span class="main" aria-label={mainName}>
+    <!-- Drawn, not changed: a click goes to whatever holds the glance (a card to pick). -->
+    <span class="main" aria-label={mainName} inert>
       <ValueControl {view} label={mainName} {locale} disabled onset={() => {}} />
       {#if COUNTED.includes(view.display)}
         <span class="number"

@@ -11,8 +11,9 @@ class Tab {
   /** The tab chosen last (absent: the panel's first). */
   chosen = $state<TripTab | undefined>(readTab())
   /**
-   * One of those present to show (a token clicked on the map): its card unfolded and
-   * scrolled to in the Party tab; `n` counts the asks, so the same one can be asked again.
+   * Who to show in the Party tab (a token clicked on the map, a row of the party at a
+   * glance): one present, a character of the party, or the party's own sheet (`party`); its
+   * card unfolded and scrolled to. `n` counts the asks, so the same one can be asked again.
    */
   shown = $state<{ id: string; n: number } | undefined>()
 
@@ -26,8 +27,11 @@ class Tab {
   }
 }
 
-/** Shows one of those present in the Party tab (its card unfolded, scrolled to). */
-export function showPresent(id: string): void {
+/**
+ * Shows one in the Party tab, its card unfolded and scrolled to: one of those present, a
+ * character of the party, or the party's own sheet (`party`).
+ */
+export function showInParty(id: string): void {
   tripTab.choose('party')
   tripTab.shown = { id, n: (tripTab.shown?.n ?? 0) + 1 }
 }

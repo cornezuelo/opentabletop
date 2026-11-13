@@ -196,6 +196,10 @@ export const es: Messages<typeof en> = {
     linked: 'En el plantel como {name}',
     offer: '{name} está en esta campaña sin viaje. ¿Traerlo a este viaje, con sus miembros?',
   },
+  glance: {
+    title: 'El grupo de un vistazo',
+    show: '{name}: la hoja entera, en la pestaña Grupo',
+  },
   members: {
     land: 'tierras',
     clock: 'Reloj «{name}»',

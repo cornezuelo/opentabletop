@@ -200,6 +200,10 @@ export const en = {
     offer:
       '{name} is in this campaign without a trip. Bring them to this trip, with their members?',
   },
+  glance: {
+    title: 'The party at a glance',
+    show: '{name}: the whole sheet, in the Party tab',
+  },
   members: {
     land: 'land',
     clock: 'Clock “{name}”',

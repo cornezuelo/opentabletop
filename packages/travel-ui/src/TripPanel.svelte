@@ -8,7 +8,6 @@
     presentHere,
     usesOf,
     beatsOf,
-    lastStepEntries,
     PARTY_ID,
     systemSheets,
     type Declared,
@@ -89,9 +88,11 @@
   import { beatsSeen } from './beatsSeen.svelte'
   import { pacing } from './pacing.svelte'
   import { buttonGroups } from './actionGroups'
+  import { mainChanges } from './glance'
+  import PartyGlance from './PartyGlance.svelte'
+  import { revealed } from './revealed.svelte'
   import { PACES } from './pace'
   import { CharacterCard, itemName, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
-  import { mainValue } from '@open-tabletop/character-engine'
   import type { WaitingSaid } from '@open-tabletop/campaign'
   import { WorldWaiting } from '@open-tabletop/campaign-ui'
 
@@ -345,22 +346,17 @@
       : [],
   )
   /** What the last step did to each fighter's main value (a blow's −2), by id. */
-  const fightChanges = $derived.by(() => {
-    const out: Record<string, number> = {}
-    if (!fight) return out
-    const lines = lastStepEntries(session).filter((e) => e.code === 'CHANGED')
-    for (const f of fight.fighters) {
-      const sheet = f.character && sheets[f.character.sheet]
-      const main = sheet && mainValue(sheet)
-      if (!main) continue
-      const path = f.id === PARTY_ID ? `party.values.${main}` : `characters.${f.id}.values.${main}`
-      const delta = lines
-        .filter((e) => e.data?.path === path)
-        .reduce((sum, e) => sum + (Number(e.data?.to) - Number(e.data?.from) || 0), 0)
-      if (delta) out[f.id] = delta
-    }
-    return out
-  })
+  const fightChanges = $derived(
+    fight
+      ? mainChanges(
+          session,
+          fight.fighters.map((f) => ({
+            id: f.id,
+            sheet: f.character && sheets[f.character.sheet],
+          })),
+        )
+      : {},
+  )
   /** The fight's moments, newest first: from its start on, the last few. */
   const fightLog = $derived.by(() => {
     if (!fight) return []
@@ -951,6 +947,9 @@
     </div>
   </div>
 
+  <!-- The party at a glance (a fight's panel has everyone as a card already). -->
+  {#if !fight}<PartyGlance {system} {session} {locale} />{/if}
+
   {#snippet moments(days: { day: number; beats: BeatTold[] }[], empty: string)}
     <ol class="journal" aria-live="polite">
       {#each days as group (group.day)}
@@ -1012,6 +1011,8 @@
                 {onedit}
               />
             {/if}
+            <!-- Asked for from the party at a glance: scrolled to. -->
+            <div use:revealed={PARTY_ID}></div>
             <CharacterCard
               sheet={system.partySheet.def}
               character={session.party}

@@ -506,7 +506,7 @@ values: # números que tiene cada personaje, con los límites que les da el sist
       ]
   wounds: # sale de otros valores, nunca se pone: los sigue
     { name: Heridas, from: '{{self.values.maxHealth - self.values.health}}', min: 0, group: body }
-main: health # el valor dibujado junto al nombre donde no cabe la hoja entera (las tarjetas de un combate); sin él, el primero dibujado contra un máximo
+main: health # el valor dibujado junto al nombre donde no cabe la hoja entera (las tarjetas de un combate, el grupo de un vistazo); sin él, el primero dibujado contra un máximo
 groups: # las tarjetas en las que se muestran los valores, en este orden
   skills: { name: Habilidades }
   body: { name: Cuerpo }

@@ -24,7 +24,7 @@
   import Section from './Section.svelte'
   import { translator } from './i18n'
   import { byTemplate, copyLine, templateChoices, templateName } from './present'
-  import { tripTab } from './tripTab.svelte'
+  import { revealed } from './revealed.svelte'
 
   /**
    * Those present: the copies of the system's templates the trip made (an encounter's
@@ -32,7 +32,7 @@
    * template, edited by hand like the party's characters; those left behind elsewhere,
    * counted under them. A copy can be added from the bestiary, brought from the roster (a
    * creature or NPC made in the Characters app), taken off, or kept in the roster. One
-   * asked for (`showPresent`: its token clicked on a map) unfolds and is scrolled to.
+   * asked for (`showInParty`: its token clicked on a map) unfolds and is scrolled to.
    */
   let {
     system,
@@ -80,20 +80,6 @@
   /** Roster characters that could be here (a creature, an NPC), when this is the party's place. */
   const available = $derived(place && party ? rosterCreatures(system, roster.roster, place) : [])
   const linked = (c: CharacterState) => !!place && isLinked(roster.roster, c.id, place)
-
-  let box = $state<HTMLElement>()
-  // One of those asked for: its card and those around it unfolded, and scrolled to.
-  $effect(() => {
-    const shown = tripTab.shown
-    if (!shown || !box) return
-    const card = box.querySelector<HTMLDetailsElement>(
-      `details[data-copy="${CSS.escape(shown.id)}"]`,
-    )
-    if (!card) return
-    for (let d: HTMLElement | null = card; d && d !== box; d = d.parentElement)
-      if (d instanceof HTMLDetailsElement) d.open = true
-    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  })
 
   /** Changes those present, and says in the journal who came or left. */
   function edit(change: (s: SessionState) => PresentEvent[] | void) {
@@ -160,7 +146,7 @@
 {#snippet copy(p: (typeof here)[number], open: boolean, where = false)}
   {@const c = p.character}
   {@const sheet = sheetOf(c)}
-  <details class="copy" data-copy={c.id} {open}>
+  <details class="copy" data-copy={c.id} {open} use:revealed={c.id}>
     <summary>
       <strong>{c.name ?? c.id}</strong>
       <span class="line">{where ? placeName(p.at) : copyLine(c, sheet, locale)}</span>
@@ -208,7 +194,7 @@
 {/snippet}
 
 <Section title={t('present.title')} help={t('present.help')}>
-  <div class="present" bind:this={box}>
+  <div class="present">
     {@render before?.()}
     {#each groups as group (group.template)}
       {#if group.copies.length === 1}
