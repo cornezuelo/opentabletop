@@ -3,6 +3,7 @@
   import {
     encounterView,
     fightStarters,
+    participantName,
     fromCatalogue,
     presentHere,
     usesOf,
@@ -12,6 +13,7 @@
     systemSheets,
     type Declared,
     type EncounterUnavailable,
+    type RollWay,
     type TripAction,
     type Use,
   } from '@open-tabletop/session'
@@ -79,6 +81,8 @@
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
   import FightPanel from './FightPanel.svelte'
+  import YourRoll from './YourRoll.svelte'
+  import { setRollWay } from './rollWay'
   import BeatView from './BeatView.svelte'
   import NotableBeat from './NotableBeat.svelte'
   import { journalBeats, lastStepBeats, tellBeat, type BeatTold } from './beats'
@@ -683,39 +687,54 @@
         log={fightLog}
         ontarget={(id) => onstep({ type: 'resume', choice: id })}
         onnext={() => onstep({ type: 'encounter', what: 'next' })}
-        tableName={fight.rolling ? (nameOf?.(fight.rolling) ?? fight.rolling) : undefined}
-        onroll={(total) =>
-          onstep({ type: 'encounter', what: 'roll', ...(total !== undefined && { total }) })}
       />
     {/if}
 
     <!-- What needs you first, then what the party can do: right under where it is. -->
     {#each travel.pendingChecks as check (check.id)}
-      <div class="pending" class:asks={session.asking?.includes(check.id)}>
-        <span
-          >{t(
-            session.asking?.includes(check.id)
-              ? 'journal.asks'
-              : check.rolled
-                ? 'journal.paused'
-                : 'journal.pending',
-            {
-              event: placeIdOf(check.context)
-                ? t('journal.eventAt', {
-                    event: pendingName(check.event),
-                    hex: hexLabel(placeIdOf(check.context)!),
-                  })
-                : pendingName(check.event),
-            },
-          )}{cameUp(check.id)}{#if checkTip(check.event)}<InfoTip
-              markdown={checkTip(check.event)}
-            />{/if}</span
-        >
-        {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
-        <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}
-          >{t('continue')}</button
-        >
-      </div>
+      {@const yours = session.yours?.find((y) => y.id === check.id)}
+      {#if yours}
+        <YourRoll
+          dice={yours.dice}
+          what={pendingName(check.event)}
+          who={yours.who !== undefined && yours.who !== PARTY_ID
+            ? participantName(session, yours.who)
+            : ''}
+          {locale}
+          ongive={(total) => onstep({ type: 'rolled', id: check.id, total })}
+          onforme={() => onstep({ type: 'resolveCheck', id: check.id })}
+          oncomputer={() => {
+            onedit((s) => setRollWay(s, undefined))
+            onstep({ type: 'resolveCheck', id: check.id })
+          }}
+        />
+      {:else}
+        <div class="pending" class:asks={session.asking?.includes(check.id)}>
+          <span
+            >{t(
+              session.asking?.includes(check.id)
+                ? 'journal.asks'
+                : check.rolled
+                  ? 'journal.paused'
+                  : 'journal.pending',
+              {
+                event: placeIdOf(check.context)
+                  ? t('journal.eventAt', {
+                      event: pendingName(check.event),
+                      hex: hexLabel(placeIdOf(check.context)!),
+                    })
+                  : pendingName(check.event),
+              },
+            )}{cameUp(check.id)}{#if checkTip(check.event)}<InfoTip
+                markdown={checkTip(check.event)}
+              />{/if}</span
+          >
+          {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
+          <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}
+            >{t('continue')}</button
+          >
+        </div>
+      {/if}
     {/each}
 
     <!-- What the party spent or gained, shared out by the rule: who gives it (Ask who gives). -->
@@ -1114,6 +1133,21 @@
       {@render moments(journalDays, session.journal.length ? t('filter.none') : t('emptyJournal'))}
     {:else if tab === 'options'}
       {@render options?.()}
+      <label class="way"
+        ><span>{t('rollWay.label')}<InfoTip markdown={t('rollWay.help')} /></span>
+        <select
+          value={session.rollWay ?? 'computer'}
+          onchange={(e) => {
+            const value = e.currentTarget.value
+            const way = value === 'computer' ? undefined : (value as RollWay)
+            onedit((s) => setRollWay(s, way))
+          }}
+        >
+          <option value="computer">{t('rollWay.computer')}</option>
+          <option value="matters">{t('rollWay.matters')}</option>
+          <option value="all">{t('rollWay.all')}</option>
+        </select></label
+      >
       <label class="check skip"
         ><input
           type="checkbox"
@@ -1137,21 +1171,6 @@
         /><span>{t('beats.stop')}<InfoTip markdown={t('beats.stopHelp')} /></span></label
       >
       {#if system.encounter}
-        <label class="check skip"
-          ><input
-            type="checkbox"
-            checked={!!session.foesByHand}
-            onchange={(e) => {
-              const on = e.currentTarget.checked
-              onedit((s) => {
-                const next = { ...s }
-                if (on) next.foesByHand = true
-                else delete next.foesByHand
-                return next
-              })
-            }}
-          /><span>{t('foesByHand')}<InfoTip text={t('foesByHandHelp')} /></span></label
-        >
         <label class="check skip"
           ><input
             type="checkbox"
@@ -1258,6 +1277,15 @@
   .skip {
     display: flex;
     gap: 4px;
+    align-items: center;
+    font-size: 0.9em;
+  }
+
+  /* Who rolls the trip's dice: its name, then its choice. */
+  .way {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
     align-items: center;
     font-size: 0.9em;
   }

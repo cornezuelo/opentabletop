@@ -390,6 +390,15 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         : name
       return t(`journal.${key}` as TravelUiKey, { event })
     }
+    // A roll of the player's waiting for its total (the trip's Rolls).
+    case 'CHECK_YOURS': {
+      const name = eventName(t, d.event, checkName, d.named)
+      const event = d.place
+        ? t('journal.eventAt', { event: name, hex: hexLabel(String(d.place)) })
+        : name
+      const who = d.name ? `${String(d.name)}: ` : ''
+      return who + t('journal.yours', { event, dice: String(d.dice ?? '') })
+    }
     // A step's line of the system's own.
     case 'SAID':
       return (context.textOf ?? firstText)(d.text)
@@ -638,7 +647,7 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return d.name || d.id !== 'party'
         ? t('journal.encounterTurn', { name: String(d.name || d.id || '') })
         : t('journal.encounterPartyTurn')
-    // A foe's turn waiting for the player to roll its table by hand.
+    // A foe's turn waiting for the player to roll its table (journals before the trip's Rolls).
     case 'ENCOUNTER_ROLLS':
       return t('journal.encounterRolls', {
         name: String(d.name || d.id || ''),

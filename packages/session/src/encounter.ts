@@ -58,13 +58,13 @@ export interface EncounterRules {
 /**
  * Where an encounter is: `start` (asked for, not begun), `begun` (its start's actions done,
  * the order to read), `round` (a round to begin), `turn` (a turn to begin), `acting` (a
- * member's turn: the player chooses what to do), `rolling` (a foe's turn, its table waiting
- * for the player to roll it by hand), `acted` (the turn is done), `shown` (a foe's turn
+ * member's turn: the player chooses what to do), `acted` (the turn is done; a roll of it may
+ * still wait for the player, as the trip's checks do), `shown` (a foe's turn
  * done, waiting for **Next** before another foe's, so each is read), `onward` (done and
  * read: on to the next), `end` (to end).
  */
 export type EncounterStage =
-  'start' | 'begun' | 'round' | 'turn' | 'acting' | 'rolling' | 'acted' | 'shown' | 'onward' | 'end'
+  'start' | 'begun' | 'round' | 'turn' | 'acting' | 'acted' | 'shown' | 'onward' | 'end'
 
 /** An encounter going on in a trip (play state, saved with it). */
 export interface Encounter {
@@ -79,10 +79,6 @@ export interface Encounter {
   first?: Side
   /** Who was acting before the encounter, given back when it ends. */
   acting?: string
-  /** The table a foe's turn waits to be rolled by hand on (full id), while `rolling`. */
-  rolling?: string
-  /** Its dice, as the table writes them (`1d6`); absent: a table rolled by weight. */
-  dice?: string
 }
 
 /**
@@ -257,10 +253,6 @@ export function encounterView(s: SessionState):
       round: number
       fighters: Fighter[]
       choosing: boolean
-      /** A foe's turn waiting for its table to be rolled by hand: the table (full id). */
-      rolling?: string
-      /** Its dice (`1d6`); absent: rolled by weight, so only the system can roll it. */
-      dice?: string
       /** A foe's turn done, the fight waiting for Next: who acts next (its id). */
       next?: string
     }
@@ -270,12 +262,10 @@ export function encounterView(s: SessionState):
   // A turn taken whose action waits for the player (whom to strike) is still going on.
   const busy = e.stage === 'acted' && waits(s)
   const shown = e.stage === 'shown'
-  const now = e.stage === 'acting' || e.stage === 'rolling' || e.stage === 'turn' || busy
+  const now = e.stage === 'acting' || e.stage === 'turn' || busy
   return {
     round: e.round,
     choosing: e.stage === 'acting',
-    ...(e.stage === 'rolling' && e.rolling && { rolling: e.rolling }),
-    ...(e.stage === 'rolling' && e.dice && { dice: e.dice }),
     ...(shown && {
       next: [...e.order.slice(e.turn + 1), ...e.order].find((id) => stillHere(s, id)),
     }),
@@ -376,8 +366,8 @@ const stillHere = (s: SessionState, id: string): boolean =>
  * Plays an encounter on as far as it goes by itself (docs/conflicts.md): its moments
  * (`encounter.start`, `.round`, `.turn`, `.end`, said to the trip by `step`), its order,
  * each turn (`acting` is whoever's turn it is), the rounds (with their minutes) and its end.
- * It stops at a member's turn (the player chooses), at a foe's when the trip rolls them by
- * hand (`foesByHand`: the player rolls its table), or when the trip waits for the player.
+ * It stops at a member's turn (the player chooses), or when the trip waits for the player
+ * (a roll of theirs among them, a foe's too: the trip's `rollWay`).
  */
 export function driveEncounter(
   rules: EncounterRules | undefined,
@@ -390,8 +380,6 @@ export function driveEncounter(
    * `foes`; none, and its turn is only the moment.
    */
   foeTable: (s: SessionState, id: string) => string | undefined = () => undefined,
-  /** A table's dice as written (`1d6`), for the player rolling it by hand. */
-  diceOf: (table: string) => string | undefined = () => undefined,
   /** Counts down the conditions given for a while (a new round, one's turn, the end). */
   lapse: (
     s: SessionState,
@@ -471,11 +459,7 @@ export function driveEncounter(
           break
         }
         const side = sideOf(state, id)
-        edit((e, s) => {
-          delete e.rolling
-          delete e.dice
-          if (id !== PARTY_ID) s.acting = id
-        })
+        if (id !== PARTY_ID) edit((_, s) => (s.acting = id))
         // A turn lost (the system's `skip`, acting as this one) passes, its moment said.
         const skipped =
           !!rules.skip &&
@@ -495,24 +479,14 @@ export function driveEncounter(
         state = lapsed.state
         entries.push(...lapsed.entries)
         say({ type: 'moment', at: 'encounter.turn' })
-        // A foe still standing does what its table says, acting as itself: rolled now, or
-        // by the player when the trip rolls the foes by hand.
+        // A foe still standing does what its table says, acting as itself (its roll may be
+        // the player's, waiting as a check does: the trip's Rolls).
         const table =
           side === 'foes' && !skipped && stillHere(state, id) ? foeTable(state, id) : undefined
-        if (table && !waits(state)) {
-          if (!state.foesByHand) say({ type: 'roll', resolve: table })
-          else {
-            const dice = diceOf(table)
-            edit((e) =>
-              Object.assign(e, { stage: 'rolling', rolling: table, ...(dice && { dice }) }),
-            )
-            line('ENCOUNTER_ROLLS', { id, name: participantName(state, id), table })
-          }
-        }
+        if (table && !waits(state)) say({ type: 'roll', resolve: table })
         break
       }
       case 'acting':
-      case 'rolling':
       case 'shown':
         return { state, entries }
       case 'acted':

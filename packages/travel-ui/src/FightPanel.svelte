@@ -14,16 +14,13 @@
    * large, who has acted faded, who is gone struck through), and **End the fight** by hand.
    * When what's chosen is one of them (whom to strike), their cards are what's clicked
    * (`targets`, `ontarget`). What the one whose turn it is may do are the host's buttons,
-   * under it; a foe's turn rolled by hand asks here for the total of its table's dice. Under
-   * them, the fight's moments, newest first (`log`).
+   * under it (a roll of the player's waits under the panel, as the trip's do). Under them, the
+   * fight's moments, newest first (`log`).
    */
   let {
     round,
     fighters,
     choosing,
-    rolling,
-    dice,
-    tableName = '',
     locale,
     held = '',
     sheetOf = () => undefined,
@@ -33,19 +30,12 @@
     next,
     onnext,
     onend,
-    onroll,
     ontarget,
   }: {
     round: number
     fighters: Fighter[]
     /** Whether it's a turn of the party's: the player chooses what that one does. */
     choosing: boolean
-    /** A foe's turn waiting for its table to be rolled by hand (its id). */
-    rolling?: string
-    /** That table's dice (`1d6`); absent: rolled by weight, only the system rolls it. */
-    dice?: string
-    /** That table's name. */
-    tableName?: string
     locale: string
     /** Why it can't be ended now (the trip waits for the player), in words; '' if it can. */
     held?: string
@@ -65,18 +55,7 @@
     ontarget?: (id: string) => void
     /** Ends the fight by hand (absent: it can't be). */
     onend?: () => void
-    /** Rolls the waiting foe's table: with the total the player rolled, or for them. */
-    onroll?: (total?: number) => void
   } = $props()
-
-  let total = $state<number | undefined>()
-  // A new foe's roll starts empty.
-  $effect(() => {
-    void rolling
-    void acting?.id
-    total = undefined
-  })
-  const given = $derived(typeof total === 'number' && Number.isInteger(total))
 
   const t = translator(() => locale)
   const acting = $derived(fighters.find((f) => f.acting))
@@ -142,36 +121,7 @@
       {/if}
     {/each}
   </div>
-  {#if acting && rolling}
-    <form
-      class="roll"
-      onsubmit={(e) => {
-        e.preventDefault()
-        if (given) onroll?.(total)
-      }}
-    >
-      <p class="turn">
-        {dice
-          ? t('fight.rollDice', { name: nameOf(acting), table: tableName, dice })
-          : t('fight.roll', { name: nameOf(acting), table: tableName })}
-      </p>
-      <div class="row">
-        {#if dice}
-          <label
-            >{t('fight.total')}
-            <!-- svelte-ignore a11y_autofocus -->
-            <input type="number" step="1" bind:value={total} autofocus /></label
-          >
-          <button type="submit" disabled={!given} use:tooltip={t('fight.applyTip')}
-            >{t('fight.apply')}</button
-          >
-        {/if}
-        <button type="button" use:tooltip={t('fight.rollForMeTip')} onclick={() => onroll?.()}
-          >{t('fight.rollForMe')}</button
-        >
-      </div>
-    </form>
-  {:else if next !== undefined && onnext}
+  {#if next !== undefined && onnext}
     {@const done = fighters.findLast((f) => f.done && f.side === 'foes')}
     {@const up = fighters.find((f) => f.id === next)}
     <div class="next">
@@ -329,43 +279,5 @@
     gap: 8px;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .roll {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .roll .row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .roll label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-  }
-
-  .roll input {
-    width: 5em;
-  }
-
-  .roll button {
-    padding: 4px 8px;
-    font-size: 12px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .roll button:disabled {
-    opacity: 0.5;
-    cursor: default;
   }
 </style>

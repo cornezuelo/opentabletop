@@ -319,6 +319,13 @@ describe('steps that speak and wait', () => {
     expect(line('ENCOUNTER_ROLLS', { id: 'wolf', name: 'Wolf', table: 'p/wolf-turn' })).toMatch(
       /^Wolf’s turn: waiting for you to roll /,
     )
+    // A roll of the player's (the trip's Rolls): who rolls, what for and its dice.
+    expect(line('CHECK_YOURS', { event: 'OMEN', id: 'c1', dice: '1d6' })).toMatch(
+      /: your roll \(1d6\)$/,
+    )
+    expect(
+      line('CHECK_YOURS', { event: 'OMEN', id: 'c1', dice: '1d6', who: 'wolf', name: 'Wolf' }),
+    ).toMatch(/^Wolf: .*: your roll \(1d6\)$/)
   })
 })
 

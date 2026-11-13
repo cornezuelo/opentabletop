@@ -4,6 +4,7 @@ import {
   migrateGenericSheets,
   migrateLost,
   migratePlaces,
+  migrateRolls,
   migrateSupplies,
   migrateTotals,
   missingSystem,
@@ -64,6 +65,7 @@ import { translator } from './i18n'
 import { askTimePassed, timeBehind } from './timePassed'
 import { wayWorld, type WayHex } from './way'
 import { highlightText } from './journal'
+import { withLastRollWay } from './rollWay'
 import { terrainName } from './terrains'
 import { campaignTexts, clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 
@@ -208,13 +210,15 @@ export function readTrips(
           way: t.way.map(connectionsOf),
           session:
             t.session &&
-            migratePlaces(
-              migrateSupplies(
-                migrateGenericSheets(
-                  migrateTotals(migrateLost(migrateFatigue(t.session)), t.cellKm),
+            migrateRolls(
+              migratePlaces(
+                migrateSupplies(
+                  migrateGenericSheets(
+                    migrateTotals(migrateLost(migrateFatigue(t.session)), t.cellKm),
+                  ),
                 ),
+                t.cellKm,
               ),
-              t.cellKm,
             ),
         }))
       if (trips.length)
@@ -678,7 +682,14 @@ export class TripStore {
       // With its campaign's world clock running, the trip starts at the world's time.
       ...(this.campaign?.world && { time: this.campaign.world.time }),
     })
-    this.saved = { ...this.saved, system: s.id, season, startDay, session }
+    // Who rolls its dice: as the player last chose.
+    this.saved = {
+      ...this.saved,
+      system: s.id,
+      season,
+      startDay,
+      session: withLastRollWay(session),
+    }
     this.aim()
     void this.followName(before)
   }

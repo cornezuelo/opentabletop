@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Travel and Map
+
+- **Rolling yourself**: **Rolls**, in a trip's Options, says who rolls its dice: **The computer rolls** (as before), **I roll what matters** (a fight's rolls, the party's and the foes', a check that stops the trip, a table that can give an important result) or **I roll everything**. A roll of yours waits in a card that says who rolls what and why: type the total of your own dice and **Apply**, or **Roll** them on screen, or **Roll it for me**; **Let the computer roll from now on** turns it back. A new trip starts with the last way chosen. It replaces **Roll the foes by hand**.
+
 ## [0.52.0] - 2026-11-13
 
 ### Travel and Map

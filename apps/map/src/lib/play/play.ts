@@ -7,6 +7,7 @@ import {
   timeBehind,
   translator,
   whyText,
+  withLastRollWay,
 } from '@open-tabletop/travel-ui'
 import {
   addEntry,
@@ -184,7 +185,13 @@ function newSession(
     seed: Math.random().toString(36).slice(2, 10),
   })
   // The map's own sheet: the one the campaign keeps for it.
-  const here = tripOnMap(editor.campaign, session, getSystem(system), editor.map.meta.id)
+  // Who rolls its dice: as the player last chose.
+  const here = tripOnMap(
+    editor.campaign,
+    withLastRollWay(session),
+    getSystem(system),
+    editor.map.meta.id,
+  )
   return { ...play, rules: { system, startDay, session: here } }
 }
 

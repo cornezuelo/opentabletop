@@ -8,8 +8,8 @@ import type { Translate } from './i18n'
 import { entryText, eventName, type JournalContext } from './journal'
 
 /**
- * What the trip waits for (a check, a step's pause, a foe's roll by hand), in words, and what
- * goes on from it when it isn't a choice (a choice is made in the trip's panel).
+ * What the trip waits for (a check, a step's pause, a roll of the player's), in words, and
+ * what goes on from it when it isn't a choice (a choice or a roll is made in the trip's panel).
  */
 export function tripWaits(
   session: SessionState,
@@ -19,6 +19,12 @@ export function tripWaits(
   const travel = session.travel
   const check = travel.pendingChecks[0]
   if (check) {
+    const yours = session.yours?.find((y) => y.id === check.id)
+    if (yours) {
+      const event = eventName(t, check.event, context.checkName)
+      const who = yours.who !== undefined ? participantName(session, yours.who) : ''
+      return { text: (who ? `${who}: ` : '') + t('journal.yours', { event, dice: yours.dice }) }
+    }
     const asks = session.asking?.includes(check.id)
     const key = asks ? 'journal.asks' : check.rolled ? 'journal.paused' : 'journal.pending'
     return {
@@ -39,13 +45,6 @@ export function tripWaits(
       go: { type: 'encounter', what: 'next' },
       label: 'next',
     }
-  }
-  // A foe's turn waiting for the player to roll its table: chosen in the trip's panel.
-  if (fight?.stage === 'rolling') {
-    const id = fight.order[fight.turn] ?? ''
-    const line = { id: '', at: '', time: travel.time, source: 'travel' as const }
-    const data = { id, name: participantName(session, id), table: fight.rolling }
-    return { text: entryText({ ...line, code: 'ENCOUNTER_ROLLS', data }, context) }
   }
   const waiting = travel.waiting
   if (!waiting) return null

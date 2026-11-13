@@ -407,6 +407,16 @@ describe('tables', () => {
     )
   })
 
+  it("says a table's roll with the values it reads, for a player rolling it", () => {
+    const engine = createOracleEngine({ registry, random: faces(6) })
+    expect(engine.rollOf('test/encounters')).toBe('1d6')
+    expect(engine.rollOf('test/reaction', { pre: 2 })).toBe('2d6 + 2')
+    // A value missing adds nothing; a negative one is taken off.
+    expect(engine.rollOf('test/reaction')).toBe('2d6')
+    expect(engine.rollOf('test/reaction', { pre: -1 })).toBe('2d6 - 1')
+    expect(engine.rollOf('test/reaction', { pre: 10 })).toBe('2d6 + 10')
+  })
+
   it('follows nested tables and merges their values', () => {
     const engine = createOracleEngine({ registry, random: sequence([4.5 / 6, 0.75]) })
     const { resolution } = engine.resolve('test/encounters')

@@ -25,7 +25,7 @@ import {
 } from './effects'
 import { rolledNodes } from './journal'
 import { extremes, settlePresent, type Present, type PresentEvent } from './present'
-import { encounterFacts, type Encounter } from './encounter'
+import { encounterFacts, participantName, type Encounter } from './encounter'
 import { definitionId } from './refs'
 import { aimed, isTargetForm, targetsOf } from './target'
 import {
@@ -80,6 +80,7 @@ import {
   upgradeTravelState,
   type CheckOutcome,
   type DayValue,
+  type PendingCheck,
   type Reaction,
   type TravelAction,
   type TravelEngine,
@@ -241,6 +242,20 @@ export interface JournalEntry {
   beat?: number
 }
 
+/** Who rolls the trip's dice besides the computer (`SessionState.rollWay`). */
+export type RollWay = 'matters' | 'all'
+
+/** A check waiting for the player to roll its table: the table (full id) and its dice. */
+export interface YourRoll {
+  /** The pending check's id. */
+  id: string
+  table: string
+  /** As the table writes them (`1d20`, `2d6+{{x}}`). */
+  dice: string
+  /** Who rolls it: whoever's turn it is in a fight (a member's or a foe's id). */
+  who?: string
+}
+
 export interface SessionState {
   travel: TravelState
   oracle: OracleState
@@ -311,16 +326,19 @@ export interface SessionState {
    */
   skipPauses?: boolean
   /**
-   * The player's choice to roll the foes' turns in a fight by hand (**Roll the foes by hand**):
-   * each one waits for the total of its table's dice (docs/conflicts.md, _Foes that act_).
+   * Who rolls the trip's dice (**Rolls**, in Options): absent, the computer rolls everything;
+   * `matters`, the player rolls what matters (a fight's rolls, a check that stops the trip, a
+   * table that can give an important result); `all`, every table a step rolls with dice.
    */
-  foesByHand?: boolean
+  rollWay?: RollWay
+  /** The checks waiting for the player's roll (`rollWay`): rolled when the total is given. */
+  yours?: YourRoll[]
   /**
    * The player's choice to play the foes' turns in a fight one after another at once
    * (**Foes' turns at once**); absent, each foe's turn waits for **Next** before another's.
    */
   foesAtOnce?: boolean
-  /** The total the player rolled for the next table a step rolls, used once (a foe's turn). */
+  /** The total the player rolled for the next table a step rolls, used once (a roll of theirs). */
   handTotal?: number
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
   weatherAt?: string
@@ -614,6 +632,40 @@ export function createSession(options: {
   }
   // Hex by hex, a long trip takes many steps.
   const maxAuto = options.maxAutoSteps ?? (discovery ? 500 : 20)
+
+  /**
+   * Whether a check's roll is the player's (`rollWay`): a table rolled with dice (one by
+   * weight, a deck, a generator are the computer's), and with `matters`, only in a fight, on
+   * a check that stops the trip, or on a table that can give an important result.
+   */
+  const yourRoll = (
+    s: SessionState,
+    table: string | undefined,
+    check: PendingCheck,
+    /** What the table sees, so its dice are said with the values they read (`1d6 + 2`). */
+    context: Record<string, unknown>,
+  ): YourRoll | undefined => {
+    if (!s.rollWay || !table || !options.oracle) return undefined
+    const def = options.oracle.get(table)
+    if (def?.kind !== 'table' || !def.roll) return undefined
+    const matters =
+      s.rollWay === 'all' ||
+      !!s.encounter ||
+      !!check.pause ||
+      def.entries.some((e) => e.notable === true)
+    if (!matters) return undefined
+    let dice: string | undefined
+    try {
+      dice = options.oracle.rollOf(table, context)
+    } catch (error) {
+      // A roll that can't be read here: the computer's, which says why in the journal.
+      if (error instanceof OracleError) return undefined
+      throw error
+    }
+    if (!dice) return undefined
+    const who = s.encounter ? s.encounter.order[s.encounter.turn] : undefined
+    return { id: check.id, table, dice, ...(who !== undefined && { who }) }
+  }
 
   const add = (
     s: SessionState,
@@ -1013,9 +1065,19 @@ export function createSession(options: {
       const limit = long ? Math.max(maxAuto, 2000) : maxAuto
       // Going on from a check that waited for who rolls: it's rolled now, with the choice.
       let replay: TravelEvent[] | undefined
-      if (action.type === 'resolveCheck' && s.asking?.includes(action.id)) {
-        s.asking = s.asking.filter((id) => id !== action.id)
-        if (!s.asking.length) delete s.asking
+      /** Going on from a roll of the player's: rolled now, with their total or for them. */
+      const answered =
+        action.type === 'resolveCheck' && s.yours?.some((y) => y.id === action.id)
+          ? action.id
+          : undefined
+      if (
+        action.type === 'resolveCheck' &&
+        (s.asking?.includes(action.id) || s.yours?.some((y) => y.id === action.id))
+      ) {
+        s.asking = s.asking?.filter((id) => id !== action.id)
+        if (!s.asking?.length) delete s.asking
+        s.yours = s.yours?.filter((y) => y.id !== action.id)
+        if (!s.yours?.length) delete s.yours
         const check = s.travel.pendingChecks.find((c) => c.id === action.id)
         if (check) replay = [{ type: 'CHECK_REQUIRED', check, time: s.travel.time }]
       }
@@ -1234,6 +1296,31 @@ export function createSession(options: {
             binding.context,
             party,
           )
+          // A roll of the player's (Rolls, in Options): the check waits for its total.
+          const yours =
+            event.check.id !== answered &&
+            !binding.weather &&
+            yourRoll(s, binding.resolve, event.check, context)
+          if (yours) {
+            s.yours = [...(s.yours ?? []), yours]
+            resolvedAll = false
+            add(s, entries, {
+              source: 'travel',
+              code: 'CHECK_YOURS',
+              time: event.time,
+              data: {
+                ...about,
+                id: event.check.id,
+                dice: yours.dice,
+                ...(yours.who !== undefined && {
+                  who: yours.who,
+                  name: participantName(s, yours.who),
+                }),
+                ...whereOf(event.check),
+              },
+            })
+            continue
+          }
           let value: Record<string, unknown>
           let text: string | undefined
           try {

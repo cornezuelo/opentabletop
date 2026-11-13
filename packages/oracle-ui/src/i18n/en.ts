@@ -232,7 +232,7 @@ export const en = {
       'When this comes up **during a trip**, the trip stops after the roll and waits until you press **Continue**: time to describe the place, write lore or decide something.\n• a lair found in the forest\n• an ambush\nRolled by hand, it does nothing.',
     notable: 'Important',
     notableHelp:
-      'Whether this result is an **important moment** of a trip, shown up front (over the map, or at the top of the trip) rather than only in the journal.\n• **As usual** — important only when what it does is (a pause, a fight, a place made, a clock filled…)\n• **Yes** — always: an omen that matters, a sign of what is coming\n• **No** — never, nor what it sets off (its pause still waits in the trip’s panel): a quiet result of a check that always pauses\nRolled by hand, it does nothing.',
+      'Whether this result is an **important moment** of a trip, shown up front (over the map, or at the top of the trip) rather than only in the journal.\n• **As usual** — important only when what it does is (a pause, a fight, a place made, a clock filled…)\n• **Yes** — always: an omen that matters, a sign of what is coming\n• **No** — never, nor what it sets off (its pause still waits in the trip’s panel): a quiet result of a check that always pauses\nA row marked **Yes** also makes its table’s roll the player’s when a trip’s **Rolls** is **I roll what matters**. Rolled by hand, it does nothing.',
     notableKind: 'As usual',
     notableYes: 'Yes',
     notableNo: 'No',

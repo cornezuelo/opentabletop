@@ -144,6 +144,11 @@ export interface OracleEngine {
    * id); a reference (`table.x`, `pack/x`) not found is returned as written.
    */
   nameOf(id: string, locale?: string): string
+  /**
+   * A table's roll as it would be rolled now, the values it reads filled in (`1d6 + 2`), for
+   * a player rolling it with their own dice; undefined for one rolled by weight, or not a table.
+   */
+  rollOf(id: string, context?: Record<string, unknown>): string | undefined
   list(filter?: { kind?: Compiled['kind']; tag?: string; pack?: string }): Compiled[]
 }
 
@@ -224,6 +229,13 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       const overlay = locale ? registry.overlays.get(locale)?.get(def.id) : undefined
       return overlay?.name ?? def.name ?? def.localId
     },
+    rollOf: (id, context = {}) => {
+      const def = lookup(id)
+      // Without what adds nothing (`1d6 + 0`, a modifier missing today).
+      return def.kind === 'table' && def.roll
+        ? filledRoll(def.roll, context).replace(/\s*\+\s*0(?![\d.])/g, '')
+        : undefined
+    },
     list: (filter = {}) =>
       [...registry.definitions.values()].filter(
         (d) =>
@@ -232,6 +244,41 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
           (!filter.pack || d.pack === filter.pack),
       ),
   }
+}
+
+/**
+ * A roll as written with the values it reads filled in (`1d6 + {{party.stats.navigation}}` →
+ * `1d6 + 2`): a value missing counts as 0; one that isn't a number is an error.
+ */
+function filledRoll(expression: string, context: Record<string, unknown>): string {
+  return expression.replace(/\{\{\s*([^}]*?)\s*\}\}/g, (_, path: string, at: number) => {
+    // Missing values count as 0 (e.g. no weather modifier today); wrong types are
+    // errors. Arithmetic (`{{min(party.stats.roped, 1)}}`) reads its names.
+    const value = /^[\w.]+$/.test(path)
+      ? (resolvePath(context, path) ?? 0)
+      : lookupIn(context)(
+          namesIn(path).reduce(
+            (text, name) =>
+              resolvePath(context, name) === undefined
+                ? text.replace(
+                    new RegExp(`(?<![\\w.])${name.replaceAll('.', '\\.')}(?![\\w.])`, 'g'),
+                    '0',
+                  )
+                : text,
+            path,
+          ),
+        )
+    if (typeof value !== 'number' || !Number.isFinite(value))
+      throw new OracleError(`Roll "${expression}" needs a number for "${path}"`)
+    // A die's size (`1d{{map.values.exit}}`) that isn't here (rolled by hand, away
+    // from the trip that has it): say what it needs, not that a die has 0 sides.
+    if (/d$/i.test(expression.slice(0, at)) && value < 1)
+      throw new OracleError(
+        `Roll "${expression}" needs "${path}" for its die's size, and it isn't here (a value of the trip, or of the map, has it)`,
+      )
+    // Negative numbers become "- n" so the dice grammar stays simple.
+    return value < 0 ? `0 - ${-value}` : String(value)
+  })
 }
 
 /** One resolution: owns a working copy of the state and the depth guard. */
@@ -604,41 +651,7 @@ class Run {
     mode?: RollMode,
   ): DiceResult {
     const parsed =
-      typeof expression === 'string'
-        ? parseDice(
-            expression.replace(/\{\{\s*([^}]*?)\s*\}\}/g, (_, path: string, at: number) => {
-              // Missing values count as 0 (e.g. no weather modifier today); wrong types are
-              // errors. Arithmetic (`{{min(party.stats.roped, 1)}}`) reads its names.
-              const value = /^[\w.]+$/.test(path)
-                ? (resolvePath(context, path) ?? 0)
-                : lookupIn(context)(
-                    namesIn(path).reduce(
-                      (text, name) =>
-                        resolvePath(context, name) === undefined
-                          ? text.replace(
-                              new RegExp(
-                                `(?<![\\w.])${name.replaceAll('.', '\\.')}(?![\\w.])`,
-                                'g',
-                              ),
-                              '0',
-                            )
-                          : text,
-                      path,
-                    ),
-                  )
-              if (typeof value !== 'number' || !Number.isFinite(value))
-                throw new OracleError(`Roll "${expression}" needs a number for "${path}"`)
-              // A die's size (`1d{{map.values.exit}}`) that isn't here (rolled by hand, away
-              // from the trip that has it): say what it needs, not that a die has 0 sides.
-              if (/d$/i.test(expression.slice(0, at)) && value < 1)
-                throw new OracleError(
-                  `Roll "${expression}" needs "${path}" for its die's size, and it isn't here (a value of the trip, or of the map, has it)`,
-                )
-              // Negative numbers become "- n" so the dice grammar stays simple.
-              return value < 0 ? `0 - ${-value}` : String(value)
-            }),
-          )
-        : expression
+      typeof expression === 'string' ? parseDice(filledRoll(expression, context)) : expression
     const keep = mode?.keep as 'highest' | 'lowest'
     const result = mode?.extra
       ? roll(withExtraDice(parsed, mode.extra, keep), this.random)

@@ -235,7 +235,7 @@ export const es: Messages<typeof en> = {
       'Cuando sale **durante un viaje**, el viaje se detiene tras la tirada y espera a que pulses **Continuar**: tiempo para describir el lugar, escribir lore o decidir algo.\n• una guarida encontrada en el bosque\n• una emboscada\nTirada a mano, no hace nada.',
     notable: 'Importante',
     notableHelp:
-      'Si este resultado es un **momento importante** de un viaje, que se muestra delante (sobre el mapa, o arriba del viaje) y no solo en el diario.\n• **Lo normal** — importante solo cuando lo es lo que hace (una pausa, un combate, un sitio hecho, un reloj lleno…)\n• **Sí** — siempre: un presagio que importa, una señal de lo que viene\n• **No** — nunca, ni lo que provoca (su pausa sigue esperando en el panel del viaje): un resultado tranquilo de una comprobación que siempre pausa\nTirado a mano, no hace nada.',
+      'Si este resultado es un **momento importante** de un viaje, que se muestra delante (sobre el mapa, o arriba del viaje) y no solo en el diario.\n• **Lo normal** — importante solo cuando lo es lo que hace (una pausa, un combate, un sitio hecho, un reloj lleno…)\n• **Sí** — siempre: un presagio que importa, una señal de lo que viene\n• **No** — nunca, ni lo que provoca (su pausa sigue esperando en el panel del viaje): un resultado tranquilo de una comprobación que siempre pausa\nUna fila marcada **Sí** hace además que la tirada de su tabla sea del jugador cuando las **Tiradas** de un viaje son **Tiro lo importante**. Tirado a mano, no hace nada.',
     notableKind: 'Lo normal',
     notableYes: 'Sí',
     notableNo: 'No',

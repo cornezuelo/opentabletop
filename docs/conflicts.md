@@ -89,7 +89,7 @@ As agreed on 2026-10-29: (a) **the theatre of the mind** is this proposal; (b) *
 
 1. **A target in a short form** for now: what a foe's turn strikes is written in its table (`target: party.members.random`, `target: party.lowest.health`), read as who `target` is for its effects; it joins the candidates-and-conditions mechanism of _Factions that choose_ when that exists.
 2. **A foe's table is its template's** (`actions: table.wolf-turn` in the bestiary), with the system's (`encounter.foes`) for the templates that have none.
-3. **Rolling foes' turns by hand** is an option of the trip (or scene), not a user preference: with it on, each foe's turn stops the trip with **Continue**, and the player rolls its table's dice and types the total (or has the system roll it), and the row it falls on is played as if the system had rolled it; the dice within the row (a blow's `1d3`) are still the system's. (Decided 2026-11-12.)
+3. **Rolling foes' turns by hand** is an option of the trip (or scene), not a user preference: with it on, each foe's turn stops the trip with **Continue**, and the player rolls its table's dice and types the total (or has the system roll it), and the row it falls on is played as if the system had rolled it; the dice within the row (a blow's `1d3`) are still the system's. (Decided 2026-11-12. Since 2026-11-13 it's the trip's **Rolls** ([play-ux.md](play-ux.md), _C_): a foe's roll waits as any roll of the player's does, a pending check with its total to give.)
 4. **A party played as a whole** (no members) is the target of a foe's attack itself: `characters[target]` reaches the party's sheet. (Decided 2026-11-12.)
 5. **`round.*` values wait for phase 4**, designed with Ker Nethalas' Reactions. (Decided 2026-11-12.)
 

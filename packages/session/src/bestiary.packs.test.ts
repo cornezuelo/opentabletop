@@ -449,7 +449,7 @@ describe('the bundled packs fight in turns', () => {
       }
       // Three of them: the party fells two a round at most, so one is left to act.
       const brought = applyResult(
-        { ...session, foesByHand: true },
+        { ...session, rollWay: 'matters' },
         { effects: { [foes]: 3, ...items } },
         {},
         partyOf(system),
@@ -461,8 +461,16 @@ describe('the bundled packs fight in turns', () => {
           if (e.code === 'ORACLE_RESULT' && e.data?.table === table)
             hits.push(e.data.value as (typeof hits)[number])
         if (hits.length) break
-        if (done.state.encounter.stage === 'rolling') {
-          done = stepTrip(options, done.state, { type: 'encounter', what: 'roll', total })
+        // The player's rolls: the foe's table with the total chosen, the rest rolled for them.
+        const yours = done.state.yours?.[0]
+        if (yours) {
+          done = stepTrip(
+            options,
+            done.state,
+            yours.table === table
+              ? { type: 'rolled', id: yours.id, total }
+              : { type: 'resolveCheck', id: yours.id },
+          )
           continue
         }
         const foe = done.state.present?.find((p) => p.at === done.state.travel.location)?.character
@@ -508,7 +516,7 @@ describe('the bundled packs fight in turns', () => {
       oracle: createOracleEngine({ registry, random: seeded(3) }),
     }
     const s = applyResult(
-      { ...session, foesByHand: true },
+      { ...session, rollWay: 'matters' },
       { effects: { 'present.pack-leader': 1, 'present.grey-wolf': 2, 'present.bandit': 1 } },
       {},
       partyOf(marches),
@@ -522,12 +530,20 @@ describe('the bundled packs fight in turns', () => {
         if (e.code === 'ROLLED')
           for (const r of e.data?.rolls as { source: string; entry?: string; byHand?: true }[])
             if (r.byHand) rows.push(`${r.source}:${r.entry}`)
-      const e = done.state.encounter
-      if (e.stage === 'rolling') {
-        expect(encounterView(done.state)).toMatchObject({ rolling: e.rolling, dice: '1d6' })
-        asked.push(e.rolling!)
-        const total = e.rolling === 'grey-marches/wolf-turn' ? 5 : 1
-        done = stepTrip(options, done.state, { type: 'encounter', what: 'roll', total })
+      const yours = done.state.yours?.[0]
+      if (yours) {
+        // A foe's turn (its table's dice, who rolls it); the party's own rolls, too.
+        const foe = done.state.present?.some((p) => p.character.id === yours.who)
+        if (foe) {
+          expect(yours.dice).toBe('1d6')
+          asked.push(yours.table)
+        }
+        const total = yours.table === 'grey-marches/wolf-turn' ? 5 : 1
+        done = stepTrip(
+          options,
+          done.state,
+          foe ? { type: 'rolled', id: yours.id, total } : { type: 'resolveCheck', id: yours.id },
+        )
         continue
       }
       const here = done.state.present?.filter((p) => p.at === done.state.travel.location) ?? []

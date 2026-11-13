@@ -1562,16 +1562,6 @@ export function stepTrip(
     if (!system.encounter) return { state: session, entries: [], discovered: {}, laid: [] }
     const s = structuredClone(session)
     s.lastStep = s.nextEntry
-    // A foe's table rolled by the player (its total), or for them: the turn is done with it.
-    if (action.what === 'roll') {
-      const table = s.encounter?.stage === 'rolling' ? s.encounter.rolling : undefined
-      if (!table) return { state: session, entries: [], discovered: {}, laid: [] }
-      s.encounter!.stage = 'acted'
-      delete s.encounter!.rolling
-      delete s.encounter!.dice
-      if (action.total !== undefined) s.handTotal = action.total
-      return stepTrip(options, s, { type: 'roll', resolve: table })
-    }
     // A foe's turn read: on to the next one.
     if (action.what === 'next') {
       if (s.encounter?.stage !== 'shown')
@@ -1581,6 +1571,14 @@ export function stepTrip(
     }
     changeEncounter(s, 'encounter', action.what)
     return stepTrip(options, s, { type: 'moment', at: 'encounter.none' })
+  }
+  // A roll of the player's, its total given: its table rolled with it (once).
+  if (action.type === 'rolled') {
+    if (!session.yours?.some((y) => y.id === action.id))
+      return { state: session, entries: [], discovered: {}, laid: [] }
+    const s = structuredClone(session)
+    s.handTotal = action.total
+    return stepTrip(options, s, { type: 'resolveCheck', id: action.id })
   }
   // The members' relations to the places they come to (`place.related`).
   const world = relatedWorld(options.world, session.members)
@@ -1638,10 +1636,6 @@ export function stepTrip(
     (s, a) => played.step(s, a),
     (s) => tripContext(s, options.facts ?? {}, {}, partyOf(system)),
     (s, id) => foeTable(system, s, id),
-    (table) => {
-      const def = options.oracle?.get(table)
-      return def?.kind === 'table' ? def.roll : undefined
-    },
     (s, unit, who) => played.lapse(s, unit, who),
   )
   // What the step did, the encounter's lines with it, from its first line on.
@@ -1655,14 +1649,14 @@ export function stepTrip(
 
 /**
  * What a trip's step plays: a travel action, an encounter started or ended by hand
- * (`{ type: 'encounter', what: 'start' }`), a foe's table rolled by hand (`what: 'roll'`,
- * the `total` the player rolled; none, rolled for them), or on from a foe's turn read
- * (`what: 'next'`).
+ * (`{ type: 'encounter', what: 'start' }`) or on from a foe's turn read (`what: 'next'`), or
+ * a roll of the player's (`rollWay`) with the total they rolled (`{ type: 'rolled', id,
+ * total }`; a `resolveCheck` of it rolls it for them).
  */
 export type TripAction =
   | TravelAction
   | { type: 'encounter'; what: 'start' | 'end' | 'next' }
-  | { type: 'encounter'; what: 'roll'; total?: number }
+  | { type: 'rolled'; id: string; total: number }
 
 /**
  * What a foe rolls on its turn, as a full id: its template's `actions` (from its bestiary's

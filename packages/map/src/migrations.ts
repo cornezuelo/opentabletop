@@ -12,6 +12,7 @@ import {
   migrateLost,
   migratePlaces,
   migrateSupplies,
+  migrateRolls,
   migrateTotals,
 } from '@open-tabletop/session'
 
@@ -367,6 +368,19 @@ const migrations: Record<number, (data: Record<string, unknown>) => Record<strin
   /** v39: the pieces laid in play (`pieces`); older maps have none. */
   38(data) {
     return data
+  },
+  /**
+   * v40: a trip's way of rolling (`rollWay`): one that rolled the foes by hand rolls what
+   * matters, a foe's turn left waiting for its roll taken as done.
+   */
+  39(data) {
+    const play = data.play as { rules?: { session?: unknown } } | undefined
+    const session = play?.rules?.session
+    if (!session || typeof session !== 'object') return data
+    return {
+      ...data,
+      play: { ...play, rules: { ...play!.rules, session: migrateRolls(session) } },
+    }
   },
 }
 

@@ -305,23 +305,28 @@ describe('an encounter: a fight in turns', () => {
     expect(done.state.encounter?.round).toBe(2)
   })
 
-  it("foes rolled by hand: each foe's turn waits for the total the player rolled, or rolls it for them", () => {
+  it("the player's rolls: a foe's turn waits for the total the player rolled, or rolls it for them", () => {
     const { options, session } = begin(
       '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',
     )
-    let done = stepTrip(options, { ...session, foesByHand: true }, { type: 'action', id: 'ambush' })
+    let done = stepTrip(
+      options,
+      { ...session, rollWay: 'matters' },
+      { type: 'action', id: 'ambush' },
+    )
     done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
     done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
-    // The first goblin is down; the other's turn waits (after its moment: the bite at Kael).
-    expect(done.state.encounter).toMatchObject({
-      stage: 'rolling',
-      rolling: 'brawl/foe-turn',
-      dice: '1d1',
-    })
-    expect(encounterView(done.state)?.rolling).toBe('brawl/foe-turn')
+    // The first goblin is down; the other's turn waits (after its moment: the bite at Kael),
+    // its table's roll the player's, as a check that waits.
+    const check = done.state.travel.pendingChecks[0]!
+    expect(done.state.yours).toEqual([
+      { id: check.id, table: 'brawl/foe-turn', dice: '1d1', who: 'goblin-2' },
+    ])
+    expect(done.state.encounter?.stage).toBe('acted')
+    expect(encounterView(done.state)?.fighters.find((f) => f.acting)?.id).toBe('goblin-2')
     expect(done.entries.at(-1)).toMatchObject({
-      code: 'ENCOUNTER_ROLLS',
-      data: { id: 'goblin-2', table: 'brawl/foe-turn' },
+      code: 'CHECK_YOURS',
+      data: { id: check.id, dice: '1d1', who: 'goblin-2' },
     })
     // Meanwhile the party's actions wait too.
     const closed = stepTrip(options, done.state, {
@@ -331,25 +336,34 @@ describe('an encounter: a fight in turns', () => {
     })
     expect(closed.state).toBe(done.state)
     // The player's 1 is its blow; the round ends, and the party's turn comes again.
-    const rolled = stepTrip(options, done.state, { type: 'encounter', what: 'roll', total: 1 })
+    const rolled = stepTrip(options, done.state, { type: 'rolled', id: check.id, total: 1 })
     const roll = rolled.entries.find((e) => e.code === 'ROLLED')
     expect(roll?.data?.rolls).toEqual([
       expect.objectContaining({ source: 'brawl/foe-turn', byHand: true }),
     ])
     expect(rolled.state.handTotal).toBeUndefined()
-    expect(rolled.state.encounter?.dice).toBeUndefined()
+    expect(rolled.state.yours).toBeUndefined()
     expect(rolled.state.encounter).toMatchObject({ stage: 'acting', round: 2 })
     const kael = rolled.state.members!.find((m) => m.id === 'kael')!.values.health
     const mira = rolled.state.members!.find((m) => m.id === 'mira')!.values.health
     // The goblin standing bit Kael (-1), then its blow landed (-1); the fallen one had no turn.
     expect(kael + mira).toBe(20 - 1 - 1)
-    // Rolled for them, it plays as the system's roll; with nothing waiting, nothing happens.
+    // Rolled for them (going on from the check), it plays as the computer's roll.
+    const forMe = stepTrip(options, done.state, { type: 'resolveCheck', id: check.id })
+    expect(forMe.state.encounter?.round).toBe(2)
     expect(
-      stepTrip(options, done.state, { type: 'encounter', what: 'roll' }).state.encounter?.round,
-    ).toBe(2)
-    expect(stepTrip(options, rolled.state, { type: 'encounter', what: 'roll' }).state).toBe(
+      forMe.entries.find((e) => e.code === 'ROLLED')?.data?.rolls as { byHand?: true }[],
+    ).toEqual([expect.not.objectContaining({ byHand: true })])
+    // With nothing waiting, a total given does nothing.
+    expect(stepTrip(options, rolled.state, { type: 'rolled', id: check.id, total: 1 }).state).toBe(
       rolled.state,
     )
+    // The computer rolls everything: nothing waits.
+    let auto = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    auto = stepTrip(options, auto.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    auto = stepTrip(options, auto.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    expect(auto.state.yours).toBeUndefined()
+    expect(auto.state.encounter?.round).toBe(2)
   })
 
   it('foes aim at a party played as a whole through its own sheet', () => {

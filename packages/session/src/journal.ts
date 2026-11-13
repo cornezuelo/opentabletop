@@ -54,6 +54,7 @@ const STORY = new Set([
   'ENCOUNTER_ROUND',
   'ENCOUNTER_TURN',
   'ENCOUNTER_ROLLS',
+  'CHECK_YOURS',
   'ENCOUNTER_SKIPPED',
   'ENCOUNTER_ENDED',
   'WORLD_EVENT',
@@ -159,7 +160,7 @@ export function rolledNodes(r: Resolution, depth = 0): RolledNode[] {
 }
 
 /** The lines that say a check waits for the player (to roll, to go on, to choose who rolls). */
-const WAITING_CODES = ['CHECK_PENDING', 'CHECK_PAUSED', 'CHECK_ASKS']
+const WAITING_CODES = ['CHECK_PENDING', 'CHECK_PAUSED', 'CHECK_ASKS', 'CHECK_YOURS']
 
 /**
  * The journal line of a check waiting for the player, by its id: when it came up. An action
