@@ -13,7 +13,7 @@ La barra de cada aplicación dice en qué campaña juegas, junto al selector de 
 - **Abrir en Campaña ↗**: la campaña, aquí.
 - **Campaña nueva ↗**: [una campaña nueva](#una-campaña-nueva) aquí.
 - **No jugar en ninguna campaña** (en el Oráculo y en Personajes): no juega en ninguna, para quien solo quiere una tirada o llevar personajes.
-- Las demás campañas que guarda este navegador. En el Oráculo y en Personajes, elegir una hace que juegues en ella desde entonces; donde hay un mapa, un viaje o una campaña abiertos, se abren aquí, porque para jugar en otra abres uno de sus mapas o viajes.
+- Las demás campañas que guarda este navegador. Elegir una hace que juegues en ella desde entonces, y te lleva a ella: Mapa abre su mapa donde va su viaje (si no, el suyo cambiado por última vez), Viajes su viaje en marcha (si no, su viaje más nuevo), Campaña su página; si no tiene ahí mapa ni viaje, sus **Mapas** o **Viajes** aquí, para crear uno. En el Oráculo tiras en ella, en Personajes ves su elenco, y así en las demás aplicaciones.
 
 Una campaña que se borra (aquí, o con su último mapa en la aplicación Mapa) deja de jugarse: la barra dice **Sin campaña**. Una que aún no tiene nombre sale como **Campaña sin nombre**.
 

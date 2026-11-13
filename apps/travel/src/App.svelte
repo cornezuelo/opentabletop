@@ -2,6 +2,7 @@
   import { HelpPanel } from '@open-tabletop/manual-ui'
   import {
     AppShell,
+    campaignUrl,
     Dialogs,
     parseInCampaign,
     playIn,
@@ -18,6 +19,7 @@
   import { getLocale, locales, setLocale, t } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
   import { openInCampaign } from './lib/inCampaign'
+  import { placeToPlay } from '@open-tabletop/travel-ui'
 
   // A trip put in a campaign from the Campaign app: a new one, or one kept here joining it.
   const inCampaign = parseInCampaign(location.hash)
@@ -43,6 +45,15 @@
     if (trip.inCampaigns && trip.saved.session) playIn(trip.saved.campaign)
   })
 
+  // Another campaign chosen in **Playing ▾**: its trip going on (else its newest) opens on
+  // its system's page; with none, its trips in Campaign.
+  async function switchCampaign(id: string) {
+    const to = await placeToPlay(id, 'travel')
+    if (!to) return void (location.href = campaignUrl(id, 'trips'))
+    trip.open(to)
+    go({ name: 'system', id: trip.saved.system })
+  }
+
   // Opened without a view, it starts on that trip's system, else the system last chosen here
   // or in another app.
   const last =
@@ -67,6 +78,7 @@
   onlocale={(locale) => setLocale(locale as 'en' | 'es')}
   onhome={() => go({ name: 'welcome' })}
   held={trip.saved.session ? trip.saved.campaign : undefined}
+  onswitch={switchCampaign}
   texts={{
     help: t('nav.help'),
     showSidebar: t('nav.showSidebar'),

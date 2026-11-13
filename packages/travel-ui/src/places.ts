@@ -1,3 +1,4 @@
+import { deserializeCampaign } from '@open-tabletop/campaign'
 import { roster } from '@open-tabletop/character-ui'
 import { leavePlaces } from '@open-tabletop/session'
 import {
@@ -133,4 +134,31 @@ export async function deleteAllIn(campaign: string): Promise<CampaignPlace[]> {
   dropTrips(SCENES_KEY, ids('scene'))
   roster.set(leavePlaces(roster.roster, [...places, { app: 'campaign', id: campaign }]))
   return places
+}
+
+/**
+ * Where a campaign plays in an app (the bar's **Playing ▾** choosing it): its trip going on,
+ * if that app plays it; else its newest there (the map of the library changed last, Travel's
+ * trip made last). None when it has nothing there.
+ */
+export async function placeToPlay(
+  campaign: string,
+  app: 'map' | 'travel',
+): Promise<string | undefined> {
+  let going: string | undefined
+  try {
+    const entry = await getCampaign(campaign)
+    const playing = entry && deserializeCampaign(entry.json).playing
+    if (playing?.app === app) going = playing.id
+  } catch {
+    // Unreadable: its newest place instead.
+  }
+  if (app === 'travel') {
+    const trips = storedTrips(TRAVEL_TRIPS_KEY).filter((t) => t.campaign === campaign)
+    return trips.find((t) => t.id === going)?.id ?? trips.at(-1)?.id
+  }
+  const maps = (await allLibraryMaps().catch(() => []))
+    .filter((e) => campaignOfMap(e.json)?.campaign === campaign)
+    .sort((a, b) => b.modified.localeCompare(a.modified))
+  return maps.find((e) => e.id === going)?.id ?? maps[0]?.id
 }

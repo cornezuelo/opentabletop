@@ -56,6 +56,7 @@
   onlocale={(locale) => setLocale(locale as 'en' | 'es')}
   onhome={() => go({ name: 'welcome' })}
   held={nav.view.name === 'campaign' ? nav.view.id : undefined}
+  onswitch={(id) => go({ name: 'campaign', id, tab: 'overview' })}
   texts={{
     help: t('nav.help'),
     showSidebar: t('nav.showSidebar'),

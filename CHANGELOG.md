@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Campaign
 
+- **Playing ▾ takes you to the campaign chosen**: Map opens its map where its trip goes on (else its map changed last), Travel its trip going on (else its newest), Campaign its page; with none there, its Maps or Trips in Campaign. Before, Map and Travel could leave you on a map or trip of another campaign.
 - **Deleting a campaign with what's in it**: **Delete** names its maps, trips and scenes and offers **Delete it all**, instead of asking you to move or delete each first; its characters stay in the roster. A map or trip deleted this way closes where it's open in another window.
 
 ### Fixes

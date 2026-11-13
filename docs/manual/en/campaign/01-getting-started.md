@@ -13,7 +13,7 @@ Every app's bar says which campaign you're playing, beside the app switcher: **P
 - **Open in Campaign ↗**: the campaign here.
 - **New campaign ↗**: [a new campaign](#a-new-campaign) here.
 - **Play in no campaign** (in the Oracle and Characters): plays in none, for whoever only wants a roll or a character manager.
-- The other campaigns this browser keeps. In the Oracle and Characters, choosing one plays in it from then on; where a map, a trip or a campaign is open, they open here instead, since to play in another you open one of its maps or trips.
+- The other campaigns this browser keeps. Choosing one plays in it from then on, and takes you to it: Map opens its map where its trip goes on (else the map of it changed last), Travel its trip going on (else its newest trip), Campaign its page; with no map or trip of it there, its **Maps** or **Trips** here, to make one. In the Oracle you roll in it, in Characters you see its cast, and so on in the other apps.
 
 A campaign that's deleted (here, or with the last map of it in the Map app) is played no more: the bar says **No campaign**. One without a name yet shows as **Untitled campaign**.
 

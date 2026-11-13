@@ -3,12 +3,14 @@
     AppBrand,
     AppSwitcher,
     CampaignChip,
+    campaignUrl,
     MoreMenu,
     playIn,
     PreferencesButton,
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { getCampaign } from '@open-tabletop/storage'
+  import { placeToPlay } from '@open-tabletop/travel-ui'
   import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import {
     getLocale,
@@ -47,6 +49,13 @@
       })
       .catch(() => {})
   })
+  /** Another campaign chosen in **Playing ▾**: its map (where its trip goes on, else the one
+   * changed last) opens; with none, its maps in Campaign. */
+  async function switchCampaign(id: string) {
+    const map = await placeToPlay(id, 'map')
+    if (map) await openLibraryMap(map)
+    else location.href = campaignUrl(id, 'maps')
+  }
   const toggle = (panel: PanelView) => () =>
     (editor.panelView = editor.panelView === panel ? 'tool' : panel)
 
@@ -100,7 +109,7 @@
 <header class="bar">
   <span class="name"><AppBrand app="map" name={t('app.title')} /></span>
   <AppSwitcher current="map" locale={getLocale()} />
-  <CampaignChip locale={getLocale()} {held} />
+  <CampaignChip locale={getLocale()} {held} onswitch={switchCampaign} />
   <!-- The open map, after the maps above it if it's a sub-map, each opening its map. -->
   <nav class="crumbs" aria-label={t('submap.breadcrumb')}>
     {#each editor.linked.ancestors as above (above.id)}

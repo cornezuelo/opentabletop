@@ -7,12 +7,22 @@
 
   /**
    * **Playing: <campaign> ▾** in an app's bar: the campaign being played (campaigns.md §11),
-   * with **Open in Campaign ↗** and the other campaigns kept here. With `held` (the campaign
-   * of the map or trip open, which the app follows), the others open in Campaign instead,
-   * since the campaign shown is always the one in front of you; without, choosing one plays
-   * in it here, and **No campaign** plays in none.
+   * with **Open in Campaign ↗** and the other campaigns kept here. Choosing one plays in it,
+   * and the app takes you to it (`onswitch`: Map to its map, Travel to its trip, Campaign to
+   * its page), so the campaign shown is always the one in front of you. With `held` (the
+   * campaign of the map or trip open) and no `onswitch`, the others open in Campaign
+   * instead. **No campaign** plays in none, where nothing open holds one.
    */
-  let { locale, held }: { locale: string; held?: string } = $props()
+  let {
+    locale,
+    held,
+    onswitch,
+  }: { locale: string; held?: string; onswitch?: (id: string) => void } = $props()
+
+  function choose(id: string) {
+    playIn(id)
+    onswitch?.(id)
+  }
 
   const TEXT = {
     en: {
@@ -72,12 +82,12 @@
     <a href={newCampaignUrl()}>{text.start}</a>
     {#if id && !held}<button onclick={() => playIn(undefined)}>{text.noneHelp}</button>{/if}
     {#if others.length}
-      <span class="heading">{held ? text.openOther : text.switchTo}</span>
+      <span class="heading">{held && !onswitch ? text.openOther : text.switchTo}</span>
       {#each others as c (c.id)}
-        {#if held}
+        {#if held && !onswitch}
           <a href={campaignUrl(c.id)}>{c.name}</a>
         {:else}
-          <button onclick={() => playIn(c.id)}>{c.name}</button>
+          <button onclick={() => choose(c.id)}>{c.name}</button>
         {/if}
       {/each}
     {/if}

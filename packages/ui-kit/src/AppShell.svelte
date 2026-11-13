@@ -21,6 +21,7 @@
     onlocale,
     onhome,
     held,
+    onswitch,
     texts,
     sidebar,
     bar,
@@ -37,6 +38,8 @@
     onhome: () => void
     /** The campaign of what's open (a trip, a campaign): the bar's **Playing** follows it. */
     held?: string
+    /** Another campaign chosen in **Playing ▾**: the app takes you to it (see `CampaignChip`). */
+    onswitch?: (campaign: string) => void
     texts: {
       help: string
       showSidebar: string
@@ -86,7 +89,7 @@
   <header class="bar">
     <AppBrand {app} {name} onclick={onhome} />
     <AppSwitcher current={app} {locale} />
-    <CampaignChip {locale} {held} />
+    <CampaignChip {locale} {held} {onswitch} />
     <div class="spacer"></div>
     {@render bar?.()}
     <PreferencesButton {locale} {locales} {onlocale} />
