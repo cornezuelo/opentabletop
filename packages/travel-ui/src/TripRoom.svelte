@@ -24,6 +24,7 @@
   import type { Saved, TripStore } from './trips.svelte'
   import { wayWorld } from './way'
   import WayEditor from './WayEditor.svelte'
+  import { pacing } from './pacing.svelte'
 
   /** Play a trip without a map with one system: the way on the left, the trip on the right. */
   let {
@@ -222,9 +223,10 @@
     </section>
     <section class="right">
       {#if playing && session}
+        <!-- A march told a place at a time is shown as it's told. -->
         <TripPanel
           {system}
-          {session}
+          session={pacing.view(session)}
           startDay={trip.saved.startDay}
           {locale}
           {hexLabel}

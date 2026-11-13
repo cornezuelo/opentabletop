@@ -6,6 +6,8 @@ import {
   layoutTokens,
   placeOfCell,
   newId,
+  parsePlaceOn,
+  partyToken,
   type HexMap,
   type LaidToken,
   type MapToken,
@@ -20,6 +22,7 @@ import {
   type TravelSystem,
 } from '@open-tabletop/session'
 import { otherTrip } from '@open-tabletop/campaign'
+import { pacing } from '@open-tabletop/travel-ui'
 import { showToast } from '@open-tabletop/ui-kit'
 import { t } from '../i18n/index.svelte'
 import { editor } from '../store/editor.svelte'
@@ -155,8 +158,35 @@ export function partyElsewhere(): boolean {
  */
 export function drawnTokens(map: HexMap = editor.map): TokenPlacement<MapToken | CopyToken>[] {
   const elsewhere = map === editor.map && partyElsewhere()
-  const tokens = map.tokens.filter((token) => !elsewhere || token.kind !== 'party')
+  const told = toldParty(map).hex
+  const tokens = map.tokens
+    .filter((token) => !elsewhere || token.kind !== 'party')
+    .map((token) =>
+      token.kind === 'party' && told !== token.hex ? { ...token, hex: told } : token,
+    )
   return layoutTokens<MapToken | CopyToken>([...tokens, ...copyTokens(map)], {
     group: !map.play?.copiesApart,
   })
+}
+
+/**
+ * Where the party is drawn and its trail so far: while a march is told a place at a time
+ * (travel-ui's `pacing`), the place told last and the trail up to it; else its token's cell
+ * and the whole trail.
+ */
+export function toldParty(map: HexMap = editor.map): { hex?: HexKey; trail: HexKey[] } {
+  const hex = partyToken(map)?.hex
+  const trail = map.play?.trail ?? []
+  const session = map.play ? sessionOf(map.play) : null
+  if (!hex || !session || !pacing.tells(session)) return { hex, trail }
+  const view = pacing.view(session)
+  // The places still to tell on this map: the trail's last cells.
+  const left = session.journal
+    .slice(view.journal.length)
+    .filter((e) => e.code === 'PLACE_ENTERED' && !parsePlaceOn(String(e.data?.place))).length
+  const place = view.travel.location
+  return {
+    hex: (!parsePlaceOn(place) && cellOfPlace(map, place, hex)) || hex,
+    trail: trail.slice(0, Math.max(1, trail.length - left)),
+  }
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { travels } from '@open-tabletop/session'
-  import { TripStatus } from '@open-tabletop/travel-ui'
+  import { pacing, TripStatus } from '@open-tabletop/travel-ui'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { placeLabel } from '../lib/io/submaps'
   import { showToast } from '@open-tabletop/ui-kit'
@@ -13,7 +13,9 @@
 
   /** Over the map, in Play: where the trip stands and what happened last, so the panel keeps its height for what to do. */
   const play = $derived(editor.play)
-  const session = $derived(play ? sessionOf(play) : null)
+  /** A march told a place at a time is shown as it's told (travel-ui's `pacing`). */
+  const toldSession = (s: ReturnType<typeof sessionOf>) => s && pacing.view(s)
+  const session = $derived(play ? toldSession(sessionOf(play)) : null)
   const system = $derived(activeSystem())
   const coord = (key: string) => {
     void editor.grid

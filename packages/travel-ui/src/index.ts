@@ -62,4 +62,6 @@ export {
   type BeatTold,
 } from './beats'
 export { beatsSeen } from './beatsSeen.svelte'
+export { pacing } from './pacing.svelte'
+export { PACES, type Pace } from './pace'
 export { tripWaits } from './waits'

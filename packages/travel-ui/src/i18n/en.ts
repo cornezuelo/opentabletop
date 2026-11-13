@@ -110,6 +110,15 @@ export const en = {
       'Time passes where the party is until it can take “{action}” again (how the trip goes on by itself, as the system says), living it: if it could now, that chance goes by first. On the way, the moments the system names, the end of the day, and its halt (what the party does when it can’t go on, such as camping) if it can be taken; otherwise the time passes without it. For when nothing else can be done, at most three days.',
     actionUntil: 'Lasts until {moment}.',
   },
+  pace: {
+    label: 'A march is told',
+    help: "How a step that goes through several places (a march, a forced march) is told. The trip is played at once either way: only how it's shown changes.\n• **At once**: you see where it ended\n• **Quickly** or **Slowly, place by place**: the party moves on the map (in Travel, along the way) one place after another, and what happened in each comes as it's entered, with the clock and the place following it\nAn important moment on the way stops the telling until **Continue**. While it's told, the trip's buttons wait; **Tell it all** shows the rest at once. A preference of this browser, for every trip.",
+    instant: 'At once',
+    quick: 'Quickly, place by place',
+    slow: 'Slowly, place by place',
+    telling: 'The march goes on…',
+    finish: 'Tell it all',
+  },
   rollWay: {
     label: 'Rolls',
     help: "Who rolls the trip's dice. A roll of yours waits like a pause: it says what to roll and why, you type the total you rolled with your own dice (or press **Roll** to roll them on screen, or **Roll it for me**), and the row it falls on happens as if the computer had rolled it.\n• **The computer rolls**: everything goes by itself\n• **I roll what matters**: the rolls of a fight (the party's and the foes'), of a check that stops the trip, and of a table that can give an important result\n• **I roll everything**: every table a step rolls with dice\nDice inside a result (a blow's damage), tables rolled by weight, decks and the weather are always the computer's. Each trip keeps its own; a new trip starts with the last one chosen.",

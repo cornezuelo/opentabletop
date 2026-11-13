@@ -107,6 +107,15 @@ export const es: Messages<typeof en> = {
       'El tiempo pasa donde está el grupo hasta que pueda volver a hacer «{action}» (cómo sigue el viaje por sí solo, según diga el sistema), viviéndolo: si ahora pudiera, primero deja pasar esa ocasión. Por el camino, los momentos que nombra el sistema, el final del día y su parada (lo que hace el grupo cuando no puede seguir, como acampar) si se puede hacer; si no, el tiempo pasa sin ella. Para cuando no se puede hacer nada más, tres días como mucho.',
     actionUntil: 'Dura hasta {moment}.',
   },
+  pace: {
+    label: 'Cómo se cuenta una marcha',
+    help: 'Cómo se cuenta un paso que pasa por varios sitios (una marcha, una marcha forzada). El viaje se juega igual de una vez: solo cambia cómo se muestra.\n• **De golpe**: ves dónde ha acabado\n• **Deprisa** o **Despacio, sitio a sitio**: el grupo avanza por el mapa (en Viajes, por el camino) un sitio tras otro, y lo que ha pasado en cada uno llega al entrar en él, con el reloj y el sitio siguiéndolo\nUn momento importante por el camino detiene el relato hasta **Continuar**. Mientras se cuenta, los botones del viaje esperan; **Contarlo todo** muestra el resto de golpe. Una preferencia de este navegador, para todos los viajes.',
+    instant: 'De golpe',
+    quick: 'Deprisa, sitio a sitio',
+    slow: 'Despacio, sitio a sitio',
+    telling: 'La marcha sigue…',
+    finish: 'Contarlo todo',
+  },
   rollWay: {
     label: 'Tiradas',
     help: 'Quién tira los dados del viaje. Una tirada tuya espera como una pausa: dice qué tirar y para qué, escribes el total que has sacado con tus dados (o pulsas **Tirar** para tirarlos en pantalla, o **Tíramela**) y la fila que salga ocurre como si la hubiera tirado el ordenador.\n• **Tira el ordenador**: todo se juega por sí solo\n• **Tiro lo importante**: las tiradas de un combate (las del grupo y las de los enemigos), las de una comprobación que detiene el viaje y las de una tabla que puede dar un resultado importante\n• **Lo tiro todo**: cada tabla con dados que tira un paso\nLos dados dentro de un resultado (el daño de un golpe), las tablas que se tiran por pesos, los mazos y el clima los tira siempre el ordenador. Cada viaje guarda la suya; un viaje nuevo empieza con la última elegida.',

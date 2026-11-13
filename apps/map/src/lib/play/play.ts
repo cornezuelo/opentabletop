@@ -4,6 +4,7 @@ import {
   askTimePassed,
   highlightText,
   journalContext,
+  pacing,
   timeBehind,
   translator,
   whyText,
@@ -57,6 +58,9 @@ import { mapWorld, parsePlaceOn } from '@open-tabletop/map'
 import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
+
+// A march told a place at a time moves the party's token (and its trail) with the telling.
+pacing.listen(() => editor.notify({ kind: 'tokens' }))
 
 /**
  * The map as the trip sees it with the system's scale: its places, and the ways into its
@@ -532,6 +536,8 @@ export function step(action: TripAction, heard = 0): void {
   const play = current()
   const session = sessionOf(play)
   if (!session || !play.rules) return
+  // The player acts: what's left of a march being told is told at once.
+  if (heard === 0) pacing.finish()
   // The campaign's world waits for the player: the trip doesn't move until it's answered.
   if (heard === 0 && worldBlocked()) return
   // One trip at a time in a campaign: another one that played there last is paused first.
@@ -675,6 +681,9 @@ function stepOnly(action: TripAction): void {
     highlights,
   }))
     journaled = addEntry(journaled, { source: 'travel', code: line.code, text: line.text })
+  // A march is told a place at a time: the party's token follows the telling.
+  if (!into) pacing.tell(session, journaled)
+  else pacing.finish()
   save({
     ...play,
     trail: [...play.trail, ...entered],

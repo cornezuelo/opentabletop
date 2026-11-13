@@ -4,6 +4,7 @@
   import { translator } from './i18n'
   import { connectionChoices, connectionName, terrainChoiceGroups, terrainName } from './terrains'
   import type { TripStore } from './trips.svelte'
+  import { pacing } from './pacing.svelte'
 
   /** The hexes of a trip without a map: terrain, tags and the road or river to the next one. */
   let {
@@ -21,7 +22,10 @@
 
   const t = translator(() => locale)
   const way = $derived(trip.saved.way)
-  const here = $derived(trip.location)
+  /** Where the party is on the way: while a march is told a place at a time, where it's told. */
+  const here = $derived(
+    trip.saved.session ? Number(pacing.view(trip.saved.session).travel.location) : trip.location,
+  )
   const terrainGroups = $derived(terrainChoiceGroups(system))
   const kinds = $derived(connectionChoices(system))
 </script>

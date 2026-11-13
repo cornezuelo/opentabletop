@@ -67,6 +67,7 @@ import { wayWorld, type WayHex } from './way'
 import { highlightText } from './journal'
 import { withLastRollWay } from './rollWay'
 import { terrainName } from './terrains'
+import { pacing } from './pacing.svelte'
 import { campaignTexts, clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
 
 /**
@@ -710,6 +711,8 @@ export class TripStore {
    * (asking, if another trip played there last) and catches up with the campaign's clock.
    */
   step(action: TripAction): void | Promise<void> {
+    // The player acts: what's left of a march being told is told at once.
+    pacing.finish()
     if (!this.keeper) return this.stepNow(action)
     return this.stepInCampaign(action)
   }
@@ -902,6 +905,8 @@ export class TripStore {
         for (const e of entries)
           if (e.code === 'WORLD_DO')
             next = addEntry(next, { source: 'travel', code: 'WORLD_TURN', text: '' })
+      // A march is told a place at a time: the way follows the telling.
+      pacing.tell(session, next)
       this.saved = { ...this.saved, session: next }
     } catch (error) {
       // A broken pack shouldn't silently stop play: say what failed.

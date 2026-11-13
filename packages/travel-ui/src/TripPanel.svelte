@@ -87,6 +87,8 @@
   import NotableBeat from './NotableBeat.svelte'
   import { journalBeats, lastStepBeats, tellBeat, type BeatTold } from './beats'
   import { beatsSeen } from './beatsSeen.svelte'
+  import { pacing } from './pacing.svelte'
+  import { PACES } from './pace'
   import { CharacterCard, itemName, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
   import { mainValue } from '@open-tabletop/character-engine'
   import type { WaitingSaid } from '@open-tabletop/campaign'
@@ -448,7 +450,8 @@
     (!!sharing && !!onshare) ||
       roomless.length > 0 ||
       (!!worldWaiting && !!onworld) ||
-      beatsSeen.holds(session),
+      beatsSeen.holds(session) ||
+      pacing.tells(session),
   )
   /** What a condition blocks, in words: moving on, an action or a way of travelling. */
   const blockName = (what: string) => {
@@ -669,6 +672,13 @@
   <div class="do">
     <!-- The important moment the last step ended on, up front (over a map, the strip has it). -->
     {#if status}<NotableBeat {session} {context} {locale} />{/if}
+    <!-- A march told a place at a time: what's left of it can be told at once. -->
+    {#if pacing.tells(session) && !pacing.holds(session)}
+      <div class="telling">
+        <span class="hint">{t('pace.telling')}</span>
+        <button onclick={() => pacing.finish()}>{t('pace.finish')}</button>
+      </div>
+    {/if}
     {@render here?.()}
     <!-- A fight in turns: whose turn it is, above what the party can do on it. -->
     {#if fight}
@@ -1133,6 +1143,17 @@
       {@render moments(journalDays, session.journal.length ? t('filter.none') : t('emptyJournal'))}
     {:else if tab === 'options'}
       {@render options?.()}
+      {#if !scene}
+        <label class="way"
+          ><span>{t('pace.label')}<InfoTip markdown={t('pace.help')} /></span>
+          <select
+            value={pacing.pace}
+            onchange={(e) => pacing.setPace(e.currentTarget.value as (typeof PACES)[number])}
+          >
+            {#each PACES as pace (pace)}<option value={pace}>{t(`pace.${pace}`)}</option>{/each}
+          </select></label
+        >
+      {/if}
       <label class="way"
         ><span>{t('rollWay.label')}<InfoTip markdown={t('rollWay.help')} /></span>
         <select
@@ -1279,6 +1300,18 @@
     gap: 4px;
     align-items: center;
     font-size: 0.9em;
+  }
+
+  /* A march being told: what's left of it, at once. */
+  .telling {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .telling .hint {
+    margin: 0;
   }
 
   /* Who rolls the trip's dice: its name, then its choice. */

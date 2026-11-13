@@ -5,6 +5,7 @@
   import BeatView from './BeatView.svelte'
   import { tellBeat } from './beats'
   import { beatsSeen } from './beatsSeen.svelte'
+  import { pacing } from './pacing.svelte'
   import { translator } from './i18n'
   import type { JournalContext } from './journal'
   import { tripWaits } from './waits'
@@ -14,7 +15,8 @@
    * falling, a clock filled…), up front until it's put away or the trip goes on. With
    * `onstep`, what the trip waits for goes on from here (**Continue**; a choice is the
    * panel's, `onshow`); without it, the panel below has it. Every important moment waits for
-   * **Continue** when the player chose so (`beatsSeen.stop`), else it's put away with ×.
+   * **Continue** when the player chose so (`beatsSeen.stop`), else it's put away with ×. A
+   * march told a place at a time holds on it for **Continue** while there's more to tell.
    */
   let {
     session,
@@ -41,7 +43,9 @@
   <section class="notable" aria-label={t('beats.notable')} role="status">
     <BeatView {told} {locale} big animate />
     <div class="buttons">
-      {#if waits?.go && onstep}
+      {#if pacing.holds(session)}
+        <button class="primary" onclick={() => pacing.resume()}>{t('continue')}</button>
+      {:else if waits?.go && onstep}
         <button
           class="primary"
           onclick={() => {

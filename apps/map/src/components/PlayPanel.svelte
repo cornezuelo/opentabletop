@@ -3,7 +3,7 @@
   import HexSubMaps from './hex/HexSubMaps.svelte'
   import { openLibraryMap } from '../lib/io/actions.svelte'
   import { systemName, travels } from '@open-tabletop/session'
-  import { TripPanel, TripSetup } from '@open-tabletop/travel-ui'
+  import { pacing, TripPanel, TripSetup } from '@open-tabletop/travel-ui'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import {
     clearTrail,
@@ -38,7 +38,9 @@
   const party = $derived(editor.tokens.find((t) => t.kind === 'party'))
 
   const play = $derived(editor.play)
-  const session = $derived(play ? sessionOf(play) : null)
+  /** A march told a place at a time is shown as it's told (travel-ui's `pacing`). */
+  const toldSession = (s: ReturnType<typeof sessionOf>) => s && pacing.view(s)
+  const session = $derived(play ? toldSession(sessionOf(play)) : null)
   /** What the campaign's world waits for: the trip doesn't move until it's answered. */
   const worldWaiting = $derived.by(() => {
     void editor.waiting

@@ -80,7 +80,7 @@ import {
 } from '@open-tabletop/hex'
 import { editor } from '../store/editor.svelte'
 import { getSystem } from '../play/systems'
-import { drawnTokens, isCopy, partyElsewhere } from '../play/present'
+import { drawnTokens, isCopy, partyElsewhere, toldParty } from '../play/present'
 import { currentTool, pathVertexPoint, type PointerInfo, type Tool } from '../tools/tools'
 
 /** Each side of a ragged cell is cut in this many pieces (walls follow the same points). */
@@ -1531,7 +1531,10 @@ export class MapRenderer {
     if (!play || partyElsewhere()) return
     const center = (key: string) => this.centerOf(parseKey(key as HexKey))
     const hs = grid.hexSize
-    const party = partyToken(editor.map)
+    // While a march is told a place at a time, the party and its trail follow the telling.
+    const told = toldParty()
+    const token = partyToken(editor.map)
+    const party = token && told.hex ? { ...token, hex: told.hex } : undefined
 
     // Along a road, trail or river they follow, the trail and route take its drawn points
     // (bending where it bends); they curve like the map's lines unless the play settings ask
@@ -1557,9 +1560,9 @@ export class MapRenderer {
         hs * 0.6,
       )
     }
-    if (party?.hex && play.showTrail && play.trail.length > 1) {
+    if (party?.hex && play.showTrail && told.trail.length > 1) {
       const points = line(
-        play.trail.filter((k) => inBounds(parseKey(k), grid)),
+        told.trail.filter((k) => inBounds(parseKey(k), grid)),
         -1,
       )
       for (const piece of dashes(points, hs * 0.12, hs * 0.14)) this.strokePolyline(lines, piece)

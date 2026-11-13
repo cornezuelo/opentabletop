@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { render } from 'svelte/server'
 import { createMap } from '@open-tabletop/map'
 import { shownAt } from '@open-tabletop/session'
-import { beatsSeen, lastNotableBeat } from '@open-tabletop/travel-ui'
+import { beatsSeen, lastNotableBeat, pacing } from '@open-tabletop/travel-ui'
 import PlayStrip from '../../components/PlayStrip.svelte'
 import PlayPanel from '../../components/PlayPanel.svelte'
 import { editor } from '../store/editor.svelte'
@@ -19,6 +19,8 @@ describe('the strip over the map', () => {
     clickHex('1,1')
     clickHex('4,1')
     step({ type: 'action', id: 'march', with: { until: 'destination' } })
+    // Told at once (a march told a place at a time is pace.test.ts's).
+    pacing.finish()
     const session = sessionOf(editor.map.play!)!
     const last = session.journal.findLast((e) => shownAt(e, { level: 'mechanics' }))!
     // Arriving is the newest line, which the strip says already: what came before it shows.
