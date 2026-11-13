@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.52.0] - 2026-11-13
+
 ### Travel and Map
 
 - **The fight view**: everyone in a fight is a card, the party's side and the foes' apart, in the order of play: each one's main value as its sheet draws it (health as a bar), what just happened to it (_−2_), its conditions with what's left; the one acting large, those who acted faded, the fallen struck through. Whom to strike is chosen by clicking a foe's card (in Map, its token too), and the fight's moments are told under the cards, with their dice. Map's panel widens by itself while a fight lasts.
