@@ -1038,6 +1038,9 @@ export const en = {
     blocksHelp:
       "What can't be done while the value holds:\n• `travel.move` — no more moving on today\n• an action, e.g. `actions.camp` or `actions.forage` — its button turns off\n• a way of travelling, e.g. `modes.horse` — that way of travelling: it can't be chosen, and a party already travelling so stops until it changes\nThe box suggests what this system declares. Blocked buttons stay visible, disabled, saying why (unless the action is **Hidden when it can't be taken**).",
     blocksNothing: 'nothing',
+    groups: 'Groups of buttons',
+    groupsHelp:
+      "Groups the party's buttons are shown in during a trip, each under its name, in this order; an action joins one with its **Group**.\n• `road` — **On the road**: the marches\n• `camp` — **Rest and camp**: what passes the time\n• `here` — **Here**: what's done where the party stands\nActions in no group stay as they are: those that move first, the rest last. With no groups, the buttons are one list, those that move first.",
   },
   actions: {
     search: 'Search the actions (name, id, moment, step…)',
@@ -1063,6 +1066,10 @@ export const en = {
     paramNeedsChoice: 'A parameter needs at least one choice.',
     addParam: 'Add a parameter',
     paramsRows: 'Rows',
+    group: 'Group',
+    groupHelp:
+      "The group of buttons it's shown in during a trip (**Groups of buttons**, above the actions): `groups.camp`. None: with those that move first if it moves, else last.",
+    groupNone: 'none',
     hide: "Hidden when it can't be taken",
     hideHelp:
       "**Unticked**: its button is always there, disabled (saying why) while it can't be taken, so the buttons don't move around.\n**Ticked**: its button only appears while it can be taken. For actions that only make sense now and then:\n• a rite only at a shrine under a full moon\n• talking round porters only while they refuse to march",

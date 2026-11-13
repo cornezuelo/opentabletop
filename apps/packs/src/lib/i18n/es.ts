@@ -1052,6 +1052,9 @@ export const es: Messages<typeof en> = {
     blocksHelp:
       'Lo que no se puede hacer mientras se cumple el valor:\n• `travel.move` — no se sigue avanzando hoy\n• una acción, p. ej. `actions.camp` o `actions.forage` — su botón se desactiva\n• una forma de viajar, p. ej. `modes.horse` — esa forma de viajar: no se puede elegir, y un grupo que ya viaja así se detiene hasta que cambie\nLa caja sugiere lo que declara este sistema. Los botones bloqueados siguen visibles, desactivados, diciendo por qué (salvo que la acción esté **Oculta si no se puede hacer**).',
     blocksNothing: 'nada',
+    groups: 'Grupos de botones',
+    groupsHelp:
+      'Grupos en los que se muestran los botones del grupo durante un viaje, cada uno bajo su nombre, en este orden; una acción entra en uno con su **Grupo**.\n• `road` — **En camino**: las marchas\n• `camp` — **Descanso y campamento**: lo que pasa el tiempo\n• `here` — **Aquí**: lo que se hace donde está el grupo\nLas acciones sin grupo quedan como están: las que mueven primero, el resto al final. Sin grupos, los botones son una sola lista, las que mueven primero.',
   },
   actions: {
     needs: 'Necesita',
@@ -1077,6 +1080,10 @@ export const es: Messages<typeof en> = {
     addParam: 'Añadir un parámetro',
     paramsRows: 'Filas',
     noParams: 'ninguno: solo el botón',
+    group: 'Grupo',
+    groupHelp:
+      'El grupo de botones en el que se muestra durante un viaje (**Grupos de botones**, encima de las acciones): `groups.camp`. Ninguno: con las que mueven al principio si mueve, si no al final.',
+    groupNone: 'ninguno',
     hide: 'Oculta si no se puede hacer',
     hideHelp:
       '**Sin marcar**: su botón siempre está, desactivado (diciendo por qué) mientras no se puede hacer, así los botones no cambian de sitio.\n**Marcada**: su botón solo aparece mientras se puede hacer. Para acciones que solo tienen sentido de vez en cuando:\n• un rito solo en un santuario con luna llena\n• convencer a los porteadores solo mientras se niegan a marchar',

@@ -114,6 +114,10 @@ checks:
     at: time.part.morning
 # No values of the day: nothing here blocks travel.
 values: {}
+# The party's buttons in a group under its name (an action's group): camping and resting
+# pass the time; the rest stay as they are, the march first.
+groups:
+  time: { name: Time, description: What passes the time where the party stands. }
 # Marching while it isn't dark for the day's 8 hours, to the destination or one hex at a
 # time; camp sleeps until the morning; a rest is an hour without marching, only by day (the
 # night is for camping). As each day ends, whether the party camped or not, it eats a day
@@ -140,12 +144,14 @@ actions:
     do:
       - { travel.move: '{{params.until}}' }
   camp:
+    group: groups.time
     name: Camp
     description: Sleep until the morning.
     do:
       - { time: time.part.morning }
       - { id: sheltered, when: { place.poi.shelter: 1 }, say: The landmark sheltered you. }
   rest:
+    group: groups.time
     name: Rest
     description: An hour without marching, only by day.
     when: { time.tags: { not: dark } }

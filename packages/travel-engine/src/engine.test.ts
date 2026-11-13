@@ -832,6 +832,22 @@ describe('actions as steps, and declared values', () => {
     ])
   })
 
+  it('put an action in a group the rules declare, by its full name', () => {
+    const grouped = (group: string, groups?: Record<string, object>) =>
+      parseTravelRules({
+        ...rules!,
+        ...(groups && { groups }),
+        actions: { ...rules!.actions, rest: { ...rules!.actions!.rest, group } },
+      }).errors
+    expect(grouped('groups.time', { time: { name: 'Time' } })).toEqual([])
+    expect(grouped('time', { time: {} })).toEqual([
+      'actions.rest.group: expected groups.time (did you mean groups.time?)',
+    ])
+    expect(grouped('groups.time')).toEqual([
+      'actions.rest.group: the rules declare no groups (groups:)',
+    ])
+  })
+
   it('camp eats once, sleeps until dawn and applies the effects whose condition holds', () => {
     const fed = runOn(own, start(), { type: 'action', id: 'camp' })
     expect(fed.state.time).toBe(defaultCalendar.at(2, '06:00'))

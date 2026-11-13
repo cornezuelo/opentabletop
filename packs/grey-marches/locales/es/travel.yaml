@@ -24,6 +24,19 @@ travel-rules/default:
     skunked:
       name: No picó nada
       description: Un día de pesca para nada.
+  groups:
+    road:
+      name: En camino
+      description: Las formas de seguir marchando por la ruta.
+    camp:
+      name: Descanso y campamento
+      description: Lo que pasa el tiempo donde está el grupo.
+    here:
+      name: Aquí
+      description: Lo que se puede hacer ahora donde está el grupo.
+    fight:
+      name: En el combate
+      description: Lo que hace el grupo en su turno.
   actions:
     march:
       name: Marchar

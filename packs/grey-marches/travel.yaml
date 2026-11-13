@@ -175,6 +175,14 @@ values:
   skunked:
     name: Nothing bit
     description: A day's fishing for nothing.
+# The party's buttons in groups, each under its name in this order (an action's group):
+# the marches, what passes the time, what's done where the party stands, and a fight's
+# own (only they show while one lasts).
+groups:
+  road: { name: On the road, description: The ways of marching on along the route. }
+  camp: { name: Rest and camp, description: What passes the time where the party stands. }
+  here: { name: Here, description: What can be done where the party stands now. }
+  fight: { name: In the fight, description: What the party does on its turn. }
 # The party's actions, each described as steps (do), in order, each one only when its
 # condition holds. Camp and rest are actions like the system's own.
 actions:
@@ -185,6 +193,7 @@ actions:
   # its button offers the choices (to the destination, one hex, three hexes), and its step
   # reads the one chosen (`{{params.until}}`).
   march:
+    group: groups.road
     name: March
     description: 'March along the route: by day for 8 hours, or after a night march by torchlight until midnight. To the destination, one hex or three hexes.'
     params:
@@ -207,6 +216,7 @@ actions:
   # party: fatigue under the party's own Endurance, a variable): otherwise the night passes
   # without camping (no night checks, no relief), as the halt is camp and can't be taken.
   camp:
+    group: groups.camp
     name: Camp
     description: 'End the day: the night’s checks, and you wake at dawn. A night after a day with enough to eat takes off 1 fatigue and gives each companion 1 health back; with morale 1 or less, the watch is restless: +1 fatigue. Only with food left and fatigue under your Endurance: otherwise the night passes in the open, without rest.'
     when:
@@ -228,6 +238,7 @@ actions:
   # only by day (not `dark`: the night is for camping), with something to eat and before
   # exhaustion (the party's Endurance): the button is off otherwise.
   rest:
+    group: groups.camp
     name: Rest
     description: Two hours without marching; takes off 1 fatigue and the Company is no longer shaken. Only by day, with food left and fatigue under your Endurance.
     when:
@@ -246,6 +257,7 @@ actions:
   # Only by day, and not in a storm: `when` / `unless` read the moment and today's values
   # (and the map, the party…).
   forage:
+    group: groups.here
     name: Forage for food
     description: 'Three hours looking for food (once a day, by day): the rest of the day’s march is halved. Only in forest, dense forest, plains, farmland, heath and marsh: roll 1d6 + Survival (twice, keep the best); 4–6 finds food for a day, 7 or more 2–4 days. Elsewhere there is nothing to find. Not in a storm.'
     when: { time.tags: { not: dark } }
@@ -260,6 +272,7 @@ actions:
   # only where there's danger, which the party can't know first: `needs` would give it away
   # for free, so the hour is spent and `nothing` is what the journal says where it doesn't.
   look-for-tracks:
+    group: groups.here
     name: Look for tracks
     description: 'An hour reading the ground, by day, once a day. Where danger walks you learn what left its mark; where nothing does, you learn that, for the hour it took.'
     nothing: 'no tracks on {terrain}: nothing dangerous has passed this way'
@@ -291,6 +304,7 @@ actions:
   # enough (a condition on a stat), once a day; a shaken Company (a condition of its sheet
   # that blocks it) can't.
   forced-march:
+    group: groups.road
     name: Forced march
     description: 'Push on: the rest of today’s march goes half as fast again, but +1 fatigue, and the party marches on to its destination. Only by day with marching hours left, with fatigue under 2 and the Company not shaken, once a day.'
     when:
@@ -307,6 +321,7 @@ actions:
   # At a shrine (a tag of the hex) under the full Ember Moon (the calendar): a rite. Its
   # button only shows then (hideWhenUnavailable), day or night.
   rite:
+    group: groups.here
     name: Rite of the Ember Moon
     description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2, fatigue gone, every companion’s dread emptied and their nerve a die higher; a tick of legend.'
     when: { all: [{ place.tags: shrine }, { time.moons.ember: full }] }
@@ -336,6 +351,7 @@ actions:
   # Talking them round: a d6 at or under morale (a roll in a step's condition, the same
   # all through the talk); otherwise one walks off and the rest follow.
   parley:
+    group: groups.here
     name: Talk to the hirelings
     description: 'An hour of talk: roll a d6. At or under your morale they march again; otherwise one of them walks off, and the rest follow you grudgingly.'
     when: { today.refusing: true }
@@ -352,6 +368,7 @@ actions:
   # Only in the evening (from nightfall: `time.hour` against when its calendar's night starts, `{{system.part.night}}`), so
   # its button only shows then.
   night-march:
+    group: groups.road
     name: Night march
     description: 'From nightfall, light the torches (each companion’s burns an hour) and march on until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
     when: { time.hour: { gte: '{{system.part.night}}' }, party.stats.fatigue: { lt: 4 } }
@@ -367,6 +384,7 @@ actions:
   # scale; `trip.taken.tale`, the times this action was taken, 0 until it is). After 50 km
   # on the road, an evening of tales around the fire; its button only shows then.
   tale:
+    group: groups.here
     name: Tales of the road
     description: 'Once a trip, after 50 km on the road, from nightfall: tales around the fire until the middle watch. Morale +1.'
     when: { trip.km: { gte: 50 }, trip.taken.tale: { lt: 1 }, time.tags: dark }
@@ -378,6 +396,7 @@ actions:
   # Progress by a move, not by marching (a `travel.advance` step): on the road, by day, a carter
   # takes the party two hexes along its route in two hours. Once a day; hidden off the road.
   carter:
+    group: groups.here
     name: Ride with a carter
     description: 'On a road, by day: a carter going your way takes you two hexes along your route in two hours. Once a day.'
     when: { time.tags: { not: dark }, trip.connections: road }
@@ -390,6 +409,7 @@ actions:
   # hours with a line, by day, once a day; the Fishing check (at: fish) rolls a d6 under
   # Survival. Hidden elsewhere.
   fish:
+    group: groups.here
     name: Fish
     description: 'Next to a lake, the sea or on the coast, by day: two hours with a line, once a day. Roll a d6: at or under your Survival, fish for two days; 1 to 3 otherwise, for one; else nothing bites.'
     when: { time.tags: { not: dark }, any: [{ around.water: true }, { place.terrain: coast }] }
@@ -407,6 +427,7 @@ actions:
   # the world clock says it's market day there (an event of the world, `world.events`, by
   # its id: the example map's `market-day`). Two hours of trading for supplies, once a day; hidden otherwise.
   market:
+    group: groups.here
     name: Market day
     description: 'In a market town, on Marketday (or on the world clock’s market day): two hours of trading. Food +3 and fodder +2, once a day.'
     when:
@@ -423,6 +444,7 @@ actions:
   # condition on the acting character), every wound and sprain is bound (effects on every
   # member); otherwise the hour is spent for nothing. The acting one is chosen in the trip.
   tend:
+    group: groups.here
     name: Tend the wounded
     description: 'An hour binding wounds and sprains, by day, while a companion is wounded or sprained. Whoever acts needs Survival 2 or more: then every companion’s wounds and sprains are tended.'
     when:
@@ -447,6 +469,7 @@ actions:
   # player presses Continue. Her fare is a value of her token on the map, read from the place
   # (`place.tokens.fare`): each mouth pays it in silver, and with Brenna gone there's no ferry.
   ferry:
+    group: groups.here
     name: Take the ferry
     description: 'At Brenna’s ferry, by day: pay her fare in silver, each of you, or a day of food, and she casts off at once, or wait for her afternoon crossing (at the latest, until nightfall). Then you are afloat on the Saltmere, by boat.'
     when: { place.tags: ferry, time.tags: { not: dark } }
@@ -495,6 +518,7 @@ actions:
   # from the place (`place.poi.*`), so an inn on any map works alike. Two to a room, each mouth
   # paying the price; `needs` says so on the button before anything is spent.
   inn:
+    group: groups.camp
     name: Take rooms at the inn
     description: 'A night under a roof, each of you paying the inn’s price, two to a room: you wake at dawn with 2 fatigue less, 1 morale more, each companion 1 health better, and no longer shaken.'
     when: { place.poi.rooms: { exists: true } }
@@ -516,6 +540,7 @@ actions:
   # action of the system's own the moment the Company enters the fort (`on: trip.place-enter`,
   # the garrison's tag), and forgotten if the Company walks away from it.
   escort:
+    group: groups.here
     name: Take the escort
     description: 'A traveller here offers silver to be taken to Fort Keld: they walk and eat with you, and pay when you get there.'
     when:
@@ -549,6 +574,7 @@ actions:
       - { effects: { party.values.escort-offer: '=0' } }
   # Off the boat (`travel.mode` again): on foot from now on, to march onto the shore nearby.
   ashore:
+    group: groups.here
     name: Go ashore
     description: 'Half an hour to leave the boat at the water’s edge: on foot from now on, to march onto the shore.'
     when: { trip.mode: boat }
@@ -566,6 +592,7 @@ actions:
   # map); the dead of this map stir (its own sheet, `map.values`); then the noise of it,
   # rolled on a table that may bring one of the dead.
   force-door:
+    group: groups.here
     name: Force the door
     description: 'At a barred door: ten minutes to break it open; the dead of this place stir (Restless dead +1), and the noise may bring what sleeps below (_The noise of it_).'
     when: { place.connections.door.state: barred }
@@ -579,6 +606,7 @@ actions:
   # to trust (`ask`), and one table rolls under whichever it is (`acting.values[params.skill]`
   # in _Scouting ahead_): no table per skill.
   scout:
+    group: groups.here
     name: Scout ahead
     description: 'By day: half an hour scouting the way on, by stealth or by pathfinding, as you choose. Whoever acts rolls a d6 at or under that skill: the way is clear and the Company takes heart (morale +1).'
     when: { time.tags: { not: dark } }
@@ -596,6 +624,7 @@ actions:
       - { time: 30 }
       - { roll: table.scouting }
   delve:
+    group: groups.here
     name: Delve the ruin
     description: 'In a ruin, by day: three hours searching it, then what it holds and what guards it, rolled on _Delving a ruin_. Once a day.'
     when: { place.tags: ruins, time.tags: { not: dark } }
@@ -669,6 +698,7 @@ actions:
   # time (each faction's turn, then the world's reactions to it, world.yaml's _News on the
   # roads_); the journal says what the factions did. In a market town, by day, once a trip.
   carry-news:
+    group: groups.here
     name: Carry the news
     description: 'In a market town, by day, once a trip: an hour telling the townsfolk what you saw on the roads. The news spreads, and the powers of the Marches move (a world turn).'
     when: { place.tags: market, time.tags: { not: dark }, trip.taken.carry-news: { lt: 1 } }
@@ -697,6 +727,7 @@ actions:
   # one of them changed at once (`present.all.…`, one roll for all); whoever's health reaches
   # 0 is down, and gone by itself (the foe's sheet: `leaves: true`).
   drive-off:
+    group: groups.fight
     name: Drive them off
     description: 'With foes here: ten minutes of steel and fire. Each of them takes 1d3 harm, and the fallen are gone; whoever acts takes 1 harm unless their Survival is 2 or more.'
     when: { present.count: { gte: 1 } }
@@ -713,6 +744,7 @@ actions:
   # present.ids`), asked as the action goes, and an effect on the one chosen
   # (`characters[params.foe].…`, its id read from the parameter).
   strike:
+    group: groups.fight
     name: Strike one down
     description: 'With foes here: whoever acts goes for one of them, the one you choose, for 1d6 harm (rolled twice, the lower kept, in the dark; the higher kept on a foe left alone); the fallen are gone.'
     when: { present.count: { gte: 1 } }
@@ -733,6 +765,7 @@ actions:
   # Outlaws among those present (a tag of their template): a ration for each of them
   # (`'-{{present.count}}'`), and a condition that takes them off (`bought-off`).
   buy-off:
+    group: groups.fight
     name: Buy them off
     description: 'With outlaws here: a ration for each one of them, and they go.'
     when: { present.tags: outlaw, party.items.ration.count: { gte: '{{present.count}}' } }
@@ -744,6 +777,7 @@ actions:
   # A fight in turns (system.yaml: `encounter:`), begun by an effect (`encounter: start`). In
   # it only Strike one down and Fall back are open, on a companion's turn; the rest wait.
   stand:
+    group: groups.fight
     name: Stand and fight
     description: 'With foes here: a fight in turns, each one in the order of what it rolls (1d6 and Stealth, or a foe’s Harm), a minute a round, until no foe is left. Strike one down on your turns, or fall back.'
     when: { present.count: { gte: 1 } }
@@ -756,6 +790,7 @@ actions:
   # stay where they are. If the fiercest of them (`present.highest.values.harm`) outdoes the
   # clumsiest of the Company (`party.lowest.values.stealth`), that one takes a parting blow.
   fall-back:
+    group: groups.fight
     name: Fall back
     description: 'In a fight, on a companion’s turn: the Company gives ground and the fight ends; the foes are still here. If the fiercest foe’s Harm is over the clumsiest companion’s Stealth, that one takes a parting blow.'
     when: { encounter.round: { gte: 1 } }

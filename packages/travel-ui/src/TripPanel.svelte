@@ -88,6 +88,7 @@
   import { journalBeats, lastStepBeats, tellBeat, type BeatTold } from './beats'
   import { beatsSeen } from './beatsSeen.svelte'
   import { pacing } from './pacing.svelte'
+  import { buttonGroups } from './actionGroups'
   import { PACES } from './pace'
   import { CharacterCard, itemName, SheetOrigin, sheetText } from '@open-tabletop/character-ui'
   import { mainValue } from '@open-tabletop/character-engine'
@@ -281,6 +282,8 @@
       })
       .sort((a, b) => Number(movers.has(b)) - Number(movers.has(a))),
   )
+  /** The buttons by the groups the system declares (none: those that move first). */
+  const groups = $derived(buttonGroups(buttons, system.rules, movers))
   /** A fight in turns going on (round, who acts in order), if any. */
   const fight = $derived(encounterView(session))
   /**
@@ -857,33 +860,49 @@
           onclick={() => onstep({ type: 'travel' })}>{t('goOn')}</button
         >
       {/if}
-      {#each buttons as id (id)}
-        <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
-        {@const params = Object.entries(actions.all[id].params ?? {}).filter(
-          ([key, param]) => !param.from && !askedParams(actions.all[id]).includes(key),
-        )}
-        <span class="take" class:joined={params.length > 0}>
-          <button
-            class:primary={id === main}
-            use:tooltip={tipWith(actionTip(id), id)}
-            disabled={!!blocked[id] || (movers.has(id) && !heading)}
-            onclick={() => take(id)}>{buttonText(id)}</button
-          >
-          {#each params as [key, param] (key)}
-            <select
-              aria-label={paramName(key, param)}
-              use:tooltip={paramName(key, param)}
-              value={choiceOf(id, key, param)}
-              onchange={(e) =>
-                (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
+      {#each groups as row, i (row.group ?? `loose-${i}`)}
+        <!-- A group the system declares, under its name; the rest on lines of their own. -->
+        {#if row.group}
+          {@const def = system.rules.groups?.[row.group]}
+          <p class="overline group">
+            {localize(def?.name, locale, 'en') ??
+              row.group.replaceAll('-', ' ')}{#if localize(def?.description, locale, 'en')}<InfoTip
+                markdown={localize(def?.description, locale, 'en')}
+              />{/if}
+          </p>
+        {:else if i > 0}
+          <span class="break"></span>
+        {/if}
+        {#each row.ids as id (id)}
+          <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
+          {@const params = Object.entries(actions.all[id].params ?? {}).filter(
+            ([key, param]) => !param.from && !askedParams(actions.all[id]).includes(key),
+          )}
+          <span class="take" class:joined={params.length > 0}>
+            <button
+              class:primary={id === main}
+              use:tooltip={tipWith(actionTip(id), id)}
+              disabled={!!blocked[id] || (movers.has(id) && !heading)}
+              onclick={() => take(id)}>{buttonText(id)}</button
             >
-              {#each param.choices ?? [] as c (String(choiceId(c)))}<option
-                  value={String(choiceId(c))}>{choiceName(c)}</option
-                >{/each}
-            </select>
-          {/each}
-        </span>
+            {#each params as [key, param] (key)}
+              <select
+                aria-label={paramName(key, param)}
+                use:tooltip={paramName(key, param)}
+                value={choiceOf(id, key, param)}
+                onchange={(e) =>
+                  (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
+              >
+                {#each param.choices ?? [] as c (String(choiceId(c)))}<option
+                    value={String(choiceId(c))}>{choiceName(c)}</option
+                  >{/each}
+              </select>
+            {/each}
+          </span>
+        {/each}
       {/each}
+      <!-- What the host adds goes on a line of its own after a group. -->
+      {#if groups.at(-1)?.group}<span class="break"></span>{/if}
       {#if canFight}
         <button
           use:tooltip={t('fight.startTip')}
@@ -1485,6 +1504,21 @@
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
+  }
+
+  /* A group of buttons starts a line of its own, under its name. */
+  .actions .group {
+    flex-basis: 100%;
+    margin: 4px 0 0;
+  }
+
+  .actions .group:first-child {
+    margin-top: 0;
+  }
+
+  .actions .break {
+    flex-basis: 100%;
+    height: 0;
   }
 
   .actions .primary:not(:disabled) {

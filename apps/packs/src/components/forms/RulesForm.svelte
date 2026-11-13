@@ -502,6 +502,26 @@
   </section>
 
   <section>
+    <h3>{t('rules.groups')}<InfoTip text={t('rules.groupsHelp')} /></h3>
+    <RecordRows
+      {doc}
+      at={['groups']}
+      idLabel={t('forms.id')}
+      suggestions={['road', 'camp', 'here']}
+      template={{}}
+      columns={[
+        { field: 'name', label: t('rules.name'), help: t('rules.nameHelp'), type: 'text' },
+        {
+          field: 'description',
+          label: t('forms.description'),
+          help: t('forms.descriptionHelp'),
+          type: 'text',
+        },
+      ]}
+    />
+  </section>
+
+  <section>
     <h3>{t('rules.actions')}<InfoTip text={t('rules.actionsHelp')} /></h3>
     <ActionsForm {doc} {system} />
   </section>

@@ -278,6 +278,20 @@ When the button can be pressed:
 
 A button that can't be pressed stays visible, disabled, saying why, so the buttons don't move around. `hideWhenUnavailable: true` hides it instead while it can't be taken: for actions that only make sense now and then, like the Grey Marches' rite (at a shrine under the full Ember Moon), talking round the hirelings (only while they refuse) or the night march (only at night).
 
+**Groups of buttons.** `groups:` in the travel rules names groups the buttons are shown in, under their names, in the order declared; an action joins one with `group: groups.<id>`. Actions in no group stay as they are: those that move first, the rest last.
+
+```yaml
+kind: travel-rules
+id: grouped
+groups:
+  time: { name: Time, description: What passes the time where the party stands. }
+actions:
+  march: { do: [{ travel.move: destination }] }
+  rest: { group: groups.time, do: [{ time: 120 }] }
+  camp: { group: groups.time, do: [{ time: '06:00' }] }
+… # the rest of the travel rules
+```
+
 **Actions the system takes by itself.** With `on:` an action isn't a button: the system takes it at that moment, when its `when` / `unless` hold. The moments are a clock (`on: '06:00'`, as it strikes) or a part of the calendar's day (`on: time.part.morning`, as it begins), marching, waiting or asleep in camp, `trip.place-enter` (entering each cell), `time.day-end` (as each day ends, camping or not), another action (right after that action starts: `on: actions.camp`), an action's end (once its steps are done: `on: actions.forage.done`), a check (right after it's resolved, after **Continue** if it paused: `on: checks.WEATHER_CHECK_REQUIRED`; the Grey Marches' _A stormy dawn_ reads the weather just rolled, and the next checks of that dawn see what it changed) or a moment of the world (below: `on: world.turn`, `on: world.clocks.<id>.full`), or several as a list (`on: [time.part.morning, trip.place-enter]`). It comes before that moment's checks, so they see what it changed; its conditions see which moment it is as `trip.moment`, and at `time.day-end` the action under way as `trip.doing` (`trip.doing: camp`).
 
 **For each member.** With `for: party.members` beside `on:`, the system takes it once for each of the party's characters, one after another, each acting (`acting.*`), instead of once with whoever acts at that moment; its `when` / `unless` are read for each, so it may come for some only. After a fight, say, each companion's armour is looked over, whoever's turn it was when the fight ended: the Grey Marches' **Mind the mail** (`on: encounter.end`). Core's **Mend** (`on: actions.rest.done`) gives each one still standing 1 health back after a rest. A party played as a whole (no characters) takes it once.

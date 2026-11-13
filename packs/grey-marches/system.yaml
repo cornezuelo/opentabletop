@@ -8,7 +8,7 @@ description: |-
   A haunted frontier of woods, hollow hills and a salt lake, travelled on foot, on
   horseback or by cart, with hunger, fatigue, morale and getting lost, under two moons.
 
-  **Shows:** a system naming its parts: travel rules and bindings, its calendar, the
+  **Shows:** a system naming its parts: travel rules (its buttons in groups) and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
   pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs, the fallen stripped as they leave), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default

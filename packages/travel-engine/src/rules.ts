@@ -62,7 +62,7 @@ export const CHECK_MOMENTS = [PLACE_ENTER, DAY_END] as const
 const OTHER_REF = /^(?:[a-z0-9][a-z0-9-]*\/)?[a-z][a-z-]*\.[^/\s]+$/
 
 /** The kinds of definitions rules refer to by their full name (`actions.march`). */
-export type RefKind = 'actions' | 'modes' | 'checks' | 'params'
+export type RefKind = 'actions' | 'modes' | 'checks' | 'params' | 'groups'
 /** A definition's full name: `ref('actions', 'march')` is `actions.march`. */
 export const ref = (kind: RefKind, id: string): string => `${kind}.${id}`
 /** The id a full name refers to, if it's of that kind: `refId('actions', 'actions.march')` is `march`. */
@@ -368,6 +368,19 @@ const action = z
     oncePerDay: z.boolean().optional(),
     /** Its button is hidden while it can't be taken (instead of shown disabled). */
     hideWhenUnavailable: z.boolean().optional(),
+    /** The group of buttons it's shown in (`groups.<id>`, one the system declares). */
+    group: z.string().min(1).optional(),
+  })
+  .strict()
+
+/**
+ * A group of the party's buttons (`groups.camp`), shown together under its name in the order
+ * the groups are declared.
+ */
+const actionGroup = z
+  .object({
+    name: text.optional(),
+    description: text.optional(),
   })
   .strict()
 
@@ -557,6 +570,8 @@ export const travelRulesSchema = z
      * ones with a `travel.move` step move the party.
      */
     actions: z.record(z.string(), action).optional(),
+    /** Groups of the party's buttons, in the order they're shown (`groups.<id>` in an action). */
+    groups: z.record(z.string(), actionGroup).optional(),
   })
   .strict()
   .superRefine((rules, ctx) => {
@@ -567,7 +582,7 @@ export const travelRulesSchema = z
     const moments = [...CHECK_MOMENTS, ...taken, ...actionIds.map(doneOf), ...checked]
     /** The full name of what a short one may have meant, said with the problem. */
     const meant = (value: string, among: string[]) => {
-      if (/^(trip|time|actions|modes|checks|params|travel)\./.test(value)) return ''
+      if (/^(trip|time|actions|modes|checks|params|travel|groups)\./.test(value)) return ''
       const full =
         among.find((m) => m.endsWith(`.${value}`)) ??
         (PART_REF.test(`time.${value}`) ? `time.${value}` : undefined)
@@ -644,6 +659,16 @@ export const travelRulesSchema = z
       })
     const events = [...new Set((rules.checks ?? []).map((c) => ref('checks', c.event)))]
     const values = Object.keys(declaredValues(rules as TravelRules))
+    const groups = Object.keys(rules.groups ?? {}).map((g) => ref('groups', g))
+    for (const [id, a] of Object.entries(rules.actions ?? {}))
+      if (a.group !== undefined && !groups.includes(a.group))
+        ctx.addIssue({
+          code: 'custom',
+          path: ['actions', id, 'group'],
+          message: groups.length
+            ? `expected ${groups.join(', ')}${meant(a.group, groups)}`
+            : 'the rules declare no groups (groups:)',
+        })
     for (const [id, a] of Object.entries(rules.actions ?? {})) {
       badMoments(a.on, ['actions', id, 'on'])
       // For each member, at its moments: without one the player takes it, once.

@@ -273,6 +273,20 @@ Cuándo se puede pulsar el botón:
 
 Un botón que no se puede pulsar sigue visible, desactivado, diciendo por qué, así los botones no cambian de sitio. `hideWhenUnavailable: true` lo oculta en cambio mientras no se puede hacer: para acciones que solo tienen sentido de vez en cuando, como el rito de las Marcas Grises (en un santuario con la Luna Ascua llena), convencer a los mercenarios (solo mientras se niegan) o la marcha nocturna (solo de noche).
 
+**Grupos de botones.** `groups:` en las reglas de viaje nombra grupos en los que se muestran los botones, bajo sus nombres, en el orden declarado; una acción entra en uno con `group: groups.<id>`. Las acciones sin grupo quedan como están: las que mueven primero, el resto al final.
+
+```yaml
+kind: travel-rules
+id: grouped
+groups:
+  time: { name: Time, description: What passes the time where the party stands. }
+actions:
+  march: { do: [{ travel.move: destination }] }
+  rest: { group: groups.time, do: [{ time: 120 }] }
+  camp: { group: groups.time, do: [{ time: '06:00' }] }
+… # el resto de las reglas de viaje
+```
+
 **Acciones que hace el propio sistema.** Con `on:` una acción no es un botón: el sistema la hace en ese momento, si se cumplen su `when` / `unless`. Los momentos son una hora (`on: '06:00'`, al dar esa hora) o una parte del día del calendario (`on: time.part.morning`, al empezar), marchando, esperando o dormidos en el campamento, `trip.place-enter` (al entrar en cada casilla), `time.day-end` (al acabar cada día, se acampe o no), otra acción (justo al empezar esa acción: `on: actions.camp`), el final de una acción (cuando acaban sus pasos: `on: actions.forage.done`), una comprobación (justo después de resolverse, tras **Continuar** si pausó: `on: checks.WEATHER_CHECK_REQUIRED`; _Un alba de tormenta_ de las Marcas Grises lee el clima recién tirado, y las siguientes comprobaciones de esa alba ven lo que cambió) o un momento del mundo (más abajo: `on: world.turn`, `on: world.clocks.<id>.full`), o varios en una lista (`on: [time.part.morning, trip.place-enter]`). Va antes de las comprobaciones de ese momento, así que ven lo que cambió; sus condiciones ven qué momento es como `trip.moment`, y en `time.day-end` la acción en curso como `trip.doing` (`trip.doing: camp`).
 
 **Para cada miembro.** Con `for: party.members` junto a `on:`, el sistema la hace una vez por cada personaje del grupo, uno tras otro, actuando cada uno (`acting.*`), en lugar de una vez con quien actúe en ese momento; su `when` / `unless` se lee para cada uno, así que puede llegar solo a algunos. Tras un combate, por ejemplo, se revisa la armadura de cada compañero, fuera de quien fuera el turno cuando acabó: **Revisar la malla** de las Marcas Grises (`on: encounter.end`). **Recuperarse** de Core (`on: actions.rest.done`) devuelve 1 de salud a cada uno que sigue en pie tras un descanso. Un grupo jugado como un todo (sin personajes) la hace una vez.

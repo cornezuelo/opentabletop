@@ -7,6 +7,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Travel and Map
 
 - **A march, place by place**: a step that goes through several places is told one after another: in Map the party's token moves cell by cell along its route, its trail behind it; in Travel the party moves along the way; what happened in each place comes as it's entered, with the clock following it, and an important moment on the way waits for **Continue**. While it's told the trip's buttons wait; **Tell it all** shows the rest at once. **A march is told** (Options): **Quickly, place by place** (the default), **Slowly** or **At once**, as before.
+- **Buttons in groups**: a system may show the party's buttons in groups, each under its name; without groups, nothing changes.
+
+### Packs
+
+- **Groups of buttons** (`groups:` in the travel rules, an action's `group: groups.<id>`; Packs' **Groups of buttons** and an action's **Group**). The Grey Marches' buttons are _On the road_, _Rest and camp_, _Here_ and _In the fight_; Core's camp and rest are under _Time_.
 
 ## [0.53.0] - 2026-11-13
 

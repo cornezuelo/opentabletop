@@ -70,6 +70,8 @@
   type Raw = Record<string, unknown>
   const disabled = $derived(!doc.editable)
   const actions = $derived((doc.rules.actions ?? {}) as Record<string, Raw | undefined>)
+  /** The groups of buttons the rules declare, by their full names (`groups.camp`). */
+  const groupRefs = $derived(Object.keys((doc.rules.groups ?? {}) as Raw).map((g) => `groups.${g}`))
   /** Every action the system declares, in order. */
   const ids = $derived(Object.keys(actions))
   /** An action's moments in words: "At dawn · After: Camp". */
@@ -479,6 +481,25 @@
               {disabled}
               onchange={(e) => setText(id, 'nothing', e.currentTarget.value)}
             />
+          </label>
+          <label>
+            <span>{t('actions.group')}<InfoTip text={t('actions.groupHelp')} /></span>
+            <select
+              value={d.group ?? ''}
+              {disabled}
+              onchange={(e) =>
+                doc.edit(
+                  'travel-rules',
+                  ['actions', id, 'group'],
+                  e.currentTarget.value || undefined,
+                )}
+            >
+              <option value="">{t('actions.groupNone')}</option>
+              {#each groupRefs as group (group)}<option value={group}>{group}</option>{/each}
+              {#if typeof d.group === 'string' && !groupRefs.includes(d.group)}
+                <option value={d.group}>{d.group}</option>
+              {/if}
+            </select>
           </label>
           <label class="inline first">
             <input
