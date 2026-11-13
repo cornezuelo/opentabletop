@@ -579,11 +579,18 @@ function intoRooms(state: SessionState): SessionState {
     else delete travel.route
   }
   if (travel.route?.join() !== route?.join()) travel.progress = 0
+  // Those present on those cells are in the room too: else a fight met as the room was laid
+  // would find nobody there, and end as it starts.
+  const present = state.present?.map((p) => {
+    const at = place(p.at)
+    return at === p.at ? p : { ...p, at }
+  })
   const same =
     travel.location === location &&
     travel.destination === destination &&
-    travel.route?.join() === route?.join()
-  return same ? state : { ...state, travel }
+    travel.route?.join() === route?.join() &&
+    present?.every((p, i) => p === state.present![i]) !== false
+  return same ? state : { ...state, travel, ...(present && { present }) }
 }
 
 /** Runs a travel action through the session, and what it did in the world. */
