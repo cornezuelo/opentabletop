@@ -137,6 +137,8 @@ describe('those present on the map', () => {
     tool.up()
     expect(tripTab.chosen).toBe('party')
     expect(tripTab.shown?.id).toBe('grey-wolf')
+    // Selected as a token is, outlined on the map.
+    expect(editor.selectedToken).toBe('present:grey-wolf')
     // No destination was chosen by the click.
     expect(sessionOf(editor.map.play!)!.travel.destination).toBe(heading)
 
@@ -153,6 +155,18 @@ describe('those present on the map', () => {
       source: 'user',
       data: { id: 'grey-wolf', at: '9,7' },
     })
+    // A click elsewhere leaves it: the party is selected again.
+    setTokenHitTest(() => null)
+    tool.down({ col: 7, row: 7 }, { ...info, world: { x: 5, y: 5 } })
+    tool.up()
+    expect(editor.selectedToken).toBe(editor.map.tokens.find((t) => t.kind === 'party')?.id)
+    // With Select in Play, those present are picked too.
+    setTokenHitTest((world, copies) => (copies && world.x === 1 ? 'present:pack-leader' : null))
+    editor.tool = 'select'
+    currentTool().down({ col: 7, row: 7 }, { ...info, world: { x: 1, y: 0 } })
+    currentTool().up()
+    expect(editor.selectedToken).toBe('present:pack-leader')
+    expect(tripTab.shown?.id).toBe('pack-leader')
     setTokenHitTest(() => null)
   })
 

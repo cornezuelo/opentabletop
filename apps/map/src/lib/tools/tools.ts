@@ -21,11 +21,20 @@ import {
   nextTokenName,
   nodeFlags,
   normalizePath,
+  partyToken,
   placeOfCell,
 } from '@open-tabletop/map'
 import { clickHex, onTrip, partyMoved, walkTo } from '../play/play'
 import { paintTerritory } from '../play/factions'
-import { copyOf, dragCopy, drawnTokens, isCopy, moveCopy, tokenFromBestiary } from '../play/present'
+import {
+  copyOf,
+  dragCopy,
+  drawnTokens,
+  isCopy,
+  moveCopy,
+  PRESENT_ID,
+  tokenFromBestiary,
+} from '../play/present'
 import { showPresent } from '@open-tabletop/travel-ui'
 import { placeInHex } from '../render/pathGeometry'
 import {
@@ -395,6 +404,8 @@ const selectTool: Tool = {
   down(cell, info) {
     pressedAt = null
     const editing = editor.mode === 'edit'
+    // In Play, those present are picked as in the trip's tool.
+    if (!editing && info.button === 0 && copyDragger.down(info)) return
     if (tokenDragger.down(cell, info)) {
       // The panel shows the cell it stands on, as a click beside it would.
       const token = info.button === 0 ? editor.getToken(editor.selectedToken ?? '') : undefined
@@ -412,10 +423,12 @@ const selectTool: Tool = {
     else editor.picked = null
   },
   move(cell, info) {
+    if (copyDragger.busy) return copyDragger.move(cell, info)
     tokenDragger.move(cell, info)
     nameDragger.move(info)
   },
   up() {
+    if (copyDragger.busy) return copyDragger.up()
     const clicked = tokenDragger.up()
     const moved = nameDragger.up()
     const press = pressedAt
@@ -960,8 +973,9 @@ export function deleteSelectedLabel(): void {
 }
 
 /**
- * Those present in Play: a click on one shows its sheet in the trip's **Here**, a drag
- * moves it to another place in the trip (drawn there while it's dragged).
+ * Those present in Play: a click on one selects it (outlined as a token is) and shows its
+ * sheet in the trip's **Here**, a drag moves it to another place in the trip (drawn there
+ * while it's dragged).
  */
 class CopyDragger {
   private pressed: { id: string; at: Point; threshold: number; hex?: HexKey } | null = null
@@ -993,7 +1007,10 @@ class CopyDragger {
     const pressed = this.pressed
     this.pressed = null
     if (!pressed) return
-    if (!pressed.hex) return showPresent(pressed.id)
+    if (!pressed.hex) {
+      editor.selectedToken = `${PRESENT_ID}${pressed.id}`
+      return showPresent(pressed.id)
+    }
     dragCopy(null)
     moveCopy(pressed.id, pressed.hex)
   }
@@ -1013,6 +1030,9 @@ const copyDragger = new CopyDragger()
 const playTool: Tool = {
   down(cell, info) {
     if (info.button === 0 && copyDragger.down(info)) return
+    // Anything else clicked leaves the one present selected: the party is again.
+    if (editor.selectedToken?.startsWith(PRESENT_ID))
+      editor.selectedToken = partyToken(editor.map)?.id ?? null
     if (info.button === 0 && playDragger.down(cell, info)) return
     if (info.button !== 0 || !inBounds(cell, editor.map.grid)) return
     clickHex(keyOf(cell))

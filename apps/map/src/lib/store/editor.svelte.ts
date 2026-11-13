@@ -655,7 +655,9 @@ class Editor {
   private pruneSelections(): void {
     if (this.selectedIcon && !this.map.hexes[this.selectedIcon]?.icon) this.selectedIcon = null
     if (this.selectedLabel && !this.getLabel(this.selectedLabel)) this.selectedLabel = null
-    if (this.selectedToken && !this.getToken(this.selectedToken)) this.selectedToken = null
+    // One of those present (Play's `present:<id>`) isn't the map's: the trip says if it's gone.
+    const token = this.selectedToken
+    if (token && !token.startsWith('present:') && !this.getToken(token)) this.selectedToken = null
     if (
       this.selectedConnection &&
       !this.map.connections.some((c) => c.id === this.selectedConnection)
