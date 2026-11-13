@@ -1,6 +1,6 @@
 # Playing reads well: a review of the UI/UX of play
 
-**Status: a proposal, to review with the author** (2026-11-13). Nothing here is built yet.
+**Status: decided with the author** (2026-11-13: "me vale todo lo que dices… el resto lo que tú sugieras"); §5 says how each question was settled. Built phase by phase, in the order of §4.
 
 The ask (author, 2026-11-13): "ahora mismo es un cristo lleno de tablas y pestañas y no se lee muy bien absolutamente nada de lo que va pasando, ni queda muy claro todo lo que ocurre… Está bien tener automatismos, pero también sentir que estás jugando a algo y no lo está haciendo por ti el ordenador." Their ideas: the strip at the top redesigned, the fight panel, what happens "in your face", dice you can see, and rolling yourself when you want to.
 
@@ -110,11 +110,14 @@ A march of several cells moves the token **cell by cell** on the map (a short st
 
 Each phase with its tests, manual pages (en/es) and the bundled packs showing it (the Grey Marches' notable results, Core's smallest example), as every feature.
 
-## 5. To decide with the author
+## 5. Decided (2026-11-13)
 
-1. **Where important beats show in Map**: a card over the map (centre-top, under the strip), or in the panel's top? Proposed: over the map, since that's where the eyes are.
-2. **How much stops you by default**: only what pauses today, or every important beat (A)? Proposed: every important beat shows, only pauses wait; a preference makes them all wait.
-3. **Rolling yourself (C)**: the three levels, the default staying **the computer rolls everything**?
-4. **Dice look (B)**: flat 2D faces (proposed), or 3D dice?
-5. **A march's pace (E)**: default **quick**, or **instant** as today?
-6. **The order (§4)**.
+The author agreed to the whole proposal and asked two things; the rest as proposed.
+
+1. **Important beats in Map**: a card over the map, under the strip.
+2. **What stops you**: every important beat shows; only pauses (and rolls that are yours) wait; a preference makes them all wait.
+3. **Where the way of rolling is set** (author: "¿el modo de tirar dónde se configuraría?"): in the trip's **Options** tab, beside **Skip pauses**, as one choice of three (**The computer rolls** / **I roll what matters** / **I roll everything**), replacing **Roll the foes by hand**; each trip keeps its own, a new trip takes the last one chosen. A roll waiting for you offers the way back on the spot (**Let the computer roll from now on**).
+4. **Where the fight is seen** (author: "¿el combate seguiría viéndose donde se ve?"): yes, where the trip is played, in its panel: it takes the panel's top (in place of the actions) and the panel widens by itself while it lasts, so in Map the map stays in sight and its tokens can be clicked as targets. Travel and Campaign's scenes show it in their main column, as today, with the room they have.
+5. **Dice**: flat 2D faces of our own.
+6. **A march's pace**: **quick** by default, **instant** a choice.
+7. **The order**: §4.
