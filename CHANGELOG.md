@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.49.0] - 2026-11-13
+
 ### Characters
 
 - **Choosing from a catalogue**: a parameter can list a catalogue's entries (`from: items.knacks`) and keep only those a condition holds for (**Only those**, `where:`, which works on any list the trip gives: `party.members`, `present.ids`); an entry's **Needs** (`needs:`) leaves it out for whoever doesn't meet it, read with what happened just before (a level gained), and the journal says when one is given anyway.
