@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.50.0] - 2026-11-13
+
 ### Map
 
 - **Play opens on the trip**, whatever tool or panel was open; with no trip yet, **New trip** stands out.
