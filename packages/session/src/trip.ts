@@ -1310,7 +1310,9 @@ function undeclaredEffects(
           ? // One named by brackets (`acting.items[params.piece]`): whichever it is, by its key.
             (itemId === 'named' || itemIds.includes(itemId)) &&
             (field === undefined || fieldKnown(field))
-          : !!own?.[part as 'values' | 'conditions'][partId] ||
+          : // One named by brackets (`conditions[rider]`): whichever it is.
+            partId === 'named' ||
+            !!own?.[part as 'values' | 'conditions'][partId] ||
             // One that may be a copy of a template (by id, by brackets, the one acting).
             (who !== 'party' &&
               who !== 'map' &&

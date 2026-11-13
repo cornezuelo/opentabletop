@@ -270,6 +270,18 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     // Forty-odd fights: longer than a test usually takes.
   }, 60_000)
 
+  it("a hit's rider: the check the creature's row names, or the condition it brings", () => {
+    const riders: string[] = []
+    for (let n = 0; n < 30 && !riders.includes('paralyzed'); n++) {
+      // Bone Spiders: a Venomous Bite that hits paralyzes unless the PC passes Endurance.
+      const { entries } = fight({ 'bone-spider': 3 }, `r${n}`)
+      for (const e of entries)
+        if (e.code === 'CHANGED' && /^characters\.erthos\.conditions\./.test(String(e.data?.path)))
+          riders.push(String(e.data?.path).split('.').at(-1)!)
+    }
+    expect(riders).toContain('paralyzed')
+  })
+
   it('a Prone foe is attacked with Advantage: the d100 read either way round, the lower kept', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
