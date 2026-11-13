@@ -80,3 +80,43 @@ describe('moments of play told (beats)', () => {
     })
   })
 })
+
+describe('the dice of a moment', () => {
+  it('a result shows the dice it was rolled with, from the roll’s line just before it', () => {
+    const rolled = line(6, 'ROLLED', {
+      source: 'oracle',
+      data: {
+        check: 'OMENS',
+        rolls: [
+          {
+            source: 'gm/omens',
+            dice: ['1d6 → 4  [4]'],
+            depth: 0,
+            results: [
+              {
+                expression: '1d6',
+                total: 4,
+                terms: [{ kind: 'dice', sign: 1, sides: 6, rolls: [4], kept: [0], subtotal: 4 }],
+              },
+            ],
+          },
+        ],
+      },
+    })
+    const omen = line(7, 'ORACLE_RESULT', {
+      source: 'oracle',
+      text: 'Crows',
+      data: { event: 'OMENS', value: {} },
+    })
+    const told = tellBeat({ id: 'j1', entries: [...march, rolled, omen] }, context, 'story')
+    expect(told.lines.find((l) => l.id === 'j7')?.dice?.[0]?.total).toBe(4)
+    // Older journals kept the dice as text only: none drawn.
+    const old = {
+      ...rolled,
+      data: { ...rolled.data, rolls: [{ source: 'gm/omens', dice: ['1d6 → 4  [4]'], depth: 0 }] },
+    }
+    expect(
+      tellBeat({ id: 'j1', entries: [old, omen] }, context, 'story').lines[0]?.dice,
+    ).toBeUndefined()
+  })
+})

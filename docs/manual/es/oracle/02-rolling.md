@@ -4,7 +4,7 @@ Abre una definición y pulsa **Tirar** (o **Robar** en un mazo). <kbd>Espacio</k
 
 ## El resultado
 
-La tarjeta del resultado muestra el texto, los valores que fija la entrada (p. ej. `weather: storm`), los dados con cada tirada (los descartados, tachados) y, en **Detalles**, el resultado de cada tabla por la que pasó la tirada. La entrada que salió se resalta en la lista de abajo.
+La tarjeta del resultado muestra el texto, los valores que fija la entrada (p. ej. `weather: storm`), los dados de cada tirada, dibujados: cada dado con su forma y su cara (de d4 a d20, el d% como un d10 que marca `00`–`99`, los dados Fudge como `+`, `−` o en blanco, un d66 como sus dos d6), los que deja fuera un «quedarse con» atenuados y con borde discontinuo (`4d6kh3`, ventaja), las caras de un dado que explota encadenadas (`6 + 6 + 2`), lo que se suma (`+1`) y el total; las otras tiradas de un modo de tirar, pequeñas y atenuadas al lado. Una tirada recién hecha rueda un momento (**Los dados ruedan al tirarlos**, en **Preferencias**, lo quita; nunca se mueven si tu sistema reduce el movimiento). Después, en **Detalles**, el resultado de cada tabla por la que pasó la tirada. La entrada que salió se resalta en la lista de abajo.
 
 ## Contexto
 

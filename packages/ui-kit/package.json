@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@open-tabletop/campaign": "*",
+    "@open-tabletop/dice": "*",
     "@open-tabletop/note-refs": "*",
     "@open-tabletop/storage": "*",
     "@open-tabletop/transfer": "*",

@@ -4,7 +4,7 @@ La aplicación Viajes juega viajes sin mapa, con cualquier **sistema**: las regl
 
 ## La pantalla
 
-- **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma y aplicación de notas, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de sistemas y la columna de ayuda, y las vuelven a sacar.
+- **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma, aplicación de notas y si los dados ruedan al tirarlos, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de sistemas y la columna de ayuda, y las vuelven a sacar.
 - **Sistemas** (izquierda): cada sistema con reglas de viaje, primero las **reglas genéricas** (las de Core), con las mismas insignias que en la aplicación Oráculo (_incluido_, _editado_, _tuyo_, _uso personal_) y un número rojo cuando sus ficheros tienen problemas. Bajo la lista, **Crear o editar sistemas** abre la aplicación Sistemas. La aplicación se abre en el último sistema que elegiste aquí, en Sistemas o en el Oráculo (este navegador lo recuerda; Mapa juega el sistema de cada mapa).
 - **Sistema** (centro): un viaje con él. **Editar en Packs →**, bajo su nombre, lo abre en la aplicación Packs.
 

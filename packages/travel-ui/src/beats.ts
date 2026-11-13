@@ -7,6 +7,7 @@ import {
   type Beat,
   type JournalEntry,
   type JournalLevel,
+  type RolledNode,
   type SessionState,
 } from '@open-tabletop/session'
 import { idText } from './i18n'
@@ -28,7 +29,14 @@ export interface BeatTold {
   /** What was done or what happened: _March · 8 h_, _The wolf's turn_. */
   title: string
   /** The lines under the title the level shows (the story first: results, finds, what was said). */
-  lines: { id: string; text: string; notable: boolean; level: JournalLevel }[]
+  lines: {
+    id: string
+    text: string
+    notable: boolean
+    level: JournalLevel
+    /** The dice a result was rolled with (each table it went through), to draw them. */
+    dice?: Dice
+  }[]
   /** What it changed, a short text each: _Ration −1_, _Kael: Wounded_. */
   changes: string[]
   /** The rules behind it (checks that didn't come up, limits, why a march stopped), folded. */
@@ -37,6 +45,28 @@ export interface BeatTold {
   notable: boolean
   /** Its first line, for its day and time. */
   first: JournalEntry
+}
+
+/** The rolls of a result, each die kept (older journals only kept them as text). */
+export type Dice = NonNullable<RolledNode['results']>
+
+/**
+ * The dice each result of a moment was rolled with: the roll's line (`ROLLED`, what happened
+ * behind) comes just before its result's, for the same check.
+ */
+function diceOf(entries: readonly JournalEntry[]): Map<string, Dice> {
+  const out = new Map<string, Dice>()
+  let rolled: { check: unknown; dice: Dice } | undefined
+  for (const e of entries) {
+    if (e.code === 'ROLLED') {
+      const nodes = Array.isArray(e.data?.rolls) ? (e.data.rolls as RolledNode[]) : []
+      rolled = { check: e.data?.check, dice: nodes.flatMap((n) => n.results ?? []) }
+    } else if (e.code === 'ORACLE_RESULT' && rolled && rolled.check === e.data?.event) {
+      if (rolled.dice.length) out.set(e.id, rolled.dice)
+      rolled = undefined
+    }
+  }
+  return out
 }
 
 /** The lines that make a moment's title: what was done, or a fight's round and turn. */
@@ -91,6 +121,7 @@ export function tellBeat(
     (e) => !TITLE_CODES.has(e.code) && (titled || e !== beat.entries[0]),
   )
   const at = JOURNAL_LEVELS.indexOf(level)
+  const dice = diceOf(beat.entries)
   const lines: BeatTold['lines'] = []
   const why: string[] = []
   for (const e of rest) {
@@ -98,7 +129,13 @@ export function tellBeat(
     // What it changed is said once, among its changes, but in the whole detail.
     if (e.code === 'CHANGED' && level !== 'detail' && !notable.has(e.id)) continue
     if (notable.has(e.id) || JOURNAL_LEVELS.indexOf(own) <= at)
-      lines.push({ id: e.id, text: lineText(e, context), notable: notable.has(e.id), level: own })
+      lines.push({
+        id: e.id,
+        text: lineText(e, context),
+        notable: notable.has(e.id),
+        level: own,
+        ...(dice.has(e.id) && { dice: dice.get(e.id) }),
+      })
     else if (level === 'story' && own === 'mechanics') why.push(lineText(e, context))
   }
   const changes = beat.entries.flatMap((e) => {

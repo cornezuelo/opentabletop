@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { DiceTray, tooltip } from '@open-tabletop/ui-kit'
   import type { BeatTold } from './beats'
   import { translator } from './i18n'
 
@@ -7,7 +7,7 @@
    * One moment of play (a beat): its title, the lines under it (the story first, the
    * important ones marked), what it changed as chips and, folded, the rules behind it.
    * `folded`: only its title, unfolded on a click (the journal's older moments); `big`: an
-   * important moment shown up front.
+   * important moment shown up front, its dice tumbling as it appears (`animate`).
    */
   let {
     told,
@@ -17,6 +17,7 @@
     foldable = false,
     big = false,
     latest = false,
+    animate = false,
   }: {
     told: BeatTold
     locale: string
@@ -28,6 +29,8 @@
     big?: boolean
     /** What the last step did. */
     latest?: boolean
+    /** Its dice tumble as they appear (a roll just made). */
+    animate?: boolean
   } = $props()
 
   const t = translator(() => locale)
@@ -62,7 +65,10 @@
     {#if told.lines.length}
       <ul class="lines">
         {#each told.lines as line (line.id)}
-          <li class:important={line.notable} class:rules={line.level !== 'story'}>{line.text}</li>
+          <li class:important={line.notable} class:rules={line.level !== 'story'}>
+            <span>{line.text}</span>
+            {#if line.dice}<DiceTray rolls={line.dice} {locale} large={big} {animate} />{/if}
+          </li>
         {/each}
       </ul>
     {/if}
@@ -155,6 +161,13 @@
     margin: 0;
     padding: 0 0 0 1.1em;
     list-style: none;
+  }
+
+  .lines li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
   }
 
   .lines li.important {

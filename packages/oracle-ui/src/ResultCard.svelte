@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Resolution } from '@open-tabletop/oracle-engine'
-  import { diceText } from '@open-tabletop/dice'
+  import { DiceTray } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import Self from './ResultCard.svelte'
 
@@ -36,11 +36,10 @@
     </dl>
   {/if}
   {#if resolution.rolls.length}
-    <ul class="dice">
-      {#each resolution.rolls as r, i (i)}
-        <li>{diceText(r)}</li>
-      {/each}
-    </ul>
+    <!-- The dice it was rolled with, tumbling as a roll just made appears. -->
+    <div class="dice">
+      <DiceTray rolls={resolution.rolls} locale={ui.locale()} large={top} animate={top} />
+    </div>
   {/if}
   {#if resolution.children.length}
     <details open={!top}>
@@ -99,12 +98,7 @@
   }
 
   .dice {
-    margin: 0;
-    padding: 0;
-    font-family: ui-monospace, monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-    list-style: none;
+    font-size: 13px;
   }
 
   details summary {

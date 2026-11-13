@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Oracle
+
+- **Dice you can see**: a result's dice are drawn, each as its shape with its face (d4 to d20, d%, Fudge, d66 as two d6), those a keep leaves out faded, exploding faces chained, then what's added and the total, a roll mode's other rolls small beside it. A roll just made tumbles for a moment: **Dice tumble as they're rolled** in **Preferences** (every app) turns it off, and so does the system's reduce motion.
+
+### Travel
+
+- A moment of the journal shows each result with the dice it was rolled with, drawn as in the Oracle; the important moment up front shows them large. Trips played before kept their dice only as text.
+
 ## [0.51.0] - 2026-11-13
 
 ### Map

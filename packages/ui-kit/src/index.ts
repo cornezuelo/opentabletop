@@ -46,6 +46,9 @@ export { default as TagFilter } from './TagFilter.svelte'
 export { applyChoice, choicesFor, typingAt, type Suggestions, type Typing } from './suggest'
 export { vocabulary } from './vocabulary'
 export { default as PreferencesButton } from './PreferencesButton.svelte'
+export { default as DiceTray } from './DiceTray.svelte'
+export { drawRoll, type DieShape, type DrawnDie, type DrawnRoll } from './diceTray'
+export { DICE_KEY, dicePreferences } from './dicePreferences.svelte'
 export {
   noteProviderName,
   notePreferences,

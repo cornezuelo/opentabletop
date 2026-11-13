@@ -4,7 +4,7 @@ Open a definition and press **Roll** (or **Draw** for a deck). <kbd>Space</kbd> 
 
 ## The result
 
-The result card shows the text, the values the entry sets (e.g. `weather: storm`), the dice with each roll (discarded dice crossed out) and, under **Details**, the results of every table the roll went through. The rolled entry is highlighted in the list below.
+The result card shows the text, the values the entry sets (e.g. `weather: storm`), the dice of each roll, drawn: each die as its shape with its face (d4 to d20, d% as a d10 showing `00`–`99`, Fudge dice as `+`, `−` or blank, a d66 as its two d6), the dice a keep leaves out faded and dashed (`4d6kh3`, advantage), an exploding die's faces chained (`6 + 6 + 2`), what's added (`+1`) and the total; a roll mode's other rolls small and faded beside it. A roll just made tumbles for a moment (**Dice tumble as they're rolled**, in **Preferences**, turns it off; it never moves when your system reduces motion). Then, under **Details**, the results of every table the roll went through. The rolled entry is highlighted in the list below.
 
 ## Context
 

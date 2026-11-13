@@ -39,7 +39,7 @@
 
 {#if shown && told}
   <section class="notable" aria-label={t('beats.notable')} role="status">
-    <BeatView {told} {locale} big />
+    <BeatView {told} {locale} big animate />
     <div class="buttons">
       {#if waits?.go && onstep}
         <button

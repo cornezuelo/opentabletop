@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte'
   import { getProvider, providers, providerSettings } from '@open-tabletop/note-refs'
   import { notePreferences, setNoteProvider, setNoteSetting } from './notes.svelte'
+  import { dicePreferences } from './dicePreferences.svelte'
   import { tooltip } from './tooltip'
 
   /**
@@ -41,6 +42,9 @@
         silverbullet: { baseUrl: 'SilverBullet URL' },
         obsidian: { vault: 'Vault name' },
       },
+      dice: 'Dice tumble as they’re rolled',
+      diceHelp:
+        'A roll just made shows its dice tumbling for a moment before they settle. Off, they show at once; they never move when your system asks to reduce motion.',
       close: 'Close',
     },
     es: {
@@ -57,6 +61,9 @@
         silverbullet: { baseUrl: 'URL de SilverBullet' },
         obsidian: { vault: 'Nombre de la bóveda' },
       },
+      dice: 'Los dados ruedan al tirarlos',
+      diceHelp:
+        'Una tirada recién hecha muestra sus dados rodando un momento antes de quedarse quietos. Desmarcado, salen al instante; nunca se mueven si tu sistema pide reducir el movimiento.',
       close: 'Cerrar',
     },
   }
@@ -115,6 +122,15 @@
       </label>
     {/each}
     <p>{text.notesHelp}</p>
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={dicePreferences.animate}
+        onchange={(e) => dicePreferences.setAnimate(e.currentTarget.checked)}
+      />
+      <span>{text.dice}</span>
+    </label>
+    <p>{text.diceHelp}</p>
   </section>
   {#if children}
     <section>
