@@ -371,16 +371,66 @@ actions:
   night-march:
     group: groups.road
     name: Night march
-    description: 'From nightfall, light the torches (each companion’s burns an hour) and march on until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
+    description: 'From nightfall, light the torches (each companion’s burns an hour, unless their night eyes are open) and march on until midnight, but +1 fatigue (and +1 more as the day ends if it was marched past its 8 hours); each hex entered in the dark off the road may get you lost or bring a night encounter. Once a day, not in a storm, with fatigue under 4.'
     when: { time.hour: { gte: '{{system.part.night}}' }, party.stats.fatigue: { lt: 4 } }
     unless: { trip.weather: storm }
     hideWhenUnavailable: true
     oncePerDay: true
     do:
       - { set: { torchlit: true } }
-      # Each companion's torch (items.yaml) burns an hour: at 0 uses it's spent.
-      - { effects: { party.stats.fatigue: 1, party.members.items.torch.uses: -1 } }
+      # Each companion's torch burns an hour (_Torches burn_, below, as it's done).
+      - { effects: { party.stats.fatigue: 1 } }
       - { do: actions.march }
+  # As a night march is done, for each companion (`for: party.members`, each acting): their
+  # torch (items.yaml) burns an hour, at 0 uses spent; not theirs while their night eyes are
+  # open (a knack switched on, `acting.values.night-eyes`), which costs a step of nerve instead.
+  torches:
+    name: Torches burn
+    description: 'As a night march is done, for each companion: their torch burns an hour; with their night eyes open, no torch, but a step of nerve.'
+    on: actions.night-march.done
+    for: party.members
+    do:
+      - unless: { acting.values.night-eyes: { gte: 1 } }
+        effects: { acting.items.torch.uses: -1 }
+      - when: { acting.values.night-eyes: { gte: 1 } }
+        effects: { acting.values.nerve: -1 }
+  # A knack switched on and off (knacks.yaml's Night eyes): the item's own field, `active`,
+  # set by one action and cleared by the other, for a companion chosen among those it fits
+  # (`where:`, each read as `candidate`); each button shown only when someone can.
+  open-eyes:
+    group: groups.here
+    name: Open the night eyes
+    description: 'For a companion with the knack: their eyes open to the dark. While open, a night march burns no torch of theirs, but costs a step of nerve.'
+    when: { party.items.night-eyes.count: { gte: 1 } }
+    hideWhenUnavailable: true
+    params:
+      who:
+        name: Whose eyes?
+        from: party.members
+        where:
+          {
+            'characters[candidate].items.night-eyes.count': { gte: 1 },
+            'characters[candidate].values.night-eyes': 0,
+          }
+    do:
+      - { ask: params.who }
+      - { effects: { 'characters[params.who].items.night-eyes.active': '=1' } }
+      - { id: opened, say: '{{characters[params.who].name}}’s eyes open to the dark.' }
+  close-eyes:
+    group: groups.here
+    name: Close the night eyes
+    description: 'For a companion whose night eyes are open: they close, and they need a torch again.'
+    when: { party.highest.values.night-eyes: { gte: 1 } }
+    hideWhenUnavailable: true
+    params:
+      who:
+        name: Whose eyes?
+        from: party.members
+        where: { 'characters[candidate].values.night-eyes': { gte: 1 } }
+    do:
+      - { ask: params.who }
+      - { effects: { 'characters[params.who].items.night-eyes.active': '=0' } }
+      - { id: closed, say: '{{characters[params.who].name}}’s eyes close; a torch again.' }
   # Once a trip: what the trip has done so far (`trip.km`, the hexes entered at the map's
   # scale; `trip.taken.tale`, the times this action was taken, 0 until it is). After 50 km
   # on the road, an evening of tales around the fire; its button only shows then.

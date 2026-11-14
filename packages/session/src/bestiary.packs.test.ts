@@ -77,7 +77,7 @@ describe('the bundled packs make foes from their bestiaries', () => {
       count,
       'grey-wolf': { count: count - 1 },
       'pack-leader': { count: 1 },
-      tags: ['beast', 'pack', 'leader'],
+      tags: ['beast', 'pack', 'fears-fire', 'leader'],
     })
     expect(s.present!.at(-1)!.character).toMatchObject({
       name: 'Pack leader',
@@ -677,10 +677,10 @@ describe('the bundled packs fight in turns', () => {
     let done = stepTrip(options, ready, { type: 'action', id: 'rest' })
     expect(done.state.travel.waiting).toMatchObject({ action: 'rank-up', ask: 'benefit' })
     done = stepTrip(options, done.state, { type: 'resume', choice: 'knack' })
-    // The knacks he may learn at rank 2: Woodwise and Shieldwall (Pathfinder needs rank 3).
+    // The knacks he may learn at rank 2: all but Pathfinder (it needs rank 3).
     expect(done.state.travel.waiting).toMatchObject({
       ask: 'knack',
-      choices: ['woodwise', 'shieldwall'],
+      choices: ['woodwise', 'shieldwall', 'night-eyes'],
     })
     done = stepTrip(options, done.state, { type: 'resume', choice: 'shieldwall' })
     const kael = done.state.members!.find((m) => m.id === 'kael')!
@@ -723,6 +723,81 @@ describe('the bundled packs fight in turns', () => {
     expect(mode(forest)).toBeUndefined()
     expect(mode({ ...forest, party: { highest: { values: { woodwise: 1 } } } })).toBe(
       'core/advantage',
+    )
+  })
+
+  it('the Grey Marches: night eyes, a knack switched on and off, save a torch for a step of nerve', () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'n',
+      time: 21 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(1) }),
+    }
+    let s = applyResult(
+      session,
+      {
+        effects: {
+          'characters.kael.items.night-eyes': 1,
+          'characters.kael.items.torch': 1,
+          'characters.mara.items.torch': 1,
+        },
+      },
+      {},
+      partyOf(marches),
+    )
+    const member = (state: SessionState, id: string) => state.members!.find((m) => m.id === id)!
+    const torch = (state: SessionState, id: string) =>
+      member(state, id).items!.find((i) => i.id === 'torch')?.fields.uses
+    // Learnt idle: the knack is there, its field 0; only Open is offered, and only Kael.
+    expect(member(s, 'kael').items!.find((i) => i.id === 'night-eyes')?.fields).toMatchObject({
+      active: 0,
+    })
+    expect(tripAvailability(options, s)['open-eyes']).toBeUndefined()
+    expect(tripAvailability(options, s)['close-eyes']).toBeDefined()
+    let done = stepTrip(options, s, { type: 'action', id: 'open-eyes' })
+    expect(done.state.travel.waiting).toMatchObject({ ask: 'who', choices: ['kael'] })
+    done = stepTrip(options, done.state, { type: 'resume', choice: 'kael' })
+    s = done.state
+    expect(member(s, 'kael').values['night-eyes']).toBe(1)
+    expect(tripAvailability(options, s)['close-eyes']).toBeUndefined()
+    // A night march: Mara's torch burns an hour, Kael's doesn't, but his nerve steps down.
+    const nerve = member(s, 'kael').values.nerve
+    s = stepTrip(options, s, { type: 'action', id: 'night-march' }).state
+    expect(torch(s, 'mara')).toBe(2)
+    expect(torch(s, 'kael')).toBe(3)
+    expect(member(s, 'kael').values.nerve).toBe((nerve as number) - 2)
+    // Closed again: the next one would burn his torch.
+    done = stepTrip(options, s, { type: 'action', id: 'close-eyes' })
+    done = stepTrip(options, done.state, { type: 'resume', choice: 'kael' })
+    expect(member(done.state, 'kael').values['night-eyes']).toBe(0)
+  })
+
+  it("the Grey Marches: a blow's kind, by what's in hand, against what the foe is", () => {
+    const oracle = createOracleEngine({ registry, random: seeded(1) })
+    const blow = (acting: Record<string, number>, foe: string[], dark = false) => {
+      const out = oracle.resolve('grey-marches/blow', {
+        params: { foe: 'f' },
+        acting: { values: { 'relic-in-hand': 0, 'torch-in-hand': 0, ...acting } },
+        characters: { f: { tags: foe, values: { health: 9 } } },
+        time: { tags: dark ? ['dark'] : [] },
+      })
+      return out.resolution.text
+    }
+    expect(blow({}, ['beast'])).toMatch(/^\d harm, steel$/)
+    expect(blow({}, ['undead', 'bone'])).toMatch(/: glancing off$/)
+    // A torch in hand is fire in the dark only: wolves take it twice over, the Hunt not at all.
+    expect(blow({ 'torch-in-hand': 1 }, ['fears-fire'])).toMatch(/steel$/)
+    expect(blow({ 'torch-in-hand': 1 }, ['fears-fire'], true)).toMatch(/fire: twice over$/)
+    expect(blow({ 'torch-in-hand': 1 }, ['fireproof'], true)).toBe('No harm, fire: it doesn’t burn')
+    // The Sword of Keld is hallowed, whatever else is in hand.
+    expect(blow({ 'relic-in-hand': 1, 'torch-in-hand': 1 }, ['bone', 'unhallowed'], true)).toMatch(
+      /hallowed: twice over$/,
     )
   })
 

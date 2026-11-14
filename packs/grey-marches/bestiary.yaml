@@ -68,6 +68,7 @@ description: |-
   - Values rolled for each copy: `health: '{{1d4+1}}'`
   - A variant: the pack leader is a grey wolf (`like: grey-wolf`) with more health and a tag of its own; the bandit chief likewise
   - Copies named from a table (`names: table.npc-names`): _Brenna_, _Corin_… instead of _Bandit 2_
+  - What harms each the most or the least, as its tags (`fears-fire`, `fireproof`, `unhallowed`, `bone`), read by a blow's kind (_The blow lands_)
   - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
   - How each is drawn on a map (`token:` its icon and kind)
   - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
@@ -78,7 +79,8 @@ templates:
   grey-wolf:
     name: Grey wolf
     description: Lean and patient; they hunt in packs, and break when their leader falls.
-    tags: [beast, pack]
+    # Fire harms it twice over (_The blow lands_ reads its tags).
+    tags: [beast, pack, fears-fire]
     values: { health: '{{1d4+1}}', harm: 1, morale: 7 }
     # Its own turn in a fight (below): it goes for the weakest. Its leader, like it, too.
     actions: table.wolf-turn
@@ -92,14 +94,15 @@ templates:
   ember-rider:
     name: Rider of the Ember Hunt
     description: A pale rider under the full Ember Moon, who never tires and never speaks.
-    tags: [hunt, haunted]
+    # Fire does it no harm; hallowed steel harms it twice over.
+    tags: [hunt, haunted, fireproof, unhallowed]
     values: { health: '{{2d6}}', harm: 2, morale: 12 }
     conditions: [enraged]
     token: { icon: 'game:ghost', kind: enemy }
   wyrm:
     name: The Greywood Wyrm
     description: Coiled in the heart of the Greywood. It doesn't follow; it waits.
-    tags: [beast, wyrm]
+    tags: [beast, wyrm, fireproof]
     values: { health: 30, harm: 4, morale: 12 }
     token: { icon: 'game:dragon-head', kind: enemy }
     behind: stay
@@ -108,7 +111,8 @@ templates:
   barrow-dead:
     name: The restless dead
     description: Bones in grave-wrappings that don't stay where they were laid.
-    tags: [undead]
+    # Steel glances off old bones (half its harm); hallowed steel harms them twice over.
+    tags: [undead, bone, unhallowed]
     values: { health: '{{1d6+2}}', harm: 1, morale: 12 }
     token: { icon: 'game:death-skull', kind: enemy }
     actions: table.dead-turn
@@ -256,27 +260,78 @@ id: blow
 tags: [encounters]
 name: A blow
 description: |-
-  The harm a companion's blow does to the foe chosen: 1d6, rolled twice and the lower kept in the dark or while rattled, the higher kept when that foe is the only one left here.
+  The harm a companion's blow does to the foe chosen: 1d6, rolled twice and the lower kept in the dark or while rattled, the higher kept when that foe is the only one left here. What the blow is (steel, fire or hallowed, by what's in their hands) may double it, halve it or do nothing, by what the foe is.
 
-  **Shows:** roll modes on one roll of a generator alone (`modeWhen` on a `roll` field: Core's advantage and disadvantage, cancelling each other in the dark against a lone foe; disadvantage while the striker is rattled, a condition given for some rounds); a field's table that changes the trip (`'characters[params.foe].values.health': '-{{harm}}'`), rolled by an action's step with its parameters.
+  **Shows:** roll modes on one roll of a generator alone (`modeWhen` on a `roll` field: Core's advantage and disadvantage, cancelling each other in the dark against a lone foe; disadvantage while the striker is rattled, a condition given for some rounds); kinds of damage, a field's table naming the blow's (`kind`, read by the next field as `kind.kind`) and one that reads it against the foe's tags; a field's table that changes the trip (`'characters[params.foe].values.health': '-{{harm * 2}}'`), rolled by an action's step with its parameters.
 fields:
   harm:
     roll: 1d6
     modeWhen:
       roll-modes.advantage: { present.count: 1 }
       roll-modes.disadvantage: { any: [{ time.tags: dark }, { acting.conditions: rattled }] }
+  kind: { table: table.blow-kind }
   lands: { table: table.blow-lands }
-template: '{{harm}} harm'
+template: '{{lands}}'
 ---
 kind: table
 id: blow-lands
 tags: [encounters]
 name: The blow lands
-description: The harm of _A blow_ taken from the foe chosen.
+description: |-
+  The harm of _A blow_ taken from the foe chosen, by what the blow is against what the foe is: fire on a beast that fears it, or hallowed steel on the unhallowed, twice over; steel on old bones, half (rounded down); fire on what it can't burn, nothing.
+
+  **Shows:** kinds of damage as the foe's tags, read with the blow's kind (`kind.kind`, set by _What the blow is_) in each row's `when`: a weakness, a resistance and an immunity, on any sheet (a foe's or a traveller's); rows that hold one at a time, picked whichever holds.
 entries:
+  - id: twice
+    result: '{{harm * 2}} harm, {{kind}}: twice over'
+    when:
+      any:
+        - { kind.kind: fire, 'characters[params.foe].tags': fears-fire }
+        - { kind.kind: hallowed, 'characters[params.foe].tags': unhallowed }
+    effects: { 'characters[params.foe].values.health': '-{{harm * 2}}' }
+  - id: half
+    result: '{{floor(harm / 2)}} harm, {{kind}}: glancing off'
+    when: { kind.kind: steel, 'characters[params.foe].tags': bone }
+    effects: { 'characters[params.foe].values.health': '-{{floor(harm / 2)}}' }
+  - id: none
+    result: 'No harm, {{kind}}: it doesn’t burn'
+    when: { kind.kind: fire, 'characters[params.foe].tags': fireproof }
   - id: lands
-    result: '{{harm}} harm'
+    result: '{{harm}} harm, {{kind}}'
+    unless:
+      any:
+        - { kind.kind: fire, 'characters[params.foe].tags': [fears-fire, fireproof] }
+        - { kind.kind: hallowed, 'characters[params.foe].tags': unhallowed }
+        - { kind.kind: steel, 'characters[params.foe].tags': bone }
     effects: { 'characters[params.foe].values.health': '-{{harm}}' }
+---
+# What a companion's blow is (_A blow_), by what's in their hands (the sheet's values made
+# of them): the Sword of Keld, hallowed; a torch in the dark, fire; else steel. One row holds.
+kind: table
+id: blow-kind
+tags: [encounters]
+name: What the blow is
+description: |-
+  The kind of a companion's blow, by what they hold: hallowed with the Sword of Keld in hand, fire with a torch in hand in the dark, steel otherwise.
+
+  **Shows:** a table with no roll whose rows hold one at a time (`when` / `unless`), naming a kind of damage (`set: { kind: fire }`) that the generator's next field reads; values made of what's in a companion's hands (`acting.values.relic-in-hand`, `torch-in-hand`) and the time of day (`time.tags: dark`).
+entries:
+  - id: hallowed
+    result: hallowed
+    when: { acting.values.relic-in-hand: { gte: 1 } }
+    set: { kind: hallowed }
+  - id: fire
+    result: fire
+    when:
+      { acting.values.relic-in-hand: 0, acting.values.torch-in-hand: { gte: 1 }, time.tags: dark }
+    set: { kind: fire }
+  - id: steel
+    result: steel
+    unless:
+      any:
+        - { acting.values.relic-in-hand: { gte: 1 } }
+        - { acting.values.torch-in-hand: { gte: 1 }, time.tags: dark }
+    set: { kind: steel }
 ---
 # After a fight (travel.yaml's Mind the mail), once for each piece the companion acting
 # wears: its wear die rolled, a step down on 1–2, ruined on 1–2 when it was a d4.

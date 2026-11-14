@@ -1,13 +1,13 @@
 # What a companion may learn as they rise (travel.yaml's _A companion rises_): knacks, items
 # that go only in the sheet's place of knacks, each with what it needs. A small tree:
-# Woodwise first, Pathfinder after it at rank 3; Shieldwall from rank 2.
+# Woodwise first, Pathfinder after it at rank 3; Shieldwall and Night eyes from rank 2.
 kind: items
 id: knacks
 name: Knacks
 description: |-
-  What a companion learns on the road as they rise: reading the woods, never losing the way in the dark, holding a shield wall.
+  What a companion learns on the road as they rise: reading the woods, never losing the way in the dark, holding a shield wall, seeing without a torch.
 
-  **Shows:** abilities as items in a place of their own (`tags: [knack]`, the sheet's _Knacks_ takes only them, not carried, shown as cards), each with requirements checked as it's offered (`needs:` a rank, another knack), passive ones read by the rules through a value made of them (`party.highest.values.woodwise` in _Getting lost_'s roll modes, `pathfinder` in its dark row) and an active one, an action open only to whoever has it (_Shieldwall_).
+  **Shows:** abilities as items in a place of their own (`tags: [knack]`, the sheet's _Knacks_ takes only them, not carried, shown as cards), each with requirements checked as it's offered (`needs:` a rank, another knack), passive ones read by the rules through a value made of them (`party.highest.values.woodwise` in _Getting lost_'s roll modes, `pathfinder` in its dark row) an active one, an action open only to whoever has it (_Shieldwall_), and one switched on and off (_Night eyes_: its field `active`, `0` as learnt, set by two actions and read while it's on).
 items:
   woodwise:
     name: Woodwise
@@ -26,3 +26,11 @@ items:
     tags: [knack]
     fits: { place.tags: knack }
     needs: { self.values.rank: { gte: 2 } }
+  night-eyes:
+    name: Night eyes
+    description: 'Seeing in the dark, at a price. Opened (an action, any time) and closed again: while open, a night march burns no torch of theirs, but costs them a step of nerve. Needs rank 2.'
+    tags: [knack]
+    fits: { place.tags: knack }
+    needs: { self.values.rank: { gte: 2 } }
+    # Switched off as it's learnt (the sheet's item field `active`).
+    active: 0

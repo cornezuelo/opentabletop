@@ -44,6 +44,7 @@ bestiary/marches:
     - Valores que tira cada copia: `health: '{{1d4+1}}'`
     - Una variante: el jefe de la manada es un lobo gris (`like: grey-wolf`) con más salud y una etiqueta propia; el cabecilla de los bandidos, igual
     - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
+    - Lo que más o lo menos daña a cada una, como sus etiquetas (`fears-fire`, `fireproof`, `unhallowed`, `bone`), que lee el tipo de un golpe (_El golpe acierta_)
     - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
     - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
     - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada), y el de los muertos inquietos (`actions: table.dead-turn`); las demás hacen lo que dice el sistema (`encounter.foes`)
@@ -116,15 +117,30 @@ parting-blow:
 blow:
   name: Un golpe
   description: |-
-    El daño que hace el golpe de un compañero al enemigo elegido: 1d6, tirado dos veces y el menor a oscuras o aturdido, el mayor cuando ese enemigo es el único que queda aquí.
+    El daño que hace el golpe de un compañero al enemigo elegido: 1d6, tirado dos veces y el menor a oscuras o aturdido, el mayor cuando ese enemigo es el único que queda aquí. Lo que es el golpe (acero, fuego o sagrado, por lo que lleva en las manos) puede doblarlo, partirlo por la mitad o dejarlo en nada, según lo que sea el enemigo.
 
-    **Enseña:** modos de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`: la ventaja y la desventaja de Core, que se anulan a oscuras contra un enemigo solo; desventaja mientras quien golpea está aturdido, un estado que se da por unas rondas); la tabla de un campo que cambia el viaje (`'characters[params.foe].values.health': '-{{harm}}'`), tirado por el paso de una acción con sus parámetros.
-  template: '{{harm}} de daño'
+    **Enseña:** modos de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`: la ventaja y la desventaja de Core, que se anulan a oscuras contra un enemigo solo; desventaja mientras quien golpea está aturdido, un estado que se da por unas rondas); tipos de daño, la tabla de un campo que nombra el del golpe (`kind`, que el campo siguiente lee como `kind.kind`) y otra que lo lee frente a las etiquetas del enemigo; la tabla de un campo que cambia el viaje (`'characters[params.foe].values.health': '-{{harm * 2}}'`), tirado por el paso de una acción con sus parámetros.
 blow-lands:
   name: El golpe acierta
-  description: El daño de _Un golpe_, quitado al enemigo elegido.
+  description: |-
+    El daño de _Un golpe_, quitado al enemigo elegido, según lo que es el golpe frente a lo que es el enemigo: el fuego sobre una bestia que lo teme, o el acero sagrado sobre lo impío, el doble; el acero sobre huesos viejos, la mitad (redondeando hacia abajo); el fuego sobre lo que no arde, nada.
+
+    **Enseña:** tipos de daño como etiquetas del enemigo, leídas con el tipo del golpe (`kind.kind`, que pone _Lo que es el golpe_) en el `when` de cada fila: una debilidad, una resistencia y una inmunidad, en cualquier hoja (la de un enemigo o la de un viajero); filas que se cumplen de una en una, elegida la que se cumple.
   entries:
-    lands: '{{harm}} de daño'
+    twice: '{{harm * 2}} de daño, {{kind}}: el doble'
+    half: '{{floor(harm / 2)}} de daño, {{kind}}: resbala'
+    none: 'Ningún daño, {{kind}}: no arde'
+    lands: '{{harm}} de daño, {{kind}}'
+blow-kind:
+  name: Lo que es el golpe
+  description: |-
+    El tipo del golpe de un compañero, por lo que lleva: sagrado con la Espada de Keld en la mano, de fuego con una antorcha en la mano a oscuras, de acero si no.
+
+    **Enseña:** una tabla sin tirada cuyas filas se cumplen de una en una (`when` / `unless`), que nombra un tipo de daño (`set: { kind: fire }`) que lee el campo siguiente del generador; valores hechos de lo que tiene en las manos un compañero (`acting.values.relic-in-hand`, `torch-in-hand`) y la hora del día (`time.tags: dark`).
+  entries:
+    hallowed: sagrado
+    fire: fuego
+    steel: acero
 wear-and-tear:
   name: Desgaste
   description: |-

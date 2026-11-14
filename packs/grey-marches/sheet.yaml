@@ -36,7 +36,10 @@ description: |-
   most); their standing (renown, and a rank as pips, both raised by the rules), a place of
   knacks (`takes: { item.tags: knack }`, not carried, shown as cards) and values made of
   what's in it (`woodwise`, read by the rules as `party.highest.values.woodwise`), a condition
-  given until their next turn (_Braced_, `lasts: turns`); every part with a description,
+  given until their next turn (_Braced_, `lasts: turns`); a knack switched on and off (an
+  item's field `active`, named by `levels`, read in a value made of it,
+  `where: { item.id: night-eyes, item.active: 1 }`); what's in their hands naming the kind of
+  their blows (`torch-in-hand`, `relic-in-hand`); every part with a description,
   shown as its help where the sheet is met.
 main: health
 values:
@@ -177,6 +180,25 @@ values:
     description: 1 with the knack Shieldwall.
     from: { count: items, where: { item.id: shieldwall } }
     group: standing
+  # A knack switched on and off (travel.yaml's _Open the night eyes_): 1 while it's active,
+  # read of the item's own field (`item.active`).
+  night-eyes:
+    name: Night eyes
+    description: 1 while their night eyes are open; a night march burns no torch of theirs, and costs them a step of nerve.
+    from: { count: items, where: { item.id: night-eyes, item.active: 1 } }
+    group: standing
+  # What a blow of theirs is (bestiary.yaml's _What the blow is_), by what's in their hands:
+  # the Sword of Keld is hallowed, a torch in the dark is fire, the rest is steel.
+  torch-in-hand:
+    name: Torches in hand
+    description: How many torches this companion holds; in the dark, their blows are fire.
+    from: { count: items, where: { place.tags: hand, item.tags: light } }
+    group: gear
+  relic-in-hand:
+    name: Relic in hand
+    description: 1 with the Sword of Keld in hand; their blows are hallowed.
+    from: { count: items, where: { place.tags: hand, item.tags: relic } }
+    group: gear
 # The headings the values are shown under, in this order.
 # Each group's description is its help where the sheet is shown, like every part's.
 groups:
@@ -268,6 +290,15 @@ items:
       description: How much wear a piece of armour has left, a die; after a fight it's rolled, and 1–2 takes it a step down (a d4 that rolls 1–2 is ruined).
       steps: [4, 6, 8]
       display: die
+    # A knack switched on and off (knacks.yaml's Night eyes): only items whose catalogue gives
+    # it a number have it (no default), shown by name.
+    active:
+      name: Active
+      description: Whether it's switched on; an action switches it, and the rules read it while it is.
+      min: 0
+      max: 1
+      display: levels
+      levels: [{ id: idle, name: Idle }, { id: active, name: Active }]
   places:
     hands: { name: Hands, tags: [hand], room: 2 }
     body: { name: Body, description: What is worn., tags: [worn], room: 2 }

@@ -33,7 +33,10 @@ sheet/companion:
     su posición (el renombre, y un rango como puntos, que suben las reglas), un lugar de mañas
     (`takes: { item.tags: knack }`, que no se carga y se muestra como cartas) y valores hechos
     de lo que hay en él (`woodwise`, que leen las reglas como `party.highest.values.woodwise`),
-    un estado que se da hasta su próximo turno (_En guardia_, `lasts: turns`);
+    un estado que se da hasta su próximo turno (_En guardia_, `lasts: turns`); una maña que se
+    activa y se desactiva (el campo `active` de un objeto, con nombre por `levels`, leído en un
+    valor hecho de él, `where: { item.id: night-eyes, item.active: 1 }`); lo que tiene en las
+    manos, que dice de qué son sus golpes (`torch-in-hand`, `relic-in-hand`);
     cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:
     survival:
@@ -87,6 +90,15 @@ sheet/companion:
     shieldwall:
       name: Muro de escudos
       description: 1 con la maña Muro de escudos.
+    night-eyes:
+      name: Ojos de la noche
+      description: 1 mientras tiene abiertos los ojos de la noche; una marcha nocturna no quema su antorcha, y le cuesta un paso de temple.
+    torch-in-hand:
+      name: Antorchas en mano
+      description: Cuántas antorchas lleva en las manos este compañero; a oscuras, sus golpes son de fuego.
+    relic-in-hand:
+      name: Reliquia en mano
+      description: 1 con la Espada de Keld en la mano; sus golpes son sagrados.
   groups:
     skills:
       name: Habilidades
@@ -150,6 +162,10 @@ sheet/companion:
       wear:
         name: Desgaste
         description: El desgaste que le queda a una pieza de armadura, un dado; tras un combate se tira, y un 1–2 lo baja un escalón (un d4 que saca 1–2 queda destrozado).
+      active:
+        name: Activa
+        description: Si está activa; una acción la activa, y las reglas la leen mientras lo está.
+        levels: { idle: Inactiva, active: Activa }
     places:
       hands: Manos
       body: { name: Cuerpo, description: Lo que se lleva puesto. }

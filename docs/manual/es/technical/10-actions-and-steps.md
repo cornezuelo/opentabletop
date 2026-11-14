@@ -177,6 +177,7 @@ seasoned: # cuando llega al nivel 2: una capacidad
 - **Lo que la da** es cualquier momento que oigan tus reglas: el final de un combate (`encounter.end`), un sitio al que se entra (`trip.place-enter`), el resultado de una comprobación (un efecto `acting.values.xp: 50` en la fila de una tabla).
 - **Un umbral** es una reacción para cada miembro (`on: { when: …, for: party.members }`): llega una vez cuando pasa a cumplirse, y otra solo después de dejar de cumplirse, así que devolver la experiencia (`-3`) deja que llegue el siguiente nivel.
 - **Lo que da un nivel** puede ser fijo (una capacidad, más salud) o elegido: un paso `ask:` con `choices` (un beneficio), o un parámetro que lista un catálogo (`from: items.<catalogue>`, `where:` las entradas que encajan), comprobando el `needs:` de sus entradas al ofrecerlas ([Tipos](07-kinds.md#catalogos-de-objetos)).
+- **Una capacidad que se activa y se desactiva** es un objeto con un campo propio (`active`), que pone una acción (`'characters[params.who].items.night-eyes.active': '=1'`) y quita otra, leído mientras está activa en un valor hecho de ella (`where: { item.id: night-eyes, item.active: 1 }`) que las reglas leen como cualquier otro: los _Ojos de la noche_ de las Marcas Grises ([Objetos](../packs/08-items.md)).
 - El `when` de un paso lee al personaje como estaba al empezar la acción: lo que cambió el paso anterior léelo en la acción siguiente (como hace _Curtido_ tras _Subir de nivel_), no en la misma.
 
 _Victoria_, _Subir de nivel_ y _Curtido_ de Core son este ciclo en lo más pequeño.

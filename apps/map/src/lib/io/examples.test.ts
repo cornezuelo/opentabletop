@@ -694,8 +694,10 @@ describe('example maps', () => {
       shieldwall: { condition: 'when' }, // no fight, and no knack
       'name-made': { condition: 'when' }, // no fight won
       'rank-up': { condition: 'when' }, // nobody risen
+      'open-eyes': { condition: 'when' }, // nobody has night eyes
+      'close-eyes': { condition: 'when' }, // nobody's night eyes are open
     })
-    expect(Object.keys(unavailable)).toHaveLength(30)
+    expect(Object.keys(unavailable)).toHaveLength(32)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

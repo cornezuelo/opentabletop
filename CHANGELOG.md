@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **The Grey Marches' Night eyes**: a knack switched on and off (**Open** / **Close the night eyes**): while open, a night march burns no torch of theirs, but costs them a step of nerve.
+- **Kinds of damage in the Grey Marches**: a blow is hallowed with the Sword of Keld in hand, fire with a torch in the dark, steel otherwise; wolves fear fire, the restless dead shrug off steel and fear the hallowed, the Ember Hunt and the Wyrm don't burn.
+
 ## [0.55.0] - 2026-11-14
 
 ### Travel and Map
