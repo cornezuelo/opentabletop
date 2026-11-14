@@ -188,7 +188,7 @@ description: |-
 entries:
   - id: king
     result: 'A king of the old folk, and his crown; under his bier, a way down'
-    effects: { party.values.legend: 4, place.ways.way-in: 1 }
+    effects: { party.values.legend: 4, party.members.values.renown: 2, place.ways.way-in: 1 }
 ---
 kind: table
 id: door-noise

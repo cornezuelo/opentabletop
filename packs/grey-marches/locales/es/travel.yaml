@@ -65,7 +65,7 @@ travel-rules/default:
       description: 'Apretar el paso: lo que queda de marcha hoy va la mitad más rápido, pero +1 de fatiga, y el grupo sigue marchando hasta su destino. Solo de día con horas de marcha por delante, con fatiga menor de 2 y la Compañía sin desanimar, una vez al día.'
     rite:
       name: Rito de la Luna Ascua
-      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga, se vacía el pavor de cada compañero y su temple sube un dado; una marca de leyenda.'
+      description: 'En un santuario del camino, solo con la Luna Ascua llena: dos horas de oración. Moral +2, fuera la fatiga, se vacía el pavor de cada compañero y su temple sube un dado; una marca de leyenda, y un renombre para cada uno.'
     grumble:
       name: Los mercenarios refunfuñan
       description: Tras un día sin comida suficiente, los mercenarios se niegan a marchar.
@@ -155,6 +155,34 @@ travel-rules/default:
           choices:
             stealth: 'Sin ser vistos, con sigilo'
             pathfinding: 'Leyendo el terreno'
+    shieldwall:
+      name: Muro de escudos
+      description: 'En un combate, para un compañero con la maña: en guardia tras un escudo hasta su próximo turno; el enemigo que va a por él golpea con desventaja.'
+      told: '{{acting.name}} se cubre tras el escudo'
+    name-made:
+      name: Un nombre ganado
+      description: 'Tras un combate ganado (sin enemigos aquí): cada compañero que sigue en pie gana un renombre.'
+    rank-up:
+      name: Un compañero sube
+      description: 'Cuando el renombre de un compañero llega al triple de su rango (hasta rango 5): sube un rango, gasta el renombre y gana uno más de salud, una habilidad o una maña, a tu elección.'
+      params:
+        benefit:
+          name: ¿Qué gana?
+          choices:
+            health: Uno más de salud
+            skill: Una habilidad
+            knack: Una maña
+        skill:
+          name: ¿Qué habilidad?
+          choices:
+            survival: Supervivencia
+            pathfinding: Orientación
+            stealth: Sigilo
+        knack:
+          name: ¿Qué maña?
+      do:
+        rises:
+          say: '{{acting.name}} crece en lo que cuentan las Marcas.'
     strike:
       name: Golpear a uno
       told: '{{acting.name}} golpea a {{characters[params.foe].name}}'

@@ -331,8 +331,10 @@ describe('the bundled packs fight in turns', () => {
     // Kael rolls 1d6 and his Stealth (3), Mara 1d6 and hers (0), each bandit 1d6 and its Harm.
     const order = fight(marches, 'stand', 'g').first
     expect(order).toEqual(['kael', 'bandit-2', 'bandit', 'mara'])
-    // Its end is a moment (Mind the mail's), heard last; nobody wears armour here.
-    expect(lines.slice(-2)).toEqual(['ENCOUNTER_ENDED', 'MOMENT_REACHED'])
+    // Its end is a moment (Mind the mail's and A name made's), heard right after it; nobody
+    // wears armour here.
+    const ended = lines.indexOf('ENCOUNTER_ENDED')
+    expect(lines[ended + 1]).toBe('MOMENT_REACHED')
     expect(state.encounter).toBeUndefined()
     expect(state.present?.filter((p) => p.at === state.travel.location) ?? []).toEqual([])
     // Rounds of a minute: time went on as the rounds came.
@@ -646,6 +648,82 @@ describe('the bundled packs fight in turns', () => {
         })
     }
     throw new Error("the bandit's turn never came")
+  })
+
+  it('the Grey Marches: renown for a fight won, a rank risen at three times it, a knack learnt and used', () => {
+    // A fight won: each companion still standing gains a renown.
+    const won = fight(marches, 'stand', 'g')
+    for (const m of won.state.members!.filter((m) => (m.values.health as number) >= 1))
+      expect(m.values.renown).toBe(1)
+    // Kael at three renown (rank 1): he rises on the next step, and chooses what he gains.
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'k',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(1) }),
+    }
+    const ready = applyResult(
+      session,
+      { effects: { 'characters.kael.values.renown': 3 } },
+      {},
+      partyOf(marches),
+    )
+    let done = stepTrip(options, ready, { type: 'action', id: 'rest' })
+    expect(done.state.travel.waiting).toMatchObject({ action: 'rank-up', ask: 'benefit' })
+    done = stepTrip(options, done.state, { type: 'resume', choice: 'knack' })
+    // The knacks he may learn at rank 2: Woodwise and Shieldwall (Pathfinder needs rank 3).
+    expect(done.state.travel.waiting).toMatchObject({
+      ask: 'knack',
+      choices: ['woodwise', 'shieldwall'],
+    })
+    done = stepTrip(options, done.state, { type: 'resume', choice: 'shieldwall' })
+    const kael = done.state.members!.find((m) => m.id === 'kael')!
+    expect(kael.values).toMatchObject({ rank: 2, renown: 0, shieldwall: 1 })
+    expect(kael.items!.map((i) => [i.id, i.place])).toContainEqual(['shieldwall', 'knacks'])
+    // In a fight, on his turn, Shieldwall is his: braced, and a foe going for him rolls worse.
+    let fought = stepTrip(
+      options,
+      applyResult(
+        { ...done.state, foesAtOnce: true },
+        { effects: { 'present.bandit': 1, 'characters.bandit.conditions.enraged': true } },
+        {},
+        partyOf(marches),
+      ),
+      { type: 'encounter', what: 'start' },
+    )
+    for (let i = 0; i < 10 && fought.state.acting !== 'kael'; i++)
+      fought = stepTrip(options, fought.state, {
+        type: 'action',
+        id: 'strike',
+        with: { foe: 'bandit' },
+      })
+    expect(fought.state.acting).toBe('kael')
+    expect(tripAvailability(options, fought.state).shieldwall).toBeUndefined()
+    fought = stepTrip(options, fought.state, { type: 'action', id: 'shieldwall' })
+    const braced = fought.state.journal.find(
+      (e) => e.code === 'CHANGED' && e.data?.path === 'characters.kael.conditions.braced',
+    )
+    expect(braced).toBeDefined()
+    // Mara has no such knack: hidden on her turn.
+    const mara = { ...fought.state, acting: 'mara' }
+    expect(tripAvailability(options, mara).shieldwall).toBeDefined()
+  })
+
+  it('the Grey Marches: a Woodwise companion finds the way under the trees with advantage', () => {
+    const oracle = createOracleEngine({ registry, random: seeded(1) })
+    const mode = (context: Record<string, unknown>) =>
+      oracle.resolve('grey-marches/getting-lost', context).resolution.mode
+    const forest = { place: { terrain: 'forest' }, trip: { weather: 'clear' } }
+    expect(mode(forest)).toBeUndefined()
+    expect(mode({ ...forest, party: { highest: { values: { woodwise: 1 } } } })).toBe(
+      'core/advantage',
+    )
   })
 
   it("the Grey Marches: a blow's harm is the player's, rolled with its roll mode", () => {

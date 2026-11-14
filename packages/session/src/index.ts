@@ -330,6 +330,12 @@ export interface SessionState {
   dueForEach?: { action: string; at: string; who?: string }[]
   /** The member acting now (`acting.*`), chosen by the player, or whoever's turn it is in a fight. */
   acting?: string
+  /**
+   * A reaction played for a member (or one of those present leaving) that waits for the
+   * player (an `ask:`, a `pause:`): who was acting before, given back once it's done. Until
+   * then that member keeps acting, so what's chosen goes to them.
+   */
+  reactingFor?: { acting?: string; leaving?: string }
   /** The encounter going on, a fight in turns (docs/conflicts.md); absent: none. */
   encounter?: Encounter
   /** Who holds each of the system's journey roles (`roles.<id>.*`), chosen by the player. */
@@ -1102,8 +1108,9 @@ export function createSession(options: {
       /** A reaction is being played: once it's done, the step goes on with `after`. */
       let reacting = false
       let after: TravelAction | undefined
-      /** Who acted before a reaction played for a member made them act. */
-      let actingBefore: { acting?: string; leaving?: string } | undefined
+      /** Who acted before a reaction played for a member made them act (one that waited, kept). */
+      let actingBefore: { acting?: string; leaving?: string } | undefined = s.reactingFor
+      delete s.reactingFor
       const restoreActing = () => {
         if (!actingBefore) return
         const gone = actingBefore.leaving
@@ -1673,6 +1680,11 @@ export function createSession(options: {
         if (react()) continue
         if (!next) break
         act = next
+      }
+      // A reaction for a member waiting for the player keeps them acting until it's done.
+      if (actingBefore && (s.travel.waiting || s.travel.moving?.held)) {
+        s.reactingFor = { ...actingBefore }
+        actingBefore = undefined
       }
       restoreActing()
       // Where the step left the party: those it left behind that go are gone.

@@ -1,0 +1,28 @@
+# What a companion may learn as they rise (travel.yaml's _A companion rises_): knacks, items
+# that go only in the sheet's place of knacks, each with what it needs. A small tree:
+# Woodwise first, Pathfinder after it at rank 3; Shieldwall from rank 2.
+kind: items
+id: knacks
+name: Knacks
+description: |-
+  What a companion learns on the road as they rise: reading the woods, never losing the way in the dark, holding a shield wall.
+
+  **Shows:** abilities as items in a place of their own (`tags: [knack]`, the sheet's _Knacks_ takes only them, not carried, shown as cards), each with requirements checked as it's offered (`needs:` a rank, another knack), passive ones read by the rules through a value made of them (`party.highest.values.woodwise` in _Getting lost_'s roll modes, `pathfinder` in its dark row) and an active one, an action open only to whoever has it (_Shieldwall_).
+items:
+  woodwise:
+    name: Woodwise
+    description: At home under the trees. Finding the way in a forest is rolled with advantage, sky or no sky.
+    tags: [knack]
+    fits: { place.tags: knack }
+  pathfinder:
+    name: Pathfinder
+    description: Never lost in the dark. A night march off the road doesn't go astray. Needs Woodwise and rank 3.
+    tags: [knack]
+    fits: { place.tags: knack }
+    needs: { self.values.woodwise: { gte: 1 }, self.values.rank: { gte: 3 } }
+  shieldwall:
+    name: Shieldwall
+    description: 'In a fight, on their turn: braced behind a shield until their next turn, a foe going for them strikes with disadvantage. Needs rank 2.'
+    tags: [knack]
+    fits: { place.tags: knack }
+    needs: { self.values.rank: { gte: 2 } }

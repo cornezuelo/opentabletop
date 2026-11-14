@@ -406,6 +406,7 @@ function playToOtd(map: HexMap) {
         ...(session?.weatherAt && { weatherAt: session.weatherAt }),
         ...(session?.discovery && { discovery: session.discovery }),
         ...(session?.acting !== undefined && { acting: session.acting }),
+        ...(session?.reactingFor && { reactingFor: session.reactingFor }),
         ...(session?.roles && { roles: session.roles }),
         ...(session?.party && { party: characterToOtd(session.party, 'party') }),
         ...(session?.rolls !== undefined && { rolls: session.rolls }),
@@ -484,6 +485,10 @@ function playFromOtd(
             ...(Array.isArray(ext.asking) && { asking: ext.asking }),
             ...((ext.rollWay === 'matters' || ext.rollWay === 'all') && { rollWay: ext.rollWay }),
             ...(Array.isArray(ext.yours) && { yours: ext.yours }),
+            ...(typeof ext.reactingFor === 'object' &&
+              ext.reactingFor !== null && {
+                reactingFor: ext.reactingFor as SessionState['reactingFor'],
+              }),
             ...(ext.askShare === true && { askShare: true }),
             ...(Array.isArray(ext.sharing) && { sharing: ext.sharing }),
           },

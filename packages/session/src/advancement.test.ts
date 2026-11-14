@@ -24,6 +24,7 @@ kind: sheet
 id: hero
 values:
   level: { default: 1, min: 1 }
+  xp: { default: 0, min: 0 }
 items:
   fields:
     tier: { min: 1 }
@@ -55,6 +56,16 @@ actions:
       knack: { name: Which knack?, from: items.knacks, where: { not: { item.tags: rare } } }
     do:
       - { effects: { acting.values.level: 1 } }
+      - { ask: params.knack }
+      - { effects: { 'acting.items[params.knack]': 1 } }
+  # A reaction for each member that waits for a choice: still theirs when it goes on.
+  grow:
+    on: { when: { acting.values.xp: { gte: 1 } }, for: party.members }
+    params:
+      knack: { name: Which knack?, from: items.knacks, where: { not: { item.tags: rare } } }
+    do:
+      - { effects: { acting.values.xp: -1, acting.values.level: 1 } }
+      - { pause: true }
       - { ask: params.knack }
       - { effects: { 'acting.items[params.knack]': 1 } }
 `,
@@ -96,6 +107,30 @@ describe('advancement: a choice listed from a catalogue', () => {
     // The next level offers Grim too.
     done = stepTrip(options, done.state, { type: 'action', id: 'rise' })
     expect(done.state.travel.waiting?.choices).toEqual(['quick', 'sure', 'grim'])
+  })
+
+  it('a reaction for a member that waits for the player is still theirs when it goes on', () => {
+    const { options, session } = begin()
+    const bo = createCharacter(options.system.sheet!.def, options.system.sheet!.id, {
+      id: 'bo',
+      name: 'Bo',
+      values: { xp: 1 },
+    })
+    const two = { ...session, members: [...session.members!, bo] }
+    // Ana acts; Bo's experience brings his reaction, which waits (a pause, then a choice).
+    let done = stepTrip(options, two, { type: 'action', id: 'march' })
+    expect(done.state.travel.waiting).toMatchObject({ action: 'grow' })
+    expect(done.state.acting).toBe('bo')
+    done = stepTrip(options, done.state, { type: 'resume' })
+    // Listed for Bo as he is now (level 2): Sure-footed too.
+    expect(done.state.travel.waiting).toMatchObject({ ask: 'knack', choices: ['quick', 'sure'] })
+    done = stepTrip(options, done.state, { type: 'resume', choice: 'sure' })
+    const [ana, him] = done.state.members!
+    expect(him!.items!.map((i) => i.id)).toEqual(['sure'])
+    expect(ana!.items ?? []).toEqual([])
+    // Done: Ana acts again.
+    expect(done.state.acting).toBe('ana')
+    expect(done.state.reactingFor).toBeUndefined()
   })
 
   it('given by an effect without what it needs, it is given all the same, and said', () => {

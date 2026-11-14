@@ -1,0 +1,17 @@
+# The knacks in Spanish (knacks.yaml).
+items/knacks:
+  name: Mañas
+  description: |-
+    Lo que aprende un compañero en el camino según sube: leer el bosque, no perderse nunca en la oscuridad, sostener un muro de escudos.
+
+    **Enseña:** capacidades como objetos en un lugar propio (`tags: [knack]`, las _Mañas_ de la hoja solo las admiten, no se cargan y se muestran como cartas), cada una con requisitos que se comprueban al ofrecerla (`needs:` un rango, otra maña), pasivas que leen las reglas a través de un valor hecho de ellas (`party.highest.values.woodwise` en los modos de tirada de _Perderse_, `pathfinder` en su fila de oscuridad) y una activa, una acción abierta solo a quien la tiene (_Muro de escudos_).
+  items:
+    woodwise:
+      name: Conocedor del bosque
+      description: Como en casa bajo los árboles. Orientarse en un bosque se tira con ventaja, haya cielo o no.
+    pathfinder:
+      name: Baqueano
+      description: Nunca se pierde en la oscuridad. Una marcha nocturna fuera del camino no se extravía. Necesita Conocedor del bosque y rango 3.
+    shieldwall:
+      name: Muro de escudos
+      description: 'En un combate, en su turno: en guardia tras un escudo hasta su próximo turno, el enemigo que va a por él golpea con desventaja. Necesita rango 2.'

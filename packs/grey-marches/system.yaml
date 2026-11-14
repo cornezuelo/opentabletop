@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules (its buttons in groups) and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs, the fallen stripped as they leave), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, advancement (each companion's renown and rank, the knacks they learn), fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs, the fallen stripped as they leave), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -22,8 +22,9 @@ partySheet: sheet.company
 mapSheet: sheet.this-place
 # The powers of the Marches (factions.yaml): their territory and their world turns.
 factions: factions.default
-# The Company's gear (items.yaml): what its companions may carry.
-items: [items.gear]
+# The Company's gear (items.yaml): what its companions may carry; and what they may learn
+# (knacks.yaml), in a place of their own.
+items: [items.gear, items.knacks]
 # Who walks the Marches (bestiary.yaml): the templates its encounters make copies of.
 bestiary: [bestiary.marches]
 # Its fights in turns (travel.yaml's Stand and fight, Strike one down, Fall back): each one in
@@ -33,7 +34,7 @@ encounter:
   order:
     by: participant
     value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' }
-  actions: [actions.strike, actions.fall-back]
+  actions: [actions.strike, actions.shieldwall, actions.fall-back]
   # What a foe does on its turn, unless its template says (the wolves: bestiary.yaml).
   foes: table.foe-turn
   # Whom a foe's turn goes for, chosen as it begins, so its table can read their armour

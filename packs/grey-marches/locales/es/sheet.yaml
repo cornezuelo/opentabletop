@@ -30,6 +30,10 @@ sheet/companion:
     al doble), lo que no cabe esperando al jugador (`full: ask`: el viaje espera a que haga
     sitio), lo que lleva un compañero nuevo (`start: { ration: 2 }`)
     y cómo se reparte entre ellos lo que gasta el grupo (`share: even`: de quien más lleve);
+    su posición (el renombre, y un rango como puntos, que suben las reglas), un lugar de mañas
+    (`takes: { item.tags: knack }`, que no se carga y se muestra como cartas) y valores hechos
+    de lo que hay en él (`woodwise`, que leen las reglas como `party.highest.values.woodwise`),
+    un estado que se da hasta su próximo turno (_En guardia_, `lasts: turns`);
     cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
   values:
     survival:
@@ -68,6 +72,21 @@ sheet/companion:
     nerve:
       name: Temple
       description: El dado que es el valor de un compañero, de d4 a d12, que se tira cuando le entra el miedo. El despertar de la Sierpe lo baja un dado, el rito en un santuario lo vuelve a subir.
+    renown:
+      name: Renombre
+      description: Lo que cuentan las Marcas de un compañero; lo gana con los combates ganados en pie, el rito de la Luna Ascua y la última tumba. Al llegar al triple de su rango, sube.
+    rank:
+      name: Rango
+      description: Cuánto ha subido un compañero, de 1 a 5; cada rango da más salud, una habilidad o una maña.
+    woodwise:
+      name: Conocedor del bosque
+      description: 1 con la maña Conocedor del bosque.
+    pathfinder:
+      name: Baqueano
+      description: 1 con la maña Baqueano.
+    shieldwall:
+      name: Muro de escudos
+      description: 1 con la maña Muro de escudos.
   groups:
     skills:
       name: Habilidades
@@ -78,7 +97,16 @@ sheet/companion:
     gear:
       name: Equipo
       description: Lo que lleva un compañero, para sí y para toda la Compañía.
+    standing:
+      name: Posición
+      description: Su renombre, su rango y las mañas que ha aprendido.
   conditions:
+    braced:
+      name: En guardia
+      description: Tras su escudo hasta su próximo turno; el enemigo que va a por él golpea peor.
+      told:
+        gains: '{{name}} se cubre tras el escudo'
+        loses: '{{name}} baja el escudo'
     wounded:
       name: Herido
       description: Malherido y sangrando. No puede forzar la marcha ni marchar de noche; no cuenta para la Supervivencia del grupo.
@@ -127,6 +155,9 @@ sheet/companion:
       body: { name: Cuerpo, description: Lo que se lleva puesto. }
       belt: Cinturón
       back: { name: Espalda, description: Una mochila o un fardo a la espalda. }
+      knacks:
+        name: Mañas
+        description: Lo que un compañero ha aprendido en el camino, cada una una carta.
   relations:
     bond:
       name: Vínculo

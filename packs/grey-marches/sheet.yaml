@@ -33,7 +33,11 @@ description: |-
   twice it), what has no room waiting for the player (`full: ask`: the trip waits till they
   make room), what a new companion carries (`start: { ration: 2 }`) and
   how what the party spends is shared out among them (`share: even`: from whoever carries
-  most); every part with a description, shown as its help where the sheet is met.
+  most); their standing (renown, and a rank as pips, both raised by the rules), a place of
+  knacks (`takes: { item.tags: knack }`, not carried, shown as cards) and values made of
+  what's in it (`woodwise`, read by the rules as `party.highest.values.woodwise`), a condition
+  given until their next turn (_Braced_, `lasts: turns`); every part with a description,
+  shown as its help where the sheet is met.
 main: health
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).
@@ -140,6 +144,39 @@ values:
     steps: [4, 6, 8, 10, 12]
     display: die
     group: body
+  # Standing (docs/advancement.md): renown earned by deeds (travel.yaml's _A name made_, the
+  # rite, the last tomb), spent rising a rank (_A companion rises_) at three times their rank.
+  renown:
+    name: Renown
+    description: What the Marches say of a companion, earned by fights won standing, the rite of the Ember Moon and the last tomb. At three times their rank, they rise.
+    default: 0
+    min: 0
+    group: standing
+  rank:
+    name: Rank
+    description: How far a companion has risen, 1 to 5; each rank gives more health, a skill or a knack.
+    default: 1
+    min: 1
+    max: 5
+    display: pips
+    group: standing
+  # The knacks they've learnt (knacks.yaml), each a value made of what's in their place of
+  # knacks: what the Marches' rules read (`party.highest.values.woodwise`).
+  woodwise:
+    name: Woodwise
+    description: 1 with the knack Woodwise.
+    from: { count: items, where: { item.id: woodwise } }
+    group: standing
+  pathfinder:
+    name: Pathfinder
+    description: 1 with the knack Pathfinder.
+    from: { count: items, where: { item.id: pathfinder } }
+    group: standing
+  shieldwall:
+    name: Shieldwall
+    description: 1 with the knack Shieldwall.
+    from: { count: items, where: { item.id: shieldwall } }
+    group: standing
 # The headings the values are shown under, in this order.
 # Each group's description is its help where the sheet is shown, like every part's.
 groups:
@@ -151,7 +188,16 @@ groups:
   body: { name: Body, description: How much a companion can take before they fall. }
   gear:
     { name: Gear, description: 'What a companion carries, for themselves and the whole Company.' }
+  standing:
+    { name: Standing, description: 'Their renown, their rank and the knacks they’ve learnt.' }
 conditions:
+  # Behind a shield (travel.yaml's Shieldwall), until their next turn: a foe going for them
+  # rolls with disadvantage (bestiary.yaml's _A foe's turn_).
+  braced:
+    name: Braced
+    description: Behind their shield until their next turn; a foe going for them strikes worse.
+    lasts: turns
+    told: { gains: '{{name}} braces behind a shield', loses: '{{name}} lowers the shield' }
   # A wounded companion can't push on (blocks two of the system's actions) nor guide
   # (the party's Survival leaves the wounded out).
   wounded:
@@ -233,6 +279,14 @@ items:
         tags: [back],
         room: 1,
       }
+    # What they've learnt (knacks.yaml): only knacks go here, weigh nothing, shown as cards.
+    knacks:
+      name: Knacks
+      description: What a companion has learnt on the road, each a card.
+      tags: [knack]
+      takes: { item.tags: knack }
+      carried: false
+      display: cards
   # A place's room counts slots: a mail shirt (2 slots) fills more than a torch.
   size: slots
   # Hands, body, belt and back take no more than their room: what's given with no room

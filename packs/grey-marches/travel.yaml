@@ -323,7 +323,7 @@ actions:
   rite:
     group: groups.here
     name: Rite of the Ember Moon
-    description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2, fatigue gone, every companion’s dread emptied and their nerve a die higher; a tick of legend.'
+    description: 'At a wayside shrine, only while the Ember Moon is full: two hours of prayer. Morale +2, fatigue gone, every companion’s dread emptied and their nerve a die higher; a tick of legend, and a renown for each.'
     when: { all: [{ place.tags: shrine }, { time.moons.ember: full }] }
     hideWhenUnavailable: true
     oncePerDay: true
@@ -336,6 +336,7 @@ actions:
             party.members.values.dread: '=0',
             party.members.values.nerve: 1,
             party.values.legend: 1,
+            party.members.values.renown: 1,
           }
   # The system's own: at dawn after a hungry day, hirelings (if any) refuse to march
   # (a value that blocks travel) until someone talks them round.
@@ -788,6 +789,17 @@ actions:
     do:
       - { effects: { encounter: start } }
       - { id: steel, say: 'Steel out: the Company stands its ground.' }
+  # A knack used in a fight (knacks.yaml): open only to whoever has learnt it (a value made of
+  # it, `acting.values.shieldwall`), braced until their next turn (`lasts: turns`).
+  shieldwall:
+    group: groups.fight
+    name: Shieldwall
+    description: 'In a fight, for a companion with the knack: braced behind a shield until their next turn; a foe going for them strikes with disadvantage.'
+    told: '{{acting.name}} braces behind a shield'
+    when: { encounter.round: { gte: 1 }, acting.values.shieldwall: { gte: 1 } }
+    hideWhenUnavailable: true
+    do:
+      - { effects: { acting.conditions.braced: 1 } }
   # Ending a fight by an effect (`encounter: end`): the Company gives ground, and the foes
   # stay where they are. If the fiercest of them (`present.highest.values.harm`) outdoes the
   # clumsiest of the Company (`party.lowest.values.stealth`), that one takes a parting blow.
@@ -813,6 +825,51 @@ actions:
     do:
       - { effects: { acting.conditions.routed: true } }
       - { id: runs, say: 'One of them loses its nerve and runs.' }
+  # Renown (sheet.yaml, docs/advancement.md): a fight won, each companion still standing
+  # gains one (`on: encounter.end`, `for: party.members`).
+  name-made:
+    name: A name made
+    description: 'After a fight won (no foe left here): each companion still standing gains a renown.'
+    on: encounter.end
+    for: party.members
+    when: { present.count: 0, acting.values.health: { gte: 1 } }
+    do:
+      - { effects: { acting.values.renown: 1 } }
+  # As a companion's renown reaches three times their rank (a reaction for each member), they
+  # rise: the renown spent, a rank more, and a benefit chosen: health, a skill, or a knack
+  # they may learn now (listed from the catalogue, its `needs:` read with the new rank).
+  rank-up:
+    name: A companion rises
+    description: 'As a companion’s renown reaches three times their rank (up to rank 5): they rise a rank, the renown spent, and gain one more health, a skill or a knack, as you choose.'
+    on:
+      { when: { acting.values.renown: { gte: '{{acting.values.rank * 3}}' } }, for: party.members }
+    when: { acting.values.rank: { lt: 5 } }
+    params:
+      benefit:
+        name: What do they gain?
+        choices:
+          - { id: health, name: One more health }
+          - { id: skill, name: A skill }
+          - { id: knack, name: A knack }
+      skill:
+        name: Which skill?
+        choices:
+          - { id: survival, name: Survival }
+          - { id: pathfinding, name: Pathfinding }
+          - { id: stealth, name: Stealth }
+      knack: { name: Which knack?, from: items.knacks }
+    do:
+      - effects: { acting.values.renown: '-{{acting.values.rank * 3}}', acting.values.rank: 1 }
+      - { id: rises, say: '{{acting.name}} rises in the Marches’ telling.' }
+      - { ask: params.benefit }
+      - when: { params.benefit: health }
+        effects: { acting.values.maxHealth: 1, acting.values.health: 1 }
+      - { when: { params.benefit: skill }, ask: params.skill }
+      - when: { params.benefit: skill }
+        effects: { 'acting.values[params.skill]': 1 }
+      - { when: { params.benefit: knack }, ask: params.knack }
+      - when: { params.benefit: knack }
+        effects: { 'acting.items[params.knack]': 1 }
   # After a fight (`on: encounter.end`), what each companion wears is looked over, one after
   # another, each acting (`for: party.members`), if they carry armour at all:
   # one roll of _Wear and tear_ for each piece on their body (`each: params.piece`, its

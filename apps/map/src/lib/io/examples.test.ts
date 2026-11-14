@@ -691,8 +691,11 @@ describe('example maps', () => {
       'nerve-breaks': { condition: 'when' }, // no foe's turn
       'mind-the-mail': { condition: 'when' }, // nobody acting carries armour
       'strip-the-fallen': { condition: 'when' }, // nobody fell
+      shieldwall: { condition: 'when' }, // no fight, and no knack
+      'name-made': { condition: 'when' }, // no fight won
+      'rank-up': { condition: 'when' }, // nobody risen
     })
-    expect(Object.keys(unavailable)).toHaveLength(27)
+    expect(Object.keys(unavailable)).toHaveLength(30)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

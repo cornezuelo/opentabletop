@@ -116,7 +116,12 @@ describe('bundled open packs', () => {
           es: expect.any(String),
         })
     }
-    expect(Object.keys(system.sheet!.def.groups ?? {})).toEqual(['skills', 'body', 'gear'])
+    expect(Object.keys(system.sheet!.def.groups ?? {})).toEqual([
+      'skills',
+      'body',
+      'gear',
+      'standing',
+    ])
   })
 
   it('the Generic rules describe their sheets too, in both languages', () => {
