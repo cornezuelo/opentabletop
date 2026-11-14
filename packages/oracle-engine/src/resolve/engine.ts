@@ -2,21 +2,13 @@ import { matches, resolvePath, type Condition } from '@open-tabletop/conditions'
 import {
   diceFacts,
   parseDice,
-  roll,
-  withExtraDice,
+  rollWith,
   type DiceExpression,
+  type DiceMode,
   type DiceResult,
 } from '@open-tabletop/dice'
 import { shuffled, weightedIndex, type RandomSource } from '@open-tabletop/random'
-import {
-  evaluate,
-  isRoll,
-  lookupIn,
-  namesIn,
-  onceRoller,
-  render,
-  type Roller,
-} from '@open-tabletop/variables'
+import { evaluate, isRoll, lookupIn, namesIn, render, type Roller } from '@open-tabletop/variables'
 import {
   resolveRef,
   type RollMode,
@@ -89,17 +81,33 @@ export interface ResolveOptions {
   /** A roll mode the definition offers (full id), chosen by hand for the top-level roll. */
   mode?: string
   /**
-   * The top-level roll's total, rolled by the player with dice of their own: its entry is
-   * the one that total falls on (a reroll it asks for is the engine's). Dice within the
-   * entry, and a list with no roll, are still rolled.
+   * The player's rolls: each roll of the resolution with dice (a list's, a generator's field,
+   * dice in a condition, a row's `{{1d6}}`), in the order it's made, asks for its total,
+   * rolled with dice of their own; undefined, the engine rolls it. It may throw to stop the
+   * resolution until the player has rolled (a host asks them, then resolves again with the
+   * same `random`, giving the totals so far). A list by weight, a deck's draw: the engine's.
    */
-  total?: number
+  yours?: (roll: WantedRoll) => number | undefined
+  /** The randomness of this resolution alone (the engine's by default): the same gives the same. */
+  random?: RandomSource
   /**
    * Names the host fills in itself after the roll (a trip's `target`, the one a result aims
    * at): an entry that sets one leaves its effects as written (`'-{{1d4}}'`), for the host to
    * read once it knows them, its dice rolled then (for each one aimed at).
    */
   hostReads?: string[]
+}
+
+/** A roll of the player's (`ResolveOptions.yours`): its dice and what rolls them. */
+export interface WantedRoll {
+  /** As rolled now, the values it reads filled in (`1d6 + 2`). */
+  dice: string
+  /** The roll mode it's rolled with (full id): the player rolls with it too. */
+  mode?: string
+  /** How that mode rolls (`rollWith`), for rolling it on screen. */
+  how?: DiceMode
+  /** The definition rolling it (full id): a table, or one a result led to. */
+  source: string
 }
 
 export type OracleEvent =
@@ -144,11 +152,6 @@ export interface OracleEngine {
    * id); a reference (`table.x`, `pack/x`) not found is returned as written.
    */
   nameOf(id: string, locale?: string): string
-  /**
-   * A table's roll as it would be rolled now, the values it reads filled in (`1d6 + 2`), for
-   * a player rolling it with their own dice; undefined for one rolled by weight, or not a table.
-   */
-  rollOf(id: string, context?: Record<string, unknown>): string | undefined
   list(filter?: { kind?: Compiled['kind']; tag?: string; pack?: string }): Compiled[]
 }
 
@@ -176,13 +179,13 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
     if (deckOnly && def.kind !== 'deck') throw new OracleError(`"${id}" is not a deck`)
     const session = new Run(
       registry,
-      random,
+      opts.random ?? random,
       structuredClone(state),
       opts.locale ?? options.locale,
       maxDepth,
       options.onEvent,
     )
-    if (opts.total !== undefined) session.given = opts.total
+    session.yours = opts.yours
     session.hostReads = new Set(opts.hostReads)
     const resolution = session.resolve(def, context, 0, opts.mode)
     return {
@@ -229,13 +232,6 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       const overlay = locale ? registry.overlays.get(locale)?.get(def.id) : undefined
       return overlay?.name ?? def.name ?? def.localId
     },
-    rollOf: (id, context = {}) => {
-      const def = lookup(id)
-      // Without what adds nothing (`1d6 + 0`, a modifier missing today).
-      return def.kind === 'table' && def.roll
-        ? filledRoll(def.roll, context).replace(/\s*\+\s*0(?![\d.])/g, '')
-        : undefined
-    },
     list: (filter = {}) =>
       [...registry.definitions.values()].filter(
         (d) =>
@@ -281,6 +277,16 @@ function filledRoll(expression: string, context: Record<string, unknown>): strin
   })
 }
 
+/** A roll mode as the dice roll it. */
+function howOf(mode: RollMode): DiceMode {
+  return {
+    keep: mode.keep,
+    ...(mode.repeat !== undefined && { repeat: mode.repeat }),
+    ...(mode.extra !== undefined && { extra: mode.extra }),
+    ...(mode.swap && { swap: true }),
+  }
+}
+
 /** One resolution: owns a working copy of the state and the depth guard. */
 class Run {
   constructor(
@@ -292,19 +298,17 @@ class Run {
     private onEvent?: (event: OracleEvent) => void,
   ) {}
 
-  /** The first roll of a list's own, given by the player (`ResolveOptions.total`). */
-  given: number | undefined
+  /** The player's rolls (`ResolveOptions.yours`). */
+  yours: ResolveOptions['yours']
 
   /** Names the host reads after the roll (`ResolveOptions.hostReads`). */
   hostReads = new Set<string>()
 
-  /** Where the dice conditions roll are told (the node being resolved). */
-  private rollingFor: Resolution | undefined
   /**
    * The dice conditions name (`gte: '{{1d20}}'`), rolled once in a resolution: every entry
    * that asks for the same dice sees the same roll (a roll-under and its `unless`).
    */
-  private conditionRolls: Roller | undefined
+  private conditionRolls = new Map<string, number>()
 
   /** Whether a condition holds, its dice rolled once in this resolution. */
   private holds(
@@ -312,9 +316,14 @@ class Run {
     context: Record<string, unknown>,
     node: Resolution | undefined,
   ): boolean {
-    this.rollingFor = node
-    this.conditionRolls ??= onceRoller(this.random, (result) => this.rollingFor?.rolls.push(result))
-    return matches(condition, context, { roller: this.conditionRolls })
+    const roller: Roller = (dice) => {
+      const known = this.conditionRolls.get(dice)
+      if (known !== undefined) return known
+      const total = this.roll(dice, {}, node).total
+      this.conditionRolls.set(dice, total)
+      return total
+    }
+    return matches(condition, context, { roller })
   }
 
   resolve(
@@ -378,7 +387,13 @@ class Run {
           } else if (field.kind === 'roll') {
             // Its own roll modes, when they hold (Advantage on this roll alone).
             const mode = this.modeFor(field, fieldContext, undefined, node)
-            value = this.roll(field.parsedRoll ?? field.roll!, fieldContext, node, mode).total
+            value = this.roll(
+              field.parsedRoll ?? field.roll!,
+              fieldContext,
+              node,
+              mode,
+              field.roll,
+            ).total
           } else {
             value =
               typeof field.value === 'string'
@@ -456,9 +471,7 @@ class Run {
     // dice show as `dice.*` (`dice.doubles`): in their conditions (a roll-under:
     // `when: { party.stats.survival: { gte: '{{roll}}' } }`), texts, `set` and effects.
     let rolled = list.roll
-      ? depth === 0 && this.given !== undefined
-        ? this.handRoll(list.roll, node)
-        : this.roll(list.parsedRoll ?? list.roll, context, node, mode)
+      ? this.roll(list.parsedRoll ?? list.roll, context, node, mode, list.roll)
       : undefined
     let total = rolled?.total
     const withRoll = () =>
@@ -469,7 +482,7 @@ class Run {
 
     const pick = (from: CompiledEntry[], again: boolean) => {
       if (again && list.roll) {
-        rolled = this.roll(list.parsedRoll ?? list.roll, context, node, mode)
+        rolled = this.roll(list.parsedRoll ?? list.roll, context, node, mode, list.roll)
         total = rolled.total
       }
       return this.pick(from, total, def.clamp ?? true)
@@ -636,28 +649,33 @@ class Run {
     return this.resolve(def, context, depth + 1)
   }
 
-  /** The total the player rolled, kept as the roll (no dice of the engine's), used once. */
-  private handRoll(expression: string, node: Resolution): DiceResult {
-    const result: DiceResult = { expression, terms: [], total: this.given!, byHand: true }
-    this.given = undefined
-    node.rolls.push(result)
-    return result
-  }
-
   private roll(
     expression: string | DiceExpression,
     context: Record<string, unknown>,
     node: Resolution | undefined,
     mode?: RollMode,
+    /** As written, when `expression` is parsed already (a list's or a field's roll). */
+    written?: string,
   ): DiceResult {
+    const filled = typeof expression === 'string' ? expression : written
+    if (this.yours && filled !== undefined) {
+      // Without what adds nothing (`1d6 + 0`, a modifier missing today).
+      const dice = filledRoll(filled, context).replace(/\s*\+\s*0(?![\d.])/g, '')
+      const total = this.yours({
+        dice,
+        ...(mode && { mode: mode.id, how: howOf(mode) }),
+        source: node?.source ?? '',
+      })
+      if (total !== undefined) {
+        // The total the player rolled, kept as the roll (no dice of the engine's).
+        const result: DiceResult = { expression: dice, terms: [], total, byHand: true }
+        node?.rolls.push(result)
+        return result
+      }
+    }
     const parsed =
       typeof expression === 'string' ? parseDice(filledRoll(expression, context)) : expression
-    const keep = mode?.keep as 'highest' | 'lowest'
-    const result = mode?.extra
-      ? roll(withExtraDice(parsed, mode.extra, keep), this.random)
-      : mode?.swap
-        ? roll(parsed, this.random, { swap: keep })
-        : roll(parsed, this.random, mode && { repeat: mode.repeat, keep: mode.keep })
+    const result = rollWith(parsed, this.random, mode && howOf(mode))
     node?.rolls.push(result)
     return result
   }

@@ -705,10 +705,14 @@
       {#if yours}
         <YourRoll
           dice={yours.dice}
-          what={pendingName(check.event)}
+          what={yours.of ? nameOf(yours.of) : pendingName(check.event)}
           who={yours.who !== undefined && yours.who !== PARTY_ID
             ? participantName(session, yours.who)
             : ''}
+          on={yours.target !== undefined ? participantName(session, yours.target) : ''}
+          said={yours.said ?? ''}
+          mode={yours.mode ? nameOf(yours.mode) : ''}
+          how={yours.how}
           {locale}
           ongive={(total) => onstep({ type: 'rolled', id: check.id, total })}
           onforme={() => onstep({ type: 'resolveCheck', id: check.id })}

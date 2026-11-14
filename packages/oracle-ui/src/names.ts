@@ -39,8 +39,13 @@ export function packTexts(registry: () => Registry, locale: () => string) {
       overlay(def.id)?.inputs?.[input]?.labels?.[option] ??
       (def.kind === 'oracle' ? def.inputs[input]?.labels?.[option] : undefined) ??
       option,
-    /** Display name of a definition by id (the id itself if it doesn't exist). */
-    nameOf: (id: string): string => displayName(registry().definitions.get(id), id),
+    /** Display name of a definition or a roll mode by id (the id itself if neither exists). */
+    nameOf: (id: string): string => {
+      const mode = registry().rollModes.get(id)
+      return mode
+        ? (local(mode.name) ?? mode.localId)
+        : displayName(registry().definitions.get(id), id)
+    },
   }
 }
 

@@ -461,13 +461,14 @@ describe('the bundled packs fight in turns', () => {
           if (e.code === 'ORACLE_RESULT' && e.data?.table === table)
             hits.push(e.data.value as (typeof hits)[number])
         if (hits.length) break
-        // The player's rolls: the foe's table with the total chosen, the rest rolled for them.
+        // The player's rolls: the foe's table with the total chosen, the rest (the dice inside
+        // what it fell on, each one's harm) rolled for them.
         const yours = done.state.yours?.[0]
         if (yours) {
           done = stepTrip(
             options,
             done.state,
-            yours.table === table
+            yours.table === table && !yours.given
               ? { type: 'rolled', id: yours.id, total }
               : { type: 'resolveCheck', id: yours.id },
           )
@@ -559,6 +560,53 @@ describe('the bundled packs fight in turns', () => {
     expect(new Set(rows)).toEqual(
       new Set(['grey-marches/wolf-turn:bite', 'grey-marches/foe-turn:miss']),
     )
+  })
+
+  it("the Grey Marches: a blow's harm is the player's, rolled with its roll mode", () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'b',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(5) }),
+    }
+    const s = applyResult(
+      { ...session, rollWay: 'matters' },
+      { effects: { 'present.bandit': 1 } },
+      {},
+      partyOf(marches),
+    )
+    const health = (state: typeof s) =>
+      state.present?.find((p) => p.character.id === 'bandit')?.character.values.health as number
+    let done = stepTrip(options, s, { type: 'encounter', what: 'start' })
+    let struck = false
+    for (let turn = 0; turn < 20 && done.state.encounter && !struck; turn++) {
+      const yours = done.state.yours?.[0]
+      if (yours?.table === 'grey-marches/blow') {
+        // A lone foe: the harm's 1d6 is rolled twice, the higher kept (Core's advantage).
+        expect(yours.dice).toBe('1d6')
+        expect(yours.how).toEqual({ repeat: 2, keep: 'highest' })
+        const before = health(done.state)
+        done = stepTrip(options, done.state, { type: 'rolled', id: yours.id, total: 4 })
+        expect(health(done.state) ?? before - 4).toBe(before - 4)
+        struck = true
+      } else if (yours) done = stepTrip(options, done.state, { type: 'resolveCheck', id: yours.id })
+      else {
+        done = stepTrip(options, done.state, {
+          type: 'action',
+          id: 'strike',
+          with: { foe: 'bandit' },
+        })
+        if (done.state.travel.waiting)
+          done = stepTrip(options, done.state, { type: 'resume', choice: 'bandit' })
+      }
+    }
+    expect(struck).toBe(true)
   })
 
   it('the Grey Marches: a fight started by hand with those here, shown in turns, and called off', () => {

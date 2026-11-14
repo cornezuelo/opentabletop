@@ -320,7 +320,12 @@ describe('an encounter: a fight in turns', () => {
     // its table's roll the player's, as a check that waits.
     const check = done.state.travel.pendingChecks[0]!
     expect(done.state.yours).toEqual([
-      { id: check.id, table: 'brawl/foe-turn', dice: '1d1', who: 'goblin-2' },
+      expect.objectContaining({
+        id: check.id,
+        table: 'brawl/foe-turn',
+        dice: '1d1',
+        who: 'goblin-2',
+      }),
     ])
     expect(done.state.encounter?.stage).toBe('acted')
     expect(encounterView(done.state)?.fighters.find((f) => f.acting)?.id).toBe('goblin-2')

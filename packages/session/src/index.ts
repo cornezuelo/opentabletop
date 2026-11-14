@@ -1,4 +1,4 @@
-import { mathRandom, type RandomSource } from '@open-tabletop/random'
+import { mathRandom, seeded, type RandomSource } from '@open-tabletop/random'
 import { nextWeather, type WeatherModel } from '@open-tabletop/weather-engine'
 import { matches, type Condition } from '@open-tabletop/conditions'
 import {
@@ -7,6 +7,8 @@ import {
   OracleError,
   type OracleEngine,
   type OracleState,
+  type ResolveOutcome,
+  type WantedRoll,
 } from '@open-tabletop/oracle-engine'
 import {
   characterFacts,
@@ -28,6 +30,7 @@ import { extremes, settlePresent, type Present, type PresentEvent } from './pres
 import { encounterFacts, participantName, type Encounter } from './encounter'
 import { definitionId } from './refs'
 import { aimed, isTargetForm, targetsOf } from './target'
+import { handOf, handRoller, Wanted, type Hand } from './hand'
 import {
   pullFromRoster,
   rosterEntry,
@@ -245,15 +248,36 @@ export interface JournalEntry {
 /** Who rolls the trip's dice besides the computer (`SessionState.rollWay`). */
 export type RollWay = 'matters' | 'all'
 
-/** A check waiting for the player to roll its table: the table (full id) and its dice. */
+/**
+ * A check waiting for the player's roll: each roll its result makes (the table's, then those
+ * inside what it fell on: a blow's damage) is asked in turn, the check rolled again with the
+ * totals given so far until none is missing.
+ */
 export interface YourRoll {
   /** The pending check's id. */
   id: string
+  /** The check's table (full id). */
   table: string
-  /** As the table writes them (`1d20`, `2d6+{{x}}`). */
+  /** The roll asked now, the values it reads filled in (`1d20`, `2d6 + 2`). */
   dice: string
+  /** The roll mode it's rolled with (full id): the player rolls with it too. */
+  mode?: string
+  /** How that mode rolls, for rolling it on screen (`rollWith`). */
+  how?: WantedRoll['how']
+  /** The definition the roll asked now belongs to, when it isn't the check's table (full id). */
+  of?: string
   /** Who rolls it: whoever's turn it is in a fight (a member's or a foe's id). */
   who?: string
+  /** Whom the roll asked now is for: one a result aims at (`target`), its effect rolled for each. */
+  target?: string
+  /** What the result says, once it's known (the rolls left are inside it). */
+  said?: string
+  /** The totals given so far, in order; `null`, one the computer rolled (**Roll it for me**). */
+  given?: (number | null)[]
+  /** The randomness of the check's rolling, so rolling it again gives what was seen. */
+  seed?: string
+  /** The journal's number when it was first asked: whom a result aims at is chosen by it. */
+  key?: number
 }
 
 export interface SessionState {
@@ -338,7 +362,10 @@ export interface SessionState {
    * (**Foes' turns at once**); absent, each foe's turn waits for **Next** before another's.
    */
   foesAtOnce?: boolean
-  /** The total the player rolled for the next table a step rolls, used once (a roll of theirs). */
+  /**
+   * The total the player just rolled for their roll waiting (`{ type: 'rolled' }`), taken by
+   * the step that rolls its check again; never kept between steps.
+   */
   handTotal?: number
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
   weatherAt?: string
@@ -634,37 +661,16 @@ export function createSession(options: {
   const maxAuto = options.maxAutoSteps ?? (discovery ? 500 : 20)
 
   /**
-   * Whether a check's roll is the player's (`rollWay`): a table rolled with dice (one by
-   * weight, a deck, a generator are the computer's), and with `matters`, only in a fight, on
-   * a check that stops the trip, or on a table that can give an important result.
+   * Whether a check's rolls are the player's (`rollWay`): with `matters`, only in a fight, on
+   * a check that stops the trip, or on a table that can give an important result. Its rolls
+   * with dice are then asked one by one (a list by weight, a deck's draw, are the computer's).
    */
-  const yourRoll = (
-    s: SessionState,
-    table: string | undefined,
-    check: PendingCheck,
-    /** What the table sees, so its dice are said with the values they read (`1d6 + 2`). */
-    context: Record<string, unknown>,
-  ): YourRoll | undefined => {
-    if (!s.rollWay || !table || !options.oracle) return undefined
+  const isYours = (s: SessionState, table: string | undefined, check: PendingCheck): boolean => {
+    if (!s.rollWay || !table || !options.oracle) return false
+    if (s.rollWay === 'all' || s.encounter || check.pause) return true
     const def = options.oracle.get(table)
-    if (def?.kind !== 'table' || !def.roll) return undefined
-    const matters =
-      s.rollWay === 'all' ||
-      !!s.encounter ||
-      !!check.pause ||
-      def.entries.some((e) => e.notable === true)
-    if (!matters) return undefined
-    let dice: string | undefined
-    try {
-      dice = options.oracle.rollOf(table, context)
-    } catch (error) {
-      // A roll that can't be read here: the computer's, which says why in the journal.
-      if (error instanceof OracleError) return undefined
-      throw error
-    }
-    if (!dice) return undefined
-    const who = s.encounter ? s.encounter.order[s.encounter.turn] : undefined
-    return { id: check.id, table, dice, ...(who !== undefined && { who }) }
+    const entries = def?.kind === 'table' ? def.entries : def?.kind === 'deck' ? def.cards : []
+    return entries.some((e) => e.notable === true)
   }
 
   const add = (
@@ -1065,11 +1071,17 @@ export function createSession(options: {
       const limit = long ? Math.max(maxAuto, 2000) : maxAuto
       // Going on from a check that waited for who rolls: it's rolled now, with the choice.
       let replay: TravelEvent[] | undefined
-      /** Going on from a roll of the player's: rolled now, with their total or for them. */
-      const answered =
-        action.type === 'resolveCheck' && s.yours?.some((y) => y.id === action.id)
-          ? action.id
-          : undefined
+      /**
+       * Going on from a roll of the player's: rolled again with the totals so far and the one
+       * just given (none: **Roll it for me**, the computer's).
+       */
+      const waited =
+        action.type === 'resolveCheck' ? s.yours?.find((y) => y.id === action.id) : undefined
+      const answered = waited && {
+        ...waited,
+        given: [...(waited.given ?? []), s.handTotal ?? null],
+      }
+      delete s.handTotal
       if (
         action.type === 'resolveCheck' &&
         (s.asking?.includes(action.id) || s.yours?.some((y) => y.id === action.id))
@@ -1296,12 +1308,34 @@ export function createSession(options: {
             binding.context,
             party,
           )
-          // A roll of the player's (Rolls, in Options): the check waits for its total.
-          const yours =
-            event.check.id !== answered &&
-            !binding.weather &&
-            yourRoll(s, binding.resolve, event.check, context)
-          if (yours) {
+          // The player's rolls (Rolls, in Options): each asked in turn, the check waiting for
+          // the next and rolled again, with the same randomness, until none is missing.
+          const prior = answered?.id === event.check.id ? answered : undefined
+          const hand =
+            !binding.weather && (prior || isYours(s, binding.resolve, event.check))
+              ? handOf(prior?.given ?? [], !!s.rollWay)
+              : undefined
+          const seed = prior?.seed ?? `${s.travel.seed ?? ''}|${event.check.id}|${s.nextEntry}`
+          /** The journal's number whom a result aims at is chosen by: the first ask's, if asked. */
+          const key = prior?.key ?? s.nextEntry
+          const who = s.encounter ? s.encounter.order[s.encounter.turn] : undefined
+          /** The check waits for the player's next roll. */
+          const waitFor = (wanted: Wanted, said?: string) => {
+            const { dice, mode, how, source, target } = wanted.roll
+            const yours: YourRoll = {
+              id: event.check.id,
+              table: binding.resolve!,
+              dice,
+              ...(mode && { mode }),
+              ...(how && { how }),
+              ...(source && source !== definitionId(binding.resolve!) && { of: source }),
+              ...(who !== undefined && { who }),
+              ...(target !== undefined && { target }),
+              ...(said && { said }),
+              ...(prior?.given.length && { given: prior.given }),
+              seed,
+              key,
+            }
             s.yours = [...(s.yours ?? []), yours]
             resolvedAll = false
             add(s, entries, {
@@ -1311,18 +1345,15 @@ export function createSession(options: {
               data: {
                 ...about,
                 id: event.check.id,
-                dice: yours.dice,
-                ...(yours.who !== undefined && {
-                  who: yours.who,
-                  name: participantName(s, yours.who),
-                }),
+                dice,
+                ...(who !== undefined && { who, name: participantName(s, who) }),
                 ...whereOf(event.check),
               },
             })
-            continue
           }
           let value: Record<string, unknown>
           let text: string | undefined
+          let rolled: ResolveOutcome | undefined
           try {
             if (binding.weather) {
               const model = options.weather?.[binding.weather]
@@ -1352,31 +1383,21 @@ export function createSession(options: {
               value = day.value
               text = localize(day.name, options.locale ?? 'en', 'en') ?? day.weather
             } else {
-              // A total the player rolled by hand picks its entry (once).
-              const total = s.handTotal
-              delete s.handTotal
               // Whom a row aims at is chosen after the roll: its effects are read then.
               const out = options.oracle.resolve(binding.resolve!, context, s.oracle, {
                 locale: options.locale,
                 hostReads: ['target'],
-                ...(total !== undefined && { total }),
+                ...(hand && { yours: (roll) => hand.next(roll), random: seeded(seed) }),
               })
-              s.oracle = out.state
-              // Behind the result: each roll's dice, and the rows or cards chosen.
-              add(s, entries, {
-                source: 'oracle',
-                code: 'ROLLED',
-                time: event.time,
-                data: {
-                  check: event.check.event,
-                  ...(named && { named }),
-                  rolls: rolledNodes(out.resolution),
-                },
-              })
+              rolled = out
               value = out.resolution.value
               text = out.resolution.text
             }
           } catch (error) {
+            if (error instanceof Wanted) {
+              waitFor(error)
+              continue
+            }
             // A broken pack (unknown table, a roll that needs a missing number…) must not
             // lose the trip: the check stays pending and the journal says why.
             if (!(error instanceof OracleError)) throw error
@@ -1396,34 +1417,70 @@ export function createSession(options: {
           }
           // Whom it aims at, written short (`target: party.members.random`): one of them now;
           // `party.members.all`, each of them, its effects played for each with their own rolls.
-          const rolled = value
+          const fell = value
           const aims = isTargetForm(value.target)
             ? targetsOf(
                 value.target,
                 s,
-                momentRolls(s.travel, s.travel.location, `target|${s.nextEntry}`),
-              ).map((target) => aimed(rolled, target))
+                momentRolls(s.travel, s.travel.location, `target|${key}`),
+              ).map((target) => aimed(fell, target))
             : [value]
-          for (const one of aims) {
-            value = one
-            // Its effects with the variables they name read now (`'-{{party.stats.mouths}}'`;
-            // the Oracle reads its own entries' first): the journal says what they did.
+          /** One aim's effects with the variables they name read now, its dice from `from`. */
+          const effectsFor = (one: Record<string, unknown>, from: Hand | undefined) => {
+            // `'-{{party.stats.mouths}}'` (the Oracle reads its own entries' first).
             const seen = {
               ...tripContext(s, { ...host, ...event.check.context }, {}, party),
-              ...value,
+              ...one,
             }
-            const each = aims.length > 1 ? `|${String(value.target)}` : ''
-            const written = namedEffects(effectsOf(value), seen)
-            const effects = Object.fromEntries(
-              Object.entries(written).map(([p, c]) => [
-                p,
-                resolveChange(
-                  c,
-                  seen,
-                  momentRolls(s.travel, hexOf(seen), `${momentOf(seen) ?? ''}${each}`),
-                ),
-              ]),
-            )
+            const each = aims.length > 1 ? `|${String(one.target)}` : ''
+            const written = namedEffects(effectsOf(one), seen)
+            const moment = momentRolls(s.travel, hexOf(seen), `${momentOf(seen) ?? ''}${each}`)
+            const roller = from
+              ? handRoller(
+                  from,
+                  {
+                    source: definitionId(binding.resolve ?? ''),
+                    ...(typeof one.target === 'string' && { target: one.target }),
+                  },
+                  moment,
+                )
+              : moment
+            return {
+              seen,
+              effects: Object.fromEntries(
+                Object.entries(written).map(([p, c]) => [p, resolveChange(c, seen, roller)]),
+              ),
+            }
+          }
+          // The player's rolls inside the result (a blow's damage on whom it aims at): asked
+          // before anything of it happens, every aim's in turn.
+          if (hand && rolled) {
+            const ahead = hand.fork()
+            try {
+              for (const one of aims) effectsFor(one, ahead)
+            } catch (error) {
+              if (!(error instanceof Wanted)) throw error
+              waitFor(error, rolled.resolution.text)
+              continue
+            }
+          }
+          if (rolled) {
+            s.oracle = rolled.state
+            // Behind the result: each roll's dice, and the rows or cards chosen.
+            add(s, entries, {
+              source: 'oracle',
+              code: 'ROLLED',
+              time: event.time,
+              data: {
+                check: event.check.event,
+                ...(named && { named }),
+                rolls: rolledNodes(rolled.resolution),
+              },
+            })
+          }
+          for (const one of aims) {
+            value = one
+            const { seen, effects } = effectsFor(value, hand)
             // Written with variables (the Oracle renders its own: '-{{loss}}' comes as '-2'),
             // the journal keeps them as numbers.
             const withVariables = Object.values(

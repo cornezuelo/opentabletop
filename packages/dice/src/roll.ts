@@ -149,3 +149,28 @@ export function withExtraDice(
   terms[at] = { ...term, count: term.count + extra, keep: { mode: keep, count: term.count } }
   return { ...expression, terms }
 }
+
+/**
+ * A way of rolling a system names (advantage, disadvantage…): the whole roll made `repeat`
+ * times, or `extra` more dice, or a percentile die read either way (`swap`), one total kept.
+ */
+export interface DiceMode {
+  repeat?: number
+  extra?: number
+  swap?: boolean
+  keep: Keep
+}
+
+/** Rolls an expression with a way of rolling (none: once, as it is). */
+export function rollWith(
+  expression: string | DiceExpression,
+  random: RandomSource,
+  mode?: DiceMode,
+): DiceResult {
+  const parsed = typeof expression === 'string' ? parseDice(expression) : expression
+  if (!mode) return roll(parsed, random)
+  const keep = mode.keep as 'highest' | 'lowest'
+  if (mode.extra) return roll(withExtraDice(parsed, mode.extra, keep), random)
+  if (mode.swap) return roll(parsed, random, { swap: keep })
+  return roll(parsed, random, { repeat: mode.repeat, keep: mode.keep })
+}

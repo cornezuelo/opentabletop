@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { seeded, sequence } from '@open-tabletop/random'
+import { mathRandom, seeded, sequence } from '@open-tabletop/random'
 import {
   createOracleEngine,
   emptyState,
@@ -14,6 +14,7 @@ import {
   writeRef,
   type OracleState,
   type PackFile,
+  type WantedRoll,
 } from './index'
 
 /** RNG values that make a dN roll show the given faces, one die at a time. */
@@ -393,28 +394,68 @@ describe('tables', () => {
     expect(resolution.text).toBe('7 lobos')
   })
 
-  it('a total rolled by the player picks the entry; the dice within it, and nested tables, are rolled', () => {
-    // The player's 2 is wolves; the engine rolls their count (2d6 → 3 + 4).
-    const engine = createOracleEngine({ registry, random: faces(6, 3, 4) })
-    const { resolution, record } = engine.resolve('test/encounters', {}, undefined, { total: 2 })
-    expect(resolution.entry).toBe('wolves')
-    expect(resolution.text).toBe('7 lobos')
+  it("the player's rolls: each roll in order asks for its total, the dice within the entry too", () => {
+    const wanted: WantedRoll[] = []
+    const totals = [2, 9]
+    const engine = createOracleEngine({ registry, random: faces(6) })
+    const { resolution, record } = engine.resolve('test/encounters', {}, undefined, {
+      yours: (roll) => {
+        wanted.push(roll)
+        return totals.shift()
+      },
+    })
+    // The player's 2 is wolves; their count, 2d6, is the player's too.
+    expect(wanted).toEqual([
+      { dice: '1d6', source: 'test/encounters' },
+      { dice: '2d6', source: 'test/encounters' },
+    ])
+    expect(resolution.text).toBe('9 lobos')
     expect(record.rolls[0]).toEqual({ expression: '1d6', terms: [], total: 2, byHand: true })
-    // A 5 follows the ruins, whose own roll (1d2 → 2) is the engine's.
+    // A roll left to the engine (undefined) is rolled: a 5 follows the ruins, whose 1d2 is the engine's.
     const nested = createOracleEngine({ registry, random: sequence([0.75]) })
-    expect(nested.resolve('test/encounters', {}, undefined, { total: 5 }).resolution.text).toBe(
-      'Cripta',
-    )
+    const given = [5]
+    expect(
+      nested.resolve('test/encounters', {}, undefined, { yours: () => given.shift() }).resolution
+        .text,
+    ).toBe('Cripta')
   })
 
-  it("says a table's roll with the values it reads, for a player rolling it", () => {
+  it("says a player's roll with the values it reads", () => {
     const engine = createOracleEngine({ registry, random: faces(6) })
-    expect(engine.rollOf('test/encounters')).toBe('1d6')
-    expect(engine.rollOf('test/reaction', { pre: 2 })).toBe('2d6 + 2')
+    const said = (context: Record<string, unknown>) => {
+      let dice = ''
+      engine.resolve('test/reaction', context, undefined, {
+        yours: (roll) => {
+          dice ||= roll.dice
+          return 7
+        },
+      })
+      return dice
+    }
+    expect(said({ pre: 2 })).toBe('2d6 + 2')
     // A value missing adds nothing; a negative one is taken off.
-    expect(engine.rollOf('test/reaction')).toBe('2d6')
-    expect(engine.rollOf('test/reaction', { pre: -1 })).toBe('2d6 - 1')
-    expect(engine.rollOf('test/reaction', { pre: 10 })).toBe('2d6 + 10')
+    expect(said({})).toBe('2d6')
+    expect(said({ pre: -1 })).toBe('2d6 - 1')
+    expect(said({ pre: 10 })).toBe('2d6 + 10')
+  })
+
+  it("a resolution stopped for a roll of the player's plays the same again with its own random", () => {
+    class Wait extends Error {}
+    // Rolled by weight before the player's dice: its own random makes it the same each time.
+    const engine = createOracleEngine({ registry, random: mathRandom() })
+    const play = (given: number[]) => {
+      let i = 0
+      return engine.resolve('test/encounters', {}, undefined, {
+        random: seeded('once'),
+        yours: () => {
+          if (i < given.length) return given[i++]
+          throw new Wait()
+        },
+      })
+    }
+    expect(() => play([])).toThrow(Wait)
+    expect(() => play([2])).toThrow(Wait)
+    expect(play([2, 5]).resolution.text).toBe('5 lobos')
   })
 
   it('follows nested tables and merges their values', () => {

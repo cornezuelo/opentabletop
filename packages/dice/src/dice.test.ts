@@ -11,6 +11,7 @@ import {
   parseDice,
   possibleTotals,
   roll,
+  rollWith,
   swapDigits,
   withExtraDice,
 } from './index'
@@ -152,6 +153,15 @@ describe('distribution', () => {
   it('gives up on too many combinations', () => {
     expect(distribution('20d6kh3', {}, 1000)).toBeNull()
     expect(distribution('20d6')).not.toBeNull()
+  })
+})
+
+describe('rollWith', () => {
+  it('rolls as a way of rolling says: repeated, with more dice, or either way, one total kept', () => {
+    expect(rollWith('1d6', faces(6, 4)).total).toBe(4)
+    expect(rollWith('1d6', faces(6, 2, 5), { repeat: 2, keep: 'lowest' }).total).toBe(2)
+    expect(rollWith('2d6', faces(6, 1, 5, 6), { extra: 1, keep: 'highest' }).total).toBe(11)
+    expect(rollWith('1d%', faces(100, 73), { swap: true, keep: 'lowest' }).total).toBe(37)
   })
 })
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { parseDice, roll, type DiceResult } from '@open-tabletop/dice'
+  import { parseDice, rollWith, type DiceMode, type DiceResult } from '@open-tabletop/dice'
   import { mathRandom } from '@open-tabletop/random'
   import { DiceTray, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
@@ -8,12 +8,17 @@
    * A roll that waits for the player (the trip's **Rolls**): what to roll and why (_Kael:
    * roll 1d6 for Omens_), a box for the total the player rolled with their own dice, **Roll**
    * on screen for whoever has none at hand (the dice drawn as they fall, the total written in),
-   * **Roll it for me**, and the way back (**Let the computer roll from now on**).
+   * **Roll it for me**, and the way back (**Let the computer roll from now on**). A roll inside
+   * a result (a blow's damage) says what came up so far and whom it's for.
    */
   let {
     dice,
     what,
     who = '',
+    on = '',
+    said = '',
+    mode = '',
+    how,
     locale,
     ongive,
     onforme,
@@ -25,6 +30,14 @@
     what: string
     /** Who rolls it (whoever's turn it is in a fight); '' for the party. */
     who?: string
+    /** Whom it's for (one a result aims at, each with their own roll); '' for none. */
+    on?: string
+    /** What the result says so far, when the roll is inside it. */
+    said?: string
+    /** The roll mode's name it's rolled with (Advantage); '' for none. */
+    mode?: string
+    /** How that mode rolls, for **Roll**. */
+    how?: DiceMode
     locale: string
     /** The total the player rolled. */
     ongive: (total: number) => void
@@ -42,6 +55,8 @@
     void dice
     void what
     void who
+    void on
+    void said
     total = undefined
     rolled = undefined
   })
@@ -58,7 +73,7 @@
 
   function rollHere() {
     if (!parsed) return
-    rolled = roll(parsed, mathRandom())
+    rolled = rollWith(parsed, mathRandom(), how)
     total = rolled.total
   }
 </script>
@@ -70,10 +85,12 @@
     if (given) ongive(total!)
   }}
 >
+  {#if said}<p class="said">{said}</p>{/if}
   <p class="what">
-    {who ? t('yourRoll.who', { who, dice, what }) : t('yourRoll.party', { dice, what })}<InfoTip
-      markdown={t('yourRoll.help')}
-    />
+    {who ? t('yourRoll.who', { who, dice, what }) : t('yourRoll.party', { dice, what })}{#if on}{t(
+        'yourRoll.on',
+        { target: on },
+      )}{/if}{#if mode}{t('yourRoll.mode', { mode })}{/if}<InfoTip markdown={t('yourRoll.help')} />
   </p>
   {#if rolled}<DiceTray rolls={[rolled]} {locale} animate />{/if}
   <div class="row">
@@ -107,6 +124,13 @@
     padding: 8px;
     border: 2px solid var(--accent);
     border-radius: 8px;
+  }
+
+  .said {
+    margin: 0;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-muted);
   }
 
   .what {

@@ -91,7 +91,9 @@ describe("the player's rolls", () => {
     expect(results(done.entries)).toHaveLength(1)
     const check = done.state.travel.pendingChecks[0]!
     expect(check.event).toBe('OMEN')
-    expect(done.state.yours).toEqual([{ id: check.id, table: 'road/omen', dice: '1d6' }])
+    expect(done.state.yours).toEqual([
+      expect.objectContaining({ id: check.id, table: 'road/omen', dice: '1d6' }),
+    ])
     expect(done.entries.at(-1)).toMatchObject({
       code: 'CHECK_YOURS',
       data: { event: 'OMEN', id: check.id, dice: '1d6' },
@@ -118,6 +120,125 @@ describe("the player's rolls", () => {
     const omen = stepTrip(options, road1.state, { type: 'resolveCheck', id: second.id })
     expect(results(omen.entries)).toHaveLength(2)
     expect(omen.state.yours).toBeUndefined()
+  })
+})
+
+/**
+ * Rolls inside a result: an ambush's arrows, dice in its text and a blow at each of the party
+ * (`target: party.members.all`), each with its own die.
+ */
+const AMBUSH = [
+  { path: 'wild/pack.yaml', content: 'id: wild\nversion: 0.1.0\nlocale: en\nformat: 15\n' },
+  {
+    path: 'wild/system.yaml',
+    content:
+      'kind: system\nname: Wild\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.walker\n',
+  },
+  {
+    path: 'wild/travel.yaml',
+    content: `
+kind: sheet
+id: walker
+values: { health: { default: 5 } }
+---
+kind: travel-rules
+travel: { hoursPerDay: 8, start: '07:00' }
+terrains: { plains: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 24 } }
+checks: [{ event: AMBUSH, at: '07:00' }]
+---
+kind: bindings
+on: { AMBUSH: { resolve: table.ambush } }
+---
+kind: table
+id: ambush
+roll: 1d6
+entries:
+  - { range: 1-3, result: Nothing }
+  - range: 4-6
+    result: 'Arrows: {{1d2}} volleys'
+    notable: true
+    set: { target: party.members.all }
+    effects: { 'characters[target].values.health': '-{{1d3}}' }
+`,
+  },
+]
+
+describe('rolls inside a result', () => {
+  const wild = loadPacks(AMBUSH).registry
+  const system = travelSystems(wild).systems.find((s) => s.id === 'wild')!
+  const ambush = (rollWay: 'matters' | 'all') => {
+    const options = {
+      system,
+      world,
+      oracle: createOracleEngine({ registry: wild, random: seeded(2) }),
+    }
+    const members = [
+      newMember(partyOf(system), { id: 'kael' }),
+      newMember(partyOf(system), { id: 'mara' }),
+    ]
+    const { session } = startTrip({ system, location: 'a', members, time: 6 * 60, seed: 's' })
+    return {
+      options,
+      done: stepTrip(options, { ...session, rollWay }, { type: 'wait', until: 8 * 60 }),
+    }
+  }
+  const health = (s: { members?: { id: string; values: Record<string, unknown> }[] }, id: string) =>
+    s.members?.find((m) => m.id === id)?.values.health
+
+  it("each is the player's in turn, and nothing of the result happens until the last", () => {
+    const { options, done } = ambush('matters')
+    const id = done.state.travel.pendingChecks[0]!.id
+    expect(done.state.yours?.[0]?.dice).toBe('1d6')
+    // The table's 5: the arrows; then their volleys, written in its text.
+    let next = stepTrip(options, done.state, { type: 'rolled', id, total: 5 })
+    expect(next.state.yours).toEqual([
+      expect.objectContaining({ dice: '1d2', given: [5], table: 'wild/ambush' }),
+    ])
+    next = stepTrip(options, next.state, { type: 'rolled', id, total: 2 })
+    // Then each one's harm, whom it's for and what came up said.
+    expect(next.state.yours).toEqual([
+      expect.objectContaining({
+        dice: '1d3',
+        target: 'kael',
+        said: 'Arrows: 2 volleys',
+        given: [5, 2],
+      }),
+    ])
+    expect(next.entries.some((e) => e.code === 'ORACLE_RESULT')).toBe(false)
+    expect(health(next.state, 'kael')).toBe(5)
+    // Kael's rolled for them (Roll it for me); Mara's is the player's 3.
+    next = stepTrip(options, next.state, { type: 'resolveCheck', id })
+    expect(next.state.yours?.[0]).toMatchObject({
+      dice: '1d3',
+      target: 'mara',
+      given: [5, 2, null],
+    })
+    next = stepTrip(options, next.state, { type: 'rolled', id, total: 3 })
+    expect(next.state.yours).toBeUndefined()
+    expect(next.state.travel.pendingChecks).toEqual([])
+    expect(results(next.entries)).toEqual(['Arrows: 2 volleys', 'Arrows: 2 volleys'])
+    expect(health(next.state, 'mara')).toBe(2)
+    const kael = health(next.state, 'kael') as number
+    expect(kael).toBeGreaterThanOrEqual(2)
+    expect(kael).toBeLessThanOrEqual(4)
+    const rolls = next.entries.find((e) => e.code === 'ROLLED')?.data?.rolls
+    expect(rolls).toEqual([expect.objectContaining({ source: 'wild/ambush', byHand: true })])
+  })
+
+  it('the computer rolls the rest once the player lets it', () => {
+    const { options, done } = ambush('all')
+    const id = done.state.travel.pendingChecks[0]!.id
+    const next = stepTrip(options, done.state, { type: 'rolled', id, total: 6 })
+    expect(next.state.yours?.[0]?.dice).toBe('1d2')
+    // Let the computer roll from now on: this one and every roll after it.
+    const off = stepTrip(
+      options,
+      { ...next.state, rollWay: undefined },
+      { type: 'resolveCheck', id },
+    )
+    expect(off.state.yours).toBeUndefined()
+    expect(results(off.entries)).toHaveLength(2)
   })
 })
 
