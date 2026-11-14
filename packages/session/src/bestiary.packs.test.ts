@@ -116,6 +116,52 @@ describe('the bundled packs make foes from their bestiaries', () => {
     expect(done.state.members!.find((m) => m.id === 'kael')!.values.health).toBe(3)
   })
 
+  it("I roll everything: an action's own dice wait for the player, then it's played with them", () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: [
+        newMember(partyOf(marches), { id: 'kael', name: 'Kael', values: { survival: 2 } }),
+        newMember(partyOf(marches), { id: 'mara', name: 'Mara' }),
+      ],
+      seed: 'd',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(1) }),
+    }
+    const s = applyResult(
+      { ...session, rollWay: 'all', acting: 'kael' },
+      { effects: { 'present.bandit': 1, 'characters.bandit.values.health': '=9' } },
+      {},
+      partyOf(marches),
+    )
+    const health = (state: SessionState) =>
+      state.present?.find((p) => p.character.id === 'bandit')?.character.values.health
+    // Drive them off: its 1d3 on each of them is the player's, nothing done until it's given.
+    const asked = stepTrip(options, s, { type: 'action', id: 'drive-off' })
+    expect(asked.state.yours).toEqual([
+      expect.objectContaining({ dice: '1d3', table: 'actions.drive-off', who: 'kael' }),
+    ])
+    expect(asked.state.travel.time).toBe(s.travel.time)
+    expect(health(asked.state)).toBe(9)
+    expect(asked.entries.map((e) => e.code)).toEqual(['ACTION_YOURS'])
+    // While it waits, nothing else goes on.
+    expect(stepTrip(options, asked.state, { type: 'wait', until: 12 * 60 }).state).toBe(asked.state)
+    // The player's 3: the ten minutes pass and the bandit takes 3.
+    const id = asked.state.yours![0]!.id
+    const done = stepTrip(options, asked.state, { type: 'rolled', id, total: 3 })
+    expect(done.state.yours).toBeUndefined()
+    expect(health(done.state)).toBe(6)
+    expect(done.state.travel.time).toBe(s.travel.time + 10)
+    // Rolled for them instead: the computer's 1d3.
+    const forMe = stepTrip(options, asked.state, { type: 'resolveCheck', id })
+    expect(forMe.state.yours).toBeUndefined()
+    expect(health(forMe.state)).toBeLessThan(9)
+  })
+
   it('the Grey Marches: bandits and their chief are bought off with rations', () => {
     const rules = partyOf(marches)
     const members = [newMember(rules, { id: 'kael', name: 'Kael' })]

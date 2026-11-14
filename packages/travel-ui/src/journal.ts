@@ -401,6 +401,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const who = d.name ? `${String(d.name)}: ` : ''
       return who + t('journal.yours', { event, dice: String(d.dice ?? '') })
     }
+    // A die of an action's own steps the player rolls (**I roll everything**).
+    case 'ACTION_YOURS': {
+      const who = d.name ? `${String(d.name)}: ` : ''
+      return (
+        who +
+        t('journal.yours', { event: actionText(String(d.action)), dice: String(d.dice ?? '') })
+      )
+    }
     // A step's line of the system's own.
     // What a step says, and how the system tells an action taken (its `told:`, in a fight).
     case 'SAID':

@@ -73,11 +73,13 @@ import {
   ENCOUNTER_EFFECT,
   encounterAvailability,
   parseEncounter,
+  participantName,
   takingTurn,
   type EncounterRules,
   type EncounterUnavailable,
 } from './encounter'
 import { definitionId } from './refs'
+import { handOf, Wanted } from './hand'
 import { markBeats } from './journal'
 import {
   MEMBER_PATH,
@@ -1556,6 +1558,20 @@ export function stepTrip(
   laid: LaidPiece[]
 } {
   const { system } = options
+  // A roll of the player's in an action's own steps: given (or rolled for them, `resolveCheck`),
+  // the action is played again from where it began, with every total given so far; until
+  // then, nothing else goes on.
+  const inSteps = session.yours?.find((y) => y.action)
+  if (inSteps) {
+    const answers =
+      (action.type === 'rolled' || action.type === 'resolveCheck') && action.id === inSteps.id
+    if (!answers) return { state: session, entries: [], discovered: {}, laid: [] }
+    const given = [...(inSteps.given ?? []), action.type === 'rolled' ? action.total : null]
+    const rest = session.yours!.filter((y) => y !== inSteps)
+    const s: SessionState = { ...session, yours: rest }
+    if (!rest.length) delete s.yours
+    return playStep(options, s, inSteps.action!, given)
+  }
   // An encounter started or ended by hand (a **Fight** button, or the player calling it off),
   // as the effects `encounter: start` / `encounter: end` would, played on as far as it goes
   // with a moment that names nothing; nothing changes in a system whose fights have no turns.
@@ -1581,6 +1597,26 @@ export function stepTrip(
     s.handTotal = action.total
     return stepTrip(options, s, { type: 'resolveCheck', id: action.id })
   }
+  return playStep(options, session, action as TravelAction)
+}
+
+/**
+ * One travel action played (`stepTrip`'s, past what it answers itself), with the totals the
+ * player gave for the dice of its own steps so far (`given`): with **I roll everything**, the
+ * next one stops it, nothing of it done, until the player rolls it (a `YourRoll` with `action`).
+ */
+function playStep(
+  options: Parameters<typeof stepTrip>[0],
+  session: SessionState,
+  action: TravelAction,
+  given: readonly (number | null)[] = [],
+): ReturnType<typeof stepTrip> {
+  const { system } = options
+  const hand = handOf(given, session.rollWay === 'all')
+  const stepDice =
+    session.rollWay === 'all' || given.length
+      ? (dice: string, id: string) => hand.next({ dice, source: `actions.${id}` })
+      : undefined
   // The members' relations to the places they come to (`place.related`).
   const world = relatedWorld(options.world, session.members)
   const discover = system.bindings?.discover
@@ -1607,6 +1643,7 @@ export function stepTrip(
       // The party's values and items, so an action's later steps see what earlier ones did.
       kept: keptNumbers(session, partyOf(system)),
       listChoices: catalogueChoices(system),
+      ...(stepDice && { stepDice }),
     }),
     oracle: options.oracle,
     bindings: system.bindings,
@@ -1630,15 +1667,23 @@ export function stepTrip(
     return { state: session, entries: [], discovered: {}, laid: [] }
   const input = system.encounter && session.encounter ? structuredClone(session) : session
   takingTurn(input, system.encounter, action)
-  const first = played.step(input, action)
-  const result = driveEncounter(
-    system.encounter,
-    first,
-    (s, a) => played.step(s, a),
-    (s) => tripContext(s, options.facts ?? {}, {}, partyOf(system)),
-    (s, id) => foeTable(system, s, id),
-    (s, unit, who) => played.lapse(s, unit, who),
-  )
+  let first: ReturnType<typeof played.step>
+  let result: ReturnType<typeof driveEncounter>
+  try {
+    first = played.step(input, action)
+    result = driveEncounter(
+      system.encounter,
+      first,
+      (s, a) => played.step(s, a),
+      (s) => tripContext(s, options.facts ?? {}, {}, partyOf(system)),
+      (s, id) => foeTable(system, s, id),
+      (s, unit, who) => played.lapse(s, unit, who),
+    )
+  } catch (error) {
+    // A die of the action's own steps the player rolls: it waits, nothing of the step done.
+    if (!(error instanceof Wanted) || !error.roll.source?.startsWith('actions.')) throw error
+    return waitForStepRoll(session, action, given, error.roll.dice, error.roll.source)
+  }
   // What the step did, the encounter's lines with it, from its first line on.
   if (result.state !== first.state) result.state.lastStep = first.state.lastStep
   return {
@@ -1658,6 +1703,46 @@ export type TripAction =
   | TravelAction
   | { type: 'encounter'; what: 'start' | 'end' | 'next' }
   | { type: 'rolled'; id: string; total: number }
+
+/** The trip waiting for the player's roll of a die in an action's own steps, with its line. */
+function waitForStepRoll(
+  session: SessionState,
+  action: TravelAction,
+  given: readonly (number | null)[],
+  dice: string,
+  source: string,
+): ReturnType<typeof stepTrip> {
+  const s = structuredClone(session)
+  const id = `step-${s.nextEntry}`
+  const who = s.acting
+  s.yours = [
+    ...(s.yours ?? []),
+    {
+      id,
+      table: source,
+      dice,
+      ...(who !== undefined && { who }),
+      ...(given.length && { given: [...given] }),
+      action,
+    },
+  ]
+  s.lastStep = s.nextEntry
+  const line: JournalEntry = {
+    id: `j${s.nextEntry++}`,
+    at: new Date().toISOString(),
+    time: s.travel.time,
+    source: 'travel',
+    code: 'ACTION_YOURS',
+    data: {
+      id,
+      action: source.slice('actions.'.length),
+      dice,
+      ...(who !== undefined && { who, name: participantName(s, who) }),
+    },
+  }
+  s.journal.push(line)
+  return { ...beaten({ state: s, entries: [line] }, session.nextEntry), discovered: {}, laid: [] }
+}
 
 /**
  * What a foe rolls on its turn, as a full id: its template's `actions` (from its bestiary's

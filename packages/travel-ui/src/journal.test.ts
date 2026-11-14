@@ -330,6 +330,16 @@ describe('steps that speak and wait', () => {
     expect(
       line('CHECK_YOURS', { event: 'OMEN', id: 'c1', dice: '1d6', who: 'wolf', name: 'Wolf' }),
     ).toMatch(/^Wolf: .*: your roll \(1d6\)$/)
+    // A die of an action's own steps (I roll everything).
+    expect(
+      line('ACTION_YOURS', {
+        id: 's1',
+        action: 'drive-off',
+        dice: '1d3',
+        who: 'kael',
+        name: 'Kael',
+      }),
+    ).toMatch(/^Kael: .*: your roll \(1d3\)$/)
   })
 })
 

@@ -282,6 +282,11 @@ export interface YourRoll {
   seed?: string
   /** The journal's number when it was first asked: whom a result aims at is chosen by it. */
   key?: number
+  /**
+   * A roll in an action's own steps (`effects: { …: '-{{1d3}}' }`, with **I roll everything**),
+   * not a check's: the action, played again from where it began with the totals given.
+   */
+  action?: TravelAction
 }
 
 export interface SessionState {

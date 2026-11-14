@@ -857,6 +857,13 @@ export function createTravelEngine(options: {
     where: Condition | undefined,
     seen: Record<string, unknown>,
   ) => string[] | undefined
+  /**
+   * The dice an action's steps roll in what they change (`effects: { …: '-{{1d3}}' }`,
+   * `travel.advance: '{{1d2}}'`), when the host gives them (the player's own roll): the total,
+   * or undefined for the engine to roll it. It may throw to stop the step until the player
+   * rolls (the host plays the action again with the totals given).
+   */
+  stepDice?: (dice: string, action: string) => number | undefined
 }): TravelEngine {
   const rules = options.rules
   const world = rulesWorld(options.world, rules)
@@ -938,6 +945,12 @@ export function createTravelEngine(options: {
     if (needs && !matches(needs, context, { roller }))
       return { condition: 'needs', failed: explain(needs, context, { roller }) }
     return undefined
+  }
+  /** The rolls of what an action's steps change: the host's (`stepDice`), else the moment's. */
+  const stepRolls = (state: TravelState, seen: Record<string, unknown>, id: string): Roller => {
+    const moment = rollsOf(state, seen, id)
+    const given = options.stepDice
+    return given ? (dice) => given(dice.trim(), id) ?? moment(dice) : moment
   }
   const rollsOf = (state: TravelState, seen: Record<string, unknown>, moment?: string) =>
     momentRolls(
@@ -2352,11 +2365,11 @@ export function createTravelEngine(options: {
         const legs = resolveChange(
           step['travel.advance'],
           qualify(context),
-          rollsOf(state, context, id),
+          stepRolls(state, context, id),
         )
         advance(state, typeof legs === 'number' ? Math.floor(legs) : 0, events)
       } else if (step.effects)
-        applyEffects(state, id, step.effects, events, rollsOf(state, context, id), context)
+        applyEffects(state, id, step.effects, events, stepRolls(state, context, id), context)
       else if (step.do !== undefined && isHostMoment(step.do))
         events.push({ type: 'WORLD_DO', action: id, do: step.do, time: state.time })
       else if (step.do !== undefined) {

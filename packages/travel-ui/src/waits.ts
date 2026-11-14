@@ -17,6 +17,14 @@ export function tripWaits(
   t: Translate,
 ): { text: string; go?: TripAction; label?: 'next' } | null {
   const travel = session.travel
+  // A die of an action's own steps, the player's to roll.
+  const inSteps = session.yours?.find((y) => y.action)
+  if (inSteps) {
+    const id = inSteps.table.replace(/^actions\./, '')
+    const event = context.actionName?.(id) ?? id
+    const who = inSteps.who !== undefined ? participantName(session, inSteps.who) : ''
+    return { text: (who ? `${who}: ` : '') + t('journal.yours', { event, dice: inSteps.dice }) }
+  }
   const check = travel.pendingChecks[0]
   if (check) {
     const yours = session.yours?.find((y) => y.id === check.id)

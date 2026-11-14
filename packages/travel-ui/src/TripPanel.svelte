@@ -367,6 +367,8 @@
       : [],
   )
   /** Those done to a foe: on the foes' cards (docs/fight-ux.md, A). */
+  /** Dice of an action's own steps waiting for the player (**I roll everything**). */
+  const stepRolls = $derived(session.yours?.filter((y) => y.action) ?? [])
   const cardActions = $derived<CardAction[]>(
     turnActions
       .filter((id) => foeParam(id) !== undefined)
@@ -492,9 +494,13 @@
     // With the status here, it says where to head itself.
     return why(blocked[main]) || (movers.has(main) && !heading && !status ? destinationHint : '')
   })
-  /** Nothing goes on while a share waits for who gives it, or an item for room. */
+  /**
+   * Nothing goes on while a share waits for who gives it, an item for room, or a die of an
+   * action's own steps for the player.
+   */
   const held = $derived(
-    (!!sharing && !!onshare) ||
+    stepRolls.length > 0 ||
+      (!!sharing && !!onshare) ||
       roomless.length > 0 ||
       (!!worldWaiting && !!onworld) ||
       beatsSeen.holds(session) ||
@@ -734,7 +740,11 @@
 {#snippet yourRoll(id: string, event: string, yours: YourRollState)}
   <YourRoll
     dice={yours.dice}
-    what={yours.of ? nameOf(yours.of) : pendingName(event)}
+    what={yours.action
+      ? actionName(yours.table.replace(/^actions\./, ''))
+      : yours.of
+        ? nameOf(yours.of)
+        : pendingName(event)}
     who={yours.who !== undefined && yours.who !== PARTY_ID
       ? participantName(session, yours.who)
       : ''}
@@ -866,6 +876,7 @@
             {@const yours = session.yours?.find((y) => y.id === check.id)}
             {#if yours}{@render yourRoll(check.id, check.event, yours)}{/if}
           {/each}
+          {#each stepRolls as yours (yours.id)}{@render yourRoll(yours.id, '', yours)}{/each}
         {/snippet}
         {#snippet turnBar()}
           {#each barActions as id (id)}{@render actionButton(id)}{/each}
@@ -875,6 +886,9 @@
     {/if}
 
     <!-- What needs you first, then what the party can do: right under where it is. -->
+    {#if !fight}
+      {#each stepRolls as yours (yours.id)}{@render yourRoll(yours.id, '', yours)}{/each}
+    {/if}
     {#each travel.pendingChecks as check (check.id)}
       {@const yours = session.yours?.find((y) => y.id === check.id)}
       {#if yours}
