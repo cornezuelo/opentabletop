@@ -158,6 +158,8 @@ conditions:
     name: Wounded
     description: Hurt and bleeding. Can't force a march or march by night; doesn't count for the party's Survival.
     blocks: [actions.forced-march, actions.night-march]
+    # How a fight tells it, in the Marches' words (`told:`).
+    told: { gains: '{{name}} is wounded, and bleeding', loses: '{{name}} stops bleeding' }
   # A sprained ankle stops the whole party until it's tended.
   sprained:
     name: Sprained ankle
@@ -174,12 +176,14 @@ conditions:
     name: Rattled
     description: Shaken by a heavy blow; their own blows land worse for a round or two of the fight.
     lasts: rounds
+    told: { gains: '{{name}} reels', loses: '{{name}} steadies' }
   # Given for their own next turn (`lasts: turns`), which is lost: the system's
   # `encounter.skip` reads it as each turn begins.
   dragged-down:
     name: Dragged down
     description: Pulled to the ground by a wolf; the companion loses their next turn in the fight.
     lasts: turns
+    told: { gains: '{{name}} is dragged to the ground', loses: '{{name}} gets back up' }
   # Holds by itself while dread is full: nothing sets it, and the rite that empties dread
   # clears it.
   terrified:

@@ -33,15 +33,19 @@ conditions:
     name: Down
     description: 'Health 0: it falls, and is gone from those present.'
     when: { self.values.health: { lte: 0 } }
+    # How a fight tells it (`told:`).
+    told: { gains: '{{name}} falls' }
     leaves: true
   routed:
     name: Routed
     description: It runs; gone from those present.
     leaves: true
+    told: { gains: '{{name}} turns and runs' }
   bought-off:
     name: Bought off
     description: Paid to go; gone from those present.
     leaves: true
+    told: { gains: '{{name}} takes the food and goes' }
   enraged:
     name: Enraged
     description: Fights to the end, whatever its morale.

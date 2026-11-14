@@ -751,6 +751,8 @@ actions:
     unless: { present.tags: vale }
     needs: { acting: { exists: true } }
     hideWhenUnavailable: true
+    # How a fight tells it (`told:`); the harm it did is told after it by itself.
+    told: '{{acting.name}} strikes at {{characters[params.foe].name}}'
     params:
       foe:
         name: Whom do you strike?

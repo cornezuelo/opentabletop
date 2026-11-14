@@ -172,8 +172,11 @@
 
   /** What the trip waits for (a check, a step's pause), and what goes on from it, if not a choice. */
   const waits = $derived(latest ? tripWaits(session, context, t) : null)
-  /** Over a map, the important moment the last step ended on takes the news' place. */
-  const notable = $derived(strip && latest && !!beatsSeen.showing(session))
+  /**
+   * Over a map, the important moment the last step ended on takes the news' place; not in a
+   * fight, whose panel tells each turn (the strip says whose turn it is).
+   */
+  const notable = $derived(strip && latest && !session.encounter && !!beatsSeen.showing(session))
 
   /** The strip's long form is open. */
   let more = $state(false)

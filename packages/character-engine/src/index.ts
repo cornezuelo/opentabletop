@@ -199,6 +199,11 @@ const condition = z
      * with no end.
      */
     lasts: z.enum(['rounds', 'turns']).optional(),
+    /**
+     * How it's told when a character gains it and loses it, in the pack's words, `{{name}}`
+     * the character's (`gains: '{{name}} falls'`). Absent: the generic _Name: Down_.
+     */
+    told: z.object({ gains: text.optional(), loses: text.optional() }).strict().optional(),
   })
   .strict()
 

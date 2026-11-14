@@ -3,7 +3,7 @@ import { seeded } from '@open-tabletop/random'
 import { render } from 'svelte/server'
 import { describe, expect, it } from 'vitest'
 import DiceTray from './DiceTray.svelte'
-import { drawRoll } from './diceTray'
+import { drawRoll, rollingFace } from './diceTray'
 
 describe('the dice tray', () => {
   it('draws each die by its shape and face, what’s added, and the total', () => {
@@ -75,5 +75,15 @@ describe('the dice tray', () => {
     }).body
     expect(hand).toContain('tirada a mano')
     expect(hand).toContain('= 5')
+  })
+})
+
+describe('rollingFace', () => {
+  it('shows a face the die could land on while it rolls', () => {
+    expect(rollingFace(6, 0)).toBe('1')
+    expect(rollingFace(6, 0.99)).toBe('6')
+    expect(rollingFace(20, 0.5)).toBe('11')
+    expect(rollingFace('fudge', 0.99)).toBe('+')
+    expect(rollingFace('percent', 0.99)).toBe('00')
   })
 })

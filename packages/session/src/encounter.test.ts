@@ -119,6 +119,10 @@ actions:
     params: { foe: { from: present.ids } }
     do: [{ effects: { 'characters[params.foe].values.health': -4 } }]
   flee: { do: [{ effects: { encounter: end } }] }
+  # Whom it strikes asked as it goes, unless it came with it (a foe's card clicked).
+  smite:
+    params: { foe: { from: present.ids } }
+    do: [{ ask: params.foe }, { effects: { 'characters[params.foe].values.health': -4 } }]
   daze:
     params: { foe: { from: present.ids } }
     do: [{ effects: { 'characters[params.foe].conditions.dazed': 2, 'characters[params.foe].conditions.braced': 1 } }]
@@ -409,6 +413,25 @@ describe('an encounter: a fight in turns', () => {
         'expected whom a foe aims at (party.members.random, party.members.lowest.values.health)',
       ]),
     )
+  })
+
+  it('an action asking whom: not asked when one of those listed came with it', () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.smite], ends: { present.count: 0 } }',
+    )
+    let done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    const asked = stepTrip(options, done.state, { type: 'action', id: 'smite' })
+    expect(asked.state.travel.waiting).toMatchObject({
+      ask: 'foe',
+      choices: ['goblin', 'goblin-2'],
+    })
+    done = stepTrip(options, done.state, { type: 'action', id: 'smite', with: { foe: 'goblin-2' } })
+    expect(done.state.travel.waiting).toBeUndefined()
+    const goblin = done.state.present!.find((p) => p.character.id === 'goblin-2')!
+    expect(goblin.character.values.health).toBe(4)
+    // One no longer here is asked for again.
+    const gone = stepTrip(options, asked.state, { type: 'resume', choice: 'goblin' })
+    expect(gone.state.travel.waiting).toBeUndefined()
   })
 
   it('foes aim at a party played as a whole through its own sheet', () => {

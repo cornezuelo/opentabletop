@@ -8,9 +8,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Rolling yourself, the dice inside a result too**: with **Rolls** on what matters or everything, every roll with dice a result makes is yours, one after another: the table's, then a blow's damage (for each one it aims at), a table it leads to, dice in its text. Each card says what came up so far and whom the roll is for, and nothing of the result happens until the last; a roll with a roll mode says so (_with Advantage_), and **Roll** on screen rolls it that way. **Roll it for me** rolls just that one.
 - A foe's turn says whom it goes for (_Bandit's turn, at Mara_), when its system chooses it beforehand.
+- **The fight, played on the cards**: on a character's turn, what's done to a foe is on its card (**Strike** on the wolf's card), one click and it's done; the rest is in a bar under the turn, and the party's other buttons hide while the fight lasts. The turn just played is told up front in one sentence (_Kael strikes at the grey wolf_ · _Grey wolf: Health 4 → 1_ · _The grey wolf falls_), with its dice rolling. A roll of yours waits inside the fight, **Rolls** is beside the fight's title, and the log is the whole fight, scrolling. In Map, the strip says whose turn it is.
+- **Dice you can watch roll**: a roll just made tumbles and bounces for a moment, its faces turning, and the total shows once it settles.
+- What a step did to a foe reads as words (_Pack leader: Down_), never as `characters.pack-leader.conditions.down`.
 
 ### Packs
 
+- **Told in your words** (`told:`): a condition says how it's gained and lost (`told: { gains: '{{name}} falls' }`), an action how a fight tells its turn (`told: '{{acting.name}} strikes {{characters[params.foe].name}}'`); Packs' **Told when gained** / **Told when lost** and **Told in a fight**. The Grey Marches' and Core's strikes and conditions are told so.
 - **Whom a foe goes for, before it rolls** (`aim:` in a system's `encounter:`; Packs' **A foe aims at**): one of the party chosen as each foe's turn begins, read by its table and every table it leads to as `encounter.target`, so a defence or an armour counts before the dice. The Grey Marches' _A foe's turn_ is rolled less the armour of whom it goes for; Core's blow lands on the one its turn chose.
 
 ### Fixes

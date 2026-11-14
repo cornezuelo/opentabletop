@@ -651,6 +651,13 @@ describe('the bundled packs fight in turns', () => {
         const before = health(done.state)
         done = stepTrip(options, done.state, { type: 'rolled', id: yours.id, total: 4 })
         expect(health(done.state) ?? before - 4).toBe(before - 4)
+        // How the fight tells it, in the system's words (its `told:`), in both its languages.
+        const told = done.state.journal.findLast((e) => e.code === 'ACTION_TOLD')
+        expect(told?.data?.text).toEqual({
+          en: expect.stringMatching(/^(Kael|Mara) strikes at Bandit$/),
+          // A copy keeps the name it was made with (this trip is in English).
+          es: expect.stringMatching(/^(Kael|Mara) golpea a Bandit$/),
+        })
         struck = true
       } else if (yours) done = stepTrip(options, done.state, { type: 'resolveCheck', id: yours.id })
       else {

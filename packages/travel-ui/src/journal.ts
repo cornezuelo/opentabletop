@@ -60,6 +60,8 @@ export interface JournalContext {
    * party is made of characters.
    */
   memberName?: (path: string) => string | undefined
+  /** A condition gained or lost in the pack's words (`told:`), undefined when it has none. */
+  conditionTold?: (path: string, gained: boolean) => string | undefined
   /** A text of the system's own (a `say:`, a `pause:`) in the UI's language. */
   textOf?: (text: unknown) => string
   /** Name of one of the system's ways of travelling. */
@@ -400,7 +402,9 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return who + t('journal.yours', { event, dice: String(d.dice ?? '') })
     }
     // A step's line of the system's own.
+    // What a step says, and how the system tells an action taken (its `told:`, in a fight).
     case 'SAID':
+    case 'ACTION_TOLD':
       return (context.textOf ?? firstText)(d.text)
     // A step that stops the trip for the player: what it says, or what it asks.
     case 'HELD': {
@@ -725,7 +729,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const who = context.memberName?.(path) ?? (isMemberPath(path) ? path : name(key))
       // A condition set or cleared (0 and 1).
       if (/\.conditions\./.test(path))
-        return t(Number(d.to) ? 'journal.conditionSet' : 'journal.conditionCleared', { name: who })
+        return (
+          context.conditionTold?.(path, !!Number(d.to)) ??
+          t(Number(d.to) ? 'journal.conditionSet' : 'journal.conditionCleared', { name: who })
+        )
       return t('journal.changed', { name: who, from: Number(d.from), to: Number(d.to) })
     }
     case 'CHECK_SKIPPED': {

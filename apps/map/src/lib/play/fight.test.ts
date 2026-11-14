@@ -41,14 +41,18 @@ describe('the fight view', () => {
     // Each one's main value, as its sheet draws it.
     expect(html).toMatch(/class="glance/)
     expect(html).toMatch(/class="main/)
+    // A companion's turn: what's done to a foe is on its card, the party's buttons hidden.
+    expect(html).toContain('what they do to a foe is on its card')
+    expect(html.match(/class="card-actions/g)).toHaveLength(2)
+    expect(html).toMatch(/aria-label="Strike one down: Grey wolf"/)
 
-    // Strike: the trip asks whom, and the wolves' cards are what's clicked.
+    // Strike taken without a foe: the panel asks whom, and the wolves' cards are what's clicked.
     step({ type: 'action', id: 'strike' })
     const choices = session().travel.waiting?.choices ?? []
     expect(choices.length).toBe(2)
     html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
     expect(html.match(/<button class="pick/g)).toHaveLength(2)
-    expect(html).toContain('Click one of them above.')
+    expect(html).toContain('Click their card.')
     const wolf = choices[0]!
     const before = session().present!.find((p) => p.character.id === wolf)!.character.values.health!
     // Clicked on the map, as its card would be.
@@ -56,8 +60,9 @@ describe('the fight view', () => {
     const hit = session().present?.find((p) => p.character.id === wolf)?.character.values.health
     expect(hit === undefined || hit < before).toBe(true)
     html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
-    // The fight's moments under the cards.
+    // The fight's moments under the cards, and the blow just struck told up front.
     expect(html).toContain('class="log')
+    expect(html).toMatch(/class="last/)
     expect(chooseOnMap('nobody')).toBe(false)
 
     // Fought on: a foe's turn before another foe's waits for Next, in the panel and the strip.

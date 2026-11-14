@@ -197,6 +197,8 @@ actions:
   strike:
     name: Strike
     description: 'On a member’s turn in a fight: a blow at one foe here, the one you choose, for 1d3 harm; a glancing 1 staggers it for a round.'
+    # How a fight tells it (`told:`); the harm it did is told after it by itself.
+    told: '{{acting.name}} strikes {{characters[params.foe].name}}'
     params:
       foe: { name: Whom?, from: present.ids }
     do:

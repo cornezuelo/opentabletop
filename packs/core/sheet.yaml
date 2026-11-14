@@ -35,6 +35,8 @@ conditions:
     name: Staggered
     description: Reeling from a hard blow; loses its turns in a fight while it lasts, a round at a time.
     lasts: rounds
+    # How a fight tells it (`told:`): gained and lost, `{{name}}` whoever it is.
+    told: { gains: '{{name}} staggers', loses: '{{name}} finds their feet' }
   down:
     name: Down
     description: Out of the fight while their health is 0; it lifts by itself when health comes back. A foe made from the bestiary is gone once down.

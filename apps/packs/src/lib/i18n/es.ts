@@ -526,6 +526,10 @@ export const es: Messages<typeof en> = {
       "Un estado que se cumple por sí solo mientras esto sea cierto; no se pone ni se quita a mano ni con efectos: es un estado, no algo que pasa. Lee al personaje como `self` y, en un viaje, también el mundo:\n• `self.values.dread: { gte: 6 }` — mientras el pavor esté lleno\n• `self.values.load: { gt: '{{self.values.capacity}}' }` — mientras lleve más de lo que puede\n• `trip.mode: boat` — mientras el grupo viaje en barco\n• `time.season: winter` y `self.values.health: { lt: 2 }` — herido en invierno\nUno que lee el mundo lo sigue en el viaje; en el roster se queda como estaba la última vez. Lo que deba pasar una vez (una línea, un efecto) es una acción, no un estado. Vacío: lo ponen y lo quitan los efectos.",
     byEffects: 'lo ponen los efectos',
     lasts: 'Dura',
+    toldGains: 'Se cuenta al ganarlo',
+    toldLoses: 'Se cuenta al perderlo',
+    toldHelp:
+      'Cómo lo cuentan un combate y el diario cuando alguien lo gana o lo pierde, con las palabras de tu sistema; `{{name}}` es el nombre de ese. Vacío: lo genérico, _Nombre: Estado_.\n• `{{name}} cae` — un enemigo abatido\n• `{{name}} se recompone` — ya no aturdido',
     lastsHelp:
       "Un estado que se da **por un tiempo** en un combate: el número de un efecto lo da durante tantos, que se descuentan al empezar cada uno, y se va cuando no queda ninguno o cuando acaba el combate:\n• **rounds** (rondas) — `acting.conditions.dazed: 2`: dos rondas\n• **turns** (turnos) — `characters[target].conditions.braced: 1`: hasta su próximo turno\n• `'{{1d4}}'` — una tirada de ellos; dado otra vez, se suman; `'=0'` lo acaba\n`true` sigue dándolo sin fin. Las condiciones leen lo que queda como `acting.left.dazed`. Vacío: dura hasta que se quite. No para uno que se cumple por sí solo.",
     relations: 'Tipos de relación',
@@ -1091,6 +1095,9 @@ export const es: Messages<typeof en> = {
     hideHelp:
       '**Sin marcar**: su botón siempre está, desactivado (diciendo por qué) mientras no se puede hacer, así los botones no cambian de sitio.\n**Marcada**: su botón solo aparece mientras se puede hacer. Para acciones que solo tienen sentido de vez en cuando:\n• un rito solo en un santuario con luna llena\n• convencer a los porteadores solo mientras se niegan a marchar',
     nothing: 'Cuando no se aplica nada',
+    told: 'Se cuenta en un combate',
+    toldHelp:
+      'Cómo cuenta un combate un turno en que se hizo esta acción, con las palabras de tu sistema y lo que lee ya rellenado cuando acaban sus pasos (quién actúa, el enemigo elegido). Lo que hizo (daño, estados) se cuenta después por sí solo. Vacío: su nombre.\n• `{{acting.name}} golpea a {{characters[params.foe].name}}`\n• `{{acting.name}} retrocede con el arma en alto`',
     nothingHelp:
       'Lo que dice el diario cuando **no se aplica ninguna de sus comprobaciones** donde está el grupo; `{terrain}` es el terreno de la casilla.\n• `no hay nada que buscar en {terrain}` → «no hay nada que buscar en Colinas»\nVacío: una frase genérica. Una acción sin comprobaciones no dice nada más.',
     nothingPlaceholder: 'no hay nada que encontrar en {terrain}',

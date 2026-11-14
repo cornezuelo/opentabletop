@@ -18,12 +18,18 @@ sheet/foe:
     down:
       name: Abatido
       description: 'Salud 0: cae, y deja de estar entre los presentes.'
+      told:
+        gains: '{{name}} cae'
     routed:
       name: En desbandada
       description: Huye; deja de estar entre los presentes.
+      told:
+        gains: '{{name}} da media vuelta y huye'
     bought-off:
       name: Sobornado
       description: Le pagan para que se vaya; deja de estar entre los presentes.
+      told:
+        gains: '{{name}} coge la comida y se va'
     enraged:
       name: Enfurecido
       description: Lucha hasta el final, tenga la moral que tenga.

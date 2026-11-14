@@ -1,6 +1,6 @@
 # The fight reads well
 
-A proposal for the fight's UI/UX, after play-ux.md's phase 4 (D). **To review with the user**; nothing is built until it's agreed.
+A proposal for the fight's UI/UX, after play-ux.md's phase 4 (D). Decided with the user and built on 2026-11-14 (§3).
 
 The ask (author, 2026-11-14, playing the built apps): "queda superconfuso dónde hay que clickar, clicko abajo en unos botones que no parecen ni formar parte del combate, me pregunta a quién golpear, que elija arriba para seguir, y no veo ni dónde coño tengo que elegir"; "habría que plantearse traducciones a lenguaje natural de cosas como `characters.pack-leader.conditions.down: ahora sí`"; "tampoco queda muy claro el feedback de qué hace el jugador tras golpear o qué hace el enemigo cuando te golpea".
 

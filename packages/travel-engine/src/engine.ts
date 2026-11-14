@@ -579,7 +579,12 @@ export type TravelEvent =
       place: string
       terrain?: string
       on?: string
+      /** What it was taken with (`with`: a foe's card clicked, a choice on its button). */
+      params?: Record<string, unknown>
     }
+
+  /** How a fight tells an action taken, once its steps are done (its `told:`, read then). */
+  | { type: 'ACTION_TOLD'; action: string; text: string | Record<string, string>; time: GameTime }
 
 type StoppedEvent = Extract<TravelEvent, { type: 'TRAVEL_STOPPED' }>
 
@@ -2184,6 +2189,7 @@ export function createTravelEngine(options: {
       place: state.location,
       ...(place?.terrain && { terrain: place.terrain }),
       ...(options.on && { on: options.on }),
+      ...(options.with && Object.keys(options.with).length && { params: { ...options.with } }),
     }
     events.push(head)
     state.actionsToday = [...(state.actionsToday ?? []), id]
@@ -2391,6 +2397,8 @@ export function createTravelEngine(options: {
         const from = ask ? actions.all[id]?.params?.[ask]?.from : undefined
         const choices = ask ? listOf(state, actions.all[id]?.params?.[ask], context) : []
         if (from && !choices.length) continue
+        // One of them given with the action (a foe's card clicked), still listed: not asked.
+        if (from && ask && choices.some((c) => String(c) === String(params[ask]))) continue
         state.waiting = {
           action: id,
           ...(step.pause !== undefined && step.pause !== true && { text: written(step.pause) }),
@@ -2434,6 +2442,26 @@ export function createTravelEngine(options: {
       // What came up in it (its roll, the moments it lived, the places it entered) comes
       // before the rest: the steps after it wait until it's resolved, and see what it set.
       if (hold && state.pendingChecks.length > pending) return { frames: [frame(i)], held: true }
+    }
+    // Done: how it's told (`told:`), with what its steps chose and did read now.
+    const told = actions.all[id]?.told
+    if (told !== undefined) {
+      const context = {
+        ...checkContext(state, [], hostFacts),
+        ...doingFacts(),
+        params,
+        ...options.facts,
+      }
+      const lookup = lookupIn(qualify(context), rollsOf(state, context, id))
+      events.push({
+        type: 'ACTION_TOLD',
+        action: id,
+        text:
+          typeof told === 'string'
+            ? render(told, lookup)
+            : Object.fromEntries(Object.entries(told).map(([k, v]) => [k, render(v, lookup)])),
+        time: state.time,
+      })
     }
     return undefined
   }

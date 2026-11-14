@@ -485,12 +485,13 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       let done = stepTrip(options, s, { type: 'action', id: 'fight' })
       for (let i = 0; i < 6 && done.state.encounter?.order[done.state.encounter.turn] !== 'e'; i++)
         done = stepTrip(options, done.state, { type: 'resume' })
+      // The foe given with it (its card clicked): not asked again.
       done = stepTrip(options, done.state, {
         type: 'action',
         id: 'attack',
         with: { foe: 'necropede', skill: 'bladed' },
       })
-      done = stepTrip(options, done.state, { type: 'resume', choice: 'necropede' })
+      expect(done.state.travel.waiting).toBeUndefined()
       const rolled = done.entries.find(
         (e) => e.code === 'ROLLED' && e.data?.check === 'generator.attack',
       )

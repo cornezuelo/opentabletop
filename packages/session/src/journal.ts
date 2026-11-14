@@ -40,6 +40,7 @@ const STORY = new Set([
   'PIECE_LAID',
   'PIECE_NOT_LAID',
   'SAID',
+  'ACTION_TOLD',
   'HELD',
   'RESUMED',
   'PAUSE_SKIPPED',

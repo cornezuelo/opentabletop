@@ -14,9 +14,19 @@ import type { Diagnostic, LoadedPack } from '../loader/load'
 
 /**
  * The keys that hold texts a player reads (an action's step says or pauses with a text:
- * `say:`, `pause:`; a `pause: true` has none).
+ * `say:`, `pause:`; a `pause: true` has none; how a fight tells an action, `told:`, and a
+ * condition gained or lost, `told: { gains, loses }`).
  */
-const TEXT_KEYS = new Set(['name', 'description', 'nothing', 'say', 'pause'])
+const TEXT_KEYS = new Set([
+  'name',
+  'description',
+  'nothing',
+  'say',
+  'pause',
+  'told',
+  'gains',
+  'loses',
+])
 
 type Text = string | Record<string, string>
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -94,7 +104,9 @@ export function inlineLanguages(data: unknown, path = ''): string[] {
   if (!isRecord(data)) return []
   return Object.entries(data).flatMap(([key, value]) => {
     const at = path ? `${path}.${key}` : key
-    if (TEXT_KEYS.has(key) && isRecord(value)) return [at]
+    // A condition's `told` holds texts of its own (`gains`, `loses`), not languages.
+    if (TEXT_KEYS.has(key) && isRecord(value) && !('gains' in value || 'loses' in value))
+      return [at]
     return inlineLanguages(value, at)
   })
 }

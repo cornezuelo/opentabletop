@@ -1,3 +1,4 @@
+import type { CharacterState } from '@open-tabletop/character-engine'
 import { loadPacks } from '@open-tabletop/oracle-engine'
 import { entryLevel, travelSystems, type JournalEntry } from '@open-tabletop/session'
 import { corePack, coreSystem, greyMarchesPack } from '../../session/src/core.testing'
@@ -15,7 +16,7 @@ import {
   whyText,
   type JournalContext,
 } from './journal'
-import { memberNamer } from './members'
+import { conditionTeller, memberNamer } from './members'
 
 const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
 const entry = (time: number, code: string, rest: Partial<JournalEntry> = {}): JournalEntry => ({
@@ -548,6 +549,21 @@ describe('those present, named', () => {
     expect(name('present.pack-leader')).toBe('Pack leader')
     expect(name('present.grey-wolf.conditions.routed')).toBe('Grey wolf: Routed')
     expect(name('present.all.values.health')).toBe('Those here: Health')
+  })
+
+  it('a copy by its id, present or gone, by its template; a condition in the pack’s words', () => {
+    expect(name('characters.pack-leader.conditions.down')).toBe('Pack leader: Down')
+    expect(name('characters.grey-wolf-2.values.health')).toBe('Grey wolf: Health')
+    const wolf = { id: 'grey-wolf-2', name: 'Grizzled wolf', sheet: 'grey-marches/foe' }
+    const named = memberNamer(system, [], 'en', t, undefined, undefined, [wolf as CharacterState])
+    expect(named('characters.grey-wolf-2.values.health')).toBe('Grizzled wolf: Health')
+    const told = conditionTeller(system, {}, 'en')
+    expect(told('characters.pack-leader.conditions.down', true)).toBe('Pack leader falls')
+    expect(told('characters.pack-leader.conditions.down', false)).toBeUndefined()
+    const es = conditionTeller(system, {}, 'es')
+    expect(es('characters.pack-leader.conditions.routed', true)).toBe(
+      'Jefe de la manada da media vuelta y huye',
+    )
   })
 
   it('and a blocked way says where, its stop kept for the detail', () => {

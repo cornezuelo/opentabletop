@@ -513,6 +513,10 @@ export const en = {
       "A condition that holds by itself while this is true, never set or cleared by hand nor by effects: a state, not something that happens. It reads the character as `self` and, on a trip, the world too:\n• `self.values.dread: { gte: 6 }` — while dread is full\n• `self.values.load: { gt: '{{self.values.capacity}}' }` — while carrying more than it can\n• `trip.mode: boat` — while the party travels by boat\n• `time.season: winter` and `self.values.health: { lt: 2 }` — hurt in winter\nOne that reads the world follows it on the trip; in the roster it stays as last seen. Something that should happen once (a line, an effect) is an action, not a condition. Empty: effects set and clear it.",
     byEffects: 'set by effects',
     lasts: 'Lasts',
+    toldGains: 'Told when gained',
+    toldLoses: 'Told when lost',
+    toldHelp:
+      "How a fight and the journal tell it when someone gains it or loses it, in your system's words; `{{name}}` is that one's name. Empty: the generic _Name: Condition_.\n• `{{name}} falls` — a foe down\n• `{{name}} steadies` — rattled no more",
     lastsHelp:
       "A condition given **for a while** in a fight: an effect's number gives it for that many, counted down as each one begins, and it's gone when none is left or when the fight ends:\n• **rounds** — `acting.conditions.dazed: 2`: two rounds\n• **turns** — `characters[target].conditions.braced: 1`: until its next turn\n• `'{{1d4}}'` — a roll of them; given again, they add up; `'=0'` ends it\n`true` still gives it with no end. Conditions read what's left as `acting.left.dazed`. Empty: it lasts until cleared. Not for one that holds by itself.",
     relations: 'Kinds of relation',
@@ -1077,6 +1081,9 @@ export const en = {
     hideHelp:
       "**Unticked**: its button is always there, disabled (saying why) while it can't be taken, so the buttons don't move around.\n**Ticked**: its button only appears while it can be taken. For actions that only make sense now and then:\n• a rite only at a shrine under a full moon\n• talking round porters only while they refuse to march",
     nothing: 'When nothing applies',
+    told: 'Told in a fight',
+    toldHelp:
+      "How a fight tells a turn this action was taken on, in your system's words, with what it reads filled in once its steps are done (who acts, the foe chosen). What it did (harm, conditions) is told after it by itself. Empty: its name.\n• `{{acting.name}} strikes {{characters[params.foe].name}}`\n• `{{acting.name}} falls back, weapon up`",
     nothingHelp:
       'What the journal says when **none of its checks apply** where the party is; `{terrain}` is the cell\'s terrain.\n• `nothing to forage on {terrain}` → "nothing to forage on Hills"\nEmpty: a generic sentence. An action without checks says nothing more.',
     nothingPlaceholder: 'nothing to find on {terrain}',

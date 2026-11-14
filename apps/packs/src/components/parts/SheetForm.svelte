@@ -319,6 +319,20 @@
           choices: ['rounds', 'turns'],
           off: (row) => row.when !== undefined,
         },
+        {
+          field: 'told.gains',
+          label: t('sheet.toldGains'),
+          help: t('sheet.toldHelp'),
+          type: 'text',
+          placeholder: '{{name}} falls',
+        },
+        {
+          field: 'told.loses',
+          label: t('sheet.toldLoses'),
+          help: t('sheet.toldHelp'),
+          type: 'text',
+          placeholder: '{{name}} gets up',
+        },
       ]}
     />
   </section>

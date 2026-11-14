@@ -1,14 +1,23 @@
 <script lang="ts">
   import type { DiceResult } from '@open-tabletop/dice'
-  import { drawRoll, type DieShape, type DrawnDie, type DrawnRoll } from './diceTray'
+  import {
+    drawRoll,
+    ROLL_MS,
+    ROLL_STAGGER_MS,
+    rollingFace,
+    type DieShape,
+    type DrawnDie,
+    type DrawnRoll,
+  } from './diceTray'
   import { dicePreferences } from './dicePreferences.svelte'
 
   /**
    * The dice of one or more rolls, each die drawn as its shape with its face (d4 to d20, d%,
    * Fudge, d66 as two d6): those a keep left out faded, exploding ones chained, then what's
    * added and the total; the totals a roll mode didn't keep, small and faded. `large` for a
-   * roll up front; `animate` tumbles them as they appear (a roll just made), unless the
-   * player turned it off or the system reduces motion.
+   * roll up front; `animate` rolls them as they appear (a roll just made): each tumbles and
+   * bounces, its faces turning, for a moment long enough to watch (`ROLL_MS`), the total
+   * shown once they settle; unless the player turned it off or the system reduces motion.
    */
   let {
     rolls,
@@ -28,7 +37,32 @@
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
   const drawn = $derived(rolls.map((r) => drawRoll(r)))
-  const tumbles = $derived(animate && dicePreferences.animate)
+  const reduced =
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  const tumbles = $derived(animate && dicePreferences.animate && !reduced)
+  /** While they roll: the faces turn (a tick each time), the total waits. */
+  let rolling = $state(false)
+  let tick = $state(0)
+  $effect(() => {
+    void rolls
+    if (!tumbles) return
+    rolling = true
+    const turning = setInterval(() => tick++, 90)
+    const settle = setTimeout(
+      () => {
+        rolling = false
+        clearInterval(turning)
+      },
+      ROLL_MS + ROLL_STAGGER_MS * 3,
+    )
+    return () => {
+      clearInterval(turning)
+      clearTimeout(settle)
+    }
+  })
+  /** What a die shows: a face turning while it rolls, its own once settled. */
+  const shown = (shape: DieShape, face: string) =>
+    rolling ? (void tick, rollingFace(shape, Math.random())) : face
 
   /** Each shape's outline, in a 40 × 40 box. */
   const OUTLINES: Record<Exclude<DieShape, 6 | 'fudge' | 'round'>, string> = {
@@ -50,7 +84,8 @@
     class="die"
     class:dropped={d.dropped}
     class:tumble={tumbles}
-    style:animation-delay={tumbles ? `${i * 60}ms` : undefined}
+    style:animation-delay={tumbles ? `${i * ROLL_STAGGER_MS}ms` : undefined}
+    style:animation-duration={tumbles ? `${ROLL_MS}ms` : undefined}
     viewBox="0 0 40 40"
     role="img"
     aria-label={text.die.replace('{sides}', sidesName(d.shape)).replace('{face}', face || '0')}
@@ -62,7 +97,7 @@
     {:else}
       <polygon points={OUTLINES[d.shape]} />
     {/if}
-    <text x="20" y={faceY(d.shape)} class:small={face.length > 2}>{face}</text>
+    <text x="20" y={faceY(d.shape)} class:small={face.length > 2}>{shown(d.shape, face)}</text>
   </svg>
 {/snippet}
 
@@ -89,7 +124,7 @@
         {/if}
       {/each}
     {/if}
-    <span class="total">= {r.total}</span>
+    <span class="total" class:waiting={rolling}>= {rolling ? '…' : r.total}</span>
   </span>
 {/snippet}
 
@@ -212,18 +247,36 @@
     --die: 24px;
   }
 
+  /* Thrown in, tumbling over and bouncing twice before it settles. */
   .tumble {
-    animation: tumble 450ms ease-out both;
+    animation: tumble ease-out both;
   }
 
   @keyframes tumble {
-    from {
+    0% {
       opacity: 0;
-      transform: rotate(-200deg) scale(0.5);
+      transform: translate(-30px, -18px) rotate(-540deg) scale(0.6);
     }
-    to {
+    35% {
+      opacity: 1;
+      transform: translate(-8px, 0) rotate(-200deg) scale(1);
+    }
+    55% {
+      transform: translate(0, -8px) rotate(-60deg);
+    }
+    75% {
+      transform: translate(0, 0) rotate(10deg);
+    }
+    88% {
+      transform: translate(0, -2px) rotate(-4deg);
+    }
+    100% {
       transform: none;
     }
+  }
+
+  .total.waiting {
+    opacity: 0.5;
   }
 
   @media (prefers-reduced-motion: reduce) {

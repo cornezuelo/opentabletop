@@ -91,3 +91,18 @@ export function drawRoll(
     ),
   }
 }
+
+/** How long a roll just made tumbles before its faces settle, in ms (each die a little later). */
+export const ROLL_MS = 1200
+export const ROLL_STAGGER_MS = 120
+
+/** A face a die of that shape may show while it rolls (`n` in [0, 1), from any randomness). */
+export function rollingFace(shape: DieShape, n: number): string {
+  if (shape === 'fudge') return ['−', '', '+'][Math.floor(n * 3)]!
+  if (shape === 'percent')
+    return String(Math.floor(n * 100) + 1)
+      .padStart(2, '0')
+      .slice(-2)
+  const sides = shape === 'round' ? 6 : shape
+  return String(Math.floor(n * sides) + 1)
+}

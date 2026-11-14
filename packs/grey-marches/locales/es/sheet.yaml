@@ -82,6 +82,9 @@ sheet/companion:
     wounded:
       name: Herido
       description: Malherido y sangrando. No puede forzar la marcha ni marchar de noche; no cuenta para la Supervivencia del grupo.
+      told:
+        gains: '{{name}} sangra por una herida'
+        loses: '{{name}} deja de sangrar'
     sprained:
       name: Tobillo torcido
       description: No puede seguir andando. El grupo no puede marchar hasta que alguien se lo cure.
@@ -97,9 +100,15 @@ sheet/companion:
     rattled:
       name: Aturdido
       description: Sacudido por un golpe fuerte; sus propios golpes aciertan peor durante una o dos rondas del combate.
+      told:
+        gains: '{{name}} se tambalea'
+        loses: '{{name}} se recompone'
     dragged-down:
       name: Derribado
       description: Tirado al suelo por un lobo; el compañero pierde su siguiente turno en el combate.
+      told:
+        gains: '{{name}} cae al suelo, arrastrado'
+        loses: '{{name}} se levanta'
     burdened:
       name: Cargado
       description: Lleva más de lo que puede; ni marcha forzada ni marcha nocturna hasta que suelte algo.

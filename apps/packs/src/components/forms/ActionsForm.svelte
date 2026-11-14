@@ -228,9 +228,9 @@
   const def = (id: string): ActionDefinition => (actions[id] as ActionDefinition | undefined) ?? {}
   const steps = (id: string): ActionStep[] => actionSteps(def(id))
 
-  const text = (id: string, field: 'name' | 'description' | 'nothing') =>
+  const text = (id: string, field: 'name' | 'description' | 'nothing' | 'told') =>
     doc.text('travel-rules', def(id)[field], ['actions', id, field])
-  const setText = (id: string, field: 'name' | 'description' | 'nothing', value: string) =>
+  const setText = (id: string, field: 'name' | 'description' | 'nothing' | 'told', value: string) =>
     doc.setText(
       'travel-rules',
       ['actions', id, field],
@@ -480,6 +480,18 @@
               value={text(id, 'nothing')}
               {disabled}
               onchange={(e) => setText(id, 'nothing', e.currentTarget.value)}
+            />
+          </label>
+          <label>
+            <span>{t('actions.told')}<InfoTip markdown={t('actions.toldHelp')} /></span>
+            <input
+              type="text"
+              placeholder={doc.translating
+                ? doc.baseText(d.told)
+                : '{{acting.name}} strikes {{characters[params.foe].name}}'}
+              value={text(id, 'told')}
+              {disabled}
+              onchange={(e) => setText(id, 'told', e.currentTarget.value)}
             />
           </label>
           <label>

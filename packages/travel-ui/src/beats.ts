@@ -54,7 +54,7 @@ export type Dice = NonNullable<RolledNode['results']>
  * The dice each result of a moment was rolled with: the roll's line (`ROLLED`, what happened
  * behind) comes just before its result's, for the same check.
  */
-function diceOf(entries: readonly JournalEntry[]): Map<string, Dice> {
+export function diceOf(entries: readonly JournalEntry[]): Map<string, Dice> {
   const out = new Map<string, Dice>()
   let rolled: { check: unknown; dice: Dice } | undefined
   for (const e of entries) {

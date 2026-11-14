@@ -336,6 +336,12 @@ const action = z
      */
     nothing: text.optional(),
     /**
+     * How a fight tells a turn it was taken on, in the system's words, with what it reads
+     * filled in (`'{{acting.name}} goes for {{characters[params.foe].name}}'`); what it did
+     * (harm, conditions) is told after it by itself. Absent: its name.
+     */
+    told: text.optional(),
+    /**
      * What a button, `do:` or the system may choose when taking it, read by its steps and
      * conditions as `{{params.<id>}}` (`params: { until: { choices: [destination, place] } }`).
      */

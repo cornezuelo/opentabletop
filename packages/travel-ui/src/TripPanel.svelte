@@ -13,6 +13,7 @@
     type Declared,
     type EncounterUnavailable,
     type RollWay,
+    type YourRoll as YourRollState,
     type TripAction,
     type Use,
   } from '@open-tabletop/session'
@@ -80,6 +81,7 @@
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
   import FightPanel from './FightPanel.svelte'
+  import { tellTurn, type CardAction } from './turns'
   import YourRoll from './YourRoll.svelte'
   import { setRollWay } from './rollWay'
   import BeatView from './BeatView.svelte'
@@ -345,6 +347,45 @@
       ? waiting.choices
       : [],
   )
+  /** The parameter of an action whose choices are those here (`from: present.ids`): a foe. */
+  const foeParam = (id: string) =>
+    Object.entries(actions.all[id]?.params ?? {}).find(([, p]) =>
+      String(p.from ?? '').startsWith('present.'),
+    )?.[0]
+  /** The fight's actions open on a turn of the party's (the system's `encounter.actions`). */
+  const turnActions = $derived(
+    fight?.choosing && !waiting
+      ? (system.encounter?.actions ?? []).filter((id) => buttons.includes(id))
+      : [],
+  )
+  /** Those done to a foe: on the foes' cards (docs/fight-ux.md, A). */
+  const cardActions = $derived<CardAction[]>(
+    turnActions
+      .filter((id) => foeParam(id) !== undefined)
+      .map((id) => ({
+        id,
+        name: actionName(id),
+        tip: actionTip(id),
+        disabled: why(blocked[id]),
+        foes: (fight?.fighters ?? []).filter((f) => f.side === 'foes' && !f.gone).map((f) => f.id),
+      })),
+  )
+  /** The rest: in the turn's bar. */
+  const barActions = $derived(turnActions.filter((id) => foeParam(id) === undefined))
+  /** The fight's last turn, told in one sentence (docs/fight-ux.md, C). */
+  const lastTurn = $derived.by(() => {
+    if (!fight) return undefined
+    const journal = session.journal
+    const start = journal.findLastIndex((e) => e.code === 'ENCOUNTER_STARTED')
+    if (start < 0) return undefined
+    const beats = beatsOf(journal.slice(start))
+    for (let i = beats.length - 1; i >= 0; i--) {
+      const first = journal.indexOf(beats[i]!.entries[0]!)
+      const told = tellTurn(beats[i]!, journal.slice(start, first), context, whoName)
+      if (told) return told
+    }
+    return undefined
+  })
   /** What the last step did to each fighter's main value (a blow's −2), by id. */
   const fightChanges = $derived(
     fight
@@ -357,7 +398,7 @@
         )
       : {},
   )
-  /** The fight's moments, newest first: from its start on, the last few. */
+  /** The fight's moments, newest first: the whole fight, from its start on. */
   const fightLog = $derived.by(() => {
     if (!fight) return []
     // The whole moment that started it (the ambush, Fight), from its first line.
@@ -365,7 +406,6 @@
     const first = started?.beat !== undefined ? `j${started.beat}` : started?.id
     const start = session.journal.findIndex((e) => e.id === first)
     return beatsOf(session.journal.slice(Math.max(0, start)))
-      .slice(-8)
       .reverse()
       .map((b) => tellBeat(b, context, 'story'))
   })
@@ -641,6 +681,70 @@
     >
   </div>
 {/snippet}
+{#snippet actionButton(id: string)}
+  <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
+  {@const params = Object.entries(actions.all[id].params ?? {}).filter(
+    ([key, param]) => !param.from && !askedParams(actions.all[id]).includes(key),
+  )}
+  <span class="take" class:joined={params.length > 0}>
+    <button
+      class:primary={id === main}
+      use:tooltip={tipWith(actionTip(id), id)}
+      disabled={!!blocked[id] || (movers.has(id) && !heading)}
+      onclick={() => take(id)}>{buttonText(id)}</button
+    >
+    {#each params as [key, param] (key)}
+      <select
+        aria-label={paramName(key, param)}
+        use:tooltip={paramName(key, param)}
+        value={choiceOf(id, key, param)}
+        onchange={(e) =>
+          (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
+      >
+        {#each param.choices ?? [] as c (String(choiceId(c)))}<option value={String(choiceId(c))}
+            >{choiceName(c)}</option
+          >{/each}
+      </select>
+    {/each}
+  </span>
+{/snippet}
+{#snippet yourRoll(id: string, event: string, yours: YourRollState)}
+  <YourRoll
+    dice={yours.dice}
+    what={yours.of ? nameOf(yours.of) : pendingName(event)}
+    who={yours.who !== undefined && yours.who !== PARTY_ID
+      ? participantName(session, yours.who)
+      : ''}
+    on={yours.target !== undefined ? participantName(session, yours.target) : ''}
+    said={yours.said ?? ''}
+    mode={yours.mode ? nameOf(yours.mode) : ''}
+    how={yours.how}
+    {locale}
+    ongive={(total) => onstep({ type: 'rolled', id: id, total })}
+    onforme={() => onstep({ type: 'resolveCheck', id: id })}
+    oncomputer={() => {
+      onedit((s) => setRollWay(s, undefined))
+      onstep({ type: 'resolveCheck', id: id })
+    }}
+  />
+{/snippet}
+{#snippet rollWayChoice()}
+  <label class="way"
+    ><span>{t('rollWay.label')}<InfoTip markdown={t('rollWay.help')} /></span>
+    <select
+      value={session.rollWay ?? 'computer'}
+      onchange={(e) => {
+        const value = e.currentTarget.value
+        const way = value === 'computer' ? undefined : (value as RollWay)
+        onedit((s) => setRollWay(s, way))
+      }}
+    >
+      <option value="computer">{t('rollWay.computer')}</option>
+      <option value="matters">{t('rollWay.matters')}</option>
+      <option value="all">{t('rollWay.all')}</option>
+    </select></label
+  >
+{/snippet}
 {#snippet whoRolls()}
   <select
     class="who"
@@ -670,7 +774,8 @@
   <!-- What the party can do stays in sight while what's below scrolls. -->
   <div class="do">
     <!-- The important moment the last step ended on, up front (over a map, the strip has it). -->
-    {#if status}<NotableBeat {session} {context} {locale} />{/if}
+    <!-- In a fight, its panel tells the turn just played instead. -->
+    {#if status && !fight}<NotableBeat {session} {context} {locale} />{/if}
     <!-- A march told a place at a time: what's left of it can be told at once. -->
     {#if pacing.tells(session) && !pacing.holds(session)}
       <div class="telling">
@@ -696,31 +801,47 @@
         log={fightLog}
         ontarget={(id) => onstep({ type: 'resume', choice: id })}
         onnext={() => onstep({ type: 'encounter', what: 'next' })}
-      />
+        {cardActions}
+        onact={(id, foe) => {
+          const given = withOf(id)
+          onstep({ type: 'action', id, with: { ...given, [foeParam(id)!]: foe } })
+        }}
+        asking={targets.length && waiting
+          ? t('fight.asking', {
+              question: entryText(
+                {
+                  id: '',
+                  at: '',
+                  time: waiting.time,
+                  source: 'travel',
+                  code: 'HELD',
+                  data: { waiting },
+                },
+                context,
+              ),
+            })
+          : ''}
+        last={lastTurn}
+      >
+        {#snippet roll()}
+          <!-- A roll of the player's waits here, in the fight, not apart. -->
+          {#each travel.pendingChecks as check (check.id)}
+            {@const yours = session.yours?.find((y) => y.id === check.id)}
+            {#if yours}{@render yourRoll(check.id, check.event, yours)}{/if}
+          {/each}
+        {/snippet}
+        {#snippet turnBar()}
+          {#each barActions as id (id)}{@render actionButton(id)}{/each}
+        {/snippet}
+        {#snippet tools()}<span class="fight-rolls">{@render rollWayChoice()}</span>{/snippet}
+      </FightPanel>
     {/if}
 
     <!-- What needs you first, then what the party can do: right under where it is. -->
     {#each travel.pendingChecks as check (check.id)}
       {@const yours = session.yours?.find((y) => y.id === check.id)}
       {#if yours}
-        <YourRoll
-          dice={yours.dice}
-          what={yours.of ? nameOf(yours.of) : pendingName(check.event)}
-          who={yours.who !== undefined && yours.who !== PARTY_ID
-            ? participantName(session, yours.who)
-            : ''}
-          on={yours.target !== undefined ? participantName(session, yours.target) : ''}
-          said={yours.said ?? ''}
-          mode={yours.mode ? nameOf(yours.mode) : ''}
-          how={yours.how}
-          {locale}
-          ongive={(total) => onstep({ type: 'rolled', id: check.id, total })}
-          onforme={() => onstep({ type: 'resolveCheck', id: check.id })}
-          oncomputer={() => {
-            onedit((s) => setRollWay(s, undefined))
-            onstep({ type: 'resolveCheck', id: check.id })
-          }}
-        />
+        {#if !fight}{@render yourRoll(check.id, check.event, yours)}{/if}
       {:else}
         <div class="pending" class:asks={session.asking?.includes(check.id)}>
           <span
@@ -810,7 +931,7 @@
     {/if}
 
     <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
-    {#if waiting}
+    {#if waiting && !targets.length}
       <div class="pending" class:asks={!!asked}>
         <span
           >{entryText(
@@ -851,7 +972,8 @@
     {/if}
 
     <!-- Nothing goes on while a share waits for who gives it, or an item for room. -->
-    <div class="actions" class:held inert={held}>
+    <!-- In a fight what's done is in its panel (on the foes' cards and its turn's bar). -->
+    <div class="actions" class:held inert={held} hidden={!!fight}>
       {#if goingOn && !waiting && !session.encounter && !scene}
         <button
           class="primary"
@@ -873,33 +995,7 @@
         {:else if i > 0}
           <span class="break"></span>
         {/if}
-        {#each row.ids as id (id)}
-          <!-- Parameters it asks for as it goes (`ask:`) aren't chosen on its button. -->
-          {@const params = Object.entries(actions.all[id].params ?? {}).filter(
-            ([key, param]) => !param.from && !askedParams(actions.all[id]).includes(key),
-          )}
-          <span class="take" class:joined={params.length > 0}>
-            <button
-              class:primary={id === main}
-              use:tooltip={tipWith(actionTip(id), id)}
-              disabled={!!blocked[id] || (movers.has(id) && !heading)}
-              onclick={() => take(id)}>{buttonText(id)}</button
-            >
-            {#each params as [key, param] (key)}
-              <select
-                aria-label={paramName(key, param)}
-                use:tooltip={paramName(key, param)}
-                value={choiceOf(id, key, param)}
-                onchange={(e) =>
-                  (chosen = { ...chosen, [id]: { ...chosen[id], [key]: e.currentTarget.value } })}
-              >
-                {#each param.choices ?? [] as c (String(choiceId(c)))}<option
-                    value={String(choiceId(c))}>{choiceName(c)}</option
-                  >{/each}
-              </select>
-            {/each}
-          </span>
-        {/each}
+        {#each row.ids as id (id)}{@render actionButton(id)}{/each}
       {/each}
       <!-- What the host adds goes on a line of its own after a group. -->
       {#if groups.at(-1)?.group}<span class="break"></span>{/if}
@@ -1178,21 +1274,7 @@
           </select></label
         >
       {/if}
-      <label class="way"
-        ><span>{t('rollWay.label')}<InfoTip markdown={t('rollWay.help')} /></span>
-        <select
-          value={session.rollWay ?? 'computer'}
-          onchange={(e) => {
-            const value = e.currentTarget.value
-            const way = value === 'computer' ? undefined : (value as RollWay)
-            onedit((s) => setRollWay(s, way))
-          }}
-        >
-          <option value="computer">{t('rollWay.computer')}</option>
-          <option value="matters">{t('rollWay.matters')}</option>
-          <option value="all">{t('rollWay.all')}</option>
-        </select></label
-      >
+      {@render rollWayChoice()}
       <label class="check skip"
         ><input
           type="checkbox"
