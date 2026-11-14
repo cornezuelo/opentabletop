@@ -146,31 +146,30 @@ templates:
     token: { icon: 'game:mounted-knight', kind: npc }
 ---
 # What a foe of the Marches does on its turn in a fight (system.yaml: `encounter.foes`), unless
-# its template says otherwise: a swing at one of the Company, its Harm if it lands.
+# its template says otherwise: a swing at the one its turn goes for (the system's `aim`), whose
+# armour takes the roll down, its Harm if it lands.
 kind: table
 id: foe-turn
 tags: [encounters]
 name: A foe's turn
 description: |-
-  What a foe does on its turn in a fight, when its kind has no turn of its own: it swings at one of the Company, rolled, and lands half the time, for its Harm.
+  What a foe does on its turn in a fight, when its kind has no turn of its own: it swings at one of the Company, chosen as its turn begins, and lands half the time, for its Harm; the armour they wear takes its roll down.
 
-  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe (`acting.values.harm`); a result aimed at someone (`set: { target: party.members.random }`) and its effect on them (`characters[target].values.health`); a condition given for a while (`characters[target].conditions.rattled: '{{1d2}}'`: rounds of the fight); a turn that does nothing.
-roll: 1d6
+  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe (`acting.values.harm`); whom its turn goes for, chosen before it rolls (the system's `aim: party.members.random`), read by its roll (`'1d6 - {{characters[encounter.target].values.armour}}'`) and its effects (`characters[encounter.target].values.health`); a condition given for a while (`characters[encounter.target].conditions.rattled: '{{1d2}}'`: rounds of the fight); a turn that does nothing.
+roll: '1d6 - {{characters[encounter.target].values.armour}}'
 entries:
   - { id: miss, range: 1-3, result: '{{acting.name}} swings, and misses' }
   - id: hit
     range: 4-5
-    set: { target: party.members.random }
     result: '{{acting.name}} lands a blow'
-    effects: { 'characters[target].values.health': '-{{acting.values.harm}}' }
+    effects: { 'characters[encounter.target].values.health': '-{{acting.values.harm}}' }
   # A heavy one: rattled for 1d2 rounds (sheet.yaml's `lasts: rounds`), counted down by the fight.
   - id: heavy
     range: 6
-    set: { target: party.members.random }
     result: '{{acting.name}} lands a heavy blow'
     effects:
-      'characters[target].values.health': '-{{acting.values.harm}}'
-      'characters[target].conditions.rattled': '{{1d2}}'
+      'characters[encounter.target].values.health': '-{{acting.values.harm}}'
+      'characters[encounter.target].conditions.rattled': '{{1d2}}'
 ---
 # A wolf's turn in a fight (bestiary.yaml's grey-wolf `actions:`, its leader's too, by `like`):
 # it goes for whoever is hurt worst.

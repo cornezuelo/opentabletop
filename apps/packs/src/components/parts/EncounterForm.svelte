@@ -50,6 +50,13 @@
       .map(([id]) => id),
   )
   const hints = $derived(contextSuggestions(library.registry))
+  /** Whom a foe may aim at: one of the party rolled, or the one with least or most of a value. */
+  const aims = $derived([
+    'party.members.random',
+    ...Object.keys(hints)
+      .filter((h) => h.startsWith('party.lowest.values.') || h.startsWith('party.highest.values.'))
+      .map((h) => h.replace(/^party\./, 'party.members.')),
+  ])
   const isChosen = (id: string) => chosen.some((a) => a === id || a === `actions.${id}`)
 
   /** Writes one key of `encounter:` (undefined drops it). */
@@ -171,6 +178,20 @@
         />
         <datalist id="encounter-rolls">
           {#each rolls as ref (ref)}<option value={ref}></option>{/each}
+        </datalist>
+      </label>
+      <label>
+        <span>{t('encounter.aim')}<InfoTip markdown={t('encounter.aimHelp')} /></span>
+        <input
+          type="text"
+          list="encounter-aims"
+          value={typeof raw.aim === 'string' ? raw.aim : ''}
+          placeholder="party.members.random"
+          {disabled}
+          onchange={(e) => set('aim', e.currentTarget.value.trim() || undefined)}
+        />
+        <datalist id="encounter-aims">
+          {#each aims as aim (aim)}<option value={aim}></option>{/each}
         </datalist>
       </label>
       <label>

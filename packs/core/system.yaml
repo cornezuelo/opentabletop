@@ -33,6 +33,8 @@ encounter:
   order: { by: side, first: party }
   actions: [actions.strike]
   foes: table.foe-turn
+  # Whom a foe's turn goes for, chosen as it begins: its table reads `encounter.target`.
+  aim: party.members.random
   ends: { present.count: 0 }
   # A staggered foe (sheet.yaml, `lasts: rounds`) loses its turns while it lasts.
   skip: { acting.conditions: staggered }

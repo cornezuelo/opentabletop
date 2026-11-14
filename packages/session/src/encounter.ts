@@ -11,6 +11,7 @@ import {
 import { resolveChange } from '@open-tabletop/variables'
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { PARTY_ID } from './party'
+import { chooseTarget, ONE_TARGET } from './target'
 import { presentHere } from './present'
 import type { JournalEntry, SessionState } from './index'
 
@@ -38,6 +39,13 @@ export interface EncounterRules {
    * acting as that foe (its template's `actions` first).
    */
   foes?: string
+  /**
+   * Whom a foe's turn aims at, chosen as it begins, before anything of it is rolled: one of
+   * the party's members by a short form of `target` (`party.members.random`,
+   * `party.members.lowest.values.health`), read by its table, and by every table it leads to,
+   * as `encounter.target` (`characters[encounter.target].values.dodge`). Absent: none.
+   */
+  aim?: string
   /**
    * How many turns each one takes in a round, one after another, read acting as each as
    * the round begins (`'{{1 + acting.values.ruthless}}'`); absent: one.
@@ -79,6 +87,8 @@ export interface Encounter {
   first?: Side
   /** Who was acting before the encounter, given back when it ends. */
   acting?: string
+  /** Whom the foe whose turn it is aims at (the rules' `aim`), chosen as its turn began. */
+  target?: string
 }
 
 /**
@@ -88,7 +98,7 @@ export interface Encounter {
 export const ENCOUNTER_EFFECT = /^encounter(?:\.(first))?$/
 
 /** The keys `encounter:` may have. */
-const KEYS = new Set(['order', 'actions', 'foes', 'turns', 'minutes', 'ends', 'skip'])
+const KEYS = new Set(['order', 'actions', 'foes', 'aim', 'turns', 'minutes', 'ends', 'skip'])
 
 /** A system's `encounter:` read, with what's wrong in it (paths from `encounter`). */
 export function parseEncounter(
@@ -152,6 +162,10 @@ export function parseEncounter(
   })
   if (raw.foes !== undefined && (typeof raw.foes !== 'string' || !raw.foes))
     errors.push('encounter.foes: expected what a foe does on its turn (table.foe-turn)')
+  if (raw.aim !== undefined && (typeof raw.aim !== 'string' || !ONE_TARGET.test(raw.aim)))
+    errors.push(
+      'encounter.aim: expected whom a foe aims at (party.members.random, party.members.lowest.values.health)',
+    )
   if (raw.turns !== undefined && typeof raw.turns !== 'string' && typeof raw.turns !== 'number')
     errors.push(
       "encounter.turns: expected how many turns each one takes ('{{1 + acting.values.extra}}')",
@@ -166,6 +180,7 @@ export function parseEncounter(
       order,
       actions,
       ...(typeof raw.foes === 'string' && raw.foes && { foes: raw.foes }),
+      ...(typeof raw.aim === 'string' && { aim: raw.aim }),
       ...((typeof raw.turns === 'string' || typeof raw.turns === 'number') && {
         turns: String(raw.turns),
       }),
@@ -226,6 +241,7 @@ export function encounterFacts(s: SessionState): Record<string, unknown> | undef
     round: e.round,
     order: [...e.order],
     ...(turn !== undefined && e.round > 0 && { turn, side: sideOf(s, turn) }),
+    ...(e.target !== undefined && { target: e.target }),
   }
 }
 
@@ -460,6 +476,23 @@ export function driveEncounter(
         }
         const side = sideOf(state, id)
         if (id !== PARTY_ID) edit((_, s) => (s.acting = id))
+        // Whom a foe aims at, chosen before its turn: what it rolls reads it.
+        const target =
+          side === 'foes' && rules.aim
+            ? chooseTarget(
+                rules.aim,
+                state,
+                momentRolls(
+                  state.travel,
+                  state.travel.location,
+                  `encounter.aim|${state.nextEntry}`,
+                ),
+              )
+            : undefined
+        edit((e) => {
+          if (target !== undefined) e.target = target
+          else delete e.target
+        })
         // A turn lost (the system's `skip`, acting as this one) passes, its moment said.
         const skipped =
           !!rules.skip &&
@@ -472,7 +505,13 @@ export function driveEncounter(
           })
         // The party's turns wait for the player; the foes' go by themselves (for now).
         edit((e) => (e.stage = side === 'party' && !skipped ? 'acting' : 'acted'))
-        line('ENCOUNTER_TURN', { id, name: participantName(state, id), side, round: e.round })
+        line('ENCOUNTER_TURN', {
+          id,
+          name: participantName(state, id),
+          side,
+          round: e.round,
+          ...(target !== undefined && { target, targetName: participantName(state, target) }),
+        })
         if (skipped) line('ENCOUNTER_SKIPPED', { id, name: participantName(state, id) })
         // What it was given until its own turn counts one down.
         const lapsed = lapse(state, 'turns', id)

@@ -7,6 +7,15 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Travel and Map
 
 - **Rolling yourself, the dice inside a result too**: with **Rolls** on what matters or everything, every roll with dice a result makes is yours, one after another: the table's, then a blow's damage (for each one it aims at), a table it leads to, dice in its text. Each card says what came up so far and whom the roll is for, and nothing of the result happens until the last; a roll with a roll mode says so (_with Advantage_), and **Roll** on screen rolls it that way. **Roll it for me** rolls just that one.
+- A foe's turn says whom it goes for (_Bandit's turn, at Mara_), when its system chooses it beforehand.
+
+### Packs
+
+- **Whom a foe goes for, before it rolls** (`aim:` in a system's `encounter:`; Packs' **A foe aims at**): one of the party chosen as each foe's turn begins, read by its table and every table it leads to as `encounter.target`, so a defence or an armour counts before the dice. The Grey Marches' _A foe's turn_ is rolled less the armour of whom it goes for; Core's blow lands on the one its turn chose.
+
+### Fixes
+
+- A roll naming a value by a part in brackets (`characters[encounter.target].values.armour`) rolls in the Oracle without a trip, the missing value counting 0.
 
 ## [0.54.0] - 2026-11-14
 

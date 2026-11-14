@@ -73,9 +73,9 @@ bestiary/marches:
 foe-turn:
   name: El turno de un enemigo
   description: |-
-    Lo que hace un enemigo en su turno en un combate, cuando su especie no tiene un turno propio: lanza un golpe a uno de la Compañía, tirado, y acierta la mitad de las veces, por su Daño.
+    Lo que hace un enemigo en su turno en un combate, cuando su especie no tiene un turno propio: lanza un golpe a uno de la Compañía, elegido al empezar su turno, y acierta la mitad de las veces, por su Daño; la armadura que lleva le baja la tirada.
 
-    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); un resultado dirigido a alguien (`set: { target: party.members.random }`) y su efecto sobre él (`characters[target].values.health`); un estado dado por un tiempo (`characters[target].conditions.rattled: '{{1d2}}'`: rondas del combate); un turno que no hace nada.
+    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); a quién va su turno, elegido antes de tirar (el `aim: party.members.random` del sistema), leído por su tirada (`'1d6 - {{characters[encounter.target].values.armour}}'`) y sus efectos (`characters[encounter.target].values.health`); un estado dado por un tiempo (`characters[encounter.target].conditions.rattled: '{{1d2}}'`: rondas del combate); un turno que no hace nada.
   entries:
     miss: '{{acting.name}} lanza un golpe, y falla'
     hit: '{{acting.name}} acierta un golpe'

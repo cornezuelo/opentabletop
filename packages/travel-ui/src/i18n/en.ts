@@ -369,6 +369,7 @@ export const en = {
     mapEntered: 'You go into {name}',
     encounterStarted: 'A fight begins',
     encounterRound: 'Round {round}',
+    encounterTurnAims: '{name}’s turn, at {target}',
     encounterTurn: '{name}’s turn',
     encounterRolls: '{name}’s turn: waiting for you to roll {table}',
     encounterSkipped: '{name} loses the turn',

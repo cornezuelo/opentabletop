@@ -164,7 +164,13 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       'characters.erthos.items.mail': 1,
       'characters.erthos.items.light-vambraces': 1,
     }
-    let s = applyResult(session, { effects: { ...present, ...gear } }, {}, rules)
+    // The foes' turns played one after another (no Next between them).
+    let s = applyResult(
+      { ...session, foesAtOnce: true },
+      { effects: { ...present, ...gear } },
+      {},
+      rules,
+    )
     let done = stepTrip(options, s, { type: 'action', id: 'fight' })
     const entries = [...done.entries]
     for (let turn = 0; turn < 80 && done.state.encounter; turn++) {
@@ -194,9 +200,85 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     const rolled = entries.filter((e) => e.code === 'ROLLED').map((e) => JSON.stringify(e))
     expect(rolled.some((r) => r.includes('initiative'))).toBe(true)
     expect(rolled.some((r) => r.includes('wound-serpentoid'))).toBe(true)
-    // Either the Necropede is destroyed, or the PC took damage on the way.
-    const party = state.party!.values
-    expect(state.present?.length === 0 || party.toughness! < 30).toBe(true)
+    // Either the Necropede is destroyed, or the PC took damage on the way: theirs, not the
+    // expedition's (its sheet keeps what's shared).
+    const pc = state.members!.find((m) => m.id === 'erthos')!.values
+    expect(state.present?.length === 0 || pc.toughness! < 30).toBe(true)
+    expect(state.party!.values.toughness).toBeUndefined()
+    expect(state.party!.values).toMatchObject({ light: expect.any(Number), rations: 3 })
+  })
+
+  it("the Gravebound's pools are each one's: a creature aims at one of you, and its blows land on that one", () => {
+    const { entries } = fight({ rotwalker: 2 }, 's')
+    // Each creature's turn names whom it goes for, chosen before its dice.
+    const aimed = entries.filter((e) => e.code === 'ENCOUNTER_TURN' && e.data?.target)
+    expect(aimed.length).toBeGreaterThan(0)
+    expect(aimed.every((e) => e.data?.target === 'erthos')).toBe(true)
+    // What they deal comes off Erthos's own Toughness, never the expedition's.
+    const changed = entries.flatMap((e) => (e.code === 'CHANGED' ? [String(e.data?.path)] : []))
+    expect(changed).toContain('characters.erthos.values.toughness')
+    expect(changed.some((p) => p.startsWith('party.values.'))).toBe(false)
+  })
+
+  it('a fight is over when the last of you falls', () => {
+    loaded ??= (() => {
+      const { registry } = loadPacks(engineFiles(bundledPacks))
+      return {
+        registry,
+        system: travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!,
+      }
+    })()
+    const { registry, system } = loaded
+    const rules = partyOf(system)
+    const pc = newMember(rules, {
+      id: 'erthos',
+      name: 'Erthos',
+      values: { health: 0, toughness: 0 },
+    })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded('f') }),
+    }
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'f' })
+    const s = applyResult(session, { effects: { 'present.rotwalker': 1 } }, {}, rules)
+    const done = stepTrip(options, s, { type: 'action', id: 'fight' })
+    expect(done.entries.map((e) => e.code)).toContain('ENCOUNTER_ENDED')
+    expect(done.state.encounter).toBeUndefined()
+  })
+
+  it('Set Camp: a ration for each of you, and each one rests', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const members = ['erthos', 'vala'].map((id) =>
+      newMember(rules, { id, name: id, values: { health: 5, exhaustion: 12 } }),
+    )
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded('c') }),
+    }
+    const { session } = startTrip({ system, location: 'a', members, seed: 'c' })
+    let done = stepTrip(options, session, { type: 'action', id: 'camp' })
+    if (done.state.travel.waiting) done = stepTrip(options, done.state, { type: 'resume' })
+    expect(done.state.party!.values.rations).toBe(1)
+    for (const m of done.state.members!)
+      expect(m.values).toMatchObject({ health: 6, exhaustion: 2 })
   })
 
   it('fights with gear: the weapon in hand and the Armor worn count, and each piece worn rolls its Integrity after', () => {

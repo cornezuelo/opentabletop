@@ -257,7 +257,10 @@ function filledRoll(expression: string, context: Record<string, unknown>): strin
             (text, name) =>
               resolvePath(context, name) === undefined
                 ? text.replace(
-                    new RegExp(`(?<![\\w.])${name.replaceAll('.', '\\.')}(?![\\w.])`, 'g'),
+                    new RegExp(
+                      `(?<![\\w.])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.])`,
+                      'g',
+                    ),
                     '0',
                   )
                 : text,
@@ -659,8 +662,8 @@ class Run {
   ): DiceResult {
     const filled = typeof expression === 'string' ? expression : written
     if (this.yours && filled !== undefined) {
-      // Without what adds nothing (`1d6 + 0`, a modifier missing today).
-      const dice = filledRoll(filled, context).replace(/\s*\+\s*0(?![\d.])/g, '')
+      // Without what adds or takes nothing (`1d6 + 0`, a modifier missing today).
+      const dice = filledRoll(filled, context).replace(/\s*[+-]\s*0(?![\d.])/g, '')
       const total = this.yours({
         dice,
         ...(mode && { mode: mode.id, how: howOf(mode) }),

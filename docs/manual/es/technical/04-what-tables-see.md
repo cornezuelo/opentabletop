@@ -230,12 +230,13 @@ Los efectos llegan a ellas con los mismos nombres ([Sintaxis](09-syntax.md#cambi
 
 Mientras dura un [combate por turnos](07-kinds.md#sistemas) (el `encounter:` de su sistema); fuera de él no existe, así que `encounter.round: { gte: 1 }` solo se cumple en un combate.
 
-| Nombre            | Tipo         | Valores                                                                                               |
-| ----------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
-| `encounter.round` | número       | La ronda, 1 la primera.                                                                               |
-| `encounter.turn`  | id           | De quién es el turno: el id de un miembro (`party` si el grupo se juega como un todo) o de una copia. |
-| `encounter.side`  | id           | Su bando: `party` o `foes`.                                                                           |
-| `encounter.order` | lista de ids | Quién actúa, en orden.                                                                                |
+| Nombre             | Tipo         | Valores                                                                                                                            |
+| ------------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `encounter.round`  | número       | La ronda, 1 la primera.                                                                                                            |
+| `encounter.turn`   | id           | De quién es el turno: el id de un miembro (`party` si el grupo se juega como un todo) o de una copia.                              |
+| `encounter.side`   | id           | Su bando: `party` o `foes`.                                                                                                        |
+| `encounter.order`  | lista de ids | Quién actúa, en orden.                                                                                                             |
+| `encounter.target` | id           | En el turno de un enemigo, a quién va (el `aim` del sistema), elegido antes de tirar: `characters[encounter.target].values.dodge`. |
 
 Quien tiene el turno es también `acting.*`, un miembro o una copia: `acting.values.morale` en el turno de un enemigo es la de ese enemigo. Los efectos llegan a él con el mismo nombre (`acting.conditions.routed: true`).
 

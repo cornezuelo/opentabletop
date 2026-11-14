@@ -83,6 +83,18 @@ roll: 1d1
 entries:
   - { range: 1, result: A blow, set: { target: party.members.random }, effects: { 'characters[target].values.health': -1 } }
 ---
+# Aimed before it's rolled (the system's aim): read by a table it leads to.
+kind: table
+id: aimed-turn
+roll: 1d1
+entries:
+  - { range: 1, result: It goes for one of you, table: table.aimed-hit }
+---
+kind: table
+id: aimed-hit
+entries:
+  - { result: Hit, effects: { 'characters[encounter.target].values.health': '-{{characters[encounter.target].values.speed + 1}}' } }
+---
 kind: table
 id: lurk
 roll: 1d1
@@ -369,6 +381,34 @@ describe('an encounter: a fight in turns', () => {
     auto = stepTrip(options, auto.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
     expect(auto.state.yours).toBeUndefined()
     expect(auto.state.encounter?.round).toBe(2)
+  })
+
+  it('whom a foe aims at, chosen before its turn (aim), read by its table and the tables it leads to', () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.strike], foes: table.aimed-turn, aim: party.members.lowest.values.health, ends: { present.count: 0 } }',
+    )
+    const hurt = {
+      ...session,
+      members: session.members!.map((m) =>
+        m.id === 'kael' ? { ...m, values: { ...m.values, health: 6 } } : m,
+      ),
+    }
+    let done = stepTrip(options, hurt, { type: 'action', id: 'ambush' })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    // The other goblin goes for the most hurt: Kael, bitten first (-1), then hit for his speed + 1.
+    const turn = done.entries.find((e) => e.code === 'ENCOUNTER_TURN' && e.data?.id === 'goblin-2')
+    expect(turn?.data).toMatchObject({ target: 'kael', targetName: 'Kael' })
+    const health = (id: string) => done.state.members!.find((m) => m.id === id)!.values.health
+    expect(health('kael')).toBe(6 - 1 - 2)
+    expect(health('mira')).toBe(10)
+    // Wrong forms are a problem: everyone at once can't be aimed at beforehand.
+    const bad = systemOf('{ order: { by: side }, actions: [], aim: party.members.all }')
+    expect(bad.problems.map((p) => p.message)).toEqual(
+      expect.arrayContaining([
+        'expected whom a foe aims at (party.members.random, party.members.lowest.values.health)',
+      ]),
+    )
   })
 
   it('foes aim at a party played as a whole through its own sheet', () => {

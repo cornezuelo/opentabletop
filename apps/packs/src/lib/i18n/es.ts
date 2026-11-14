@@ -801,6 +801,9 @@ export const es: Messages<typeof en> = {
     foes: 'El turno de un enemigo',
     foesHelp:
       "Lo que hace un enemigo en su turno: una tabla (o cualquier cosa que tire el Oráculo) que se tira por él, actuando como él (`acting.values.harm`), para los enemigos cuya plantilla no dice nada (el **En su turno** de una plantilla, en el Bestiario, va primero). Un resultado apunta a alguien con `set: { target: … }`, y sus efectos lo nombran como `characters[target]`. Vacío: el turno de un enemigo es solo su momento (`encounter.turn`), para las acciones del sistema.\n• `table.foe-turn`\n• `set: { target: party.members.random }` — en una entrada: uno del grupo, tirado\n• `set: { target: party.members.all }` — cada uno de ellos, la entrada jugada para cada uno con sus propios dados\n• `characters[target].values.health: '-{{acting.values.harm}}'` — su efecto",
+    aim: 'Un enemigo apunta a',
+    aimHelp:
+      "A quién apunta el turno de un enemigo, elegido al empezar su turno, antes de tirar nada: lo que tira, y cada tabla a la que lleva, lo leen como `encounter.target`, así que una defensa o una armadura se pueden leer antes de los dados (el `set: { target: … }` de una fila apunta después de la tirada). Vacío: no se elige a nadie de antemano.\n• `party.members.random` — uno del grupo, al azar\n• `party.members.lowest.values.health` — el más herido\n• `characters[encounter.target].values.dodge` — en sus tablas, la esquiva de aquel a quien apunta\n• `'characters[encounter.target].values.health': -2` — un efecto sobre él",
     minutes: 'Minutos que dura una ronda',
     minutesHelp:
       'El tiempo que dura una ronda, para que las luces se gasten y los relojes avancen durante un combate. Vacío: no pasa el tiempo.\n• `1` — un minuto por ronda\n• `0.1` — seis segundos',

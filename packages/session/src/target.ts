@@ -52,6 +52,9 @@ export function targetsOf(
   return members.length ? members.map((m) => m.id) : [undefined]
 }
 
+/** A short form naming one of them (not `party.members.all`). */
+export const ONE_TARGET = /^party\.members\.(?:random|(?:lowest|highest)\.values\.[\w-]+)$/
+
 /** Whether a written target is one of the short forms (`party.members.…`). */
 export const isTargetForm = (written: unknown): written is string =>
   typeof written === 'string' && written.startsWith('party.members.')

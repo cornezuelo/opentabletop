@@ -135,12 +135,17 @@ export function contextSuggestions(
       add('time.tags', ...d.parts.flatMap((p) => p.tags))
       for (const p of d.parts) add(`system.${d.id}.${p.id}`)
     }
-    // Its fights in turns: the round, whose turn it is and that one's side.
+    // Its fights in turns: the round, whose turn it is, that one's side and whom a foe aims at.
     if (encounter) {
       add('encounter.round', 1, 2, 3)
       add('encounter.turn')
       add('encounter.side', 'party', 'foes')
       add('encounter.order')
+      // Whom the foe whose turn it is aims at (`aim`), and that one's sheet.
+      add('encounter.target')
+      if (sheet)
+        for (const value of Object.keys(sheet.def.values))
+          add(`characters[encounter.target].values.${value}`)
     }
     // Its progress clocks, by their declared ids: how many segments are filled.
     for (const [id, c] of Object.entries(clocks?.def.clocks ?? {}))

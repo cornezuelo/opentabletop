@@ -845,6 +845,7 @@ encounter: # (in a kind: system, beside travel, sheet…)
   # order: { by: participant, value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' } }
   actions: [actions.strike, actions.fall-back] # what a member does on its turn
   foes: table.foe-turn # what a foe does on its turn, unless its template says
+  aim: party.members.random # whom a foe's turn goes for, chosen before it rolls
   minutes: 1 # a round's length (absent: no time passes)
   ends: { present.count: 0 } # when it ends by itself, read after every turn
   skip: { acting.conditions: stunned } # when a turn is lost, read as each one begins
@@ -875,8 +876,10 @@ entries:
 
 A result that sets `target` has its effects read once whoever it aims at is known, so they can read that one (`'-{{max(1d3 - characters[target].values.armour, 0)}}'`: 1d3 less the armour they wear), and their dice are rolled then, for each one aimed at: with `party.members.all`, each of the party takes their own roll. The Grey Marches' restless dead (_The restless dead's turn_) and Core's sweep (_A foe's turn_) show it.
 
+- **Whom a foe goes for, before it rolls** (`aim`): one of the party chosen as each foe's turn begins, by one of the short forms above that names one (`party.members.random`, `party.members.lowest.values.<id>`, `party.members.highest.values.<id>`; never `party.members.all`). Its table, and every table or generator it leads to, read that one as `encounter.target`, so what it rolls can depend on them before the dice: `roll: '1d6 - {{characters[encounter.target].values.armour}}'` (their armour takes the roll down), a defence read in a generator's field, a resistance check under their own value; its effects name them as `characters[encounter.target]`. The journal says it with the turn (_Grey wolf's turn, at Mara_). A row's own `set: { target: … }` still aims after the roll, and may aim at someone else. The Grey Marches' _A foe's turn_ and Core's blow show it.
+
 - **Moments**: `encounter.start`, `encounter.round` (each round's start), `encounter.turn` (each turn's start), `encounter.end`, for actions' `on:` and checks' `at:`. Conditions read `encounter.round`, `encounter.turn` (whose turn: an id), `encounter.side` (`party` or `foes`) and `encounter.order` ([What tables see](04-what-tables-see.md#an-encounter-encounter)).
-- The journal says each part: _A fight begins_, _Round 2_, _Mara's turn_, _The fight is over_.
+- The journal says each part: _A fight begins_, _Round 2_, _Mara's turn_ (a foe's with whom it goes for: _Bandit's turn, at Kael_), _The fight is over_.
 
 ## Map styles
 

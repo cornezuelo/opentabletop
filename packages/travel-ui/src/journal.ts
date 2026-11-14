@@ -644,6 +644,12 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     case 'ENCOUNTER_ROUND':
       return t('journal.encounterRound', { round: Number(d.round ?? 1) })
     case 'ENCOUNTER_TURN':
+      // A foe's, with whom it aims at (the system's `encounter.aim`).
+      if (d.target !== undefined)
+        return t('journal.encounterTurnAims', {
+          name: String(d.name || d.id || ''),
+          target: String(d.targetName || d.target),
+        })
       return d.name || d.id !== 'party'
         ? t('journal.encounterTurn', { name: String(d.name || d.id || '') })
         : t('journal.encounterPartyTurn')

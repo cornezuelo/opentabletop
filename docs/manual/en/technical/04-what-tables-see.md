@@ -230,12 +230,13 @@ Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party
 
 While a [fight in turns](07-kinds.md#systems) goes on (its system's `encounter:`); absent otherwise, so `encounter.round: { gte: 1 }` holds only in a fight.
 
-| Name              | Kind        | Values                                                                               |
-| ----------------- | ----------- | ------------------------------------------------------------------------------------ |
-| `encounter.round` | number      | The round, 1 the first.                                                              |
-| `encounter.turn`  | id          | Whose turn it is: a member's id (`party` for a party played as a whole) or a copy's. |
-| `encounter.side`  | id          | That one's side: `party` or `foes`.                                                  |
-| `encounter.order` | list of ids | Who acts, in order.                                                                  |
+| Name               | Kind        | Values                                                                                                                       |
+| ------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `encounter.round`  | number      | The round, 1 the first.                                                                                                      |
+| `encounter.turn`   | id          | Whose turn it is: a member's id (`party` for a party played as a whole) or a copy's.                                         |
+| `encounter.side`   | id          | That one's side: `party` or `foes`.                                                                                          |
+| `encounter.order`  | list of ids | Who acts, in order.                                                                                                          |
+| `encounter.target` | id          | On a foe's turn, whom it goes for (the system's `aim`), chosen before it rolls: `characters[encounter.target].values.dodge`. |
 
 Whoever's turn it is is also `acting.*`, a member or a copy: `acting.values.morale` on a foe's turn is that foe's. Effects reach it by the same name (`acting.conditions.routed: true`).
 

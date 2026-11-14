@@ -361,6 +361,7 @@ export const es: Messages<typeof en> = {
     mapEntered: 'Entráis en {name}',
     encounterStarted: 'Empieza un combate',
     encounterRound: 'Ronda {round}',
+    encounterTurnAims: 'Turno de {name}, contra {target}',
     encounterTurn: 'Turno de {name}',
     encounterRolls: 'Turno de {name}: esperando a que tires {table}',
     encounterSkipped: '{name} pierde el turno',

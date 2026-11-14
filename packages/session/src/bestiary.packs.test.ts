@@ -345,6 +345,7 @@ describe('the bundled packs fight in turns', () => {
     expect(core.encounter).toEqual({
       order: { by: 'side', first: 'party' },
       actions: ['strike'],
+      aim: 'party.members.random',
       foes: 'table.foe-turn',
       ends: { 'present.count': 0 },
       skip: { 'acting.conditions': 'staggered' },
@@ -560,6 +561,62 @@ describe('the bundled packs fight in turns', () => {
     expect(new Set(rows)).toEqual(
       new Set(['grey-marches/wolf-turn:bite', 'grey-marches/foe-turn:miss']),
     )
+  })
+
+  it("the Grey Marches: a foe's turn goes for one of you, chosen first, whose armour takes its roll down", () => {
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'm',
+      time: 9 * 60,
+    })
+    const options = {
+      system: marches,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(6) }),
+    }
+    // Both in mail (armour 2): whoever it goes for, the swing is 1d6 - 2.
+    const s = applyResult(
+      { ...session, rollWay: 'matters', foesAtOnce: true },
+      {
+        effects: {
+          'present.bandit': 1,
+          'characters.kael.items.mail': 1,
+          'characters.mara.items.mail': 1,
+        },
+      },
+      {},
+      partyOf(marches),
+    )
+    // Enraged, its nerve never breaks: its turn comes.
+    const enraged = applyResult(
+      s,
+      { effects: { 'characters.bandit.conditions.enraged': true } },
+      {},
+      partyOf(marches),
+    )
+    let done = stepTrip(options, enraged, { type: 'encounter', what: 'start' })
+    for (let turn = 0; turn < 20 && done.state.encounter; turn++) {
+      const yours = done.state.yours?.[0]
+      if (yours?.table === 'grey-marches/foe-turn') {
+        const aimed = done.state.journal.findLast((e) => e.code === 'ENCOUNTER_TURN')
+        expect(['kael', 'mara']).toContain(aimed?.data?.target)
+        expect(yours.dice).toBe('1d6 - 2')
+        return
+      }
+      // The companions' own blows: a 1, so the bandit lives to strike back.
+      if (yours) done = stepTrip(options, done.state, { type: 'rolled', id: yours.id, total: 1 })
+      else if (done.state.travel.waiting)
+        done = stepTrip(options, done.state, { type: 'resume', choice: 'bandit' })
+      else
+        done = stepTrip(options, done.state, {
+          type: 'action',
+          id: 'strike',
+          with: { foe: 'bandit' },
+        })
+    }
+    throw new Error("the bandit's turn never came")
   })
 
   it("the Grey Marches: a blow's harm is the player's, rolled with its roll mode", () => {

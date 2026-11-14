@@ -846,6 +846,7 @@ encounter: # (en un kind: system, junto a travel, sheet…)
   # order: { by: participant, value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' } }
   actions: [actions.strike, actions.fall-back] # lo que hace un miembro en su turno
   foes: table.foe-turn # lo que hace un enemigo en su turno, salvo que su plantilla lo diga
+  aim: party.members.random # a quién va el turno de un enemigo, elegido antes de tirar
   minutes: 1 # lo que dura una ronda (sin él, no pasa el tiempo)
   ends: { present.count: 0 } # cuándo acaba por sí solo, leído tras cada turno
   skip: { acting.conditions: stunned } # cuándo se pierde un turno, leído al empezar cada uno
@@ -876,8 +877,10 @@ entries:
 
 Un resultado que fija `target` lee sus efectos cuando ya se sabe a quién apunta, así que pueden leer los valores de ese (`'-{{max(1d3 - characters[target].values.armour, 0)}}'`: 1d3 menos la armadura que lleva), y sus dados se tiran entonces, para cada uno al que apunta: con `party.members.all`, cada uno del grupo recibe su propia tirada. Lo enseñan los muertos inquietos de las Marcas Grises (_El turno de los muertos inquietos_) y el barrido de Core (_El turno de un enemigo_).
 
+- **A quién va un enemigo, antes de tirar** (`aim`): uno del grupo elegido al empezar el turno de cada enemigo, con una de las formas cortas de arriba que nombran a uno (`party.members.random`, `party.members.lowest.values.<id>`, `party.members.highest.values.<id>`; nunca `party.members.all`). Su tabla, y cada tabla o generador al que lleva, lo leen como `encounter.target`, así que lo que tira puede depender de él antes de los dados: `roll: '1d6 - {{characters[encounter.target].values.armour}}'` (su armadura baja la tirada), una defensa leída en el campo de un generador, una prueba de resistencia bajo su propio valor; sus efectos lo nombran como `characters[encounter.target]`. El diario lo dice con el turno (_Turno de Lobo gris, contra Mara_). El `set: { target: … }` de una fila sigue apuntando después de la tirada, y puede apuntar a otro. Lo enseñan _El turno de un enemigo_ de las Marcas Grises y el golpe de Core.
+
 - **Momentos**: `encounter.start`, `encounter.round` (el comienzo de cada ronda), `encounter.turn` (el comienzo de cada turno), `encounter.end`, para el `on:` de las acciones y el `at:` de las comprobaciones. Las condiciones leen `encounter.round`, `encounter.turn` (de quién es el turno: un id), `encounter.side` (`party` o `foes`) y `encounter.order` ([Lo que ven las tablas](04-what-tables-see.md#un-encuentro-encounter)).
-- El diario cuenta cada parte: _Empieza un combate_, _Ronda 2_, _Turno de Mara_, _Se acabó el combate_.
+- El diario cuenta cada parte: _Empieza un combate_, _Ronda 2_, _Turno de Mara_ (el de un enemigo con a quién va: _Turno de Bandido, contra Kael_), _Se acabó el combate_.
 
 ## Estilos de mapa
 

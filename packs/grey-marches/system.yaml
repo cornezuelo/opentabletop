@@ -36,6 +36,9 @@ encounter:
   actions: [actions.strike, actions.fall-back]
   # What a foe does on its turn, unless its template says (the wolves: bestiary.yaml).
   foes: table.foe-turn
+  # Whom a foe's turn goes for, chosen as it begins, so its table can read their armour
+  # before it rolls (`encounter.target`, bestiary.yaml's _A foe's turn_).
+  aim: party.members.random
   minutes: 1
   ends: { present.count: 0 }
   # A companion dragged down by a wolf (sheet.yaml) loses their next turn.
