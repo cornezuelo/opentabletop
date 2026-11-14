@@ -35,6 +35,7 @@
         locale={getLocale()}
         {tags}
         nameOf={texts.nameOf}
+        rowsOf={texts.rowsOf}
         {uses}
         onsystem={(other) => go({ name: 'system', id: other })}
       />

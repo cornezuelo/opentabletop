@@ -4,6 +4,7 @@ import {
   JOURNAL_LEVELS,
   lastStepEntries,
   notableLines,
+  PARTY_ID,
   type Beat,
   type JournalEntry,
   type JournalLevel,
@@ -82,6 +83,21 @@ function effectsOf(e: JournalEntry): Record<string, unknown> | undefined {
   return undefined
 }
 
+/** Effects on whoever acts (`acting.…`) as effects on that one (`characters.<id>.…`), when known. */
+function asActing(value: Record<string, unknown>, who: string | undefined) {
+  const effects = value.effects
+  if (who === undefined || typeof effects !== 'object' || effects === null) return value
+  return {
+    ...value,
+    effects: Object.fromEntries(
+      Object.entries(effects).map(([path, change]) => [
+        path.startsWith('acting.') ? `characters.${who}.${path.slice(7)}` : path,
+        change,
+      ]),
+    ),
+  }
+}
+
 /** A line of a moment, its changes left to the moment's (a result's text, a check that did something). */
 function lineText(e: JournalEntry, context: JournalContext): string {
   const d = e.data ?? {}
@@ -101,7 +117,12 @@ function titleOf(entries: readonly JournalEntry[], context: JournalContext): str
   }
   const turn = entries.filter((e) => e.code === 'ENCOUNTER_ROUND' || e.code === 'ENCOUNTER_TURN')
   if (turn.length) return turn.map((e) => entryText(e, context)).join(' · ')
-  return lineText(entries[0]!, context)
+  // A moment that begins with a roll (one the player gave): named by what was rolled, its
+  // dice and result in its lines.
+  const first = entries[0]!
+  if (first.code === 'ROLLED')
+    return eventName(context.t, first.data?.check, context.checkName, first.data?.named)
+  return lineText(first, context)
 }
 
 /**
@@ -138,9 +159,15 @@ export function tellBeat(
       })
     else if (level === 'story' && own === 'mechanics') why.push(lineText(e, context))
   }
+  // Whoever acts as each line comes (the one a reaction is played for, whose turn it is in a
+  // fight): what an action changes of `acting` is said of them by name.
+  let acting: string | undefined
   const changes = beat.entries.flatMap((e) => {
+    if (e.code === 'REACTED' && typeof e.data?.who === 'string') acting = e.data.who
+    if (e.code === 'ENCOUNTER_TURN' && typeof e.data?.id === 'string')
+      acting = e.data.id === PARTY_ID ? undefined : e.data.id
     const value = effectsOf(e)
-    return value ? changeParts(value, context) : []
+    return value ? changeParts(asActing(value, acting), context) : []
   })
   return {
     id: beat.id,

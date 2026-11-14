@@ -723,6 +723,18 @@ actions:
     do:
       - { effects: { acting.conditions.wounded: true, acting.values.dread: 1 } }
       - { id: carried, say: '{{acting.name}} falls, and has to be carried.' }
+  # A fight lost: it ended (`on: encounter.end`) with foes still here and nobody standing.
+  overcome:
+    name: The Company is overcome
+    description: 'As a fight ends with no companion left standing and foes still here: the Company loses heart (1 morale) and is left where it lies; it may crawl away from them (_Gave ground_, until the next place).'
+    on: encounter.end
+    when: { party.stats.standing: 0, present.count: { gte: 1 } }
+    do:
+      - { effects: { party.stats.morale: -1, party.conditions.gave-ground: true } }
+      - {
+          id: left,
+          say: 'Nobody is left standing. The Company is overcome, and left where it lies.',
+        }
   # Right after a check is resolved (`on: checks.<event>`): the dawn's weather just rolled,
   # read as `trip.weather` (today's, not yesterday's), before the dawn's next checks.
   stormy-dawn:
@@ -1249,6 +1261,13 @@ stats:
     description: How many companions are wounded.
     default: 0
     from: { count: true, when: { conditions: wounded } }
+  # How many companions are on their feet: a fight ends when none is (system.yaml's
+  # `encounter.ends`). Without companions, one: the party itself.
+  standing:
+    name: Standing
+    description: How many companions aren't wounded. A fight ends when none is left standing.
+    default: 1
+    from: { count: true, unless: { conditions: wounded } }
   sprained:
     name: Sprained
     description: How many companions have a sprained ankle.

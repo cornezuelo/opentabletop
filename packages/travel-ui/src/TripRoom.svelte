@@ -20,6 +20,7 @@
   import { translator } from './i18n'
   import { terrainName } from './terrains'
   import TripPanel from './TripPanel.svelte'
+  import type { TableRow } from './turns'
   import TripSetup from './TripSetup.svelte'
   import type { Saved, TripStore } from './trips.svelte'
   import { wayWorld } from './way'
@@ -34,6 +35,7 @@
     locale,
     tags,
     nameOf,
+    rowsOf,
     uses = [],
     onsystem,
   }: {
@@ -45,6 +47,8 @@
     tags: string[]
     /** A definition's name in the UI's language (`@kind/id` → name), for the journal. */
     nameOf?: (ref: string) => string
+    /** A table's rows (full id), for what a roll can give (oracle-ui's `packTexts`). */
+    rowsOf?: (id: string) => readonly TableRow[] | undefined
     /** Where the system's names are used (session's `systemUses`), for the trip panel's help. */
     uses?: Use[]
     /** The open trip is another system's: the host shows that system. */
@@ -238,6 +242,7 @@
           world={wayWorld(trip.saved.way, trip.cellKm)}
           title={tripLabel(trip.saved)}
           {nameOf}
+          {rowsOf}
           destinationHint={t('play.destinationHint')}
           arrivedHint={t('play.arrivedHint')}
           onstep={(action) => trip.step(action)}

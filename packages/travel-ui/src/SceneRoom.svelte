@@ -7,6 +7,7 @@
   import { translator } from './i18n'
   import { terrainName } from './terrains'
   import TripPanel from './TripPanel.svelte'
+  import type { TableRow } from './turns'
   import { sceneSystem, type Saved, type TripStore } from './trips.svelte'
   import { wayWorld } from './way'
 
@@ -22,6 +23,7 @@
     locale,
     open,
     nameOf,
+    rowsOf,
     uses = [],
     onopen,
   }: {
@@ -34,6 +36,8 @@
     open?: string
     /** A definition's name in the UI's language (`@kind/id` → name), for the journal. */
     nameOf?: (ref: string) => string
+    /** A table's rows (full id), for what a roll can give (oracle-ui's `packTexts`). */
+    rowsOf?: (id: string) => readonly TableRow[] | undefined
     /** Where the system's names are used (session's `systemUses`), for the panel's help. */
     uses?: Use[]
     /** A scene was opened or made (its id), or none is open: the host's address follows. */
@@ -123,6 +127,7 @@
       world={wayWorld(scenes.saved.way, scenes.cellKm)}
       title={shown ? sceneLabel(shown) : ''}
       {nameOf}
+      {rowsOf}
       scene
       onstep={(action) => scenes.step(action)}
       place={scenes.place}

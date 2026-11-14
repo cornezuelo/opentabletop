@@ -1343,3 +1343,114 @@ describe('the bundled packs fight in turns', () => {
     expect(lost).toBe(1)
   })
 })
+
+describe('a turn of a fight and what it sets off', () => {
+  const kael = () => [newMember(partyOf(marches), { id: 'kael', name: 'Kael' })]
+  const options = (seed: number) => ({
+    system: marches,
+    world: heath,
+    oracle: createOracleEngine({ registry, random: seeded(seed) }),
+  })
+  /** A fight of Kael's against one bandit at 1 health, played on to Kael's turn. */
+  function toKaelsTurn(rollWay: 'mine' | 'all') {
+    const { session } = startPaced({ system: marches, location: 'a', members: kael(), seed: 'b' })
+    let s = applyResult(
+      { ...session, rollWay, foesAtOnce: true },
+      { effects: { 'present.bandit': 1 } },
+      {},
+      partyOf(marches),
+    )
+    s = applyResult(
+      s,
+      { effects: { 'characters.bandit.values.health': '=1' } },
+      {},
+      partyOf(marches),
+    )
+    let done = stepTrip(options(5), s, { type: 'action', id: 'stand' })
+    // Rolling everything, the foe's turn before Kael's may be the player's too.
+    for (let i = 0; i < 6 && done.state.yours?.length; i++)
+      done = stepTrip(options(5), done.state, { type: 'resolveCheck', id: done.state.yours[0]!.id })
+    expect(encounterView(done.state)?.choosing).toBe(true)
+    return done.state
+  }
+
+  it("my own rolls: the blow is the player's, the spoils of the one who fell the computer's", () => {
+    let done = stepTrip(options(5), toKaelsTurn('mine'), {
+      type: 'action',
+      id: 'strike',
+      with: { foe: 'bandit' },
+    })
+    expect(done.state.yours?.map((y) => y.table)).toEqual(['grey-marches/blow'])
+    done = stepTrip(options(5), done.state, {
+      type: 'rolled',
+      id: done.state.yours![0]!.id,
+      total: 3,
+    })
+    // The bandit fell and was stripped, nothing more asked: the fight is over.
+    expect(done.state.yours ?? []).toEqual([])
+    expect(done.entries.some((e) => e.data?.table === 'grey-marches/fallen')).toBe(true)
+    expect(done.state.encounter).toBeUndefined()
+  })
+
+  it('I roll everything: the spoils are asked too', () => {
+    let done = stepTrip(options(5), toKaelsTurn('all'), {
+      type: 'action',
+      id: 'strike',
+      with: { foe: 'bandit' },
+    })
+    done = stepTrip(options(5), done.state, {
+      type: 'rolled',
+      id: done.state.yours![0]!.id,
+      total: 3,
+    })
+    expect(done.state.yours?.map((y) => y.table)).toEqual(['grey-marches/fallen'])
+  })
+
+  it("a roll without chance is never the player's: Fall back's parting blow (1d1)", () => {
+    const { session } = startPaced({ system: marches, location: 'a', members: kael(), seed: 'b' })
+    const s = applyResult(
+      { ...session, rollWay: 'all', foesAtOnce: true },
+      { effects: { 'present.bandit-chief': 1 } },
+      {},
+      partyOf(marches),
+    )
+    let done = stepTrip(options(5), s, { type: 'action', id: 'stand' })
+    for (let i = 0; i < 6 && done.state.yours?.length; i++)
+      done = stepTrip(options(5), done.state, { type: 'resolveCheck', id: done.state.yours[0]!.id })
+    done = stepTrip(options(5), done.state, { type: 'action', id: 'fall-back' })
+    expect(done.entries.some((e) => e.data?.table === 'grey-marches/parting-blow')).toBe(true)
+    expect(done.state.yours ?? []).toEqual([])
+    expect(done.state.encounter).toBeUndefined()
+  })
+
+  it('the Grey Marches: one who fell loses their turns, and the fight is lost when none stands', () => {
+    const { session } = startPaced({ system: marches, location: 'a', members: kael(), seed: 'b' })
+    let s = applyResult(
+      { ...session, foesAtOnce: true },
+      { effects: { 'present.bandit-chief': 1, 'present.bandit': 2 } },
+      {},
+      partyOf(marches),
+    )
+    s = applyResult(s, { effects: { 'characters.kael.values.health': '=1' } }, {}, partyOf(marches))
+    const morale = s.party!.values.morale as number
+    let done = stepTrip(options(5), s, { type: 'action', id: 'stand' })
+    const all = [...done.entries]
+    for (let i = 0; i < 20 && done.state.encounter; i++) {
+      const foe = done.state.present![0]!.character.id
+      done = stepTrip(options(5), done.state, { type: 'action', id: 'strike', with: { foe } })
+      all.push(...done.entries)
+    }
+    // Kael fell; from then on no turn of his was played, and the fight ended by itself.
+    expect(done.state.encounter).toBeUndefined()
+    const fell = all.findIndex((e) => e.data?.path === 'characters.kael.conditions.wounded')
+    expect(fell).toBeGreaterThan(-1)
+    const after = all.slice(fell)
+    expect(after.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'strike')).toBe(false)
+    expect(after.map((e) => e.code)).toContain('ENCOUNTER_ENDED')
+    // Overcome: a morale less, and free to crawl away from the foes still here.
+    expect(after.some((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'overcome')).toBe(true)
+    expect(done.state.party!.values.morale).toBe(morale - 1)
+    expect(done.state.party!.conditions).toHaveProperty('gave-ground')
+    expect(done.state.present!.length).toBeGreaterThan(0)
+  })
+})

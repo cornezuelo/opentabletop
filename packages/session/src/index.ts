@@ -625,6 +625,12 @@ export function createSession(options: {
   >
   /** The system's catalogues of places, for effects that make one (`place.pois.<id>`). */
   places?: PartyRules['places']
+  /**
+   * The actions a member takes on its turn in a fight (the system's `encounter.actions`): with
+   * the player rolling their own rolls, what such an action rolls is theirs, what it sets off
+   * (an action a moment takes: spoils, someone falling) the computer's.
+   */
+  turnActions?: readonly string[]
 }): Session {
   const random = options.random ?? mathRandom()
   const host = options.facts ?? {}
@@ -681,12 +687,16 @@ export function createSession(options: {
    * Whether a check's rolls are the player's (`rollWay`): with `mine`, in a fight on the
    * party's turns (`foes`: the foes' too), on a check that stops the trip, or on a table that
    * can give an important result. Its rolls with dice are then asked one by one (a list by
-   * weight, a deck's draw, are the computer's).
+   * weight, a deck's draw, are the computer's). In a fight, what a turn sets off (the roll of
+   * an action a moment took, not one of the turn's own: spoils, someone falling) is the
+   * computer's unless the player rolls everything.
    */
   const isYours = (s: SessionState, table: string | undefined, check: PendingCheck): boolean => {
     if (!s.rollWay || !table || !options.oracle) return false
     if (s.rollWay === 'all') return true
     if (s.encounter) {
+      const by = /^actions\.(.+)$/.exec(String(check.context.moment ?? ''))?.[1]
+      if (by !== undefined && options.turnActions && !options.turnActions.includes(by)) return false
       const foeActs = s.present?.some((p) => p.character.id === s.acting) ?? false
       return s.rollWay === 'foes' || !foeActs
     }

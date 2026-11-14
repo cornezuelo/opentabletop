@@ -6,12 +6,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Travel and Map
 
+- **A fight's turn is told in one piece**: who does what to whom, its dice under what each is for (and, for a short table, what each total gives, the row it fell on lit), then what it left, large (_2 harm, steel_, _Bandit: Health 2 → 0_, _The bandit falls_, each said once), the rest folded under **And 3 more**. While a turn waits for your roll nothing is said of what it hasn't done; the log is a line a turn under its round.
+- **Your roll in a fight is thrown on the stage**, not in a dialog over it: the dice wait on a table in the turn, a click or a throw rolls them, and their total is taken as they stop.
+- **One button to roll**: **Roll**; the total of your own dice, **Roll it for me** and **Let the computer roll from now on** are behind **⋯**. With a roll mode every die is thrown (advantage's two), those not kept fading.
+- **A fight ends with its closing card**: in which round, who went, what it left of those still here, what its end did, and **Continue**.
+- With **I roll my own rolls**, what a turn sets off by itself (the spoils of one who fell) is the computer's; a roll with no chance in it (`1d1`) is never asked.
 - **No more raw ids in a fight**: a foe's roll by hand names its table (_The restless dead's turn_), and the journal names the moments of a fight, a world turn and a clock filling in words.
 - **Health as a bar on a fight's cards**: a main value that is a plain number with a top is drawn as a bar with its count (`2 / 5`), not said in words.
 - **A party without characters doesn't fight**, unless its system says so (`encounter.whole: true`, **A party without characters fights as a whole** in Packs): a fight asked for doesn't start and the journal says why; the fight buttons say it first.
 
 ### Packs
 
+- **The Grey Marches**: a companion who fell (_Wounded_) loses their turns, and a fight ends when none is left standing: **The Company is overcome** (a morale less, free to crawl away).
 - **The Grey Marches**: while a foe is here the Company is **Beset**: no marching away, camping, resting, foraging, looking for tracks, scouting, fishing or delving until it deals with them or falls back (**Fall back** lets it march away). Foes are tagged `foe`. **Drive them off** and **Tend the wounded** work again for a party without companions when foes are present.
 - **Core**: the party is **Beset** while anyone is here (no moving on, exploring, camping or resting); **Get away** slips away from them. **Fight** needs characters.
 

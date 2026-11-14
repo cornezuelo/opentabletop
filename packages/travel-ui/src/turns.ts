@@ -1,27 +1,101 @@
-import { PARTY_ID, type Beat, type JournalEntry } from '@open-tabletop/session'
+import { PARTY_ID, type JournalEntry, type RolledNode } from '@open-tabletop/session'
 import type { TooltipText } from '@open-tabletop/ui-kit'
-import { diceOf, type Dice } from './beats'
-import { entryText, type JournalContext } from './journal'
+import type { Dice } from './beats'
+import { entryText, eventName, type JournalContext } from './journal'
+
+/** A row of a table a roll can fall on: its range and what it says, short. */
+export interface RollRow {
+  /** The row's id (the journal's `entry`). */
+  key: string
+  /** Its range as written: `1–3`, `6`. */
+  range: string
+  text: string
+}
+
+/** A table's row as its pack wrote it: its range, its condition if it has one, its text. */
+export interface TableRow {
+  key: string
+  min?: number
+  max?: number
+  when?: unknown
+  text?: string
+}
+
+/** A roll of a turn: what it's for, its dice, and, for a short table, what it could give. */
+export interface TurnRoll {
+  /** The definition rolled (full id). */
+  source: string
+  /** Its name (_A blow_). */
+  label: string
+  dice: Dice
+  /** The table's rows, when they're few and each has its range. */
+  rows?: RollRow[]
+  /** The row it fell on (one of `rows`). */
+  hit?: string
+}
 
 /**
- * A turn of a fight told in one sentence (docs/fight-ux.md, C): who acted, what they did, on
- * whom, and what it left; with the dice it was rolled with.
+ * A turn of a fight told in one piece (docs/fight-turn.md): everything from the moment it began
+ * to the next one's, whichever moments of the journal it fell in.
  */
-export interface TurnTold {
-  /** The moment's id (its first line's): a new turn is a new id. */
+export interface FightTurn {
+  /** Its first line's id: a new turn is a new id. */
   id: string
-  /** Who acted (whoever's turn it was); '' when it can't be said. */
+  round: number
+  /** Who acts, by id and by name ('' when it can't be said). */
+  whoId: string
   who: string
+  side: 'party' | 'foes'
+  /**
+   * Where it is: `choosing` (the party's, nothing taken yet), `rolling` (something taken, the
+   * trip waiting for the player: a roll, a question), `told` (done: what it did).
+   */
+  stage: 'choosing' | 'rolling' | 'told'
   /** What they did: the action's own words (`told:`), else its name; a foe's, its table's result. */
   what: string
   /** On whom: the foe chosen, or the one a foe went for (`encounter.target`); '' for none. */
   on: string
-  /** What it left, each in words: _Pack leader: Health 8 → 4_, _The pack leader falls_. */
-  results: string[]
-  /** The dice it was rolled with, each table's. */
-  dice: Dice
-  /** Whose side acted. */
-  side?: 'party' | 'foes'
+  /**
+   * What it left, large: what the turn's own roll said, each fighter's main value changed,
+   * conditions gained and lost, who went. Empty: nothing changed.
+   */
+  outcome: string[]
+  /** Everything else the turn did or set off (other values, spoils, what was said), each once. */
+  more: string[]
+  /** The turn's own rolls, each with what it's for. */
+  rolls: TurnRoll[]
+  /** What the round's start did before this turn (a condition wearing off), its first turn only. */
+  before: string[]
+}
+
+/** How a fight ended, for its closing card. */
+export interface FightEnd {
+  rounds: number
+  /** Those who went during it (fell, fled), each in words. */
+  gone: string[]
+  /** What it left of those still here: each main value from the fight's start to its end. */
+  left: string[]
+  /** What its end did (a moment's actions: renown, armour worn), each once. */
+  lines: string[]
+}
+
+/** A fight told: what started it, each turn, and how it ended once it has. */
+export interface FightTold {
+  opening: string[]
+  turns: FightTurn[]
+  ended?: FightEnd
+}
+
+/** What tells a fight needs besides the journal's words. */
+export interface FightContext {
+  /** A fighter's name by id. */
+  whoName: (id: string) => string | undefined
+  /** Whether a path is a fighter's main value (its sheet's `main`); absent: every value is. */
+  isMain?: (path: string) => boolean
+  /** A table's rows with their ranges, when it's short enough to show (full id). */
+  rowsOf?: (source: string) => RollRow[] | undefined
+  /** Whether the trip waits for the player now (a roll of theirs, a question). */
+  waiting?: boolean
 }
 
 /** An action taken on a foe, on its card (a turn of the party's): a click takes it on that one. */
@@ -36,65 +110,74 @@ export interface CardAction {
   foes: readonly string[]
 }
 
-/** What a turn left that's told: values and conditions of the fighters, those who went. */
-const LEFT = new Set(['CHANGED', 'PRESENT_LEFT', 'MEMBER_LEFT'])
+/** The lines of a turn that are told (the rest are the rules behind it). */
+const TOLD = new Set([
+  'CHANGED',
+  'SAID',
+  'ORACLE_RESULT',
+  'PRESENT_CAME',
+  'PRESENT_LEFT',
+  'MEMBER_LEFT',
+  'CLOCK_FILLED',
+  'PLACE_MADE',
+  'WAY_MADE',
+  'NOTE',
+  'WORLD_EVENT',
+])
 
-/**
- * A moment of a fight as a turn, if it is one: a foe's turn (its `ENCOUNTER_TURN` and what its
- * table rolled), or an action taken on a turn of the party's. `before` is the journal before
- * it (whose turn it was when the action was taken); `whoName` names a fighter by id.
- */
-export function tellTurn(
-  beat: Beat<JournalEntry>,
-  before: readonly JournalEntry[],
+/** A path of a fighter: a character's (`characters.<id>.…`), not the party's own nor the map's. */
+const fighterPath = (path: unknown) =>
+  typeof path === 'string' ? /^characters\.([^.]+)\.(values|conditions)\.(.+)$/.exec(path) : null
+
+/** A told line in words: a result by its table's name, anything else as the journal says it. */
+function lineOf(e: JournalEntry, context: JournalContext): string {
+  if (e.code === 'ORACLE_RESULT')
+    return `${eventName(context.t, e.data?.event, context.checkName, e.data?.named)}: ${e.text ?? '—'}`
+  return entryText(e, context).replace(/\s*\n\s*/g, ' ')
+}
+
+/** Told lines, each once, in order. */
+function linesOf(entries: readonly JournalEntry[], context: JournalContext): string[] {
+  const out: string[] = []
+  for (const e of entries) {
+    if (!TOLD.has(e.code)) continue
+    const text = lineOf(e, context)
+    if (text && !out.includes(text)) out.push(text)
+  }
+  return out
+}
+
+/** Whether one who left is told already: the condition that made them go was gained in sight. */
+const leftByTold = (e: JournalEntry, entries: readonly JournalEntry[]) =>
+  e.code === 'PRESENT_LEFT' &&
+  e.data?.because === 'condition' &&
+  entries.some(
+    (c) =>
+      c.code === 'CHANGED' &&
+      c.data?.path === `characters.${String(e.data?.id)}.conditions.${String(e.data?.condition)}` &&
+      !!Number(c.data?.to),
+  )
+
+/** The rolls made for one check, each table's with its name (and its rows, when short). */
+function rollsOf(
+  entries: readonly JournalEntry[],
+  check: unknown,
   context: JournalContext,
-  whoName: (id: string) => string | undefined,
-): TurnTold | undefined {
-  const entries = beat.entries
-  const taken = entries.find((e) => e.code === 'ACTION_TAKEN' && !e.data?.on)
-  const turn = entries.findLast((e) => e.code === 'ENCOUNTER_TURN')
-  const textOf = context.textOf ?? ((v: unknown) => String(v ?? ''))
-  const results = entries
-    .filter((e) => LEFT.has(e.code) && (e.code !== 'CHANGED' || isFighterPath(e.data?.path)))
-    .map((e) => entryText(e, context))
-  const dice = [...diceOf(entries).values()].flat()
-  if (taken) {
-    // The party's: whose turn it was as it was taken, the foe it was given or asked for.
-    const id = String(taken.data?.action)
-    const at = [...before, ...entries.slice(0, entries.indexOf(taken))]
-    const whose = at.findLast((e) => e.code === 'ENCOUNTER_TURN')
-    const told = entries.find((e) => e.code === 'ACTION_TOLD' && e.data?.action === id)
-    const given = Object.values((taken.data?.params ?? {}) as Record<string, unknown>)
-    const chosen = entries.find((e) => e.code === 'RESUMED' && e.data?.action === id)?.data?.choice
-    const on = [chosen, ...given]
-      .map((v) => (typeof v === 'string' ? whoName(v) : undefined))
-      .find((n) => n !== undefined)
-    return {
-      id: beat.id,
-      who: whose ? String(whose.data?.name || '') : '',
-      what: told ? textOf(told.data?.text) : (context.actionName?.(id) ?? id),
-      // The system's own words say whom already.
-      on: told ? '' : (on ?? ''),
-      results,
-      dice,
-      side: 'party',
-    }
-  }
-  if (turn?.data?.side === 'foes') {
-    const after = entries.slice(entries.indexOf(turn))
-    const result = after.find((e) => e.code === 'ORACLE_RESULT')
-    const skipped = after.find((e) => e.code === 'ENCOUNTER_SKIPPED')
-    return {
-      id: beat.id,
-      who: String(turn.data?.name || ''),
-      what: skipped ? entryText(skipped, context) : (result?.text ?? context.t('fight.nothing')),
-      on: turn.data?.target !== undefined ? targetName(turn.data, context, whoName) : '',
-      results,
-      dice,
-      side: 'foes',
-    }
-  }
-  return undefined
+  o: FightContext,
+): TurnRoll[] {
+  return entries
+    .filter((e) => e.code === 'ROLLED' && e.data?.check === check)
+    .flatMap((e) => (Array.isArray(e.data?.rolls) ? (e.data.rolls as RolledNode[]) : []))
+    .filter((n) => n.results?.length)
+    .map((n) => {
+      const rows = n.entry !== undefined ? o.rowsOf?.(n.source) : undefined
+      return {
+        source: n.source,
+        label: context.nameOf(n.source),
+        dice: n.results!,
+        ...(rows && { rows, hit: n.entry }),
+      }
+    })
 }
 
 /** Whom a foe went for, by name: the party played as a whole is _the party_, never its id. */
@@ -108,6 +191,170 @@ function targetName(
   return id === PARTY_ID ? context.t('fight.thePartyInline') : (whoName(id) ?? id)
 }
 
-/** A path of a fighter: a character's (`characters.<id>.…`), not the party's own nor the map's. */
-const isFighterPath = (path: unknown) =>
-  typeof path === 'string' && /^characters\.[^.]+\.(values|conditions)\./.test(path)
+/** One turn: its lines from `ENCOUNTER_TURN` on, told. */
+function tellTurn(
+  entries: readonly JournalEntry[],
+  before: string[],
+  last: boolean,
+  context: JournalContext,
+  o: FightContext,
+): FightTurn {
+  const turn = entries[0]!
+  const d = turn.data ?? {}
+  const side = d.side === 'foes' ? 'foes' : 'party'
+  const textOf = context.textOf ?? ((v: unknown) => String(v ?? ''))
+  const skipped = entries.find((e) => e.code === 'ENCOUNTER_SKIPPED')
+  // The party's: the action taken on it (not one a moment took). A foe's: what its table said.
+  const taken =
+    side === 'party' ? entries.find((e) => e.code === 'ACTION_TAKEN' && !e.data?.on) : undefined
+  const from = taken ? entries.indexOf(taken) : 0
+  const own =
+    (side === 'foes' || taken) && entries.slice(from).find((e) => e.code === 'ORACLE_RESULT')
+  const action = taken ? String(taken.data?.action) : undefined
+  const told = action
+    ? entries.find((e) => e.code === 'ACTION_TOLD' && e.data?.action === action)
+    : undefined
+  let what = ''
+  let on = ''
+  if (skipped) what = entryText(skipped, context)
+  else if (taken) {
+    const given = Object.values((taken.data?.params ?? {}) as Record<string, unknown>)
+    const chosen = entries.find((e) => e.code === 'RESUMED' && e.data?.action === action)?.data
+      ?.choice
+    what = told ? textOf(told.data?.text) : (context.actionName?.(action!) ?? action!)
+    // The system's own words say whom already.
+    on = told
+      ? ''
+      : ([chosen, ...given]
+          .map((v) => (typeof v === 'string' ? o.whoName(v) : undefined))
+          .find((n) => n !== undefined) ?? '')
+  } else if (side === 'foes') {
+    what = own ? (own.text ?? '') : ''
+    on = d.target !== undefined ? targetName(d, context, o.whoName) : ''
+  }
+  const stage: FightTurn['stage'] =
+    side === 'party' && !taken && !skipped ? 'choosing' : last && o.waiting ? 'rolling' : 'told'
+  // What it left, large: the turn's own result (the party's), then what became of the fighters.
+  const outcome: string[] = []
+  const large = new Set<JournalEntry>()
+  if (taken && own && own.text) {
+    outcome.push(own.text)
+    large.add(own)
+  }
+  for (const e of entries) {
+    const path = e.code === 'CHANGED' ? fighterPath(e.data?.path) : null
+    const told =
+      (path && (path[2] === 'conditions' || (o.isMain?.(String(e.data?.path)) ?? true))) ||
+      ((e.code === 'PRESENT_LEFT' || e.code === 'MEMBER_LEFT') && !leftByTold(e, entries))
+    if (!told) continue
+    const text = lineOf(e, context)
+    if (!outcome.includes(text)) outcome.push(text)
+    large.add(e)
+  }
+  const headline = new Set([own, skipped].filter((e): e is JournalEntry => !!e))
+  const more = linesOf(
+    entries.filter((e) => !large.has(e) && !headline.has(e) && !leftByTold(e, entries)),
+    context,
+  ).filter((line) => !outcome.includes(line) && line !== what)
+  return {
+    id: turn.id,
+    round: Number(d.round) || 0,
+    whoId: String(d.id ?? ''),
+    who: String(d.name || ''),
+    side,
+    stage,
+    what: what || (side === 'foes' && stage === 'told' ? context.t('fight.nothing') : ''),
+    on,
+    outcome,
+    more,
+    rolls: own ? rollsOf(entries, own.data?.event, context, o) : [],
+    before,
+  }
+}
+
+/** How a fight ended: who went, what it left of those still here, what its end did. */
+function tellEnd(
+  all: readonly JournalEntry[],
+  after: readonly JournalEntry[],
+  context: JournalContext,
+  o: FightContext,
+): FightEnd {
+  const went = all.filter((e) => e.code === 'PRESENT_LEFT' || e.code === 'MEMBER_LEFT')
+  const goneIds = new Set(went.map((e) => String(e.data?.id ?? '')))
+  // Each fighter's main value, from what it was at the fight's first change to its last.
+  const mains = new Map<string, { from: number; to: number }>()
+  for (const e of all) {
+    const path = e.code === 'CHANGED' ? fighterPath(e.data?.path) : null
+    if (!path || path[2] !== 'values' || goneIds.has(path[1]!)) continue
+    if (!(o.isMain?.(String(e.data?.path)) ?? true)) continue
+    const key = String(e.data?.path)
+    mains.set(key, { from: mains.get(key)?.from ?? Number(e.data?.from), to: Number(e.data?.to) })
+  }
+  return {
+    rounds: Number(after[0]?.data?.rounds) || 0,
+    gone: went.map((e) => entryText(e, context)),
+    left: [...mains]
+      .filter(([, v]) => v.from !== v.to)
+      .map(([path, v]) =>
+        context.t('journal.changed', {
+          name: context.memberName?.(path) ?? path,
+          from: v.from,
+          to: v.to,
+        }),
+      ),
+    lines: linesOf(after.slice(1), context),
+  }
+}
+
+/**
+ * A fight told from the journal's lines since it began (the moment that started it first):
+ * what started it, each turn in one piece, and how it ended once it has.
+ */
+export function tellFight(
+  entries: readonly JournalEntry[],
+  context: JournalContext,
+  o: FightContext,
+): FightTold {
+  const opening: JournalEntry[] = []
+  const turns: { entries: JournalEntry[]; before: JournalEntry[] }[] = []
+  let round: JournalEntry[] | undefined
+  let end: JournalEntry[] | undefined
+  for (const e of entries) {
+    if (e.code === 'ENCOUNTER_ENDED') end = [e]
+    else if (end) end.push(e)
+    else if (e.code === 'ENCOUNTER_ROUND') round = []
+    else if (e.code === 'ENCOUNTER_TURN') {
+      turns.push({ entries: [e], before: round ?? [] })
+      round = undefined
+    } else if (round) round.push(e)
+    else if (turns.length) turns.at(-1)!.entries.push(e)
+    else opening.push(e)
+  }
+  return {
+    opening: linesOf(opening, context),
+    turns: turns.map((t, i) =>
+      tellTurn(t.entries, linesOf(t.before, context), i === turns.length - 1 && !end, context, o),
+    ),
+    ...(end && { ended: tellEnd(entries, end, context, o) }),
+  }
+}
+
+/**
+ * The rows of a table as a roll's ladder, when it's short enough to read at a glance: at most
+ * `most` rows, each with its range, none of them chosen by a condition (the row can't be known
+ * before the roll then). `text` says a row in few words: what it's written with read by the
+ * table (`{{acting.name}} swings`) is left out.
+ */
+export function ladderOf(rows: readonly TableRow[] | undefined, most = 6): RollRow[] | undefined {
+  if (!rows?.length || rows.length > most) return undefined
+  if (rows.some((r) => r.min === undefined || r.max === undefined || r.when !== undefined))
+    return undefined
+  return rows.map((r) => ({
+    key: r.key,
+    range: r.min === r.max ? String(r.min) : `${r.min}–${r.max}`,
+    text: (r.text ?? '')
+      .replace(/^\s*\{\{[^}]*\}\}\s*/, '')
+      .replace(/\{\{[^}]*\}\}/g, '…')
+      .trim(),
+  }))
+}

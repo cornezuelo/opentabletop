@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { DiceResult } from '@open-tabletop/dice'
+  import { untrack } from 'svelte'
   import DieFace from './DieFace.svelte'
   import { dicePreferences } from './dicePreferences.svelte'
   import { knock } from './diceSound'
@@ -15,7 +16,12 @@
    * only shows it; several at once, as the Oracle's result rolled them). Then each one's total,
    * large, and **Use it** (`onuse`, the first one's total; `use` names it otherwise). Without tumbling (the
    * player's preference, or the system's reduce motion) they show at once; knocks are heard
-   * unless the player turned them off.
+   * unless the player turned them off. The dice a roll mode didn't keep (advantage's other)
+   * are thrown with the rest and fade as they stop.
+   *
+   * `inline`, it lives where it's put instead of over the page (a fight's stage,
+   * docs/fight-turn.md): only the table, the dice waiting on it for a click or a throw, and
+   * its total taken by itself a moment after they stop (no **Use**, nothing to put away).
    */
   let {
     rolls,
@@ -25,6 +31,7 @@
     why = [],
     outcome,
     tells = false,
+    inline = false,
     locale = 'en',
     onuse,
     onclose,
@@ -46,16 +53,19 @@
     outcome?: readonly string[]
     /** Whether the host tells what came of it (`outcome`): **Use** keeps it open till then. */
     tells?: boolean
+    /** Lives where it's put (no dialog), its total taken as the dice stop. */
+    inline?: boolean
     locale?: string
     /** Its total taken. */
     onuse: (total: number) => void
-    /** Put away without it. */
-    onclose: () => void
+    /** Put away without it (never asked `inline`). */
+    onclose?: () => void
   } = $props()
 
   const TEXT = {
     en: {
       hint: 'Drag the dice and let go to throw them, or click the table.',
+      table: 'The dice table: click it to roll',
       use: 'Use {total}',
       close: 'Put away',
       die: 'd{sides}: {face}',
@@ -65,6 +75,7 @@
     },
     es: {
       hint: 'Arrastra los dados y suéltalos para lanzarlos, o pulsa la mesa.',
+      table: 'La mesa de dados: púlsala para tirar',
       use: 'Usar {total}',
       close: 'Guardar',
       die: 'd{sides}: {face}',
@@ -75,15 +86,22 @@
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
 
-  /** Each die of the rolls, in order, with the face it stops on (an exploding one's each throw). */
+  /**
+   * Each die of the rolls, in order, with the face it stops on (an exploding one's each throw);
+   * then those of the rolls a roll mode didn't keep, dropped.
+   */
   const faces = $derived.by(() => {
     return rolls
-      .flatMap((roll) => drawRoll(roll).parts)
-      .flatMap((p) =>
+      .map((roll) => drawRoll(roll))
+      .flatMap((drawn) => [
+        ...drawn.parts.map((p) => ({ p, other: false })),
+        ...drawn.others.flatMap((o) => o.parts.map((p) => ({ p, other: true }))),
+      ])
+      .flatMap(({ p, other }) =>
         p.kind === 'dice'
           ? p.dice.flatMap((d) => [
-              { shape: d.shape, face: d.face, dropped: d.dropped },
-              ...d.more.map((face) => ({ shape: d.shape, face, dropped: d.dropped })),
+              { shape: d.shape, face: d.face, dropped: d.dropped || other },
+              ...d.more.map((face) => ({ shape: d.shape, face, dropped: d.dropped || other })),
             ])
           : [],
       )
@@ -95,7 +113,18 @@
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
   const moves = dicePreferences.animate && !reduced
 
-  let stage = $state<'hand' | 'rolling' | 'done'>(moves ? 'hand' : 'done')
+  // Inline, the dice always wait for the player's hand: the throw is theirs to make.
+  let stage = $state<'hand' | 'rolling' | 'done'>(moves || untrack(() => inline) ? 'hand' : 'done')
+  /** Inline: the total is taken by itself a moment after the dice stop, once. */
+  let taken = false
+  $effect(() => {
+    if (!inline || stage !== 'done' || taken) return
+    const wait = setTimeout(() => {
+      taken = true
+      onuse(rolls[0]?.total ?? 0)
+    }, 700)
+    return () => clearTimeout(wait)
+  })
   /** Its total used: what came of it shows (`outcome`), with **Continue**. */
   let used = $state(false)
   let table = $state<Table>({ width: 560, height: 320, size: 72 })
@@ -166,6 +195,11 @@
   }
 
   function throwIt(velocity?: { x: number; y: number }, from?: { x: number; y: number }) {
+    // Without tumbling they show at once.
+    if (!moves) {
+      stage = 'done'
+      return
+    }
     dice = startThrow(faces.length, table, Math.random, velocity, from)
     turning = faces.map((f) => rollingFace(f.shape, Math.random()))
     stage = 'rolling'
@@ -199,102 +233,127 @@
   const sizeOf = (d: ThrownDie) => table.size * (1 + d.z / (table.size * 4))
 </script>
 
-<div
-  class="throw"
-  use:portal
-  role="dialog"
-  aria-modal="true"
-  aria-label={title || rolls[0]?.expression}
->
-  <div class="box">
-    {#if title}<p class="title">{title}</p>{/if}
-    {#if why.length}
-      <ul class="why">
-        {#each why as line, i (i)}<li>{line}</li>{/each}
-      </ul>
-    {/if}
-    <div
-      class="table"
-      bind:this={tableEl}
-      onpointerdown={down}
-      onpointermove={move}
-      onpointerup={up}
-      role="presentation"
-    >
-      {#if stage === 'done' && !moves}
-        <div class="still">
-          {#each faces as f, i (i)}
-            <span style:--die="{table.size}px"
-              ><DieFace
-                shape={f.shape}
-                face={f.face}
-                dropped={f.dropped}
-                label={text.die.replace('{sides}', sidesName(f.shape)).replace('{face}', f.face)}
-              /></span
-            >
-          {/each}
-        </div>
-      {:else}
-        {#each dice as d, i (i)}
-          {@const f = faces[i]!}
-          <span
-            class="thrown"
-            class:held={stage === 'hand'}
-            style:--die="{sizeOf(d)}px"
-            style:left="{d.x}px"
-            style:top="{d.y}px"
-            style:transform="translate(-50%, -50%) rotate({d.angle}deg)"
-            style:--lift="{Math.min(18, d.z / 6)}px"
-          >
-            <DieFace
+{#snippet cloth()}
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <div
+    class="table"
+    class:inline
+    bind:this={tableEl}
+    onpointerdown={down}
+    onpointermove={move}
+    onpointerup={up}
+    role={inline ? 'button' : 'presentation'}
+    tabindex={inline && stage === 'hand' ? 0 : undefined}
+    aria-label={inline ? text.table : undefined}
+    onkeydown={(e) => {
+      if (inline && stage === 'hand' && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault()
+        throwIt()
+      }
+    }}
+  >
+    {#if stage === 'done' && !moves}
+      <div class="still">
+        {#each faces as f, i (i)}
+          <span style:--die="{table.size}px"
+            ><DieFace
               shape={f.shape}
-              face={stage === 'rolling' ? (turning[i] ?? f.face) : stage === 'hand' ? '' : f.face}
-              dropped={stage === 'done' && f.dropped}
+              face={f.face}
+              dropped={f.dropped}
               label={text.die.replace('{sides}', sidesName(f.shape)).replace('{face}', f.face)}
-            />
-          </span>
+            /></span
+          >
         {/each}
+      </div>
+    {:else}
+      {#each dice as d, i (i)}
+        {@const f = faces[i]!}
+        <span
+          class="thrown"
+          class:held={stage === 'hand'}
+          style:--die="{sizeOf(d)}px"
+          style:left="{d.x}px"
+          style:top="{d.y}px"
+          style:transform="translate(-50%, -50%) rotate({d.angle}deg)"
+          style:--lift="{Math.min(18, d.z / 6)}px"
+        >
+          <DieFace
+            shape={f.shape}
+            face={stage === 'rolling' ? (turning[i] ?? f.face) : stage === 'hand' ? '' : f.face}
+            dropped={stage === 'done' && f.dropped}
+            label={text.die.replace('{sides}', sidesName(f.shape)).replace('{face}', f.face)}
+          />
+        </span>
+      {/each}
+    {/if}
+    {#if stage === 'hand'}<p class="hint">{text.hint}</p>{/if}
+    {#if inline && stage !== 'hand'}
+      <p class="settled" aria-live="polite">
+        {#if stage === 'rolling'}<span class="muted">{text.rolling}</span
+          >{:else}{#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
+            <strong>{roll.total}</strong>{/each}{/if}
+      </p>
+    {/if}
+  </div>
+{/snippet}
+
+{#if inline}
+  {@render cloth()}
+{:else}
+  <div
+    class="throw"
+    use:portal
+    role="dialog"
+    aria-modal="true"
+    aria-label={title || rolls[0]?.expression}
+  >
+    <div class="box">
+      {#if title}<p class="title">{title}</p>{/if}
+      {#if why.length}
+        <ul class="why">
+          {#each why as line, i (i)}<li>{line}</li>{/each}
+        </ul>
       {/if}
-      {#if stage === 'hand'}<p class="hint">{text.hint}</p>{/if}
-    </div>
-    <div class="foot">
-      {#if used}
-        <!-- What came of it, then on. -->
-        <div class="outcome" aria-live="polite">
+      {@render cloth()}
+      <div class="foot">
+        {#if used}
+          <!-- What came of it, then on. -->
+          <div class="outcome" aria-live="polite">
+            <p class="total">
+              {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
+                <strong>{roll.total}</strong>{/each}
+            </p>
+            {#if outcome}
+              <ul>
+                {#each outcome as line, i (i)}<li>{line}</li>{/each}
+              </ul>
+            {:else}
+              <p class="total muted">{text.playing}</p>
+            {/if}
+          </div>
+          <button class="button primary" onclick={() => onclose?.()}>{text.continue}</button>
+        {:else if stage === 'done'}
           <p class="total">
             {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
               <strong>{roll.total}</strong>{/each}
           </p>
-          {#if outcome}
-            <ul>
-              {#each outcome as line, i (i)}<li>{line}</li>{/each}
-            </ul>
-          {:else}
-            <p class="total muted">{text.playing}</p>
-          {/if}
-        </div>
-        <button class="button primary" onclick={onclose}>{text.continue}</button>
-      {:else if stage === 'done'}
-        <p class="total">
-          {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
-            <strong>{roll.total}</strong>{/each}
-        </p>
-        <button
-          class="button primary"
-          onclick={() => {
-            const total = rolls[0]?.total ?? 0
-            if (outcome !== undefined || tells) used = true
-            onuse(total)
-          }}>{use || text.use.replace('{total}', String(rolls[0]?.total ?? 0))}</button
-        >
-        <button class="button" onclick={onclose}>{close || text.close}</button>
-      {:else}
-        {#if stage === 'rolling'}<p class="total muted">{text.rolling}</p>{/if}
-        <button class="button" onclick={onclose}>{close || text.close}</button>
-      {/if}
+          <button
+            class="button primary"
+            onclick={() => {
+              const total = rolls[0]?.total ?? 0
+              if (outcome !== undefined || tells) used = true
+              onuse(total)
+            }}>{use || text.use.replace('{total}', String(rolls[0]?.total ?? 0))}</button
+          >
+          <button class="button" onclick={() => onclose?.()}>{close || text.close}</button>
+        {:else}
+          {#if stage === 'rolling'}<p class="total muted">{text.rolling}</p>{/if}
+          <button class="button" onclick={() => onclose?.()}>{close || text.close}</button>
+        {/if}
+      </div>
     </div>
   </div>
-</div>
+{/if}
 
 <style>
   .throw {
@@ -368,6 +427,32 @@
 
   .table:active {
     cursor: grabbing;
+  }
+
+  /* In a stage: lower, the page around it its frame. */
+  .table.inline {
+    height: min(200px, 28vh);
+  }
+
+  .table.inline:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Inline, the total where the dice are, once they stop. */
+  .settled {
+    position: absolute;
+    right: 0;
+    bottom: 8px;
+    left: 0;
+    margin: 0;
+    font-size: 16px;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .settled strong {
+    font-size: 24px;
   }
 
   .thrown {

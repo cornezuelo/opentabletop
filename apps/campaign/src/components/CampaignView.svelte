@@ -182,6 +182,7 @@
           locale={getLocale()}
           open={scene}
           nameOf={texts.nameOf}
+          rowsOf={texts.rowsOf}
           uses={systemUses(library.registry, system)}
           onopen={(each) => go({ name: 'campaign', id, tab: 'scenes', scene: each }, true)}
         />

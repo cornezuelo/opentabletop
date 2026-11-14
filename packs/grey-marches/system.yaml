@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules (its buttons in groups) and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, advancement (each companion's renown and rank, the knacks they learn), fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs, the fallen stripped as they leave), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, advancement (each companion's renown and rank, the knacks they learn), fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs, one who fell losing them all, over when no foe or no companion is left standing, the fallen stripped as they leave), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -41,9 +41,12 @@ encounter:
   # before it rolls (`encounter.target`, bestiary.yaml's _A foe's turn_).
   aim: party.members.random
   minutes: 1
-  ends: { present.count: 0 }
-  # A companion dragged down by a wolf (sheet.yaml) loses their next turn.
-  skip: { acting.conditions: dragged-down }
+  # Over when no foe is left here, or no companion is left standing (travel.yaml's
+  # `standing`, and what follows it: _The Company is overcome_).
+  ends: { any: [{ present.count: 0 }, { party.stats.standing: 0 }] }
+  # A companion dragged down by a wolf (sheet.yaml) loses their next turn; one who fell
+  # (wounded, travel.yaml's _A companion falls_) loses every turn while they are.
+  skip: { any: [{ acting.conditions: dragged-down }, { acting.conditions: wounded }] }
 # The places of the Marches (places.yaml): what discovery's contents make on a hex.
 places: [places.default]
 # The threats of the Marches (clocks.yaml): the progress clocks its world clock starts with.

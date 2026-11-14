@@ -79,9 +79,9 @@ entries:
 ---
 kind: table
 id: foe-turn
-roll: 1d1
+roll: 1d2
 entries:
-  - { range: 1, result: A blow, set: { target: party.members.random }, effects: { 'characters[target].values.health': -1 } }
+  - { range: 1-2, result: A blow, set: { target: party.members.random }, effects: { 'characters[target].values.health': -1 } }
 ---
 # Aimed before it's rolled (the system's aim): read by a table it leads to.
 kind: table
@@ -346,7 +346,7 @@ describe('an encounter: a fight in turns', () => {
       expect.objectContaining({
         id: check.id,
         table: 'brawl/foe-turn',
-        dice: '1d1',
+        dice: '1d2',
         who: 'goblin-2',
       }),
     ])
@@ -354,7 +354,7 @@ describe('an encounter: a fight in turns', () => {
     expect(encounterView(done.state)?.fighters.find((f) => f.acting)?.id).toBe('goblin-2')
     expect(done.entries.at(-1)).toMatchObject({
       code: 'CHECK_YOURS',
-      data: { id: check.id, dice: '1d1', who: 'goblin-2' },
+      data: { id: check.id, dice: '1d2', who: 'goblin-2' },
     })
     // Meanwhile the party's actions wait too.
     const closed = stepTrip(options, done.state, {
@@ -756,7 +756,7 @@ describe('moments of play (beats)', () => {
 })
 
 describe('the foes’ turns one at a time', () => {
-  it('each foe’s turn waits for Next before another foe’s; a turn of the party’s needs none', () => {
+  it('a turn waits for Next before a foe’s, so each is read; a turn of the party’s needs none', () => {
     const { options, session } = begin()
     const paced = { ...session, foesAtOnce: undefined }
     let done = stepTrip(options, paced, { type: 'action', id: 'ambush' })
@@ -764,6 +764,11 @@ describe('the foes’ turns one at a time', () => {
       (done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe } }))
     strike('goblin')
     strike('goblin-2')
+    // The party's last turn is read before the foes act: the fight waits, the first goblin next.
+    expect(done.state.encounter?.stage).toBe('shown')
+    expect(encounterView(done.state)).toMatchObject({ next: 'goblin', choosing: false })
+    expect(codes(done.entries).filter((c) => c.startsWith('turn'))).toEqual([])
+    done = stepTrip(options, done.state, { type: 'encounter', what: 'next' })
     // The first goblin's turn, read: the fight waits, the second goblin up next.
     expect(codes(done.entries)).toEqual(['turn goblin'])
     expect(done.state.encounter?.stage).toBe('shown')

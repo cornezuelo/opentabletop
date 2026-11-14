@@ -50,6 +50,63 @@ describe('moments of play told (beats)', () => {
     expect(tellBeat({ id: 'j1', entries: march }, context, 'detail').lines).toHaveLength(4)
   })
 
+  it('a moment that begins with a roll the player gave is named by what was rolled, never by its dice', () => {
+    const told = tellBeat(
+      {
+        id: 'j1',
+        entries: [
+          line(1, 'ROLLED', {
+            source: 'oracle',
+            data: {
+              check: 'table.parting',
+              named: 'A parting blow',
+              rolls: [{ source: 'gm/parting', entry: 'caught', dice: ['1d6 → 1  [1]'], depth: 0 }],
+            },
+          }),
+          line(2, 'ORACLE_RESULT', {
+            source: 'oracle',
+            text: 'Caught as you fall back',
+            data: { event: 'table.parting', named: 'A parting blow', value: {} },
+          }),
+        ],
+      },
+      context,
+      'story',
+    )
+    expect(told.title).toBe('A parting blow')
+    expect(told.lines.map((l) => l.text)).toEqual(['A parting blow: Caught as you fall back'])
+  })
+
+  it('what an action changes of whoever acts is said of them: the one a reaction is played for', () => {
+    const named: JournalContext = {
+      ...context,
+      memberName: (path) =>
+        path === 'characters.kael.conditions.wounded'
+          ? 'Kael: Wounded'
+          : path === 'acting.conditions.wounded'
+            ? 'Whoever acts: Wounded'
+            : undefined,
+    }
+    const told = tellBeat(
+      {
+        id: 'j1',
+        entries: [
+          line(1, 'REACTED', { data: { who: 'kael' } }),
+          line(2, 'ACTION_TAKEN', {
+            data: {
+              action: 'collapse',
+              on: 'when:{}',
+              effects: { 'acting.conditions.wounded': 'true' },
+            },
+          }),
+        ],
+      },
+      named,
+      'story',
+    )
+    expect(told.changes).toEqual(['Kael: Wounded'])
+  })
+
   it('the journal as moments, newest first; a note is one of its own; a search finds a step by any line', () => {
     const note = line(6, 'NOTE', { source: 'user', text: 'Ask about the keeper', beat: undefined })
     const journal = [...march, note]

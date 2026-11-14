@@ -39,6 +39,23 @@ export function packTexts(registry: () => Registry, locale: () => string) {
       overlay(def.id)?.inputs?.[input]?.labels?.[option] ??
       (def.kind === 'oracle' ? def.inputs[input]?.labels?.[option] : undefined) ??
       option,
+    /**
+     * A table's rows as a roll falls on them (their ranges, their texts in the UI language),
+     * for showing what a roll can give; undefined for anything that isn't a table.
+     */
+    rowsOf: (
+      id: string,
+    ): { key: string; min?: number; max?: number; when?: unknown; text?: string }[] | undefined => {
+      const def = registry().definitions.get(id)
+      if (def?.kind !== 'table') return undefined
+      return def.entries.map((e) => ({
+        key: e.key,
+        ...(e.min !== undefined && { min: e.min }),
+        ...(e.max !== undefined && { max: e.max }),
+        ...(e.when !== undefined && { when: e.when }),
+        text: overlay(def.id)?.entries?.[e.key] ?? e.result,
+      }))
+    },
     /** Display name of a definition or a roll mode by id (the id itself if neither exists). */
     nameOf: (id: string): string => {
       const mode = registry().rollModes.get(id)

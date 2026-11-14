@@ -1,3 +1,4 @@
+import { bounds } from '@open-tabletop/dice'
 import type { WantedRoll } from '@open-tabletop/oracle-engine'
 import type { Roller } from '@open-tabletop/variables'
 
@@ -12,9 +13,23 @@ export class Wanted extends Error {
 }
 
 /**
+ * Whether a roll has any chance in it: more than one total can come of it (`1d1`, a plain
+ * number: none). One that can't be read is taken to have it.
+ */
+export function hasChance(dice: string): boolean {
+  try {
+    const { min, max } = bounds(dice)
+    return min !== max
+  } catch {
+    return true
+  }
+}
+
+/**
  * The player's rolls for one check (`rollWay`), in the order they're made: the totals given so
  * far (`null`, one the computer rolled), then, while the player rolls (`asks`), a stop at the
- * next one (`Wanted`); otherwise the computer rolls the rest (undefined).
+ * next one (`Wanted`); otherwise the computer rolls the rest (undefined). A roll without
+ * chance (`hasChance`) is never the player's: it's not asked for, nor counted among theirs.
  */
 export interface Hand {
   next(roll: HandRoll): number | undefined
@@ -26,6 +41,7 @@ export function handOf(given: readonly (number | null)[], asks: boolean, from = 
   let at = from
   return {
     next(roll) {
+      if (!hasChance(roll.dice)) return undefined
       if (at < given.length) return given[at++] ?? undefined
       if (asks) throw new Wanted(roll)
       return undefined

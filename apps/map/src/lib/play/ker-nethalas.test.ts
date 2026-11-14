@@ -92,6 +92,11 @@ describe.skipIf(!here)('Ker Nethalas', () => {
     // Erthos attacks the first one here on each of his turns, until the fight is over.
     for (let turn = 0; turn < 120 && session().encounter; turn++) {
       const s = session()
+      // His turn read, before the creature's: Next.
+      if (s.encounter?.stage === 'shown') {
+        play.step({ type: 'encounter', what: 'next' })
+        continue
+      }
       if (s.travel.waiting) {
         play.step({ type: 'resume', choice: presentHere(s)[0]?.character.id })
         continue

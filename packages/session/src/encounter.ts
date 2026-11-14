@@ -73,8 +73,8 @@ export interface EncounterRules {
  * Where an encounter is: `start` (asked for, not begun), `begun` (its start's actions done,
  * the order to read), `round` (a round to begin), `turn` (a turn to begin), `acting` (a
  * member's turn: the player chooses what to do), `acted` (the turn is done; a roll of it may
- * still wait for the player, as the trip's checks do), `shown` (a foe's turn
- * done, waiting for **Next** before another foe's, so each is read), `onward` (done and
+ * still wait for the player, as the trip's checks do), `shown` (a turn done,
+ * waiting for **Next** before a foe's, so each is read), `onward` (done and
  * read: on to the next), `end` (to end).
  */
 export type EncounterStage =
@@ -566,17 +566,13 @@ export function driveEncounter(
           edit((e) => (e.stage = 'end'))
           break
         }
-        // A foe's turn is read before another foe's: the fight waits for Next (unless the
-        // player plays them at once, or skips pauses). A turn of the party's waits anyway.
+        // A turn is read before a foe's: the fight waits for Next (unless the player plays
+        // them at once, or skips pauses), so what a companion's blow did, or a foe's, is seen
+        // before the next foe acts. A turn of the party's waits anyway.
         if (e.stage === 'acted' && !state.foesAtOnce && !state.skipPauses) {
           const id = e.order[e.turn]
           const next = [...e.order.slice(e.turn + 1), ...e.order].find((o) => stillHere(state, o))
-          if (
-            id !== undefined &&
-            sideOf(state, id) === 'foes' &&
-            next &&
-            sideOf(state, next) === 'foes'
-          ) {
+          if (id !== undefined && next && sideOf(state, next) === 'foes') {
             edit((e) => (e.stage = 'shown'))
             return { state, entries }
           }

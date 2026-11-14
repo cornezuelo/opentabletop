@@ -239,6 +239,7 @@
     facts={worldFactsNow()}
     title={editor.map.meta.name || t('map.untitled')}
     nameOf={oracleUi.nameOf}
+    rowsOf={oracleUi.rowsOf}
     destinationHint={destinationHelp()}
     arrivedHint={destinationHelp(true)}
     onstep={step}

@@ -16,6 +16,7 @@ import {
   checkInfo,
   DAY_END,
   PLACE_ENTER,
+  PRESENT_LEAVE,
   isReactionMoment,
   doneOf,
   momentsOf,
@@ -710,12 +711,12 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       const rolls = Array.isArray(d.rolls) ? (d.rolls as RolledNode[]) : []
       return t('journal.rolled', {
         event: eventName(t, d.check, checkName, d.named),
+        // The row it fell on is the result's line after it, in words: never its id here.
         rolls: rolls
           .map((r) => {
-            const chose = r.entry !== undefined ? ` → ${r.entry}` : ''
             const dice = r.dice.length ? `: ${r.dice.join(', ')}` : ''
             const hand = r.byHand ? ` ${t('journal.byHand')}` : ''
-            return `${nameOf(r.source)}${dice}${hand}${chose}`
+            return `${nameOf(r.source)}${dice}${hand}`
           })
           .join('; '),
       })
@@ -793,6 +794,7 @@ export function momentText(
   if (isReactionMoment(at)) return t('journal.moments.reaction')
   const fight = /^encounter\.(start|round|turn|end)$/.exec(at)?.[1]
   if (fight) return t(`journal.moments.encounter.${fight as 'start'}`)
+  if (at === PRESENT_LEAVE) return t('journal.moments.presentLeave')
   if (at === 'world.turn') return t('journal.moments.worldTurn')
   const clock = /^world\.clocks\.(.+)\.full$/.exec(at)?.[1]
   if (clock) return t('journal.moments.clockFull', { clock: clock.replaceAll('-', ' ') })

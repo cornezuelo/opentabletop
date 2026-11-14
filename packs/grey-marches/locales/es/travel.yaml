@@ -267,6 +267,12 @@ travel-rules/default:
       do:
         carried:
           say: '{{acting.name}} cae, y hay que llevarle a cuestas.'
+    overcome:
+      name: La Compañía es vencida
+      description: 'Cuando un combate acaba sin ningún compañero en pie y con enemigos aún aquí: la Compañía pierde el ánimo (1 de moral) y queda donde ha caído; puede alejarse de ellos a rastras (_Ha cedido terreno_, hasta el siguiente lugar).'
+      do:
+        left:
+          say: 'No queda nadie en pie. La Compañía es vencida, y queda donde ha caído.'
     stormy-dawn:
       name: Un alba de tormenta
       description: Un alba de tormenta agota a la Compañía antes de ponerse en marcha. Fatiga +1.
@@ -459,6 +465,9 @@ bindings/default:
     wounded:
       name: Heridos
       description: Cuántos compañeros están heridos.
+    standing:
+      name: En pie
+      description: Cuántos compañeros no están heridos. Un combate acaba cuando no queda ninguno en pie.
     sprained:
       name: Torceduras
       description: Cuántos compañeros tienen un tobillo torcido.

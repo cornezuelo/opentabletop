@@ -75,11 +75,14 @@ function termDice(term: DiceTermResult): DrawnDie[] {
 export function drawRoll(
   r: Pick<DiceResult, 'expression' | 'terms' | 'total' | 'discarded' | 'byHand'>,
 ): DrawnRoll {
-  const parts = (r.terms ?? []).map((term) =>
-    term.kind === 'dice'
-      ? { kind: 'dice' as const, sign: term.sign, dice: termDice(term) }
-      : { kind: 'mod' as const, text: `${term.sign < 0 ? '−' : '+'}${term.value}` },
-  )
+  // Nothing added or taken (`1d6 - 0`, a modifier read as 0) isn't drawn.
+  const parts = (r.terms ?? [])
+    .filter((term) => term.kind === 'dice' || term.value !== 0)
+    .map((term) =>
+      term.kind === 'dice'
+        ? { kind: 'dice' as const, sign: term.sign, dice: termDice(term) }
+        : { kind: 'mod' as const, text: `${term.sign < 0 ? '−' : '+'}${term.value}` },
+    )
   const discarded = r.discarded === undefined ? [] : [r.discarded].flat()
   return {
     expression: r.expression,

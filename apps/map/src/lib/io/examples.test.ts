@@ -709,8 +709,9 @@ describe('example maps', () => {
       'open-eyes': { condition: 'when' }, // nobody has night eyes
       'close-eyes': { condition: 'when' }, // nobody's night eyes are open
       'ground-left': { condition: 'when' }, // the Company gave no ground
+      overcome: { condition: 'when' }, // no fight lost
     })
-    expect(Object.keys(unavailable)).toHaveLength(33)
+    expect(Object.keys(unavailable)).toHaveLength(34)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

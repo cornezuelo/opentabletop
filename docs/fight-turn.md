@@ -1,6 +1,6 @@
 # A turn in one piece
 
-A proposal for how a fight's turn is told, after [fight-stage.md](fight-stage.md) was built. **To review with the author**; nothing of it is built. The mistakes found on the way (§1, _Wrong_) need no decision and are fixed first (backlog).
+A proposal for how a fight's turn is told, after [fight-stage.md](fight-stage.md) was built. **Decided with the author (2026-11-14, "lo que recomiendas, dale": the recommended answer to each question of §4) and built** with the mistakes found on the way (§1, _Wrong_); §5 says what was built and what wasn't.
 
 The ask (author, 2026-11-14): "la UI/UX de la aplicación a la hora de jugar, especialmente el combate, es muy mejorable. Identifica puntos de mejora."
 
@@ -91,12 +91,18 @@ What follows a blow by itself (a moment when someone leaves, spoils, a clock) be
 
 When a fight ends, the stage stays for its **closing card**: how it ended (the foes fell, fled or were driven off; the party fell back; ended by hand), in how many rounds, who fell on each side, what the party lost and gained over the fight (each one's main value from start to end, conditions kept, things gained), and **Back to the trip**. The trip's journal keeps the fight as that one moment, unfolded into its turns (fight-stage.md §2).
 
-## 4. To decide
+## 4. Decided
 
-Each with what's recommended.
+The recommended answer to each (2026-11-14).
 
 1. **A turn's by-products' rolls** (G): the computer's unless _I roll everything_ (recommended), or the player's whenever their table can give an important result (as today).
 2. **The ladder of what a roll can give** (C): for tables of six rows or fewer (recommended), for every table, or never before the roll.
 3. **The throw in a fight** (D): on the stage, applied as it settles (recommended), or today's dialog with **Use**.
 4. **The closing card** (H): waits for **Back to the trip** (recommended), or shows for a moment and goes.
 5. **The stage's look** (§1, 16–24: sides by colour, larger cards that keep their place, an order strip on top, the fallen kept struck): a proposal of its own after this one (recommended), or together with it.
+
+## 5. Built
+
+- **A** (travel-ui's `tellFight`: a turn from its `ENCOUNTER_TURN` to the next, its stage `choosing` / `rolling` / `told`; the log a line a turn under its round), **B** (the sentence, the outcome, **And N more**), **C** (each roll under its table's name, a modifier of 0 not drawn, the dice a roll mode didn't keep thrown and faded, the ladder of a short table: `ladderOf`, oracle-ui's `rowsOf`), **D** (ui-kit's `DiceThrow` `inline`), **E** (`YourRoll`: **Roll**, the rest behind **⋯**; **Who rolls the dice?** asked by the stage's top line), **F** (session's `hasChance`), **G** (session's `turnActions`: a roll of an action a moment took is the computer's unless the player rolls everything), **H** (the closing card).
+- **§1's mistakes**: 1–5 and 8 (the second roll of the spoils looked like the first: it's the computer's now) fixed; 7 was the system's: the Grey Marches' `skip` takes the turns of a companion who fell, and their fights end when none is left standing (**The Company is overcome**); 9: the top line says the turn shown.
+- **Not built**: why a roll mode applies (6: the dice are both thrown and how the mode rolls is said, _2 rolls, the lowest kept_, but not the condition that brought it: the engine doesn't say which `modeWhen` held); the computer's rolls thrown on the stage without a hand (C's last point: they tumble in the tray, as before); the first turn of a fight waiting like any other (9: a foe's turn before a turn of the party's still comes with it, told above the party's choice); the trip's journal keeping a fight as one moment (H's last sentence).

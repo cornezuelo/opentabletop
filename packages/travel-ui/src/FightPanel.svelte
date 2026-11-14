@@ -4,10 +4,8 @@
   import type { Fighter } from '@open-tabletop/session'
   import { CharacterGlance } from '@open-tabletop/character-ui'
   import { DiceTray, InfoTip, tooltip } from '@open-tabletop/ui-kit'
-  import BeatView from './BeatView.svelte'
-  import type { BeatTold } from './beats'
   import { translator } from './i18n'
-  import type { CardAction, TurnTold } from './turns'
+  import type { CardAction, FightEnd, FightTurn, TurnRoll } from './turns'
 
   /**
    * A fight in turns as a stage (docs/fight-stage.md), as any host shows it (session's
@@ -19,8 +17,14 @@
    * On a turn of the party's, what's done to a foe is on its card (`cardActions`, `onact`),
    * the rest in the turn's bar (`turnBar`, the host's buttons); when a step still asks whom
    * (`asking`), the panel says so and the cards that can be chosen are what's clicked
-   * (`targets`, `ontarget`). The turn just played is told up front in one sentence, its dice
-   * rolling (`last`). The fight's moments, oldest first, scroll at the right (`log`).
+   * (`targets`, `ontarget`).
+   *
+   * Each turn is told in one piece (`turns`, docs/fight-turn.md): in the centre the one being
+   * played or just played, who did what to whom, its dice with what they're for (and what a
+   * short table could give, the row it fell on lit), then what it left, large, the rest
+   * folded; while it waits for a roll of the player's, that roll in its place (`roll`), never
+   * a word of what it hasn't done yet. The whole fight scrolls at the right, a line a turn
+   * under its round. Once over (`ended`), its closing card stays until **Continue**.
    */
   let {
     round,
@@ -31,7 +35,10 @@
     sheetOf = () => undefined,
     changes = {},
     targets = [],
-    log = [],
+    turns = [],
+    opening = [],
+    ended,
+    onclose,
     next,
     onnext,
     onend,
@@ -42,7 +49,6 @@
     tools,
     roll,
     asking = '',
-    last,
     asks,
     onhide,
   }: {
@@ -59,8 +65,14 @@
     changes?: Record<string, number>
     /** Those that can be chosen now (whom to strike), by id: their cards are buttons. */
     targets?: readonly string[]
-    /** The fight's moments, oldest first. */
-    log?: BeatTold[]
+    /** The fight's turns, oldest first, each told in one piece (`tellFight`). */
+    turns?: readonly FightTurn[]
+    /** What started it, in words, before its first round. */
+    opening?: readonly string[]
+    /** How it ended, once it has: its closing card shows in place of the table. */
+    ended?: FightEnd
+    /** The closing card put away. */
+    onclose?: () => void
     /** A foe's turn done, the fight waiting for Next: who acts next (its id). */
     next?: string
     /** Goes on to the next turn. */
@@ -81,8 +93,6 @@
     roll?: Snippet
     /** What a step asks while it waits for one of `targets` (_Strike: whom?_); '' for none. */
     asking?: string
-    /** The turn just played, told in one sentence. */
-    last?: TurnTold
     /** Whatever else the trip waits for meanwhile (a question, a share), in the centre. */
     asks?: Snippet
     /** Puts the stage away for a while, the trip (or map) behind it in sight. */
@@ -90,35 +100,99 @@
   } = $props()
 
   const t = translator(() => locale)
-  /** The log's moments folded or opened by hand, by id: the newest open until then. */
-  let unfolded = $state<Record<string, boolean>>({})
   const acting = $derived(fighters.find((f) => f.acting))
   /** One's name; the party played as a whole, nameless, is _the party_ (its side said already). */
   const nameOf = (f: Fighter) => f.name || t('fight.theParty')
   const wholeParty = (f: Fighter) => !f.name && f.side === 'party'
+  /** The turn in the centre: the newest one with something done (taken, rolled or told). */
+  const shown = $derived(turns.findLast((turn) => turn.stage !== 'choosing'))
+  /**
+   * Whose turn the header says: the one choosing; else the one shown while it's read or
+   * waits for a roll (a foe's turn waiting for Next is still that foe's).
+   */
+  const whose = $derived(
+    choosing && acting
+      ? wholeParty(acting)
+        ? t('fight.partyWhose')
+        : t('fight.whose', { name: nameOf(acting) })
+      : shown && (next !== undefined || shown.stage === 'rolling')
+        ? shown.who
+          ? t('fight.whose', { name: shown.who })
+          : t('fight.partyWhose')
+        : acting
+          ? wholeParty(acting)
+            ? t('fight.partyWhose')
+            : t('fight.whose', { name: nameOf(acting) })
+          : '',
+  )
   /** The sides, foes across the table, the party near the player; the turn between them. */
   const SIDES = ['foes', 'party'] as const
   /** The log, kept scrolled to its newest moment as moments come. */
   let logEl = $state<HTMLOListElement | undefined>()
   $effect(() => {
-    void log.length
+    void turns.length
+    void turns.at(-1)?.stage
     void tick().then(() => logEl?.scrollTo({ top: logEl.scrollHeight }))
   })
 </script>
+
+<!-- A turn with something done: who did what to whom, then its dice and what it left. -->
+{#snippet told(turn: FightTurn)}
+  {#key turn.id}
+    <div class="last" class:foes={turn.side === 'foes'} aria-live="polite">
+      <p class="said">
+        <!-- Said once: the system's own words often name who already. -->
+        {#if turn.who && !turn.what.includes(turn.who)}<strong>{turn.who}</strong>{/if}
+        <span>{turn.what}</span>{#if turn.on}<span class="on">→ {turn.on}</span>{/if}
+      </p>
+      {#if turn.stage === 'told'}
+        {#each turn.rolls as r, i (i)}{@render rolled(r)}{/each}
+        {#if turn.outcome.length}
+          <ul class="outcome">
+            {#each turn.outcome as line, i (i)}<li>{line}</li>{/each}
+          </ul>
+        {:else}
+          <p class="hint">{t('fight.noChange')}</p>
+        {/if}
+        {#if turn.more.length}
+          <details class="more">
+            <summary>{t('fight.more', { n: turn.more.length })}</summary>
+            <ul>
+              {#each turn.more as line, i (i)}<li>{line}</li>{/each}
+            </ul>
+          </details>
+        {/if}
+      {/if}
+    </div>
+  {/key}
+{/snippet}
+
+<!-- A roll of the turn: what it's for, its dice, and what a short table could give. -->
+{#snippet rolled(r: TurnRoll)}
+  <div class="rolled">
+    <span class="overline">{r.label}</span>
+    <DiceTray rolls={r.dice} {locale} large animate />
+    {#if r.rows}
+      <ol class="ladder" aria-label={t('yourRoll.ladder')}>
+        {#each r.rows as row (row.key)}
+          <li class:hit={row.key === r.hit}><span class="range">{row.range}</span> {row.text}</li>
+        {/each}
+      </ol>
+    {/if}
+  </div>
+{/snippet}
 
 <section class="fight" aria-label={t('fight.title', { round })}>
   <!-- One line on top: the round and whose turn; the fight's settings small at its end. -->
   <header>
     <h3>
-      {t('fight.round', { round })}{#if acting}<span class="whose"
-          >· {wholeParty(acting)
-            ? t('fight.partyWhose')
-            : t('fight.whose', { name: nameOf(acting) })}</span
+      {ended ? t('fight.over') : t('fight.round', { round })}{#if whose && !ended}<span
+          class="whose">· {whose}</span
         >{/if}<InfoTip markdown={t('fight.help')} />
     </h3>
     <div class="tools">
       {@render tools?.()}
-      {#if onend}
+      {#if onend && !ended}
         <button use:tooltip={held || t('fight.endTip')} disabled={!!held} onclick={onend}
           >{t('fight.end')}</button
         >
@@ -130,46 +204,51 @@
   </header>
   <div class="body">
     <div class="table">
-      {#each SIDES as side (side)}
+      {#if ended}
+        <!-- Over: how it ended, who went, what it left, what its end did. -->
+        <!-- Its last turn first: the blow that ended it is read here, not skipped. -->
+        {#if shown}<div class="centre ending">{@render told(shown)}</div>{/if}
+        <div class="closing" aria-live="polite">
+          <h4>{t('fight.overIn', { rounds: ended.rounds })}</h4>
+          {#if ended.gone.length}
+            <ul class="outcome">
+              {#each ended.gone as line, i (i)}<li>{line}</li>{/each}
+            </ul>
+          {/if}
+          {#if ended.left.length}
+            <p class="overline">{t('fight.leftTitle')}</p>
+            <ul>
+              {#each ended.left as line, i (i)}<li>{line}</li>{/each}
+            </ul>
+          {/if}
+          {#if ended.lines.length}
+            <p class="overline">{t('fight.endTitle')}</p>
+            <ul>
+              {#each ended.lines as line, i (i)}<li>{line}</li>{/each}
+            </ul>
+          {/if}
+          {#if onclose}
+            <button class="button primary" onclick={onclose}>{t('fight.close')}</button>
+          {/if}
+        </div>
+      {/if}
+      {#each ended ? [] : SIDES as side (side)}
         {#if side === 'party'}
           <!-- The centre of the table: the turn, what's rolled and why, what it did. -->
           <div class="centre">
-            {#if last}
-              {#key last.id}
-                <div class="last" class:foes={last.side === 'foes'} aria-live="polite">
-                  <p class="said">
-                    <!-- Said once: the system's own words often name who already. -->
-                    {#if last.who && !last.what.includes(last.who)}<strong>{last.who}</strong>{/if}
-                    <span>{last.what}</span>{#if last.on}<span class="on">→ {last.on}</span>{/if}
-                  </p>
-                  {#if last.dice.length}<DiceTray rolls={last.dice} {locale} large animate />{/if}
-                  {#if last.results.length}
-                    <ul class="results">
-                      {#each last.results as r, i (i)}<li>{r}</li>{/each}
-                    </ul>
-                  {:else}
-                    <p class="hint">{t('fight.noChange')}</p>
-                  {/if}
-                </div>
-              {/key}
-            {/if}
+            {#if shown}{@render told(shown)}{/if}
             {@render roll?.()}
             {@render asks?.()}
             {#if next !== undefined && onnext}
-              {@const done = fighters.findLast((f) => f.done && f.side === 'foes')}
               {@const up = fighters.find((f) => f.id === next)}
               <div class="next">
-                <p class="turn">
-                  {t('fight.shown', {
-                    name: done ? nameOf(done) : '',
-                    next: up ? nameOf(up) : '',
-                  })}
-                </p>
-                <button class="button primary" onclick={onnext}>{t('fight.next')}</button>
+                <button class="button primary" onclick={onnext}
+                  >{up ? t('fight.nextIs', { next: nameOf(up) }) : t('fight.next')}</button
+                >
               </div>
             {:else if asking}
               <p class="turn asking">{asking}</p>
-            {:else if acting}
+            {:else if acting && (choosing || shown?.stage !== 'rolling')}
               <p class="turn" class:yours={choosing}>
                 {choosing
                   ? wholeParty(acting)
@@ -253,19 +332,41 @@
     <aside class="log-column">
       <h4 class="overline">{t('fight.log')}</h4>
       <ol class="log" aria-label={t('fight.log')} bind:this={logEl}>
-        {#each log as told (told.id)}
-          <li>
-            <BeatView
-              {told}
-              {locale}
-              foldable
-              bind:folded={
-                () => !(unfolded[told.id] ?? told.id === log.at(-1)?.id),
-                (folded) => (unfolded = { ...unfolded, [told.id]: !folded })
-              }
-            />
+        {#if opening.length}
+          <li class="told">
+            {#each opening as line, i (i)}<p class="rest">{line}</p>{/each}
           </li>
+        {/if}
+        {#each turns as turn, i (turn.id)}
+          {#if turn.round !== turns[i - 1]?.round}
+            <li class="overline round">{t('fight.round', { round: turn.round })}</li>
+          {/if}
+          {#each turn.before as line, j (j)}<li class="told"><p class="rest">{line}</p></li>{/each}
+          {#if turn.stage !== 'choosing'}
+            <li class="told" class:foes={turn.side === 'foes'} class:now={turn.id === shown?.id}>
+              <p class="line">
+                {#if turn.who && !turn.what.includes(turn.who)}<strong>{turn.who}</strong>{/if}
+                {turn.what}{#if turn.on}<span>&nbsp;→ {turn.on}</span>{/if}
+              </p>
+              {#each turn.rolls as r, j (j)}
+                <p class="rest">
+                  {r.label}: {r.dice.map((d) => d.total).join(', ')}
+                </p>
+              {/each}
+              {#each turn.outcome as line, j (j)}<p class="left">{line}</p>{/each}
+              {#if turn.more.length}
+                <details class="more">
+                  <summary>{t('fight.more', { n: turn.more.length })}</summary>
+                  {#each turn.more as line, j (j)}<p class="rest">{line}</p>{/each}
+                </details>
+              {/if}
+            </li>
+          {/if}
         {/each}
+        {#if ended}
+          <li class="overline round">{t('fight.overIn', { rounds: ended.rounds })}</li>
+          {#each ended.lines as line, i (i)}<li class="told"><p class="rest">{line}</p></li>{/each}
+        {/if}
       </ol>
     </aside>
   </div>
@@ -356,6 +457,7 @@
     width: 190px;
   }
 
+  /* Tall enough for a turn told, so the cards keep their place as turns come and go. */
   .centre {
     display: flex;
     flex-direction: column;
@@ -363,6 +465,7 @@
     gap: 10px;
     width: 100%;
     max-width: 560px;
+    min-height: 260px;
     margin: 0 auto;
   }
 
@@ -455,12 +558,110 @@
     font-weight: 600;
   }
 
-  .results {
+  /* What it left, large: the one thing to read. */
+  .outcome {
     margin: 0;
     padding: 0;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 600;
     list-style: none;
+  }
+
+  /* A roll of the turn: what it's for over its dice, what it could give under them. */
+  .rolled {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .ladder {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 6px;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    list-style: none;
+  }
+
+  .ladder li {
+    padding: 2px 8px;
+    color: var(--text-muted);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+  }
+
+  .ladder li.hit {
+    font-weight: 600;
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .ladder .range {
+    font-weight: 600;
+  }
+
+  /* Everything else the turn did, folded. */
+  .more {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .more summary {
+    cursor: pointer;
+  }
+
+  .more ul {
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The fight over: its closing card, where the table was. */
+  .closing {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    background: var(--panel);
+    border-top: 3px solid var(--accent);
+    border-radius: 6px;
+  }
+
+  .centre.ending {
+    min-height: 0;
+  }
+
+  .closing h4,
+  .closing p {
+    margin: 0;
+  }
+
+  .closing ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .closing ul:not(.outcome) {
+    font-size: 14px;
+  }
+
+  .closing button {
+    margin-top: 8px;
+    padding: 6px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
   .last .hint {
@@ -545,12 +746,43 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     min-height: 0;
     overflow-y: auto;
     margin: 0;
     padding: 0;
+    font-size: 13px;
     list-style: none;
+  }
+
+  .log .round {
+    margin-top: 6px;
+  }
+
+  /* A turn: a line of who did what, then what it left; the party's and the foes' told apart. */
+  .log .told {
+    padding-left: 8px;
+    border-left: 2px solid var(--accent);
+  }
+
+  .log .told.foes {
+    border-left-color: var(--danger);
+  }
+
+  .log .told.now {
+    background: var(--panel);
+  }
+
+  .log p {
+    margin: 0;
+  }
+
+  .log .left {
+    font-weight: 600;
+  }
+
+  .log .rest {
+    color: var(--text-muted);
   }
 
   /* Narrow: the log under the table, the cards smaller. */

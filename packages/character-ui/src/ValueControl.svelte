@@ -76,16 +76,23 @@
           aria-label={t('less', { name: label })}
           onclick={() => step(-1)}>−</button
         >{/if}
-      <button
-        type="button"
-        class="bar"
-        aria-label={`${label}: ${view.value} / ${against}`}
-        {disabled}
-        onclick={barAt}
-      >
-        <span class="fill" style:width="{(view.fill ?? 0) * 100}%"></span>
-        <span class="count">{view.value} / {against}</span>
-      </button>
+      {#if disabled}
+        <!-- Only drawn (a card at a glance): no button, so what holds it takes the click. -->
+        <span class="bar drawn" role="img" aria-label={`${label}: ${view.value} / ${against}`}>
+          <span class="fill" style:width="{(view.fill ?? 0) * 100}%"></span>
+          <span class="count">{view.value} / {against}</span>
+        </span>
+      {:else}
+        <button
+          type="button"
+          class="bar"
+          aria-label={`${label}: ${view.value} / ${against}`}
+          onclick={barAt}
+        >
+          <span class="fill" style:width="{(view.fill ?? 0) * 100}%"></span>
+          <span class="count">{view.value} / {against}</span>
+        </button>
+      {/if}
       {#if !disabled}<button
           type="button"
           class="step"
@@ -260,8 +267,11 @@
     border-color: var(--accent);
   }
 
-  .bar:disabled {
-    cursor: default;
+  .bar.drawn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: inherit;
   }
 
   .fill {

@@ -8,7 +8,6 @@
     fromCatalogue,
     presentHere,
     usesOf,
-    beatsOf,
     PARTY_ID,
     systemSheets,
     type Declared,
@@ -92,7 +91,8 @@
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
   import FightPanel from './FightPanel.svelte'
-  import { tellTurn, type CardAction } from './turns'
+  import { mainValue } from '@open-tabletop/character-engine'
+  import { ladderOf, tellFight, type CardAction, type TableRow } from './turns'
   import YourRoll from './YourRoll.svelte'
   import { setRollWay } from './rollWay'
   import BeatView from './BeatView.svelte'
@@ -122,6 +122,7 @@
     hexLabel = (hex) => hex,
     terrainName = (id) => id.replaceAll('-', ' '),
     nameOf = (id) => id,
+    rowsOf,
     destinationHint = '',
     arrivedHint = '',
     title = '',
@@ -155,6 +156,8 @@
     terrainName?: (id: string) => string
     /** Display name of an Oracle definition (journal entries of hand rolls). */
     nameOf?: (id: string) => string
+    /** A table's rows (full id), for what a roll can give (oracle-ui's `packTexts`). */
+    rowsOf?: (id: string) => readonly TableRow[] | undefined
     /** Shown when there is no destination yet, e.g. "Click a hex to set the destination." */
     destinationHint?: string
     arrivedHint?: string
@@ -410,19 +413,58 @@
   )
   /** The rest: in the turn's bar. */
   const barActions = $derived(turnActions.filter((id) => foeParam(id) === undefined))
-  /** The fight's last turn, told in one sentence (docs/fight-ux.md, C). */
-  const lastTurn = $derived.by(() => {
-    if (!fight) return undefined
-    const journal = session.journal
-    const start = journal.findLastIndex((e) => e.code === 'ENCOUNTER_STARTED')
-    if (start < 0) return undefined
-    const beats = beatsOf(journal.slice(start))
-    for (let i = beats.length - 1; i >= 0; i--) {
-      const first = journal.indexOf(beats[i]!.entries[0]!)
-      const told = tellTurn(beats[i]!, journal.slice(start, first), context, whoName)
-      if (told) return told
+  /**
+   * The fight just over, kept on its stage for its closing card: the journal's lines it's told
+   * from (its first, and where the journal stood as it ended). Anything played after it puts
+   * it away.
+   */
+  let over = $state<{ upto: number } | undefined>()
+  let fought = false
+  $effect(() => {
+    if (fight) {
+      fought = true
+      over = undefined
+    } else if (fought) {
+      fought = false
+      over = { upto: untrack(() => session.nextEntry) }
     }
-    return undefined
+  })
+  $effect(() => {
+    if (over && session.nextEntry > over.upto) over = undefined
+  })
+  /** Each fighter's main value, as a path (its sheet's `main`): what a turn's outcome tells. */
+  const mainPaths = $derived(
+    new Set(
+      [
+        ...(session.members ?? []),
+        ...[...(session.present ?? []), ...(session.leaving ?? [])].map((p) => p.character),
+      ].flatMap((c) => {
+        const sheet = sheets[c.sheet]
+        const main = sheet && mainValue(sheet)
+        return main ? [`characters.${c.id}.values.${main}`] : []
+      }),
+    ),
+  )
+  /** The fight told a turn at a time (docs/fight-turn.md): the one going on, or the one just over. */
+  const told = $derived.by(() => {
+    if (!fight && !over) return undefined
+    const journal = session.journal
+    // The whole moment that started it (the ambush, Fight), from its first line.
+    const started = journal.findLast((e) => e.code === 'ENCOUNTER_STARTED')
+    if (!started) return undefined
+    const first = started.beat !== undefined ? `j${started.beat}` : started.id
+    const start = journal.findIndex((e) => e.id === first)
+    return tellFight(journal.slice(Math.max(0, start)), context, {
+      whoName,
+      isMain: (path) => mainPaths.has(path),
+      rowsOf: (id) => ladderOf(rowsOf?.(id)),
+      waiting:
+        !!session.yours?.length ||
+        !!waiting ||
+        travel.pendingChecks.length > 0 ||
+        !!session.asking?.length ||
+        !!session.sharing?.length,
+    })
   })
   /** What the last step did to each fighter's main value (a blow's −2), by id. */
   const fightChanges = $derived(
@@ -436,17 +478,6 @@
         )
       : {},
   )
-  /** The fight's moments, oldest first: the whole fight, from its start on. */
-  const fightLog = $derived.by(() => {
-    if (!fight) return []
-    // The whole moment that started it (the ambush, Fight), from its first line.
-    const started = session.journal.findLast((e) => e.code === 'ENCOUNTER_STARTED')
-    const first = started?.beat !== undefined ? `j${started.beat}` : started?.id
-    const start = session.journal.findIndex((e) => e.id === first)
-    return beatsOf(session.journal.slice(Math.max(0, start))).map((b) =>
-      tellBeat(b, context, 'story'),
-    )
-  })
   const choiceOf = (id: string, key: string, param: ActionParam) =>
     chosen[id]?.[key] ?? String(paramDefault(param))
   /** What an action is taken with: each parameter's choice, as the pack wrote it (`3`, not `'3'`). */
@@ -692,7 +723,7 @@
     if (fighting) stageAway = false
     void tick().then(() => {
       const el = (fighting ? stageEl() : tripEl)?.querySelector<HTMLElement>(
-        '.your-roll, .roll-ask, .pending, .centre',
+        '.your-roll, .pending, .centre',
       )
       if (!el) return
       el.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -788,6 +819,11 @@
     said={yours.said ?? ''}
     mode={yours.mode ? nameOf(yours.mode) : ''}
     how={yours.how}
+    rows={// The table's own roll (not one inside its result): what each total gives.
+    !yours.of && !yours.action && !yours.said && !yours.given?.length
+      ? ladderOf(rowsOf?.(yours.table))
+      : undefined}
+    staged={!!fight}
     {locale}
     ongive={(total) => onstep({ type: 'rolled', id: id, total })}
     onthrow={(rolled, title, why) => (thrown = { id, rolled, title, why })}
@@ -799,8 +835,13 @@
   />
 {/snippet}
 {#snippet rollWayChoice()}
-  <label class="way"
-    ><span>{t('rollWay.label')}<InfoTip markdown={t('rollWay.help')} /></span>
+  <!-- Never chosen yet: it asks, marked, until the player says (their preference from then on). -->
+  <label class="way" class:unset={!dicePreferences.rolls}
+    ><span
+      >{t(dicePreferences.rolls ? 'rollWay.label' : 'rollWay.ask')}<InfoTip
+        markdown={t('rollWay.help')}
+      /></span
+    >
     <select
       value={dicePreferences.rolls ?? 'computer'}
       onchange={(e) => {
@@ -811,22 +852,6 @@
       {#each DICE_ROLLS as way (way)}<option value={way}>{t(`rollWay.${way}`)}</option>{/each}
     </select></label
   >
-{/snippet}
-{#snippet rollWayAsk()}
-  <!-- Never chosen yet: the first fight asks, once (the player's preference from then on). -->
-  <div class="roll-ask" role="group" aria-label={t('rollWay.ask')}>
-    <p><strong>{t('rollWay.ask')}</strong><InfoTip markdown={t('rollWay.help')} /></p>
-    <div class="roll-ask-ways">
-      {#each DICE_ROLLS as way (way)}
-        <button
-          class="button"
-          class:primary={way === 'mine'}
-          onclick={() => onedit((s) => setRollWay(s, way))}>{t(`rollWay.${way}`)}</button
-        >
-      {/each}
-    </div>
-    <p class="hint">{t('rollWay.askHint')}</p>
-  </div>
 {/snippet}
 {#snippet whoRolls()}
   <select
@@ -1026,10 +1051,13 @@
         <button class="primary" onclick={() => (stageAway = false)}>{t('fight.back')}</button>
       </div>
     {/if}
-    {#if fight}
+    {#if fight || (over && told?.ended)}
       <div class="stage" use:portal hidden={stageAway} role="dialog" aria-modal="true">
         <FightPanel
-          {...fight}
+          round={fight?.round ?? told?.ended?.rounds ?? 0}
+          fighters={fight?.fighters ?? []}
+          choosing={fight?.choosing ?? false}
+          next={fight?.next}
           {locale}
           held={travel.pendingChecks.length
             ? t('blocked.pending')
@@ -1040,7 +1068,10 @@
           sheetOf={(c) => sheets[c.sheet]}
           changes={fightChanges}
           {targets}
-          log={fightLog}
+          turns={told?.turns}
+          opening={told?.opening}
+          ended={fight ? undefined : told?.ended}
+          onclose={() => (over = undefined)}
           ontarget={(id) => onstep({ type: 'resume', choice: id })}
           onnext={() => onstep({ type: 'encounter', what: 'next' })}
           {cardActions}
@@ -1063,12 +1094,10 @@
                 ),
               })
             : ''}
-          last={lastTurn}
           asks={tripAsks}
           onhide={() => (stageAway = true)}
         >
           {#snippet roll()}
-            {#if !dicePreferences.rolls}{@render rollWayAsk()}{/if}
             <!-- A roll of the player's waits here, in the fight, not apart. -->
             {#each travel.pendingChecks as check (check.id)}
               {@const yours = session.yours?.find((y) => y.id === check.id)}
@@ -1533,25 +1562,6 @@
     cursor: pointer;
   }
 
-  .roll-ask {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 8px 10px;
-    border: 2px solid var(--accent);
-    border-radius: 6px;
-  }
-
-  .roll-ask p {
-    margin: 0;
-  }
-
-  .roll-ask-ways {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
   .rolls {
     display: flex;
     flex-wrap: wrap;
@@ -1629,6 +1639,12 @@
   }
 
   /* Who rolls the trip's dice: its name, then its choice. */
+  /* Not chosen yet: it stands out until it is. */
+  .way.unset {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
   .way {
     display: grid;
     grid-template-columns: auto 1fr;

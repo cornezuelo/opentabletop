@@ -69,11 +69,14 @@ describe('the fight view', () => {
       const fight = session().encounter!
       if (fight.stage === 'shown') {
         html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
-        expect(html).toMatch(/<button class="button primary[^>]*>Next</)
-        expect(html).toContain('has acted. Next:')
+        // The button says who acts next; the strip, who has acted.
+        expect(html).toMatch(/<button class="button primary[^>]*>Next: [^<]+</)
+        expect(render(PlayStrip).body).toContain('has acted. Next:')
         expect(render(PlayStrip).body).toMatch(/>\s*Next\s*</)
+        // Next plays the foe's turn (which may wait again, before another foe's).
+        const before = session().journal.length
         step({ type: 'encounter', what: 'next' })
-        expect(session().encounter?.stage).not.toBe('shown')
+        expect(session().journal.length).toBeGreaterThan(before)
         read = true
       } else if (session().travel.waiting?.choices?.length)
         chooseOnMap(session().travel.waiting!.choices![0]!)

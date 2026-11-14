@@ -466,7 +466,8 @@ describe('the journal’s detail, and its filter', () => {
     expect(journal.slice(0, 3).map((e) => entryText(e, context))).toEqual([
       'Moment: Day: dusk',
       'Ambush doesn’t come up: the place’s danger is 1, and must be 2 or more',
-      'Encounter rolled: Wild encounters: 2d6 → 7  [3, 4] → 7; gm/wolves: 1d6 → 3  [3]',
+      // The row it fell on is the result's own line: its id is never said.
+      'Encounter rolled: Wild encounters: 2d6 → 7  [3, 4]; gm/wolves: 1d6 → 3  [3]',
     ])
     expect(entryText(journal[4], context)).toBe('Food: 5 → 3')
     expect(entryText(journal[5], context)).toBe('Weather: 2d6 = 7, south-east → light rain')

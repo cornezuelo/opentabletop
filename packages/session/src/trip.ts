@@ -1661,6 +1661,7 @@ function playStep(
     items: partyOf(system).items,
     templates: partyOf(system, options.locale),
     places: partyOf(system).places,
+    ...(system.encounter && { turnActions: system.encounter.actions }),
   })
   // In a fight, only what it allows (a member's turn, going on from what waits).
   if (encounterCloses(system, session, action))
