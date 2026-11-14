@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.55.0] - 2026-11-14
+
 ### Travel and Map
 
 - **Rolling yourself, the dice inside a result too**: with **Rolls** on what matters or everything, every roll with dice a result makes is yours, one after another: the table's, then a blow's damage (for each one it aims at), a table it leads to, dice in its text. Each card says what came up so far and whom the roll is for, and nothing of the result happens until the last; a roll with a roll mode says so (_with Advantage_), and **Roll** on screen rolls it that way. **Roll it for me** rolls just that one.
