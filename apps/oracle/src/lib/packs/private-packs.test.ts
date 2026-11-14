@@ -254,6 +254,55 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(done.state.encounter).toBeUndefined()
   })
 
+  it('progression: two Masteries started with the Ability Points, a level at 1,000 XP, no third Mastery', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'erthos', name: 'Erthos' })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded('p') }),
+    }
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'p' })
+    const learn = (s: typeof session, choice: string) => {
+      const asked = stepTrip(options, s, { type: 'action', id: 'learn' })
+      const offered = asked.state.travel.waiting?.choices ?? []
+      return { offered, state: stepTrip(options, asked.state, { type: 'resume', choice }).state }
+    }
+    // Two points to start: every Mastery's Tier 1 is offered, and nothing past it.
+    let s: typeof session = { ...session, acting: 'erthos' }
+    let step = learn(s, 'abyssal-reaver-1')
+    expect(step.offered).toHaveLength(20)
+    expect(step.offered.every((id) => id.endsWith('-1'))).toBe(true)
+    step = learn(step.state, 'arcanist-1')
+    expect(step.offered).toContain('abyssal-reaver-2')
+    s = step.state
+    const erthos = () => s.members!.find((m) => m.id === 'erthos')!
+    expect(erthos().values).toMatchObject({ points: 0, masteries: 2 })
+    expect(erthos().items!.map((i) => [i.id, i.place])).toEqual([
+      ['abyssal-reaver-1', 'masteries'],
+      ['arcanist-1', 'masteries'],
+    ])
+    // 1,000 XP: a level, a point, and Toughness +D6 chosen.
+    s = applyResult(s, { effects: { 'characters.erthos.values.xp': 1000 } }, {}, rules)
+    let done = stepTrip(options, s, { type: 'action', id: 'breather' })
+    expect(done.state.travel.waiting).toMatchObject({ action: 'level-up', ask: 'benefit' })
+    done = stepTrip(options, done.state, { type: 'resume', choice: 'toughness' })
+    s = done.state
+    expect(erthos().values).toMatchObject({ level: 2, xp: 0, points: 1 })
+    // Two Masteries followed: only their next tiers.
+    step = learn(s, 'arcanist-2')
+    expect(step.offered).toEqual(['abyssal-reaver-2', 'arcanist-2'])
+  })
+
   it('Set Camp: a ration for each of you, and each one rests', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
