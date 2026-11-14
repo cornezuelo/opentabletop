@@ -35,6 +35,23 @@ const whoName = (id: string) => names[id]
 const die = { expression: '1d6', terms: [], total: 4 }
 
 describe('a turn of a fight, told in one sentence', () => {
+  it('a foe going for the party played as a whole: the party, never its id', () => {
+    const beat = {
+      id: 'j1',
+      entries: [
+        line(1, 'ENCOUNTER_TURN', {
+          id: 'grey-wolf',
+          name: 'Grey wolf',
+          side: 'foes',
+          target: 'party',
+          targetName: '',
+        }),
+        line(2, 'ORACLE_RESULT', { event: 'table.wolf-turn' }, 'The wolf circles'),
+      ],
+    }
+    expect(tellTurn(beat, [], context, whoName)?.on).toBe('the party')
+  })
+
   it("a foe's: who, its table's result, whom it went for, what it left, its dice", () => {
     const beat = {
       id: 'j1',

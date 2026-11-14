@@ -265,6 +265,15 @@ export const en = {
   },
   /** A fight in turns: the shared fight panel. */
   fight: {
+    partyWhose: 'the party’s turn',
+    round: 'Round {round}',
+    whose: '{name}’s turn',
+    noChange: 'Nothing on the table changes.',
+    hide: 'See behind',
+    hideTip:
+      'Puts the fight aside for a moment to see the trip (or the map) behind it; it waits as it is, and Back to the fight brings it back.',
+    away: 'A fight goes on (round {round}).',
+    back: 'Back to the fight',
     title: 'Fight, round {round}',
     help: "A fight in turns, as the system says its fights go (`encounter:` in its rules): who acts in order, round by round. On a turn of the party's, the trip waits for you to choose what that one does among the fight's actions; the foes' turns go by themselves. Travelling and the trip's other actions wait until it ends. It ends by itself when the system's rule says (`ends`), when an action ends it, or by hand with **End the fight**.\n• `encounter: start` — an effect that starts one (the system's **Fight**, an ambush)\n• `ends: { present.count: 0 }` — over when nobody is left",
     order: 'Who acts, in order',
@@ -272,10 +281,11 @@ export const en = {
     foesSide: 'The foes, in order',
     choose: 'Choose {name}',
     log: 'What happened in the fight',
-    clickTarget: 'Click one of them above.',
+    clickTarget: 'Click their card.',
     shown: '{name} has acted. Next: {next}.',
     next: 'Next',
     theParty: 'The party',
+    thePartyInline: 'the party',
     party: 'party',
     foes: 'foes',
     yourTurnCards: '{name}’s turn: what they do to a foe is on its card.',

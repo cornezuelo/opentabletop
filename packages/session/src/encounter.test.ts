@@ -4,7 +4,7 @@ import { seeded } from '@open-tabletop/random'
 import { createCharacter } from '@open-tabletop/character-engine'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
-import { encounterView, fightStarters, parseEncounter } from './encounter'
+import { encounterView, fightStarters, parseEncounter, participantName } from './encounter'
 import { applyResult } from './index'
 import { beatsOf, notableLines } from './journal'
 import {
@@ -776,5 +776,24 @@ describe('the foes’ turns one at a time', () => {
     for (const foe of ['goblin', 'goblin-2'])
       s = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe } }).state
     expect(s.encounter?.stage).toBe('acting')
+  })
+})
+
+describe('one who left', () => {
+  it('is still named as it was, never by its id', () => {
+    const s = {
+      journal: [
+        {
+          id: 'j1',
+          at: '',
+          time: 0,
+          source: 'travel',
+          code: 'PRESENT_LEFT',
+          data: { id: 'grey-wolf-2', name: 'Grey wolf 2' },
+        },
+      ],
+    } as unknown as SessionState
+    expect(participantName(s, 'grey-wolf-2')).toBe('Grey wolf 2')
+    expect(participantName(s, 'nobody')).toBe('nobody')
   })
 })

@@ -1,4 +1,4 @@
-import type { Beat, JournalEntry } from '@open-tabletop/session'
+import { PARTY_ID, type Beat, type JournalEntry } from '@open-tabletop/session'
 import type { TooltipText } from '@open-tabletop/ui-kit'
 import { diceOf, type Dice } from './beats'
 import { entryText, type JournalContext } from './journal'
@@ -88,13 +88,24 @@ export function tellTurn(
       id: beat.id,
       who: String(turn.data?.name || ''),
       what: skipped ? entryText(skipped, context) : (result?.text ?? context.t('fight.nothing')),
-      on: turn.data?.target !== undefined ? String(turn.data.targetName || turn.data.target) : '',
+      on: turn.data?.target !== undefined ? targetName(turn.data, context, whoName) : '',
       results,
       dice,
       side: 'foes',
     }
   }
   return undefined
+}
+
+/** Whom a foe went for, by name: the party played as a whole is _the party_, never its id. */
+function targetName(
+  data: Record<string, unknown>,
+  context: JournalContext,
+  whoName: (id: string) => string | undefined,
+): string {
+  if (data.targetName) return String(data.targetName)
+  const id = String(data.target)
+  return id === PARTY_ID ? context.t('fight.thePartyInline') : (whoName(id) ?? id)
 }
 
 /** A path of a fighter: a character's (`characters.<id>.…`), not the party's own nor the map's. */

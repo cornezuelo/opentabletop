@@ -1659,7 +1659,7 @@ function playStep(
     partySheet: system.partySheet,
     mapSheet: system.mapSheet,
     items: partyOf(system).items,
-    templates: partyOf(system),
+    templates: partyOf(system, options.locale),
     places: partyOf(system).places,
   })
   // In a fight, only what it allows (a member's turn, going on from what waits).
@@ -1855,7 +1855,7 @@ function handSession(
     partySheet: system.partySheet,
     mapSheet: system.mapSheet,
     items: partyOf(system).items,
-    templates: partyOf(system),
+    templates: partyOf(system, options.locale),
   })
 }
 

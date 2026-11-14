@@ -1,6 +1,7 @@
 import {
   FACT_PATHS,
   MEMBER_PATH,
+  PARTY_ID,
   localize,
   shownAt,
   tripChanges,
@@ -660,9 +661,12 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       if (d.target !== undefined)
         return t('journal.encounterTurnAims', {
           name: String(d.name || d.id || ''),
-          target: String(d.targetName || d.target),
+          // The party played as a whole is named, never by its id.
+          target: String(
+            d.targetName || (d.target === PARTY_ID ? t('fight.thePartyInline') : d.target),
+          ),
         })
-      return d.name || d.id !== 'party'
+      return d.name || d.id !== PARTY_ID
         ? t('journal.encounterTurn', { name: String(d.name || d.id || '') })
         : t('journal.encounterPartyTurn')
     // A foe's turn waiting for the player to roll its table (journals before the trip's Rolls).

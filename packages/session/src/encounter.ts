@@ -215,7 +215,13 @@ export const sideOf = (s: SessionState, id: string): Side =>
 /** A participant's name: a member's or a copy's (its id if none); the party's ('' if none). */
 export function participantName(s: SessionState, id: string): string {
   if (id === PARTY_ID) return s.party?.name ?? ''
-  return participant(s, id)?.name ?? id
+  return participant(s, id)?.name ?? leftName(s, id) ?? id
+}
+
+/** The name one of those present had when it left (fell, fled): the journal says it. */
+export function leftName(s: SessionState, id: string): string | undefined {
+  const left = s.journal.findLast((e) => e.code === 'PRESENT_LEFT' && e.data?.id === id)
+  return typeof left?.data?.name === 'string' ? left.data.name : undefined
 }
 
 /**

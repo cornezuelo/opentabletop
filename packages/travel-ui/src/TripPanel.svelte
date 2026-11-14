@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tick, type Snippet } from 'svelte'
+  import { tick, untrack, type Snippet } from 'svelte'
   import type { DiceResult } from '@open-tabletop/dice'
   import {
     encounterView,
@@ -72,6 +72,7 @@
   import {
     confirmAction,
     DiceThrow,
+    portal,
     DICE_ROLLS,
     dicePreferences,
     InfoTip,
@@ -309,6 +310,11 @@
       presentHere(session).length > 0 &&
       !fightStarters(system.rules).length,
   )
+  /** The fight's stage put aside for a while (**See behind**); a new fight shows it again. */
+  let stageAway = $state(false)
+  $effect(() => {
+    if (!fight) stageAway = false
+  })
   async function endFight() {
     if (await confirmAction(t('fight.confirmEnd'))) onstep({ type: 'encounter', what: 'end' })
   }
@@ -428,16 +434,16 @@
         )
       : {},
   )
-  /** The fight's moments, newest first: the whole fight, from its start on. */
+  /** The fight's moments, oldest first: the whole fight, from its start on. */
   const fightLog = $derived.by(() => {
     if (!fight) return []
     // The whole moment that started it (the ambush, Fight), from its first line.
     const started = session.journal.findLast((e) => e.code === 'ENCOUNTER_STARTED')
     const first = started?.beat !== undefined ? `j${started.beat}` : started?.id
     const start = session.journal.findIndex((e) => e.id === first)
-    return beatsOf(session.journal.slice(Math.max(0, start)))
-      .reverse()
-      .map((b) => tellBeat(b, context, 'story'))
+    return beatsOf(session.journal.slice(Math.max(0, start))).map((b) =>
+      tellBeat(b, context, 'story'),
+    )
   })
   const choiceOf = (id: string, key: string, param: ActionParam) =>
     chosen[id]?.[key] ?? String(paramDefault(param))
@@ -675,11 +681,16 @@
   ])
   /** The panel, to scroll to what the trip waits for when asked (`showWaiting`). */
   let tripEl = $state<HTMLDivElement | undefined>()
+  /** The fight's stage, moved to the page's end (`portal`). */
+  const stageEl = () => document.querySelector<HTMLElement>('body > .stage')
   $effect(() => {
     if (!tripTab.attention) return
+    // In a fight, what it waits for is on its stage.
+    const fighting = untrack(() => !!fight)
+    if (fighting) stageAway = false
     void tick().then(() => {
-      const el = tripEl?.querySelector<HTMLElement>(
-        '.your-roll, .roll-ask, .pending, section.fight',
+      const el = (fighting ? stageEl() : tripEl)?.querySelector<HTMLElement>(
+        '.your-roll, .roll-ask, .pending, .centre',
       )
       if (!el) return
       el.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -824,6 +835,142 @@
   </select>
 {/snippet}
 
+{#snippet tripAsks()}
+  <!-- What else the trip waits for: a check, a share, room, the world, a step's question. -->
+  {#each travel.pendingChecks as check (check.id)}
+    {@const yours = session.yours?.find((y) => y.id === check.id)}
+    {#if yours}
+      {#if !fight}{@render yourRoll(check.id, check.event, yours)}{/if}
+    {:else}
+      <div class="pending" class:asks={session.asking?.includes(check.id)}>
+        <span
+          >{t(
+            session.asking?.includes(check.id)
+              ? 'journal.asks'
+              : check.rolled
+                ? 'journal.paused'
+                : 'journal.pending',
+            {
+              event: placeIdOf(check.context)
+                ? t('journal.eventAt', {
+                    event: pendingName(check.event),
+                    hex: hexLabel(placeIdOf(check.context)!),
+                  })
+                : pendingName(check.event),
+            },
+          )}{cameUp(check.id)}{#if checkTip(check.event)}<InfoTip
+              markdown={checkTip(check.event)}
+            />{/if}</span
+        >
+        {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
+        <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}
+          >{t('continue')}</button
+        >
+      </div>
+    {/if}
+  {/each}
+
+  <!-- What the party spent or gained, shared out by the rule: who gives it (Ask who gives). -->
+  {#if sharing && onshare}
+    {@const count = Math.abs(sharing.delta)}
+    <div class="pending asks share">
+      <span
+        >{t(sharing.delta < 0 ? 'share.gives' : 'share.takes', {
+          count,
+          name: memberName(`party.items.${sharing.item}`) ?? sharing.item,
+        })}<InfoTip text={t('share.help')} /></span
+      >
+      <div class="givers">
+        {#each (session.members ?? []).filter((m) => m.id in shareRoom) as m (m.id)}
+          <label
+            >{memberLabel(m)}
+            <input
+              type="number"
+              min="0"
+              max={sharing.delta < 0 ? shareRoom[m.id] : count}
+              value={shareAmounts[m.id] ?? 0}
+              onchange={(e) => setShare(m.id, Number(e.currentTarget.value))}
+            />{#if sharing.delta < 0}<span class="help"
+                >{t('share.of', { room: shareRoom[m.id] })}</span
+              >{/if}</label
+          >
+        {/each}
+      </div>
+      <span class:help={shareDone === count} class:wrong={shareDone !== count}
+        >{t('share.total', { done: shareDone, count })}</span
+      >
+      <button
+        disabled={shareDone !== count ||
+          (sharing.delta < 0 &&
+            Object.entries(shareAmounts).some(([id, n]) => n > (shareRoom[id] ?? 0)))}
+        onclick={answerShare}>{t('share.keep')}</button
+      >
+    </div>
+  {/if}
+
+  <!-- Items given with no room left, waiting for the player to make room on the cards. -->
+  {#if roomless.length}
+    <div class="pending asks">
+      <span
+        >{t('room.waits', {
+          names: roomless
+            .map((id) => {
+              const m = [session.party, ...(session.members ?? [])].find((c) => c?.id === id)
+              return m ? memberLabel(m) : id
+            })
+            .join(', '),
+        })}<InfoTip text={t('room.help')} /></span
+      >
+    </div>
+  {/if}
+
+  <!-- The campaign's world waits for the player: the trip goes on once it's answered. -->
+  {#if worldWaiting && onworld}
+    <WorldWaiting {locale} waiting={worldWaiting} onanswer={onworld} />
+  {/if}
+
+  <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
+  {#if waiting && !targets.length}
+    <div class="pending" class:asks={!!asked}>
+      <span
+        >{entryText(
+          {
+            id: '',
+            at: '',
+            time: waiting.time,
+            source: 'travel',
+            code: 'HELD',
+            data: { waiting },
+          },
+          context,
+        )}{#if asked && localize(asked.description, locale, 'en')}<InfoTip
+            markdown={localize(asked.description, locale, 'en')}
+          />{/if}</span
+      >
+      {#if asked && waiting.choices && targets.length}
+        <!-- Chosen in the fight, by their cards. -->
+        <span class="help">{t('fight.clickTarget')}</span>
+      {:else if asked && waiting.choices}
+        <!-- Choices the trip listed (`from: present.ids`): whoever they are, by name. -->
+        {#each waiting.choices as id (id)}
+          <button onclick={() => onstep({ type: 'resume', choice: id })}
+            >{listsItems ? itemName({ id }, system.items ?? [], locale) : whoName(id)}</button
+          >
+        {/each}
+      {:else if asked}
+        {#each asked.choices ?? [] as c (String(choiceId(c)))}
+          <button
+            use:tooltip={choiceTip(c)}
+            onclick={() => onstep({ type: 'resume', choice: choiceId(c) })}>{askedName(c)}</button
+          >
+        {/each}
+      {:else}
+        <button onclick={() => onstep({ type: 'resume' })}>{t('continue')}</button>
+      {/if}
+    </div>
+  {/if}
+{/snippet}
+
 {#if thrown}
   {@const now = thrown}
   <DiceThrow
@@ -867,197 +1014,76 @@
       </div>
     {/if}
     {@render here?.()}
-    <!-- A fight in turns: whose turn it is, above what the party can do on it. -->
+    <!-- A fight in turns: a stage over everything while it lasts (docs/fight-stage.md). -->
+    {#if fight && stageAway}
+      <div class="fight-away">
+        <span>{t('fight.away', { round: fight.round })}</span>
+        <button class="primary" onclick={() => (stageAway = false)}>{t('fight.back')}</button>
+      </div>
+    {/if}
     {#if fight}
-      <FightPanel
-        {...fight}
-        {locale}
-        held={travel.pendingChecks.length
-          ? t('blocked.pending')
-          : waiting || session.asking?.length
-            ? t('blocked.held')
+      <div class="stage" use:portal hidden={stageAway} role="dialog" aria-modal="true">
+        <FightPanel
+          {...fight}
+          {locale}
+          held={travel.pendingChecks.length
+            ? t('blocked.pending')
+            : waiting || session.asking?.length
+              ? t('blocked.held')
+              : ''}
+          onend={endFight}
+          sheetOf={(c) => sheets[c.sheet]}
+          changes={fightChanges}
+          {targets}
+          log={fightLog}
+          ontarget={(id) => onstep({ type: 'resume', choice: id })}
+          onnext={() => onstep({ type: 'encounter', what: 'next' })}
+          {cardActions}
+          onact={(id, foe) => {
+            const given = withOf(id)
+            onstep({ type: 'action', id, with: { ...given, [foeParam(id)!]: foe } })
+          }}
+          asking={targets.length && waiting
+            ? t('fight.asking', {
+                question: entryText(
+                  {
+                    id: '',
+                    at: '',
+                    time: waiting.time,
+                    source: 'travel',
+                    code: 'HELD',
+                    data: { waiting },
+                  },
+                  context,
+                ),
+              })
             : ''}
-        onend={endFight}
-        sheetOf={(c) => sheets[c.sheet]}
-        changes={fightChanges}
-        {targets}
-        log={fightLog}
-        ontarget={(id) => onstep({ type: 'resume', choice: id })}
-        onnext={() => onstep({ type: 'encounter', what: 'next' })}
-        {cardActions}
-        onact={(id, foe) => {
-          const given = withOf(id)
-          onstep({ type: 'action', id, with: { ...given, [foeParam(id)!]: foe } })
-        }}
-        asking={targets.length && waiting
-          ? t('fight.asking', {
-              question: entryText(
-                {
-                  id: '',
-                  at: '',
-                  time: waiting.time,
-                  source: 'travel',
-                  code: 'HELD',
-                  data: { waiting },
-                },
-                context,
-              ),
-            })
-          : ''}
-        last={lastTurn}
-      >
-        {#snippet roll()}
-          {#if !dicePreferences.rolls}{@render rollWayAsk()}{/if}
-          <!-- A roll of the player's waits here, in the fight, not apart. -->
-          {#each travel.pendingChecks as check (check.id)}
-            {@const yours = session.yours?.find((y) => y.id === check.id)}
-            {#if yours}{@render yourRoll(check.id, check.event, yours)}{/if}
-          {/each}
-          {#each stepRolls as yours (yours.id)}{@render yourRoll(yours.id, '', yours)}{/each}
-        {/snippet}
-        {#snippet turnBar()}
-          {#each barActions as id (id)}{@render actionButton(id)}{/each}
-        {/snippet}
-        {#snippet tools()}<span class="fight-rolls">{@render rollWayChoice()}</span>{/snippet}
-      </FightPanel>
+          last={lastTurn}
+          asks={tripAsks}
+          onhide={() => (stageAway = true)}
+        >
+          {#snippet roll()}
+            {#if !dicePreferences.rolls}{@render rollWayAsk()}{/if}
+            <!-- A roll of the player's waits here, in the fight, not apart. -->
+            {#each travel.pendingChecks as check (check.id)}
+              {@const yours = session.yours?.find((y) => y.id === check.id)}
+              {#if yours}{@render yourRoll(check.id, check.event, yours)}{/if}
+            {/each}
+            {#each stepRolls as yours (yours.id)}{@render yourRoll(yours.id, '', yours)}{/each}
+          {/snippet}
+          {#snippet turnBar()}
+            {#each barActions as id (id)}{@render actionButton(id)}{/each}
+          {/snippet}
+          {#snippet tools()}<span class="fight-rolls">{@render rollWayChoice()}</span>{/snippet}
+        </FightPanel>
+      </div>
     {/if}
 
     <!-- What needs you first, then what the party can do: right under where it is. -->
     {#if !fight}
       {#each stepRolls as yours (yours.id)}{@render yourRoll(yours.id, '', yours)}{/each}
     {/if}
-    {#each travel.pendingChecks as check (check.id)}
-      {@const yours = session.yours?.find((y) => y.id === check.id)}
-      {#if yours}
-        {#if !fight}{@render yourRoll(check.id, check.event, yours)}{/if}
-      {:else}
-        <div class="pending" class:asks={session.asking?.includes(check.id)}>
-          <span
-            >{t(
-              session.asking?.includes(check.id)
-                ? 'journal.asks'
-                : check.rolled
-                  ? 'journal.paused'
-                  : 'journal.pending',
-              {
-                event: placeIdOf(check.context)
-                  ? t('journal.eventAt', {
-                      event: pendingName(check.event),
-                      hex: hexLabel(placeIdOf(check.context)!),
-                    })
-                  : pendingName(check.event),
-              },
-            )}{cameUp(check.id)}{#if checkTip(check.event)}<InfoTip
-                markdown={checkTip(check.event)}
-              />{/if}</span
-          >
-          {#if session.asking?.includes(check.id)}{@render whoRolls()}{/if}
-          <button onclick={() => onstep({ type: 'resolveCheck', id: check.id })}
-            >{t('continue')}</button
-          >
-        </div>
-      {/if}
-    {/each}
-
-    <!-- What the party spent or gained, shared out by the rule: who gives it (Ask who gives). -->
-    {#if sharing && onshare}
-      {@const count = Math.abs(sharing.delta)}
-      <div class="pending asks share">
-        <span
-          >{t(sharing.delta < 0 ? 'share.gives' : 'share.takes', {
-            count,
-            name: memberName(`party.items.${sharing.item}`) ?? sharing.item,
-          })}<InfoTip text={t('share.help')} /></span
-        >
-        <div class="givers">
-          {#each (session.members ?? []).filter((m) => m.id in shareRoom) as m (m.id)}
-            <label
-              >{memberLabel(m)}
-              <input
-                type="number"
-                min="0"
-                max={sharing.delta < 0 ? shareRoom[m.id] : count}
-                value={shareAmounts[m.id] ?? 0}
-                onchange={(e) => setShare(m.id, Number(e.currentTarget.value))}
-              />{#if sharing.delta < 0}<span class="help"
-                  >{t('share.of', { room: shareRoom[m.id] })}</span
-                >{/if}</label
-            >
-          {/each}
-        </div>
-        <span class:help={shareDone === count} class:wrong={shareDone !== count}
-          >{t('share.total', { done: shareDone, count })}</span
-        >
-        <button
-          disabled={shareDone !== count ||
-            (sharing.delta < 0 &&
-              Object.entries(shareAmounts).some(([id, n]) => n > (shareRoom[id] ?? 0)))}
-          onclick={answerShare}>{t('share.keep')}</button
-        >
-      </div>
-    {/if}
-
-    <!-- Items given with no room left, waiting for the player to make room on the cards. -->
-    {#if roomless.length}
-      <div class="pending asks">
-        <span
-          >{t('room.waits', {
-            names: roomless
-              .map((id) => {
-                const m = [session.party, ...(session.members ?? [])].find((c) => c?.id === id)
-                return m ? memberLabel(m) : id
-              })
-              .join(', '),
-          })}<InfoTip text={t('room.help')} /></span
-        >
-      </div>
-    {/if}
-
-    <!-- The campaign's world waits for the player: the trip goes on once it's answered. -->
-    {#if worldWaiting && onworld}
-      <WorldWaiting {locale} waiting={worldWaiting} onanswer={onworld} />
-    {/if}
-
-    <!-- A step that stops the trip for the player: Continue, or the choices it asks among. -->
-    {#if waiting && !targets.length}
-      <div class="pending" class:asks={!!asked}>
-        <span
-          >{entryText(
-            {
-              id: '',
-              at: '',
-              time: waiting.time,
-              source: 'travel',
-              code: 'HELD',
-              data: { waiting },
-            },
-            context,
-          )}{#if asked && localize(asked.description, locale, 'en')}<InfoTip
-              markdown={localize(asked.description, locale, 'en')}
-            />{/if}</span
-        >
-        {#if asked && waiting.choices && targets.length}
-          <!-- Chosen in the fight, by their cards. -->
-          <span class="help">{t('fight.clickTarget')}</span>
-        {:else if asked && waiting.choices}
-          <!-- Choices the trip listed (`from: present.ids`): whoever they are, by name. -->
-          {#each waiting.choices as id (id)}
-            <button onclick={() => onstep({ type: 'resume', choice: id })}
-              >{listsItems ? itemName({ id }, system.items ?? [], locale) : whoName(id)}</button
-            >
-          {/each}
-        {:else if asked}
-          {#each asked.choices ?? [] as c (String(choiceId(c)))}
-            <button
-              use:tooltip={choiceTip(c)}
-              onclick={() => onstep({ type: 'resume', choice: choiceId(c) })}>{askedName(c)}</button
-            >
-          {/each}
-        {:else}
-          <button onclick={() => onstep({ type: 'resume' })}>{t('continue')}</button>
-        {/if}
-      </div>
-    {/if}
+    {#if !fight}{@render tripAsks()}{/if}
 
     <!-- Nothing goes on while a share waits for who gives it, or an item for room. -->
     <!-- In a fight what's done is in its panel (on the foes' cards and its turn's bar). -->
@@ -1433,7 +1459,8 @@
 
 <style>
   /* What the trip waits for, just asked to be shown: it flashes once. */
-  .trip :global(.attention) {
+  .trip :global(.attention),
+  .stage :global(.attention) {
     animation: attention 1.2s ease-out;
   }
 
@@ -1446,6 +1473,59 @@
     100% {
       box-shadow: 0 0 0 0 transparent;
     }
+  }
+
+  /* The fight's stage: over everything (the dice table above it), what's behind dimmed. */
+  .stage {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    padding: 24px;
+    background: color-mix(in srgb, var(--bg) 55%, transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .stage > :global(.fight) {
+    flex: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 40px rgb(0 0 0 / 35%);
+  }
+
+  @media (max-width: 700px) {
+    .stage {
+      padding: 0;
+    }
+
+    .stage > :global(.fight) {
+      border-radius: 0;
+    }
+  }
+
+  /* The stage put aside: the way back to it, where the fight was. */
+  .fight-away {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    font-size: 13px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+  }
+
+  .fight-away button {
+    padding: 4px 10px;
+    color: var(--bg);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    cursor: pointer;
   }
 
   .roll-ask {

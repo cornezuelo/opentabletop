@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
+  import { tick, type Snippet } from 'svelte'
   import type { CharacterState, Sheet } from '@open-tabletop/character-engine'
   import type { Fighter } from '@open-tabletop/session'
   import { CharacterGlance } from '@open-tabletop/character-ui'
@@ -10,15 +10,17 @@
   import type { CardAction, TurnTold } from './turns'
 
   /**
-   * A fight in turns, as any host shows it (session's `encounterView`): the round, everyone
-   * as a card in the order of play, the party's side and the foes' apart (each one's main
+   * A fight in turns as a stage (docs/fight-stage.md), as any host shows it (session's
+   * `encounterView`), filling whatever holds it: on top the round and whose turn; the foes'
+   * cards across the table, the party's near the player, the turn between them; the whole
+   * fight's log in a column at the right. Everyone is a card in the order of play (each one's main
    * value, as its sheet draws it, what just happened to it and its conditions; who acts now
    * large, who has acted faded, who is gone struck through), and **End the fight** by hand.
    * On a turn of the party's, what's done to a foe is on its card (`cardActions`, `onact`),
    * the rest in the turn's bar (`turnBar`, the host's buttons); when a step still asks whom
    * (`asking`), the panel says so and the cards that can be chosen are what's clicked
    * (`targets`, `ontarget`). The turn just played is told up front in one sentence, its dice
-   * rolling (`last`). Under it all, the fight's moments, newest first (`log`).
+   * rolling (`last`). The fight's moments, oldest first, scroll at the right (`log`).
    */
   let {
     round,
@@ -41,6 +43,8 @@
     roll,
     asking = '',
     last,
+    asks,
+    onhide,
   }: {
     round: number
     fighters: Fighter[]
@@ -55,7 +59,7 @@
     changes?: Record<string, number>
     /** Those that can be chosen now (whom to strike), by id: their cards are buttons. */
     targets?: readonly string[]
-    /** The fight's moments, newest first. */
+    /** The fight's moments, oldest first. */
     log?: BeatTold[]
     /** A foe's turn done, the fight waiting for Next: who acts next (its id). */
     next?: string
@@ -79,165 +83,204 @@
     asking?: string
     /** The turn just played, told in one sentence. */
     last?: TurnTold
+    /** Whatever else the trip waits for meanwhile (a question, a share), in the centre. */
+    asks?: Snippet
+    /** Puts the stage away for a while, the trip (or map) behind it in sight. */
+    onhide?: () => void
   } = $props()
 
   const t = translator(() => locale)
-  /** The log's moments folded or opened by hand, by id: all open until then, and they stay so. */
+  /** The log's moments folded or opened by hand, by id: the newest open until then. */
   let unfolded = $state<Record<string, boolean>>({})
   const acting = $derived(fighters.find((f) => f.acting))
   /** One's name; the party played as a whole, nameless, is _the party_ (its side said already). */
   const nameOf = (f: Fighter) => f.name || t('fight.theParty')
   const wholeParty = (f: Fighter) => !f.name && f.side === 'party'
-  /** The sides, apart: the party's first. */
-  const SIDES = ['party', 'foes'] as const
+  /** The sides, foes across the table, the party near the player; the turn between them. */
+  const SIDES = ['foes', 'party'] as const
+  /** The log, kept scrolled to its newest moment as moments come. */
+  let logEl = $state<HTMLOListElement | undefined>()
+  $effect(() => {
+    void log.length
+    void tick().then(() => logEl?.scrollTo({ top: logEl.scrollHeight }))
+  })
 </script>
 
 <section class="fight" aria-label={t('fight.title', { round })}>
+  <!-- One line on top: the round and whose turn; the fight's settings small at its end. -->
   <header>
-    <h4>{t('fight.title', { round })}<InfoTip markdown={t('fight.help')} /></h4>
-    {@render tools?.()}
-    {#if onend}
-      <button use:tooltip={held || t('fight.endTip')} disabled={!!held} onclick={onend}
-        >{t('fight.end')}</button
-      >
-    {/if}
-  </header>
-  <!-- The turn just played: who did what to whom, what it left, its dice rolling. -->
-  {#if last}
-    {#key last.id}
-      <div class="last" class:foes={last.side === 'foes'} aria-live="polite">
-        <p class="said">
-          {#if last.who}<strong>{last.who}</strong>{/if}
-          <span>{last.what}</span>{#if last.on}<span class="on">→ {last.on}</span>{/if}
-        </p>
-        {#if last.dice.length}<DiceTray rolls={last.dice} {locale} large animate />{/if}
-        {#if last.results.length}
-          <ul class="results">
-            {#each last.results as r, i (i)}<li>{r}</li>{/each}
-          </ul>
-        {/if}
-      </div>
-    {/key}
-  {/if}
-  {@render roll?.()}
-  {#if next !== undefined && onnext}
-    {@const done = fighters.findLast((f) => f.done && f.side === 'foes')}
-    {@const up = fighters.find((f) => f.id === next)}
-    <div class="next">
-      <p class="turn">
-        {t('fight.shown', { name: done ? nameOf(done) : '', next: up ? nameOf(up) : '' })}
-      </p>
-      <button class="primary" onclick={onnext}>{t('fight.next')}</button>
-    </div>
-  {:else if asking}
-    <p class="turn asking">{asking}</p>
-  {:else if acting}
-    <p class="turn" class:yours={choosing}>
-      {choosing
-        ? wholeParty(acting)
-          ? t(cardActions.length ? 'fight.partyTurnCards' : 'fight.partyTurn')
-          : t(cardActions.length ? 'fight.yourTurnCards' : 'fight.yourTurn', {
-              name: nameOf(acting),
-            })
-        : wholeParty(acting)
-          ? t('fight.partyTurnNow')
-          : t('fight.theirTurn', { name: nameOf(acting) })}
-    </p>
-    {#if choosing && turnBar}<div class="bar">{@render turnBar()}</div>{/if}
-  {/if}
-  <div class="sides">
-    {#each SIDES as side (side)}
-      {#if fighters.some((f) => f.side === side)}
-        <ol class={`order ${side}`} aria-label={t(`fight.${side}Side`)}>
-          {#each fighters as f, i (`${f.id}|${i}`)}
-            {#if f.side === side}
-              {@const target = targets.includes(f.id) && !!ontarget}
-              {@const own =
-                choosing && !asking && !f.gone && onact
-                  ? cardActions.filter((a) => a.foes.includes(f.id))
-                  : []}
-              <li
-                class="fighter"
-                class:acting={f.acting}
-                class:done={f.done}
-                class:gone={f.gone}
-                class:target
-                aria-current={f.acting ? 'step' : undefined}
-                use:tooltip={f.gone ? t('fight.gone') : f.done ? t('fight.acted') : ''}
-              >
-                {#snippet card()}
-                  <span class="place">{i + 1}</span>
-                  {#if f.character}
-                    <CharacterGlance
-                      sheet={sheetOf(f.character)}
-                      character={f.character}
-                      {locale}
-                      name={nameOf(f)}
-                      change={changes[f.id] ?? 0}
-                    />
-                  {:else}
-                    <span class="name">{nameOf(f)}</span>
-                  {/if}
-                {/snippet}
-                {#if target}
-                  <button
-                    class="pick"
-                    aria-label={t('fight.choose', { name: nameOf(f) })}
-                    onclick={() => ontarget?.(f.id)}>{@render card()}</button
-                  >
-                {:else}
-                  <div class="pick" class:offered={own.length > 0}>
-                    {@render card()}
-                    {#if own.length}
-                      <!-- What's done to this one: a click takes it on them. -->
-                      <span class="card-actions">
-                        {#each own as a (a.id)}
-                          <button
-                            class="button primary"
-                            disabled={!!a.disabled}
-                            use:tooltip={a.disabled || a.tip || ''}
-                            aria-label={t('fight.actOn', { action: a.name, name: nameOf(f) })}
-                            onclick={() => onact?.(a.id, f.id)}>{a.name}</button
-                          >
-                        {/each}
-                      </span>
-                    {/if}
-                  </div>
-                {/if}
-              </li>
-            {/if}
-          {/each}
-        </ol>
+    <h3>
+      {t('fight.round', { round })}{#if acting}<span class="whose"
+          >· {wholeParty(acting)
+            ? t('fight.partyWhose')
+            : t('fight.whose', { name: nameOf(acting) })}</span
+        >{/if}<InfoTip markdown={t('fight.help')} />
+    </h3>
+    <div class="tools">
+      {@render tools?.()}
+      {#if onend}
+        <button use:tooltip={held || t('fight.endTip')} disabled={!!held} onclick={onend}
+          >{t('fight.end')}</button
+        >
       {/if}
-    {/each}
-  </div>
-  {#if log.length}
-    <ol class="log" aria-label={t('fight.log')}>
-      {#each log as told (told.id)}
-        <li>
-          <BeatView
-            {told}
-            {locale}
-            foldable
-            bind:folded={
-              () => !(unfolded[told.id] ?? true),
-              (folded) => (unfolded = { ...unfolded, [told.id]: !folded })
-            }
-          />
-        </li>
+      {#if onhide}
+        <button use:tooltip={t('fight.hideTip')} onclick={onhide}>{t('fight.hide')}</button>
+      {/if}
+    </div>
+  </header>
+  <div class="body">
+    <div class="table">
+      {#each SIDES as side (side)}
+        {#if side === 'party'}
+          <!-- The centre of the table: the turn, what's rolled and why, what it did. -->
+          <div class="centre">
+            {#if last}
+              {#key last.id}
+                <div class="last" class:foes={last.side === 'foes'} aria-live="polite">
+                  <p class="said">
+                    <!-- Said once: the system's own words often name who already. -->
+                    {#if last.who && !last.what.includes(last.who)}<strong>{last.who}</strong>{/if}
+                    <span>{last.what}</span>{#if last.on}<span class="on">→ {last.on}</span>{/if}
+                  </p>
+                  {#if last.dice.length}<DiceTray rolls={last.dice} {locale} large animate />{/if}
+                  {#if last.results.length}
+                    <ul class="results">
+                      {#each last.results as r, i (i)}<li>{r}</li>{/each}
+                    </ul>
+                  {:else}
+                    <p class="hint">{t('fight.noChange')}</p>
+                  {/if}
+                </div>
+              {/key}
+            {/if}
+            {@render roll?.()}
+            {@render asks?.()}
+            {#if next !== undefined && onnext}
+              {@const done = fighters.findLast((f) => f.done && f.side === 'foes')}
+              {@const up = fighters.find((f) => f.id === next)}
+              <div class="next">
+                <p class="turn">
+                  {t('fight.shown', {
+                    name: done ? nameOf(done) : '',
+                    next: up ? nameOf(up) : '',
+                  })}
+                </p>
+                <button class="button primary" onclick={onnext}>{t('fight.next')}</button>
+              </div>
+            {:else if asking}
+              <p class="turn asking">{asking}</p>
+            {:else if acting}
+              <p class="turn" class:yours={choosing}>
+                {choosing
+                  ? wholeParty(acting)
+                    ? t(cardActions.length ? 'fight.partyTurnCards' : 'fight.partyTurn')
+                    : t(cardActions.length ? 'fight.yourTurnCards' : 'fight.yourTurn', {
+                        name: nameOf(acting),
+                      })
+                  : wholeParty(acting)
+                    ? t('fight.partyTurnNow')
+                    : t('fight.theirTurn', { name: nameOf(acting) })}
+              </p>
+              {#if choosing && turnBar}<div class="bar">{@render turnBar()}</div>{/if}
+            {/if}
+          </div>
+        {/if}
+        {#if fighters.some((f) => f.side === side)}
+          <ol class={`order ${side}`} aria-label={t(`fight.${side}Side`)}>
+            {#each fighters as f, i (`${f.id}|${i}`)}
+              {#if f.side === side}
+                {@const target = targets.includes(f.id) && !!ontarget}
+                {@const own =
+                  choosing && !asking && !f.gone && onact
+                    ? cardActions.filter((a) => a.foes.includes(f.id))
+                    : []}
+                <li
+                  class="fighter"
+                  class:acting={f.acting}
+                  class:done={f.done}
+                  class:gone={f.gone}
+                  class:target
+                  aria-current={f.acting ? 'step' : undefined}
+                  use:tooltip={f.gone ? t('fight.gone') : f.done ? t('fight.acted') : ''}
+                >
+                  {#snippet card()}
+                    <span class="place">{i + 1}</span>
+                    {#if f.character}
+                      <CharacterGlance
+                        sheet={sheetOf(f.character)}
+                        character={f.character}
+                        {locale}
+                        name={nameOf(f)}
+                        change={changes[f.id] ?? 0}
+                      />
+                    {:else}
+                      <span class="name">{nameOf(f)}</span>
+                    {/if}
+                  {/snippet}
+                  {#if target}
+                    <button
+                      class="pick"
+                      aria-label={t('fight.choose', { name: nameOf(f) })}
+                      onclick={() => ontarget?.(f.id)}>{@render card()}</button
+                    >
+                  {:else}
+                    <div class="pick" class:offered={own.length > 0}>
+                      {@render card()}
+                      {#if own.length}
+                        <!-- What's done to this one: a click takes it on them. -->
+                        <span class="card-actions">
+                          {#each own as a (a.id)}
+                            <button
+                              class="button primary"
+                              disabled={!!a.disabled}
+                              use:tooltip={a.disabled || a.tip || ''}
+                              aria-label={t('fight.actOn', { action: a.name, name: nameOf(f) })}
+                              onclick={() => onact?.(a.id, f.id)}>{a.name}</button
+                            >
+                          {/each}
+                        </span>
+                      {/if}
+                    </div>
+                  {/if}
+                </li>
+              {/if}
+            {/each}
+          </ol>
+        {/if}
       {/each}
-    </ol>
-  {/if}
+    </div>
+    <!-- The whole fight, every moment from its start, newest at the bottom, scrolling. -->
+    <aside class="log-column">
+      <h4 class="overline">{t('fight.log')}</h4>
+      <ol class="log" aria-label={t('fight.log')} bind:this={logEl}>
+        {#each log as told (told.id)}
+          <li>
+            <BeatView
+              {told}
+              {locale}
+              foldable
+              bind:folded={
+                () => !(unfolded[told.id] ?? told.id === log.at(-1)?.id),
+                (folded) => (unfolded = { ...unfolded, [told.id]: !folded })
+              }
+            />
+          </li>
+        {/each}
+      </ol>
+    </aside>
+  </div>
 </section>
 
 <style>
+  /* The stage fills what holds it: the line on top, the table and the log under it. */
   .fight {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 6px 8px;
-    border: 1px solid var(--accent);
-    border-radius: 6px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 10px;
+    height: 100%;
+    min-height: 0;
+    padding: 12px 16px;
+    container-type: inline-size;
   }
 
   header {
@@ -245,40 +288,82 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--panel-border);
   }
 
-  h4 {
+  h3 {
     margin: 0;
   }
 
-  header button:disabled {
-    opacity: 0.5;
-    cursor: default;
+  .whose {
+    margin-left: 6px;
+    color: var(--accent);
   }
 
-  header button {
-    padding: 4px 8px;
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
     font-size: 12px;
-    background: var(--bg);
+  }
+
+  .tools button {
+    padding: 4px 10px;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--panel);
     border: 1px solid var(--panel-border);
     border-radius: 6px;
     cursor: pointer;
   }
 
-  .sides {
+  .tools button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .body {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+    gap: 16px;
+    min-height: 0;
+  }
+
+  /* The table: the foes across, the turn in the middle, the party near the player. */
+  .table {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 28px;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .order {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .fighter {
+    width: 190px;
+  }
+
+  .centre {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
   }
 
   .pick {
@@ -287,14 +372,15 @@
     gap: 6px;
     align-items: start;
     width: 100%;
-    padding: 4px 8px;
+    height: 100%;
+    padding: 8px 10px;
     font: inherit;
-    font-size: 12px;
+    font-size: 13px;
     color: inherit;
     text-align: left;
-    background: var(--bg);
+    background: var(--panel);
     border: 1px solid var(--panel-border);
-    border-radius: 6px;
+    border-radius: 8px;
   }
 
   .foes .pick {
@@ -306,12 +392,11 @@
     font-family: ui-monospace, monospace;
   }
 
-  /* Who acts now: large, in the accent. */
+  /* Who acts now: in the accent, lifted. */
   .fighter.acting .pick {
-    padding: 8px 10px;
-    font-size: 14px;
     border: 2px solid var(--accent);
     border-style: solid;
+    box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 30%, transparent);
   }
 
   /* Who has acted, or is gone, faded: the card alone, never what can be done to them now
@@ -336,31 +421,34 @@
   button.pick:hover,
   button.pick:focus-visible {
     border-color: var(--accent);
-    background: var(--panel);
+    background: var(--bg);
   }
 
-  /* The turn just played, up front. */
+  /* The turn just played, in the middle. */
   .last {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 6px 8px;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    text-align: center;
     background: var(--panel);
-    border-left: 3px solid var(--accent);
-    border-radius: 4px;
+    border-top: 3px solid var(--accent);
+    border-radius: 6px;
   }
 
   .last.foes {
-    border-left-color: var(--danger);
+    border-top-color: var(--danger);
   }
 
   .said {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 6px;
     align-items: baseline;
     margin: 0;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .on {
@@ -369,8 +457,20 @@
 
   .results {
     margin: 0;
-    padding-left: 18px;
-    font-size: 13px;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    list-style: none;
+  }
+
+  .last .hint {
+    margin: 0;
+  }
+
+  .turn {
+    margin: 0;
+    font-size: 14px;
+    text-align: center;
   }
 
   .turn.yours,
@@ -382,6 +482,7 @@
   .bar {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 6px;
     align-items: center;
   }
@@ -399,28 +500,80 @@
     gap: 4px;
   }
 
-  .log {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    max-height: 320px;
-    overflow-y: auto;
-    margin: 0;
-    padding: 4px 0 0;
-    border-top: 1px solid var(--panel-border);
-    list-style: none;
+  /* The turn's other choices: buttons that read as such, never greyed when they can be taken. */
+  .bar :global(button:not(:disabled)) {
+    padding: 5px 14px;
+    font-size: 14px;
+    color: var(--accent);
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    cursor: pointer;
   }
 
-  .turn {
-    margin: 0;
-    font-size: 13px;
+  .next button {
+    padding: 6px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
   .next {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 8px;
     align-items: center;
-    justify-content: space-between;
+  }
+
+  /* The fight's whole log, a column of its own. */
+  .log-column {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    padding-left: 16px;
+    border-left: 1px solid var(--panel-border);
+  }
+
+  .log-column h4 {
+    margin: 0;
+  }
+
+  .log {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Narrow: the log under the table, the cards smaller. */
+  @container (max-width: 700px) {
+    .body {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      overflow-y: auto;
+    }
+
+    .table {
+      overflow: visible;
+    }
+
+    .fighter {
+      width: calc(50% - 4px);
+    }
+
+    .log-column {
+      max-height: 40vh;
+      padding: 8px 0 0;
+      border-top: 1px solid var(--panel-border);
+      border-left: none;
+    }
   }
 </style>

@@ -7,6 +7,7 @@ import {
 import { idName, itemName, sheetText } from '@open-tabletop/character-ui'
 import {
   characterId,
+  leftName,
   factionName,
   localize,
   MEMBER_PATH,
@@ -250,9 +251,11 @@ export function statSource(
 
 /** Someone of the trip by id (the party, one of its characters, a copy present), by name. */
 export function whoNamed(session: SessionState, id: string): string | undefined {
-  return [
-    session.party,
-    ...(session.members ?? []),
-    ...(session.present ?? []).map((p) => p.character),
-  ].find((c) => c?.id === id)?.name
+  return (
+    [
+      session.party,
+      ...(session.members ?? []),
+      ...(session.present ?? []).map((p) => p.character),
+    ].find((c) => c?.id === id)?.name ?? leftName(session, id)
+  )
 }

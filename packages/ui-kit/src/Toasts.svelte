@@ -11,6 +11,7 @@
 <style>
   .toasts {
     position: fixed;
+    z-index: 60;
     bottom: 16px;
     left: 50%;
     display: flex;

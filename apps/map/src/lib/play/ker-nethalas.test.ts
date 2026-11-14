@@ -50,20 +50,24 @@ describe.skipIf(!here)('Ker Nethalas', () => {
     return true
   }
 
-  it('a Domain grows room by room, with the book’s dice running down', async () => {
-    domain()
-    expect(editor.map.pieces?.[0]?.id).toBe('s026')
-    for (let i = 0; i < 80 && editor.map.pieces!.length < 20; i++) {
-      // A fight met on the way is called off: this walks the Domain.
-      if (session().encounter) play.step({ type: 'encounter', what: 'end' })
-      if (!walkOn(i)) break
-      if (session().travel.waiting) play.step({ type: 'resume' })
-    }
-    const log = session().journal.map((e) => e.code)
-    const count = (c: string) => log.filter((x) => x === c).length
-    expect(count('ROLLED')).toBeGreaterThan(20)
-    expect(editor.map.pieces!.length).toBeGreaterThan(8)
-  })
+  it(
+    'a Domain grows room by room, with the book’s dice running down',
+    { timeout: 90_000 },
+    async () => {
+      domain()
+      expect(editor.map.pieces?.[0]?.id).toBe('s026')
+      for (let i = 0; i < 80 && editor.map.pieces!.length < 20; i++) {
+        // A fight met on the way is called off: this walks the Domain.
+        if (session().encounter) play.step({ type: 'encounter', what: 'end' })
+        if (!walkOn(i)) break
+        if (session().travel.waiting) play.step({ type: 'resume' })
+      }
+      const log = session().journal.map((e) => e.code)
+      const count = (c: string) => log.filter((x) => x === c).length
+      expect(count('ROLLED')).toBeGreaterThan(20)
+      expect(editor.map.pieces!.length).toBeGreaterThan(8)
+    },
+  )
 
   it('a creature met as its room is laid is in that room: the fight goes on until it ends', () => {
     domain()

@@ -28,6 +28,16 @@
   const t = translator(() => locale)
   /** Displays that don't say their number themselves: it's said beside them (`3/5`). */
   const COUNTED = ['boxes', 'ticks', 'pips', 'dial']
+  /** Displays drawn as marks; any other (a number, a level, a die) is said as text, never a box. */
+  const DRAWN = ['bar', 'boxes', 'ticks', 'pips', 'dial']
+  /** The value in words, when it isn't drawn: its level's name, its die (`d8`), its number. */
+  const said = $derived.by(() => {
+    if (!view || DRAWN.includes(view.display)) return ''
+    if (view.levels && view.level !== undefined) return view.levels[view.level]?.name ?? ''
+    const n = view.display === 'die' ? `d${view.value}` : String(view.value)
+    const of = view.of ?? view.max
+    return view.display === 'of' && of !== undefined ? `${n} / ${of}` : n
+  })
   const main = $derived(sheet ? mainValue(sheet) : undefined)
   const view = $derived(sheet && main ? characterValueView(sheet, character, main, locale) : null)
   const mainName = $derived(
@@ -48,7 +58,11 @@
   {#if view}
     <!-- Drawn, not changed: a click goes to whatever holds the glance (a card to pick). -->
     <span class="main" aria-label={mainName} inert>
-      <ValueControl {view} label={mainName} {locale} disabled onset={() => {}} />
+      {#if said}
+        <span class="said">{mainName ? `${mainName} ` : ''}<strong>{said}</strong></span>
+      {:else}
+        <ValueControl {view} label={mainName} {locale} disabled onset={() => {}} />
+      {/if}
       {#if COUNTED.includes(view.display)}
         <span class="number"
           >{view.max !== undefined ? `${view.value}/${view.max}` : view.value}</span
@@ -98,6 +112,18 @@
     flex: 1;
     min-width: 0;
     pointer-events: none;
+  }
+
+  .said {
+    flex: 1;
+    min-width: 0;
+    color: var(--text-muted);
+  }
+
+  .said strong {
+    font-size: 15px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
   }
 
   .number {

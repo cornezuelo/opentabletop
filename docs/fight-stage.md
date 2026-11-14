@@ -1,6 +1,6 @@
 # The fight as a stage
 
-A proposal for the fight's UI/UX, after [fight-ux.md](fight-ux.md) was built and the user still found it confusing. **To review with the user**: nothing here is built.
+A proposal for the fight's UI/UX, after [fight-ux.md](fight-ux.md) was built and the user still found it confusing. **Decided with the user (2026-11-14, "lo que recomiendas pa ambas": the recommended answer to each question of section 3) and built the same day.**
 
 The ask (author, 2026-11-14): "la UI y UX sigue dejando mucho que desear, molaría feedback inmediato ya que abres dialog cuando se tira, con el resultado, y antes de tirar, por qué se está tirando. La mirada ya está centrada ahí, y el cuadrito donde se libra el combate sigue siendo confuso de la ostia"; "te había pedido un scroll con todo el diario de la batalla".
 
@@ -29,9 +29,9 @@ When a fight starts, it takes the main area, as a stage, not a box in a column; 
 - **Words**: every name the player reads is a name (a copy by its template's name, translated; _the party_ for the party played as a whole), never an id.
 - **The trip's Journal** keeps the fight as one moment once it's over (_A fight with three wolves: won in 3 rounds_), unfolded into its turns.
 
-## 3. To decide
+## 3. Decided
 
-1. **Where it lives in Map**: a layer over the map (recommended: the fight is the moment, the map waits), or the panel widened to half the screen with the map still usable?
-2. **The log's place**: a column at the right of the stage (recommended), or under the table?
-3. **The computer's rolls on the table too** (the foes' turns with _my own rolls_): tumbling on the table with their outcome (recommended, quick, no **Use**), or only told in words?
-4. **Wording of foes' turns**: the table's own text (_goes for the weakest of you_) and then what it did, or only what it did?
+1. **Where it lives**: a layer over everything (the map, the trip, the scene dimmed behind it), in every host alike: the trip's panel puts it at the page's end (ui-kit's `portal`). **See behind** puts it aside for a while (a foe still asked for can then be clicked on the map), **Back to the fight** where it was brings it back; Map shows its Play panel while a fight lasts, so the stage it holds is there.
+2. **The log**: a column at the right of the stage, oldest first and scrolled to the newest; under the table on a narrow screen.
+3. **The computer's rolls**: tumbling on the table in the turn's centre, with what they did, no **Use**.
+4. **A foe's turn**: its table's own words and whom it went for, its dice, then what it did (_Grey wolf: Health 4 → 1_), or _Nothing on the table changes_; the one acting is said once (not again when the table's words name it).

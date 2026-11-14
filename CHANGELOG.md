@@ -9,6 +9,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **Who rolls the dice** has four ways: **The computer rolls**, **I roll my own rolls** (the party's turns in a fight, a check that stops the trip, a table that can give an important result: the foes' turns are the computer's), **I roll for the foes too** and **I roll everything**. _What matters_ chosen before is now _my own rolls_.
 - **A throw tells what came of it**: the dice table says what a roll is for before it's thrown, and after **Use** stays to tell what happened (_The grey wolf falls_) until **Continue**.
 - **I roll everything** takes in an action's own dice too (_Drive them off_'s 1d3): the action waits for your total, nothing of it done, then plays with it.
+- **A fight is a stage of its own**: it takes the whole screen while it lasts (over the trip, the map or the scene): the round and whose turn on top, the foes' cards across and the party's below, the turn in the middle (what's rolled and why, the dice, what it did) and the whole fight's log in a column at the right. **See behind** puts it aside for a moment. Map's panel no longer widens in a fight.
 
 ### Fixes
 
@@ -16,6 +17,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - The dice table covers everything, Map's button that hides the panel too.
 - In a fight, the party's buttons (**Strike one down**, **Fall back**) no longer show twice.
 - Dice you threw don't tumble again in the journal or the Oracle's result.
+- A fighter's health (or any main value that isn't a bar) reads as a number, not as a box to type in.
+- Names, never ids, in a fight: a foe going for the party played as a whole says _the party_; one who fell keeps its name; those a table brings are named in the UI's language.
 
 ## [0.57.0] - 2026-11-14
 

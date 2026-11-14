@@ -6,7 +6,6 @@ import PlayStrip from '../../components/PlayStrip.svelte'
 import { exampleMaps } from '../io/examples'
 import { parseMapFile } from '../io/otd'
 import { editor } from '../store/editor.svelte'
-import { shownPanelWidth, FIGHT_WIDTH } from '../store/panelWidth.svelte'
 import { chooseOnMap, clickHex, editSession, restartRules, sessionOf, setMode, step } from './play'
 import { activeSystem } from './systems'
 
@@ -31,7 +30,6 @@ describe('the fight view', () => {
     step({ type: 'action', id: 'stand' })
     // The foes go by themselves until a companion's turn waits for you.
     expect(session().encounter?.stage).toBe('acting')
-    expect(shownPanelWidth(true)).toBeGreaterThanOrEqual(FIGHT_WIDTH)
     let html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
     const fighters = session().encounter!.order.length
     expect(html.match(/class="fighter/g)).toHaveLength(fighters)
@@ -71,7 +69,7 @@ describe('the fight view', () => {
       const fight = session().encounter!
       if (fight.stage === 'shown') {
         html = render(PlayPanel).body.replace(/<!--[^>]*-->/g, '')
-        expect(html).toMatch(/<button class="primary[^>]*>Next</)
+        expect(html).toMatch(/<button class="button primary[^>]*>Next</)
         expect(html).toContain('has acted. Next:')
         expect(render(PlayStrip).body).toMatch(/>\s*Next\s*</)
         step({ type: 'encounter', what: 'next' })
