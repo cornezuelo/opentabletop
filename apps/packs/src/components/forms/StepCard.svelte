@@ -298,7 +298,7 @@
           {/if}
         </div>
 
-        {#if kind === 'roll' && (ctx.params.some((p) => p.listed) || s.each !== undefined)}
+        {#if kind === 'roll' && (ctx.params.length > 0 || s.each !== undefined)}
           <div class="sub">
             <label class="inline">
               <span>{t('steps.fields.each')}<InfoTip text={t('steps.help.each')} /></span>
@@ -311,8 +311,7 @@
                 {#if s.each !== undefined && !ctx.params.some((p) => `params.${p.id}` === s.each)}<option
                     value={String(s.each)}>{String(s.each)}</option
                   >{/if}
-                {#each ctx.params.filter((p) => p.listed) as p (p.id)}<option
-                    value={`params.${p.id}`}>{p.name}</option
+                {#each ctx.params as p (p.id)}<option value={`params.${p.id}`}>{p.name}</option
                   >{/each}
               </select>
             </label>

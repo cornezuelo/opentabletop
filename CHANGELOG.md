@@ -19,6 +19,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- **For each over written choices**: a roll step's `each:` (Packs' **For each**) goes over a parameter's own choices too, and its `where:` (**Only those**) keeps only those it holds for: once for each skill marked, say.
 - **The Grey Marches' advancement**: each companion earns **Renown** (a fight won, the rite of the Ember Moon, the last tomb) and rises a **Rank** at three times it, choosing one more health, a skill or a **Knack**: _Woodwise_, _Pathfinder_ and _Shieldwall_ (a new action in fights).
 - **Core's advancement**: a fight won gives each one standing 1 **Experience**; at 3, a **Level**; at level 2, **Tough**. The manual's _Actions and steps_ explains how a system builds experience, levels and abilities.
 - **Told in your words** (`told:`): a condition says how it's gained and lost (`told: { gains: '{{name}} falls' }`), an action how a fight tells its turn (`told: '{{acting.name}} strikes {{characters[params.foe].name}}'`); Packs' **Told when gained** / **Told when lost** and **Told in a fight**. The Grey Marches' and Core's strikes and conditions are told so.

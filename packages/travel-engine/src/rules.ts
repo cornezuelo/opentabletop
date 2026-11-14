@@ -302,7 +302,8 @@ const choice = z.union([
  * `from`, the ids a value of the trip lists when it's asked (`from: present.ids`, whom to
  * strike), which only an `ask:` step chooses and which has no default; `from:
  * items.<catalogue>` lists a catalogue's entries (the host's), each read as `item.*`.
- * `where:` keeps only the listed ones it holds for: each as `candidate` (or `item.*`).
+ * `where:` keeps only the listed ones it holds for, or the choices: each as `candidate` (or
+ * `item.*`), so a step's `each:` goes over those alone (the skills marked).
  */
 const param = z
   .object({
@@ -316,9 +317,6 @@ const param = z
   .strict()
   .refine((p) => !!p.choices !== !!p.from, {
     message: 'a parameter has its choices, or `from` (a list of the trip: present.ids), not both',
-  })
-  .refine((p) => p.where === undefined || p.from !== undefined, {
-    message: 'where: is for a parameter listed by the trip (from:)',
   })
 
 /**
@@ -746,16 +744,14 @@ export const travelRulesSchema = z
             message: `expected ${modes.join(', ')} or a variable${meant(mode, modes)}`,
           })
         const each = refId('params', st.each)
-        if (st.roll !== undefined && st.each !== undefined && !(each && a.params?.[each]?.from)) {
-          const listed = Object.entries(a.params ?? {}).flatMap(([p, d]) =>
-            d.from ? [ref('params', p)] : [],
-          )
+        if (st.roll !== undefined && st.each !== undefined && !(each && a.params?.[each])) {
+          const listed = Object.keys(a.params ?? {}).map((p) => ref('params', p))
           ctx.addIssue({
             code: 'custom',
             path: ['actions', id, 'do', i, 'each'],
             message: listed.length
-              ? `expected one of its parameters listed by the trip: ${listed.join(', ')}${meant(st.each, listed)}`
-              : `${id} has no parameter listed by the trip (from:) to roll for each of`,
+              ? `expected one of its parameters: ${listed.join(', ')}${meant(st.each, listed)}`
+              : `${id} has no parameters to roll for each of`,
           })
         }
         const asked = refId('params', st.ask)

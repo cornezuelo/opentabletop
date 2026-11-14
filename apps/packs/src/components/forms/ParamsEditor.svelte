@@ -194,8 +194,8 @@
           >
         {/if}
       </div>
-      {#if params[p]?.from !== undefined}
-        <!-- Only those of the list it holds for: each as candidate (an entry also as item). -->
+      {#if params[p] !== undefined}
+        <!-- Only those of the list (or of its choices) it holds for: each as candidate. -->
         <div class="where">
           <span class="label"
             >{t('actions.paramWhere')}<InfoTip text={t('actions.paramWhereHelp')} /></span

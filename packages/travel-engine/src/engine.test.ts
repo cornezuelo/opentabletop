@@ -2687,7 +2687,7 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
       // Only with a boatman.
       boat: { kmPerDay: 480, when: { 'today.boatman': true } },
     },
-    values: { ferry: {}, boatman: {}, worn: {} },
+    values: { ferry: {}, boatman: {}, worn: {}, marked: {} },
     resources: { gold: {} },
     actions: {
       march: {
@@ -2698,6 +2698,13 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
       wear: {
         params: { piece: { from: 'today.worn' } },
         do: [{ set: { worn: ['helm', 'mail-2'] } }, { roll: 'table.wear', each: 'params.piece' }],
+      },
+      // Over its own choices, only those its where holds for (each as candidate).
+      drill: {
+        params: {
+          skill: { choices: ['sword', 'bow', 'axe'], where: { 'today.marked': '{{candidate}}' } },
+        },
+        do: [{ set: { marked: ['bow', 'axe'] } }, { roll: 'table.wear', each: 'params.skill' }],
       },
       sing: {
         do: [{ id: 'song', say: 'The porters sing for {{party.values.gold}} gold' }, { time: 10 }],
@@ -2773,7 +2780,6 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
       'actions.b.do.1: a step does one thing: time, travel.move, travel.speed, travel.advance, travel.mode, effects, do, roll, set, say, pause, ask or wait',
       'actions.a.do.0.ask: a has no parameters to ask',
       'actions.a.do.1.travel.mode: expected modes.fast, modes.boat or a variable',
-      'actions.c.do.0.each: c has no parameter listed by the trip (from:) to roll for each of',
     ])
   })
 
@@ -2784,6 +2790,12 @@ describe('more steps: say, pause, ask, travel.mode and wait', () => {
       ['table.wear', 'helm'],
       ['table.wear', 'mail-2'],
     ])
+  })
+
+  it('each: over its own choices too, those its where holds for', () => {
+    const { events } = take(begin(), 'drill')
+    const rolled = events.flatMap((e) => (e.type === 'CHECK_REQUIRED' ? [e.check] : []))
+    expect(rolled.map((c) => (c.context.params as { skill: string }).skill)).toEqual(['bow', 'axe'])
   })
 
   it('say writes a line of the system’s own, its variables read then', () => {

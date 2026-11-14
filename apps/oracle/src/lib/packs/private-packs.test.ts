@@ -303,6 +303,52 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(step.offered).toEqual(['abyssal-reaver-2', 'arcanist-2'])
   })
 
+  it('Skill Improvement at Camp: each Skill marked is rolled, raised and unmarked; the others not', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'erthos', name: 'Erthos', values: { bladed: 40, dodge: 30 } })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded('i') }),
+    }
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'i' })
+    const marked = applyResult(
+      session,
+      { effects: { 'characters.erthos.conditions.bladed': true } },
+      {},
+      rules,
+    )
+    let done = stepTrip(options, marked, { type: 'action', id: 'camp' })
+    // Whatever the night brings is seen to (a check that pauses, a fight called off).
+    for (let i = 0; i < 12; i++) {
+      const t = done.state.travel
+      if (t.pendingChecks[0])
+        done = stepTrip(options, done.state, { type: 'resolveCheck', id: t.pendingChecks[0].id })
+      else if (done.state.encounter)
+        done = stepTrip(options, done.state, { type: 'encounter', what: 'end' })
+      else if (t.waiting) done = stepTrip(options, done.state, { type: 'resume' })
+      else break
+    }
+    const erthos = done.state.members!.find((m) => m.id === 'erthos')!
+    expect(erthos.values.bladed).toBeGreaterThan(40)
+    expect(erthos.values.bladed).toBeLessThanOrEqual(44)
+    expect(erthos.conditions.bladed).toBeUndefined()
+    expect(erthos.values.dodge).toBe(30)
+    const rolled = done.state.journal.filter(
+      (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/improvement',
+    )
+    expect(rolled).toHaveLength(1)
+  })
+
   it('Set Camp: a ration for each of you, and each one rests', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!

@@ -2124,11 +2124,19 @@ export function createTravelEngine(options: {
    */
   const listOf = (
     state: TravelState,
-    param: { from?: string; where?: unknown } | undefined,
+    param: { from?: string; where?: unknown; choices?: readonly unknown[] } | undefined,
     context: Record<string, unknown>,
   ): string[] => {
-    if (!param?.from) return []
-    const where = param.where as Condition | undefined
+    const where = param?.where as Condition | undefined
+    // Its own choices (an `each:` over the skills), those `where` holds for.
+    if (!param?.from) {
+      const ids = (param?.choices ?? []).map((c) =>
+        String(typeof c === 'object' && c !== null && 'id' in c ? (c as { id: unknown }).id : c),
+      )
+      return where === undefined
+        ? ids
+        : ids.filter((candidate) => test(state, where, { ...context, candidate }))
+    }
     const hosted = options.listChoices?.(param.from, where, qualify(context))
     if (hosted) return hosted
     const listed = lookupIn(qualify(context))(param.from)
