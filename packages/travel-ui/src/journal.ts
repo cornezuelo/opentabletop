@@ -654,6 +654,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
     // A fight in turns (docs/conflicts.md): its start, each round and turn, its end.
     case 'ENCOUNTER_STARTED':
       return t('journal.encounterStarted')
+    case 'ENCOUNTER_NOBODY':
+      return t('journal.encounterNobody')
     case 'ENCOUNTER_ROUND':
       return t('journal.encounterRound', { round: Number(d.round ?? 1) })
     case 'ENCOUNTER_TURN':
@@ -789,6 +791,11 @@ export function momentText(
   if (check) return t('journal.moments.check', { check: checkName?.(check) ?? check })
   // A moment written as a condition: it just turned true.
   if (isReactionMoment(at)) return t('journal.moments.reaction')
+  const fight = /^encounter\.(start|round|turn|end)$/.exec(at)?.[1]
+  if (fight) return t(`journal.moments.encounter.${fight as 'start'}`)
+  if (at === 'world.turn') return t('journal.moments.worldTurn')
+  const clock = /^world\.clocks\.(.+)\.full$/.exec(at)?.[1]
+  if (clock) return t('journal.moments.clockFull', { clock: clock.replaceAll('-', ' ') })
   return partName?.(at) ?? at
 }
 

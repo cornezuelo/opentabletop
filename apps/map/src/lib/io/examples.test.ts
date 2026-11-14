@@ -127,6 +127,12 @@ describe('example maps', () => {
     for (let i = 0; i < 12 && session.travel.location !== '15,9'; i++) {
       for (const id of session.travel.pendingChecks.map((c) => c.id))
         session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+      // Foes on the way beset the Company: driven off before it marches on.
+      for (let k = 0; k < 10 && tripAvailability(options, session).travel; k++) {
+        if ((tripAvailability(options, session).travel as { value?: string }).value !== 'beset')
+          break
+        session = stepTrip(options, session, { type: 'action', id: 'drive-off' }).state
+      }
       const step = stepTrip(options, session, { type: 'travel' })
       events.push(...step.entries.flatMap((e) => (e.data?.event ? [String(e.data.event)] : [])))
       session = step.state
@@ -209,6 +215,12 @@ describe('example maps', () => {
     for (let i = 0; i < 20 && session.travel.location !== '10,8'; i++) {
       for (const id of session.travel.pendingChecks.map((c) => c.id))
         session = stepTrip(options, session, { type: 'resolveCheck', id }).state
+      // Foes on the way beset the Company: driven off before it marches on.
+      for (let k = 0; k < 10 && tripAvailability(options, session).travel; k++) {
+        if ((tripAvailability(options, session).travel as { value?: string }).value !== 'beset')
+          break
+        session = stepTrip(options, session, { type: 'action', id: 'drive-off' }).state
+      }
       const step = stepTrip(options, session, { type: 'travel' })
       events.push(...step.entries.flatMap((e) => (e.data?.event ? [String(e.data.event)] : [])))
       session = step.state
@@ -696,8 +708,9 @@ describe('example maps', () => {
       'rank-up': { condition: 'when' }, // nobody risen
       'open-eyes': { condition: 'when' }, // nobody has night eyes
       'close-eyes': { condition: 'when' }, // nobody's night eyes are open
+      'ground-left': { condition: 'when' }, // the Company gave no ground
     })
-    expect(Object.keys(unavailable)).toHaveLength(32)
+    expect(Object.keys(unavailable)).toHaveLength(33)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

@@ -4,6 +4,17 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Travel and Map
+
+- **No more raw ids in a fight**: a foe's roll by hand names its table (_The restless dead's turn_), and the journal names the moments of a fight, a world turn and a clock filling in words.
+- **Health as a bar on a fight's cards**: a main value that is a plain number with a top is drawn as a bar with its count (`2 / 5`), not said in words.
+- **A party without characters doesn't fight**, unless its system says so (`encounter.whole: true`, **A party without characters fights as a whole** in Packs): a fight asked for doesn't start and the journal says why; the fight buttons say it first.
+
+### Packs
+
+- **The Grey Marches**: while a foe is here the Company is **Beset**: no marching away, camping, resting, foraging, looking for tracks, scouting, fishing or delving until it deals with them or falls back (**Fall back** lets it march away). Foes are tagged `foe`. **Drive them off** and **Tend the wounded** work again for a party without companions when foes are present.
+- **Core**: the party is **Beset** while anyone is here (no moving on, exploring, camping or resting); **Get away** slips away from them. **Fight** needs characters.
+
 ## [0.58.0] - 2026-11-14
 
 ### Travel and Map

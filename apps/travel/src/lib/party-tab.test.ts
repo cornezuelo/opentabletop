@@ -116,7 +116,18 @@ describe('those present', () => {
     const wolf = wolves[1].character
     expect(shown).toContain(`Health ${wolf.values.health} · Harm ${wolf.values.harm}`)
 
-    // The party moves on: the pack (`behind: leave`) is gone, the Wyrm stays in its place.
+    // Beset, the Company can't march away from them…
+    expect(s.tripAvailability({ system: trip.system }, trip.saved.session!).travel).toEqual({
+      value: 'beset',
+      who: 'party',
+    })
+    // …until it gives ground (as Fall back leaves it). It moves on: the pack (`behind: leave`)
+    // is gone, the Wyrm stays in its place.
+    trip.edit((x) => {
+      const next = structuredClone(x)
+      next.party!.conditions['gave-ground'] = {}
+      return next
+    })
     await trip.step({ type: 'action', id: 'march' })
     const left = trip.saved.session!.present ?? []
     expect(trip.saved.session!.travel.location).not.toBe('0')

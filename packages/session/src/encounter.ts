@@ -61,6 +61,12 @@ export interface EncounterRules {
    * moment still comes; nothing else is done on it.
    */
   skip?: Condition
+  /**
+   * Whether a party with no characters fights as a whole, by its own sheet (`whole: true`).
+   * Absent: a fight needs characters, and one asked for with none doesn't start (the journal
+   * says why).
+   */
+  whole?: boolean
 }
 
 /**
@@ -98,7 +104,17 @@ export interface Encounter {
 export const ENCOUNTER_EFFECT = /^encounter(?:\.(first))?$/
 
 /** The keys `encounter:` may have. */
-const KEYS = new Set(['order', 'actions', 'foes', 'aim', 'turns', 'minutes', 'ends', 'skip'])
+const KEYS = new Set([
+  'order',
+  'actions',
+  'foes',
+  'aim',
+  'turns',
+  'minutes',
+  'ends',
+  'skip',
+  'whole',
+])
 
 /** A system's `encounter:` read, with what's wrong in it (paths from `encounter`). */
 export function parseEncounter(
@@ -174,6 +190,8 @@ export function parseEncounter(
     errors.push('encounter.minutes: expected the minutes a round takes')
   if (raw.ends !== undefined) errors.push(...validateCondition(raw.ends, 'encounter.ends'))
   if (raw.skip !== undefined) errors.push(...validateCondition(raw.skip, 'encounter.skip'))
+  if (raw.whole !== undefined && typeof raw.whole !== 'boolean')
+    errors.push('encounter.whole: expected true or false')
   if (errors.length) return { errors }
   return {
     rules: {
@@ -187,6 +205,7 @@ export function parseEncounter(
       ...(typeof raw.minutes === 'number' && { minutes: raw.minutes }),
       ...(raw.ends !== undefined && { ends: raw.ends as Condition }),
       ...(raw.skip !== undefined && { skip: raw.skip as Condition }),
+      ...(raw.whole === true && { whole: true }),
     },
     errors,
   }
@@ -452,6 +471,13 @@ export function driveEncounter(
     const e = state.encounter
     switch (e.stage) {
       case 'start':
+        // Nobody to fight it: a party with no characters, in a system whose fights need them.
+        if (!rules.whole && !state.members?.length) {
+          state = structuredClone(state)
+          delete state.encounter
+          line('ENCOUNTER_NOBODY')
+          break
+        }
         edit((e) => (e.stage = 'begun'))
         line('ENCOUNTER_STARTED')
         say({ type: 'moment', at: 'encounter.start' })
@@ -630,7 +656,8 @@ export function encounterAvailability(
 ): void {
   if (!rules || !s.encounter) return
   const turn = s.encounter.stage === 'acting'
-  out.travel ??= { encounter: 'fight' }
+  // A fight is the reason travelling waits, whatever else would stop it too (foes besetting).
+  out.travel = { encounter: 'fight' }
   for (const id of actionIds) {
     if (out[id]) continue
     if (!rules.actions.includes(id)) out[id] = { encounter: 'fight' }

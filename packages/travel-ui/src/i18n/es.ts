@@ -378,6 +378,8 @@ export const es: Messages<typeof en> = {
     wayMade: 'Un camino desde aquí, a un mapa nuevo: {kind}',
     mapEntered: 'Entráis en {name}',
     encounterStarted: 'Empieza un combate',
+    encounterNobody:
+      'No hay combate: el viaje no tiene personajes que lo libren, y los combates de este sistema los necesitan',
     encounterRound: 'Ronda {round}',
     encounterTurnAims: 'Turno de {name}, contra {target}',
     encounterTurn: 'Turno de {name}',
@@ -436,6 +438,14 @@ export const es: Messages<typeof en> = {
       done: 'al acabar «{action}»',
       check: 'tras «{check}»',
       reaction: 'al cumplirse su condición',
+      encounter: {
+        start: 'al empezar el combate',
+        round: 'al empezar una ronda',
+        turn: 'al empezar un turno',
+        end: 'al acabar el combate',
+      },
+      worldTurn: 'en un turno del mundo',
+      clockFull: 'al llenarse «{clock}»',
     },
     route: 'Ruta hasta {hex} · casillas: {hexes}',
   },

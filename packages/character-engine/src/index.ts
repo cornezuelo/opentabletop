@@ -656,9 +656,14 @@ export interface CharacterState {
 }
 
 /** A value's start: its number, its dice rolled (seeded by `key`), or 0. */
-function startOf(start: number | string | undefined, key: string): number {
+function startOf(
+  start: number | string | undefined,
+  key: string,
+  /** The values it starts beside, read as `self.values.*` (`'{{self.values.toughness}}'`). */
+  values: Record<string, number> = {},
+): number {
   if (typeof start !== 'string') return start ?? 0
-  const n = resolveChange(start, {}, momentRoller(key))
+  const n = resolveChange(start, { self: { values } }, momentRoller(key))
   return typeof n === 'number' ? n : 0
 }
 
@@ -670,13 +675,12 @@ export function createCharacter(
   /** The system's catalogues: a new character without items gets the sheet's `items.start`. */
   items?: ItemLookup,
 ): CharacterState {
-  const values = Object.fromEntries(
-    Object.entries(sheet.values).map(([id, v]) => [
-      id,
-      // Dice are rolled once for each character, the same for the same one (its id).
-      init.values?.[id] ?? startOf(v.default, `${sheetId}|${init.id}|${id}`),
-    ]),
-  )
+  // In the sheet's order, each default reading the values given and those before it
+  // (`default: '{{self.values.toughness}}'`: health starting at a maximum rolled).
+  const values: Record<string, number> = { ...init.values }
+  for (const [id, v] of Object.entries(sheet.values))
+    // Dice are rolled once for each character, the same for the same one (its id).
+    values[id] = init.values?.[id] ?? startOf(v.default, `${sheetId}|${init.id}|${id}`, values)
   const made: CharacterState = {
     sheet: sheetId,
     conditions: {},

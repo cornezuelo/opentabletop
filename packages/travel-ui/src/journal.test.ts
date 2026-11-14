@@ -473,6 +473,13 @@ describe('the journal’s detail, and its filter', () => {
     expect(entryText(entry(0, 'MOMENT_REACHED', { data: { at: 'actions.forage' } }), context)).toBe(
       'Moment: after “Forage”',
     )
+    // A fight's moments, a world turn and a clock filling, in words, never their ids.
+    const moment = (at: string) => entryText(entry(0, 'MOMENT_REACHED', { data: { at } }), context)
+    expect(moment('encounter.turn')).toBe('Moment: as a turn begins')
+    expect(moment('encounter.start')).toBe('Moment: as the fight begins')
+    expect(moment('world.turn')).toBe('Moment: at a world turn')
+    expect(moment('world.clocks.the-wyrm-wakes.full')).toBe('Moment: as “the wyrm wakes” fills')
+    expect(entryText(entry(0, 'ENCOUNTER_NOBODY'), context)).toMatch(/^No fight: /)
   })
 
   it('shows up to a level, of some topics, with some words; exports what it shows', () => {

@@ -644,6 +644,30 @@ describe('values that start rolled', () => {
     ).toBe(18)
   })
 
+  it('may read the values before them: health starting at a maximum rolled, or given', () => {
+    const { sheet, errors: problems } = parseSheet({
+      kind: 'sheet',
+      id: 'foe',
+      values: {
+        toughness: { default: '{{2d6}}' },
+        health: { default: '{{self.values.toughness}}', min: 0, max: '{{self.values.toughness}}' },
+      },
+    })
+    expect(problems).toEqual([])
+    const made = Array.from({ length: 10 }, (_, i) =>
+      createCharacter(sheet!, 'test/foe', { id: `f${i}` }),
+    )
+    for (const c of made) expect(c.values.health).toBe(c.values.toughness)
+    expect(new Set(made.map((c) => c.values.health)).size).toBeGreaterThan(2)
+    // Given (a template's), it's read too.
+    expect(
+      createCharacter(sheet!, 'test/foe', { id: 'x', values: { toughness: 7 } }).values,
+    ).toMatchObject({
+      toughness: 7,
+      health: 7,
+    })
+  })
+
   it('are dice in {{…}} or numbers, never other words', () => {
     expect(
       parseSheet({ kind: 'sheet', id: 'x', values: { a: { default: 'ten' } } }).errors.length,

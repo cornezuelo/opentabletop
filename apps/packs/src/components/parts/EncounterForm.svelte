@@ -253,6 +253,15 @@
         onchange={(c) => set('skip', c)}
       />
     </div>
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={raw.whole === true}
+        {disabled}
+        onchange={(e) => set('whole', e.currentTarget.checked ? true : undefined)}
+      />
+      <span>{t('encounter.whole')}<InfoTip markdown={t('encounter.wholeHelp')} /></span>
+    </label>
   {/if}
 </section>
 

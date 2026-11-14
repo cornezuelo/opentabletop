@@ -20,7 +20,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 
 ## Fights in turns
 
-**Its fights go in turns**, ticked, writes `encounter:` in the system: a fight is played turn by turn, with a panel on the trip saying whose turn it is ([A fight in turns](../travel/02-playing.md#characters)). Unticked, fights are played as a whole, with the actions and tables that tell them. The YAML: [Fights in turns](../technical/07-kinds.md#systems).
+**Its fights go in turns**, ticked, writes `encounter:` in the system: a fight is played turn by turn, with a panel on the trip saying whose turn it is ([A fight in turns](../travel/02-playing.md#characters)). Unticked, fights are played as a whole, with the actions and tables that tell them. **A party without characters fights as a whole**, ticked, lets a trip with no characters fight by the party's own sheet; unticked, such a trip doesn't fight (the journal says why). The YAML: [Fights in turns](../technical/07-kinds.md#systems).
 
 - **Who acts first**: **By side**, one side then the other (**The side that goes first**: the party, or the foes; an effect of `encounter.start` can say otherwise, after an initiative roll), or **Each one by what it rolls**, once as the fight begins, highest first: one roll for all (`{{acting.values.agility + 1d6}}`), or **One for each side**.
 - **A foe's turn**: what a foe does on its turn, a table rolled for it, acting as it, for the foes whose template has no **On its turn** of its own ([Bestiary](18-bestiary.md)); its results aim at one of the party with `set: { target: party.members.random }` (or at each of them, `party.members.all`) and name them as `characters[target]`. Empty: a foe's turn is only its moment.

@@ -186,7 +186,7 @@ sheet/company:
   description: |-
     La Compañía en conjunto: su moral, su fatiga, los mercenarios que ha contratado, cuánto aguanta, el forraje de los caballos, su leyenda y sus reservas de raciones. Sigue igual cuando se unen o caen compañeros: todo viaje la tiene.
 
-    **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), una provisión como un simple valor (el forraje, `party.values.fodder`, que se ve como `6 / 12`), una pista de progreso (la leyenda, diez casillas de cuatro marcas, `display: ticks`), objetos propios del grupo con los que empieza (seis raciones, `items: { start: { ration: 6 } }`), que se gastan antes que los de sus compañeros (`party.items.ration`), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar; su valor principal, la moral (`main: morale`), que se dibuja con el grupo de un vistazo.
+    **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), una provisión como un simple valor (el forraje, `party.values.fodder`, que se ve como `6 / 12`), una pista de progreso (la leyenda, diez casillas de cuatro marcas, `display: ticks`), objetos propios del grupo con los que empieza (seis raciones, `items: { start: { ration: 6 } }`), que se gastan antes que los de sus compañeros (`party.items.ration`), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar; uno que se cumple por sí solo mientras haya enemigos aquí (acosada, `when` que lee `present.tags: foe`), que impide seguir la marcha y lo que se hace en el lugar salvo que la Compañía haya cedido terreno (otro estado, que pone Replegarse y se quita en el siguiente lugar); su valor principal, la moral (`main: morale`), que se dibuja con el grupo de un vistazo.
   values:
     morale:
       name: Moral
@@ -219,6 +219,12 @@ sheet/company:
     shaken:
       name: Desanimada
       description: Perdida en la oscuridad y asustada; no hay marcha forzada hasta que la Compañía descanse.
+    beset:
+      name: Acosada
+      description: Hay enemigos aquí. La Compañía no puede seguir la marcha, acampar, descansar, buscar comida, buscar huellas, explorar el camino, pescar ni explorar una ruina hasta que se las vea con ellos (plantar cara, ahuyentarlos, comprarlos) o se repliegue de un combate.
+    gave-ground:
+      name: Ha cedido terreno
+      description: La Compañía se ha replegado de un combate y puede alejarse de los enemigos que siguen aquí, hasta que llegue a otro lugar.
 sheet/this-place:
   name: Este lugar
   description: |-

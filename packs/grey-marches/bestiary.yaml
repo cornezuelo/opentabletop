@@ -11,14 +11,21 @@ name: Foe
 description: |-
   What the Company meets on the road and has to deal with: beasts, outlaws, the Hunt.
 
-  **Shows:** a sheet for creatures and NPC types, lighter than a companion's, its main value its health though it has no max (`main: health`, shown as a number on a fight's cards); conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); items, so a template may carry some.
+  **Shows:** a sheet for creatures and NPC types, lighter than a companion's, its main value its health (`main: health`, a bar on a fight's cards), which starts at a maximum each template rolls (`default: '{{self.values.toughness}}'`, a default read from a value before it); conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); items, so a template may carry some.
 main: health
 values:
+  # Rolled for each copy by its template (`toughness: '{{1d4+1}}'`); health starts there.
+  toughness:
+    name: Max health
+    description: The most harm it can take, rolled for each one as it comes.
+    min: 0
   health:
     name: Health
     description: The harm it can still take; at 0 it's down, and gone.
+    default: '{{self.values.toughness}}'
     min: 0
-    display: number
+    max: '{{self.values.toughness}}'
+    display: bar
   harm:
     name: Harm
     description: How hard it hits, for your own rulings and the tables that read it.
@@ -65,7 +72,7 @@ description: |-
   **Shows:**
 
   - Templates of characters (`kind: bestiary`) on a sheet of the pack's own (`sheet: sheet.foe`), and one on the companions' (an NPC type: the Vale's riders)
-  - Values rolled for each copy: `health: '{{1d4+1}}'`
+  - Values rolled for each copy: `toughness: '{{1d4+1}}'`, its health starting there
   - A variant: the pack leader is a grey wolf (`like: grey-wolf`) with more health and a tag of its own; the bandit chief likewise
   - Copies named from a table (`names: table.npc-names`): _Brenna_, _Corin_… instead of _Bandit 2_
   - What harms each the most or the least, as its tags (`fears-fire`, `fireproof`, `unhallowed`, `bone`), read by a blow's kind (_The blow lands_)
@@ -73,6 +80,7 @@ description: |-
   - How each is drawn on a map (`token:` its icon and kind)
   - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
   - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, and the restless dead, in their barrow (`behind: stay`)
+  - Who is a foe, as a tag (`foe`): while one is here the Company is _Beset_ (its sheet), and can't march on or busy itself with anything else until it deals with them or falls back
 sheet: sheet.foe
 behind: leave
 templates:
@@ -80,8 +88,8 @@ templates:
     name: Grey wolf
     description: Lean and patient; they hunt in packs, and break when their leader falls.
     # Fire harms it twice over (_The blow lands_ reads its tags).
-    tags: [beast, pack, fears-fire]
-    values: { health: '{{1d4+1}}', harm: 1, morale: 7 }
+    tags: [foe, beast, pack, fears-fire]
+    values: { toughness: '{{1d4+1}}', harm: 1, morale: 7 }
     # Its own turn in a fight (below): it goes for the weakest. Its leader, like it, too.
     actions: table.wolf-turn
     token: { icon: 'game:wolf-head', kind: enemy }
@@ -90,20 +98,20 @@ templates:
     name: Pack leader
     description: The biggest of the pack; while it stands, the others stand with it.
     tags: [leader]
-    values: { health: '{{2d4+2}}', harm: 2, morale: 9 }
+    values: { toughness: '{{2d4+2}}', harm: 2, morale: 9 }
   ember-rider:
     name: Rider of the Ember Hunt
     description: A pale rider under the full Ember Moon, who never tires and never speaks.
     # Fire does it no harm; hallowed steel harms it twice over.
-    tags: [hunt, haunted, fireproof, unhallowed]
-    values: { health: '{{2d6}}', harm: 2, morale: 12 }
+    tags: [foe, hunt, haunted, fireproof, unhallowed]
+    values: { toughness: '{{2d6}}', harm: 2, morale: 12 }
     conditions: [enraged]
     token: { icon: 'game:ghost', kind: enemy }
   wyrm:
     name: The Greywood Wyrm
     description: Coiled in the heart of the Greywood. It doesn't follow; it waits.
-    tags: [beast, wyrm, fireproof]
-    values: { health: 30, harm: 4, morale: 12 }
+    tags: [foe, beast, wyrm, fireproof]
+    values: { toughness: 30, harm: 4, morale: 12 }
     token: { icon: 'game:dragon-head', kind: enemy }
     behind: stay
   # What sleeps in the Deep Barrows (pieces.yaml): woken by a crypt's sleeper or a door forced.
@@ -112,8 +120,8 @@ templates:
     name: The restless dead
     description: Bones in grave-wrappings that don't stay where they were laid.
     # Steel glances off old bones (half its harm); hallowed steel harms them twice over.
-    tags: [undead, bone, unhallowed]
-    values: { health: '{{1d6+2}}', harm: 1, morale: 12 }
+    tags: [foe, undead, bone, unhallowed]
+    values: { toughness: '{{1d6+2}}', harm: 1, morale: 12 }
     token: { icon: 'game:death-skull', kind: enemy }
     actions: table.dead-turn
     behind: stay
@@ -121,8 +129,8 @@ templates:
     name: Bandit
     description: An outlaw of the Hollow Hills, hungry and badly armed.
     names: table.npc-names
-    tags: [people, outlaw]
-    values: { health: '{{1d6+1}}', harm: 1, morale: 7 }
+    tags: [foe, people, outlaw]
+    values: { toughness: '{{1d6+1}}', harm: 1, morale: 7 }
     items: { ration: '{{1d2}}' }
     token: { icon: 'game:hooded-figure', kind: enemy }
   bandit-chief:
@@ -130,7 +138,7 @@ templates:
     name: Bandit chief
     description: Leads the band; better fed, better armed, and quicker to bargain.
     tags: [leader]
-    values: { health: '{{2d6+2}}', harm: 2, morale: 9 }
+    values: { toughness: '{{2d6+2}}', harm: 2, morale: 9 }
     items: { ration: 2 }
   traveller:
     # Whoever a road brings, on the companions' own sheet: gone once the Company moves on,

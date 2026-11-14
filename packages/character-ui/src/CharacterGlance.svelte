@@ -8,7 +8,7 @@
   /**
    * A character at a glance, where there's no room for its whole sheet (a fight's cards, the
    * party in rows): its name, its sheet's main value drawn as the sheet says (health as a
-   * bar) and the conditions it has, each with what's left of one given for a while. `change`
+   * bar; a plain number with a top, as a bar too, `2 / 5`) and the conditions it has, each with what's left of one given for a while. `change`
    * is what just happened to its main value (`-2`), shown beside it for a moment.
    */
   let {
@@ -30,16 +30,22 @@
   const COUNTED = ['boxes', 'ticks', 'pips', 'dial']
   /** Displays drawn as marks; any other (a number, a level, a die) is said as text, never a box. */
   const DRAWN = ['bar', 'boxes', 'ticks', 'pips', 'dial']
-  /** The value in words, when it isn't drawn: its level's name, its die (`d8`), its number. */
-  const said = $derived.by(() => {
-    if (!view || DRAWN.includes(view.display)) return ''
-    if (view.levels && view.level !== undefined) return view.levels[view.level]?.name ?? ''
-    const n = view.display === 'die' ? `d${view.value}` : String(view.value)
-    const of = view.of ?? view.max
-    return view.display === 'of' && of !== undefined ? `${n} / ${of}` : n
-  })
   const main = $derived(sheet ? mainValue(sheet) : undefined)
   const view = $derived(sheet && main ? characterValueView(sheet, character, main, locale) : null)
+  /** Plain numbers with a top (a max, or what it's drawn against): drawn as a bar at a glance. */
+  const PLAIN = ['number', 'of']
+  /** How it's drawn here: a plain number with a top as a bar, else as its sheet says. */
+  const drawn = $derived(
+    view && PLAIN.includes(view.display) && view.fill !== undefined
+      ? { ...view, display: 'bar' as const }
+      : view,
+  )
+  /** The value in words, when it isn't drawn: its level's name, its die (`d8`), its number. */
+  const said = $derived.by(() => {
+    if (!drawn || DRAWN.includes(drawn.display)) return ''
+    if (drawn.levels && drawn.level !== undefined) return drawn.levels[drawn.level]?.name ?? ''
+    return drawn.display === 'die' ? `d${drawn.value}` : String(drawn.value)
+  })
   const mainName = $derived(
     sheet && main ? (sheetText(sheet.values[main]!.name, locale) ?? idName(main)) : '',
   )
@@ -61,7 +67,7 @@
       {#if said}
         <span class="said">{mainName ? `${mainName} ` : ''}<strong>{said}</strong></span>
       {:else}
-        <ValueControl {view} label={mainName} {locale} disabled onset={() => {}} />
+        <ValueControl view={drawn!} label={mainName} {locale} disabled onset={() => {}} />
       {/if}
       {#if COUNTED.includes(view.display)}
         <span class="number"

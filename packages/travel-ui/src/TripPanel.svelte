@@ -302,11 +302,13 @@
   const fight = $derived(encounterView(session))
   /**
    * Whether a fight in turns can start by hand: the system's fights go in turns, someone's
-   * here, and none of its own actions starts one (that one is the button).
+   * here, someone of the party fights it (characters, or the party as a whole where the
+   * system says so) and none of its own actions starts one (that one is the button).
    */
   const canFight = $derived(
     !!system.encounter &&
       !session.encounter &&
+      (!!session.members?.length || !!system.encounter.whole) &&
       presentHere(session).length > 0 &&
       !fightStarters(system.rules).length,
   )
@@ -775,7 +777,10 @@
       ? actionName(yours.table.replace(/^actions\./, ''))
       : yours.of
         ? nameOf(yours.of)
-        : pendingName(event)}
+        : // A check the system declares by its name; a foe's turn by its table's.
+          event && checkName(event) === undefined
+          ? nameOf(yours.table)
+          : pendingName(event)}
     who={yours.who !== undefined && yours.who !== PARTY_ID
       ? participantName(session, yours.who)
       : ''}

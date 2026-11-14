@@ -3,8 +3,11 @@ sheet/foe:
   description: |-
     Lo que la Compañía encuentra en el camino y con lo que tiene que lidiar: bestias, forajidos, la Cacería.
 
-    **Enseña:** una hoja para criaturas y tipos de PNJ, más ligera que la de un compañero, con la salud como valor principal aunque no tenga máximo (`main: health`, mostrada como número en las tarjetas de un combate); estados que quitan una copia de los presentes por sí solos (`leaves: true`): uno que se cumple por sí solo (_Abatido_, con salud 0) y otros que ponen los efectos (_En desbandada_, _Sobornado_); objetos, para que una plantilla pueda llevar alguno.
+    **Enseña:** una hoja para criaturas y tipos de PNJ, más ligera que la de un compañero, con la salud como valor principal (`main: health`, una barra en las tarjetas de un combate), que empieza en un máximo que tira cada plantilla (`default: '{{self.values.toughness}}'`, un valor por defecto que lee un valor anterior); estados que quitan una copia de los presentes por sí solos (`leaves: true`): uno que se cumple por sí solo (_Abatido_, con salud 0) y otros que ponen los efectos (_En desbandada_, _Sobornado_); objetos, para que una plantilla pueda llevar alguno.
   values:
+    toughness:
+      name: Salud máxima
+      description: El daño máximo que aguanta, tirado para cada uno al llegar.
     health:
       name: Salud
       description: El daño que aún aguanta; a 0 cae, y se va.
@@ -41,7 +44,7 @@ bestiary/marches:
     **Enseña:**
 
     - Plantillas de personajes (`kind: bestiary`) sobre una hoja propia del pack (`sheet: sheet.foe`), y una sobre la de los compañeros (un tipo de PNJ: los jinetes del Valle)
-    - Valores que tira cada copia: `health: '{{1d4+1}}'`
+    - Valores que tira cada copia: `toughness: '{{1d4+1}}'`, y su salud empieza ahí
     - Una variante: el jefe de la manada es un lobo gris (`like: grey-wolf`) con más salud y una etiqueta propia; el cabecilla de los bandidos, igual
     - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
     - Lo que más o lo menos daña a cada una, como sus etiquetas (`fears-fire`, `fireproof`, `unhallowed`, `bone`), que lee el tipo de un golpe (_El golpe acierta_)
@@ -49,6 +52,7 @@ bestiary/marches:
     - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
     - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada), y el de los muertos inquietos (`actions: table.dead-turn`); las demás hacen lo que dice el sistema (`encounter.foes`)
     - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, y los muertos inquietos, en su túmulo (`behind: stay`)
+    - Quién es un enemigo, como etiqueta (`foe`): mientras haya uno aquí, la Compañía está _Acosada_ (su hoja), y no puede seguir la marcha ni ocuparse de otra cosa hasta que se las vea con ellos o se repliegue
   templates:
     traveller:
       name: Viajero

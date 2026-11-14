@@ -475,7 +475,7 @@ export const es: Messages<typeof en> = {
     default: 'Empieza en',
     defaultHelp: 'Lo que tiene un personaje nuevo (vacío: 0).\n• `2`',
     startRolledHelp:
-      'Lo que tiene un personaje nuevo (vacío: 0): un número, o dados que se tiran para cada personaje nuevo, los mismos por muchas veces que se haga el mismo.\n• `2`\n• `{{3d6}}` — tres dados de seis caras, sumados\n• `{{1d6+10}}` — de 11 a 16',
+      'Lo que tiene un personaje nuevo (vacío: 0): un número, dados que se tiran para cada personaje nuevo (los mismos por muchas veces que se haga el mismo), o un valor anterior a este en la lista.\n• `2`\n• `{{3d6}}` — tres dados de seis caras, sumados\n• `{{1d6+10}}` — de 11 a 16\n• `{{self.values.toughness}}` — empieza tan alto como su Dureza, tirada o dada antes',
     min: 'Mín.',
     max: 'Máx.',
     boundHelp:
@@ -821,6 +821,9 @@ export const es: Messages<typeof en> = {
     skip: 'Se pierde un turno cuando',
     skipHelp:
       'Cuándo pierde su turno uno de los que luchan: se lee al empezar cada turno, actuando como aquel de quien es el turno, antes de que cuente hacia atrás lo que se le dio hasta su turno. El turno pasa solo (el diario lo dice); su momento (`encounter.turn`) llega igualmente, así que lo que pasa en cada turno sigue pasando. Vacío: no se pierde ningún turno.\n• `acting.conditions: stunned` — mientras está aturdido\n• `acting.conditions: surprised` — con `lasts: turns` en la hoja y dado `1`: pierde el primer turno y se le pasa',
+    whole: 'Un grupo sin personajes pelea como un todo',
+    wholeHelp:
+      'Si un viaje sin personajes pelea o no: marcado, el grupo pelea como un todo, con su propia hoja, así que lo que quitan las tablas de los enemigos (el `health` de un golpe) tiene que estar en esa hoja; sin marcar, un combate pedido no empieza y el diario dice que el viaje no tiene personajes que lo libren.\n• **Marcado**: un sistema que se juega sin personajes, con lo que golpean los enemigos en su hoja de grupo\n• **Sin marcar**: los combates son de los personajes (un viaje necesita alguno para pelear)',
   },
   overview: {
     sheet: 'Hoja de personajes',

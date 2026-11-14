@@ -9,6 +9,7 @@ import { applyResult, type JournalEntry } from './index'
 import { newMember } from './party'
 import {
   partyOf,
+  settleTrip,
   startTrip as startPaced,
   stepTrip,
   travelSystems,
@@ -77,7 +78,7 @@ describe('the bundled packs make foes from their bestiaries', () => {
       count,
       'grey-wolf': { count: count - 1 },
       'pack-leader': { count: 1 },
-      tags: ['beast', 'pack', 'fears-fire', 'leader'],
+      tags: ['foe', 'beast', 'pack', 'fears-fire', 'leader'],
     })
     expect(s.present!.at(-1)!.character).toMatchObject({
       name: 'Pack leader',
@@ -134,7 +135,13 @@ describe('the bundled packs make foes from their bestiaries', () => {
     }
     const s = applyResult(
       { ...session, rollWay: 'all', acting: 'kael' },
-      { effects: { 'present.bandit': 1, 'characters.bandit.values.health': '=9' } },
+      {
+        effects: {
+          'present.bandit': 1,
+          'characters.bandit.values.toughness': '=9',
+          'characters.bandit.values.health': '=9',
+        },
+      },
       {},
       partyOf(marches),
     )
@@ -310,6 +317,72 @@ describe('the bundled packs make foes from their bestiaries', () => {
   })
 })
 
+describe('beset by foes', () => {
+  // Two places a step apart, nothing on the way.
+  const road: TravelWorld = {
+    km: () => 1,
+    place: () => ({ terrain: 'plains' }),
+    neighbors: (id) => (id === 'a' ? ['b'] : ['a']),
+    distance: () => 1,
+    connections: () => ['road'],
+  }
+
+  it('Core: no moving on, exploring or resting beside a foe, until the party gets away', () => {
+    const options = { system: core, world: road }
+    const { session } = startTrip({ system: core, location: 'a', seed: 'b', time: 9 * 60 })
+    let s = settleTrip(
+      options,
+      applyResult(session, { effects: { 'present.foe': 1 } }, {}, partyOf(core)),
+    ).state
+    const open = tripAvailability(options, s)
+    expect(open.travel).toEqual({ value: 'beset', who: 'party' })
+    expect(open.explore).toEqual({ value: 'beset', who: 'party' })
+    expect(open.rest).toEqual({ value: 'beset', who: 'party' })
+    // No characters: no fight, the button says why.
+    expect(open.fight).toMatchObject({ condition: 'needs' })
+    expect(open['get-away']).toBeUndefined()
+    s = stepTrip(options, s, { type: 'action', id: 'get-away' }).state
+    expect(s.party!.conditions).toHaveProperty('got-away')
+    expect(tripAvailability(options, s).travel).toBeUndefined()
+    // On to the next place: getting away is over there; the foe stays behind.
+    s = stepTrip(options, s, { type: 'setDestination', place: 'b' }).state
+    s = stepTrip(options, s, { type: 'action', id: 'march' }).state
+    expect(s.travel.location).toBe('b')
+    expect(s.party!.conditions).not.toHaveProperty('got-away')
+    expect(tripAvailability(options, s).travel).toBeUndefined()
+  })
+
+  it('the Grey Marches: a foe besets the Company, a traveller doesn’t; falling back lets it march away', () => {
+    const options = { system: marches, world: road }
+    const { session } = startTrip({ system: marches, location: 'a', seed: 'b', time: 9 * 60 })
+    const rules = partyOf(marches)
+    const traveller = applyResult(session, { effects: { 'present.traveller': 1 } }, {}, rules)
+    expect(tripAvailability(options, settleTrip(options, traveller).state).travel).toBeUndefined()
+    let s = settleTrip(
+      options,
+      applyResult(session, { effects: { 'present.bandit': 1 } }, {}, rules),
+    ).state
+    const open = tripAvailability(options, s)
+    for (const id of ['travel', 'camp', 'forage', 'look-for-tracks'])
+      expect(open[id]).toEqual({ value: 'beset', who: 'party' })
+    // Without companions: no fight, but driving them off is open.
+    expect(open.stand).toMatchObject({ condition: 'needs' })
+    expect(open['drive-off']).toBeUndefined()
+    // Given ground (as Fall back leaves it): it may march away, and it's over at the next place.
+    s = { ...s, party: { ...s.party!, conditions: { ...s.party!.conditions, 'gave-ground': {} } } }
+    s = settleTrip(options, s).state
+    expect(tripAvailability(options, s).travel).toBeUndefined()
+    s = stepTrip(options, s, { type: 'setDestination', place: 'b' }).state
+    for (let i = 0; i < 4 && s.travel.location !== 'b'; i++) {
+      for (const c of s.travel.pendingChecks)
+        s = stepTrip(options, s, { type: 'resolveCheck', id: c.id }).state
+      s = stepTrip(options, s, { type: 'action', id: 'march', with: { until: 'place' } }).state
+    }
+    expect(s.travel.location).toBe('b')
+    expect(s.party!.conditions).not.toHaveProperty('gave-ground')
+  })
+})
+
 describe('the bundled packs fight in turns', () => {
   const people = (system: typeof marches) => {
     const rules = partyOf(system)
@@ -347,6 +420,11 @@ describe('the bundled packs fight in turns', () => {
     const lines: string[] = []
     const all: JournalEntry[] = []
     let done = stepTrip(options, s, { type: 'action', id: start })
+    // The party beset by the foes here (its sheet's condition, held by itself): said as the
+    // step begins, before the fight's own lines (and again as it ends, if the fight does).
+    const beset = done.entries.filter((e) => /conditions\.beset$/.test(String(e.data?.path)))
+    expect(beset.length).toBeGreaterThanOrEqual(1)
+    done = { ...done, entries: done.entries.filter((e) => !beset.includes(e)) }
     const first = done.state.encounter?.order ?? []
     for (let turn = 0; turn < 60 && done.state.encounter; turn++) {
       lines.push(...done.entries.map((e) => e.code))
@@ -376,7 +454,7 @@ describe('the bundled packs fight in turns', () => {
     expect(lines.filter((l) => l === 'ENCOUNTER_TURN').length).toBeGreaterThan(2)
     // Kael rolls 1d6 and his Stealth (3), Mara 1d6 and hers (0), each bandit 1d6 and its Harm.
     const order = fight(marches, 'stand', 'g').first
-    expect(order).toEqual(['kael', 'bandit-2', 'bandit', 'mara'])
+    expect(order).toEqual(['kael', 'bandit', 'mara', 'bandit-2'])
     // Its end is a moment (Mind the mail's and A name made's), heard right after it; nobody
     // wears armour here.
     const ended = lines.indexOf('ENCOUNTER_ENDED')
@@ -500,7 +578,8 @@ describe('the bundled packs fight in turns', () => {
     }
     expect(tables).toContain('grey-marches/wolf-turn')
     expect(tables).toContain('grey-marches/foe-turn')
-    expect(new Set(bitten)).toEqual(new Set(bitten.length ? ['mara'] : []))
+    // The first bite goes for her (once she falls, the next weakest is another).
+    expect(bitten.length ? bitten[0] : 'mara').toBe('mara')
   })
 
   it("a blow at everyone: Core's sweep and the restless dead's chill, on each, read and rolled for each", () => {
@@ -935,7 +1014,8 @@ describe('the bundled packs fight in turns', () => {
     expect(done.entries.map((e) => e.code)).toContain('ENCOUNTER_ENDED')
     expect(done.state.encounter).toBeUndefined()
     expect(encounterView(done.state)).toBeUndefined()
-    expect(tripAvailability(options, done.state).travel).toBeUndefined()
+    // Called off, the bandits are still here: the Company is beset, and can't march away.
+    expect(tripAvailability(options, done.state).travel).toEqual({ value: 'beset', who: 'party' })
   })
 
   it("for each member: the Marches' Mind the mail looks over every companion's mail after a fight, Core's Mend heals each one standing after a rest", () => {

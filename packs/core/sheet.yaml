@@ -82,7 +82,7 @@ name: Party
 description: |-
   The party of the Generic rules, as a whole: its morale and its food.
 
-  **Shows:** the smallest party sheet: a value with bounds, drawn as boxes, and a supply as a plain value of the party (it starts rolled, `default: '{{2d3+2}}'`, and never goes below 0; the rules eat it).
+  **Shows:** the smallest party sheet: a value with bounds, drawn as boxes, and a supply as a plain value of the party (it starts rolled, `default: '{{2d3+2}}'`, and never goes below 0; the rules eat it); a condition that holds by itself while foes are here (`beset`, `when` reading those present), blocking moving on and exploring until they're beaten or the party gets away.
 values:
   morale:
     name: Morale
@@ -97,6 +97,18 @@ values:
     # Rolled for each new party (dice as a default): 4 to 8.
     default: '{{2d3+2}}'
     min: 0
+conditions:
+  # Holds by itself while anyone is here (those present), unless the party just got away
+  # (Get away): no moving on, exploring, camping or resting beside them.
+  beset:
+    name: Beset
+    description: Foes are here. The party can't move on, explore, camp or rest until none is left or it gets away.
+    when: { all: [{ present.count: { gte: 1 } }, { not: { self.conditions: got-away } }] }
+    blocks: [travel.move, actions.explore, actions.camp, actions.rest]
+  # Set by Get away (travel.yaml), cleared at the next place.
+  got-away:
+    name: Getting away
+    description: The party slipped away from the foes here and may move on, until it reaches another place.
 ---
 # Each map's own (the system's `mapSheet`): kept for each map, read as `map.values.*`.
 kind: sheet

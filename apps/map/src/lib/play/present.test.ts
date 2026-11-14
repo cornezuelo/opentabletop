@@ -57,7 +57,16 @@ describe('those present on the map', () => {
     expect(drawnTokens().filter((p) => p.hex === here)).toHaveLength(9)
     updatePlay((p) => ({ ...p, copiesApart: undefined }))
 
-    // The party marches on: the pack (`behind: leave`) is gone from the map too.
+    // Beset, the party can't march away from them: March leaves it where it stands.
+    step({ type: 'action', id: 'march' })
+    expect(sessionOf(editor.map.play!)!.travel.location).toBe(here)
+    // Once it gives ground (as Fall back leaves it), it marches on: the pack (`behind:
+    // leave`) is gone from the map too.
+    editSession((s) => {
+      const next = structuredClone(s)
+      next.party!.conditions['gave-ground'] = {}
+      return next
+    })
     step({ type: 'action', id: 'march' })
     expect(sessionOf(editor.map.play!)!.travel.location).not.toBe(here)
     expect(copyTokens()).toEqual([])

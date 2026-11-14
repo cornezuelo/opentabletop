@@ -23,7 +23,7 @@ describe('the bestiary in Characters', () => {
     const wolf = templatesOf(marches, 'en').find((e) => e.id === 'grey-wolf')!
     expect(wolf.sheet).toBeDefined()
     expect(wolf.others).toContain('pack-leader')
-    expect(wolf.def.values?.health).toBeDefined()
+    expect(wolf.def.values?.toughness).toBeDefined()
     expect(wolf.sheetId).toBe('grey-marches/foe')
     // A variant has the tags of the template it's like, for the filter by tag.
     const leader = templatesOf(marches, 'en').find((e) => e.id === 'pack-leader')!

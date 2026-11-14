@@ -463,7 +463,7 @@ export const en = {
     default: 'Starts at',
     defaultHelp: 'What a new character has (empty: 0).\n• `2`',
     startRolledHelp:
-      'What a new character has (empty: 0): a number, or dice rolled for each new character, the same however often the same one is made.\n• `2`\n• `{{3d6}}` — three six-sided dice, added\n• `{{1d6+10}}` — 11 to 16',
+      'What a new character has (empty: 0): a number, dice rolled for each new character (the same however often the same one is made), or a value listed before this one.\n• `2`\n• `{{3d6}}` — three six-sided dice, added\n• `{{1d6+10}}` — 11 to 16\n• `{{self.values.toughness}}` — starts as high as its Toughness, rolled or given before it',
     min: 'Min',
     max: 'Max',
     boundHelp:
@@ -809,6 +809,9 @@ export const en = {
     skip: 'A turn is lost when',
     skipHelp:
       "When one taking part loses their turn: read as each turn begins, acting as whoever's turn it is, before what was given until their turn counts down. The turn passes by itself (the journal says so); its moment (`encounter.turn`) still comes, so what happens on every turn still happens. Empty: no turn is lost.\n• `acting.conditions: stunned` — while stunned\n• `acting.conditions: surprised` — with `lasts: turns` on the sheet and given `1`: the first turn lost, then gone",
+    whole: 'A party without characters fights as a whole',
+    wholeHelp:
+      'Whether a trip with no characters fights at all: ticked, the party fights as a whole, by its own sheet, so what the foes’ tables take (a blow’s `health`) must be on that sheet; unticked, a fight asked for doesn’t start and the journal says the trip has no characters to fight it.\n• **Ticked**: a system played without characters, its party sheet with what foes hit\n• **Unticked**: fights are the characters’ own (a trip needs some to fight)',
   },
   overview: {
     sheet: 'Characters’ sheet',

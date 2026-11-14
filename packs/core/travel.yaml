@@ -188,11 +188,33 @@ actions:
   # It says how tough the toughest of them is (`present.highest.values.health`).
   fight:
     name: Fight
-    description: 'With foes here: a fight in turns begins, the party first.'
+    description: 'With foes here: a fight in turns begins, the party first. Only with characters: they fight it.'
     when: { present.count: { gte: 1 } }
+    # Core's fights are its characters' (no `encounter.whole`): with none, the button says so.
+    needs: { party.members: { exists: true } }
     do:
       - { effects: { encounter: start } }
       - { id: toughest, say: 'The toughest of them has {{present.highest.values.health}} health.' }
+  # Away from foes here without a fight (the party sheet's _Beset_ holds while they are):
+  # ten minutes, and the party may move on until it reaches another place.
+  get-away:
+    name: Get away
+    description: 'With foes here, outside a fight: ten minutes slipping away; the party may move on, and they stay behind.'
+    when: { present.count: { gte: 1 } }
+    unless: { party.conditions: got-away }
+    hideWhenUnavailable: true
+    do:
+      - { time: 10 }
+      - { effects: { party.conditions.got-away: true } }
+      - { id: slipped, say: 'The party slips away while it can.' }
+  # A place reached: getting away is done, and foes here beset the party again.
+  away:
+    name: Away
+    description: 'On reaching another place after getting away: the party is no longer slipping away.'
+    on: trip.place-enter
+    when: { party.conditions: got-away }
+    do:
+      - { effects: { party.conditions.got-away: false } }
   # The one action a member takes on its turn in a fight: a blow at one foe here, chosen.
   strike:
     name: Strike

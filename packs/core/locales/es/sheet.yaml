@@ -45,7 +45,7 @@ sheet/party:
   description: |-
     El grupo de las reglas genéricas, como un todo: su moral y su comida.
 
-    **Enseña:** la hoja de grupo más pequeña: un valor con límites, dibujado como casillas, y una provisión como un simple valor del grupo (empieza tirada, `default: '{{2d3+2}}'`, y nunca baja de 0; las reglas se la comen).
+    **Enseña:** la hoja de grupo más pequeña: un valor con límites, dibujado como casillas, y una provisión como un simple valor del grupo (empieza tirada, `default: '{{2d3+2}}'`, y nunca baja de 0; las reglas se la comen); un estado que se cumple por sí solo mientras haya enemigos aquí (`beset`, `when` que lee a los presentes), que impide seguir y explorar hasta que no quede ninguno o el grupo se escabulla.
   values:
     morale:
       name: Moral
@@ -53,6 +53,13 @@ sheet/party:
     food:
       name: Comida
       description: Días de comida que lleva el grupo entre todos, tirados al ponerse en marcha (2d3+2); se come un día al acabar cada día, y nunca baja de 0.
+  conditions:
+    beset:
+      name: Acosado
+      description: Hay enemigos aquí. El grupo no puede seguir, explorar, acampar ni descansar hasta que no quede ninguno o se escabulla.
+    got-away:
+      name: Escabulléndose
+      description: El grupo se ha escabullido de los enemigos de aquí y puede seguir, hasta que llegue a otro lugar.
 sheet/map:
   name: Este mapa
   description: |-

@@ -441,9 +441,25 @@ describe('an encounter: a fight in turns', () => {
     expect(gone.state.travel.waiting).toBeUndefined()
   })
 
-  it('foes aim at a party played as a whole through its own sheet', () => {
+  it('a party with no characters fights only where the system says so (whole)', () => {
     const { system, registry } = systemOf(
       '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',
+    )
+    const options = { system, world, oracle: createOracleEngine({ registry, random: seeded(1) }) }
+    const { session } = startTrip({ system, location: 'a', time: 8 * 60, seed: 's' })
+    const done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    expect(done.state.encounter).toBeUndefined()
+    expect(done.state.journal.some((e) => e.code === 'ENCOUNTER_NOBODY')).toBe(true)
+    expect(done.state.journal.some((e) => e.code === 'ENCOUNTER_STARTED')).toBe(false)
+    expect(done.state.party!.values.health).toBe(10)
+    expect(parseEncounter({ whole: 'yes' }, []).errors).toEqual([
+      'encounter.whole: expected true or false',
+    ])
+  })
+
+  it('foes aim at a party played as a whole through its own sheet', () => {
+    const { system, registry } = systemOf(
+      '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 }, whole: true }',
     )
     const options = { system, world, oracle: createOracleEngine({ registry, random: seeded(1) }) }
     const { session } = startTrip({ system, location: 'a', time: 8 * 60, seed: 's' })

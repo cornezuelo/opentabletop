@@ -202,7 +202,11 @@ describe('a trip store', () => {
     // It plays in the campaign as a trip does.
     await store.step({ type: 'action', id: 'fight' })
     expect(campaign.playing).toMatchObject({ app: 'scene', id: store.saved.id })
-    expect(store.saved.session!.encounter).toBeDefined()
+    // No characters in it, and Core's fights are its characters': no fight, even started by
+    // hand, said why.
+    await store.step({ type: 'encounter', what: 'start' })
+    expect(store.saved.session!.encounter).toBeUndefined()
+    expect(store.saved.session!.journal.at(-1)?.code).toBe('ENCOUNTER_NOBODY')
     store.remove()
     expect(store.tripsIn('vale')).toEqual([])
     expect(campaign.playing).toBeUndefined()

@@ -386,6 +386,8 @@ export const en = {
     wayMade: 'A way on from here, into a new map: {kind}',
     mapEntered: 'You go into {name}',
     encounterStarted: 'A fight begins',
+    encounterNobody:
+      'No fight: the trip has no characters to fight it, and this system’s fights need them',
     encounterRound: 'Round {round}',
     encounterTurnAims: '{name}’s turn, at {target}',
     encounterTurn: '{name}’s turn',
@@ -443,6 +445,14 @@ export const en = {
       done: 'once “{action}” is done',
       check: 'after “{check}”',
       reaction: 'as its condition turned true',
+      encounter: {
+        start: 'as the fight begins',
+        round: 'as a round begins',
+        turn: 'as a turn begins',
+        end: 'as the fight ends',
+      },
+      worldTurn: 'at a world turn',
+      clockFull: 'as “{clock}” fills',
     },
     route: 'Route to {hex} · cells: {hexes}',
   },

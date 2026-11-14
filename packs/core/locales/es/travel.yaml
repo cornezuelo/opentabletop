@@ -62,10 +62,19 @@ travel-rules/default:
       description: Diez minutos para abrir una verja cerrada del camino.
     fight:
       name: Luchar
-      description: 'Con enemigos aquí: empieza un combate por turnos, el grupo primero.'
+      description: 'Con enemigos aquí: empieza un combate por turnos, el grupo primero. Solo con personajes: lo libran ellos.'
       do:
         toughest:
           say: 'El más duro de ellos tiene {{present.highest.values.health}} de salud.'
+    get-away:
+      name: Escabullirse
+      description: 'Con enemigos aquí, fuera de un combate: diez minutos escabulléndose; el grupo puede seguir, y ellos se quedan atrás.'
+      do:
+        slipped:
+          say: 'El grupo se escabulle mientras puede.'
+    away:
+      name: Lejos
+      description: 'Al llegar a otro lugar tras escabullirse: el grupo ya no se está escabullendo.'
     strike:
       name: Golpear
       told: '{{acting.name}} golpea a {{characters[params.foe].name}}'

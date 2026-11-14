@@ -223,10 +223,13 @@ travel-rules/default:
           say: 'Aceros fuera: la Compañía no cede.'
     fall-back:
       name: Replegarse
-      description: 'En un combate, en el turno de un compañero: la Compañía cede terreno y el combate acaba; los enemigos siguen aquí. Si el Daño del enemigo más fiero supera el Sigilo del compañero más torpe, a ese le alcanza un golpe al retirarse.'
+      description: 'En un combate, en el turno de un compañero: la Compañía cede terreno y el combate acaba; los enemigos siguen aquí, pero puede alejarse de ellos (_Ha cedido terreno_, hasta el siguiente lugar). Si el Daño del enemigo más fiero supera el Sigilo del compañero más torpe, a ese le alcanza un golpe al retirarse.'
       do:
         back:
           say: 'La Compañía se repliega, paso a paso, con las armas en alto.'
+    ground-left:
+      name: Terreno dejado atrás
+      description: 'Al llegar a otro lugar tras replegarse: la Compañía ya no está cediendo terreno.'
     strip-the-fallen:
       name: Despojar a los caídos
       description: 'Cuando cae un enemigo: lo que deja depende de quién era. La bolsa y las raciones de un forajido, el tesoro de un cabecilla, el ajuar de los muertos; una bestia, nada.'
