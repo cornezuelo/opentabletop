@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Oracle
+
+- **Dice thrown in the Oracle**: when you roll your own dice (**Who rolls the dice** in Preferences), **Roll** puts the result's dice in your hand on a table in the middle of the screen: throw them, and **See the result** once they stop.
+
+### Travel and Map
+
+- A roll of yours has **Roll** (throwing the dice on screen) up front, the total of your own dice beside it.
+
 ## [0.56.0] - 2026-11-14
 
 ### Travel and Map

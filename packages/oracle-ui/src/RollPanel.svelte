@@ -2,7 +2,8 @@
   import type { Compiled, CompiledEntry, EntryList } from '@open-tabletop/oracle-engine'
   import type { Snippet } from 'svelte'
   import type { HistoryItem } from './roller.svelte'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import type { Resolution } from '@open-tabletop/oracle-engine'
+  import { DiceThrow, dicePreferences, InfoTip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
   import { entryOdds, rollOdds } from './odds'
@@ -70,6 +71,20 @@
     [t('roll.modeHelp'), ...modes.map((m) => `• **${m.name}**: ${m.help}`)].join('\n'),
   )
 
+  /** Every roll of a result with dice of the engine's, its own and those within it. */
+  const diceOf = (r: Resolution): Resolution['rolls'] =>
+    [...r.rolls, ...r.children.flatMap(diceOf)].filter((roll) => roll.terms.length > 0)
+
+  /**
+   * The result whose dice are being thrown across the table, shown once they stop: when the
+   * player rolls their own dice (**Who rolls the dice** in Preferences isn't the computer)
+   * and dice move at all.
+   */
+  const throwing = $derived(
+    roller.throwing !== undefined && shown?.id === roller.throwing ? shown : undefined,
+  )
+  const throws = $derived(dicePreferences.rolls !== 'computer' && dicePreferences.animate)
+
   function roll() {
     roller.run(
       def.id,
@@ -77,6 +92,8 @@
       def.kind === 'deck' ? 'draw' : 'resolve',
       modes.some((m) => m.id === roller.mode) ? roller.mode : undefined,
     )
+    const made = roller.shown[def.id]
+    roller.throwing = throws && made && diceOf(made.resolution).length ? made.id : undefined
   }
 
   /** A host value as a placeholder ("forest", "road, ford"). */
@@ -108,7 +125,7 @@
       .map(([k, v]) => `${k} ${typeof v === 'object' ? JSON.stringify(v) : `= ${String(v)}`}`)
       .join(', ')
 
-  const chosen = $derived(shown?.resolution.entry)
+  const chosen = $derived(throwing ? undefined : shown?.resolution.entry)
 
   /**
    * The odds of each entry with the context typed and the mode chosen (rolled many times by
@@ -202,7 +219,17 @@
     {#if hotkeys}<span class="hint">{t('roll.keyHint')}</span>{/if}
   </div>
 
-  {#if shown}
+  {#if throwing}
+    <DiceThrow
+      rolls={diceOf(throwing.resolution)}
+      title={ui.nameOf(def.id)}
+      use={t('roll.see')}
+      locale={ui.locale()}
+      onuse={() => (roller.throwing = undefined)}
+      onclose={() => (roller.throwing = undefined)}
+    />
+  {/if}
+  {#if shown && shown.id !== throwing?.id}
     {#key shown.id}
       <div class="card"><ResultCard {ui} resolution={shown.resolution} /></div>
       {#if actions}<div class="actions">{@render actions(shown)}</div>{/if}

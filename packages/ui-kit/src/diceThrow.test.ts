@@ -57,12 +57,20 @@ describe('the throw on screen', () => {
   it('waits in hand with each die of the roll, saying how to throw them', () => {
     const result = roll('2d6+1', seeded('h'))
     const { body } = render(DiceThrow, {
-      props: { result, title: 'Kael: 2d6+1', onuse: () => {}, onclose: () => {} },
+      props: { rolls: [result], title: 'Kael: 2d6+1', onuse: () => {}, onclose: () => {} },
     })
     expect(body).toContain('Drag the dice and let go to throw them')
     expect(body.match(/class="thrown/g)).toHaveLength(2)
     expect(body).toContain('Kael: 2d6+1')
     // The total waits for the dice to stop.
     expect(body).not.toContain(`= <strong>${result.total}`)
+  })
+
+  it("throws every die of several rolls at once (an Oracle's result and the rolls within it)", () => {
+    const rolls = [roll('1d6', seeded('a')), roll('2d8', seeded('b'))]
+    const { body } = render(DiceThrow, {
+      props: { rolls, use: 'See the result', onuse: () => {}, onclose: () => {} },
+    })
+    expect(body.match(/class="thrown/g)).toHaveLength(3)
   })
 })

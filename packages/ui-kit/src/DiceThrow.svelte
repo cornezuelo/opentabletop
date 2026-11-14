@@ -10,22 +10,26 @@
    * A roll of the player's thrown across a table, large, in the middle of the screen
    * (docs/dice.md): the dice wait in hand; dragged and let go they fly the way the hand moved
    * (a click throws them), bounce off the edges and each other, slowed by the cloth, their
-   * faces turning as they go over, and stop on the faces of `result` (rolled already: the throw
-   * only shows it). Then the total, large, and **Use it** (`onuse`). Without tumbling (the
+   * faces turning as they go over, and stop on the faces of `rolls` (rolled already: the throw
+   * only shows it; several at once, as the Oracle's result rolled them). Then each one's total,
+   * large, and **Use it** (`onuse`, the first one's total; `use` names it otherwise). Without tumbling (the
    * player's preference, or the system's reduce motion) they show at once; knocks are heard
    * unless the player turned them off.
    */
   let {
-    result,
+    rolls,
     title = '',
+    use = '',
     locale = 'en',
     onuse,
     onclose,
   }: {
-    /** The roll, made already: the faces the dice stop on. */
-    result: Pick<DiceResult, 'expression' | 'terms' | 'total' | 'discarded'>
+    /** The rolls, made already: the faces the dice stop on (a total given by hand has none). */
+    rolls: readonly Pick<DiceResult, 'expression' | 'terms' | 'total' | 'discarded'>[]
     /** What it's rolled for (_Kael: 1d6 for A blow_). */
     title?: string
+    /** What the button that takes it says ('': _Use 4_). */
+    use?: string
     locale?: string
     /** Its total taken. */
     onuse: (total: number) => void
@@ -51,17 +55,18 @@
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
 
-  /** Each die of the roll, in order, with the face it stops on (an exploding one's each throw). */
+  /** Each die of the rolls, in order, with the face it stops on (an exploding one's each throw). */
   const faces = $derived.by(() => {
-    const drawn = drawRoll(result)
-    return drawn.parts.flatMap((p) =>
-      p.kind === 'dice'
-        ? p.dice.flatMap((d) => [
-            { shape: d.shape, face: d.face, dropped: d.dropped },
-            ...d.more.map((face) => ({ shape: d.shape, face, dropped: d.dropped })),
-          ])
-        : [],
-    )
+    return rolls
+      .flatMap((roll) => drawRoll(roll).parts)
+      .flatMap((p) =>
+        p.kind === 'dice'
+          ? p.dice.flatMap((d) => [
+              { shape: d.shape, face: d.face, dropped: d.dropped },
+              ...d.more.map((face) => ({ shape: d.shape, face, dropped: d.dropped })),
+            ])
+          : [],
+      )
   })
   const sidesName = (shape: DieShape) =>
     shape === 'percent' ? '%' : shape === 'fudge' ? 'F' : shape === 'round' ? '' : String(shape)
@@ -172,7 +177,7 @@
   const sizeOf = (d: ThrownDie) => table.size * (1 + d.z / (table.size * 4))
 </script>
 
-<div class="throw" role="dialog" aria-modal="true" aria-label={title || result.expression}>
+<div class="throw" role="dialog" aria-modal="true" aria-label={title || rolls[0]?.expression}>
   <div class="box">
     {#if title}<p class="title">{title}</p>{/if}
     <div
@@ -221,9 +226,12 @@
     </div>
     <div class="foot">
       {#if stage === 'done'}
-        <p class="total">{result.expression} = <strong>{result.total}</strong></p>
-        <button class="button primary" onclick={() => onuse(result.total)}
-          >{text.use.replace('{total}', String(result.total))}</button
+        <p class="total">
+          {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
+            <strong>{roll.total}</strong>{/each}
+        </p>
+        <button class="button primary" onclick={() => onuse(rolls[0]?.total ?? 0)}
+          >{use || text.use.replace('{total}', String(rolls[0]?.total ?? 0))}</button
         >
       {:else if stage === 'rolling'}
         <p class="total muted">{text.rolling}</p>

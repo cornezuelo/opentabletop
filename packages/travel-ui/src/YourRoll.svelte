@@ -96,7 +96,7 @@
   </p>
   {#if rolled && throwing}
     <DiceThrow
-      result={rolled}
+      rolls={[rolled]}
       title={who ? t('yourRoll.who', { who, dice, what }) : t('yourRoll.party', { dice, what })}
       {locale}
       onuse={(n) => {
@@ -111,20 +111,26 @@
       }}
     />
   {:else if rolled}<DiceTray rolls={[rolled]} {locale} />{/if}
+  <!-- Throwing them on screen first, large; your own dice's total beside it. -->
+  {#if parsed}
+    <button
+      type="button"
+      class="primary throw"
+      use:tooltip={t('yourRoll.rollTip')}
+      onclick={rollHere}>{t('yourRoll.roll')}</button
+    >
+  {/if}
   <div class="row">
     <label
       >{t('yourRoll.total')}
-      <!-- svelte-ignore a11y_autofocus -->
-      <input type="number" step="1" bind:value={total} autofocus /></label
+      <input type="number" step="1" bind:value={total} /></label
     >
-    <button type="submit" class="primary" disabled={!given} use:tooltip={t('yourRoll.applyTip')}
-      >{t('yourRoll.apply')}</button
+    <button
+      type="submit"
+      class:primary={given}
+      disabled={!given}
+      use:tooltip={t('yourRoll.applyTip')}>{t('yourRoll.apply')}</button
     >
-    {#if parsed}
-      <button type="button" use:tooltip={t('yourRoll.rollTip')} onclick={rollHere}
-        >{t('yourRoll.roll')}</button
-      >
-    {/if}
     <button type="button" use:tooltip={t('yourRoll.forMeTip')} onclick={onforme}
       >{t('yourRoll.forMe')}</button
     >
@@ -135,6 +141,12 @@
 </form>
 
 <style>
+  .throw {
+    align-self: flex-start;
+    padding: 6px 18px;
+    font-size: 15px;
+  }
+
   .your-roll {
     display: flex;
     flex-direction: column;

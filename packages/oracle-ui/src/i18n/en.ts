@@ -9,6 +9,7 @@ export const en = {
   },
   roll: {
     roll: 'Roll',
+    see: 'See the result',
     draw: 'Draw',
     shuffle: 'Shuffle',
     remaining: '{left} of {total} cards left',

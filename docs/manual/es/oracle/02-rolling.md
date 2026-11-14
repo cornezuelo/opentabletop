@@ -2,6 +2,8 @@
 
 Abre una definición y pulsa **Tirar** (o **Robar** en un mazo). <kbd>Espacio</kbd> o <kbd>Intro</kbd> vuelven a tirar.
 
+Cuando tiras tus propios dados (**Quién tira los dados**, en **Preferencias**, en algo que no sea _Tira el ordenador_), **Tirar** te pone sus dados en la mano sobre una mesa en el centro de la pantalla: arrástralos y suéltalos (o pulsa la mesa) y salen volando, rebotan y ruedan hasta pararse en lo que ha salido, todos los dados del resultado a la vez (los de la tabla y los de lo que trae); **Ver el resultado** lo muestra (**Guardar** también). Si tira el ordenador, o con **Los dados ruedan al tirarlos** desmarcado, el resultado sale al instante.
+
 ## El resultado
 
 La tarjeta del resultado muestra el texto, los valores que fija la entrada (p. ej. `weather: storm`), los dados de cada tirada, dibujados: cada dado con su forma y su cara (de d4 a d20, el d% como un d10 que marca `00`–`99`, los dados Fudge como `+`, `−` o en blanco, un d66 como sus dos d6), los que deja fuera un «quedarse con» atenuados y con borde discontinuo (`4d6kh3`, ventaja), las caras de un dado que explota encadenadas (`6 + 6 + 2`), lo que se suma (`+1`) y el total; las otras tiradas de un modo de tirar, pequeñas y atenuadas al lado. Una tirada recién hecha rueda un momento (**Los dados ruedan al tirarlos**, en **Preferencias**, lo quita; nunca se mueven si tu sistema reduce el movimiento). Después, en **Detalles**, el resultado de cada tabla por la que pasó la tirada. La entrada que salió se resalta en la lista de abajo.

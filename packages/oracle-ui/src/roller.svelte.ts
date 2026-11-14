@@ -110,6 +110,8 @@ export class Roller {
   contexts = $state<Record<string, Record<string, string>>>({})
   /** Roll mode chosen in the roll panel (full id, '' = normal), remembered between rolls. */
   mode = $state('')
+  /** A result whose dice are being thrown on screen (its id): kept out of sight until they stop. */
+  throwing = $state<number | undefined>()
   /** Result being shown per definition id. */
   shown = $state.raw<Record<string, HistoryItem>>({})
   /** The seed the session's rolls follow ('' = unseeded): the same seed, the same rolls. */

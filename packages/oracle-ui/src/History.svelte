@@ -56,7 +56,7 @@
     </p>
   {/if}
   <ol>
-    {#each roller.history as item (item.id)}
+    {#each roller.history.filter((i) => i.id !== roller.throwing) as item (item.id)}
       <li>
         <button onclick={() => open(item)}>
           <span class="meta">{ui.nameOf(item.source)} · {time(item.at)}</span>
