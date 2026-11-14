@@ -89,6 +89,7 @@ docs/
   advancement.md            # Advancement and abilities (XP, levels, choices, abilities as things held), to review
   play-ux.md                # Playing reads well: a review of the UI/UX of play (beats, dice, rolling yourself, the fight view), decided
   fight-ux.md               # The fight reads well: actions on the foes' cards, effects in words, each turn in one sentence, decided
+  fight-stage.md            # The fight as a stage: the main area, the turn in the centre, the whole log in a column, to review
   dice.md                   # Dice that feel physical: the player's rolls thrown across a table, to review
 ```
 
