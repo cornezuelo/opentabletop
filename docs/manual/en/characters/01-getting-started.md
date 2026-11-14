@@ -4,7 +4,7 @@ The Characters app keeps your **roster**: the characters this browser keeps, of 
 
 ## The screen
 
-- **Header**: the app switcher (nine dots), the gear (**Preferences**: language, notes app and whether dice tumble as they're rolled, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the lists and the help column away, and bring them back.
+- **Header**: the app switcher (nine dots), the gear (**Preferences**: language, notes app and whether dice tumble as they're rolled and are heard on the table, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the lists and the help column away, and bring them back.
 - **The lists** (left), two tabs alike:
   - **Characters**: **New character**, **Import…** and the roster.
   - **Bestiary**: the templates of every system's bestiaries ([below](#the-bestiary)), and **New template ↗**, which opens the Packs app where templates are made.

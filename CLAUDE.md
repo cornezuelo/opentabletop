@@ -88,7 +88,8 @@ docs/
   conflicts.md              # Conflicts: combat and contests (an encounter in the session, turns, foes that act), to review
   advancement.md            # Advancement and abilities (XP, levels, choices, abilities as things held), to review
   play-ux.md                # Playing reads well: a review of the UI/UX of play (beats, dice, rolling yourself, the fight view), decided
-  fight-ux.md               # The fight reads well: actions on the foes' cards, effects in words, each turn in one sentence, to review
+  fight-ux.md               # The fight reads well: actions on the foes' cards, effects in words, each turn in one sentence, decided
+  dice.md                   # Dice that feel physical: the player's rolls thrown across a table, to review
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):

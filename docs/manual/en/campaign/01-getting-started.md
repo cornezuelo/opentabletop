@@ -21,7 +21,7 @@ Each app uses it: Campaign opens it; Map opens a map of it when it starts (the l
 
 ## The screen
 
-- **Header**: the app switcher (nine dots: every app, Campaign first, your data's backups and exports, and links to the source code, to report a problem and to what's new), **Playing** ([above](#the-campaign-you-play-in)), the gear (**Preferences**: language, notes app and whether dice tumble as they're rolled, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the campaigns list and the help column away, and bring them back.
+- **Header**: the app switcher (nine dots: every app, Campaign first, your data's backups and exports, and links to the source code, to report a problem and to what's new), **Playing** ([above](#the-campaign-you-play-in)), the gear (**Preferences**: language, notes app and whether dice tumble as they're rolled and are heard on the table, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the campaigns list and the help column away, and bring them back.
 - **Campaigns** (left): **New campaign**, a search box and the campaigns this browser keeps, the last changed first, each with its system and, once its world clock goes, its date. Under the list, **Make or edit systems** opens the Packs app.
 - **The campaign** (center): the one chosen in the list, with its tabs.
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { parseDice, rollWith, type DiceMode, type DiceResult } from '@open-tabletop/dice'
   import { mathRandom } from '@open-tabletop/random'
-  import { DiceTray, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { DiceThrow, DiceTray, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
 
   /**
@@ -50,6 +50,8 @@
   const t = translator(() => locale)
   let total = $state<number | undefined>()
   let rolled = $state<DiceResult | undefined>()
+  /** The dice on screen being thrown (**Roll**): across a table, in the middle of the screen. */
+  let throwing = $state(false)
   // A new roll starts empty.
   $effect(() => {
     void dice
@@ -74,7 +76,7 @@
   function rollHere() {
     if (!parsed) return
     rolled = rollWith(parsed, mathRandom(), how)
-    total = rolled.total
+    throwing = true
   }
 </script>
 
@@ -92,7 +94,23 @@
         { target: on },
       )}{/if}{#if mode}{t('yourRoll.mode', { mode })}{/if}<InfoTip markdown={t('yourRoll.help')} />
   </p>
-  {#if rolled}<DiceTray rolls={[rolled]} {locale} animate />{/if}
+  {#if rolled && throwing}
+    <DiceThrow
+      result={rolled}
+      title={who ? t('yourRoll.who', { who, dice, what }) : t('yourRoll.party', { dice, what })}
+      {locale}
+      onuse={(n) => {
+        throwing = false
+        total = n
+        ongive(n)
+      }}
+      onclose={() => {
+        // Put away unused: the total is written in, for Apply or another.
+        throwing = false
+        total = rolled?.total
+      }}
+    />
+  {:else if rolled}<DiceTray rolls={[rolled]} {locale} />{/if}
   <div class="row">
     <label
       >{t('yourRoll.total')}

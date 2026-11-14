@@ -10,6 +10,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - A foe's turn says whom it goes for (_Bandit's turn, at Mara_), when its system chooses it beforehand.
 - **The fight, played on the cards**: on a character's turn, what's done to a foe is on its card (**Strike** on the wolf's card), one click and it's done; the rest is in a bar under the turn, and the party's other buttons hide while the fight lasts. The turn just played is told up front in one sentence (_Kael strikes at the grey wolf_ · _Grey wolf: Health 4 → 1_ · _The grey wolf falls_), with its dice rolling. A roll of yours waits inside the fight, **Rolls** is beside the fight's title, and the log is the whole fight, scrolling. In Map, the strip says whose turn it is.
 - **Dice you can watch roll**: a roll just made tumbles and bounces for a moment, its faces turning, and the total shows once it settles.
+- **Throw your own dice**: **Roll** on a roll of yours opens a table in the middle of the screen: drag the dice and let go (or click) and they fly, bounce off the edges and each other and roll to a stop, their faces turning, then **Use** the total. Each bounce knocks on the table (**Dice knock on the table**, in Preferences).
 - What a step did to a foe reads as words (_Pack leader: Down_), never as `characters.pack-leader.conditions.down`.
 
 ### Packs

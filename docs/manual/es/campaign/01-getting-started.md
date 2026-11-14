@@ -21,7 +21,7 @@ Cada aplicación la usa: Campaña la abre; Mapa abre un mapa suyo al empezar (el
 
 ## La pantalla
 
-- **Cabecera**: el selector de aplicaciones (nueve puntos: todas las aplicaciones, Campaña la primera, las copias y exportaciones de tus datos, y enlaces al código fuente, para avisar de un problema y a las novedades), **Jugando** ([arriba](#la-campaña-en-la-que-juegas)), el engranaje (**Preferencias**: idioma, aplicación de notas y si los dados ruedan al tirarlos, compartidos por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de campañas y la columna de ayuda, y las vuelven a mostrar.
+- **Cabecera**: el selector de aplicaciones (nueve puntos: todas las aplicaciones, Campaña la primera, las copias y exportaciones de tus datos, y enlaces al código fuente, para avisar de un problema y a las novedades), **Jugando** ([arriba](#la-campaña-en-la-que-juegas)), el engranaje (**Preferencias**: idioma, aplicación de notas y si los dados ruedan al tirarlos y suenan en la mesa, compartidos por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de campañas y la columna de ayuda, y las vuelven a mostrar.
 - **Campañas** (izquierda): **Nueva campaña**, un buscador y las campañas que guarda este navegador, la última cambiada primero, cada una con su sistema y, cuando su reloj del mundo está en marcha, su fecha. Bajo la lista, **Crear o editar sistemas** abre la aplicación Packs.
 - **La campaña** (centro): la elegida en la lista, con sus pestañas.
 

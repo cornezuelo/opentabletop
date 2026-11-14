@@ -44,7 +44,9 @@
       },
       dice: 'Dice tumble as they’re rolled',
       diceHelp:
-        'A roll just made shows its dice tumbling for a moment before they settle. Off, they show at once; they never move when your system asks to reduce motion.',
+        'A roll just made shows its dice tumbling for a moment before they settle, and a roll of yours is thrown across a table. Off, they show at once; they never move when your system asks to reduce motion.',
+      diceSound: 'Dice knock on the table',
+      diceSoundHelp: 'A thrown die is heard as it bounces. Off, the throw is silent.',
       close: 'Close',
     },
     es: {
@@ -63,7 +65,9 @@
       },
       dice: 'Los dados ruedan al tirarlos',
       diceHelp:
-        'Una tirada recién hecha muestra sus dados rodando un momento antes de quedarse quietos. Desmarcado, salen al instante; nunca se mueven si tu sistema pide reducir el movimiento.',
+        'Una tirada recién hecha muestra sus dados rodando un momento antes de quedarse quietos, y una tirada tuya se lanza sobre una mesa. Desmarcado, salen al instante; nunca se mueven si tu sistema pide reducir el movimiento.',
+      diceSound: 'Los dados suenan en la mesa',
+      diceSoundHelp: 'Un dado lanzado se oye al rebotar. Desmarcado, el lanzamiento es silencioso.',
       close: 'Cerrar',
     },
   }
@@ -131,6 +135,15 @@
       <span>{text.dice}</span>
     </label>
     <p>{text.diceHelp}</p>
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={dicePreferences.sound}
+        onchange={(e) => dicePreferences.setSound(e.currentTarget.checked)}
+      />
+      <span>{text.diceSound}</span>
+    </label>
+    <p>{text.diceSoundHelp}</p>
   </section>
   {#if children}
     <section>

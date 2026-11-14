@@ -47,6 +47,9 @@ export { applyChoice, choicesFor, typingAt, type Suggestions, type Typing } from
 export { vocabulary } from './vocabulary'
 export { default as PreferencesButton } from './PreferencesButton.svelte'
 export { default as DiceTray } from './DiceTray.svelte'
+export { default as DiceThrow } from './DiceThrow.svelte'
+export { default as DieFace } from './DieFace.svelte'
+export { playThrow, settled, startThrow, stepThrow, type Table, type ThrownDie } from './diceThrow'
 export { drawRoll, type DieShape, type DrawnDie, type DrawnRoll } from './diceTray'
 export { DICE_KEY, dicePreferences } from './dicePreferences.svelte'
 export {
