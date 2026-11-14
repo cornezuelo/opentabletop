@@ -245,8 +245,12 @@ export interface JournalEntry {
   beat?: number
 }
 
-/** Who rolls the trip's dice besides the computer (`SessionState.rollWay`). */
-export type RollWay = 'matters' | 'all'
+/**
+ * Who rolls the trip's dice besides the computer (`SessionState.rollWay`): `mine`, the party's
+ * own rolls that matter (its turns in a fight, a check that stops the trip, a table that can
+ * give an important result); `foes`, those and the foes' turns too; `all`, every roll.
+ */
+export type RollWay = 'mine' | 'foes' | 'all'
 
 /**
  * A check waiting for the player's roll: each roll its result makes (the table's, then those
@@ -357,8 +361,9 @@ export interface SessionState {
   skipPauses?: boolean
   /**
    * Who rolls the trip's dice (**Rolls**, in Options): absent, the computer rolls everything;
-   * `matters`, the player rolls what matters (a fight's rolls, a check that stops the trip, a
-   * table that can give an important result); `all`, every table a step rolls with dice.
+   * `mine`, the player rolls their own rolls (the party's turns in a fight, a check that stops
+   * the trip, a table that can give an important result); `foes`, the foes' turns too; `all`,
+   * every table a step rolls with dice.
    */
   rollWay?: RollWay
   /** The checks waiting for the player's roll (`rollWay`): rolled when the total is given. */
@@ -668,13 +673,19 @@ export function createSession(options: {
   const maxAuto = options.maxAutoSteps ?? (discovery ? 500 : 20)
 
   /**
-   * Whether a check's rolls are the player's (`rollWay`): with `matters`, only in a fight, on
-   * a check that stops the trip, or on a table that can give an important result. Its rolls
-   * with dice are then asked one by one (a list by weight, a deck's draw, are the computer's).
+   * Whether a check's rolls are the player's (`rollWay`): with `mine`, in a fight on the
+   * party's turns (`foes`: the foes' too), on a check that stops the trip, or on a table that
+   * can give an important result. Its rolls with dice are then asked one by one (a list by
+   * weight, a deck's draw, are the computer's).
    */
   const isYours = (s: SessionState, table: string | undefined, check: PendingCheck): boolean => {
     if (!s.rollWay || !table || !options.oracle) return false
-    if (s.rollWay === 'all' || s.encounter || check.pause) return true
+    if (s.rollWay === 'all') return true
+    if (s.encounter) {
+      const foeActs = s.present?.some((p) => p.character.id === s.acting) ?? false
+      return s.rollWay === 'foes' || !foeActs
+    }
+    if (check.pause) return true
     const def = options.oracle.get(table)
     const entries = def?.kind === 'table' ? def.entries : def?.kind === 'deck' ? def.cards : []
     return entries.some((e) => e.notable === true)

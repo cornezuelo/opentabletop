@@ -1,16 +1,16 @@
 /**
  * How dice are shown and who rolls them: whether a roll just made tumbles before it settles,
  * whether a throw knocks on the table as it's heard, and who rolls the dice of every trip and
- * scene (`rolls`: the computer, the player what matters, or the player everything; unset until
+ * scene (`rolls`: the computer; the player their own rolls; the foes' too; or everything; unset until
  * the player first chooses, so a fight can ask). Preferences of this browser,
  * `opentabletop.dice`, shared by every app. The system's "reduce motion" turns tumbling off
  * too, whatever this says.
  */
 export const DICE_KEY = 'opentabletop.dice'
 
-/** Who rolls: the computer everything, the player what matters, or the player everything. */
-export type DiceRolls = 'computer' | 'matters' | 'all'
-export const DICE_ROLLS: readonly DiceRolls[] = ['computer', 'matters', 'all']
+/** Who rolls: the computer everything, the player their own rolls, the foes' too, or everything. */
+export type DiceRolls = 'computer' | 'mine' | 'foes' | 'all'
+export const DICE_ROLLS: readonly DiceRolls[] = ['computer', 'mine', 'foes', 'all']
 
 /** Where the last way chosen in a trip was kept before it was a preference: read once. */
 const OLD_ROLLS_KEY = 'opentabletop.trip.rolls'
@@ -68,11 +68,13 @@ function read(key: 'animate' | 'sound'): boolean {
 function readRolls(): DiceRolls | undefined {
   const rolls = stored().rolls
   if (DICE_ROLLS.includes(rolls as DiceRolls)) return rolls as DiceRolls
+  // _What matters_, before it was split: the player's own rolls.
+  if (rolls === 'matters') return 'mine'
   try {
     const old = localStorage.getItem(OLD_ROLLS_KEY)
     if (old === null) return undefined
     const way = (JSON.parse(old) as { way?: unknown }).way
-    return DICE_ROLLS.includes(way as DiceRolls) ? (way as DiceRolls) : 'computer'
+    return way === 'matters' ? 'mine' : way === 'all' ? 'all' : 'computer'
   } catch {
     return undefined
   }

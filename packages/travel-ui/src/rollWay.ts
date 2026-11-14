@@ -10,10 +10,8 @@ import { dicePreferences, type DiceRolls } from '@open-tabletop/ui-kit'
 
 /** The session with the way of rolling the player prefers (none: the computer rolls). */
 export function followRollWay(session: SessionState): SessionState {
-  const way: RollWay | undefined =
-    dicePreferences.rolls === 'matters' || dicePreferences.rolls === 'all'
-      ? dicePreferences.rolls
-      : undefined
+  const rolls = dicePreferences.rolls
+  const way: RollWay | undefined = rolls && rolls !== 'computer' ? rolls : undefined
   if (session.rollWay === way) return session
   const next = { ...session }
   if (way) next.rollWay = way

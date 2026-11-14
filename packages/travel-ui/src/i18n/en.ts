@@ -121,9 +121,10 @@ export const en = {
   },
   rollWay: {
     label: 'Rolls',
-    help: "Who rolls the trip's dice. A roll of yours waits like a pause: it says what to roll and why, you type the total you rolled with your own dice (or press **Roll** to roll them on screen, or **Roll it for me**), and the row it falls on happens as if the computer had rolled it.\n• **The computer rolls**: everything goes by itself\n• **I roll what matters**: the rolls of a fight (the party's and the foes'), of a check that stops the trip, and of a table that can give an important result\n• **I roll everything**: every table a step rolls with dice\nA roll of yours is every roll with dice its result makes, one after another: the table's, then those inside what it fell on (a blow's damage, for each one it aims at, a table it leads to, dice in its text); nothing of it happens until the last is given. Tables rolled by weight, a deck's draw and the weather are always the computer's. It's your preference, the same in every trip and scene and in **Preferences** (every app).",
+    help: "Who rolls the trip's dice. A roll of yours waits like a pause: it says what to roll and why, you type the total you rolled with your own dice (or press **Roll** to roll them on screen, or **Roll it for me**), and the row it falls on happens as if the computer had rolled it.\n• **The computer rolls**: everything goes by itself\n• **I roll my own rolls**: the party's turns in a fight, a check that stops the trip, a table that can give an important result\n• **I roll for the foes too**: those, and the foes' turns in a fight\n• **I roll everything**: every table a step rolls with dice\nA roll of yours is every roll with dice its result makes, one after another: the table's, then those inside what it fell on (a blow's damage, for each one it aims at, a table it leads to, dice in its text); nothing of it happens until the last is given. Tables rolled by weight, a deck's draw and the weather are always the computer's. It's your preference, the same in every trip and scene and in **Preferences** (every app).",
     computer: 'The computer rolls',
-    matters: 'I roll what matters',
+    mine: 'I roll my own rolls',
+    foes: 'I roll for the foes too',
     all: 'I roll everything',
     ask: 'Who rolls the dice?',
     askHint: 'Asked once: change it any time here, in Options or in Preferences.',

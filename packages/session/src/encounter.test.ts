@@ -321,15 +321,22 @@ describe('an encounter: a fight in turns', () => {
     expect(done.state.encounter?.round).toBe(2)
   })
 
+  it("the player's own rolls (`mine`): a foe's turn is the computer's, never waiting", () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',
+    )
+    let done = stepTrip(options, { ...session, rollWay: 'mine' }, { type: 'action', id: 'ambush' })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    expect(done.state.yours).toBeUndefined()
+    expect(done.entries.map((e) => e.data?.table)).toContain('brawl/foe-turn')
+  })
+
   it("the player's rolls: a foe's turn waits for the total the player rolled, or rolls it for them", () => {
     const { options, session } = begin(
       '{ order: { by: side }, actions: [actions.strike], foes: table.foe-turn, ends: { present.count: 0 } }',
     )
-    let done = stepTrip(
-      options,
-      { ...session, rollWay: 'matters' },
-      { type: 'action', id: 'ambush' },
-    )
+    let done = stepTrip(options, { ...session, rollWay: 'foes' }, { type: 'action', id: 'ambush' })
     done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
     done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
     // The first goblin is down; the other's turn waits (after its moment: the bite at Kael),

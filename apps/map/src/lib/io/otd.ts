@@ -483,7 +483,9 @@ function playFromOtd(
             ...(ext.askRolls === true && { askRolls: true }),
             ...(ext.skipPauses === true && { skipPauses: true }),
             ...(Array.isArray(ext.asking) && { asking: ext.asking }),
-            ...((ext.rollWay === 'matters' || ext.rollWay === 'all') && { rollWay: ext.rollWay }),
+            ...((ext.rollWay === 'mine' || ext.rollWay === 'foes' || ext.rollWay === 'all') && {
+              rollWay: ext.rollWay,
+            }),
             ...(Array.isArray(ext.yours) && { yours: ext.yours }),
             ...(typeof ext.reactingFor === 'object' &&
               ext.reactingFor !== null && {

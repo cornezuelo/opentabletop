@@ -7,8 +7,10 @@ const session = { rollWay: 'all' } as SessionState
 
 describe('who rolls the dice: the player’s preference, every trip following it', () => {
   it('a trip, saved with another way, takes the preference before it steps', () => {
-    dicePreferences.setRolls('matters')
-    expect(followRollWay(session).rollWay).toBe('matters')
+    dicePreferences.setRolls('mine')
+    expect(followRollWay(session).rollWay).toBe('mine')
+    dicePreferences.setRolls('foes')
+    expect(followRollWay(session).rollWay).toBe('foes')
     dicePreferences.setRolls('computer')
     expect(followRollWay(session)).not.toHaveProperty('rollWay')
   })

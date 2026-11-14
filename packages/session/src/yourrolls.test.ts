@@ -65,7 +65,7 @@ const world: TravelWorld = {
   connections: () => [],
 }
 
-function dawn(rollWay?: 'matters' | 'all') {
+function dawn(rollWay?: 'mine' | 'foes' | 'all') {
   const oracle = createOracleEngine({ registry, random: seeded(1) })
   const members = [newMember(partyOf(road), { id: 'kael' })]
   const { session } = startTrip({ system: road, location: 'a', members, time: 6 * 60 })
@@ -85,8 +85,8 @@ describe("the player's rolls", () => {
     expect(results(done.entries)).toHaveLength(3)
   })
 
-  it('what matters: a table that can give an important result waits for the total', () => {
-    const { options, done } = dawn('matters')
+  it('your own rolls: a table that can give an important result waits for the total', () => {
+    const { options, done } = dawn('mine')
     // The road was rolled; the omen waits (the wind, after it, waits in line).
     expect(results(done.entries)).toHaveLength(1)
     const check = done.state.travel.pendingChecks[0]!
@@ -167,7 +167,7 @@ entries:
 describe('rolls inside a result', () => {
   const wild = loadPacks(AMBUSH).registry
   const system = travelSystems(wild).systems.find((s) => s.id === 'wild')!
-  const ambush = (rollWay: 'matters' | 'all') => {
+  const ambush = (rollWay: 'foes' | 'all') => {
     const options = {
       system,
       world,
@@ -187,7 +187,7 @@ describe('rolls inside a result', () => {
     s.members?.find((m) => m.id === id)?.values.health
 
   it("each is the player's in turn, and nothing of the result happens until the last", () => {
-    const { options, done } = ambush('matters')
+    const { options, done } = ambush('foes')
     const id = done.state.travel.pendingChecks[0]!.id
     expect(done.state.yours?.[0]?.dice).toBe('1d6')
     // The table's 5: the arrows; then their volleys, written in its text.
@@ -243,13 +243,13 @@ describe('rolls inside a result', () => {
 })
 
 describe('older trips', () => {
-  it('rolling the foes by hand is rolling what matters; a turn left waiting is done', () => {
+  it('rolling the foes by hand is rolling for the foes too; a turn left waiting is done', () => {
     const old = {
       foesByHand: true,
       encounter: { stage: 'rolling', rolling: 'p/wolf-turn', dice: '1d6', round: 1, turn: 2 },
     }
     expect(migrateRolls(old)).toEqual({
-      rollWay: 'matters',
+      rollWay: 'foes',
       encounter: { stage: 'acted', round: 1, turn: 2 },
     })
     // Already moved: untouched.

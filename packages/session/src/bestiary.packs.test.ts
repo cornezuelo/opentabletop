@@ -481,7 +481,7 @@ describe('the bundled packs fight in turns', () => {
       }
       // Three of them: the party fells two a round at most, so one is left to act.
       const brought = applyResult(
-        { ...session, rollWay: 'matters' },
+        { ...session, rollWay: 'foes' },
         { effects: { [foes]: 3, ...items } },
         {},
         partyOf(system),
@@ -549,7 +549,7 @@ describe('the bundled packs fight in turns', () => {
       oracle: createOracleEngine({ registry, random: seeded(3) }),
     }
     const s = applyResult(
-      { ...session, rollWay: 'matters' },
+      { ...session, rollWay: 'foes' },
       { effects: { 'present.pack-leader': 1, 'present.grey-wolf': 2, 'present.bandit': 1 } },
       {},
       partyOf(marches),
@@ -609,7 +609,7 @@ describe('the bundled packs fight in turns', () => {
     }
     // Both in mail (armour 2): whoever it goes for, the swing is 1d6 - 2.
     const s = applyResult(
-      { ...session, rollWay: 'matters', foesAtOnce: true },
+      { ...session, rollWay: 'foes', foesAtOnce: true },
       {
         effects: {
           'present.bandit': 1,
@@ -815,7 +815,7 @@ describe('the bundled packs fight in turns', () => {
       oracle: createOracleEngine({ registry, random: seeded(5) }),
     }
     const s = applyResult(
-      { ...session, rollWay: 'matters' },
+      { ...session, rollWay: 'foes' },
       { effects: { 'present.bandit': 1 } },
       {},
       partyOf(marches),

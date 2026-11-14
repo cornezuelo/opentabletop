@@ -773,7 +773,7 @@
       {#each DICE_ROLLS as way (way)}
         <button
           class="button"
-          class:primary={way === 'matters'}
+          class:primary={way === 'mine'}
           onclick={() => onedit((s) => setRollWay(s, way))}>{t(`rollWay.${way}`)}</button
         >
       {/each}

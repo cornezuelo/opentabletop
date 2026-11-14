@@ -269,14 +269,14 @@ export function migrateSupplies<
 
 /**
  * Older saved trips rolled the foes by hand (`foesByHand`), a foe's turn waiting in its own
- * stage (`rolling`); now it's the trip's way of rolling (`rollWay: matters`), a roll waiting as
+ * stage (`rolling`); now it's the trip's way of rolling (`rollWay: foes`), a roll waiting as
  * a check. A turn left waiting that way is taken as done, its roll lost. Returns a copy.
  */
 export function migrateRolls<S extends object>(session: S): S {
   const old = session as S & { foesByHand?: boolean; encounter?: Record<string, unknown> }
   if (old.foesByHand === undefined && old.encounter?.stage !== 'rolling') return session
   const { foesByHand, ...rest } = old
-  const out = { ...rest, ...(foesByHand && { rollWay: 'matters' as const }) } as typeof old
+  const out = { ...rest, ...(foesByHand && { rollWay: 'foes' as const }) } as typeof old
   if (old.encounter?.stage === 'rolling') {
     const { rolling: _r, dice: _d, ...encounter } = old.encounter
     void _r
