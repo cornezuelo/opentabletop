@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.56.0] - 2026-11-14
+
 ### Travel and Map
 
 - **Who rolls the dice is a preference**: in **Preferences** (every app), the same for every trip and scene, saved ones too; **Rolls** in a trip's Options and beside a fight's title change it. Until you choose, the first fight asks **Who rolls the dice?**
