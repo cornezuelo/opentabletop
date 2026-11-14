@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.58.0] - 2026-11-14
+
 ### Travel and Map
 
 - **Who rolls the dice** has four ways: **The computer rolls**, **I roll my own rolls** (the party's turns in a fight, a check that stops the trip, a table that can give an important result: the foes' turns are the computer's), **I roll for the foes too** and **I roll everything**. _What matters_ chosen before is now _my own rolls_.
