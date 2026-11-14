@@ -75,6 +75,18 @@ travel-rules/default:
     mend:
       name: Recuperarse
       description: 'Tras un descanso: cada miembro que sigue en pie recupera 1 de salud.'
+    victory:
+      name: Victoria
+      description: 'Tras un combate ganado (sin enemigos aquí): cada miembro que sigue en pie gana 1 de experiencia.'
+    level-up:
+      name: Subir de nivel
+      description: 'Cuando la experiencia de un miembro llega a 3: sube un nivel y la experiencia vuelve a empezar.'
+      do:
+        rises:
+          say: '{{acting.name}} sube un nivel.'
+    seasoned:
+      name: Curtido
+      description: 'Cuando un miembro llega al nivel 2: se vuelve Duro (uno más de salud máxima).'
     search:
       name: Registrar al caído
       description: 'Cuando cae un enemigo: lo que llevaba, tirado.'

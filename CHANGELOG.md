@@ -19,6 +19,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- **Core's advancement**: a fight won gives each one standing 1 **Experience**; at 3, a **Level**; at level 2, **Tough**. The manual's _Actions and steps_ explains how a system builds experience, levels and abilities.
 - **Told in your words** (`told:`): a condition says how it's gained and lost (`told: { gains: '{{name}} falls' }`), an action how a fight tells its turn (`told: '{{acting.name}} strikes {{characters[params.foe].name}}'`); Packs' **Told when gained** / **Told when lost** and **Told in a fight**. The Grey Marches' and Core's strikes and conditions are told so.
 - **Whom a foe goes for, before it rolls** (`aim:` in a system's `encounter:`; Packs' **A foe aims at**): one of the party chosen as each foe's turn begins, read by its table and every table it leads to as `encounter.target`, so a defence or an armour counts before the dice. The Grey Marches' _A foe's turn_ is rolled less the armour of whom it goes for; Core's blow lands on the one its turn chose.
 

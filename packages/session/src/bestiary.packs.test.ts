@@ -273,7 +273,13 @@ describe('the bundled packs fight in turns', () => {
     ]
   }
   /** Plays a fight to its end: each companion's turn a Strike one down at the first foe here. */
-  function fight(system: typeof marches, start: string, seed: string) {
+  function fight(
+    system: typeof marches,
+    start: string,
+    seed: string,
+    /** More to begin with (`characters.kael.values.xp: 2`). */
+    more: Record<string, number> = {},
+  ) {
     const { session } = startTrip({
       system,
       location: 'a',
@@ -288,7 +294,7 @@ describe('the bundled packs fight in turns', () => {
     }
     let s = applyResult(
       session,
-      { effects: { 'present.bandit': 2, 'present.foe': 2 } },
+      { effects: { 'present.bandit': 2, 'present.foe': 2, ...more } },
       {},
       partyOf(system),
     )
@@ -358,8 +364,31 @@ describe('the bundled packs fight in turns', () => {
       'ENCOUNTER_ROUND',
       'ENCOUNTER_TURN',
     ])
-    expect(lines.at(-1)).toBe('ENCOUNTER_ENDED')
+    expect(lines).toContain('ENCOUNTER_ENDED')
     expect(state.encounter).toBeUndefined()
+  })
+
+  it('Core: a fight won gives each one standing 1 experience; at 3, a level, and at level 2, Tough', () => {
+    const won = fight(core, 'fight', 'c')
+    expect(won.state.present?.filter((p) => p.at === won.state.travel.location) ?? []).toEqual([])
+    const standing = won.state.members!.filter((m) => (m.values.health as number) >= 1)
+    expect(standing.length).toBeGreaterThan(0)
+    for (const m of standing) expect(m.values).toMatchObject({ xp: 1, level: 1 })
+    // Two already, and a third: a level up, the experience starting again, Tough given.
+    const risen = fight(core, 'fight', 'c', {
+      'characters.kael.values.xp': 2,
+      'characters.mara.values.xp': 2,
+    })
+    const up = risen.state.members!.filter((m) => m.values.level === 2)
+    expect(up.length).toBeGreaterThan(0)
+    for (const m of up) {
+      expect(m.values.xp).toBe(0)
+      expect(m.items?.map((i) => i.id)).toContain('tough')
+      expect(m.values.tough).toBe(1)
+    }
+    expect(
+      risen.all.some((e) => e.code === 'SAID' && /goes up a level/.test(JSON.stringify(e.data))),
+    ).toBe(true)
   })
 
   it('both start their fights with an action of their own: Stand and fight, Fight', () => {

@@ -755,9 +755,10 @@ export function travelSystems(registry: Registry): {
         momentsOf(value).forEach((m, j) => {
           if (!isHostMoment(m)) return
           const at = Array.isArray(value) ? `${path}.${j}` : path
-          // An encounter's moments come only in a system whose fights go in turns.
+          // An encounter's moments come only in a system whose fights go in turns; rules of
+          // another pack (Core's, shared) may hear them for the systems that have them.
           if (m.startsWith('encounter.')) {
-            if (parts.system?.data.encounter === undefined)
+            if (parts.system?.data.encounter === undefined && owner === pack)
               report(at, 'the system declares no encounter: its fights have no turns', 'warning')
             return
           }

@@ -152,6 +152,35 @@ Lo que ves en el viaje, empezando a las 08:00 con 5 de comida:
 2. **Esperar al transbordador**: el tiempo va hasta las 12:00, cuando la bocina da **Ha llegado el transbordador**; el diario dice «¿Cómo cruzáis? → Esperar al transbordador», luego «Listos para cruzar, con 5 de comida.», y el viaje vuelve a esperar (la pausa), con **Continuar**.
 3. **Construir una balsa**, en cambio: pasan tres horas (las 11:00), la forma de viajar pasa a **En balsa** («Ahora viajáis así: En balsa»), y luego la misma línea y la misma pausa.
 
+## Avance: experiencia, niveles y capacidades
+
+Nada en las herramientas conoce la experiencia ni los niveles: son valores de la [hoja](../packs/07-sheet.md) del personaje (`xp`, `level`, como los llame tu juego), que suben acciones que se hacen por sí solas, y una capacidad es un objeto en un lugar de capacidades (un lugar que solo `takes` esas, que no se carga y se muestra como cartas). Tres acciones hacen el ciclo entero:
+
+```yaml
+# En las acciones de las reglas de viaje (un extracto: la hoja declara xp y level, items.yaml una capacidad Tough)
+victory: # tras un combate sin enemigos, cada uno que sigue en pie gana 1
+  on: encounter.end
+  for: party.members
+  when: { present.count: 0, acting.values.health: { gte: 1 } }
+  do:
+    - { effects: { acting.values.xp: 1 } }
+level-up: # cuando su experiencia llega a 3: un nivel, y la experiencia vuelve a empezar
+  on: { when: { acting.values.xp: { gte: 3 } }, for: party.members }
+  do:
+    - { effects: { acting.values.xp: -3, acting.values.level: 1 } }
+seasoned: # cuando llega al nivel 2: una capacidad
+  on: { when: { acting.values.level: { gte: 2 } }, for: party.members }
+  do:
+    - { effects: { acting.items.tough: 1 } }
+```
+
+- **Lo que la da** es cualquier momento que oigan tus reglas: el final de un combate (`encounter.end`), un sitio al que se entra (`trip.place-enter`), el resultado de una comprobación (un efecto `acting.values.xp: 50` en la fila de una tabla).
+- **Un umbral** es una reacción para cada miembro (`on: { when: …, for: party.members }`): llega una vez cuando pasa a cumplirse, y otra solo después de dejar de cumplirse, así que devolver la experiencia (`-3`) deja que llegue el siguiente nivel.
+- **Lo que da un nivel** puede ser fijo (una capacidad, más salud) o elegido: un paso `ask:` con `choices` (un beneficio), o un parámetro que lista un catálogo (`from: items.<catalogue>`, `where:` las entradas que encajan), comprobando el `needs:` de sus entradas al ofrecerlas ([Tipos](07-kinds.md#catalogos-de-objetos)).
+- El `when` de un paso lee al personaje como estaba al empezar la acción: lo que cambió el paso anterior léelo en la acción siguiente (como hace _Curtido_ tras _Subir de nivel_), no en la misma.
+
+_Victoria_, _Subir de nivel_ y _Curtido_ de Core son este ciclo en lo más pequeño.
+
 ## Errores comunes
 
 - **Dos cosas en un paso**: `{ time: 60, effects: { … } }` son dos pasos; escríbelos uno tras otro.

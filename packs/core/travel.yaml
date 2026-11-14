@@ -224,6 +224,32 @@ actions:
     when: { acting.conditions: down }
     do:
       - { roll: table.fallen }
+  # Advancement, the smallest (docs/advancement.md): after a fight with no foe left, each
+  # member still standing gains 1 experience (`on: encounter.end`, `for: party.members`)…
+  victory:
+    name: Victory
+    description: 'After a fight won (no foe left here): each member still standing gains 1 experience.'
+    on: encounter.end
+    for: party.members
+    when: { present.count: 0, acting.values.health: { gte: 1 } }
+    do:
+      - { effects: { acting.values.xp: 1 } }
+  # …as one's experience reaches 3 (a reaction for each member), a level, the experience
+  # starting again…
+  level-up:
+    name: Level up
+    description: 'As a member’s experience reaches 3: a level up, and the experience starts again.'
+    on: { when: { acting.values.xp: { gte: 3 } }, for: party.members }
+    do:
+      - { effects: { acting.values.xp: -3, acting.values.level: 1 } }
+      - { id: rises, say: '{{acting.name}} goes up a level.' }
+  # …and as one reaches level 2, they become Tough (an ability, items.yaml).
+  seasoned:
+    name: Seasoned
+    description: 'As a member reaches level 2: they become Tough (one more health at most).'
+    on: { when: { acting.values.level: { gte: 2 } }, for: party.members }
+    do:
+      - { effects: { acting.items.tough: 1 } }
   # A moment written as a condition (a reaction): once, as morale reaches 0.
   despair:
     name: Despair

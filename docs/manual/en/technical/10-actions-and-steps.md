@@ -152,6 +152,35 @@ What you see in the trip, starting at 08:00 with 5 food:
 2. **Wait for the ferry**: the time goes to 12:00, when the horn sets **The ferry is here**; the journal says "How do you cross? → Wait for the ferry", then "Ready to cross, 5 food left.", and the trip waits again (the pause), with **Continue**.
 3. **Build a raft** instead: three hours pass (11:00), the way of travelling becomes **By raft** ("Now travelling: By raft"), then the same line and the same pause.
 
+## Advancement: experience, levels and abilities
+
+Nothing in the tools knows experience or levels: they're values of the character's [sheet](../packs/07-sheet.md) (`xp`, `level`, whatever your game calls them), raised by actions taken by themselves, and an ability is an item in a place of abilities (a place that `takes` only those, not carried, shown as cards). Three actions make the whole loop:
+
+```yaml
+# In the travel rules' actions (an excerpt: the sheet declares xp and level, items.yaml a Tough ability)
+victory: # after a fight with no foe left, each one standing gains 1
+  on: encounter.end
+  for: party.members
+  when: { present.count: 0, acting.values.health: { gte: 1 } }
+  do:
+    - { effects: { acting.values.xp: 1 } }
+level-up: # as one's experience reaches 3: a level, the experience starting again
+  on: { when: { acting.values.xp: { gte: 3 } }, for: party.members }
+  do:
+    - { effects: { acting.values.xp: -3, acting.values.level: 1 } }
+seasoned: # as one reaches level 2: an ability
+  on: { when: { acting.values.level: { gte: 2 } }, for: party.members }
+  do:
+    - { effects: { acting.items.tough: 1 } }
+```
+
+- **What earns it** is any moment your rules hear: a fight's end (`encounter.end`), a place entered (`trip.place-enter`), a check's result (an effect `acting.values.xp: 50` in a table's row).
+- **A threshold** is a reaction for each member (`on: { when: …, for: party.members }`): it comes once as it turns true, and again only after it stopped holding, so paying the experience back (`-3`) lets the next level come.
+- **What a level gives** can be fixed (an ability, more health) or chosen: an `ask:` step with `choices` (a benefit), or a parameter listed from a catalogue (`from: items.<catalogue>`, `where:` the entries that fit), its entries' `needs:` checked as they're offered ([Kinds](07-kinds.md#item-catalogues)).
+- A step's `when` reads the character as it was when the action began: read what the step before changed in the next action (as _Seasoned_ does after _Level up_), not in the same one.
+
+Core's _Victory_, _Level up_ and _Seasoned_ are this loop at its smallest.
+
 ## Common mistakes
 
 - **Two things in one step**: `{ time: 60, effects: { … } }` is two steps; write them one after the other.

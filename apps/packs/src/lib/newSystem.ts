@@ -69,7 +69,12 @@ const fromCore = (ref: unknown): string | undefined =>
  * exploring makes (`places`): a copy of the rules keeps its checks bound to Core's tables,
  * weather and places.
  */
-function coreChecks(): { on: Record<string, unknown>; weather: string[]; places: string[] } {
+function coreChecks(): {
+  on: Record<string, unknown>
+  weather: string[]
+  places: string[]
+  encounter?: Record<string, unknown>
+} {
   const root = library.rootOf(DEFAULT_SYSTEM)
   const read = (file: string, at: string) => {
     const text = root ? library.readFile(root, file) : undefined
@@ -88,8 +93,20 @@ function coreChecks(): { on: Record<string, unknown>; weather: string[]; places:
   const declared = read('system.yaml', '@system/default')
   const list = (listed: unknown) =>
     (Array.isArray(listed) ? listed : [listed]).flatMap((r) => fromCore(r) ?? [])
+  // How its fights go in turns (the rules' Fight, Strike and Victory hear them), what a foe
+  // does on its turn named from Core.
+  const fights = declared.encounter as Record<string, unknown> | undefined
+  const encounter = fights && {
+    ...fights,
+    ...(fights.foes !== undefined && { foes: fromCore(fights.foes) }),
+  }
   // The places its exploring may make (`place.pois.landmark`), Core's own.
-  return { on, weather: list(declared.weather), places: list(declared.places) }
+  return {
+    on,
+    weather: list(declared.weather),
+    places: list(declared.places),
+    ...(encounter && { encounter }),
+  }
 }
 
 /** Core as a dependency (`core: '>=<its version>'`), for a pack that takes its calendar. */
@@ -101,8 +118,8 @@ function coreDependency(): Record<string, string> {
 /**
  * A new pack of the user's that is a travel system: a `kind: system` naming a copy of the
  * Generic rules to start from, with a copy of their party sheet (the food they eat), Core's
- * calendar (their day is named by its parts), and bindings that roll their checks as Core
- * does (its weather model). Returns its id (also its folder), or null if that id is taken.
+ * calendar (their day is named by its parts), bindings that roll their checks as Core does
+ * (its weather model), and its fights in turns (the rules' Fight and Strike play them). Returns its id (also its folder), or null if that id is taken.
  */
 export function createSystem(
   name: string,
@@ -132,6 +149,7 @@ export function createSystem(
     ...(withCore && { calendar: CORE_CALENDAR }),
     ...(checks.weather.length && { weather: checks.weather }),
     ...(checks.places.length && { places: checks.places }),
+    ...(checks.encounter && { encounter: checks.encounter }),
     ...parts,
   })
   const rules = stringify({ kind: 'travel-rules', id: 'default', ...coreRules() })

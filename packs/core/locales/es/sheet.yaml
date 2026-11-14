@@ -3,7 +3,7 @@ sheet/character:
   description: |-
     Un personaje de las reglas genéricas: su salud, el daño recibido, si está herido y si ha caído.
 
-    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra (su valor principal, por defecto el primero dibujado contra un máximo: junto al nombre de cada uno en las tarjetas de un combate), otro que sale de él (`from:`), un estado que ponen los efectos, otro que se da por un tiempo en un combate (_Tambaleándose_, `lasts: rounds`), otro que se cumple por sí solo (`when:`), un sitio en total para lo que lleva (`items.room`, diez cosas, no más), un campo de los objetos que es un dado que baja por escalones (`wear: { steps: [4, 6] }`) y un lugar de capacidades (`takes: { item.tags: ability }`, que no se carga y se muestra como cartas) cuya _Duro_ sube la salud máxima (un valor hecho de ella, `tough`, que lee el límite).
+    **Enseña:** la hoja de personaje más pequeña: un valor con límites, dibujado como barra (su valor principal, por defecto el primero dibujado contra un máximo: junto al nombre de cada uno en las tarjetas de un combate), otro que sale de él (`from:`), un estado que ponen los efectos, otro que se da por un tiempo en un combate (_Tambaleándose_, `lasts: rounds`), otro que se cumple por sí solo (`when:`), un sitio en total para lo que lleva (`items.room`, diez cosas, no más), un campo de los objetos que es un dado que baja por escalones (`wear: { steps: [4, 6] }`) y un lugar de capacidades (`takes: { item.tags: ability }`, que no se carga y se muestra como cartas) cuya _Duro_ sube la salud máxima (un valor hecho de ella, `tough`, que lee el límite), y el avance más pequeño: experiencia y un nivel (`xp`, `level`), que suben las reglas.
   values:
     health:
       name: Salud
@@ -14,6 +14,12 @@ sheet/character:
     tough:
       name: Duro
       description: 1 mientras tiene la capacidad Duro, si no 0; se suma a la salud máxima.
+    xp:
+      name: Experiencia
+      description: La gana cada combate ganado mientras sigue en pie; con 3 sube un nivel, y vuelve a empezar.
+    level:
+      name: Nivel
+      description: Lo curtido que está el personaje; a nivel 2 se vuelve Duro.
   conditions:
     wounded:
       name: Herido
