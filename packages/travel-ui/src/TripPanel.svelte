@@ -12,7 +12,6 @@
     systemSheets,
     type Declared,
     type EncounterUnavailable,
-    type RollWay,
     type YourRoll as YourRollState,
     type TripAction,
     type Use,
@@ -69,7 +68,16 @@
     sharingRoom,
     waitingForRoom,
   } from '@open-tabletop/session'
-  import { confirmAction, InfoTip, Tabs, tooltip, type TooltipText } from '@open-tabletop/ui-kit'
+  import {
+    confirmAction,
+    DICE_ROLLS,
+    dicePreferences,
+    InfoTip,
+    Tabs,
+    tooltip,
+    type DiceRolls,
+    type TooltipText,
+  } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import { memberLabel, statSource, whoNamed } from './members'
   import Section from './Section.svelte'
@@ -723,7 +731,7 @@
     ongive={(total) => onstep({ type: 'rolled', id: id, total })}
     onforme={() => onstep({ type: 'resolveCheck', id: id })}
     oncomputer={() => {
-      onedit((s) => setRollWay(s, undefined))
+      onedit((s) => setRollWay(s, 'computer'))
       onstep({ type: 'resolveCheck', id: id })
     }}
   />
@@ -732,18 +740,31 @@
   <label class="way"
     ><span>{t('rollWay.label')}<InfoTip markdown={t('rollWay.help')} /></span>
     <select
-      value={session.rollWay ?? 'computer'}
+      value={dicePreferences.rolls ?? 'computer'}
       onchange={(e) => {
-        const value = e.currentTarget.value
-        const way = value === 'computer' ? undefined : (value as RollWay)
+        const way = e.currentTarget.value as DiceRolls
         onedit((s) => setRollWay(s, way))
       }}
     >
-      <option value="computer">{t('rollWay.computer')}</option>
-      <option value="matters">{t('rollWay.matters')}</option>
-      <option value="all">{t('rollWay.all')}</option>
+      {#each DICE_ROLLS as way (way)}<option value={way}>{t(`rollWay.${way}`)}</option>{/each}
     </select></label
   >
+{/snippet}
+{#snippet rollWayAsk()}
+  <!-- Never chosen yet: the first fight asks, once (the player's preference from then on). -->
+  <div class="roll-ask" role="group" aria-label={t('rollWay.ask')}>
+    <p><strong>{t('rollWay.ask')}</strong><InfoTip markdown={t('rollWay.help')} /></p>
+    <div class="roll-ask-ways">
+      {#each DICE_ROLLS as way (way)}
+        <button
+          class="button"
+          class:primary={way === 'matters'}
+          onclick={() => onedit((s) => setRollWay(s, way))}>{t(`rollWay.${way}`)}</button
+        >
+      {/each}
+    </div>
+    <p class="hint">{t('rollWay.askHint')}</p>
+  </div>
 {/snippet}
 {#snippet whoRolls()}
   <select
@@ -824,6 +845,7 @@
         last={lastTurn}
       >
         {#snippet roll()}
+          {#if !dicePreferences.rolls}{@render rollWayAsk()}{/if}
           <!-- A roll of the player's waits here, in the fight, not apart. -->
           {#each travel.pendingChecks as check (check.id)}
             {@const yours = session.yours?.find((y) => y.id === check.id)}
@@ -1344,6 +1366,25 @@
 </div>
 
 <style>
+  .roll-ask {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+  }
+
+  .roll-ask p {
+    margin: 0;
+  }
+
+  .roll-ask-ways {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
   .rolls {
     display: flex;
     flex-wrap: wrap;

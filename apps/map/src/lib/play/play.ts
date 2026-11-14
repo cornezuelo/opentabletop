@@ -8,7 +8,7 @@ import {
   timeBehind,
   translator,
   whyText,
-  withLastRollWay,
+  followRollWay,
 } from '@open-tabletop/travel-ui'
 import {
   addEntry,
@@ -189,10 +189,10 @@ function newSession(
     seed: Math.random().toString(36).slice(2, 10),
   })
   // The map's own sheet: the one the campaign keeps for it.
-  // Who rolls its dice: as the player last chose.
+  // Who rolls its dice: as the player prefers.
   const here = tripOnMap(
     editor.campaign,
-    withLastRollWay(session),
+    followRollWay(session),
     getSystem(system),
     editor.map.meta.id,
   )
@@ -621,9 +621,10 @@ function stepOnly(action: TripAction): void {
     facts: worldFactsNow(),
   }
   // Checks roll with the map's Oracle state, the same one hand rolls use; the map's own
-  // sheet is the one the campaign keeps for this map.
+  // sheet is the one the campaign keeps for this map; who rolls the dice, as the player
+  // prefers now.
   const shared = editor.campaign.oracle
-  const here = tripOnMap(editor.campaign, session, system, editor.map.meta.id)
+  const here = tripOnMap(editor.campaign, followRollWay(session), system, editor.map.meta.id)
   let result
   try {
     result = stepTrip(options, shared ? { ...here, oracle: shared.state } : here, action)

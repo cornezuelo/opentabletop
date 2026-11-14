@@ -51,7 +51,7 @@ export { default as DiceThrow } from './DiceThrow.svelte'
 export { default as DieFace } from './DieFace.svelte'
 export { playThrow, settled, startThrow, stepThrow, type Table, type ThrownDie } from './diceThrow'
 export { drawRoll, type DieShape, type DrawnDie, type DrawnRoll } from './diceTray'
-export { DICE_KEY, dicePreferences } from './dicePreferences.svelte'
+export { DICE_KEY, DICE_ROLLS, dicePreferences, type DiceRolls } from './dicePreferences.svelte'
 export {
   noteProviderName,
   notePreferences,

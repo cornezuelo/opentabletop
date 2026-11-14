@@ -6,7 +6,7 @@ A trip is the party on its way somewhere; to play what happens where it stands (
 
 ## The screen
 
-- **Header**: the app switcher (nine dots), the gear (**Preferences**: language, notes app and whether dice tumble as they're rolled and are heard on the table, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the systems list and the help column away, and bring them back.
+- **Header**: the app switcher (nine dots), the gear (**Preferences**: language, notes app and whether dice tumble as they're rolled and are heard on the table, and who rolls the dice of trips and scenes, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the systems list and the help column away, and bring them back.
 - **Systems** (left): every system with travel rules, the **Generic rules** (Core's) first, with the same badges as in the Oracle app (_bundled_, _edited_, _yours_, _personal use_) and a red number when its files have problems. Under the list, **Make or edit systems** opens the Packs app. The app opens on the system you last chose here, in Packs or in the Oracle (this browser remembers it; Map plays each map's own system).
 - **System** (center): a trip with it. **Edit in Packs →**, under its name, opens it in the Packs app.
 

@@ -1,33 +1,28 @@
 import type { RollWay, SessionState } from '@open-tabletop/session'
+import { dicePreferences, type DiceRolls } from '@open-tabletop/ui-kit'
 
 /**
- * Who rolls the trip's dice, as the player last chose it in a trip's **Rolls** (a preference
- * of this browser, `opentabletop.trip.rolls`, shared by every app that plays a trip): each
- * trip keeps its own, and a new trip starts with the last one chosen.
+ * Who rolls a trip's dice is the player's preference (ui-kit's `dicePreferences.rolls`, in
+ * **Preferences** of every app), not the trip's: every trip and scene follows it, saved ones
+ * too. The session still carries it (`rollWay`), for the engine to read: a host gives it the
+ * preference before every step (`followRollWay`).
  */
-const ROLLS_KEY = 'opentabletop.trip.rolls'
 
-const WAYS: readonly RollWay[] = ['matters', 'all']
-
-/** The way of rolling a trip has now, remembered for the next new trip. */
-export function setRollWay(session: SessionState, way: RollWay | undefined): SessionState {
-  try {
-    localStorage.setItem(ROLLS_KEY, JSON.stringify({ way: way ?? null }))
-  } catch {
-    // No storage: new trips start with the computer rolling.
-  }
+/** The session with the way of rolling the player prefers (none: the computer rolls). */
+export function followRollWay(session: SessionState): SessionState {
+  const way: RollWay | undefined =
+    dicePreferences.rolls === 'matters' || dicePreferences.rolls === 'all'
+      ? dicePreferences.rolls
+      : undefined
+  if (session.rollWay === way) return session
   const next = { ...session }
   if (way) next.rollWay = way
   else delete next.rollWay
   return next
 }
 
-/** A new trip with the way of rolling last chosen (none: the computer rolls everything). */
-export function withLastRollWay(session: SessionState): SessionState {
-  try {
-    const way = (JSON.parse(localStorage.getItem(ROLLS_KEY) ?? '{}') as { way?: unknown }).way
-    return WAYS.includes(way as RollWay) ? { ...session, rollWay: way as RollWay } : session
-  } catch {
-    return session
-  }
+/** The player's way of rolling changed (in a trip's **Rolls**): kept, and the session follows. */
+export function setRollWay(session: SessionState, way: DiceRolls): SessionState {
+  dicePreferences.setRolls(way)
+  return followRollWay(session)
 }

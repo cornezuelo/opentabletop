@@ -4,7 +4,7 @@ La aplicación Personajes guarda tu **plantel**: los personajes que guarda este 
 
 ## La pantalla
 
-- **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma, aplicación de notas y si los dados ruedan al tirarlos y suenan en la mesa, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañitas de los bordes de la columna central (‹ ›) pliegan las listas y la columna de ayuda, y las vuelven a sacar.
+- **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma, aplicación de notas y si los dados ruedan al tirarlos y suenan en la mesa, y quién tira los dados de viajes y escenas, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañitas de los bordes de la columna central (‹ ›) pliegan las listas y la columna de ayuda, y las vuelven a sacar.
 - **Las listas** (izquierda), dos pestañas iguales:
   - **Personajes**: **Nuevo personaje**, **Importar…** y el plantel.
   - **Bestiario**: las plantillas de los bestiarios de todos los sistemas ([más abajo](#el-bestiario)), y **Nueva plantilla ↗**, que abre la aplicación Packs, donde se crean las plantillas.

@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte'
   import { getProvider, providers, providerSettings } from '@open-tabletop/note-refs'
   import { notePreferences, setNoteProvider, setNoteSetting } from './notes.svelte'
-  import { dicePreferences } from './dicePreferences.svelte'
+  import { DICE_ROLLS, dicePreferences, type DiceRolls } from './dicePreferences.svelte'
   import { tooltip } from './tooltip'
 
   /**
@@ -47,6 +47,14 @@
         'A roll just made shows its dice tumbling for a moment before they settle, and a roll of yours is thrown across a table. Off, they show at once; they never move when your system asks to reduce motion.',
       diceSound: 'Dice knock on the table',
       diceSoundHelp: 'A thrown die is heard as it bounces. Off, the throw is silent.',
+      rolls: 'Who rolls the dice',
+      rollsHelp:
+        'In every trip and scene: the computer rolls everything; you roll what matters (a fight’s rolls, a check that stops the trip, a table that can give an important result); or you roll everything. A roll of yours waits for the total of your own dice, or is thrown on screen.',
+      rollsWays: {
+        computer: 'The computer rolls',
+        matters: 'I roll what matters',
+        all: 'I roll everything',
+      },
       close: 'Close',
     },
     es: {
@@ -68,6 +76,14 @@
         'Una tirada recién hecha muestra sus dados rodando un momento antes de quedarse quietos, y una tirada tuya se lanza sobre una mesa. Desmarcado, salen al instante; nunca se mueven si tu sistema pide reducir el movimiento.',
       diceSound: 'Los dados suenan en la mesa',
       diceSoundHelp: 'Un dado lanzado se oye al rebotar. Desmarcado, el lanzamiento es silencioso.',
+      rolls: 'Quién tira los dados',
+      rollsHelp:
+        'En todos los viajes y escenas: el ordenador lo tira todo; tú tiras lo importante (las tiradas de un combate, una comprobación que detiene el viaje, una tabla que puede dar un resultado importante); o tú lo tiras todo. Una tirada tuya espera el total de tus propios dados, o se lanza en pantalla.',
+      rollsWays: {
+        computer: 'Tira el ordenador',
+        matters: 'Tiro lo importante',
+        all: 'Lo tiro todo',
+      },
       close: 'Cerrar',
     },
   }
@@ -144,6 +160,16 @@
       <span>{text.diceSound}</span>
     </label>
     <p>{text.diceSoundHelp}</p>
+    <label>
+      <span>{text.rolls}</span>
+      <select
+        value={dicePreferences.rolls ?? 'computer'}
+        onchange={(e) => dicePreferences.setRolls(e.currentTarget.value as DiceRolls)}
+      >
+        {#each DICE_ROLLS as way (way)}<option value={way}>{text.rollsWays[way]}</option>{/each}
+      </select>
+    </label>
+    <p>{text.rollsHelp}</p>
   </section>
   {#if children}
     <section>

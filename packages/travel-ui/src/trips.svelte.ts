@@ -65,7 +65,7 @@ import { translator } from './i18n'
 import { askTimePassed, timeBehind } from './timePassed'
 import { wayWorld, type WayHex } from './way'
 import { highlightText } from './journal'
-import { withLastRollWay } from './rollWay'
+import { followRollWay } from './rollWay'
 import { terrainName } from './terrains'
 import { pacing } from './pacing.svelte'
 import { campaignTexts, clockFilledText, worldWords } from '@open-tabletop/campaign-ui'
@@ -683,13 +683,13 @@ export class TripStore {
       // With its campaign's world clock running, the trip starts at the world's time.
       ...(this.campaign?.world && { time: this.campaign.world.time }),
     })
-    // Who rolls its dice: as the player last chose.
+    // Who rolls its dice: as the player prefers.
     this.saved = {
       ...this.saved,
       system: s.id,
       season,
       startDay,
-      session: withLastRollWay(session),
+      session: followRollWay(session),
     }
     this.aim()
     void this.followName(before)
@@ -880,8 +880,10 @@ export class TripStore {
         locale: this.options.locale(),
         ...(campaign && host && { facts: worldFactsOf({ campaign }, host) }),
       }
-      // Checks roll with the campaign's Oracle state, shared with its maps and hand rolls.
-      const input = campaign?.oracle ? { ...session, oracle: campaign.oracle.state } : session
+      // Checks roll with the campaign's Oracle state, shared with its maps and hand rolls;
+      // who rolls the dice, as the player prefers now.
+      const followed = followRollWay(session)
+      const input = campaign?.oracle ? { ...followed, oracle: campaign.oracle.state } : followed
       const { state, entries } = stepTrip(options, input, action)
       let next = state
       if (campaign && host) {

@@ -118,10 +118,12 @@ export const es: Messages<typeof en> = {
   },
   rollWay: {
     label: 'Tiradas',
-    help: 'Quién tira los dados del viaje. Una tirada tuya espera como una pausa: dice qué tirar y para qué, escribes el total que has sacado con tus dados (o pulsas **Tirar** para tirarlos en pantalla, o **Tíramela**) y la fila que salga ocurre como si la hubiera tirado el ordenador.\n• **Tira el ordenador**: todo se juega por sí solo\n• **Tiro lo importante**: las tiradas de un combate (las del grupo y las de los enemigos), las de una comprobación que detiene el viaje y las de una tabla que puede dar un resultado importante\n• **Lo tiro todo**: cada tabla con dados que tira un paso\nUna tirada tuya son todas las tiradas con dados de su resultado, una tras otra: la de la tabla y luego las que hay dentro de lo que salió (el daño de un golpe, para cada uno a quien apunta, una tabla a la que lleva, dados en su texto); nada de él ocurre hasta dar la última. Las tablas que se tiran por pesos, lo que se saca de un mazo y el clima los tira siempre el ordenador. Cada viaje guarda la suya; un viaje nuevo empieza con la última elegida.',
+    help: 'Quién tira los dados del viaje. Una tirada tuya espera como una pausa: dice qué tirar y para qué, escribes el total que has sacado con tus dados (o pulsas **Tirar** para tirarlos en pantalla, o **Tíramela**) y la fila que salga ocurre como si la hubiera tirado el ordenador.\n• **Tira el ordenador**: todo se juega por sí solo\n• **Tiro lo importante**: las tiradas de un combate (las del grupo y las de los enemigos), las de una comprobación que detiene el viaje y las de una tabla que puede dar un resultado importante\n• **Lo tiro todo**: cada tabla con dados que tira un paso\nUna tirada tuya son todas las tiradas con dados de su resultado, una tras otra: la de la tabla y luego las que hay dentro de lo que salió (el daño de un golpe, para cada uno a quien apunta, una tabla a la que lleva, dados en su texto); nada de él ocurre hasta dar la última. Las tablas que se tiran por pesos, lo que se saca de un mazo y el clima los tira siempre el ordenador. Es tu preferencia, la misma en todos los viajes y escenas y en **Preferencias** (todas las aplicaciones).',
     computer: 'Tira el ordenador',
     matters: 'Tiro lo importante',
     all: 'Lo tiro todo',
+    ask: '¿Quién tira los dados?',
+    askHint: 'Se pregunta una vez: cámbialo cuando quieras aquí, en Opciones o en Preferencias.',
   },
   yourRoll: {
     who: '{who}: tira {dice} para {what}',

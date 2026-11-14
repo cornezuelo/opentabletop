@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Travel and Map
+
+- **Who rolls the dice is a preference**: in **Preferences** (every app), the same for every trip and scene, saved ones too; **Rolls** in a trip's Options and beside a fight's title change it. Until you choose, the first fight asks **Who rolls the dice?**
+
 ### Fixes
 
 - In a fight, an action on the card of a foe that has acted (**Strike one down**) looked greyed out though it could be clicked; only the card fades now.
