@@ -13,6 +13,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **Throw your own dice**: **Roll** on a roll of yours opens a table in the middle of the screen: drag the dice and let go (or click) and they fly, bounce off the edges and each other and roll to a stop, their faces turning, then **Use** the total. Each bounce knocks on the table (**Dice knock on the table**, in Preferences).
 - What a step did to a foe reads as words (_Pack leader: Down_), never as `characters.pack-leader.conditions.down`.
 
+### Campaign
+
+- **Trips and scenes**, a page of the manual: what each is for (a trip goes somewhere, a scene stays where it is), which to use and what they share; linked from Travel, Map's Play, Campaign's scenes and the Oracle.
+
 ### Packs
 
 - **Told in your words** (`told:`): a condition says how it's gained and lost (`told: { gains: '{{name}} falls' }`), an action how a fight tells its turn (`told: '{{acting.name}} strikes {{characters[params.foe].name}}'`); Packs' **Told when gained** / **Told when lost** and **Told in a fight**. The Grey Marches' and Core's strikes and conditions are told so.

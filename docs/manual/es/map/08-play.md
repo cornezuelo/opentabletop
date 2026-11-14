@@ -2,6 +2,8 @@
 
 **Jugar**, en el interruptor de arriba (<kbd>P</kbd>), mueve a tu grupo por el mapa. La barra de la izquierda deja entonces solo lo que usa el juego: **Seleccionar**, **El viaje**, el Mundo y el Oráculo, y las teclas de las herramientas que editan el mapa no hacen nada, así que un despiste no pinta encima; **Editar** (<kbd>P</kbd> otra vez) vuelve a la herramienta que usabas. Jugar abre siempre **El viaje**, fuera cual fuera la herramienta o el panel abierto (una casilla sigue a un clic con **Seleccionar**); si aún no hay viaje, **Nuevo viaje** es el botón que destaca. Un viaje se juega en uno de dos modos (**Modo de juego**, cuya ayuda los resume). Al pasar a Jugar se selecciona el token del grupo (la herramienta Tokens, en Editar, lo mantiene seleccionado, y allí se cambian su icono, color y halo).
 
+Jugar en un mapa es un **viaje**: el grupo yendo a alguna parte por sus casillas. Para lo que pasa donde está, sin mapa, mira [Viajes y escenas](../campaign/03-trips-and-scenes.md).
+
 ## Modo simple
 
 Solo el token del grupo y su rastro: haz clic en una casilla para colocar al grupo y en otra para que salte directamente allí: sin ruta, sin tiempo de viaje, no pasa nada por el camino. Sin tiradas. Para caminar casilla a casilla con tiempo, terreno y comprobaciones, usa **Con reglas**. **Mostrar rastro** dibuja por dónde ha pasado, curvado como los caminos y senderos del mapa (**Líneas rectas** lo dibuja, y la ruta prevista, de centro a centro de casilla). Los dos van un poco a un lado del centro de las casillas, el rastro a la izquierda de su camino y la ruta a la derecha, para no ir nunca encima de un camino o río que siguen, ni uno sobre otro; **Borrar rastro** y **Quitar grupo** lo reinician.

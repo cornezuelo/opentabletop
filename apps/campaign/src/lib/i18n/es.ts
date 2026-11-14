@@ -117,7 +117,7 @@ export const es: Messages<typeof en> = {
     mapsIntro:
       'Los mapas de la aplicación Mapa (su biblioteca en este navegador) que están en esta campaña: sus viajes y tokens se juegan en su mundo. **Abrir ↗** abre uno allí.',
     tripsIntro:
-      'Los viajes de la aplicación Viajes (sin mapa) que están en esta campaña: su tiempo es el de la campaña. El viaje de un mapa se juega en su mapa, en **Mapas**.',
+      'Los viajes de la aplicación Viajes (sin mapa) que están en esta campaña: su tiempo es el de la campaña. El viaje de un mapa se juega en su mapa, en **Mapas**. Un viaje va a alguna parte; para jugar lo que pasa donde está el elenco, sin ir a ninguna parte, abre una escena en **Escenas**.',
     new: {
       maps: 'Nuevo mapa en esta campaña ↗',
       trips: 'Nuevo viaje en esta campaña ↗',

@@ -2,6 +2,8 @@
 
 La aplicación Viajes juega viajes sin mapa, con cualquier **sistema**: las reglas de viaje de un juego (a qué velocidad vas, qué llevas, qué se tira por el camino) y, normalmente, bindings que dicen qué tabla resuelve cada comprobación. Los sistemas se crean y editan en la [aplicación Packs](../packs/01-getting-started.md); el modo Jugar de Mapa juega los mismos sobre un mapa.
 
+Un viaje es el grupo yendo a alguna parte; para jugar lo que pasa donde está (un combate sin mapa a mano, una negociación), sin camino que recorrer, una campaña tiene **escenas**: [Viajes y escenas](../campaign/03-trips-and-scenes.md) dice cuál usar.
+
 ## La pantalla
 
 - **Cabecera**: el selector de aplicaciones (nueve puntos), el engranaje (**Preferencias**: idioma, aplicación de notas y si los dados ruedan al tirarlos y suenan en la mesa, compartidas por todas las aplicaciones) y **?** para este manual. Las pestañas pequeñas en los bordes de la columna central (‹ ›) pliegan la lista de sistemas y la columna de ayuda, y las vuelven a sacar.

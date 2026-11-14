@@ -514,7 +514,7 @@ export const en = {
   /** A campaign's scenes: fights without a trip. */
   scenes: {
     title: 'Scene',
-    help: "A scene is a fight (or any moment) without a trip: the campaign's cast standing at one place with those present, played as a trip that goes nowhere. **New scene** takes the cast, the party in the campaign without a trip with its members and every other character of the system's sheet there; what happens to them goes back to the roster, and the scene's time moves the campaign's world clock, as a trip's does. Add who they face in its **Party** tab (**Add from the bestiary**, or from the roster), then fight: the fight panel shows whose turn it is. **End the scene** gives the cast back to the campaign.\n• the Oracle's **Open a scene ↗**, under a result that brings people, makes one with them",
+    help: "A scene is a moment played where the campaign's cast stands (a fight, a parley, a night at an inn), going nowhere: no route, no march, no destination. That's what tells it from a trip, which is the party on its way somewhere; everything else is played the same, with the same panel. **New scene** takes the cast, the party in the campaign without a trip with its members and every other character of the system's sheet there; what happens to them goes back to the roster, and the scene's time moves the campaign's world clock, as a trip's does. Add who they face in its **Party** tab (**Add from the bestiary**, or from the roster), then fight: the fight panel shows whose turn it is. **End the scene** gives the cast back to the campaign.\n• the Oracle's **Open a scene ↗**, under a result that brings people, makes one with them",
     none: 'No scenes in this campaign.',
     new: 'New scene',
     end: 'End the scene',

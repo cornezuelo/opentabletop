@@ -36,6 +36,8 @@ Your rolls keep their decks, once-only results and history in **the campaign you
 
 A result whose effects bring people (`present.grey-wolf: 3`: a pack of wolves, a band of robbers, someone met on the way) shows **Open a scene ↗** under it while you roll in a campaign: it opens the [Campaign](../campaign/01-getting-started.md) app on a new **scene** of that campaign with them, made from the system's bestiary, each with its own rolled values, facing the campaign's cast. There you fight them, turn by turn if the system's fights go in turns. In no campaign it says a scene needs one. Rolled here, they're only words: nothing is made until the scene opens.
 
+A scene is a moment played where the party stands, not a trip: [Trips and scenes](../campaign/03-trips-and-scenes.md).
+
 ## Repeatable rolls
 
 In **Preferences** (the gear), **Seed for rolls** makes rolls repeatable: with the same seed, the same rolls in the same order give the same results. The history shows the seed while it's on.

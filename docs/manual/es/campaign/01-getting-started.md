@@ -107,6 +107,8 @@ Si el mapa o el viaje trae un mundo propio (un reloj del mundo, facciones, tirad
 
 Una **escena** es un combate (o cualquier momento) sin viaje: el elenco de la campaña quieto en un sitio con quienes se enfrentan a él, jugado aquí como un viaje que no va a ninguna parte, con el mismo panel que el de Viajes ([Jugar un viaje](../travel/02-playing.md)): sus acciones, la pestaña **Grupo** y el diario.
 
+¿Viaje o escena? Un viaje va a alguna parte, una escena se queda donde está: [Viajes y escenas](03-trips-and-scenes.md) los compara.
+
 - **Abrir una escena ↗** del Oráculo, bajo un resultado que trae gente, abre aquí una nueva con ellos ([Tirar](../oracle/02-rolling.md)).
 - **Nueva escena** hace una con el sistema de la campaña y se lleva su elenco: el grupo que está en la campaña sin viaje (si hay uno de la hoja de grupo del sistema), con sus miembros, y cada otro personaje de la hoja del sistema que esté en ella sin viaje ([Personajes](#personajes)). Sin elenco, el grupo se juega como un todo, y los enemigos que golpean apuntan a su hoja de grupo. Una escena no está en ningún mapa, así que su pestaña **Grupo** no muestra la hoja propia de un mapa.
 - Añade a quienes se enfrentan en su pestaña **Grupo**, bajo **Aquí**: **Añadir del bestiario**, o **Del plantel**. Luego luchad: la acción propia del sistema empieza un combate por turnos (**Luchar** en Core, **Plantar cara** en las Marcas Grises), y el panel de combate muestra la ronda, de quién es el turno y el turno recién jugado, y en el tuyo lo que se le hace a un enemigo está en su tarjeta ([Un combate por turnos](../travel/02-playing.md#personajes)).

@@ -116,7 +116,7 @@ export const en = {
     mapsIntro:
       'The maps of the Map app (its library in this browser) in this campaign: their trips and tokens play in its world. **Open ↗** opens one there.',
     tripsIntro:
-      'Travel’s trips (without a map) in this campaign: their time is the campaign’s. A map’s trip plays on its map, under **Maps**.',
+      'Travel’s trips (without a map) in this campaign: their time is the campaign’s. A map’s trip plays on its map, under **Maps**. A trip goes somewhere; to play what happens where the cast stands, going nowhere, open a scene in **Scenes**.',
     new: {
       maps: 'New map in this campaign ↗',
       trips: 'New trip in this campaign ↗',

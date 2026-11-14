@@ -2,6 +2,8 @@
 
 **Play**, on the switch at the top (<kbd>P</kbd>), moves your party around the map. The bar on the left then holds only what play uses: **Select**, **The trip**, the World and the Oracle, and the keys of the tools that edit the map do nothing, so a slip can't paint over it; **Edit** (<kbd>P</kbd> again) comes back to the tool you were using. Play always opens on **The trip**, whatever tool or panel was open (a cell is still a click away with **Select**); with no trip yet, **New trip** is the button that stands out. A trip plays in one of two modes (**Play mode**, whose help sums them up). Going to Play selects the party token (the Tokens tool, in Edit, keeps it selected, and there you change its icon, color and halo).
 
+Playing on a map is a **trip**: the party going somewhere across its cells. For what happens where it stands, with no map, see [Trips and scenes](../campaign/03-trips-and-scenes.md).
+
 ## Simple mode
 
 Just the party token and its trail: click a cell to place the party, click another and it jumps straight there: no route, no travel time, nothing happens on the way. No rolls. To walk cell by cell with time, terrain and checks, use **With rules**. **Show trail** draws where it has been, curving like the map's roads and trails (**Straight lines** draws it, and the planned route, from cell centre to cell centre). Both run a little to one side of the cells' centres, the trail on the left of its way and the route on the right, so they never sit on a road or river they follow, nor on each other; **Clear trail** and **Remove party** reset it.

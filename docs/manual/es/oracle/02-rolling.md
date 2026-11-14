@@ -36,6 +36,8 @@ Tus tiradas guardan sus mazos, sus resultados de una sola vez y su historial en 
 
 Un resultado cuyos efectos traen gente (`present.grey-wolf: 3`: una manada de lobos, una banda de bandidos, alguien que se cruza en el camino) muestra **Abrir una escena ↗** debajo mientras tiras en una campaña: abre la aplicación [Campaña](../campaign/01-getting-started.md) en una **escena** nueva de esa campaña con ellos, hechos con el bestiario del sistema, cada uno con sus propios valores tirados, frente al elenco de la campaña. Allí luchas con ellos, por turnos si los combates del sistema van por turnos. Sin campaña, dice que una escena necesita una. Tirados aquí, son solo palabras: no se hace nada hasta que se abre la escena.
 
+Una escena es un momento jugado donde está el grupo, no un viaje: [Viajes y escenas](../campaign/03-trips-and-scenes.md).
+
 ## Tiradas repetibles
 
 En **Preferencias** (el engranaje), **Semilla de las tiradas** hace las tiradas repetibles: con la misma semilla, las mismas tiradas en el mismo orden dan los mismos resultados. El historial muestra la semilla mientras está puesta.

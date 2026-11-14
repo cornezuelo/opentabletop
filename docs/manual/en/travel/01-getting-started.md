@@ -2,6 +2,8 @@
 
 The Travel app plays trips without a map, with any **system**: a game's travel rules (how fast you go, what you carry, what is rolled on the way) and, usually, bindings that say which table resolves each check. Systems are made and edited in the [Packs app](../packs/01-getting-started.md); Map's Play mode plays the same ones on a map.
 
+A trip is the party on its way somewhere; to play what happens where it stands (a fight with no map at hand, a parley), with no way to go, a campaign has **scenes**: [Trips and scenes](../campaign/03-trips-and-scenes.md) says which to use.
+
 ## The screen
 
 - **Header**: the app switcher (nine dots), the gear (**Preferences**: language, notes app and whether dice tumble as they're rolled and are heard on the table, shared by every app) and **?** for this manual. The small tabs on the edges of the middle column (‹ ›) fold the systems list and the help column away, and bring them back.
