@@ -314,8 +314,11 @@
     border-style: solid;
   }
 
-  .fighter.done,
-  .fighter.gone {
+  /* Who has acted, or is gone, faded: the card alone, never what can be done to them now
+     (an action on its card, or the card itself when it's one to choose), so nothing that
+     can be clicked looks disabled. */
+  .fighter.done:not(.target) .pick > :not(.card-actions),
+  .fighter.gone:not(.target) .pick > :not(.card-actions) {
     opacity: 0.55;
   }
 

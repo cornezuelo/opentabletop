@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- In a fight, an action on the card of a foe that has acted (**Strike one down**) looked greyed out though it could be clicked; only the card fades now.
+
 ### Packs
 
 - **The Grey Marches' Night eyes**: a knack switched on and off (**Open** / **Close the night eyes**): while open, a night march burns no torch of theirs, but costs them a step of nerve.
