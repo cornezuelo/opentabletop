@@ -20,6 +20,7 @@
     rolls,
     title = '',
     use = '',
+    close = '',
     locale = 'en',
     onuse,
     onclose,
@@ -30,6 +31,8 @@
     title?: string
     /** What the button that takes it says ('': _Use 4_). */
     use?: string
+    /** What the button that puts it away says ('': _Put away_). */
+    close?: string
     locale?: string
     /** Its total taken. */
     onuse: (total: number) => void
@@ -236,7 +239,7 @@
       {:else if stage === 'rolling'}
         <p class="total muted">{text.rolling}</p>
       {/if}
-      <button class="button" onclick={onclose}>{text.close}</button>
+      <button class="button" onclick={onclose}>{close || text.close}</button>
     </div>
   </div>
 </div>

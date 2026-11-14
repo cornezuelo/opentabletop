@@ -13,6 +13,7 @@ export const es: Messages<typeof en> = {
   roll: {
     roll: 'Tirar',
     see: 'Ver el resultado',
+    closeThrow: 'Cerrar',
     draw: 'Robar',
     shuffle: 'Barajar',
     remaining: 'Quedan {left} de {total} cartas',

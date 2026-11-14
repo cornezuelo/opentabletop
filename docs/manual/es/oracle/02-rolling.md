@@ -2,7 +2,7 @@
 
 Abre una definición y pulsa **Tirar** (o **Robar** en un mazo). <kbd>Espacio</kbd> o <kbd>Intro</kbd> vuelven a tirar.
 
-Cuando tiras tus propios dados (**Quién tira los dados**, en **Preferencias**, en algo que no sea _Tira el ordenador_), **Tirar** te pone sus dados en la mano sobre una mesa en el centro de la pantalla: arrástralos y suéltalos (o pulsa la mesa) y salen volando, rebotan y ruedan hasta pararse en lo que ha salido, todos los dados del resultado a la vez (los de la tabla y los de lo que trae); **Ver el resultado** lo muestra (**Guardar** también). Si tira el ordenador, o con **Los dados ruedan al tirarlos** desmarcado, el resultado sale al instante.
+Cuando tiras tus propios dados (**Quién tira los dados**, en **Preferencias**, en algo que no sea _Tira el ordenador_), **Tirar** te pone sus dados en la mano sobre una mesa en el centro de la pantalla: arrástralos y suéltalos (o pulsa la mesa) y salen volando, rebotan y ruedan hasta pararse en lo que ha salido, todos los dados del resultado a la vez (los de la tabla y los de lo que trae); **Ver el resultado** lo muestra (**Cerrar** también). Si tira el ordenador, o con **Los dados ruedan al tirarlos** desmarcado, el resultado sale al instante.
 
 ## El resultado
 

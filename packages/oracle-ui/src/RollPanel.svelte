@@ -224,6 +224,7 @@
       rolls={diceOf(throwing.resolution)}
       title={ui.nameOf(def.id)}
       use={t('roll.see')}
+      close={t('roll.closeThrow')}
       locale={ui.locale()}
       onuse={() => (roller.throwing = undefined)}
       onclose={() => (roller.throwing = undefined)}

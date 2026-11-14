@@ -2,7 +2,7 @@
 
 Open a definition and press **Roll** (or **Draw** for a deck). <kbd>Space</kbd> or <kbd>Enter</kbd> rolls again.
 
-When you roll your own dice (**Who rolls the dice**, in **Preferences**, on anything but _The computer rolls_), **Roll** puts its dice in your hand on a table in the middle of the screen: drag them and let go (or click the table) and they fly, bounce and roll to a stop on what came up, every die of the result at once (a table's, and those of what it leads to); **See the result** shows it (**Put away** too). With the computer rolling, or with **Dice tumble as they're rolled** off, the result shows at once.
+When you roll your own dice (**Who rolls the dice**, in **Preferences**, on anything but _The computer rolls_), **Roll** puts its dice in your hand on a table in the middle of the screen: drag them and let go (or click the table) and they fly, bounce and roll to a stop on what came up, every die of the result at once (a table's, and those of what it leads to); **See the result** shows it (**Close** too). With the computer rolling, or with **Dice tumble as they're rolled** off, the result shows at once.
 
 ## The result
 
