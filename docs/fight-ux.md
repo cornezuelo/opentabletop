@@ -37,9 +37,11 @@ Each turn of the fight ends with **what it did**, one sentence built from its mo
 
 The same panel (Map's Play uses Travel's). Map's strip over the map says whose turn it is and, on the party's, _choose on the foes' cards_; the foes' tokens are clickable for the actions on their cards, as they are for choosing whom today.
 
-## 3. To decide
+## 3. Decided (with the user, 2026-11-14)
 
-1. **A**: the foe's actions on its card (recommended), or the action first and then the cards (today, but with the question in the fight panel)?
-2. **B**: the conditions' own phrases (`told:`), or only the generic _Pack leader: Down_ for now?
-3. **C**: the sentence built from the moment as described, or should a system be able to write it per action (a `told:` on actions too)?
-4. Order: A, B and C as one phase or three.
+1. **A**: the foe's actions on its card ("acciones sobre la tarjeta quedaría mejor organizado").
+2. **B**: conditions' own phrases, written by the pack (`told:`), the generic form without them.
+3. **C**: each system may write a turn's sentence per action (`told:` on actions), built by itself otherwise.
+4. One phase.
+5. **The dice of each turn are seen** (user: "¿qué pasó con las tiradas que lanza el jugador? … sin un feedback chulo de poder tirar un dado y que se vea rodar"): a turn's sentence shows its dice large, tumbling as it appears, whoever rolled them; and **Rolls** (Options) is offered in the fight panel itself, so rolling yourself is found where the dice are.
+6. Not now: Map's tokens taking a card's actions (a token still answers a question asked, as today).
