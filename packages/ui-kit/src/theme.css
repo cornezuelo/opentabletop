@@ -61,6 +61,12 @@
   box-sizing: border-box;
 }
 
+/* Hidden is hidden: a component's own `display` never shows what's marked `hidden` (the trip's
+   buttons while a fight lasts showed twice). */
+[hidden] {
+  display: none !important;
+}
+
 /*
  * Links in the theme's accent, visited or not (where you've been isn't news here), with
  * hover and focus. `:where` keeps them as weak as a bare element: a component's own link

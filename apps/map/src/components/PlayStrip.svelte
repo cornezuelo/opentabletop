@@ -4,7 +4,13 @@
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { placeLabel } from '../lib/io/submaps'
   import { showToast } from '@open-tabletop/ui-kit'
-  import { destinationHelp, playPanelShown, sessionOf, showPlayPanel, step } from '../lib/play/play'
+  import {
+    destinationHelp,
+    playPanelShown,
+    sessionOf,
+    showWaitingInPanel,
+    step,
+  } from '../lib/play/play'
   import { oracleUi } from '../lib/play/oracle'
   import { worldFactsNow } from '../lib/play/world.svelte'
   import { terrainLabel } from '../lib/terrainName'
@@ -47,7 +53,7 @@
       arrivedHint={destinationHelp(true)}
       latest
       onstep={step}
-      onshow={showPlayPanel}
+      onshow={showWaitingInPanel}
       terrainName={terrainLabel}
       nameOf={oracleUi.nameOf}
       facts={worldFactsNow()}

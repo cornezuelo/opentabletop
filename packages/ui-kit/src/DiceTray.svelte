@@ -40,7 +40,11 @@
   const drawn = $derived(rolls.map((r) => drawRoll(r)))
   const reduced =
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
-  const tumbles = $derived(animate && dicePreferences.animate && !reduced)
+  // A roll the player made themselves (thrown on screen or typed) has rolled already: it never
+  // tumbles again.
+  const tumbles = $derived(
+    animate && dicePreferences.animate && !reduced && !rolls.every((r) => r.byHand),
+  )
   /** While they roll: the faces turn (a tick each time), the total waits. */
   let rolling = $state(false)
   let tick = $state(0)

@@ -112,6 +112,8 @@ export class Roller {
   mode = $state('')
   /** A result whose dice are being thrown on screen (its id): kept out of sight until they stop. */
   throwing = $state<number | undefined>()
+  /** The last result whose dice were thrown (its id): shown still afterwards. */
+  thrown = $state<number | undefined>()
   /** Result being shown per definition id. */
   shown = $state.raw<Record<string, HistoryItem>>({})
   /** The seed the session's rolls follow ('' = unseeded): the same seed, the same rolls. */

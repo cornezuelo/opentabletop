@@ -16,6 +16,11 @@ class Tab {
    * card unfolded and scrolled to. `n` counts the asks, so the same one can be asked again.
    */
   shown = $state<{ id: string; n: number } | undefined>()
+  /**
+   * Asks for what the trip waits for to be shown (Map's **Choose…**): the panel scrolls to it
+   * (a roll of the player's, a question, the fight) and marks it a moment. Counts the asks.
+   */
+  attention = $state(0)
 
   choose(tab: TripTab): void {
     this.chosen = tab
@@ -25,6 +30,11 @@ class Tab {
       // No storage: it stays until the page reloads.
     }
   }
+}
+
+/** What the trip waits for, scrolled to and marked in the trip's panel. */
+export function showWaiting(): void {
+  tripTab.attention++
 }
 
 /**

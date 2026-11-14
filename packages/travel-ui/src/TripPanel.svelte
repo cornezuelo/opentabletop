@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
+  import { tick, type Snippet } from 'svelte'
   import {
     encounterView,
     fightStarters,
@@ -647,6 +647,21 @@
     'totals',
     'options',
   ])
+  /** The panel, to scroll to what the trip waits for when asked (`showWaiting`). */
+  let tripEl = $state<HTMLDivElement | undefined>()
+  $effect(() => {
+    if (!tripTab.attention) return
+    void tick().then(() => {
+      const el = tripEl?.querySelector<HTMLElement>(
+        '.your-roll, .roll-ask, .pending, section.fight',
+      )
+      if (!el) return
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      el.classList.remove('attention')
+      void el.offsetWidth
+      el.classList.add('attention')
+    })
+  })
   const tab = $derived(tripTab.chosen && tabs.includes(tripTab.chosen) ? tripTab.chosen : tabs[0])
   const tabName = (id: TripTab) =>
     id === 'party'
@@ -778,7 +793,7 @@
   </select>
 {/snippet}
 
-<div class="trip">
+<div class="trip" bind:this={tripEl}>
   {#if status}
     <TripStatus
       {system}
@@ -1366,6 +1381,22 @@
 </div>
 
 <style>
+  /* What the trip waits for, just asked to be shown: it flashes once. */
+  .trip :global(.attention) {
+    animation: attention 1.2s ease-out;
+  }
+
+  @keyframes attention {
+    0%,
+    40% {
+      box-shadow: 0 0 0 4px var(--accent);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
   .roll-ask {
     display: flex;
     flex-direction: column;

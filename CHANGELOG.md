@@ -4,6 +4,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- Map's **Choose…** takes you to what the trip waits for in the panel (your roll, the question, the fight), marked for a moment; before, with the panel open, it did nothing.
+- The dice table covers everything, Map's button that hides the panel too.
+- In a fight, the party's buttons (**Strike one down**, **Fall back**) no longer show twice.
+- Dice you threw don't tumble again in the journal or the Oracle's result.
+
 ## [0.57.0] - 2026-11-14
 
 ### Oracle

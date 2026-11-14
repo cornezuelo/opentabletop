@@ -7,6 +7,7 @@ import {
   pacing,
   timeBehind,
   translator,
+  showWaiting,
   whyText,
   followRollWay,
 } from '@open-tabletop/travel-ui'
@@ -372,6 +373,12 @@ export function showPlayPanel(): void {
   editor.tool = 'play'
   editor.panelView = 'tool'
   editor.panelHidden = false
+}
+
+/** **Choose…** in the strip: the panel, scrolled to what the trip waits for and marked. */
+export function showWaitingInPanel(): void {
+  showPlayPanel()
+  showWaiting()
 }
 
 /** Whether a trip goes on here: what the party does then follows its rules. */

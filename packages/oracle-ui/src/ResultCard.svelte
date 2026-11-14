@@ -8,7 +8,14 @@
     ui,
     resolution,
     top = true,
-  }: { ui: OracleUi; resolution: Resolution; top?: boolean } = $props()
+    thrown = false,
+  }: {
+    ui: OracleUi
+    resolution: Resolution
+    top?: boolean
+    /** Its dice were thrown on the table already: shown still, not tumbling again. */
+    thrown?: boolean
+  } = $props()
   const t = $derived(ui.t)
 
   const scalars = $derived(
@@ -38,7 +45,12 @@
   {#if resolution.rolls.length}
     <!-- The dice it was rolled with, tumbling as a roll just made appears. -->
     <div class="dice">
-      <DiceTray rolls={resolution.rolls} locale={ui.locale()} large={top} animate={top} />
+      <DiceTray
+        rolls={resolution.rolls}
+        locale={ui.locale()}
+        large={top}
+        animate={top && !thrown}
+      />
     </div>
   {/if}
   {#if resolution.children.length}

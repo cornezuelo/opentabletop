@@ -85,6 +85,12 @@
   )
   const throws = $derived(dicePreferences.rolls !== 'computer' && dicePreferences.animate)
 
+  /** The dice stopped (or put away): the result shows, still. */
+  function settle() {
+    roller.thrown = roller.throwing
+    roller.throwing = undefined
+  }
+
   function roll() {
     roller.run(
       def.id,
@@ -226,13 +232,15 @@
       use={t('roll.see')}
       close={t('roll.closeThrow')}
       locale={ui.locale()}
-      onuse={() => (roller.throwing = undefined)}
-      onclose={() => (roller.throwing = undefined)}
+      onuse={settle}
+      onclose={settle}
     />
   {/if}
   {#if shown && shown.id !== throwing?.id}
     {#key shown.id}
-      <div class="card"><ResultCard {ui} resolution={shown.resolution} /></div>
+      <div class="card">
+        <ResultCard {ui} resolution={shown.resolution} thrown={shown.id === roller.thrown} />
+      </div>
       {#if actions}<div class="actions">{@render actions(shown)}</div>{/if}
     {/key}
   {/if}

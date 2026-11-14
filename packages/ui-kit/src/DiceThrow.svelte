@@ -3,6 +3,7 @@
   import DieFace from './DieFace.svelte'
   import { dicePreferences } from './dicePreferences.svelte'
   import { knock } from './diceSound'
+  import { portal } from './portal'
   import { settled, startThrow, stepThrow, type Table, type ThrownDie } from './diceThrow'
   import { drawRoll, rollingFace, type DieShape } from './diceTray'
 
@@ -180,7 +181,13 @@
   const sizeOf = (d: ThrownDie) => table.size * (1 + d.z / (table.size * 4))
 </script>
 
-<div class="throw" role="dialog" aria-modal="true" aria-label={title || rolls[0]?.expression}>
+<div
+  class="throw"
+  use:portal
+  role="dialog"
+  aria-modal="true"
+  aria-label={title || rolls[0]?.expression}
+>
   <div class="box">
     {#if title}<p class="title">{title}</p>{/if}
     <div
