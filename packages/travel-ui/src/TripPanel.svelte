@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick, type Snippet } from 'svelte'
+  import type { DiceResult } from '@open-tabletop/dice'
   import {
     encounterView,
     fightStarters,
@@ -70,6 +71,7 @@
   } from '@open-tabletop/session'
   import {
     confirmAction,
+    DiceThrow,
     DICE_ROLLS,
     dicePreferences,
     InfoTip,
@@ -367,6 +369,24 @@
       : [],
   )
   /** Those done to a foe: on the foes' cards (docs/fight-ux.md, A). */
+  /**
+   * A roll of the player's thrown on screen, kept open after **Use** to tell what came of it:
+   * the lines the step wrote from `from` on (the journal's number it was used at).
+   */
+  let thrown = $state<
+    { id: string; rolled: DiceResult; title: string; why: string[]; from?: number } | undefined
+  >()
+  /** Lines that say nothing of the outcome: the roll itself, a roll asked next. */
+  const QUIET_OUTCOME = new Set(['ROLLED', 'CHECK_YOURS', 'ACTION_YOURS'])
+  const outcome = $derived.by(() => {
+    const from = thrown?.from
+    if (from === undefined || session.nextEntry <= from) return undefined
+    return session.journal
+      .filter((e) => Number(e.id.slice(1)) >= from && !QUIET_OUTCOME.has(e.code))
+      .map((e) => entryText(e, context))
+      .filter(Boolean)
+      .slice(0, 8)
+  })
   /** Dice of an action's own steps waiting for the player (**I roll everything**). */
   const stepRolls = $derived(session.yours?.filter((y) => y.action) ?? [])
   const cardActions = $derived<CardAction[]>(
@@ -754,6 +774,7 @@
     how={yours.how}
     {locale}
     ongive={(total) => onstep({ type: 'rolled', id: id, total })}
+    onthrow={(rolled, title, why) => (thrown = { id, rolled, title, why })}
     onforme={() => onstep({ type: 'resolveCheck', id: id })}
     oncomputer={() => {
       onedit((s) => setRollWay(s, 'computer'))
@@ -803,6 +824,22 @@
   </select>
 {/snippet}
 
+{#if thrown}
+  {@const now = thrown}
+  <DiceThrow
+    rolls={[now.rolled]}
+    title={now.title}
+    why={now.why}
+    {locale}
+    tells
+    {outcome}
+    onuse={(total) => {
+      thrown = { ...now, from: session.nextEntry }
+      onstep({ type: 'rolled', id: now.id, total })
+    }}
+    onclose={() => (thrown = undefined)}
+  />
+{/if}
 <div class="trip" bind:this={tripEl}>
   {#if status}
     <TripStatus

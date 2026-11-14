@@ -23,6 +23,7 @@
     ongive,
     onforme,
     oncomputer,
+    onthrow,
   }: {
     /** The table's dice, as it writes them (`1d6`). */
     dice: string
@@ -45,6 +46,11 @@
     onforme: () => void
     /** The computer rolls it, and every roll after it. */
     oncomputer?: () => void
+    /**
+     * **Roll** on screen thrown by the host (which keeps the table open to tell what came of
+     * it): the dice rolled, what it's rolled for and why. Absent, thrown here.
+     */
+    onthrow?: (rolled: DiceResult, title: string, why: string[]) => void
   } = $props()
 
   const t = translator(() => locale)
@@ -73,9 +79,21 @@
     }
   })
 
+  /** What it's rolled for, in one line (_Kael: roll 1d6 for A blow_, on whom, with what mode). */
+  const title = $derived(
+    (who ? t('yourRoll.who', { who, dice, what }) : t('yourRoll.party', { dice, what })) +
+      (on ? t('yourRoll.on', { target: on }) : '') +
+      (mode ? t('yourRoll.mode', { mode }) : ''),
+  )
+
   function rollHere() {
     if (!parsed) return
     rolled = rollWith(parsed, mathRandom(), how)
+    if (onthrow) {
+      onthrow(rolled, title, said ? [said] : [])
+      rolled = undefined
+      return
+    }
     throwing = true
   }
 </script>
@@ -97,7 +115,8 @@
   {#if rolled && throwing}
     <DiceThrow
       rolls={[rolled]}
-      title={who ? t('yourRoll.who', { who, dice, what }) : t('yourRoll.party', { dice, what })}
+      {title}
+      why={said ? [said] : []}
       {locale}
       onuse={(n) => {
         throwing = false

@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Travel and Map
 
 - **Who rolls the dice** has four ways: **The computer rolls**, **I roll my own rolls** (the party's turns in a fight, a check that stops the trip, a table that can give an important result: the foes' turns are the computer's), **I roll for the foes too** and **I roll everything**. _What matters_ chosen before is now _my own rolls_.
+- **A throw tells what came of it**: the dice table says what a roll is for before it's thrown, and after **Use** stays to tell what happened (_The grey wolf falls_) until **Continue**.
 - **I roll everything** takes in an action's own dice too (_Drive them off_'s 1d3): the action waits for your total, nothing of it done, then plays with it.
 
 ### Fixes

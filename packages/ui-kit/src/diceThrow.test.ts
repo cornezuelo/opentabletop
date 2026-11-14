@@ -73,4 +73,18 @@ describe('the throw on screen', () => {
     })
     expect(body.match(/class="thrown/g)).toHaveLength(3)
   })
+
+  it('says what it is for before it is thrown', () => {
+    const { body } = render(DiceThrow, {
+      props: {
+        rolls: [roll('1d6', seeded('w'))],
+        title: 'Kael: roll 1d6 for A blow',
+        why: ['On the grey wolf'],
+        tells: true,
+        onuse: () => {},
+        onclose: () => {},
+      },
+    })
+    expect(body).toContain('On the grey wolf')
+  })
 })

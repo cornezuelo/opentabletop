@@ -22,6 +22,9 @@
     title = '',
     use = '',
     close = '',
+    why = [],
+    outcome,
+    tells = false,
     locale = 'en',
     onuse,
     onclose,
@@ -34,6 +37,15 @@
     use?: string
     /** What the button that puts it away says ('': _Put away_). */
     close?: string
+    /** What it's for, under the title, before it's thrown (whom it's on, what came up so far). */
+    why?: readonly string[]
+    /**
+     * What came of it, once used: the host keeps the throw open after **Use** and says what
+     * happened (each line), then **Continue** closes it. Undefined while the host plays it.
+     */
+    outcome?: readonly string[]
+    /** Whether the host tells what came of it (`outcome`): **Use** keeps it open till then. */
+    tells?: boolean
     locale?: string
     /** Its total taken. */
     onuse: (total: number) => void
@@ -48,6 +60,8 @@
       close: 'Put away',
       die: 'd{sides}: {face}',
       rolling: 'Rolling…',
+      playing: 'Playing it…',
+      continue: 'Continue',
     },
     es: {
       hint: 'Arrastra los dados y suéltalos para lanzarlos, o pulsa la mesa.',
@@ -55,6 +69,8 @@
       close: 'Guardar',
       die: 'd{sides}: {face}',
       rolling: 'Rodando…',
+      playing: 'Jugándola…',
+      continue: 'Continuar',
     },
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
@@ -80,6 +96,8 @@
   const moves = dicePreferences.animate && !reduced
 
   let stage = $state<'hand' | 'rolling' | 'done'>(moves ? 'hand' : 'done')
+  /** Its total used: what came of it shows (`outcome`), with **Continue**. */
+  let used = $state(false)
   let table = $state<Table>({ width: 560, height: 320, size: 72 })
   /** Faces shown while they roll: a new one each time a die turns over. */
   let turning = $state<string[]>([])
@@ -190,6 +208,11 @@
 >
   <div class="box">
     {#if title}<p class="title">{title}</p>{/if}
+    {#if why.length}
+      <ul class="why">
+        {#each why as line, i (i)}<li>{line}</li>{/each}
+      </ul>
+    {/if}
     <div
       class="table"
       bind:this={tableEl}
@@ -235,18 +258,40 @@
       {#if stage === 'hand'}<p class="hint">{text.hint}</p>{/if}
     </div>
     <div class="foot">
-      {#if stage === 'done'}
+      {#if used}
+        <!-- What came of it, then on. -->
+        <div class="outcome" aria-live="polite">
+          <p class="total">
+            {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
+              <strong>{roll.total}</strong>{/each}
+          </p>
+          {#if outcome}
+            <ul>
+              {#each outcome as line, i (i)}<li>{line}</li>{/each}
+            </ul>
+          {:else}
+            <p class="total muted">{text.playing}</p>
+          {/if}
+        </div>
+        <button class="button primary" onclick={onclose}>{text.continue}</button>
+      {:else if stage === 'done'}
         <p class="total">
           {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
             <strong>{roll.total}</strong>{/each}
         </p>
-        <button class="button primary" onclick={() => onuse(rolls[0]?.total ?? 0)}
-          >{use || text.use.replace('{total}', String(rolls[0]?.total ?? 0))}</button
+        <button
+          class="button primary"
+          onclick={() => {
+            const total = rolls[0]?.total ?? 0
+            if (outcome !== undefined || tells) used = true
+            onuse(total)
+          }}>{use || text.use.replace('{total}', String(rolls[0]?.total ?? 0))}</button
         >
-      {:else if stage === 'rolling'}
-        <p class="total muted">{text.rolling}</p>
+        <button class="button" onclick={onclose}>{close || text.close}</button>
+      {:else}
+        {#if stage === 'rolling'}<p class="total muted">{text.rolling}</p>{/if}
+        <button class="button" onclick={onclose}>{close || text.close}</button>
       {/if}
-      <button class="button" onclick={onclose}>{close || text.close}</button>
     </div>
   </div>
 </div>
@@ -278,6 +323,34 @@
   .title {
     margin: 0;
     font-weight: 600;
+  }
+
+  /* What it's for, before it's thrown. */
+  .why {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* What came of it, after: the total, then what happened, large enough to read at a glance. */
+  .outcome {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .outcome ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+
+  .outcome li + li {
+    margin-top: 2px;
   }
 
   /* The cloth the dice are thrown on. */
