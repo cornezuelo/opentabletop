@@ -300,6 +300,8 @@ export const en = {
     party: 'party',
     foes: 'foes',
     actOn: '{action}: {name}',
+    aimAt: '{action}: choose whom by clicking one of the marked cards.',
+    armFirst: 'Choose what to do, then whom, by clicking their card.',
     asking: '{question} Click their card.',
     nothing: 'does nothing',
     yourTurn: '{name}’s turn: choose what they do.',

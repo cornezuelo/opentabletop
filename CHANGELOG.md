@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Fights**: while an action on a foe is armed, the cards it can be aimed at are outlined and a line says to click one; a click elsewhere on the stage makes them beckon (or, with none armed, the turn's choices).
+
 ### Packs
 
 - **The Grey Marches**: in the Deep Barrows, looking for a crypt's crack is told in a crypt's words (dust and old bones, a cold draught), not the Barrow-road's heather and cairns.

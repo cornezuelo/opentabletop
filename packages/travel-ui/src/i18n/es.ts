@@ -294,6 +294,8 @@ export const es: Messages<typeof en> = {
     party: 'grupo',
     foes: 'enemigos',
     actOn: '{action}: {name}',
+    aimAt: '{action}: elige a quién pulsando una de las tarjetas marcadas.',
+    armFirst: 'Elige qué hacer y luego a quién, pulsando su tarjeta.',
     asking: '{question} Pulsa su tarjeta.',
     nothing: 'no hace nada',
     yourTurn: 'Turno de {name}: elige qué hace.',

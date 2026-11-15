@@ -204,6 +204,31 @@
   /** The one pointed at in the order: their card is marked. */
   let pointed = $state('')
 
+  /**
+   * A click that missed: what can be clicked beckons for a moment, the cards that can be
+   * aimed at (an action armed, or a question asked) or, with none armed among several, the
+   * turn's choices.
+   */
+  let nudged = $state<'' | 'cards' | 'bar'>('')
+  let nudging: ReturnType<typeof setTimeout> | undefined
+  function nudge(what: 'cards' | 'bar') {
+    clearTimeout(nudging)
+    nudged = ''
+    void tick().then(() => {
+      nudged = what
+      nudging = setTimeout(() => (nudged = ''), 1200)
+    })
+  }
+  /** Whether a card can be clicked now: aimed at by the action armed, or chosen as asked. */
+  const aiming = $derived(!!armed || (targets.length > 0 && !!ontarget))
+  /** A click on the stage that hit no button: show what's to be clicked. */
+  function missed(event: MouseEvent) {
+    if (ended || (event.target as Element | null)?.closest('button, a, input, select, summary'))
+      return
+    if (aiming) nudge('cards')
+    else if (choosing && onact && cardActions.some((a) => !a.disabled)) nudge('bar')
+  }
+
   /** The log, kept scrolled to its newest moment as moments come. */
   let logEl = $state<HTMLOListElement | undefined>()
   $effect(() => {
@@ -278,6 +303,7 @@
               class:hit={!!changes[seat.id]}
               class:gone={seat.gone}
               class:pointed={seat.id === pointed}
+              class:can={target || aim}
               aria-current={seat.id === actorId ? 'step' : undefined}
             >
               {#snippet card()}
@@ -326,7 +352,15 @@
   {/if}
 {/snippet}
 
-<section class="fight" aria-label={t('fight.title', { round })}>
+<!-- A click on the stage that missed only shows what's to be clicked; every choice is a button. -->
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+<section
+  class="fight"
+  class:nudge-cards={nudged === 'cards'}
+  class:nudge-bar={nudged === 'bar'}
+  aria-label={t('fight.title', { round })}
+  onclick={missed}
+>
   <!-- One line on top: the round and whose turn; the fight's settings small at its end. -->
   <header>
     <h3>
@@ -426,6 +460,11 @@
                 {/each}
                 {@render turnBar?.()}
               </div>
+              {#if armed}
+                <p class="hint aim">{t('fight.aimAt', { action: armed.name })}</p>
+              {:else if onact && cardActions.filter((a) => !a.disabled).length > 1}
+                <p class="hint aim">{t('fight.armFirst')}</p>
+              {/if}
             {/if}
           {:else if acting && shown?.stage !== 'rolling'}
             <p class="turn">
@@ -809,6 +848,38 @@
   /* One to choose or to aim at: the whole card is the button. */
   button.pick {
     cursor: crosshair;
+  }
+
+  /* While an action is armed (or a question asks whom), the cards it can be aimed at say so. */
+  .fighter.can .pick {
+    outline: 2px dashed color-mix(in srgb, var(--danger) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* A click that missed: they beckon. */
+  .nudge-cards .fighter.can .pick,
+  .nudge-bar .bar .arm:not(:disabled) {
+    animation: beckon 0.4s ease-in-out 3;
+  }
+
+  @keyframes beckon {
+    50% {
+      outline-color: var(--danger);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 25%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nudge-cards .fighter.can .pick,
+    .nudge-bar .bar .arm:not(:disabled) {
+      animation: none;
+      outline: 2px solid var(--danger);
+    }
+  }
+
+  .aim {
+    margin: 0;
+    text-align: center;
   }
 
   /* The turn just played, in the middle. */
