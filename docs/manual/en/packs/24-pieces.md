@@ -30,7 +30,8 @@ The table sees what `discover.terrain` sees, plus the exit being crossed (`exit.
 2. The binding names a piece. Every way of laying it is tried, in a random order: each way in, each turn and mirror. A way fits when the cell the party entered is one of the piece's, the way in meets the cell it came from, and every cell falls inside the map on nothing.
 3. If none fits, it's rolled again up to **Tries**, then **Otherwise**. A piece that would run off the map doesn't fit: the edge is rock; kept open, nor does one that would leave no way on.
 4. Its other exits: one with nothing beyond it stays waiting; one that falls on floor opens there, a door between the two; one against anything else is dropped, silently, as a wall.
-5. The step ends there: what's beyond was unknown, so no route went through it.
+5. The party is in it, and what's rolled on entering reads the piece whole, as the map keeps it: a room as one place with its values (`place.danger`), its tags, and its exits by kind with theirs (`place.connections.<kind>.state`). So a check for a way hidden there comes up as the piece is laid, not on a later visit.
+6. The step ends there: what's beyond was unknown, so no route went through it.
 
 A laid piece stays, and is part of the map from then on: it can be edited in Edit, and <kbd>Ctrl</kbd>+<kbd>Z</kbd> doesn't undo it. Nothing is seen before crossing: an exit shows only its kind. A system wanting a look through a door has an action for it.
 

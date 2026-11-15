@@ -421,7 +421,7 @@ travel-rules/default:
       description: Un minuto más para empujarla; cerrada mientras esté atrancada.
     hidden-path:
       name: Senda oculta
-      description: Un camino por las colinas que solo conocen los clanes; no se puede seguir hasta encontrarlo.
+      description: Un camino que pocos conocen, por las colinas o tras una pared bajo ellas; no se puede seguir hasta encontrarlo.
     river:
       crossing:
         name: Vadear el río

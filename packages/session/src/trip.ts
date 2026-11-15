@@ -1547,6 +1547,11 @@ export function stepTrip(
     random?: RandomSource
     /** The host's facts for conditions and tables (the world clock's `clocks`, `events`). */
     facts?: Record<string, unknown>
+    /**
+     * The world with pieces laid during the step on it, so the rest of the step reads them
+     * whole (a room as one place, its values, its exits). Absent, their terrain and tags alone.
+     */
+    withLaid?: (laid: LaidPiece[]) => TravelWorld
   },
   session: SessionState,
   action: TripAction,
@@ -1632,6 +1637,9 @@ function playStep(
           random: options.random ?? mathRandom(),
           places: partyOf(system).places,
           ...(system.pieces && { pieces: lookupPieces(system.pieces) }),
+          ...(options.withLaid && {
+            withLaid: (laid) => relatedWorld(options.withLaid!(laid), session.members),
+          }),
         })
       : undefined
   const played = createSession({

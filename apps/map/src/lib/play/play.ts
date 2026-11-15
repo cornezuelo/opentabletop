@@ -16,6 +16,7 @@ import {
   calendarOf,
   SEASON_START_DAYS,
   seasonStart,
+  type LaidPiece,
   startTrip,
   stepTrip,
   settleTrip,
@@ -33,6 +34,7 @@ import { getLocale, t } from '../i18n/index.svelte'
 import {
   cellOfPlace,
   DEFAULT_TOKEN_ICONS,
+  type HexMap,
   mapWalls,
   newId,
   parseAreaPlace,
@@ -55,7 +57,7 @@ import { chooseSystem, keepOpenMap, openLibraryMap } from '../io/actions.svelte'
 import { ARROWS } from '../tools/keyboardDraw'
 import { terrainLabel } from '../terrainName'
 import { getSystem, mapSystemId, oracle } from './systems'
-import { mapWorld, parsePlaceOn } from '@open-tabletop/map'
+import { mapWorld, parsePlaceOn, withPieces } from '@open-tabletop/map'
 import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
 
 export { SEASON_START_DAYS, type Season }
@@ -67,8 +69,8 @@ pacing.listen(() => editor.notify({ kind: 'tokens' }))
  * The map as the trip sees it with the system's scale: its places, and the ways into its
  * sub-maps and out of it (the maps the library keeps).
  */
-export function playWorld(system: TravelSystem) {
-  return mapWorld(editor.map, system.rules.travel.cellKm, editor.linked)
+export function playWorld(system: TravelSystem, map: HexMap = editor.map) {
+  return mapWorld(map, system.rules.travel.cellKm, editor.linked)
 }
 
 function current(): PlayState {
@@ -634,6 +636,8 @@ function stepOnly(action: TripAction): void {
     locale: getLocale(),
     discover: discoverMode(play, system),
     facts: worldFactsNow(),
+    // A piece laid is read at once, as the map will keep it: its room, values and exits.
+    withLaid: (laid: LaidPiece[]) => playWorld(system, withPieces(editor.map, laid)),
   }
   // Checks roll with the map's Oracle state, the same one hand rolls use; the map's own
   // sheet is the one the campaign keeps for this map; who rolls the dice, as the player

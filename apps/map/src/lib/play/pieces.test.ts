@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createMap, mapWorld, type HexKey, type HexMap } from '@open-tabletop/map'
+import { createMap, mapWorld, withPieces, type HexKey, type HexMap } from '@open-tabletop/map'
 import { createOracleEngine } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import {
@@ -29,6 +29,8 @@ function through(
     random: seeded(seed),
     locale: 'en',
     discover: 'pieces' as const,
+    // As Map plays it: a piece laid is read at once, as the map will keep it.
+    withLaid: (laid: Parameters<typeof withPieces>[1]) => mapWorld(withPieces(editor.map, laid)),
   }
   const planned = stepTrip(options, session, { type: 'setDestination', place: to })
   const marched = stepTrip(options, planned.state, {
@@ -275,5 +277,94 @@ describe('a place kept open', () => {
     expect(ends(false).map((p) => p.id)).toEqual(['dead-end'])
     // Kept open, the three dead ends don't fit: what's laid when nothing did comes instead.
     expect(ends(true).map((p) => p.id)).toEqual(['passage'])
+  })
+})
+
+describe('a piece read as it is laid, in the Deep Barrows', () => {
+  /** The Grey Marches with one piece alone to lay, on a floor with a door to nowhere. */
+  const laying = (piece: string) => {
+    const map = createMap('', { template: 'dungeon', cells: 'square' })
+    map.grid = { ...map.grid, width: 30, height: 30 }
+    map.terrains = [
+      ...map.terrains,
+      { id: 'barrow-floor', name: 'Floor', color: '#555555', floor: true },
+    ]
+    map.hexes['15,15' as HexKey] = { terrain: 'barrow-floor' }
+    map.connections = [{ id: 'door', between: ['15,15', '15,14'], kind: 'door' }]
+    editor.load(map)
+    const marches = getSystem('grey-marches')
+    const system: TravelSystem = {
+      ...marches,
+      bindings: {
+        ...marches.bindings!,
+        discover: { ...marches.bindings!.discover!, piece: { tries: 0, otherwise: piece } },
+      },
+    }
+    return { system, session: startTrip({ system, location: '15,15', season: 'summer' }).session }
+  }
+  /** Through the door into the piece it lays, and what the checks on entering said. */
+  const enter = (seed: number) => {
+    const { system, session } = laying('crypt')
+    const done = through(system, session, '15,14', seed)
+    const crack = editor.map.connections.find((c) => c.kind === 'hidden-path')!
+    const beyond = crack.between.find((cell) => !editor.map.hexes[cell]?.terrain)!
+    const found = done.state.travel.connections?.[crack.id]?.state === 'found'
+    // Nothing else came up on the way in (an encounter waits for the player first).
+    const quiet = !done.state.travel.pendingChecks.length && !done.state.present?.length
+    return { system, done, crack, beyond, found, quiet }
+  }
+  const seeds = Array.from({ length: 16 }, (_, i) => i + 1)
+
+  it('a crypt is a room with its danger on the step that lays it, and its crack is looked for', () => {
+    let rolled = 0
+    for (const seed of seeds) {
+      const { done, crack, quiet } = enter(seed)
+      expect(editor.map.pieces?.map((p) => p.id)).toEqual(['crypt'])
+      expect(crack).toMatchObject({ name: 'A crack behind the bones' })
+      // The room the map keeps is the one the step read: its place, its danger.
+      const room = editor.map.regions.find((r) => r.onePlace)!
+      expect(mapWorld(editor.map).place(`area:${room.id}`)).toMatchObject({ danger: 2 })
+      // The check on entering saw the exit just laid: never skipped for want of it.
+      expect(
+        done.entries.some(
+          (e) => e.code === 'CHECK_SKIPPED' && e.data?.check === 'HIDDEN_PATH_CHECK_REQUIRED',
+        ),
+      ).toBe(false)
+      if (!quiet) continue
+      const told = JSON.stringify(done.entries)
+      expect(told).toContain('grey-marches/hidden-path')
+      // Told in a crypt's words (the rows for under the ground), not the hills'.
+      expect(told).toMatch(/"entry":"(nothing|found)-below"/)
+      rolled++
+    }
+    expect(rolled).toBeGreaterThan(4)
+  })
+
+  it('found, the crack is crossed and lays what is behind it; the trip keeps it by its id', () => {
+    const { system, done, beyond } = seeds.map(enter).find((e) => e.quiet && e.found)!
+    // `enter` plays every seed on the editor's map: this one again, last.
+    const again = enter(seeds.find((seed) => enter(seed).quiet && enter(seed).found)!)
+    expect(again.beyond).toBe(beyond)
+    const crossed = through(system, again.done.state, beyond, 101)
+    expect(done.state.travel.connections).toEqual(again.done.state.travel.connections)
+    expect(crossed.laid).toHaveLength(1)
+    expect(editor.map.hexes[beyond as HexKey]?.terrain).toBe('barrow-floor')
+  })
+
+  it('not found, the crack is no way on; coming by again looks for it again', () => {
+    const seed = seeds.find((s) => enter(s).quiet && !enter(s).found)!
+    const { system, done, beyond } = enter(seed)
+    const held = through(system, done.state, beyond, seed)
+    expect(held.laid).toHaveLength(0)
+    expect(held.state.travel.location).not.toBe(beyond)
+    expect(editor.map.hexes[beyond as HexKey]?.terrain).toBeUndefined()
+    // Out by the door and in again: the check comes up once more.
+    let state = held.state
+    for (let i = 0; i < 4 && state.travel.location !== '15,15'; i++)
+      state = through(system, state, '15,15', seed + i).state
+    expect(state.travel.location).toBe('15,15')
+    const room = editor.map.regions.find((r) => r.onePlace)!
+    const back = through(system, state, `area:${room.id}`, seed + 7)
+    expect(JSON.stringify(back.entries)).toContain('grey-marches/hidden-path')
   })
 })

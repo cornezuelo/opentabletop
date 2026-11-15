@@ -30,7 +30,8 @@ La tabla ve lo mismo que `discover.terrain`, más la salida que se cruza (`exit.
 2. El binding nombra una pieza. Se prueban todas las formas de colocarla, en orden aleatorio: cada entrada, cada giro y reflejo. Una forma cabe cuando la casilla a la que entró el grupo es de la pieza, la entrada encaja con la casilla de la que vino y todas las casillas caen dentro del mapa y sobre nada.
 3. Si ninguna cabe, se tira otra vez hasta **Intentos**, y luego **Si no**. Una pieza que se saldría del mapa no cabe: el borde es roca; manteniéndolo abierto, tampoco una que no dejaría camino.
 4. Sus otras salidas: una sin nada detrás se queda esperando; una que cae sobre suelo se abre ahí, una puerta entre las dos; una contra cualquier otra cosa se quita, sin decir nada, como un muro.
-5. El paso termina ahí: lo de más allá era desconocido, así que ninguna ruta pasaba por ello.
+5. El grupo está dentro, y lo que se tira al entrar lee la pieza entera, tal como la guarda el mapa: una sala como un solo lugar con sus valores (`place.danger`), sus etiquetas, y sus salidas por tipo con los suyos (`place.connections.<kind>.state`). Así, la comprobación de un camino oculto ahí sale al colocar la pieza, no en una visita posterior.
+6. El paso termina ahí: lo de más allá era desconocido, así que ninguna ruta pasaba por ello.
 
 Una pieza colocada se queda y es parte del mapa desde entonces: se puede editar en Editar, y <kbd>Ctrl</kbd>+<kbd>Z</kbd> no la deshace. Antes de cruzar no se ve nada: una salida solo muestra su tipo. Un sistema que quiera mirar por una puerta tiene una acción para ello.
 

@@ -181,8 +181,26 @@ export function createDiscovery(options: {
   places?: PlaceLookup
   /** The system's pieces, for a map that lays them. */
   pieces?: PieceLookup
+  /**
+   * The host's world with the pieces laid so far in this step on it, so the rest of the step
+   * reads them whole (a room as one place, its values, its exits and what they are). Absent,
+   * the step sees their cells' terrain and tags alone.
+   */
+  withLaid?: (laid: LaidPiece[]) => TravelWorld
 }) {
-  const { world: base, oracle, discover, reveal, locale, random } = options
+  const { world: first, oracle, discover, reveal, locale, random } = options
+  /** The host's world as it is now: with what this step laid, once the host says (`withLaid`). */
+  let base = first
+  // Whatever the host's world answers is asked of it as it is now.
+  const asked = Object.fromEntries(
+    Object.entries(first)
+      .filter(([, value]) => typeof value === 'function')
+      .map(([key]) => [
+        key,
+        (...args: unknown[]) =>
+          (base as unknown as Record<string, (...args: unknown[]) => unknown>)[key]?.(...args),
+      ]),
+  ) as Partial<TravelWorld>
   /** Found during this step, by hex. */
   const found = new Map<string, DiscoveredHex>()
   /** Laid during this step. */
@@ -194,7 +212,9 @@ export function createDiscovery(options: {
   let opener: ((hex: string, from: string) => boolean) | undefined
 
   const world: TravelWorld = {
-    ...base,
+    // The ground stays the one the step began on: what it lays is counted beside it.
+    ...first,
+    ...asked,
     entering: (hex, from) => opener?.(hex, from) ?? true,
     // Laid piece by piece, what nobody has opened is rock until a piece is laid there: a step
     // may end on an empty cell past an exit, never go on through it.
@@ -305,7 +325,8 @@ export function createDiscovery(options: {
     const counts: Record<string, number> = { ...before }
     for (const { id } of laid) counts[id] = (counts[id] ?? 0) + 1
     const total = Object.values(counts).reduce((sum, n) => sum + n, 0)
-    const gate = from === hex ? hex : ground.gate(from, hex)
+    // The cell come from, as the world is now (out of a room laid in this step, one of its cells).
+    const gate = from === hex ? hex : (base.ground ?? ground).gate(from, hex)
     const fit = {
       layout,
       free: (cell: string) => isEmpty(world, cell),
@@ -344,6 +365,7 @@ export function createDiscovery(options: {
       // Kept open: a piece that closes the place doesn't fit (but what's laid when nothing did).
       if (keepOpen && !last && !leavesOpen(done)) return false
       laid.push(done)
+      if (options.withLaid) base = options.withLaid(laid)
       for (const [cell, terrain] of Object.entries(done.cells))
         record(cell, { terrain, ...(piece.tags && { tags: piece.tags }) })
       if (piece.contents) contentsOf.set(hex, { resolve: piece.contents })

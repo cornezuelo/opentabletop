@@ -41,12 +41,10 @@ import {
   type PrintSettings,
   type TerrainType,
   type TokenKind,
+  withPieces,
 } from '@open-tabletop/map'
 import { History } from '../commands/history'
 import { ReplaceTokenCommand } from '../commands/tokens'
-
-/** The colour of a room a piece lays. */
-const ROOM_COLOR = '#6e4f2c'
 
 export type ToolId =
   | 'select'
@@ -400,35 +398,9 @@ class Editor {
    */
   applyLaid(laid: LaidPiece[]): void {
     if (!laid.length) return
-    for (const piece of laid) {
-      const cells = Object.keys(piece.cells) as HexKey[]
-      if (piece.room) {
-        const id = newId()
-        this.map.regions.push({
-          id,
-          name: piece.name,
-          color: ROOM_COLOR,
-          onePlace: true,
-          ...(piece.fields && { fields: piece.fields }),
-        })
-        for (const key of cells) this.map.hexes[key] = { ...this.map.hexes[key], region: id }
-      } else if (piece.fields)
-        for (const key of cells)
-          this.map.hexes[key] = { ...this.map.hexes[key], fields: piece.fields }
-      for (const { between, fields, ...rest } of piece.connections)
-        this.map.connections.push({
-          ...rest,
-          id: newId(),
-          between: between as [HexKey, HexKey],
-          ...(fields && { fields }),
-        })
-      this.map.pieces = [
-        ...(this.map.pieces ?? []),
-        { id: piece.id, at: piece.at as HexKey, turn: piece.turn, mirror: piece.mirror },
-      ]
-    }
-    if (laid.length)
-      this.notify({ kind: 'laid', cells: laid.flatMap((p) => Object.keys(p.cells) as HexKey[]) })
+    const { hexes, regions, connections, pieces } = withPieces(this.map, laid)
+    Object.assign(this.map, { hexes, regions, connections, pieces })
+    this.notify({ kind: 'laid', cells: laid.flatMap((p) => Object.keys(p.cells) as HexKey[]) })
   }
 
   /** The world clock: saved with the campaign, outside the undo history (like play). */

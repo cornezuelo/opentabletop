@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **The Grey Marches**: in the Deep Barrows, looking for a crypt's crack is told in a crypt's words (dust and old bones, a cold draught), not the Barrow-road's heather and cairns.
+
+### Fixes
+
+- **Map**: a piece laid as the party steps in is read whole at once by what's rolled on entering: a room with its values, its exits and what they are. Before, a way hidden in a room just laid (the Deep Barrows' _A crack behind the bones_) was never looked for until the party left and came back, so it seemed it could never be crossed.
+
 ## [0.60.1] - 2026-11-15
 
 ### Packs

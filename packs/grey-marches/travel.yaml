@@ -75,8 +75,9 @@ connections:
     extra: 60
     passable: { unless: { today.fordImpossible: true } }
   # A hidden path drawn between two far hexes (the Barrow-road, from the Barrow-halls to
-  # Hollow Gate): it can't be followed until it's found (its state in the trip, `hidden` on
-  # the map), and a check where it starts finds it (`place.connections.hidden-path.state`).
+  # Hollow Gate), or laid by a piece (a crypt's crack, in the Deep Barrows): it can't be
+  # followed until it's found (its state in the trip, `hidden` on the map), and a check
+  # where it starts finds it (`place.connections.hidden-path.state`).
   # Between far places it goes at its multiplier over its length, not the hills' speed.
   # The way down into a sub-map (the Barrow-halls under the Hollow Hills, the old mine's
   # mouth and its east adit) and back up: ten minutes more than the step, which measures nothing.
@@ -111,7 +112,7 @@ connections:
     passable: { unless: { connection.state: barred } }
   hidden-path:
     name: Hidden path
-    description: A way over the hills only the clans know; it can't be followed until found.
+    description: A way few know of, over the hills or behind a wall under them; it can't be followed until found.
     multiplier: 1.2
     passable: { when: { connection.state: found } }
 modes:

@@ -187,7 +187,7 @@ id: hidden-path
 tags: [travel, rules]
 name: Looking for the hidden path
 description: |-
-  Where a **hidden path** starts (the Barrow-road, from the Barrow-halls to Hollow Gate), the party looks for it each time it comes by, until it's found: roll a d6 plus the party's **Survival**; on 5 or more it's found, and routes may take it from then on.
+  Where a **hidden path** starts (the Barrow-road, from the Barrow-halls to Hollow Gate; a crack behind the bones of a crypt, in the Deep Barrows), the party looks for it each time it comes by, until it's found: roll a d6 plus the party's **Survival**; on 5 or more it's found, and routes may take it from then on.
 
   **Shows:**
 
@@ -195,8 +195,19 @@ description: |-
   - An effect on them, kept in the trip and never on the map: `place.connections.hidden-path.state: found`
   - A connection that can't be crossed until then: `passable: { when: { connection.state: found } }`
   - A connection between far hexes: the hexes between its ends at its kind's `multiplier`, not the hills'
+  - Rows of the same range told apart by a condition (`when: { place.floor: true }`): under the ground the same roll is told in a crypt's words
 roll: '1d6 + {{party.stats.survival}}'
 entries:
+  # Under the ground (a crypt's crack): the same roll, in its own words.
+  - id: nothing-below
+    range: 1-4
+    when: { place.floor: true }
+    result: Dust and old bones against the wall; nothing behind them
+  - id: found-below
+    range: 5-20
+    when: { place.floor: true }
+    result: 'A cold draught through the bones: a crack in the wall behind them, wide enough to pass'
+    effects: { place.connections.hidden-path.state: found }
   - { id: nothing, range: 1-4, result: Heather and stones; no sign of the path }
   - id: found
     range: 5-20

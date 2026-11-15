@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { regionCells } from '@open-tabletop/map'
 import { applyResult, partyOf, placeCharacters } from '@open-tabletop/session'
 import { tripTab } from '@open-tabletop/travel-ui'
@@ -73,6 +73,12 @@ describe('those present on the map', () => {
   })
 
   it('strikes one of those present, chosen among them as the action asks', () => {
+    // The fight's order rolls with Math.random: a fixed sequence puts a companion's turn first.
+    let seed = 7
+    vi.spyOn(Math, 'random').mockImplementation(() => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    })
     editor.open(greyMarches())
     clickHex('7,7')
     const rules = partyOf(activeSystem())
@@ -105,6 +111,7 @@ describe('those present on the map', () => {
     expect(after(ids[2])).toBe(before[2])
     const hit = after(ids[1])
     expect(hit === undefined || hit < before[1]).toBe(true)
+    vi.restoreAllMocks()
   })
 
   it('places a token from the bestiary: the template’s look and a sheet of its own', () => {

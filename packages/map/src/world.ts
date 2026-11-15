@@ -170,8 +170,9 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
   const rooms = roomsOf(map)
   if (!rooms.size) return cells
   const node = (id: string) => (parsePlaceOn(id) ? id : placeOfCell(map, id))
+  // A cell of a room stands for the room, in everything asked (a step that began on cells).
   const cellsOf = (id: string): string[] => {
-    const region = parseAreaPlace(id)
+    const region = parseAreaPlace(node(id))
     return region ? (rooms.get(region) ?? []) : [id]
   }
   /** Each cell of `a` with each cell of `b` it's next to. */
