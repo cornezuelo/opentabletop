@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.60.1] - 2026-11-15
+
 ### Packs
 
 - **The Grey Marches**: **Strike one down** is a fight's action only; with foes here and no fight, it's **Stand and fight**, **Drive them off**, **Buy them off** or leaving.
