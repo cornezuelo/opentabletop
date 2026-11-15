@@ -16,7 +16,7 @@ import {
   whyText,
   type JournalContext,
 } from './journal'
-import { conditionTeller, memberNamer } from './members'
+import { conditionTeller, leftNamer, memberNamer } from './members'
 
 const at = (day: number, clock: string) => defaultCalendar.at(day, clock)
 const entry = (time: number, code: string, rest: Partial<JournalEntry> = {}): JournalEntry => ({
@@ -585,6 +585,16 @@ describe('those present, named', () => {
     expect(es('characters.pack-leader.conditions.routed', true)).toBe(
       'Jefe de la manada da media vuelta y huye',
     )
+  })
+
+  it('one who left keeps the name it had, not its template’s', () => {
+    const journal = [entry(0, 'PRESENT_LEFT', { data: { id: 'grey-wolf-2', name: 'Grey wolf 2' } })]
+    const left = leftNamer({ journal })
+    const named = memberNamer(system, [], 'en', t, undefined, undefined, [], left)
+    expect(named('characters.grey-wolf-2.values.health')).toBe('Grey wolf 2: Health')
+    expect(named('characters.grey-wolf.values.health')).toBe('Grey wolf: Health')
+    const told = conditionTeller(system, { journal }, 'en')
+    expect(told('characters.grey-wolf-2.conditions.down', true)).toBe('Grey wolf 2 falls')
   })
 
   it('and a blocked way says where, its stop kept for the detail', () => {

@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- In a fight, a foe whose turn its system took (its nerve broke) is told in the system's words; before, it _did nothing_, going for someone, right over _turns tail and flees_.
+- One who left a fight keeps the name it had (_Bandit 2 turns tail and flees_), not its template's.
+
 ## [0.59.0] - 2026-11-15
 
 ### Travel and Map

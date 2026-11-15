@@ -238,7 +238,7 @@ export function participantName(s: SessionState, id: string): string {
 }
 
 /** The name one of those present had when it left (fell, fled): the journal says it. */
-export function leftName(s: SessionState, id: string): string | undefined {
+export function leftName(s: Pick<SessionState, 'journal'>, id: string): string | undefined {
   const left = s.journal.findLast((e) => e.code === 'PRESENT_LEFT' && e.data?.id === id)
   return typeof left?.data?.name === 'string' ? left.data.name : undefined
 }

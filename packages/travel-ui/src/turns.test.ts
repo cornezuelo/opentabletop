@@ -210,6 +210,29 @@ describe('a fight told a turn at a time', () => {
     expect(told.ended).toBeUndefined()
   })
 
+  it("a foe's turn a moment took: what the system said of it, nobody gone for, never _does nothing_", () => {
+    const told = tellFight(
+      [
+        line(1, 'ENCOUNTER_STARTED'),
+        line(2, 'ENCOUNTER_ROUND', { round: 1 }),
+        wolfTurn(3, { target: 'kael' }),
+        line(4, 'MOMENT_REACHED', { at: 'encounter.turn' }),
+        line(5, 'ACTION_TAKEN', { action: 'nerve-breaks', on: 'encounter.turn' }),
+        line(6, 'CHANGED', { path: 'characters.grey-wolf.conditions.routed', from: 0, to: 1 }),
+        line(7, 'SAID', { action: 'nerve-breaks', text: 'One of them runs.' }),
+        wolfTurn(8, { target: 'kael' }),
+        line(9, 'CHANGED', { path: 'characters.kael.values.health', from: 5, to: 3 }),
+      ],
+      context,
+      { whoName },
+    )
+    expect(told.turns[0]).toMatchObject({ what: 'One of them runs.', on: '' })
+    expect(told.turns[0]?.outcome).toEqual([expect.stringContaining('Grey wolf')])
+    expect(told.turns[0]?.more).toEqual([])
+    // Something changed with no words for it: the change alone, no sentence against it.
+    expect(told.turns[1]).toMatchObject({ what: '', on: '', outcome: ['Kael: Health: 5 → 3'] })
+  })
+
   it('its end: the rounds, who went, what it left of those still here, what its end did', () => {
     const told = tellFight(
       [

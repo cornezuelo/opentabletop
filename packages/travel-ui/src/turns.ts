@@ -216,6 +216,7 @@ function tellTurn(
     : undefined
   let what = ''
   let on = ''
+  let said: JournalEntry | undefined
   if (skipped) what = entryText(skipped, context)
   else if (taken) {
     const given = Object.values((taken.data?.params ?? {}) as Record<string, unknown>)
@@ -229,8 +230,11 @@ function tellTurn(
           .map((v) => (typeof v === 'string' ? o.whoName(v) : undefined))
           .find((n) => n !== undefined) ?? '')
   } else if (side === 'foes') {
-    what = own ? (own.text ?? '') : ''
-    on = d.target !== undefined ? targetName(d, context, o.whoName) : ''
+    // Its table's words and whom it went for; without them (a moment took its turn: its
+    // nerve broke), what the system said of it, and nobody gone for.
+    said = own ? undefined : entries.find((e) => e.code === 'SAID')
+    what = own ? (own.text ?? '') : said ? entryText(said, context) : ''
+    on = own && d.target !== undefined ? targetName(d, context, o.whoName) : ''
   }
   const stage: FightTurn['stage'] =
     side === 'party' && !taken && !skipped ? 'choosing' : last && o.waiting ? 'rolling' : 'told'
@@ -251,7 +255,7 @@ function tellTurn(
     if (!outcome.includes(text)) outcome.push(text)
     large.add(e)
   }
-  const headline = new Set([own, skipped].filter((e): e is JournalEntry => !!e))
+  const headline = new Set([own, skipped, said].filter((e): e is JournalEntry => !!e))
   const more = linesOf(
     entries.filter((e) => !large.has(e) && !headline.has(e) && !leftByTold(e, entries)),
     context,
@@ -263,7 +267,10 @@ function tellTurn(
     who: String(d.name || ''),
     side,
     stage,
-    what: what || (side === 'foes' && stage === 'told' ? context.t('fight.nothing') : ''),
+    // A foe's turn that left nothing and said nothing: said so.
+    what:
+      what ||
+      (side === 'foes' && stage === 'told' && !outcome.length ? context.t('fight.nothing') : ''),
     on,
     outcome,
     more,

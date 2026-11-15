@@ -36,9 +36,11 @@ export function memberNamer(
   party?: CharacterState,
   /** The copies of templates the trip made (those present, and those leaving), by id. */
   present?: readonly CharacterState[],
+  /** The name one who left had (a copy that fell or fled), by id. */
+  left?: (id: string) => string | undefined,
 ): (path: string) => string | undefined {
   const template = system.bestiary && lookupTemplates(system.bestiary)
-  const copyOf = copyNamer(system, present, locale)
+  const copyOf = copyNamer(system, present, locale, left)
   return (path) => {
     // A copy by its id (`characters.pack-leader.conditions.down`): "Pack leader: Down".
     const copy = copyOf(path, members)
@@ -135,14 +137,15 @@ export function memberNamer(
 
 /**
  * A copy of a template named by its id in a path (`characters.grey-wolf-2.values.health`),
- * present, leaving or gone: its name (the copy's, else its template's, else its id made
- * readable), and the value, condition or item the path names, by its template's sheet.
- * Undefined for a member's path, the party's, or anything else.
+ * present, leaving or gone: its name (the copy's, else the one it had when it left, else its
+ * template's, else its id made readable), and the value, condition or item the path names,
+ * by its template's sheet. Undefined for a member's path, the party's, or anything else.
  */
 export function copyNamer(
   system: TravelSystem,
   present: readonly CharacterState[] | undefined,
   locale: string,
+  left?: (id: string) => string | undefined,
 ): (
   path: string,
   members?: readonly CharacterState[],
@@ -159,7 +162,7 @@ export function copyNamer(
     const sheets = system.templateSheets ?? {}
     const sheet =
       sheets[copy?.sheet ?? found?.sheet ?? ''] ?? Object.values(sheets)[0] ?? system.sheet?.def
-    const name = copy?.name || sheetText(found?.name, locale) || idName(id)
+    const name = copy?.name || left?.(id) || sheetText(found?.name, locale) || idName(id)
     if (part === 'items') {
       const [item, field] = rest.split('.', 2)
       const own = copy?.items?.find((i) => i.id === item)
@@ -185,6 +188,12 @@ export function copyNamer(
   }
 }
 
+/** The name one who left had, by id, as the trip's journal says it. */
+export const leftNamer =
+  (session: Partial<Pick<SessionState, 'journal'>>) =>
+  (id: string): string | undefined =>
+    session.journal ? leftName({ journal: session.journal }, id) : undefined
+
 /** How a condition is told when gained and lost, in the pack's words (`{{name}}` the character's). */
 export type ConditionTold = { gains?: SheetText; loses?: SheetText }
 type SheetText = Parameters<typeof sheetText>[0]
@@ -196,11 +205,12 @@ type SheetText = Parameters<typeof sheetText>[0]
  */
 export function conditionTeller(
   system: TravelSystem,
-  session: Pick<SessionState, 'members' | 'present' | 'leaving'>,
+  session: Pick<SessionState, 'members' | 'present' | 'leaving'> &
+    Partial<Pick<SessionState, 'journal'>>,
   locale: string,
 ): (path: string, gained: boolean) => string | undefined {
   const copies = [...(session.present ?? []), ...(session.leaving ?? [])].map((p) => p.character)
-  const copyOf = copyNamer(system, copies, locale)
+  const copyOf = copyNamer(system, copies, locale, leftNamer(session))
   return (path, gained) => {
     const [, id, condition] = /^characters\.([^.[\]]+)\.conditions\.(.+)$/.exec(path) ?? []
     if (!id) return undefined

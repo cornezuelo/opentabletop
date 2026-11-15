@@ -10,7 +10,7 @@ import {
 import { divisionName, partName } from './dayParts'
 import { idText, type Translate } from './i18n'
 import { actionNothingOf, type JournalContext } from './journal'
-import { conditionTeller, memberNamer, whoNamed } from './members'
+import { conditionTeller, leftNamer, memberNamer, whoNamed } from './members'
 import { connectionName } from './terrains'
 
 /**
@@ -100,6 +100,7 @@ export function journalContext(o: {
       o.facts,
       session.party,
       [...(session.present ?? []), ...(session.leaving ?? [])].map((p) => p.character),
+      leftNamer(session),
     ),
     conditionTold: conditionTeller(system, session, locale),
     textOf: (value: unknown) => text(value as Parameters<typeof localize>[0]) ?? '',
