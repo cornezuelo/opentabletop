@@ -47,7 +47,7 @@ import { displace, noiseCanvas, raggedPolygon } from './noise'
 import { hatchStrokes, shadowStrips, stippleDots, type WallSide } from './dungeon'
 import { placeBetween, placeOnCell, symbolShapes, type Placement } from './symbols'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
-import { connectionsNow } from '../play/connections'
+import { connectionsNow, unseenInPlay } from '../play/connections'
 import { IconTextures } from './IconTextures'
 import { glyphShade } from './glyphs'
 import { mapStyle, styleImage } from '../styles'
@@ -594,6 +594,8 @@ export class MapRenderer {
       if (editor.highlightTag) this.drawHighlight()
       this.drawIcons()
       if (editor.map.paths.length > 0) this.drawPaths()
+      // Ground discovered shows the connections and ways on it.
+      this.drawConnections()
     } else if (change.kind === 'paths') {
       this.drawPaths()
     } else if (change.kind === 'walls') {
@@ -611,7 +613,8 @@ export class MapRenderer {
       // A building opens while the party is in it.
       this.drawRoofs()
       // What the trip changed of the connections (a gate opened, a path found).
-      if (editor.map.connections.length) this.drawConnections()
+      // The ways into other maps too: a trip discovering the map hides those not found yet.
+      this.drawConnections()
       // Those present are drawn from the play state.
       this.drawTokens()
     } else if (change.kind === 'regions') {
@@ -1322,6 +1325,8 @@ export class MapRenderer {
       if (!inBounds(a, grid) || !inBounds(b, grid)) continue
       // A door inside a building under its roof isn't seen.
       if (connection.between.every((key) => this.roofed.has(key))) continue
+      // Nor one on ground the trip hasn't discovered yet.
+      if (unseenInPlay(connection.between)) continue
       const [from, to] = [this.centerOf(a), this.centerOf(b)]
       const look = connectionLook(style, connection.kind)
       const shut = now.get(connection.id)?.open === false
@@ -1473,7 +1478,7 @@ export class MapRenderer {
     ]
     for (const [key, way, kind] of ways) {
       const cell = parseKey(key)
-      if (!inBounds(cell, grid)) continue
+      if (!inBounds(cell, grid) || unseenInPlay([key])) continue
       const c = this.centerOf(cell)
       const look = connectionLook(style, kind, true)
       if (look.symbol === 'badge' || look.symbol === 'diamond')

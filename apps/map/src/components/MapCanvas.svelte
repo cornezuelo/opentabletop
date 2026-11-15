@@ -109,9 +109,10 @@
     renderer?.drawSelection()
   })
 
-  // The selected connection, and the place one being drawn starts at.
+  // The selected connection, and the place one being drawn starts at; in Play, those on
+  // ground not discovered yet are hidden.
   $effect(() => {
-    void [editor.selectedConnection, editor.connectionStart]
+    void [editor.selectedConnection, editor.connectionStart, editor.mode]
     renderer?.drawConnections()
   })
 

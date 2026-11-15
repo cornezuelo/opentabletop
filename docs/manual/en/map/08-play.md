@@ -54,7 +54,7 @@ With a system that can discover (the Grey Marches can; their example map leaves 
 
 **What is discovered**: _the cells around the party_ (what it sees: their terrain is known before you step in, so routes and speeds are real), _only the cell the party enters_, or, with a system that has [pieces](../packs/24-pieces.md), _through exits, piece by piece_: the map grows a shape at a time where the party goes. The system chooses one; you can change it for your game.
 
-A map that is discovered and has nothing yet says so on opening it in Play, with **Start playing**: the party stands at the way that leads there, or in the middle of the map. A map laid piece by piece starts with its first piece under the party, and an arrow marks each exit nobody has crossed yet.
+A map that is discovered and has nothing yet says so on opening it in Play, with **Start playing**: the party stands at the way that leads there, or in the middle of the map. A map laid piece by piece starts with its first piece under the party, and an arrow marks each exit nobody has crossed yet. A connection or a [way into another map](13-sub-maps.md) on ground not discovered yet isn't drawn or listed in Play until one of its cells is (in Edit, everything shows): a way down left by an earlier trip waits until this one finds its ground.
 
 Cells you painted are never changed, so you can prepare part of the map and leave the rest unknown. Discoveries are part of the game, like the journal: <kbd>Ctrl</kbd>+<kbd>Z</kbd> doesn't undo them; repaint or delete by hand. Only noteworthy finds go in the journal.
 

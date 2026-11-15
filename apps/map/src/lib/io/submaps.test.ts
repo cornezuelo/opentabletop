@@ -191,6 +191,18 @@ describe('sub-maps', () => {
       const way = waysAt(laid.ways![0].at)
       expect(way.map((w) => w.map)).toEqual([below.id])
 
+      // What stands on ground not discovered is out of sight in Play, and shows once it is:
+      // a way left on a cell the trip hasn't laid (a sub-map made on an earlier trip).
+      const { unseenInPlay } = await import('../play/connections')
+      const bare = ['0,0', '23,23', '0,23'].find((c) => !editor.map.hexes[c as never]?.terrain)!
+      editor.switchMode('play')
+      expect(unseenInPlay([laid.ways![0].at])).toBe(false)
+      expect(unseenInPlay([bare])).toBe(true)
+      expect(unseenInPlay([bare, laid.ways![0].at])).toBe(false)
+      editor.switchMode('edit')
+      expect(unseenInPlay([bare])).toBe(false)
+      editor.switchMode('play')
+
       // Going down, by the stair: the new map opens, drawn like this one, its first piece laid.
       play.step({ type: 'setDestination', place: way[0].there })
       for (let i = 0; i < 12 && editor.map.meta.id === 'deepbarrows1'; i++) {

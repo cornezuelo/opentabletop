@@ -52,11 +52,11 @@ Con un sistema que sepa descubrir (las Marcas Grises saben; su mapa de ejemplo d
 - **Qué hay**, la primera vez que entras en una casilla: un punto de interés, etiquetas (un `landmark` detiene allí los viajes de las Marcas Grises), un nombre. El viaje se detiene cuando encuentras algo, para que lo juegues.
 - **Lugares con plantillas**: un sistema con [catálogos de lugares](../technical/07-kinds.md#lugares) puede hacer un lugar encontrado con uno (las ruinas, los santuarios junto al camino y la guarida del dragón de las Marcas Grises): un punto de interés con el nombre, el texto, el icono y los campos de la plantilla, y sus etiquetas en la casilla (una casilla `ruins` se puede explorar). Cualquier resultado de un viaje puede crear uno igual en la casilla del grupo (el **Explorar** de Core, con un 6, un _Hito_). El punto de interés dice **Hecho a partir de** su plantilla, y es vuestro para editarlo o quitarlo como cualquier otro.
 
-**Qué se descubre**: _los casillas alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlas, así que rutas y velocidades son reales) o _solo la casilla a la que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.
+**Qué se descubre**: _las casillas alrededor del grupo_ (lo que ve: su terreno se conoce antes de pisarlas, así que rutas y velocidades son reales) o _solo la casilla a la que entra el grupo_. El sistema elige uno; puedes cambiarlo para tu partida.
 
 Con un sistema que tiene [piezas](../packs/24-pieces.md), también _por las salidas, pieza a pieza_: el mapa crece una forma cada vez por donde va el grupo.
 
-Un mapa que se descubre y aún no tiene nada lo dice al abrirlo en Jugar, con **Empezar a jugar**: el grupo se coloca en el camino que lleva allí, o en el centro del mapa. Un mapa por piezas empieza con su primera pieza bajo el grupo, y una flecha marca cada salida que nadie ha cruzado aún.
+Un mapa que se descubre y aún no tiene nada lo dice al abrirlo en Jugar, con **Empezar a jugar**: el grupo se coloca en el camino que lleva allí, o en el centro del mapa. Un mapa por piezas empieza con su primera pieza bajo el grupo, y una flecha marca cada salida que nadie ha cruzado aún. Una conexión o un [camino a otro mapa](13-sub-maps.md) en terreno aún sin descubrir no se dibuja ni se lista en Jugar hasta que lo esté alguna de sus casillas (en Editar se ve todo): un camino hacia abajo que dejó un viaje anterior espera a que este encuentre su suelo.
 
 Las casillas que pintaste nunca se cambian, así que puedes preparar parte del mapa y dejar el resto por descubrir. Los descubrimientos son parte de la partida, como el diario: <kbd>Ctrl</kbd>+<kbd>Z</kbd> no los deshace; repinta o borra a mano. En el diario solo se apunta lo que merece la pena.
 

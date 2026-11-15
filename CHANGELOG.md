@@ -11,6 +11,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Fixes
 
 - **Map**: a piece laid as the party steps in is read whole at once by what's rolled on entering: a room with its values, its exits and what they are. Before, a way hidden in a room just laid (the Deep Barrows' _A crack behind the bones_) was never looked for until the party left and came back, so it seemed it could never be crossed.
+- **Map**: in Play, on a map being discovered, a connection or a way into another map isn't drawn or listed until its ground is discovered; a way down left by an earlier trip no longer shows from the start.
 
 ## [0.60.1] - 2026-11-15
 

@@ -1,4 +1,4 @@
-import { mapWorld } from '@open-tabletop/map'
+import { mapWorld, type HexKey } from '@open-tabletop/map'
 import { connectionsOpen, type SessionState } from '@open-tabletop/session'
 import { editor } from '../store/editor.svelte'
 import { getSystem } from './systems'
@@ -29,4 +29,16 @@ export function connectionsNow(): Map<string, ConnectionNow> {
     out.set(c.id, { open: open[i], changed: session.travel.connections?.[c.id] ?? {} }),
   )
   return out
+}
+
+/**
+ * Whether what stands on these cells (a connection, a way into another map) is kept out of
+ * sight in Play: the trip going on discovers this map and none of them is discovered yet (has
+ * no terrain). It shows once one is; while editing, everything shows.
+ */
+export function unseenInPlay(cells: readonly string[]): boolean {
+  const play = editor.map.play
+  if (editor.mode !== 'play' || play?.mode !== 'rules' || !play.discover?.on) return false
+  if (!play.rules?.session) return false
+  return !cells.some((cell) => editor.map.hexes[cell as HexKey]?.terrain)
 }

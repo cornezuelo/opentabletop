@@ -4,6 +4,7 @@
   import { factionName } from '@open-tabletop/session'
   import { getLocale, t } from '../lib/i18n/index.svelte'
   import { getSystem } from '../lib/play/systems'
+  import { unseenInPlay } from '../lib/play/connections'
   import { editor } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
   import { tooltip } from '@open-tabletop/ui-kit'
@@ -31,12 +32,14 @@
     const system = own && getSystem(own.system).factions
     const faction = holder && (system ? factionName(system, holder, getLocale()) : holder)
     const untitled = t('map.untitled')
-    const into = (editor.linked.children ?? [])
+    // Ways on ground the trip hasn't discovered aren't told.
+    const unseen = unseenInPlay([key])
+    const into = (unseen ? [] : (editor.linked.children ?? []))
       .filter((c) => c.meta.parent?.ways?.some((w) => w.place === key))
       .map((c) => t('hover.into', { name: c.meta.name || untitled }))
     const parent = editor.linked.parent
     const out =
-      parent && editor.map.meta.parent?.ways?.some((w) => w.entrance === key)
+      parent && !unseen && editor.map.meta.parent?.ways?.some((w) => w.entrance === key)
         ? t('hover.out', { name: parent.meta.name || untitled })
         : ''
     return [

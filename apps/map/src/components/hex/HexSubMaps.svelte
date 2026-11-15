@@ -14,6 +14,7 @@
   } from '../../lib/io/submaps'
   import { partyAt, sessionOf, walkTo } from '../../lib/play/play'
   import { connectionName } from '../../lib/play/systems'
+  import { unseenInPlay } from '../../lib/play/connections'
   import { editor } from '../../lib/store/editor.svelte'
   import WayArrow from './WayArrow.svelte'
 
@@ -28,7 +29,9 @@
     editing = true,
   }: { key: HexKey; name?: string; editing?: boolean } = $props()
 
-  const ways = $derived((void editor.linked, waysAt(key)))
+  const ways = $derived(
+    (void [editor.linked, editor.revision], unseenInPlay([key]) ? [] : waysAt(key)),
+  )
   /** This map's sub-maps without a way from this cell: another way into one (a tunnel's mouth). */
   const others = $derived(
     (editor.linked.children ?? []).filter((c) => !ways.some((w) => w.map === c.meta.id)),
