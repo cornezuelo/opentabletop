@@ -1,6 +1,6 @@
 # The rest of play
 
-A proposal for what is left of the review of play outside the fight (backlog: _Play, and above all the fight, reviewed again_, step 4). **To review**: nothing here is built; §4 lists what needs a decision.
+A proposal for what is left of the review of play outside the fight (backlog: _Play, and above all the fight, reviewed again_, step 4). **Decided with the author (2026-11-15, "de lo por decidir lo recomendado": the recommended answer to each question of §4)**; nothing here is built yet.
 
 The ask (author, 2026-11-14): "la UI/UX de la aplicación a la hora de jugar, especialmente el combate, es muy mejorable. Identifica puntos de mejora."
 
@@ -47,7 +47,9 @@ Looked at again in the built apps (Spanish UI, 1500×950) on 2026-11-15, after v
 - Discovery, the trail and **Remove party** move to the trip's **Options** tab, where the other settings of play already are; before a trip, under a folded **Settings**.
 - The status strip's place (_In Ashford (0608)_) is a button: it centres the map on the party.
 
-## 4. To decide
+## 4. Decided
+
+The recommended answer to each:
 
 1. **Here as a tab** (recommended), or first in the Party tab.
 2. **Characters folded by default** (recommended), or the one acting unfolded.
