@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.60.0] - 2026-11-15
+
 ### Travel and Map
 
 - **The fight's stage reads at a glance**: each side its band and its colour (the party in gold, the foes in red); larger cards, each with a face (an initial in a disc), that keep their place and size the whole fight; the round's order as a strip of faces on top, in place of numbers on the cards.
