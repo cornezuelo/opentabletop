@@ -9,6 +9,16 @@ export function sheetText(text: SheetText | undefined, locale: string): string |
 /** A value or condition a sheet leaves unnamed: its id made readable (`saddle-sore`: saddle sore). */
 export const idName = (id: string): string => id.replaceAll('-', ' ')
 
+/**
+ * Someone's initial, for a face with no picture: the first letter of their name, a number at
+ * its end kept (`Bandit 2` → `B2`); `?` for no name.
+ */
+export function initialsOf(name: string): string {
+  const first = [...name.trim()].find((c) => /\p{L}|\p{N}/u.test(c)) ?? '?'
+  const number = /(\d+)\s*$/.exec(name.trim())?.[1] ?? ''
+  return first.toLocaleUpperCase() + (number && number !== first ? number : '')
+}
+
 /** An item's name: its own (by hand, or renamed), its catalogue's, or its id made readable. */
 export function itemName(
   item: { id: string; name?: string; from?: string },

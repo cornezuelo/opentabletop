@@ -1,6 +1,6 @@
 # The stage's look
 
-A proposal for how a fight's stage looks, after [fight-stage.md](fight-stage.md) (where it lives) and [fight-turn.md](fight-turn.md) (what a turn says) were built. **To review**: nothing of it is built; §4 holds the questions, each with a recommended answer.
+A proposal for how a fight's stage looks, after [fight-stage.md](fight-stage.md) (where it lives) and [fight-turn.md](fight-turn.md) (what a turn says) were built. **Decided with the author (2026-11-15, "lo que recomiendes": the recommended answer to each question of §4) and built the same day**; §5 says what was built and what wasn't.
 
 The ask (author, 2026-11-14): "la UI/UX de la aplicación a la hora de jugar, especialmente el combate, es muy mejorable"; its part about the look was left for a proposal of its own (fight-turn.md §1, 16–24, and §4.5).
 
@@ -111,9 +111,9 @@ The closing card takes the centre and **the cards stay** as the fight left them 
 
 Each card and each token of the order carries a disc with the fighter's initial in its side's colour. When pictures for characters are built ([character-pictures.md](character-pictures.md), decided), the disc shows the portrait; the stage needs nothing else changed then.
 
-## 4. To decide
+## 4. Decided
 
-Each with the recommended answer first.
+The recommended answer to each, the first given (2026-11-15).
 
 1. **Side colours** (A): the theme's accent for the party and its danger tone for the foes (recommended); or a green and a red of their own, added to the theme; or no colour, sides told by place alone.
 2. **One who went** (B): kept on the table, struck, to the fight's end (recommended); or leaving the next round as today.
@@ -121,3 +121,8 @@ Each with the recommended answer first.
 4. **Actions on a foe** (E): chosen in the centre's bar and aimed at a card, armed already when there's only one (recommended); or a button on every card as today, smaller.
 5. **A face** (I): an initial in a disc until pictures exist (recommended); or nothing until then.
 6. **Has acted** (C): a check, cards never faded but the gone (recommended); or faded as today.
+
+## 5. Built
+
+- **A** (the party's band and cards in the theme's accent, the foes' in its danger tone: a card's top edge, its face, the order's tokens, the band's name, the turn's card and the log; bars keep their sheet's tones), **B** (travel-ui's `FightPanel`: the table as three rows, the bands fixed and the turn scrolling inside itself; cards from 200 to 300 px, a name on two lines; `tellFight`'s `roster`, so one who went keeps their card, dimmed and struck, with the condition's name, to the fight's end), **C** (who acts lifted and ringed; who the turn is aimed at, `FightTurn.onId`, with a dashed ring; who was changed shaking once, the change large; a check for who has acted), **D** (the order as a strip of faces under the header, pointing at one marking its card; no numbers on the cards), **E** (the turn's choices in one bar; an action on a foe armed there, the foe's card the button, armed already when it's the only one), **F** (the centre 640 px wide; ui-kit's dice tray draws a roll by hand of one die as that die, marked _rolled by hand_), **G** (the log's rolls as small dice, what they were for in their tooltip; a round's title sticks while its turns scroll), **H** (the closing card in the centre beside the fight's last turn, the cards still on the table; who went in the words said as it happened), **I** (character-ui's `Face` and `initialsOf`).
+- **Not built**: the computer's rolls thrown on the table without a hand (F's last point, left from fight-turn.md §5); a card as tall whatever it holds only up to a point (many conditions still make it grow); the portrait in the face waits for [character-pictures.md](character-pictures.md).

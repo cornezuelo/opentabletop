@@ -55,14 +55,12 @@ export function tripWaits(
     }
   }
   const waiting = travel.waiting
-  // A turn of the party's: chosen in the fight's panel, on the foes' cards.
+  // A turn of the party's: chosen in the fight's panel.
   if (fight?.stage === 'acting' && !waiting) {
     const view = encounterView(session)
     const acting = view?.fighters.find((f) => f.acting)
     return {
-      text: acting?.name
-        ? t('fight.yourTurnCards', { name: acting.name })
-        : t('fight.partyTurnCards'),
+      text: acting?.name ? t('fight.yourTurn', { name: acting.name }) : t('fight.partyTurn'),
     }
   }
   if (!waiting) return null

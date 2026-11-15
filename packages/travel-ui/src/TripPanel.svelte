@@ -4,6 +4,7 @@
   import {
     encounterView,
     fightStarters,
+    participant,
     participantName,
     fromCatalogue,
     presentHere,
@@ -1069,6 +1070,10 @@
           changes={fightChanges}
           {targets}
           turns={told?.turns}
+          roster={told?.roster}
+          characterOf={(id) => participant(session, id)}
+          partyName={session.party?.name ||
+            (system.partySheet && sheetText(system.partySheet.def.name, locale))}
           opening={told?.opening}
           ended={fight ? undefined : told?.ended}
           onclose={() => (over = undefined)}

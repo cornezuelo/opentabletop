@@ -71,6 +71,17 @@ function termDice(term: DiceTermResult): DrawnDie[] {
   })
 }
 
+/**
+ * A roll made by hand has only its total: when it's of one die and nothing else (`1d6`,
+ * `d20`), that die showing it; anything else stays a total.
+ */
+function handDie(expression: string, total: number): DrawnRoll['parts'] {
+  const sides = Number(/^\s*1?d(\d+)\s*$/i.exec(expression)?.[1])
+  if (!sides || total < 1 || total > sides) return []
+  const die = { shape: shapeOf(sides), face: faceOf(sides, total), dropped: false, more: [] }
+  return [{ kind: 'dice', sign: 1, dice: [{ ...die, value: total }] }]
+}
+
 /** A roll (with its breakdown) as the dice tray draws it. */
 export function drawRoll(
   r: Pick<DiceResult, 'expression' | 'terms' | 'total' | 'discarded' | 'byHand'>,
@@ -86,7 +97,7 @@ export function drawRoll(
   const discarded = r.discarded === undefined ? [] : [r.discarded].flat()
   return {
     expression: r.expression,
-    parts,
+    parts: parts.length || !r.byHand ? parts : handDie(r.expression, r.total),
     total: r.total,
     byHand: !!r.byHand,
     others: discarded.map((d) =>

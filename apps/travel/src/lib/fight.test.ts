@@ -109,7 +109,7 @@ describe('a fight on the stage', () => {
     expect([...turn.outcome, ...turn.more].join(' ')).not.toMatch(
       /present\.leave|Whoever acts|Moment:/,
     )
-    expect(fight.ended).toMatchObject({ rounds: 1, gone: ['Bandit is gone (Down)'] })
+    expect(fight.ended).toMatchObject({ rounds: 1, gone: ['Bandit falls'] })
     shown = text()
     expect(shown).not.toContain('present.leave')
   }, 30_000)

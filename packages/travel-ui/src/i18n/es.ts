@@ -293,8 +293,6 @@ export const es: Messages<typeof en> = {
     thePartyInline: 'el grupo',
     party: 'grupo',
     foes: 'enemigos',
-    yourTurnCards: 'Turno de {name}: lo que hace a un enemigo está en su tarjeta.',
-    partyTurnCards: 'Turno del grupo: lo que hace a un enemigo está en su tarjeta.',
     actOn: '{action}: {name}',
     asking: '{question} Pulsa su tarjeta.',
     nothing: 'no hace nada',
@@ -303,7 +301,8 @@ export const es: Messages<typeof en> = {
     partyTurnNow: 'Turno del grupo.',
     theirTurn: 'Turno de {name}.',
     acted: 'ya ha actuado esta ronda',
-    gone: 'se ha ido: sale del orden la ronda que viene',
+    went: 'se ha ido',
+    foesBand: 'Enemigos',
     start: 'Empezar un combate',
     startTip:
       'Empieza un combate por turnos con los que están aquí, como van los combates del sistema: se lee el orden y llega el primer turno. Aparece cuando ninguna acción del sistema empieza uno.',

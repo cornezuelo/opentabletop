@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Travel and Map
+
+- **The fight's stage reads at a glance**: each side its band and its colour (the party in gold, the foes in red); larger cards, each with a face (an initial in a disc), that keep their place and size the whole fight; the round's order as a strip of faces on top, in place of numbers on the cards.
+- **Three marks in a fight**: who acts is lifted and ringed, who the turn is aimed at has a dashed ring, who was just changed shakes once with the change large on the card. Who has acted has a check; no card is faded but that of one who went.
+- **One who fell or fled stays on the table** to the fight's end, struck, with how they went; and the cards stay under the closing card, so how the fight left everyone is in sight.
+- **Aim at a card**: on your turn, an action done to a foe is chosen in the turn's bar and the foe's whole card is the button; with one such action it's chosen already, so a blow is still one click.
+- A roll you made yourself is drawn as a die showing your total, in the turn and in the fight's log, whose rolls are small dice now.
+
 ### Fixes
 
 - In a fight, a foe whose turn its system took (its nerve broke) is told in the system's words; before, it _did nothing_, going for someone, right over _turns tail and flees_.

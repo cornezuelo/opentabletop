@@ -53,6 +53,8 @@ export interface FightTurn {
   stage: 'choosing' | 'rolling' | 'told'
   /** What they did: the action's own words (`told:`), else its name; a foe's, its table's result. */
   what: string
+  /** Whom it went for or was done to, by id ('' for nobody): their card is marked. */
+  onId: string
   /** On whom: the foe chosen, or the one a foe went for (`encounter.target`); '' for none. */
   on: string
   /**
@@ -79,8 +81,20 @@ export interface FightEnd {
   lines: string[]
 }
 
+/** One who took part in a fight, kept in their place to its end (docs/fight-look.md, B). */
+export interface FightSeat {
+  id: string
+  /** Their name ('' for the party played as a whole). */
+  name: string
+  side: 'party' | 'foes'
+  /** How they went, once they have, in few words (the condition's name); '' when unsaid. */
+  went?: string
+}
+
 /** A fight told: what started it, each turn, and how it ended once it has. */
 export interface FightTold {
+  /** Everyone who had a turn or went, in the order they were first told. */
+  roster: FightSeat[]
   opening: string[]
   turns: FightTurn[]
   ended?: FightEnd
@@ -216,6 +230,7 @@ function tellTurn(
     : undefined
   let what = ''
   let on = ''
+  let onId = ''
   let said: JournalEntry | undefined
   if (skipped) what = entryText(skipped, context)
   else if (taken) {
@@ -224,17 +239,18 @@ function tellTurn(
       ?.choice
     what = told ? textOf(told.data?.text) : (context.actionName?.(action!) ?? action!)
     // The system's own words say whom already.
-    on = told
-      ? ''
-      : ([chosen, ...given]
-          .map((v) => (typeof v === 'string' ? o.whoName(v) : undefined))
-          .find((n) => n !== undefined) ?? '')
+    onId =
+      [chosen, ...given].find(
+        (v): v is string => typeof v === 'string' && o.whoName(v) !== undefined,
+      ) ?? ''
+    on = told || !onId ? '' : (o.whoName(onId) ?? '')
   } else if (side === 'foes') {
     // Its table's words and whom it went for; without them (a moment took its turn: its
     // nerve broke), what the system said of it, and nobody gone for.
     said = own ? undefined : entries.find((e) => e.code === 'SAID')
     what = own ? (own.text ?? '') : said ? entryText(said, context) : ''
     on = own && d.target !== undefined ? targetName(d, context, o.whoName) : ''
+    onId = on ? String(d.target) : ''
   }
   const stage: FightTurn['stage'] =
     side === 'party' && !taken && !skipped ? 'choosing' : last && o.waiting ? 'rolling' : 'told'
@@ -272,11 +288,55 @@ function tellTurn(
       what ||
       (side === 'foes' && stage === 'told' && !outcome.length ? context.t('fight.nothing') : ''),
     on,
+    onId,
     outcome,
     more,
     rolls: own ? rollsOf(entries, own.data?.event, context, o) : [],
     before,
   }
+}
+
+/**
+ * One who went, as it was said while it happened: the words of the condition that made them
+ * go (_The bandit falls_), else the journal's line.
+ */
+function wentText(e: JournalEntry, context: JournalContext): string {
+  const d = e.data ?? {}
+  const told =
+    e.code === 'PRESENT_LEFT' && d.because === 'condition'
+      ? context.conditionTold?.(
+          `characters.${String(d.id)}.conditions.${String(d.condition)}`,
+          true,
+        )
+      : undefined
+  return told ?? entryText(e, context)
+}
+
+/** Everyone who had a turn or went, each once, in the order they were first told. */
+function rosterOf(entries: readonly JournalEntry[]): FightSeat[] {
+  const seats = new Map<string, FightSeat>()
+  for (const e of entries) {
+    const d = e.data ?? {}
+    const id = String(d.id ?? '')
+    if (e.code === 'ENCOUNTER_TURN' && !seats.has(id))
+      seats.set(id, {
+        id,
+        name: String(d.name || ''),
+        side: d.side === 'foes' ? 'foes' : 'party',
+      })
+    else if (e.code === 'PRESENT_LEFT' || e.code === 'MEMBER_LEFT') {
+      const seat = seats.get(id) ?? {
+        id,
+        name: String(d.name ?? ''),
+        side: e.code === 'MEMBER_LEFT' ? ('party' as const) : ('foes' as const),
+      }
+      seats.set(id, {
+        ...seat,
+        went: String(d.conditionName ?? d.condition ?? '').replaceAll('-', ' '),
+      })
+    }
+  }
+  return [...seats.values()]
 }
 
 /** How a fight ended: who went, what it left of those still here, what its end did. */
@@ -299,7 +359,7 @@ function tellEnd(
   }
   return {
     rounds: Number(after[0]?.data?.rounds) || 0,
-    gone: went.map((e) => entryText(e, context)),
+    gone: went.map((e) => wentText(e, context)),
     left: [...mains]
       .filter(([, v]) => v.from !== v.to)
       .map(([path, v]) =>
@@ -338,6 +398,7 @@ export function tellFight(
     else opening.push(e)
   }
   return {
+    roster: rosterOf(entries),
     opening: linesOf(opening, context),
     turns: turns.map((t, i) =>
       tellTurn(t.entries, linesOf(t.before, context), i === turns.length - 1 && !end, context, o),

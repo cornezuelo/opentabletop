@@ -15,7 +15,8 @@
   /**
    * The dice of one or more rolls, each die drawn as its shape with its face (d4 to d20, d%,
    * Fudge, d66 as two d6): those a keep left out faded, exploding ones chained, then what's
-   * added and the total; the totals a roll mode didn't keep, small and faded. `large` for a
+   * added and the total; the totals a roll mode didn't keep, small and faded; a roll made by
+   * hand marked so, its one die drawn showing its total when it's a single die. `large` for a
    * roll up front; `animate` rolls them as they appear (a roll just made): each tumbles and
    * bounces, its faces turning, for a moment long enough to watch (`ROLL_MS`), the total
    * shown once they settle; unless the player turned it off or the system reduces motion.
@@ -89,7 +90,8 @@
   <span class="roll" class:other={!kept}>
     {#if r.byHand}
       <span class="hand">{text.byHand}</span>
-    {:else}
+    {/if}
+    {#if r.parts.length}
       {#each r.parts as part, p (p)}
         {#if part.kind === 'mod'}
           <span class="mod">{part.text}</span>
@@ -180,6 +182,7 @@
   }
 
   .hand {
+    font-size: 11px;
     font-style: italic;
     color: var(--text-muted);
   }

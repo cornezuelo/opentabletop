@@ -75,6 +75,17 @@ describe('the dice tray', () => {
     }).body
     expect(hand).toContain('tirada a mano')
     expect(hand).toContain('= 5')
+    // One die and nothing else: drawn as that die showing the total; anything else, the total.
+    expect(hand).toMatch(/aria-label="d6: 5"/)
+    expect(drawRoll({ expression: '1d6', terms: [], total: 5, byHand: true }).parts).toEqual([
+      {
+        kind: 'dice',
+        sign: 1,
+        dice: [{ shape: 6, face: '5', dropped: false, more: [], value: 5 }],
+      },
+    ])
+    expect(drawRoll({ expression: '2d6+1', terms: [], total: 9, byHand: true }).parts).toEqual([])
+    expect(drawRoll({ expression: '1d6', terms: [], total: 9, byHand: true }).parts).toEqual([])
   })
 })
 

@@ -99,6 +99,7 @@ describe('a fight told a turn at a time', () => {
         stage: 'told',
         what: 'The wolf bites',
         on: 'Kael',
+        onId: 'kael',
         outcome: ['Kael: Health: 5 → 3'],
         more: ['Kael: wounds: 0 → 2', 'morale: 2 → 1'],
         rolls: [
@@ -233,6 +234,34 @@ describe('a fight told a turn at a time', () => {
     expect(told.turns[1]).toMatchObject({ what: '', on: '', outcome: ['Kael: Health: 5 → 3'] })
   })
 
+  it('who went is said as it was while it happened, and their seat says how', () => {
+    const told = tellFight(
+      [
+        line(1, 'ENCOUNTER_STARTED'),
+        line(2, 'ENCOUNTER_ROUND', { round: 1 }),
+        kaelTurn(3),
+        line(4, 'ACTION_TAKEN', { action: 'strike', params: { foe: 'grey-wolf' } }),
+        line(5, 'CHANGED', { path: 'characters.grey-wolf.conditions.down', from: 0, to: 1 }),
+        line(6, 'PRESENT_LEFT', {
+          id: 'grey-wolf',
+          name: 'Grey wolf',
+          because: 'condition',
+          condition: 'down',
+          conditionName: 'Down',
+        }),
+        line(7, 'ENCOUNTER_ENDED', { rounds: 1 }),
+      ],
+      context,
+      { whoName },
+    )
+    // One who went before any turn of theirs has a seat too.
+    expect(told.roster).toEqual([
+      { id: 'kael', name: 'Kael', side: 'party' },
+      { id: 'grey-wolf', name: 'Grey wolf', side: 'foes', went: 'Down' },
+    ])
+    expect(told.ended?.gone).toEqual(['The grey wolf falls'])
+  })
+
   it('its end: the rounds, who went, what it left of those still here, what its end did', () => {
     const told = tellFight(
       [
@@ -254,6 +283,13 @@ describe('a fight told a turn at a time', () => {
     )
     expect(told.turns).toHaveLength(2)
     expect(told.turns[1]?.stage).toBe('told')
+    // Whom a turn was aimed at, by id: their card is marked.
+    expect(told.turns.map((turn) => turn.onId)).toEqual(['', 'grey-wolf'])
+    // Everyone told of keeps a seat, in the order they were first told; who went, how.
+    expect(told.roster).toEqual([
+      { id: 'grey-wolf', name: 'Grey wolf', side: 'foes', went: '' },
+      { id: 'kael', name: 'Kael', side: 'party' },
+    ])
     expect(told.ended).toEqual({
       rounds: 1,
       gone: [expect.stringContaining('Grey wolf')],

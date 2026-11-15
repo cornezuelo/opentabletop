@@ -299,8 +299,6 @@ export const en = {
     thePartyInline: 'the party',
     party: 'party',
     foes: 'foes',
-    yourTurnCards: '{name}’s turn: what they do to a foe is on its card.',
-    partyTurnCards: 'The party’s turn: what it does to a foe is on its card.',
     actOn: '{action}: {name}',
     asking: '{question} Click their card.',
     nothing: 'does nothing',
@@ -309,7 +307,8 @@ export const en = {
     partyTurnNow: 'The party’s turn.',
     theirTurn: '{name}’s turn.',
     acted: 'has acted this round',
-    gone: 'gone: leaves the order next round',
+    went: 'gone',
+    foesBand: 'Foes',
     start: 'Start a fight',
     startTip:
       "Starts a fight in turns with those here, as the system's fights go: the order is read, and the first turn comes. It shows when no action of the system starts one.",

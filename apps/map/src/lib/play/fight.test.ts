@@ -39,9 +39,15 @@ describe('the fight view', () => {
     // Each one's main value, as its sheet draws it.
     expect(html).toMatch(/class="glance/)
     expect(html).toMatch(/class="main/)
-    // A companion's turn: what's done to a foe is on its card, the party's buttons hidden.
-    expect(html).toContain('what they do to a foe is on its card')
-    expect(html.match(/class="card-actions/g)).toHaveLength(2)
+    // Each side its band, a face on every card, the round's order in a strip on top.
+    expect(html).toMatch(/class="band foes/)
+    expect(html).toMatch(/class="band party/)
+    expect(html.match(/class="face/g)!.length).toBe(fighters * 2)
+    expect(html).toMatch(/class="strip/)
+    // A companion's turn: the one action on a foe is armed in the turn's bar, and each
+    // wolf's card is the button that takes it on them.
+    expect(html).toMatch(/class="arm[^"]*" aria-pressed="true"/)
+    expect(html.match(/<button class="pick/g)).toHaveLength(2)
     expect(html).toMatch(/aria-label="Strike one down: Grey wolf"/)
 
     // Strike taken without a foe: the panel asks whom, and the wolves' cards are what's clicked.
