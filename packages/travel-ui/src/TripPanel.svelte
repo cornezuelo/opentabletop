@@ -11,6 +11,7 @@
     usesOf,
     PARTY_ID,
     systemSheets,
+    templateLook,
     type Declared,
     type EncounterUnavailable,
     type YourRoll as YourRollState,
@@ -92,7 +93,7 @@
   import PartyRoster from './PartyRoster.svelte'
   import PresentHere from './PresentHere.svelte'
   import FightPanel from './FightPanel.svelte'
-  import { mainValue } from '@open-tabletop/character-engine'
+  import { lookupTemplates, mainValue } from '@open-tabletop/character-engine'
   import { ladderOf, tellFight, type CardAction, type TableRow } from './turns'
   import YourRoll from './YourRoll.svelte'
   import { setRollWay } from './rollWay'
@@ -361,6 +362,8 @@
 
   /** The sheets of the system's characters, by id: a fighter's card draws its values. */
   const sheets = $derived(systemSheets(system))
+  /** The system's templates: how each copy is drawn small (its token's icon, in a fight). */
+  const templates = $derived(system.bestiary && lookupTemplates(system.bestiary))
   /** Whom a choice asked for in a fight is among (whom to strike): chosen by their cards. */
   const targets = $derived(
     fight &&
@@ -1072,6 +1075,7 @@
           turns={told?.turns}
           roster={told?.roster}
           characterOf={(id) => participant(session, id)}
+          iconOf={(id) => templateLook(templates, participant(session, id))?.icon}
           partyName={session.party?.name ||
             (system.partySheet && sheetText(system.partySheet.def.name, locale))}
           opening={told?.opening}

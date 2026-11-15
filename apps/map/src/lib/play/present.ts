@@ -18,6 +18,7 @@ import {
   movePresent,
   partyOf,
   templateCopy,
+  templateLook,
   type Present,
   type TravelSystem,
 } from '@open-tabletop/session'
@@ -90,7 +91,7 @@ export function copyTokens(map: HexMap = editor.map): CopyToken[] {
     const c = copy.character
     const hex = dragged?.id === c.id ? dragged.hex : cellOf(copy.at)
     if (!hex) return []
-    const look = (c.template && lookup?.(c.template.id)?.template.token) ?? {}
+    const look = templateLook(lookup, c) ?? {}
     const kind = look.kind ?? 'enemy'
     return {
       id: `${PRESENT_ID}${c.id}`,

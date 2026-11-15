@@ -45,6 +45,7 @@
     turns = [],
     roster = [],
     characterOf = () => undefined,
+    iconOf = () => undefined,
     partyName = '',
     opening = [],
     ended,
@@ -81,6 +82,8 @@
     roster?: readonly FightSeat[]
     /** One still here by id, once the fight is over and `fighters` is empty: their card stays. */
     characterOf?: (id: string) => CharacterState | undefined
+    /** One's token icon by id (a template's `token.icon`), drawn as their face; none: an initial. */
+    iconOf?: (id: string) => string | undefined
     /** The party's name, over its band (_The Company_); '' for _The party_. */
     partyName?: string
     /** What started it, in words, before its first round. */
@@ -201,6 +204,9 @@
     const open = cardActions.filter((a) => !a.disabled)
     return open.find((a) => a.id === armedId) ?? (open.length === 1 ? open[0] : undefined)
   })
+  /** Each one's icon, kept once seen: one who went keeps their face to the fight's end. */
+  const icons: Record<string, string> = {}
+  const faceOf = (id: string) => (icons[id] ??= iconOf(id) ?? '') || undefined
   /** The one pointed at in the order: their card is marked. */
   let pointed = $state('')
 
@@ -307,7 +313,7 @@
               aria-current={seat.id === actorId ? 'step' : undefined}
             >
               {#snippet card()}
-                <Face name={seat.name} />
+                <Face name={seat.name} icon={faceOf(seat.id)} />
                 <span class="who">
                   {#if seat.character}
                     <CharacterGlance
@@ -393,7 +399,7 @@
           onpointerenter={() => (pointed = f.id)}
           onpointerleave={() => (pointed = '')}
         >
-          <Face name={nameOf(f)} />
+          <Face name={nameOf(f)} icon={faceOf(f.id)} />
           <span class="sr">{nameOf(f)}</span>
         </li>
       {/each}

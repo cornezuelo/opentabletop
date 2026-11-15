@@ -1,5 +1,5 @@
 // Extracts the curated icon subset from @iconify-json/game-icons into a small JSON
-// bundled with the app. Run with `npm run icons -w apps/map` after editing CATEGORIES.
+// bundled with the app. Run with `npm run icons -w packages/ui-kit` after editing CATEGORIES.
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 
@@ -236,5 +236,5 @@ const out = {
   size: set.width ?? 512,
   icons,
 }
-writeFileSync(new URL('../src/assets/icons/game-icons.json', import.meta.url), JSON.stringify(out))
+writeFileSync(new URL('../src/icons/game-icons.json', import.meta.url), JSON.stringify(out))
 console.log(`Wrote ${icons.length} icons`)

@@ -49,7 +49,7 @@ bestiary/marches:
     - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
     - Lo que más o lo menos daña a cada una, como sus etiquetas (`fears-fire`, `fireproof`, `unhallowed`, `bone`), que lee el tipo de un golpe (_El golpe acierta_)
     - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
-    - Cómo se dibuja cada una en un mapa (`token:` su icono y su tipo)
+    - Cómo se dibuja cada una en un mapa y como su cara en un combate (`token:` su icono y su tipo)
     - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada), y el de los muertos inquietos (`actions: table.dead-turn`); las demás hacen lo que dice el sistema (`encounter.foes`)
     - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, y los muertos inquietos, en su túmulo (`behind: stay`)
     - Quién es un enemigo, como etiqueta (`foe`): mientras haya uno aquí, la Compañía está _Acosada_ (su hoja), y no puede seguir la marcha ni ocuparse de otra cosa hasta que se las vea con ellos o se repliegue

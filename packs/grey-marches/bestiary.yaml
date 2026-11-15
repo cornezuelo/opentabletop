@@ -77,7 +77,7 @@ description: |-
   - Copies named from a table (`names: table.npc-names`): _Brenna_, _Corin_… instead of _Bandit 2_
   - What harms each the most or the least, as its tags (`fears-fire`, `fireproof`, `unhallowed`, `bone`), read by a blow's kind (_The blow lands_)
   - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
-  - How each is drawn on a map (`token:` its icon and kind)
+  - How each is drawn on a map and as its face in a fight (`token:` its icon and kind)
   - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
   - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, and the restless dead, in their barrow (`behind: stay`)
   - Who is a foe, as a tag (`foe`): while one is here the Company is _Beset_ (its sheet), and can't march on or busy itself with anything else until it deals with them or falls back

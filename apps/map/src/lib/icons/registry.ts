@@ -1,40 +1,16 @@
-import data from '../../assets/icons/game-icons.json'
+import { builtinSvg, getBuiltinIcon, type BuiltinIcon } from '@open-tabletop/ui-kit/icons'
 import { t, type MessageKey } from '../i18n/index.svelte'
 import type { MapAsset } from '@open-tabletop/map'
 
-export interface BuiltinIcon {
-  id: string // 'game:castle'
-  name: string
-  category: IconCategory
-  body: string // inner SVG markup, fill="currentColor"
-}
-
-export const ICON_CATEGORIES = [
-  'party',
-  'terrain',
-  'settlements',
-  'landmarks',
-  'nature',
-  'danger',
-  'modern',
-  'scifi',
-  'misc',
-] as const
-export type IconCategory = (typeof ICON_CATEGORIES)[number]
-
-const SIZE = data.size
-
-export const BUILTIN_ICONS = data.icons as BuiltinIcon[]
-const byId = new Map(BUILTIN_ICONS.map((icon) => [icon.id, icon]))
-
-export function getBuiltinIcon(id: string): BuiltinIcon | undefined {
-  return byId.get(id)
-}
-
-/** Standalone SVG for a bundled icon. Bundled content only, so it's safe to inline. */
-export function builtinSvg(icon: BuiltinIcon, color = 'currentColor'): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" style="color:${color}">${icon.body}</svg>`
-}
+// The bundled icons are shared (ui-kit); what's Map's own is its assets and the icons' names.
+export {
+  BUILTIN_ICONS,
+  builtinSvg,
+  getBuiltinIcon,
+  ICON_CATEGORIES,
+  type BuiltinIcon,
+  type IconCategory,
+} from '@open-tabletop/ui-kit/icons'
 
 export function assetIdOf(iconId: string): string | null {
   return iconId.startsWith('asset:') ? iconId.slice('asset:'.length) : null
@@ -48,7 +24,7 @@ export interface IconImage {
 
 /** Image URL to render an icon id, or null if it can't be resolved (e.g. deleted asset). */
 export function iconImage(iconId: string, assets: MapAsset[]): IconImage | null {
-  const builtin = byId.get(iconId)
+  const builtin = getBuiltinIcon(iconId)
   if (builtin) {
     const svg = builtinSvg(builtin, '#ffffff')
     return { url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`, tintable: true }

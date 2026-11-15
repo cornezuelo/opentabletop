@@ -6,10 +6,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Fights**: each one's face, on their card and in the round's order, is their template's token icon (a wolf's head), a copy's number at its edge; with none, their initial as before.
 - **Fights**: while an action on a foe is armed, the cards it can be aimed at are outlined and a line says to click one; a click elsewhere on the stage makes them beckon (or, with none armed, the turn's choices).
 
 ### Packs
 
+- **Core**: its foe has a token, crossed swords, on a map and as its face in a fight.
 - **The Grey Marches**: in the Deep Barrows, looking for a crypt's crack is told in a crypt's words (dust and old bones, a cold draught), not the Barrow-road's heather and cairns.
 
 ### Fixes

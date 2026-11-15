@@ -7,6 +7,9 @@ import { corePack, greyMarchesPack } from './core.testing'
 import { encounterView, fightStarters } from './encounter'
 import { applyResult, type JournalEntry } from './index'
 import { newMember } from './party'
+import { templateLook } from './present'
+import { templateCopy } from './index'
+import { lookupTemplates } from '@open-tabletop/character-engine'
 import {
   partyOf,
   settleTrip,
@@ -53,6 +56,18 @@ describe('the bundled packs make foes from their bestiaries', () => {
     expect(problems.filter((p) => p.at?.startsWith('@bestiary'))).toEqual([])
     expect(marches.bestiary?.map((b) => b.id)).toEqual(['grey-marches/marches'])
     expect(core.bestiary?.map((b) => b.id)).toEqual(['core/foes'])
+  })
+
+  it('each copy is drawn with its template’s token: a wolf’s head; none says none', () => {
+    const marchesTemplates = lookupTemplates(marches.bestiary!)
+    const rules = partyOf(marches)
+    const wolf = templateCopy(rules, 'grey-wolf', { id: 'w', name: 'Grey wolf' }, 'w')!
+    expect(templateLook(marchesTemplates, wolf)).toEqual({ icon: 'game:wolf-head', kind: 'enemy' })
+    expect(
+      templateLook(marchesTemplates, { template: { id: 'nobody', from: 'x' } }),
+    ).toBeUndefined()
+    expect(templateLook(marchesTemplates, {})).toBeUndefined()
+    expect(templateLook(undefined, wolf)).toBeUndefined()
   })
 
   it('the Grey Marches: wolves come with their leader, are driven off, and the pack breaks', () => {

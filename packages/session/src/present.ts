@@ -388,3 +388,18 @@ export function presentFacts(
     characters,
   }
 }
+
+/**
+ * How a copy is drawn small (a token on a map, a face in a fight): its template's `token:`
+ * (an icon, a kind, a colour), found in the templates it was made from; undefined for one
+ * made from none, or whose template doesn't say.
+ */
+export function templateLook(
+  templates: TemplateLookup | undefined,
+  character: Pick<CharacterState, 'template'> | undefined,
+): TemplateLook | undefined {
+  const id = character?.template?.id
+  return id ? templates?.(id)?.template.token : undefined
+}
+
+export type TemplateLook = NonNullable<NonNullable<ReturnType<TemplateLookup>>['template']['token']>
