@@ -117,6 +117,19 @@ describe('the bundled packs make foes from their bestiaries', () => {
     expect(done.state.members!.find((m) => m.id === 'kael')!.values.health).toBe(3)
   })
 
+  it('the Grey Marches: a lone wolf put here has no leader to lose, and stays', () => {
+    const rules = partyOf(marches)
+    const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
+    const { session } = startTrip({ system: marches, location: 'a', members, seed: 'x' })
+    const s = applyResult(session, { effects: { 'present.grey-wolf': 1 } }, {}, rules)
+    const oracle = createOracleEngine({ registry, random: seeded(1) })
+    const done = stepTrip({ system: marches, world: heath, oracle }, s, {
+      type: 'wait',
+      until: s.travel.time + 30,
+    })
+    expect(done.state.present).toHaveLength(1)
+    expect(done.entries.some((e) => e.data?.action === 'pack-breaks')).toBe(false)
+  })
   it("I roll everything: an action's own dice wait for the player, then it's played with them", () => {
     const { session } = startTrip({
       system: marches,

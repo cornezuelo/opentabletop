@@ -695,7 +695,7 @@ describe('example maps', () => {
       'stormy-dawn': { condition: 'when' }, // no storm
       'out-of-the-wood': { condition: 'when' }, // not leaving the Greywood
       'drive-off': { condition: 'when' }, // nobody here to drive off
-      strike: { condition: 'when' }, // nobody here to strike
+      strike: { condition: 'when' }, // no fight going on
       'buy-off': { condition: 'when' }, // no outlaws here
       'force-door': { condition: 'when' }, // no barred door here
       stand: { condition: 'when' }, // nobody here to fight
@@ -703,6 +703,7 @@ describe('example maps', () => {
       'nerve-breaks': { condition: 'when' }, // no foe's turn
       'mind-the-mail': { condition: 'when' }, // nobody acting carries armour
       'strip-the-fallen': { condition: 'when' }, // nobody fell
+      'pack-breaks': { condition: 'when' }, // no pack leader gone
       shieldwall: { condition: 'when' }, // no fight, and no knack
       'name-made': { condition: 'when' }, // no fight won
       'rank-up': { condition: 'when' }, // nobody risen
@@ -711,7 +712,7 @@ describe('example maps', () => {
       'ground-left': { condition: 'when' }, // the Company gave no ground
       overcome: { condition: 'when' }, // no fight lost
     })
-    expect(Object.keys(unavailable)).toHaveLength(34)
+    expect(Object.keys(unavailable)).toHaveLength(35)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

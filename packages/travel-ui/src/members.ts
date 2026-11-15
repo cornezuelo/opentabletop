@@ -230,6 +230,19 @@ export function conditionTeller(
 export const memberId = (name: string, taken: string[]): string => characterId(name, taken)
 
 /**
+ * What a new member starts as: a name of its own (`word`, numbered past the first:
+ * _Character_, _Character 2_), so sentences about it read well before it's named, and its id.
+ */
+export function freshMember(word: string, members: { id: string }[]): { id: string; name: string } {
+  const id = memberId(
+    word,
+    members.map((m) => m.id),
+  )
+  const n = /-(\d+)$/.exec(id)?.[1]
+  return { id, name: n ? `${word} ${n}` : word }
+}
+
+/**
  * Where a party stat made of the characters' values comes from, in words: "Kael's
  * Pathfinding, the highest", "Health added up: Kael, Mara". Undefined for a stat that isn't
  * made of them (a plain number, the party sheet's value) or while there are none.

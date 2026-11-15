@@ -53,6 +53,7 @@ import { bringFactions, paintTerritory, removeFactions } from './factions'
 import { currentTool } from '../tools/tools'
 import { connectionsNow } from './connections'
 import { oracleUi, rollContext } from './oracle'
+import { drawnTokens } from './present'
 import { activeSystem, mapPacks, mapSystemId, playSystems } from './systems'
 import { library } from './packs'
 
@@ -341,6 +342,28 @@ describe('playing on the map', () => {
     dialog.current!.resolve('live')
     await vi.waitFor(() => expect(session().travel.time).toBeGreaterThanOrEqual(world + 60))
     expect(editor.campaign.playing).toMatchObject({ app: 'map' })
+  })
+
+  it('a new trip here asks to pause the one going on elsewhere, so its party is drawn', async () => {
+    editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
+    const travel = { app: 'travel', id: 't1', name: 'To Keld' }
+    editor.setPlaying(travel)
+    const party = () => drawnTokens().some((p) => p.token.kind === 'party')
+    expect(party()).toBe(false)
+    // No: no trip starts, and the other goes on.
+    let asked = restartRules(editor.campaign.system!, 'spring')
+    await vi.waitFor(() => expect(dialog.current?.message).toMatch(/“To Keld”/))
+    dialog.current!.resolve('cancel')
+    expect(await asked).toBe(false)
+    expect(editor.campaign.playing).toEqual(travel)
+    // Yes: the trip starts as the campaign's, its party where it is.
+    asked = restartRules(editor.campaign.system!, 'spring')
+    await vi.waitFor(() => expect(dialog.current?.message).toMatch(/“To Keld”/))
+    dialog.current!.resolve('ok')
+    expect(await asked).toBe(true)
+    expect(editor.campaign.playing).toMatchObject({ app: 'map', id: editor.map.meta.id })
+    expect(sessionOf(editor.map.play!)).toBeTruthy()
+    expect(party()).toBe(true)
   })
 
   it('a clock moved on elsewhere: the party lives that time, or skips it as it was', async () => {

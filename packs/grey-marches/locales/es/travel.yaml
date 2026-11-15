@@ -207,7 +207,7 @@ travel-rules/default:
     strike:
       name: Golpear a uno
       told: '{{acting.name}} golpea a {{characters[params.foe].name}}'
-      description: 'Con enemigos aquí: quien actúa va a por uno de ellos, el que elijáis, por 1d6 de daño (tirado dos veces y el menor a oscuras; el mayor contra un enemigo que queda solo); los caídos se van.'
+      description: 'En un combate, en el turno de un compañero: quien actúa va a por uno de los enemigos, el que elijáis, por 1d6 de daño (tirado dos veces y el menor a oscuras; el mayor contra un enemigo que queda solo); los caídos se van.'
       params:
         foe:
           name: ¿A quién golpeáis?
@@ -313,7 +313,7 @@ travel-rules/default:
           say: 'Los forajidos cogen la comida y se pierden de nuevo por las colinas.'
     pack-breaks:
       name: La manada se desbanda
-      description: 'En cuanto falta el jefe de la manada y quedan lobos grises aquí, huyen.'
+      description: 'Al irse el jefe de la manada (caído o huido) con lobos grises todavía aquí, huyen.'
       do:
         run:
           say: 'Sin su jefe, los lobos se desbandan y huyen.'

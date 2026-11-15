@@ -30,11 +30,14 @@
 </script>
 
 <div class="tabs" bind:clientWidth={room}>
-  <!-- The tabs side by side, out of sight, only to know whether they fit. -->
-  <div class="measure" aria-hidden="true" bind:clientWidth={needed}>
-    {#each tabs as tab (tab.id)}<span class="tab"
-        >{tab.label}{#if tab.count !== undefined}<span class="count">99</span>{/if}</span
-      >{/each}
+  <!-- The tabs side by side, out of sight, only to know whether they fit: in a box with no
+       size, so tabs wider than the row never make what holds it scroll sideways. -->
+  <div class="measure" aria-hidden="true">
+    <div class="all" bind:clientWidth={needed}>
+      {#each tabs as tab (tab.id)}<span class="tab"
+          >{tab.label}{#if tab.count !== undefined}<span class="count">99</span>{/if}</span
+        >{/each}
+    </div>
   </div>
   {#if narrow}
     <select
@@ -84,10 +87,17 @@
 
   .measure {
     position: absolute;
-    display: inline-flex;
-    gap: 2px;
+    width: 0;
+    height: 0;
+    overflow: hidden;
     visibility: hidden;
     pointer-events: none;
+  }
+
+  .all {
+    display: inline-flex;
+    gap: 2px;
+    width: max-content;
     white-space: nowrap;
   }
 

@@ -809,9 +809,9 @@ actions:
   strike:
     group: groups.fight
     name: Strike one down
-    description: 'With foes here: whoever acts goes for one of them, the one you choose, for 1d6 harm (rolled twice, the lower kept, in the dark; the higher kept on a foe left alone); the fallen are gone.'
-    when: { present.count: { gte: 1 } }
-    unless: { present.tags: vale }
+    description: 'In a fight, on a companion’s turn: whoever acts goes for one of the foes, the one you choose, for 1d6 harm (rolled twice, the lower kept, in the dark; the higher kept on a foe left alone); the fallen are gone.'
+    # Only in a fight (as Fall back): a blow outside one would be answered by nobody.
+    when: { encounter.round: { gte: 1 } }
     needs: { acting: { exists: true } }
     hideWhenUnavailable: true
     # How a fight tells it (`told:`); the harm it did is told after it by itself.
@@ -969,12 +969,14 @@ actions:
     when: { acting.conditions: down }
     do:
       - { roll: table.fallen }
-  # A reaction on those present (a moment written as a condition): once the pack leader is
-  # gone (down, by hand…) with grey wolves still here, the rest of the pack runs.
+  # As the pack leader leaves (`present.leave`, the one leaving acting) with grey wolves still
+  # here, the rest of the pack runs. Not a moment written as a condition (no leader, wolves
+  # here): that would hold too for a lone wolf put here by hand, which has no leader to lose.
   pack-breaks:
     name: The pack breaks
-    description: 'Once the pack leader is gone with grey wolves still here, they run.'
-    on: { when: { present.pack-leader.count: 0, present.grey-wolf.count: { gte: 1 } } }
+    description: 'As the pack leader goes (fallen or run) with grey wolves still here, they run.'
+    on: present.leave
+    when: { acting.template: pack-leader, present.grey-wolf.count: { gte: 1 } }
     do:
       - { effects: { present.grey-wolf.conditions.routed: true } }
       - { id: run, say: 'Without their leader, the wolves break and run.' }

@@ -21,7 +21,7 @@
   import type { Snippet } from 'svelte'
   import Section from './Section.svelte'
   import { translator } from './i18n'
-  import { memberId, memberLabel } from './members'
+  import { freshMember, memberId, memberLabel } from './members'
   import { revealed } from './revealed.svelte'
 
   /**
@@ -139,9 +139,7 @@
   }
 
   function add() {
-    const taken = members.map((m) => m.id)
-    const id = memberId(t('members.newName'), taken)
-    const member = newMember(partyOf(system), { id })
+    const member = newMember(partyOf(system), freshMember(t('members.newName'), members))
     edit((s) => (s.members = [...(s.members ?? []), member]))
   }
 

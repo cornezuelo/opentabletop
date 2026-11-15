@@ -471,7 +471,15 @@ export function setMode(mode: PlayState['mode']): void {
  * other maps or trips are in it, or season); the party stays where it is. False if not.
  */
 export async function restartRules(system: string, season: Season): Promise<boolean> {
+  // A campaign has one party: a trip starting here pauses the one going on elsewhere first,
+  // else it would start with its party not drawn.
+  const other = otherTrip(editor.campaign, mapTrip())
+  if (other && !(await confirmAction(t('play.pauseOther', { trip: other.name })))) return false
   if (!(await chooseSystem(system))) return false
+  if (other) {
+    editor.setPlaying(mapTrip())
+    editor.notify({ kind: 'tokens' })
+  }
   newTrip(system, season)
   return true
 }

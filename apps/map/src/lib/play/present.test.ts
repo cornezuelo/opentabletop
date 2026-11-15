@@ -81,6 +81,12 @@ describe('those present on the map', () => {
       acting: 'mara',
     }))
     const trip = () => sessionOf(editor.map.play!)!
+    // Outside a fight nobody strikes: the action isn't open.
+    step({ type: 'action', id: 'strike' })
+    expect(trip().travel.waiting).toBeUndefined()
+    // In one, on a companion's turn (the foes before it go by themselves).
+    step({ type: 'action', id: 'stand' })
+    expect(trip().encounter?.stage).toBe('acting')
     const ids = trip().present!.map((p) => p.character.id)
     expect(ids).toHaveLength(3)
     step({ type: 'action', id: 'strike' })

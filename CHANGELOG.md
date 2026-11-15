@@ -4,6 +4,17 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **The Grey Marches**: **Strike one down** is a fight's action only; with foes here and no fight, it's **Stand and fight**, **Drive them off**, **Buy them off** or leaving.
+- **The Grey Marches**: **The pack breaks** as its leader goes; a lone wolf put here by hand no longer runs at once.
+
+### Fixes
+
+- **Map**: **New trip** on a map whose campaign has another trip going on asks to pause that one first; before, the trip started with its party not drawn until the first step.
+- A new character of a trip is named _Character_ (_Character 2_…), not left with a lower-case id in every sentence about it.
+- A panel with tabs too wide for it no longer scrolls sideways by a pixel (Map's Play panel).
+
 ## [0.60.0] - 2026-11-15
 
 ### Travel and Map
