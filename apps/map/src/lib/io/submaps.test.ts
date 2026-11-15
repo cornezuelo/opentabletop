@@ -484,6 +484,12 @@ describe('sub-maps', () => {
   })
 
   it('the trip goes down the Barrow-halls’ stair and back out by it', async () => {
+    // The trip rolls with Math.random: a fixed sequence makes every run the same.
+    let seed = 42
+    vi.spyOn(Math, 'random').mockImplementation(() => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    })
     vi.resetModules()
     const actions = await import('./actions.svelte')
     const { exampleMaps } = await import('./examples')
@@ -500,6 +506,8 @@ describe('sub-maps', () => {
     const march = async (done: () => boolean) => {
       for (let i = 0; i < 20 && !done(); i++) {
         for (const c of trip().travel.pendingChecks) play.resolvePending(c.id)
+        // Whoever the way brought is sent off by hand: with foes here the Company can't march on.
+        play.editSession((s) => ({ ...s, present: [] }))
         play.step({ type: 'action', id: 'march', with: { until: 'place' } })
         await settle()
       }
