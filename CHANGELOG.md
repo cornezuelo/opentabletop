@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.59.0] - 2026-11-15
+
 ### Travel and Map
 
 - **A fight's turn is told in one piece**: who does what to whom, its dice under what each is for (and, for a short table, what each total gives, the row it fell on lit), then what it left, large (_2 harm, steel_, _Bandit: Health 2 → 0_, _The bandit falls_, each said once), the rest folded under **And 3 more**. While a turn waits for your roll nothing is said of what it hasn't done; the log is a line a turn under its round.
