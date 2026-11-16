@@ -31,6 +31,9 @@ export const es: Messages<typeof en> = {
     weight: 'peso {weight}',
     then: 'luego {target}',
     conditional: 'solo si {condition}',
+    ruledOut: '{n} más que aquí no pueden salir',
+    ruledOutHelp:
+      'Filas cuyas condiciones no se cumplen con lo que se sabe aquí (el lugar, el grupo, la hora…): esta tirada no puede darlas ahora. Siguen siendo parte de la tabla, y salen donde sus condiciones se cumplen.',
     dice: 'Dados',
     details: 'Detalles',
     error: 'No se pudo tirar: {message}',

@@ -6,6 +6,7 @@
   import { DiceThrow, dicePreferences, InfoTip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
+  import { ruledOut } from './ruledOut'
   import { entryOdds, rollOdds } from './odds'
   import ResultCard from './ResultCard.svelte'
 
@@ -132,6 +133,17 @@
       .join(', ')
 
   const chosen = $derived(throwing ? undefined : shown?.resolution.entry)
+
+  /**
+   * The rows that can't come up here (their conditions don't hold with what the host knows),
+   * folded under the rest; the one that came up always stays in sight.
+   */
+  const out = $derived.by(() => {
+    if (!list) return new Set<string>()
+    const set = ruledOut(list.entries, mergeContext(context, parseContext(values)))
+    if (chosen) set.delete(chosen)
+    return set
+  })
 
   /**
    * The odds of each entry with the context typed and the mode chosen (rolled many times by
@@ -268,26 +280,8 @@
     {/if}
     <table>
       <tbody>
-        {#each list.entries as entry (entry.key)}
-          <tr class:chosen={chosen === entry.key}>
-            <td class="range">{range(entry, list)}</td>
-            {#if odds}<td class="odds">{percent(odds.entries.get(entry.key) ?? 0)}</td>{/if}
-            <td>
-              {ui.entryText(def, entry) ?? ''}
-              {#if entry.ref}
-                <span class="muted">
-                  {t('roll.then', {
-                    target: entry.ref.dynamic ? entry.ref.target : ui.nameOf(entry.ref.target),
-                  })}</span
-                >
-              {/if}
-              {#if entry.when}
-                <span class="cond"
-                  >{t('roll.conditional', { condition: condition(entry.when) })}</span
-                >
-              {/if}
-            </td>
-          </tr>
+        {#each list.entries.filter((e) => !out.has(e.key)) as entry (entry.key)}
+          {@render row(entry)}
         {/each}
         {#if odds && odds.nothing > 0}
           <tr>
@@ -298,10 +292,55 @@
         {/if}
       </tbody>
     </table>
+    {#if out.size}
+      <details class="out">
+        <summary
+          >{t('roll.ruledOut', { n: out.size })}<InfoTip text={t('roll.ruledOutHelp')} /></summary
+        >
+        <table>
+          <tbody>
+            {#each list.entries.filter((e) => out.has(e.key)) as entry (entry.key)}
+              {@render row(entry)}
+            {/each}
+          </tbody>
+        </table>
+      </details>
+    {/if}
   {/if}
 </div>
 
+{#snippet row(entry: CompiledEntry)}
+  <tr class:chosen={chosen === entry.key}>
+    <td class="range">{range(entry, list!)}</td>
+    {#if odds}<td class="odds">{percent(odds.entries.get(entry.key) ?? 0)}</td>{/if}
+    <td>
+      {ui.entryText(def, entry) ?? ''}
+      {#if entry.ref}
+        <span class="muted">
+          {t('roll.then', {
+            target: entry.ref.dynamic ? entry.ref.target : ui.nameOf(entry.ref.target),
+          })}</span
+        >
+      {/if}
+      {#if entry.when}
+        <span class="cond">{t('roll.conditional', { condition: condition(entry.when) })}</span>
+      {/if}
+    </td>
+  </tr>
+{/snippet}
+
 <style>
+  .out summary {
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .out table {
+    margin-top: 6px;
+    opacity: 0.75;
+  }
+
   .roll {
     display: flex;
     flex-direction: column;

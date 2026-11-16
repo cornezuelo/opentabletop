@@ -12,6 +12,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
+    "@open-tabletop/conditions": "*",
     "@open-tabletop/dice": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/pack-ui": "*",

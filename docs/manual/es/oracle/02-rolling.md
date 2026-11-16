@@ -14,6 +14,8 @@ Algunas definiciones leen valores: el terreno, la estación, un modificador… E
 
 En Mapa estos valores vienen del mapa y del viaje; consulta [Oráculo en el mapa](../map/09-oracle.md).
 
+Con un contexto, las entradas que no pueden salir con él (su `when` / `unless` no se cumple: un encuentro nocturno de día, uno de pantano en las colinas) salen de la lista a una línea plegada bajo ella, _3 más que aquí no pueden salir_, que se abre para verlas; la entrada que salió siempre queda a la vista. Una condición que tira dados (`place.danger: { lt: '{{1d6}}' }`) puede cumplirse o no, así que su entrada se queda. Sin nada escrito, se ven todas.
+
 ## Modos de tirada (ventaja y otros)
 
 Algunas tablas se pueden tirar de más de una forma: un **modo de tirada** tira toda la tirada varias veces y se queda con un total. Qué modos hay, cómo se llaman y qué hacen lo decide cada sistema: Core tiene **Ventaja** (dos veces, el más alto) y **Desventaja** (dos veces, el más bajo); las Marcas Grises añaden **Con cuidado** (tres veces, el del medio) para el vado. Una tabla que ofrece modos muestra una opción junto a **Tirar**; su ayuda (pulsa **Modo de tirada**) dice qué hace cada uno. La tarjeta del resultado muestra los totales que no se quedaron.

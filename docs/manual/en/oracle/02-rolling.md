@@ -14,6 +14,8 @@ Some definitions read values: the terrain, the season, a modifier… The **Conte
 
 In Map these values come from the map and the trip; see [The Oracle in the map](../map/09-oracle.md).
 
+With a context, the entries that can't come up with it (their `when` / `unless` doesn't hold: a night's encounter by day, a marsh's on the hills) leave the list for a folded line under it, _3 more that can't come up here_, which opens to show them; the entry rolled always stays in sight. A condition that rolls dice (`place.danger: { lt: '{{1d6}}' }`) may hold or not, so its entry stays. With nothing typed, every entry shows.
+
 ## Roll modes (advantage and others)
 
 Some tables can be rolled in more than one way: a **roll mode** rolls the whole roll several times and keeps one total. Which modes exist, what they're called and what they do is up to each system: Core has **Advantage** (twice, keep the higher) and **Disadvantage** (twice, keep the lower); the Grey Marches add **Carefully** (three times, keep the middle one) for the ford. A table that offers modes shows a choice next to **Roll**; its help (click **Roll mode**) says what each one does. The result card shows the totals that weren't kept.

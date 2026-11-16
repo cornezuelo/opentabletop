@@ -28,6 +28,9 @@ export const en = {
     weight: 'weight {weight}',
     then: 'then {target}',
     conditional: 'only if {condition}',
+    ruledOut: '{n} more that can’t come up here',
+    ruledOutHelp:
+      'Rows whose conditions don’t hold with what is known here (the place, the party, the time…): this roll can’t give them now. They’re still part of the table, and come up where their conditions hold.',
     dice: 'Dice',
     details: 'Details',
     error: 'Could not roll: {message}',
