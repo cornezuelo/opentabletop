@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **The Grey Marches**: bandits are drawn as a cowled outlaw, not a cloaked figure that looked like a witch on a broom; a traveller as a walker with a staff (its boot wasn't among the bundled icons, so it had none); the Hollow Hills' guarded tomb has its tombstone again.
+
 ### Fixes
 
 - **Map**: dragging the party's token in Play no longer drags those present on its hex with it: they stay where they are, and the party walks there once dropped (if it can).

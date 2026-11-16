@@ -132,7 +132,7 @@ templates:
     tags: [foe, people, outlaw]
     values: { toughness: '{{1d6+1}}', harm: 1, morale: 7 }
     items: { ration: '{{1d2}}' }
-    token: { icon: 'game:hooded-figure', kind: enemy }
+    token: { icon: 'game:cowled', kind: enemy }
   bandit-chief:
     like: bandit
     name: Bandit chief
@@ -149,7 +149,7 @@ templates:
     names: table.npc-names
     tags: [people, traveller]
     values: { survival: 1, charisma: '{{1d2}}', health: 3 }
-    token: { icon: 'game:walking-boot', kind: npc }
+    token: { icon: 'game:hiking', kind: npc }
     behind: leave
   vale-rider:
     # An NPC type on the companions' own sheet: a rider of the Vale's patrol.

@@ -1577,7 +1577,7 @@
               "id": "game:temple-gate"
             },
             "10,8": {
-              "id": "game:tomb",
+              "id": "game:tombstone",
               "fields": [
                 {
                   "key": "guards",
