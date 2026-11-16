@@ -1356,6 +1356,8 @@ export function createSession(options: {
           /** The check waits for the player's next roll. */
           const waitFor = (wanted: Wanted, said?: string) => {
             const { dice, mode, how, source, target } = wanted.roll
+            // What came up so far: the result once known, else the row it's rolled inside.
+            const told = said ?? wanted.roll.within
             const yours: YourRoll = {
               id: event.check.id,
               table: binding.resolve!,
@@ -1365,7 +1367,7 @@ export function createSession(options: {
               ...(source && source !== definitionId(binding.resolve!) && { of: source }),
               ...(who !== undefined && { who }),
               ...(target !== undefined && { target }),
-              ...(said && { said }),
+              ...(told && { said: told }),
               ...(prior?.given.length && { given: prior.given }),
               seed,
               key,

@@ -404,20 +404,24 @@ describe('tables', () => {
         return totals.shift()
       },
     })
-    // The player's 2 is wolves; their count, 2d6, is the player's too.
+    // The player's 2 is wolves; their count, 2d6, is the player's too, said inside its row.
     expect(wanted).toEqual([
       { dice: '1d6', source: 'test/encounters' },
-      { dice: '2d6', source: 'test/encounters' },
+      { dice: '2d6', source: 'test/encounters', within: '… lobos' },
     ])
     expect(resolution.text).toBe('9 lobos')
     expect(record.rolls[0]).toEqual({ expression: '1d6', terms: [], total: 2, byHand: true })
     // A roll left to the engine (undefined) is rolled: a 5 follows the ruins, whose 1d2 is the engine's.
     const nested = createOracleEngine({ registry, random: sequence([0.75]) })
     const given = [5]
+    const asked: WantedRoll[] = []
     expect(
-      nested.resolve('test/encounters', {}, undefined, { yours: () => given.shift() }).resolution
-        .text,
+      nested.resolve('test/encounters', {}, undefined, {
+        yours: (roll) => (asked.push(roll), given.shift()),
+      }).resolution.text,
     ).toBe('Cripta')
+    // The table a row leads to says its own name (its source); a row with no text says none.
+    expect(asked[1]).toEqual({ dice: '1d2', source: 'test/ruins' })
   })
 
   it("says a player's roll with the values it reads", () => {

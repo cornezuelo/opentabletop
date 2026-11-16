@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Rolling yourself**: a roll inside a result (how much silver, how many wolves) says the row it belongs to, what's still to roll as `…` (_A purse: … silver_).
 - **Fights**: each one's face, on their card and in the round's order, is their template's token icon (a wolf's head), a copy's number at its edge; with none, their initial as before.
 - **Oracle**: a table's entries that can't come up with the context given (a night's encounter by day, rolled from Map) are folded under the list, _3 more that can't come up here_; the rest, and the one rolled, stay in sight.
 - **Fights**: while an action on a foe is armed, the cards it can be aimed at are outlined and a line says to click one; a click elsewhere on the stage makes them beckon (or, with none armed, the turn's choices).

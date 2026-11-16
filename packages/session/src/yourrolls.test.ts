@@ -192,8 +192,14 @@ describe('rolls inside a result', () => {
     expect(done.state.yours?.[0]?.dice).toBe('1d6')
     // The table's 5: the arrows; then their volleys, written in its text.
     let next = stepTrip(options, done.state, { type: 'rolled', id, total: 5 })
+    // It says the row it belongs to, the dice still to roll as `…`.
     expect(next.state.yours).toEqual([
-      expect.objectContaining({ dice: '1d2', given: [5], table: 'wild/ambush' }),
+      expect.objectContaining({
+        dice: '1d2',
+        given: [5],
+        table: 'wild/ambush',
+        said: 'Arrows: … volleys',
+      }),
     ])
     next = stepTrip(options, next.state, { type: 'rolled', id, total: 2 })
     // Then each one's harm, whom it's for and what came up said.

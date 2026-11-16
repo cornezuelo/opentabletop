@@ -108,6 +108,12 @@ export interface WantedRoll {
   how?: DiceMode
   /** The definition rolling it (full id): a table, or one a result led to. */
   source: string
+  /**
+   * The row it's rolled inside, as written, its rolls and values not known yet shown as `…`
+   * (_A purse: … silver_): a roll in a result's text, `set` or effects, or of the table it
+   * leads to. Absent: the table's own roll.
+   */
+  within?: string
 }
 
 export type OracleEvent =
@@ -312,6 +318,8 @@ class Run {
    * that asks for the same dice sees the same roll (a roll-under and its `unless`).
    */
   private conditionRolls = new Map<string, number>()
+  /** The rows being applied, outermost first, as `WantedRoll.within` says them. */
+  private within: string[] = []
 
   /** Whether a condition holds, its dice rolled once in this resolution. */
   private holds(
@@ -562,6 +570,23 @@ class Run {
     node: Resolution,
   ): void {
     node.entry = entry.key
+    // What's rolled from here on (its values, the table it leads to, its text) is inside it.
+    this.within.push(template ? template.replace(/\{\{[^}]*\}\}/g, '…').trim() : '')
+    try {
+      this.enter(def, entry, template, context, depth, node)
+    } finally {
+      this.within.pop()
+    }
+  }
+
+  private enter(
+    def: Compiled,
+    entry: Pick<CompiledEntry, 'key' | 'ref' | 'set' | 'effects' | 'pause' | 'notable'>,
+    template: string | undefined,
+    context: Record<string, unknown>,
+    depth: number,
+    node: Resolution,
+  ): void {
     const set = this.evalValues(entry.set, context, node)
     let child: Resolution | undefined
     if (entry.ref) {
@@ -664,10 +689,12 @@ class Run {
     if (this.yours && filled !== undefined) {
       // Without what adds or takes nothing (`1d6 + 0`, a modifier missing today).
       const dice = filledRoll(filled, context).replace(/\s*[+-]\s*0(?![\d.])/g, '')
+      const within = this.within.findLast(Boolean)
       const total = this.yours({
         dice,
         ...(mode && { mode: mode.id, how: howOf(mode) }),
         source: node?.source ?? '',
+        ...(within && { within }),
       })
       if (total !== undefined) {
         // The total the player rolled, kept as the roll (no dice of the engine's).
