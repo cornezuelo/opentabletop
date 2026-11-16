@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Fixes
+
+- **Map**: dragging the party's token in Play no longer drags those present on its hex with it: they stay where they are, and the party walks there once dropped (if it can).
+
 ## [0.62.0] - 2026-11-16
 
 ### Apps

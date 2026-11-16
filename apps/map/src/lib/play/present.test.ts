@@ -72,6 +72,31 @@ describe('those present on the map', () => {
     expect(copyTokens()).toEqual([])
   })
 
+  it('leaves those present where they are while the party’s token is dragged away', () => {
+    editor.open(greyMarches())
+    clickHex('7,7')
+    editSession((s) =>
+      applyResult(s, { effects: { 'present.grey-wolf': 2 } }, {}, partyOf(activeSystem())),
+    )
+    const here = sessionOf(editor.map.play!)!.travel.location
+    const { id: party, hex: from } = editor.map.tokens.find((t) => t.kind === 'party')!
+    editor.tool = 'play'
+    setTokenHitTest((world) => (world.x === 0 ? party : null))
+    const info = { button: 0, alt: false, ctrl: false, shift: false, pickRadius: 1 }
+    const tool = currentTool()
+    tool.down({ col: 7, row: 7 }, { ...info, world: { x: 0, y: 0 } })
+    tool.move({ col: 9, row: 7 }, { ...info, world: { x: 50, y: 0 } })
+    // The party's token is drawn where it's dragged; the wolves stay on their hex.
+    expect(editor.map.tokens.find((t) => t.id === party)!.hex).toBe('9,7')
+    expect(copyTokens().map((t) => t.hex)).toEqual([here, here])
+    // Dropped there, the party tries to walk (beset, it can't): it and they are where they were.
+    tool.up()
+    expect(sessionOf(editor.map.play!)!.travel.location).toBe(here)
+    expect(editor.map.tokens.find((t) => t.id === party)!.hex).toBe(from)
+    expect(copyTokens().map((t) => t.hex)).toEqual([here, here])
+    setTokenHitTest(() => null)
+  })
+
   it('strikes one of those present, chosen among them as the action asks', () => {
     // The fight's order rolls with Math.random: a fixed sequence puts a companion's turn first.
     let seed = 7

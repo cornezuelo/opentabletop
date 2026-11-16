@@ -84,9 +84,11 @@ export function copyTokens(map: HexMap = editor.map): CopyToken[] {
   const session = map.play && sessionOf(map.play)
   const party = map.tokens.find((t) => t.kind === 'party')?.hex
   // Where each is drawn: with the party at its place (a room's cell where the party stands),
-  // else the place's cell; none when it's in another map.
+  // else the place's cell; none when it's in another map. The party's token dragged off its
+  // place (walking there once dropped) leaves them where they are.
+  const withParty = party && placeOfCell(map, party) === session?.travel.location
   const cellOf = (at: string) =>
-    at === session?.travel.location && party ? party : cellOfPlace(map, at)
+    at === session?.travel.location && withParty ? party : cellOfPlace(map, at)
   return present.flatMap((copy) => {
     const c = copy.character
     const hex = dragged?.id === c.id ? dragged.hex : cellOf(copy.at)
