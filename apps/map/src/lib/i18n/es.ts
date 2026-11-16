@@ -619,6 +619,11 @@ export const es: Messages = {
     copiesApart: 'Dibujar copias aparte',
     copiesApartHelp:
       'Los presentes (las copias que los resultados de un viaje hacen del bestiario del sistema) se dibujan en las casillas donde se hicieron. Hasta seis tokens en una casilla se dibujan separados; a partir de ahí, las copias de una misma plantilla son un solo token con cuántas son (×6), y lo que aún no cabe es una ficha (+3). Marcado, cada copia se dibuja aparte, sean cuantas sean. Al seleccionar una casilla se lista todo lo que hay en ella en **Aquí**.',
+    start: 'Empezar un viaje',
+    withoutRules: 'O juega sin reglas: solo mueve la ficha del grupo',
+    withoutRulesHelp:
+      'Juego simple: un clic pone la ficha en esa casilla al momento, sin ruta, tiempo ni tiradas; solo se guarda su rastro. **Empezar un viaje** juega con las reglas del sistema cuando quieras.',
+    settings: 'Ajustes',
     placeHelp: 'Haz clic en una casilla para colocar al grupo.',
     placeFirst: 'El viaje empieza donde está el grupo: haz clic en una casilla para ponerlo.',
     paused: 'El viaje está en pausa y te espera: sigue desde la franja sobre el mapa.',

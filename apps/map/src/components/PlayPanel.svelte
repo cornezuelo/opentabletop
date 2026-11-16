@@ -119,37 +119,43 @@
         {t('play.otherSystem', { trip: systemLabel(system.id), map: systemLabel(mapSystem) })}
       </p>
     {/if}
-    {#if system.bindings?.discover}
-      {@const discover = play.discover}
-      <div class="discover">
-        <label class="check">
-          <input
-            type="checkbox"
-            checked={!!discover?.on}
-            onchange={(e) => setDiscover({ ...discover, on: e.currentTarget.checked })}
-          />
-          {t('play.discover')}
-          <InfoTip text={t('play.discoverHelp')} />
-        </label>
-        {#if discover?.on}
-          <select
-            aria-label={t('play.reveal')}
-            value={discover.reveal ?? system.bindings.discover.reveal}
-            onchange={(e) =>
-              setDiscover({
-                on: true,
-                reveal: e.currentTarget.value as 'neighbors' | 'entered' | 'pieces',
-              })}
-          >
-            <option value="neighbors">{t('play.revealNeighbors')}</option>
-            <option value="entered">{t('play.revealEntered')}</option>
-            {#if system.bindings.discover.piece}
-              <option value="pieces">{t('play.revealPieces')}</option>
-            {/if}
-          </select>
-        {/if}
-      </div>
-    {/if}
+  {/if}
+
+  {@render settings()}
+{/snippet}
+
+<!-- What's set once: how the map is discovered, the trail, the party taken off. -->
+{#snippet settings()}
+  {#if system.bindings?.discover}
+    {@const discover = play?.discover}
+    <div class="discover">
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={!!discover?.on}
+          onchange={(e) => setDiscover({ ...discover, on: e.currentTarget.checked })}
+        />
+        {t('play.discover')}
+        <InfoTip text={t('play.discoverHelp')} />
+      </label>
+      {#if discover?.on}
+        <select
+          aria-label={t('play.reveal')}
+          value={discover.reveal ?? system.bindings.discover.reveal}
+          onchange={(e) =>
+            setDiscover({
+              on: true,
+              reveal: e.currentTarget.value as 'neighbors' | 'entered' | 'pieces',
+            })}
+        >
+          <option value="neighbors">{t('play.revealNeighbors')}</option>
+          <option value="entered">{t('play.revealEntered')}</option>
+          {#if system.bindings.discover.piece}
+            <option value="pieces">{t('play.revealPieces')}</option>
+          {/if}
+        </select>
+      {/if}
+    </div>
   {/if}
 
   <label class="check">
@@ -203,25 +209,11 @@
   {#if party?.hex}<HexSubMaps key={party.hex} editing={false} />{/if}
 {/snippet}
 
-{#if !party?.hex}
-  <p class="hint">{t('play.placeHelp')}</p>
-{:else if (play?.mode ?? 'simple') === 'simple'}
-  <p class="hint">{t('play.simpleHelp', { hex: coord(party.hex) })}</p>
-{/if}
-
 {#if play?.away}
   {@const away = play.away}
   <p class="away">
     {t('submap.away', { name: awayName(away) })}
     <button class="link" onclick={() => openLibraryMap(away)}>{t('submap.openAway')}</button>
-  </p>
-{/if}
-
-{#if play?.mode === 'rules' && !travels(system)}
-  <p class="hint">
-    {loaded
-      ? t('play.noTravel', { system: systemLabel(system.id) })
-      : t('map.systemMissing', { system: system.id })}
   </p>
 {/if}
 
@@ -255,10 +247,87 @@
     options={mapOptions}
   />
 {:else}
-  {@render mapOptions()}
+  <!-- No trip yet: the one thing to do first, then how to do without rules; what's set once
+       folded under it. -->
+  <div class="start">
+    {#if !party?.hex}
+      <p class="hint">{t('play.placeHelp')}</p>
+    {:else if (play?.mode ?? 'simple') === 'simple'}
+      <p class="hint">{t('play.simpleHelp', { hex: coord(party.hex) })}</p>
+    {/if}
+    {#if travels(system)}
+      <TripSetup
+        systems={playSystems()}
+        system={mapSystem}
+        locale={getLocale()}
+        bind:season={newSeason}
+        startNote={editor.world ? t('play.worldStart') : undefined}
+        systemNote={t('play.systemNote')}
+        primary
+        startLabel={t('play.start')}
+        onrestart={async (system, season) =>
+          (!play?.away ||
+            (await confirmAction(t('submap.confirmNewTrip', { name: awayName(play.away) })))) &&
+          restartRules(system, season)}
+      />
+    {:else}
+      <p class="hint">
+        {loaded
+          ? t('play.noTravel', { system: systemLabel(system.id) })
+          : t('map.systemMissing', { system: system.id })}
+      </p>
+    {/if}
+    {#if (play?.mode ?? 'simple') !== 'simple' || !party?.hex}
+      <span class="without"
+        ><button class="link" onclick={() => setMode('simple')}>{t('play.withoutRules')}</button
+        ><InfoTip markdown={t('play.withoutRulesHelp')} /></span
+      >
+    {/if}
+  </div>
+  <details class="settings">
+    <summary class="overline">{t('play.settings')}</summary>
+    <div class="settings-body">{@render settings()}</div>
+  </details>
 {/if}
 
 <style>
+  .start {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+  }
+
+  .start .hint {
+    margin: 0;
+  }
+
+  .without {
+    align-self: flex-start;
+    font-size: 13px;
+  }
+
+  .without .link {
+    text-align: left;
+  }
+
+  .settings {
+    margin-top: 10px;
+  }
+
+  .settings summary {
+    cursor: pointer;
+  }
+
+  .settings-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
   .away {
     margin: 0 0 8px;
     padding: 6px 8px;

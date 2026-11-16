@@ -55,6 +55,7 @@ export const en = {
   dayLine: 'Day {day} of the trip · {clock} · {season}',
   sceneLine: '{clock} · {season}',
   at: 'At {hex}',
+  showPlace: 'Show where the party is on the map',
   weather: 'Weather: {weather}',
   destination: 'Heading to {hex}',
   arrived: 'Arrived.',

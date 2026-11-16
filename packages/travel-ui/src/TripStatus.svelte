@@ -41,6 +41,7 @@
     facts,
     onstep,
     onshow,
+    onplace,
   }: {
     system: TravelSystem
     session: SessionState
@@ -64,6 +65,8 @@
     onstep?: (action: TripAction) => void
     /** Shows the trip's panel, for a pause that asks for a choice. */
     onshow?: () => void
+    /** Where the trip stands is a button: the host shows it (Map centres the map on it). */
+    onplace?: () => void
   } = $props()
 
   const t = translator(() => locale)
@@ -196,7 +199,16 @@
     <strong>{t(scene ? 'sceneLine' : 'dayLine', time)}</strong>
     {#if !strip}{@render longForm()}{/if}
     {#if !scene}
-      <span>{t('at', { hex: hexLabel(travel.location) })}</span>
+      {#if onplace}
+        <button
+          class="link place"
+          use:tooltip={t('showPlace')}
+          aria-label={t('showPlace')}
+          onclick={onplace}>{t('at', { hex: hexLabel(travel.location) })}</button
+        >
+      {:else}
+        <span>{t('at', { hex: hexLabel(travel.location) })}</span>
+      {/if}
     {/if}
     {#if weather}
       <span>{t('weather', { weather })}</span>

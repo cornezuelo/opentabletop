@@ -55,6 +55,7 @@ export const es: Messages<typeof en> = {
   dayLine: 'Día {day} del viaje · {clock} · {season}',
   sceneLine: '{clock} · {season}',
   at: 'En {hex}',
+  showPlace: 'Mostrar en el mapa dónde está el grupo',
   weather: 'Clima: {weather}',
   destination: 'Rumbo a {hex}',
   arrived: 'Habéis llegado.',

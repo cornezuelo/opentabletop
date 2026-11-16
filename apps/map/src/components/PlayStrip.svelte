@@ -16,6 +16,9 @@
   import { terrainLabel } from '../lib/terrainName'
   import { activeSystem } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
+  import { view } from '../lib/store/view'
+  import { parseKey } from '@open-tabletop/hex'
+  import { partyToken } from '@open-tabletop/map'
 
   /** Over the map, in Play: where the trip stands and what happened last, so the panel keeps its height for what to do. */
   const play = $derived(editor.play)
@@ -26,6 +29,12 @@
   const coord = (key: string) => {
     void editor.grid
     return placeLabel(key)
+  }
+
+  /** Where the party stands, in the middle of the view (the strip's place, clicked). */
+  function showParty() {
+    const hex = partyToken(editor.map)?.hex
+    if (hex) view.centerOn(parseKey(hex))
   }
 
   /** What the trip waits for now (a check, a step's pause): one toast when it starts, out of the panel's sight. */
@@ -54,6 +63,7 @@
       latest
       onstep={step}
       onshow={showWaitingInPanel}
+      onplace={showParty}
       terrainName={terrainLabel}
       nameOf={oracleUi.nameOf}
       facts={worldFactsNow()}

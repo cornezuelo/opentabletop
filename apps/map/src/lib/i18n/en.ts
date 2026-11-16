@@ -612,6 +612,11 @@ export const en = {
     copiesApart: 'Draw copies apart',
     copiesApartHelp:
       "Those present (the copies a trip's results make from the system's bestiary) are drawn on the cells where they were made. Up to six tokens on a cell are drawn apart; past that, the copies of one template are one token with how many (×6), and what still doesn't fit is a chip (+3). Ticked, every copy is drawn apart, however many. Selecting a cell lists everything on it under **Here**.",
+    start: 'Start a trip',
+    withoutRules: 'Or play without rules: just move the party’s token',
+    withoutRulesHelp:
+      'Simple play: a click puts the token on that cell at once, with no route, time or rolls; only its trail is kept. **Start a trip** plays with the system’s rules whenever you want.',
+    settings: 'Settings',
     placeHelp: 'Click a cell to place the party.',
     placeFirst: 'The trip starts where the party stands: click a cell to place it.',
     paused: 'The trip is paused and waits for you: go on from the strip over the map.',

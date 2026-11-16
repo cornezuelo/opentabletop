@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Map**: Play with no trip is one card, what's missing, the system and season and **Start a trip**, with **Or play without rules** under it and the settings folded; the strip's place centres the map on the party.
 - **Those present**: a copy's card says what it is, its template's name beside its own and the template's description, as a token clicked on the map in Play opens it.
 - **Rolling yourself**: a roll inside a result (how much silver, how many wolves) says the row it belongs to, what's still to roll as `…` (_A purse: … silver_).
 - **Fights**: each one's face, on their card and in the round's order, is their template's token icon (a wolf's head), a copy's number at its edge; with none, their initial as before.
