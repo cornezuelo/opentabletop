@@ -24,7 +24,7 @@ Only what tables, conditions and effects already do (the author's rule for Drive
 
 ### B. A way scouted: the next step is safer
 
-- A clear way leaves the Company **Scouted** (until the next place entered, as above), besides its morale.
+- A clear way leaves the Company **Scouted** (until the checks of the next place entered are rolled: the order of that moment's actions and checks to be looked at when building it), besides its morale.
 - While **Scouted**, the encounter check rolls with a roll mode of its own, **Warned** (twice, the lower kept: a low `1d6 + danger` is the friendlier end of _Who goes there?_, travellers and patrols on 1–4, wolves, bandits and the Wyrm on 5 or more), so what's met on the road scouted is less often hostile. It's the same mechanism as _Do we get lost?_'s.
 
 ### C. Core
