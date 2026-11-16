@@ -493,12 +493,13 @@ actions:
       - { effects: { party.items.ration: 3, party.values.fodder: 2 } }
   # Characters: only while a companion is wounded (a party stat counting them), by day.
   # Whoever acts tends the others: with Survival 2 or more (`acting.values.survival`, a
-  # condition on the acting character), every wound and sprain is bound (effects on every
-  # member); otherwise the hour is spent for nothing. The acting one is chosen in the trip.
+  # condition on the acting character), every wound and sprain is bound and some health comes
+  # back (effects on every member, a die in the step itself: with **I roll everything**, the
+  # player's); otherwise the hour is spent for nothing. The acting one is chosen in the trip.
   tend:
     group: groups.here
     name: Tend the wounded
-    description: 'An hour binding wounds and sprains, by day, while a companion is wounded or sprained. Whoever acts needs Survival 2 or more: then every companion’s wounds and sprains are tended.'
+    description: 'An hour binding wounds and sprains, by day, while a companion is wounded or sprained. Whoever acts needs Survival 2 or more: then every companion’s wounds and sprains are tended, and each gets back 1d2 health (one roll for all).'
     when:
       time.tags: { not: dark }
       any: [{ party.stats.wounded: { gte: 1 } }, { party.stats.sprained: { gte: 1 } }]
@@ -509,7 +510,11 @@ actions:
       - { time: 60 }
       - when: { acting.values.survival: { gte: 2 } }
         effects:
-          { party.members.conditions.wounded: false, party.members.conditions.sprained: false }
+          {
+            party.members.conditions.wounded: false,
+            party.members.conditions.sprained: false,
+            party.members.values.health: '+{{1d2}}',
+          }
   # Brenna's ferry over the Saltmere (a hex tagged `ferry`, by day): the trip stops to ask the
   # player how to pay (`ask`: a parameter of the action, chosen in the trip panel, not on its
   # button), and the steps after it branch on the answer (`when: { params.fare: … }`). Food
@@ -787,23 +792,20 @@ actions:
       - when: { factions.iron-clans.conditions: at-war }
         effects: { party.stats.morale: -1 }
   # Those present (bestiary.yaml): the copies of templates the encounters made, at the
-  # Company's hex. Open while someone hostile is here (`present.count`, `present.tags`); every
-  # one of them changed at once (`present.all.…`, one roll for all); whoever's health reaches
-  # 0 is down, and gone by itself (the foe's sheet: `leaves: true`).
+  # Company's hex. Open while someone hostile is here (`present.count`, `present.tags`), outside
+  # a fight; a roll that can fail (travel-tables.yaml's _Driving them off_): every one of them
+  # routed at once (`present.all.…`), or the fight they bring.
   drive-off:
     group: groups.fight
     name: Drive them off
-    description: 'With foes here: ten minutes of steel and fire. Each of them takes 1d3 harm, and the fallen are gone; whoever acts takes 1 harm unless their Survival is 2 or more.'
+    description: 'With foes here, before a fight: ten minutes of shouting, steel and fire. 2d6 and the Survival of whoever acts (the Company’s, with no companions) against the firmest foe’s Morale: over it, they all run; otherwise they stand, and the fight begins (with no companions, the Company loses heart, morale -1, and they stay).'
     when: { present.count: { gte: 1 } }
-    unless: { present.tags: vale }
+    unless: { any: [{ present.tags: vale }, { encounter.round: { gte: 1 } }] }
     needs: { any: [{ acting: { exists: true } }, { party.members: { exists: false } }] }
     hideWhenUnavailable: true
     do:
       - { time: 10 }
-      - { effects: { present.all.values.health: '-{{1d3}}' } }
-      - unless: { acting.values.survival: { gte: 2 } }
-        effects: { acting.values.health: -1 }
-      - { id: fought, say: 'Steel and fire on the road.' }
+      - { roll: table.drive-off }
   # One of those present, chosen: a parameter whose choices are those here now (`from:
   # present.ids`), asked as the action goes, and an effect on the one chosen
   # (`characters[params.foe].…`, its id read from the parameter).

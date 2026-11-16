@@ -409,3 +409,48 @@ entries:
     unless:
       acting.values[params.skill]: { gte: '{{roll}}' }
     result: 'Nothing to be learnt out there ({{roll}} against {{acting.values[params.skill]}})'
+---
+# Rolled by _Drive them off_: 2d6 and a Survival against the firmest foe's Morale (the
+# foes' own morale roll, bestiary.yaml: a 2d6 over it, it runs). The companion acting adds
+# theirs to the roll; a Company with none adds its own in the condition (`{{roll + …}}`).
+kind: table
+id: drive-off
+tags: [encounters, rules]
+name: Driving them off
+description: |-
+  Rolled by _Drive them off_: 2d6 and the Survival of whoever acts (the Company's, with no companions) against the firmest foe's Morale. Over it, they all run; otherwise they stand, and the fight begins (with no companions, who don't fight, the Company loses heart and they stay).
+
+  **Shows:** a roll against the best of those present (`present.highest.values.morale`), as _Scouting ahead_ compares its roll; a skill added to the roll (`2d6 + {{acting.values.survival}}`) or in the condition, by arithmetic (`'{{roll + party.stats.survival}}'`), whether the Company has companions or not (`party.members: { exists: … }`); every foe routed at once (`present.all.conditions.routed`); a fight started by a result (`encounter: start`).
+roll: '2d6 + {{acting.values.survival}}'
+entries:
+  - id: routed
+    range: 2-17
+    when:
+      party.members: { exists: true }
+      present.highest.values.morale: { lt: '{{roll}}' }
+    result: 'They break and run ({{roll}} against {{present.highest.values.morale}})'
+    effects: { present.all.conditions.routed: true }
+  - id: stand
+    range: 2-17
+    when: { party.members: { exists: true } }
+    unless: { present.highest.values.morale: { lt: '{{roll}}' } }
+    result: 'They hold their ground, and come on ({{roll}} against {{present.highest.values.morale}})'
+    effects: { encounter: start }
+  # With no companions, the Company's own Survival, added in the condition.
+  - id: routed-alone
+    range: 2-17
+    when:
+      party.members: { exists: false }
+      present.highest.values.morale: { lt: '{{roll + party.stats.survival}}' }
+    result: 'They break and run ({{roll + party.stats.survival}} against {{present.highest.values.morale}})'
+    effects: { present.all.conditions.routed: true }
+  # Whatever else: what the rows above don't take (written as their opposite, so one row
+  # always comes up).
+  - id: hold
+    range: 2-17
+    unless:
+      any:
+        - { party.members: { exists: true } }
+        - { present.highest.values.morale: { lt: '{{roll + party.stats.survival}}' } }
+    result: 'They will not be driven off, and the Company loses heart ({{roll + party.stats.survival}} against {{present.highest.values.morale}})'
+    effects: { party.stats.morale: -1 }

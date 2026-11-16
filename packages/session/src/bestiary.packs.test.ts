@@ -161,40 +161,103 @@ describe('the bundled packs make foes from their bestiaries', () => {
       world: heath,
       oracle: createOracleEngine({ registry, random: seeded(1) }),
     }
+    // Mara is wounded, at 1 health of her 5; Kael, with Survival 2, tends her.
     const s = applyResult(
       { ...session, rollWay: 'all', acting: 'kael' },
       {
         effects: {
-          'present.bandit': 1,
-          'characters.bandit.values.toughness': '=9',
-          'characters.bandit.values.health': '=9',
+          'characters.mara.conditions.wounded': true,
+          'characters.mara.values.health': '=1',
         },
       },
       {},
       partyOf(marches),
     )
     const health = (state: SessionState) =>
-      state.present?.find((p) => p.character.id === 'bandit')?.character.values.health
-    // Drive them off: its 1d3 on each of them is the player's, nothing done until it's given.
-    const asked = stepTrip(options, s, { type: 'action', id: 'drive-off' })
+      state.members?.find((m) => m.id === 'mara')?.values.health
+    // Tend the wounded: its 1d2 of health is the player's, nothing done until it's given.
+    const asked = stepTrip(options, s, { type: 'action', id: 'tend' })
     expect(asked.state.yours).toEqual([
-      expect.objectContaining({ dice: '1d3', table: 'actions.drive-off', who: 'kael' }),
+      expect.objectContaining({ dice: '1d2', table: 'actions.tend', who: 'kael' }),
     ])
     expect(asked.state.travel.time).toBe(s.travel.time)
-    expect(health(asked.state)).toBe(9)
+    expect(health(asked.state)).toBe(1)
     expect(asked.entries.map((e) => e.code)).toEqual(['ACTION_YOURS'])
     // While it waits, nothing else goes on.
     expect(stepTrip(options, asked.state, { type: 'wait', until: 12 * 60 }).state).toBe(asked.state)
-    // The player's 3: the ten minutes pass and the bandit takes 3.
+    // The player's 2: the hour passes, the wound is bound and Mara gets 2 back.
     const id = asked.state.yours![0]!.id
-    const done = stepTrip(options, asked.state, { type: 'rolled', id, total: 3 })
+    const done = stepTrip(options, asked.state, { type: 'rolled', id, total: 2 })
     expect(done.state.yours).toBeUndefined()
-    expect(health(done.state)).toBe(6)
-    expect(done.state.travel.time).toBe(s.travel.time + 10)
-    // Rolled for them instead: the computer's 1d3.
+    expect(health(done.state)).toBe(3)
+    expect(done.state.members?.find((m) => m.id === 'mara')?.conditions.wounded).toBeFalsy()
+    expect(done.state.travel.time).toBe(s.travel.time + 60)
+    // Rolled for them instead: the computer's 1d2.
     const forMe = stepTrip(options, asked.state, { type: 'resolveCheck', id })
     expect(forMe.state.yours).toBeUndefined()
-    expect(health(forMe.state)).toBeLessThan(9)
+    expect(health(forMe.state)).toBeGreaterThan(1)
+  })
+
+  it('the Grey Marches: drive them off is a roll against the firmest foe’s Morale, or the fight', () => {
+    const drive = (seed: number, members: boolean) => {
+      const { session } = startTrip({
+        system: marches,
+        location: 'a',
+        ...(members && {
+          members: [
+            newMember(partyOf(marches), { id: 'kael', name: 'Kael', values: { survival: 2 } }),
+          ],
+        }),
+        seed: 'd',
+        time: 9 * 60,
+      })
+      const options = {
+        system: marches,
+        world: heath,
+        oracle: createOracleEngine({ registry, random: seeded(seed) }),
+      }
+      const s = applyResult(
+        { ...session, ...(members && { acting: 'kael' }) },
+        { effects: { 'present.grey-wolf': 2 } },
+        {},
+        partyOf(marches),
+      )
+      return { before: s, after: stepTrip(options, s, { type: 'action', id: 'drive-off' }) }
+    }
+    const seen = new Set<string>()
+    for (let seed = 1; seed <= 40 && seen.size < 4; seed++)
+      for (const members of [true, false]) {
+        const { before, after } = drive(seed, members)
+        const text = after.entries.find((e) => e.code === 'ORACLE_RESULT')?.text ?? ''
+        const entry = text.startsWith('They break and run')
+          ? members
+            ? 'routed'
+            : 'routed-alone'
+          : text.startsWith('They hold their ground')
+            ? 'stand'
+            : text.startsWith('They will not be driven off')
+              ? 'hold'
+              : `seed ${seed}: ${text}`
+        seen.add(entry)
+        if (entry === 'routed' || entry === 'routed-alone')
+          expect(after.state.present ?? []).toEqual([])
+        // The fight begins (its first turns may already have gone: foes' turns at once).
+        if (entry === 'stand')
+          expect(after.entries.some((e) => e.code === 'ENCOUNTER_STARTED')).toBe(true)
+        if (entry === 'hold') {
+          expect(after.state.encounter).toBeUndefined()
+          expect(after.state.present).toHaveLength(2)
+          expect(after.state.stats.morale).toBe(before.stats.morale - 1)
+        }
+        expect(members ? ['routed', 'stand'] : ['routed-alone', 'hold']).toContain(entry)
+      }
+    expect([...seen].sort()).toEqual(['hold', 'routed', 'routed-alone', 'stand'])
+    // In a fight, it's gone: Strike one down or Fall back.
+    const { after } = drive(1, true)
+    expect(after.state.encounter).toBeDefined()
+    expect(
+      tripAvailability({ system: marches, world: heath }, after.state)['drive-off'],
+    ).toBeDefined()
   })
 
   it('the Grey Marches: bandits and their chief are bought off with rations', () => {

@@ -176,3 +176,14 @@ scouting:
   entries:
     clear: 'El camino está despejado ({{roll}} contra {{acting.values[params.skill]}})'
     nothing: 'No hay nada que sacar de ahí fuera ({{roll}} contra {{acting.values[params.skill]}})'
+drive-off:
+  name: Ahuyentándolos
+  description: |-
+    La tira _Ahuyentarlos_: 2d6 y la Supervivencia de quien actúa (la de la Compañía, sin compañeros) contra la Moral del enemigo más firme. Por encima, huyen todos; si no, aguantan y empieza el combate (sin compañeros, que no luchan, la Compañía se desanima y ellos se quedan).
+
+    **Enseña:** una tirada contra el mejor de los presentes (`present.highest.values.morale`), como compara la suya _Explorando el camino_; una habilidad sumada a la tirada (`2d6 + {{acting.values.survival}}`) o en la condición, con aritmética (`'{{roll + party.stats.survival}}'`), tenga o no compañeros la Compañía (`party.members: { exists: … }`); todos los enemigos en desbandada a la vez (`present.all.conditions.routed`); un combate que empieza por un resultado (`encounter: start`).
+  entries:
+    routed: 'Rompen filas y huyen ({{roll}} contra {{present.highest.values.morale}})'
+    stand: 'Aguantan, y se os echan encima ({{roll}} contra {{present.highest.values.morale}})'
+    routed-alone: 'Rompen filas y huyen ({{roll + party.stats.survival}} contra {{present.highest.values.morale}})'
+    hold: 'No hay quien los eche, y la Compañía se desanima ({{roll + party.stats.survival}} contra {{present.highest.values.morale}})'

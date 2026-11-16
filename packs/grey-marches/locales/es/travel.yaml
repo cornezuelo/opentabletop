@@ -99,7 +99,7 @@ travel-rules/default:
       description: 'En un pueblo con mercado, el día de Mercado (o el día de mercado del reloj del mundo): dos horas de trueque. Comida +3 y forraje +2, una vez al día.'
     tend:
       name: Curar a los heridos
-      description: 'Una hora vendando heridas y tobillos, de día, mientras algún compañero esté herido o con un tobillo torcido. Quien actúa necesita Supervivencia 2 o más: entonces se curan las heridas y los tobillos de todos los compañeros.'
+      description: 'Una hora vendando heridas y tobillos, de día, mientras algún compañero esté herido o con un tobillo torcido. Quien actúa necesita Supervivencia 2 o más: entonces se curan las heridas y los tobillos de todos los compañeros, y cada uno recupera 1d2 de salud (una tirada para todos).'
     ferry:
       name: Tomar el transbordador
       description: 'En el transbordador de Brenna, de día: pagadle su pasaje en plata, cada uno, o un día de comida y zarpa enseguida, o esperad a su travesía de la tarde (como mucho, hasta el anochecer). Después estáis a flote en el Saltmere, en barca.'
@@ -301,10 +301,7 @@ travel-rules/default:
           say: 'Con los Clanes de Hierro en guerra, las noticias pesan sobre la Compañía.'
     drive-off:
       name: Ahuyentarlos
-      description: 'Con enemigos aquí: diez minutos de acero y fuego. Cada uno recibe 1d3 de daño, y los que caen se van; quien actúa recibe 1 de daño salvo que su Supervivencia sea 2 o más.'
-      do:
-        fought:
-          say: 'Acero y fuego en el camino.'
+      description: 'Con enemigos aquí, antes de un combate: diez minutos de gritos, acero y fuego. 2d6 y la Supervivencia de quien actúa (la de la Compañía, sin compañeros) contra la Moral del enemigo más firme: por encima, huyen todos; si no, aguantan y empieza el combate (sin compañeros, la Compañía se desanima, moral -1, y ellos se quedan).'
     buy-off:
       name: Comprar su marcha
       description: 'Con forajidos aquí: una ración por cada uno, y se van.'

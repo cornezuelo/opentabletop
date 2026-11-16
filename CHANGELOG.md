@@ -14,6 +14,9 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- **The Grey Marches**: **Drive them off** is a roll that can fail, and only outside a fight: 2d6 and the Survival of whoever acts against the firmest foe's Morale; over it they all run, otherwise the fight begins (with no companions, the Company loses heart and they stay). It no longer harms them.
+- **The Grey Marches**: **Tend the wounded** also gives each companion back 1d2 health.
+- **Core**: **Strike** is a fight's action only.
 - **Core**: its foe has a token, crossed swords, on a map and as its face in a fight.
 - **The Grey Marches**: in the Deep Barrows, looking for a crypt's crack is told in a crypt's words (dust and old bones, a cold draught), not the Barrow-road's heather and cairns.
 
