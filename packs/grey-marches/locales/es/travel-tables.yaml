@@ -190,3 +190,32 @@ drive-off:
     stand: 'Aguantan, y se os echan encima ({{roll}} contra {{present.highest.values.morale}})'
     routed-alone: 'Rompen filas y huyen ({{roll + party.stats.survival}} contra {{present.highest.values.morale}})'
     hold: 'No hay quien los eche, y la Compañía se desanima ({{roll + party.stats.survival}} contra {{present.highest.values.morale}})'
+look-chest:
+  name: Examinándolo
+  description: |-
+    La tira _Examinarlo_ ante un cofre con una aguja en la cerradura: 2d6 y la Supervivencia de quien actúa. Con 8 o más, la aguja sale; si no, le pincha, por su daño, y queda gastada.
+
+    **Enseña:** una tabla tirada sobre una cosa presente que no lucha, elegida por su acción (`characters[params.chest].values.needle`), leída en su texto y cambiada por sus efectos; quien actúa, dañado por ella (`acting.values.health`).
+  entries:
+    drawn: 'Una aguja en la cerradura, sacada con cuidado ({{roll}})'
+    pricked: 'La aguja pincha a {{acting.name}} ({{roll}}): {{characters[params.chest].values.needle}} de daño'
+pick-chest:
+  name: Forzando la cerradura
+  description: |-
+    La tira _Forzar la cerradura_ ante un cofre cerrado: 2d6 y el Sigilo de quien actúa, contra 7 más la Cerradura del cofre. Si lo logra, se abre; una pifia (4 o menos) hace saltar su aguja, si la tiene; si no, la cerradura aguanta.
+
+    **Enseña:** una tirada contra un valor de la cosa elegida (`'characters[params.chest].values.lock': { lt: '{{roll - 6}}' }`), con las filas distinguidas por condiciones sobre ella, escritas como opuestas unas de otras para que siempre salga una.
+  entries:
+    open: 'La cerradura cede ({{roll}} contra {{7 + characters[params.chest].values.lock}})'
+    sprung: 'Una pifia, y salta la aguja: {{characters[params.chest].values.needle}} de daño a {{acting.name}}'
+    holds: 'La cerradura aguanta ({{roll}} contra {{7 + characters[params.chest].values.lock}})'
+chest-goods:
+  name: En el cofre
+  description: |-
+    Lo que guardaba un cofre de ajuar, tirado al abrirlo: polvo, plata vieja o el oro de los antiguos reyes.
+
+    **Enseña:** una tabla tirada cuando una cosa presente se va (`on: present.leave`), solo para una que se abrió (`when: { acting.template: grave-chest, acting.conditions: opened }`), leída actuando como ella.
+  entries:
+    dust: Polvo y tela podrida
+    silver: '{{coins}} monedas de plata vieja'
+    gold: '{{crowns}} coronas de oro de los antiguos reyes'

@@ -348,6 +348,7 @@ export const es: Messages<typeof en> = {
     conditions: 'Condiciones',
     items: 'Objetos',
     tags: 'Etiquetas',
+    fights: 'Lucha',
     actions: 'En su turno',
     names: 'Nombres',
     noSheet:
@@ -819,7 +820,7 @@ export const es: Messages<typeof en> = {
     noActions: 'El sistema no tiene acciones que haga un jugador: añádelas en **Reglas**.',
     ends: 'Acaba cuando',
     endsHelp:
-      'Cuándo acaba un combate por sí solo: se lee al empezar y después de cada turno. Vacío: solo lo acaban un efecto o el jugador.\n• `present.count: 0` — no queda nadie\n• `party.conditions: fled` — el grupo ha huido',
+      'Cuándo acaba un combate por sí solo: se lee al empezar y después de cada turno. Vacío: solo lo acaban un efecto o el jugador.\n• `present.fighters.count: 0` — no queda ningún enemigo (las cosas que no luchan, un cofre, no cuentan)\n• `party.conditions: fled` — el grupo ha huido',
     skip: 'Se pierde un turno cuando',
     skipHelp:
       'Cuándo pierde su turno uno de los que luchan: se lee al empezar cada turno, actuando como aquel de quien es el turno, antes de que cuente hacia atrás lo que se le dio hasta su turno. El turno pasa solo (el diario lo dice); su momento (`encounter.turn`) llega igualmente, así que lo que pasa en cada turno sigue pasando. Vacío: no se pierde ningún turno.\n• `acting.conditions: stunned` — mientras está aturdido\n• `acting.conditions: surprised` — con `lasts: turns` en la hoja y dado `1`: pierde el primer turno y se le pasa',

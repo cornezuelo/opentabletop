@@ -98,12 +98,12 @@ values:
     default: '{{2d3+2}}'
     min: 0
 conditions:
-  # Holds by itself while anyone is here (those present), unless the party just got away
+  # Holds by itself while anyone who fights is here (those present), unless the party just got away
   # (Get away): no moving on, exploring, camping or resting beside them.
   beset:
     name: Beset
     description: Foes are here. The party can't move on, explore, camp or rest until none is left or it gets away.
-    when: { all: [{ present.count: { gte: 1 } }, { not: { self.conditions: got-away } }] }
+    when: { all: [{ present.fighters.count: { gte: 1 } }, { not: { self.conditions: got-away } }] }
     blocks: [travel.move, actions.explore, actions.camp, actions.rest]
   # Given by Get away (travel.yaml) for one place: gone as the next is entered.
   got-away:

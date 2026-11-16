@@ -45,7 +45,7 @@ encounter:
   minutes: 1
   # Over when no foe is left here, or no companion is left standing (travel.yaml's
   # `standing`, and what follows it: _The Company is overcome_).
-  ends: { any: [{ present.count: 0 }, { party.stats.standing: 0 }] }
+  ends: { any: [{ present.fighters.count: 0 }, { party.stats.standing: 0 }] }
   # A companion dragged down by a wolf (sheet.yaml) loses their next turn; one who fell
   # (wounded, travel.yaml's _A companion falls_) loses every turn while they are.
   skip: { any: [{ acting.conditions: dragged-down }, { acting.conditions: wounded }] }

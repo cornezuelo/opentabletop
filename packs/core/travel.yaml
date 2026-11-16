@@ -187,11 +187,12 @@ actions:
       - { time: 10 }
       - { effects: { connection.state: open } }
   # A fight in turns (system.yaml: `encounter:`): started by an effect, while foes are here.
-  # It says how tough the toughest of them is (`present.highest.values.health`).
+  # It says how tough the toughest of them is (`present.highest.values.health`). Only those
+  # who fight count (`present.fighters`): a chest here is no foe.
   fight:
     name: Fight
     description: 'With foes here: a fight in turns begins, the party first. Only with characters: they fight it.'
-    when: { present.count: { gte: 1 } }
+    when: { present.fighters.count: { gte: 1 } }
     # Core's fights are its characters' (no `encounter.whole`): with none, the button says so.
     needs: { party.members: { exists: true } }
     do:
@@ -202,7 +203,7 @@ actions:
   get-away:
     name: Get away
     description: 'With foes here, outside a fight: ten minutes slipping away; the party may move on, and they stay behind.'
-    when: { present.count: { gte: 1 } }
+    when: { present.fighters.count: { gte: 1 } }
     unless: { party.conditions: got-away }
     hideWhenUnavailable: true
     do:
@@ -225,6 +226,39 @@ actions:
       - { ask: params.foe }
       # A blow of 1d3; a glancing 1 staggers it for a round (bestiary.yaml's _A strike_).
       - { roll: table.strike }
+  # A thing present that doesn't fight (bestiary.yaml's Locked chest): actions aimed at the
+  # one chosen among those here they hold for (`from: present.ids`, `where:`), changing it
+  # (`characters[params.chest].…`).
+  force-chest:
+    name: Force it
+    description: 'At a locked chest: ten minutes, and 1d6: on 4–6 the lock gives.'
+    when: { present.conditions: locked }
+    hideWhenUnavailable: true
+    params:
+      chest:
+        name: Which chest?
+        from: present.ids
+        where: { 'characters[candidate].conditions': locked }
+    do:
+      - { ask: params.chest }
+      - { time: 10 }
+      - { roll: table.force-chest }
+  open-chest:
+    name: Open it
+    description: 'At a chest that isn’t locked: what’s inside, a day’s food.'
+    when: { present.chest.count: { gte: 1 } }
+    hideWhenUnavailable: true
+    params:
+      chest:
+        name: Which chest?
+        from: present.ids
+        where:
+          'characters[candidate].template': chest
+          not: { 'characters[candidate].conditions': locked }
+    do:
+      - { ask: params.chest }
+      - effects: { 'characters[params.chest].conditions.opened': true, party.values.food: 1 }
+      - { id: food, say: 'Inside, a day’s food.' }
   # After a rest, for each member (`for: party.members`), each acting in turn: whoever still
   # stands gets 1 health back.
   mend:
@@ -251,7 +285,7 @@ actions:
     description: 'After a fight won (no foe left here): each member still standing gains 1 experience.'
     on: encounter.end
     for: party.members
-    when: { present.count: 0, acting.values.health: { gte: 1 } }
+    when: { present.fighters.count: 0, acting.values.health: { gte: 1 } }
     do:
       - { effects: { acting.values.xp: 1 } }
   # …as one's experience reaches 3 (a reaction for each member), a level, the experience

@@ -137,6 +137,7 @@ const ENUMS: Record<string, readonly string[]> = {
   track: ['true', 'false'],
   display: ['number', 'of', 'bar', 'boxes', 'ticks', 'pips', 'dial', 'levels', 'die'],
   behind: ['stay', 'leave'],
+  fights: ['false', 'true'],
   leaves: ['true', 'false'],
   shuffle: ['true', 'false'],
 }
@@ -312,6 +313,7 @@ const KEYS = [
   'token',
   'icon',
   'behind',
+  'fights',
   'leaves',
   'lasts',
   // Catalogues of places: the places, what each gives its point of interest and its hex.

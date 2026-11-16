@@ -65,6 +65,40 @@ conditions:
 # What a foe carries (nothing to begin with): what its template gives, from the Company's gear.
 items: {}
 ---
+# A thing of a place that doesn't fight (the grave-goods chest below, `fights: false`): its lock
+# and its needle rolled as it's found; conditions that hold by themselves on those values, and
+# one that takes it off those present once it's opened (heard as it leaves: what's inside).
+kind: sheet
+id: chest
+name: Chest
+description: |-
+  A chest found in the Marches: how stiff its lock is, and whether a poisoned needle waits in it, both rolled as it's found.
+
+  **Shows:** a sheet for a thing present that doesn't fight (its template's `fights: false`): values each copy rolls (`lock: '{{max(1d6 - 2, 0)}}'`), conditions that hold by themselves on them (_Locked_ while its lock is over 0, _Needled_ while its needle is), read by the actions aimed at it (`where: { 'characters[candidate].conditions': locked }`), and one that takes it off those present (_Opened_, `leaves: true`), heard as it leaves (`on: present.leave`) to roll what's inside.
+values:
+  lock:
+    name: Lock
+    description: How stiff its lock is, added to what picking it needs (7 or more on 2d6 and Stealth, and this); 0, it's open.
+    min: 0
+  needle:
+    name: Needle
+    description: The harm of the poisoned needle in its lock, to whoever opens or fumbles it; 0, none (or drawn).
+    min: 0
+conditions:
+  locked:
+    name: Locked
+    description: Its lock holds. Pick it, or break it open.
+    when: { self.values.lock: { gte: 1 } }
+  needled:
+    name: Needled
+    description: A poisoned needle waits in its lock, for whoever opens it or fumbles the lock. Look it over to draw it.
+    when: { self.values.needle: { gte: 1 } }
+  opened:
+    name: Opened
+    description: Opened, and what's inside taken; gone from those present.
+    leaves: true
+    told: { gains: '{{name}} is opened' }
+---
 # The bestiary: templates the encounters copy, each copy rolling its own health. A variant
 # (`like:`) takes what it doesn't say from another; `names:` names each copy from a table;
 # `behind:` says whether copies the Company leaves behind stay there (the Wyrm in its wood)
@@ -85,7 +119,8 @@ description: |-
   - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
   - How each is drawn on a map and as its face in a fight (`token:` its icon and kind)
   - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
-  - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, and the restless dead, in their barrow (`behind: stay`)
+  - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, the restless dead, in their barrow, and a grave-goods chest, in its crypt (`behind: stay`)
+  - Who doesn't fight (`fights: false`): travellers and the Vale's riders, met and not fought, and the grave-goods chest, a thing of a crypt on a sheet of its own (_Chest_), aimed at by actions (_Look it over_, _Pick it_, _Break it open_, _Open it_); none of them is a side of a fight, nor counted by `present.fighters`
   - Who is a foe, as a tag (`foe`), and who means harm now, as a condition every foe starts with (`conditions: [hostile]`) and a reaction other than hostile takes off: while one that has it is here (`present.conditions: hostile`) the Company is _Beset_ (its sheet), and can't march on or busy itself with anything else until it deals with them or falls back
 sheet: sheet.foe
 behind: leave
@@ -160,6 +195,8 @@ templates:
     values: { survival: 1, charisma: '{{1d2}}', health: 3 }
     token: { icon: 'game:hiking', kind: npc }
     behind: leave
+    # Met, not fought: never a side of the Company's fights.
+    fights: false
   vale-rider:
     # An NPC type on the companions' own sheet: a rider of the Vale's patrol.
     sheet: sheet.companion
@@ -168,6 +205,18 @@ templates:
     tags: [people, vale]
     values: { survival: 2, charisma: 1, health: 3 }
     token: { icon: 'game:mounted-knight', kind: npc }
+    fights: false
+  # A thing found in a crypt of the Deep Barrows (pieces.yaml's _In the crypt_), not a foe: no
+  # side of a fight (`fights: false`), on a sheet of its own; it stays in its crypt.
+  grave-chest:
+    sheet: sheet.chest
+    name: Grave-goods chest
+    description: An iron-bound chest of the old folk's grave goods; some still keep a needle in the lock.
+    tags: [thing, chest]
+    fights: false
+    values: { lock: '{{max(1d6 - 2, 0)}}', needle: '{{max(1d6 - 4, 0)}}' }
+    token: { icon: 'game:locked-chest', kind: npc }
+    behind: stay
 ---
 # What a foe of the Marches does on its turn in a fight (system.yaml: `encounter.foes`), unless
 # its template says otherwise: a swing at the one its turn goes for (the system's `aim`), whose
@@ -283,7 +332,7 @@ fields:
   harm:
     roll: 1d6
     modeWhen:
-      roll-modes.advantage: { present.count: 1 }
+      roll-modes.advantage: { present.fighters.count: 1 }
       roll-modes.disadvantage: { any: [{ time.tags: dark }, { acting.conditions: rattled }] }
   kind: { table: table.blow-kind }
   lands: { table: table.blow-lands }

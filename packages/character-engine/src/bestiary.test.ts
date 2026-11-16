@@ -53,6 +53,34 @@ describe('bestiary', () => {
     expect(old.conditions).toEqual(['wary'])
     expect(old.behind).toBe('stay')
     expect(resolveTemplate(bestiary!, 'bandit')!.sheet).toBe('sheet.person')
+    expect(leader.fights).toBe(true)
+  })
+
+  it("a template that doesn't fight, and its variants unless they say so", () => {
+    const { bestiary, errors } = parseBestiary({
+      ...raw,
+      templates: {
+        chest: { name: 'Chest', fights: false },
+        coffer: { like: 'chest' },
+        mimic: { like: 'chest', fights: true },
+        fighters: { name: 'Not an id' },
+      },
+    })
+    expect(errors).toEqual([
+      'templates.fighters: "fighters" can\'t be a template\'s id (present.fighters reads every copy)',
+    ])
+    expect(bestiary).toBeUndefined()
+    const ok = parseBestiary({
+      ...raw,
+      templates: {
+        chest: { name: 'Chest', fights: false },
+        coffer: { like: 'chest' },
+        mimic: { like: 'chest', fights: true },
+      },
+    }).bestiary!
+    expect(resolveTemplate(ok, 'chest')!.fights).toBe(false)
+    expect(resolveTemplate(ok, 'coffer')!.fights).toBe(false)
+    expect(resolveTemplate(ok, 'mimic')!.fights).toBe(true)
   })
 
   it('refuses reserved ids, unknown variants and loops', () => {

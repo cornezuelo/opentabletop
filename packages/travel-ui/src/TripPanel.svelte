@@ -7,6 +7,7 @@
     participant,
     participantName,
     fromCatalogue,
+    fightersHere,
     presentHere,
     keepPlaceSheet,
     placeSheetOf,
@@ -317,15 +318,15 @@
   /** A fight in turns going on (round, who acts in order), if any. */
   const fight = $derived(encounterView(session))
   /**
-   * Whether a fight in turns can start by hand: the system's fights go in turns, someone's
-   * here, someone of the party fights it (characters, or the party as a whole where the
+   * Whether a fight in turns can start by hand: the system's fights go in turns, someone
+   * who fights is here, someone of the party fights it (characters, or the party as a whole where the
    * system says so) and none of its own actions starts one (that one is the button).
    */
   const canFight = $derived(
     !!system.encounter &&
       !session.encounter &&
       (!!session.members?.length || !!system.encounter.whole) &&
-      presentHere(session).length > 0 &&
+      fightersHere(session).length > 0 &&
       !fightStarters(system.rules).length,
   )
   /** The fight's stage put aside for a while (**See behind**); a new fight shows it again. */

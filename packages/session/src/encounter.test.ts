@@ -64,6 +64,7 @@ templates:
   goblin: { name: Goblin }
   ogre: { name: Ogre, actions: table.ogre-turn }
   troll: { name: Troll, actions: table.troll-turn }
+  chest: { name: Chest, fights: false }
 ---
 kind: table
 id: troll-turn
@@ -115,6 +116,8 @@ actions:
   march: { do: [{ travel.move: destination }] }
   rest: { do: [{ time: 60 }] }
   ambush: { do: [{ effects: { present.goblin: 2, encounter: start } }] }
+  # A chest by a goblin: a thing present that doesn't fight.
+  guarded: { do: [{ effects: { present.chest: 1, present.goblin: 1, encounter: start } }] }
   strike:
     params: { foe: { from: present.ids } }
     do: [{ effects: { 'characters[params.foe].values.health': -4 } }]
@@ -271,7 +274,7 @@ describe('an encounter: a fight in turns', () => {
 
   it("the player's actions that start a fight: the host's own button isn't needed", () => {
     const { system } = systemOf(BY_SIDE)
-    expect(fightStarters(system.rules)).toEqual(['ambush'])
+    expect(fightStarters(system.rules)).toEqual(['ambush', 'guarded'])
   })
 
   it('a fight panel sees the round, who acts in order, whose turn it is and who has acted', () => {
@@ -698,6 +701,36 @@ describe('an encounter: a fight in turns', () => {
     expect(facts.present.lowest.values.speed).toBe(3)
     expect(facts.party.highest.values.speed).toBe(5)
     expect(facts.party.lowest.values.speed).toBe(1)
+  })
+})
+
+describe("things present that don't fight", () => {
+  it('a chest is here, read and counted, but no side of a fight; the fight ends with no fighter left', () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.strike, actions.flee], ends: { present.fighters.count: 0 } }',
+    )
+    let done = stepTrip(options, session, { type: 'action', id: 'guarded' })
+    expect(done.state.present!.map((p) => [p.character.id, p.fights])).toEqual([
+      ['chest', false],
+      ['goblin', undefined],
+    ])
+    expect(done.state.encounter!.order).toEqual(['kael', 'mira', 'goblin'])
+    expect(tripFacts(options, done.state).present).toMatchObject({
+      count: 2,
+      ids: ['chest', 'goblin'],
+      fighters: { count: 1, ids: ['goblin'] },
+      chest: { count: 1 },
+    })
+    expect(encounterView(done.state)!.fighters.map((f) => f.id)).toEqual(['kael', 'mira', 'goblin'])
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    // The goblin down, the chest still here: the fight is over.
+    expect(done.state.encounter).toBeUndefined()
+    expect(done.state.present!.map((p) => p.character.id)).toEqual(['chest'])
+    expect(tripFacts(options, done.state).present).toMatchObject({
+      count: 1,
+      fighters: { count: 0, ids: [] },
+    })
   })
 })
 

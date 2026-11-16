@@ -51,10 +51,10 @@ crypt-contents:
   description: |-
     Lo que guarda una cripta de los Túmulos Hondos, tirado al entrar por primera vez.
 
-    **Enseña:** los `contents` propios de una pieza, en lugar de `discover.contents`; un resultado que pone a uno entre los presentes (`present.barrow-dead`) y deja un estado en la hoja propia del lugar (`place.conditions.restless: true`), que _Los muertos se levantan otra vez_ lee cuando la Compañía vuelve.
+    **Enseña:** los `contents` propios de una pieza, en lugar de `discover.contents`; un resultado que pone una cosa presente que no lucha (`present.grave-chest`: un cofre que examinar, forzar, reventar o abrir); un resultado que pone a uno entre los presentes (`present.barrow-dead`) y deja un estado en la hoja propia del lugar (`place.conditions.restless: true`), que _Los muertos se levantan otra vez_ lee cuando la Compañía vuelve.
   entries:
     bones: Huesos y nada más
-    grave-goods: Un ajuar que nadie ha tocado
+    grave-goods: Un cofre de ajuar que nadie ha tocado
     sleeper: Un durmiente que no sigue durmiendo
 dead-rise:
   name: Los muertos se levantan otra vez

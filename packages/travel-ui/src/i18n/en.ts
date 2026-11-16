@@ -260,7 +260,7 @@ export const en = {
   /** Those present: copies of the system's templates the trip made. */
   present: {
     title: 'Here',
-    help: "Those present: who the trip meets, made from the templates of the system's bestiary (an encounter that brings three wolves makes three copies, each with its own rolled values). The ones at the party's place are here; tables, checks and actions read them and their effects reach them, depending on the system:\n• `present.wolf: 3` — three wolves come\n• `present.count: { gte: 1 }` — whether anyone is here\n• `present.highest.values.mind` — the most of a value among them (`lowest`: the least)\n• `present.wolf.values.health: -2` — every wolf here\n• `characters.wolf-2.values.health: -2` — one of them\nA copy whose sheet has a condition that takes it off (a foe down at 0 health) leaves by itself when it holds.\nOn a map, a click on one's token opens its card here, and a drag moves it in the trip.",
+    help: "Those present: who the trip meets, made from the templates of the system's bestiary (an encounter that brings three wolves makes three copies, each with its own rolled values). The ones at the party's place are here; tables, checks and actions read them and their effects reach them, depending on the system:\n• `present.wolf: 3` — three wolves come\n• `present.count: { gte: 1 }` — whether anyone is here\n• `present.fighters.count: { gte: 1 }` — whether anyone who fights is here (not a chest: a template with `fights: false` is a thing, left out of fights)\n• `present.highest.values.mind` — the most of a value among them (`lowest`: the least)\n• `present.wolf.values.health: -2` — every wolf here\n• `characters.wolf-2.values.health: -2` — one of them\nA copy whose sheet has a condition that takes it off (a foe down at 0 health) leaves by itself when it holds.\nOn a map, a click on one's token opens its card here, and a drag moves it in the trip.",
     none: 'Nobody here.',
     add: 'Add from the bestiary',
     addHelp:
@@ -288,7 +288,7 @@ export const en = {
     away: 'A fight goes on (round {round}).',
     back: 'Back to the fight',
     title: 'Fight, round {round}',
-    help: "A fight in turns, as the system says its fights go (`encounter:` in its rules): who acts in order, round by round. On a turn of the party's, the trip waits for you to choose what that one does among the fight's actions; the foes' turns go by themselves. Travelling and the trip's other actions wait until it ends. It ends by itself when the system's rule says (`ends`), when an action ends it, or by hand with **End the fight**.\n• `encounter: start` — an effect that starts one (the system's **Fight**, an ambush)\n• `ends: { present.count: 0 }` — over when nobody is left",
+    help: "A fight in turns, as the system says its fights go (`encounter:` in its rules): who acts in order, round by round. On a turn of the party's, the trip waits for you to choose what that one does among the fight's actions; the foes' turns go by themselves. Travelling and the trip's other actions wait until it ends. It ends by itself when the system's rule says (`ends`), when an action ends it, or by hand with **End the fight**.\n• `encounter: start` — an effect that starts one (the system's **Fight**, an ambush)\n• `ends: { present.fighters.count: 0 }` — over when no foe is left (a chest here doesn't fight)",
     order: 'Who acts, in order',
     partySide: 'The party’s side, in order',
     foesSide: 'The foes, in order',

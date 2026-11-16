@@ -27,6 +27,11 @@ export interface Present {
   at: string
   /** Gone once the party leaves its place (the template's `behind: leave`); absent: it stays. */
   behind?: 'leave'
+  /**
+   * A thing present that doesn't fight (its template's `fights: false`: a chest, a trap):
+   * no side of a fight, not among `present.fighters`. Absent: it fights.
+   */
+  fights?: false
 }
 
 /** What the session needs of a system to make and keep copies. */
@@ -101,6 +106,10 @@ export function presentBrought(
 /** The copies at the party's place now. */
 export const presentHere = (s: Pick<PresentTarget, 'present' | 'travel'>): Present[] =>
   (s.present ?? []).filter((p) => p.at === s.travel.location)
+
+/** Those at the party's place now that fight (a fight's foes): not the things that don't. */
+export const fightersHere = (s: Pick<PresentTarget, 'present' | 'travel'>): Present[] =>
+  presentHere(s).filter((p) => p.fights !== false)
 
 /** The sheet a copy is made with, when the system has it. */
 export const copySheet =
@@ -178,7 +187,12 @@ export function changePresent(
       { id: copyId, name, from: found.bestiary },
       { roller: roll(copyId), context, items: rules.items },
     )
-    made.push({ character, at, ...(template.behind === 'leave' && { behind: 'leave' as const }) })
+    made.push({
+      character,
+      at,
+      ...(template.behind === 'leave' && { behind: 'leave' as const }),
+      ...(!template.fights && { fights: false as const }),
+    })
   }
   s.present = [...(s.present ?? []), ...made]
   events.push({
@@ -233,9 +247,14 @@ const left = (
  * Brings a character to the party's place as one of those present (in place): one taken from
  * the roster, made from a template or by hand. A copy of the trip's own with its id makes
  * room (its id numbered), so the one brought keeps its id and its link. It stays when left
- * behind, as the system's default.
+ * behind, as the system's default; one made from a template that doesn't fight (`fights:
+ * false`, found in `rules`) doesn't.
  */
-export function addPresent(s: PresentTarget, character: CharacterState): PresentEvent[] {
+export function addPresent(
+  s: PresentTarget,
+  character: CharacterState,
+  rules?: Pick<PresentRules, 'bestiary'>,
+): PresentEvent[] {
   const used = new Set([
     ...(s.party ? [s.party.id] : []),
     ...(s.members ?? []).map((m) => m.id),
@@ -247,7 +266,15 @@ export function addPresent(s: PresentTarget, character: CharacterState): Present
       p.character.id === character.id ? { ...p, character: { ...p.character, id: free } } : p,
     )
   }
-  s.present = [...(s.present ?? []), { character, at: s.travel.location ?? '' }]
+  const template = character.template && rules?.bestiary?.(character.template.id)?.template
+  s.present = [
+    ...(s.present ?? []),
+    {
+      character,
+      at: s.travel.location ?? '',
+      ...(template && !template.fights && { fights: false as const }),
+    },
+  ]
   return [
     {
       type: 'PRESENT_CAME',
@@ -356,7 +383,8 @@ export function copyFacts(p: Present, rules: PresentRules): Record<string, unkno
 /**
  * What conditions and tables read of those present: `present.ids`, `present.count`,
  * `present.tags` (every tag of those here), `present.conditions` (every condition one of them
- * holds), `present.highest.values.<id>` and `.lowest`
+ * holds), `present.fighters.count` and `.ids` (those that fight: not the things whose
+ * template says `fights: false`), `present.highest.values.<id>` and `.lowest`
  * (the most and least of a value among them) and each template's `present.<id>.count` and
  * `.ids` (every template of the system, at 0 when none is here); and each copy here as a
  * character (`characters.<id>.*`), beside the members.
@@ -379,6 +407,7 @@ export function presentFacts(
     t.ids.push(p.character.id)
   }
   const characters = Object.fromEntries(here.map((p) => [p.character.id, copyFacts(p, rules)]))
+  const fighters = here.filter((p) => p.fights !== false).map((p) => p.character.id)
   const conditions = new Set(
     Object.values(characters).flatMap((c) => (c.conditions as string[] | undefined) ?? []),
   )
@@ -387,6 +416,7 @@ export function presentFacts(
       ...byTemplate,
       ids: here.map((p) => p.character.id),
       count: here.length,
+      fighters: { count: fighters.length, ids: fighters },
       tags: [...tags],
       conditions: [...conditions],
       ...extremes(Object.values(characters)),

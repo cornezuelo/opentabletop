@@ -42,6 +42,31 @@ sheet/foe:
       told:
         gains: '{{name}} se vuelve contra vosotros'
         loses: '{{name}} no quiere haceros daño'
+sheet/chest:
+  name: Cofre
+  description: |-
+    Un cofre hallado en las Marcas: lo dura que es su cerradura y si guarda una aguja envenenada, las dos cosas tiradas al encontrarlo.
+
+    **Enseña:** una hoja para una cosa presente que no lucha (el `fights: false` de su plantilla): valores que tira cada copia (`lock: '{{max(1d6 - 2, 0)}}'`), estados que se cumplen por sí solos sobre ellos (_Cerrado_ mientras su cerradura pasa de 0, _Con aguja_ mientras la tiene), que leen las acciones dirigidas a él (`where: { 'characters[candidate].conditions': locked }`), y uno que lo quita de los presentes (_Abierto_, `leaves: true`), que se oye al irse (`on: present.leave`) para tirar lo que hay dentro.
+  values:
+    lock:
+      name: Cerradura
+      description: Lo dura que es su cerradura, sumado a lo que pide forzarla con ganzúa (7 o más con 2d6 y Sigilo, más esto); a 0, está abierto.
+    needle:
+      name: Aguja
+      description: El daño de la aguja envenenada de su cerradura, a quien lo abre o falla con la ganzúa; a 0, ninguna (o ya sacada).
+  conditions:
+    locked:
+      name: Cerrado
+      description: Su cerradura aguanta. Forzadla con ganzúa, o reventadlo.
+    needled:
+      name: Con aguja
+      description: Una aguja envenenada espera en su cerradura, para quien lo abra o falle con la ganzúa. Examinadlo para sacarla.
+    opened:
+      name: Abierto
+      description: Abierto, y cogido lo que había dentro; deja de estar entre los presentes.
+      told:
+        gains: '{{name}} queda abierto'
 bestiary/marches:
   name: Quién recorre las Marcas
   description: |-
@@ -57,7 +82,8 @@ bestiary/marches:
     - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
     - Cómo se dibuja cada una en un mapa y como su cara en un combate (`token:` su icono y su tipo)
     - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada), y el de los muertos inquietos (`actions: table.dead-turn`); las demás hacen lo que dice el sistema (`encounter.foes`)
-    - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, y los muertos inquietos, en su túmulo (`behind: stay`)
+    - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, los muertos inquietos, en su túmulo, y un cofre de ajuar, en su cripta (`behind: stay`)
+    - Quién no lucha (`fights: false`): los viajeros y los jinetes del Valle, con quienes uno se cruza y no se pelea, y el cofre de ajuar, una cosa de una cripta con una hoja propia (_Cofre_), a la que se dirigen acciones (_Examinarlo_, _Forzar la cerradura_, _Reventarlo_, _Abrirlo_); ninguno es un bando de un combate, ni lo cuenta `present.fighters`
     - Quién es un enemigo, como etiqueta (`foe`), y quién quiere hacer daño ahora, como un estado con el que empieza todo enemigo (`conditions: [hostile]`) y que quita una reacción que no sea hostil: mientras haya aquí uno que lo tenga (`present.conditions: hostile`), la Compañía está _Acosada_ (su hoja), y no puede seguir la marcha ni ocuparse de otra cosa hasta que se las vea con ellos o se repliegue
   templates:
     traveller:
@@ -87,6 +113,9 @@ bestiary/marches:
     vale-rider:
       name: Jinete del Valle
       description: Uno de la patrulla del Valle, que recorre sus caminos y sus lindes.
+    grave-chest:
+      name: Cofre de ajuar
+      description: Un cofre reforzado con hierro, con el ajuar de los antiguos; alguno aún guarda una aguja en la cerradura.
 foe-turn:
   name: El turno de un enemigo
   description: |-

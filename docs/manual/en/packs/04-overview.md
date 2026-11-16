@@ -27,7 +27,7 @@ Its **Name** and **Description**, as every app shows them (in the interface's la
 - **A foe aims at**: whom a foe's turn goes for, chosen as it begins, before anything is rolled (`party.members.random`, or the one with the least or most of a value: `party.members.lowest.values.health`); its tables read that one as `encounter.target`, so a defence or an armour can count before the dice ([Kinds](../technical/07-kinds.md#systems)). Empty: nobody is chosen beforehand.
 - **Minutes a round takes**: so lights burn down and clocks move during a fight; empty, no time passes.
 - **What a member does on its turn**: the system's actions ticked, the only ones open in a fight; taking one ends the turn. A target is a parameter whose choices are those present (`from: present.ids`), in [Rules](05-rules.md).
-- **Ends when**: a condition read after every turn (`present.count: 0`, nobody left); empty, only an action's `encounter: end` or the player end it.
+- **Ends when**: a condition read after every turn (`present.fighters.count: 0`, no foe left; a thing that doesn't fight, a chest, isn't counted); empty, only an action's `encounter: end` or the player end it.
 - **A turn is lost when**: a condition read as each turn begins, acting as whoever's turn it is (`acting.conditions: stunned`); while it holds, that turn passes by itself, its moment still said. Empty: no turn is lost.
 
 ## Packs it brings

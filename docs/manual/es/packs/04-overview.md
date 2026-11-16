@@ -27,7 +27,7 @@ Su **Nombre** y su **Descripción**, como los muestran todas las aplicaciones (e
 - **Un enemigo apunta a**: a quién va el turno de un enemigo, elegido al empezar, antes de tirar nada (`party.members.random`, o el que tenga menos o más de un valor: `party.members.lowest.values.health`); sus tablas lo leen como `encounter.target`, así que una defensa o una armadura pueden contar antes de los dados ([Tipos](../technical/07-kinds.md#sistemas)). Vacío: no se elige a nadie de antemano.
 - **Minutos que dura una ronda**: para que las luces se gasten y los relojes avancen durante un combate; vacío, no pasa el tiempo.
 - **Qué hace un miembro en su turno**: las acciones del sistema marcadas, las únicas abiertas en un combate; hacer una termina el turno. Un objetivo es un parámetro cuyas opciones son los presentes (`from: present.ids`), en [Reglas](05-rules.md).
-- **Acaba cuando**: una condición que se lee después de cada turno (`present.count: 0`, no queda nadie); vacía, solo lo acaban el `encounter: end` de una acción o el jugador.
+- **Acaba cuando**: una condición que se lee después de cada turno (`present.fighters.count: 0`, no queda ningún enemigo; una cosa que no lucha, un cofre, no cuenta); vacía, solo lo acaban el `encounter: end` de una acción o el jugador.
 - **Se pierde un turno cuando**: una condición que se lee al empezar cada turno, actuando como aquel de quien es el turno (`acting.conditions: stunned`); mientras se cumple, ese turno pasa solo, y su momento llega igualmente. Vacía: no se pierde ningún turno.
 
 ## Packs que trae

@@ -59,6 +59,7 @@
     { field: 'names', label: t('bestiaryForm.names'), type: 'value' },
     { field: 'actions', label: t('bestiaryForm.actions'), type: 'value' },
     { field: 'behind', label: t('bestiaryForm.behind'), type: 'select' },
+    { field: 'fights', label: t('bestiaryForm.fights'), type: 'value' },
   ])
 </script>
 

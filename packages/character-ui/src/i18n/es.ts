@@ -93,6 +93,11 @@ export const es: Messages<typeof en> = {
       'Qué pasa con las copias cuando el grupo deja el lugar donde se hicieron: se **quedan** allí o **se van**. Lo decide el sistema; vacío toma lo del bestiario, y si no, se quedan.',
     stay: 'Se quedan',
     leave: 'Se van',
+    fights: 'Lucha',
+    fightsHelp:
+      'Si sus copias luchan. **No**: una cosa del lugar que no lucha (un cofre, una trampa, un altar): está entre los presentes, con su tarjeta y las acciones que se dirigen a ella, pero un combate la deja fuera (sin turno, no es un enemigo) y `present.fighters` no la cuenta. `present.count` cuenta a todos.\n• `present.fighters.count: { gte: 1 }` — hay un enemigo aquí, no solo un cofre\n• `when: { target.conditions: locked }` — una acción dirigida a uno cerrado',
+    fightsYes: 'Sí',
+    fightsNo: 'No: es una cosa',
     valuesHelp:
       'Los valores de la hoja con que empieza: un número, o una tirada entre llaves que se resuelve para cada copia. Vacío: el valor por defecto de la hoja (en gris).\n• `{{2d4}}` — dos dados de cuatro caras\n• `{{1d6+2}}`\n• `3`',
     tagsHelp:

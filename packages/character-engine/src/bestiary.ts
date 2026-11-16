@@ -53,6 +53,12 @@ const template = z
       .strict()
       .optional(),
     behind: z.enum(BEHIND).optional(),
+    /**
+     * Whether its copies fight (absent: they do). `false`: a thing present that doesn't (a
+     * chest, a trap), aimed at by actions, left out of a fight's sides and of
+     * `present.fighters`.
+     */
+    fights: z.boolean().optional(),
   })
   .strict()
 
@@ -73,8 +79,11 @@ export const bestiarySchema = z
 export type Bestiary = z.infer<typeof bestiarySchema>
 export type TemplateDef = z.infer<typeof template>
 
-/** Ids a template can't have: they read every copy (`present.all`, `present.count`, `present.tags`, `present.ids`). */
-export const RESERVED_TEMPLATE_IDS = ['all', 'count', 'tags', 'ids'] as const
+/**
+ * Ids a template can't have: they read every copy (`present.all`, `present.count`,
+ * `present.tags`, `present.ids`) or those that fight (`present.fighters`).
+ */
+export const RESERVED_TEMPLATE_IDS = ['all', 'count', 'tags', 'ids', 'fighters'] as const
 
 /** Reads a `kind: bestiary` definition: the catalogue, or the problems found (`path: message`). */
 export function parseBestiary(raw: unknown): { bestiary?: Bestiary; errors: string[] } {
@@ -134,6 +143,8 @@ export interface Template {
   items?: Record<string, number | string>
   token?: TemplateDef['token']
   behind: Behind
+  /** Whether its copies fight. */
+  fights: boolean
 }
 
 /**
@@ -144,7 +155,14 @@ export interface Template {
 export function resolveTemplate(def: Bestiary, id: string): Template | undefined {
   const { chain, loop } = likeChain(def, id)
   if (!chain.length || loop) return undefined
-  const out: Template = { id, tags: [], conditions: [], values: {}, behind: 'stay' }
+  const out: Template = {
+    id,
+    tags: [],
+    conditions: [],
+    values: {},
+    behind: 'stay',
+    fights: true,
+  }
   // The furthest first, so each variant writes over what it's like.
   for (const t of [...chain].reverse()) {
     for (const key of ['name', 'description', 'sheet', 'names', 'actions', 'token'] as const)
@@ -154,6 +172,7 @@ export function resolveTemplate(def: Bestiary, id: string): Template | undefined
     Object.assign(out.values, t.values)
     if (t.items) out.items = { ...out.items, ...t.items }
     if (t.behind) out.behind = t.behind
+    if (t.fights !== undefined) out.fights = t.fights
   }
   out.sheet ??= def.sheet
   if (!chain.some((t) => t.behind) && def.behind) out.behind = def.behind

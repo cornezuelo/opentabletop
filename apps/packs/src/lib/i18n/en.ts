@@ -342,6 +342,7 @@ export const en = {
     conditions: 'Conditions',
     items: 'Items',
     tags: 'Tags',
+    fights: 'Fights',
     actions: 'On its turn',
     names: 'Names',
     noSheet:
@@ -807,7 +808,7 @@ export const en = {
     noActions: 'The system has no actions a player takes: add them in **Rules**.',
     ends: 'Ends when',
     endsHelp:
-      'When a fight ends by itself: read when it begins and after every turn. Empty: only an effect or the player end it.\n• `present.count: 0` — nobody is left\n• `party.conditions: fled` — the party has run',
+      'When a fight ends by itself: read when it begins and after every turn. Empty: only an effect or the player end it.\n• `present.fighters.count: 0` — no foe is left (things that do not fight, a chest, are not counted)\n• `party.conditions: fled` — the party has run',
     skip: 'A turn is lost when',
     skipHelp:
       "When one taking part loses their turn: read as each turn begins, acting as whoever's turn it is, before what was given until their turn counts down. The turn passes by itself (the journal says so); its moment (`encounter.turn`) still comes, so what happens on every turn still happens. Empty: no turn is lost.\n• `acting.conditions: stunned` — while stunned\n• `acting.conditions: surprised` — with `lasts: turns` on the sheet and given `1`: the first turn lost, then gone",

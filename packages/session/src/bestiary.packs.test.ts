@@ -625,7 +625,7 @@ describe('the bundled packs fight in turns', () => {
       actions: ['strike'],
       aim: 'party.members.random',
       foes: 'table.foe-turn',
-      ends: { 'present.count': 0 },
+      ends: { 'present.fighters.count': 0 },
       skip: { 'acting.conditions': 'staggered' },
     })
     const { state, lines } = fight(core, 'fight', 'c')
@@ -1598,5 +1598,193 @@ describe('a turn of a fight and what it sets off', () => {
     expect(done.state.party!.values.morale).toBe(morale - 1)
     expect(done.state.party!.conditions).toHaveProperty('gave-ground')
     expect(done.state.present!.length).toBeGreaterThan(0)
+  })
+})
+
+describe("things present that don't fight", () => {
+  const road: TravelWorld = {
+    km: () => 1,
+    place: () => ({ terrain: 'plains' }),
+    neighbors: (id) => (id === 'a' ? ['b'] : ['a']),
+    distance: () => 1,
+    connections: () => ['road'],
+  }
+
+  it('Core: a locked chest besets nobody and fights nobody; forced, then opened, it gives food', () => {
+    const options = {
+      system: core,
+      world: road,
+      oracle: createOracleEngine({ registry, random: seeded(1) }),
+    }
+    const rules = partyOf(core)
+    const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
+    const { session } = startTrip({ system: core, location: 'a', seed: 'c', time: 9 * 60, members })
+    let s = settleTrip(
+      options,
+      applyResult(session, { effects: { 'present.chest': 1 } }, {}, rules),
+    ).state
+    expect(s.present).toEqual([expect.objectContaining({ fights: false })])
+    expect(tripFacts(options, s).present).toMatchObject({ count: 1, fighters: { count: 0 } })
+    const open = tripAvailability(options, s)
+    // Not beset, no fight, nothing to get away from.
+    expect(open.travel).toBeUndefined()
+    expect(open.fight).toMatchObject({ condition: 'when' })
+    expect(open['get-away']).toMatchObject({ condition: 'when' })
+    expect(open['force-chest']).toBeUndefined()
+    // Locked: Open it lists no chest, so nothing opens.
+    s = stepTrip(options, s, { type: 'action', id: 'open-chest' }).state
+    expect(s.present).toHaveLength(1)
+    const food = s.party!.values.food
+    for (let n = 0; n < 20 && s.present![0].character.conditions.locked; n++)
+      s = stepTrip(options, s, {
+        type: 'action',
+        id: 'force-chest',
+        with: { chest: 'chest' },
+      }).state
+    expect(s.present![0].character.conditions).not.toHaveProperty('locked')
+    expect(tripAvailability(options, s)['force-chest']).toMatchObject({ condition: 'when' })
+    s = stepTrip(options, s, { type: 'action', id: 'open-chest', with: { chest: 'chest' } }).state
+    expect(s.present ?? []).toEqual([])
+    expect(s.party!.values.food).toBe(food + 1)
+  })
+
+  it('Core: a chest beside a foe stays out of the fight, which ends with the foe', () => {
+    const options = {
+      system: core,
+      world: road,
+      oracle: createOracleEngine({ registry, random: seeded(1) }),
+    }
+    const rules = partyOf(core)
+    const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
+    const { session } = startTrip({ system: core, location: 'a', seed: 'c', time: 9 * 60, members })
+    let s = applyResult(
+      { ...session, foesAtOnce: true },
+      { effects: { 'present.chest': 1, 'present.foe': 1 } },
+      {},
+      rules,
+    )
+    s = stepTrip(options, s, { type: 'action', id: 'fight' }).state
+    expect(s.encounter!.order).toEqual(['kael', 'foe'])
+    for (let n = 0; n < 30 && s.encounter; n++)
+      s = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe: 'foe' } }).state
+    expect(s.encounter).toBeUndefined()
+    expect(s.present!.map((p) => p.character.id)).toEqual(['chest'])
+  })
+
+  it('the Grey Marches: a grave-goods chest found in a crypt, looked over, picked or broken, and opened', () => {
+    const rules = partyOf(marches)
+    const crypt = rollUntil('grey-marches/table.crypt-contents', 'grave-goods', {})
+    expect(crypt.value.effects).toEqual({ 'present.grave-chest': 1 })
+    const members = [
+      newMember(rules, { id: 'kael', name: 'Kael', values: { survival: 2, stealth: 3 } }),
+      newMember(rules, { id: 'mara', name: 'Mara' }),
+    ]
+    const options = {
+      system: marches,
+      world: road,
+      oracle: createOracleEngine({ registry, random: seeded(4) }),
+    }
+    const opened: number[] = []
+    const kinds = new Set<string>()
+    for (const [i, seed] of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'].entries()) {
+      const { session } = startTrip({ system: marches, location: 'a', seed, time: 9 * 60, members })
+      // Kael and Mara by turns: Mara has neither Survival nor Stealth to speak of.
+      const who = i % 2 ? 'mara' : 'kael'
+      let s = settleTrip(options, {
+        ...applyResult(session, crypt.value, {}, rules),
+        acting: who,
+      }).state
+      const health = () => s.members!.find((m) => m.id === who)!.values.health
+      const chest = () => s.present?.find((p) => p.character.template?.id === 'grave-chest')
+      expect(chest()).toMatchObject({ fights: false, character: { sheet: 'grey-marches/chest' } })
+      const { lock, needle } = chest()!.character.values
+      expect(lock).toBeGreaterThanOrEqual(0)
+      expect(lock).toBeLessThanOrEqual(4)
+      expect(needle).toBeGreaterThanOrEqual(0)
+      expect(needle).toBeLessThanOrEqual(2)
+      expect(Object.keys(chest()!.character.conditions).sort()).toEqual(
+        [...(lock ? ['locked'] : []), ...(needle ? ['needled'] : [])].sort(),
+      )
+      const open = tripAvailability(options, s)
+      // A thing: not beset, nothing to stand and fight or drive off.
+      expect(open.travel).toBeUndefined()
+      expect(open.stand).toMatchObject({ condition: 'when' })
+      expect(open['drive-off']).toMatchObject({ condition: 'when' })
+      const closed = (yes: number) =>
+        yes ? undefined : expect.objectContaining({ condition: 'when' })
+      expect(open['look-chest']).toEqual(closed(needle))
+      expect(open['pick-chest']).toEqual(closed(lock))
+      expect(open['break-chest']).toEqual(closed(lock))
+      const take = (id: string) => {
+        const done = stepTrip(options, s, { type: 'action', id, with: { chest: 'grave-chest' } })
+        s = done.state
+        // What the noise brought stops the trip: on with it.
+        const entries = [...done.entries]
+        while (s.travel.pendingChecks.length) {
+          const on = stepTrip(options, s, {
+            type: 'resolveCheck',
+            id: s.travel.pendingChecks[0].id,
+          })
+          s = on.state
+          entries.push(...on.entries)
+        }
+        return entries
+      }
+      if (needle) {
+        const before = health()
+        take('look-chest')
+        kinds.add(health() < before ? 'pricked' : 'drawn')
+        expect(chest()!.character.values.needle).toBe(0)
+      }
+      // Kael picks it, a few times; Mara breaks it open, waking the noise.
+      for (let n = 0; n < 3 && who === 'kael' && chest()!.character.values.lock; n++)
+        take('pick-chest')
+      if (chest()!.character.values.lock) {
+        const lines = take('break-chest')
+        expect(lines.some((e) => e.data?.event === 'table.door-noise')).toBe(true)
+        kinds.add('broken')
+      }
+      const silver = s.party!.values.silver
+      const lines = take('open-chest')
+      expect(chest()).toBeUndefined()
+      expect(lines.some((e) => e.data?.event === 'table.chest-goods')).toBe(true)
+      opened.push(s.party!.values.silver - silver)
+    }
+    expect(opened).toHaveLength(10)
+    expect(opened.some((n) => n > 0)).toBe(true)
+    expect([...kinds].sort()).toEqual(['broken', 'drawn', 'pricked'])
+  })
+
+  it('the Grey Marches: travellers and a chest beside bandits are no side of the fight', () => {
+    const rules = partyOf(marches)
+    const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
+    const options = {
+      system: marches,
+      world: road,
+      oracle: createOracleEngine({ registry, random: seeded(1) }),
+    }
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      seed: 'f',
+      time: 9 * 60,
+      members,
+    })
+    let s = applyResult(
+      { ...session, acting: 'kael' },
+      { effects: { 'present.grave-chest': 1, 'present.traveller': 1, 'present.bandit': 1 } },
+      {},
+      rules,
+    )
+    expect(tripFacts(options, s).present).toMatchObject({ count: 3, fighters: { count: 1 } })
+    // Every one here routed (Driving them off): the bandit runs; the chest has no such
+    // condition on its sheet, and stays.
+    const routed = settleTrip(
+      options,
+      applyResult(s, { effects: { 'present.all.conditions.routed': true } }, {}, rules),
+    ).state
+    expect(routed.present!.map((p) => p.character.id)).toEqual(['grave-chest', 'traveller'])
+    s = stepTrip(options, s, { type: 'action', id: 'stand' }).state
+    expect(s.encounter!.order.filter((id) => id !== 'kael')).toEqual(['bandit'])
   })
 })

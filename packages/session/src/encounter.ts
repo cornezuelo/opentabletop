@@ -12,7 +12,7 @@ import { resolveChange } from '@open-tabletop/variables'
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { PARTY_ID } from './party'
 import { chooseTarget, ONE_TARGET } from './target'
-import { presentHere } from './present'
+import { fightersHere } from './present'
 import type { JournalEntry, SessionState } from './index'
 
 /** The two sides of an encounter: the party's (its members, or the party itself) and the foes'. */
@@ -225,8 +225,8 @@ export const fightStarters = (rules: TravelRules): string[] =>
 /** The party's side: its members, or the party itself when it's played as a whole. */
 const partySide = (s: SessionState): string[] =>
   s.members?.length ? s.members.map((m) => m.id) : [PARTY_ID]
-/** Those of the foes' side here now. */
-const foesSide = (s: SessionState): string[] => presentHere(s).map((p) => p.character.id)
+/** Those of the foes' side here now: those present that fight. */
+const foesSide = (s: SessionState): string[] => fightersHere(s).map((p) => p.character.id)
 
 /** The side of one taking part. */
 export const sideOf = (s: SessionState, id: string): Side =>

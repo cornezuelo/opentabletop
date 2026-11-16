@@ -126,7 +126,7 @@
     if (!taken) return
     roster.set(taken.roster)
     const character = taken.character
-    edit((s) => addPresent(s, character))
+    edit((s) => addPresent(s, character, partyOf(system, locale)))
   }
 
   /** A copy kept in the roster, linked to this trip (a new id if its own is taken there). */

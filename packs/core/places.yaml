@@ -23,14 +23,16 @@ id: place-found
 tags: [places]
 name: A place found?
 description: |-
-  Whether exploring finds a place worth marking: on a 6, a **Landmark**. It rolls the map's Finds die, a d6 that drops to a d4 once a landmark is found, so a map has one.
+  Whether exploring finds a place worth marking: on a 6, a **Landmark**; on a 5, a locked chest. It rolls the map's Finds die, a d6 that drops to a d4 once a landmark is found, so a map has one.
 
-  **Shows:** a result that makes a place from a template (`effects: { place.pois.landmark: 1 }`); a die whose size is a value that steps (`roll: '1d{{max(map.values.finds, 4)}}'`, `map.values.finds: -1`).
+  **Shows:** a result that makes a place from a template (`effects: { place.pois.landmark: 1 }`); one that makes a thing present that doesn't fight (`present.chest: 1`); a die whose size is a value that steps (`roll: '1d{{max(map.values.finds, 4)}}'`, `map.values.finds: -1`).
 # At least a d4: rolled in the Oracle, with no map, it has no Finds die.
 # At least a d4: rolled in the Oracle, with no map, there is no Finds die.
 roll: '1d{{max(map.values.finds, 4)}}'
 entries:
-  - { id: nothing, range: 1-5, result: Nothing worth marking }
+  - { id: nothing, range: 1-4, result: Nothing worth marking }
+  # A thing present that doesn't fight (bestiary.yaml's Locked chest).
+  - { id: chest, range: 5, result: A locked chest, effects: { present.chest: 1 } }
   - {
       id: landmark,
       range: 6,

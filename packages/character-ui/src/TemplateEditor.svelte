@@ -13,7 +13,7 @@
    * A template of a bestiary edited as the sheet it is made with: its values (a number or a
    * roll in braces, rolled for each copy), its conditions, tags and items, and what makes it
    * a template: the one it is a variant of, the generator for its names, what becomes of
-   * copies left behind and how its token looks. It writes the template as the pack does:
+   * copies left behind, whether they fight and how its token looks. It writes the template as the pack does:
    * what is empty is left out.
    */
   let {
@@ -175,6 +175,17 @@
         <option value="">—</option>
         <option value="stay">{t('template.stay')}</option>
         <option value="leave">{t('template.leave')}</option>
+      </select>
+    </label>
+    <label>
+      <span>{t('template.fights')}<InfoTip markdown={t('template.fightsHelp')} /></span>
+      <select
+        value={template.fights === false ? 'false' : ''}
+        {disabled}
+        onchange={(e) => set('fights', e.currentTarget.value === 'false' ? false : undefined)}
+      >
+        <option value="">{t('template.fightsYes')}</option>
+        <option value="false">{t('template.fightsNo')}</option>
       </select>
     </label>
   </div>

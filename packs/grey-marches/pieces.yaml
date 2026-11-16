@@ -166,10 +166,17 @@ name: In the crypt
 description: |-
   What a crypt of the Deep Barrows holds, rolled on first coming in.
 
-  **Shows:** a piece's own `contents`, in place of `discover.contents`; a result that makes one of those present (`present.barrow-dead`) and leaves a condition on the place's own sheet (`place.conditions.restless: true`), which _The dead rise again_ reads when the Company comes back.
+  **Shows:** a piece's own `contents`, in place of `discover.contents`; a result that makes a thing present that doesn't fight (`present.grave-chest`: a chest to look over, pick, break or open); a result that makes one of those present (`present.barrow-dead`) and leaves a condition on the place's own sheet (`place.conditions.restless: true`), which _The dead rise again_ reads when the Company comes back.
 entries:
   - { id: bones, weight: 3, result: Bones and nothing else, set: { poi: false } }
-  - { id: grave-goods, weight: 2, result: Grave-goods nobody has touched }
+  # A thing present that doesn't fight (bestiary.yaml's grave-goods chest): opened, picked or
+  # broken by the actions aimed at it.
+  - {
+      id: grave-goods,
+      weight: 2,
+      result: A chest of grave goods nobody has touched,
+      effects: { present.grave-chest: 1 },
+    }
   - {
       id: sleeper,
       weight: 1,

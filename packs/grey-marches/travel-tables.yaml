@@ -473,3 +473,83 @@ entries:
         - { present.highest.values.morale: { lt: '{{roll + party.stats.survival}}' } }
     result: 'They will not be driven off, and the Company loses heart ({{roll + party.stats.survival}} against {{present.highest.values.morale}})'
     effects: { party.stats.morale: -1 }
+---
+# Looking a chest over (travel.yaml's Look it over), aimed at the one chosen
+# (`characters[params.chest]`, the action's parameter): its needle drawn, or sprung.
+kind: table
+id: look-chest
+tags: [rules]
+name: Looking it over
+description: |-
+  Rolled by _Look it over_ at a chest with a needle in its lock: 2d6 and the Survival of whoever acts. 8 or more, the needle is drawn; otherwise it pricks them, for its harm, and it's spent.
+
+  **Shows:** a table rolled on a thing present that doesn't fight, chosen by its action (`characters[params.chest].values.needle`), read in its text and changed by its effects; the one acting harmed by it (`acting.values.health`).
+roll: '2d6 + {{acting.values.survival}}'
+entries:
+  - id: drawn
+    range: 8-20
+    result: 'A needle in the lock, drawn with care ({{roll}})'
+    effects: { 'characters[params.chest].values.needle': '=0' }
+  - id: pricked
+    range: 2-7
+    result: 'The needle pricks {{acting.name}} ({{roll}}): {{characters[params.chest].values.needle}} harm'
+    effects:
+      acting.values.health: '-{{characters[params.chest].values.needle}}'
+      'characters[params.chest].values.needle': '=0'
+---
+# Picking a chest's lock (travel.yaml's Pick it): 7 and its Lock or more.
+kind: table
+id: pick-chest
+tags: [rules]
+name: Picking the lock
+description: |-
+  Rolled by _Pick it_ at a locked chest: 2d6 and the Stealth of whoever acts, against 7 and the chest's Lock. Made, it's open; a fumble (4 or less) springs its needle, if it has one; otherwise the lock holds.
+
+  **Shows:** a roll against a value of the thing chosen (`'characters[params.chest].values.lock': { lt: '{{roll - 6}}' }`), the rows told apart by conditions on it, written as each other's opposites so one always comes up.
+roll: '2d6 + {{acting.values.stealth}}'
+entries:
+  - id: open
+    range: 2-20
+    when: { 'characters[params.chest].values.lock': { lt: '{{roll - 6}}' } }
+    result: 'The lock gives ({{roll}} against {{7 + characters[params.chest].values.lock}})'
+    effects: { 'characters[params.chest].values.lock': '=0' }
+  - id: sprung
+    range: 2-4
+    when: { 'characters[params.chest].conditions': needled }
+    unless: { 'characters[params.chest].values.lock': { lt: '{{roll - 6}}' } }
+    result: 'A fumble, and the needle springs: {{characters[params.chest].values.needle}} harm to {{acting.name}}'
+    effects:
+      acting.values.health: '-{{characters[params.chest].values.needle}}'
+      'characters[params.chest].values.needle': '=0'
+  - id: holds
+    range: 2-20
+    unless:
+      any:
+        - { 'characters[params.chest].values.lock': { lt: '{{roll - 6}}' } }
+        - all:
+            - { 'characters[params.chest].conditions': needled }
+            - { roll: { lte: 4 } }
+    result: 'The lock holds ({{roll}} against {{7 + characters[params.chest].values.lock}})'
+---
+# What a chest held (travel.yaml's Take the grave goods), rolled as it leaves those present.
+kind: table
+id: chest-goods
+tags: [treasure]
+name: In the chest
+description: |-
+  What a chest of grave goods held, rolled as it's opened: dust, old silver, or the gold of the old kings.
+
+  **Shows:** a table rolled as a thing present leaves (`on: present.leave`), only for one that was opened (`when: { acting.template: grave-chest, acting.conditions: opened }`), read acting as it.
+roll: 1d6
+entries:
+  - { id: dust, range: 1-2, result: Dust and rotten cloth }
+  - id: silver
+    range: 3-5
+    set: { coins: '{{2d6}}' }
+    result: '{{coins}} pieces of old silver'
+    effects: { party.stats.silver: '{{coins}}' }
+  - id: gold
+    range: 6
+    set: { crowns: '{{1d6+2}}' }
+    result: '{{crowns}} gold crowns of the old kings'
+    effects: { party.stats.silver: '{{crowns * 10}}' }

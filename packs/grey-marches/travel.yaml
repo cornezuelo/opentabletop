@@ -736,7 +736,7 @@ actions:
     name: The Company is overcome
     description: 'As a fight ends with no companion left standing and foes still here: the Company loses heart (1 morale) and is left where it lies; it may crawl away from them (_Gave ground_, until the next place).'
     on: encounter.end
-    when: { party.stats.standing: 0, present.count: { gte: 1 } }
+    when: { party.stats.standing: 0, present.fighters.count: { gte: 1 } }
     do:
       - { effects: { party.stats.morale: -1, party.conditions.gave-ground: 1 } }
       - {
@@ -794,14 +794,14 @@ actions:
       - when: { factions.iron-clans.conditions: at-war }
         effects: { party.stats.morale: -1 }
   # Those present (bestiary.yaml): the copies of templates the encounters made, at the
-  # Company's hex. Open while someone hostile is here (`present.count`, `present.tags`), outside
+  # Company's hex. Open while someone who fights is here (`present.fighters.count`), outside
   # a fight; a roll that can fail (travel-tables.yaml's _Driving them off_): every one of them
   # routed at once (`present.all.…`), or the fight they bring.
   drive-off:
     group: groups.fight
     name: Drive them off
     description: 'With foes here, before a fight: ten minutes of shouting, steel and fire. 2d6 and the Survival of whoever acts (the Company’s, with no companions) against the firmest foe’s Morale: over it, they all run; otherwise they stand, and the fight begins (with no companions, the Company loses heart, morale -1, and they stay).'
-    when: { present.count: { gte: 1 } }
+    when: { present.fighters.count: { gte: 1 } }
     unless: { any: [{ present.tags: vale }, { encounter.round: { gte: 1 } }] }
     needs: { any: [{ acting: { exists: true } }, { party.members: { exists: false } }] }
     hideWhenUnavailable: true
@@ -833,16 +833,19 @@ actions:
       - { roll: generator.blow }
       - { id: struck, say: 'A blow, aimed at one of them.' }
   # Outlaws among those present (a tag of their template): a ration for each of them
-  # (`'-{{present.count}}'`), and a condition that takes them off (`bought-off`).
+  # (`'-{{present.fighters.count}}'`), and a condition that takes them off (`bought-off`).
   buy-off:
     group: groups.fight
     name: Buy them off
     description: 'With outlaws here: a ration for each one of them, and they go.'
-    when: { present.tags: outlaw, party.items.ration.count: { gte: '{{present.count}}' } }
+    when: { present.tags: outlaw, party.items.ration.count: { gte: '{{present.fighters.count}}' } }
     hideWhenUnavailable: true
     do:
       - effects:
-          { party.items.ration: '-{{present.count}}', present.all.conditions.bought-off: true }
+          {
+            party.items.ration: '-{{present.fighters.count}}',
+            present.all.conditions.bought-off: true,
+          }
       - { id: paid, say: 'The outlaws take the food and melt back into the hills.' }
   # A fight in turns (system.yaml: `encounter:`), begun by an effect (`encounter: start`). In
   # it only Strike one down and Fall back are open, on a companion's turn; the rest wait.
@@ -850,7 +853,7 @@ actions:
     group: groups.fight
     name: Stand and fight
     description: 'With foes here: a fight in turns, each one in the order of what it rolls (1d6 and Stealth, or a foe’s Harm), a minute a round, until no foe is left. Strike one down on your turns, or fall back.'
-    when: { present.count: { gte: 1 } }
+    when: { present.fighters.count: { gte: 1 } }
     unless: { present.tags: vale }
     # The Marches' fights are the companions' (no `encounter.whole`): with none, the button
     # says so.
@@ -914,7 +917,7 @@ actions:
     description: 'After a fight won (no foe left here): each companion still standing gains a renown.'
     on: encounter.end
     for: party.members
-    when: { present.count: 0, acting.values.health: { gte: 1 } }
+    when: { present.fighters.count: 0, acting.values.health: { gte: 1 } }
     do:
       - { effects: { acting.values.renown: 1 } }
   # As a companion's renown reaches three times their rank (a reaction for each member), they
@@ -977,6 +980,101 @@ actions:
     when: { acting.conditions: down }
     do:
       - { roll: table.fallen }
+  # A thing present that doesn't fight (bestiary.yaml's grave-goods chest, `fights: false`):
+  # actions aimed at one, chosen among those here they hold for (`from: present.ids`,
+  # `where:` read for each as `candidate`), their steps on the one chosen
+  # (`characters[params.chest].…`). Open while one here holds what they need
+  # (`present.conditions: needled`: a condition one of those here has).
+  look-chest:
+    group: groups.here
+    name: Look it over
+    description: 'At a chest with a needle in its lock: ten minutes. 2d6 and the Survival of whoever acts, 8 or more: the needle is drawn; otherwise it pricks them (its harm), and it’s spent.'
+    when: { present.conditions: needled }
+    needs: { acting: { exists: true } }
+    hideWhenUnavailable: true
+    params:
+      chest:
+        name: Which chest?
+        description: One of the chests here with a needle in its lock.
+        from: present.ids
+        where: { 'characters[candidate].conditions': needled }
+    do:
+      - { ask: params.chest }
+      - { time: 10 }
+      - { roll: table.look-chest }
+  pick-chest:
+    group: groups.here
+    name: Pick it
+    description: 'At a locked chest: ten minutes. 2d6 and the Stealth of whoever acts, 7 and its Lock or more: it’s open; a fumble springs its needle, if it has one.'
+    when: { present.conditions: locked }
+    needs: { acting: { exists: true } }
+    hideWhenUnavailable: true
+    params:
+      chest:
+        name: Which chest?
+        description: One of the locked chests here.
+        from: present.ids
+        where: { 'characters[candidate].conditions': locked }
+    do:
+      - { ask: params.chest }
+      - { time: 10 }
+      - { roll: table.pick-chest }
+  # As forcing a door (Force the door): the dead of this map stir, and the noise may bring one.
+  break-chest:
+    group: groups.here
+    name: Break it open
+    description: 'At a locked chest: ten minutes of crowbar and hammer. It’s open, and its needle snapped; the dead of this place stir (Restless dead +1), and the noise may bring what sleeps below (_The noise of it_).'
+    when: { present.conditions: locked }
+    hideWhenUnavailable: true
+    params:
+      chest:
+        name: Which chest?
+        description: One of the locked chests here.
+        from: present.ids
+        where: { 'characters[candidate].conditions': locked }
+    do:
+      - { ask: params.chest }
+      - { time: 10 }
+      - effects:
+          'characters[params.chest].values.lock': '=0'
+          'characters[params.chest].values.needle': '=0'
+          map.values.unrest: 1
+      - { id: broken, say: 'The lock gives with a crack that echoes down the barrow.' }
+      - { roll: table.door-noise }
+  # Opened, it leaves those present (its sheet's _Opened_, `leaves: true`), and what's inside
+  # is rolled as it goes (Take the grave goods). A needle still in it pricks whoever opens it.
+  open-chest:
+    group: groups.here
+    name: Open it
+    description: 'At a chest whose lock doesn’t hold: a needle still in it pricks whoever opens it; what’s inside is the Company’s.'
+    when: { present.grave-chest.count: { gte: 1 } }
+    hideWhenUnavailable: true
+    params:
+      chest:
+        name: Which chest?
+        description: One of the chests here whose lock doesn't hold.
+        from: present.ids
+        where:
+          'characters[candidate].template': grave-chest
+          not: { 'characters[candidate].conditions': locked }
+    do:
+      - { ask: params.chest }
+      - when: { 'characters[params.chest].conditions': needled }
+        id: pricked
+        say: 'A needle in the lock pricks the hand that opens it.'
+      - when: { 'characters[params.chest].conditions': needled }
+        effects:
+          acting.values.health: '-{{characters[params.chest].values.needle}}'
+          'characters[params.chest].values.needle': '=0'
+      - effects: { 'characters[params.chest].conditions.opened': true }
+  # As an opened chest leaves those present (`present.leave`, it acting): what was inside.
+  grave-goods:
+    name: Take the grave goods
+    description: 'As a chest is opened: what it held, rolled (_In the chest_).'
+    on: present.leave
+    when: { acting.template: grave-chest, acting.conditions: opened }
+    do:
+      - { roll: table.chest-goods }
   # As the pack leader leaves (`present.leave`, the one leaving acting) with grey wolves still
   # here, the rest of the pack runs. Not a moment written as a condition (no leader, wolves
   # here): that would hold too for a lone wolf put here by hand, which has no leader to lose.

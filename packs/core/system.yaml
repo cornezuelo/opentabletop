@@ -30,14 +30,15 @@ items: [items.gear]
 # Who stands in the way (bestiary.yaml): the template its trouble makes foes from.
 bestiary: [bestiary.foes]
 # Its fights go in turns (travel.yaml's Fight and Strike): the party's side first, a Strike
-# on each member's turn, a foe's turn its blow (bestiary.yaml), over once no foe is left.
+# on each member's turn, a foe's turn its blow (bestiary.yaml), over once no foe is left
+# (`present.fighters`: a chest here doesn't fight).
 encounter:
   order: { by: side, first: party }
   actions: [actions.strike]
   foes: table.foe-turn
   # Whom a foe's turn goes for, chosen as it begins: its table reads `encounter.target`.
   aim: party.members.random
-  ends: { present.count: 0 }
+  ends: { present.fighters.count: 0 }
   # A staggered foe (sheet.yaml, `lasts: rounds`) loses its turns while it lasts.
   skip: { acting.conditions: staggered }
 # What exploring may find (places.yaml): a place written on the map's hex.

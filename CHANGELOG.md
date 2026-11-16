@@ -4,6 +4,16 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Packs**: a template can be a thing that doesn't fight (**Fights** → **No: a thing**, `fights: false`): a chest, a trap, someone met who is no foe. It's among those present with its card and the actions aimed at it, but a fight leaves it out (no turn, not a foe), and `present.fighters.count` (and `.ids`) counts only those who fight; `present.count` still counts everyone.
+- **Trips**: **Start a fight** is offered only while someone who fights is here.
+
+### Packs
+
+- **The Grey Marches**: a crypt of the Deep Barrows may hold a **grave-goods chest**, its lock and its poisoned needle rolled as it's found: **Look it over** (Survival) draws the needle or is pricked by it, **Pick it** (Stealth against its lock; a fumble springs the needle), **Break it open** (noisy, as forcing a door), **Open it**, and what it held is rolled (_In the chest_). Travellers and the Vale's riders no longer take a side in a fight. Fights, **Stand and fight**, **Drive them off** and **Buy them off** count only those who fight.
+- **Core**: **Explore** may find a **locked chest** (on a 5): **Force it**, then **Open it** for a day's food. **Fight**, **Beset** and **Victory** count only those who fight.
+
 ## [0.64.0] - 2026-11-16
 
 ### Apps

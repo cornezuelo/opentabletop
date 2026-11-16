@@ -236,6 +236,43 @@ travel-rules/default:
     strip-the-fallen:
       name: Despojar a los caídos
       description: 'Cuando cae un enemigo: lo que deja depende de quién era. La bolsa y las raciones de un forajido, el tesoro de un cabecilla, el ajuar de los muertos; una bestia, nada.'
+    look-chest:
+      name: Examinarlo
+      description: 'Ante un cofre con una aguja en la cerradura: diez minutos. 2d6 y la Supervivencia de quien actúa, 8 o más: la aguja sale; si no, le pincha (su daño), y queda gastada.'
+      params:
+        chest:
+          name: ¿Qué cofre?
+          description: Uno de los cofres de aquí con una aguja en la cerradura.
+    pick-chest:
+      name: Forzar la cerradura
+      description: 'Ante un cofre cerrado: diez minutos. 2d6 y el Sigilo de quien actúa, 7 más su Cerradura o más: se abre; una pifia hace saltar su aguja, si la tiene.'
+      params:
+        chest:
+          name: ¿Qué cofre?
+          description: Uno de los cofres cerrados de aquí.
+    break-chest:
+      name: Reventarlo
+      description: 'Ante un cofre cerrado: diez minutos de palanca y martillo. Queda abierto y su aguja partida; los muertos de este lugar se agitan (Muertos inquietos +1), y el ruido puede traer lo que duerme abajo (_El ruido_).'
+      params:
+        chest:
+          name: ¿Qué cofre?
+          description: Uno de los cofres cerrados de aquí.
+      do:
+        broken:
+          say: 'La cerradura cede con un crujido que resuena por todo el túmulo.'
+    open-chest:
+      name: Abrirlo
+      description: 'Ante un cofre cuya cerradura no aguanta: una aguja que siga en él pincha a quien lo abre; lo que hay dentro es de la Compañía.'
+      params:
+        chest:
+          name: ¿Qué cofre?
+          description: Uno de los cofres de aquí cuya cerradura no aguanta.
+      do:
+        pricked:
+          say: 'Una aguja de la cerradura pincha la mano que lo abre.'
+    grave-goods:
+      name: Coger el ajuar
+      description: 'Al abrir un cofre: lo que guardaba, tirado (_En el cofre_).'
     mind-the-mail:
       name: Revisar la malla
       description: 'Tras un combate, cada pieza que lleva puesta cada compañero tira su dado de desgaste: un 1–2 lo baja un escalón, y un d4 que saca 1–2 queda destrozado.'

@@ -1063,8 +1063,8 @@ describe('Packs → Sheet: the company of three plays as the page says', () => {
 
   it('loads (steps 1–7)', () => {
     expect(diagnostics.map(formatDiagnostic)).toEqual([])
-    // Explore rolls Core's prompt and whether a place is found, Strike Core's blow and Search
-    // the fallen what they carry, which this test doesn't bring; Core's Victory hears a fight's
+    // Explore rolls Core's prompt and whether a place is found, Strike Core's blow, Search
+    // the fallen what they carry and Force it the chest's lock, which this test doesn't bring; Core's Victory hears a fight's
     // end, and this system's fights have no turns (a warning).
     expect(
       travelSystems(registry)
@@ -1075,6 +1075,7 @@ describe('Packs → Sheet: the company of three plays as the page says', () => {
             !p.includes('table.place-found') &&
             !p.includes('table.strike') &&
             !p.includes('table.fallen') &&
+            !p.includes('table.force-chest') &&
             !p.includes('actions.victory.on'),
         ),
     ).toEqual([])

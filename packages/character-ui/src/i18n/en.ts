@@ -92,6 +92,11 @@ export const en = {
       "What becomes of copies when the party leaves the place they were made: they **stay** there, or **leave**. It is the system's to decide; empty takes the bestiary's, else they stay.",
     stay: 'Stay',
     leave: 'Leave',
+    fights: 'Fights',
+    fightsHelp:
+      "Whether its copies fight. **No**: a thing in the place that doesn't (a chest, a trap, an altar): it's among those present, with its card and the actions aimed at it, but a fight leaves it out (no turn, not a foe), and `present.fighters` doesn't count it. `present.count` counts everyone.\n• `present.fighters.count: { gte: 1 }` — a foe is here, not just a chest\n• `when: { target.conditions: locked }` — an action aimed at a locked one",
+    fightsYes: 'Yes',
+    fightsNo: 'No: a thing',
     valuesHelp:
       "The sheet's values it starts with: a number, or a roll in braces that is rolled for every copy. Empty: the sheet's default (shown faint).\n• `{{2d4}}` — two four-sided dice\n• `{{1d6+2}}`\n• `3`",
     tagsHelp: 'Words conditions read it by, each one a pill:\n• `beast`, `leader`',

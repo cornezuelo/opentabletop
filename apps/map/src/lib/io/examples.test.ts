@@ -711,8 +711,13 @@ describe('example maps', () => {
       'close-eyes': { condition: 'when' }, // nobody's night eyes are open
       forewarned: { condition: 'when' }, // no tracks read here
       overcome: { condition: 'when' }, // no fight lost
+      'look-chest': { condition: 'when' }, // no chest here
+      'pick-chest': { condition: 'when' },
+      'break-chest': { condition: 'when' },
+      'open-chest': { condition: 'when' },
+      'grave-goods': { condition: 'when' }, // no chest opened
     })
-    expect(Object.keys(unavailable)).toHaveLength(35)
+    expect(Object.keys(unavailable)).toHaveLength(40)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

@@ -204,6 +204,8 @@ export function contextSuggestions(
       const templates = bestiary.flatMap((b) => Object.entries(b.def.templates))
       add('present.ids')
       add('present.count')
+      add('present.fighters.count')
+      add('present.fighters.ids')
       add('present.tags', ...new Set(templates.flatMap(([, t]) => t.tags ?? [])))
       add(
         'present.conditions',

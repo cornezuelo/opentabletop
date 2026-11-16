@@ -161,7 +161,7 @@ Nothing in the tools knows experience or levels: they're values of the character
 victory: # after a fight with no foe left, each one standing gains 1
   on: encounter.end
   for: party.members
-  when: { present.count: 0, acting.values.health: { gte: 1 } }
+  when: { present.fighters.count: 0, acting.values.health: { gte: 1 } }
   do:
     - { effects: { acting.values.xp: 1 } }
 level-up: # as one's experience reaches 3: a level, the experience starting again
