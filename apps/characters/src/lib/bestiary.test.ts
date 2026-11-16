@@ -52,14 +52,14 @@ describe('the bestiary in Characters', () => {
   it('names copies by the template’s generator, and finds and deletes a template’s copies', async () => {
     const { roster, systems, makeCopies, copiesOf, deleteCopies } = await open()
     const marches = systems.list.find((s) => s.id === 'grey-marches')!
-    const bandit = { bestiary: 'grey-marches/marches', id: 'bandit', name: 'Bandit' }
-    const [hrolf] = makeCopies(marches, bandit, 1)
+    const traveller = { bestiary: 'grey-marches/marches', id: 'traveller', name: 'Traveller' }
+    const [hrolf] = makeCopies(marches, traveller, 1)
     const named = roster.roster.characters.find((e) => e.character.id === hrolf)!.character
-    expect(named.name).not.toMatch(/^Bandit/)
-    expect(named.template).toEqual({ id: 'bandit', from: 'grey-marches/marches' })
+    expect(named.name).not.toMatch(/^Traveller/)
+    expect(named.template).toEqual({ id: 'traveller', from: 'grey-marches/marches' })
     makeCopies(marches, wolf, 2)
     expect(copiesOf(wolf)).toHaveLength(2)
-    expect(copiesOf(bandit)).toHaveLength(1)
+    expect(copiesOf(traveller)).toHaveLength(1)
     expect(deleteCopies(wolf)).toBe(2)
     expect(roster.roster.characters.map((e) => e.character.id)).toEqual([hrolf])
   })

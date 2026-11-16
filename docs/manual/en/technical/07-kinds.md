@@ -589,7 +589,7 @@ templates:
   bandit:
     sheet: sheet.companion # an NPC type on the characters' own sheet
     name: Bandit
-    names: table.names # each copy named from a table (missing: Bandit, Bandit 2 and so on)
+    names: table.names # each copy named from a table (missing: Bandit 1, Bandit 2 and so on)
     items: { knife: 1, ration: '{{1d2}}' } # from the system's catalogues
     conditions: [outlaw]
     behind: stay # this one stays where it was met
@@ -598,7 +598,7 @@ templates:
 - Each template, by an id effects and tables name it with (never `all`, `count`, `tags` or `ids`, no dots): `name`, `description`, `sheet` (a [sheet](#sheets) of this pack or a dependency's; missing: the bestiary's), `values` (numbers, or `{{…}}` rolled for each copy; missing: the sheet's `default`), `conditions` and `tags` it starts with, `items` (how many of each, from the system's [catalogues](#item-catalogues), numbers or rolls; missing: the sheet's `items.start`), `names` (a table, oracle or generator rolled for each copy's name), `actions` (what a copy does on its turn in a [fight in turns](#fights-in-turns): a table rolled for it, acting as it), `token` (how it's drawn on a map: `icon`, `kind`, one of `pc`, `npc` or `enemy`, and `color`; its `icon` is also its face on a fight's cards and order, else its initial), `behind` and `like`.
 - `like`: a variant of another template of this bestiary: it takes that one's sheet, values, items, texts and token, and adds its tags and conditions; what it writes wins. A template that's a variant of itself is refused.
 - `behind`: what becomes of copies once the party leaves their place: `stay` (the default: still there, and present again when the party comes back) or `leave` (gone, with a line in the journal, so the next visit rolls its encounter afresh). The bestiary's, unless a template says otherwise. A copy the player drags to another place on a map isn't left behind: it stays there.
-- A copy is made once: later changes to the template don't touch copies already made. Its id is the template's (`wolf`, `wolf-2`, `wolf-3`), its name the template's, numbered (_Wolf 2_), or rolled on `names`.
+- A copy is made once: later changes to the template don't touch copies already made. Its id is the template's (`wolf`, `wolf-2`, `wolf-3`), its name the template's, numbered from 1 when several come at once (_Wolf 1_, _Wolf 2_; one alone is _Wolf_), or rolled on `names`.
 - A [sheet](#sheets) condition with `leaves: true` takes a copy off those present as soon as it has it: one that holds by itself (`down` with `when: { self.values.health: { lte: 0 } }`) or one an effect sets (`routed`).
 - As a copy leaves those present (by such a condition, taken away by an effect, `present.foe: -1`, or left behind; not when the player takes it off), the moment `present.leave` comes, with it acting (`acting.*`), read as it was when it left: an action `on: present.leave` (or a check `at:`) searches what it carried, its condition saying how it went (`when: { acting.conditions: down }`), its tags and `acting.template` who it was. Core's _Search the fallen_, the Grey Marches' _Strip the fallen_.
 - Tables, conditions and effects reach them as `present.*` and `characters.<id>.*`: [What tables see](04-what-tables-see.md#those-present-present), [Syntax](09-syntax.md#changing-the-party-effects).

@@ -282,6 +282,11 @@ describe('the bundled packs make foes from their bestiaries', () => {
     const count = Number(bandits.text!.split(' ')[0])
     expect(s.present).toHaveLength(count)
     expect(s.present!.at(-1)!.character.name).toBe('Bandit chief')
+    // No names of their own: _Bandit 1_, _Bandit 2_… (one alone, _Bandit_).
+    const band = s.present!.slice(0, -1).map((p) => p.character.name)
+    expect(band).toEqual(
+      count > 2 ? Array.from({ length: count - 1 }, (_, i) => `Bandit ${i + 1}`) : ['Bandit'],
+    )
     // Enough rations for all of them (two each companion starts with, and more).
     s = applyResult(s, { effects: { 'party.items.ration': count } }, {}, rules)
     expect(tripAvailability({ system: marches, world: heath }, s)['buy-off']).toBeUndefined()

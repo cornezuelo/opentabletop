@@ -52,7 +52,7 @@ bestiary/marches:
     - Plantillas de personajes (`kind: bestiary`) sobre una hoja propia del pack (`sheet: sheet.foe`), y una sobre la de los compañeros (un tipo de PNJ: los jinetes del Valle)
     - Valores que tira cada copia: `toughness: '{{1d4+1}}'`, y su salud empieza ahí
     - Una variante: el jefe de la manada es un lobo gris (`like: grey-wolf`) con más salud y una etiqueta propia; el cabecilla de los bandidos, igual
-    - Copias con nombre sacado de una tabla (`names: table.npc-names`): _Brenna_, _Corin_… en lugar de _Bandido 2_
+    - Copias con nombre sacado de una tabla (`names: table.npc-names`): un viajero es _Brenna_ o _Corin_, alguien con quien hablar; sin `names`, una copia es el nombre de su plantilla y un número (_Bandido 2_, _Jinete del Valle 3_)
     - Lo que más o lo menos daña a cada una, como sus etiquetas (`fears-fire`, `fireproof`, `unhallowed`, `bone`), que lee el tipo de un golpe (_El golpe acierta_)
     - Lo que lleva una copia, del equipo de la Compañía (`items:`), y un estado con el que empieza (`conditions: [enraged]`)
     - Cómo se dibuja cada una en un mapa y como su cara en un combate (`token:` su icono y su tipo)

@@ -144,8 +144,9 @@ describe('those present: copies of templates in a trip', () => {
       ...Array.from({ length: wolves - 1 }, (_, i) => `wolf-${i + 2}`),
       'leader',
     ])
+    // Several of them: numbered from 1.
     expect(present[0].character).toMatchObject({
-      name: 'Wolf',
+      name: wolves > 1 ? 'Wolf 1' : 'Wolf',
       sheet: 'wilds/beast',
       tags: ['pack'],
     })
@@ -249,7 +250,7 @@ describe('those present: copies of templates in a trip', () => {
     s = applyResult(s, { effects: { 'characters.wolf-2.values.health': '=1' } }, {}, rules)
     expect(s.present![1].character.values.health).toBe(1)
     expect(removePresent(s, 'wolf')).toEqual([
-      { type: 'PRESENT_LEFT', id: 'wolf', name: 'Wolf', template: 'wolf', because: 'hand' },
+      { type: 'PRESENT_LEFT', id: 'wolf', name: 'Wolf 1', template: 'wolf', because: 'hand' },
     ])
     expect(s.present!.map((p) => p.character.id)).toEqual(['wolf-2'])
     s = applyResult(s, { effects: { 'present.wolf': '=0' } }, {}, rules)
@@ -259,7 +260,7 @@ describe('those present: copies of templates in a trip', () => {
   it('copies added are named in the language asked for, else the pack’s', () => {
     const { session } = startTrip({ system: wilds, location: 'a', time: 8 * 60 })
     const s = applyResult(session, { effects: { 'present.wolf': 2 } }, {}, partyOf(wilds, 'es'))
-    expect(s.present!.map((p) => p.character.name)).toEqual(['Lobo', 'Lobo 2'])
+    expect(s.present!.map((p) => p.character.name)).toEqual(['Lobo 1', 'Lobo 2'])
     const t = applyResult(session, { effects: { 'present.wolf': 1 } }, {}, partyOf(wilds))
     expect(t.present![0].character.name).toBe('Wolf')
   })

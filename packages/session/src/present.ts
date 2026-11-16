@@ -167,7 +167,8 @@ export function changePresent(
   for (let n = here.length; n < to; n++) {
     const copyId = newId(id, taken)
     taken.add(copyId)
-    const suffix = copyId === id ? '' : ` ${copyId.slice(id.length + 1)}`
+    // Numbered from 1 when several are here (_Bandit 1_, _Bandit 2_); one alone is its name.
+    const suffix = copyId !== id ? ` ${copyId.slice(id.length + 1)}` : to > 1 ? ' 1' : ''
     const names = rules.templateNames?.(found.bestiary, id)
     const name = (names && rules.nameFrom?.(names, context)) || `${base}${suffix}`
     const character = copyOf(

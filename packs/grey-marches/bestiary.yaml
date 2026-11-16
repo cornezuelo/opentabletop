@@ -80,7 +80,7 @@ description: |-
   - Templates of characters (`kind: bestiary`) on a sheet of the pack's own (`sheet: sheet.foe`), and one on the companions' (an NPC type: the Vale's riders)
   - Values rolled for each copy: `toughness: '{{1d4+1}}'`, its health starting there
   - A variant: the pack leader is a grey wolf (`like: grey-wolf`) with more health and a tag of its own; the bandit chief likewise
-  - Copies named from a table (`names: table.npc-names`): _Brenna_, _Corin_… instead of _Bandit 2_
+  - Copies named from a table (`names: table.npc-names`): a traveller is _Brenna_ or _Corin_, someone to talk to; without `names`, a copy is its template's name and a number (_Bandit 2_, _Rider of the Vale 3_)
   - What harms each the most or the least, as its tags (`fears-fire`, `fireproof`, `unhallowed`, `bone`), read by a blow's kind (_The blow lands_)
   - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
   - How each is drawn on a map and as its face in a fight (`token:` its icon and kind)
@@ -137,7 +137,6 @@ templates:
   bandit:
     name: Bandit
     description: An outlaw of the Hollow Hills, hungry and badly armed.
-    names: table.npc-names
     tags: [foe, people, outlaw]
     values: { toughness: '{{1d6+1}}', harm: 1, morale: 7 }
     conditions: [hostile]
@@ -166,7 +165,6 @@ templates:
     sheet: sheet.companion
     name: Rider of the Vale
     description: One of the Vale's patrol, riding its roads and borders.
-    names: table.npc-names
     tags: [people, vale]
     values: { survival: 2, charisma: 1, health: 3 }
     token: { icon: 'game:mounted-knight', kind: npc }
