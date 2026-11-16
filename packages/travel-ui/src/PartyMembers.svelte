@@ -16,7 +16,14 @@
     type TravelSystem,
   } from '@open-tabletop/session'
   import type { CharacterState } from '@open-tabletop/character-engine'
-  import { CharacterCard, characterUrl, roster, SheetOrigin } from '@open-tabletop/character-ui'
+  import {
+    CharacterCard,
+    CharacterGlance,
+    characterUrl,
+    Face,
+    roster,
+    SheetOrigin,
+  } from '@open-tabletop/character-ui'
   import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import type { Snippet } from 'svelte'
   import Section from './Section.svelte'
@@ -67,6 +74,12 @@
   const roleUses = (id: string) =>
     usesHelp(usesOf(uses, { kind: 'role', id }), system, locale, nameOf, t)
   const members = $derived(session.members ?? [])
+  /** The cards' list, to open or close every one at once. */
+  let listEl = $state<HTMLElement | undefined>()
+  function foldAll(open: boolean) {
+    for (const d of listEl?.querySelectorAll<HTMLDetailsElement>('details.member') ?? [])
+      d.open = open
+  }
   /** What relations may point at: the other characters, then the host's places. */
   const allTargets = $derived([
     ...members.map((m) => ({ ref: `character:${m.id}`, label: memberLabel(m) })),
@@ -235,61 +248,79 @@
       {/each}
     </div>
   {/if}
-  {#each members as member, i (member.id)}
-    <details class="member" open={members.length === 1} use:revealed={member.id}>
-      <summary>
-        <strong>{memberLabel(member)}</strong>
-        {#if session.acting === member.id}<em>{t('members.actingNow')}</em>{/if}
-        <span class="tools">
-          <button
-            class="icon"
-            aria-label={t('members.up')}
-            use:tooltip={t('members.up')}
-            disabled={i === 0}
-            onclick={(e) => {
-              e.preventDefault()
-              move(member, -1)
-            }}>↑</button
+  <div class="list" bind:this={listEl}>
+    {#if members.length > 1}
+      <!-- Each character a folded card: all of them opened or closed at once. -->
+      <p class="fold">
+        <button class="link" onclick={() => foldAll(true)}>{t('members.openAll')}</button>
+        <button class="link" onclick={() => foldAll(false)}>{t('members.closeAll')}</button>
+      </p>
+    {/if}
+    {#each members as member, i (member.id)}
+      <!-- Folded to a line: their face, name, main value and conditions; open, the whole sheet. -->
+      <details class="member" use:revealed={member.id}>
+        <summary>
+          <Face name={memberLabel(member)} />
+          <span class="glance"
+            ><CharacterGlance
+              sheet={system.sheet.def}
+              character={member}
+              {locale}
+              name={memberLabel(member)}
+            /></span
           >
-          <button
-            class="icon"
-            aria-label={t('members.remove')}
-            use:tooltip={t('members.remove')}
-            onclick={(e) => {
-              e.preventDefault()
-              remove(member)
-            }}>×</button
-          >
-        </span>
-      </summary>
-      {#if place}
-        <p class="roster">
-          {#if linked(member)}
-            <a href={characterUrl(member.id)} target="_blank" rel="noopener"
-              >{t('members.openInCharacters')} ↗</a
+          {#if session.acting === member.id}<em>{t('members.actingNow')}</em>{/if}
+          <span class="tools">
+            <button
+              class="icon"
+              aria-label={t('members.up')}
+              use:tooltip={t('members.up')}
+              disabled={i === 0}
+              onclick={(e) => {
+                e.preventDefault()
+                move(member, -1)
+              }}>↑</button
             >
-          {:else}
-            <button class="link" use:tooltip={t('members.keepTip')} onclick={() => keep(member)}
-              >{t('members.keep')}</button
+            <button
+              class="icon"
+              aria-label={t('members.remove')}
+              use:tooltip={t('members.remove')}
+              onclick={(e) => {
+                e.preventDefault()
+                remove(member)
+              }}>×</button
             >
-          {/if}
-        </p>
-      {/if}
-      <CharacterCard
-        sheet={system.sheet.def}
-        character={member}
-        catalogues={system.items}
-        tagChoices={tagsInUse(system, roster.roster, members)}
-        {locale}
-        {names}
-        time={session.travel.time}
-        targets={allTargets}
-        onchange={(next) => change(member, next)}
-      />
-    </details>
-  {:else}
-    <p class="help">{t('members.none')}</p>
-  {/each}
+          </span>
+        </summary>
+        {#if place}
+          <p class="roster">
+            {#if linked(member)}
+              <a href={characterUrl(member.id)} target="_blank" rel="noopener"
+                >{t('members.openInCharacters')} ↗</a
+              >
+            {:else}
+              <button class="link" use:tooltip={t('members.keepTip')} onclick={() => keep(member)}
+                >{t('members.keep')}</button
+              >
+            {/if}
+          </p>
+        {/if}
+        <CharacterCard
+          sheet={system.sheet.def}
+          character={member}
+          catalogues={system.items}
+          tagChoices={tagsInUse(system, roster.roster, members)}
+          {locale}
+          {names}
+          time={session.travel.time}
+          targets={allTargets}
+          onchange={(next) => change(member, next)}
+        />
+      </details>
+    {:else}
+      <p class="help">{t('members.none')}</p>
+    {/each}
+  </div>
   <div class="adding">
     <button class="add" onclick={add}>{t('members.add')}</button>
     {#if available.length}
@@ -318,6 +349,29 @@
 </Section>
 
 <style>
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .fold {
+    display: flex;
+    gap: 12px;
+    margin: 0;
+    font-size: 12px;
+  }
+
+  .member > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .glance {
+    flex: 1;
+    min-width: 0;
+  }
   .roles {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

@@ -713,9 +713,16 @@
     ...(stats.length || (system.partySheet && session.party) || system.sheet
       ? (['party'] as const)
       : []),
+    ...(system.bestiary?.length ||
+    session.present?.length ||
+    (system.mapSheet && session.map && !scene)
+      ? (['here'] as const)
+      : []),
     'totals',
     'options',
   ])
+  /** Those present where the party is: counted on the Here tab. */
+  const hereCount = $derived(presentHere(session).length)
   /** The panel, to scroll to what the trip waits for when asked (`showWaiting`). */
   let tripEl = $state<HTMLDivElement | undefined>()
   /** The fight's stage, moved to the page's end (`portal`). */
@@ -740,11 +747,13 @@
   const tabName = (id: TripTab) =>
     id === 'party'
       ? t('tabs.party')
-      : id === 'journal'
-        ? t('journalTitle')
-        : id === 'options'
-          ? t('tabs.options')
-          : t('tabs.totals')
+      : id === 'here'
+        ? t('tabs.here')
+        : id === 'journal'
+          ? t('journalTitle')
+          : id === 'options'
+            ? t('tabs.options')
+            : t('tabs.totals')
 
   function exportJournal() {
     const markdown = journalMarkdown(filtered, context, title || t('journalTitle'))
@@ -1240,6 +1249,7 @@
       label: tabName(id),
       // What the last step wrote, counted while another tab is shown.
       ...(id === 'journal' && { count: tab !== 'journal' ? latest.size : 0 }),
+      ...(id === 'here' && { count: hereCount }),
     }))}
     value={tab}
     label={t('tabs.label')}
@@ -1283,10 +1293,11 @@
             />
           {/if}
           {#if stats.length}
-            <div class="stats">
-              <h4 class="subhead">
-                {t('section.stats')}<InfoTip markdown={t('partySheet.statsHelp')} />
-              </h4>
+            <!-- Folded to a line: read now and then, not while playing. -->
+            <details class="stats">
+              <summary class="subhead">
+                {t('section.statsWhere')}<InfoTip markdown={t('partySheet.statsHelp')} />
+              </summary>
               {#each stats as [key, stat] (key)}
                 {@const source = statSource(
                   stat.from,
@@ -1321,7 +1332,7 @@
                   {#if source}<span class="source">{source}</span>{/if}
                 </label>
               {/each}
-            </div>
+            </details>
           {/if}
         </Section>
       {/if}
@@ -1338,6 +1349,19 @@
           {systemWhere}
           {uses}
           {nameOf}
+          {onedit}
+        />
+      {/if}
+    {:else if tab === 'here'}
+      <!-- Who is here and this place's sheet: setting a scene is one click away. -->
+      {#if system.bestiary?.length || session.present?.length}
+        <PresentHere
+          {system}
+          {session}
+          {locale}
+          names={blockName}
+          placeName={hexLabel}
+          {place}
           {onedit}
         />
       {/if}
@@ -1360,17 +1384,6 @@
             onchange={editMap}
           />
         </Section>
-      {/if}
-      {#if system.bestiary?.length || session.present?.length}
-        <PresentHere
-          {system}
-          {session}
-          {locale}
-          names={blockName}
-          placeName={hexLabel}
-          {place}
-          {onedit}
-        />
       {/if}
     {:else if tab === 'journal'}
       <div class="filter">
@@ -1763,12 +1776,16 @@
     color: var(--text-muted);
   }
 
-  /* The party's stats under its sheet, each with where it comes from. */
+  /* The party’s stats under its sheet, each with where it comes from: folded to a line. */
   .stats {
     display: flex;
     flex-direction: column;
     gap: 6px;
     margin-top: 8px;
+  }
+
+  .stats > summary {
+    cursor: pointer;
   }
 
   .stat .source {

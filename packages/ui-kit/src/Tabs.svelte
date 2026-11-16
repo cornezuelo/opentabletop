@@ -1,7 +1,8 @@
 <script lang="ts" generics="Id extends string">
   /**
    * A row of tabs that never wraps: when its tabs don't fit the room it has (a side panel,
-   * a narrow window), it becomes a choice of the same tabs. The host draws the tab's panel
+   * a narrow window), they're drawn closer together, and when even that doesn't fit, it
+   * becomes a choice of the same tabs. The host draws the tab's panel
    * with `id="<prefix>-panel"` and `aria-labelledby="<prefix>-tab-<chosen>"`. A tab's `count`
    * (what's new there) is shown beside its name when above 0, its room always kept, so a
    * count coming and going never turns the tabs into a choice.
@@ -25,8 +26,11 @@
   /** The room the row has, and what its tabs need side by side. */
   let room = $state(0)
   let needed = $state(0)
+  /** What they need closer together. */
+  let close = $state(0)
   // Not measured yet (rendered on a server, hidden): the tabs, as they usually fit.
-  const narrow = $derived(room > 0 && needed > room)
+  const tight = $derived(room > 0 && needed > room)
+  const narrow = $derived(tight && close > room)
 </script>
 
 <div class="tabs" bind:clientWidth={room}>
@@ -34,6 +38,11 @@
        size, so tabs wider than the row never make what holds it scroll sideways. -->
   <div class="measure" aria-hidden="true">
     <div class="all" bind:clientWidth={needed}>
+      {#each tabs as tab (tab.id)}<span class="tab"
+          >{tab.label}{#if tab.count !== undefined}<span class="count">99</span>{/if}</span
+        >{/each}
+    </div>
+    <div class="all tight" bind:clientWidth={close}>
       {#each tabs as tab (tab.id)}<span class="tab"
           >{tab.label}{#if tab.count !== undefined}<span class="count">99</span>{/if}</span
         >{/each}
@@ -52,7 +61,7 @@
         >{/each}
     </select>
   {:else}
-    <div class="row" role="tablist" aria-label={label}>
+    <div class="row" class:tight role="tablist" aria-label={label}>
       {#each tabs as tab (tab.id)}
         <button
           role="tab"
@@ -112,6 +121,15 @@
     border: 1px solid transparent;
     border-radius: 6px 6px 0 0;
     cursor: pointer;
+  }
+
+  /* Closer together where they'd otherwise not fit. */
+  .tight .tab {
+    padding: 5px 5px;
+  }
+
+  .tight .count {
+    margin-left: 3px;
   }
 
   .tab.on {

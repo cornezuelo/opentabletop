@@ -5,7 +5,7 @@
 const TAB_KEY = 'opentabletop.trip.tab'
 
 /** The trip panel's tab, under its status and buttons. */
-export type TripTab = 'party' | 'journal' | 'totals' | 'options'
+export type TripTab = 'party' | 'here' | 'journal' | 'totals' | 'options'
 
 class Tab {
   /** The tab chosen last (absent: the panel's first). */
@@ -46,10 +46,20 @@ export function showInParty(id: string): void {
   tripTab.shown = { id, n: (tripTab.shown?.n ?? 0) + 1 }
 }
 
+/** Shows one of those present in the Here tab, its card unfolded and scrolled to. */
+export function showHere(id: string): void {
+  tripTab.choose('here')
+  tripTab.shown = { id, n: (tripTab.shown?.n ?? 0) + 1 }
+}
+
 function readTab(): TripTab | undefined {
   try {
     const raw = localStorage.getItem(TAB_KEY)
-    return raw === 'party' || raw === 'journal' || raw === 'totals' || raw === 'options'
+    return raw === 'party' ||
+      raw === 'here' ||
+      raw === 'journal' ||
+      raw === 'totals' ||
+      raw === 'options'
       ? raw
       : undefined
   } catch {

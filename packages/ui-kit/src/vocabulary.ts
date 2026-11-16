@@ -94,6 +94,8 @@ export const vocabulary = {
     },
     /** The kinds of definition that can be rolled. */
     kinds: { table: 'Table', oracle: 'Oracle', generator: 'Generator', deck: 'Deck' },
+    /** Folded cards, opened or closed all at once wherever there's a list of them. */
+    fold: { openAll: 'Unfold all', closeAll: 'Fold all' },
     /** How a token is drawn on a map (its kind decides its default colours and icon). */
     tokenKinds: { party: 'Party', pc: 'PC', npc: 'NPC', enemy: 'Enemy' },
     pathKinds: {
@@ -247,6 +249,7 @@ export const vocabulary = {
       stay: 'se queda',
     },
     kinds: { table: 'Tabla', oracle: 'Oráculo', generator: 'Generador', deck: 'Mazo' },
+    fold: { openAll: 'Desplegar todo', closeAll: 'Plegar todo' },
     tokenKinds: { party: 'Grupo', pc: 'PJ', npc: 'PNJ', enemy: 'Enemigo' },
     pathKinds: {
       road: 'Camino',

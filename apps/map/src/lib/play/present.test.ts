@@ -157,7 +157,8 @@ describe('those present on the map', () => {
     const heading = sessionOf(editor.map.play!)!.travel.destination
     tool.down({ col: 7, row: 7 }, { ...info, world: { x: 1, y: 0 } })
     tool.up()
-    expect(tripTab.chosen).toBe('party')
+    // Its card in the trip panel's Here tab.
+    expect(tripTab.chosen).toBe('here')
     expect(tripTab.shown?.id).toBe('grey-wolf')
     // Selected as a token is, outlined on the map.
     expect(editor.selectedToken).toBe('present:grey-wolf')

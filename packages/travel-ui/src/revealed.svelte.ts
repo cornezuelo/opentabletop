@@ -1,7 +1,7 @@
 import { tripTab } from './tripTab.svelte'
 
 /**
- * Who a card shows in the Party tab (`showInParty`): asked for, the card and the folds around
+ * Who a card shows in the Party or Here tab (`showInParty`, `showHere`): asked for, the card and the folds around
  * it open, and it's scrolled to.
  */
 export function revealed(node: HTMLElement, id: string) {

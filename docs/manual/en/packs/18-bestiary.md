@@ -22,6 +22,6 @@ Values and conditions come from the sheet and items from the catalogues, so a ma
 1. In **Bestiary**, **New bestiary**. Keep the wolf: unfold its card and write `{{2d4}}` in its **Health**.
 2. Make the leader: unfold **Wolf leader**; its **Variant of** is already `wolf`; write `{{2d4+2}}` in its **Health**.
 3. In **Rules** or the tables, an effect `present.wolf: '{{1d4+2}}'` brings the pack.
-4. **Try it**: after the effect, the trip's **Here** box shows the wolves, each with its own health.
+4. **Try it**: after the effect, the trip's **Here** tab shows the wolves, each with its own health.
 
 Bundled systems are read-only: **Duplicate** one to change it.

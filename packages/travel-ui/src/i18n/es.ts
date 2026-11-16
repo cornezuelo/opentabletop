@@ -16,6 +16,7 @@ export const es: Messages<typeof en> = {
   marched: 'Marcha de hoy: {used} de {limit} h',
   section: {
     stats: 'Características',
+    statsWhere: 'Estadísticas, y de dónde vienen',
   },
   totals: {
     line: '{places} casillas{km} · {hours} de marcha',
@@ -28,6 +29,7 @@ export const es: Messages<typeof en> = {
   tabs: {
     label: 'El viaje',
     party: 'Grupo',
+    here: 'Aquí',
     totals: 'Hasta ahora',
     options: 'Opciones',
   },
@@ -211,6 +213,8 @@ export const es: Messages<typeof en> = {
     show: '{name}: la hoja entera, en la pestaña Grupo',
   },
   members: {
+    openAll: vocabulary.es.fold.openAll,
+    closeAll: vocabulary.es.fold.closeAll,
     land: 'tierras',
     clock: 'Reloj «{name}»',
     title: 'Personajes',

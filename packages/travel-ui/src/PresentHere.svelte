@@ -32,7 +32,7 @@
    * template, edited by hand like the party's characters; those left behind elsewhere,
    * counted under them. A copy can be added from the bestiary, brought from the roster (a
    * creature or NPC made in the Characters app), taken off, or kept in the roster. One
-   * asked for (`showInParty`: its token clicked on a map) unfolds and is scrolled to.
+   * asked for (`showHere`: its token clicked on a map) unfolds and is scrolled to.
    */
   let {
     system,

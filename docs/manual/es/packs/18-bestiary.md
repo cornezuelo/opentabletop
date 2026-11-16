@@ -22,6 +22,6 @@ Los valores y las condiciones salen de la hoja y los objetos de los catálogos, 
 1. En **Bestiario**, **Nuevo bestiario**. Conserva el lobo: despliega su tarjeta y escribe `{{2d4}}` en su **Salud**.
 2. Haz el jefe: despliega **Wolf leader**; su **Variante de** ya es `wolf`; escribe `{{2d4+2}}` en su **Salud**.
 3. En **Reglas** o en las tablas, un efecto `present.wolf: '{{1d4+2}}'` trae la manada.
-4. **Pruébalo**: tras el efecto, la caja **Aquí** del viaje muestra los lobos, cada uno con su salud.
+4. **Pruébalo**: tras el efecto, la pestaña **Aquí** del viaje muestra los lobos, cada uno con su salud.
 
 Los sistemas incluidos son de solo lectura: **Duplicad** uno para cambiarlo.

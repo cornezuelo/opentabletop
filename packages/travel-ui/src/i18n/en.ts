@@ -13,6 +13,7 @@ export const en = {
   /** The trip panel's sections' headings. */
   section: {
     stats: 'Stats',
+    statsWhere: 'Stats, and where they come from',
   },
   totals: {
     line: '{places} cells{km} · {hours} marched',
@@ -26,6 +27,7 @@ export const en = {
   tabs: {
     label: 'The trip',
     party: 'Party',
+    here: 'Here',
     totals: 'So far',
     options: 'Options',
   },
@@ -215,6 +217,8 @@ export const en = {
     show: '{name}: the whole sheet, in the Party tab',
   },
   members: {
+    openAll: vocabulary.en.fold.openAll,
+    closeAll: vocabulary.en.fold.closeAll,
     land: 'land',
     clock: 'Clock “{name}”',
     title: 'Characters',

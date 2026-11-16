@@ -81,7 +81,8 @@ describe('the Party tab', () => {
 describe('those present', () => {
   beforeEach(() => {
     localStorage.clear()
-    localStorage.setItem('opentabletop.trip.tab', 'party')
+    // Those present have a tab of their own: Here.
+    localStorage.setItem('opentabletop.trip.tab', 'here')
     vi.spyOn(Math, 'random').mockReturnValue(0.42)
   })
 
