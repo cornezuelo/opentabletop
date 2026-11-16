@@ -19,7 +19,7 @@
   } from '@open-tabletop/session'
   import type { CharacterState } from '@open-tabletop/character-engine'
   import { CharacterCard, characterUrl, roster } from '@open-tabletop/character-ui'
-  import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
   import type { Snippet } from 'svelte'
   import Section from './Section.svelte'
   import { translator } from './i18n'
@@ -146,9 +146,12 @@
 {#snippet copy(p: (typeof here)[number], open: boolean, where = false)}
   {@const c = p.character}
   {@const sheet = sheetOf(c)}
+  {@const kind = choices.find((k) => k.id === c.template?.id)}
   <details class="copy" data-copy={c.id} {open} use:revealed={c.id}>
     <summary>
       <strong>{c.name ?? c.id}</strong>
+      <!-- What it is, when its name doesn't say (Brenna: a Traveller). -->
+      {#if kind && !(c.name ?? '').startsWith(kind.name)}<span class="kind">{kind.name}</span>{/if}
       <span class="line">{where ? placeName(p.at) : copyLine(c, sheet, locale)}</span>
       <span class="tools">
         <button
@@ -162,6 +165,7 @@
         >
       </span>
     </summary>
+    {#if kind?.description}<div class="what"><Markdown text={kind.description} /></div>{/if}
     {#if place}
       <p class="roster">
         {#if linked(c)}
@@ -295,6 +299,7 @@
   }
 
   .line,
+  .kind,
   .count {
     font-size: 12px;
     color: var(--text-muted);
@@ -302,6 +307,12 @@
 
   .tools {
     margin-left: auto;
+  }
+
+  .what {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--text-muted);
   }
 
   .icon {

@@ -8,6 +8,11 @@ export interface TemplateChoice {
   name: string
   /** The bestiary's name, for grouping a long list. */
   bestiary: string
+  /**
+   * What it is, in the template's words (Markdown): its first paragraph, what a player reads
+   * (the rest of a pack's description says how it's made); '' when it says nothing.
+   */
+  description: string
 }
 
 /** Every template of the system's bestiaries (and those its campaign adds), in their order. */
@@ -21,7 +26,10 @@ export function templateChoices(system: TravelSystem, locale: string): TemplateC
       seen.add(id)
       const template = resolveTemplate(b.def, id)
       const name = localize(template?.name, locale, system.locale) ?? id.replaceAll('-', ' ')
-      return [{ id, name, bestiary }]
+      const description = (localize(template?.description, locale, system.locale) ?? '')
+        .split(/\n\s*\n/)[0]!
+        .trim()
+      return [{ id, name, bestiary, description }]
     })
   })
 }
