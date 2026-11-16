@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.61.0] - 2026-11-16
+
 ### Apps
 
 - **Characters**: a character can have a token of its own (**Token** on its card, an icon of the bundled ones), its face in a fight; the Grey Marches' Kael, Mara and Old Tobin come with one.
