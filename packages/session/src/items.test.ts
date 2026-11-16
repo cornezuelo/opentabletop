@@ -145,6 +145,8 @@ describe('items in a trip', () => {
   it('go with a character as OTD, and back', () => {
     const m = kael()
     m.places = { tail: { name: 'Tail', tags: ['hand'] } }
+    // Its own token too.
+    m.token = { icon: 'game:archer' }
     expect(characterFromOtd(characterToOtd(m))).toEqual(m)
   })
 })

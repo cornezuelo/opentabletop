@@ -11,7 +11,7 @@
     usesOf,
     PARTY_ID,
     systemSheets,
-    templateLook,
+    faceIcon,
     type Declared,
     type EncounterUnavailable,
     type YourRoll as YourRollState,
@@ -1084,7 +1084,7 @@
           turns={told?.turns}
           roster={told?.roster}
           characterOf={(id) => participant(session, id)}
-          iconOf={(id) => templateLook(templates, participant(session, id))?.icon}
+          iconOf={(id) => faceIcon(templates, participant(session, id))}
           partyName={session.party?.name ||
             (system.partySheet && sheetText(system.partySheet.def.name, locale))}
           opening={told?.opening}

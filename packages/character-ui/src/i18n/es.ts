@@ -3,6 +3,9 @@ import type { en } from './en'
 
 export const es: Messages<typeof en> = {
   name: 'Nombre',
+  token: 'Token',
+  tokenHelp:
+    'Cómo se dibuja el personaje en pequeño: su cara en las tarjetas de un combate y en el orden de la ronda (más adelante, su propio token en un mapa). Elige un icono; sin ninguno, una copia de una plantilla tiene el de su plantilla, y cualquier otro su inicial.',
   values: 'Valores',
   conditions: 'Estados',
   tags: 'Etiquetas',

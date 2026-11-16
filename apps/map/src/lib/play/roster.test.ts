@@ -40,6 +40,8 @@ describe('the map and the roster', () => {
     clickHex('7,7')
     const place = mapPlace()
     expect(place).toMatchObject({ app: 'map', id: 'greymarches1' })
+    // Each of the Company comes with a token of their own: their face in a fight.
+    expect(kaelHere().token).toEqual({ icon: 'game:archer' })
     // Keep in the roster (the party's Characters).
     roster.set(keepInRoster(roster.roster, kaelHere(), 'T0', place).roster)
     // Hurt by hand, then a march: the roster follows.

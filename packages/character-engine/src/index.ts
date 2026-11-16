@@ -653,6 +653,11 @@ export interface CharacterState {
   places?: Record<string, OwnPlace>
   /** The template it's a copy of: its id and the bestiary's full id (`pack/id`). */
   template?: { id: string; from: string }
+  /**
+   * How it's drawn small (its face in a fight, its token): a bundled icon's id
+   * (`game:wolf-head`); absent, its template's, else its initial.
+   */
+  token?: { icon: string }
 }
 
 /** A value's start: its number, its dice rolled (seeded by `key`), or 0. */

@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Characters**: a character can have a token of its own (**Token** on its card, an icon of the bundled ones), its face in a fight; the Grey Marches' Kael, Mara and Old Tobin come with one.
 - **Travel**: a system's page is the way and **Start a trip with …** under it; the trip's settings are one line above (_its trip · campaign · season_) with **Change…**; under a system the trip open is always one of it (its latest, or a new one to start); the systems' badges sit under their names.
 - **Trips** (Travel, Map, Campaign): those present and this place's sheet have a tab of their own, **Here**, counting who's here; each character in **Party** is a card folded to one line (face, name, main value, conditions), **Unfold all** / **Fold all**; the party's stats fold under _Stats, and where they come from_. Tabs that don't fit draw closer together before turning into a list.
 - **Map**: Play with no trip is one card, what's missing, the system and season and **Start a trip**, with **Or play without rules** under it and the settings folded; the strip's place centres the map on the party.

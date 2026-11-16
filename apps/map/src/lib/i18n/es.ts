@@ -1,6 +1,5 @@
 import { campaignTexts } from '@open-tabletop/campaign-ui'
 import { vocabulary } from '@open-tabletop/ui-kit'
-import { iconNamesEs } from './iconNames'
 import type { Messages } from './types'
 
 export const es: Messages = {
@@ -219,24 +218,10 @@ export const es: Messages = {
     tabloid: 'Tabloide',
     custom: 'Personalizado',
   },
-  iconNames: iconNamesEs,
-  iconCategories: {
-    terrain: vocabulary.es.terms.terrain,
-    all: 'Todos',
-    suggested: 'Sugeridos',
-    party: 'Grupo',
-    settlements: 'Asentamientos',
-    landmarks: 'Lugares',
-    nature: 'Naturaleza',
-    danger: 'Peligro',
-    modern: 'Moderno',
-    scifi: 'Ciencia ficción y páramo',
-    misc: 'Varios',
-    custom: 'Propios',
-  },
+  iconCategories: { ...vocabulary.es.icons.categories, terrain: vocabulary.es.terms.terrain },
   icons: {
-    search: 'Buscar iconos…',
-    category: 'Categoría',
+    search: vocabulary.es.icons.search,
+    category: vocabulary.es.icons.category,
     empty: 'Ningún icono coincide.',
     selected: 'Un clic en una casilla pone: {name}',
     editing: 'Editando {name} en {coord}',
@@ -568,7 +553,6 @@ export const es: Messages = {
       enemy: 'Enemigos',
     },
     icon: 'Icono del token',
-    upload: 'Importar una imagen…',
     name: 'Nombre',
     note: 'Nota enlazada',
     notePlaceholder: 'Personajes/Ilyana',
@@ -753,7 +737,6 @@ export const es: Messages = {
       'La coordenada de la casilla, en el formato que muestra el mapa (Ajustes del mapa → **Coordenadas**). Su id es `{id}`: columna y fila contadas desde 0, sean cuales sean las etiquetas del mapa, y lo que leen las tablas y las condiciones.\n• `place.id` — el id de la casilla, en una tabla o una condición',
     terrainIdTip: 'El id del terreno, como lo leen las tablas y las reglas de viaje: place.terrain',
     poiIcon: 'Icono (solo para distinguir los PDI aquí)',
-    noIcon: 'Sin icono',
     coord: 'Coordenada',
     terrain: vocabulary.es.terms.terrain,
     none: 'Ninguno',

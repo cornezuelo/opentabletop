@@ -18,6 +18,7 @@
   import { idName, sheetText } from './texts'
   import ValueControl from './ValueControl.svelte'
   import ItemList from './ItemList.svelte'
+  import Face from './Face.svelte'
 
   /**
    * One character made from a sheet, edited by hand: its name, its values (each drawn as
@@ -64,6 +65,8 @@
   } = $props()
 
   const t = translator(() => locale)
+  /** The token's icons shown, to choose one. */
+  let choosingToken = $state(false)
   const where = $derived(path ?? `characters.${character.id}`)
   /** A sheet's text; without one, the id made readable. */
   const text = (value: Parameters<typeof sheetText>[0], fallback = '') =>
@@ -190,6 +193,30 @@
           onchange({ ...character, name: e.currentTarget.value.trim() || undefined })}
       />
     </label>
+    <!-- Its face where it's shown small: its own token's icon, chosen here when wanted. -->
+    <details class="token" bind:open={choosingToken}>
+      <summary
+        ><Face name={character.name ?? character.id} icon={character.token?.icon} /><span
+          >{t('token')}<InfoTip markdown={t('tokenHelp')} /></span
+        ></summary
+      >
+      {#if choosingToken}
+        {#await import('@open-tabletop/ui-kit/icons') then { IconPicker }}
+          <IconPicker
+            value={character.token?.icon}
+            none
+            {locale}
+            label={t('token')}
+            onchange={(icon) => {
+              const next = { ...character }
+              if (icon) next.token = { icon }
+              else delete next.token
+              onchange(next)
+            }}
+          />
+        {/await}
+      {/if}
+    </details>
   {/if}
 
   <div class="groups">
@@ -348,6 +375,19 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .token > summary {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .token[open] > summary {
+    margin-bottom: 6px;
   }
 
   .field {

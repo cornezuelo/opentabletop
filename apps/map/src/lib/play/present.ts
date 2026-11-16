@@ -98,7 +98,7 @@ export function copyTokens(map: HexMap = editor.map): CopyToken[] {
       name: c.name ?? c.id,
       kind,
       hex,
-      iconId: look.icon ?? DEFAULT_TOKEN_ICONS[kind],
+      iconId: c.token?.icon ?? look.icon ?? DEFAULT_TOKEN_ICONS[kind],
       ...(look.color && { color: look.color }),
       group: c.template?.id ?? c.id,
       copy,

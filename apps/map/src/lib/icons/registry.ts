@@ -1,8 +1,14 @@
-import { builtinSvg, getBuiltinIcon, type BuiltinIcon } from '@open-tabletop/ui-kit/icons'
-import { t, type MessageKey } from '../i18n/index.svelte'
+import {
+  builtinSvg,
+  getBuiltinIcon,
+  iconLabel as labelOf,
+  iconMatches as matchesIcon,
+  type BuiltinIcon,
+} from '@open-tabletop/ui-kit/icons'
+import { getLocale } from '../i18n/index.svelte'
 import type { MapAsset } from '@open-tabletop/map'
 
-// The bundled icons are shared (ui-kit); what's Map's own is its assets and the icons' names.
+// The bundled icons are shared (ui-kit); what's Map's own is its imported images.
 export {
   BUILTIN_ICONS,
   builtinSvg,
@@ -35,16 +41,8 @@ export function iconImage(iconId: string, assets: MapAsset[]): IconImage | null 
 }
 
 /** The icon's name in the UI's language ("stone-bridge" → "stone bridge", "puente de piedra"). */
-export function iconLabel(icon: BuiltinIcon): string {
-  const key = `iconNames.${icon.name}` as MessageKey
-  const name = t(key)
-  return name === key ? icon.name.replaceAll('-', ' ') : name
-}
+export const iconLabel = (icon: BuiltinIcon): string => labelOf(icon, getLocale())
 
 /** Whether an icon matches a search, by its name in the UI's language or in English. */
-export function iconMatches(icon: BuiltinIcon, query: string): boolean {
-  const q = query.trim().toLowerCase()
-  return (
-    !q || iconLabel(icon).toLowerCase().includes(q) || icon.name.replaceAll('-', ' ').includes(q)
-  )
-}
+export const iconMatches = (icon: BuiltinIcon, query: string): boolean =>
+  matchesIcon(icon, query, getLocale())

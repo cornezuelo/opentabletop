@@ -819,6 +819,7 @@ export function characterToOtd(
         ...(member.items?.length && { items: member.items }),
         ...(member.places && { places: member.places }),
         ...(member.template && { template: member.template }),
+        ...(member.token && { token: member.token }),
       },
     },
   }
@@ -855,6 +856,9 @@ export function characterFromOtd(raw: {
       own.places !== null &&
       !Array.isArray(own.places) && { places: own.places as CharacterState['places'] }),
     ...(isTemplateRef(own.template) && { template: own.template }),
+    ...(typeof (own.token as { icon?: unknown } | undefined)?.icon === 'string' && {
+      token: { icon: (own.token as { icon: string }).icon },
+    }),
   }
 }
 

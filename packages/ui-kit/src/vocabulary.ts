@@ -94,6 +94,27 @@ export const vocabulary = {
     },
     /** The kinds of definition that can be rolled. */
     kinds: { table: 'Table', oracle: 'Oracle', generator: 'Generator', deck: 'Deck' },
+    /** The bundled icons and their picker (Map's icons and tokens, a character's token). */
+    icons: {
+      search: 'Search icons…',
+      category: 'Category',
+      icon: 'Icon',
+      none: 'No icon',
+      upload: 'Import an image…',
+      categories: {
+        all: 'All',
+        suggested: 'Suggested',
+        party: 'Party',
+        settlements: 'Settlements',
+        landmarks: 'Landmarks',
+        nature: 'Nature',
+        danger: 'Danger',
+        modern: 'Modern',
+        scifi: 'Sci-fi and wasteland',
+        misc: 'Misc',
+        custom: 'Custom',
+      },
+    },
     /** Folded cards, opened or closed all at once wherever there's a list of them. */
     fold: { openAll: 'Unfold all', closeAll: 'Fold all' },
     /** How a token is drawn on a map (its kind decides its default colours and icon). */
@@ -249,6 +270,26 @@ export const vocabulary = {
       stay: 'se queda',
     },
     kinds: { table: 'Tabla', oracle: 'Oráculo', generator: 'Generador', deck: 'Mazo' },
+    icons: {
+      search: 'Buscar iconos…',
+      category: 'Categoría',
+      icon: 'Icono',
+      none: 'Sin icono',
+      upload: 'Importar una imagen…',
+      categories: {
+        all: 'Todos',
+        suggested: 'Sugeridos',
+        party: 'Grupo',
+        settlements: 'Asentamientos',
+        landmarks: 'Lugares',
+        nature: 'Naturaleza',
+        danger: 'Peligro',
+        modern: 'Moderno',
+        scifi: 'Ciencia ficción y páramo',
+        misc: 'Varios',
+        custom: 'Propios',
+      },
+    },
     fold: { openAll: 'Desplegar todo', closeAll: 'Plegar todo' },
     tokenKinds: { party: 'Grupo', pc: 'PJ', npc: 'PNJ', enemy: 'Enemigo' },
     pathKinds: {

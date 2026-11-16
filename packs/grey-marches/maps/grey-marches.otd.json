@@ -271,6 +271,7 @@
       "ext": {
         "character": {
           "sheet": "grey-marches/companion",
+          "token": { "icon": "game:archer" },
           "relations": [
             {
               "to": "character:mara",
@@ -338,6 +339,7 @@
       "ext": {
         "character": {
           "sheet": "grey-marches/companion",
+          "token": { "icon": "game:swordman" },
           "relations": [
             {
               "to": "region:Ashford Vale",
@@ -393,6 +395,7 @@
       "ext": {
         "character": {
           "sheet": "grey-marches/companion",
+          "token": { "icon": "game:hooded-figure" },
           "relations": [
             {
               "to": "poi:poi15x9x0",

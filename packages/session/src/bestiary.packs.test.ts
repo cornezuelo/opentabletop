@@ -7,7 +7,7 @@ import { corePack, greyMarchesPack } from './core.testing'
 import { encounterView, fightStarters } from './encounter'
 import { applyResult, type JournalEntry } from './index'
 import { newMember } from './party'
-import { templateLook } from './present'
+import { faceIcon, templateLook } from './present'
 import { templateCopy } from './index'
 import { lookupTemplates } from '@open-tabletop/character-engine'
 import {
@@ -68,6 +68,13 @@ describe('the bundled packs make foes from their bestiaries', () => {
     ).toBeUndefined()
     expect(templateLook(marchesTemplates, {})).toBeUndefined()
     expect(templateLook(undefined, wolf)).toBeUndefined()
+    // A face: one's own token first, else the template's; none, and it's their initial.
+    expect(faceIcon(marchesTemplates, wolf)).toBe('game:wolf-head')
+    expect(faceIcon(marchesTemplates, { ...wolf, token: { icon: 'game:ghost' } })).toBe(
+      'game:ghost',
+    )
+    expect(faceIcon(marchesTemplates, { token: { icon: 'game:archer' } })).toBe('game:archer')
+    expect(faceIcon(marchesTemplates, {})).toBeUndefined()
   })
 
   it('the Grey Marches: wolves come with their leader, are driven off, and the pack breaks', () => {

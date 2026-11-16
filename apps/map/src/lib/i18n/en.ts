@@ -1,6 +1,5 @@
 import { campaignTexts } from '@open-tabletop/campaign-ui'
 import { vocabulary } from '@open-tabletop/ui-kit'
-import { iconNamesEn } from './iconNames'
 // Source of truth for UI strings (English is the default locale). `es.ts` must mirror this shape.
 export const en = {
   app: {
@@ -219,24 +218,10 @@ export const en = {
     tabloid: 'Tabloid',
     custom: 'Custom',
   },
-  iconNames: iconNamesEn,
-  iconCategories: {
-    terrain: vocabulary.en.terms.terrain,
-    all: 'All',
-    suggested: 'Suggested',
-    party: 'Party',
-    settlements: 'Settlements',
-    landmarks: 'Landmarks',
-    nature: 'Nature',
-    danger: 'Danger',
-    modern: 'Modern',
-    scifi: 'Sci-fi and wasteland',
-    misc: 'Misc',
-    custom: 'Custom',
-  },
+  iconCategories: { ...vocabulary.en.icons.categories, terrain: vocabulary.en.terms.terrain },
   icons: {
-    search: 'Search icons…',
-    category: 'Category',
+    search: vocabulary.en.icons.search,
+    category: vocabulary.en.icons.category,
     empty: 'No icons match.',
     selected: 'Clicking a cell places: {name}',
     editing: 'Editing {name} on {coord}',
@@ -561,7 +546,6 @@ export const en = {
       enemy: 'Enemies',
     },
     icon: 'Token icon',
-    upload: 'Import an image…',
     name: 'Name',
     note: 'Linked note',
     notePlaceholder: 'Characters/Ilyana',
@@ -746,7 +730,6 @@ export const en = {
       'The cell’s coordinate, in the format the map shows (Map settings → **Coordinates**). Its id is `{id}`: column and row counted from 0, whatever the map’s labels, and what tables and conditions read.\n• `place.id` — the cell’s id, in a table or a condition',
     terrainIdTip: 'The terrain’s id, as tables and travel rules read it: place.terrain',
     poiIcon: 'Icon (only to tell POIs apart here)',
-    noIcon: 'No icon',
     coord: 'Coordinate',
     terrain: vocabulary.en.terms.terrain,
     none: 'None',

@@ -260,7 +260,7 @@
       <!-- Folded to a line: their face, name, main value and conditions; open, the whole sheet. -->
       <details class="member" use:revealed={member.id}>
         <summary>
-          <Face name={memberLabel(member)} />
+          <Face name={memberLabel(member)} icon={member.token?.icon} />
           <span class="glance"
             ><CharacterGlance
               sheet={system.sheet.def}

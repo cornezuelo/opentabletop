@@ -402,4 +402,15 @@ export function templateLook(
   return id ? templates?.(id)?.template.token : undefined
 }
 
+/**
+ * The icon of someone's face where they're shown small (a fight's cards): their own token's,
+ * else their template's; undefined, and they're drawn by their initial.
+ */
+export function faceIcon(
+  templates: TemplateLookup | undefined,
+  character: Pick<CharacterState, 'template' | 'token'> | undefined,
+): string | undefined {
+  return character?.token?.icon ?? templateLook(templates, character)?.icon
+}
+
 export type TemplateLook = NonNullable<NonNullable<ReturnType<TemplateLookup>>['template']['token']>
