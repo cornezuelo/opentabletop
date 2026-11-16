@@ -1,6 +1,6 @@
 # Traps, locks, containers and potions
 
-A proposal for the backlog's _Then: back to Ker Nethalas' traps, locks, containers and potions_ (and the same line under _Systems to finish_). **To review with the author**; nothing here is built.
+A proposal for the backlog's _Then: back to Ker Nethalas' traps, locks, containers and potions_ (and the same line under _Systems to finish_). **Decided with the author 2026-11-16** ("me vale lo recomendado, dale": every recommended answer in §6); built in the order of §5.
 
 The author's rule for this work (2026-11-13): "espero que todo esto que estamos haciendo se ejercite también en marcas grises y no quede en desarrollos super específicos para ker nethalas". So: generic pieces first, the Grey Marches showing them at full power, Core the smallest example, Ker Nethalas to the letter last.
 

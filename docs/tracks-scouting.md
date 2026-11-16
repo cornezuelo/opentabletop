@@ -1,6 +1,6 @@
 # Tracks and scouting that matter
 
-A proposal for the Grey Marches' **Look for tracks** and **Scout ahead** (backlog: _The Grey Marches: Look for tracks and Scout ahead do next to nothing_). **To review with the author**; nothing here is built.
+A proposal for the Grey Marches' **Look for tracks** and **Scout ahead** (backlog: _The Grey Marches: Look for tracks and Scout ahead do next to nothing_). **Decided with the author 2026-11-16** ("me vale lo recomendado, dale": every recommended answer in §4); Forewarned and Scouted last one place, by [traps-locks.md](traps-locks.md)'s `lasts: places`.
 
 The ask (author, 2026-11-15): "¿qué coño aportan las tiradas de buscar huellas y explorar el camino, están enlazadas a algún otro sistema?"
 
