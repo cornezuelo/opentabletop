@@ -598,7 +598,14 @@ export function applyMemberEffects(
         { item, delta: given, moved: shared.moved, ...(time !== undefined && { time }) },
       ]
   }
-  for (const [path, change] of Object.entries(effects)) {
+  // Those who come or go (`present.wolf: 3`) first, so what the same result does to those
+  // present (a reaction's `present.all.conditions.hostile: false`) reaches the ones it made.
+  const comes = (path: string) => {
+    const m = PRESENT_PATH.exec(path)
+    return !!m && !m[2]
+  }
+  const ordered = Object.entries(effects).sort(([a], [b]) => Number(comes(b)) - Number(comes(a)))
+  for (const [path, change] of ordered) {
     // The step's connection (a door opened, a bridge burnt): its value in play changes.
     const connectionKey = CONNECTION_EFFECT.exec(path)?.[1]
     if (connectionKey !== undefined) {

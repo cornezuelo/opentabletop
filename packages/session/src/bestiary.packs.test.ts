@@ -486,6 +486,42 @@ describe('beset by foes', () => {
     expect(s.travel.location).toBe('b')
     expect(s.party!.conditions).not.toHaveProperty('gave-ground')
   })
+
+  it('the Grey Marches: bandits met kindly don’t beset the Company, until it stands and fights', () => {
+    const options = { system: marches, world: road }
+    const rules = partyOf(marches)
+    const members = [newMember(rules, { id: 'kael', name: 'Kael' })]
+    const { session } = startTrip({ system: marches, location: 'a', members, seed: 'b' })
+    const hills = { ...road, place: () => ({ terrain: 'hills', fields: { danger: '4' } }) }
+    const facts = tripFacts({ system: marches, world: hills }, session)
+    /** The bandits, their reaction `how` (its text). */
+    const met = (how: RegExp) => {
+      for (let seed = 1; seed < 400; seed++) {
+        const out = createOracleEngine({ registry, random: seeded(seed) }).resolve(
+          'grey-marches/table.encounter',
+          facts,
+        ).resolution
+        if (out.entry === 'bandits' && how.test(out.text!))
+          return settleTrip(options, applyResult(session, out.value, {}, rules)).state
+      }
+      throw new Error(`no bandits ${how}`)
+    }
+    // Hostile: every one of them is, and the Company is beset.
+    const hostile = met(/they are hostile$/)
+    expect(hostile.present!.every((p) => 'hostile' in p.character.conditions)).toBe(true)
+    expect(tripAvailability(options, hostile).travel).toEqual({ value: 'beset', who: 'party' })
+    // Met kindly: none of them is hostile (the reaction's effect reaches those the same entry
+    // makes), and the Company may march on, or talk.
+    let s = met(/they are (friendly|willing to talk|eager to help)$/)
+    expect(s.present!.length).toBeGreaterThanOrEqual(2)
+    expect(s.present!.some((p) => 'hostile' in p.character.conditions)).toBe(false)
+    expect(s.party!.conditions).not.toHaveProperty('beset')
+    expect(tripAvailability(options, s).travel).toBeUndefined()
+    // Steel out: they're hostile again, and the fight is on.
+    s = stepTrip(options, s, { type: 'action', id: 'stand' }).state
+    expect(s.present!.every((p) => 'hostile' in p.character.conditions)).toBe(true)
+    expect(s.party!.conditions).toHaveProperty('beset')
+  })
 })
 
 describe('the bundled packs fight in turns', () => {

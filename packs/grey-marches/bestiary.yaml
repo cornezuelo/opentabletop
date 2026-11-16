@@ -11,7 +11,7 @@ name: Foe
 description: |-
   What the Company meets on the road and has to deal with: beasts, outlaws, the Hunt.
 
-  **Shows:** a sheet for creatures and NPC types, lighter than a companion's, its main value its health (`main: health`, a bar on a fight's cards), which starts at a maximum each template rolls (`default: '{{self.values.toughness}}'`, a default read from a value before it); conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); items, so a template may carry some.
+  **Shows:** a sheet for creatures and NPC types, lighter than a companion's, its main value its health (`main: health`, a bar on a fight's cards), which starts at a maximum each template rolls (`default: '{{self.values.toughness}}'`, a default read from a value before it); conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); one every foe starts with (_Hostile_, its templates' `conditions:`), taken off and given back by effects; items, so a template may carry some.
 main: health
 values:
   # Rolled for each copy by its template (`toughness: '{{1d4+1}}'`); health starts there.
@@ -56,6 +56,12 @@ conditions:
   enraged:
     name: Enraged
     description: Fights to the end, whatever its morale.
+  # What every foe starts with (its template's `conditions:`), and what a reaction other than
+  # hostile takes off (encounters.yaml): the Company is _Beset_ only by those who have it.
+  hostile:
+    name: Hostile
+    description: Means the Company harm. Taken off when it meets the Company otherwise (a reaction other than hostile), given back when the Company stands and fights.
+    told: { gains: '{{name}} turns on you', loses: '{{name}} means you no harm' }
 # What a foe carries (nothing to begin with): what its template gives, from the Company's gear.
 items: {}
 ---
@@ -80,7 +86,7 @@ description: |-
   - How each is drawn on a map and as its face in a fight (`token:` its icon and kind)
   - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
   - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, and the restless dead, in their barrow (`behind: stay`)
-  - Who is a foe, as a tag (`foe`): while one is here the Company is _Beset_ (its sheet), and can't march on or busy itself with anything else until it deals with them or falls back
+  - Who is a foe, as a tag (`foe`), and who means harm now, as a condition every foe starts with (`conditions: [hostile]`) and a reaction other than hostile takes off: while one that has it is here (`present.conditions: hostile`) the Company is _Beset_ (its sheet), and can't march on or busy itself with anything else until it deals with them or falls back
 sheet: sheet.foe
 behind: leave
 templates:
@@ -90,6 +96,7 @@ templates:
     # Fire harms it twice over (_The blow lands_ reads its tags).
     tags: [foe, beast, pack, fears-fire]
     values: { toughness: '{{1d4+1}}', harm: 1, morale: 7 }
+    conditions: [hostile]
     # Its own turn in a fight (below): it goes for the weakest. Its leader, like it, too.
     actions: table.wolf-turn
     token: { icon: 'game:wolf-head', kind: enemy }
@@ -105,13 +112,14 @@ templates:
     # Fire does it no harm; hallowed steel harms it twice over.
     tags: [foe, hunt, haunted, fireproof, unhallowed]
     values: { toughness: '{{2d6}}', harm: 2, morale: 12 }
-    conditions: [enraged]
+    conditions: [enraged, hostile]
     token: { icon: 'game:ghost', kind: enemy }
   wyrm:
     name: The Greywood Wyrm
     description: Coiled in the heart of the Greywood. It doesn't follow; it waits.
     tags: [foe, beast, wyrm, fireproof]
     values: { toughness: 30, harm: 4, morale: 12 }
+    conditions: [hostile]
     token: { icon: 'game:dragon-head', kind: enemy }
     behind: stay
   # What sleeps in the Deep Barrows (pieces.yaml): woken by a crypt's sleeper or a door forced.
@@ -122,6 +130,7 @@ templates:
     # Steel glances off old bones (half its harm); hallowed steel harms them twice over.
     tags: [foe, undead, bone, unhallowed]
     values: { toughness: '{{1d6+2}}', harm: 1, morale: 12 }
+    conditions: [hostile]
     token: { icon: 'game:death-skull', kind: enemy }
     actions: table.dead-turn
     behind: stay
@@ -131,6 +140,7 @@ templates:
     names: table.npc-names
     tags: [foe, people, outlaw]
     values: { toughness: '{{1d6+1}}', harm: 1, morale: 7 }
+    conditions: [hostile]
     items: { ration: '{{1d2}}' }
     token: { icon: 'game:cowled', kind: enemy }
   bandit-chief:

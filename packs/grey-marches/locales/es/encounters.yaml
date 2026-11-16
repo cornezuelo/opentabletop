@@ -41,6 +41,7 @@ reaction:
     - Un modificador que pone la entrada que la tira: `reactionModifier`
     - Ventaja
     - Rangos negativos
+    - Lo que hace a quienes se encuentran: cualquier cosa que no sea hostil les quita _Hostil_ a todos (`present.all.conditions.hostile: false`), así que no dejan a la Compañía _Acosada_
   entries:
     hostile: hostiles
     wary: recelosos

@@ -4,8 +4,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Conditions** read the conditions of those present: `present.conditions: hostile` holds while one of them is hostile. Those a result makes (`present.wolf: 3`) come before its other effects, so a table it rolls can change them at once.
+
 ### Packs
 
+- **The Grey Marches**: wolves, bandits and the rest met **wary**, **willing to talk**, **friendly** or **eager to help** no longer keep the Company _Beset_: every foe starts _Hostile_ and a reaction other than hostile takes it off, so the Company can talk, pass by or leave; **Stand and fight** makes them hostile again.
 - **The Grey Marches**: bandits are drawn as a cowled outlaw, not a cloaked figure that looked like a witch on a broom; a traveller as a walker with a staff (its boot wasn't among the bundled icons, so it had none); the Hollow Hills' guarded tomb has its tombstone again.
 
 ### Fixes

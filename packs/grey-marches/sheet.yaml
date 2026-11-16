@@ -352,7 +352,7 @@ name: The Company
 description: |-
   The Company as a whole: its morale, its fatigue, its silver, the sell-swords it has hired, how much it can take, the horses' fodder, its legend and its stores of rations. It stays the same as companions join and fall: every trip has it.
 
-  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), a progress track (legend, ten boxes of four ticks, `display: ticks`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting; one that holds by itself while foes are here (beset, `when` reading `present.tags: foe`), blocking moving on and what's done in the place unless the Company gave ground (another condition, given by Fall back for one place, `lasts: places`); conditions given for a number of places (forewarned by fresh tracks for this one, scouted for this and the next); its main value, morale (`main: morale`), drawn with the party at a glance.
+  **Shows:** a party sheet (`partySheet`) beside the characters' sheet: values the party's stats are made of (`from: { party: morale }`, so effects on `party.stats.fatigue` change it within its bounds), a supply as a plain value (fodder, `party.values.fodder`, shown as `6 / 12`), a progress track (legend, ten boxes of four ticks, `display: ticks`), items of the party's own that it starts with (six rations, `items: { start: { ration: 6 } }`), spent before its companions' (`party.items.ration`), and a condition of the party that blocks an action (shaken, no forced march), set by a table and cleared by resting; one that holds by itself while someone hostile is here (beset, `when` reading a condition of those present, `present.conditions: hostile`), blocking moving on and what's done in the place unless the Company gave ground (another condition, given by Fall back for one place, `lasts: places`); conditions given for a number of places (forewarned by fresh tracks for this one, scouted for this and the next); its main value, morale (`main: morale`), drawn with the party at a glance.
 # What the party at a glance draws of it: its morale, not the first value with a max (fodder).
 main: morale
 values:
@@ -417,13 +417,14 @@ conditions:
     name: Shaken
     description: Lost in the dark and frightened; no forced march until the Company rests.
     blocks: [actions.forced-march]
-  # Holds by itself while a foe (a template tagged `foe`, bestiary.yaml) is where the Company
-  # stands, unless it has just fallen back: no marching away from them, nor anything else
+  # Holds by itself while someone hostile (bestiary.yaml's condition, every foe's until a
+  # reaction other than hostile takes it off) is where the Company stands, unless it has just
+  # fallen back: no marching away from them, nor anything else
   # done in the place, until they're fought, driven off, bought off or left behind.
   beset:
     name: Beset
-    description: Foes are here. The Company can't march on, camp, rest, forage, look for tracks, scout, fish or delve until it deals with them (stands and fights, drives them off, buys them off) or falls back from a fight.
-    when: { all: [{ present.tags: foe }, { not: { self.conditions: gave-ground } }] }
+    description: Someone hostile is here. The Company can't march on, camp, rest, forage, look for tracks, scout, fish or delve until it deals with them (stands and fights, drives them off, buys them off) or falls back from a fight.
+    when: { all: [{ present.conditions: hostile }, { not: { self.conditions: gave-ground } }] }
     blocks:
       - travel.move
       - actions.camp

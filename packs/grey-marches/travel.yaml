@@ -855,7 +855,8 @@ actions:
     needs: { party.members: { exists: true } }
     hideWhenUnavailable: true
     do:
-      - { effects: { encounter: start } }
+      # Whoever met it kindly turns hostile once steel is out (bestiary.yaml's _Hostile_).
+      - { effects: { present.all.conditions.hostile: true, encounter: start } }
       - { id: steel, say: 'Steel out: the Company stands its ground.' }
   # A knack used in a fight (knacks.yaml): open only to whoever has learnt it (a value made of
   # it, `acting.values.shieldwall`), braced until their next turn (`lasts: turns`).

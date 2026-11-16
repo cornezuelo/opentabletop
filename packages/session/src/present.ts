@@ -354,7 +354,8 @@ export function copyFacts(p: Present, rules: PresentRules): Record<string, unkno
 
 /**
  * What conditions and tables read of those present: `present.ids`, `present.count`,
- * `present.tags` (every tag of those here), `present.highest.values.<id>` and `.lowest`
+ * `present.tags` (every tag of those here), `present.conditions` (every condition one of them
+ * holds), `present.highest.values.<id>` and `.lowest`
  * (the most and least of a value among them) and each template's `present.<id>.count` and
  * `.ids` (every template of the system, at 0 when none is here); and each copy here as a
  * character (`characters.<id>.*`), beside the members.
@@ -377,12 +378,16 @@ export function presentFacts(
     t.ids.push(p.character.id)
   }
   const characters = Object.fromEntries(here.map((p) => [p.character.id, copyFacts(p, rules)]))
+  const conditions = new Set(
+    Object.values(characters).flatMap((c) => (c.conditions as string[] | undefined) ?? []),
+  )
   return {
     present: {
       ...byTemplate,
       ids: here.map((p) => p.character.id),
       count: here.length,
       tags: [...tags],
+      conditions: [...conditions],
       ...extremes(Object.values(characters)),
     },
     characters,

@@ -204,6 +204,10 @@ export function contextSuggestions(
       add('present.ids')
       add('present.count')
       add('present.tags', ...new Set(templates.flatMap(([, t]) => t.tags ?? [])))
+      add(
+        'present.conditions',
+        ...new Set(Object.values(templateSheets ?? {}).flatMap((s) => Object.keys(s.conditions))),
+      )
       for (const [id] of templates) {
         add(`present.${id}.count`)
         add(`present.${id}.ids`)

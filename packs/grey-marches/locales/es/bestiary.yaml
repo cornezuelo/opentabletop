@@ -3,7 +3,7 @@ sheet/foe:
   description: |-
     Lo que la Compañía encuentra en el camino y con lo que tiene que lidiar: bestias, forajidos, la Cacería.
 
-    **Enseña:** una hoja para criaturas y tipos de PNJ, más ligera que la de un compañero, con la salud como valor principal (`main: health`, una barra en las tarjetas de un combate), que empieza en un máximo que tira cada plantilla (`default: '{{self.values.toughness}}'`, un valor por defecto que lee un valor anterior); estados que quitan una copia de los presentes por sí solos (`leaves: true`): uno que se cumple por sí solo (_Abatido_, con salud 0) y otros que ponen los efectos (_En desbandada_, _Sobornado_); objetos, para que una plantilla pueda llevar alguno.
+    **Enseña:** una hoja para criaturas y tipos de PNJ, más ligera que la de un compañero, con la salud como valor principal (`main: health`, una barra en las tarjetas de un combate), que empieza en un máximo que tira cada plantilla (`default: '{{self.values.toughness}}'`, un valor por defecto que lee un valor anterior); estados que quitan una copia de los presentes por sí solos (`leaves: true`): uno que se cumple por sí solo (_Abatido_, con salud 0) y otros que ponen los efectos (_En desbandada_, _Sobornado_); uno con el que empieza todo enemigo (_Hostil_, el `conditions:` de sus plantillas), que los efectos quitan y vuelven a dar; objetos, para que una plantilla pueda llevar alguno.
   values:
     toughness:
       name: Salud máxima
@@ -36,6 +36,12 @@ sheet/foe:
     enraged:
       name: Enfurecido
       description: Lucha hasta el final, tenga la moral que tenga.
+    hostile:
+      name: Hostil
+      description: Quiere hacer daño a la Compañía. Se le quita cuando la recibe de otro modo (una reacción que no sea hostil), y vuelve a tenerlo cuando la Compañía planta cara.
+      told:
+        gains: '{{name}} se vuelve contra vosotros'
+        loses: '{{name}} no quiere haceros daño'
 bestiary/marches:
   name: Quién recorre las Marcas
   description: |-
@@ -52,7 +58,7 @@ bestiary/marches:
     - Cómo se dibuja cada una en un mapa y como su cara en un combate (`token:` su icono y su tipo)
     - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada), y el de los muertos inquietos (`actions: table.dead-turn`); las demás hacen lo que dice el sistema (`encounter.foes`)
     - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, y los muertos inquietos, en su túmulo (`behind: stay`)
-    - Quién es un enemigo, como etiqueta (`foe`): mientras haya uno aquí, la Compañía está _Acosada_ (su hoja), y no puede seguir la marcha ni ocuparse de otra cosa hasta que se las vea con ellos o se repliegue
+    - Quién es un enemigo, como etiqueta (`foe`), y quién quiere hacer daño ahora, como un estado con el que empieza todo enemigo (`conditions: [hostile]`) y que quita una reacción que no sea hostil: mientras haya aquí uno que lo tenga (`present.conditions: hostile`), la Compañía está _Acosada_ (su hoja), y no puede seguir la marcha ni ocuparse de otra cosa hasta que se las vea con ellos o se repliegue
   templates:
     traveller:
       name: Viajero

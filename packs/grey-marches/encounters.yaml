@@ -145,14 +145,30 @@ description: |-
   - A modifier set by the entry that rolled it: `reactionModifier`
   - Advantage
   - Negative ranges
+  - What it does to those met: anything but hostile takes _Hostile_ off every one of them (`present.all.conditions.hostile: false`), so they don't keep the Company _Beset_
 roll: '2d6 + {{charisma}} + {{reactionModifier}}'
 modes: [roll-modes.advantage, roll-modes.disadvantage]
 entries:
   - { id: hostile, range: -10-3, result: hostile }
-  - { id: wary, range: 4-6, result: wary }
-  - { id: neutral, range: 7-9, result: willing to talk }
-  - { id: friendly, range: 10-11, result: friendly }
-  - { id: helpful, range: 12-30, result: eager to help }
+  # Anything else: those here mean no harm (bestiary.yaml's _Hostile_ taken off), so the
+  # Company may talk, pass by or leave; standing to fight makes them hostile again.
+  - { id: wary, range: 4-6, result: wary, effects: { present.all.conditions.hostile: false } }
+  - id: neutral
+    range: 7-9
+    result: willing to talk
+    effects: { present.all.conditions.hostile: false }
+  - {
+      id: friendly,
+      range: 10-11,
+      result: friendly,
+      effects: { present.all.conditions.hostile: false },
+    }
+  - {
+      id: helpful,
+      range: 12-30,
+      result: eager to help,
+      effects: { present.all.conditions.hostile: false },
+    }
 ---
 # A generator: fields rolled in order (later ones see earlier ones) and a template.
 kind: generator
