@@ -536,6 +536,8 @@ export const es: Messages<typeof en> = {
   },
   trips: {
     title: 'Viaje',
+    change: 'Cambiar…',
+    ownCampaign: 'su propia campaña',
     help: 'Tus viajes se guardan en este navegador, cada uno con su sistema, su camino y su diario. Elige uno para seguir con él.',
     name: 'Nombre',
     unnamed: '{system}, día {day}',
@@ -557,7 +559,6 @@ export const es: Messages<typeof en> = {
   },
   play: {
     systemWhere: 'Un viaje se queda con el sistema con el que empezó: otro sistema es otro viaje.',
-    current: 'El viaje abierto usa {system}.',
     switch: 'Empezar un viaje con {system}',
     switchConfirm: '¿Empezar este viaje de nuevo con {system}? Se descarta su diario.',
     way: 'El camino',

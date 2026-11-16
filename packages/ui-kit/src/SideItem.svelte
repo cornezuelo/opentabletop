@@ -4,13 +4,15 @@
 
   /**
    * One row of a sidebar list: a name (cut short, in full on hover), a line under it if
-   * given (`detail`), and what comes after it (tags, counts).
+   * given (`detail`), and what comes after it (tags, counts), or under it with `below`, so
+   * a narrow list never cuts the name for them.
    */
   let {
     name,
     detail,
     selected = false,
     untitled = false,
+    below = false,
     onclick,
     children,
   }: {
@@ -20,6 +22,8 @@
     selected?: boolean
     /** The name is a stand-in for an empty one: shown in italics. */
     untitled?: boolean
+    /** What comes after the name goes under it instead (its tags on a line of their own). */
+    below?: boolean
     onclick: () => void
     children?: Snippet
   } = $props()
@@ -27,7 +31,13 @@
 
 <li>
   <button class:selected {onclick}>
-    {#if detail}
+    {#if below}
+      <span class="two">
+        <span class="name" class:untitled use:fullText>{name}</span>
+        {#if detail}<small use:fullText>{detail}</small>{/if}
+        {#if children}<span class="under">{@render children()}</span>{/if}
+      </span>
+    {:else if detail}
       <span class="two">
         <span class="name" class:untitled use:fullText>{name}</span>
         <small use:fullText>{detail}</small>
@@ -35,7 +45,7 @@
     {:else}
       <span class="name" class:untitled use:fullText>{name}</span>
     {/if}
-    {@render children?.()}
+    {#if !below}{@render children?.()}{/if}
   </button>
 </li>
 
@@ -67,6 +77,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .under {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 2px;
   }
 
   .two {

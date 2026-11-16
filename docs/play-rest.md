@@ -1,6 +1,6 @@
 # The rest of play
 
-A proposal for what is left of the review of play outside the fight (backlog: _Play, and above all the fight, reviewed again_, step 4). **Decided with the author (2026-11-15, "de lo por decidir lo recomendado": the recommended answer to each question of §4)**; nothing here is built yet.
+A proposal for what is left of the review of play outside the fight (backlog: _Play, and above all the fight, reviewed again_, step 4). **Decided with the author (2026-11-15, "de lo por decidir lo recomendado": the recommended answer to each question of §4)**; **built 2026-11-16**, in the order of §5 (C, B, A).
 
 The ask (author, 2026-11-14): "la UI/UX de la aplicación a la hora de jugar, especialmente el combate, es muy mejorable. Identifica puntos de mejora."
 

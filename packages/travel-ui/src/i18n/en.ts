@@ -544,6 +544,8 @@ export const en = {
   },
   trips: {
     title: 'Trip',
+    change: 'Change…',
+    ownCampaign: 'its own campaign',
     help: 'Your trips are kept in this browser, each with its system, its way and its journal. Pick one to go on with it.',
     name: 'Name',
     unnamed: '{system}, day {day}',
@@ -566,7 +568,6 @@ export const en = {
   },
   play: {
     systemWhere: 'A trip keeps the system it started with: another system is another trip.',
-    current: 'The open trip uses {system}.',
     switch: 'Start a trip with {system}',
     switchConfirm: 'Start this trip again with {system}? Its journal is discarded.',
     way: 'The way',

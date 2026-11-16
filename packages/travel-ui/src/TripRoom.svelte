@@ -17,7 +17,7 @@
     playing as playingCampaign,
   } from '@open-tabletop/ui-kit'
   import { untrack } from 'svelte'
-  import { translator } from './i18n'
+  import { idText, translator } from './i18n'
   import { terrainName } from './terrains'
   import TripPanel from './TripPanel.svelte'
   import type { TableRow } from './turns'
@@ -87,12 +87,26 @@
     try {
       // Let the button show it before the first day is played.
       await new Promise((resolve) => setTimeout(resolve, 30))
-      trip.start(target.id, s)
+      // One not started yet begins with its campaign; one going on starts again.
+      if (session) trip.start(target.id, s)
+      else await trip.begin(target.id, s)
     } finally {
       starting = false
     }
     if (target.id !== system.id) onsystem(target.id)
   }
+
+  // Under a system, a trip of that system: its latest, else a new one not started yet (never
+  // another system's).
+  $effect(() => {
+    const id = system.id
+    untrack(() => {
+      if (trip.saved.system === id) return
+      const mine = trip.trips.filter((saved) => saved.system === id).at(-1)
+      if (mine) trip.open(mine.id)
+      else trip.draft(id, season)
+    })
+  })
 
   /** The open trip's system page (trips of other systems open there). */
   function follow() {
@@ -150,6 +164,15 @@
     return t('trips.unnamed', { system: of ? name(of) : saved.system, day })
   }
 
+  /** The trip's campaign, in the summary line: its own, or the one it's in by name. */
+  const campaignLabel = $derived(
+    trip.saved.campaign === trip.saved.id
+      ? t('trips.ownCampaign')
+      : trip.campaign?.name ||
+          campaigns.find((c) => c.id === trip.saved.campaign)?.name ||
+          t('trips.ownCampaign'),
+  )
+
   const hexLabel = (hex: string) => {
     const h = trip.saved.way[Number(hex)]
     return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain, { system, locale })})` : ''}`
@@ -159,71 +182,85 @@
 <div class="room">
   <div class="play">
     <section class="left">
-      <div class="trips">
-        <label class="field">
-          <span>{t('trips.title')}<InfoTip text={t('trips.help')} /></span>
-          <select value={trip.saved.id} onchange={(e) => openTrip(e.currentTarget.value)}>
-            {#each tripGroups as group (group.campaign ?? '')}
-              {#if tripGroups.length > 1 || group.campaign}
-                <optgroup label={group.campaign ? group.name : t('trips.ownCampaigns')}>
-                  {#each group.items as saved (saved.id)}
-                    <option value={saved.id}>{tripLabel(saved)}</option>
-                  {/each}
-                </optgroup>
-              {:else}
-                {#each group.items as saved (saved.id)}
-                  <option value={saved.id}>{tripLabel(saved)}</option>
+      <!-- What's set once, in one line; Change… unfolds it. -->
+      <details class="setup">
+        <summary
+          ><span class="line"
+            >{[
+              tripLabel(trip.saved),
+              trip.inCampaigns && campaignLabel,
+              idText(t, `seasons.${season}`, season),
+            ]
+              .filter(Boolean)
+              .join(' · ')}</span
+          ><span class="change">{t('trips.change')}</span></summary
+        >
+        <div class="rows">
+          <div class="trips">
+            <label class="field">
+              <span>{t('trips.title')}<InfoTip text={t('trips.help')} /></span>
+              <select value={trip.saved.id} onchange={(e) => openTrip(e.currentTarget.value)}>
+                {#each tripGroups as group (group.campaign ?? '')}
+                  {#if tripGroups.length > 1 || group.campaign}
+                    <optgroup label={group.campaign ? group.name : t('trips.ownCampaigns')}>
+                      {#each group.items as saved (saved.id)}
+                        <option value={saved.id}>{tripLabel(saved)}</option>
+                      {/each}
+                    </optgroup>
+                  {:else}
+                    {#each group.items as saved (saved.id)}
+                      <option value={saved.id}>{tripLabel(saved)}</option>
+                    {/each}
+                  {/if}
                 {/each}
-              {/if}
-            {/each}
-          </select>
-        </label>
-        <label class="field">
-          <span>{t('trips.name')}</span>
-          <input
-            type="text"
-            value={trip.saved.name}
-            placeholder={tripLabel({ ...trip.saved, name: '' })}
-            onchange={(e) => trip.rename(e.currentTarget.value)}
-          />
-        </label>
-        <button onclick={() => trip.create(system.id, season)}>{t('trips.new')}</button>
-        <button class="danger" onclick={removeTrip}>{t('trips.delete')}</button>
-      </div>
-      {#if trip.inCampaigns}
-        <label class="field campaign">
-          <span>{t('campaign.title')}<InfoTip text={t('campaign.help')} /></span>
-          <select
-            value={trip.saved.campaign}
-            onchange={async (e) => {
-              const select = e.currentTarget
-              // Cancelled: the choice shows the campaign the trip is still in.
-              if (!(await trip.joinCampaign(select.value))) select.value = trip.saved.campaign
-            }}
-          >
-            <option value={trip.saved.id}>{t('campaign.own')}</option>
-            {#each others as c (c.id)}
-              <option value={c.id}>{c.name}</option>
-            {/each}
-            {#if trip.saved.campaign !== trip.saved.id && !others.some((c) => c.id === trip.saved.campaign)}
-              <option value={trip.saved.campaign}
-                >{trip.campaign?.name || trip.saved.campaign}</option
+              </select>
+            </label>
+            <label class="field">
+              <span>{t('trips.name')}</span>
+              <input
+                type="text"
+                value={trip.saved.name}
+                placeholder={tripLabel({ ...trip.saved, name: '' })}
+                onchange={(e) => trip.rename(e.currentTarget.value)}
+              />
+            </label>
+            <button onclick={() => trip.create(system.id, season)}>{t('trips.new')}</button>
+            <button class="danger" onclick={removeTrip}>{t('trips.delete')}</button>
+          </div>
+          {#if trip.inCampaigns}
+            <label class="field campaign">
+              <span>{t('campaign.title')}<InfoTip text={t('campaign.help')} /></span>
+              <select
+                value={trip.saved.campaign}
+                onchange={async (e) => {
+                  const select = e.currentTarget
+                  // Cancelled: the choice shows the campaign the trip is still in.
+                  if (!(await trip.joinCampaign(select.value))) select.value = trip.saved.campaign
+                }}
               >
-            {/if}
-          </select>
-          <a class="open" href={campaignUrl(trip.saved.campaign)}>{t('campaign.open')}</a>
-        </label>
-      {/if}
-      <TripSetup {systems} system={system.id} {locale} bind:season onrestart={start} />
-      {#if !playing && session}
-        <div class="notice">
-          <span>{t('play.current', { system: name(trip.system) })}</span>
-          <button onclick={() => trip.create(system.id, season)}
-            >{t('play.switch', { system: name(system) })}</button
-          >
+                <option value={trip.saved.id}>{t('campaign.own')}</option>
+                {#each others as c (c.id)}
+                  <option value={c.id}>{c.name}</option>
+                {/each}
+                {#if trip.saved.campaign !== trip.saved.id && !others.some((c) => c.id === trip.saved.campaign)}
+                  <option value={trip.saved.campaign}
+                    >{trip.campaign?.name || trip.saved.campaign}</option
+                  >
+                {/if}
+              </select>
+              <a class="open" href={campaignUrl(trip.saved.campaign)}>{t('campaign.open')}</a>
+            </label>
+          {/if}
+          <TripSetup {systems} system={system.id} {locale} bind:season onrestart={start} />
         </div>
-      {/if}
+      </details>
       <WayEditor {trip} {system} {locale} {tags} />
+      {#if !session}
+        <!-- No trip going on: the way above, then the one thing to do. -->
+        <button class="primary start" use:busy={starting} onclick={() => start(system.id, season)}
+          >{t('play.switch', { system: name(system) })}</button
+        >
+      {/if}
     </section>
     <section class="right">
       {#if playing && session}
@@ -254,10 +291,6 @@
           worldWaiting={trip.worldWaiting()}
           onworld={(choice) => trip.answerWorld(choice)}
         />
-      {:else if !session}
-        <button class="primary" use:busy={starting} onclick={() => start(system.id, season)}
-          >{t('play.switch', { system: name(system) })}</button
-        >
       {/if}
     </section>
   </div>
@@ -281,6 +314,38 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .setup > summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    align-items: baseline;
+    cursor: pointer;
+  }
+
+  .setup .line {
+    font-weight: 600;
+  }
+
+  .setup .change {
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .setup[open] .change {
+    display: none;
+  }
+
+  .setup .rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .start {
+    align-self: flex-start;
   }
 
   .trips {
@@ -324,19 +389,6 @@
     color: var(--danger-text);
   }
 
-  .notice {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
-    font-size: 13px;
-    color: var(--text-muted);
-    border: 1px dashed var(--panel-border);
-    border-radius: 6px;
-  }
-
-  .notice button,
   .primary {
     padding: 6px 12px;
     background: var(--panel);

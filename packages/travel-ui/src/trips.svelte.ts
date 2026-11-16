@@ -466,6 +466,21 @@ export class TripStore {
     const trip = { ...blank(system), season }
     if (campaign) trip.campaign = campaign
     this.stored = { ...this.stored, current: trip.id, trips: [...this.stored.trips, trip] }
+    return this.begin(system, season)
+  }
+
+  /**
+   * A trip of a system not started yet, opened: its way to make before **Start** (`begin`).
+   * Nothing is kept of it in a campaign until then.
+   */
+  draft(system: string, season: Season): void {
+    const trip = { ...blank(system), season }
+    this.stored = { ...this.stored, current: trip.id, trips: [...this.stored.trips, trip] }
+    this.save()
+  }
+
+  /** Starts the open trip, with its campaign (asked first in one shared with others). */
+  begin(system: string, season: Season): void | Promise<void> {
     const opening = this.openCampaign()
     if (!opening) return this.start(system, season)
     // In a campaign of its own, its system is the trip's; in another, asked first.

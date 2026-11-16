@@ -6,6 +6,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Travel**: a system's page is the way and **Start a trip with …** under it; the trip's settings are one line above (_its trip · campaign · season_) with **Change…**; under a system the trip open is always one of it (its latest, or a new one to start); the systems' badges sit under their names.
 - **Trips** (Travel, Map, Campaign): those present and this place's sheet have a tab of their own, **Here**, counting who's here; each character in **Party** is a card folded to one line (face, name, main value, conditions), **Unfold all** / **Fold all**; the party's stats fold under _Stats, and where they come from_. Tabs that don't fit draw closer together before turning into a list.
 - **Map**: Play with no trip is one card, what's missing, the system and season and **Start a trip**, with **Or play without rules** under it and the settings folded; the strip's place centres the map on the party.
 - **Those present**: a copy's card says what it is, its template's name beside its own and the template's description, as a token clicked on the map in Play opens it.

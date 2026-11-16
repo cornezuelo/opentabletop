@@ -22,6 +22,7 @@
       <SideItem
         name={systemName(s, getLocale())}
         selected={selected === s.id}
+        below
         onclick={() => go({ name: 'system', id: s.id })}
       >
         {#if o}<SideTag>{t(`origin.${o}`)}</SideTag>{/if}
