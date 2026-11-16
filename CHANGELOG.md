@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.65.0] - 2026-11-16
+
 ### Apps
 
 - **Packs**: a template can be a thing that doesn't fight (**Fights** → **No: a thing**, `fights: false`): a chest, a trap, someone met who is no foe. It's among those present with its card and the actions aimed at it, but a fight leaves it out (no turn, not a foe), and `present.fighters.count` (and `.ids`) counts only those who fight; `present.count` still counts everyone.
