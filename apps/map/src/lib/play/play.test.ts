@@ -186,6 +186,21 @@ describe('playing on the map', () => {
     expect(sessionOf(editor.map.play!)?.travel.location).toBeTruthy()
   })
 
+  it('Start a trip from Play without rules starts it with rules, with or without the world clock (Ashford)', async () => {
+    for (const world of [false, true]) {
+      editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'ashford1')!.json))
+      editor.mode = 'play'
+      editor.tool = 'play'
+      if (world) startWorld()
+      // The party placed without rules, then Start a trip: the trip is shown, with rules.
+      clickHex('15,6' as HexKey)
+      expect(editor.map.play?.mode).toBe('simple')
+      expect(await restartRules(mapSystemId(), 'spring')).toBe(true)
+      expect(editor.map.play?.mode).toBe('rules')
+      expect(sessionOf(editor.map.play!)?.travel.location).toBeTruthy()
+    }
+  })
+
   it("new trips play the campaign's system; a trip going on keeps its own until a new one", async () => {
     editor.open(parseMapFile(EXAMPLE_MAPS.find((m) => m.id === 'greymarches1')!.json))
     clickHex('7,7')

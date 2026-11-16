@@ -15,6 +15,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **The Grey Marches**: **Scout ahead**, the way clear, leaves the Company **Scouted**: entering the next place, _Who goes there?_ is rolled **Warned**, twice and the friendlier kept.
 - **The Grey Marches**: _Gave ground_ lasts one place by itself; **Ground left behind** is gone. **Core**: _Getting away_ the same, and **Away** is gone.
 
+### Fixes
+
+- **Map**: **Start a trip** from Play without rules (the party placed first) started the trip but left Play without rules, so nothing seemed to happen; it's shown now.
+
 ## [0.61.0] - 2026-11-16
 
 ### Apps

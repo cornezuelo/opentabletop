@@ -487,8 +487,9 @@ export async function restartRules(system: string, season: Season): Promise<bool
 }
 
 function newTrip(system: string, season: Season): void {
-  // A new trip here: the one gone to another map stays there, and this map plays again.
-  const play = { ...current() }
+  // A new trip here: the one gone to another map stays there, and this map plays again, with
+  // rules (started from Play without rules, it was made but never shown).
+  const play: PlayState = { ...current(), mode: 'rules' }
   delete play.away
   const location = partyLocation()
   if (!location) {
