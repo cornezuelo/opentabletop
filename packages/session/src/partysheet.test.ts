@@ -20,6 +20,7 @@ const PACK = [
 kind: sheet
 id: companion
 values: { survival: { default: 1 } }
+conditions: { wary: { lasts: places }, dazed: { lasts: rounds } }
 ---
 kind: sheet
 id: company
@@ -28,6 +29,7 @@ values:
   renown: { default: 0 }
 conditions:
   routed: { blocks: [travel.move] }
+  scouted: { lasts: places }
 `,
   },
   {
@@ -50,6 +52,8 @@ actions:
   rest: { do: [{ time: 60 }] }
   sing: { do: [{ effects: { party.stats.morale: 1, party.values.renown: 1 } }] }
   flee: { do: [{ effects: { party.conditions.routed: true } }] }
+  scout:
+    do: [{ effects: { party.conditions.scouted: 2, party.members.conditions.wary: 1, party.members.conditions.dazed: 3 } }]
 checks: [{ event: GLOOM, at: '07:00' }]
 values: { lost: { blocks: [travel.move] } }
 ---
@@ -163,5 +167,50 @@ describe('the party sheet: the party itself, beside its characters', () => {
     expect(done.state.party?.values.morale).toBe(0)
     // Saved and read back as plain data.
     expect(JSON.parse(JSON.stringify(done.state)).party.values.morale).toBe(0)
+  })
+})
+
+describe('conditions that last a number of places', () => {
+  // a — b — c — d, one place a step, a short one.
+  const line: TravelWorld = {
+    ...world,
+    km: () => 1,
+    neighbors: (h) => ({ a: ['b'], b: ['a', 'c'], c: ['b', 'd'], d: ['c'] })[h] ?? [],
+    distance: (x, y) => Math.abs(x.charCodeAt(0) - y.charCodeAt(0)),
+  }
+  const at = (s: ReturnType<typeof startTrip>['session'], place: string) => {
+    s = stepTrip({ system: band, world: line }, s, { type: 'setDestination', place }).state
+    return stepTrip({ system: band, world: line }, s, { type: 'travel', until: 'place' })
+  }
+
+  it('are counted down as each place is entered, gone at none; those of rounds stay', () => {
+    const { session } = startTrip({ system: band, location: 'a', time: 8 * 60 })
+    session.members = [newMember(partyOf(band), { id: 'kael' })]
+    refreshParty(session, partyOf(band))
+    let s = stepTrip({ system: band, world: line }, session, { type: 'action', id: 'scout' }).state
+    expect(s.party?.conditions.scouted).toMatchObject({ left: 2 })
+    expect(s.members?.[0].conditions.wary).toMatchObject({ left: 1 })
+    // Given in a, as b is entered: the member's one place is spent, the party's has one left.
+    const toB = at(s, 'b')
+    s = toB.state
+    expect(s.travel.location).toBe('b')
+    expect(s.party?.conditions.scouted).toMatchObject({ left: 1 })
+    expect(tripFacts({ system: band, world: line }, s)).toMatchObject({
+      party: { left: { scouted: 1 } },
+    })
+    expect(s.members?.[0].conditions.wary).toBeUndefined()
+    // The journal says it's gone.
+    expect(toB.entries).toContainEqual(
+      expect.objectContaining({
+        code: 'CHANGED',
+        data: { path: 'characters.kael.conditions.wary', from: 1, to: 0 },
+      }),
+    )
+    // A round's condition isn't counted by places.
+    expect(s.members?.[0].conditions.dazed).toMatchObject({ left: 3 })
+    const toC = at(s, 'c')
+    s = toC.state
+    expect(s.travel.location).toBe('c')
+    expect(s.party?.conditions.scouted).toBeUndefined()
   })
 })

@@ -41,6 +41,7 @@ const raw = {
     hungry: { blocks: ['actions.rest', 'travel.move'] },
     dazed: { name: 'Dazed', lasts: 'rounds' },
     braced: { name: 'Braced', lasts: 'turns' },
+    hidden: { name: 'Hidden', lasts: 'places' },
   },
   relations: {
     bond: { name: 'Bond', value: { min: 0, max: 10 } },
@@ -310,7 +311,7 @@ describe('characters', () => {
     expect(odd.events.map((e) => e.type)).toEqual(['UNKNOWN_CONDITION', 'CONDITION_SET'])
   })
 
-  it('get a condition for a while: rounds or turns, counted down, adding up, gone at the end', () => {
+  it("get a condition for a while: rounds, turns or places, counted down, adding up, a fight's gone at its end", () => {
     const change = (c: CharacterState, effects: Record<string, number | string | boolean>) =>
       applyCharacter(
         sheet!,
@@ -335,8 +336,14 @@ describe('characters', () => {
     ])
     // Given with no end, it stays; the fight over, the rest go.
     c = change(lapsed.state, { 'conditions.braced': true }).state
+    c = change(c, { 'conditions.hidden': 3 }).state
     const over = lapseConditions(sheet!, c, 'end')
-    expect(over.state.conditions).toEqual({ braced: {} })
+    // One counted by places outlasts the fight; a place entered counts it alone.
+    expect(over.state.conditions).toEqual({ braced: {}, hidden: { left: 3 } })
+    expect(lapseConditions(sheet!, over.state, 'places').state.conditions).toEqual({
+      braced: {},
+      hidden: { left: 2 },
+    })
     // One that holds by itself isn't given for a while.
     expect(
       parseSheet({ ...raw, conditions: { odd: { when: { wits: 1 }, lasts: 'rounds' } } }).errors,

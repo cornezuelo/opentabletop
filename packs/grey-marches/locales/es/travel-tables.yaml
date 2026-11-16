@@ -43,9 +43,12 @@ tracks:
 
     - El `nothing` de una acción, para lo que el jugador no puede saber antes de intentarlo (`needs` lo diría gratis)
     - Una comprobación al acabar una acción, sobre un valor del lugar: `place.danger: { gte: 1 }`
+    - Qué dejó huellas frescas según el terreno, como _¿Quién va?_ encuentra a sus enemigos (`place.terrain`), y un estado de la Compañía que se da solo para este lugar (`party.conditions.forewarned: 1`, el `lasts: places` de su hoja): un combate que empiece aquí empieza con los turnos de la Compañía
   entries:
     faint: 'Algo pasó por aquí hace días: la lluvia se ha llevado el resto'
-    clear: 'Huellas frescas, de menos de un día: abrid bien los ojos'
+    wolves: 'Huellas de lobo en el barro, de una manada, de menos de un día: la Compañía está avisada'
+    outlaws: 'Huellas de botas y un fuego que no lleva un día frío: forajidos, y la Compañía está avisada'
+    unknown: 'Huellas frescas de algo que nadie conoce, de menos de un día: la Compañía está avisada'
 fishing:
   name: Pesca
   description: |-
@@ -172,7 +175,7 @@ scouting:
   description: |-
     La tira _Explorar el camino_: un d6 igual o menor que la habilidad que eligió el jugador, de quien actúa.
 
-    **Enseña:** una prueba que nombra su habilidad con un parámetro (`acting.values[params.skill]`): una tabla para cada habilidad que la acción pueda preguntar; una tirada por debajo (`gte: '{{roll}}'`), cada resultado su propia rama.
+    **Enseña:** una prueba que nombra su habilidad con un parámetro (`acting.values[params.skill]`): una tabla para cada habilidad que la acción pueda preguntar; una tirada por debajo (`gte: '{{roll}}'`), cada resultado su propia rama; un estado de la Compañía que se da por dos lugares, este y el siguiente (`party.conditions.scouted: 2`, el `lasts: places` de su hoja), que hace que la tirada de encuentro del siguiente lugar tome por sí sola un modo de tirada (_¿Quién va?_, _Sobre aviso_).
   entries:
     clear: 'El camino está despejado ({{roll}} contra {{acting.values[params.skill]}})'
     nothing: 'No hay nada que sacar de ahí fuera ({{roll}} contra {{acting.values[params.skill]}})'

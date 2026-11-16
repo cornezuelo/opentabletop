@@ -126,7 +126,7 @@ describe('those present', () => {
     // is gone, the Wyrm stays in its place.
     trip.edit((x) => {
       const next = structuredClone(x)
-      next.party!.conditions['gave-ground'] = {}
+      next.party!.conditions['gave-ground'] = { left: 1 }
       return next
     })
     await trip.step({ type: 'action', id: 'march' })

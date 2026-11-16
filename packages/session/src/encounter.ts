@@ -99,7 +99,8 @@ export interface Encounter {
 
 /**
  * An effect on the encounter: `encounter: start` / `encounter: end`, and `encounter.first:
- * party` / `foes` (which side goes first, for an order by side).
+ * party` / `foes` (which side goes first: by side, over the rules'; by participant, that
+ * side's whole before the other, each in the order it rolled).
  */
 export const ENCOUNTER_EFFECT = /^encounter(?:\.(first))?$/
 
@@ -348,7 +349,8 @@ export function changeEncounter(
 
 /**
  * Who acts and in which order: by side (the one said first, then the other), or each one by
- * the value it rolls (highest first; on a tie, the party's side first, then as listed).
+ * the value it rolls (highest first; on a tie, the party's side first, then as listed), the
+ * whole of a side an effect said goes first (`encounter.first`) before the other.
  */
 function orderOf(
   s: SessionState,
@@ -370,7 +372,12 @@ function orderOf(
     const n = Number(String(resolveChange(`=${written}`, read, roller)).slice(1))
     return { id, n: Number.isFinite(n) ? n : 0, party: i < party.length, i }
   })
-  rolled.sort((a, b) => b.n - a.n || Number(b.party) - Number(a.party) || a.i - b.i)
+  const said = s.encounter?.first
+  const ahead = (r: { party: boolean }) =>
+    said === undefined ? 0 : r.party === (said === 'party') ? 1 : 0
+  rolled.sort(
+    (a, b) => ahead(b) - ahead(a) || b.n - a.n || Number(b.party) - Number(a.party) || a.i - b.i,
+  )
   return rolled.map((r) => r.id)
 }
 

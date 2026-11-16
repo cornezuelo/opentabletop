@@ -205,16 +205,9 @@ actions:
     hideWhenUnavailable: true
     do:
       - { time: 10 }
-      - { effects: { party.conditions.got-away: true } }
+      # For one place (the sheet's `lasts: places`): gone as the next is entered.
+      - { effects: { party.conditions.got-away: 1 } }
       - { id: slipped, say: 'The party slips away while it can.' }
-  # A place reached: getting away is done, and foes here beset the party again.
-  away:
-    name: Away
-    description: 'On reaching another place after getting away: the party is no longer slipping away.'
-    on: trip.place-enter
-    when: { party.conditions: got-away }
-    do:
-      - { effects: { party.conditions.got-away: false } }
   # The one action a member takes on its turn in a fight: a blow at one foe here, chosen.
   strike:
     name: Strike

@@ -311,12 +311,13 @@ export function keptNumbers(
 /**
  * Conditions given for a while counted down (in place), as a fight goes: a new round's
  * (`rounds`, everyone in it), one's own turn (`turns`, only `who`), or the fight over (`end`,
- * everyone). The party's, its members' and those present here.
+ * everyone); or a place entered (`places`). The party's, its members' and (but for places,
+ * which they don't travel) those present here.
  */
 export function lapseStates(
   s: PartyTarget,
   rules: PartyRules,
-  unit: 'rounds' | 'turns' | 'end',
+  unit: 'rounds' | 'turns' | 'places' | 'end',
   who?: string,
 ): CharacterEvent[] {
   const events: CharacterEvent[] = []
@@ -334,7 +335,7 @@ export function lapseStates(
     }
   }
   if (s.members?.length) s.members = s.members.map((m) => lapse(sheetOf(rules)(m), m))
-  if (s.present?.length) {
+  if (s.present?.length && unit !== 'places') {
     const here = new Set(presentHere(s).map((p) => p.character.id))
     s.present = s.present.map((p) =>
       here.has(p.character.id)

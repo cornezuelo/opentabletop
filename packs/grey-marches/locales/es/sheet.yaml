@@ -186,7 +186,7 @@ sheet/company:
   description: |-
     La Compañía en conjunto: su moral, su fatiga, los mercenarios que ha contratado, cuánto aguanta, el forraje de los caballos, su leyenda y sus reservas de raciones. Sigue igual cuando se unen o caen compañeros: todo viaje la tiene.
 
-    **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), una provisión como un simple valor (el forraje, `party.values.fodder`, que se ve como `6 / 12`), una pista de progreso (la leyenda, diez casillas de cuatro marcas, `display: ticks`), objetos propios del grupo con los que empieza (seis raciones, `items: { start: { ration: 6 } }`), que se gastan antes que los de sus compañeros (`party.items.ration`), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar; uno que se cumple por sí solo mientras haya enemigos aquí (acosada, `when` que lee `present.tags: foe`), que impide seguir la marcha y lo que se hace en el lugar salvo que la Compañía haya cedido terreno (otro estado, que pone Replegarse y se quita en el siguiente lugar); su valor principal, la moral (`main: morale`), que se dibuja con el grupo de un vistazo.
+    **Enseña:** una hoja de grupo (`partySheet`) junto a la de los personajes: valores de los que salen las características del grupo (`from: { party: morale }`, así que los efectos sobre `party.stats.fatigue` la cambian dentro de sus límites), una provisión como un simple valor (el forraje, `party.values.fodder`, que se ve como `6 / 12`), una pista de progreso (la leyenda, diez casillas de cuatro marcas, `display: ticks`), objetos propios del grupo con los que empieza (seis raciones, `items: { start: { ration: 6 } }`), que se gastan antes que los de sus compañeros (`party.items.ration`), y un estado del grupo que impide una acción (desanimada, sin marcha forzada), puesto por una tabla y quitado al descansar; uno que se cumple por sí solo mientras haya enemigos aquí (acosada, `when` que lee `present.tags: foe`), que impide seguir la marcha y lo que se hace en el lugar salvo que la Compañía haya cedido terreno (otro estado, que Replegarse da por un lugar, `lasts: places`); estados que se dan por unos lugares (avisada por huellas frescas para este, camino explorado para este y el siguiente); su valor principal, la moral (`main: morale`), que se dibuja con el grupo de un vistazo.
   values:
     morale:
       name: Moral
@@ -225,6 +225,12 @@ sheet/company:
     gave-ground:
       name: Ha cedido terreno
       description: La Compañía se ha replegado de un combate y puede alejarse de los enemigos que siguen aquí, hasta que llegue a otro lugar.
+    forewarned:
+      name: Avisada
+      description: La Compañía ha leído huellas frescas y sabe qué anda por aquí. Un combate que empiece en este lugar empieza con los turnos de la Compañía; se va al empezar el combate, o al seguir la marcha.
+    scouted:
+      name: Camino explorado
+      description: Se ha explorado el camino. Al entrar en el siguiente lugar, el encuentro se tira dos veces y se queda el más amistoso; se va al dejar atrás ese lugar.
 sheet/this-place:
   name: Este lugar
   description: |-

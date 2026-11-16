@@ -21,11 +21,17 @@ description: |-
   - A chance of nothing that shrinks with the danger: a roll in a condition, `place.danger: { lt: '{{1d6}}' }` (at danger 2, two times in three)
   - The world clock: once _The Greywood Wyrm wakes_ is full (`world.clocks.the-greywood-wyrm-wakes: { gte: 6 }`), the Wyrm roams the wood from danger 3
   - Cascades into _Reaction_ and into a generator
+  - A roll mode the table takes by itself (`modeWhen`): _Warned_ (twice, the lower kept) on entering a place while the Company is _Scouted_ (a condition given for two places by _Scouting ahead_), so what's met on a way scouted is less often hostile
   - `set` of a value for the next table (`reactionModifier`) and of a party stat (`morale`)
   - An effect on every companion: the haunted lights fill each one's dread, and tick the world clock's _The Greywood Wyrm wakes_ (`world.clocks…`); `notable: true`, so they're shown up front as an important moment though the trip doesn't stop
   - Results that make copies of the bestiary's templates, kept as those present (`present.grey-wolf: '{{wolves - 1}}'`): as many as a `set` rolled and the text says (`{{wolves}} grey wolves`), their leader among them; the bandits and their chief, the Hunt's riders, the Wyrm, the Vale's riders
   - A faction's value in a condition: the Vale's patrol shares its bread when the Vale thinks well of you (`factions.the-vale.values.reputation`)
 roll: '1d6 + {{place.danger}}'
+# A way scouted (Scout ahead): entering the next place, rolled twice keeping the lower, the
+# friendlier end (travellers and patrols low, wolves and bandits high).
+modes: [roll-modes.warned]
+modeWhen:
+  roll-modes.warned: { party.conditions: scouted, trip.moment: trip.place-enter }
 entries:
   # A once-only encounter, only at the very heart of the Greywood (danger 5), or deeper
   # than its edge once the world clock's _The Greywood Wyrm wakes_ is full (a progress

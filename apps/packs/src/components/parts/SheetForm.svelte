@@ -316,7 +316,7 @@
           label: t('sheet.lasts'),
           help: t('sheet.lastsHelp'),
           type: 'select',
-          choices: ['rounds', 'turns'],
+          choices: ['rounds', 'turns', 'places'],
           off: (row) => row.when !== undefined,
         },
         {

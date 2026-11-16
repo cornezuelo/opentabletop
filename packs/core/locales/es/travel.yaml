@@ -72,9 +72,6 @@ travel-rules/default:
       do:
         slipped:
           say: 'El grupo se escabulle mientras puede.'
-    away:
-      name: Lejos
-      description: 'Al llegar a otro lugar tras escabullirse: el grupo ya no se está escabullendo.'
     strike:
       name: Golpear
       told: '{{acting.name}} golpea a {{characters[params.foe].name}}'

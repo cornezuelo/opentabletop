@@ -33,6 +33,8 @@ export const en = {
   lasts:
     'Given for a while in a fight: {unit} counted down as each begins, gone with the fight. What’s left is read as {key}.',
   lastsUnit: { rounds: 'rounds', turns: 'its own turns' },
+  lastsPlaces:
+    'Given for a number of places: counted down as the party enters each, gone at none, fight or not. What’s left is read as {key}.',
   left: '{n} left',
   less: 'Less {name}',
   more: 'More {name}',

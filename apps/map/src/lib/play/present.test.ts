@@ -64,7 +64,7 @@ describe('those present on the map', () => {
     // leave`) is gone from the map too.
     editSession((s) => {
       const next = structuredClone(s)
-      next.party!.conditions['gave-ground'] = {}
+      next.party!.conditions['gave-ground'] = { left: 1 }
       return next
     })
     step({ type: 'action', id: 'march' })

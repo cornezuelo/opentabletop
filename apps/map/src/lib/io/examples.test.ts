@@ -709,7 +709,7 @@ describe('example maps', () => {
       'rank-up': { condition: 'when' }, // nobody risen
       'open-eyes': { condition: 'when' }, // nobody has night eyes
       'close-eyes': { condition: 'when' }, // nobody's night eyes are open
-      'ground-left': { condition: 'when' }, // the Company gave no ground
+      forewarned: { condition: 'when' }, // no tracks read here
       overcome: { condition: 'when' }, // no fight lost
     })
     expect(Object.keys(unavailable)).toHaveLength(35)

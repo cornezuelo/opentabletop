@@ -414,10 +414,16 @@ export function initialSessionState(
  * it has them.
  */
 export function partyValues(s: SessionState, rules: PartyRules = {}): Record<string, unknown> {
-  // Its own sheet's: `party.values.morale`, `party.conditions`, `party.tags`.
+  // Its own sheet's: `party.values.morale`, `party.conditions`, `party.tags`, and what's
+  // left of a condition given for a while (`party.left.hidden`).
   const own = s.party && characterFacts(s.party)
   return {
-    ...(own && { values: own.values, conditions: own.conditions, tags: own.tags }),
+    ...(own && {
+      values: own.values,
+      conditions: own.conditions,
+      tags: own.tags,
+      ...(own.left !== undefined && { left: own.left }),
+    }),
     items: partyItems(s, rules),
     stats: { ...s.stats },
     mode: s.travel.mode,
@@ -1250,7 +1256,15 @@ export function createSession(options: {
               }
             continue
           }
-          if (event.type === 'PLACE_ENTERED') found = arrive(event.place, from, event.time) || found
+          if (event.type === 'PLACE_ENTERED') {
+            // What lasts a number of places counts one down as each is entered.
+            const gone = lapseStates(s, party, 'places')
+            if (gone.length) {
+              told(s, entries, gone, event.time)
+              settle()
+            }
+            found = arrive(event.place, from, event.time) || found
+          }
           if (event.type !== 'CHECK_REQUIRED') continue
           // A step's roll of something the Oracle rolls (`roll: table.ruins`) has no binding:
           // it names what it rolls, found from the rules' pack.

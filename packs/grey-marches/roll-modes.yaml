@@ -23,3 +23,10 @@ modes:
     description: 'Roll twice and keep the lower total: where low is good, it helps.'
     repeat: 2
     keep: lowest
+  # Rolled twice keeping the lower: _Who goes there?_ takes it by itself on the place after
+  # a way scouted (the Company's _Scouted_), where a low roll is a friendlier meeting.
+  warned:
+    name: Warned
+    description: 'The way was scouted: roll twice and keep the lower total, the friendlier meeting.'
+    repeat: 2
+    keep: lowest

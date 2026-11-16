@@ -121,14 +121,32 @@ description: |-
 
   - An action's `nothing`, for what the player can't know before trying (`needs` would tell for free)
   - A check at the end of an action, on a value the place holds: `place.danger: { gte: 1 }`
+  - What left fresh tracks by the terrain, as _Who goes there?_ finds its foes (`place.terrain`), and a condition of the Company given for this place only (`party.conditions.forewarned: 1`, its sheet's `lasts: places`): a fight begun here starts with the Company's turns
 roll: '1d6 + {{party.stats.survival}}'
+# The fresh rows say what walks here, as the encounter table's foes are found: wolves in the
+# woods and on the heath, outlaws in the hills and the marsh. Each leaves the Company
+# forewarned for this place (`lasts: places` on its sheet).
 entries:
   - {
       id: faint,
       range: 1-3,
       result: 'Something passed here, days ago: the rain has taken the rest',
     }
-  - { id: clear, range: 4-20, result: 'Fresh tracks, and not a day old: keep your eyes open' }
+  - id: wolves
+    range: 4-20
+    when: { place.terrain: [forest, dense-forest, heath] }
+    result: 'Wolf-prints in the mud, a pack of them, not a day old: the Company is forewarned'
+    effects: { party.conditions.forewarned: 1 }
+  - id: outlaws
+    range: 4-20
+    when: { place.terrain: [hills, marsh, swamp] }
+    result: 'Boot-prints and a fire not a day cold: outlaws, and the Company is forewarned'
+    effects: { party.conditions.forewarned: 1 }
+  - id: unknown
+    range: 4-20
+    unless: { place.terrain: [forest, dense-forest, heath, hills, marsh, swamp] }
+    result: 'Fresh tracks of something nobody knows, not a day old: the Company is forewarned'
+    effects: { party.conditions.forewarned: 1 }
 ---
 # A roll-under on the table's own roll: its entries read the d6 as `roll`, in a condition
 # against a stat (at or under Survival) and in their texts.
@@ -394,7 +412,7 @@ name: Scouting ahead
 description: |-
   Rolled by _Scout ahead_: a d6 at or under the skill the player chose, of whoever acts.
 
-  **Shows:** a test naming its skill by a parameter (`acting.values[params.skill]`): one table for every skill the action may ask for; a roll-under (`gte: '{{roll}}'`), each result its own branch.
+  **Shows:** a test naming its skill by a parameter (`acting.values[params.skill]`): one table for every skill the action may ask for; a roll-under (`gte: '{{roll}}'`), each result its own branch; a condition of the Company given for two places, this one and the next (`party.conditions.scouted: 2`, its sheet's `lasts: places`), which makes the next place's encounter roll take a roll mode by itself (_Who goes there?_, _Warned_).
 roll: 1d6
 entries:
   - id: clear
@@ -403,7 +421,8 @@ entries:
     when:
       acting.values[params.skill]: { gte: '{{roll}}' }
     result: 'The way ahead is clear ({{roll}} against {{acting.values[params.skill]}})'
-    effects: { party.stats.morale: 1 }
+    # Two places: this one and the next, whose encounter is rolled Warned.
+    effects: { party.stats.morale: 1, party.conditions.scouted: 2 }
   - id: nothing
     range: 1-6
     unless:

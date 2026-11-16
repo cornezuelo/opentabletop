@@ -275,7 +275,7 @@ actions:
   look-for-tracks:
     group: groups.here
     name: Look for tracks
-    description: 'An hour reading the ground, by day, once a day. Where danger walks you learn what left its mark; where nothing does, you learn that, for the hour it took.'
+    description: 'An hour reading the ground, by day, once a day. Where danger walks you learn what left its mark, and fresh tracks leave the Company forewarned: a fight begun here starts with its turns. Where nothing does, you learn that, for the hour it took.'
     nothing: 'no tracks on {terrain}: nothing dangerous has passed this way'
     when: { time.tags: { not: dark } }
     oncePerDay: true
@@ -665,7 +665,7 @@ actions:
   scout:
     group: groups.here
     name: Scout ahead
-    description: 'By day: half an hour scouting the way on, by stealth or by pathfinding, as you choose. Whoever acts rolls a d6 at or under that skill: the way is clear and the Company takes heart (morale +1).'
+    description: 'By day: half an hour scouting the way on, by stealth or by pathfinding, as you choose. Whoever acts rolls a d6 at or under that skill: the way is clear and the Company takes heart (morale +1), scouted: entering the next place, the encounter is rolled twice and the friendlier kept.'
     when: { time.tags: { not: dark } }
     hideWhenUnavailable: true
     oncePerDay: true
@@ -736,7 +736,7 @@ actions:
     on: encounter.end
     when: { party.stats.standing: 0, present.count: { gte: 1 } }
     do:
-      - { effects: { party.stats.morale: -1, party.conditions.gave-ground: true } }
+      - { effects: { party.stats.morale: -1, party.conditions.gave-ground: 1 } }
       - {
           id: left,
           say: 'Nobody is left standing. The Company is overcome, and left where it lies.',
@@ -880,17 +880,19 @@ actions:
     do:
       - when: { present.highest.values.harm: { gt: '{{party.lowest.values.stealth}}' } }
         roll: table.parting-blow
-      - { effects: { encounter: end, party.conditions.gave-ground: true } }
+      - { effects: { encounter: end, party.conditions.gave-ground: 1 } }
       - { id: back, say: 'The Company falls back, step by step, weapons up.' }
-  # A place reached: the ground given (Fall back) is behind the Company, and any foe here
-  # besets it again (sheet.yaml's _Beset_).
-  ground-left:
-    name: Ground left behind
-    description: 'On reaching another place after falling back: the Company is no longer giving ground.'
-    on: trip.place-enter
-    when: { party.conditions: gave-ground }
+  # Fresh tracks read here (_Tracks_): a fight begun in this place, however it begins,
+  # starts with the Company's turns, all of them before the foes' whatever they roll
+  # (`encounter.first` over an order by participant), and the warning is spent.
+  forewarned:
+    name: Forewarned
+    description: 'As a fight begins where the Company read fresh tracks: its companions act first, whatever the foes roll.'
+    on: encounter.start
+    when: { party.conditions: forewarned }
     do:
-      - { effects: { party.conditions.gave-ground: false } }
+      - { effects: { encounter.first: party, party.conditions.forewarned: false } }
+      - { id: ready, say: 'The Company knew they were here, and is ready for them.' }
   # On each foe's turn (`on: encounter.turn`, `encounter.side: foes`), whoever's turn it is
   # acts (`acting.*`, the copy): 2d6 over its Morale and it runs, unless it's enraged.
   nerve-breaks:

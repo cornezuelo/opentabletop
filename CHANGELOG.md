@@ -4,6 +4,17 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Packs**: a condition can last a number of places (**Lasts** → **places**): given with a number, it's counted down as the party enters each place, fight or not, and gone at none (`lasts: places`); the party's own sheet's too, read as `party.left.<condition>`.
+- **Fights**: with turns by what each one rolls, a side said first (`encounter.first`) now acts whole before the other, each in the order it rolled.
+
+### Packs
+
+- **The Grey Marches**: **Look for tracks** says what left fresh tracks (wolves in the woods and on the heath, outlaws in the hills and the marsh) and leaves the Company **Forewarned** in that place: a fight begun there starts with its companions' turns.
+- **The Grey Marches**: **Scout ahead**, the way clear, leaves the Company **Scouted**: entering the next place, _Who goes there?_ is rolled **Warned**, twice and the friendlier kept.
+- **The Grey Marches**: _Gave ground_ lasts one place by itself; **Ground left behind** is gone. **Core**: _Getting away_ the same, and **Away** is gone.
+
 ## [0.61.0] - 2026-11-16
 
 ### Apps

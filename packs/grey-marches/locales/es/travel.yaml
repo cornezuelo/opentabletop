@@ -86,7 +86,7 @@ travel-rules/default:
       description: 'Por un camino, de día: un carretero que va en vuestra dirección os lleva dos hexes por la ruta en dos horas. Una vez al día.'
     look-for-tracks:
       name: Buscar huellas
-      description: 'Una hora leyendo el suelo, de día, una vez al día. Donde anda el peligro sabéis qué dejó su rastro; donde no, sabéis eso, por la hora que costó.'
+      description: 'Una hora leyendo el suelo, de día, una vez al día. Donde anda el peligro sabéis qué dejó su rastro, y unas huellas frescas dejan a la Compañía avisada: un combate que empiece aquí empieza con sus turnos. Donde no, sabéis eso, por la hora que costó.'
       nothing: 'no hay huellas en {terrain}: nada peligroso ha pasado por aquí'
     fish:
       name: Pescar
@@ -147,7 +147,7 @@ travel-rules/default:
           say: 'La tranca se astilla y la puerta cede.'
     scout:
       name: Explorar el camino
-      description: 'De día: media hora explorando el camino, con sigilo o por el terreno, como elijáis. Quien actúa tira un d6 igual o menor que esa habilidad: el camino está despejado y la Compañía se anima (moral +1).'
+      description: 'De día: media hora explorando el camino, con sigilo o por el terreno, como elijáis. Quien actúa tira un d6 igual o menor que esa habilidad: el camino está despejado y la Compañía se anima (moral +1), con el camino explorado: al entrar en el siguiente lugar, el encuentro se tira dos veces y se queda el más amistoso.'
       params:
         skill:
           name: ¿Cómo exploráis?
@@ -227,9 +227,12 @@ travel-rules/default:
       do:
         back:
           say: 'La Compañía se repliega, paso a paso, con las armas en alto.'
-    ground-left:
-      name: Terreno dejado atrás
-      description: 'Al llegar a otro lugar tras replegarse: la Compañía ya no está cediendo terreno.'
+    forewarned:
+      name: Avisada
+      description: 'Al empezar un combate donde la Compañía leyó huellas frescas: sus compañeros actúan primero, saquen lo que saquen los enemigos.'
+      do:
+        ready:
+          say: 'La Compañía sabía que estaban aquí, y los espera preparada.'
     strip-the-fallen:
       name: Despojar a los caídos
       description: 'Cuando cae un enemigo: lo que deja depende de quién era. La bolsa y las raciones de un forajido, el tesoro de un cabecilla, el ajuar de los muertos; una bestia, nada.'

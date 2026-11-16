@@ -27,6 +27,8 @@ export const es: Messages<typeof en> = {
   lasts:
     'Se da por un tiempo en un combate: {unit} que se descuentan al empezar cada uno, y se va con el combate. Lo que queda se lee como {key}.',
   lastsUnit: { rounds: 'rondas', turns: 'sus propios turnos' },
+  lastsPlaces:
+    'Se da por un número de lugares: se descuenta uno al entrar el grupo en cada lugar, y se va al no quedar ninguno, haya combate o no. Lo que queda se lee como {key}.',
   left: 'quedan {n}',
   min: 'Como mínimo {min}.',
   max: 'Como máximo {max}.',

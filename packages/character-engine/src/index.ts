@@ -198,7 +198,7 @@ const condition = z
      * (more given adds up); gone when none is left, or when the fight ends. `true` gives it
      * with no end.
      */
-    lasts: z.enum(['rounds', 'turns']).optional(),
+    lasts: z.enum(['rounds', 'turns', 'places']).optional(),
     /**
      * How it's told when a character gains it and loses it, in the pack's words, `{{name}}`
      * the character's (`gains: '{{name}} falls'`). Absent: the generic _Name: Down_.
@@ -1090,19 +1090,21 @@ function settle(
 
 /**
  * Conditions given for a while (`lasts`) counted down (a new round begins: `rounds`; the
- * character's own turn: `turns`), each gone when none is left; or all of them gone, the
- * fight over (`end`). Those given with no end stay.
+ * character's own turn: `turns`; a place entered: `places`), each gone when none is left;
+ * or those of a fight's rounds and turns all gone, the fight over (`end`). Those given with
+ * no end stay.
  */
 export function lapseConditions(
   sheet: Sheet,
   input: CharacterState,
-  unit: 'rounds' | 'turns' | 'end',
+  unit: 'rounds' | 'turns' | 'places' | 'end',
 ): { state: CharacterState; events: CharacterEvent[] } {
   const events: CharacterEvent[] = []
   let state = input
   for (const [id, c] of Object.entries(input.conditions)) {
     const lasts = sheet.conditions[id]?.lasts
-    if (lasts === undefined || c.left === undefined || (unit !== 'end' && unit !== lasts)) continue
+    if (lasts === undefined || c.left === undefined) continue
+    if (unit === 'end' ? lasts === 'places' : unit !== lasts) continue
     if (state === input) state = structuredClone(input)
     const left = unit === 'end' ? 0 : c.left - 1
     if (left > 0) state.conditions[id] = { ...c, left }

@@ -206,7 +206,7 @@ describe('the bundled packs make foes from their bestiaries', () => {
   })
 
   it('the Grey Marches: drive them off is a roll against the firmest foe’s Morale, or the fight', () => {
-    const drive = (seed: number, members: boolean) => {
+    const drive = (seed: number, members: boolean, trip = 'd') => {
       const { session } = startTrip({
         system: marches,
         location: 'a',
@@ -215,7 +215,7 @@ describe('the bundled packs make foes from their bestiaries', () => {
             newMember(partyOf(marches), { id: 'kael', name: 'Kael', values: { survival: 2 } }),
           ],
         }),
-        seed: 'd',
+        seed: trip,
         time: 9 * 60,
       })
       const options = {
@@ -259,8 +259,12 @@ describe('the bundled packs make foes from their bestiaries', () => {
         expect(members ? ['routed', 'stand'] : ['routed-alone', 'hold']).toContain(entry)
       }
     expect([...seen].sort()).toEqual(['hold', 'routed', 'routed-alone', 'stand'])
-    // In a fight, it's gone: Strike one down or Fall back.
-    const { after } = drive(1, true)
+    // In a fight (one still going once the foes' first turns are played), it's gone: Strike
+    // one down or Fall back.
+    const after = 'abcdefghij'
+      .split('')
+      .map((trip) => drive(1, true, trip).after)
+      .find((a) => a.state.encounter !== undefined)!
     expect(after.state.encounter).toBeDefined()
     expect(
       tripAvailability({ system: marches, world: heath }, after.state)['drive-off'],
@@ -467,7 +471,10 @@ describe('beset by foes', () => {
     expect(open.stand).toMatchObject({ condition: 'needs' })
     expect(open['drive-off']).toBeUndefined()
     // Given ground (as Fall back leaves it): it may march away, and it's over at the next place.
-    s = { ...s, party: { ...s.party!, conditions: { ...s.party!.conditions, 'gave-ground': {} } } }
+    s = {
+      ...s,
+      party: { ...s.party!, conditions: { ...s.party!.conditions, 'gave-ground': { left: 1 } } },
+    }
     s = settleTrip(options, s).state
     expect(tripAvailability(options, s).travel).toBeUndefined()
     s = stepTrip(options, s, { type: 'setDestination', place: 'b' }).state
@@ -546,12 +553,12 @@ describe('the bundled packs fight in turns', () => {
       by: 'participant',
       value: { party: '{{1d6 + acting.values.stealth}}', foes: '{{1d6 + acting.values.harm}}' },
     })
-    const { state, lines } = fight(marches, 'stand', 'g')
+    const { state, lines } = fight(marches, 'stand', 'i')
     expect(lines[0]).toBe('ACTION_TAKEN')
     expect(lines).toContain('ENCOUNTER_STARTED')
     expect(lines.filter((l) => l === 'ENCOUNTER_TURN').length).toBeGreaterThan(2)
     // Kael rolls 1d6 and his Stealth (3), Mara 1d6 and hers (0), each bandit 1d6 and its Harm.
-    const order = fight(marches, 'stand', 'g').first
+    const order = fight(marches, 'stand', 'i').first
     expect(order).toEqual(['kael', 'bandit', 'mara', 'bandit-2'])
     // Its end is a moment (Mind the mail's and A name made's), heard right after it; nobody
     // wears armour here.
@@ -875,7 +882,7 @@ describe('the bundled packs fight in turns', () => {
 
   it('the Grey Marches: renown for a fight won, a rank risen at three times it, a knack learnt and used', () => {
     // A fight won: each companion still standing gains a renown.
-    const won = fight(marches, 'stand', 'g')
+    const won = fight(marches, 'stand', 'i')
     for (const m of won.state.members!.filter((m) => (m.values.health as number) >= 1))
       expect(m.values.renown).toBe(1)
     // Kael at three renown (rank 1): he rises on the next step, and chooses what he gains.

@@ -553,6 +553,20 @@ describe('an encounter: a fight in turns', () => {
     expect(done.state.encounter?.order).toEqual(['goblin', 'goblin-2', 'kael', 'mira'])
   })
 
+  it('by participant, the side said first goes whole before the other, each as it rolled', () => {
+    const { options, session } = begin(
+      "{ order: { by: participant, value: '{{acting.values.speed}}' }, actions: [actions.strike] }",
+    )
+    const rules = options.system.rules
+    rules.actions = {
+      ...rules.actions,
+      warned: { on: 'encounter.start', do: [{ effects: { 'encounter.first': 'party' } }] },
+    }
+    const done = stepTrip(options, session, { type: 'action', id: 'ambush' })
+    // The goblins are faster, but the party was warned.
+    expect(done.state.encounter?.order).toEqual(['kael', 'mira', 'goblin', 'goblin-2'])
+  })
+
   it('conditions given for a while: counted down by rounds or by its own turns, gone with the fight', () => {
     const { options, session } = begin(
       '{ order: { by: side }, actions: [actions.daze, actions.strike, actions.flee] }',

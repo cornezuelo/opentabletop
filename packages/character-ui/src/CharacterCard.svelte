@@ -172,7 +172,9 @@
       readsWorld(sheet, id) && t('lastSeen'),
       def.blocks?.length && t('blocks', { list: def.blocks.map(names).join(', ') }),
       def.lasts &&
-        t('lasts', { unit: t(`lastsUnit.${def.lasts}`), key: `\`${where}.left.${id}\`` }),
+        (def.lasts === 'places'
+          ? t('lastsPlaces', { key: `\`${where}.left.${id}\`` })
+          : t('lasts', { unit: t(`lastsUnit.${def.lasts}`), key: `\`${where}.left.${id}\`` })),
       t('readAs', { keys: `\`${where}.conditions: ${id}\`` }),
     ]
       .filter(Boolean)

@@ -9,3 +9,6 @@ roll-modes/default:
     charm:
       name: Con buena labia
       description: 'Tira dos veces y quédate con el total más bajo: donde bajo es bueno, ayuda.'
+    warned:
+      name: Sobre aviso
+      description: 'Se exploró el camino: tira dos veces y quédate con el total más bajo, el encuentro más amistoso.'
