@@ -162,6 +162,11 @@ export interface TravelSystem {
   partySheet?: { id: string; def: Sheet }
   /** The sheet of a map (`mapSheet` in `kind: system`): each map's own values, `map.values.*`. */
   mapSheet?: { id: string; def: Sheet }
+  /**
+   * The sheet of a place (`placeSheet` in `kind: system`): what each place remembers of its own
+   * (a ruin delved, a room's trap), `place.values.*` and `place.conditions`.
+   */
+  placeSheet?: { id: string; def: Sheet }
   /** Its factions (`factions` in `kind: system`): who they are and the sheet they're made with. */
   factions?: SystemFactions
   /** Its progress clocks (`clocks` in `kind: system`): the ones its world clock starts with. */
@@ -345,6 +350,7 @@ const PART_NAMES: Record<string, string> = {
   sheet: 'sheet',
   partySheet: 'sheet',
   mapSheet: 'sheet',
+  placeSheet: 'sheet',
   factions: 'factions',
   clocks: 'clocks',
   world: 'world rules',
@@ -374,6 +380,7 @@ const SYSTEM_KEYS = new Set([
   'sheet',
   'partySheet',
   'mapSheet',
+  'placeSheet',
   'factions',
   'clocks',
   'world',
@@ -476,6 +483,7 @@ export function travelSystems(registry: Registry): {
       sheet?: Extra
       partySheet?: Extra
       mapSheet?: Extra
+      placeSheet?: Extra
       factions?: Extra
       clocks?: Extra
       world?: Extra
@@ -631,6 +639,18 @@ export function travelSystems(registry: Registry): {
       )
       if (parsed.sheet)
         mapSheet = { id: `${owner}/${parts.mapSheet.id ?? 'default'}`, def: parsed.sheet }
+    }
+    let placeSheet: TravelSystem['placeSheet']
+    if (parts.placeSheet) {
+      const owner = ownerOf(parts.placeSheet) ?? pack
+      const parsed = parseSheet(parts.placeSheet.data)
+      problems.push(
+        ...parsed.errors.map((e) =>
+          problem(owner, parts.placeSheet!.file, 'sheet', e, parts.placeSheet!.id),
+        ),
+      )
+      if (parsed.sheet)
+        placeSheet = { id: `${owner}/${parts.placeSheet.id ?? 'default'}`, def: parsed.sheet }
     }
     let factions: SystemFactions | undefined
     if (parts.factions) {
@@ -861,6 +881,7 @@ export function travelSystems(registry: Registry): {
           ),
           mapSheet?.def,
           Object.values(read.sheets),
+          placeSheet?.def,
         ),
       )
     // Its catalogues of places.
@@ -892,6 +913,7 @@ export function travelSystems(registry: Registry): {
       ...(sheet && { sheet }),
       ...(partySheet && { partySheet }),
       ...(mapSheet && { mapSheet }),
+      ...(placeSheet && { placeSheet }),
       ...(factions && { factions }),
       ...(clocks && { clocks }),
       ...(world && { world }),
@@ -1022,6 +1044,7 @@ export function travelSystems(registry: Registry): {
           sheet: part('sheet', 'sheet', data.sheet),
           partySheet: part('partySheet', 'sheet', data.partySheet),
           mapSheet: part('mapSheet', 'sheet', data.mapSheet),
+          placeSheet: part('placeSheet', 'sheet', data.placeSheet),
           factions: part('factions', 'factions', data.factions),
           clocks: part('clocks', 'clocks', data.clocks),
           world: part('world', 'world', data.world),
@@ -1242,6 +1265,7 @@ function undeclaredEffects(
   mapSheet?: Sheet,
   /** The sheets of its templates: a copy (`characters[params.foe]`, `acting`) has theirs. */
   templateSheets: Sheet[] = [],
+  placeSheet?: Sheet,
 ): Diagnostic[] {
   const out: Diagnostic[] = []
   const check = (effects: unknown, where: { file: string; at: string }) => {
@@ -1253,7 +1277,14 @@ function undeclaredEffects(
       // A member's value or condition: its sheet's.
       const [, who, part, partId] = MEMBER_PATH.exec(path) ?? []
       // The party's own (`party.values.morale`): its party sheet's; the map's, its map sheet's.
-      const own = who === 'party' ? partySheet : who === 'map' ? mapSheet : sheet
+      const own =
+        who === 'party'
+          ? partySheet
+          : who === 'map'
+            ? mapSheet
+            : who === 'place'
+              ? placeSheet
+              : sheet
       // A faction's (on a world turn): its sheet's values and conditions, and its
       // territory, which every faction has (Core's turn table, in a system without factions).
       const [, factionPart, factionId] =
@@ -1325,6 +1356,7 @@ function undeclaredEffects(
             // One that may be a copy of a template (by id, by brackets, the one acting).
             (who !== 'party' &&
               who !== 'map' &&
+              who !== 'place' &&
               who !== 'party.members' &&
               !who.startsWith('roles.') &&
               templateSheets.some((t) => !!t[part as 'values' | 'conditions'][partId]))
@@ -1339,7 +1371,9 @@ function undeclaredEffects(
               ? `Effect on "${path}", which the party sheet doesn't declare`
               : who === 'map'
                 ? `Effect on "${path}", which the map sheet doesn't declare (mapSheet: in kind: system)`
-                : `Effect on "${path}", which the members' sheet doesn't declare`
+                : who === 'place'
+                  ? `Effect on "${path}", which the place sheet doesn't declare (placeSheet: in kind: system)`
+                  : `Effect on "${path}", which the members' sheet doesn't declare`
             : `Effect on "${path}", which this system doesn't declare (stats in its bindings)`,
           pack,
           ...where,
@@ -1437,19 +1471,26 @@ export function startTrip(options: {
 
 /**
  * The trip on a map, with that map's own sheet (the system's `mapSheet`): the one the host
- * keeps for it (`kept`), else a new one rolled for that map (its id). A system without a
- * map sheet leaves the trip as it is.
+ * keeps for it (`kept`), else a new one rolled for that map (its id); and its places' sheets
+ * (the system's `placeSheet`), those the host keeps for it (`places`, by place id). A system
+ * without either leaves the trip as it is.
  */
 export function withMapSheet(
   session: SessionState,
   system: TravelSystem,
   map: string,
   kept?: CharacterState,
+  places?: Record<string, CharacterState>,
 ): SessionState {
+  let out = session
   const own = system.mapSheet
-  if (!own) return session
-  const sheet = kept?.sheet === own.id ? kept : newMapSheet(partyOf(system), map)
-  return sheet ? { ...session, map: structuredClone(sheet) } : session
+  if (own) {
+    const sheet = kept?.sheet === own.id ? kept : newMapSheet(partyOf(system), map)
+    if (sheet) out = { ...out, map: structuredClone(sheet) }
+  }
+  if (system.placeSheet)
+    out = { ...out, placeSheets: { map, sheets: structuredClone(places ?? {}) } }
+  return out
 }
 
 /**
@@ -1492,6 +1533,7 @@ export const partyOf = (system: TravelSystem, locale?: string): PartyRules => ({
   sheet: system.sheet,
   partySheet: system.partySheet,
   mapSheet: system.mapSheet,
+  placeSheet: system.placeSheet,
   bindings: system.bindings,
   ...(system.items && {
     items: lookupItems(system.items),
@@ -1666,6 +1708,7 @@ function playStep(
     sheet: system.sheet,
     partySheet: system.partySheet,
     mapSheet: system.mapSheet,
+    placeSheet: system.placeSheet,
     items: partyOf(system).items,
     templates: partyOf(system, options.locale),
     places: partyOf(system).places,
@@ -1863,6 +1906,7 @@ function handSession(
     sheet: system.sheet,
     partySheet: system.partySheet,
     mapSheet: system.mapSheet,
+    placeSheet: system.placeSheet,
     items: partyOf(system).items,
     templates: partyOf(system, options.locale),
   })
@@ -1995,6 +2039,7 @@ export function systemSheets(system: TravelSystem): Record<string, Sheet> {
     ...(system.factions && { [system.factions.sheet.id]: system.factions.sheet.def }),
     ...(system.partySheet && { [system.partySheet.id]: system.partySheet.def }),
     ...(system.mapSheet && { [system.mapSheet.id]: system.mapSheet.def }),
+    ...(system.placeSheet && { [system.placeSheet.id]: system.placeSheet.def }),
     ...(system.sheet && { [system.sheet.id]: system.sheet.def }),
   }
 }

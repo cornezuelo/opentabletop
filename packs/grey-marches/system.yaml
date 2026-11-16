@@ -10,7 +10,7 @@ description: |-
 
   **Shows:** a system naming its parts: travel rules (its buttons in groups) and bindings, its calendar, the
   weather model its weather check uses, Core's tables brought along through the
-  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet, its gear, the bestiary its encounters make foes from, advancement (each companion's renown and rank, the knacks they learn), fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs, one who fell losing them all, over when no foe or no companion is left standing, the fallen stripped as they leave), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
+  pack's dependency, its four example maps in one campaign (two of them sub-maps, one crossed by three ways), the sheet its companions are made with and the Company's own, each map's own sheet and each place's, its gear, the bestiary its encounters make foes from, advancement (each companion's renown and rank, the knacks they learn), fights in turns (each one by what it rolls, rounds of a minute, foes whose nerve breaks on their turn, a companion dragged down losing theirs, one who fell losing them all, over when no foe or no companion is left standing, the fallen stripped as they leave), the places its discovery makes, its factions, its progress clocks, what its world does by itself and how its land goes on.
 travel: travel-rules.default
 bindings: bindings.default
 calendar: calendar.marcher-reckoning
@@ -20,6 +20,8 @@ sheet: sheet.companion
 partySheet: sheet.company
 # What each map keeps of its own (sheet.yaml): how stirred its dead are, remembered there.
 mapSheet: sheet.this-place
+# What each place remembers (sheet.yaml): a ruin delved, a crypt left restless.
+placeSheet: sheet.place
 # The powers of the Marches (factions.yaml): their territory and their world turns.
 factions: factions.default
 # The Company's gear (items.yaml): what its companions may carry; and what they may learn

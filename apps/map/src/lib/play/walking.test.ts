@@ -271,12 +271,17 @@ describe('walking', () => {
     expect(at()).toBe('5,3')
   })
 
-  it("Core's Explore counts on the map's own sheet, which the campaign keeps for that map", () => {
+  it("Core's Explore counts on the map's and the place's own sheets, which the campaign keeps for that map", () => {
     room()
     expect(play.sessionOf(editor.map.play!)!.map).toMatchObject({ values: { explored: 0 } })
     play.step({ type: 'action', id: 'explore' })
     expect(play.sessionOf(editor.map.play!)!.map?.values.explored).toBe(1)
     expect(editor.campaign.mapSheets?.[editor.map.meta.id]?.values.explored).toBe(1)
+    // And on the place's own: once in each place, kept by the campaign for this map.
+    const here = play.sessionOf(editor.map.play!)!.travel.location
+    expect(editor.campaign.placeSheets?.[editor.map.meta.id]?.[here]?.values.searched).toBe(1)
+    play.step({ type: 'action', id: 'explore' })
+    expect(play.sessionOf(editor.map.play!)!.map?.values.explored).toBe(1)
   })
 
   it.each(['deepbarrows1', 'barrowhalls1'])(

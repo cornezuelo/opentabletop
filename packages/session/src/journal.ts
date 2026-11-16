@@ -103,12 +103,12 @@ export function entryTopic(e: Line): JournalTopic {
     e.code === 'UNKNOWN_TEMPLATE'
   )
     return 'characters'
-  // A change to a character (the party's own sheet is the trip's).
+  // A change to a character (the party's own sheet, the map's and a place's are the trip's).
   const path = e.data?.path
   if (
     typeof path === 'string' &&
     MEMBER_PATH.test(path) &&
-    !/^party\.(values|conditions)\./.test(path)
+    !/^(party|map|place)\.(values|conditions)\./.test(path)
   )
     return 'characters'
   return 'travel'

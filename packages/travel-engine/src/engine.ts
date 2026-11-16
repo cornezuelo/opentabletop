@@ -1028,10 +1028,17 @@ export function createTravelEngine(options: {
    * kind (`place.connections.door`), each with its values and state in play, those of several
    * of a kind together: a value they share as it is, values that differ as a list.
    */
-  const placeFacts = (id: string, state?: TravelState): Record<string, unknown> => {
+  const placeFacts = (
+    id: string,
+    state?: TravelState,
+    /** What the host keeps of each place (`placeSheets`), by id: read with it. */
+    sheets: unknown = hostFacts.placeSheets,
+  ): Record<string, unknown> => {
     const place = world.place(id)
+    const own = isRecord(sheets) && isRecord(sheets[id]) ? sheets[id] : undefined
     return {
       ...place,
+      ...own,
       id,
       terrain: place?.terrain,
       tags: place?.tags ?? [],
@@ -1264,13 +1271,15 @@ export function createTravelEngine(options: {
     const host = facts.party as Record<string, unknown> | undefined
     const stretch: [string, string] | undefined =
       a && b ? [a, b] : state.route?.[1] ? [state.location, state.route[1]] : undefined
+    // The places' own the host keeps are read with each place, never by themselves.
+    const { placeSheets, ...rest } = facts
     return {
-      ...facts,
+      ...rest,
       ...state.today,
       ...calendarFacts(calendar.describe(state.time)),
       // Everything the map knows about the place (fields, region…), then the travel facts.
       ...place,
-      place: placeFacts(state.location, state),
+      place: placeFacts(state.location, state, placeSheets ?? hostFacts.placeSheets),
       terrain: place?.terrain,
       tags: place?.tags ?? [],
       // The stretch given (the one just walked entering a place), or else the one ahead.
@@ -2114,6 +2123,28 @@ export function createTravelEngine(options: {
       const stat = /^party\.stats\.(.+)$/.exec(path)?.[1]
       const own = kept[path]
       if (stat === undefined && !own) continue
+      // A value of the place's own (`place.values.delved`): the host's for where the party is.
+      const placeValue = /^place\.values\.(.+)$/.exec(path)?.[1]
+      if (placeValue !== undefined) {
+        const sheets = isRecord(hostFacts.placeSheets) ? hostFacts.placeSheets : {}
+        const at = sheets[state.location]
+        const here: Record<string, unknown> = isRecord(at) ? at : {}
+        const values = isRecord(here.values) ? here.values : {}
+        const read = values[placeValue]
+        const { to, limit } = changeValue(typeof read === 'number' ? read : 0, change, own)
+        hostFacts = {
+          ...hostFacts,
+          placeSheets: {
+            ...sheets,
+            [state.location]: { ...here, values: { ...values, [placeValue]: to } },
+          },
+        }
+        if (limit) {
+          reach(state, path, limit)
+          limits.push({ type: 'LIMIT_REACHED', path, limit, value: to, time: state.time })
+        }
+        continue
+      }
       const at = stat !== undefined ? path : (own.read ?? path)
       const read = lookupPath(hostFacts, at)
       const from = typeof read === 'number' ? read : 0

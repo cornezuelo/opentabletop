@@ -98,6 +98,14 @@ export function memberNamer(
       const own = part === 'values' ? sheet.values[id] : sheet.conditions[id]
       return sheetText(own?.name, locale) ?? idName(id)
     }
+    // The map's own sheet, or the place's: "This place: Delved".
+    if (who === 'map' || who === 'place') {
+      const sheet = (who === 'map' ? system.mapSheet : system.placeSheet)?.def
+      if (!sheet || part === 'items') return undefined
+      const own = part === 'values' ? sheet.values[id] : sheet.conditions[id]
+      const title = sheetText(sheet.name, locale) ?? t(`${who}Sheet.title`)
+      return `${title}: ${sheetText(own?.name, locale) ?? idName(id)}`
+    }
     // A party without characters: nothing happens to them, nothing is told.
     if (!members?.length) return undefined
     if (!who) return undefined

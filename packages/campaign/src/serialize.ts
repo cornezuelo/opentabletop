@@ -25,9 +25,10 @@ import type {
  * world turns too, not only clocks (`{ clock, ids }` before), and what the world waits for
  * the player to answer (`waiting`), none in older campaigns; v7: the trip going on in a map
  * is in the app `map` (`hexmapper` before the app was called Map); v8: each map's own sheet
- * (`mapSheets`), none in older campaigns.
+ * (`mapSheets`), none in older campaigns; v9: each map's places' own sheets (`placeSheets`),
+ * none in older campaigns.
  */
-export const CAMPAIGN_VERSION = 8
+export const CAMPAIGN_VERSION = 9
 
 const migrations: Record<number, (data: Record<string, unknown>) => Record<string, unknown>> = {
   5: (data) =>
@@ -112,6 +113,7 @@ export function deserializeCampaign(json: string): Campaign {
     ...readParts(data),
     ...(isTrip(data.playing) && { playing: data.playing }),
     ...readMapSheets(data.mapSheets),
+    ...readPlaceSheets(data.placeSheets),
     ...readMoments(data.moments),
     ...readWaiting(data.waiting),
   }
@@ -126,6 +128,18 @@ export function readMapSheets(raw: unknown): Pick<Campaign, 'mapSheets'> {
     ),
   ) as Record<string, CharacterState>
   return Object.keys(sheets).length ? { mapSheets: sheets } : {}
+}
+
+/** Each map's places' own sheets, those that are one, by map and place. */
+export function readPlaceSheets(raw: unknown): Pick<Campaign, 'placeSheets'> {
+  if (!isRecord(raw)) return {}
+  const maps = Object.fromEntries(
+    Object.entries(raw).flatMap(([map, places]) => {
+      const sheets = readMapSheets(places).mapSheets
+      return sheets ? [[map, sheets]] : []
+    }),
+  )
+  return Object.keys(maps).length ? { placeSheets: maps } : {}
 }
 
 const REST_KINDS = ['steps', 'reactions', 'clocks', 'clockThen', 'effects', 'turns']

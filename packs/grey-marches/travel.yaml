@@ -683,12 +683,14 @@ actions:
   delve:
     group: groups.here
     name: Delve the ruin
-    description: 'In a ruin, by day: three hours searching it, then what it holds and what guards it, rolled on _Delving a ruin_. Once a day.'
+    description: 'In a ruin, by day: three hours searching it, then what it holds and what guards it, rolled on _Delving a ruin_. Once in each ruin: a ruin delved stays delved.'
     when: { place.tags: ruins, time.tags: { not: dark } }
+    # The place's own sheet (sheet.yaml): once delved, it's delved, whenever the Company comes back.
+    unless: { place.values.delved: { gte: 1 } }
     hideWhenUnavailable: true
-    oncePerDay: true
     do:
       - { time: 180 }
+      - { effects: { place.values.delved: 1 } }
       - { roll: generator.ruin-delve }
   # A moment of the world (`on: world.clocks.<id>.full`): the Greywood Wyrm's clock filling
   # while a trip goes on (the haunted lights fill it, encounters.yaml, or a hand on the World
@@ -1043,6 +1045,13 @@ checks:
     description: Keld Bridge, arriving by road.
     at: trip.place-enter
     when: { all: [{ place.tags: toll }, { trip.connections: road }] }
+  # A crypt left restless (the place's own sheet, set by _In the crypt_'s sleeper): entering
+  # it again, more of its dead may rise.
+  - event: RESTLESS_CHECK_REQUIRED
+    name: The dead rise again
+    description: Entering again a crypt whose sleeper woke.
+    at: trip.place-enter
+    when: { place.conditions: restless }
   # Fords are rolled on an oracle, except by boat: not. Entering a hex tagged `ford`, or
   # crossing a ford drawn on the map (the kind of the step's connection, `connection.kind`).
   - event: FORD_CHECK_REQUIRED
@@ -1371,6 +1380,7 @@ on:
   ENCOUNTER_CHECK_REQUIRED: { resolve: table.encounter, context: { timeOfDay: day } }
   CAMP_ENCOUNTER_CHECK_REQUIRED: { resolve: table.encounter, context: { timeOfDay: night } }
   TOLL_CHECK_REQUIRED: { resolve: table.toll }
+  RESTLESS_CHECK_REQUIRED: { resolve: table.dead-rise }
   # An oracle resolves the ford; the context gives its input (how likely it goes well).
   FORD_CHECK_REQUIRED: { resolve: oracle.ford, context: { odds: even } }
   # Wading where there's no ford: the same oracle, in deep water.

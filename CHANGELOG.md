@@ -4,6 +4,20 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Packs**: a system can have a sheet for each place (**New place sheet**, **Each place's sheet** in its **Overview**, `placeSheet:`): what a place remembers (a ruin delved, a room's trap), read and changed on a trip as `place.values.<id>` and `place.conditions` of the place the party is on (a check entering a place reads that place's), kept by the campaign for each place of each map; an action taken once in each place is `unless: { place.values.searched: { gte: 1 } }`.
+- **Trips** (Travel, Map, Campaign): the **Here** tab shows **This place**, the sheet of the place the party is on, editable on its card like the map's.
+
+### Packs
+
+- **The Grey Marches**: **Delve the ruin** is once in each ruin, not once a day: a ruin delved stays delved. A crypt of the Deep Barrows whose sleeper woke stays **restless**: entering it again, _The dead rise again_ is rolled. The map's own sheet is called _This map_.
+- **Core**: **Explore** is once in each place.
+
+### Formats
+
+- **Campaigns** (version 9) keep each map's places' own sheets (`placeSheets`); a map saved as a file keeps its places' in `ext.map.placeSheets`.
+
 ## [0.63.0] - 2026-11-16
 
 ### Apps

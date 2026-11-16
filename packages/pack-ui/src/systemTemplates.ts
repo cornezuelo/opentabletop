@@ -283,6 +283,18 @@ export const MAP_SHEET = (id: string): Record<string, unknown> => ({
   values: { 'value-1': { name: 'Value 1', default: 0, min: 0 } },
 })
 
+/**
+ * A sheet for each place (a system's `placeSheet`): one made-up value and condition to rename
+ * (what a place remembers, a room searched or a trap set, is the system's to say).
+ */
+export const PLACE_SHEET = (id: string): Record<string, unknown> => ({
+  kind: 'sheet',
+  id,
+  name: 'The place',
+  values: { 'value-1': { name: 'Value 1', default: 0, min: 0 } },
+  conditions: { 'condition-1': { name: 'Condition 1' } },
+})
+
 /** The sheet a new factions definition names, when its pack has none (`faction`). */
 export const FACTION_SHEET = (): Record<string, unknown> => ({
   kind: 'sheet',

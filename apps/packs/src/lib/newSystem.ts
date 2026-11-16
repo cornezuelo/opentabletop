@@ -14,6 +14,7 @@ import {
   manifestOf,
   PARTY_SHEET,
   MAP_SHEET,
+  PLACE_SHEET,
   SYSTEM_TEMPLATES,
   type LandStart,
   type PackFile,
@@ -499,14 +500,20 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
   let refs: string[]
   if (kind === 'roll-modes') refs = system.packs.flatMap(ownOfKind)
   else if (kind === 'sheet') {
-    // Its characters' sheet, the party's own, the map's, then its factions' (unless it's one of those).
+    // Its characters' sheet, the party's own, the map's, a place's, then its factions' (unless
+    // it's one of those).
     refs = data
-      ? (['sheet', 'partySheet', 'mapSheet'] as const).flatMap((key) =>
+      ? (['sheet', 'partySheet', 'mapSheet', 'placeSheet'] as const).flatMap((key) =>
           typeof data[key] === 'string' ? [data[key] as string] : [],
         )
       : ownOfKind(pack).slice(0, 1)
     const factions = system.factions?.sheet.id
-    const taken = [system.sheet?.id, system.partySheet?.id, system.mapSheet?.id]
+    const taken = [
+      system.sheet?.id,
+      system.partySheet?.id,
+      system.mapSheet?.id,
+      system.placeSheet?.id,
+    ]
     if (factions && !taken.includes(factions)) {
       const [owner, id] = factions.split('/', 2)
       refs.push(writeRef('sheet', id, owner === pack ? undefined : owner))
@@ -534,8 +541,11 @@ export function systemParts(system: TravelSystem, kind: PartTabKind): PartSource
 export function createSystemPart(
   system: TravelSystem,
   kind: PartTabKind,
-  /** A sheet for the party itself (`partySheet`) or for each map (`mapSheet`), not for its characters. */
-  whose?: 'party' | 'map',
+  /**
+   * A sheet for the party itself (`partySheet`), for each map (`mapSheet`) or for each place
+   * (`placeSheet`), not for its characters.
+   */
+  whose?: 'party' | 'map' | 'place',
   /** What a land model starts from. */
   land: LandStart = 'open',
 ): string | null {
@@ -567,11 +577,13 @@ export function createSystemPart(
           ? PARTY_SHEET(id)
           : whose === 'map'
             ? MAP_SHEET(id)
-            : kind === 'bestiary'
-              ? bestiaryTemplate(id, system)
-              : kind === 'land'
-                ? LAND_STARTS[land](id)
-                : SYSTEM_TEMPLATES[kind](id),
+            : whose === 'place'
+              ? PLACE_SHEET(id)
+              : kind === 'bestiary'
+                ? bestiaryTemplate(id, system)
+                : kind === 'land'
+                  ? LAND_STARTS[land](id)
+                  : SYSTEM_TEMPLATES[kind](id),
       ),
     )
     // New factions name a sheet `faction`: written beside them when the pack has none.

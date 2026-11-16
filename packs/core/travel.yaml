@@ -166,12 +166,14 @@ actions:
       - { id: empty, when: { trip.below: party.values.food }, say: There is nothing left to eat. }
   explore:
     name: Explore
-    description: 'An hour looking around, by day: an idea of what you find (an action and a subject, Core’s Prompt), and on a 6 a landmark worth marking. Counted on the map (Explored).'
+    description: 'An hour looking around, by day, once in each place: an idea of what you find (an action and a subject, Core’s Prompt), and on a 6 a landmark worth marking. Counted on the map (Explored).'
     when: { time.tags: { not: dark } }
+    # The place's own sheet: once explored, it's explored.
+    unless: { place.values.searched: { gte: 1 } }
     do:
       - { time: 60 }
-      # The map's own sheet: how many times this map has been explored.
-      - { effects: { map.values.explored: 1 } }
+      # The map's own sheet: how many times this map has been explored; the place's: this one.
+      - { effects: { map.values.explored: 1, place.values.searched: 1 } }
       - { id: idea, say: 'You look around. What you find, as an idea to read freely:' }
       - { roll: generator.prompt }
       - { roll: table.place-found }

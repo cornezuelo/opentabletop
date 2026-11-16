@@ -8,6 +8,8 @@
     participantName,
     fromCatalogue,
     presentHere,
+    keepPlaceSheet,
+    placeSheetOf,
     usesOf,
     PARTY_ID,
     systemSheets,
@@ -271,6 +273,15 @@
   /** The map's own sheet changed by hand. */
   function editMap(next: NonNullable<SessionState['map']>) {
     onedit((s) => ({ ...s, map: next }))
+  }
+  /** The sheet of the place the party is on (its system's `placeSheet`), kept or as it starts. */
+  const placeSheet = $derived(placeSheetOf(session, partyOf(system), session.travel.location))
+  function editPlace(next: NonNullable<SessionState['map']>) {
+    onedit((s) => {
+      const out = { ...s }
+      keepPlaceSheet(out, next)
+      return out
+    })
   }
   const actions = $derived(availableActions(system.rules))
   /** The actions that move the party (a `travel.move` step): they need a route. */
@@ -715,7 +726,8 @@
       : []),
     ...(system.bestiary?.length ||
     session.present?.length ||
-    (system.mapSheet && session.map && !scene)
+    (system.mapSheet && session.map && !scene) ||
+    (system.placeSheet && !scene)
       ? (['here'] as const)
       : []),
     'totals',
@@ -1382,6 +1394,25 @@
             time={session.travel.time}
             named={false}
             onchange={editMap}
+          />
+        </Section>
+      {/if}
+      {#if system.placeSheet && placeSheet && !scene}
+        <Section
+          title={sheetText(system.placeSheet.def.name, locale) || t('placeSheet.title')}
+          help={t('placeSheet.help')}
+        >
+          <SheetOrigin sheet={system.placeSheet} {system} {locale} where={systemWhere} />
+          <CharacterCard
+            sheet={system.placeSheet.def}
+            character={placeSheet}
+            catalogues={system.items}
+            {locale}
+            names={blockName}
+            path="place"
+            time={session.travel.time}
+            named={false}
+            onchange={editPlace}
           />
         </Section>
       {/if}

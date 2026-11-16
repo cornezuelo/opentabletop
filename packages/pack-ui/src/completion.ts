@@ -147,6 +147,7 @@ const NAMED_KEYS: Record<string, string> = {
   sheet: 'sheet',
   partySheet: 'sheet',
   mapSheet: 'sheet',
+  placeSheet: 'sheet',
   calendar: 'calendar',
   bindings: 'bindings',
   factions: 'factions',

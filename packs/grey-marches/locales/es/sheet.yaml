@@ -232,7 +232,7 @@ sheet/company:
       name: Camino explorado
       description: Se ha explorado el camino. Al entrar en el siguiente lugar, el encuentro se tira dos veces y se queda el más amistoso; se va al dejar atrás ese lugar.
 sheet/this-place:
-  name: Este lugar
+  name: Este mapa
   description: |-
     Lo que un mapa de las Marcas guarda como suyo: cuán inquietos están sus muertos. Forzar una puerta de los Túmulos Hondos los agita, y una vez agitados el ruido de la siguiente se oye siempre. Cada mapa tiene el suyo, que se guarda cuando la Compañía se va y vuelve a estar cuando regresa.
 
@@ -245,3 +245,17 @@ sheet/this-place:
     stirring:
       name: Los muertos se agitan
       description: Los muertos de este lugar están atentos a cada sonido; el ruido de una puerta forzada aquí se oye siempre.
+sheet/place:
+  name: Este lugar
+  description: |-
+    Lo que un lugar de las Marcas recuerda como suyo: una ruina que la Compañía ha explorado (una vez, no una vez al día: lo que guardaba ya se lo llevó), y una cripta cuyo durmiente despertó, que sigue inquieta: al volver, los muertos pueden levantarse otra vez. Cada lugar de cada mapa tiene la suya, que se guarda cuando la Compañía se va y vuelve a estar cuando regresa.
+
+    **Enseña:** una hoja propia de cada lugar (`placeSheet`): un valor que guarda cada lugar (`place.values.delved`), subido por un paso de una acción y leído por su `unless`, para tomarse una vez en cada lugar; un estado que pone el resultado de una tabla (`place.conditions.restless: true`, _En la cripta_) y que lee una comprobación al volver a entrar en el lugar (`when: { place.conditions: restless }`, _Los muertos se levantan otra vez_).
+  values:
+    delved:
+      name: Explorada
+      description: Si la Compañía ha explorado esta ruina (Explorar la ruina). Una ruina se explora una vez.
+  conditions:
+    restless:
+      name: Inquieta
+      description: Aquí despertó un durmiente. Al volver, los muertos pueden levantarse otra vez.

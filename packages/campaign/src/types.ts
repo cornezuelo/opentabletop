@@ -92,6 +92,11 @@ export interface Campaign {
    */
   mapSheets?: Record<string, CharacterState>
   /**
+   * Each map's places' own sheets (its system's `placeSheet`), by map id and place id: what a
+   * place remembers (`place.values.*`), only those something changed.
+   */
+  placeSheets?: Record<string, Record<string, CharacterState>>
+  /**
    * The moments of the world waiting for the trip going on (`playing`), heard on its next
    * step: clocks that filled by any means (by hand, a faction's turn, a trip's effects) and
    * world turns (due on the way, by hand, brought by a trip's `do: world.turn`).

@@ -51,11 +51,21 @@ crypt-contents:
   description: |-
     Lo que guarda una cripta de los Túmulos Hondos, tirado al entrar por primera vez.
 
-    **Enseña:** los `contents` propios de una pieza, en lugar de `discover.contents`; un resultado que pone a uno entre los presentes (`present.barrow-dead`).
+    **Enseña:** los `contents` propios de una pieza, en lugar de `discover.contents`; un resultado que pone a uno entre los presentes (`present.barrow-dead`) y deja un estado en la hoja propia del lugar (`place.conditions.restless: true`), que _Los muertos se levantan otra vez_ lee cuando la Compañía vuelve.
   entries:
     bones: Huesos y nada más
     grave-goods: Un ajuar que nadie ha tocado
     sleeper: Un durmiente que no sigue durmiendo
+dead-rise:
+  name: Los muertos se levantan otra vez
+  description: |-
+    Se tira al volver a entrar en una cripta de los Túmulos Hondos cuyo durmiente despertó (sigue **inquieta**): si se levantan más de sus muertos.
+
+    **Enseña:** una tabla que tira una comprobación al entrar en un lugar, por lo que el lugar recuerda (`when: { place.conditions: restless }` en la comprobación, la hoja propia del lugar); un resultado que pone a uno entre los presentes (`present.barrow-dead`), más probable donde los muertos del mapa se agitan (`map.conditions`).
+  entries:
+    still: Los huesos siguen quietos, por ahora
+    rise: Los muertos se levantan otra vez
+    woken: Los muertos se levantan otra vez, despertados por el ruido
 last-tomb:
   name: La última tumba
   description: |-

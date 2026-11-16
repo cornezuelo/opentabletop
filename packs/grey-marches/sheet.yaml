@@ -457,7 +457,7 @@ conditions:
 # comes back, read and changed on a trip as `map.values.*`.
 kind: sheet
 id: this-place
-name: This place
+name: This map
 description: |-
   What a map of the Marches keeps of its own: how stirred its dead are. Forcing a door of the Deep Barrows stirs them, and once they're stirring the noise of the next one is always heard. Each map has its own, kept when the Company leaves and found again when it comes back.
 
@@ -475,3 +475,25 @@ conditions:
     name: The dead are stirring
     description: The dead of this place are awake to every sound; the noise of a door forced here is always heard.
     when: { self.values.unrest: { gte: 2 } }
+---
+# Each place's own (the system's `placeSheet`): kept for each place of each map (a hex, a
+# crypt), found again when the Company comes back, read and changed on a trip as
+# `place.values.*` and `place.conditions`.
+kind: sheet
+id: place
+name: This place
+description: |-
+  What a place of the Marches remembers of its own: a ruin the Company has delved (once, not once a day: what it held is taken), and a crypt whose sleeper woke, which stays restless: coming back to it, the dead may rise again. Each place of each map has its own, kept when the Company leaves and found again when it comes back.
+
+  **Shows:** a place's own sheet (`placeSheet`): a value each place keeps (`place.values.delved`), raised by an action's step and read by its `unless`, so it's taken once in each place; a condition a table's result sets (`place.conditions.restless: true`, _In the crypt_) and a check reads as the place is entered again (`when: { place.conditions: restless }`, _The dead rise again_).
+values:
+  delved:
+    name: Delved
+    description: Whether the Company has delved this ruin (Delve the ruin). A ruin is delved once.
+    default: 0
+    min: 0
+    max: 1
+conditions:
+  restless:
+    name: Restless
+    description: A sleeper woke here. Coming back, the dead may rise again.

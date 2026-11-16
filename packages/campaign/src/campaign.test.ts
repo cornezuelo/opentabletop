@@ -140,6 +140,13 @@ describe('campaigns', () => {
     })
     expect(deserializeCampaign(v6).playing).toEqual({ app: 'map', id: 'm1', name: 'North' })
     expect(campaign.version).toBe(CAMPAIGN_VERSION)
+    // Each map's places' own sheets are kept by map and place; what isn't one is left out.
+    const crypt = { id: 'area:crypt', sheet: 'marks/place', values: { delved: 1 } }
+    const kept = deserializeCampaign(
+      JSON.stringify({ ...campaign, placeSheets: { m1: { 'area:crypt': crypt, oops: 3 } } }),
+    )
+    expect(kept.placeSheets).toEqual({ m1: { 'area:crypt': crypt } })
+    expect(deserializeCampaign(serializeCampaign(kept)).placeSheets).toEqual(kept.placeSheets)
     expect(() => deserializeCampaign('{oops')).toThrow(CampaignFormatError)
     expect(() => deserializeCampaign('{"version":1}')).toThrow(CampaignFormatError)
     const newer = JSON.stringify({ ...campaign, version: CAMPAIGN_VERSION + 1 })

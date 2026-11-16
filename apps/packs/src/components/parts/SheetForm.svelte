@@ -84,9 +84,11 @@
         ? system.partySheet?.def
         : scope === 'map'
           ? system.mapSheet?.def
-          : scope === 'factions'
-            ? system.factions?.sheet.def
-            : undefined,
+          : scope === 'place'
+            ? system.placeSheet?.def
+            : scope === 'factions'
+              ? system.factions?.sheet.def
+              : undefined,
   )
   let sample = $state<ReturnType<typeof createCharacter> | undefined>()
   const preview = $derived.by(() => {

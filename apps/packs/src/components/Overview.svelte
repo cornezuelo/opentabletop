@@ -55,6 +55,7 @@
     { key: 'sheet', kind: 'sheet', tab: 'sheet' },
     { key: 'partySheet', kind: 'sheet', tab: 'sheet' },
     { key: 'mapSheet', kind: 'sheet', tab: 'sheet' },
+    { key: 'placeSheet', kind: 'sheet', tab: 'sheet' },
     { key: 'factions', kind: 'factions', tab: 'factions' },
     { key: 'clocks', kind: 'clocks', tab: 'clocks' },
     { key: 'world', kind: 'world', tab: 'world' },

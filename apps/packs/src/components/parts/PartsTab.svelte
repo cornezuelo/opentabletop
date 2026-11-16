@@ -46,6 +46,8 @@
   const canCreateParty = $derived(editable && kind === 'sheet' && !system.partySheet)
   /** A sheet for each map, its own values. */
   const canCreateMap = $derived(editable && kind === 'sheet' && !system.mapSheet)
+  /** A sheet for each place, what it remembers. */
+  const canCreatePlace = $derived(editable && kind === 'sheet' && !system.placeSheet)
   /** Whether a sheet is the party's own (`partySheet`), not its characters'. */
   const isParty = (p: { id: string }) =>
     kind === 'sheet' && !!system.partySheet?.id.endsWith(`/${p.id}`)
@@ -56,12 +58,13 @@
         members: 'charactersTab',
         party: 'partyTab',
         map: 'mapTab',
+        place: 'placeTab',
         factions: 'factionsTab',
       }) as const
     )[sheetScope(system, p.id) ?? 'members']
   const key = $derived(kind === 'roll-modes' ? 'modes' : kind)
 
-  function create(whose?: 'party' | 'map', land?: LandStart) {
+  function create(whose?: 'party' | 'map' | 'place', land?: LandStart) {
     const id = createSystemPart(system, kind, whose, land)
     if (id) chosen = systemParts(system, kind).findIndex((p) => p.id === id && p.root === root)
   }
@@ -114,6 +117,11 @@
   {/if}
   {#if canCreateMap}
     <button class="button add" onclick={() => create('map')}>{t('parts.sheet.createMap')}</button>
+  {/if}
+  {#if canCreatePlace}
+    <button class="button add" onclick={() => create('place')}
+      >{t('parts.sheet.createPlace')}</button
+    >
   {/if}
 </div>
 

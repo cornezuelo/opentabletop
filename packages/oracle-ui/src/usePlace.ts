@@ -24,6 +24,7 @@ export function sheetScope(system: TravelSystem, id: string): SheetScope | undef
   if (is(system.sheet?.id)) return 'members'
   if (is(system.partySheet?.id)) return 'party'
   if (is(system.mapSheet?.id)) return 'map'
+  if (is(system.placeSheet?.id)) return 'place'
   if (is(system.factions?.sheet.id)) return 'factions'
   return undefined
 }
@@ -122,6 +123,7 @@ export function shownPlace(
         members: system.sheet,
         party: system.partySheet,
         map: system.mapSheet,
+        place: system.placeSheet,
         factions: system.factions?.sheet,
       }[scope ?? 'members']?.def
       const value = head === 'values' && key ? sheet?.values[key] : undefined

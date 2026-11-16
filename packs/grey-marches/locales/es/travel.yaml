@@ -249,7 +249,7 @@ travel-rules/default:
           say: 'Uno de ellos pierde el valor y huye.'
     delve:
       name: Explorar la ruina
-      description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez al día.'
+      description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez en cada ruina: una ruina explorada sigue explorada.'
     wyrm-wakes:
       name: La Sierpe despierta
       description: 'Cuando la Sierpe del Bosque Gris despierta durante un viaje (se llena su reloj): +1 de pavor a cada compañero y su temple baja un dado, y en el Bosque Gris el viaje se detiene.'
@@ -333,6 +333,9 @@ travel-rules/default:
     TOLL_CHECK_REQUIRED:
       name: Peaje
       description: Keld Bridge, llegando por el camino.
+    RESTLESS_CHECK_REQUIRED:
+      name: Los muertos se levantan otra vez
+      description: Volver a entrar en una cripta cuyo durmiente despertó.
     FORD_CHECK_REQUIRED:
       name: Vado
       description: Cruzar el río a pie o a caballo, en un vado.

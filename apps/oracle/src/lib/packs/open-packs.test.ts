@@ -1431,7 +1431,7 @@ describe('bundled open packs', () => {
     ).toBe(true)
     // Delving a ruin: an action's step.
     expect(at('grey-marches', 'ruin-delve')).toContain(
-      'grey-marches travel-rules default actions.delve.do[1].roll',
+      'grey-marches travel-rules default actions.delve.do[2].roll',
     )
     // The encounters: a binding.
     expect(at('grey-marches', 'encounter').some((w) => w.includes('bindings default on.'))).toBe(

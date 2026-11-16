@@ -176,6 +176,10 @@ export const en = {
     ask: 'Ask at every roll',
     help: "Whose value the system's stats made of one character take (`from: { pick: charisma }` in its bindings): **The best** (the default) or one character, for every roll until you change it. Tick **Ask at every roll** to choose before each check rolled on a table: it waits, with this choice beside **Continue**.",
   },
+  placeSheet: {
+    title: 'This place',
+    help: "What this place remembers of its own, with its system's place sheet: each place of a map has one (a cell, a room), kept when the party leaves and found again when it comes back; a place nothing changed yet shows its defaults.\nConditions and tables read the place the party is on:\n• `place.values.searched: { gte: 1 }`\n• `place.conditions: trapped`\nEffects change it:\n• `place.values.searched: 1`\n• `place.conditions.trapped: false`",
+  },
   mapSheet: {
     title: 'This map',
     help: "What this map keeps of its own, with its system's map sheet: each map has one, kept when the party leaves and found again when it comes back; a new map starts with its defaults.\nConditions and tables read it:\n• `map.values.alarm: { gte: 2 }`\n• `map.conditions: roused`\nEffects change it:\n• `map.values.alarm: 1`\nWithout a map (a trip in Travel), the trip keeps one of its own.",

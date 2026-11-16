@@ -654,7 +654,7 @@ function stepOnly(action: TripAction): void {
     return
   }
   const { entries, discovered, laid } = result
-  editor.takeWorld({ campaign: keepMapSheet(editor.campaign, result.state.map) })
+  editor.takeWorld({ campaign: keepMapSheet(editor.campaign, result.state) })
   editor.applyDiscovery(discovered)
   editor.applyLaid(laid)
   const state = intoRooms(result.state)
@@ -840,9 +840,9 @@ export function editSession(update: (session: SessionState) => SessionState): vo
     update(structuredClone(session)),
   ).state
   save({ ...play, rules: { ...play.rules, session: next } })
-  // The map's own sheet, changed by hand, is the campaign's for this map.
-  if (next.map?.id === editor.map.meta.id)
-    editor.takeWorld({ campaign: keepMapSheet(editor.campaign, next.map) })
+  // The map's own sheet and its places', changed by hand, are the campaign's for this map.
+  if (next.map?.id === editor.map.meta.id || next.placeSheets?.map === editor.map.meta.id)
+    editor.takeWorld({ campaign: keepMapSheet(editor.campaign, next) })
   // What the edit told worth keeping (a character leaving) goes to the timeline too.
   const added = next.journal.slice(session.journal.length)
   tripHighlights(highlightsOf(added, system))

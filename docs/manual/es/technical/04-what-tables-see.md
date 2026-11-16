@@ -175,6 +175,15 @@ La hoja propia del mapa en el que está el grupo (la `mapSheet` de su sistema: [
 | `map.values.<valor>`         | número       | Los valores del mapa en el que está el grupo, los de su hoja propia (Packs → **Hoja**, la de cada mapa: `mapSheet`), guardados para cada mapa: `map.values.alarm`. |
 | `map.conditions`, `map.tags` | lista de ids | Los estados y etiquetas de la hoja propia del mapa: `map.conditions: roused`.                                                                                      |
 
+## La hoja propia del lugar, `place.values.*`, `place.conditions`
+
+La hoja propia del lugar en el que está el grupo (la `placeSheet` de su sistema: [Hojas](07-kinds.md#hojas)), que se lee con el resto de `place.*`; una comprobación al entrar en un lugar lee la del lugar al que se entra. Su campaña la guarda para cada lugar de cada mapa en cuanto algo la cambia; hasta entonces, sus valores por defecto. Sin hoja de lugar, aquí no hay nada.
+
+| Nombre                 | Tipo         | Qué es                                                                                                                                            |
+| ---------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `place.values.<valor>` | número       | Los valores del lugar en el que está el grupo, los de su hoja propia (Packs → **Hoja**, la de cada lugar: `placeSheet`): `place.values.searched`. |
+| `place.conditions`     | lista de ids | Los estados de la hoja propia del lugar: `place.conditions: trapped`.                                                                             |
+
 ## Los valores del día, `today.*`, `yesterday.*`
 
 | Nombre              | Tipo                 | Valores, y de dónde salen                                                                                                                                                                                                                                                                                                                                                                                                                                           |

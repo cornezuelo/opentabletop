@@ -133,3 +133,20 @@ values:
     default: 6
     steps: [4, 6]
     display: die
+---
+# Each place's own (the system's `placeSheet`): kept for each place of each map, read as
+# `place.values.*`.
+kind: sheet
+id: place
+name: This place
+description: |-
+  What each place remembers of its own in the Generic rules: whether the party has explored it already.
+
+  **Shows:** the smallest sheet of each place (`placeSheet`): a value each place keeps (`place.values.searched`), which an action raises (`place.values.searched: 1`) and reads, so it's taken once in each place (`unless: { place.values.searched: { gte: 1 } }`).
+values:
+  searched:
+    name: Explored
+    description: Whether the party has explored this place (Explore), once in each place.
+    default: 0
+    min: 0
+    max: 1

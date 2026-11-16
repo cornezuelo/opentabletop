@@ -71,7 +71,7 @@ Containers and traps are things in the place that have a state (trapped, locked,
 ## 5. Phases
 
 1. **D**, lasting places (the smallest, and tracks-scouting.md waits on it).
-2. **A**, the place's sheet (Packs' form: **Place sheet** beside **Map sheet**; Here's _This place_).
+2. **A**, the place's sheet (Packs' form: **Place sheet** beside **Map sheet**; Here's _This place_). ✅ 2026-11-16. As built: read as `place.values.*` and `place.conditions` only (a place's tags stay the map's: `place.tags` already reads the cell's, and merging the sheet's in would hide which is which); defaults may roll (by map and place, the same each time) but don't read the cell; Here shows the card always, a place nothing changed with its defaults (editable, to mark a room by hand), and only the places something changed are kept (`placeSheets` in the campaign, by map and place). The travel engine reads each place's as it reaches it (`placeSheets` among the host's facts). The Grey Marches: **Delve the ruin** once per ruin, a crypt's sleeper leaves it **restless** and _The dead rise again_ is rolled coming back; the camp-site's fire was left out (the Marches have no firewood to spare).
 3. **B**, things that don't fight (Packs' **Fights** on a template; the bundled Beset and Fight on fighters).
 4. **C**, items unknown (Packs' **Unknown as** on a catalogue entry; the card's and **Use**'s names).
 5. Ker Nethalas built with all four.

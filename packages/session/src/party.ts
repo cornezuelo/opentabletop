@@ -58,6 +58,8 @@ export interface PartyRules extends PresentRules {
   partySheet?: { id: string; def: Sheet }
   /** The sheet of the map the party is on (`mapSheet`): its own values, kept per map. */
   mapSheet?: { id: string; def: Sheet }
+  /** The sheet of each place (`placeSheet`): what a place remembers of its own, kept per place. */
+  placeSheet?: { id: string; def: Sheet }
   bindings?: Bindings
   /** The system's item catalogues: what an effect gives when a character has none yet. */
   items?: ItemLookup
@@ -72,6 +74,17 @@ export const PARTY_ID = 'party'
 /** The id of a trip's map sheet when no host names the map (a trip without one, in Travel). */
 export const MAP_ID = 'map'
 
+/**
+ * The sheets of the places of the map the party is on (the system's `placeSheet`), by place
+ * id: only those something changed, the others as their sheet's defaults. A host with maps
+ * keeps them per map and hands the trip those of the map it's on.
+ */
+export interface PlaceSheets {
+  /** The map they're of (`MAP_ID` for a trip without one): what their rolled defaults roll with. */
+  map: string
+  sheets: Record<string, CharacterState>
+}
+
 /** What the session keeps of the members (a trip's state has more). */
 export interface PartyTarget {
   /** The party itself, a character of the system's party sheet (none without one). */
@@ -81,6 +94,8 @@ export interface PartyTarget {
    * the map's: the host keeps one per map and hands the trip the one it's on. None without one.
    */
   map?: CharacterState
+  /** The sheets of the places of the map the party is on (`place.values.*`). None without one. */
+  placeSheets?: PlaceSheets
   members?: CharacterState[]
   /** The copies of templates the trip made, where each was made (docs/bestiary.md). */
   present?: Present[]
@@ -130,7 +145,9 @@ export const sheetOf =
         ? rules.partySheet.def
         : rules.mapSheet && member.sheet === rules.mapSheet.id
           ? rules.mapSheet.def
-          : rules.sheets?.[member.sheet]
+          : rules.placeSheet && member.sheet === rules.placeSheet.id
+            ? rules.placeSheet.def
+            : rules.sheets?.[member.sheet]
 
 /** Whether the system has stats made of one character the player chooses (`from: { pick }`). */
 export const picksWho = (rules: PartyRules): boolean =>
@@ -168,6 +185,58 @@ function ensureParty(s: PartyTarget, rules: PartyRules): void {
 export function newMapSheet(rules: PartyRules, map: string): CharacterState | undefined {
   const own = rules.mapSheet
   return own && createCharacter(own.def, own.id, { id: map }, rules.items)
+}
+
+/** The places' sheets made as they start, by sheet, map and place: the same each time. */
+const freshPlaces = new Map<string, CharacterState>()
+
+/**
+ * A place's own sheet as it starts: the system's place sheet's defaults, rolled ones rolled
+ * for that place of that map (the same each time it's read); undefined for a system without one.
+ */
+export function newPlaceSheet(
+  rules: PartyRules,
+  place: string,
+  map: string = MAP_ID,
+): CharacterState | undefined {
+  const own = rules.placeSheet
+  if (!own) return undefined
+  const key = `${own.id}|${map}|${place}`
+  let made = freshPlaces.get(key)
+  if (!made) {
+    // Its rolls by the map and the place (a character's are by its id), then its id the place's.
+    made = {
+      ...createCharacter(own.def, own.id, { id: `${map}|${place}` }, rules.items),
+      id: place,
+    }
+    if (freshPlaces.size > 2000) freshPlaces.clear()
+    freshPlaces.set(key, made)
+  }
+  return structuredClone(made)
+}
+
+/** A place's sheet in the trip: the one kept for it, else a new one; none without a place sheet. */
+export function placeSheetOf(
+  s: Pick<PartyTarget, 'placeSheets'>,
+  rules: PartyRules,
+  place: string,
+): CharacterState | undefined {
+  const own = rules.placeSheet
+  if (!own) return undefined
+  const kept = s.placeSheets?.sheets[place]
+  return kept?.sheet === own.id ? kept : newPlaceSheet(rules, place, s.placeSheets?.map)
+}
+
+/** A place as conditions read its sheet: `place.values.delved`, `place.conditions`. */
+export function placeSheetFacts(sheet: CharacterState): Record<string, unknown> {
+  const { values, conditions } = characterFacts(sheet)
+  return { values, conditions }
+}
+
+/** Keeps a place's sheet in the trip (in place), as the one of the map it's on. */
+export function keepPlaceSheet(s: Pick<PartyTarget, 'placeSheets'>, sheet: CharacterState): void {
+  const places = s.placeSheets ?? { map: MAP_ID, sheets: {} }
+  s.placeSheets = { ...places, sheets: { ...places.sheets, [sheet.id]: sheet } }
 }
 
 /** The trip's map sheet is the system's (in place): a new one if it had none, or none. */
@@ -291,7 +360,9 @@ export function partyNumbers(
  * the party's items by id (read as their `count`, never under 0).
  */
 export function keptNumbers(
-  s: Pick<PartyTarget, 'party' | 'members' | 'map'>,
+  s: Pick<PartyTarget, 'party' | 'members' | 'map' | 'placeSheets'> & {
+    travel?: Pick<TravelState, 'location'>
+  },
   rules: PartyRules,
 ): Record<string, Bounds & { read?: string }> {
   const out: Record<string, Bounds & { read?: string }> = {}
@@ -303,6 +374,15 @@ export function keptNumbers(
   if (s.map && mapSheet)
     for (const [id, value] of Object.entries(mapSheet.values))
       if (value.from === undefined) out[`map.values.${id}`] = boundsOf(mapSheet, s.map, id)
+  // The place the party is on (wherever it goes, its own: the engine reads it there).
+  const placeSheet = rules.placeSheet?.def
+  const place =
+    placeSheet && s.travel?.location !== undefined
+      ? placeSheetOf(s, rules, s.travel.location)
+      : undefined
+  if (place && placeSheet)
+    for (const [id, value] of Object.entries(placeSheet.values))
+      if (value.from === undefined) out[`place.values.${id}`] = boundsOf(placeSheet, place, id)
   for (const path of Object.keys(partyNumbers(s, rules)))
     if (path.startsWith('party.items.')) out[path] = { min: 0, read: `${path}.count` }
   return out
@@ -418,11 +498,11 @@ export function memberFacts(
  * `characters.<id>`, `acting`, `roles.<id>` (whoever holds the role).
  */
 export const MEMBER_PATH =
-  /^(party\.members|party|map|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions|items)\.(.+)$/
+  /^(party\.members|party|map|place|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions|items)\.(.+)$/
 
 /** Whether an effect's path is about members (`party.members.…`, `characters.<id>.…`, `acting.…`). */
 export const isMemberPath = (path: string): boolean =>
-  !['party', 'map', undefined].includes(MEMBER_PATH.exec(path)?.[1])
+  !['party', 'map', 'place', undefined].includes(MEMBER_PATH.exec(path)?.[1])
 
 /** Whether an effect's path is about the party's own sheet (`party.values.…`, `party.conditions.…`). */
 export const isPartySheetPath = (path: string): boolean => MEMBER_PATH.exec(path)?.[1] === 'party'
@@ -476,7 +556,11 @@ export function applyMemberEffects(
   const connections: ConnectionChange[] = []
   // A party played as a whole, without a sheet of its own: only those present (and the map) are changed.
   const whole = !s.members?.length && !s.party
-  const mapPath = (path: string) => !!s.map && MEMBER_PATH.exec(path)?.[1] === 'map'
+  const mapPath = (path: string) =>
+    (!!s.map && MEMBER_PATH.exec(path)?.[1] === 'map') ||
+    (!!rules.placeSheet && MEMBER_PATH.exec(path)?.[1] === 'place')
+  /** The place an effect on `place.*` changes: the one it's about, else the party's. */
+  const placeAt = placeIdOf(context) ?? s.travel.location
   /** One copy by its id (`characters.wolf-2.…`), which a party played as a whole may change. */
   const copyPath = (path: string) => {
     const who = MEMBER_PATH.exec(path)?.[1]
@@ -509,6 +593,8 @@ export function applyMemberEffects(
         )
       : undefined
   const before = partyNumbers(s, rules)
+  /** The place's sheet an effect on `place.*` is changing now. */
+  let placeTarget: CharacterState | undefined
   /** Applies `rest` (`values.health`, `items.torch`) to one character, keeping what it did. */
   const applyTo = (target: CharacterState, rest: string, change: number | string): void => {
     const sheet = sheetOf(rules)(target)
@@ -525,7 +611,11 @@ export function applyMemberEffects(
   const keep = (target: CharacterState, next: CharacterState, happened: CharacterEvent[]) => {
     const own = target.id === PARTY_ID && target === s.party
     const map = target === s.map
-    if (map) s.map = next
+    const place = target === placeTarget
+    if (place) {
+      placeTarget = next
+      keepPlaceSheet(s, next)
+    } else if (map) s.map = next
     else if (own) {
       s.party = next
       // The values changed (the one written, and those made of it): the stats follow them.
@@ -545,7 +635,9 @@ export function applyMemberEffects(
             ? `party.values.${e.value}`
             : map
               ? `map.values.${e.value}`
-              : `characters.${target.id}.values.${e.value}`,
+              : place
+                ? `place.values.${e.value}`
+                : `characters.${target.id}.values.${e.value}`,
           limit: e.limit,
           value: next.values[e.value],
         })
@@ -703,6 +795,17 @@ export function applyMemberEffects(
       return copy ? [copy.character] : []
     }
     const holder = who.startsWith('roles.') ? s.roles?.[who.slice('roles.'.length)] : undefined
+    if (who === 'place') {
+      if (part === 'items' || placeAt === undefined) {
+        unknown.push(path)
+        continue
+      }
+      placeTarget = placeSheetOf(s, rules, placeAt)
+      if (placeTarget) applyTo(placeTarget, rest, change)
+      else unknown.push(path)
+      placeTarget = undefined
+      continue
+    }
     const targets: CharacterState[] =
       who === 'party'
         ? s.party
@@ -781,6 +884,18 @@ export function settleStates(
     const done = settleCharacter(rules.mapSheet.def, s.map, options)
     if (done.events.length) {
       s.map = done.state
+      events.push(...done.events)
+    }
+  }
+  // The place the party is on: kept once something holds or stops holding there.
+  const place =
+    rules.placeSheet?.def && s.travel.location !== undefined
+      ? placeSheetOf(s, rules, s.travel.location)
+      : undefined
+  if (place && rules.placeSheet?.def) {
+    const done = settleCharacter(rules.placeSheet.def, place, options)
+    if (done.events.length) {
+      keepPlaceSheet(s, done.state)
       events.push(...done.events)
     }
   }

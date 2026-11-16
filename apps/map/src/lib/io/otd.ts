@@ -18,6 +18,7 @@ import {
   factionsOn,
   openMap,
   readMapSheets,
+  readPlaceSheets,
   withNotes,
   withSetup,
   type Campaign,
@@ -158,6 +159,8 @@ interface MapExt {
   oracleHistory?: NonNullable<Campaign['oracle']>['history']
   /** The map's own sheet (its system's `mapSheet`), as the campaign keeps it. */
   mapSheet?: NonNullable<Campaign['mapSheets']>[string]
+  /** Its places' own sheets (its system's `placeSheet`), as the campaign keeps them. */
+  placeSheets?: NonNullable<Campaign['placeSheets']>[string]
 }
 
 /** A map read from a file, with its campaign. */
@@ -241,6 +244,9 @@ export function mapToBundle(
     ...(Object.keys(names).length && { names }),
     ...(campaign.oracle?.history.length && { oracleHistory: campaign.oracle.history }),
     ...(campaign.mapSheets?.[map.meta.id] && { mapSheet: campaign.mapSheets[map.meta.id] }),
+    ...(campaign.placeSheets?.[map.meta.id] && {
+      placeSheets: campaign.placeSheets[map.meta.id],
+    }),
   }
   const otdMap: OtdMap = {
     id: map.meta.id,
@@ -747,6 +753,8 @@ export function bundleToMap(raw: unknown): OpenedMap {
   // The map's own sheet goes back to the campaign.
   const sheet = readMapSheets({ [opened.map.meta.id]: ext.mapSheet }).mapSheets
   if (sheet) campaign.mapSheets = { ...campaign.mapSheets, ...sheet }
+  const places = readPlaceSheets({ [opened.map.meta.id]: ext.placeSheets }).placeSheets
+  if (places) campaign.placeSheets = { ...campaign.placeSheets, ...places }
   return { map: opened.map, campaign }
 }
 

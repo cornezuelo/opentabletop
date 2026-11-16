@@ -59,6 +59,9 @@ import {
   editPartySheet,
   settleStates,
   answerSharing,
+  placeSheetFacts,
+  placeSheetOf,
+  type PlaceSheets,
   waitingForRoom,
   type PartyRules,
   type Sharing,
@@ -313,6 +316,13 @@ export interface SessionState {
    */
   map?: CharacterState
   /**
+   * The sheets of the places of the map the party is on (the system's `placeSheet`), read and
+   * changed as `place.values.*` and `place.conditions`: only those something changed. A host
+   * with maps keeps them per map and hands the trip those of the map it's on
+   * (`withMapSheet`); without a host, the trip's own.
+   */
+  placeSheets?: PlaceSheets
+  /**
    * The roster party the party is (its id there), while the roster says it plays here: its
    * sheet and members are kept in step with the roster's (docs/characters-app.md §8). Absent:
    * the trip's own.
@@ -439,6 +449,39 @@ function mapFacts(map: CharacterState): Record<string, unknown> {
   return { values, conditions, tags }
 }
 
+/**
+ * The places' sheets in a trip's context: the place it's about (the facts' place, else the
+ * party's) with its own (`place.values.delved`), and every place's for the travel engine
+ * (`placeSheets`, by id: those kept, and where the party is and is going as they start), which
+ * reads them with each place it reaches.
+ */
+function placeContext(
+  s: SessionState,
+  facts: Record<string, unknown>,
+  party: PartyRules,
+): Record<string, unknown> {
+  const here = placeIdOf(facts) ?? s.travel.location
+  const ids = new Set([
+    ...Object.keys(s.placeSheets?.sheets ?? {}),
+    s.travel.location,
+    ...(s.travel.route ?? []),
+  ])
+  const placeSheets: Record<string, Record<string, unknown>> = {}
+  for (const id of ids) {
+    const sheet = placeSheetOf(s, party, id)
+    if (sheet) placeSheets[id] = placeSheetFacts(sheet)
+  }
+  const place = isRecord(facts.place)
+    ? facts.place
+    : typeof facts.place === 'string'
+      ? { id: facts.place }
+      : {}
+  return {
+    placeSheets,
+    ...(placeSheets[here] && { place: { ...place, ...placeSheets[here] } }),
+  }
+}
+
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 
@@ -479,6 +522,7 @@ export function tripContext(
     ...memberFacts(s, party),
     party: { ...host, ...partyValues(s, party) },
     ...(s.map && { map: mapFacts(s.map) }),
+    ...(party.placeSheet && placeContext(s, facts, party)),
     ...(encounterFacts(s) && { encounter: encounterFacts(s) }),
     today,
     yesterday,
@@ -622,6 +666,8 @@ export function createSession(options: {
   partySheet?: PartyRules['partySheet']
   /** The sheet of the map the party is on (the system's `mapSheet`), if it has one. */
   mapSheet?: PartyRules['mapSheet']
+  /** The sheet of each place (the system's `placeSheet`), if it has one. */
+  placeSheet?: PartyRules['placeSheet']
   /** The system's item catalogues, for effects that give an item. */
   items?: PartyRules['items']
   /** The system's templates (its bestiaries), for effects that make copies of them. */
@@ -650,6 +696,7 @@ export function createSession(options: {
     sheet: options.sheet,
     partySheet: options.partySheet,
     mapSheet: options.mapSheet,
+    placeSheet: options.placeSheet,
     bindings: options.bindings,
     items: options.items,
     ...(options.places && { places: options.places }),
@@ -769,7 +816,17 @@ export function createSession(options: {
     events: CharacterEvent[],
     time?: number,
   ) => {
-    const whose = (id: string) => (id === PARTY_ID ? 'party' : `characters.${id}`)
+    // The party's own, a character (a member, one present), the map's or a place's own.
+    const whose = (id: string) =>
+      id === PARTY_ID
+        ? 'party'
+        : s.members?.some((m) => m.id === id) || s.present?.some((p) => p.character.id === id)
+          ? `characters.${id}`
+          : id === s.map?.id
+            ? 'map'
+            : s.placeSheets?.sheets[id]
+              ? 'place'
+              : `characters.${id}`
     for (const e of events)
       if (e.type === 'NOT_WRITABLE')
         add(s, entries, {

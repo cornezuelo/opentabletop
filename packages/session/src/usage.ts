@@ -63,7 +63,7 @@ export type Declared =
   /** A part of a division of its calendar's day: `morning` of `part`. */
   | { kind: 'day-part'; division: string; id: string }
 
-export type SheetScope = 'members' | 'party' | 'map' | 'factions'
+export type SheetScope = 'members' | 'party' | 'map' | 'place' | 'factions'
 
 const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exists'])
 /**
@@ -227,6 +227,7 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
     system.sheet?.id,
     system.partySheet?.id,
     system.mapSheet?.id,
+    system.placeSheet?.id,
     system.factions?.sheet.id,
   ]
   for (const id of new Set(sheets.filter((s): s is string => !!s))) {
@@ -468,13 +469,20 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
       break
     default: {
       const part = { 'sheet-value': 'values', 'sheet-condition': 'conditions' }[declared.kind]
-      const who = { members: MEMBER, party: 'party', map: 'map', factions: FACTION }[declared.sheet]
+      const who = {
+        members: MEMBER,
+        party: 'party',
+        map: 'map',
+        place: 'place',
+        factions: FACTION,
+      }[declared.sheet]
       const named = new RegExp(`^${who}\\.${part}\\.${id}$`)
       const listed = new RegExp(`^${who}\\.${part}$`)
       const sheetId = {
         members: system?.sheet?.id,
         party: system?.partySheet?.id,
         map: system?.mapSheet?.id,
+        place: system?.placeSheet?.id,
         factions: system?.factions?.sheet.id,
       }[declared.sheet]
       const own = (u: Use) =>
@@ -495,7 +503,7 @@ export function usesOf(uses: readonly Use[], declared: Declared, system?: Travel
         part === 'values' &&
         ((declared.sheet === 'party' &&
           (u.name === `trip.spent.${full}` || u.name === `trip.gained.${full}`)) ||
-          (['party', 'map'].includes(declared.sheet) && bound(u, full)))
+          (['party', 'map', 'place'].includes(declared.sheet) && bound(u, full)))
       match = (u) =>
         named.test(u.name) ||
         (listed.test(u.name) && has(u)) ||
@@ -551,6 +559,7 @@ export function declaredOf(registry: Registry, system: TravelSystem): Declared[]
     ['members', system.sheet?.def],
     ['party', system.partySheet?.def],
     ['map', system.mapSheet?.def],
+    ['place', system.placeSheet?.def],
     ['factions', system.factions?.sheet.def],
   ]
   for (const [sheet, def] of sheets) {

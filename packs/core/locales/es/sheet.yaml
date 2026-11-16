@@ -73,3 +73,13 @@ sheet/map:
     finds:
       name: Dado de hallazgos
       description: El dado que tira Explorar para un hito en este mapa; un 6 encuentra uno. Cuando se encuentra uno, baja a d4.
+sheet/place:
+  name: Este lugar
+  description: |-
+    Lo que recuerda cada lugar como suyo en las reglas genéricas: si el grupo ya lo ha explorado.
+
+    **Enseña:** la hoja de cada lugar más pequeña (`placeSheet`): un valor que guarda cada lugar (`place.values.searched`), que sube una acción (`place.values.searched: 1`) y que la misma acción lee, para tomarse una vez en cada lugar (`unless: { place.values.searched: { gte: 1 } }`).
+  values:
+    searched:
+      name: Explorado
+      description: Si el grupo ha explorado este lugar (Explorar), una vez en cada lugar.

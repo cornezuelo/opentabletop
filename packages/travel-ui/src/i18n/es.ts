@@ -173,6 +173,10 @@ export const es: Messages<typeof en> = {
     ask: 'Preguntar en cada tirada',
     help: 'De quién toman el valor las características del sistema hechas de un solo personaje (`from: { pick: charisma }` en sus bindings): **El mejor** (por defecto) o un personaje, en todas las tiradas hasta que lo cambies. Marca **Preguntar en cada tirada** para elegir antes de cada comprobación que se tira en una tabla: espera, con esta elección junto a **Continuar**.',
   },
+  placeSheet: {
+    title: 'Este lugar',
+    help: 'Lo que este lugar recuerda como suyo, con la hoja de lugar de su sistema: cada lugar de un mapa tiene una (una casilla, una sala), que se guarda cuando el grupo se va y vuelve a estar cuando regresa; un lugar en el que aún no ha cambiado nada muestra sus valores por defecto.\nLas condiciones y las tablas leen el lugar donde está el grupo:\n• `place.values.searched: { gte: 1 }`\n• `place.conditions: trapped`\nLos efectos la cambian:\n• `place.values.searched: 1`\n• `place.conditions.trapped: false`',
+  },
   mapSheet: {
     title: 'Este mapa',
     help: 'Lo que este mapa guarda como suyo, con la hoja de mapa de su sistema: cada mapa tiene una, que se guarda cuando el grupo se va y vuelve a estar cuando regresa; un mapa nuevo empieza con sus valores por defecto.\nLas condiciones y las tablas la leen:\n• `map.values.alarm: { gte: 2 }`\n• `map.conditions: roused`\nLos efectos la cambian:\n• `map.values.alarm: 1`\nSin mapa (un viaje en Viajes), el viaje guarda una propia.',
