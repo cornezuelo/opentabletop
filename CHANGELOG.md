@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.62.0] - 2026-11-16
+
 ### Apps
 
 - **Packs**: a condition can last a number of places (**Lasts** → **places**): given with a number, it's counted down as the party enters each place, fight or not, and gone at none (`lasts: places`); the party's own sheet's too, read as `party.left.<condition>`.
