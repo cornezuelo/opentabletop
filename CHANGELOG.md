@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.64.0] - 2026-11-16
+
 ### Apps
 
 - **Packs**: a system can have a sheet for each place (**New place sheet**, **Each place's sheet** in its **Overview**, `placeSheet:`): what a place remembers (a ruin delved, a room's trap), read and changed on a trip as `place.values.<id>` and `place.conditions` of the place the party is on (a check entering a place reads that place's), kept by the campaign for each place of each map; an action taken once in each place is `unless: { place.values.searched: { gte: 1 } }`.
