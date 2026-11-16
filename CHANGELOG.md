@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.63.0] - 2026-11-16
+
 ### Apps
 
 - **Those present**: several copies of a template that come at once are numbered from 1 (_Wolf 1_, _Wolf 2_); one alone is still _Wolf_.
