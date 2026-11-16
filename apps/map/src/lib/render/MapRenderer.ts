@@ -280,6 +280,8 @@ export class MapRenderer {
   private corners: number[] = []
 
   private shapeSignature = ''
+  /** The campaign's system and packs last drawn with: what of the campaign the map's look reads. */
+  private campaignLook = ''
   private hovered: Offset | null = null
   private activeTool: Tool | null = null
   private panFrom: Point | null = null
@@ -633,6 +635,17 @@ export class MapRenderer {
     } else if (change.kind === 'tokens') {
       this.drawTokens()
       this.drawParty()
+    } else if (change.kind === 'world') {
+      // Nothing of the map is drawn from the world clock, but which trip is going on in the
+      // campaign: the party is drawn here, or is elsewhere. Every step of a trip moves the
+      // clock, so the map isn't rebuilt for it (that made each step slow on old machines).
+      this.drawParty()
+      this.drawTokens()
+    } else if (change.kind === 'oracle') {
+      // The Oracle's rolls draw nothing on the map.
+    } else if (change.kind === 'campaign' && this.lookOfCampaign() === this.campaignLook) {
+      // The campaign changed but not its system or packs (a map's sheet a trip changed, its
+      // name): nothing drawn changes.
     } else if (change.kind === 'labels') {
       this.drawLabels()
       // The selection box follows the label in the same frame (e.g. while dragging it).
@@ -651,7 +664,12 @@ export class MapRenderer {
     }
   }
 
+  private lookOfCampaign(): string {
+    return JSON.stringify([editor.campaign.system, editor.campaign.packs])
+  }
+
   private rebuild(): void {
+    this.campaignLook = this.lookOfCampaign()
     const { grid, terrains } = editor.map
     this.corners = cellCorners(grid, grid.hexSize)
     this.shapeSignature = `${grid.kind ?? 'hex'}:${grid.orientation}:${grid.width}x${grid.height}:${grid.hexSize}`

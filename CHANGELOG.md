@@ -17,6 +17,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Fixes
 
+- **Map**: each step of a trip is two to three times faster: a route no longer works out each cell's room and walls again for every neighbour it looks at, and a step no longer redraws the whole map (only the party and those present). On a map with rooms (the Grey Marches' Ashford), a step took over a second on a slow machine.
 - **Map**: **Start a trip** from Play without rules (the party placed first) started the trip but left Play without rules, so nothing seemed to happen; it's shown now.
 
 ## [0.61.0] - 2026-11-16

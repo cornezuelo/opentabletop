@@ -296,8 +296,17 @@ function setPath(
 
 /** Numbers by full name as nested records (`party.items.ration` → `{ party: { items: … } }`). */
 function nested(flat: Record<string, number>): Record<string, unknown> {
-  let out: Record<string, unknown> = {}
-  for (const [path, n] of Object.entries(flat)) out = setPath(out, path, n)
+  // Built in place, each record made once: read at every check, with many names kept.
+  const out: Record<string, unknown> = {}
+  for (const [path, n] of Object.entries(flat)) {
+    const keys = path.split('.')
+    let at = out
+    for (const key of keys.slice(0, -1)) {
+      if (!isRecord(at[key])) at[key] = {}
+      at = at[key] as Record<string, unknown>
+    }
+    at[keys[keys.length - 1]] = n
+  }
   return out
 }
 

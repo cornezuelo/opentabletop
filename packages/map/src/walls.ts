@@ -25,13 +25,27 @@ export function mapWalls(
     Partial<Pick<HexMap, 'walls'>>,
 ): Walls {
   const floors = new Set(map.terrains.filter((t) => t.floor).map((t) => t.id))
+  // Each cell's floor and room, worked out once: a trip's route asks for them thousands of
+  // times (the map doesn't change while these walls are asked).
+  const floorOf = new Map<string, boolean>()
   const floor = (key: string) => {
-    if (!floors.size || !inBounds(parseKey(key as HexKey), map.grid)) return false
-    const terrain = map.hexes[key as HexKey]?.terrain
-    return !!terrain && floors.has(terrain)
+    let found = floorOf.get(key)
+    if (found === undefined) {
+      const terrain =
+        floors.size && inBounds(parseKey(key as HexKey), map.grid)
+          ? map.hexes[key as HexKey]?.terrain
+          : undefined
+      found = !!terrain && floors.has(terrain)
+      floorOf.set(key, found)
+    }
+    return found
   }
   // A cell's room: its nearest region up the tree played as one place.
-  const room = (key: string) => roomOfCell(map, key)
+  const roomOf = new Map<string, string | undefined>()
+  const room = (key: string) => {
+    if (!roomOf.has(key)) roomOf.set(key, roomOfCell(map, key))
+    return roomOf.get(key)
+  }
   const open = new Set<string>()
   for (const {
     between: [a, b],

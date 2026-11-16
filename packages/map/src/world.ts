@@ -169,22 +169,39 @@ export function cellOfPlace(
 function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
   const rooms = roomsOf(map)
   if (!rooms.size) return cells
-  const node = (id: string) => (parsePlaceOn(id) ? id : placeOfCell(map, id))
+  // What a route asks again and again, worked out once for this world (the map doesn't
+  // change while it's asked: a changed map is a new world).
+  const nodes = new Map<string, string>()
+  const node = (id: string) => {
+    let found = nodes.get(id)
+    if (found === undefined) {
+      found = parsePlaceOn(id) ? id : placeOfCell(map, id)
+      nodes.set(id, found)
+    }
+    return found
+  }
   // A cell of a room stands for the room, in everything asked (a step that began on cells).
   const cellsOf = (id: string): string[] => {
     const region = parseAreaPlace(node(id))
     return region ? (rooms.get(region) ?? []) : [id]
   }
   /** Each cell of `a` with each cell of `b` it's next to. */
+  const paired = new Map<string, [string, string][]>()
   const pairs = (a: string, b: string): [string, string][] => {
-    const bs = new Set(cellsOf(b))
-    return cellsOf(a).flatMap((x) =>
-      cells
-        .neighbors(x)
-        .filter((y) => bs.has(y))
-        .map((y): [string, string] => [x, y]),
-    )
+    let found = paired.get(`${a}|${b}`)
+    if (!found) {
+      const bs = new Set(cellsOf(b))
+      found = cellsOf(a).flatMap((x) =>
+        cells
+          .neighbors(x)
+          .filter((y) => bs.has(y))
+          .map((y): [string, string] => [x, y]),
+      )
+      paired.set(`${a}|${b}`, found)
+    }
+    return found
   }
+  const around = new Map<string, string[]>()
   const unique = <T>(list: T[]) => [...new Set(list)]
   const firstPair = (a: string, b: string): [string, string] => pairs(a, b)[0] ?? [a, b]
   return {
@@ -228,9 +245,14 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
     },
     neighbors(cellOrPlace) {
       const id = node(cellOrPlace)
-      return unique(cellsOf(id).flatMap((c) => cells.neighbors(c).map(node))).filter(
-        (n) => n !== id,
-      )
+      let found = around.get(id)
+      if (!found) {
+        found = unique(cellsOf(id).flatMap((c) => cells.neighbors(c).map(node))).filter(
+          (n) => n !== id,
+        )
+        around.set(id, found)
+      }
+      return [...found]
     },
     distance: () => 0,
     connections: (a, b) => unique(pairs(a, b).flatMap(([x, y]) => cells.connections(x, y))),
@@ -329,6 +351,26 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
   const km = map.scale.cellKm ?? systemCellKm ?? DEFAULT_CELL_KM
   const isFar = (a: string, b: string) =>
     !!wayOf(a, b) || (drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1)
+  /** A place's neighbours: those beside it with no wall between, far connections, ways. */
+  const neighborsOf = (hex: string): string[] => {
+    const there = parsePlaceOn(hex)
+    if (there)
+      return [
+        ...(otherWorld(there.map)
+          ?.neighbors(there.place)
+          .map((n) => placeOn(there.map, n)) ?? []),
+        ...ways.filter((w) => w.there === hex).map((w) => w.here),
+      ]
+    return [
+      ...neighborCells(cell(hex), around)
+        .map(keyOf)
+        .filter((n) => !walls.between(hex, n)),
+      ...(far.get(hex) ?? []),
+      ...ways.filter((w) => w.here === hex).map((w) => w.there),
+    ]
+  }
+  // Each place's neighbours, worked out once for this world (a route asks thousands of times).
+  const next = new Map<string, string[]>()
   const laid: Record<string, number> = {}
   for (const { id } of map.pieces ?? []) laid[id] = (laid[id] ?? 0) + 1
   return {
@@ -389,21 +431,11 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       }
     },
     neighbors: (hex) => {
-      const there = parsePlaceOn(hex)
-      if (there)
-        return [
-          ...(otherWorld(there.map)
-            ?.neighbors(there.place)
-            .map((n) => placeOn(there.map, n)) ?? []),
-          ...ways.filter((w) => w.there === hex).map((w) => w.here),
-        ]
-      return [
-        ...neighborCells(cell(hex), around)
-          .map(keyOf)
-          .filter((n) => !walls.between(hex, n)),
-        ...(far.get(hex) ?? []),
-        ...ways.filter((w) => w.here === hex).map((w) => w.there),
-      ]
+      const known = next.get(hex)
+      if (known) return [...known]
+      const found = neighborsOf(hex)
+      next.set(hex, found)
+      return [...found]
     },
     // A far connection is a shortcut: with any, no distance is sure to be a lower bound.
     distance: (a, b) =>
