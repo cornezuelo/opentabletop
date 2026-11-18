@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.66.0] - 2026-11-18
+
 ### Apps
 
 - **Packs**: an item of a catalogue can be held unknown (**Unknown as**, `unknown: { name, description }`): given so (`acting.items.<id>.unknown: 1`), it's shown and told by what it looks like until it's identified (`acting.items.<id>.known: 1`, using it, or its **?** button on the card); tables read `items.<id>.unknown` and `.known`.
