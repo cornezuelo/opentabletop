@@ -225,7 +225,7 @@ cordial:
   description: |-
     Lo tira _Bebérselo_, el **Usar** del cordial de las brujas: con un 1 se había echado a perder, y la Compañía está más cansada (+1 de fatiga); si no, se le va la fatiga.
 
-    **Enseña:** una tabla tirada por la acción que hace el **Usar** de un objeto (`use: actions.drink`), el propio frasco gastado por un paso de esa acción (`acting.items[params.item]: -1`, el usado leído como `params.item`).
+    **Enseña:** una tabla tirada por la acción que hace el **Usar** de un objeto (`use: actions.drink`) cuando el objeto usado es el cordial (`'acting.items[params.item].id': cordial`, el usado leído como `params.item`, su clave), el propio frasco gastado por el siguiente paso de esa acción (`acting.items[params.item]: -1`).
   entries:
     turned: 'Se había echado a perder: amargo, y la Compañía queda más cansada'
     good: 'Verde y amargo: se va la fatiga de la Compañía'

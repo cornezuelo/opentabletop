@@ -712,6 +712,196 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     }
     expect(wounds).toBeGreaterThan(0)
   })
+
+  /** A room to play locks, traps and potions in: Erthos alone, the trip on it. */
+  function inRoom(seed: string, values: Record<string, number> = {}) {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'erthos', name: 'Erthos', values })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded(seed) }),
+    }
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed })
+    const apply = (s: typeof session, effects: Record<string, unknown>) =>
+      applyResult(s, { effects }, {}, rules)
+    /** Takes an action (as Erthos), seeing to what it asks and what it holds. */
+    const act = (s: typeof session, id: string, choice?: string) => {
+      let done = stepTrip(
+        options,
+        { ...s, acting: 'erthos' },
+        {
+          type: 'action',
+          id,
+          with: choice ? { thing: choice, item: choice } : {},
+        },
+      )
+      const entries = [...done.entries]
+      for (let i = 0; i < 12 && done.state.travel.waiting; i++) {
+        done = stepTrip(options, done.state, { type: 'resume', choice } as never)
+        entries.push(...done.entries)
+      }
+      return { state: done.state, entries }
+    }
+    const things = (s: typeof session) => (s.present ?? []).map((p) => p.character)
+    return { options, session, apply, act, things, rules }
+  }
+
+  /** How many times a table was rolled (on its own or within another's result). */
+  const rolledTable = (
+    journal: { code: string; data?: Record<string, unknown> }[],
+    table: string,
+  ) =>
+    journal.filter(
+      (e) =>
+        e.code === 'ROLLED' && JSON.stringify(e.data?.rolls).includes(`"ker-nethalas/${table}"`),
+    ).length
+
+  it('Scavenge once per room (three times where an event says so), a Scavenge check first', () => {
+    const { session, act, apply } = inRoom('sc', { scavenge: 80 })
+    let { state } = act(session, 'scavenge')
+    expect(rolledTable(state.journal, 'scavenge-check')).toBe(1)
+    expect(rolledTable(state.journal, 'scavenging')).toBe(1)
+    // Once: the action is closed in this room now.
+    const again = act(state, 'scavenge')
+    expect(rolledTable(again.state.journal, 'scavenging')).toBe(1)
+    // The funerary vases (Events 55): three times.
+    state = apply(state, { 'place.values.scavenges': '=3' })
+    for (let i = 0; i < 3; i++) state = act(state, 'scavenge').state
+    expect(rolledTable(state.journal, 'scavenge-check')).toBe(3)
+    expect(state.placeSheets?.sheets.a.values).toMatchObject({ scavenged: 3, scavenges: 3 })
+  })
+
+  it('a deep search finds a container, once per room: 2 Exhaustion and a Tension Die check', () => {
+    const { session, act, things } = inRoom('ds')
+    const { state } = act(session, 'deep-search')
+    expect(things(state).map((c) => c.template?.id)).toEqual(['container'])
+    expect(state.members![0].values.exhaustion).toBe(2)
+    expect(rolledTable(state.journal, 'tension-check')).toBe(1)
+    expect(act(state, 'deep-search').state.present).toHaveLength(1)
+  })
+
+  it('a container: investigated, its lock picked (breaking Lockpicks) or forced, opened, what it holds rolled', () => {
+    let opened = 0
+    let broke = 0
+    let sprung = 0
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
+      const { session, act, apply, things } = inRoom(seed, {
+        perception: 60,
+        thievery: 40,
+        athletics: 40,
+        dodge: 40,
+      })
+      let state = apply(session, {
+        'present.container': 1,
+        'party.values.lockpicks': 2,
+        'party.values.toolkit': 1,
+      })
+      const box = things(state)[0].id
+      state = act(state, 'investigate', box).state
+      const looked = things(state)[0]
+      if (looked?.conditions.trapped) state = act(state, 'disarm', box).state
+      for (let i = 0; i < 6 && things(state)[0]?.values.lock; i++) {
+        const before = state.party!.values.lockpicks!
+        state = act(state, before ? 'pick-lock' : 'force-lock', box).state
+        if (state.party!.values.lockpicks! < before) broke++
+      }
+      if (things(state).length) state = act(state, 'open', box).state
+      const json = state.journal.map((e) => JSON.stringify(e))
+      if (json.some((j) => j.includes('ker-nethalas/trap-sprung'))) sprung++
+      if (!things(state).length) {
+        opened++
+        expect(json.some((j) => j.includes('ker-nethalas/container-opened'))).toBe(true)
+      }
+    }
+    expect(opened).toBeGreaterThan(4)
+    expect(broke).toBeGreaterThan(0)
+    expect(sprung).toBeGreaterThanOrEqual(0)
+  })
+
+  it("a room's trap: spotted and bypassed, or missed and set off; scavenging past it sets it off", () => {
+    let gone = 0
+    let past = 0
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
+      const { session, act, apply, things } = inRoom(seed, {
+        perception: 50,
+        dodge: 50,
+        acrobatics: 50,
+        athletics: 50,
+        scavenge: 50,
+      })
+      let state = apply(session, { 'present.trap': 1 })
+      const trap = things(state)[0]
+      expect(trap.values.trap).toBeGreaterThanOrEqual(1)
+      state = act(state, 'investigate', trap.id).state
+      if (things(state)[0]?.conditions.trapped) state = act(state, 'bypass', trap.id).state
+      if (things(state)[0]?.values.bypassed) {
+        past++
+        // Past it: no Scavenging here.
+        const s2 = act(state, 'scavenge').state
+        expect(s2.journal.length).toBe(state.journal.length)
+      } else if (things(state).length) {
+        // Untouched still: Scavenging sets it off first.
+        state = act(state, 'scavenge').state
+        expect(
+          state.journal.some((e) => JSON.stringify(e).includes('ker-nethalas/trap-sprung')),
+        ).toBe(true)
+      }
+      if (!things(state).some((t) => t.template?.id === 'trap')) gone++
+    }
+    expect(gone + past).toBe(8)
+    expect(gone).toBeGreaterThan(0)
+  })
+
+  it('potions: found unknown, identified by Medicine (its aging rolled), drunk by their Use', () => {
+    const { session, act, apply, options } = inRoom('p', { medicine: 100, health: 3, toughness: 0 })
+    let state = apply(session, { 'party.items.heal.unknown': 2 })
+    const held = () => state.members![0].items?.find((i) => i.id === 'heal')
+    expect(held()?.unknown).toBe(true)
+    state = act(state, 'identify', 'heal').state
+    expect(rolledTable(state.journal, 'potion-aging')).toBe(1)
+    // One of the two is known now, its aging rolled; the other still unknown.
+    const heal = state.members![0].items!.filter((i) => i.id === 'heal')
+    expect(heal.map((i) => !!i.unknown).sort()).toEqual([false, true])
+    expect(heal.find((i) => !i.unknown)!.fields!.aging).toBeGreaterThan(0)
+    // The known one drunk: no aging rolled again.
+    const known = heal.find((i) => !i.unknown)!.key
+    const done = stepTrip(options, state, { type: 'use', who: 'erthos', item: known })
+    expect(rolledTable(done.state.journal, 'potion-drunk')).toBe(1)
+    expect(rolledTable(done.state.journal, 'potion-aging')).toBe(1)
+    // The one drunk is gone; the unknown one is left.
+    expect(
+      done.state.members![0].items!.filter((i) => i.id === 'heal').map((i) => !!i.unknown),
+    ).toEqual([true])
+  })
+
+  it('a potion drunk unknown is known as it’s drunk; Stoneskin lasts the rooms its aging gives it', () => {
+    let lasting = 0
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
+      const { session, apply, options } = inRoom(seed)
+      const state = apply(session, { 'party.items.stoneskin.unknown': 1 })
+      const done = stepTrip(options, state, { type: 'use', who: 'erthos', item: 'stoneskin' })
+      const erthos = done.state.members![0]
+      expect(erthos.items?.some((i) => i.id === 'stoneskin')).toBeFalsy()
+      expect(rolledTable(done.state.journal, 'potion-aging')).toBe(1)
+      const left = (erthos.conditions.stoneskin as { left?: number } | undefined)?.left
+      if (left !== undefined) {
+        lasting++
+        expect(left).toBeGreaterThanOrEqual(1)
+        expect(left).toBeLessThanOrEqual(15)
+      }
+    }
+    expect(lasting).toBeGreaterThan(0)
+  })
 })
 
 const iron = personal.some((p) => p.root === 'ironsworn')

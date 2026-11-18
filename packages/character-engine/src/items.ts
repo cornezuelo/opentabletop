@@ -694,17 +694,20 @@ export function itemsFacts(
     } else
       byId[item.id] = {
         ...item.fields,
+        id: item.id,
         count: item.count,
         ...knowing(item),
         tags: item.tags ?? [],
         ...(item.place !== undefined && { place: item.place }),
       }
   }
-  // Each one by its key too, where that isn't its id (`items.mail-2.integrity`).
+  // Each one by its key too, where that isn't its id (`items.mail-2.integrity`), with the id
+  // it's an item of (`items[params.item].id: heal`).
   for (const item of all)
     if (item.key !== item.id && !(item.key in byId))
       byId[item.key] = {
         ...item.fields,
+        id: item.id,
         count: item.count,
         ...knowing(item),
         tags: item.tags ?? [],

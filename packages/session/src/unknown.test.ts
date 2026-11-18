@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { corePack, greyMarchesPack } from './core.testing'
 import { applyResult, type JournalEntry, type SessionState } from './index'
 import { newMember } from './party'
+import { contextSuggestions } from './suggestions'
 import { systemUses } from './usage'
 import {
   itemActions,
@@ -185,6 +186,13 @@ describe('items held unknown, and used', () => {
     const blind = s.members![0].items!.find((i) => i.id === 'cordial' && i.unknown)!.key
     s = stepTrip(options, s, { type: 'use', who: 'kael', item: blind }).state
     expect(held(s, 'kael').filter(([id]) => id === 'cordial')).toEqual([['cordial', 1, false]])
+  })
+
+  it('suggests what an item a Use took is, among the items with a Use', () => {
+    const s = contextSuggestions(registry)
+    expect(s['acting.items[params.item].id']).toEqual(
+      expect.arrayContaining(['cordial', 'draught']),
+    )
   })
 
   it('names no action that the system lacks', () => {

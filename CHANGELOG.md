@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Packs**: an item named by its key tells what it is (`acting.items[params.item].id`), so one action an item's **Use** takes can serve several items and tell them apart.
+
+### Packs
+
+- **The Grey Marches**: **Drink it** rolls _The cordial drunk_ only for the cordial, ready for anything else drunk.
+
 ## [0.66.0] - 2026-11-18
 
 ### Apps

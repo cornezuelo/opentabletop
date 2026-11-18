@@ -541,10 +541,13 @@ describe('a field that steps, and one item named by its key', () => {
     expect(s.items![1].fields.integrity).toBe(4)
     expect(change(s, { 'items.mail-2.integrity': -1 }).state.items![1].fields.integrity).toBe(4)
     const facts = characterFacts(s, worn) as {
-      items: Record<string, { integrity: number }>
+      items: Record<string, { integrity: number; id: string }>
       places: { body: { keys: string[] } }
     }
     expect(facts.items['mail-2'].integrity).toBe(4)
+    // What it is an item of, read by its key (`items[params.item].id: mail`).
+    expect(facts.items['mail-2'].id).toBe('mail')
+    expect(facts.items.mail.id).toBe('mail')
     expect(facts.items.mail.integrity).toBe(8)
     expect(facts.places.body.keys).toEqual(['mail', 'mail-2'])
     // Discarded by its key, the other kept.

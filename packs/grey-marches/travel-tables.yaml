@@ -567,7 +567,7 @@ name: The cordial drunk
 description: |-
   Rolled by _Drink it_, the hedge-witches' cordial's **Use**: on a 1 it had turned, and the Company is wearier (+1 fatigue); otherwise its fatigue is gone.
 
-  **Shows:** a table rolled by the action an item's **Use** takes (`use: actions.drink`), the flask itself spent by that action's step (`acting.items[params.item]: -1`, the one used read as `params.item`).
+  **Shows:** a table rolled by the action an item's **Use** takes (`use: actions.drink`) when the item used is the cordial (`'acting.items[params.item].id': cordial`, the one used read as `params.item`, its key), the flask itself spent by that action's next step (`acting.items[params.item]: -1`).
 roll: 1d6
 entries:
   - id: turned

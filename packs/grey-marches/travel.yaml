@@ -1077,14 +1077,16 @@ actions:
       - { roll: table.chest-goods }
   # An item's **Use** (items.yaml's cordial, `use: actions.drink`): taken from the flask on a
   # companion's card, they acting and the flask read as `params.item` (its key), never a
-  # button of its own. Drunk unknown, it's known first, so the journal says what it was.
+  # button of its own. Drunk unknown, it's known first, so the journal says what it was. What
+  # it does is the table of the item it is (`acting.items[params.item].id`), read before
+  # it's spent: one action for whatever the Marches give to drink.
   drink:
     name: Drink it
     description: 'An item’s Use (the hedge-witches’ cordial): whoever holds the flask drinks it. The Company’s fatigue is gone; but one flask in six has turned, and wearies it (+1) instead.'
     needs: { acting: { exists: true } }
     do:
+      - { when: { 'acting.items[params.item].id': cordial }, roll: table.cordial }
       - { effects: { 'acting.items[params.item]': -1 } }
-      - { roll: table.cordial }
   # An item held unknown (items.yaml's cordial): whoever acts tastes one of theirs, known on
   # a Survival roll (_A careful sip_: `acting.items.cordial.known: 1`). Shown while someone
   # holds one (`party.items.cordial.unknown`), open to whoever acts and holds one.

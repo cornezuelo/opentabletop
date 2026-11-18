@@ -190,6 +190,11 @@ export function contextSuggestions(
             for (const field of fields) add(`${who}.items.${id}.${field}`)
             add(`${who}.items.tags`, ...(item.tags ?? []))
           }
+        // The item a Use took (`params.item`, its key): what it is, among those with a Use.
+        const used = (items ?? []).flatMap((c) =>
+          Object.entries(c.def.items).flatMap(([id, item]) => (item.use ? [id] : [])),
+        )
+        if (used.length) add(`${who}.items[params.item].id`, ...used)
         for (const place of Object.keys(sheet.def.items?.places ?? {})) {
           add(`${who}.places.${place}.used`)
           add(`${who}.places.${place}.room`)
