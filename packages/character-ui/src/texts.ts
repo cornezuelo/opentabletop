@@ -19,16 +19,31 @@ export function initialsOf(name: string): string {
   return first.toLocaleUpperCase() + (number && number !== first ? number : '')
 }
 
-/** An item's name: its own (by hand, or renamed), its catalogue's, or its id made readable. */
+/** The catalogues' entries as the names need them. */
+type Named = readonly {
+  id: string
+  def: { items: Record<string, { name?: SheetText; unknown?: { name: SheetText } }> }
+}[]
+
+/** An item's entry in the system's catalogues: its own catalogue's, else the first with it. */
+const entryOf = (item: { id: string; from?: string }, catalogues: Named) =>
+  (catalogues.find((c) => c.id === item.from) ?? catalogues.find((c) => item.id in c.def.items))
+    ?.def.items[item.id]
+
+/**
+ * An item's name: held unknown, what its entry holds it as (`unknown.name`); else its own
+ * (by hand, or renamed), its catalogue's, or its id made readable.
+ */
 export function itemName(
-  item: { id: string; name?: string; from?: string },
-  catalogues: readonly { id: string; def: { items: Record<string, { name?: SheetText }> } }[],
+  item: { id: string; name?: string; from?: string; unknown?: boolean },
+  catalogues: Named,
   locale: string,
 ): string {
+  const entry = entryOf(item, catalogues)
+  if (item.unknown && entry?.unknown)
+    return sheetText(entry.unknown.name, locale) ?? idName(item.id)
   if (item.name) return item.name
-  const catalogue =
-    catalogues.find((c) => c.id === item.from) ?? catalogues.find((c) => item.id in c.def.items)
-  return sheetText(catalogue?.def.items[item.id]?.name, locale) ?? idName(item.id)
+  return sheetText(entry?.name, locale) ?? idName(item.id)
 }
 
 /** An id for an item written by hand, from its name (`Old rope` → `old-rope`). */

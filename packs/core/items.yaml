@@ -10,7 +10,8 @@ description: |-
   **Shows:** the smallest item catalogue: items with a name, a description and tags
   (`light`, `food`), in no place of the sheet (a list with counts) and one field, a die
   that steps down (the shield's `wear: 6`); an ability is an item too (_Tough_, tagged
-  `ability`, fitting only the sheet's place of abilities).
+  `ability`, fitting only the sheet's place of abilities); an item held unknown until it's
+  used (_A strange potion_, `unknown:`), its **Use** one of the rules' actions (`use:`).
 items:
   rope: { name: Rope, description: A good length of rope., tags: [climbing] }
   torch: { name: Torch, description: Light for a few hours., tags: [light] }
@@ -23,6 +24,14 @@ items:
       wear: 6,
       tags: [armour],
     }
+  # Held unknown (`unknown:`): found as `acting.items.draught.unknown: 1`, a strange potion
+  # until it's drunk; its Use takes the rules' Drink it (`use:`), and it's known first.
+  draught:
+    name: Healing draught
+    description: Drunk, 2 health back.
+    unknown: { name: A strange potion, description: Who knows what it does? Drink it and see. }
+    use: actions.drink
+    tags: [potion]
   # An ability: it fits only the sheet's place of abilities (tagged `ability`), weighs
   # nothing there, and the sheet's `tough` counts it.
   tough:

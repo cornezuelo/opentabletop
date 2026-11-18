@@ -45,6 +45,9 @@ export const ITEM_KEYS = [
   'start',
   'fields',
   'needs',
+  'unknown',
+  'known',
+  'use',
 ] as const
 
 /** A catalogue's item: its texts, tags, where it fits, what it holds, and its fields' numbers. */
@@ -62,6 +65,16 @@ const catalogueItem = z
      * (a parameter listing the catalogue); given anyway, it's said (`ITEM_NEEDS_UNMET`).
      */
     needs: condition.optional(),
+    /**
+     * What it's held as while nobody knows what it is (`acting.items.<id>.unknown: 1`): the
+     * name and description shown instead of its own, until it's identified.
+     */
+    unknown: z.object({ name: text, description: text.optional() }).strict().optional(),
+    /**
+     * The system's action its **Use** takes (`actions.drink`), whoever holds it acting and
+     * the item read as `params.item` (its key); used unknown, it's identified first.
+     */
+    use: z.string().min(1).optional(),
   })
   .catchall(z.number())
 
@@ -92,6 +105,8 @@ export function parseCatalogue(raw: unknown): { catalogue?: Catalogue; errors: s
     if (id.includes('.')) errors.push(`items.${id}: an id without dots`)
     if (item.fits !== undefined) errors.push(...validateCondition(item.fits, `items.${id}.fits`))
     if (item.needs !== undefined) errors.push(...validateCondition(item.needs, `items.${id}.needs`))
+    if (item.use !== undefined && !/^actions\.[^.]+$/.test(item.use))
+      errors.push(`items.${id}.use: one of the system's actions (actions.<id>)`)
   }
   return errors.length ? { errors } : { catalogue: parsed.data, errors }
 }
@@ -116,6 +131,8 @@ export interface ItemState {
   start?: Record<string, number>
   fits?: Condition
   holds?: z.infer<typeof holds>
+  /** Held unknown: shown by its entry's `unknown` name until it's identified. */
+  unknown?: boolean
   /**
    * It came with no room left for it and the sheet asks (`full: ask`): it waits, in no
    * place, for the player to find it room or drop something. Cleared once it has a place.
@@ -662,14 +679,23 @@ export function itemsFacts(
   const all = state.items ?? []
   const byId: Record<string, unknown> = {}
   const tags = new Set<string>()
+  // How many are held unknown, and known (`items.flask.unknown`).
+  const knowing = (item: ItemState) => ({
+    unknown: item.unknown ? item.count : 0,
+    known: item.unknown ? 0 : item.count,
+  })
   for (const item of all) {
     item.tags?.forEach((t) => tags.add(t))
-    const seen = byId[item.id] as { count: number } | undefined
-    if (seen) seen.count += item.count
-    else
+    const seen = byId[item.id] as { count: number; unknown: number; known: number } | undefined
+    if (seen) {
+      seen.count += item.count
+      seen.unknown += knowing(item).unknown
+      seen.known += knowing(item).known
+    } else
       byId[item.id] = {
         ...item.fields,
         count: item.count,
+        ...knowing(item),
         tags: item.tags ?? [],
         ...(item.place !== undefined && { place: item.place }),
       }
@@ -680,6 +706,7 @@ export function itemsFacts(
       byId[item.key] = {
         ...item.fields,
         count: item.count,
+        ...knowing(item),
         tags: item.tags ?? [],
         ...(item.place !== undefined && { place: item.place }),
       }
@@ -704,8 +731,23 @@ export function itemsFacts(
 
 /** What happened to a character's items. */
 export type ItemEvent =
-  | { type: 'ITEM_ADDED'; character: string; item: string; key: string; count: number }
-  | { type: 'ITEM_REMOVED'; character: string; item: string; key: string; count: number }
+  /** `unknown`: it's held unknown, so it's told by its entry's `unknown` name. */
+  | {
+      type: 'ITEM_ADDED'
+      character: string
+      item: string
+      key: string
+      count: number
+      unknown?: true
+    }
+  | {
+      type: 'ITEM_REMOVED'
+      character: string
+      item: string
+      key: string
+      count: number
+      unknown?: true
+    }
   | {
       type: 'ITEM_CHANGED'
       character: string
@@ -715,7 +757,10 @@ export type ItemEvent =
       field: string
       from: number
       to: number
+      unknown?: true
     }
+  /** `count` of it held unknown are known now, as the item they are (under `key`). */
+  | { type: 'ITEM_IDENTIFIED'; character: string; item: string; key: string; count: number }
   | { type: 'ITEM_MOVED'; character: string; item: string; key: string; from?: string; to?: string }
   /** Given though what its entry needs doesn't hold for the character (`needs:`). */
   | { type: 'ITEM_NEEDS_UNMET'; character: string; item: string }
@@ -779,6 +824,7 @@ export function removeItem(
         item: item.id,
         key: item.key,
         count: item.count,
+        ...(item.unknown && { unknown: true as const }),
       })
   }
   state.items = all.filter((i) => !gone.includes(i.key))
@@ -847,6 +893,7 @@ export function addItem(
       i.place === place &&
       i.name === input.name &&
       !i.loose === !input.loose &&
+      !i.unknown === !input.unknown &&
       !i.holds &&
       !input.holds &&
       JSON.stringify(i.fields) === JSON.stringify(fields),
@@ -862,6 +909,7 @@ export function addItem(
       field: 'count',
       from,
       to: like.count,
+      ...(like.unknown && { unknown: true as const }),
     })
     return like
   }
@@ -878,6 +926,7 @@ export function addItem(
     ...(start && { start }),
     ...(input.fits && { fits: input.fits }),
     ...(input.holds && { holds: { ...input.holds } }),
+    ...(input.unknown && { unknown: true }),
     ...(input.loose && { loose: true }),
   }
   all.push(made)
@@ -887,6 +936,7 @@ export function addItem(
     item: made.id,
     key: made.key,
     count: made.count,
+    ...(made.unknown && { unknown: true as const }),
   })
   return made
 }
@@ -933,6 +983,7 @@ export function moveItem(
       field: 'count',
       from,
       to: item.count,
+      ...(item.unknown && { unknown: true as const }),
     })
     addItem(items, state, { ...likeOf(item), count: n, place }, events, true)
     return
@@ -981,6 +1032,7 @@ export function changeItem(
       field,
       from: item.count,
       to,
+      ...(item.unknown && { unknown: true as const }),
     })
     item.count = to
     return
@@ -1002,9 +1054,64 @@ export function changeItem(
 }
 
 /**
+ * Makes `count` of an item held unknown (all of it, if none) known (in place): it's shown as
+ * what it is, and joins a like one known in the same place. The key it's known under now.
+ */
+export function identifyItem(
+  state: Mutable,
+  key: string,
+  events: { push(e: ItemEvent): unknown },
+  count?: number,
+): string | undefined {
+  const all = state.items ?? []
+  const item = all.find((i) => i.key === key)
+  if (!item?.unknown) return item?.key
+  const n = Math.max(1, Math.min(count ?? item.count, item.count))
+  const like = all.find(
+    (i) =>
+      i !== item &&
+      !i.unknown &&
+      i.id === item.id &&
+      i.from === item.from &&
+      i.place === item.place &&
+      i.name === item.name &&
+      !i.loose === !item.loose &&
+      !i.holds &&
+      !item.holds &&
+      JSON.stringify(i.fields) === JSON.stringify(item.fields),
+  )
+  let known: ItemState
+  if (like) {
+    like.count += n
+    known = like
+    if (n === item.count) state.items = all.filter((i) => i !== item)
+    else item.count -= n
+  } else if (n === item.count) {
+    delete item.unknown
+    known = item
+  } else {
+    item.count -= n
+    const copy: Partial<ItemState> = { ...item, fields: { ...item.fields } }
+    delete copy.unknown
+    known = { ...(copy as ItemState), key: newKey(item.id, all), count: n }
+    all.push(known)
+  }
+  events.push({
+    type: 'ITEM_IDENTIFIED',
+    character: state.id,
+    item: item.id,
+    key: known.key,
+    count: n,
+  })
+  return known.key
+}
+
+/**
  * An effect on items (in place): `items.<id>` changes how many there are (more of the first
- * one, or from the catalogue when there's none; fewer from the last ones first),
- * `items.<id>.<field>` the first one's field. `change` is already read.
+ * known one, or from the catalogue when there's none; fewer from the last known ones first,
+ * then the unknown), `items.<id>.unknown` how many are held unknown (given as their entry's
+ * `unknown`), `items.<id>.known` how many are known (more: that many unknown identified,
+ * never new ones), `items.<id>.<field>` the first one's field. `change` is already read.
  */
 export function itemEffect(
   items: SheetItems | undefined,
@@ -1019,16 +1126,32 @@ export function itemEffect(
   // By the item's id (all of them), or by one's key when no item has that id (`mail-2`).
   const byId = all.filter((i) => i.id === id)
   const mine = byId.length ? byId : all.filter((i) => i.key === id)
+  if (field === 'known') {
+    const unknown = mine.filter((i) => i.unknown)
+    const have = mine.reduce((n, i) => n + (i.unknown ? 0 : i.count), 0)
+    const most = have + unknown.reduce((n, i) => n + i.count, 0)
+    let more = changeValue(have, change, { min: 0, max: most }).to - have
+    for (const item of unknown) {
+      if (more <= 0) break
+      const n = Math.min(item.count, more)
+      identifyItem(state, item.key, events, n)
+      more -= n
+    }
+    return
+  }
+  const unknown = field === 'unknown'
   // A field of one it doesn't have: nothing to change (a torch's uses, with no torch).
-  if (field !== undefined) {
+  if (field !== undefined && !unknown) {
     if (mine[0]) changeItem(items, state, mine[0].key, field, change, events)
     return
   }
-  const have = mine.reduce((n, i) => n + i.count, 0)
+  // What's counted: those held unknown (`.unknown`), or all of them, more given known.
+  const these = unknown ? mine.filter((i) => i.unknown) : mine
+  const have = these.reduce((n, i) => n + i.count, 0)
   const wanted = changeValue(have, change, { min: 0 }).to
   let delta = wanted - have
   if (delta > 0) {
-    const first = mine[0]
+    const first = these.find((i) => !i.unknown === !unknown)
     if (first) {
       const where = placesOf(items, state).find((p) => p.id === first.place)
       const more = sizeOf(items, { ...first, count: delta })
@@ -1047,10 +1170,13 @@ export function itemEffect(
     // Given all the same, but said, when what it needs doesn't hold (docs/advancement.md).
     if (!needsHold(items, state, id, found.item))
       events.push({ type: 'ITEM_NEEDS_UNMET', character: state.id, item: id })
-    addItem(items, state, itemFromCatalogue(items, found.catalogue, id, found.item, delta), events)
+    const made = itemFromCatalogue(items, found.catalogue, id, found.item, delta)
+    addItem(items, state, unknown ? { ...made, unknown: true } : made, events)
     return
   }
-  for (const item of [...mine].reverse()) {
+  // Taken: the known ones first, the last first.
+  const taking = [...these].sort((a, b) => Number(!a.unknown) - Number(!b.unknown))
+  for (const item of taking.reverse()) {
     if (delta >= 0) break
     const taken = Math.min(item.count, -delta)
     changeItem(items, state, item.key, 'count', -taken, events)

@@ -15,7 +15,7 @@
     type SessionState,
     type TravelSystem,
   } from '@open-tabletop/session'
-  import type { CharacterState } from '@open-tabletop/character-engine'
+  import type { CharacterState, ItemState } from '@open-tabletop/character-engine'
   import {
     CharacterCard,
     CharacterGlance,
@@ -47,6 +47,8 @@
     uses = [],
     nameOf = (id) => id,
     rolls,
+    usable,
+    onuse,
     onedit,
   }: {
     system: TravelSystem & { sheet: NonNullable<TravelSystem['sheet']> }
@@ -66,6 +68,10 @@
     nameOf?: (id: string) => string
     /** Who rolls for the party, from the host: under who acts. */
     rolls?: Snippet
+    /** Whether a member can use an item now: undefined, no **Use**; `''`, they can; else why not. */
+    usable?: (who: string, item: ItemState) => string | undefined
+    /** A member uses an item (its **Use**), played by the trip. */
+    onuse?: (who: string, item: ItemState) => void
     onedit: (update: (session: SessionState) => SessionState) => void
   } = $props()
 
@@ -314,6 +320,8 @@
           {names}
           time={session.travel.time}
           targets={allTargets}
+          usable={usable && ((item) => usable(member.id, item))}
+          onuse={onuse && ((item) => onuse(member.id, item))}
           onchange={(next) => change(member, next)}
         />
       </details>

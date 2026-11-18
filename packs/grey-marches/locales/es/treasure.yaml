@@ -9,12 +9,13 @@ treasure:
     - Lo que enseñan los dados (`dice.doubles`): unos dobles (11, 22… 00) encuentran un escondrijo antes que nada
     - Dados tirados una vez con `set`, leídos por el texto y los `effects`: la plata hallada es la que recibe la Compañía; dados que explotan (`3d6!`: un seis se vuelve a tirar y se suma)
     - Cascadas a _Rumores_ y _Un premio raro_
+    - Un objeto sin identificar (`party.items.cordial.unknown: 1`): el cordial de las brujas, hallado como _Un frasco tapado_
   entries:
     cache: 'Un escondrijo bajo el suelo: {{coins}} monedas de plata, y un premio raro'
     coins: '{{coins}} monedas de plata'
     gems: '{{gems}} gemas de {{worth}} monedas de plata cada una'
     map: 'Un mapa de las Colinas Huecas; una nota dice que {{result}}'
-    potion: Un frasco del cordial de las brujas (quita toda la fatiga)
+    potion: Un frasco tapado de vidrio verde
 fallen:
   name: Lo que dejan los caídos
   description: |-

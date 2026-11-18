@@ -283,7 +283,8 @@ entries:
     weight: 3
     when: { role.id: witch }
     result: gathers herbs and will brew a cordial for a song
-    effects: { party.stats.fatigue: -1 }
+    # A flask known for what it is (items.yaml's cordial), given to the Company.
+    effects: { party.items.cordial: 1 }
 ---
 # d66: two dice read as tens and units (11–66), 36 results; ranges like 11-16.
 kind: table

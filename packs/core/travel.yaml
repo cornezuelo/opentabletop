@@ -245,7 +245,7 @@ actions:
       - { roll: table.force-chest }
   open-chest:
     name: Open it
-    description: 'At a chest that isn’t locked: what’s inside, a day’s food.'
+    description: 'At a chest that isn’t locked: what’s inside, a day’s food and a strange potion for whoever opens it.'
     when: { present.chest.count: { gte: 1 } }
     hideWhenUnavailable: true
     params:
@@ -259,6 +259,19 @@ actions:
       - { ask: params.chest }
       - effects: { 'characters[params.chest].conditions.opened': true, party.values.food: 1 }
       - { id: food, say: 'Inside, a day’s food.' }
+      # Held unknown (items.yaml's draught): a strange potion until it's drunk.
+      - when: { acting: { exists: true } }
+        effects: { acting.items.draught.unknown: 1 }
+      - { id: potion, when: { acting: { exists: true } }, say: 'And a strange potion.' }
+  # An item's Use (items.yaml's draught, `use: actions.drink`): taken from the potion on a
+  # character's card, they acting and the potion read as `params.item` (its key); never a
+  # button of its own. Drunk unknown, it's known first.
+  drink:
+    name: Drink it
+    description: 'An item’s Use (the healing draught): whoever holds the potion drinks it, and gets 2 health back.'
+    do:
+      - { effects: { acting.values.health: 2, 'acting.items[params.item]': -1 } }
+      - { id: drunk, say: '{{acting.name}} drinks it: 2 health back.' }
   # After a rest, for each member (`for: party.members`), each acting in turn: whoever still
   # stands gets 1 health back.
   mend:

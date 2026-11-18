@@ -1075,6 +1075,29 @@ actions:
     when: { acting.template: grave-chest, acting.conditions: opened }
     do:
       - { roll: table.chest-goods }
+  # An item's **Use** (items.yaml's cordial, `use: actions.drink`): taken from the flask on a
+  # companion's card, they acting and the flask read as `params.item` (its key), never a
+  # button of its own. Drunk unknown, it's known first, so the journal says what it was.
+  drink:
+    name: Drink it
+    description: 'An item’s Use (the hedge-witches’ cordial): whoever holds the flask drinks it. The Company’s fatigue is gone; but one flask in six has turned, and wearies it (+1) instead.'
+    needs: { acting: { exists: true } }
+    do:
+      - { effects: { 'acting.items[params.item]': -1 } }
+      - { roll: table.cordial }
+  # An item held unknown (items.yaml's cordial): whoever acts tastes one of theirs, known on
+  # a Survival roll (_A careful sip_: `acting.items.cordial.known: 1`). Shown while someone
+  # holds one (`party.items.cordial.unknown`), open to whoever acts and holds one.
+  taste:
+    group: groups.here
+    name: Taste a flask
+    description: 'For a companion holding a stoppered flask nobody knows: ten minutes and a careful sip. 2d6 and their Survival, 8 or more: it’s known for what it is.'
+    when: { party.items.cordial.unknown: { gte: 1 } }
+    needs: { acting.items.cordial.unknown: { gte: 1 } }
+    hideWhenUnavailable: true
+    do:
+      - { time: 10 }
+      - { roll: table.taste }
   # As the pack leader leaves (`present.leave`, the one leaving acting) with grey wolves still
   # here, the rest of the pack runs. Not a moment written as a condition (no leader, wolves
   # here): that would hold too for a lone wolf put here by hand, which has no leader to lose.

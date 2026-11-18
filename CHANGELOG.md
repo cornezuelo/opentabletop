@@ -4,6 +4,16 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Packs**: an item of a catalogue can be held unknown (**Unknown as**, `unknown: { name, description }`): given so (`acting.items.<id>.unknown: 1`), it's shown and told by what it looks like until it's identified (`acting.items.<id>.known: 1`, using it, or its **?** button on the card); tables read `items.<id>.unknown` and `.known`.
+- **Packs**: an item can have a **Use** (`use: actions.<id>`): on a character's card in a trip, a **Use** button takes that action with them acting and the item as `params.item`; used unknown, it's identified first and the journal says what it was. Such an action is no button of its own.
+
+### Packs
+
+- **The Grey Marches**: the hedge-witches' cordial is an item, found in a hoard or a grave-goods chest as _A stoppered flask_: **Taste a flask** (Survival) knows it, its **Use** drinks it (fatigue gone, or one flask in six turned, +1). The hedge-witch met on the road brews one instead of easing fatigue.
+- **Core**: an opened chest also gives whoever opens it _A strange potion_, a healing draught once drunk.
+
 ## [0.65.0] - 2026-11-16
 
 ### Apps

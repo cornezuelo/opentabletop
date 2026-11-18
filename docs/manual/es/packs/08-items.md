@@ -14,6 +14,8 @@ Un personaje **tiene objetos**, cada uno con **cuántos** (una cantidad) y, si l
 - **El sitio** se cuenta con el campo que la hoja nombra en **Lo que ocupa un lugar** (huecos × cuántos), o uno por objeto. Por defecto, un lugar que se pasa de su sitio solo muestra su cuenta en rojo, y el sistema dice qué significa, con un estado (abajo). Una hoja (o un lugar, o un contenedor) cuyo **Más de lo que cabe** es `refuse` no admite nada que no tenga sitio: la tarjeta no ofrece lugares llenos y se rechaza moverlo ahí; lo que dé un efecto va al primer lugar donde quepa con sitio (luego a un contenedor con sitio, luego a un lugar que admita más). El **Sitio en total** de una hoja cuenta todo lo que lleva un personaje. Lo que siga sin sitio se queda atrás, o espera en la tarjeta al jugador, según diga **Si no cabe**. Más abajo, [Límites a lo que se lleva](#limites-a-lo-que-se-lleva).
 - **Lo que hace tenerlo** se escribe con las piezas que ya tienen las hojas y las reglas: un valor que **Sale de** los objetos (`{ sum: items.slots }`: la carga; `{ max: items.armour, where: { place.tags: worn } }`: la armadura puesta), un estado que **Se cumple mientras** la carga pase de la capacidad (bloquea lo que diga), un dato del grupo que cuenta quién lleva cuerda (`from: { count: true, when: { items.tags: climbing } }`), una tabla que lo lee (`'1d6 + {{min(party.stats.roped, 1)}}'`).
 - **Los efectos los dan y los quitan**, por el id del objeto: `acting.items.torch: -1` (uno menos, empezando por los últimos), `party.members.items.torch.uses: -1` (una hora de la antorcha de cada uno), `acting.items.sword-of-keld: 1` (uno más; del catálogo si el personaje no tiene ninguno). Un campo de un objeto que el personaje no tiene no cambia nada; un objeto que no está en ningún catálogo no se puede dar, y el diario lo dice.
+- **Sin identificar.** Un objeto puede encontrarse sin que nadie sepa qué es (una poción, un anillo, una llave): el **Sin identificar como** de su entrada es lo que se lleva (_Un frasco tapado_), lo que enseña la tarjeta, cuenta el diario y nombra su **Usar**, con su propio nombre, descripción y etiquetas ocultos. Un efecto lo da así (`acting.items.cordial.unknown: 1`, o `party.items.cordial.unknown: 1` a quien lleve cosas en el grupo); se guarda aparte de los conocidos, y se **identifica** con un efecto (`acting.items.cordial.known: 1`: uno de ellos, desde entonces el objeto que es, juntándose con uno conocido en el mismo lugar), con su **Usar**, o a mano en la tarjeta (su botón **?**). Las tablas leen cuántos se llevan sin identificar (`acting.items.cordial.unknown`) y cuántos conocidos (`….known`); `….count` cuenta los dos, así que una acción solo para uno conocido lee `.known`. Si un efecto los quita (`acting.items.cordial: -1`), van primero los conocidos.
+- **Usarlo.** El **Usar** de una entrada nombra una de las acciones del sistema (`actions.drink`): en la tarjeta de un personaje durante un viaje, el objeto tiene un botón **Usar** que la hace, actuando el personaje y con el objeto leído en sus pasos como `params.item` (su clave), así que la acción lo gasta (`acting.items[params.item]: -1`) y hace lo que haga; una acción sirve a varios objetos. Si se usa sin identificar, primero se identifica, y el diario dice qué era. En gris, dice por qué no se puede hacer la acción ahora; la acción misma no tiene botón propio.
 - **Las tablas y condiciones los leen**: `characters.kael.items.torch.count` (cuántos), `acting.items.torch.uses` (los del primero), `acting.items.tags: light` (lleva algo con la etiqueta light), `acting.places.pack.used` y `.room`, `acting.carried.used` (todo, frente al **Sitio en total**). Todos: [Qué ven las tablas](../technical/04-what-tables-see.md#personajes).
 
 ## La pestaña
@@ -21,7 +23,7 @@ Un personaje **tiene objetos**, cada uno con **cuántos** (una cantidad) y, si l
 Un catálogo cada vez; con varios, una fila de botones elige. **Nuevo catálogo** crea uno pequeño (una cuerda y una antorcha) y lo añade al **Resumen** del sistema (`items:`, una lista). Un catálogo tiene:
 
 - Su **Nombre** (_Equipo_, _Armas_).
-- Sus **Objetos**, cada uno con un id (con el que lo nombran los efectos y las tablas), con su **Nombre**, **Descripción**, **Etiquetas**, una casilla por cada campo que la hoja da a los objetos (vacía: el valor por defecto del campo), dónde **Cabe** (una [condición](../technical/08-conditions.md) sobre el lugar: `place.tags` · **es** · `head`) y, si es un contenedor, qué **Guarda** (su sitio) y **Guarda como** (sus etiquetas como lugar).
+- Sus **Objetos**, cada uno con un id (con el que lo nombran los efectos y las tablas), con su **Nombre**, **Descripción**, **Etiquetas**, una casilla por cada campo que la hoja da a los objetos (vacía: el valor por defecto del campo), dónde **Cabe** (una [condición](../technical/08-conditions.md) sobre el lugar: `place.tags` · **es** · `head`), lo que se lleva mientras nadie sabe qué es (**Sin identificar como** y **Sin identificar, descrito**), la acción que hace su **Usar** (una del sistema) y, si es un contenedor, qué **Guarda** (su sitio) y **Guarda como** (sus etiquetas como lugar).
 
 Un campo puede ser un dado que sube y baja de escalón, como un valor ([Hoja](07-sheet.md)): **Escalones** `4, 6, 8` y **Se muestra como** `die` dan a cada objeto su propio dado (el desgaste de una armadura, d8, d6, d4), que baja con `acting.items.mail.wear: -1`. Dos del mismo objeto se distinguen por su **clave** (`mail`, luego `mail-2`), así que se puede leer y cambiar uno solo (`acting.items.mail-2.wear`), y una acción puede tirar una vez por cada objeto de un lugar (`each:`, [Acciones y pasos](../technical/10-actions-and-steps.md#otras-acciones-y-comprobaciones-do-y-roll); _Revisar la malla_ de las Marcas Grises).
 
@@ -76,7 +78,41 @@ items:
 
 Y el sistema nombra el catálogo (`items: [items.gear]` en su `kind: system`).
 
-Las Marcas Grises llevan equipo en cuatro lugares del cuerpo (una cuerda que ayuda en el vado, antorchas que arden en las marchas nocturnas, una mochila, una cota de malla, la Espada de Keld de un tesoro): su [página](../bundled/02-grey-marches.md). El catálogo de Core es el más pequeño: cuatro objetos y un campo, el dado de desgaste de un escudo ([Core](../bundled/01-core.md)).
+Las Marcas Grises llevan equipo en cuatro lugares del cuerpo (una cuerda que ayuda en el vado, antorchas que arden en las marchas nocturnas, una mochila, una cota de malla, la Espada de Keld de un tesoro, el cordial de las brujas hallado como _Un frasco tapado_, que se prueba o se bebe): su [página](../bundled/02-grey-marches.md). El catálogo de Core es el más pequeño: unos pocos objetos y un campo, el dado de desgaste de un escudo, y una poción extraña que cura al beberla ([Core](../bundled/01-core.md)).
+
+## Un objeto sin identificar, usado
+
+Una poción hallada sin identificar, que se conoce con un sorbo con cuidado o bebiéndosela. Su entrada, y la acción que hace su **Usar**:
+
+```yaml
+# items.yaml: un extracto (los demás objetos del catálogo siguen)
+kind: items
+id: gear
+items:
+  draught:
+    name: Poción curativa
+    description: Al beberla, 2 de salud.
+    unknown: { name: Un frasco turbio, description: ¿Quién sabe qué hace? }
+    use: actions.drink
+---
+# travel.yaml: un extracto (… su viaje, sus terrenos y sus demás acciones siguen)
+kind: travel-rules
+id: default
+actions:
+  drink: # sin botón: la hace el Usar de la poción
+    name: Bebérsela
+    do:
+      - { effects: { acting.values.health: 2, 'acting.items[params.item]': -1 } }
+  sip:
+    name: Un sorbo con cuidado
+    when: { party.items.draught.unknown: { gte: 1 } } # alguien lleva una sin identificar
+    needs: { acting.items.draught.unknown: { gte: 1 } } # y es quien actúa
+    do:
+      - { time: 10 }
+      - { effects: { acting.items.draught.known: 1 } }
+```
+
+Una tabla la da así (`effects: { acting.items.draught.unknown: 1 }`). En la tarjeta es _Un frasco turbio_, en cursiva; **Usar** se la bebe: el diario dice _Kael: Un frasco turbio resulta ser Poción curativa_, y luego la salud que dio. _Probar un frasco_ de las Marcas Grises hace del sorbo una tirada (una tabla cuyo resultado lo identifica).
 
 ## Límites a lo que se lleva
 
@@ -138,4 +174,6 @@ Por encima de la capacidad el soldado va _Encumbered_ (no puede esprintar) y la 
 - **Equipo que se queda atrás, o un viaje que no sigue.** Con `refuse`, lo que dé un efecto sin sitio en ningún lugar donde quepa se queda atrás o (**Si no cabe** `ask`) espera en la tarjeta, marcado, y el viaje espera con ello: suelta algo o muévelo a un lugar; o deja que un contenedor admita más (`holds: { …, over: allow }`). Un contenedor copiado de un catálogo a un personaje conserva lo que decía entonces: suéltalo y vuelve a añadirlo del catálogo.
 - **Un Sitio en total que no admite nada.** Lee los valores de la hoja tal como están (`'{{self.values.capacity}}'`): una capacidad que sale de otros se calcula antes, pero una a 0 no da sitio. Sin **Lo que ocupa un lugar**, cada objeto cuenta uno.
 - **Un montón que no se mueve.** Un montón entero necesita sitio para todo él: mantén Mayús al soltarlo para moverlos de uno en uno.
+- **Un botón Usar que nunca sale.** Está en la tarjeta de un personaje durante un viaje, para una entrada cuyo **Usar** nombra una acción que tiene el sistema (si no, un aviso entre sus problemas); en la aplicación Personajes no hay viaje en el que hacerla.
+- **Una tabla que delata qué es un objeto.** Mientras se lleva sin identificar, di en el texto del resultado qué aspecto tiene (_Un frasco tapado_), nunca qué es, y lee `.known` para lo que solo permite uno conocido.
 - **`tags` como id de un objeto.** `items.tags` lee todas las etiquetas de todos los objetos: ningún objeto puede llamarse `tags`.

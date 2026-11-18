@@ -32,6 +32,8 @@
     shownAt,
     picksWho,
     tripAvailability,
+    itemActions,
+    useUnavailable,
     type RosterPlace,
     type SessionState,
     type StatDefinition,
@@ -293,9 +295,12 @@
   const onward = $derived(system.rules.travel.onward)
   /** The action it takes, by its id (`actions.march` is `march`). */
   const onwardAction = $derived(onward && refId('actions', onward.do))
+  /** The actions items' **Use** takes: taken from an item, never a button. */
+  const usedByItems = $derived(itemActions(system))
   /**
-   * The player's actions: every action but those the system takes by itself (`on:`), the
-   * ones that move first; one that hides while it can't be taken only shows when it can.
+   * The player's actions: every action but those the system takes by itself (`on:`) and
+   * those an item's **Use** takes, the ones that move first; one that hides while it can't
+   * be taken only shows when it can.
    */
   const buttons = $derived(
     Object.keys(actions.all)
@@ -309,7 +314,7 @@
           (!!session.encounter && !system.encounter?.actions.includes(id)) ||
           // A scene goes nowhere.
           (scene && movers.has(id))
-        return !actions.all[id].on && !hidden
+        return !actions.all[id].on && !usedByItems.has(id) && !hidden
       })
       .sort((a, b) => Number(movers.has(b)) - Number(movers.has(a))),
   )
@@ -1362,6 +1367,11 @@
           {systemWhere}
           {uses}
           {nameOf}
+          usable={(who, item) => {
+            const because = useUnavailable({ system, world, facts }, session, who, item.key)
+            return because === undefined ? undefined : because ? why(because) || ' ' : ''
+          }}
+          onuse={(who, item) => onstep({ type: 'use', who, item: item.key })}
           {onedit}
         />
       {/if}

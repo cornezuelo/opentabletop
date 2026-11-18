@@ -616,3 +616,88 @@ describe('a place of abilities (docs/advancement.md)', () => {
     expect(s.values.health).toBe(4)
   })
 })
+
+describe('items held unknown (docs/traps-locks.md §3C)', () => {
+  const potions = parseCatalogue({
+    kind: 'items',
+    id: 'potions',
+    items: {
+      heal: {
+        name: 'Healing draught',
+        // Weighing nothing, every one goes to the first place.
+        slots: 0,
+        unknown: { name: 'A cloudy flask', description: 'Nobody knows.' },
+        use: 'actions.drink',
+      },
+    },
+  })
+  const both = lookupItems([
+    { id: 'test/gear', def: catalogue.catalogue! },
+    { id: 'test/potions', def: potions.catalogue! },
+  ])
+  const change = (s: CharacterState, effects: Record<string, number | string>) =>
+    applyCharacter(sheet as Sheet, s, { type: 'change', effects }, { items: both })
+  const items = (s: CharacterState) =>
+    characterFacts(s, sheet).items as Record<string, Record<string, number>>
+
+  it('are read, and a use names an action', () => {
+    expect(potions.errors).toEqual([])
+    expect(
+      parseCatalogue({ kind: 'items', id: 'x', items: { a: { use: 'drink' } } }).errors,
+    ).toEqual(["items.a.use: one of the system's actions (actions.<id>)"])
+  })
+
+  it('are given unknown, kept apart from the known, and read as unknown and known', () => {
+    let s = change(delver(), { 'items.heal.unknown': 2 }).state
+    s = change(s, { 'items.heal': 1 }).state
+    expect(s.items!.map((i) => [i.key, i.count, !!i.unknown])).toEqual([
+      ['heal', 2, true],
+      ['heal-2', 1, false],
+    ])
+    expect(items(s).heal).toMatchObject({ count: 3, unknown: 2, known: 1 })
+    // Taken, the known ones go first.
+    const taken = change(s, { 'items.heal': -2 })
+    expect(taken.state.items!.map((i) => [i.key, i.count, !!i.unknown])).toEqual([
+      ['heal', 1, true],
+    ])
+    expect(taken.events.filter((e) => e.type === 'ITEM_CHANGED')).toEqual([
+      expect.objectContaining({ key: 'heal', from: 2, to: 1, unknown: true }),
+    ])
+  })
+
+  it('are identified one at a time, joining a like one known', () => {
+    const s = change(change(delver(), { 'items.heal.unknown': 2 }).state, { 'items.heal': 1 })
+    const one = change(s.state, { 'items.heal.known': 1 })
+    expect(one.state.items!.map((i) => [i.key, i.count, !!i.unknown])).toEqual([
+      ['heal', 1, true],
+      ['heal-2', 2, false],
+    ])
+    expect(one.events).toContainEqual({
+      type: 'ITEM_IDENTIFIED',
+      character: 'mira',
+      item: 'heal',
+      key: 'heal-2',
+      count: 1,
+    })
+    // Never more known than held; by hand, the whole stack.
+    expect(items(change(one.state, { 'items.heal.known': 5 }).state).heal).toMatchObject({
+      unknown: 0,
+      known: 3,
+    })
+    const byHand = act(one.state, { type: 'editItem', key: 'heal', known: true })
+    expect(byHand.state.items!.map((i) => [i.key, i.count, !!i.unknown])).toEqual([
+      ['heal-2', 3, false],
+    ])
+  })
+
+  it('split when some of a stack are identified and none is known', () => {
+    const s = change(change(delver(), { 'items.heal.unknown': 3 }).state, {
+      'items.heal.known': 1,
+    }).state
+    expect(s.items!.map((i) => [i.key, i.count, !!i.unknown])).toEqual([
+      ['heal', 2, true],
+      ['heal-2', 1, false],
+    ])
+    expect(items(s).heal).toMatchObject({ count: 3, unknown: 2, known: 1 })
+  })
+})

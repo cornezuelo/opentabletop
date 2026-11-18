@@ -7,6 +7,7 @@
     isMadeOf,
     readsWorld,
     type Catalogue,
+    type ItemState,
     type CharacterAction,
     type CharacterState,
     type Display,
@@ -38,6 +39,8 @@
     named = true,
     catalogues = [],
     tagChoices = [],
+    usable,
+    onuse,
     onchange,
   }: {
     sheet: Sheet
@@ -61,6 +64,10 @@
     catalogues?: readonly { id: string; def: Catalogue }[]
     /** Tags to suggest (those its system's characters already use: session's `tagsInUse`). */
     tagChoices?: readonly string[]
+    /** Whether an item can be used now: undefined, no **Use**; `''`, it can; else why not. */
+    usable?: (item: ItemState) => string | undefined
+    /** An item used (its **Use**), where the host plays it (a trip). */
+    onuse?: (item: ItemState) => void
     onchange: (next: CharacterState) => void
   } = $props()
 
@@ -353,6 +360,8 @@
         {locale}
         {disabled}
         path={where}
+        {usable}
+        {onuse}
         onaction={change}
       />
     </div>

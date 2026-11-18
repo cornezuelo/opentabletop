@@ -14,6 +14,8 @@ A character **has items**, each with **how many** (a count), and, when the sheet
 - **Room** is counted with the field the sheet names in **What fills a place** (slots × how many), or one per item. By default a place over its room only shows its count in red, and the system says what it means, with a condition (below). A sheet (or a place, or a container) whose **Over its room** is `refuse` takes nothing that hasn't room left: the card offers no full place and a move there is refused; what an effect gives goes to the first place it fits with room (then a container with room, then a place that allows more). A sheet's **Room in all** counts everything a character carries. What still has no room is left behind, or waits on the card for the player, as **When it doesn't fit** says. [Limits to carrying](#limits-to-carrying) below.
 - **What having it does** is written with the pieces sheets and rules already have: a value **Made of** the items (`{ sum: items.slots }`: the load; `{ max: items.armour, where: { place.tags: worn } }`: the armour worn), a condition that **Holds while** the load is over the capacity (it blocks what it lists), a party stat that counts who carries a rope (`from: { count: true, when: { items.tags: climbing } }`), a table that reads it (`'1d6 + {{min(party.stats.roped, 1)}}'`).
 - **Effects give and take them**, by the item's id: `acting.items.torch: -1` (one fewer, from the last ones first), `party.members.items.torch.uses: -1` (an hour of everyone's torch), `acting.items.sword-of-keld: 1` (one more; from the catalogue when the character has none). A field of an item the character doesn't have changes nothing; an item no catalogue has can't be given, and the journal says so.
+- **Held unknown.** An item may be found without anyone knowing what it is (a potion, a ring, a key): its entry's **Unknown as** is what it's held as (_A stoppered flask_), shown on the card, told by the journal and named by its **Use**, its own name, description and tags hidden. An effect gives it so (`acting.items.cordial.unknown: 1`, or `party.items.cordial.unknown: 1` to whoever of the party carries things); it's kept apart from the known ones, and **identified** by an effect (`acting.items.cordial.known: 1`: one of them, from then on the item it is, joining a known one in the same place), by its **Use**, or by hand on the card (its **?** button). Tables read how many are held unknown (`acting.items.cordial.unknown`) and known (`….known`); `….count` counts both, so an action meant only for a known one reads `.known`. Taken by an effect (`acting.items.cordial: -1`), the known ones go first.
+- **Used.** An entry's **Use** names one of the system's actions (`actions.drink`): on a character's card in a trip, the item gets a **Use** button that takes it, the character acting and the item read by its steps as `params.item` (its key), so the action spends it (`acting.items[params.item]: -1`) and does what it does; one action serves several items. Used while held unknown, it's identified first, and the journal says what it was. Greyed out, it says why the action can't be taken now; the action itself is no button of its own.
 - **Tables and conditions read them**: `characters.kael.items.torch.count` (how many), `acting.items.torch.uses` (the first one's), `acting.items.tags: light` (carries something tagged light), `acting.places.pack.used` and `.room`, `acting.carried.used` (all of it, against the **Room in all**). All of them: [What tables see](../technical/04-what-tables-see.md#characters).
 
 ## The tab
@@ -21,7 +23,7 @@ A character **has items**, each with **how many** (a count), and, when the sheet
 One catalogue at a time; with several, a row of buttons chooses. **New catalogue** makes a small one (a rope and a torch) and adds it to the system's **Overview** (`items:`, a list). A catalogue has:
 
 - Its **Name** (_Gear_, _Weapons_).
-- Its **Items**, each by an id (what effects and tables name it with), with its **Name**, **Description**, **Tags**, a box for each field the sheet gives items (empty: the field's default), where it **Fits** (a [condition](../technical/08-conditions.md) on the place: `place.tags` · **is** · `head`) and, for a container, what it **Holds** (its room) and **Holds as** (its tags as a place).
+- Its **Items**, each by an id (what effects and tables name it with), with its **Name**, **Description**, **Tags**, a box for each field the sheet gives items (empty: the field's default), where it **Fits** (a [condition](../technical/08-conditions.md) on the place: `place.tags` · **is** · `head`), what it's held as while nobody knows what it is (**Unknown as** and **Unknown, described**), the action its **Use** takes (one of the system's) and, for a container, what it **Holds** (its room) and **Holds as** (its tags as a place).
 
 A field may be a die that steps, as a value may ([Sheet](07-sheet.md)): **Steps** `4, 6, 8` and **Shown as** `die` make each item's own die (an armour's wear, d8, d6, d4), stepped down by `acting.items.mail.wear: -1`. Two of the same item are told apart by their **key** (`mail`, then `mail-2`), so one of them alone can be read and changed (`acting.items.mail-2.wear`), and an action can roll once for every item in a place (`each:`, [Actions and steps](../technical/10-actions-and-steps.md#other-actions-and-checks-do-and-roll); the Grey Marches' _Mind the mail_).
 
@@ -76,7 +78,41 @@ items:
 
 And the system names the catalogue (`items: [items.gear]` in its `kind: system`).
 
-The Grey Marches carry gear on four places of a body (a rope that helps at the ford, torches that burn on night marches, a backpack, a mail shirt, the Sword of Keld from a hoard): their [page](../bundled/02-grey-marches.md). Core's catalogue is the smallest: four items and one field, a shield's wear die ([Core](../bundled/01-core.md)).
+The Grey Marches carry gear on four places of a body (a rope that helps at the ford, torches that burn on night marches, a backpack, a mail shirt, the Sword of Keld from a hoard, the hedge-witches' cordial found as _A stoppered flask_, tasted or drunk): their [page](../bundled/02-grey-marches.md). Core's catalogue is the smallest: a few items and one field, a shield's wear die, and a strange potion that heals once drunk ([Core](../bundled/01-core.md)).
+
+## An item held unknown, used
+
+A potion found unknown, known by a careful sip or by drinking it. Its entry, and the action its **Use** takes:
+
+```yaml
+# items.yaml: an excerpt (the catalogue's other items stay)
+kind: items
+id: gear
+items:
+  draught:
+    name: Healing draught
+    description: Drunk, 2 health back.
+    unknown: { name: A cloudy flask, description: Who knows what it does? }
+    use: actions.drink
+---
+# travel.yaml: an excerpt (… its travel, terrains and other actions stay)
+kind: travel-rules
+id: default
+actions:
+  drink: # no button: the potion's Use takes it
+    name: Drink it
+    do:
+      - { effects: { acting.values.health: 2, 'acting.items[params.item]': -1 } }
+  sip:
+    name: A careful sip
+    when: { party.items.draught.unknown: { gte: 1 } } # someone holds one unknown
+    needs: { acting.items.draught.unknown: { gte: 1 } } # and it's whoever acts
+    do:
+      - { time: 10 }
+      - { effects: { acting.items.draught.known: 1 } }
+```
+
+A table gives one so (`effects: { acting.items.draught.unknown: 1 }`). On the card it's _A cloudy flask_, in italics; **Use** drinks it: the journal says _Kael: A cloudy flask turns out to be Healing draught_, then the health it gave. The Grey Marches' _Taste a flask_ makes the sip a roll (a table whose result identifies it).
 
 ## Limits to carrying
 
@@ -138,4 +174,6 @@ Over the capacity the soldier is _Encumbered_ (no sprinting) and the bar turns a
 - **Gear left behind, or a trip that won't go on.** With `refuse`, what an effect gives with no room left anywhere it fits is left behind, or (**When it doesn't fit** `ask`) waits on the card, marked, and the trip waits with it: drop something or move it to a place; or let a container take more (`holds: { …, over: allow }`). A container copied from a catalogue onto a character keeps what it said then: drop it and add it again from the catalogue.
 - **A Room in all that takes nothing.** It reads the sheet's values as they are (`'{{self.values.capacity}}'`): a capacity made of others is worked out first, but one at 0 gives no room. With no **What fills a place**, each item counts one.
 - **A stack that won't move.** A whole stack needs room for all of it: hold Shift as you drop it to move one at a time.
+- **A Use button that never shows.** It's on a character's card in a trip, for an entry whose **Use** names an action the system has (otherwise a warning among its problems); in the Characters app there's no trip to take it in.
+- **A table that gives away what an item is.** While it's held unknown, say what it looks like in the result's text (_A stoppered flask_), never what it is, and read `.known` for what only a known one allows.
 - **`tags` as an item's id.** `items.tags` reads every tag of every item: no item may be called `tags`.

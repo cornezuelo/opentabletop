@@ -178,6 +178,7 @@ describe('systems in the Packs app', () => {
       'strike',
       'force-chest',
       'open-chest',
+      'drink',
       'mend',
       'search',
       'victory',

@@ -328,7 +328,9 @@ export function partyItems(
 ): Record<string, unknown> {
   const all = [...(s.party?.items ?? []), ...(s.members ?? []).flatMap((m) => m.items ?? [])]
   const held = itemsFacts(undefined, { values: {}, items: all }).items
-  const none = Object.fromEntries((rules.itemIds ?? []).map((id) => [id, { count: 0, tags: [] }]))
+  const none = Object.fromEntries(
+    (rules.itemIds ?? []).map((id) => [id, { count: 0, unknown: 0, known: 0, tags: [] }]),
+  )
   return { ...none, ...held }
 }
 
@@ -647,6 +649,16 @@ export function applyMemberEffects(
   const partyItem = (path: string, id: string, change: number | string): void => {
     const [item, field] = id.split('.', 2)
     const holders = [...(s.party ? [s.party] : []), ...(s.members ?? [])]
+    // Held unknown, or known: whoever holds some unknown already, else (given) the first
+    // who carries items.
+    if (field === 'unknown' || field === 'known') {
+      const holding = holders.find((c) => c.items?.some((i) => i.id === item && i.unknown))
+      const carrier =
+        (s.members ?? []).find((m) => sheetOf(rules)(m)?.items !== undefined) ?? s.party
+      const target = holding ?? (field === 'unknown' ? carrier : undefined)
+      if (target) applyTo(target, `items.${id}`, change)
+      return
+    }
     // A field: the first one's, the party's own first.
     if (field !== undefined) {
       const first = holders.find((c) => countOf(c, item) > 0)

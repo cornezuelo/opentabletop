@@ -539,10 +539,15 @@ name: In the chest
 description: |-
   What a chest of grave goods held, rolled as it's opened: dust, old silver, or the gold of the old kings.
 
-  **Shows:** a table rolled as a thing present leaves (`on: present.leave`), only for one that was opened (`when: { acting.template: grave-chest, acting.conditions: opened }`), read acting as it.
+  **Shows:** a table rolled as a thing present leaves (`on: present.leave`), only for one that was opened (`when: { acting.template: grave-chest, acting.conditions: opened }`), read acting as it; an item given held unknown to whoever of the Company carries things (`party.items.cordial.unknown: 1`: _A stoppered flask_).
 roll: 1d6
 entries:
-  - { id: dust, range: 1-2, result: Dust and rotten cloth }
+  - { id: dust, range: 1, result: Dust and rotten cloth }
+  - id: flask
+    range: 2
+    result: A stoppered flask among the dust
+    # Held unknown (items.yaml's cordial): what it is hidden till it's known.
+    effects: { party.items.cordial.unknown: 1 }
   - id: silver
     range: 3-5
     set: { coins: '{{2d6}}' }
@@ -553,3 +558,40 @@ entries:
     set: { crowns: '{{1d6+2}}' }
     result: '{{crowns}} gold crowns of the old kings'
     effects: { party.stats.silver: '{{crowns * 10}}' }
+---
+# The cordial drunk (travel.yaml's Drink it, its Use): one flask in six has turned.
+kind: table
+id: cordial
+tags: [rules]
+name: The cordial drunk
+description: |-
+  Rolled by _Drink it_, the hedge-witches' cordial's **Use**: on a 1 it had turned, and the Company is wearier (+1 fatigue); otherwise its fatigue is gone.
+
+  **Shows:** a table rolled by the action an item's **Use** takes (`use: actions.drink`), the flask itself spent by that action's step (`acting.items[params.item]: -1`, the one used read as `params.item`).
+roll: 1d6
+entries:
+  - id: turned
+    range: 1
+    result: 'It had turned: bitter, and the Company is wearier for it'
+    effects: { party.stats.fatigue: 1 }
+  - id: good
+    range: 2-6
+    result: 'Green and bitter: the Company’s fatigue is gone'
+    effects: { party.stats.fatigue: '=0' }
+---
+# Tasting a flask held unknown (travel.yaml's Taste a flask): 8 or more and it's known.
+kind: table
+id: taste
+tags: [rules]
+name: A careful sip
+description: |-
+  Rolled by _Taste a flask_: 2d6 and the Survival of whoever tastes it. 8 or more, the flask is known for what it is, the hedge-witches' cordial; otherwise it tastes of herbs, and of nothing they know.
+
+  **Shows:** an item held unknown identified by an effect (`acting.items.cordial.known: 1`), its true name shown and told from then on.
+roll: '2d6 + {{acting.values.survival}}'
+entries:
+  - id: known
+    range: 8-20
+    result: 'Herbs of the Greywood, and something sharper: the hedge-witches’ cordial ({{roll}})'
+    effects: { acting.items.cordial.known: 1 }
+  - { id: unknown, range: 2-7, result: 'Herbs, and nothing they know ({{roll}})' }

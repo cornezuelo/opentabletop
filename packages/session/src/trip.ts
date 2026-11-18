@@ -42,6 +42,7 @@ import {
   type Unavailable,
 } from '@open-tabletop/travel-engine'
 import {
+  applyCharacter,
   entryFacts,
   ITEM_KEYS,
   lookupItems,
@@ -53,6 +54,7 @@ import {
   type Bestiary,
   type Catalogue,
   type CharacterState,
+  type ItemState,
   type Sheet,
 } from '@open-tabletop/character-engine'
 import { parseFactions } from '@open-tabletop/faction-engine'
@@ -847,6 +849,10 @@ export function travelSystems(registry: Registry): {
               `items.${id}.${key}: the sheet declares no item field "${key}" (items.fields in the sheet)`,
               'warning',
             )
+      // What an item's Use takes: one of the system's actions.
+      for (const [id, item] of Object.entries(parsed.catalogue.items))
+        if (item.use && !rules.actions?.[item.use.slice('actions.'.length)])
+          report(`items.${id}.use: the system has no action "${item.use}"`, 'warning')
       items.push({ id: `${owner}/${extra.id ?? 'default'}`, def: parsed.catalogue })
     }
     // Its bestiaries, each template's sheet found.
@@ -1344,7 +1350,10 @@ function undeclaredEffects(
       // items are its own and its members': either sheet's).
       const [itemId, field] = part === 'items' ? partId.split('.', 2) : []
       const fieldKnown = (f: string) =>
-        !!own?.items?.fields?.[f] || (who === 'party' && !!sheet?.items?.fields?.[f])
+        f === 'unknown' ||
+        f === 'known' ||
+        !!own?.items?.fields?.[f] ||
+        (who === 'party' && !!sheet?.items?.fields?.[f])
       const known = part
         ? part === 'items'
           ? // One named by brackets (`acting.items[params.piece]`): whichever it is, by its key.
@@ -1644,7 +1653,93 @@ export function stepTrip(
     s.handTotal = action.total
     return stepTrip(options, s, { type: 'resolveCheck', id: action.id })
   }
+  if (action.type === 'use') return useItem(options, session, action.who, action.item)
   return playStep(options, session, action as TravelAction)
+}
+
+/**
+ * The action an item's **Use** takes (its catalogue entry's `use:`, without `actions.`),
+ * if it has one.
+ */
+export function itemUse(
+  system: Pick<TravelSystem, 'items'>,
+  item: Pick<ItemState, 'id' | 'from'>,
+): string | undefined {
+  const catalogue =
+    system.items?.find((c) => c.id === item.from) ??
+    system.items?.find((c) => item.id in c.def.items)
+  return catalogue?.def.items[item.id]?.use?.slice('actions.'.length)
+}
+
+/** The actions items' **Use** takes (their entries' `use:`): no buttons of their own. */
+export function itemActions(system: Pick<TravelSystem, 'items'>): Set<string> {
+  return new Set(
+    (system.items ?? []).flatMap((c) =>
+      Object.values(c.def.items).flatMap((i) => (i.use ? [i.use.slice('actions.'.length)] : [])),
+    ),
+  )
+}
+
+/**
+ * Why a member can't use one of their items now (its action unavailable to them acting),
+ * `false` when they can; undefined when it has no use.
+ */
+export function useUnavailable(
+  options: { system: TravelSystem; world?: TravelWorld; facts?: Record<string, unknown> },
+  session: SessionState,
+  who: string,
+  key: string,
+): Unavailable | EncounterUnavailable | false | undefined {
+  const item = session.members?.find((m) => m.id === who)?.items?.find((i) => i.key === key)
+  const use = item && itemUse(options.system, item)
+  if (!use) return undefined
+  return tripAvailability(options, { ...session, acting: who })[use] ?? false
+}
+
+/**
+ * A member uses one of their items (`{ type: 'use', who, item }`): held unknown, it's
+ * identified first (`ITEM_IDENTIFIED`), then its action is taken with them acting and the
+ * item's key as `params.item`.
+ */
+function useItem(
+  options: Parameters<typeof stepTrip>[0],
+  session: SessionState,
+  who: string,
+  key: string,
+): ReturnType<typeof stepTrip> {
+  const nothing = { state: session, entries: [], discovered: {}, laid: [] }
+  const member = session.members?.find((m) => m.id === who)
+  const item = member?.items?.find((i) => i.key === key)
+  const use = item && itemUse(options.system, item)
+  const sheet = options.system.sheet?.def
+  if (!member || !item || !use || !sheet) return nothing
+  if (useUnavailable(options, session, who, key) !== false) return nothing
+  const s = structuredClone(session)
+  s.acting = who
+  let line: JournalEntry | undefined
+  if (item.unknown) {
+    const done = applyCharacter(sheet, member, { type: 'editItem', key, known: true })
+    const known = done.events.find((e) => e.type === 'ITEM_IDENTIFIED')
+    if (known?.type === 'ITEM_IDENTIFIED') key = known.key
+    s.members = s.members!.map((m) => (m.id === who ? done.state : m))
+    s.lastStep = s.nextEntry
+    line = {
+      id: `j${s.nextEntry++}`,
+      at: new Date().toISOString(),
+      time: s.travel.time,
+      source: 'travel',
+      code: 'ITEM_IDENTIFIED',
+      data: { path: `characters.${who}.items.${item.id}`, count: item.count },
+    }
+    s.journal.push(line)
+  }
+  const out = playStep(options, s, { type: 'action', id: use, with: { item: key } })
+  if (!line) return out
+  // The line that said what it was begins the step.
+  out.state.lastStep = Number(line.id.slice(1))
+  markBeats(out.state.journal, session.nextEntry)
+  const said = out.state.journal.find((e) => e.id === line.id) ?? line
+  return { ...out, entries: [said, ...out.entries] }
 }
 
 /**
@@ -1754,6 +1849,8 @@ function playStep(
 export type TripAction =
   | TravelAction
   | { type: 'encounter'; what: 'start' | 'end' | 'next' }
+  /** A member uses one of their items (its catalogue entry's `use:`), by its key. */
+  | { type: 'use'; who: string; item: string }
   | { type: 'rolled'; id: string; total: number }
 
 /** The trip waiting for the player's roll of a die in an action's own steps, with its line. */

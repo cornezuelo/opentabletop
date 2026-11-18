@@ -5,15 +5,17 @@ id: gear
 name: The Company's gear
 description: |-
   Gear for the road: rations, rope for the fords, torches for marching by night, a backpack,
-  a mail shirt, and the Sword of Keld if the hoard ever gives it up.
+  a mail shirt, the hedge-witches' cordial, and the Sword of Keld if the hoard ever gives it up.
 
   **Shows:** an item catalogue (`kind: items`): items with tags (`climbing`, `light`) that
   rules read (the ford's roll counts the companions with a rope, `party.stats.roped`; the
   night march burns the torches' uses), numbers for the sheet's fields (slots, uses,
   armour, a wear die that steps down: `steps: [4, 6, 8]`), where an item fits (`fits: { place.tags: worn }`), a container
   (`holds: { room: 6, tags: [pack], over: allow }`, that takes more than its room where the
-  sheet's places don't), an item given by a table's result, and the party's
-  food as items (rations, eaten by the party as a whole: `party.items.ration`).
+  sheet's places don't), an item given by a table's result, the party's
+  food as items (rations, eaten by the party as a whole: `party.items.ration`), and an item
+  held unknown until it's identified (the cordial found as _A stoppered flask_, `unknown:`),
+  with a **Use** that takes one of the system's actions (`use: actions.drink`).
 items:
   ration:
     name: Ration
@@ -43,6 +45,17 @@ items:
     wear: 8
     fits: { place.tags: worn }
     tags: [armour]
+  # Held unknown (`unknown:`): found as `party.items.cordial.unknown: 1`, it's _A stoppered
+  # flask_ until it's known (travel.yaml's Taste a flask, or drunk). Its **Use** takes the
+  # system's Drink it (`use:`), whoever holds it acting, the flask read as `params.item`.
+  cordial:
+    name: The hedge-witches' cordial
+    description: Green and bitter, brewed in the Greywood. Drunk, the Company's fatigue is gone; but one flask in six has turned, and wearies it instead.
+    unknown:
+      name: A stoppered flask
+      description: Green glass, waxed shut. It smells of herbs, or of something gone off. Taste it carefully, or drink it and see.
+    use: actions.drink
+    tags: [potion]
   sword-of-keld:
     name: The Sword of Keld
     description: Lost these hundred years; the hoard gives it to whoever finds it.

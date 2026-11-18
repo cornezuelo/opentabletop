@@ -425,6 +425,7 @@ export const es: Messages<typeof en> = {
     itemNeedsUnmet: '{name}: se da, aunque no cumple lo que pide',
     itemNoRoom: '{name}: no le queda sitio, así que lo lleva sin lugar',
     itemLeft: '{name}: no queda sitio para {count}, se queda atrás',
+    itemIdentified: '{held} resulta ser {name}',
     itemLoose:
       '{name}: no queda sitio para {count}; el viaje espera a que se le haga sitio en la tarjeta (soltando algo, o moviéndolo a un lugar)',
     notWritable:

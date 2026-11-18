@@ -101,13 +101,21 @@ travel-rules/default:
           name: ¿Qué cofre?
     open-chest:
       name: Abrirlo
-      description: 'Ante un cofre que no está cerrado: lo que hay dentro, un día de comida.'
+      description: 'Ante un cofre que no está cerrado: lo que hay dentro, un día de comida y una poción extraña para quien lo abre.'
       params:
         chest:
           name: ¿Qué cofre?
       do:
         food:
           say: 'Dentro, un día de comida.'
+        potion:
+          say: 'Y una poción extraña.'
+    drink:
+      name: Bebérsela
+      description: 'El Usar de un objeto (la poción curativa): quien lleva la poción se la bebe, y recupera 2 de salud.'
+      do:
+        drunk:
+          say: '{{acting.name}} se la bebe: 2 de salud.'
     search:
       name: Registrar al caído
       description: 'Cuando cae un enemigo: lo que llevaba, tirado.'

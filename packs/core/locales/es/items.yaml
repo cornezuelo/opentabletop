@@ -7,10 +7,15 @@ items/gear:
     etiquetas (`light`, `food`), en ningún lugar de la hoja (una lista con cantidades) y con un
     campo, un dado que baja por escalones (el `wear: 6` del escudo); una capacidad también es
     un objeto (_Duro_, con la etiqueta `ability`, que solo cabe en el lugar de capacidades de
-    la hoja).
+    la hoja); un objeto sin identificar hasta que se usa (_Una poción extraña_, `unknown:`), con
+    un **Usar** que hace una de las acciones de las reglas (`use:`).
   items:
     rope: { name: Cuerda, description: Un buen trozo de cuerda. }
     torch: { name: Antorcha, description: Luz para unas horas. }
     ration: { name: Ración, description: La comida de un día para uno. }
     shield: { name: Escudo, description: Se lleva las abolladuras de los golpes que te alcanzan. }
+    draught:
+      name: Poción curativa
+      description: Al beberla, 2 de salud.
+      unknown: { name: Una poción extraña, description: ¿Quién sabe qué hace? Bébela y verás. }
     tough: { name: Duro, description: Más recio que la mayoría; un punto más de salud máxima. }

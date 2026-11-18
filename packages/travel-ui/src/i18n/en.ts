@@ -432,6 +432,7 @@ export const en = {
     itemNeedsUnmet: '{name}: given, though what it needs doesn’t hold for them',
     itemNoRoom: '{name}: no room left for it, so it is carried in no place',
     itemLeft: '{name}: no room left for {count}, left behind',
+    itemIdentified: '{held} turns out to be {name}',
     itemLoose:
       '{name}: no room left for {count}; the trip waits for room to be made for it on the card (drop something, or move it to a place)',
     notWritable:

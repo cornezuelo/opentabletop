@@ -254,6 +254,16 @@ export const es: Messages<typeof en> = {
     fits: 'Cabe en',
     fitsHelp:
       'Los lugares donde puede ir, como una condición sobre el lugar (sus etiquetas, según los **Lugares** de la hoja):\n• `place.tags` es `head` — un yelmo\n• `place.tags` en `hand, back` — un escudo\nVacío: cualquier lugar.',
+    unknownName: 'Sin identificar como',
+    unknownNameHelp:
+      'Lo que se lleva mientras nadie sabe qué es: dado sin identificar (`acting.items.<id>.unknown: 1`, o `party.items.<id>.unknown: 1`), se enseña y se cuenta con este nombre, el suyo oculto, hasta que se identifica (un efecto, `acting.items.<id>.known: 1`; su **Usar**; o a mano en la tarjeta). Las tablas leen `items.<id>.unknown` (cuántos sin identificar) y `items.<id>.known`. Vacío: nunca se lleva sin identificar.\n• **Un frasco tapado** — una poción\n• **Una llave oxidada** — una llave cuya puerta nadie conoce aún',
+    unknownDescription: 'Sin identificar, descrito',
+    unknownDescriptionHelp:
+      'Lo que dice su tarjeta mientras se lleva sin identificar, en lugar de su descripción.\n• **Vidrio verde, sellado con cera. Pruébalo, o bébetelo y verás.**',
+    use: 'Usar',
+    useHelp:
+      'La acción del sistema que hace un botón **Usar** en el objeto, en la tarjeta de un personaje durante un viaje: actúa quien lo lleva, y los pasos de la acción leen el objeto como `params.item` (su clave), así que una acción sirve a varios objetos. Si no se sabe qué es, primero se identifica. Esa acción no tiene botón propio.\n• `actions.drink` — con los pasos `acting.items[params.item]: -1` (se gasta) y lo que haga\nVacío: sin **Usar**.',
+    useNone: 'ninguna',
     holdsRoom: 'Guarda',
     holdsRoomHelp:
       'Un contenedor: cuánto cabe dentro (medido como los lugares de la hoja, por **Lo que ocupa un lugar**). Lo que lleva dentro va con él. Vacío y sin etiquetas: no es un contenedor.\n• `6` — una mochila',

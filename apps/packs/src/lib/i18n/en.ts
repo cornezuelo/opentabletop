@@ -251,6 +251,16 @@ export const en = {
     fits: 'Fits',
     fitsHelp:
       "The places it may go, as a condition on the place (its tags, as the sheet's **Places** give them):\n• `place.tags` is `head` — a helm\n• `place.tags` in `hand, back` — a shield\nEmpty: any place.",
+    unknownName: 'Unknown as',
+    unknownNameHelp:
+      "What it's held as while nobody knows what it is: given unknown (`acting.items.<id>.unknown: 1`, or `party.items.<id>.unknown: 1`), it's shown and told by this name, its own hidden, until it's identified (an effect, `acting.items.<id>.known: 1`; its **Use**; or by hand on the card). Tables read `items.<id>.unknown` (how many held unknown) and `items.<id>.known`. Empty: never held unknown.\n• **A stoppered flask** — a potion\n• **A rusted key** — a key whose door nobody knows yet",
+    unknownDescription: 'Unknown, described',
+    unknownDescriptionHelp:
+      'What its card says while it’s held unknown, in place of its description.\n• **Green glass, waxed shut. Taste it, or drink it and see.**',
+    use: 'Use',
+    useHelp:
+      "The system's action a **Use** button on the item takes, on a character's card in a trip: whoever holds it acts, and the action's steps read the item as `params.item` (its key), so one action serves several items. Held unknown, it's identified first. That action is no button of its own.\n• `actions.drink` — its steps `acting.items[params.item]: -1` (it's spent) and what it does\nEmpty: no **Use**.",
+    useNone: 'none',
     holdsRoom: 'Holds',
     holdsRoomHelp:
       "A container: how much fits inside (measured as the sheet's places are, by **What fills a place**). What's inside goes with it. Empty with no tags: not a container.\n• `6` — a backpack",

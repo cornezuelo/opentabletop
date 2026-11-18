@@ -9,8 +9,8 @@
 
   /**
    * An item catalogue (`kind: items`) as forms: its name, and each item with its texts,
-   * tags, where it fits, what it holds and a number for each field the system's sheet gives
-   * items.
+   * tags, where it fits, what it's held as unknown, its **Use**, what it holds and a number
+   * for each field the system's sheet gives items.
    */
   let { doc, system }: { doc: PartDoc; system: TravelSystem } = $props()
 
@@ -52,6 +52,26 @@
       hints: Object.fromEntries(
         Object.keys(system.sheet?.def.values ?? {}).map((v) => [`self.values.${v}`, []]),
       ),
+    },
+    {
+      field: 'unknown.name',
+      label: t('itemsForm.unknownName'),
+      help: t('itemsForm.unknownNameHelp'),
+      type: 'text',
+    },
+    {
+      field: 'unknown.description',
+      label: t('itemsForm.unknownDescription'),
+      help: t('itemsForm.unknownDescriptionHelp'),
+      type: 'text',
+    },
+    {
+      field: 'use',
+      label: t('itemsForm.use'),
+      help: t('itemsForm.useHelp'),
+      type: 'select',
+      choices: Object.keys(system.rules.actions ?? {}).map((id) => `actions.${id}`),
+      placeholder: t('itemsForm.useNone'),
     },
     {
       field: 'holds.room',

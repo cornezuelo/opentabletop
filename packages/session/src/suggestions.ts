@@ -182,6 +182,11 @@ export function contextSuggestions(
         for (const c of items ?? [])
           for (const [id, item] of Object.entries(c.def.items)) {
             add(`${who}.items.${id}.count`)
+            // Held unknown, and known: an entry that may be held unknown.
+            if (item.unknown) {
+              add(`${who}.items.${id}.unknown`)
+              add(`${who}.items.${id}.known`)
+            }
             for (const field of fields) add(`${who}.items.${id}.${field}`)
             add(`${who}.items.tags`, ...(item.tags ?? []))
           }
@@ -271,6 +276,10 @@ export function contextSuggestions(
     for (const c of items ?? [])
       for (const [id, item] of Object.entries(c.def.items)) {
         add(`party.items.${id}.count`)
+        if (item.unknown) {
+          add(`party.items.${id}.unknown`)
+          add(`party.items.${id}.known`)
+        }
         add('party.items.tags', ...(item.tags ?? []))
       }
     for (const path of numbers) {
@@ -515,7 +524,14 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     for (const c of Object.keys(placeSheet?.def.conditions ?? {}))
       out[`place.conditions.${c}`] = ['true', 'false']
     for (const c of items ?? [])
-      for (const id of Object.keys(c.def.items)) out[`party.items.${id}`] = ['1', '-1']
+      for (const [id, item] of Object.entries(c.def.items)) {
+        out[`party.items.${id}`] = ['1', '-1']
+        // Given held unknown, or identified.
+        if (item.unknown) {
+          out[`party.items.${id}.unknown`] = ['1', '-1']
+          out[`party.items.${id}.known`] = ['1']
+        }
+      }
     // Its characters: every member, the one acting, one by id.
     const roles = Object.keys(bindings?.roles ?? {}).map((r) => `roles.${r}`)
     for (const who of sheet ? ['party.members', 'acting', 'characters.<id>', ...roles] : []) {
@@ -525,8 +541,12 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
       // Its items: given and taken (`-1`), and the first one's fields (a torch's uses).
       const fields = Object.keys(sheet!.def.items?.fields ?? {})
       for (const c of items ?? [])
-        for (const id of Object.keys(c.def.items)) {
+        for (const [id, item] of Object.entries(c.def.items)) {
           out[`${who}.items.${id}`] = ['1', '-1']
+          if (item.unknown) {
+            out[`${who}.items.${id}.unknown`] = ['1', '-1']
+            out[`${who}.items.${id}.known`] = ['1']
+          }
           for (const field of fields) out[`${who}.items.${id}.${field}`] = ['-1']
         }
     }

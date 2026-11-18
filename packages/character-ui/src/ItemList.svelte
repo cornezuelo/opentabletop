@@ -35,6 +35,8 @@
     locale,
     disabled = false,
     path,
+    usable,
+    onuse,
     onaction,
   }: {
     sheet: Sheet
@@ -45,6 +47,13 @@
     disabled?: boolean
     /** How tables reach this character (`characters.kael`). */
     path: string
+    /**
+     * Whether an item can be used now (its entry's `use:`), from the host: undefined, it has
+     * no **Use**; `''`, it can; else why not, in words.
+     */
+    usable?: (item: ItemState) => string | undefined
+    /** An item used (its **Use**), where the host plays it (a trip). */
+    onuse?: (item: ItemState) => void
     onaction: (action: CharacterAction) => void
   } = $props()
 
@@ -180,10 +189,14 @@
   }
 
   /** An item's explanation: its description, tags and how tables read it. */
-  /** What its catalogue says of an item, if anything. */
-  const descriptionOf = (item: ItemState): string =>
-    text(catalogues.find((c) => c.id === item.from)?.def.items[item.id]?.description)
+  /** What its catalogue says of an item, if anything (held unknown, what it's held as). */
+  function descriptionOf(item: ItemState): string {
+    const entry = catalogues.find((c) => c.id === item.from)?.def.items[item.id]
+    return text(item.unknown && entry?.unknown ? entry.unknown.description : entry?.description)
+  }
   function itemHelp(item: ItemState): string {
+    // Held unknown, nothing that would say what it is (its tags, how tables name it).
+    if (item.unknown) return [descriptionOf(item), t('items.unknown')].filter(Boolean).join('\n\n')
     return [
       descriptionOf(item),
       item.tags?.length && t('items.tagsOf', { list: item.tags.join(', ') }),
@@ -291,7 +304,9 @@
                 use:tooltip={t('items.drag')}>⠿</span
               >
             {/if}
-            <span class="item-name">{nameOf(item)}<InfoTip markdown={itemHelp(item)} /></span>
+            <span class="item-name" class:unknown={item.unknown}
+              >{nameOf(item)}<InfoTip markdown={itemHelp(item)} /></span
+            >
             <label class="count">
               <span>{t('items.count')}</span>
               <input
@@ -347,6 +362,23 @@
                 <option value="">{t('items.nowhere')}</option>
                 {#each fitting(item) as p (p.id)}<option value={p.id}>{placeName(p)}</option>{/each}
               </select>
+            {/if}
+            {#if onuse && usable?.(item) !== undefined}
+              {@const why = usable(item)}
+              <button
+                class="use"
+                disabled={!!why}
+                use:tooltip={why || t('items.useHelp')}
+                onclick={() => onuse(item)}>{t('items.use')}</button
+              >
+            {/if}
+            {#if !disabled && item.unknown}
+              <button
+                class="icon"
+                aria-label={t('items.identify')}
+                use:tooltip={t('items.identify')}
+                onclick={() => onaction({ type: 'editItem', key: item.key, known: true })}>?</button
+              >
             {/if}
             {#if !disabled}
               <button
@@ -501,6 +533,15 @@
 
   .item-name {
     flex: 1 1 8em;
+    align-self: center;
+  }
+
+  /* Held unknown: by what it looks like. */
+  .item-name.unknown {
+    font-style: italic;
+  }
+
+  .use {
     align-self: center;
   }
 

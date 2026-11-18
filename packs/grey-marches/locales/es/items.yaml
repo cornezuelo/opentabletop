@@ -2,7 +2,7 @@ items/gear:
   name: El equipo de la Compañía
   description: |-
     Equipo para el camino: raciones, cuerda para los vados, antorchas para marchar de noche,
-    una mochila, una cota de malla, y la Espada de Keld si el tesoro llega a darla.
+    una mochila, una cota de malla, el cordial de las brujas, y la Espada de Keld si el tesoro llega a darla.
 
     **Enseña:** un catálogo de objetos (`kind: items`): objetos con etiquetas (`climbing`,
     `light`) que leen las reglas (la tirada del vado cuenta los compañeros con cuerda,
@@ -10,8 +10,10 @@ items/gear:
     campos de la hoja (huecos, usos, armadura), dónde cabe un objeto
     (`fits: { place.tags: worn }`), un contenedor (`holds: { room: 6, tags: [pack], over: allow }`,
     que admite más de su sitio aunque los lugares de la hoja no), un
-    objeto que da el resultado de una tabla, y la comida del grupo como objetos (raciones, que
-    come el grupo en conjunto: `party.items.ration`).
+    objeto que da el resultado de una tabla, la comida del grupo como objetos (raciones, que
+    come el grupo en conjunto: `party.items.ration`), y un objeto que se lleva sin identificar
+    hasta que se sabe qué es (el cordial, hallado como _Un frasco tapado_, `unknown:`), con un
+    **Usar** que hace una de las acciones del sistema (`use: actions.drink`).
   items:
     ration:
       name: Ración
@@ -28,6 +30,12 @@ items/gear:
     mail:
       name: Cota de malla
       description: Pesada, y solo sirve puesta. Su dado de desgaste empieza en d8 y baja según la desgarran los combates.
+    cordial:
+      name: El cordial de las brujas
+      description: Verde y amargo, preparado en el Bosque Gris. Al beberlo se va toda la fatiga de la Compañía; pero uno de cada seis frascos se ha echado a perder, y la cansa en vez de eso.
+      unknown:
+        name: Un frasco tapado
+        description: Vidrio verde, sellado con cera. Huele a hierbas, o a algo pasado. Pruébalo con cuidado, o bébetelo y verás.
     sword-of-keld:
       name: La Espada de Keld
       description: Perdida hace cien años; el tesoro se la da a quien la encuentre.

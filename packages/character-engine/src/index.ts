@@ -28,6 +28,7 @@ import { z } from 'zod'
 import {
   addItem,
   changeItem,
+  identifyItem,
   itemEffect,
   itemsFacts,
   itemsFromErrors,
@@ -781,6 +782,8 @@ export type CharacterAction =
       fields?: Record<string, number | string>
       name?: string | null
       tags?: string[]
+      /** Identified by hand: held unknown no more. */
+      known?: true
     }
   /** A place of its own, added or changed; `null` takes it away (what was in it stays, in no place). */
   | { type: 'setPlace'; id: string; place: OwnPlace | null }
@@ -991,6 +994,7 @@ export function applyCharacter(
         changeItem(sheet.items, state, action.key, field, change, events)
       if (action.count !== undefined)
         changeItem(sheet.items, state, action.key, 'count', action.count, events)
+      if (action.known) identifyItem(state, action.key, events)
       break
     }
     case 'setPlace': {

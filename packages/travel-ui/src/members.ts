@@ -87,9 +87,9 @@ export function memberNamer(
           ...(party?.items ?? []),
           ...(members ?? []).flatMap((m) => m.items ?? []),
         ].find((i) => i.id === item)
-        const name = itemName(own ?? { id: item }, system.items ?? [], locale)
+        const name = heldName(own, item, field, system, locale)
         const fields = system.sheet?.def.items?.fields ?? system.partySheet?.def.items?.fields
-        return field === undefined
+        return field === undefined || KNOWING.has(field)
           ? name
           : `${name} · ${sheetText(fields?.[field]?.name, locale) ?? idName(field)}`
       }
@@ -119,9 +119,9 @@ export function memberNamer(
       const own = (member ? [member] : members)
         .flatMap((m) => m.items ?? [])
         .find((i) => i.id === item)
-      const name = itemName(own ?? { id: item }, system.items ?? [], locale)
+      const name = heldName(own, item, field, system, locale)
       what =
-        field === undefined
+        field === undefined || KNOWING.has(field)
           ? name
           : `${name} · ${sheetText(sheet?.items?.fields?.[field]?.name, locale) ?? idName(field)}`
     } else {
@@ -141,6 +141,27 @@ export function memberNamer(
               : (memberId ?? who)
     return `${name}: ${what}`
   }
+}
+
+/** How many of an item are held unknown, or known: named by the item alone. */
+const KNOWING = new Set(['unknown', 'known'])
+
+/**
+ * An item named in a path: by what it's held as for `.unknown` (`items.flask.unknown`: _A
+ * stoppered flask_), by what it is otherwise, whether the one held is known yet or not.
+ */
+function heldName(
+  own: { id: string; name?: string; from?: string } | undefined,
+  item: string,
+  field: string | undefined,
+  system: TravelSystem,
+  locale: string,
+): string {
+  return itemName(
+    { ...(own ?? { id: item }), unknown: field === 'unknown' },
+    system.items ?? [],
+    locale,
+  )
 }
 
 /**
@@ -174,12 +195,12 @@ export function copyNamer(
     if (part === 'items') {
       const [item, field] = rest.split('.', 2)
       const own = copy?.items?.find((i) => i.id === item)
-      const label = itemName(own ?? { id: item }, system.items ?? [], locale)
+      const label = heldName(own, item, field, system, locale)
       return {
         id,
         name,
         what:
-          field === undefined
+          field === undefined || KNOWING.has(field)
             ? label
             : `${label} · ${sheetText(sheet?.items?.fields?.[field]?.name, locale) ?? idName(field)}`,
       }

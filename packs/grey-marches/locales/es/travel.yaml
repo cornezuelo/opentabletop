@@ -273,6 +273,12 @@ travel-rules/default:
     grave-goods:
       name: Coger el ajuar
       description: 'Al abrir un cofre: lo que guardaba, tirado (_En el cofre_).'
+    drink:
+      name: Bebérselo
+      description: 'El Usar de un objeto (el cordial de las brujas): quien lleva el frasco se lo bebe. Se va la fatiga de la Compañía; pero uno de cada seis frascos se ha echado a perder, y la cansa (+1) en vez de eso.'
+    taste:
+      name: Probar un frasco
+      description: 'Para un compañero con un frasco tapado que nadie conoce: diez minutos y un sorbo con cuidado. 2d6 y su Supervivencia, 8 o más: se sabe qué es.'
     mind-the-mail:
       name: Revisar la malla
       description: 'Tras un combate, cada pieza que lleva puesta cada compañero tira su dado de desgaste: un 1–2 lo baja un escalón, y un d4 que saca 1–2 queda destrozado.'

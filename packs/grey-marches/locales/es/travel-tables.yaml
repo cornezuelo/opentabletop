@@ -214,8 +214,27 @@ chest-goods:
   description: |-
     Lo que guardaba un cofre de ajuar, tirado al abrirlo: polvo, plata vieja o el oro de los antiguos reyes.
 
-    **Enseña:** una tabla tirada cuando una cosa presente se va (`on: present.leave`), solo para una que se abrió (`when: { acting.template: grave-chest, acting.conditions: opened }`), leída actuando como ella.
+    **Enseña:** una tabla tirada cuando una cosa presente se va (`on: present.leave`), solo para una que se abrió (`when: { acting.template: grave-chest, acting.conditions: opened }`), leída actuando como ella; un objeto dado sin identificar a quien lleve cosas en la Compañía (`party.items.cordial.unknown: 1`: _Un frasco tapado_).
   entries:
     dust: Polvo y tela podrida
+    flask: Un frasco tapado entre el polvo
     silver: '{{coins}} monedas de plata vieja'
     gold: '{{crowns}} coronas de oro de los antiguos reyes'
+cordial:
+  name: El cordial bebido
+  description: |-
+    Lo tira _Bebérselo_, el **Usar** del cordial de las brujas: con un 1 se había echado a perder, y la Compañía está más cansada (+1 de fatiga); si no, se le va la fatiga.
+
+    **Enseña:** una tabla tirada por la acción que hace el **Usar** de un objeto (`use: actions.drink`), el propio frasco gastado por un paso de esa acción (`acting.items[params.item]: -1`, el usado leído como `params.item`).
+  entries:
+    turned: 'Se había echado a perder: amargo, y la Compañía queda más cansada'
+    good: 'Verde y amargo: se va la fatiga de la Compañía'
+taste:
+  name: Un sorbo con cuidado
+  description: |-
+    Lo tira _Probar un frasco_: 2d6 y la Supervivencia de quien lo prueba. 8 o más, se sabe qué es el frasco, el cordial de las brujas; si no, sabe a hierbas, y a nada que conozcan.
+
+    **Enseña:** un objeto sin identificar que identifica un efecto (`acting.items.cordial.known: 1`), con su nombre verdadero a la vista y en el diario desde entonces.
+  entries:
+    known: 'Hierbas del Bosque Gris, y algo más áspero: el cordial de las brujas ({{roll}})'
+    unknown: 'Hierbas, y nada que conozcan ({{roll}})'

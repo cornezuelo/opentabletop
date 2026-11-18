@@ -14,6 +14,7 @@ description: |-
   - What the dice show (`dice.doubles`): doubles (11, 22… 00) find a hidden cache before anything else
   - Dice rolled once by `set`, read by the text and the `effects`: the silver found is what the Company gets; dice that explode (`3d6!`: a six is rolled again and added)
   - Cascades into _Rumours_ and _A rare prize_
+  - An item held unknown (`party.items.cordial.unknown: 1`): the hedge-witches' cordial, found as _A stoppered flask_
 roll: d100
 modes: [roll-modes.lucky]
 entries:
@@ -46,9 +47,9 @@ entries:
   - {
       id: potion,
       range: 91-98,
-      result: A flask of the hedge-witches’ cordial (removes all fatigue),
-      # '=value' sets a value instead of adding to it.
-      effects: { party.stats.fatigue: '=0' },
+      result: A stoppered flask of green glass,
+      # Held unknown (items.yaml's cordial): what it is hidden till it's known.
+      effects: { party.items.cordial.unknown: 1 },
     }
   - { id: prize, range: 99-100, table: table.prize }
 ---

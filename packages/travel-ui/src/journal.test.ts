@@ -612,3 +612,40 @@ describe('those present, named', () => {
     expect(entryLevel(entry(0, 'LIMIT_REACHED', { data: { limit: 'min' } }))).toBe('mechanics')
   })
 })
+
+describe('an item held unknown, told', () => {
+  const t = translator(() => 'en')
+  const { registry } = loadPacks([...corePack(), ...greyMarchesPack()])
+  const system = travelSystems(registry).systems.find((s) => s.id === 'grey-marches')!
+  const kael = {
+    id: 'kael',
+    name: 'Kael',
+    sheet: 'grey-marches/companion',
+    items: [{ key: 'cordial', id: 'cordial', count: 1, fields: {}, unknown: true }],
+  } as unknown as CharacterState
+  const context = {
+    t,
+    startDay: 1,
+    hexLabel: (h: string) => h,
+    nameOf: (id: string) => id,
+    memberName: memberNamer(system, [kael], 'en', t),
+  }
+
+  it('by what it looks like while unknown, by what it is once known, and as it is identified', () => {
+    // Held unknown (the path says so): never by its own name.
+    expect(context.memberName('characters.kael.items.cordial.unknown')).toBe(
+      'Kael: A stoppered flask',
+    )
+    expect(context.memberName('party.items.cordial.unknown')).toBe('A stoppered flask')
+    // Known, or read as known: by what it is, whatever the one held is.
+    expect(context.memberName('characters.kael.items.cordial')).toBe(
+      "Kael: The hedge-witches' cordial",
+    )
+    expect(
+      entryText(
+        entry(0, 'ITEM_IDENTIFIED', { data: { path: 'characters.kael.items.cordial', count: 1 } }),
+        context,
+      ),
+    ).toBe("Kael: A stoppered flask turns out to be The hedge-witches' cordial")
+  })
+})

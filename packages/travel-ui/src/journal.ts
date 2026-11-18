@@ -596,6 +596,14 @@ export function entryText(e: JournalEntry, context: JournalContext) {
       return t('journal.itemNoRoom', {
         name: context.memberName?.(String(d.path)) ?? String(d.path),
       })
+    // One held unknown, known now: what it was held as, and what it is.
+    case 'ITEM_IDENTIFIED': {
+      const path = String(d.path)
+      return t('journal.itemIdentified', {
+        held: context.memberName?.(`${path}.unknown`) ?? path,
+        name: context.memberName?.(path)?.replace(/^.*?: /, '') ?? path,
+      })
+    }
     case 'ITEM_LEFT':
     case 'ITEM_LOOSE':
       return t(e.code === 'ITEM_LEFT' ? 'journal.itemLeft' : 'journal.itemLoose', {

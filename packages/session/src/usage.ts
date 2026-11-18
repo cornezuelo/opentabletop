@@ -244,6 +244,16 @@ export function systemUses(registry: Registry, system: TravelSystem): Use[] {
     const def = extra(kind, id)
     if (def) recorder({ kind, ...place(def) }).walk(def.data, '')
   }
+  // Its item catalogues: an item's Use names an action (`use: actions.drink`).
+  for (const { id } of system.items ?? []) {
+    const def = extra('items', id)
+    if (def && packs.includes(def.pack))
+      for (const [item, entry] of Object.entries(asObject(def.data.items))) {
+        const use = asObject(entry).use
+        if (typeof use === 'string')
+          recorder({ kind: 'items', ...place(def) }).use(use, 'names', `items.${item}.use`)
+      }
+  }
   for (const id of Object.keys(system.weather ?? {})) {
     const def = extra('weather', id)
     if (def && packs.includes(def.pack))

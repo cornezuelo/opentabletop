@@ -846,7 +846,7 @@ export function createSession(options: {
           ...(time !== undefined && { time }),
           data: { path: `${whose(e.character)}.items.${e.item}` },
         })
-      else if (e.type === 'ITEM_LEFT' || e.type === 'ITEM_LOOSE')
+      else if (e.type === 'ITEM_LEFT' || e.type === 'ITEM_LOOSE' || e.type === 'ITEM_IDENTIFIED')
         add(s, entries, {
           source: 'travel',
           code: e.type,
@@ -862,7 +862,8 @@ export function createSession(options: {
           : e.type === 'ITEM_ADDED' || e.type === 'ITEM_REMOVED'
             ? [
                 {
-                  path: `${whose(e.character)}.items.${e.item}`,
+                  // One held unknown is told as what it's held as (`items.heal.unknown`).
+                  path: `${whose(e.character)}.items.${e.item}${e.unknown ? '.unknown' : ''}`,
                   from: e.type === 'ITEM_ADDED' ? 0 : e.count,
                   to: e.type === 'ITEM_ADDED' ? e.count : 0,
                 },
@@ -870,7 +871,7 @@ export function createSession(options: {
             : e.type === 'ITEM_CHANGED'
               ? [
                   {
-                    path: `${whose(e.character)}.items.${e.item}${e.field === 'count' ? '' : `.${e.field}`}`,
+                    path: `${whose(e.character)}.items.${e.item}${e.field !== 'count' ? `.${e.field}` : e.unknown ? '.unknown' : ''}`,
                     from: e.from,
                     to: e.to,
                   },
