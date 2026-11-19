@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.67.0] - 2026-11-19
+
 ### Apps
 
 - **Packs**: a condition can add to values while it holds (**Adds**, `adds: { dodge: -10 }`): tables, conditions and the card read the value with it, the value itself unchanged; the card says what it reads now.
