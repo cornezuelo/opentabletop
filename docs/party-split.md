@@ -1,6 +1,6 @@
 # Splitting the Company
 
-Proposal (2026-11-19), **to review with the author**. Backlog: _Splitting the Company, each part its own token_ (user, 2026-11-16: "tendríamos que poder asignarle los que queramos como el resto de tokens, y poder partir el grupo etc.").
+Proposal (2026-11-19), **to refine with the author, deferred** (§7: the clock as written in §2 is confusing; the author prefers orders then the clock). Backlog: _Splitting the Company, each part its own token_ (user, 2026-11-16: "tendríamos que poder asignarle los que queramos como el resto de tokens, y poder partir el grupo etc.").
 
 ## 1. What there is
 
@@ -54,3 +54,17 @@ The hard part. A party value is one of three kinds, declared on the party sheet 
 2. The world clock as the earliest part's time, the part furthest behind offered next (proposed), or a strict turn order.
 3. The party sheet's values: `share` / `split` / `each` (proposed), or simply everything shared.
 4. Whether a part can be a single character on its own (proposed: yes, any size above zero).
+
+## 7. After the first review (2026-11-19)
+
+The author: the clock of §2 (each part its own time, the world at the earliest) is confusing for the player. Two ways with **one clock in sight** were offered:
+
+- **A. One clock, the other part waits**: play the part in hand as now; taking another in hand says how long it waited (_Mara's part waited 4 h at the ford_). Simple, but two parts never march at once.
+- **B. Orders, then the clock**: each part is given an order (march to a place, rest, track), **Advance** runs the clock for every part together, each token moving with its order; anything that stops one (a check, an encounter) stops the clock for all and says which.
+
+**The author prefers B**, deferred (not urgent). To refine before any code:
+
+1. **The journal**: one for the trip, each moment marked with its part and a filter, or one per part (and how they're read back together).
+2. **Orders**: a march (or any action that takes time) no longer plays when chosen but becomes the part's order, waiting in a queue; what can be an order, and what still plays at once (talking, an item used).
+3. **When orders run**: on **Advance**, until the first pause in any part, or until every order is done; what a part with no order does meanwhile (it waits, its time passing).
+4. How a fight in one part stops the others (the clock frozen while it's fought, the others waiting).
