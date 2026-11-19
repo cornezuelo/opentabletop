@@ -245,15 +245,17 @@
             {@const view = viewOf(id)}
             <div class="field" class:wide={WIDE.includes(view.display)}>
               <span>{text(sheet.values[id].name, id)}<InfoTip markdown={valueHelp(id)} /></span>
-              <ValueControl
-                {view}
-                label={text(sheet.values[id].name, id)}
-                {locale}
-                disabled={disabled || isMadeOf(sheet, id)}
-                onset={(v) => setValue(id, v)}
-              />
-              <!-- Why it reads what it does (a condition adding, what it's made of), folded. -->
-              <ValueBreakdown {sheet} {character} {id} {locale} {catalogues} />
+              <!-- Its base, what it reads now beside it, and why on a click. -->
+              <div class="reads">
+                <ValueControl
+                  {view}
+                  label={text(sheet.values[id].name, id)}
+                  {locale}
+                  disabled={disabled || isMadeOf(sheet, id)}
+                  onset={(v) => setValue(id, v)}
+                />
+                <ValueBreakdown {sheet} {character} {id} {locale} {catalogues} />
+              </div>
             </div>
           {/each}
         </div>
@@ -413,6 +415,23 @@
     min-width: 0;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .reads {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .reads > :global(:first-child) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Marks drawn one by one keep their size, so what it reads now sits right after them. */
+  .reads > :global(:is(.boxes, .pips, .ticks, .dial)) {
+    flex: 0 1 auto;
   }
 
   .field input[type='text'] {

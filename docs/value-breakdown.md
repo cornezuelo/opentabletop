@@ -1,5 +1,7 @@
 # A value's base, what it reads now, and what makes the difference
 
+**Revised (2026-11-19) with the author**, after seeing it built ("un «De qué está hecho» cutrísimo… debería de verse y poder modificar el valor base y ver el real con los mods"): the text links under a value (_Reads 3 now ↓_, _How it's made_) and the sums in words are gone. Now the control edits the **base**, and **what it reads now** sits beside it, larger, marked ↓ / ↑, only when it differs; a value made of others has no box to type in, its number after an _ƒ_; a click on what it reads now (or the _ƒ_) opens a small sum anchored to it, as rows (_Base 4 · Burdened −1 · Now 3_; _Max health 5 · Max health × 2 + 2 · Total 12_; _Minimum 0 (would be −2)_), closed by a click outside or Escape (character-ui's `ValueBreakdown`, `breakdownRows`). What follows is the first proposal, kept for its reasons.
+
 Proposal (2026-11-19), **decided and built** the same day: the ↑ / ↓ mark and the breakdown folded under the value on its card; no tooltip on small cards (the author: a tooltip that would take the place of others is unwanted), so a fight's card and a glance show the value now with its mark, and why is on the whole sheet (**☰**). Backlog: _A value's base, what it reads now, and what makes the difference_ (user, 2026-11-19: "es importante que se vean valores base y valores modificados, con posibilidad de desglosar qué los modifica y cómo, pero con una UI/UX elegante").
 
 ## 1. What there is

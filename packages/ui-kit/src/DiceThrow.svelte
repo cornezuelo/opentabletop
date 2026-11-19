@@ -478,12 +478,6 @@
     font-size: 17px;
   }
 
-  /* Large enough to say what each die is. */
-  .thrown,
-  .still {
-    --die-sides: inline;
-  }
-
   .held {
     opacity: 0.9;
   }

@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Characters**: a value's base and what it reads now side by side: the box edits the base, and when a condition adds to it what it reads now is beside it, larger, marked ↓ / ↑ (it was a link under it, _Reads 3 now_); a value made of others is a number after an _ƒ_, no longer a greyed box. A click on either opens a small sum beside it (_Base 1 · Burdened −1 · Now 0_) in place of sentences unfolded under the value.
+- **Dice**: a die in your hand, before it's thrown, says what it is in the middle, where its number will be (_d6_), no longer written small under the face.
 - **Map**: walking on a trip is quicker on a slow computer: a step by key took about twice as long, mostly planning a way that looked through every cell of a sub-map beside the party (a town, a barrow) it would never go into; zooming no longer draws every text again at each turn of the wheel, only once it stops; the example maps open a little sooner.
 
 ## [0.70.1] - 2026-11-19

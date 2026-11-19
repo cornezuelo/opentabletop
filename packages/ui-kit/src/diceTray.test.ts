@@ -3,6 +3,7 @@ import { seeded } from '@open-tabletop/random'
 import { render } from 'svelte/server'
 import { describe, expect, it } from 'vitest'
 import DiceTray from './DiceTray.svelte'
+import DieFace from './DieFace.svelte'
 import { drawRoll, rollingFace } from './diceTray'
 
 describe('the dice tray', () => {
@@ -16,7 +17,7 @@ describe('the dice tray', () => {
     expect(drawn.total).toBe(faces[0]! + faces[1]! + 1)
   })
 
-  it('draws every die as a real solid: a d3 as a d6, a d5 as a d10, a d2 as a coin, said on it', () => {
+  it('draws every die as a real solid: a d3 as a d6, a d5 as a d10, a d2 as a coin', () => {
     const solid = (expression: string) => {
       const part = drawRoll(roll(expression, seeded(1))).parts[0]!
       return part.kind === 'dice' ? [part.dice[0]!.shape, part.dice[0]!.sides] : []
@@ -29,8 +30,8 @@ describe('the dice tray', () => {
     expect(solid('1d30')).toEqual([20, '30'])
     expect(solid('d%')).toEqual(['percent', '%'])
     expect(solid('4dF')).toEqual(['fudge', 'F'])
-    // What it is, written on it (shown where the die is large).
-    expect(render(DiceTray, { props: { rolls: [roll('1d3', seeded(1))] } }).body).toContain('d3<')
+    // What it is, said by its name (the tray's expression, _1d3 → 2_), not on the die.
+    expect(render(DiceTray, { props: { rolls: [roll('1d3', seeded(1))] } }).body).toContain('1d3 →')
   })
 
   it('a keep fades what it leaves out; a roll mode keeps the other totals apart', () => {
@@ -132,5 +133,13 @@ describe('rollingFace', () => {
     const die = d3.kind === 'dice' ? d3.dice[0]! : undefined
     expect(die).toMatchObject({ shape: 6, sides: '3' })
     for (let n = 0; n < 1; n += 0.01) expect(['1', '2', '3']).toContain(rollingFace(die!, n))
+  })
+
+  it('a die says what it is in its face’s place until it has a face, then only the face', () => {
+    const die = (face: string) =>
+      render(DieFace, { props: { shape: 6, sides: '3', face, label: 'd3' } }).body
+    expect(die('')).toMatch(/<text[^>]*class="[^"]*sides[^"]*"[^>]*>d3<\/text>/)
+    expect(die('2')).toMatch(/>2<\/text>/)
+    expect(die('2')).not.toContain('d3</text>')
   })
 })

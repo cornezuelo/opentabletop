@@ -3,9 +3,9 @@
 
   /**
    * One die drawn as its solid (d4 to d20, d%, Fudge as a cube, a d2 as a coin; a die with no
-   * solid of its own as the one it's rolled with, a d3 as a d6) with a face, lit from above,
-   * what it is written small under the face where it's large enough (`--die-sides: inline`);
-   * sized by `--die` (the dice tray's, the throw's). `dropped` fades it, outline dashed (a keep
+   * solid of its own as the one it's rolled with, a d3 as a d6) with a face, lit from above;
+   * with no face yet (in the hand, before it's thrown), what it is in the face's place
+   * (_d6_). Sized by `--die` (the dice tray's, the throw's). `dropped` fades it, outline dashed (a keep
    * left it out); `tumble` rolls it in as it appears, `delay` and `duration` in ms.
    */
   let {
@@ -19,7 +19,7 @@
     duration,
   }: {
     shape: DieShape
-    /** What it is (`6`, `3`, `%`, `F`), written small on it. */
+    /** What it is (`6`, `3`, `%`, `F`), written on it while it has no face. */
     sides: string
     face: string
     /** Its name for those who can't see it (_d6: 4_). */
@@ -41,6 +41,8 @@
   }
   /** A d4's face sits low, in the triangle's body. */
   const faceY = $derived(shape === 4 ? 25 : 20)
+  /** What's written on it: its face, or what it is until it has one. */
+  const shown = $derived(face || `d${sides}`)
   /** Its light, one per die drawn. */
   const lit = $props.id()
 </script>
@@ -69,8 +71,7 @@
   {:else}
     <polygon points={OUTLINES[shape]} fill="url(#{lit})" />
   {/if}
-  <text x="20" y={faceY} class:small={face.length > 2}>{face}</text>
-  <text class="sides" x="20" y={shape === 4 ? 32 : 32.5}>d{sides}</text>
+  <text x="20" y={faceY} class:small={shown.length > 2} class:sides={!face}>{shown}</text>
 </svg>
 
 <style>
@@ -106,14 +107,6 @@
     opacity: 0.5;
   }
 
-  /* What it is, small under its face: only where the die is large enough to read it. */
-  .die text.sides {
-    display: var(--die-sides, none);
-    font-size: 7px;
-    font-weight: 400;
-    fill: var(--text-muted);
-  }
-
   .die text {
     font-family: ui-monospace, monospace;
     font-size: 15px;
@@ -125,6 +118,12 @@
 
   .die text.small {
     font-size: 12px;
+  }
+
+  /* What it is, before it has a face: quieter than a face. */
+  .die text.sides {
+    font-weight: 400;
+    fill: var(--text-muted);
   }
 
   /* Left out by a keep: faded, its outline dashed. */

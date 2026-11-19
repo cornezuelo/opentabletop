@@ -156,7 +156,6 @@
 
   .large {
     --die: 36px;
-    --die-sides: inline;
     gap: 6px 16px;
   }
 

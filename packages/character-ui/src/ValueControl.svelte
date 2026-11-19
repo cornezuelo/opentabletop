@@ -56,16 +56,15 @@
 <div class="control {view.display}" class:toned={!!view.tone} data-tone={view.tone}>
   {#if view.display === 'of'}
     <span class="of">
-      <input
-        type="number"
-        step="any"
-        aria-label={label}
-        min={view.min}
-        max={view.max}
-        value={view.value}
-        {disabled}
-        onchange={typed}
-      />
+      {#if disabled}<span class="read" aria-label={label}>{view.value}</span>{:else}<input
+          type="number"
+          step="any"
+          aria-label={label}
+          min={view.min}
+          max={view.max}
+          value={view.value}
+          onchange={typed}
+        />{/if}
       <span class="max">/ {against}</span>
     </span>
   {:else if view.display === 'bar'}
@@ -190,16 +189,16 @@
     </select>
   {:else}
     {#if view.display === 'die'}<span class="die">d</span>{/if}
-    <input
-      type="number"
-      step="any"
-      aria-label={label}
-      min={view.min}
-      max={view.max}
-      value={view.value}
-      {disabled}
-      onchange={typed}
-    />
+    <!-- Only drawn (made of others, a card at a glance): the number, not a box to type in. -->
+    {#if disabled}<span class="read" aria-label={label}>{view.value}</span>{:else}<input
+        type="number"
+        step="any"
+        aria-label={label}
+        min={view.min}
+        max={view.max}
+        value={view.value}
+        onchange={typed}
+      />{/if}
   {/if}
 </div>
 
@@ -218,6 +217,7 @@
   }
 
   .toned input,
+  .toned .read,
   .toned select,
   .toned .count {
     color: var(--accent);
@@ -237,6 +237,13 @@
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  .read {
+    padding: 2px 0;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
   }
 
   .of input {
