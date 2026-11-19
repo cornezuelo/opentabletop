@@ -129,7 +129,7 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   /** Plays a fight against `foes` to its end: each of the PC's turns an Attack at the first one here. */
   // Loaded once: every fight plays the same packs.
   let loaded: { registry: ReturnType<typeof loadPacks>['registry']; system: TravelSystem }
-  function fight(foes: Record<string, number>, seed: string) {
+  function fight(foes: Record<string, number>, seed: string, level = 1) {
     loaded ??= (() => {
       const { registry } = loadPacks(engineFiles(bundledPacks))
       return {
@@ -142,7 +142,7 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     const pc = newMember(rules, {
       id: 'erthos',
       name: 'Erthos',
-      values: { bladed: 73, dodge: 40, parry: 73, perception: 50 },
+      values: { bladed: 73, dodge: 40, parry: 73, perception: 50, level },
     })
     const room: TravelWorld = {
       km: () => 0.01,
@@ -218,6 +218,64 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     const changed = entries.flatMap((e) => (e.code === 'CHANGED' ? [String(e.data?.path)] : []))
     expect(changed).toContain('characters.erthos.values.toughness')
     expect(changed.some((p) => p.startsWith('party.values.'))).toBe(false)
+  })
+
+  it("Level Adaptation: a creature is made to the PC's level, and its damaging Actions add the dice it gained", () => {
+    const copy = (level: number, id: string) => {
+      const { system } = loaded!
+      const rules = partyOf(system)
+      const pc = newMember(rules, { id: 'erthos', name: 'Erthos', values: { level } })
+      const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'adapt' })
+      const s = applyResult(session, { effects: { [`present.${id}`]: 1 } }, {}, rules)
+      return s.present![0].character.values
+    }
+    // A creature's copy, as a Combat Encounter brings it (and `loaded` filled).
+    fight({ necropede: 1 }, 'adapt')
+    // The Abyssal Vexator: 8 Health +4 per level; +D6 damage from level 5, +D8 and +10
+    // Combat Skill from level 10.
+    expect(copy(1, 'abyssal-vexator')).toMatchObject({
+      health: 12,
+      combat: 40,
+      'more-die': 0,
+      'more-die-10': 0,
+    })
+    expect(copy(5, 'abyssal-vexator')).toMatchObject({
+      health: 28,
+      combat: 40,
+      'more-die': 6,
+      'more-die-10': 0,
+    })
+    expect(copy(11, 'abyssal-vexator')).toMatchObject({
+      health: 52,
+      combat: 50,
+      'more-die': 6,
+      'more-die-10': 8,
+    })
+    // The Amalgam from level 5: +5 Health and +1 Armor everywhere but its Chest.
+    expect(copy(4, 'amalgam')).toMatchObject({ health: 15, 'armor-chest': 2, 'armor-legs': 0 })
+    expect(copy(5, 'amalgam')).toMatchObject({
+      health: 20,
+      'armor-chest': 2,
+      'armor-legs': 1,
+      'armor-head': 1,
+    })
+    // The Necropede adds +2 damage from level 10.
+    expect(copy(10, 'necropede')).toMatchObject({ more: 2, 'more-die': 6 })
+    // At level 10 its hits roll the dice it gained (_A creature's damage_); at level 1 none.
+    const extra = (entries: ReturnType<typeof fight>['entries']) =>
+      entries.filter((e) => e.code === 'ROLLED' && JSON.stringify(e).includes('creature-harm'))
+    let rolledAt10 = false
+    for (let n = 0; n < 10 && !rolledAt10; n++)
+      rolledAt10 = extra(fight({ necropede: 1 }, `adapt10-${n}`, 10).entries).some((e) =>
+        /1d6/.test(JSON.stringify(e)),
+      )
+    expect(rolledAt10).toBe(true)
+    for (let n = 0; n < 5; n++)
+      expect(
+        extra(fight({ necropede: 1 }, `adapt1-${n}`, 1).entries).filter((e) =>
+          /"extra/.test(JSON.stringify(e)),
+        ),
+      ).toEqual([])
   })
 
   it('a fight is over when the last of you falls', () => {
