@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.69.0] - 2026-11-19
+
 ### Apps
 
 - **Fights**: why something happened on a turn is seen: the dice a system's rule rolled in its own condition (a foe's nerve, 2d6 against its Morale) are drawn under the rule's name; the last turn beside the closing card no longer repeats what the card says; a roll you made is marked _your roll_ (it said _rolled by hand_ of dice thrown on the table too); why something can't be done reads plainly for lists (_the place isn't tagged ferry_, not _the place's tags is nothing, not ferry_).
