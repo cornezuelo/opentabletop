@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - **Every app** starts faster: the bundled packs' YAML is read when the apps are built, not each time one opens (on a slow laptop, about a second less), and the manual is read only once it's opened or searched.
+- **Map** opens a map faster: the map is drawn once as its icons come, not once for each icon, and no longer drawn twice when the map opened has another style.
 
 ## [0.70.0] - 2026-11-19
 

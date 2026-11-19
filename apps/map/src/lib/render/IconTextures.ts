@@ -5,11 +5,14 @@ const RASTER_SIZE = 256
 
 /**
  * Loads icon images into Pixi textures once and caches them by key. `get` returns
- * null while loading and calls `onLoad` when a texture becomes available.
+ * null while loading and calls `onLoad` once the textures asked for are available: once
+ * for all those loading together (each redraws the map, so not once for each).
  */
 export class IconTextures {
   private textures = new Map<string, Texture>()
   private loading = new Set<string>()
+  /** Some texture came since `onLoad` was last called. */
+  private loaded = false
 
   constructor(private onLoad: () => void) {}
 
@@ -25,10 +28,15 @@ export class IconTextures {
       rasterize(url, natural)
         .then((t) => {
           this.textures.set(key, t)
-          this.onLoad()
+          this.loaded = true
         })
         .catch((error) => console.warn('Icon failed to load', key, error))
-        .finally(() => this.loading.delete(key))
+        .finally(() => {
+          this.loading.delete(key)
+          if (this.loading.size || !this.loaded) return
+          this.loaded = false
+          this.onLoad()
+        })
     }
     return null
   }

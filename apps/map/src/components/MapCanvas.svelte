@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import { Application } from 'pixi.js'
   import { MapRenderer } from '../lib/render/MapRenderer'
   import { editor } from '../lib/store/editor.svelte'
@@ -68,13 +69,12 @@
   })
 
   // Redraw everything when the style the map is drawn in changes in the packs (edited in
-  // Map settings, or in Packs in another tab); not when other packs change.
-  let drawnStyle = ''
+  // Map settings, or in Packs in another tab); not when other packs change, nor when a map
+  // just opened was already drawn in its style.
   $effect(() => {
     void editor.meta.style
-    const style = JSON.stringify(mapStyle())
-    if (drawnStyle && style !== drawnStyle) editor.redraw({ kind: 'look' })
-    drawnStyle = style
+    void mapStyle()
+    if (untrack(() => renderer?.styleChanged())) editor.redraw({ kind: 'look' })
   })
 
   // A building opens while one of its cells is selected.

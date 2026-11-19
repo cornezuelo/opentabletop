@@ -282,6 +282,8 @@ export class MapRenderer {
   private shapeSignature = ''
   /** The campaign's system and packs last drawn with: what of the campaign the map's look reads. */
   private campaignLook = ''
+  /** The map style the whole map was last drawn in, as JSON (`styleChanged`). */
+  private styleDrawn = ''
   private hovered: Offset | null = null
   private activeTool: Tool | null = null
   private panFrom: Point | null = null
@@ -668,8 +670,14 @@ export class MapRenderer {
     return JSON.stringify([editor.campaign.system, editor.campaign.packs])
   }
 
+  /** Whether the map style now differs from the one the whole map was last drawn in. */
+  styleChanged(): boolean {
+    return JSON.stringify(mapStyle()) !== this.styleDrawn
+  }
+
   private rebuild(): void {
     this.campaignLook = this.lookOfCampaign()
+    this.styleDrawn = JSON.stringify(mapStyle())
     const { grid, terrains } = editor.map
     this.corners = cellCorners(grid, grid.hexSize)
     this.shapeSignature = `${grid.kind ?? 'hex'}:${grid.orientation}:${grid.width}x${grid.height}:${grid.hexSize}`
