@@ -4,7 +4,6 @@
     addedTo,
     boundsOf,
     lookupItems,
-    valuesNow,
     holdsByItself,
     isMadeOf,
     readsWorld,
@@ -20,6 +19,7 @@
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
   import ValueControl from './ValueControl.svelte'
+  import ValueBreakdown from './ValueBreakdown.svelte'
   import ItemList from './ItemList.svelte'
   import Face from './Face.svelte'
 
@@ -252,21 +252,8 @@
                 disabled={disabled || isMadeOf(sheet, id)}
                 onset={(v) => setValue(id, v)}
               />
-              {#if addedTo(sheet, character, id) !== 0}
-                <!-- What its conditions add now (`adds:`): it reads so while they hold. -->
-                <span class="added hint"
-                  >{t('addedNow', {
-                    now: valuesNow(sheet, character)[id],
-                    by: Object.keys(character.conditions)
-                      .filter((c) => sheet.conditions[c]?.adds?.[id])
-                      .map((c) => {
-                        const n = sheet.conditions[c].adds![id]
-                        return `${text(sheet.conditions[c].name, c)} ${n > 0 ? '+' : '−'}${Math.abs(n)}`
-                      })
-                      .join(', '),
-                  })}</span
-                >
-              {/if}
+              <!-- Why it reads what it does (a condition adding, what it's made of), folded. -->
+              <ValueBreakdown {sheet} {character} {id} {locale} {catalogues} />
             </div>
           {/each}
         </div>

@@ -33,6 +33,7 @@ import {
   itemsFacts,
   itemsFromErrors,
   itemFromCatalogue,
+  itemsParts,
   itemsValue,
   moveItem,
   roomFor,
@@ -1152,12 +1153,86 @@ export function valuesNow(sheet: Sheet | undefined, state: CharacterState): Reco
   return out
 }
 
+/** Each condition the character has that adds to a value now, with what it adds. */
+function conditionAdds(
+  sheet: Sheet | undefined,
+  state: CharacterState,
+  id: string,
+): { condition: string; amount: number }[] {
+  return Object.keys(state.conditions).flatMap((c) => {
+    const amount = sheet?.conditions[c]?.adds?.[id]
+    return amount ? [{ condition: c, amount }] : []
+  })
+}
+
 /** What a value's conditions add to it now (0: nothing), to say on a card why it reads so. */
 export function addedTo(sheet: Sheet | undefined, state: CharacterState, id: string): number {
-  return Object.keys(state.conditions).reduce(
-    (sum, c) => sum + (sheet?.conditions[c]?.adds?.[id] ?? 0),
-    0,
-  )
+  return conditionAdds(sheet, state, id).reduce((sum, a) => sum + a.amount, 0)
+}
+
+/**
+ * Why a value reads what it does, in parts (docs/value-breakdown.md): `base`, what's kept on
+ * the character; `made`, what makes a value made of others (each value its formula reads,
+ * or each item that counts, with the formula or the way of counting); `adds`, each condition
+ * adding to it now; `held`, the bound that kept it; `now`, what tables read. One place, so
+ * a value shown and its breakdown never disagree.
+ */
+export interface ValueParts {
+  now: number
+  base: number
+  made?: {
+    /** A formula's text (`self.values.maxHealth * 2 + 2`), or how items are counted. */
+    formula?: string
+    how?: 'sum' | 'max' | 'min' | 'count'
+    /** Values the formula reads (`kind: value`, with what each is) or items that count. */
+    parts: (
+      | { kind: 'value'; id: string; amount: number }
+      | { kind: 'item'; key: string; id: string; count: number; amount: number }
+    )[]
+  }
+  adds: { condition: string; amount: number }[]
+  /** The bound that held it, when what it adds up to passes one. */
+  held?: { which: 'min' | 'max'; at: number }
+}
+
+export function valueParts(sheet: Sheet, state: CharacterState, id: string): ValueParts {
+  const def = sheet.values[id]
+  const base = state.values[id] ?? 0
+  const now = valuesNow(sheet, state)[id] ?? base
+  const adds = conditionAdds(sheet, state, id)
+  const out: ValueParts = { now, base, adds }
+  const from = def?.from
+  if (typeof from === 'string')
+    out.made = {
+      formula: variableOf(from) ?? from,
+      parts: fromNames(def!).map((v) => ({ kind: 'value', id: v, amount: state.values[v] ?? 0 })),
+    }
+  else if (from !== undefined) {
+    const f = from as ItemsFrom
+    out.made = {
+      how:
+        f.count !== undefined
+          ? 'count'
+          : f.sum !== undefined
+            ? 'sum'
+            : f.max !== undefined
+              ? 'max'
+              : 'min',
+      parts: itemsParts(
+        f,
+        state.items ?? [],
+        placesOf(sheet.items, state),
+        characterFacts(state, sheet),
+      ).map((p) => ({ kind: 'item', ...p })),
+    }
+  }
+  const sum = base + adds.reduce((n, a) => n + a.amount, 0)
+  if (adds.length && sum !== now) {
+    const { min, max } = boundsOf(sheet, state, id)
+    if (min !== undefined && now === min && sum < min) out.held = { which: 'min', at: min }
+    else if (max !== undefined && now === max && sum > max) out.held = { which: 'max', at: max }
+  }
+  return out
 }
 
 export function characterFacts(state: CharacterState, sheet?: Sheet): Record<string, unknown> {

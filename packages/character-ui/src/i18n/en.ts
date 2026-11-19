@@ -22,7 +22,16 @@ export const en = {
   relate: 'Add',
   unrelate: 'Remove the relation',
   noConditions: 'None',
-  addedNow: 'Reads {now} now ({by}).',
+  breakdown: {
+    readsNow: 'Reads {now} now',
+    made: 'How it’s made',
+    none: 'nothing counts',
+    highest: 'the highest',
+    lowest: 'the lowest',
+    held: 'held at its {which} {at}',
+    min: 'minimum',
+    max: 'maximum',
+  },
   addedHelp:
     'While a condition that adds to it holds, tables, conditions and the card read it with what the condition adds; the value itself, what effects change, stays as it was.',
   readAs: 'Tables and conditions read it as {keys}.',

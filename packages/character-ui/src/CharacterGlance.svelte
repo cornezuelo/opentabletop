@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { mainValue, type CharacterState, type Sheet } from '@open-tabletop/character-engine'
+  import {
+    mainValue,
+    valuesNow,
+    type CharacterState,
+    type Sheet,
+  } from '@open-tabletop/character-engine'
   import { characterValueView } from './display'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
@@ -9,7 +14,9 @@
    * A character at a glance, where there's no room for its whole sheet (a fight's cards, the
    * party in rows): its name, its sheet's main value drawn as the sheet says (health as a
    * bar; a plain number with a top, as a bar too, `2 / 5`) and the conditions it has, each with what's left of one given for a while. `change`
-   * is what just happened to its main value (`-2`), shown beside it for a moment.
+   * is what just happened to its main value (`-2`), shown beside it for a moment. The value
+   * is what it reads now (with what its conditions add), marked ↑ / ↓ when that's other than
+   * what's kept; why is told on its whole sheet, never in a tooltip here.
    */
   let {
     sheet,
@@ -31,7 +38,12 @@
   /** Displays drawn as marks; any other (a number, a level, a die) is said as text, never a box. */
   const DRAWN = ['bar', 'boxes', 'ticks', 'pips', 'dial']
   const main = $derived(sheet ? mainValue(sheet) : undefined)
-  const view = $derived(sheet && main ? characterValueView(sheet, character, main, locale) : null)
+  /** What it reads now (a condition adding to it), and whether that's other than what's kept. */
+  const now = $derived(sheet ? valuesNow(sheet, character) : character.values)
+  const moved = $derived(main ? (now[main] ?? 0) - (character.values[main] ?? 0) : 0)
+  const view = $derived(
+    sheet && main ? characterValueView(sheet, { ...character, values: now }, main, locale) : null,
+  )
   /** Plain numbers with a top (a max, or what it's drawn against): drawn as a bar at a glance. */
   const PLAIN = ['number', 'of']
   /** How it's drawn here: a plain number with a top as a bar, else as its sheet says. */
@@ -68,6 +80,10 @@
         <span class="said">{mainName ? `${mainName} ` : ''}<strong>{said}</strong></span>
       {:else}
         <ValueControl view={drawn!} label={mainName} {locale} disabled onset={() => {}} />
+      {/if}
+      {#if moved}
+        <!-- Other than what's kept: why is on its whole sheet. -->
+        <span class="moved" aria-hidden="true">{moved > 0 ? '↑' : '↓'}</span>
       {/if}
       {#if COUNTED.includes(view.display)}
         <span class="number"
@@ -130,6 +146,10 @@
     font-size: 15px;
     color: var(--text);
     font-variant-numeric: tabular-nums;
+  }
+
+  .moved {
+    color: var(--text-muted);
   }
 
   .number {

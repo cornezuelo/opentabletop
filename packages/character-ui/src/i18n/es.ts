@@ -23,7 +23,16 @@ export const es: Messages<typeof en> = {
   relate: 'Añadir',
   unrelate: 'Quitar la relación',
   noConditions: 'Ninguno',
-  addedNow: 'Ahora se lee {now} ({by}).',
+  breakdown: {
+    readsNow: 'Ahora se lee {now}',
+    made: 'De qué está hecho',
+    none: 'no cuenta nada',
+    highest: 'el máximo',
+    lowest: 'el mínimo',
+    held: 'que se queda en su {which}, {at}',
+    min: 'mínimo',
+    max: 'máximo',
+  },
   addedHelp:
     'Mientras dura una condición que le suma, las tablas, las condiciones y la tarjeta lo leen con lo que suma; el valor en sí, el que cambian los efectos, se queda como estaba.',
   readAs: 'Las tablas y condiciones lo leen como {keys}.',

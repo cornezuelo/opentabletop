@@ -21,6 +21,7 @@ import {
   shownAgainst,
   toneOf,
   tonesNow,
+  valueParts,
   valuesNow,
   type CharacterState,
 } from './index'
@@ -739,6 +740,30 @@ describe('a condition that adds to values while it holds (adds)', () => {
       effects: { 'conditions.stoneskin': false, 'conditions.quick': false },
     }).state
     expect(valuesNow(sheet, s)).toMatchObject({ dodge: 40, armor: 1 })
+  })
+
+  it('says why a value reads so: its base, each condition adding, and the bound that held it', () => {
+    let s = createCharacter(sheet!, 'test/adds', { id: 'ana' })
+    expect(valueParts(sheet!, s, 'dodge')).toEqual({ now: 40, base: 40, adds: [] })
+    s = applyCharacter(sheet!, s, { type: 'change', effects: { 'conditions.stoneskin': 3 } }).state
+    expect(valueParts(sheet!, s, 'dodge')).toEqual({
+      now: 30,
+      base: 40,
+      adds: [{ condition: 'stoneskin', amount: -10 }],
+    })
+    // 40 − 10 + 50 is 80, its max: said, and so is the max that holds it when it passes.
+    s = applyCharacter(sheet!, s, { type: 'change', effects: { 'conditions.quick': true } }).state
+    expect(valueParts(sheet!, s, 'dodge').held).toBeUndefined()
+    s = applyCharacter(sheet!, s, { type: 'change', effects: { 'values.dodge': 20 } }).state
+    expect(valueParts(sheet!, s, 'dodge')).toEqual({
+      now: 80,
+      base: 60,
+      adds: [
+        { condition: 'stoneskin', amount: -10 },
+        { condition: 'quick', amount: 50 },
+      ],
+      held: { which: 'max', at: 80 },
+    })
   })
 
   it('names only values of its sheet', () => {

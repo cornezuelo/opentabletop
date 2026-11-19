@@ -1,6 +1,6 @@
 # A value's base, what it reads now, and what makes the difference
 
-Proposal (2026-11-19), **to review with the author**. Backlog: _A value's base, what it reads now, and what makes the difference_ (user, 2026-11-19: "es importante que se vean valores base y valores modificados, con posibilidad de desglosar qué los modifica y cómo, pero con una UI/UX elegante").
+Proposal (2026-11-19), **decided and built** the same day: the ↑ / ↓ mark and the breakdown folded under the value on its card; no tooltip on small cards (the author: a tooltip that would take the place of others is unwanted), so a fight's card and a glance show the value now with its mark, and why is on the whole sheet (**☰**). Backlog: _A value's base, what it reads now, and what makes the difference_ (user, 2026-11-19: "es importante que se vean valores base y valores modificados, con posibilidad de desglosar qué los modifica y cómo, pero con una UI/UX elegante").
 
 ## 1. What there is
 

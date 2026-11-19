@@ -12,6 +12,7 @@ import {
   shareItems,
   waitsForRoom,
   type CharacterState,
+  valueParts,
   type Sheet,
 } from './index'
 
@@ -101,6 +102,29 @@ describe('items', () => {
     expect(s.items![2].start).toEqual({ uses: 3 })
     // What's made of them, and the condition that holds while the load is over.
     expect(s.values).toMatchObject({ capacity: 6, load: 5, armour: 2, lights: 1 })
+    // Why each reads so: the items that count (a sum, a count, the best one) and a formula's
+    // values.
+    expect(valueParts(sheet!, s, 'load').made).toEqual({
+      how: 'sum',
+      parts: [
+        { kind: 'item', key: 'rope', id: 'rope', count: 2, amount: 2 },
+        { kind: 'item', key: 'mail', id: 'mail', count: 1, amount: 2 },
+        { kind: 'item', key: 'torch', id: 'torch', count: 1, amount: 1 },
+      ],
+    })
+    expect(valueParts(sheet!, s, 'armour').made).toEqual({
+      how: 'max',
+      parts: [{ kind: 'item', key: 'mail', id: 'mail', count: 1, amount: 2 }],
+    })
+    expect(valueParts(sheet!, s, 'lights').made?.parts.map((p) => p.amount)).toEqual([1])
+    expect(valueParts(sheet!, s, 'capacity')).toMatchObject({
+      now: 6,
+      base: 6,
+      made: {
+        formula: 'self.values.might * 2 + 2',
+        parts: [{ kind: 'value', id: 'might', amount: 2 }],
+      },
+    })
     expect(s.conditions.encumbered).toBeUndefined()
     s = act(s, { type: 'change', effects: { 'items.rope': '+2' } }).state
     expect(s.values.load).toBe(7)

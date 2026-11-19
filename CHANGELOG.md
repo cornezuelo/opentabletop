@@ -8,6 +8,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Dice**: a table's roll is drawn as the dice it asked for, and what its row rolled inside it after, smaller, under _in the result_ (a foe's `1d6`, then its `1d3` of harm), in fights, the journal and the Oracle's result; the Oracle throws only the dice asked for. A `1d6` no longer looks like two dice.
 - **Dice**: every die drawn as a real solid, lit from above, what it is written small on it when large: a d3 as a d6, a d5 as a d10, a d2 as a coin (none round any more); while they tumble, their faces turn only through those they have (a d3 showed up to 6).
+- **Characters**: why a value reads what it does: under it, _Reads 3 now ↓_ when a condition adds to it, _How it's made_ for one made of others; a click unfolds the sums (_Stealth 3 = 4 − 1 Burdened_, _Load 5 = Rope 2 (×2) + Mail shirt 2_, _Capacity 12 = Max health 5 × 2 + 2_). A fight's cards and the party at a glance show the value as it reads now, marked ↑ / ↓ (they showed it without what conditions add).
 
 ## [0.69.0] - 2026-11-19
 

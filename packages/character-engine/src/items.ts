@@ -605,6 +605,40 @@ export function itemsFromErrors(from: ItemsFrom, items: SheetItems | undefined, 
   return errors
 }
 
+/** One item's share of a value made of items: which, how many, and what it gives. */
+export interface ItemPart {
+  key: string
+  id: string
+  count: number
+  amount: number
+}
+
+/**
+ * What each item gives a value made of items: for a `sum`, every item counted (its field ×
+ * its count); for `count`, every item counted (its count); for `max` / `min`, the one taken.
+ */
+export function itemsParts(
+  from: ItemsFrom,
+  all: ItemState[],
+  places: Place[],
+  self: Record<string, unknown>,
+): ItemPart[] {
+  const counted = all.filter(
+    (i) => from.where === undefined || matches(from.where, { ...itemFacts(i, all, places), self }),
+  )
+  const part = (i: ItemState, amount: number) => ({ key: i.key, id: i.id, count: i.count, amount })
+  if (from.count !== undefined) return counted.map((i) => part(i, i.count))
+  const field = (from.sum ?? from.max ?? from.min ?? '').replace(/^items\./, '')
+  const of = (i: ItemState) => (field === 'count' ? i.count : (i.fields[field] ?? 0))
+  if (from.sum !== undefined)
+    return counted.map((i) => part(i, field === 'count' ? i.count : of(i) * i.count))
+  if (!counted.length) return []
+  const taken = counted.reduce((a, b) =>
+    from.max !== undefined ? (of(b) > of(a) ? b : a) : of(b) < of(a) ? b : a,
+  )
+  return [part(taken, of(taken))]
+}
+
 /** The number a value made of items is now. */
 export function itemsValue(
   from: ItemsFrom,
@@ -612,17 +646,7 @@ export function itemsValue(
   places: Place[],
   self: Record<string, unknown>,
 ): number {
-  const counted = all.filter(
-    (i) => from.where === undefined || matches(from.where, { ...itemFacts(i, all, places), self }),
-  )
-  if (from.count !== undefined) return counted.reduce((n, i) => n + i.count, 0)
-  const field = (from.sum ?? from.max ?? from.min ?? '').replace(/^items\./, '')
-  const of = (i: ItemState) => (field === 'count' ? i.count : (i.fields[field] ?? 0))
-  if (from.sum !== undefined)
-    return counted.reduce((n, i) => n + (field === 'count' ? i.count : of(i) * i.count), 0)
-  if (!counted.length) return 0
-  const numbers = counted.map(of)
-  return from.max !== undefined ? Math.max(...numbers) : Math.min(...numbers)
+  return itemsParts(from, all, places, self).reduce((n, p) => n + p.amount, 0)
 }
 
 /**
