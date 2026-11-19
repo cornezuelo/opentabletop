@@ -862,6 +862,30 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(gone).toBeGreaterThan(0)
   })
 
+  it('Fragments: one use each; the cloak hides from Combat Encounters until an attack, the vial burns them all', () => {
+    const { session, apply, options } = inRoom('fr')
+    let s = apply(session, { 'party.items.cloak': 1, 'party.items.green-vial': 1 })
+    s = stepTrip(options, s, { type: 'use', who: 'erthos', item: 'cloak' }).state
+    expect(s.party!.conditions.invisible).toMatchObject({ left: 5 })
+    expect(s.members![0].items?.some((i) => i.id === 'cloak')).toBeFalsy()
+    // An attack ends it; the vial burns every creature here.
+    s = apply(s, { 'present.rotwalker': 2 })
+    const before = s.present!.map((p) => p.character.values.health!)
+    s = stepTrip(options, s, { type: 'use', who: 'erthos', item: 'green-vial' }).state
+    const after = s.present!.map((p) => p.character.values.health!)
+    expect(after.every((h, i) => h < before[i])).toBe(true)
+    const attacked = stepTrip(
+      options,
+      { ...s, acting: 'erthos' },
+      {
+        type: 'action',
+        id: 'attack',
+        with: { foe: s.present![0].character.id, skill: 'bladed' },
+      },
+    )
+    expect(attacked.state.party!.conditions.invisible).toBeUndefined()
+  })
+
   it('doors one by one: each opened, investigated, picked or forced alone; a locked one not crossed', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
