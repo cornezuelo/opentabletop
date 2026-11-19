@@ -519,6 +519,7 @@ conditions: # estados que un personaje tiene o no, y lo que el grupo no puede ha
   seasick: { name: Mareado, when: { trip.mode: boat } } # se cumple por sí solo, leyendo el mundo
   dazed: { name: Aturdido, lasts: rounds } # se da por unas rondas de un combate
   hidden: { name: Oculto, lasts: places } # se da por unos lugares, que se descuentan al entrar en cada uno
+  shielded: { name: Protegido, adds: { health: 1 } } # mientras dura, la salud se lee con uno más (su valor no cambia)
 relations: # tipos de relación que un personaje puede tener con cualquier cosa con referencia
   bond: { name: Vínculo, value: { min: 0, max: 3, display: pips } } # con un número, como puntos
   home: { name: Hogar }

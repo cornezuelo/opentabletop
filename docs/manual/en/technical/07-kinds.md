@@ -518,6 +518,7 @@ conditions: # states a character has or not, and what the party can't do while s
   seasick: { name: Seasick, when: { trip.mode: boat } } # holds by itself, reading the world
   dazed: { name: Dazed, lasts: rounds } # given for some rounds of a fight
   hidden: { name: Hidden, lasts: places } # given for some places, counted down as each is entered
+  shielded: { name: Shielded, adds: { health: 1 } } # while it holds, health reads one more (its value unchanged)
 relations: # kinds of relation a character may hold to anything with a reference
   bond: { name: Bond, value: { min: 0, max: 3, display: pips } } # with a number, as dots
   home: { name: Home }

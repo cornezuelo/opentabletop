@@ -322,6 +322,16 @@
           off: (row) => row.when !== undefined,
         },
         {
+          field: 'adds',
+          label: t('sheet.adds'),
+          help: t('sheet.addsHelp'),
+          type: 'pairs',
+          fresh: 1,
+          hints: Object.fromEntries(
+            Object.keys((data.values ?? {}) as Record<string, unknown>).map((v) => [v, []]),
+          ),
+        },
+        {
           field: 'told.gains',
           label: t('sheet.toldGains'),
           help: t('sheet.toldHelp'),

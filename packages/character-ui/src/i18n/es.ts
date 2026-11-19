@@ -23,6 +23,9 @@ export const es: Messages<typeof en> = {
   relate: 'Añadir',
   unrelate: 'Quitar la relación',
   noConditions: 'Ninguno',
+  addedNow: 'Ahora se lee {now} ({by}).',
+  addedHelp:
+    'Mientras dura una condición que le suma, las tablas, las condiciones y la tarjeta lo leen con lo que suma; el valor en sí, el que cambian los efectos, se queda como estaba.',
   readAs: 'Las tablas y condiciones lo leen como {keys}.',
   lasts:
     'Se da por un tiempo en un combate: {unit} que se descuentan al empezar cada uno, y se va con el combate. Lo que queda se lee como {key}.',

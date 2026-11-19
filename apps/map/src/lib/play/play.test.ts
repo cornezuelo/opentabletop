@@ -1,3 +1,4 @@
+import { characterFacts } from '@open-tabletop/character-engine'
 import type { HexKey } from '@open-tabletop/hex'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { dialog, toasts } from '@open-tabletop/ui-kit'
@@ -1322,6 +1323,9 @@ describe('the Company: a party made of characters', () => {
     ).toBe(10)
     expect(tobin.values).toMatchObject({ load: 13, capacity: 10 })
     expect(tobin.conditions).toHaveProperty('burdened')
+    // Burdened, his Stealth reads one less (`adds:`), the value itself as it was.
+    const facts = characterFacts(tobin, system.sheet!.def) as { values: Record<string, number> }
+    expect(facts.values.stealth).toBe(Math.max(tobin.values.stealth - 1, 0))
     const shown = system.sheet!.def.values.load
     expect(shown).toMatchObject({ display: 'of', of: '{{self.values.capacity}}' })
     expect(shownAgainst(system.sheet!.def, tobin, 'load')).toBe(10)

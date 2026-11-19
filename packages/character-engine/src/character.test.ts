@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { onceRoller } from '@open-tabletop/variables'
 import { sequence } from '@open-tabletop/random'
 import {
+  addedTo,
   applyCharacter,
   mainValue,
   blockedBy,
@@ -20,6 +21,7 @@ import {
   shownAgainst,
   toneOf,
   tonesNow,
+  valuesNow,
   type CharacterState,
 } from './index'
 
@@ -702,5 +704,50 @@ describe('a sheet’s main value', () => {
     expect(read({ main: 'luck', values: { might: {} } }).errors).toEqual([
       'main: the sheet has no value "luck"',
     ])
+  })
+})
+
+describe('a condition that adds to values while it holds (adds)', () => {
+  const { sheet, errors } = parseSheet({
+    kind: 'sheet',
+    id: 'adds',
+    values: {
+      dodge: { default: 40, min: 0, max: 80 },
+      armor: { default: 1, min: 0 },
+    },
+    conditions: {
+      stoneskin: { adds: { armor: 1, dodge: -10 }, lasts: 'places' },
+      quick: { adds: { dodge: 50 } },
+    },
+  })
+
+  it('reads the values with it, within their bounds, and leaves them as they were', () => {
+    expect(errors).toEqual([])
+    let s = createCharacter(sheet!, 'test/adds', { id: 'ana' })
+    s = applyCharacter(sheet!, s, { type: 'change', effects: { 'conditions.stoneskin': 3 } }).state
+    const facts = characterFacts(s, sheet) as { values: Record<string, number>; dodge: number }
+    expect(facts.values).toMatchObject({ dodge: 30, armor: 2 })
+    expect(facts.dodge).toBe(30)
+    expect(s.values).toMatchObject({ dodge: 40, armor: 1 })
+    expect(addedTo(sheet, s, 'dodge')).toBe(-10)
+    // Within the value's bounds: 40 - 10 + 50 is 80, its max.
+    s = applyCharacter(sheet!, s, { type: 'change', effects: { 'conditions.quick': true } }).state
+    expect(valuesNow(sheet, s).dodge).toBe(80)
+    // Gone, the value is itself again.
+    s = applyCharacter(sheet!, s, {
+      type: 'change',
+      effects: { 'conditions.stoneskin': false, 'conditions.quick': false },
+    }).state
+    expect(valuesNow(sheet, s)).toMatchObject({ dodge: 40, armor: 1 })
+  })
+
+  it('names only values of its sheet', () => {
+    const { errors } = parseSheet({
+      kind: 'sheet',
+      id: 'bad',
+      values: { dodge: { default: 1 } },
+      conditions: { odd: { adds: { parry: 1 } } },
+    })
+    expect(errors).toContain('conditions.odd.adds.parry: no value "parry" in this sheet')
   })
 })

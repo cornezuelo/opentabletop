@@ -1,8 +1,10 @@
 <script lang="ts">
   import {
     applyCharacter,
+    addedTo,
     boundsOf,
     lookupItems,
+    valuesNow,
     holdsByItself,
     isMadeOf,
     readsWorld,
@@ -167,6 +169,7 @@
       bounds.min !== undefined && t('min', { min: bounds.min }),
       bounds.max !== undefined && t('max', { max: bounds.max }),
       t('readAs', { keys: `\`${where}.values.${id}\`` }),
+      addedTo(sheet, character, id) !== 0 && t('addedHelp'),
     ]
       .filter(Boolean)
       .join('\n\n')
@@ -249,6 +252,21 @@
                 disabled={disabled || isMadeOf(sheet, id)}
                 onset={(v) => setValue(id, v)}
               />
+              {#if addedTo(sheet, character, id) !== 0}
+                <!-- What its conditions add now (`adds:`): it reads so while they hold. -->
+                <span class="added hint"
+                  >{t('addedNow', {
+                    now: valuesNow(sheet, character)[id],
+                    by: Object.keys(character.conditions)
+                      .filter((c) => sheet.conditions[c]?.adds?.[id])
+                      .map((c) => {
+                        const n = sheet.conditions[c].adds![id]
+                        return `${text(sheet.conditions[c].name, c)} ${n > 0 ? '+' : '−'}${Math.abs(n)}`
+                      })
+                      .join(', '),
+                  })}</span
+                >
+              {/if}
             </div>
           {/each}
         </div>

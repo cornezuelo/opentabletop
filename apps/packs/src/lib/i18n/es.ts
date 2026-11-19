@@ -546,6 +546,9 @@ export const es: Messages<typeof en> = {
     toldLoses: 'Se cuenta al perderlo',
     toldHelp:
       'Cómo lo cuentan un combate y el diario cuando alguien lo gana o lo pierde, con las palabras de tu sistema; `{{name}}` es el nombre de ese. Vacío: lo genérico, _Nombre: Estado_.\n• `{{name}} cae` — un enemigo abatido\n• `{{name}} se recompone` — ya no aturdido',
+    adds: 'Suma',
+    addsHelp:
+      'Lo que suma a los valores del personaje mientras dura: las tablas, las condiciones y la tarjeta leen el valor con ello; el valor en sí (el que cambian los efectos) se queda como estaba, y se lee como antes cuando la condición se va. Dentro de los límites del valor.\n• `dodge` — `-10`: esquiva peor mientras dura\n• `armor` — `1`: un punto más de armadura\nCon **Dura** en **places**, el efecto de una poción durante unas salas; con **Se cumple mientras**, un penalizador mientras está herido.',
     lastsHelp:
       "Un estado que se da **por un tiempo**: el número de un efecto lo da durante tantos, que se descuentan al empezar cada uno (una ronda, su propio turno) o al entrar en él (un lugar), y se va cuando no queda ninguno; los de rondas y turnos, también cuando acaba el combate:\n• **rounds** (rondas) — `acting.conditions.dazed: 2`: dos rondas\n• **turns** (turnos) — `characters[target].conditions.braced: 1`: hasta su próximo turno\n• **places** (lugares) — `party.conditions.hidden: 3`: hasta entrar en el tercer lugar desde aquí, haya combate o no\n• `'{{1d4}}'` — una tirada de ellos; dado otra vez, se suman; `'=0'` lo acaba\n`true` sigue dándolo sin fin. Las condiciones leen lo que queda como `acting.left.dazed`. Vacío: dura hasta que se quite. No para uno que se cumple por sí solo.",
     relations: 'Tipos de relación',

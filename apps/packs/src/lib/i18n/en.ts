@@ -533,6 +533,9 @@ export const en = {
     toldLoses: 'Told when lost',
     toldHelp:
       "How a fight and the journal tell it when someone gains it or loses it, in your system's words; `{{name}}` is that one's name. Empty: the generic _Name: Condition_.\n• `{{name}} falls` — a foe down\n• `{{name}} steadies` — rattled no more",
+    adds: 'Adds',
+    addsHelp:
+      "What it adds to the character's values while it holds: tables, conditions and the card read the value with it; the value itself (what effects change) stays as it was, and reads as before once the condition goes. Within the value's bounds.\n• `dodge` — `-10`: dodging worse while it lasts\n• `armor` — `1`: one more point of armour\nWith **Lasts** for **places**, a potion's effect for a few rooms; with **Holds while**, a penalty while hurt.",
     lastsHelp:
       "A condition given **for a while**: an effect's number gives it for that many, counted down as each one begins (a round, its own turn) or is entered (a place), and it's gone when none is left; those of rounds and turns also when the fight ends:\n• **rounds** — `acting.conditions.dazed: 2`: two rounds\n• **turns** — `characters[target].conditions.braced: 1`: until its next turn\n• **places** — `party.conditions.hidden: 3`: until the third place from here is entered, fight or not\n• `'{{1d4}}'` — a roll of them; given again, they add up; `'=0'` ends it\n`true` still gives it with no end. Conditions read what's left as `acting.left.dazed`. Empty: it lasts until cleared. Not for one that holds by itself.",
     relations: 'Kinds of relation',

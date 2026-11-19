@@ -6,11 +6,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Packs**: a condition can add to values while it holds (**Adds**, `adds: { dodge: -10 }`): tables, conditions and the card read the value with it, the value itself unchanged; the card says what it reads now.
 - **Packs**: one connection leaving the place can be chosen and changed alone (`from: place.connections.door.ids`, `'place.connections[params.door].state': open`), shown by its name or its kind and side (_Door (north)_); a piece's exit values may roll dice as it's laid (`lock: '{{1d20}}'`, each exit its own), and a catalogue of pieces says what every exit of a kind has (**What exits of each kind have**, `exits:`).
 - **Packs**: an item named by its key tells what it is (`acting.items[params.item].id`), so one action an item's **Use** takes can serve several items and tell them apart.
 
 ### Packs
 
+- **The Grey Marches**: a Burdened companion's Stealth reads one less.
 - **The Grey Marches**: **Force the door** asks which barred door to break open, only that one opens, and each door's bar is rolled as it's laid: the heaviest is always heard.
 - **The Grey Marches**: **Drink it** rolls _The cordial drunk_ only for the cordial, ready for anything else drunk.
 

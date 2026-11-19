@@ -16,6 +16,7 @@ import {
   type CharacterEvent,
   type CharacterState,
   type PartyFrom,
+  type Sheet,
 } from '@open-tabletop/character-engine'
 import {
   applyEffects,
@@ -426,7 +427,7 @@ export function initialSessionState(
 export function partyValues(s: SessionState, rules: PartyRules = {}): Record<string, unknown> {
   // Its own sheet's: `party.values.morale`, `party.conditions`, `party.tags`, and what's
   // left of a condition given for a while (`party.left.hidden`).
-  const own = s.party && characterFacts(s.party)
+  const own = s.party && characterFacts(s.party, rules.partySheet?.def)
   return {
     ...(own && {
       values: own.values,
@@ -444,8 +445,8 @@ export function partyValues(s: SessionState, rules: PartyRules = {}): Record<str
 }
 
 /** The map the party is on as tables read it: `map.values.lair`, `map.conditions`, `map.tags`. */
-function mapFacts(map: CharacterState): Record<string, unknown> {
-  const { values, conditions, tags } = characterFacts(map)
+function mapFacts(map: CharacterState, sheet?: Sheet): Record<string, unknown> {
+  const { values, conditions, tags } = characterFacts(map, sheet)
   return { values, conditions, tags }
 }
 
@@ -469,7 +470,7 @@ function placeContext(
   const placeSheets: Record<string, Record<string, unknown>> = {}
   for (const id of ids) {
     const sheet = placeSheetOf(s, party, id)
-    if (sheet) placeSheets[id] = placeSheetFacts(sheet)
+    if (sheet) placeSheets[id] = placeSheetFacts(sheet, party.placeSheet?.def)
   }
   const place = isRecord(facts.place)
     ? facts.place
@@ -521,7 +522,7 @@ export function tripContext(
     ...facts,
     ...memberFacts(s, party),
     party: { ...host, ...partyValues(s, party) },
-    ...(s.map && { map: mapFacts(s.map) }),
+    ...(s.map && { map: mapFacts(s.map, party.mapSheet?.def) }),
     ...(party.placeSheet && placeContext(s, facts, party)),
     ...(encounterFacts(s) && { encounter: encounterFacts(s) }),
     today,

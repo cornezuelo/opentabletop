@@ -228,8 +228,8 @@ export function placeSheetOf(
 }
 
 /** A place as conditions read its sheet: `place.values.delved`, `place.conditions`. */
-export function placeSheetFacts(sheet: CharacterState): Record<string, unknown> {
-  const { values, conditions } = characterFacts(sheet)
+export function placeSheetFacts(sheet: CharacterState, def?: Sheet): Record<string, unknown> {
+  const { values, conditions } = characterFacts(sheet, def)
   return { values, conditions }
 }
 

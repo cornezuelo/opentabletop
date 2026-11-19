@@ -18,7 +18,7 @@ description: |-
   `default: '{{1d3+2}}'`), each value shown its own way (skills as pips, health as
   a bar whose tone falls with it, dread as boxes that turn red,
   nerve as a die that steps from d4 to d12 (`steps: [4, 6, 8, 10, 12]`, `display: die`), a bond's number as pips), a
-  value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action, a
+  value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action (one, _Burdened_, also taking a point off Stealth while it holds, `adds: { stealth: -1 }`), a
   way of travelling or travel itself, a condition given for some rounds of a fight (_Rattled_,
   `lasts: rounds`), conditions that hold by themselves (`when:`: _Terrified_
   while dread is full, _Seasick_ while the party travels by boat, reading the world, _Burdened_
@@ -266,11 +266,14 @@ conditions:
     when: { trip.mode: boat, self.values.nerve: { lte: 6 } }
     blocks: [actions.forage]
   # Holds by itself while the load is over the capacity: the companion's own items say so.
+  # And clanks as they go: their Stealth reads one less while it holds (`adds:`), its value
+  # itself unchanged, back once something is dropped.
   burdened:
     name: Burdened
-    description: Carrying more than they can; no forced march nor night march until something is dropped.
+    description: Carrying more than they can; no forced march nor night march until something is dropped, and they move less quietly (Stealth -1).
     when: { self.values.load: { gt: '{{self.values.capacity}}' } }
     blocks: [actions.forced-march, actions.night-march]
+    adds: { stealth: -1 }
 # What every item has in the Marches, and where on a companion it goes. The catalogue of
 # gear (items.yaml) says each item's numbers; an item written by hand gets the defaults.
 items:

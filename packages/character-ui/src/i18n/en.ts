@@ -22,6 +22,9 @@ export const en = {
   relate: 'Add',
   unrelate: 'Remove the relation',
   noConditions: 'None',
+  addedNow: 'Reads {now} now ({by}).',
+  addedHelp:
+    'While a condition that adds to it holds, tables, conditions and the card read it with what the condition adds; the value itself, what effects change, stays as it was.',
   readAs: 'Tables and conditions read it as {keys}.',
   min: 'At least {min}.',
   max: 'At most {max}.',

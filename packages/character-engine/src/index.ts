@@ -201,6 +201,12 @@ const condition = z
      */
     lasts: z.enum(['rounds', 'turns', 'places']).optional(),
     /**
+     * What it adds to the character's values while it has it (`adds: { dodge: -10 }`): read
+     * so by tables, conditions and the card, within each value's bounds; the value itself
+     * (what effects change) stays as it was, and is itself again once the condition goes.
+     */
+    adds: z.record(z.string(), z.number()).optional(),
+    /**
      * How it's told when a character gains it and loses it, in the pack's words, `{{name}}`
      * the character's (`gains: '{{name}} falls'`). Absent: the generic _Name: Down_.
      */
@@ -400,6 +406,9 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
     if (c.when !== undefined) errors.push(...validateCondition(c.when, `conditions.${id}.when`))
     if (c.when !== undefined && c.lasts !== undefined)
       errors.push(`conditions.${id}.lasts: one that holds by itself (when) isn't given for a while`)
+    for (const value of Object.keys(c.adds ?? {}))
+      if (!(value in sheet.values))
+        errors.push(`conditions.${id}.adds.${value}: no value "${value}" in this sheet`)
   }
   for (const [id, p] of Object.entries(sheet.items?.places ?? {}))
     if (p.takes !== undefined)
@@ -1122,11 +1131,35 @@ export function lapseConditions(
 
 /**
  * What conditions and tables read of a character: `values.<id>` (and each value by its
- * own name), `conditions` (a list of the ones it has), `tags`, `relations` by
+ * own name, with what its conditions add, `valuesNow`), `conditions` (a list of the ones it has), `tags`, `relations` by
  * kind (`relations.bond: [character:kael, poi:ashford]`), with each one's number as
  * `bonds.<kind>.<to>`, and its `items` and `places` (see `itemsFacts`; the sheet gives its
  * places and what fills them).
  */
+/**
+ * A character's values as they read now: each one with what its conditions add while it has
+ * them (`adds:`), within its bounds. Without a sheet, or no condition adding, its own.
+ */
+export function valuesNow(sheet: Sheet | undefined, state: CharacterState): Record<string, number> {
+  const adding = Object.keys(state.conditions).flatMap((id) =>
+    Object.entries(sheet?.conditions[id]?.adds ?? {}),
+  )
+  if (!sheet || !adding.length) return state.values
+  const out = { ...state.values }
+  for (const [id, n] of adding) out[id] = (out[id] ?? 0) + n
+  for (const id of new Set(adding.map(([id]) => id)))
+    out[id] = changeValue(out[id], 0, boundsOf(sheet, state, id)).to
+  return out
+}
+
+/** What a value's conditions add to it now (0: nothing), to say on a card why it reads so. */
+export function addedTo(sheet: Sheet | undefined, state: CharacterState, id: string): number {
+  return Object.keys(state.conditions).reduce(
+    (sum, c) => sum + (sheet?.conditions[c]?.adds?.[id] ?? 0),
+    0,
+  )
+}
+
 export function characterFacts(state: CharacterState, sheet?: Sheet): Record<string, unknown> {
   const byKind: Record<string, string[]> = {}
   const numbers: Record<string, Record<string, number>> = {}
@@ -1134,11 +1167,12 @@ export function characterFacts(state: CharacterState, sheet?: Sheet): Record<str
     ;(byKind[r.kind] ??= []).push(r.to)
     if (r.value !== undefined) (numbers[r.kind] ??= {})[r.to] = r.value
   }
+  const values = valuesNow(sheet, state)
   return {
-    ...state.values,
+    ...values,
     id: state.id,
     ...(state.name !== undefined && { name: state.name }),
-    values: { ...state.values },
+    values: { ...values },
     conditions: Object.keys(state.conditions),
     // What's left of those given for a while (`left.dazed: 2`).
     left: Object.fromEntries(
