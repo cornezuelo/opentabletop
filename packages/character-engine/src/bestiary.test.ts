@@ -83,6 +83,30 @@ describe('bestiary', () => {
     expect(resolveTemplate(ok, 'mimic')!.fights).toBe(true)
   })
 
+  it("follows: the bestiary's, a template's, a variant's and a condition checked", () => {
+    const chase = { not: { 'acting.conditions': 'fed' } }
+    const { bestiary, errors } = parseBestiary({
+      ...raw,
+      follows: true,
+      templates: {
+        wolf: { name: 'Wolf', follows: chase },
+        cub: { like: 'wolf' },
+        tame: { like: 'wolf', follows: false },
+        bear: { name: 'Bear' },
+      },
+    })
+    expect(errors).toEqual([])
+    expect(resolveTemplate(bestiary!, 'wolf')!.follows).toEqual(chase)
+    expect(resolveTemplate(bestiary!, 'cub')!.follows).toEqual(chase)
+    expect(resolveTemplate(bestiary!, 'tame')!.follows).toBeUndefined()
+    expect(resolveTemplate(bestiary!, 'bear')!.follows).toBe(true)
+    expect(resolveTemplate(parseBestiary(raw).bestiary!, 'wolf')!.follows).toBeUndefined()
+    expect(
+      parseBestiary({ ...raw, templates: { wolf: { follows: { danger: { between: [1, 2] } } } } })
+        .errors,
+    ).toEqual(['templates.wolf.follows.danger: unknown operator "between"'])
+  })
+
   it('refuses reserved ids, unknown variants and loops', () => {
     const { errors } = parseBestiary({
       kind: 'bestiary',

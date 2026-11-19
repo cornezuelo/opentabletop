@@ -27,7 +27,14 @@ import {
   type LimitReached,
 } from './effects'
 import { rolledNodes } from './journal'
-import { extremes, settlePresent, type Present, type PresentEvent } from './present'
+import {
+  extremes,
+  followParty,
+  settlePresent,
+  type Follower,
+  type Present,
+  type PresentEvent,
+} from './present'
 import { encounterFacts, participantName, type Encounter } from './encounter'
 import { definitionId } from './refs'
 import { aimed, isTargetForm, targetsOf } from './target'
@@ -918,6 +925,22 @@ export function createSession(options: {
     presentLines(s, entries, done.present, s.travel.time)
     queueLeaving(s, done.gone, done.present)
   }
+  /**
+   * Those present at the place the party just left (`from`) that follow it come along, before
+   * anything of the place reached is read: each one's `follows` read with it acting, and the
+   * trip as it is (what lasts until another place still holds). Their line is told later,
+   * once the place is.
+   */
+  const followCopies = (s: SessionState, from: string | undefined): PresentEvent[] => {
+    if (from === undefined || !s.present?.some((p) => p.follows !== undefined)) return []
+    const follows = (p: Follower) =>
+      p.follows === true ||
+      matches(
+        p.follows,
+        worldOf({ ...s, acting: p.character.id, leaving: [...(s.leaving ?? []), p] }),
+      )
+    return followParty(s, from, follows)
+  }
   /** Whether the rules take an action or roll a check as one of those present leaves. */
   const hearsLeave =
     !!options.rules &&
@@ -1236,12 +1259,16 @@ export function createSession(options: {
       for (let i = 0; i <= limit; i++) {
         const dayBefore = s.travel.day
         const from = s.travel.at ?? s.travel.location
+        const left = s.travel.location
         // Conditions on actions and checks also see the party and today's values.
         const result = replay
           ? { state: s.travel, events: replay }
           : options.travel.apply(s.travel, act, tripContext(s, hostOf(s), {}, party))
         replay = undefined
         s.travel = result.state
+        // Those that follow the party come along before it's settled where it is now, told
+        // as it enters the place.
+        let followed = followCopies(s, left)
         settle()
         if (s.travel.day !== dayBefore) {
           // Today's values become yesterday's (none if more than a day went by).
@@ -1318,6 +1345,10 @@ export function createSession(options: {
                 ),
               }
             continue
+          }
+          if (event.type === 'PLACE_ENTERED' && event.place === s.travel.location) {
+            presentLines(s, entries, followed, event.time)
+            followed = []
           }
           if (event.type === 'PLACE_ENTERED') {
             // What lasts a number of places counts one down as each is entered.
@@ -1643,6 +1674,7 @@ export function createSession(options: {
           }
           result.events.push(...resolve(event.check.id, toOutcome(value, declared)))
         }
+        presentLines(s, entries, followed, s.travel.time)
         const stopped = result.events.findLast((e) => e.type === 'TRAVEL_STOPPED')
         const reason = stopped?.type === 'TRAVEL_STOPPED' ? stopped.reason : undefined
         const clear =

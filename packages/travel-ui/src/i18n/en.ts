@@ -426,6 +426,7 @@ export const en = {
     presentLeftBehind: '{name} stays behind, and is gone',
     presentLeftHand: '{name} taken off by hand',
     presentMoved: '{name} moved to {hex} by hand',
+    presentFollowed: 'They follow you here: {names}',
     unknownTemplate: 'No bestiary of the system has the template “{name}”, so nobody comes',
     rosterUpdated: '{names}: brought up to date from the roster (changed in the Characters app).',
     itemSpent: '{name}: one is used up',

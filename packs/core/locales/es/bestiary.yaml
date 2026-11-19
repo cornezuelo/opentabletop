@@ -3,7 +3,7 @@ bestiary/foes:
   description: |-
     Quien se interpone en el camino: una plantilla de la que sacar enemigos.
 
-    **Enseña:** el bestiario más pequeño: una plantilla sobre la hoja de los personajes (`sheet: sheet.character`), con su salud tirada para cada copia, y una cosa que no lucha con una hoja propia (_Cofre cerrado_, `fights: false`); una copia cuya salud llega a 0 cae, y se va (el _Caído_ de la hoja tiene `leaves`); su ficha (`token:`), dibujada en un mapa y como su cara en un combate.
+    **Enseña:** el bestiario más pequeño: una plantilla sobre la hoja de los personajes (`sheet: sheet.character`), con su salud tirada para cada copia, y una cosa que no lucha con una hoja propia (_Cofre cerrado_, `fights: false`); una copia cuya salud llega a 0 cae, y se va (el _Caído_ de la hoja tiene `leaves`); enemigos que siguen al grupo cuando se marcha (`follows`), salvo que se haya escabullido (_Huir_ hace que lo sigan, _Escabullirse_ cuesta un día de comida); su ficha (`token:`), dibujada en un mapa y como su cara en un combate.
   templates:
     foe:
       name: Enemigo

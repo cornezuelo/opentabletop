@@ -674,6 +674,7 @@ describe("Core's system: the Generic rules as data", () => {
       'open-gate',
       'fight',
       'get-away',
+      'run',
       'strike',
       'force-chest',
       'open-chest',

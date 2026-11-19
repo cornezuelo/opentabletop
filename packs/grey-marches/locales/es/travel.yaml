@@ -365,6 +365,12 @@ travel-rules/default:
     drive-off:
       name: Ahuyentarlos
       description: 'Con enemigos aquí, antes de un combate: diez minutos de gritos, acero y fuego. 2d6 y la Supervivencia de quien actúa (la de la Compañía, sin compañeros) contra la Moral del enemigo más firme: por encima, huyen todos; si no, aguantan y empieza el combate (sin compañeros, la Compañía se desanima, moral -1, y ellos se quedan).'
+    throw-meat:
+      name: Echarles carne
+      description: 'Con lobos aquí: dos raciones que se les echan, y todos los lobos se lanzan sobre la carne; ya no quieren haceros daño ni siguen a la Compañía cuando se marcha. En un combate, se acaba.'
+      do:
+        thrown:
+          say: 'La carne cae al suelo, y los lobos se lanzan sobre ella.'
     buy-off:
       name: Comprar su marcha
       description: 'Con forajidos aquí: una ración por cada uno, y se van.'

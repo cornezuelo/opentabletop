@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TemplateDef } from '@open-tabletop/character-engine'
   import { roster, TemplateEditor } from '@open-tabletop/character-ui'
-  import { tagsInUse, type TravelSystem } from '@open-tabletop/session'
+  import { contextSuggestions, tagsInUse, type TravelSystem } from '@open-tabletop/session'
   import { InfoTip } from '@open-tabletop/ui-kit'
   import { writeRef } from '@open-tabletop/oracle-engine'
   import { manifestOf } from '@open-tabletop/pack-ui'
@@ -11,9 +11,10 @@
   import { library } from '../../lib/packs.svelte'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import RecordRows, { type Column } from '../forms/RecordRows.svelte'
+  import FollowsField from './FollowsField.svelte'
 
   /**
-   * A bestiary (`kind: bestiary`) as forms: its name, the sheet and `behind` its templates
+   * A bestiary (`kind: bestiary`) as forms: its name, the sheet, `behind` and `follows` its templates
    * share, and each template as a folded card unfolding to its whole editor (character-ui's
    * `TemplateEditor`, the one place templates are edited): the sheet it's made with, its
    * values, conditions, tags, items, variant, names and token. `item`: a template asked for
@@ -38,6 +39,8 @@
   const read = $derived(bestiaryOf(system, { root: doc.root, id }))
   const sheetOf = (template: string) => system.templateSheets?.[read?.sheets[template] ?? '']
   const tagChoices = $derived(tagsInUse(system, roster.roster))
+  /** What a `follows` condition can read. */
+  const hints = $derived(contextSuggestions(library.registry))
   /** What the Oracle rolls, written from this bestiary's pack (`table.wolf-turn`, `core/table.x`). */
   const rolls = $derived.by(() => {
     const own = library.pack(doc.root)
@@ -59,6 +62,7 @@
     { field: 'names', label: t('bestiaryForm.names'), type: 'value' },
     { field: 'actions', label: t('bestiaryForm.actions'), type: 'value' },
     { field: 'behind', label: t('bestiaryForm.behind'), type: 'select' },
+    { field: 'follows', label: t('bestiaryForm.follows'), type: 'value' },
     { field: 'fights', label: t('bestiaryForm.fights'), type: 'value' },
   ])
 </script>
@@ -98,6 +102,13 @@
         <option value="leave">leave</option>
       </select>
     </label>
+    <FollowsField
+      value={data.follows}
+      {hints}
+      {disabled}
+      unsaid={t('bestiaryForm.followsDefault')}
+      onchange={(v) => doc.edit('', ['follows'], v)}
+    />
   </section>
 
   <section>
@@ -147,6 +158,13 @@
           {:else}
             <p class="help">{t('bestiaryForm.noSheet')}</p>
           {/if}
+          <FollowsField
+            value={raw.follows}
+            {hints}
+            disabled={off}
+            unsaid={t('bestiaryForm.followsBestiary')}
+            onchange={(v) => doc.edit('', ['templates', template, 'follows'], v)}
+          />
         </div>
       {/snippet}
     </RecordRows>

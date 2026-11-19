@@ -448,13 +448,30 @@ describe('beset by foes', () => {
     // No characters: no fight, the button says why.
     expect(open.fight).toMatchObject({ condition: 'needs' })
     expect(open['get-away']).toBeUndefined()
-    s = stepTrip(options, s, { type: 'action', id: 'get-away' }).state
+    expect(open.run).toBeUndefined()
+    const beset = s
+    // Running costs nothing, but the foe follows to the next place: beset there again.
+    s = stepTrip(options, beset, { type: 'action', id: 'run' }).state
+    expect(tripAvailability(options, s).travel).toBeUndefined()
+    s = stepTrip(options, s, { type: 'setDestination', place: 'b' }).state
+    let walked = stepTrip(options, s, { type: 'action', id: 'march' })
+    expect(walked.state.travel.location).toBe('b')
+    expect(walked.state.present!.map((p) => p.at)).toEqual(['b'])
+    expect(walked.entries.some((e) => e.code === 'PRESENT_FOLLOWED')).toBe(true)
+    expect(tripAvailability(options, walked.state).travel).toEqual({ value: 'beset', who: 'party' })
+    // Getting away costs a day's food, and the foe stays behind.
+    const food = beset.party!.values.food
+    s = stepTrip(options, beset, { type: 'action', id: 'get-away' }).state
     expect(s.party!.conditions).toHaveProperty('got-away')
+    expect(s.party!.values.food).toBe(food - 1)
     expect(tripAvailability(options, s).travel).toBeUndefined()
     // On to the next place: getting away is over there; the foe stays behind.
     s = stepTrip(options, s, { type: 'setDestination', place: 'b' }).state
-    s = stepTrip(options, s, { type: 'action', id: 'march' }).state
+    walked = stepTrip(options, s, { type: 'action', id: 'march' })
+    s = walked.state
     expect(s.travel.location).toBe('b')
+    expect(s.present!.map((p) => p.at)).toEqual(['a'])
+    expect(walked.entries.some((e) => e.code === 'PRESENT_FOLLOWED')).toBe(false)
     expect(s.party!.conditions).not.toHaveProperty('got-away')
     expect(tripAvailability(options, s).travel).toBeUndefined()
   })
@@ -490,6 +507,62 @@ describe('beset by foes', () => {
     }
     expect(s.travel.location).toBe('b')
     expect(s.party!.conditions).not.toHaveProperty('gave-ground')
+    // The bandit followed (on foot, still hostile): beset again.
+    expect(s.present!.map((p) => [p.character.id, p.at])).toEqual([['bandit', 'b']])
+    expect(tripAvailability(options, s).travel).toEqual({ value: 'beset', who: 'party' })
+  })
+
+  it('the Grey Marches: a bandit can’t follow the Company on horseback; wolves stop for meat', () => {
+    const options = { system: marches, world: road }
+    const rules = partyOf(marches)
+    const { session } = startTrip({ system: marches, location: 'a', seed: 'b', time: 9 * 60 })
+    const away = (from: SessionState) => {
+      let s: SessionState = {
+        ...from,
+        party: {
+          ...from.party!,
+          conditions: { ...from.party!.conditions, 'gave-ground': { left: 1 } },
+        },
+      }
+      s = settleTrip(options, s).state
+      s = stepTrip(options, s, { type: 'setDestination', place: 'b' }).state
+      for (let i = 0; i < 4 && s.travel.location !== 'b'; i++) {
+        for (const c of s.travel.pendingChecks)
+          s = stepTrip(options, s, { type: 'resolveCheck', id: c.id }).state
+        s = stepTrip(options, s, { type: 'action', id: 'march', with: { until: 'place' } }).state
+      }
+      expect(s.travel.location).toBe('b')
+      return s
+    }
+    // Riding away: the bandit is left behind, and gone (the bestiary's `behind: leave`).
+    const bandit = settleTrip(
+      options,
+      applyResult(session, { effects: { 'present.bandit': 1 } }, {}, rules),
+    ).state
+    const ridden = away({ ...bandit, travel: { ...bandit.travel, mode: 'horse' } })
+    expect(ridden.present ?? []).toEqual([])
+    // Wolves follow, until meat is thrown to them: two rations, and they gorge.
+    let wolves = settleTrip(
+      options,
+      applyResult(
+        session,
+        { effects: { 'present.grey-wolf': 2, 'party.items.ration': 4 } },
+        {},
+        rules,
+      ),
+    ).state
+    expect(away(wolves).present!.map((p) => p.at)).toEqual(['b', 'b'])
+    const rations = (st: SessionState) =>
+      (tripFacts(options, st).party as { items: { ration: { count: number } } }).items.ration.count
+    const before = rations(wolves)
+    expect(tripAvailability(options, wolves)['throw-meat']).toBeUndefined()
+    wolves = stepTrip(options, wolves, { type: 'action', id: 'throw-meat' }).state
+    expect(wolves.present!.every((p) => 'fed' in p.character.conditions)).toBe(true)
+    expect(rations(wolves)).toBe(before - 2)
+    // No longer hostile: the Company isn't beset, and marches off without them.
+    expect(tripAvailability(options, wolves).travel).toBeUndefined()
+    expect(tripAvailability(options, wolves)['throw-meat']).toBeDefined()
+    expect(away(wolves).present ?? []).toEqual([])
   })
 
   it('the Grey Marches: bandits met kindly don’t beset the Company, until it stands and fights', () => {

@@ -6,7 +6,7 @@ name: Foes
 description: |-
   Whoever stands in the way: a template to make foes from.
 
-  **Shows:** the smallest bestiary: one template on the characters' sheet (`sheet: sheet.character`), its health rolled for each copy, and a thing that doesn't fight on a sheet of its own (_Locked chest_, `fights: false`); a copy whose health reaches 0 is down, and gone (the sheet's _Down_ `leaves`); its token (`token:`), drawn on a map and as its face in a fight.
+  **Shows:** the smallest bestiary: one template on the characters' sheet (`sheet: sheet.character`), its health rolled for each copy, and a thing that doesn't fight on a sheet of its own (_Locked chest_, `fights: false`); a copy whose health reaches 0 is down, and gone (the sheet's _Down_ `leaves`); foes that follow the party when it moves on (`follows`), unless it got away (_Run_ brings them along, _Get away_ costs a day's food); its token (`token:`), drawn on a map and as its face in a fight.
 sheet: sheet.character
 templates:
   foe:
@@ -15,6 +15,8 @@ templates:
     values: { health: '{{1d3}}' }
     # How it's drawn small: on a map, and as its face on a fight's cards.
     token: { icon: 'game:crossed-swords', kind: enemy }
+    # A chase: it follows the party to the next place, unless the party got away (Get away).
+    follows: { not: { party.conditions: got-away } }
   # A thing, not a foe (`fights: false`): here with its card, never a side of a fight.
   chest:
     sheet: sheet.chest

@@ -236,7 +236,7 @@ Cuando el sistema tiene un [bestiario](07-kinds.md#bestiarios) y un resultado ha
 | `present.<plantilla>.count`, `present.<plantilla>.ids`            | número, lista de ids | Cuántas copias de una plantilla hay aquí, y cuáles; están todas las plantillas del sistema, a 0 cuando no hay ninguna.                                            |
 | `characters.<id>.*`                                               | grupo                | Una copia que está aquí, con los nombres de [Personajes](#personajes).                                                                                            |
 
-Los efectos llegan a ellas con los mismos nombres ([Sintaxis](09-syntax.md#cambiar-el-grupo-effects)): `present.wolf: 2` (dos lobos más), `present.wolf.values.health: -1` (cada lobo de aquí), `present.all.conditions.routed: true` (todos los de aquí), `characters.wolf-2.values.health: -1` (uno). Las copias que el grupo dejó atrás no están aquí, y las de una plantilla con `behind: leave` desaparecen; una copia con un estado que `leaves` desaparece al momento.
+Los efectos llegan a ellas con los mismos nombres ([Sintaxis](09-syntax.md#cambiar-el-grupo-effects)): `present.wolf: 2` (dos lobos más), `present.wolf.values.health: -1` (cada lobo de aquí), `present.all.conditions.routed: true` (todos los de aquí), `characters.wolf-2.values.health: -1` (uno). Las copias que el grupo dejó atrás no están aquí, y las de una plantilla con `behind: leave` desaparecen, mientras que las que lo siguen (`follows`) han venido con él y están aquí; una copia con un estado que `leaves` desaparece al momento.
 
 ## Un encuentro, `encounter.*`
 

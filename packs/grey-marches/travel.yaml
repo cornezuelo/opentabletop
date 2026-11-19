@@ -898,6 +898,26 @@ actions:
             present.all.conditions.bought-off: true,
           }
       - { id: paid, say: 'The outlaws take the food and melt back into the hills.' }
+  # An escape at a cost: wolves follow the Company (bestiary.yaml's `follows`) unless they're
+  # fed. Two rations thrown to every wolf here: they gorge (no longer hostile, nor following),
+  # and a fight with them ends.
+  throw-meat:
+    group: groups.fight
+    name: Throw them meat
+    description: 'With wolves here: two rations thrown to them, and every wolf falls on the meat; they no longer mean harm, nor follow the Company when it moves on. In a fight, it ends.'
+    when: { present.tags: pack, party.items.ration.count: { gte: 2 } }
+    unless: { present.conditions: fed }
+    hideWhenUnavailable: true
+    do:
+      - effects:
+          party.items.ration: -2
+          present.grey-wolf.conditions.fed: true
+          present.grey-wolf.conditions.hostile: false
+          present.pack-leader.conditions.fed: true
+          present.pack-leader.conditions.hostile: false
+      - when: { encounter.round: { gte: 1 } }
+        effects: { encounter: end }
+      - { id: thrown, say: 'The meat hits the ground, and the wolves fall on it.' }
   # A fight in turns (system.yaml: `encounter:`), begun by an effect (`encounter: start`). In
   # it only Strike one down and Fall back are open, on a companion's turn; the rest wait.
   stand:

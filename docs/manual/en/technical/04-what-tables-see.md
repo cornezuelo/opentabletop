@@ -236,7 +236,7 @@ When the system has a [bestiary](07-kinds.md#bestiaries) and a result made copie
 | `present.<template>.count`, `present.<template>.ids`              | number, list of ids | How many copies of one template are here, and which; every template of the system is there, at 0 when none of it is here.                                |
 | `characters.<id>.*`                                               | group               | A copy here, with the names of [Characters](#characters).                                                                                                |
 
-Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party-effects)): `present.wolf: 2` (two more wolves), `present.wolf.values.health: -1` (every wolf here), `present.all.conditions.routed: true` (everyone here), `characters.wolf-2.values.health: -1` (one). Copies the party left behind aren't here, and those whose template says `behind: leave` are gone; a copy with a condition that `leaves` is gone at once.
+Effects reach them with the same names ([Syntax](09-syntax.md#changing-the-party-effects)): `present.wolf: 2` (two more wolves), `present.wolf.values.health: -1` (every wolf here), `present.all.conditions.routed: true` (everyone here), `characters.wolf-2.values.health: -1` (one). Copies the party left behind aren't here, and those whose template says `behind: leave` are gone, while those that follow it (`follows`) came along and are here; a copy with a condition that `leaves` is gone at once.
 
 ## An encounter, `encounter.*`
 

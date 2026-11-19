@@ -96,7 +96,9 @@ The trip keeps the copies it made (`present`, beside `members` in session's stat
 - `behind: stay` (the documented default): moving on leaves them behind, still drawn where they were on the map and back among those present if the party returns. A lair, a camp, a guard at a bridge.
 - `behind: leave`: they're gone when the party leaves their place (a `PRESENT_LEFT` line), so the next visit rolls its encounter afresh. Wandering wolves, a patrol, a crowd.
 
-Anything subtler (they follow for a day, they come back at night) is an action or a reaction of the system's, reading those present and the time (built with phase 1: no `self.here` yet; a copy's own conditions don't see where it is).
+- `follows` (2026-11-19, beside `behind`): `true` or a condition read with the copy acting and the trip as it is on reaching the next place; those it holds for come along with the party (`PRESENT_FOLLOWED`), the rest are left behind as `behind` says. A chase, and the way out of it the system declares (a way of travelling, a condition an action gives at a cost).
+
+Anything subtler (they come back at night) is an action or a reaction of the system's, reading those present and the time (built with phase 1: no `self.here` yet; a copy's own conditions don't see where it is).
 
 Effects, with the paths party members already use:
 

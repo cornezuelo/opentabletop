@@ -11,7 +11,7 @@ name: Foe
 description: |-
   What the Company meets on the road and has to deal with: beasts, outlaws, the Hunt.
 
-  **Shows:** a sheet for creatures and NPC types, lighter than a companion's, its main value its health (`main: health`, a bar on a fight's cards), which starts at a maximum each template rolls (`default: '{{self.values.toughness}}'`, a default read from a value before it); conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); one every foe starts with (_Hostile_, its templates' `conditions:`), taken off and given back by effects; items, so a template may carry some.
+  **Shows:** a sheet for creatures and NPC types, lighter than a companion's, its main value its health (`main: health`, a bar on a fight's cards), which starts at a maximum each template rolls (`default: '{{self.values.toughness}}'`, a default read from a value before it); conditions that take a copy off those present by themselves (`leaves: true`): one that holds by itself (_Down_, at health 0) and ones set by effects (_Routed_, _Bought off_); one an escape gives, read by a template's `follows` (_Gorging_); one every foe starts with (_Hostile_, its templates' `conditions:`), taken off and given back by effects; items, so a template may carry some.
 main: health
 values:
   # Rolled for each copy by its template (`toughness: '{{1d4+1}}'`); health starts there.
@@ -53,6 +53,12 @@ conditions:
     description: Paid to go; gone from those present.
     leaves: true
     told: { gains: '{{name}} takes the food and goes' }
+  # Given by Throw them meat (travel.yaml), the cost of getting away from wolves: it stays to
+  # eat, and no longer follows the Company (its template's `follows`).
+  fed:
+    name: Gorging
+    description: Busy with the meat thrown to it; it means no harm now and doesn't follow.
+    told: { gains: '{{name}} falls on the meat' }
   enraged:
     name: Enraged
     description: Fights to the end, whatever its morale.
@@ -119,6 +125,7 @@ description: |-
   - What a copy carries from the Company's gear (`items:`), and a condition it starts with (`conditions: [enraged]`)
   - How each is drawn on a map and as its face in a fight (`token:` its icon and kind)
   - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
+  - Foes that follow the Company when it moves on (`follows`, a condition read with the copy acting): wolves while they mean harm and haven't been thrown meat (_Gorging_, Throw them meat), bandits while they mean harm and the Company isn't on horseback (`trip.mode`); falling back from a fight and marching away, they come along to the next place, and the Company is _Beset_ again
   - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, the restless dead, in their barrow, and a grave-goods chest, in its crypt (`behind: stay`)
   - Who doesn't fight (`fights: false`): travellers and the Vale's riders, met and not fought, and the grave-goods chest, a thing of a crypt on a sheet of its own (_Chest_), aimed at by actions (_Look it over_, _Pick it_, _Break it open_, _Open it_); none of them is a side of a fight, nor counted by `present.fighters`
   - Who is a foe, as a tag (`foe`), and who means harm now, as a condition every foe starts with (`conditions: [hostile]`) and a reaction other than hostile takes off: while one that has it is here (`present.conditions: hostile`) the Company is _Beset_ (its sheet), and can't march on or busy itself with anything else until it deals with them or falls back
@@ -134,6 +141,9 @@ templates:
     conditions: [hostile]
     # Its own turn in a fight (below): it goes for the weakest. Its leader, like it, too.
     actions: table.wolf-turn
+    # A chase: while it means harm, it follows the Company to the next place, unless meat
+    # was thrown to it (Throw them meat, travel.yaml). Its leader, like it, too.
+    follows: { all: [{ acting.conditions: hostile }, { not: { acting.conditions: fed } }] }
     token: { icon: 'game:wolf-head', kind: enemy }
   pack-leader:
     like: grey-wolf
@@ -177,6 +187,8 @@ templates:
     conditions: [hostile]
     items: { ration: '{{1d2}}' }
     token: { icon: 'game:cowled', kind: enemy }
+    # On foot: while it means harm, it follows the Company, unless the Company rides away.
+    follows: { all: [{ acting.conditions: hostile }, { not: { trip.mode: horse } }] }
   bandit-chief:
     like: bandit
     name: Bandit chief

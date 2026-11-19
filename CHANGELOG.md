@@ -4,6 +4,15 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Packs**: foes that **follow the party** when it moves on (a chase): a bestiary's or a template's `follows`, always or while a condition holds, read with each one acting (**Follows the party** in the Bestiary tab). Those that follow come along to the next place (_They follow you here_); the rest are left behind as before.
+
+### Packs
+
+- **The Grey Marches**: wolves and bandits follow the Company while they mean harm, so falling back and marching on leaves it beset again at the next place; bandits can't keep up with horses, and **Throw them meat** (two rations) leaves the wolves gorging, no longer hostile, and behind.
+- **Core**: **Get away** now costs a day's food, and the foes stay behind; **Run** is free, but they follow.
+
 ## [0.68.0] - 2026-11-19
 
 ### Apps

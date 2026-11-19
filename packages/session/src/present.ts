@@ -14,6 +14,7 @@ import {
   resolveChange,
   type TravelState,
 } from '@open-tabletop/travel-engine'
+import type { Condition } from '@open-tabletop/conditions'
 import { momentRoller } from '@open-tabletop/variables'
 
 /**
@@ -27,6 +28,11 @@ export interface Present {
   at: string
   /** Gone once the party leaves its place (the template's `behind: leave`); absent: it stays. */
   behind?: 'leave'
+  /**
+   * Goes along with the party as it leaves its place (its template's `follows`): always, or
+   * while this condition holds, read with it acting; absent: it doesn't.
+   */
+  follows?: Condition | true
   /**
    * A thing present that doesn't fight (its template's `fights: false`: a chest, a trap):
    * no side of a fight, not among `present.fighters`. Absent: it fights.
@@ -69,6 +75,8 @@ export type PresentEvent =
       conditionName?: string
     }
   | { type: 'PRESENT_MOVED'; id: string; name: string; at: string }
+  /** Those that went along with the party to the place it reached (a chase). */
+  | { type: 'PRESENT_FOLLOWED'; ids: string[]; names: string[] }
   | { type: 'UNKNOWN_TEMPLATE'; template: string }
 
 interface PresentTarget {
@@ -191,6 +199,7 @@ export function changePresent(
       character,
       at,
       ...(template.behind === 'leave' && { behind: 'leave' as const }),
+      ...(template.follows !== undefined && { follows: template.follows }),
       ...(!template.fights && { fights: false as const }),
     })
   }
@@ -296,15 +305,48 @@ export function removePresent(s: PresentTarget, id: string): PresentEvent[] {
 /**
  * Moves one copy to another place by hand (in place: a token dragged on the map), with
  * its line; nothing when it's already there. Put away from the party, it stays there
- * (`behind: leave` is for the party leaving it, not the player placing it).
+ * (`behind: leave` is for the party leaving it, not the player placing it), and follows
+ * nobody.
  */
 export function movePresent(s: PresentTarget, id: string, at: string): PresentEvent[] {
   const p = (s.present ?? []).find((c) => c.character.id === id)
   if (!p || p.at === at) return []
   const moved: Present = { ...p, at }
-  if (at !== s.travel.location) delete moved.behind
+  if (at !== s.travel.location) {
+    delete moved.behind
+    delete moved.follows
+  }
   s.present = (s.present ?? []).map((c) => (c === p ? moved : c))
   return [{ type: 'PRESENT_MOVED', id, name: p.character.name ?? id, at }]
+}
+
+/** One of those present that may follow the party. */
+export type Follower = Present & { follows: Condition | true }
+
+/**
+ * Those at the place the party just left (`from`) that follow it come along to where it is
+ * now (in place), each asked `follows` (its condition read with it acting); the others stay
+ * there, left behind.
+ */
+export function followParty(
+  s: PresentTarget,
+  from: string,
+  follows: (p: Follower) => boolean,
+): PresentEvent[] {
+  const to = s.travel.location
+  if (to === undefined || to === from || !s.present?.length) return []
+  const going = s.present.filter(
+    (p): p is Follower => p.at === from && p.follows !== undefined && follows(p as Follower),
+  )
+  if (!going.length) return []
+  s.present = s.present.map((p) => (going.includes(p as Follower) ? { ...p, at: to } : p))
+  return [
+    {
+      type: 'PRESENT_FOLLOWED',
+      ids: going.map((p) => p.character.id),
+      names: going.map((p) => p.character.name ?? p.character.id),
+    },
+  ]
 }
 
 /**

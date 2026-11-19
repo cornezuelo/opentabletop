@@ -418,6 +418,7 @@ export const es: Messages<typeof en> = {
     presentLeftBehind: '{name} se queda atrás y desaparece',
     presentLeftHand: 'Se quita a mano: {name}',
     presentMoved: 'Se lleva a mano a {name} hasta {hex}',
+    presentFollowed: 'Os siguen hasta aquí: {names}',
     unknownTemplate:
       'Ningún bestiario del sistema tiene la plantilla «{name}», así que no viene nadie',
     rosterUpdated: '{names}: al día desde el plantel (cambios hechos en la aplicación Personajes).',

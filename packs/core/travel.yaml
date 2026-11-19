@@ -199,18 +199,29 @@ actions:
       - { effects: { encounter: start } }
       - { id: toughest, say: 'The toughest of them has {{present.highest.values.health}} health.' }
   # Away from foes here without a fight (the party sheet's _Beset_ holds while they are):
-  # ten minutes, and the party may move on until it reaches another place.
+  # ten minutes and a day's food left behind to slow them, and the party may move on until it
+  # reaches another place; they don't follow (bestiary.yaml's `follows`).
   get-away:
     name: Get away
-    description: 'With foes here, outside a fight: ten minutes slipping away; the party may move on, and they stay behind.'
-    when: { present.fighters.count: { gte: 1 } }
-    unless: { party.conditions: got-away }
+    description: 'With foes here, outside a fight: ten minutes slipping away, leaving a day’s food behind to slow them; the party may move on, and they stay behind.'
+    when: { present.fighters.count: { gte: 1 }, party.values.food: { gte: 1 } }
+    unless: { any: [{ party.conditions: got-away }, { party.conditions: ran }] }
     hideWhenUnavailable: true
     do:
       - { time: 10 }
       # For one place (the sheet's `lasts: places`): gone as the next is entered.
-      - { effects: { party.conditions.got-away: 1 } }
-      - { id: slipped, say: 'The party slips away while it can.' }
+      - { effects: { party.conditions.got-away: 1, party.values.food: -1 } }
+      - { id: slipped, say: 'The party slips away while it can, and leaves a day’s food behind.' }
+  # The same at no cost: the party may move on, but the foes follow it (a chase).
+  run:
+    name: Run
+    description: 'With foes here, outside a fight: the party runs and may move on, but they follow it to the next place.'
+    when: { present.fighters.count: { gte: 1 } }
+    unless: { any: [{ party.conditions: got-away }, { party.conditions: ran }] }
+    hideWhenUnavailable: true
+    do:
+      - { effects: { party.conditions.ran: 1 } }
+      - { id: ran, say: 'The party runs, and the foes come after it.' }
   # The one action a member takes on its turn in a fight: a blow at one foe here, chosen.
   strike:
     name: Strike

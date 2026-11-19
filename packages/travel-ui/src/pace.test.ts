@@ -82,6 +82,23 @@ describe('a march told a place at a time', () => {
     expect(tellingView(other, telling)).toBe(other)
   })
 
+  it('those following the party go along with it as it is told', () => {
+    const after = marched()
+    after.journal = [
+      ...after.journal.slice(0, 6),
+      line(7, 'PRESENT_FOLLOWED', { ids: ['wolf'], names: ['Wolf'] }),
+      line(8, 'CHECK_PAUSED'),
+    ]
+    after.present = [
+      { character: { id: 'wolf' }, at: 'd' },
+      { character: { id: 'wyrm' }, at: 'a' },
+    ] as SessionState['present']
+    const telling = startTelling(before, after)!
+    const view = tellingView(after, telling)
+    expect(view.travel.location).toBe('b')
+    expect(view.present!.map((p) => p.at)).toEqual(['b', 'a'])
+  })
+
   it('holds on an important moment on the way, until Continue', () => {
     const after = marched(true)
     const telling = startTelling(before, after)!

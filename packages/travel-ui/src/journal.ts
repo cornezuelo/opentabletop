@@ -636,6 +636,10 @@ export function entryText(e: JournalEntry, context: JournalContext) {
         { name },
       )
     }
+    case 'PRESENT_FOLLOWED':
+      return t('journal.presentFollowed', {
+        names: Array.isArray(d.names) ? d.names.join(', ') : '',
+      })
     case 'PRESENT_MOVED':
       return t('journal.presentMoved', {
         name: String(d.name ?? d.id ?? ''),

@@ -46,6 +46,7 @@ conditions:
   down: { when: { self.values.health: { lte: 0 } }, leaves: true }
   fled: { leaves: true }
   angry: {}
+  fed: {}
 ---
 kind: bestiary
 id: beasts
@@ -55,6 +56,10 @@ templates:
   leader: { like: wolf, name: Pack leader, tags: [leader], conditions: [angry] }
   bandit: { name: Bandit, names: generator.outlaw, values: { health: 5 } }
   ghost: { name: Ghost, sheet: sheet.nobody }
+  hound:
+    name: Hound
+    values: { health: 4 }
+    follows: { not: { acting.conditions: fed } }
 ---
 kind: travel-rules
 travel:
@@ -76,6 +81,8 @@ actions:
     when: { present.count: { gte: 1 } }
     do: [{ effects: { present.all.conditions.fled: true } }]
   howl: { do: [{ effects: { present.nobody: 1 } }] }
+  loose: { do: [{ effects: { present.hound: 2 } }] }
+  feed: { do: [{ effects: { characters.hound.conditions.fed: true } }] }
 ---
 kind: bindings
 on: { PROWL: { resolve: table.prowl } }
@@ -229,6 +236,35 @@ describe('those present: copies of templates in a trip', () => {
     expect(
       done.entries.filter((e) => e.code === 'PRESENT_LEFT').map((e) => e.data?.condition),
     ).toEqual(['fled', 'fled'])
+  })
+
+  it('copies that follow come along to the next place, unless their condition stops them', () => {
+    const { session } = startTrip({ system: wilds, location: 'a', time: 8 * 60, seed: 's' })
+    const options = { system: wilds, world, oracle: oracle() }
+    let done = stepTrip(options, session, { type: 'action', id: 'loose' })
+    expect(done.state.present!.map((p) => p.follows)).toEqual([
+      { not: { 'acting.conditions': 'fed' } },
+      { not: { 'acting.conditions': 'fed' } },
+    ])
+    // One is fed (read with it acting: it doesn't follow); the other comes along to b.
+    done = stepTrip(options, done.state, { type: 'action', id: 'feed' })
+    done = stepTrip(options, done.state, { type: 'setDestination', place: 'b' })
+    done = stepTrip(options, done.state, { type: 'travel' })
+    expect(done.state.travel.location).toBe('b')
+    expect(done.state.present!.map((p) => [p.character.id, p.at])).toEqual([
+      ['hound', 'a'],
+      ['hound-2', 'b'],
+    ])
+    const codes = done.entries.map((e) => e.code)
+    expect(codes.indexOf('PRESENT_FOLLOWED')).toBeGreaterThan(codes.indexOf('PLACE_ENTERED'))
+    expect(done.entries.find((e) => e.code === 'PRESENT_FOLLOWED')?.data).toEqual({
+      ids: ['hound-2'],
+      names: ['Hound 2'],
+    })
+    expect(tripFacts({ system: wilds, world }, done.state).present).toMatchObject({ count: 1 })
+    // Put away from the party by hand, it follows nobody.
+    movePresent(done.state, 'hound-2', 'a')
+    expect(done.state.present!.find((p) => p.character.id === 'hound-2')?.follows).toBeUndefined()
   })
 
   it('an unknown template makes nothing, and the journal says so', () => {

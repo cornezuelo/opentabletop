@@ -68,10 +68,16 @@ travel-rules/default:
           say: 'El más duro de ellos tiene {{present.highest.values.health}} de salud.'
     get-away:
       name: Escabullirse
-      description: 'Con enemigos aquí, fuera de un combate: diez minutos escabulléndose; el grupo puede seguir, y ellos se quedan atrás.'
+      description: 'Con enemigos aquí, fuera de un combate: diez minutos escabulléndose, dejando atrás un día de comida para entretenerlos; el grupo puede seguir, y ellos se quedan atrás.'
       do:
         slipped:
-          say: 'El grupo se escabulle mientras puede.'
+          say: 'El grupo se escabulle mientras puede, y deja atrás un día de comida.'
+    run:
+      name: Huir
+      description: 'Con enemigos aquí, fuera de un combate: el grupo huye y puede seguir, pero ellos lo siguen hasta el siguiente lugar.'
+      do:
+        ran:
+          say: 'El grupo huye, y los enemigos van tras él.'
     strike:
       name: Golpear
       told: '{{acting.name}} golpea a {{characters[params.foe].name}}'

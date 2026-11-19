@@ -48,6 +48,7 @@ const STORY = new Set([
   'MEMBER_LEFT',
   'PRESENT_CAME',
   'PRESENT_LEFT',
+  'PRESENT_FOLLOWED',
   'PLACE_MADE',
   'WAY_MADE',
   'MAP_ENTERED',
@@ -100,6 +101,7 @@ export function entryTopic(e: Line): JournalTopic {
     e.code === 'MEMBER_LEFT' ||
     e.code === 'PRESENT_CAME' ||
     e.code === 'PRESENT_LEFT' ||
+    e.code === 'PRESENT_FOLLOWED' ||
     e.code === 'UNKNOWN_TEMPLATE'
   )
     return 'characters'

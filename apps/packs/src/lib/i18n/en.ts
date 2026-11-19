@@ -348,6 +348,14 @@ export const en = {
     behindHelp:
       "What becomes of copies when the party leaves the place they were made: they **stay** there (met again on return) or **leave** (gone; a new one may be rolled at the next visit). It is the system's to decide. Empty: stay.\n• `leave` — a new encounter every visit",
     behindDefault: 'stay (default)',
+    follows: 'Follows the party',
+    followsHelp:
+      "Whether copies go along with the party when it leaves their place (a chase): they come to the next place with it, before anything there is rolled, and are among those present again. Those that don't follow are left behind (**Left behind**).\n• **Always** — `follows: true`\n• **While…** a condition, read with the copy acting and the trip as it is on reaching the next place (what lasts until another place still holds): `acting.conditions: hostile` — only while it means harm\n• `not: { trip.mode: riding }` — not if the party rides away (if the system has a way of travelling called so)\n• `not: { acting.conditions: fed }` — not once a condition given by an action (a costly escape: food thrown to them) holds on it\nA copy moved away from the party by hand follows nobody. Empty on a template: the bestiary's; on the bestiary: they don't.",
+    followsDefault: 'no (default)',
+    followsBestiary: "the bestiary's",
+    followsNever: 'Never',
+    followsAlways: 'Always',
+    followsWhile: 'While…',
     templates: 'Templates',
     templateName: 'Name',
     like: 'Variant of',

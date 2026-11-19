@@ -354,6 +354,14 @@ export const es: Messages<typeof en> = {
     behindHelp:
       'Qué pasa con las copias cuando el grupo deja el lugar donde se hicieron: se **quedan** allí (se vuelven a encontrar al volver) o **se van** (desaparecen; al volver puede salir una nueva). Lo decide el sistema. Vacío: se quedan.\n• `leave` — un encuentro nuevo en cada visita',
     behindDefault: 'se quedan (por defecto)',
+    follows: 'Siguen al grupo',
+    followsHelp:
+      'Si las copias se van con el grupo cuando deja su sitio (una persecución): llegan con él al siguiente sitio, antes de que se tire nada allí, y vuelven a estar entre los presentes. Las que no lo siguen se quedan atrás (**Al dejarlas atrás**).\n• **Siempre** — `follows: true`\n• **Mientras…** una condición, leída con la copia actuando y el viaje tal como está al llegar al siguiente sitio (lo que dura hasta otro sitio aún vale): `acting.conditions: hostile` — solo mientras quiere hacer daño\n• `not: { trip.mode: riding }` — no si el grupo se aleja a caballo (si el sistema tiene una forma de viajar llamada así)\n• `not: { acting.conditions: fed }` — no cuando tiene un estado que da una acción (una huida que cuesta: comida que se les echa)\nUna copia que se aparta del grupo a mano no sigue a nadie. Vacío en una plantilla: lo del bestiario; en el bestiario: no lo siguen.',
+    followsDefault: 'no (por defecto)',
+    followsBestiary: 'lo del bestiario',
+    followsNever: 'Nunca',
+    followsAlways: 'Siempre',
+    followsWhile: 'Mientras…',
     templates: 'Plantillas',
     templateName: 'Nombre',
     like: 'Variante de',

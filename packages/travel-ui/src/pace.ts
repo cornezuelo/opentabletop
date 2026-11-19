@@ -125,6 +125,17 @@ export function tellingView(session: SessionState, telling: Telling | null): Ses
   if (typeof at !== 'string') delete travel.at
   delete travel.waiting
   const view: SessionState = { ...session, journal, travel }
+  // Those following the party (a line not told yet) go along with it as it's told.
+  const following = new Set(
+    session.journal
+      .slice(telling.shown)
+      .filter((e) => e.code === 'PRESENT_FOLLOWED')
+      .flatMap((e) => (Array.isArray(e.data?.ids) ? e.data.ids.map(String) : [])),
+  )
+  if (following.size && view.present)
+    view.present = view.present.map((p) =>
+      following.has(p.character.id) ? { ...p, at: travel.location ?? p.at } : p,
+    )
   delete view.encounter
   delete view.yours
   // The step the shown lines belong to is the last one shown.

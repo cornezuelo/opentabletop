@@ -7,6 +7,7 @@
  * Nothing here names a game: which sheet, which values, how many come and what becomes
  * of those left behind are the pack's.
  */
+import { validateCondition, type Condition } from '@open-tabletop/conditions'
 import { z } from 'zod'
 
 const text = z.union([z.string(), z.record(z.string(), z.string())])
@@ -16,6 +17,19 @@ const written = z.union([z.number(), z.string().min(1)])
 /** What becomes of copies the party leaves behind: they `stay` there, or `leave`. */
 export const BEHIND = ['stay', 'leave'] as const
 export type Behind = (typeof BEHIND)[number]
+
+/**
+ * Whether copies go along with the party as it leaves their place (a chase): `true` always,
+ * or a condition read with the copy acting (`acting.conditions: hostile`) and the trip as it
+ * is on reaching the next place; those that don't follow are left behind (`behind`).
+ */
+const follows = z.union([
+  z.boolean(),
+  z.custom<Condition>((v) => typeof v === 'object' && v !== null && !Array.isArray(v), {
+    message: 'true, false or a condition',
+  }),
+])
+export type Follows = z.infer<typeof follows>
 
 /**
  * The token kinds a template may be drawn as on a map: the map's own kinds of token (how
@@ -53,6 +67,7 @@ const template = z
       .strict()
       .optional(),
     behind: z.enum(BEHIND).optional(),
+    follows: follows.optional(),
     /**
      * Whether its copies fight (absent: they do). `false`: a thing present that doesn't (a
      * chest, a trap), aimed at by actions, left out of a fight's sides and of
@@ -72,6 +87,8 @@ export const bestiarySchema = z
     sheet: z.string().min(1).optional(),
     /** What becomes of copies left behind, unless a template says otherwise; absent: `stay`. */
     behind: z.enum(BEHIND).optional(),
+    /** Whether copies follow the party, unless a template says otherwise; absent: they don't. */
+    follows: follows.optional(),
     templates: z.record(z.string().min(1), template).default({}),
   })
   .strict()
@@ -94,8 +111,10 @@ export function parseBestiary(raw: unknown): { bestiary?: Bestiary; errors: stri
     }
   const def = parsed.data
   const errors: string[] = []
+  if (isCondition(def.follows)) errors.push(...validateCondition(def.follows, 'follows'))
   for (const [id, t] of Object.entries(def.templates)) {
     const at = `templates.${id}`
+    if (isCondition(t.follows)) errors.push(...validateCondition(t.follows, `${at}.follows`))
     if ((RESERVED_TEMPLATE_IDS as readonly string[]).includes(id))
       errors.push(`${at}: "${id}" can't be a template's id (present.${id} reads every copy)`)
     if (id.includes('.')) errors.push(`${at}: an id without dots`)
@@ -111,6 +130,8 @@ export function parseBestiary(raw: unknown): { bestiary?: Bestiary; errors: stri
       errors.push(`templates.${id}.sheet: no sheet (the template's or the bestiary's sheet:)`)
   return errors.length ? { errors } : { bestiary: def, errors }
 }
+
+const isCondition = (f: Follows | undefined): f is Condition => typeof f === 'object' && f !== null
 
 /** A template and those it's a variant of, itself first; `loop` when they go round. */
 function likeChain(def: Bestiary, id: string): { chain: TemplateDef[]; loop?: string[] } {
@@ -143,6 +164,8 @@ export interface Template {
   items?: Record<string, number | string>
   token?: TemplateDef['token']
   behind: Behind
+  /** Whether its copies follow the party (`true`, or a condition); absent: they don't. */
+  follows?: Condition | true
   /** Whether its copies fight. */
   fights: boolean
 }
@@ -150,7 +173,7 @@ export interface Template {
 /**
  * A template of the bestiary as a copy is made of it: a variant takes what it doesn't say
  * from the one it's `like` (its values and items merged, its tags and conditions
- * added); the bestiary gives the sheet and `behind` none of them says.
+ * added); the bestiary gives the sheet, `behind` and `follows` none of them says.
  */
 export function resolveTemplate(def: Bestiary, id: string): Template | undefined {
   const { chain, loop } = likeChain(def, id)
@@ -172,11 +195,20 @@ export function resolveTemplate(def: Bestiary, id: string): Template | undefined
     Object.assign(out.values, t.values)
     if (t.items) out.items = { ...out.items, ...t.items }
     if (t.behind) out.behind = t.behind
+    if (t.follows !== undefined) setFollows(out, t.follows)
     if (t.fights !== undefined) out.fights = t.fights
   }
   out.sheet ??= def.sheet
   if (!chain.some((t) => t.behind) && def.behind) out.behind = def.behind
+  if (!chain.some((t) => t.follows !== undefined) && def.follows !== undefined)
+    setFollows(out, def.follows)
   return out
+}
+
+/** A template's `follows` as written: `false` says they don't (none kept). */
+function setFollows(out: Template, f: Follows): void {
+  if (f === false) delete out.follows
+  else out.follows = f === true ? true : (f as Condition)
 }
 
 /** Finds a template of a system's bestiaries by id: the bestiary's full id and the template. */
