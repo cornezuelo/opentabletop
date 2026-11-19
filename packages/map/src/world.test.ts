@@ -126,8 +126,16 @@ describe('connections drawn on the map', () => {
     expect(world.neighbors('0,0')).toContain('5,5')
     expect(world.neighbors('5,5')).toContain('0,0')
     expect(world.connections('0,0', '5,5')).toEqual(['tunnel'])
-    // With a shortcut, distance can't promise a lower bound.
+    // A shortcut's ends are as near as it gets: its length isn't promised.
     expect(world.distance('0,0', '5,5')).toBe(0)
+  })
+
+  it('keep distance a lower bound: by the cells between, or to a shortcut and from it', () => {
+    const world = mapWorld(map)
+    // Far from the tunnel's ends, the cells between (one hex, 10 km).
+    expect(world.distance('8,8', '8,9')).toBe(10)
+    // Beside one end to beside the other: a hex to it and a hex from it, not the 8 between.
+    expect(world.distance('1,0', '5,4')).toBe(20)
   })
 
   it('a far one measures the hexes between its ends, or its own km', () => {
@@ -175,6 +183,17 @@ describe('ways into sub-maps', () => {
     expect(below.neighbors('1,1')).toContain(placeOn('up', '3,3'))
     // Without its links, a map has no ways.
     expect(mapWorld(parent).neighbors('3,3')).not.toContain(inside)
+  })
+  it('with a single way, is left aside by routes that neither start nor end in it', () => {
+    const world = mapWorld(parent, undefined, { children: [child] })
+    const inside = placeOn('down', '2,1')
+    expect(world.aside?.(inside, '3,3', '4,3')).toBe(true)
+    expect(world.aside?.(inside, '3,3', placeOn('down', '1,1'))).toBe(false)
+    expect(world.aside?.(inside, placeOn('down', '1,1'), '4,3')).toBe(false)
+    expect(world.aside?.('4,3', '3,3', '5,3')).toBe(false)
+    // From inside, the map above too.
+    const below = mapWorld(child, undefined, { parent })
+    expect(below.aside?.(placeOn('up', '4,4'), '1,1', '2,1')).toBe(true)
   })
 })
 
@@ -227,6 +246,11 @@ describe('a sub-map that crosses', () => {
       expect.arrayContaining([placeOn('land', '7,2'), '3,0']),
     )
     expect(inside.km(placeOn('land', '6,2'), placeOn('land', '7,2'))).toBe(land.scale.cellKm ?? 10)
+  })
+
+  it('is never left aside: going through it may be the best way', () => {
+    const world = mapWorld(land, 10, { children: [tunnel] })
+    expect(world.aside?.(placeOn('tunnel', '1,0'), '1,2', '7,2')).toBe(false)
   })
 })
 

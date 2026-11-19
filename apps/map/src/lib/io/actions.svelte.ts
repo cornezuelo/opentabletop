@@ -350,16 +350,29 @@ async function keepExample(example: ExampleMap, map: HexMap): Promise<void> {
  */
 async function keepSubMaps(parent: string): Promise<void> {
   for (const example of exampleMaps()) {
-    let map: HexMap
-    try {
-      map = parseMapFile(example.json).map
-    } catch {
-      continue
-    }
-    if (map.meta.parent?.map !== parent || (await getLibraryMap(map.meta.id))) continue
-    await keepExample(example, map)
-    await keepSubMaps(map.meta.id)
+    if (parentOf(example) !== parent || (await getLibraryMap(example.id))) continue
+    await keepExample(example, parseMapFile(example.json).map)
+    await keepSubMaps(example.id)
   }
+}
+
+/** The map each example hangs under, by its file (none: a map on its own, or unreadable). */
+// A cache, never shown: nothing reacts to it.
+// eslint-disable-next-line svelte/prefer-svelte-reactivity
+const exampleParents = new Map<string, string | undefined>()
+
+/** The map an example hangs under, its file read once (reading one takes a while). */
+function parentOf(example: ExampleMap): string | undefined {
+  if (!exampleParents.has(example.json)) {
+    let parent: string | undefined
+    try {
+      parent = parseMapFile(example.json).map.meta.parent?.map
+    } catch {
+      parent = undefined
+    }
+    exampleParents.set(example.json, parent)
+  }
+  return exampleParents.get(example.json)
 }
 
 /** The example maps above one just opened, kept too, so its ways out lead somewhere. */

@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Map**: walking on a trip is quicker on a slow computer: a step by key took about twice as long, mostly planning a way that looked through every cell of a sub-map beside the party (a town, a barrow) it would never go into; zooming no longer draws every text again at each turn of the wheel, only once it stops; the example maps open a little sooner.
+
 ## [0.70.1] - 2026-11-19
 
 ### Apps

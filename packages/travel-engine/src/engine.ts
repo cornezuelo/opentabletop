@@ -102,6 +102,12 @@ export interface TravelWorld {
   placeOf?(position: string): string
   /** The positions of a place that holds several (a room's cells); undefined for any other. */
   positionsOf?(place: string): string[] | undefined
+  /**
+   * Whether a route from `from` to `to` can leave a place aside: no best way between them
+   * goes through it (a corner reached and left by one way only, as another map with a single
+   * way to this one). Routes don't look into it, which saves walking it in thought.
+   */
+  aside?(place: string, from: string, to: string): boolean
   /** The cells under its places, on a world that can lay pieces (a map). */
   ground?: {
     layout: CellLayout
@@ -1228,6 +1234,12 @@ export function createTravelEngine(options: {
       isPassable(rule?.passable, () => qualify(throughContext(state, a, b)), momentRolls(state, b)),
     )
 
+  /**
+   * Each step's multiplier while a route is searched, the state unchanged meanwhile: a
+   * diagonal step reads its corners' too, and they're steps of the search themselves.
+   */
+  let planning: { state: TravelState; known: Map<string, number> } | undefined
+
   /** Terrain/connection multiplier for entering `b` from `a` (0 or Infinity-safe). */
   const multiplier = (
     state: TravelState,
@@ -1236,6 +1248,14 @@ export function createTravelEngine(options: {
     /** Connections that can't be crossed now are crossed anyway (planning up to a shut door). */
     shutToo = false,
   ): number => {
+    if (planning?.state !== state) return stepMultiplier(state, a, b, shutToo)
+    const key = `${a}>${b}${shutToo ? '!' : ''}`
+    let known = planning.known.get(key)
+    if (known === undefined) planning.known.set(key, (known = stepMultiplier(state, a, b, shutToo)))
+    return known
+  }
+
+  const stepMultiplier = (state: TravelState, a: string, b: string, shutToo: boolean): number => {
     const mode = rules.modes[state.mode]
     const place = world.place(b)
     if (!mode || !place) return 0
@@ -1333,11 +1353,14 @@ export function createTravelEngine(options: {
         : 60 / ((mode.kmPerDay! / rules.travel.hoursPerDay) * best)
     // A place that holds several positions (a room) is reached at any of them.
     const positions = world.positionsOf?.(to)
+    const from = here(state)
     const search = (shutToo: boolean) =>
-      findPath<string>(here(state), to, {
+      findPath<string>(from, to, {
         neighbors: inside
           ? (a) => world.neighbors(a).filter((b) => placeOf(b) === state.location)
-          : world.neighbors,
+          : world.aside
+            ? (a) => world.neighbors(a).filter((b) => !world.aside!(b, from, to))
+            : world.neighbors,
         ...(positions && { isGoal: (a: string) => a === to || positions.includes(a) }),
         cost: (a, b) => {
           const minutes = baseMinutes(state, a, b, shutToo)
@@ -1350,7 +1373,31 @@ export function createTravelEngine(options: {
       })
     // No way round a connection that can't be crossed now (a locked door): the route goes up
     // to it, where the move stops (`ROUTE_BLOCKED`) and what's ahead reads it.
-    return (search(false) ?? search(true))?.path ?? null
+    const outer = planning
+    planning = { state, known: new Map() }
+    try {
+      return (search(false) ?? search(true))?.path ?? null
+    } finally {
+      planning = outer
+    }
+  }
+
+  /**
+   * What checks see of the place the party stands in, the stretch and the trip so far: the
+   * costly part, which the clock alone doesn't change.
+   */
+  const standingFacts = (state: TravelState, [a, b]: string[] = [], facts: HostFacts = {}) => {
+    const stretch: [string, string] | undefined =
+      a && b ? [a, b] : state.route?.[1] ? [here(state), state.route[1]] : undefined
+    return {
+      place: world.place(state.location),
+      placeFacts: placeFacts(state.location, state, facts.placeSheets ?? hostFacts.placeSheets),
+      connections: stretch ? world.connections(...stretch) : [],
+      crossing: stretch ? crossed(...stretch) : [],
+      connection: stretch && connectionFacts(state, ...stretch),
+      around: aroundFacts(state.location),
+      trip: tripTotals(state),
+    }
   }
 
   /**
@@ -1359,34 +1406,35 @@ export function createTravelEngine(options: {
    */
   const checkContext = (
     state: TravelState,
-    [a, b]: string[] = [],
+    stretchGiven: string[] = [],
     facts: HostFacts = {},
+    /** What the clock alone doesn't change, read once for many moments of one move. */
+    standing = standingFacts(state, stretchGiven, facts),
   ): Record<string, unknown> => {
-    const place = world.place(state.location)
+    const { place } = standing
     const host = facts.party as Record<string, unknown> | undefined
-    const stretch: [string, string] | undefined =
-      a && b ? [a, b] : state.route?.[1] ? [here(state), state.route[1]] : undefined
     // The places' own the host keeps are read with each place, never by themselves.
-    const { placeSheets, ...rest } = facts
+    const rest = { ...facts }
+    delete rest.placeSheets
     return {
       ...rest,
       ...state.today,
       ...calendarFacts(calendar.describe(state.time)),
       // Everything the map knows about the place (fields, region…), then the travel facts.
       ...place,
-      place: placeFacts(state.location, state, placeSheets ?? hostFacts.placeSheets),
+      place: standing.placeFacts,
       terrain: place?.terrain,
       tags: place?.tags ?? [],
       // The stretch given (the one just walked entering a place), or else the one ahead.
-      connections: stretch ? world.connections(...stretch) : [],
-      crossing: stretch ? crossed(...stretch) : [],
+      connections: standing.connections,
+      crossing: standing.crossing,
       // The connection of that stretch: a drawn one with its values and state, or the road.
-      connection: stretch && connectionFacts(state, ...stretch),
+      connection: standing.connection,
       weather: state.weather,
       mode: state.mode,
       ...clockFacts(state),
       // Where the party stands among its neighbours: their terrains, tags and regions.
-      around: aroundFacts(state.location),
+      around: standing.around,
       // How the day and the trip go.
       marched: state.travelledToday / 60,
       doneToday: state.actionsToday ?? [],
@@ -1397,7 +1445,7 @@ export function createTravelEngine(options: {
       ...(state.firstDay !== undefined && { tripDay: state.day - state.firstDay + 1 }),
       visits: state.visits?.[state.location] ?? 0,
       // What the trip has done so far (only by its full names: `trip.km`…).
-      trip: tripTotals(state),
+      trip: standing.trip,
       // Today's values (the host's, then the declared ones), and the day before's.
       today: { ...(facts.today as object | undefined), ...state.today },
       yesterday: { ...(facts.yesterday as object | undefined), ...state.yesterday },
@@ -1701,13 +1749,15 @@ export function createTravelEngine(options: {
     marched: number,
     id: string,
     params: Record<string, unknown> | undefined,
+    /** What checks see that the clock doesn't change, when read minute by minute. */
+    standing?: ReturnType<typeof standingFacts>,
   ): Omit<StoppedEvent, 'type' | 'time'> | undefined => {
     const now = { ...state, time, travelledToday: marched }
     const value = blocker(now, ref('actions', id))
     if (value) return { reason: 'value', ...value }
     const def = actions.all[id]
     if (!def) return { reason: 'conditions', action: id }
-    const seen = { ...checkContext(now, [], hostFacts), params: paramsOf(def, params) }
+    const seen = { ...checkContext(now, [], hostFacts, standing), params: paramsOf(def, params) }
     const because = conditionStop(now, def, seen, id)
     return because && { reason: 'conditions', action: id, because }
   }
@@ -1838,9 +1888,11 @@ export function createTravelEngine(options: {
       const part = nextNamed(state.time)
       if (part) end = Math.min(end, part.time)
       let time = state.time + 1
+      // Minute by minute only the clock moves: where the party stands is read once.
+      const standing = time < end ? standingFacts(state, [], hostFacts) : undefined
       while (
         time < end &&
-        !moveStop(state, time, state.travelledToday + time - state.time, id, params)
+        !moveStop(state, time, state.travelledToday + time - state.time, id, params, standing)
       )
         time++
       const marched = Math.min(time, end) - state.time
@@ -2128,6 +2180,8 @@ export function createTravelEngine(options: {
     moment: Record<string, unknown> = {},
     /** Hears the dice its conditions roll (`'{{2d6}}'` in its `when`). */
     onRoll?: (result: DiceResult) => void,
+    /** What checks see now, when it's read for many actions at once. */
+    seen: Record<string, unknown> = checkContext(state, [], facts),
   ): Unavailable | undefined => {
     const def = actions.all[id]
     if (!def) return { off: true }
@@ -2139,7 +2193,7 @@ export function createTravelEngine(options: {
         : undefined)
     if (value) return value
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
-    const context = { ...checkContext(state, [], facts), params: paramsOf(def), ...moment }
+    const context = { ...seen, params: paramsOf(def), ...moment }
     const stop = conditionStop(state, def, context, id, onRoll)
     if (stop) return stop
     // A choice it asks for among what the trip lists, with nothing listed: nothing to take it
@@ -2159,13 +2213,14 @@ export function createTravelEngine(options: {
     state: TravelState,
     id: string,
     facts: HostFacts,
+    /** What checks see now, when it's read for many ways at once. */
+    seen?: Record<string, unknown>,
   ): Unavailable | undefined => {
     const mode = rules.modes[id]
     if (!mode) return { off: true }
     const value = blocker(state, modeRef(id), facts)
     if (value) return value
-    const context = checkContext(state, [], facts)
-    return conditionStop(state, mode, context, `mode.${id}`)
+    return conditionStop(state, mode, seen ?? checkContext(state, [], facts), `mode.${id}`)
   }
 
   /**
@@ -2817,13 +2872,15 @@ export function createTravelEngine(options: {
     availability(input, facts = {}) {
       const state = upgradeTravelState(input)
       const out: Record<string, Unavailable> = {}
+      // What checks see, built once for every action and way of travelling.
+      const seen = checkContext(state, [], facts)
       // Paused on a check: nothing moves the trip on until it's resolved.
       const paused = pausedOn(state)
       if (paused) {
         out.travel = paused
         for (const id of Object.keys(actions.all)) out[id] = paused
         for (const id of Object.keys(rules.modes)) {
-          const why = modeUnavailable(state, id, facts)
+          const why = modeUnavailable(state, id, facts, seen)
           if (why) out[`mode.${id}`] = why
         }
         return out
@@ -2832,11 +2889,11 @@ export function createTravelEngine(options: {
         blocker(state, MOVE, facts) ?? blocker(state, modeRef(state.mode), facts)
       if (travelBlocked) out.travel = travelBlocked
       for (const id of Object.keys(actions.all)) {
-        const why = unavailable(state, id, facts)
+        const why = unavailable(state, id, facts, {}, undefined, seen)
         if (why) out[id] = why
       }
       for (const id of Object.keys(rules.modes)) {
-        const why = modeUnavailable(state, id, facts)
+        const why = modeUnavailable(state, id, facts, seen)
         if (why) out[`mode.${id}`] = why
       }
       return out

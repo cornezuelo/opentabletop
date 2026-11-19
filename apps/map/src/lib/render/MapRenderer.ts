@@ -152,6 +152,8 @@ const MARKER_OUTLINE = 0x1b1a17
 const COORD_FONT = 'map-coords'
 /** Coordinates are hidden when a hex is smaller than this on screen (px). */
 const COORD_MIN_SCREEN_SIZE = 24
+/** How long the view rests before its texts are drawn again for the zoom (ms). */
+const RESOLUTION_DELAY = 150
 const MIN_ZOOM = 0.05
 const MAX_ZOOM = 8
 
@@ -289,6 +291,8 @@ export class MapRenderer {
   private panFrom: Point | null = null
   private spaceHeld = false
   private disposers: (() => void)[] = []
+  /** Texts are drawn again for the zoom once it stops, not on every step of it. */
+  private resolutionTimer: ReturnType<typeof setTimeout> | undefined
 
   constructor(
     private app: Application,
@@ -350,6 +354,7 @@ export class MapRenderer {
 
   destroy(): void {
     for (const dispose of this.disposers) dispose()
+    clearTimeout(this.resolutionTimer)
     this.world.destroy({ children: true })
     this.destroyContexts()
     this.iconTextures.destroy()
@@ -2300,7 +2305,10 @@ export class MapRenderer {
     if (fit) editor.zoom = this.world.scale.x / fit
     this.sizeGroundFilters()
     this.applyLayers()
-    this.updateLabelResolution()
+    // Each text drawn again at a new resolution costs a texture upload: while a wheel or a
+    // pinch goes on, the old ones are scaled, and they're sharp again once it stops.
+    clearTimeout(this.resolutionTimer)
+    this.resolutionTimer = setTimeout(() => this.updateLabelResolution(), RESOLUTION_DELAY)
     this.drawMarkers()
     this.drawOverlay()
   }

@@ -362,6 +362,21 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
   const km = map.scale.cellKm ?? systemCellKm ?? DEFAULT_CELL_KM
   const isFar = (a: string, b: string) =>
     !!wayOf(a, b) || (drawn.has(`${a}|${b}`) && hexDistance(a, b) > 1)
+  /** The ends of the shortcuts: far connections and ways into other maps. */
+  const shortcuts = [...new Set([...far.keys(), ...ways.map((w) => w.here)])]
+    .filter((hex) => !parsePlaceOn(hex))
+    .map(cell)
+  /** How many cells each cell is from the nearest end of a shortcut. */
+  const toShortcut = new Map<string, number>()
+  const nearestShortcut = (hex: string): number => {
+    let steps = toShortcut.get(hex)
+    if (steps === undefined) {
+      const from = cell(hex)
+      steps = Math.min(...shortcuts.map((end) => cellDistance(from, end, around)))
+      toShortcut.set(hex, steps)
+    }
+    return steps
+  }
   /** A place's neighbours: those beside it with no wall between, far connections, ways. */
   const neighborsOf = (hex: string): string[] => {
     const there = parsePlaceOn(hex)
@@ -391,6 +406,17 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       if (!there) return id
       const place = otherWorld(there.map)?.placeOf?.(there.place)
       return place ? placeOn(there.map, place) : id
+    },
+    // Another map with a single way to this one is a corner: a route between places
+    // outside it goes in and comes back out where it went in, never better than not.
+    aside(id, from, to) {
+      const there = parsePlaceOn(id)?.map
+      return (
+        !!there &&
+        parsePlaceOn(from)?.map !== there &&
+        parsePlaceOn(to)?.map !== there &&
+        ways.filter((w) => w.other.meta.id === there).length < 2
+      )
     },
     positionsOf(id) {
       const there = parsePlaceOn(id)
@@ -463,11 +489,17 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       next.set(hex, found)
       return [...found]
     },
-    // A far connection is a shortcut: with any, no distance is sure to be a lower bound.
+    // A way that takes a shortcut (a far connection, a way through another map) walks at
+    // least to the end of one nearest to where it starts, and from the one nearest to where
+    // it ends: the shorter of that and the cells between them is a lower bound.
     distance: (a, b) =>
-      far.size || parsePlaceOn(a) || parsePlaceOn(b)
+      parsePlaceOn(a) || parsePlaceOn(b)
         ? 0
-        : km * cellDistance(cell(a), cell(b), around),
+        : km *
+          Math.min(
+            cellDistance(cell(a), cell(b), around),
+            shortcuts.length ? nearestShortcut(a) + nearestShortcut(b) : Infinity,
+          ),
     diagonal(a, b) {
       const other = within(a, b)
       if (other) {
