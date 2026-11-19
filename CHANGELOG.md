@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.71.0] - 2026-11-19
+
 ### Apps
 
 - **Characters**: a value's base and what it reads now side by side: the box edits the base, and when a condition adds to it what it reads now is beside it, larger, marked ↓ / ↑ (it was a link under it, _Reads 3 now_); a value made of others is a number after an _ƒ_, no longer a greyed box. A click on either opens a small sum beside it (_Base 1 · Burdened −1 · Now 0_) in place of sentences unfolded under the value.
