@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.68.0] - 2026-11-19
+
 ### Apps
 
 - **Trips on a map**: in a room (a region played as one place) the party keeps its cell. A step across the room takes a step's time, as the system reckons any step, and enters nothing: only crossing its edge is entering a place (its checks, its encounters). Doors inside a room work as any door. Clicking a cell of the room walks there; **clicking a door** walks to its side of it and opens the trip's panel.
