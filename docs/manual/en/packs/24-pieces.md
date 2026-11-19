@@ -10,6 +10,7 @@ One catalogue at a time; **New catalogue of pieces** makes a small one and adds 
 
 - Its **Name** and its **Grid**: **Squares** or **Hexes**. Two catalogues may use the same ids on different grids, so one table serves both.
 - Its **Marks**: what each mark of a drawing lays, by terrain id (`.` lays `stone-floor`). A terrain with **Floor** in the palette gets its walls by itself.
+- **What exits of each kind have**: values every exit of a kind of connection gets as its piece is laid (`exits: { door: { fields: … } }`), each exit's own winning. Dice in them are rolled as it's laid, each exit its own roll, and kept on the map: `lock: '{{min(max(1d20 - 11, 0), 1)}}'` locks a door on 12 or more on a D20, one by one. Actions read and change them in a trip, all of a kind (`place.connections.door.lock`) or one door chosen (`from: place.connections.door.ids`, then `'place.connections[params.door].lock': 0`).
 - Its **Pieces**, each by an **Id** (what a table names it with), with its **Name** and:
   - its **Drawing**, with the piece as it will look beside it. A mark a cell, a space for nothing, and an upper-case letter for each exit, on the cell **beyond** the piece, next to exactly one of its cells: that gives the exit's direction. On hexes each row stands half a cell from the next, so marks stand two characters apart;
   - its **Exits**, one per letter: the **Kind** of connection it leaves on the map, **Way in** if the party may come in by it (with none ticked, by any), and **New map** if it leads into a map of its own ([below](#an-exit-into-a-new-map));

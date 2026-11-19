@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createMap } from './defaults'
-import { mapWorld, parsePlaceOn, placeOn } from './world'
+import { mapWorld, parsePlaceOn, placeOn, sideOf } from './world'
 
 describe('the map as the travel engine sees it', () => {
   const map = createMap()
@@ -227,5 +227,15 @@ describe('a sub-map that crosses', () => {
       expect.arrayContaining([placeOn('land', '7,2'), '3,0']),
     )
     expect(inside.km(placeOn('land', '6,2'), placeOn('land', '7,2'))).toBe(land.scale.cellKm ?? 10)
+  })
+})
+
+describe('sideOf', () => {
+  it('names the way a neighbour lies, to tell a room’s doors apart', () => {
+    expect(sideOf('5,5', '5,4')).toBe('n')
+    expect(sideOf('5,5', '6,5')).toBe('e')
+    expect(sideOf('5,5', '4,6')).toBe('sw')
+    expect(sideOf('5,5', '5,5')).toBeUndefined()
+    expect(sideOf('area:crypt', '5,5')).toBeUndefined()
   })
 })

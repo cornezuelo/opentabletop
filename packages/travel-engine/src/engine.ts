@@ -154,7 +154,8 @@ export const PLACE_CONNECTION_EFFECT = /^place\.connections\.([^.]+)\.([^.]+)$/
 /**
  * Changes a value of every connection of a kind leaving the party's place (`around`: the
  * place's `connections` facts, by kind), as `changeConnection` does one: those drawn on
- * the map, with an id. A number adds to each one's own value.
+ * the map, with an id. A number adds to each one's own value. Named by a drawn one's id
+ * instead of a kind (`place.connections[params.door].state`), only that one.
  */
 export function changePlaceConnections(
   travel: { connections?: Record<string, Record<string, unknown>> },
@@ -172,7 +173,12 @@ export function changePlaceConnections(
     .flatMap((id) => {
       const done = changeConnection(
         travel,
-        { id, kind, name: one(facts.name) ?? kind, [key]: one(facts[key]) },
+        {
+          id,
+          kind: one(facts.kind) ?? kind,
+          name: one(facts.name) ?? one(facts.kind) ?? kind,
+          [key]: one(facts[key]),
+        },
         key,
         change,
       )
@@ -1060,18 +1066,24 @@ export function createTravelEngine(options: {
             : { kind, tags: [] },
         )
     }
-    return Object.fromEntries(
-      Object.entries(byKind).map(([kind, all]) => {
-        const merged: Record<string, unknown> = {}
-        for (const key of new Set(all.flatMap((c) => Object.keys(c)))) {
-          const values = [...new Set(all.flatMap((c) => [c[key]].flat()))].filter(
-            (v) => v !== undefined,
-          )
-          merged[key] = key === 'tags' || values.length > 1 ? values : values[0]
-        }
-        return [kind, { ...merged, kind }]
-      }),
-    )
+    const kinds = Object.entries(byKind).map(([kind, all]) => {
+      const merged: Record<string, unknown> = {}
+      for (const key of new Set(all.flatMap((c) => Object.keys(c)))) {
+        const values = [...new Set(all.flatMap((c) => [c[key]].flat()))].filter(
+          (v) => v !== undefined,
+        )
+        merged[key] = key === 'tags' || values.length > 1 ? values : values[0]
+      }
+      // Those drawn, by id, always a list: a parameter chooses one (`from: …door.ids`).
+      const ids = all.flatMap((c) => (typeof c.id === 'string' ? [c.id] : []))
+      return [kind, { ...merged, kind, ids }] as const
+    })
+    // Each one drawn by its id too, with its own values and state in play, read and changed
+    // alone (`place.connections[params.door].state`).
+    const drawn = Object.values(byKind)
+      .flat()
+      .flatMap((c) => (typeof c.id === 'string' && !(c.id in byKind) ? [[c.id, c] as const] : []))
+    return Object.fromEntries([...drawn, ...kinds])
   }
   /** The neighbours of a place together: every terrain, tag and region among them. */
   const aroundFacts = (id: string): Record<string, unknown> => {

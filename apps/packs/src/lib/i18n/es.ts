@@ -284,6 +284,9 @@ export const es: Messages<typeof en> = {
     squares: 'Cuadradas',
     hexes: 'Hexagonales',
     marks: 'Marcas',
+    exitKinds: 'Qué tienen las salidas de cada tipo',
+    exitKindsHelp:
+      "Valores que tiene cada salida de un tipo de conexión, salvo que la salida diga otra cosa: se escriben en cada conexión al colocar su pieza, y en un viaje se leen y cambian como `connection.<clave>` o `place.connections[params.door].<clave>`. Los dados de un valor se tiran al colocar la pieza, cada salida su tirada.\n• `lock` — `'{{min(max(1d20 - 11, 0), 1)}}'`: una puerta cerrada con llave con 12 o más en un D20, tirada para cada una\n• `state` — `shut`: todas las puertas se colocan cerradas, hasta que una acción las abre",
     marksHelp:
       'Qué coloca cada marca del dibujo, por id de terreno. Un espacio no coloca nada; las letras mayúsculas son salidas.\n• `.` — `stone-floor`\n• `~` — `black-water`',
     pieces: 'Piezas',

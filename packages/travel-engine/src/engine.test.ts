@@ -3472,8 +3472,10 @@ describe('connections: what crossing one does', () => {
     })
     const facts = eng.context(at('a')) as { place: { connections: Record<string, unknown> } }
     expect(facts.place.connections).toEqual({
-      door: { id: 'oak-door', kind: 'door', tags: ['old'], state: 'locked' },
-      tunnel: { kind: 'tunnel', tags: [] },
+      door: { id: 'oak-door', ids: ['oak-door'], kind: 'door', tags: ['old'], state: 'locked' },
+      tunnel: { ids: [], kind: 'tunnel', tags: [] },
+      // Each one drawn by its id too.
+      'oak-door': { id: 'oak-door', kind: 'door', tags: ['old'], state: 'locked' },
     })
     const { state, events } = eng.apply(at('a'), { type: 'action', id: 'force' })
     expect(state.connections).toEqual({ 'oak-door': { state: 'open' } })
@@ -3482,6 +3484,51 @@ describe('connections: what crossing one does', () => {
     )
     // A step it opened is crossed now.
     expect(eng.stepMinutes(state, 'a', 'b')).toBe(11)
+  })
+
+  it('one connection leaving the place, chosen by its id, read and changed alone', () => {
+    const two: TravelWorld = {
+      ...rooms,
+      neighbors: (id) => (id === 'a' ? ['b', 'c'] : ['a']),
+      connections: (a, b) => ([a, b].includes('a') ? ['door'] : []),
+      connectionOf: (a, b) => {
+        const other = a === 'a' ? b : a
+        return { id: `door-${other}`, kind: 'door', tags: [], state: 'locked' }
+      },
+    }
+    const eng = createTravelEngine({
+      world: two,
+      rules: dungeon({
+        actions: {
+          ...DAY_ACTIONS,
+          pick: {
+            when: { 'place.connections.door.state': 'locked' },
+            params: {
+              door: {
+                from: 'place.connections.door.ids',
+                where: { 'place.connections[candidate].state': 'locked' },
+              },
+            },
+            do: [
+              { ask: 'params.door' },
+              { effects: { 'place.connections[params.door].state': 'open' } },
+            ],
+          },
+        },
+      }),
+    })
+    const held = eng.apply(at('a'), { type: 'action', id: 'pick' })
+    expect(held.state.waiting?.choices).toEqual(['door-b', 'door-c'])
+    const done = eng.apply(held.state, { type: 'resume', choice: 'door-c' })
+    // Only that one opens; the other stays locked, and is the only one left to choose.
+    expect(done.state.connections).toEqual({ 'door-c': { state: 'open' } })
+    const again = eng.apply(done.state, { type: 'action', id: 'pick' })
+    expect(again.state.waiting?.choices).toEqual(['door-b'])
+    const last = eng.apply(again.state, { type: 'resume', choice: 'door-b' })
+    expect(last.state.connections).toEqual({
+      'door-b': { state: 'open' },
+      'door-c': { state: 'open' },
+    })
   })
 
   it('checks and actions read the connection of the step as connection.*', () => {

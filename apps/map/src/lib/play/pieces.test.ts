@@ -167,7 +167,21 @@ describe('a barred door in the Deep Barrows', () => {
     let heard = false
     let silent = false
     for (let seed = 1; seed < 40; seed++) {
-      const forced = run({ type: 'action', id: 'force-door' }, seed)
+      const asked = run({ type: 'action', id: 'force-door' }, seed)
+      // Which door: the barred one here, chosen by its id.
+      expect(asked.state.travel.waiting).toMatchObject({ ask: 'door', choices: ['bar'] })
+      const forced = stepTrip(
+        {
+          system,
+          world: mapWorld(editor.map),
+          oracle: createOracleEngine({ registry: library.registry, random: seeded(seed) }),
+          random: seeded(seed),
+          locale: 'en',
+          discover: 'pieces' as const,
+        },
+        asked.state,
+        { type: 'resume', choice: 'bar' },
+      )
       const text = JSON.stringify(forced.entries)
       expect(text).toContain('door-noise')
       const dead = (forced.state.present ?? []).some((p) =>
@@ -214,6 +228,7 @@ describe("each map's own sheet, in the Deep Barrows", () => {
     const trip = () => play.sessionOf(editor.map.play!)!
     expect(trip().map).toMatchObject({ id, values: { unrest: 1 } })
     play.step({ type: 'action', id: 'force-door' })
+    play.step({ type: 'resume', choice: 'bar' })
     // Stirring now: the noise is always heard, and one of the dead comes.
     expect(trip().map?.values.unrest).toBe(2)
     expect(trip().map?.conditions).toHaveProperty('stirring')

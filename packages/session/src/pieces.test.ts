@@ -83,6 +83,37 @@ describe('layPiece', () => {
     }
   })
 
+  it('rolls the dice an exit’s values are written with as it’s laid, each exit its own', () => {
+    const rolled = parsed(
+      catalogue({
+        hall: {
+          name: 'Hall',
+          cells: ' B\nA.C\n',
+          exits: {
+            A: { kind: 'door', entry: true },
+            B: { kind: 'door', fields: { lock: '{{1d20}}', state: 'shut' } },
+            C: { kind: 'door', fields: { lock: '{{1d20}}' } },
+          },
+        },
+      }),
+    ).pieces!.pieces.hall as Piece
+    const locks = new Set<string>()
+    for (let seed = 0; seed < 10; seed++) {
+      const laid = layPiece('hall', rolled, ground(12), '5,5', '4,5', seeded(seed))!
+      for (const c of laid.connections) {
+        const lock = c.fields!.find((f) => f.key === 'lock')!.value
+        expect(Number(lock)).toBeGreaterThanOrEqual(1)
+        expect(Number(lock)).toBeLessThanOrEqual(20)
+        locks.add(lock)
+      }
+      // A word stays as written.
+      expect(
+        laid.connections.flatMap((c) => c.fields ?? []).find((f) => f.key === 'state')?.value,
+      ).toBe('shut')
+    }
+    expect(locks.size).toBeGreaterThan(3)
+  })
+
   it('doesn’t fit off the map or over what’s drawn', () => {
     expect(layPiece('passage', piece, ground(6), '5,5', '4,5', seeded(1))).toBeNull()
     expect(layPiece('passage', piece, ground(12, ['6,5']), '5,5', '4,5', seeded(1))).toBeNull()

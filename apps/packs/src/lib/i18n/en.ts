@@ -281,6 +281,9 @@ export const en = {
     squares: 'Squares',
     hexes: 'Hexes',
     marks: 'Marks',
+    exitKinds: 'What exits of each kind have',
+    exitKindsHelp:
+      "Values every exit of a kind of connection has, unless the exit says otherwise: written on each connection as its piece is laid, read and changed in a trip as `connection.<key>` or `place.connections[params.door].<key>`. Dice in a value are rolled as the piece is laid, each exit its own roll.\n• `lock` — `'{{min(max(1d20 - 11, 0), 1)}}'`: a door locked on 12 or more on a D20, rolled for each\n• `state` — `shut`: every door laid shut, until an action opens it",
     marksHelp:
       'What each mark of a drawing lays, by terrain id. A space lays nothing; upper-case letters are exits.\n• `.` — `stone-floor`\n• `~` — `black-water`',
     pieces: 'Pieces',

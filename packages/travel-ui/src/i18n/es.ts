@@ -88,6 +88,7 @@ export const es: Messages<typeof en> = {
     none: 'Ninguna línea del diario coincide.',
   },
   seasons: vocabulary.es.seasons,
+  directions: vocabulary.es.directions,
   tips: {
     actionTime: 'Lleva {minutes} minutos.',
     actionMove: 'Mueve al grupo por su ruta mientras se cumplan sus condiciones.',

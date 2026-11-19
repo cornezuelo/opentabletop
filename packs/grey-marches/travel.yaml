@@ -644,19 +644,27 @@ actions:
   # generator, not a check: no binding, its result and the generator's name in the journal).
   # Once a day; hidden elsewhere.
   # A barred door leaving the place (`place.connections.door.state`, a door laid shut by the
-  # Deep Barrows' pieces): ten minutes with shoulder and crowbar, and every door here is open
-  # for the rest of the trip (an effect on the connections leaving the place, never on the
-  # map); the dead of this map stir (its own sheet, `map.values`); then the noise of it,
-  # rolled on a table that may bring one of the dead.
+  # Deep Barrows' pieces), chosen by its id among the doors here (`from:
+  # place.connections.door.ids`, those barred): ten minutes with shoulder and crowbar, and
+  # that door is open for the rest of the trip (an effect on that one connection, never on
+  # the map); the dead of this map stir (its own sheet, `map.values`); then the noise of it,
+  # rolled on a table that may bring one of the dead, louder for a heavier bar.
   force-door:
     group: groups.here
     name: Force the door
-    description: 'At a barred door: ten minutes to break it open; the dead of this place stir (Restless dead +1), and the noise may bring what sleeps below (_The noise of it_).'
+    description: 'At a barred door: ten minutes to break it open; the dead of this place stir (Restless dead +1), and the noise may bring what sleeps below (_The noise of it_), surely so if its bar is heavy.'
     when: { place.connections.door.state: barred }
     hideWhenUnavailable: true
+    params:
+      door:
+        name: Which door?
+        description: One of the barred doors leaving this place.
+        from: place.connections.door.ids
+        where: { 'place.connections[candidate].state': barred }
     do:
+      - { ask: params.door }
       - { time: 10 }
-      - { effects: { place.connections.door.state: forced, map.values.unrest: 1 } }
+      - { effects: { 'place.connections[params.door].state': forced, map.values.unrest: 1 } }
       - { id: forced, say: 'The bar splinters and the door gives way.' }
       - { roll: table.door-noise }
   # A test that names its skill: the player chooses which of the acting companion's skills

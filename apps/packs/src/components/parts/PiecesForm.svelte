@@ -180,6 +180,31 @@
     />
   </section>
 
+  {#if kinds.length}
+    <section>
+      <h3>{t('piecesForm.exitKinds')}<InfoTip text={t('piecesForm.exitKindsHelp')} /></h3>
+      {#each kinds as kind (kind)}
+        {@const own = ((data.exits as Raw | undefined)?.[kind] as Raw | undefined)?.fields}
+        <div class="kind">
+          <span class="overline">{kind}</span>
+          <PairEditor
+            value={(own ?? {}) as Record<string, unknown>}
+            fresh="state"
+            locale={getLocale()}
+            {disabled}
+            label={kind}
+            onchange={(value) =>
+              doc.edit(
+                '',
+                ['exits', kind],
+                Object.keys(value ?? {}).length ? { fields: value } : undefined,
+              )}
+          />
+        </div>
+      {/each}
+    </section>
+  {/if}
+
   <section>
     <h3>{t('piecesForm.pieces')}<InfoTip text={t('piecesForm.piecesHelp')} /></h3>
     <RecordRows

@@ -862,6 +862,73 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(gone).toBeGreaterThan(0)
   })
 
+  it('doors one by one: each opened, investigated, picked or forced alone; a locked one not crossed', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const doors: Record<
+      string,
+      { id: string; kind: string; tags: string[] } & Record<string, unknown>
+    > = {
+      b: { id: 'east-door', kind: 'door', tags: [], door: 1, lock: 0, trap: 0, side: 'e' },
+      c: { id: 'west-door', kind: 'door', tags: [], door: 1, lock: 1, trap: 0, side: 'w' },
+    }
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: (id) => (id === 'a' ? ['b', 'c'] : ['a']),
+      distance: () => 1,
+      connections: (x, y) => ([x, y].includes('a') ? ['door'] : []),
+      connectionOf: (x, y) => doors[x === 'a' ? y : x],
+    }
+    let opened = 0
+    let picked = 0
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {
+      const options = {
+        system,
+        world: room,
+        oracle: createOracleEngine({ registry, random: seeded(seed) }),
+      }
+      const pc = newMember(rules, {
+        id: 'erthos',
+        name: 'Erthos',
+        values: { perception: 50, thievery: 60, dodge: 40, health: 30, toughness: 30 },
+      })
+      const { session } = startTrip({ system, location: 'a', members: [pc], seed })
+      let s = applyResult(session, { effects: { 'party.values.lockpicks': 3 } }, {}, rules)
+      const act = (id: string, door: string) => {
+        let done = stepTrip(options, { ...s, acting: 'erthos' }, { type: 'action', id })
+        if (done.state.travel.waiting?.ask === 'door')
+          done = stepTrip(options, done.state, { type: 'resume', choice: door })
+        for (let i = 0; i < 6 && done.state.travel.waiting; i++)
+          done = stepTrip(options, done.state, { type: 'resume' })
+        s = done.state
+        return done
+      }
+      // Investigating offers both doors; only the one chosen is looked over.
+      const asked = stepTrip(
+        options,
+        { ...s, acting: 'erthos' },
+        { type: 'action', id: 'investigate-door' },
+      )
+      expect(asked.state.travel.waiting?.choices).toEqual(['east-door', 'west-door'])
+      act('investigate-door', 'east-door')
+      expect(s.travel.connections?.['west-door']?.trap).toBeUndefined()
+      // The east door opens (unless a trap spotted on it waits); the west one is locked.
+      if (!((s.travel.connections?.['east-door']?.trap as number) >= 1)) {
+        act('open-door', 'east-door')
+        expect(s.travel.connections?.['east-door']?.state).toBe('open')
+        expect(s.travel.connections?.['west-door']?.state).toBeUndefined()
+        opened++
+      }
+      for (let i = 0; i < 3 && s.travel.connections?.['west-door']?.lock !== 0; i++)
+        act('pick-door', 'west-door')
+      if (s.travel.connections?.['west-door']?.lock === 0) picked++
+    }
+    expect(opened).toBeGreaterThan(2)
+    expect(picked).toBeGreaterThan(0)
+  })
+
   it('potions: found unknown, identified by Medicine (its aging rolled), drunk by their Use', () => {
     const { session, act, apply, options } = inRoom('p', { medicine: 100, health: 3, toughness: 0 })
     let state = apply(session, { 'party.items.heal.unknown': 2 })

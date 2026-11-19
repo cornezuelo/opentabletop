@@ -11,6 +11,7 @@
     presentHere,
     keepPlaceSheet,
     placeSheetOf,
+    tripFacts,
     usesOf,
     PARTY_ID,
     systemSheets,
@@ -368,7 +369,23 @@
   const choiceTip = (c: ParamChoice) =>
     typeof c === 'object' ? (localize(c.description, locale, 'en') ?? '') : ''
   /** Someone the trip lists, by id: a character of the party or a copy present, by name. */
-  const whoName = (id: string) => whoNamed(session, id) ?? id.replaceAll('-', ' ')
+  const whoName = (id: string) =>
+    whoNamed(session, id) ?? connectionName(id) ?? id.replaceAll('-', ' ')
+  /**
+   * A connection leaving the party's place, by its id (`from: place.connections.door.ids`):
+   * its name, else its kind's and the side it leaves by (_Door (north)_).
+   */
+  const connectionName = (id: string): string | undefined => {
+    const place = tripFacts({ system, world, facts }, session).place as
+      { connections?: Record<string, Record<string, unknown>> } | undefined
+    const c = place?.connections?.[id]
+    if (!c || c.id !== id) return undefined
+    if (typeof c.name === 'string') return c.name
+    const kind = String(c.kind)
+    const named = localize(system.rules.connections?.[kind]?.name, locale, 'en') ?? kind
+    const side = typeof c.side === 'string' ? t(`directions.${c.side}` as never) : undefined
+    return side ? `${named} (${side})` : named
+  }
   /** The step waiting for the player (`pause:`, `ask:`), and what it asks. */
   const waiting = $derived(travel.waiting)
   const asked = $derived(

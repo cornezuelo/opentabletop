@@ -82,8 +82,10 @@ export const vocabulary = {
     },
     seasons: { spring: 'spring', summer: 'summer', autumn: 'autumn', winter: 'winter' },
     moonPhases: { new: 'new', waxing: 'waxing', full: 'full', waning: 'waning' },
-    /** Ways out of a hex (a hex flower's moves), and staying. */
+    /** Ways out of a hex (a hex flower's moves), and staying; north and south on square maps. */
     directions: {
+      n: 'north',
+      s: 'south',
       e: 'east',
       w: 'west',
       ne: 'north-east',
@@ -261,6 +263,8 @@ export const vocabulary = {
     seasons: { spring: 'primavera', summer: 'verano', autumn: 'otoño', winter: 'invierno' },
     moonPhases: { new: 'nueva', waxing: 'creciente', full: 'llena', waning: 'menguante' },
     directions: {
+      n: 'norte',
+      s: 'sur',
       e: 'este',
       w: 'oeste',
       ne: 'nordeste',

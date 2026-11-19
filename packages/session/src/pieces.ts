@@ -13,6 +13,7 @@ import {
 } from '@open-tabletop/hex'
 import type { LocalizedText } from '@open-tabletop/oracle-engine'
 import type { RandomSource } from '@open-tabletop/random'
+import { lookupIn, onceRoller, render } from '@open-tabletop/variables'
 import { localize } from './index'
 import { definitionId } from './refs'
 
@@ -65,7 +66,7 @@ export interface PiecesCatalogue {
   pieces: Record<string, Piece>
 }
 
-const CATALOGUE_KEYS = ['kind', 'id', 'name', 'description', 'grid', 'marks', 'pieces']
+const CATALOGUE_KEYS = ['kind', 'id', 'name', 'description', 'grid', 'marks', 'pieces', 'exits']
 const PIECE_KEYS = ['name', 'room', 'tags', 'fields', 'cells', 'exits', 'contents', 'turn']
 const EXIT_KEYS = ['kind', 'name', 'tags', 'fields', 'entry', 'newMap']
 
@@ -110,6 +111,20 @@ export function parsePieces(
     if ([...mark].length !== 1 || EXIT_MARK.test(mark))
       errors.push(`marks.${mark}: a mark is one character, not an upper-case letter`)
     if (typeof terrain !== 'string' || !terrain) errors.push(`marks.${mark}: expected a terrain`)
+  }
+  // What every exit of a kind has, unless it says otherwise (`exits: { door: { fields: … } }`):
+  // its values, an exit's own winning a key they share.
+  const byKind: Record<string, Record<string, string | number>> = {}
+  if (raw.exits !== undefined && !isRecord(raw.exits))
+    errors.push('exits: expected what exits of each kind have (`door: { fields: … }`)')
+  for (const [kind, value] of Object.entries(isRecord(raw.exits) ? raw.exits : {})) {
+    if (
+      !isRecord(value) ||
+      Object.keys(value).some((k) => k !== 'fields') ||
+      !isValues(value.fields)
+    )
+      errors.push(`exits.${kind}: expected its values (\`fields: { lock: 1 }\`)`)
+    else byKind[kind] = value.fields
   }
   const pieces: Record<string, Piece> = {}
   if (!isRecord(raw.pieces)) errors.push('pieces: expected pieces by id')
@@ -175,7 +190,9 @@ export function parsePieces(
           newMap: isRecord(newMap) ? { name: newMap.name as LocalizedText } : {},
         }),
         ...(tags?.length && { tags }),
-        ...(isValues(exit.fields) && { fields: exit.fields }),
+        ...((byKind[exit.kind] || isValues(exit.fields)) && {
+          fields: { ...byKind[exit.kind], ...(isValues(exit.fields) ? exit.fields : {}) },
+        }),
         entry: exit.entry === true,
         at: { x, y },
         floor: { x: beside[0].x, y: beside[0].y },
@@ -275,9 +292,16 @@ export interface PieceGround {
   floor(cell: string): boolean
 }
 
-/** A piece's values as a map keeps them. */
-function valuesOf(fields: Record<string, string | number> | undefined) {
-  const list = Object.entries(fields ?? {}).map(([key, value]) => ({ key, value: String(value) }))
+/**
+ * A piece's values as a map keeps them. With `random`, a value written with dice is rolled
+ * as it's laid (an exit's `lock: '{{1d20}}'`): each exit its own roll, kept on the map.
+ */
+function valuesOf(fields: Record<string, string | number> | undefined, random?: RandomSource) {
+  const read = random && lookupIn({}, onceRoller(random))
+  const list = Object.entries(fields ?? {}).map(([key, value]) => ({
+    key,
+    value: read && typeof value === 'string' ? render(value, read) : String(value),
+  }))
   return list.length ? list : undefined
 }
 
@@ -341,7 +365,7 @@ export function layPiece(
       if (cells[beyond] || !(ground.free(beyond) || ground.floor(beyond))) return []
       const { kind, tags } = other
       const name = other.name && localize(other.name, locale, 'en')
-      const fields = valuesOf(other.fields)
+      const fields = valuesOf(other.fields, random)
       return [
         {
           between: [placed(other.floor), beyond],

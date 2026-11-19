@@ -11,7 +11,7 @@ pieces/deep-barrows:
     - `contents`: lo que se tira en una cripta en lugar de `discover.contents`
     - `entry: true`: por qué salidas se puede entrar en una pieza
     - Una salida con valores (`fields: { state: hidden }`): un camino oculto que se encuentra con una comprobación
-    - Una puerta colocada cerrada (`fields: { state: barred }`): no hay camino hasta que el grupo la fuerza (_Forzar la puerta_), y el ruido puede despertar lo que duerme aquí
+    - Una puerta colocada cerrada (`fields: { state: barred, bar: '{{1d3}}' }`, su tranca tirada al colocarla, cada puerta la suya): no hay camino hasta que el grupo fuerza esa puerta (_Forzar la puerta_, eligiéndola entre las puertas de aquí), y el ruido puede despertar lo que duerme aquí, seguro con la tranca más pesada
     - Una salida a un mapa nuevo (`newMap`): _Una escalera más abajo_ crea _Los túmulos más hondos_, un mapa propio colocado pieza a pieza como estos, con su propia hoja (_Este lugar_)
   pieces:
     stair-foot: { name: El pie de la escalera }
@@ -77,9 +77,9 @@ last-tomb:
 door-noise:
   name: El ruido
   description: |-
-    Se tira cuando cede una puerta atrancada de los Túmulos Hondos (_Forzar la puerta_): si algo lo ha oído. Una vez que los muertos del lugar se agitan, algo lo oye siempre.
+    Se tira cuando cede una puerta atrancada de los Túmulos Hondos (_Forzar la puerta_): si algo lo ha oído. Una vez que los muertos del lugar se agitan, algo lo oye siempre; y siempre se oye ceder la tranca más pesada.
 
-    **Enseña:** una tabla que tira una acción (`roll:`), cuyo resultado pone a uno entre los presentes (`present.barrow-dead`) y detiene el viaje (`pause`), y una entrada que se deja fuera por lo que el mapa guarda como suyo (`unless: { map.conditions: stirring }`).
+    **Enseña:** una tabla que tira una acción (`roll:`), cuyo resultado pone a uno entre los presentes (`present.barrow-dead`) y detiene el viaje (`pause`), y una entrada que se deja fuera por lo que el mapa guarda como suyo (`map.conditions: stirring`) o por un valor de la puerta forzada, tirado al colocar su pieza (`'place.connections[params.door].bar': 3`).
   entries:
     silence: El eco se apaga; nada se mueve
     heard: Algo en la oscuridad lo ha oído, y viene

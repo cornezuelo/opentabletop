@@ -15,7 +15,7 @@ description: |-
   - `contents`: what's rolled in a crypt instead of `discover.contents`
   - `entry: true`: which exits a piece may be entered by
   - An exit with values (`fields: { state: hidden }`): a hidden way found by a check
-  - A door laid shut (`fields: { state: barred }`): no way on until the party forces it (_Force the door_), and the noise may wake what sleeps here
+  - A door laid shut (`fields: { state: barred, bar: '{{1d3}}' }`, its bar rolled as it's laid, each door its own): no way on until the party forces that door (_Force the door_, choosing it among the doors here), and the noise may wake what sleeps here, surely so for the heaviest bar
   - An exit into a new map (`newMap`): _A stair further down_ makes _The deeper barrows_, a map of their own laid piece by piece as these are, with a sheet of their own (_This place_)
 grid: square
 marks:
@@ -87,7 +87,8 @@ pieces:
     exits:
       A: { kind: door, entry: true }
   # A door shut from the far side: the door kind's `passable` (travel.yaml) reads its state,
-  # so the way on waits for Force the door.
+  # so the way on waits for Force the door. How heavy its bar is, rolled as it's laid (each
+  # door its own, kept on the map): the heaviest is always heard as it gives (_The noise of it_).
   barred-passage:
     name: A barred door
     cells: |
@@ -97,7 +98,7 @@ pieces:
       B
     exits:
       A: { kind: door }
-      B: { kind: door, name: A barred door, fields: { state: barred } }
+      B: { kind: door, name: A barred door, fields: { state: barred, bar: '{{1d3}}' } }
   # A way further down: the exit makes a new map under this one, hanging from the stair's
   # foot, as a way down (`way-in`); going in lays its first piece there.
   stair-down:
@@ -227,15 +228,16 @@ id: door-noise
 tags: [rules]
 name: The noise of it
 description: |-
-  Rolled as a barred door of the Deep Barrows gives way (_Force the door_): whether anything heard it. Once the dead of the place are stirring, something always does.
+  Rolled as a barred door of the Deep Barrows gives way (_Force the door_): whether anything heard it. Once the dead of the place are stirring, something always does; and the heaviest bar giving way is always heard.
 
-  **Shows:** a table an action rolls (`roll:`), its result making one of those present (`present.barrow-dead`) and stopping the trip (`pause`), and an entry left out by what the map keeps of its own (`unless: { map.conditions: stirring }`).
+  **Shows:** a table an action rolls (`roll:`), its result making one of those present (`present.barrow-dead`) and stopping the trip (`pause`), and an entry left out by what the map keeps of its own (`map.conditions: stirring`) or by a value of the one door forced, rolled as its piece was laid (`'place.connections[params.door].bar': 3`).
 entries:
   - id: silence
     weight: 3
     result: The echo dies away; nothing stirs
-    # The map's own sheet: where the dead are stirring, nothing goes unheard.
-    unless: { map.conditions: stirring }
+    # The map's own sheet: where the dead are stirring, nothing goes unheard; nor the
+    # heaviest bar giving way (the door forced, `place.connections[params.door].bar`).
+    unless: { any: [{ map.conditions: stirring }, { 'place.connections[params.door].bar': 3 }] }
   - id: heard
     weight: 1
     result: Something in the dark heard it, and comes

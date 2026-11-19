@@ -91,6 +91,7 @@ export const en = {
     none: 'No line of the journal matches.',
   },
   seasons: vocabulary.en.seasons,
+  directions: vocabulary.en.directions,
   tips: {
     actionTime: 'Takes {minutes} minutes.',
     actionMove: 'Moves the party along its route while its conditions hold.',

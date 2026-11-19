@@ -279,6 +279,20 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
   }
 }
 
+/**
+ * Which way a cell's neighbour lies from it, on the map as drawn (`n`, `ne`, `e`…): the side
+ * of a place a connection leaves by, to tell a room's doors apart. Undefined for cells that
+ * aren't neighbours on the grid.
+ */
+export function sideOf(from: string, to: string): string | undefined {
+  const [a, b] = [from, to].map((k) => k.split(',').map(Number))
+  if (a.length !== 2 || b.length !== 2 || [...a, ...b].some((n) => !Number.isFinite(n)))
+    return undefined
+  const [dx, dy] = [Math.sign(b[0] - a[0]), Math.sign(b[1] - a[1])]
+  const side = `${dy < 0 ? 'n' : dy > 0 ? 's' : ''}${dx > 0 ? 'e' : dx < 0 ? 'w' : ''}`
+  return side || undefined
+}
+
 /** What stands on a cell, as a fact of it: their values by name, the first's on the same name. */
 function withValues(key: string, list: { fields?: CustomField[] }[] = []) {
   const values = Object.assign({}, ...list.map((i) => fieldValues(i.fields)).reverse())
@@ -477,12 +491,14 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
       if (other) return other.world.connectionOf?.(other.a, other.b)
       const c = drawn.get(`${a}|${b}`)
       if (!c) return undefined
+      const side = sideOf(a, b)
       return {
         ...fieldValues(c.fields),
         id: c.id,
         kind: c.kind,
         tags: c.tags ?? [],
         ...(c.name && { name: c.name }),
+        ...(side && { side }),
       }
     },
   }

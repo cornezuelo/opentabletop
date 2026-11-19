@@ -13,7 +13,7 @@ describe.skipIf(!here)('Ker Nethalas', () => {
   // The Oracle rolls with Math.random: a fixed sequence makes every run the same. (A Domain
   // may close on itself, its last rooms with no exit: this sequence's keeps growing.)
   beforeEach(() => {
-    let seed = 11
+    let seed = 17
     vi.spyOn(Math, 'random').mockImplementation(() => {
       seed = (seed * 1103515245 + 12345) % 2147483648
       return seed / 2147483648
@@ -33,15 +33,53 @@ describe.skipIf(!here)('Ker Nethalas', () => {
     play.updatePlay((p) => ({ ...p, discover: { on: true, reveal: 'pieces' } }))
     play.setMode('rules')
     play.clickHex('40,40' as HexKey)
+    const pc = newMember(partyOf(activeSystem()), {
+      id: 'erthos',
+      name: 'Erthos',
+      values: { bladed: 73, dodge: 40, parry: 73, perception: 50, athletics: 60 },
+    })
+    play.editSession((s) => ({ ...s, members: [pc], acting: 'erthos' }))
   }
   const session = () => play.sessionOf(editor.map.play!)!
+  /**
+   * A door (rolled so as its piece was laid) is crossed once opened: from the room it leaves,
+   * Erthos opens it, or breaks it open while it's locked, as the player would.
+   */
+  function openDoor(way: { id: string; fields?: { key: string; value: string }[] }) {
+    const field = (key: string) => way.fields?.find((f) => f.key === key)?.value
+    if (field('door') !== '1') return
+    const inside = (editor.map.connections.find((c) => c.id === way.id)?.between ?? []).find(
+      (cell) => editor.map.hexes[cell as HexKey]?.terrain,
+    )
+    if (inside) play.walkTo(inside as HexKey)
+    for (let i = 0; i < 12 && session().travel.connections?.[way.id]?.state !== 'open'; i++) {
+      if (session().encounter) play.step({ type: 'encounter', what: 'end' })
+      if (session().travel.waiting) {
+        play.step({ type: 'resume', choice: way.id })
+        continue
+      }
+      const locked = (session().travel.connections?.[way.id]?.lock ?? Number(field('lock'))) === 1
+      play.editSession((s) => ({ ...s, acting: 'erthos' }))
+      play.step({ type: 'action', id: locked ? 'force-door' : 'open-door', with: { door: way.id } })
+    }
+  }
   /** Walks to an exit not yet laid (the i-th), and answers what the walk rolled. */
   function walkOn(i: number): boolean {
-    const waiting = editor.map.connections.flatMap((c) =>
-      c.between.filter((cell) => !editor.map.hexes[cell as HexKey]?.terrain),
+    const ways = editor.map.connections.filter((c) =>
+      c.between.some((cell) => !editor.map.hexes[cell as HexKey]?.terrain),
     )
-    if (!waiting.length) return false
-    play.walkTo(waiting[i % waiting.length])
+    if (!ways.length) return false
+    const way = ways[i % ways.length]
+    openDoor(way)
+    // What opening it brought (a Tension Die's pause, a fight called off) is seen to first.
+    for (let j = 0; j < 8; j++) {
+      const [check] = session().travel.pendingChecks
+      if (check) play.resolvePending(check.id)
+      else if (session().encounter) play.step({ type: 'encounter', what: 'end' })
+      else if (session().travel.waiting) play.step({ type: 'resume' })
+      else break
+    }
+    play.walkTo(way.between.find((cell) => !editor.map.hexes[cell as HexKey]?.terrain)!)
     for (let j = 0; j < 8; j++) {
       const [check] = session().travel.pendingChecks
       if (!check) break
@@ -71,13 +109,6 @@ describe.skipIf(!here)('Ker Nethalas', () => {
 
   it('a creature met as its room is laid is in that room: the fight goes on until it ends', () => {
     domain()
-    const rules = partyOf(activeSystem())
-    const pc = newMember(rules, {
-      id: 'erthos',
-      name: 'Erthos',
-      values: { bladed: 73, dodge: 40, parry: 73, perception: 50 },
-    })
-    play.editSession((s) => ({ ...s, members: [pc] }))
     // Walked on until an encounter pauses the trip (the room laid as the party enters it).
     for (let i = 0; i < 80 && !session().present?.length; i++) {
       if (!walkOn(i)) break
