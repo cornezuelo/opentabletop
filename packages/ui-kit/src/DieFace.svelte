@@ -2,12 +2,15 @@
   import type { DieShape } from './diceTray'
 
   /**
-   * One die drawn as its shape (d4 to d20, d%, Fudge as a square, any other as a round one)
-   * with a face, sized by `--die` (the dice tray's, the throw's). `dropped` fades it, outline
-   * dashed (a keep left it out); `tumble` rolls it in as it appears, `delay` and `duration` in ms.
+   * One die drawn as its solid (d4 to d20, d%, Fudge as a cube, a d2 as a coin; a die with no
+   * solid of its own as the one it's rolled with, a d3 as a d6) with a face, lit from above,
+   * what it is written small under the face where it's large enough (`--die-sides: inline`);
+   * sized by `--die` (the dice tray's, the throw's). `dropped` fades it, outline dashed (a keep
+   * left it out); `tumble` rolls it in as it appears, `delay` and `duration` in ms.
    */
   let {
     shape,
+    sides,
     face,
     label,
     dropped = false,
@@ -16,6 +19,8 @@
     duration,
   }: {
     shape: DieShape
+    /** What it is (`6`, `3`, `%`, `F`), written small on it. */
+    sides: string
     face: string
     /** Its name for those who can't see it (_d6: 4_). */
     label: string
@@ -26,7 +31,7 @@
   } = $props()
 
   /** Each shape's outline, in a 40 × 40 box. */
-  const OUTLINES: Record<Exclude<DieShape, 6 | 'fudge' | 'round'>, string> = {
+  const OUTLINES: Record<Exclude<DieShape, 6 | 'fudge' | 'coin'>, string> = {
     4: '20,3 37,35 3,35',
     8: '20,2 38,20 20,38 2,20',
     10: '20,2 37,16 20,38 3,16',
@@ -35,7 +40,9 @@
     20: '20,2 37,11 37,29 20,38 3,29 3,11',
   }
   /** A d4's face sits low, in the triangle's body. */
-  const faceY = $derived(shape === 4 ? 27 : 21)
+  const faceY = $derived(shape === 4 ? 25 : 20)
+  /** Its light, one per die drawn. */
+  const lit = $props.id()
 </script>
 
 <svg
@@ -48,14 +55,22 @@
   role="img"
   aria-label={label}
 >
+  <defs>
+    <linearGradient id={lit} x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" class="light" />
+      <stop offset="1" class="shade" />
+    </linearGradient>
+  </defs>
   {#if shape === 6 || shape === 'fudge'}
-    <rect x="5" y="5" width="30" height="30" rx="6" />
-  {:else if shape === 'round'}
-    <circle cx="20" cy="20" r="17" />
+    <rect x="5" y="5" width="30" height="30" rx="6" fill="url(#{lit})" />
+  {:else if shape === 'coin'}
+    <circle cx="20" cy="20" r="17" fill="url(#{lit})" />
+    <circle class="rim" cx="20" cy="20" r="13" />
   {:else}
-    <polygon points={OUTLINES[shape]} />
+    <polygon points={OUTLINES[shape]} fill="url(#{lit})" />
   {/if}
   <text x="20" y={faceY} class:small={face.length > 2}>{face}</text>
+  <text class="sides" x="20" y={shape === 4 ? 32 : 32.5}>d{sides}</text>
 </svg>
 
 <style>
@@ -66,11 +81,37 @@
     overflow: visible;
   }
 
+  .die {
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35));
+  }
+
   .die :is(rect, circle, polygon) {
-    fill: var(--panel);
     stroke: var(--accent);
     stroke-width: var(--die-stroke, 2);
     stroke-linejoin: round;
+  }
+
+  /* Lit from above: the top lighter, the bottom the panel's. */
+  .light {
+    stop-color: color-mix(in srgb, var(--panel), white 22%);
+  }
+
+  .shade {
+    stop-color: var(--panel);
+  }
+
+  .die .rim {
+    fill: none;
+    stroke-width: 1;
+    opacity: 0.5;
+  }
+
+  /* What it is, small under its face: only where the die is large enough to read it. */
+  .die text.sides {
+    display: var(--die-sides, none);
+    font-size: 7px;
+    font-weight: 400;
+    fill: var(--text-muted);
   }
 
   .die text {

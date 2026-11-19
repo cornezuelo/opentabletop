@@ -4,7 +4,6 @@
     ROLL_MS,
     ROLL_STAGGER_MS,
     rollingFace,
-    type DieShape,
     type DrawnDie,
     type DrawnRoll,
     type TrayRoll,
@@ -80,22 +79,20 @@
     }
   })
   /** What a die shows: a face turning while it rolls, its own once settled. */
-  const shown = (shape: DieShape, face: string) =>
-    rolling ? (void tick, rollingFace(shape, Math.random())) : face
-
-  const sidesName = (shape: DieShape) =>
-    shape === 'percent' ? '%' : shape === 'fudge' ? 'F' : shape === 'round' ? '' : String(shape)
+  const shown = (d: DrawnDie, face: string) =>
+    rolling ? (void tick, rollingFace(d, Math.random())) : face
 </script>
 
 {#snippet die(d: DrawnDie, face: string, i: number)}
   <DieFace
     shape={d.shape}
-    face={shown(d.shape, face)}
+    sides={d.sides}
+    face={shown(d, face)}
     dropped={d.dropped}
     tumble={tumbles}
     delay={i * ROLL_STAGGER_MS}
     duration={ROLL_MS}
-    label={text.die.replace('{sides}', sidesName(d.shape)).replace('{face}', face || '0')}
+    label={text.die.replace('{sides}', d.sides).replace('{face}', face || '0')}
   />
 {/snippet}
 
@@ -159,6 +156,7 @@
 
   .large {
     --die: 36px;
+    --die-sides: inline;
     gap: 6px 16px;
   }
 

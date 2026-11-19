@@ -16,6 +16,23 @@ describe('the dice tray', () => {
     expect(drawn.total).toBe(faces[0]! + faces[1]! + 1)
   })
 
+  it('draws every die as a real solid: a d3 as a d6, a d5 as a d10, a d2 as a coin, said on it', () => {
+    const solid = (expression: string) => {
+      const part = drawRoll(roll(expression, seeded(1))).parts[0]!
+      return part.kind === 'dice' ? [part.dice[0]!.shape, part.dice[0]!.sides] : []
+    }
+    expect(solid('1d3')).toEqual([6, '3'])
+    expect(solid('1d5')).toEqual([10, '5'])
+    expect(solid('1d2')).toEqual(['coin', '2'])
+    expect(solid('1d1')).toEqual([6, '1'])
+    expect(solid('1d7')).toEqual([8, '7'])
+    expect(solid('1d30')).toEqual([20, '30'])
+    expect(solid('d%')).toEqual(['percent', '%'])
+    expect(solid('4dF')).toEqual(['fudge', 'F'])
+    // What it is, written on it (shown where the die is large).
+    expect(render(DiceTray, { props: { rolls: [roll('1d3', seeded(1))] } }).body).toContain('d3<')
+  })
+
   it('a keep fades what it leaves out; a roll mode keeps the other totals apart', () => {
     const kept = drawRoll(roll('4d6kh3', seeded(2)))
     const dice = kept.parts[0]!.kind === 'dice' ? kept.parts[0]!.dice : []
@@ -81,7 +98,7 @@ describe('the dice tray', () => {
       {
         kind: 'dice',
         sign: 1,
-        dice: [{ shape: 6, face: '5', dropped: false, more: [], value: 5 }],
+        dice: [{ shape: 6, sides: '6', face: '5', dropped: false, more: [], value: 5 }],
       },
     ])
     expect(drawRoll({ expression: '2d6+1', terms: [], total: 9, byHand: true }).parts).toEqual([])
@@ -95,9 +112,9 @@ describe('the dice tray', () => {
         locale: 'es',
       },
     }).body
-    // The 1d6 first, then the row's 1d3 (a round die) under its words.
+    // The 1d6 first, then the row's 1d3 under its words.
     expect(html.indexOf('d6:')).toBeLessThan(html.indexOf('en el resultado'))
-    expect(html.indexOf('en el resultado')).toBeLessThan(html.indexOf('aria-label="d: '))
+    expect(html.indexOf('en el resultado')).toBeLessThan(html.indexOf('aria-label="d3: '))
     const alone = render(DiceTray, { props: { rolls: [roll('1d6', seeded(6))] } }).body
     expect(alone).not.toContain('in the result')
   })
@@ -105,10 +122,15 @@ describe('the dice tray', () => {
 
 describe('rollingFace', () => {
   it('shows a face the die could land on while it rolls', () => {
-    expect(rollingFace(6, 0)).toBe('1')
-    expect(rollingFace(6, 0.99)).toBe('6')
-    expect(rollingFace(20, 0.5)).toBe('11')
-    expect(rollingFace('fudge', 0.99)).toBe('+')
-    expect(rollingFace('percent', 0.99)).toBe('00')
+    expect(rollingFace({ sides: '6' }, 0)).toBe('1')
+    expect(rollingFace({ sides: '6' }, 0.99)).toBe('6')
+    expect(rollingFace({ sides: '20' }, 0.5)).toBe('11')
+    expect(rollingFace({ sides: 'F' }, 0.99)).toBe('+')
+    expect(rollingFace({ sides: '%' }, 0.99)).toBe('00')
+    // A d3 drawn as a d6 turns through its own faces only, never a 4 or an 8.
+    const d3 = drawRoll(roll('1d3', seeded(1))).parts[0]!
+    const die = d3.kind === 'dice' ? d3.dice[0]! : undefined
+    expect(die).toMatchObject({ shape: 6, sides: '3' })
+    for (let n = 0; n < 1; n += 0.01) expect(['1', '2', '3']).toContain(rollingFace(die!, n))
   })
 })

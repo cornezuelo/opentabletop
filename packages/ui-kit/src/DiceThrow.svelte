@@ -6,7 +6,7 @@
   import { knock } from './diceSound'
   import { portal } from './portal'
   import { settled, startThrow, stepThrow, type Table, type ThrownDie } from './diceThrow'
-  import { drawRoll, rollingFace, type DieShape } from './diceTray'
+  import { drawRoll, rollingFace } from './diceTray'
 
   /**
    * A roll of the player's thrown across a table, large, in the middle of the screen
@@ -100,14 +100,17 @@
       .flatMap(({ p, other }) =>
         p.kind === 'dice'
           ? p.dice.flatMap((d) => [
-              { shape: d.shape, face: d.face, dropped: d.dropped || other },
-              ...d.more.map((face) => ({ shape: d.shape, face, dropped: d.dropped || other })),
+              { shape: d.shape, sides: d.sides, face: d.face, dropped: d.dropped || other },
+              ...d.more.map((face) => ({
+                shape: d.shape,
+                sides: d.sides,
+                face,
+                dropped: d.dropped || other,
+              })),
             ])
           : [],
       )
   })
-  const sidesName = (shape: DieShape) =>
-    shape === 'percent' ? '%' : shape === 'fudge' ? 'F' : shape === 'round' ? '' : String(shape)
 
   const reduced =
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -201,7 +204,7 @@
       return
     }
     dice = startThrow(faces.length, table, Math.random, velocity, from)
-    turning = faces.map((f) => rollingFace(f.shape, Math.random()))
+    turning = faces.map((f) => rollingFace(f, Math.random()))
     stage = 'rolling'
     let before = performance.now()
     let heard = 0
@@ -211,7 +214,7 @@
       const step = stepThrow(dice, table, dt)
       // A face turns each time a die goes over.
       turning = step.dice.map((d, i) =>
-        d.turns !== dice[i]!.turns ? rollingFace(faces[i]!.shape, Math.random()) : turning[i]!,
+        d.turns !== dice[i]!.turns ? rollingFace(faces[i]!, Math.random()) : turning[i]!,
       )
       dice = step.dice
       if (step.knock > 0.08 && dicePreferences.sound && now - heard > 40) {
@@ -258,9 +261,10 @@
           <span style:--die="{table.size}px"
             ><DieFace
               shape={f.shape}
+              sides={f.sides}
               face={f.face}
               dropped={f.dropped}
-              label={text.die.replace('{sides}', sidesName(f.shape)).replace('{face}', f.face)}
+              label={text.die.replace('{sides}', f.sides).replace('{face}', f.face)}
             /></span
           >
         {/each}
@@ -279,9 +283,10 @@
         >
           <DieFace
             shape={f.shape}
+            sides={f.sides}
             face={stage === 'rolling' ? (turning[i] ?? f.face) : stage === 'hand' ? '' : f.face}
             dropped={stage === 'done' && f.dropped}
-            label={text.die.replace('{sides}', sidesName(f.shape)).replace('{face}', f.face)}
+            label={text.die.replace('{sides}', f.sides).replace('{face}', f.face)}
           />
         </span>
       {/each}
@@ -469,8 +474,14 @@
     height: 100%;
   }
 
-  .thrown :global(.die text) {
+  .thrown :global(.die text:not(.sides)) {
     font-size: 17px;
+  }
+
+  /* Large enough to say what each die is. */
+  .thrown,
+  .still {
+    --die-sides: inline;
   }
 
   .held {
