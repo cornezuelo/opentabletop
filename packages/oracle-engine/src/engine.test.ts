@@ -11,6 +11,7 @@ import {
   packImages,
   PACK_FORMAT,
   parseRef,
+  splitRolls,
   writeRef,
   type OracleState,
   type PackFile,
@@ -392,6 +393,17 @@ describe('tables', () => {
     expect(resolution.entry).toBe('wolves')
     expect(resolution.value).toEqual({ count: 7, kind: 'beast' })
     expect(resolution.text).toBe('7 lobos')
+    // The 1d6 asked for, then the 2d6 its row rolled inside it: kept apart, so a 1d6 is drawn
+    // as one die and the row's dice after it.
+    expect(resolution.inside).toBe(1)
+    const { asked, inside } = splitRolls(resolution)
+    expect(asked.map((r) => r.expression)).toEqual(['1d6'])
+    expect(inside.map((r) => [r.expression, r.total])).toEqual([['2d6', 7]])
+    // A row that rolls nothing inside it marks nothing.
+    const plain = createOracleEngine({ registry, random: sequence([0.75, 0.25]) })
+    const ruins = plain.resolve('test/encounters').resolution
+    expect(ruins.inside).toBeUndefined()
+    expect(splitRolls(ruins).asked).toHaveLength(1)
   })
 
   it("the player's rolls: each roll in order asks for its total, the dice within the entry too", () => {

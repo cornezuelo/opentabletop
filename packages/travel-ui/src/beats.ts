@@ -48,8 +48,21 @@ export interface BeatTold {
   first: JournalEntry
 }
 
-/** The rolls of a result, each die kept (older journals only kept them as text). */
-export type Dice = NonNullable<RolledNode['results']>
+/**
+ * The rolls of a result, each die kept (older journals only kept them as text); `inside` those
+ * rolled inside the row another roll came to (a row's harm), drawn after it.
+ */
+export type Dice = (NonNullable<RolledNode['results']>[number] & { inside?: boolean })[]
+
+/**
+ * A node's dice, those its row rolled inside it marked so; every one of them when the node is
+ * itself inside another's result (`inside`: a table a row led to).
+ */
+export function nodeDice(n: RolledNode, inside = false): Dice {
+  const results = n.results ?? []
+  const at = inside ? 0 : results.length - (n.inside ?? 0)
+  return results.map((r, i) => (i < at ? r : { ...r, inside: true }))
+}
 
 /**
  * The dice each result of a moment was rolled with: the roll's line (`ROLLED`, what happened
@@ -61,7 +74,8 @@ export function diceOf(entries: readonly JournalEntry[]): Map<string, Dice> {
   for (const e of entries) {
     if (e.code === 'ROLLED') {
       const nodes = Array.isArray(e.data?.rolls) ? (e.data.rolls as RolledNode[]) : []
-      rolled = { check: e.data?.check, dice: nodes.flatMap((n) => n.results ?? []) }
+      // What the check rolled first; what its row rolled, and the tables it led to, after.
+      rolled = { check: e.data?.check, dice: nodes.flatMap((n) => nodeDice(n, n.depth > 0)) }
     } else if (e.code === 'ORACLE_RESULT' && rolled && rolled.check === e.data?.event) {
       if (rolled.dice.length) out.set(e.id, rolled.dice)
       rolled = undefined

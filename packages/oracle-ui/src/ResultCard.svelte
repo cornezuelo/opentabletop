@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Resolution } from '@open-tabletop/oracle-engine'
+  import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
   import { DiceTray } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import Self from './ResultCard.svelte'
@@ -23,6 +23,11 @@
       ([key, v]) => key !== 'text' && (typeof v !== 'object' || v === null),
     ),
   )
+  /** Its dice: those asked for, then those its row rolled inside it, said so. */
+  const dice = $derived.by(() => {
+    const { asked, inside } = splitRolls(resolution)
+    return [...asked, ...inside.map((r) => ({ ...r, inside: true }))]
+  })
   const empty = $derived(!resolution.text && !resolution.entry && !resolution.children.length)
 </script>
 
@@ -45,12 +50,7 @@
   {#if resolution.rolls.length}
     <!-- The dice it was rolled with, tumbling as a roll just made appears. -->
     <div class="dice">
-      <DiceTray
-        rolls={resolution.rolls}
-        locale={ui.locale()}
-        large={top}
-        animate={top && !thrown}
-      />
+      <DiceTray rolls={dice} locale={ui.locale()} large={top} animate={top && !thrown} />
     </div>
   {/if}
   {#if resolution.children.length}

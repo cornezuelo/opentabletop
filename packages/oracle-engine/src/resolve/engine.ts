@@ -54,6 +54,11 @@ export interface Resolution {
   entry?: string
   /** Dice rolled at this node (sub-results keep their own). */
   rolls: DiceResult[]
+  /**
+   * How many of `rolls`, the last ones, were rolled inside the entry chosen (its `set`, text
+   * and effects: a row's `{{1d3}}` of harm), after the roll that chose it; absent when none.
+   */
+  inside?: number
   /** The roll mode its roll was made with (full id), if any. */
   mode?: string
   children: Resolution[]
@@ -572,10 +577,12 @@ class Run {
     node.entry = entry.key
     // What's rolled from here on (its values, the table it leads to, its text) is inside it.
     this.within.push(template ? template.replace(/\{\{[^}]*\}\}/g, '…').trim() : '')
+    const before = node.rolls.length
     try {
       this.enter(def, entry, template, context, depth, node)
     } finally {
       this.within.pop()
+      if (node.rolls.length > before) node.inside = node.rolls.length - before
     }
   }
 
@@ -816,6 +823,18 @@ function allCards(deck: CompiledDeck): string[] {
 
 function flattenRolls(resolution: Resolution): DiceResult[] {
   return [...resolution.rolls, ...resolution.children.flatMap(flattenRolls)]
+}
+
+/**
+ * A node's rolls apart: those it was asked for (its table's roll, a generator's fields, a
+ * condition's dice) and those rolled inside the entry it came to (`Resolution.inside`).
+ */
+export function splitRolls(r: Pick<Resolution, 'rolls' | 'inside'>): {
+  asked: DiceResult[]
+  inside: DiceResult[]
+} {
+  const at = r.rolls.length - (r.inside ?? 0)
+  return { asked: r.rolls.slice(0, at), inside: r.rolls.slice(at) }
 }
 
 /**

@@ -2,7 +2,7 @@
   import type { Compiled, CompiledEntry, EntryList } from '@open-tabletop/oracle-engine'
   import type { Snippet } from 'svelte'
   import type { HistoryItem } from './roller.svelte'
-  import type { Resolution } from '@open-tabletop/oracle-engine'
+  import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
   import { DiceThrow, dicePreferences, InfoTip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
@@ -72,9 +72,20 @@
     [t('roll.modeHelp'), ...modes.map((m) => `• **${m.name}**: ${m.help}`)].join('\n'),
   )
 
-  /** Every roll of a result with dice of the engine's, its own and those within it. */
-  const diceOf = (r: Resolution): Resolution['rolls'] =>
-    [...r.rolls, ...r.children.flatMap(diceOf)].filter((roll) => roll.terms.length > 0)
+  /**
+   * The dice a result was asked to roll, with dice of the engine's: its own (a table's 1d6),
+   * or, when it rolled none, the first table it led to with some. What a row rolled inside it
+   * (its 1d3 of harm) isn't thrown: its card shows it after, said so.
+   */
+  const diceOf = (r: Resolution): Resolution['rolls'] => {
+    const asked = splitRolls(r).asked.filter((roll) => roll.terms.length > 0)
+    if (asked.length) return asked
+    for (const child of r.children) {
+      const found = diceOf(child)
+      if (found.length) return found
+    }
+    return []
+  }
 
   /**
    * The result whose dice are being thrown across the table, shown once they stop: when the

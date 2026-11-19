@@ -37,6 +37,7 @@ export {
   emptyState,
   mergeEffects,
   OracleError,
+  splitRolls,
   type EngineOptions,
   type HistoryItem,
   type HistoryRecord,

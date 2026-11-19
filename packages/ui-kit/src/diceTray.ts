@@ -1,5 +1,16 @@
 import type { DiceResult, DiceTermResult } from '@open-tabletop/dice'
 
+/**
+ * A roll as a tray takes it: `inside` when it was rolled inside the result another roll came
+ * to (a row's `{{1d3}}` of harm), drawn after the rolls asked for, said so in words.
+ */
+export type TrayRoll = Pick<
+  DiceResult,
+  'expression' | 'terms' | 'total' | 'discarded' | 'byHand'
+> & {
+  inside?: boolean
+}
+
 /** The shape a die is drawn as: its number of faces, or a round one for any other. */
 export type DieShape = 4 | 6 | 8 | 10 | 12 | 20 | 'percent' | 'fudge' | 'round'
 

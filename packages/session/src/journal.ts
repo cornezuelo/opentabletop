@@ -138,6 +138,8 @@ export interface RolledNode {
   dice: string[]
   /** Each roll with every die (to draw them); absent in older journals. */
   results?: DiceResult[]
+  /** How many of them, the last ones, were rolled inside the row it came to (a row's harm). */
+  inside?: number
   /** Whether its roll was the player's, the total given by hand (a foe's turn rolled by hand). */
   byHand?: true
   /** How deep in the roll (0: the one the check named). */
@@ -155,6 +157,7 @@ export function rolledNodes(r: Resolution, depth = 0): RolledNode[] {
             ...(r.mode && { mode: r.mode }),
             dice: r.rolls.map(diceText),
             ...(r.rolls.length && { results: structuredClone(r.rolls) }),
+            ...(r.inside && { inside: r.inside }),
             ...(r.rolls.some((d) => d.byHand) && { byHand: true as const }),
             depth,
           },

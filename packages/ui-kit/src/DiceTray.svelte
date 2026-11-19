@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { DiceResult } from '@open-tabletop/dice'
   import {
     drawRoll,
     ROLL_MS,
@@ -8,6 +7,7 @@
     type DieShape,
     type DrawnDie,
     type DrawnRoll,
+    type TrayRoll,
   } from './diceTray'
   import { dicePreferences } from './dicePreferences.svelte'
   import DieFace from './DieFace.svelte'
@@ -16,7 +16,9 @@
    * The dice of one or more rolls, each die drawn as its shape with its face (d4 to d20, d%,
    * Fudge, d66 as two d6): those a keep left out faded, exploding ones chained, then what's
    * added and the total; the totals a roll mode didn't keep, small and faded; a roll made by
-   * hand marked so, its one die drawn showing its total when it's a single die. `large` for a
+   * hand marked so, its one die drawn showing its total when it's a single die. The rolls made
+   * inside the result another one came to (`inside`: a row's harm) come after those asked
+   * for, smaller, said so (_in the result_), so a 1d6 never reads as two dice. `large` for a
    * roll up front; `animate` rolls them as they appear (a roll just made): each tumbles and
    * bounces, its faces turning, for a moment long enough to watch (`ROLL_MS`), the total
    * shown once they settle; unless the player turned it off or the system reduces motion.
@@ -27,18 +29,29 @@
     large = false,
     animate = false,
   }: {
-    rolls: readonly Pick<DiceResult, 'expression' | 'terms' | 'total' | 'discarded' | 'byHand'>[]
+    rolls: readonly TrayRoll[]
     locale?: string
     large?: boolean
     animate?: boolean
   } = $props()
 
   const TEXT = {
-    en: { byHand: 'your roll', notKept: 'not kept', die: 'd{sides}: {face}' },
-    es: { byHand: 'tu tirada', notKept: 'no se queda', die: 'd{sides}: {face}' },
+    en: {
+      byHand: 'your roll',
+      notKept: 'not kept',
+      die: 'd{sides}: {face}',
+      inside: 'in the result',
+    },
+    es: {
+      byHand: 'tu tirada',
+      notKept: 'no se queda',
+      die: 'd{sides}: {face}',
+      inside: 'en el resultado',
+    },
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
-  const drawn = $derived(rolls.map((r) => drawRoll(r)))
+  const drawn = $derived(rolls.filter((r) => !r.inside).map((r) => drawRoll(r)))
+  const within = $derived(rolls.filter((r) => r.inside).map((r) => drawRoll(r)))
   const reduced =
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
   // A roll the player made themselves (thrown on screen or typed) has rolled already: it never
@@ -127,6 +140,12 @@
       {/each}
     </span>
   {/each}
+  {#if within.length}
+    <span class="inside">
+      <span class="hand">{text.inside}</span>
+      {#each within as r, i (i)}{@render roll(r, true)}{/each}
+    </span>
+  {/if}
 </span>
 
 <style>
@@ -185,6 +204,23 @@
     font-size: 11px;
     font-style: italic;
     color: var(--text-muted);
+  }
+
+  /* What the result rolled inside it (a row's harm): after the roll asked for, smaller. */
+  .inside {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 3px 10px;
+    align-items: center;
+    --die: 18px;
+  }
+
+  .large .inside {
+    --die: 26px;
+  }
+
+  .large .inside .total {
+    font-size: 15px;
   }
 
   /* What a roll mode didn't keep: small and faded. */

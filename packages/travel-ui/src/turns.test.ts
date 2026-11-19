@@ -52,6 +52,32 @@ const kaelTurn = (id: number) =>
   line(id, 'ENCOUNTER_TURN', { id: 'kael', name: 'Kael', side: 'party', round: 1 })
 
 describe('a fight told a turn at a time', () => {
+  it("a foe's table drawn as the 1d6 asked for, the harm its row rolled after it, marked", () => {
+    const harm = { expression: '1d3', terms: [], total: 2 }
+    const told = tellFight(
+      [
+        wolfTurn(1),
+        line(2, 'ROLLED', {
+          check: 'table.wolf-turn',
+          rolls: [
+            {
+              source: 'pack/wolf-turn',
+              entry: 'bite',
+              dice: [],
+              results: [die, harm],
+              inside: 1,
+              depth: 0,
+            },
+          ],
+        }),
+        line(3, 'ORACLE_RESULT', { event: 'table.wolf-turn' }, 'The wolf bites'),
+      ],
+      context,
+      { whoName },
+    )
+    expect(told.turns[0]?.rolls[0]?.dice).toEqual([die, { ...harm, inside: true }])
+  })
+
   it('a foe going for the party played as a whole: the party, never its id', () => {
     const told = tellFight(
       [

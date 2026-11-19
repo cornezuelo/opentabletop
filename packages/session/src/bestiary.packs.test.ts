@@ -6,7 +6,7 @@ import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { corePack, greyMarchesPack } from './core.testing'
 import { encounterView, fightStarters } from './encounter'
-import { applyResult, type JournalEntry } from './index'
+import { applyResult, rolledNodes, type JournalEntry } from './index'
 import { newMember } from './party'
 import { faceIcon, templateLook } from './present'
 import { templateCopy } from './index'
@@ -726,6 +726,13 @@ describe('the bundled packs fight in turns', () => {
     ])
     expect(lines).toContain('ENCOUNTER_ENDED')
     expect(state.encounter).toBeUndefined()
+  })
+
+  it("Core: a foe's blow keeps the 1d6 its table asked for apart from the 1d3 of harm its row rolled", () => {
+    const blow = rollUntil('core/foe-turn', 'blow', { encounter: { target: 'kael' } })
+    const [node] = rolledNodes(blow)
+    expect(node?.results?.map((r) => r.expression)).toEqual(['1d6', '1d3'])
+    expect(node?.inside).toBe(1)
   })
 
   it('Core: a fight won gives each one standing 1 experience; at 3, a level, and at level 2, Tough', () => {

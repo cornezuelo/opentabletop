@@ -1,6 +1,6 @@
 import { PARTY_ID, type JournalEntry, type RolledNode } from '@open-tabletop/session'
 import type { TooltipText } from '@open-tabletop/ui-kit'
-import type { Dice } from './beats'
+import { nodeDice, type Dice } from './beats'
 import { entryText, eventName, type JournalContext } from './journal'
 import { idText } from './i18n'
 
@@ -190,7 +190,7 @@ function rollsOf(
       return {
         source: n.source,
         label: context.nameOf(n.source),
-        dice: n.results!,
+        dice: nodeDice(n),
         ...(rows && { rows, hit: n.entry }),
       }
     })

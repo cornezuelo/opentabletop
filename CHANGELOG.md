@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Dice**: a table's roll is drawn as the dice it asked for, and what its row rolled inside it after, smaller, under _in the result_ (a foe's `1d6`, then its `1d3` of harm), in fights, the journal and the Oracle's result; the Oracle throws only the dice asked for. A `1d6` no longer looks like two dice.
+
 ## [0.69.0] - 2026-11-19
 
 ### Apps

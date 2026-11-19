@@ -87,6 +87,20 @@ describe('the dice tray', () => {
     expect(drawRoll({ expression: '2d6+1', terms: [], total: 9, byHand: true }).parts).toEqual([])
     expect(drawRoll({ expression: '1d6', terms: [], total: 9, byHand: true }).parts).toEqual([])
   })
+
+  it('draws what a row rolled inside its result after the roll asked for, said so', () => {
+    const html = render(DiceTray, {
+      props: {
+        rolls: [{ ...roll('1d3', seeded(5)), inside: true }, roll('1d6', seeded(6))],
+        locale: 'es',
+      },
+    }).body
+    // The 1d6 first, then the row's 1d3 (a round die) under its words.
+    expect(html.indexOf('d6:')).toBeLessThan(html.indexOf('en el resultado'))
+    expect(html.indexOf('en el resultado')).toBeLessThan(html.indexOf('aria-label="d: '))
+    const alone = render(DiceTray, { props: { rolls: [roll('1d6', seeded(6))] } }).body
+    expect(alone).not.toContain('in the result')
+  })
 })
 
 describe('rollingFace', () => {
