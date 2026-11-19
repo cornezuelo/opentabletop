@@ -44,7 +44,7 @@ conditions:
     leaves: true
 ---
 # Rolled by hand during a trip, its result makes copies of the template (`present.foe`):
-# as many as its `set` rolls, said in its text.
+# as many as the table rolls, said in its text. Its one entry takes every total.
 kind: table
 id: trouble
 tags: [encounters]
@@ -52,15 +52,14 @@ name: Trouble on the road
 description: |-
   **Foes** block the way: how many, and they're there.
 
-  **Shows:** a result that makes copies of a template (`present.foe: '{{foes}}'`), as many as its `set` rolls and its text says; a die that explodes once (`1d3!1`: on a 3, another 1d3 more).
-roll: 1d1
+  **Shows:** a result that makes copies of a template (`present.foe: '{{roll}}'`), as many as the table's own roll and its text says; a die that explodes once (`1d3!1`: on a 3, another 1d3 more).
+# Dice that explode once: on a 3, another 1d3 come.
+roll: 1d3!1
 entries:
   - id: foes
-    range: 1
-    # Dice that explode once: on a 3, another 1d3 come.
-    set: { foes: '{{1d3!1}}' }
-    result: '{{foes}} foes block the way'
-    effects: { present.foe: '{{foes}}' }
+    range: 1-6
+    result: '{{roll}} foes block the way'
+    effects: { present.foe: '{{roll}}' }
 ---
 # What a foe does on its turn in a fight (system.yaml: `encounter.foes`): it strikes the one
 # its turn goes for (the system's `aim`), as a Strike does a foe.

@@ -29,9 +29,9 @@ trouble:
   description: |-
     **Enemigos** cortan el paso: cuántos, y ahí están.
 
-    **Enseña:** un resultado que hace copias de una plantilla (`present.foe: '{{foes}}'`), tantas como tira su `set` y dice su texto; un dado que explota una vez (`1d3!1`: con un 3, otro 1d3 más).
+    **Enseña:** un resultado que hace copias de una plantilla (`present.foe: '{{roll}}'`), tantas como saca la tirada de la propia tabla y dice su texto; un dado que explota una vez (`1d3!1`: con un 3, otro 1d3 más).
   entries:
-    foes: '{{foes}} enemigos cortan el paso'
+    foes: '{{roll}} enemigos cortan el paso'
 foe-turn:
   name: El turno de un enemigo
   description: |-

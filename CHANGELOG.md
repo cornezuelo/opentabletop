@@ -10,6 +10,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **Dice**: a die in your hand, before it's thrown, says what it is in the middle, where its number will be (_d6_), no longer written small under the face.
 - **Map**: walking on a trip is quicker on a slow computer: a step by key took about twice as long, mostly planning a way that looked through every cell of a sub-map beside the party (a town, a barrow) it would never go into; zooming no longer draws every text again at each turn of the wheel, only once it stops; the example maps open a little sooner.
 
+### Packs
+
+- **Core**: **Trouble on the road** rolls how many foes come (`1d3!1`, a 3 brings another 1d3), so the dice shown are the foes; it rolled a `1d1` that always came up 1 and hid the real roll inside.
+- **The Grey Marches**: _A parting blow_ has no roll of its own (it rolled a `1d1`): it always falls on its one result.
+
 ## [0.70.1] - 2026-11-19
 
 ### Apps

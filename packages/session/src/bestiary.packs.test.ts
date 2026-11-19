@@ -368,7 +368,11 @@ describe('the bundled packs make foes from their bestiaries', () => {
     const count = Number(trouble.text!.split(' ')[0])
     let s = applyResult(session, trouble.value, {}, rules)
     expect(s.present).toHaveLength(count)
-    expect(s.present![0].character).toMatchObject({ name: 'Foe', sheet: 'core/character' })
+    // As many as the table's own roll (`1d3!1`), numbered when more than one.
+    expect(s.present![0].character).toMatchObject({
+      name: count > 1 ? 'Foe 1' : 'Foe',
+      sheet: 'core/character',
+    })
     s = applyResult(s, { effects: { 'present.foe.values.health': '=0' } }, {}, rules)
     const oracle = createOracleEngine({ registry, random: seeded(2) })
     const food = s.party!.values.food
