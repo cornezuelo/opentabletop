@@ -67,7 +67,8 @@ describe('items held unknown, and used', () => {
       ...applyResult(session, { effects: { 'present.chest': 1 } }, {}, rules),
       acting: 'kael',
     }).state
-    s.present![0].character.values.lock = 0
+    // Forced already: not locked.
+    delete s.present![0].character.conditions.locked
     s = settleTrip(options, s).state
     const opened = stepTrip(options, s, {
       type: 'action',

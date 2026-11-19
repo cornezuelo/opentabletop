@@ -6,6 +6,8 @@ export interface PathOptions<N> {
   heuristic(node: N, goal: N): number
   /** Stable identity for nodes (defaults to String(node)). */
   key?(node: N): string
+  /** Whether a node is where the path ends (default: it is the goal), e.g. any cell of a room. */
+  isGoal?(node: N): boolean
   /** Give up after expanding this many nodes. */
   maxExpansions?: number
 }
@@ -30,7 +32,7 @@ export function findPath<N>(start: N, goal: N, options: PathOptions<N>): PathRes
     const { node } = open.pop()!
     const k = key(node)
     if (closed.has(k)) continue
-    if (k === goalKey) {
+    if (options.isGoal ? options.isGoal(node) : k === goalKey) {
       const path = [node]
       let cursor = k
       while (parent.has(cursor)) {

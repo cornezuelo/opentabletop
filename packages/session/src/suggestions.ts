@@ -46,6 +46,8 @@ export function contextSuggestions(
   add('place.id')
   add('name')
   add('place.name')
+  // Where in it the party stands, in a room (a cell of it): its own values.
+  add('place.at.id')
   add('region')
   add('icon.id')
   add('token.name')
@@ -258,7 +260,12 @@ export function contextSuggestions(
       ...Object.entries(rules.connections ?? {}).flatMap(([k, c]) => (c.crossing ? [k] : [])),
     )
     add('place.connections', ...Object.keys(rules.connections ?? {}))
-    for (const kind of Object.keys(rules.connections ?? {})) add(`place.connections.${kind}.state`)
+    for (const kind of Object.keys(rules.connections ?? {})) {
+      add(`place.connections.${kind}.state`)
+      // Those of the kind, by id: all of them, and those at hand (touching the party's cell).
+      add(`place.connections.${kind}.ids`)
+      add(`place.connections.${kind}.near`)
+    }
     // The party's own sheet, and its items with its members': what they spent and gained,
     // and what hit a bound, by full name.
     const numbers = [

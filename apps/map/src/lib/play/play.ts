@@ -1,4 +1,11 @@
-import { cellCenter, keyOf, neighborCells, parseKey, type HexKey } from '@open-tabletop/hex'
+import {
+  cellCenter,
+  cellDistance,
+  keyOf,
+  neighborCells,
+  parseKey,
+  type HexKey,
+} from '@open-tabletop/hex'
 import { loadLinks, makeLaidWays, placeLabel } from '../io/submaps'
 import {
   askTimePassed,
@@ -35,9 +42,9 @@ import {
   cellOfPlace,
   DEFAULT_TOKEN_ICONS,
   type HexMap,
+  type MapConnection,
   mapWalls,
   newId,
-  parseAreaPlace,
   partyToken,
   placeOfCell,
   type PlayState,
@@ -136,7 +143,8 @@ export function partyMoved(hex: HexKey | undefined): void {
 function jump(play: PlayState, hex: HexKey): PlayState {
   const session = sessionOf(play)
   if (!session || !play.rules) return play
-  const travel = { ...session.travel, location: placeOfCell(editor.map, hex), progress: 0 }
+  const travel = { ...session.travel, ...standingOn(hex), progress: 0 }
+  if (travel.location === hex) delete travel.at
   delete travel.destination
   delete travel.route
   return { ...play, rules: { ...play.rules, session: { ...session, travel } } }
@@ -151,6 +159,12 @@ export function partyChanged(): void {
   const play = current()
   play.trail = hex ? [hex] : []
   save(hex ? jump(play, hex) : play)
+}
+
+/** A trip's place and where in it the party stands, standing on a cell (a room's: the room). */
+function standingOn(cell: HexKey): { location: string; at?: string } {
+  const location = placeOfCell(editor.map, cell)
+  return location === cell ? { location } : { location, at: cell }
 }
 
 /** The rules-mode session, recreated if missing or from an incompatible save. */
@@ -193,9 +207,11 @@ function newSession(
   })
   // The map's own sheet: the one the campaign keeps for it.
   // Who rolls its dice: as the player prefers.
+  // …standing on that cell of the room.
+  const { at } = standingOn(location)
   const here = tripOnMap(
     editor.campaign,
-    followRollWay(session),
+    followRollWay(at ? { ...session, travel: { ...session.travel, at } } : session),
     getSystem(system),
     editor.map.meta.id,
   )
@@ -220,8 +236,7 @@ export function clickHex(key: HexKey): void {
     if (!travels(getSystem(mapSystemId()))) return
     save(newSession(play, location, mapSystemId()))
     layFirstPiece()
-    const to = placeOfCell(editor.map, key)
-    if (placeOfCell(editor.map, location) !== to) step({ type: 'setDestination', place: to })
+    if (key !== location) headFor(key)
     return
   }
   if (play.mode === 'simple' || !location || !sessionOf(play)) {
@@ -236,40 +251,17 @@ export function clickHex(key: HexKey): void {
 }
 
 /**
- * The cell of a room the party was sent to: the trip heads for the room (one place to the
- * rules), and the party stands on that cell once it's there.
- */
-let aimed: HexKey | undefined
-
-/**
- * The trip heads for a cell's place (a cell of a room is the room), and the party will stand
- * on that cell. Already in its room, it steps across to it at once: no time passes.
+ * The trip heads for a cell (a cell of a room: the room, standing there once in it). Already
+ * in its room, the party steps across to it.
  */
 function headFor(cell: HexKey): void {
-  const place = placeOfCell(editor.map, cell)
-  if (parseAreaPlace(place) && place === sessionOf(current())?.travel.location)
-    return crossRoom(cell)
-  aimed = parseAreaPlace(place) ? cell : undefined
-  step({ type: 'setDestination', place })
-}
-
-/** The party stands on another cell of its room: only its token and trail move. */
-function standAt(cell: HexKey): void {
-  const play = current()
-  if (play.trail.at(-1) !== cell) play.trail = [...play.trail, cell]
-  save(play)
-  placeParty(cell)
-}
-
-/** Where the party is drawn in a place it stepped to: the cell it was sent to, if it's there. */
-function cellThere(
-  { location, destination }: { location: string; destination?: string },
-  near: string | undefined,
-): HexKey | undefined {
-  const there = aimed && placeOfCell(editor.map, aimed) === location
-  return there && (!destination || destination === location)
-    ? aimed
-    : cellOfPlace(editor.map, location, near)
+  const travel = sessionOf(current())?.travel
+  const across =
+    !!travel &&
+    cell !== (travel.at ?? travel.location) &&
+    placeOfCell(editor.map, cell) === travel.location
+  if (across) return stepInside(cell)
+  step({ type: 'setDestination', place: cell })
 }
 
 /** A map laid piece by piece starts under the party's feet, as soon as a trip stands on it. */
@@ -303,38 +295,59 @@ export function startOnBlankMap(): void {
 }
 
 /**
- * The party walks to a place: the route planned as for a click, and the system's way of going
- * on taken at once. A place no route reaches stays out of reach: nothing moves, and it says so
- * (`refused`).
+ * The party walks to a cell (or a place of another map): the route planned as for a click,
+ * and the system's way of going on taken at once. A place no route reaches stays out of
+ * reach: nothing moves, and it says so (`refused`). A cell of its own room is a step across it.
  */
-export function walkTo(place: string, cell?: HexKey, refused = t('play.noWayThere')): void {
+export function walkTo(to: string, refused = t('play.noWayThere')): void {
   const session = sessionOf(current())
   if (!session) return
-  if (place === session.travel.location) {
-    if (cell && parseAreaPlace(place)) crossRoom(cell)
-    return
-  }
+  const place = parsePlaceOn(to) ? to : placeOfCell(editor.map, to)
+  if (to === (session.travel.at ?? session.travel.location)) return
+  if (place === session.travel.location && !parsePlaceOn(to)) return stepInside(to as HexKey)
   const rules = getSystem(mapSystemId()).rules
   const onward = rules.travel.onward
   const id = onward ? onward.do.replace(/^actions\./, '') : movingActions(rules)[0]
   // Lost for the day, a check waiting, a rule of the system: nothing moves, and it says why.
   const why = walkBlocked(id)
   if (why) return void showToast(why, 'info', 6000)
-  aimed = cell && placeOfCell(editor.map, cell) === place ? cell : undefined
-  step({ type: 'setDestination', place })
+  step({ type: 'setDestination', place: to })
+  // No way there: the way it had before isn't taken instead.
   const travel = sessionOf(current())?.travel
-  if (!travel?.route || travel.route.length < 2) return void showToast(refused, 'info', 5000)
+  if (travel?.destination !== to || !travel.route || travel.route.length < 2)
+    return void showToast(refused, 'info', 5000)
   if (id) step({ type: 'action', id, ...(onward?.with && { with: onward.with }) })
 }
 
 /**
- * The party steps across its room to a cell: no time passes, but not while the trip is held
- * (a check or a pause waiting for Continue, a fight): it says why.
+ * A connection clicked in Play (a door): on a trip, the party walks to its side of it (the
+ * cell in its own place, else the nearer end), where what's done at a door is at hand, and
+ * the trip's panel shows it. Without a trip, a click on the cell it starts from.
  */
-function crossRoom(cell: HexKey): void {
+export function goToConnection(connection: MapConnection): void {
+  const travel = sessionOf(current())?.travel
+  const [a, b] = connection.between
+  if (!travel || !onTrip()) return clickHex(a)
+  const here = (travel.at ?? travel.location) as HexKey
+  const away = (cell: HexKey) =>
+    parsePlaceOn(here) || parsePlaceOn(cell)
+      ? Infinity
+      : cellDistance(parseKey(here), parseKey(cell), editor.map.grid)
+  const side =
+    [a, b].find((cell) => placeOfCell(editor.map, cell) === travel.location) ??
+    (away(a) <= away(b) ? a : b)
+  if (side !== here) walkTo(side)
+  showPlayPanel()
+}
+
+/**
+ * The party steps across its room to a cell, each step's time passing as the system says,
+ * but not while the trip is held (a check or a pause waiting for Continue, a fight): it says why.
+ */
+function stepInside(cell: HexKey): void {
   const why = walkBlocked(undefined)
   if (why) return void showToast(why, 'info', 6000)
-  standAt(cell)
+  step({ type: 'step', to: cell })
 }
 
 /** Why the party can't walk now (the trip held, or its way of going on), in words; '' if it can. */
@@ -397,11 +410,10 @@ const WASD: Record<string, string> = {
 
 /**
  * Playing with the keyboard: an arrow (or W A S D) steps the party onto the cell that way. In
- * a room (a region played as one place) a cell of the same room is only where the party
- * stands (no time passes, as the room is one place to the rules); a cell of another place,
- * through a door or an opening, is a step of the trip there, and the party stands on that
- * cell. A wall, the map's edge or a place no step reaches stops it: never another cell
- * instead. True if the key was for it.
+ * a room (a region played as one place) a cell of the same room is a step across it (its
+ * time passing, entering nothing); a cell of another place, through a door or an opening, is
+ * a step of the trip there. A wall, the map's edge or a place no step reaches stops it: never
+ * another cell instead. True if the key was for it.
  */
 export function walkByKey(key: string): boolean {
   const direction = ARROWS[WASD[key] ?? key]
@@ -409,10 +421,9 @@ export function walkByKey(key: string): boolean {
   const next = cellToward(direction)
   const place = next && placeOfCell(editor.map, next)
   if (!next || !place) showToast(t('play.noWayThere'), 'info', 5000)
-  else if (place === placeOfCell(editor.map, partyLocation()!)) crossRoom(next)
   else {
     const terrain = editor.map.hexes[next]?.terrain
-    walkTo(place, next, t('play.notThrough', { terrain: terrain ? terrainLabel(terrain) : next }))
+    walkTo(next, t('play.notThrough', { terrain: terrain ? terrainLabel(terrain) : next }))
   }
   return true
 }
@@ -433,12 +444,8 @@ export function cellToward(direction: { x: number; y: number }): HexKey | undefi
     const [x, y] = [to.x - start.x, to.y - start.y]
     return (x * direction.x + y * direction.y) / (Math.hypot(x, y) || 1)
   }
-  const location = placeOfCell(editor.map, here)
-  const reached = new Set(playWorld(getSystem(mapSystemId())).neighbors(location))
-  const reaches = (cell: HexKey) => {
-    const place = placeOfCell(editor.map, cell)
-    return place === location || reached.has(place)
-  }
+  const reached = new Set(playWorld(getSystem(mapSystemId())).neighbors(here))
+  const reaches = (cell: HexKey) => reached.has(cell)
   const near = neighborCells(parseKey(here), grid).map((cell) => keyOf(cell) as HexKey)
   const best = Math.max(...near.map(fit))
   const walls = mapWalls(editor.map)
@@ -596,30 +603,24 @@ export function hearWorld(heard = 0): void {
 }
 
 /**
- * A room laid on cells the trip stood on or was heading for takes them in: the trip is (or
- * heads for) the room, one place to the rules, as a cell of a room always is.
+ * A room laid on cells the trip stood on takes them in: the trip is in the room, one place to
+ * the rules, standing on its cell, as on any cell of a room.
  */
 function intoRooms(state: SessionState): SessionState {
   const place = (p: string) => (parsePlaceOn(p) ? p : placeOfCell(editor.map, p))
-  const { location, destination, route } = state.travel
-  const travel = { ...state.travel, location: place(location) }
-  if (destination) travel.destination = place(destination)
-  if (route) {
-    const places = route.map(place).filter((p, i, all) => p !== all[i - 1])
-    if (places.length > 1) travel.route = places
-    else delete travel.route
-  }
-  if (travel.route?.join() !== route?.join()) travel.progress = 0
+  const { location, at } = state.travel
+  const cell = at ?? location
+  const travel = { ...state.travel, location: place(cell) }
+  if (travel.location !== cell) travel.at = cell
   // Those present on those cells are in the room too: else a fight met as the room was laid
   // would find nobody there, and end as it starts.
   const present = state.present?.map((p) => {
-    const at = place(p.at)
-    return at === p.at ? p : { ...p, at }
+    const there = place(p.at)
+    return there === p.at ? p : { ...p, at: there }
   })
   const same =
     travel.location === location &&
-    travel.destination === destination &&
-    travel.route?.join() === route?.join() &&
+    travel.at === at &&
     present?.every((p, i) => p === state.present![i]) !== false
   return same ? state : { ...state, travel, ...(present && { present }) }
 }
@@ -673,22 +674,22 @@ function stepOnly(action: TripAction): void {
     showToast(error instanceof Error ? error.message : String(error), 'error', 8000),
   )
   // Places of another map (a way in or out) are that map's trail, not this one's; a room is
-  // drawn on its cell where the party came in.
+  // drawn on the cell the party stepped into.
   let near: string | undefined = partyLocation()
   const entered = entries.flatMap((e) => {
     const place = String(e.data?.place)
     if (e.code !== 'PLACE_ENTERED' || parsePlaceOn(place)) return []
-    const at = cellOfPlace(editor.map, place, near)
+    const at = (e.data?.at as HexKey | undefined) ?? cellOfPlace(editor.map, place, near)
     near = at ?? near
     return at ? [at] : []
   })
   const into = parsePlaceOn(state.travel.location)
-  // In the room it was sent to, the party stands on the cell chosen.
-  const stands = !into ? cellThere(state.travel, near) : undefined
-  if (stands && stands === aimed) {
-    if (stands !== entered.at(-1)) entered.push(stands)
-    aimed = undefined
-  }
+  // Where it stands: its cell in the room, or the place's.
+  const stands = !into
+    ? ((state.travel.at as HexKey | undefined) ??
+      cellOfPlace(editor.map, state.travel.location, near))
+    : undefined
+  if (stands && stands !== (entered.at(-1) ?? partyLocation())) entered.push(stands)
   if (!into) placeParty(stands)
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
@@ -735,12 +736,17 @@ export async function goOnIn(map: string): Promise<boolean> {
   }
   const here = current()
   delete here.away
-  // An entrance in a room is the room, drawn on the entrance of the way taken.
-  moved.travel = { ...moved.travel, location: placeOfCell(editor.map, moved.travel.location) }
+  // The cell of the way taken (an entrance in a room: the room, standing there); a trip kept
+  // before, at a room, stands on its entrance of the way.
+  const place = moved.travel.at ?? moved.travel.location
   const entrance = editor.map.meta.parent?.ways
     .map((w) => w.entrance)
-    .find((e) => placeOfCell(editor.map, e) === moved.travel.location)
-  const location = cellOfPlace(editor.map, moved.travel.location, entrance)
+    .find((e) => placeOfCell(editor.map, e) === place)
+  const location = cellOfPlace(editor.map, place, entrance)
+  if (location) {
+    moved.travel = { ...moved.travel, ...standingOn(location) }
+    if (moved.travel.location === location) delete moved.travel.at
+  }
   placeParty(location)
   // This map's own sheet now: the one the campaign keeps for it.
   const onMap = tripOnMap(editor.campaign, moved, getSystem(rules.system), editor.map.meta.id)

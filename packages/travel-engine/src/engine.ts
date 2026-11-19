@@ -93,6 +93,14 @@ export interface TravelWorld {
    * reads it (`trip.place-enter` checks). False: nothing fits, and it can't be entered.
    */
   entering?(next: string, from: string): boolean
+  /**
+   * The place a position is in, for a world whose places may hold several positions (a
+   * room's cells): the party walks among positions, and only stepping into another place is
+   * entering one. Absent (or the position itself): every position is a place of its own.
+   */
+  placeOf?(position: string): string
+  /** The positions of a place that holds several (a room's cells); undefined for any other. */
+  positionsOf?(place: string): string[] | undefined
   /** The cells under its places, on a world that can lay pieces (a map). */
   ground?: {
     layout: CellLayout
@@ -343,9 +351,15 @@ export function tallyChange(
 
 export interface TravelState {
   time: GameTime
+  /** The place the party is in. */
   location: string
+  /**
+   * Where in it the party stands, in a place that holds several positions (a room's cells):
+   * the route and every step start here. Absent: at the place itself.
+   */
+  at?: string
   destination?: string
-  /** Planned places from the current location ([0]) to the destination. */
+  /** Planned positions from the party's ([0]) to the destination. */
   route?: string[]
   mode: string
   /** Older trips: the party's supplies (the host moves them to the party's sheet). */
@@ -508,7 +522,11 @@ export type TravelEvent =
       /** Its terrain, and the kind of connection the step took, if any. */
       terrain?: string
       via?: string
+      /** Where in it the party stepped, in a place of several positions (a cell of a room). */
+      at?: string
     }
+  /** The party stepped to another position of its place (`at`: a cell of its room). */
+  | { type: 'STEPPED_INSIDE'; at: string; time: GameTime }
   | { type: 'CHECK_REQUIRED'; check: PendingCheck; time: GameTime }
   /** A moment some check or action names came (`at`): its actions and checks are looked at. */
   | { type: 'MOMENT_REACHED'; at: string; time: GameTime }
@@ -613,6 +631,11 @@ export type Unavailable =
   | { value: string; who?: string }
   | { once: true }
   /**
+   * A parameter it asks for (`ask:`) lists nothing to choose now (`from:` and `where:`): no
+   * door at hand, nobody here. `nothing` is the parameter's id.
+   */
+  | { nothing: string }
+  /**
    * Its `when` doesn't hold, or its `unless` does: `failed` says which pairs, with what
    * they read and asked (the UI words it).
    */
@@ -668,6 +691,14 @@ export type TravelAction =
        */
       on?: string
     }
+  /**
+   * Steps the party to another position of its place (a cell of its room), by the way
+   * there inside it: each step's time passes (the system's `travel.insideStep`, else as any
+   * step), living the moments on the way; no place is entered. A connection that can't be
+   * crossed (a locked door inside) stops it at its side. The route it was on is planned
+   * again from there.
+   */
+  | { type: 'step'; to: string }
   | { type: 'setMode'; mode: string }
   | { type: 'setWeather'; weather: string | undefined }
   | { type: 'resolveCheck'; id: string; outcome?: CheckOutcome }
@@ -819,6 +850,12 @@ export function calendarFacts(parts: TimeParts | CalendarParts): Record<string, 
 }
 
 /** Whether the trip waits for the player: a check pending, or a step (`pause:`, `ask:`). */
+/** What a step adds to a route's cost besides its own, to prefer fewer steps among equals. */
+const STEP_TIE = 1e-6
+
+/** How many steps in a row a move takes with no time passing and no place entered, at most. */
+const STILL_STEPS = 10_000
+
 const halted = (state: TravelState): boolean => state.pendingChecks.length > 0 || !!state.waiting
 /** Why the trip waits for the player, as a move's stop. */
 const haltReason = (state: TravelState): StopReason =>
@@ -1028,7 +1065,10 @@ export function createTravelEngine(options: {
       system: partHours,
     }
   }
-  /** A place as conditions read it (`from.terrain`, `from.tags`, `from.region`…). */
+  /** The place a position is in (a room, for its cells), or the position itself. */
+  const placeOf = (position: string): string => world.placeOf?.(position) ?? position
+  /** Where the party stands: its position in its place, or the place itself. */
+  const here = (state: TravelState): string => state.at ?? state.location
   /**
    * What conditions read of a place. With the trip (`state`), the connections leaving it by
    * kind (`place.connections.door`), each with its values and state in play, those of several
@@ -1050,6 +1090,9 @@ export function createTravelEngine(options: {
       tags: place?.tags ?? [],
       water: !!place?.water,
       ...(state && { connections: connectionsAround(state, id) }),
+      // Where in it the party stands (a cell of its room): its own facts and values.
+      ...(state?.at !== undefined &&
+        id === state.location && { at: { ...world.place(state.at), id: state.at } }),
     }
   }
   const connectionsAround = (
@@ -1057,15 +1100,29 @@ export function createTravelEngine(options: {
     id: string,
   ): Record<string, Record<string, unknown>> => {
     const byKind: Record<string, Record<string, unknown>[]> = {}
-    for (const n of world.neighbors(id)) {
-      const drawn = world.connectionOf?.(id, n)
-      for (const kind of world.connections(id, n))
-        (byKind[kind] ??= []).push(
-          drawn?.kind === kind
-            ? { ...drawn, tags: drawn.tags ?? [], ...state.connections?.[drawn.id] }
-            : { kind, tags: [] },
-        )
-    }
+    // Those at hand, by kind: touching where the party stands (every one, in a place of one
+    // position).
+    const near: Record<string, Set<string>> = {}
+    // A place of several positions (a room): those leaving any of them, and those between
+    // two of them (a door inside), once.
+    const positions = world.positionsOf?.(id) ?? [id]
+    const at = id === state.location && positions.length > 1 ? here(state) : undefined
+    const walked = new Set<string>()
+    for (const p of positions)
+      for (const n of world.neighbors(p)) {
+        if (walked.has(`${n}|${p}`)) continue
+        walked.add(`${p}|${n}`)
+        const drawn = world.connectionOf?.(p, n)
+        const close = positions.length === 1 || p === at || n === at
+        for (const kind of world.connections(p, n)) {
+          ;(byKind[kind] ??= []).push(
+            drawn?.kind === kind
+              ? { ...drawn, tags: drawn.tags ?? [], ...state.connections?.[drawn.id] }
+              : { kind, tags: [] },
+          )
+          if (close && drawn?.kind === kind) (near[kind] ??= new Set()).add(drawn.id)
+        }
+      }
     const kinds = Object.entries(byKind).map(([kind, all]) => {
       const merged: Record<string, unknown> = {}
       for (const key of new Set(all.flatMap((c) => Object.keys(c)))) {
@@ -1075,8 +1132,8 @@ export function createTravelEngine(options: {
         merged[key] = key === 'tags' || values.length > 1 ? values : values[0]
       }
       // Those drawn, by id, always a list: a parameter chooses one (`from: …door.ids`).
-      const ids = all.flatMap((c) => (typeof c.id === 'string' ? [c.id] : []))
-      return [kind, { ...merged, kind, ids }] as const
+      const ids = [...new Set(all.flatMap((c) => (typeof c.id === 'string' ? [c.id] : [])))]
+      return [kind, { ...merged, kind, ids, near: [...(near[kind] ?? [])] }] as const
     })
     // Each one drawn by its id too, with its own values and state in play, read and changed
     // alone (`place.connections[params.door].state`).
@@ -1227,6 +1284,10 @@ export function createTravelEngine(options: {
     const diagonal = !!world.diagonal?.(a, b)
     if (diagonal && rules.travel.diagonals === undefined) return Infinity
     const steps = diagonal ? rules.travel.diagonals! : 1
+    // A step inside a place of several positions (across a room) takes the system's own time.
+    const insideStep = rules.travel.insideStep
+    if (insideStep !== undefined && placeOf(a) === placeOf(b) && world.positionsOf?.(placeOf(a)))
+      return insideStep * steps + extra
     if (mode.minutes !== undefined) return (mode.minutes * steps) / m + extra
     const kmPerHour = mode.kmPerDay! / rules.travel.hoursPerDay
     return (world.km(a, b) / (kmPerHour * m)) * 60 + extra
@@ -1241,6 +1302,8 @@ export function createTravelEngine(options: {
     state: TravelState,
     to: string,
     strategy: RouteStrategy = 'fastest',
+    /** Only by positions of the party's place (a way across its room). */
+    inside = false,
   ): string[] | null => {
     const mode = rules.modes[state.mode]
     if (!mode) return null
@@ -1254,14 +1317,23 @@ export function createTravelEngine(options: {
     // A time a step that isn't a distance (a turn a step) can be shorter than any guess from
     // the km left: no guess then.
     const minPerKm =
-      mode.minutes !== undefined ? 0 : 60 / ((mode.kmPerDay! / rules.travel.hoursPerDay) * best)
+      mode.minutes !== undefined || rules.travel.insideStep !== undefined
+        ? 0
+        : 60 / ((mode.kmPerDay! / rules.travel.hoursPerDay) * best)
+    // A place that holds several positions (a room) is reached at any of them.
+    const positions = world.positionsOf?.(to)
     const search = (shutToo: boolean) =>
-      findPath<string>(state.location, to, {
-        neighbors: world.neighbors,
+      findPath<string>(here(state), to, {
+        neighbors: inside
+          ? (a) => world.neighbors(a).filter((b) => placeOf(b) === state.location)
+          : world.neighbors,
+        ...(positions && { isGoal: (a: string) => a === to || positions.includes(a) }),
         cost: (a, b) => {
           const minutes = baseMinutes(state, a, b, shutToo)
           if (!Number.isFinite(minutes)) return Infinity
-          return strategy === 'shortest' ? world.km(a, b) : minutes
+          // A hair a step: of ways that cost the same (steps that take no time, across a
+          // room), the one of fewest steps, so planning again on the way never turns back.
+          return (strategy === 'shortest' ? world.km(a, b) : minutes) + STEP_TIE
         },
         heuristic: (a, b) => world.distance(a, b) * (strategy === 'shortest' ? 1 : minPerKm),
       })
@@ -1282,7 +1354,7 @@ export function createTravelEngine(options: {
     const place = world.place(state.location)
     const host = facts.party as Record<string, unknown> | undefined
     const stretch: [string, string] | undefined =
-      a && b ? [a, b] : state.route?.[1] ? [state.location, state.route[1]] : undefined
+      a && b ? [a, b] : state.route?.[1] ? [here(state), state.route[1]] : undefined
     // The places' own the host keeps are read with each place, never by themselves.
     const { placeSheets, ...rest } = facts
     return {
@@ -1308,7 +1380,9 @@ export function createTravelEngine(options: {
       marched: state.travelledToday / 60,
       doneToday: state.actionsToday ?? [],
       routeLeft: state.route ? Math.max(0, state.route.length - 1) : 0,
-      arrived: !!state.destination && state.destination === state.location,
+      arrived:
+        !!state.destination &&
+        (state.destination === here(state) || state.destination === state.location),
       ...(state.firstDay !== undefined && { tripDay: state.day - state.firstDay + 1 }),
       visits: state.visits?.[state.location] ?? 0,
       // What the trip has done so far (only by its full names: `trip.km`…).
@@ -1363,11 +1437,11 @@ export function createTravelEngine(options: {
     resolve?: string,
   ): number => {
     const next = state.route?.[1]
-    const stretch = from ? [from, state.location] : next ? [state.location, next] : []
+    const stretch = from ? [from, here(state)] : next ? [here(state), next] : []
     /** An action of the moment that waits (for its roll, a check, the player). */
     let held: MoveUnderWay | undefined
     // Entering a place, the one left (`from.terrain`, `from.region`…) and the stretch walked.
-    const left = from ? { from: placeFacts(from) } : {}
+    const left = from ? { from: placeFacts(placeOf(from)) } : {}
     if (!event) {
       if (named.has(at)) events.push({ type: 'MOMENT_REACHED', at, time: state.time })
       // The actions the system takes at this moment come first (their checks too), seeing
@@ -1375,12 +1449,12 @@ export function createTravelEngine(options: {
       const walked = from
         ? {
             ...left,
-            connections: world.connections(from, state.location),
+            connections: world.connections(from, here(state)),
             // Kept with the moment when it waits: only when the step crossed something.
-            ...(crossed(from, state.location).length && {
-              crossing: crossed(from, state.location),
+            ...(crossed(from, here(state)).length && {
+              crossing: crossed(from, here(state)),
             }),
-            connection: connectionFacts(state, from, state.location),
+            connection: connectionFacts(state, from, here(state)),
           }
         : {}
       for (const id of triggered.get(at) ?? []) {
@@ -1716,8 +1790,8 @@ export function createTravelEngine(options: {
     syncDay(state, events)
     if (halted(state)) return suspend(haltReason(state))
     if (!state.route || state.route.length < 2) {
-      if (state.destination && state.destination === state.location)
-        events.push({ type: 'DESTINATION_REACHED', place: state.location, time: state.time })
+      if (state.destination && state.destination === here(state))
+        events.push({ type: 'DESTINATION_REACHED', place: state.destination, time: state.time })
       return stop(state.route ? 'destination' : 'no-route')
     }
     // A value that blocks moving on, or the way the party is travelling (`modes.horse`).
@@ -1725,15 +1799,19 @@ export function createTravelEngine(options: {
     if (blocked) return stopWith({ reason: 'value', ...blocked })
     if (dayFactor(state) <= 0) return stop('weather')
 
+    // Steps that take no time and enter nothing (across a room, by a system that counts time
+    // by room) are counted: a route that never ends that way stops.
+    let still = 0
     for (;;) {
+      const began = state.time
       const next = state.route[1]
       if (!next) {
-        events.push({ type: 'DESTINATION_REACHED', place: state.location, time: state.time })
+        events.push({ type: 'DESTINATION_REACHED', place: here(state), time: state.time })
         return stop('destination')
       }
-      const cost = stepMinutes(state, state.location, next)
+      const cost = stepMinutes(state, here(state), next)
       if (!Number.isFinite(cost)) {
-        events.push({ type: 'ROUTE_BLOCKED', from: state.location, to: next })
+        events.push({ type: 'ROUTE_BLOCKED', from: here(state), to: next })
         return stop('blocked')
       }
       if (state.time >= by) return suspend('waited')
@@ -1788,14 +1866,17 @@ export function createTravelEngine(options: {
           },
         )
       }
-      const from = state.location
-      if (world.entering?.(next, from) === false) {
+      const from = here(state)
+      if (placeOf(next) !== state.location && world.entering?.(next, from) === false) {
         events.push({ type: 'ROUTE_BLOCKED', from, to: next })
         return stop('blocked')
       }
-      enter(state, next, events)
-      schedule(state, PLACE_ENTER, events, from)
-      if (left !== undefined) left--
+      // A step inside the place enters none: only its time passed.
+      const entered = enter(state, next, events)
+      still = entered || state.time > began ? 0 : still + 1
+      if (still > STILL_STEPS) return stop('blocked')
+      if (entered) schedule(state, PLACE_ENTER, events, from)
+      if (entered && left !== undefined) left--
       if (state.route.length < 2) {
         events.push({ type: 'DESTINATION_REACHED', place: next, time: state.time })
         return stop('destination')
@@ -1933,7 +2014,7 @@ export function createTravelEngine(options: {
         if (waited) return void events.push(waited)
         continue
       }
-      const [time, location] = [state.time, state.location]
+      const [time, location] = [state.time, here(state)]
       const stopped = quietly(events, () => goOn(state, events))
       const reason = stopped?.reason
       if (reason === 'destination' || reason === 'no-route') return wait(state, by, events)
@@ -1951,7 +2032,7 @@ export function createTravelEngine(options: {
         return void events.push(stopped!)
       // Nothing moved (a way on that doesn't move, or stops at once): the time goes on to
       // the next moment, so the trip doesn't take it over and over.
-      if (state.time === time && state.location === location) {
+      if (state.time === time && here(state) === location) {
         const waited = quietly(events, () =>
           wait(state, Math.min(by, nextBoundary(state.time)), events),
         )
@@ -2046,7 +2127,18 @@ export function createTravelEngine(options: {
     if (value) return value
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
     const context = { ...checkContext(state, [], facts), params: paramsOf(def), ...moment }
-    return conditionStop(state, def, context, id)
+    const stop = conditionStop(state, def, context, id)
+    if (stop) return stop
+    // A choice it asks for among what the trip lists, with nothing listed: nothing to take it
+    // on. Only those asked before it changes anything (a list read after a level is gained
+    // may hold more then).
+    for (const step of actionSteps(def)) {
+      if (step.ask === undefined && step.say === undefined && step.pause === undefined) break
+      const ask = step.ask !== undefined ? (refId('params', step.ask) ?? step.ask) : undefined
+      const param = ask !== undefined ? def.params?.[ask] : undefined
+      if (param?.from && !listOf(state, param, context).length) return { nothing: ask! }
+    }
+    return undefined
   }
 
   /** Why a way of travelling can't be chosen now (undefined: it can). */
@@ -2191,24 +2283,39 @@ export function createTravelEngine(options: {
     state: TravelState,
     param: { from?: string; where?: unknown; choices?: readonly unknown[] } | undefined,
     context: Record<string, unknown>,
-  ): string[] => {
+  ): string[] => listing(state, param, context).list
+  /**
+   * What a parameter lists, and whether the host listed it (a catalogue, the members: it lists
+   * them again once the steps before are applied, so what's listed now may change).
+   */
+  const listing = (
+    state: TravelState,
+    param: { from?: string; where?: unknown; choices?: readonly unknown[] } | undefined,
+    context: Record<string, unknown>,
+  ): { list: string[]; hosted?: true } => {
     const where = param?.where as Condition | undefined
     // Its own choices (an `each:` over the skills), those `where` holds for.
     if (!param?.from) {
       const ids = (param?.choices ?? []).map((c) =>
         String(typeof c === 'object' && c !== null && 'id' in c ? (c as { id: unknown }).id : c),
       )
-      return where === undefined
-        ? ids
-        : ids.filter((candidate) => test(state, where, { ...context, candidate }))
+      return {
+        list:
+          where === undefined
+            ? ids
+            : ids.filter((candidate) => test(state, where, { ...context, candidate })),
+      }
     }
     const hosted = options.listChoices?.(param.from, where, qualify(context))
-    if (hosted) return hosted
+    if (hosted) return { list: hosted, hosted: true }
     const listed = lookupIn(qualify(context))(param.from)
     const all = Array.isArray(listed) ? listed.map(String) : []
-    return where === undefined
-      ? all
-      : all.filter((candidate) => test(state, where, { ...context, candidate }))
+    return {
+      list:
+        where === undefined
+          ? all
+          : all.filter((candidate) => test(state, where, { ...context, candidate })),
+    }
   }
   const takeAction = (
     state: TravelState,
@@ -2468,10 +2575,18 @@ export function createTravelEngine(options: {
         const ask = step.ask !== undefined ? (refId('params', step.ask) ?? step.ask) : undefined
         // Choices the trip lists now (`from: present.ids`): none, and there's nothing to ask.
         const from = ask ? actions.all[id]?.params?.[ask]?.from : undefined
-        const choices = ask ? listOf(state, actions.all[id]?.params?.[ask], context) : []
+        const listed = ask
+          ? listing(state, actions.all[id]?.params?.[ask], context)
+          : { list: [] as string[] }
+        const choices = listed.list
         if (from && !choices.length) continue
         // One of them given with the action (a foe's card clicked), still listed: not asked.
         if (from && ask && choices.some((c) => String(c) === String(params[ask]))) continue
+        // Only one listed by the trip (the one door at hand): it's that one, nothing to ask.
+        if (from && ask && choices.length === 1 && !listed.hosted && step.pause === undefined) {
+          params[ask] = choices[0]
+          continue
+        }
         state.waiting = {
           action: id,
           ...(step.pause !== undefined && step.pause !== true && { text: written(step.pause) }),
@@ -2574,7 +2689,7 @@ export function createTravelEngine(options: {
   /** The route planned again for the way the party travels now (a `travel.mode` step). */
   const replan = (state: TravelState, events: TravelEvent[]): void => {
     const to = state.destination
-    if (!to || to === state.location || !state.route) return
+    if (!to || to === here(state) || !state.route) return
     const route = plan(state, to)
     if (!route) return void events.push({ type: 'NO_ROUTE', to })
     if (state.route[1] !== route[1]) state.progress = 0
@@ -2591,20 +2706,46 @@ export function createTravelEngine(options: {
     for (let i = 0; i < legs; i++) {
       const next = state.route?.[1]
       if (!state.route || !next) return
-      if (!Number.isFinite(stepMinutes(state, state.location, next))) {
-        events.push({ type: 'ROUTE_BLOCKED', from: state.location, to: next })
+      if (!Number.isFinite(stepMinutes(state, here(state), next))) {
+        events.push({ type: 'ROUTE_BLOCKED', from: here(state), to: next })
         return
       }
-      const from = state.location
-      if (world.entering?.(next, from) === false) {
+      const from = here(state)
+      if (placeOf(next) !== state.location && world.entering?.(next, from) === false) {
         events.push({ type: 'ROUTE_BLOCKED', from, to: next })
         return
       }
-      enter(state, next, events)
-      schedule(state, PLACE_ENTER, events, from)
+      if (enter(state, next, events)) schedule(state, PLACE_ENTER, events, from)
       if (state.route.length < 2)
         return void events.push({ type: 'DESTINATION_REACHED', place: next, time: state.time })
       if (halted(state)) return
+    }
+  }
+
+  /**
+   * The party walks across its place to another of its positions (`step`), step by step, each
+   * one's time lived; it stops where a check comes up, or at a connection it can't cross.
+   */
+  const stepInside = (state: TravelState, to: string, events: TravelEvent[]): void => {
+    if (to === here(state) || placeOf(to) !== state.location) return
+    const way = plan(state, to, 'fastest', true)
+    if (!way) return void events.push({ type: 'NO_ROUTE', to })
+    for (const next of way.slice(1)) {
+      const cost = stepMinutes(state, here(state), next)
+      if (!Number.isFinite(cost))
+        return void events.push({ type: 'ROUTE_BLOCKED', from: here(state), to: next })
+      if (passTo(state, state.time + cost, events, true)) return
+      totalsOf(state).km += world.km(here(state), next)
+      state.at = next
+      events.push({ type: 'STEPPED_INSIDE', at: next, time: state.time })
+      if (halted(state)) break
+    }
+    // The way it was going, from where it stands now.
+    if (state.route) {
+      state.progress = 0
+      const route = state.destination && plan(state, state.destination)
+      if (route && route.length > 1) state.route = route
+      else delete state.route
     }
   }
 
@@ -2618,24 +2759,36 @@ export function createTravelEngine(options: {
     return state.waiting && { held: state.waiting.action }
   }
 
-  /** The party steps into the next place of its route: its visit, the totals, the journal. */
-  const enter = (state: TravelState, next: string, events: TravelEvent[]): void => {
+  /**
+   * The party steps to the next position of its route: into another place (its visit, the
+   * totals, the journal: true), or to another position of its own (a cell of its room).
+   */
+  const enter = (state: TravelState, next: string, events: TravelEvent[]): boolean => {
     const totals = totalsOf(state)
-    totals.places++
-    totals.km += world.km(state.location, next)
-    const via = world.connections(state.location, next)[0]
-    const terrain = world.place(next)?.terrain
+    const place = placeOf(next)
+    totals.km += world.km(here(state), next)
+    const via = world.connections(here(state), next)[0]
     state.progress = 0
-    state.location = next
     state.route = state.route!.slice(1)
-    state.visits = { ...state.visits, [next]: (state.visits?.[next] ?? 0) + 1 }
+    if (place === next) delete state.at
+    else state.at = next
+    if (place === state.location) {
+      events.push({ type: 'STEPPED_INSIDE', at: next, time: state.time })
+      return false
+    }
+    totals.places++
+    const terrain = world.place(place)?.terrain
+    state.location = place
+    state.visits = { ...state.visits, [place]: (state.visits?.[place] ?? 0) + 1 }
     events.push({
       type: 'PLACE_ENTERED',
-      place: next,
+      place,
       time: state.time,
       ...(terrain && { terrain }),
       ...(via && { via }),
+      ...(state.at !== undefined && { at: state.at }),
     })
+    return true
   }
 
   return {
@@ -2691,7 +2844,19 @@ export function createTravelEngine(options: {
         : { ...facts }
       // Paused on a check: what moves the trip on waits until it's resolved (Continue).
       const paused = pausedOn(state)
-      const moves = ['travel', 'wait', 'waitForMarch', 'action'].includes(action.type)
+      // A trip kept before the party stood somewhere in a place of several positions (a room)
+      // stands at its first, its route from there.
+      if (state.at === undefined) {
+        const first = world.positionsOf?.(state.location)?.[0]
+        if (first !== undefined) state.at = first
+      }
+      if (state.route && state.route[0] !== here(state)) {
+        const route = state.destination && plan(state, state.destination)
+        if (route) state.route = route
+        else delete state.route
+        state.progress = 0
+      }
+      const moves = ['travel', 'wait', 'waitForMarch', 'action', 'step'].includes(action.type)
       if (paused && moves) {
         const id = action.type === 'action' ? action.id : action.type
         events.push({ type: 'ACTION_UNAVAILABLE', action: id, because: paused })
@@ -2741,6 +2906,10 @@ export function createTravelEngine(options: {
           events.push({ type: 'ROUTE_PLANNED', route, strategy })
           break
         }
+        case 'step':
+          delete state.moving
+          stepInside(state, action.to, events)
+          break
         case 'travel':
           if (action.by === undefined) goOn(state, events)
           else journey(state, action.by, events)

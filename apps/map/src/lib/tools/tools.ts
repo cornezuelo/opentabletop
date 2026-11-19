@@ -22,9 +22,8 @@ import {
   nodeFlags,
   normalizePath,
   partyToken,
-  placeOfCell,
 } from '@open-tabletop/map'
-import { chooseOnMap, clickHex, onTrip, partyMoved, walkTo } from '../play/play'
+import { chooseOnMap, clickHex, goToConnection, onTrip, partyMoved, walkTo } from '../play/play'
 import { paintTerritory } from '../play/factions'
 import {
   copyOf,
@@ -39,6 +38,7 @@ import { showHere } from '@open-tabletop/travel-ui'
 import { placeInHex } from '../render/pathGeometry'
 import {
   cellAt,
+  cellDistance,
   cellCenter as centerOn,
   type Point,
   inBounds,
@@ -262,7 +262,7 @@ class TokenTool implements Tool {
     if (after.kind === 'party' && editor.mode === 'play' && onTrip()) {
       editor.map.tokens = editor.map.tokens.map((t) => (t.id === drag.id ? drag.before : t))
       editor.notify({ kind: 'tokens' })
-      walkTo(placeOfCell(editor.map, after.hex as HexKey), after.hex as HexKey)
+      walkTo(after.hex as HexKey)
       return null
     }
     editor.record(new ReplaceTokenCommand(drag.before, structuredClone(after)))
@@ -1036,7 +1036,11 @@ const playTool: Tool = {
     if (editor.selectedToken?.startsWith(PRESENT_ID))
       editor.selectedToken = partyToken(editor.map)?.id ?? null
     if (info.button === 0 && playDragger.down(cell, info)) return
-    if (info.button !== 0 || !inBounds(cell, editor.map.grid)) return
+    if (info.button !== 0) return
+    // A door clicked (where it's drawn, between its cells): the party goes to its side of it.
+    const door = onTrip() ? doorAt(info.world, info.pickRadius) : null
+    if (door) return goToConnection(door)
+    if (!inBounds(cell, editor.map.grid)) return
     clickHex(keyOf(cell))
   },
   move(cell, info) {
@@ -1100,6 +1104,25 @@ export function connectionAt(world: Point, radius: number): MapConnection | null
       connection.between.every((k) => inBounds(parseKey(k), grid))
     )
       best = { connection, distance: d }
+  }
+  return best?.connection ?? null
+}
+
+/**
+ * The connection drawn between neighbouring cells whose middle (where it's drawn, a door on
+ * the wall) is near a point: within a fifth of a cell, or `radius` (world units).
+ */
+export function doorAt(world: Point, radius: number): MapConnection | null {
+  const { grid } = editor.map
+  let best: { connection: MapConnection; distance: number } | null = null
+  for (const connection of editor.map.connections) {
+    const [p, q] = connection.between.map((k) => parseKey(k))
+    if (!inBounds(p, grid) || !inBounds(q, grid) || cellDistance(p, q, grid) !== 1) continue
+    const [a, b] = [cellCenter(p), cellCenter(q)]
+    const d = Math.hypot(world.x - (a.x + b.x) / 2, world.y - (a.y + b.y) / 2)
+    // A fifth of a cell round its middle, or the pointer's own reach if more.
+    const reach = Math.max(radius, Math.hypot(b.x - a.x, b.y - a.y) / 5)
+    if (d <= reach && (!best || d < best.distance)) best = { connection, distance: d }
   }
   return best?.connection ?? null
 }

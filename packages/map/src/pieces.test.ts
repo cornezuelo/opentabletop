@@ -60,14 +60,17 @@ describe('pieces laid on a map', () => {
     expect(new Set(again.connections.map((c) => c.id)).size).toBe(again.connections.length)
   })
 
-  it('a cell of a room stands for the room: its exits are read from the cell come in by', () => {
+  it('a room laid is one place, its cells its positions, each exit from its own cell', () => {
     const { map, crypt } = vault()
     const world = mapWorld(withPieces(map, [crypt]), 1)
-    // The party came in at 5,4; the crack leaves the room from its other cell.
-    expect(world.place('5,4')).toMatchObject({ name: 'Crypt', danger: 2 })
-    expect(world.neighbors('5,4')).toContain('5,2')
-    expect(world.connections('5,4', '5,2')).toEqual(['crack'])
-    expect(world.connectionOf?.('5,4', '5,2')).toMatchObject({ name: 'A crack', state: 'hidden' })
+    // The party came in at 5,4, a cell of the crypt; the crack leaves it from its other cell.
+    const room = world.placeOf!('5,4')
+    expect(world.place(room)).toMatchObject({ name: 'Crypt', danger: 2 })
+    expect(world.positionsOf?.(room)).toContain('5,3')
+    expect(world.neighbors(room)).toContain('5,2')
+    expect(world.connections(room, '5,2')).toEqual(['crack'])
+    expect(world.connectionOf?.(room, '5,2')).toMatchObject({ name: 'A crack', state: 'hidden' })
     expect(world.connections('5,4', '5,5')).toEqual(['door'])
+    expect(world.connections('5,4', '5,2')).toEqual([])
   })
 })

@@ -199,6 +199,15 @@ look-chest:
   entries:
     drawn: 'Una aguja en la cerradura, sacada con cuidado ({{roll}})'
     pricked: 'La aguja pincha a {{acting.name}} ({{roll}}): {{characters[params.chest].values.needle}} de daño'
+pick-door:
+  name: Forzando la puerta
+  description: |-
+    La tira _Abrir la cerradura_ ante una puerta cerrada con llave al alcance (la de la bodega del Hurón Mojado): 2d6 y el Sigilo de quien actúa, contra 7 más la Cerradura de la puerta. Si lo logra, esa puerta queda abierta el resto del viaje; si no, la cerradura aguanta.
+
+    **Enseña:** una tirada contra un valor de la conexión elegida (`'place.connections[params.door].lock': { lt: '{{roll - 6}}' }`), una puerta al alcance (`from: place.connections.door.near`) y un efecto solo sobre esa puerta (`'place.connections[params.door].state': open`).
+  entries:
+    open: 'La cerradura cede ({{roll}} contra {{7 + place.connections[params.door].lock}})'
+    holds: 'La cerradura aguanta ({{roll}} contra {{7 + place.connections[params.door].lock}})'
 pick-chest:
   name: Forzando la cerradura
   description: |-

@@ -4,7 +4,7 @@ import type { SessionState } from './index'
 const onMap = (map: string, place: string) => `@${map}/${place}`
 
 /** Keys of a journal line's data that name a place. */
-const PLACE_KEYS = ['place', 'hex', 'from', 'to']
+const PLACE_KEYS = ['place', 'hex', 'from', 'to', 'at']
 
 /**
  * A trip carried from one map to another of its tree (into a sub-map, or out of it): the
@@ -28,6 +28,7 @@ export function moveTrip(session: SessionState, from: string, to: string): Sessi
   s.travel = {
     ...travel,
     location: rename(travel.location),
+    ...(travel.at !== undefined && { at: rename(travel.at) }),
     ...(travel.destination && { destination: rename(travel.destination) }),
     ...(travel.visits && {
       visits: Object.fromEntries(Object.entries(travel.visits).map(([p, n]) => [rename(p), n])),

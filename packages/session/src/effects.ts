@@ -67,8 +67,9 @@ export function effectsOf(value: Record<string, unknown>): Effects {
     // A character's condition set or cleared.
     else if (change === true || change === false || change === 'true' || change === 'false')
       out[path] = String(change)
-    // A connection's value set to a word (`connection.state: open`, a hidden path `found`).
-    else if (typeof change === 'string' && /^(connection|place\.connections)\./.test(path))
+    // A connection's value set to a word (`connection.state: open`, a hidden path `found`,
+    // one door chosen: `place.connections[params.door].state: open`).
+    else if (typeof change === 'string' && /^(connection|place\.connections)[.[]/.test(path))
       out[path] = change
     // The encounter started or ended, or a side said to go first (`encounter.first: foes`).
     else if (typeof change === 'string' && ENCOUNTER_EFFECT.test(path)) out[path] = change

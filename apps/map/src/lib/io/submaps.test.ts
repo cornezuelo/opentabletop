@@ -347,9 +347,7 @@ describe('sub-maps', () => {
       expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('area:barrowstair1')
       const trail = editor.map.play!.trail.length
       play.clickHex('8,4')
-      await marchUntil(
-        () => play.sessionOf(editor.map.play!)?.travel.location === 'area:chieftomb1',
-      )
+      await marchUntil(() => play.sessionOf(editor.map.play!)?.travel.at === '8,4')
       expect(play.sessionOf(editor.map.play!)?.travel.location).toBe('area:chieftomb1')
       const walked = editor.map.play!.trail.slice(trail - 1).map(parseKey)
       expect(walked.map((c) => `${c.col},${c.row}`)).toEqual([

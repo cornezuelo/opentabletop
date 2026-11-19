@@ -189,7 +189,9 @@ export function toldParty(map: HexMap = editor.map): { hex?: HexKey; trail: HexK
     .filter((e) => e.code === 'PLACE_ENTERED' && !parsePlaceOn(String(e.data?.place))).length
   const place = view.travel.location
   return {
-    hex: (!parsePlaceOn(place) && cellOfPlace(map, place, hex)) || hex,
+    hex:
+      (view.travel.at as HexKey | undefined) ??
+      ((!parsePlaceOn(place) && cellOfPlace(map, place, hex)) || hex),
     trail: trail.slice(0, Math.max(1, trail.length - left)),
   }
 }

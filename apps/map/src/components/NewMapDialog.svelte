@@ -18,14 +18,15 @@
     dungeon: 'square',
     town: 'square',
   }
-  const SQUARE_KM = '0.003'
+  /** A site's cell (a dungeon's, a town's, any map of squares): 3 m. */
+  const SITE_KM = '0.003'
 
   // A sub-map is a site at first: what New sub-map always made.
   const first: MapTemplate = asked.subMap ? 'dungeon' : 'blank'
   let name = $state(asked.name ?? '')
   let template = $state<MapTemplate>(first)
   let cells = $state(CELLS[first])
-  let km = $state(CELLS[first] === 'square' ? SQUARE_KM : '')
+  let km = $state(first !== 'blank' ? SITE_KM : '')
   let under = $state(!!asked.subMap || (!!asked.under && !!asked.place))
   let dialog: HTMLDialogElement
 
@@ -42,7 +43,7 @@
   function choose(next: MapTemplate) {
     template = next
     cells = CELLS[next]
-    km = cells === 'square' ? SQUARE_KM : ''
+    km = next !== 'blank' || cells === 'square' ? SITE_KM : ''
   }
 
   function create() {

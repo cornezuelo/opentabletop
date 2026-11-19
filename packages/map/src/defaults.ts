@@ -320,15 +320,15 @@ export interface MapStart {
   cellKm?: number
 }
 
-/** The km of a square, when nothing says: 3 m, a site's. */
-const SQUARE_KM = 0.003
+/** The km of a site's cell (a dungeon's, a town's, any map of squares), when nothing says: 3 m. */
+const SITE_KM = 0.003
 
 export function createMap(name = '', start: MapStart = {}): HexMap {
   const now = new Date().toISOString()
   const id = newId()
   const { template = 'blank' } = start
   const squares = (start.cells ?? (template === 'blank' ? 'hex' : 'square')) === 'square'
-  const cellKm = start.cellKm ?? (squares ? SQUARE_KM : undefined)
+  const cellKm = start.cellKm ?? (squares || template !== 'blank' ? SITE_KM : undefined)
   const natural = (id: string) => DEFAULT_TERRAINS.find((t) => t.id === id)!
   const terrains =
     template === 'town'

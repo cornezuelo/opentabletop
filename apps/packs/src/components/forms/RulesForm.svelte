@@ -147,6 +147,18 @@
         />
         {t('rules.cutCorners')}<InfoTip text={t('rules.cutCornersHelp')} />
       </label>
+      <label>
+        <span>{t('rules.insideStep')}<InfoTip text={t('rules.insideStepHelp')} /></span>
+        <input
+          type="number"
+          min="0"
+          step="any"
+          value={rules.travel?.insideStep ?? ''}
+          placeholder={t('rules.insideStepNone')}
+          {disabled}
+          onchange={(e) => doc.edit('travel-rules', ['travel', 'insideStep'], num(e.currentTarget))}
+        />
+      </label>
     </div>
     <div class="inline">
       <label>

@@ -1031,9 +1031,9 @@ describe('the bundled packs fight in turns', () => {
     })
     expect(tripAvailability(options, s)['open-eyes']).toBeUndefined()
     expect(tripAvailability(options, s)['close-eyes']).toBeDefined()
+    // Only Kael has the knack: he's the one, nothing asked.
     let done = stepTrip(options, s, { type: 'action', id: 'open-eyes' })
-    expect(done.state.travel.waiting).toMatchObject({ ask: 'who', choices: ['kael'] })
-    done = stepTrip(options, done.state, { type: 'resume', choice: 'kael' })
+    expect(done.state.travel.waiting).toBeUndefined()
     s = done.state
     expect(member(s, 'kael').values['night-eyes']).toBe(1)
     expect(tripAvailability(options, s)['close-eyes']).toBeUndefined()
@@ -1045,7 +1045,6 @@ describe('the bundled packs fight in turns', () => {
     expect(member(s, 'kael').values.nerve).toBe((nerve as number) - 2)
     // Closed again: the next one would burn his torch.
     done = stepTrip(options, s, { type: 'action', id: 'close-eyes' })
-    done = stepTrip(options, done.state, { type: 'resume', choice: 'kael' })
     expect(member(done.state, 'kael').values['night-eyes']).toBe(0)
   })
 

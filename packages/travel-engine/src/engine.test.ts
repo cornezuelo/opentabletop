@@ -3472,8 +3472,15 @@ describe('connections: what crossing one does', () => {
     })
     const facts = eng.context(at('a')) as { place: { connections: Record<string, unknown> } }
     expect(facts.place.connections).toEqual({
-      door: { id: 'oak-door', ids: ['oak-door'], kind: 'door', tags: ['old'], state: 'locked' },
-      tunnel: { ids: [], kind: 'tunnel', tags: [] },
+      door: {
+        id: 'oak-door',
+        ids: ['oak-door'],
+        near: ['oak-door'],
+        kind: 'door',
+        tags: ['old'],
+        state: 'locked',
+      },
+      tunnel: { ids: [], near: [], kind: 'tunnel', tags: [] },
       // Each one drawn by its id too.
       'oak-door': { id: 'oak-door', kind: 'door', tags: ['old'], state: 'locked' },
     })
@@ -3522,9 +3529,9 @@ describe('connections: what crossing one does', () => {
     const done = eng.apply(held.state, { type: 'resume', choice: 'door-c' })
     // Only that one opens; the other stays locked, and is the only one left to choose.
     expect(done.state.connections).toEqual({ 'door-c': { state: 'open' } })
-    const again = eng.apply(done.state, { type: 'action', id: 'pick' })
-    expect(again.state.waiting?.choices).toEqual(['door-b'])
-    const last = eng.apply(again.state, { type: 'resume', choice: 'door-b' })
+    // The one left: that one, nothing asked.
+    const last = eng.apply(done.state, { type: 'action', id: 'pick' })
+    expect(last.state.waiting).toBeUndefined()
     expect(last.state.connections).toEqual({
       'door-b': { state: 'open' },
       'door-c': { state: 'open' },
@@ -3676,5 +3683,166 @@ describe('diagonal steps on a map of squares', () => {
     expect(
       withTravel({ diagonals: 1, cutCorners: true }).stepMinutes(at('1,0'), '1,0', '2,1'),
     ).toBe(10)
+  })
+})
+
+describe('a position inside a place of several (a room played as one place)', () => {
+  /**
+   * Outside `o`, then the hall's four cells in a line, r1 to r4: the front door between o and
+   * r1, the cellar door (locked) between r3 and r4, inside the hall; a bar on r2.
+   */
+  const hall = ['r1', 'r2', 'r3', 'r4']
+  const line = ['o', ...hall]
+  const doors: Record<string, { id: string; kind: string; tags: string[]; state?: string }> = {
+    'o|r1': { id: 'front', kind: 'door', tags: [] },
+    'r3|r4': { id: 'cellar', kind: 'door', tags: [], state: 'locked' },
+  }
+  const door = (a: string, b: string) => doors[`${a}|${b}`] ?? doors[`${b}|${a}`]
+  const world: TravelWorld = {
+    km: () => 0.003,
+    place: (id) =>
+      id === 'hall'
+        ? { terrain: 'floor', name: 'The Hall' }
+        : line.includes(id)
+          ? { terrain: 'floor', ...(id === 'r2' && { bar: 1 }) }
+          : null,
+    neighbors: (id) => {
+      const i = line.indexOf(id)
+      return i < 0 ? [] : [line[i - 1], line[i + 1]].filter((n): n is string => !!n)
+    },
+    distance: () => 0,
+    connections: (a, b) => (door(a, b) ? ['door'] : []),
+    connectionOf: (a, b) => door(a, b),
+    placeOf: (id) => (hall.includes(id) ? 'hall' : id),
+    positionsOf: (place) => (place === 'hall' ? hall : undefined),
+  }
+  const engine = (travel: Record<string, unknown> = {}) =>
+    createTravelEngine({
+      world,
+      rules: parseTravelRules({
+        kind: 'travel-rules',
+        travel: { ...DAY, ...travel },
+        terrains: { floor: { multiplier: 1 } },
+        modes: { foot: { minutes: 10 } },
+        connections: { door: { passable: { unless: { 'connection.state': 'locked' } } } },
+        actions: DAY_ACTIONS,
+        checks: [{ event: 'ENTERED', at: 'trip.place-enter' }],
+      }).rules!,
+    })
+  const at = (location: string, more: Partial<TravelState> = {}): TravelState => ({
+    ...initialTravelState({ location, mode: 'foot', time: defaultCalendar.at(1, '08:00') }),
+    momentsDue: undefined,
+    ...more,
+  })
+  type Facts = {
+    place: {
+      id: string
+      at?: Record<string, unknown>
+      connections: Record<string, { ids: string[]; near: string[] }>
+    }
+  }
+
+  it('entering it is entering one place, standing on the cell stepped into', () => {
+    const eng = engine()
+    expect(eng.plan(at('o'), 'hall')).toEqual(['o', 'r1'])
+    const set = eng.apply(at('o'), { type: 'setDestination', place: 'hall' }).state
+    const { state, events } = eng.apply(set, { type: 'action', id: 'march' })
+    expect(state).toMatchObject({ location: 'hall', at: 'r1', visits: { o: 1, hall: 1 } })
+    expect(events).toContainEqual(expect.objectContaining({ type: 'PLACE_ENTERED', place: 'hall' }))
+    expect(state.pendingChecks.map((c) => c.event)).toEqual(['ENTERED'])
+  })
+
+  it('a step inside spends a step’s time and enters nothing', () => {
+    const eng = engine()
+    const { state, events } = eng.apply(at('hall', { at: 'r1' }), { type: 'step', to: 'r3' })
+    expect(state).toMatchObject({ location: 'hall', at: 'r3' })
+    expect(state.time - defaultCalendar.at(1, '08:00')).toBe(20)
+    expect(events.filter((e) => e.type === 'STEPPED_INSIDE').map((e) => e)).toHaveLength(2)
+    expect(events.some((e) => e.type === 'PLACE_ENTERED')).toBe(false)
+    expect(state.pendingChecks).toEqual([])
+    expect(state.visits).toEqual({ hall: 1 })
+    expect(state.totals?.places).toBe(0)
+  })
+
+  it('the system may say what a step inside takes: none, counting time by room', () => {
+    const { state } = engine({ insideStep: 0 }).apply(at('hall', { at: 'r1' }), {
+      type: 'step',
+      to: 'r3',
+    })
+    expect(state.at).toBe('r3')
+    expect(state.time).toBe(defaultCalendar.at(1, '08:00'))
+  })
+
+  it('a door inside stops a step at its side until it’s open', () => {
+    const eng = engine()
+    const { state, events } = eng.apply(at('hall', { at: 'r1' }), { type: 'step', to: 'r4' })
+    expect(state.at).toBe('r3')
+    expect(events).toContainEqual({ type: 'ROUTE_BLOCKED', from: 'r3', to: 'r4' })
+    const opened = { ...state, connections: { cellar: { state: 'open' } } }
+    expect(eng.apply(opened, { type: 'step', to: 'r4' }).state.at).toBe('r4')
+  })
+
+  it('tables read the exits at hand and the cell’s own values', () => {
+    const eng = engine()
+    const facts = (cell: string) => eng.context(at('hall', { at: cell })) as unknown as Facts
+    // Every door of the hall, the one inside too…
+    expect(facts('r1').place.connections.door.ids).toEqual(['front', 'cellar'])
+    // …and only those touching where the party stands.
+    expect(facts('r1').place.connections.door.near).toEqual(['front'])
+    expect(facts('r2').place.connections.door.near).toEqual([])
+    expect(facts('r4').place.connections.door.near).toEqual(['cellar'])
+    expect(facts('r2').place).toMatchObject({
+      id: 'hall',
+      name: 'The Hall',
+      at: { id: 'r2', bar: 1 },
+    })
+    // A place of one position: everything leaving it is at hand.
+    const out = eng.context(at('o')) as unknown as Facts
+    expect(out.place.connections.door.near).toEqual(['front'])
+    expect(out.place.at).toBeUndefined()
+  })
+
+  it('leaving walks across it first, entering the place outside once', () => {
+    const eng = engine()
+    const set = eng.apply(at('hall', { at: 'r3' }), { type: 'setDestination', place: 'o' }).state
+    expect(set.route).toEqual(['r3', 'r2', 'r1', 'o'])
+    const { state, events } = eng.apply(set, { type: 'action', id: 'march' })
+    expect(state.location).toBe('o')
+    expect(state.at).toBeUndefined()
+    expect(events.filter((e) => e.type === 'PLACE_ENTERED')).toHaveLength(1)
+  })
+
+  it('an action on a door at hand: only where one is, the one there not asked for', () => {
+    const eng = createTravelEngine({
+      world,
+      rules: parseTravelRules({
+        kind: 'travel-rules',
+        travel: DAY,
+        terrains: { floor: { multiplier: 1 } },
+        modes: { foot: { minutes: 10 } },
+        actions: {
+          ...DAY_ACTIONS,
+          knock: {
+            params: { door: { name: 'Which door?', from: 'place.connections.door.near' } },
+            do: [
+              { ask: 'params.door' },
+              { effects: { 'place.connections[params.door].knocked': 1 } },
+            ],
+          },
+        },
+      }).rules!,
+    })
+    // Nothing at hand to choose: not to be taken.
+    expect(eng.availability(at('hall', { at: 'r2' })).knock).toEqual({ nothing: 'door' })
+    // One door at hand: that one, nothing asked.
+    const { state } = eng.apply(at('hall', { at: 'r4' }), { type: 'action', id: 'knock' })
+    expect(state.waiting).toBeUndefined()
+    expect(state.connections).toEqual({ cellar: { knocked: 1 } })
+  })
+
+  it('a trip kept before stands at the place’s first cell', () => {
+    const { state } = engine().apply(at('hall'), { type: 'step', to: 'r2' })
+    expect(state.at).toBe('r2')
+    expect(state.time - defaultCalendar.at(1, '08:00')).toBe(10)
   })
 })

@@ -1089,7 +1089,11 @@ export function createSession(options: {
             ...(time !== undefined && { time }),
             data: { hex },
           })
-          s.travel = { ...s.travel, location: from, route: undefined, moving: undefined }
+          // Back where it stood: its place, and its cell in it (a room's).
+          const place = discovery.world.placeOf?.(from) ?? from
+          s.travel = { ...s.travel, location: place, route: undefined, moving: undefined }
+          if (place === from) delete s.travel.at
+          else s.travel.at = from
           return true
         }
         if (piece)
@@ -1231,7 +1235,7 @@ export function createSession(options: {
       }
       for (let i = 0; i <= limit; i++) {
         const dayBefore = s.travel.day
-        const from = s.travel.location
+        const from = s.travel.at ?? s.travel.location
         // Conditions on actions and checks also see the party and today's values.
         const result = replay
           ? { state: s.travel, events: replay }
@@ -1322,7 +1326,8 @@ export function createSession(options: {
               told(s, entries, gone, event.time)
               settle()
             }
-            found = arrive(event.place, from, event.time) || found
+            // Found cell by cell: the cell stepped into, in a room.
+            found = arrive(event.at ?? event.place, from, event.time) || found
           }
           if (event.type !== 'CHECK_REQUIRED') continue
           // A step's roll of something the Oracle rolls (`roll: table.ruins`) has no binding:

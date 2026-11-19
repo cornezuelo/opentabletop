@@ -144,12 +144,15 @@ describe('advancement: a choice listed from a catalogue', () => {
 
   it('where: keeps the listed ones of the trip it holds for, each read as candidate', () => {
     const { options, session } = begin()
-    // Ana is level 1: nobody to send, nothing asked.
+    // Ana is level 1: nobody to send, so it isn't to be taken.
     let done = stepTrip(options, session, { type: 'action', id: 'send' })
     expect(done.state.travel.waiting).toBeUndefined()
+    expect(done.entries.some((e) => e.code === 'ACTION_TAKEN')).toBe(false)
     done = stepTrip(options, done.state, { type: 'action', id: 'rise' })
     done = stepTrip(options, done.state, { type: 'resume', choice: 'quick' })
+    // Ana alone is listed now: she's the one, nothing asked.
     done = stepTrip(options, done.state, { type: 'action', id: 'send' })
-    expect(done.state.travel.waiting).toMatchObject({ ask: 'who', choices: ['ana'] })
+    expect(done.state.travel.waiting).toBeUndefined()
+    expect(done.entries.some((e) => e.code === 'ACTION_TAKEN')).toBe(true)
   })
 })

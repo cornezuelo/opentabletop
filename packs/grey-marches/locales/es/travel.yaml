@@ -145,10 +145,23 @@ travel-rules/default:
       params:
         door:
           name: ¿Qué puerta?
-          description: Una de las puertas atrancadas que salen de este lugar.
+          description: Una de las puertas atrancadas al alcance.
       do:
         forced:
           say: 'La tranca se astilla y la puerta cede.'
+    pick-door:
+      name: Abrir la cerradura
+      description: 'Ante una puerta cerrada con llave: diez minutos. 2d6 y el Sigilo de quien actúa, 7 más su Cerradura o más: se abre.'
+      params:
+        door:
+          name: ¿Qué puerta?
+          description: Una de las puertas cerradas con llave al alcance.
+    stand-a-round:
+      name: Pagar una ronda
+      description: 'En la barra: media hora y una ronda para la Compañía, una moneda de plata cada uno. Moral +1. Una vez al día.'
+      do:
+        poured:
+          say: 'Las jarras llegan rebosando de espuma por encima del mostrador, y a la Compañía se le levanta el ánimo.'
     scout:
       name: Explorar el camino
       description: 'De día: media hora explorando el camino, con sigilo o por el terreno, como elijáis. Quien actúa tira un d6 igual o menor que esa habilidad: el camino está despejado y la Compañía se anima (moral +1), con el camino explorado: al entrar en el siguiente lugar, el encuentro se tira dos veces y se queda el más amistoso.'
@@ -468,7 +481,7 @@ travel-rules/default:
       description: Media hora de cuerda; ni para bajar ni para subir con caballos o carros.
     door:
       name: Puerta
-      description: Un minuto más para empujarla; cerrada mientras esté atrancada.
+      description: Un minuto más para empujarla; cerrada mientras esté atrancada o cerrada con llave.
     hidden-path:
       name: Senda oculta
       description: Un camino que pocos conocen, por las colinas o tras una pared bajo ellas; no se puede seguir hasta encontrarlo.

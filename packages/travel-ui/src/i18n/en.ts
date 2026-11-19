@@ -333,6 +333,7 @@ export const en = {
   blocked: {
     value: '{name}: not possible for the rest of the day.',
     once: 'Once a day: already done today.',
+    nothing: 'Nothing here to take it on: what it asks for lists nothing now.',
     condition: 'Not possible here and now (the system’s rule for it).',
     conditionWhy: 'Not possible now: {why}.',
     member: '{name}: not possible while it lasts.',

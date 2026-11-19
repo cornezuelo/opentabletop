@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { createMap, mapWorld, withPieces, type HexKey, type HexMap } from '@open-tabletop/map'
+import {
+  createMap,
+  mapWorld,
+  placeOfCell,
+  withPieces,
+  type HexKey,
+  type HexMap,
+} from '@open-tabletop/map'
 import { createOracleEngine } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import {
@@ -103,7 +110,9 @@ describe('pieces', () => {
       const done = through(system, session, '15,14', 3)
       session = done.state
       expect(done.laid).toHaveLength(1)
-      expect(session.travel.location).toBe('15,14')
+      // On the piece's room, standing on the cell stepped into.
+      expect(session.travel.location).toBe(placeOfCell(editor.map, '15,14'))
+      expect(session.travel.at ?? session.travel.location).toBe('15,14')
       expect(editor.map.hexes['15,14' as HexKey]?.terrain).toBe('stone-floor')
       expect(done.entries.some((e) => e.code === 'PIECE_LAID')).toBe(true)
       expect(editor.map.pieces).toHaveLength(1)
@@ -167,21 +176,10 @@ describe('a barred door in the Deep Barrows', () => {
     let heard = false
     let silent = false
     for (let seed = 1; seed < 40; seed++) {
-      const asked = run({ type: 'action', id: 'force-door' }, seed)
-      // Which door: the barred one here, chosen by its id.
-      expect(asked.state.travel.waiting).toMatchObject({ ask: 'door', choices: ['bar'] })
-      const forced = stepTrip(
-        {
-          system,
-          world: mapWorld(editor.map),
-          oracle: createOracleEngine({ registry: library.registry, random: seeded(seed) }),
-          random: seeded(seed),
-          locale: 'en',
-          discover: 'pieces' as const,
-        },
-        asked.state,
-        { type: 'resume', choice: 'bar' },
-      )
+      // The one barred door at hand: that one, chosen by its id without asking.
+      const forced = run({ type: 'action', id: 'force-door' }, seed)
+      expect(forced.state.travel.waiting).toBeUndefined()
+      expect(forced.state.travel.connections?.bar).toMatchObject({ state: 'forced' })
       const text = JSON.stringify(forced.entries)
       expect(text).toContain('door-noise')
       const dead = (forced.state.present ?? []).some((p) =>

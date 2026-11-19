@@ -326,6 +326,7 @@ export const es: Messages<typeof en> = {
   blocked: {
     value: '{name}: no es posible el resto del día.',
     once: 'Una vez al día: ya se ha hecho hoy.',
+    nothing: 'No hay nada aquí con lo que hacerlo: lo que pregunta no tiene ahora nada que elegir.',
     condition: 'No es posible aquí y ahora (lo dice la regla del sistema).',
     conditionWhy: 'No es posible ahora: {why}.',
     member: '{name}: no es posible mientras dure.',

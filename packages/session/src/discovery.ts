@@ -223,6 +223,12 @@ export function createDiscovery(options: {
     }),
     place(hex) {
       const cell = base.place(hex)
+      // A place of several cells (a room) has what was found on each: their tags.
+      const cells = base.positionsOf?.(hex)
+      if (cell && cells) {
+        const tags = cells.flatMap((c) => found.get(c)?.tags ?? [])
+        return tags.length ? { ...cell, tags: [...new Set([...(cell.tags ?? []), ...tags])] } : cell
+      }
       const extra = found.get(hex)
       if (!cell || !extra) return cell
       return {

@@ -50,13 +50,21 @@
   let { doc, system }: { doc: SystemDoc; system?: TravelSystem } = $props()
   /** The parts of its calendar's day: moments and time steps may name them. */
   const parts = $derived(dayPartRefs(system))
-  /** The system's item catalogues, as lists a parameter may offer (`items.knacks`). */
-  const catalogueLists = $derived(
-    (system?.items ?? []).map((c) => {
+  /**
+   * The system's item catalogues, as lists a parameter may offer (`items.knacks`), and the
+   * connections of each of its kinds leaving the place: all of them, or those at hand
+   * (`place.connections.door.near`).
+   */
+  const catalogueLists = $derived([
+    ...(system?.items ?? []).map((c) => {
       const [pack, id] = c.id.split('/')
       return pack === system?.pack ? `items.${id}` : `${pack}/items.${id}`
     }),
-  )
+    ...Object.keys((doc.rules.connections ?? {}) as Raw).flatMap((kind) => [
+      `place.connections.${kind}.near`,
+      `place.connections.${kind}.ids`,
+    ]),
+  ])
   /** Their entries' tags and ids, for a listed parameter's `where`. */
   const itemTags = $derived([
     ...new Set(

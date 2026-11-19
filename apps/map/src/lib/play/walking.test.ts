@@ -129,7 +129,7 @@ describe('walking', () => {
     expect(partyElsewhere()).toBe(true)
   })
 
-  it('in a room a key steps one cell, with no time; out by its door it is a step of the trip', () => {
+  it('in a room a key steps one cell, a step’s time entering nothing; out by its door it is a step of the trip', () => {
     room()
     const time = () => play.sessionOf(editor.map.play!)!.travel.time
     const before = time()
@@ -140,7 +140,11 @@ describe('walking', () => {
     play.walkByKey('w')
     expect(at()).toBe('4,3')
     expect(location()).toBe('area:hall')
-    expect(time()).toBe(before)
+    // Two steps' time, as any step of the system: no place entered.
+    const steps = time() - before
+    expect(steps).toBeGreaterThan(0)
+    const visits = play.sessionOf(editor.map.play!)!.travel.visits
+    expect(visits?.['area:hall']).toBe(1)
     expect(editor.map.play!.trail.slice(-2)).toEqual(['4,4', '4,3'])
     // The room's wall holds, and says so.
     toasts.length = 0
@@ -156,10 +160,28 @@ describe('walking', () => {
     play.walkByKey('d')
     expect(location()).toBe('6,3')
     expect(at()).toBe('6,3')
-    expect(time()).toBeGreaterThan(before)
+    expect(time()).toBeGreaterThan(before + steps)
     // Out of the room, a key walks place by place again.
     play.walkByKey('arrowright')
     expect(location()).toBe('7,3')
+  })
+
+  it('a door clicked: the party walks to its side of it, and the trip’s panel shows', () => {
+    room()
+    editor.panelHidden = true
+    const door = editor.map.connections[0]
+    // From the far corner of the hall, to the cell by the door: steps of the hall.
+    play.goToConnection(door)
+    expect(at()).toBe('5,3')
+    expect(location()).toBe('area:hall')
+    expect(play.sessionOf(editor.map.play!)!.travel.at).toBe('5,3')
+    expect(play.playPanelShown()).toBe(true)
+    // From the corridor, its side is the corridor's.
+    play.walkByKey('d')
+    play.walkByKey('d')
+    expect(location()).toBe('7,3')
+    play.goToConnection(door)
+    expect(at()).toBe('6,3')
   })
 
   it('while the trip waits (a pause, a fight) the party keeps still, in its room too', () => {
@@ -256,14 +278,15 @@ describe('walking', () => {
     // From the corridor, dragged deep into the room: the trip heads for the room.
     play.walkTo('6,3')
     expect(location()).toBe('6,3')
-    play.walkTo('area:hall', '3,4' as HexKey)
+    play.walkTo('3,4')
     expect(location()).toBe('area:hall')
     expect(at()).toBe('3,4')
-    // Another cell of the same room: it steps across at once, no time passes.
+    expect(play.sessionOf(editor.map.play!)!.travel.at).toBe('3,4')
+    // Another cell of the same room: it steps across, a step's time each, entering nothing.
     const time = play.sessionOf(editor.map.play!)!.travel.time
     play.clickHex('5,3' as HexKey)
     expect(at()).toBe('5,3')
-    expect(play.sessionOf(editor.map.play!)!.travel.time).toBe(time)
+    expect(play.sessionOf(editor.map.play!)!.travel.time).toBeGreaterThan(time)
     // A walk by the keys lands where the way in is, as before.
     play.walkByKey('d')
     expect(location()).toBe('6,3')

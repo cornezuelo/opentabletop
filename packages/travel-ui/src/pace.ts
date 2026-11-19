@@ -22,7 +22,7 @@ export interface Telling {
   /** How many are shown next, one after another; the last is the whole step. */
   stops: number[]
   /** Where the party stood and when, before the step. */
-  start: { location: string; time: number }
+  start: { location: string; at?: string; time: number }
   /** Waiting for **Continue** on an important moment, with more of the step to tell. */
   holding: boolean
 }
@@ -78,7 +78,11 @@ export function startTelling(
     from,
     shown,
     stops: stops.slice(1),
-    start: { location: before.travel.location, time: before.travel.time },
+    start: {
+      location: before.travel.location,
+      ...(before.travel.at !== undefined && { at: before.travel.at }),
+      time: before.travel.time,
+    },
     holding: notableIn(journal, from, from, shown),
   }
 }
@@ -109,13 +113,16 @@ export function tellingView(session: SessionState, telling: Telling | null): Ses
   const journal = session.journal.slice(0, telling.shown)
   const told = journal.slice(telling.from)
   const entered = told.findLast((e) => e.code === 'PLACE_ENTERED')
+  const at = entered ? entered.data?.at : telling.start.at
   const travel = {
     ...session.travel,
     location: entered ? String(entered.data?.place) : telling.start.location,
+    ...(typeof at === 'string' && { at }),
     time: told.at(-1)?.time ?? telling.start.time,
     progress: 0,
     pendingChecks: [],
   }
+  if (typeof at !== 'string') delete travel.at
   delete travel.waiting
   const view: SessionState = { ...session, journal, travel }
   delete view.encounter

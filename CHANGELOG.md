@@ -4,6 +4,21 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Trips on a map**: in a room (a region played as one place) the party keeps its cell. A step across the room takes a step's time, as the system reckons any step, and enters nothing: only crossing its edge is entering a place (its checks, its encounters). Doors inside a room work as any door. Clicking a cell of the room walks there; **clicking a door** walks to its side of it and opens the trip's panel.
+- **Packs**: what's at hand where the party stands: `place.connections.<kind>.near`, the connections touching its cell (a parameter's `from: place.connections.door.near`), and `place.at.*`, the cell's own values in a room (`place.at.bar: 1`). **Minutes a step inside a room** in Rules (`travel.insideStep`; `0` for a system that counts time by room).
+- **Packs**: a choice the trip lists with only one to choose (one door at hand, one character) is that one, not asked; with none, an action that asks for it first isn't offered (_Nothing here to take it on_).
+- **Map**: a new dungeon or town of hexes is at a site's scale (3 m a cell), as one of squares is.
+
+### Packs
+
+- **The Grey Marches**: in Ashford, the Wet Ferret has a bar (**Stand a round**, only by it: a silver each, morale +1, once a day) and a cellar behind a locked door inside the inn (**Pick the lock**, only at the door). **Force the door** is on the barred door at hand.
+
+### Fixes
+
+- **Trips**: a table's effect setting one chosen connection to a word (`'place.connections[params.door].state': open`) was dropped.
+
 ## [0.67.0] - 2026-11-19
 
 ### Apps

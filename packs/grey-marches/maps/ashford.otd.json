@@ -297,11 +297,23 @@
         },
         "4,2": {
           "terrain": "wood-floor",
-          "region": "wetferret1"
+          "region": "wetferret1",
+          "stats": [
+            {
+              "key": "bar",
+              "value": "1"
+            }
+          ]
         },
         "5,2": {
           "terrain": "wood-floor",
-          "region": "wetferret1"
+          "region": "wetferret1",
+          "stats": [
+            {
+              "key": "bar",
+              "value": "1"
+            }
+          ]
         },
         "6,2": {
           "terrain": "wood-floor",
@@ -587,7 +599,8 @@
         },
         "4,5": {
           "terrain": "wood-floor",
-          "region": "wetferret1"
+          "region": "cellar1",
+          "tags": ["cellar"]
         },
         "5,5": {
           "terrain": "wood-floor",
@@ -1652,6 +1665,22 @@
           "kind": "door"
         },
         {
+          "id": "cellardoor1",
+          "between": ["5,5", "4,5"],
+          "kind": "door",
+          "name": "The cellar door",
+          "fields": [
+            {
+              "key": "state",
+              "value": "locked"
+            },
+            {
+              "key": "lock",
+              "value": "2"
+            }
+          ]
+        },
+        {
           "id": "innyard1",
           "between": ["4,4", "3,4"],
           "kind": "door",
@@ -1805,6 +1834,13 @@
               "id": "rooms1",
               "name": "The guest rooms",
               "color": "#6a4a35",
+              "onePlace": true,
+              "parent": "wetferret1"
+            },
+            {
+              "id": "cellar1",
+              "name": "The cellar",
+              "color": "#4a3a25",
               "onePlace": true,
               "parent": "wetferret1"
             },

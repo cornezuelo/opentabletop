@@ -13,7 +13,10 @@ id: default
 # clock, a travel order), the party marches to its destination whenever it can (onward:
 # the action march, with its parameter). On maps of squares (the Barrow-halls), a step
 # across a corner costs a step and a half (diagonals: 1.5, the 1-2-1 count on average),
-# and never squeezes past a corner it can't enter (no cutCorners).
+# and never squeezes past a corner it can't enter (no cutCorners). Inside a room played as
+# one place (the Wet Ferret's common room, in Ashford), the party walks cell by cell, each
+# step a step's time as anywhere (no insideStep), entering nothing: only crossing its edge
+# is entering a place.
 travel:
   hoursPerDay: 8
   cellKm: 10
@@ -103,13 +106,14 @@ connections:
     description: Half an hour on a rope; no way down or up for horses or carts.
     extra: 30
     passable: { unless: { trip.mode: [horse, cart] } }
-  # A door drawn across a wall (the bronze door of the chief's tomb, in the Barrow-halls):
-  # a minute more to heave it open, and shut while its state in the trip says so.
+  # A door drawn across a wall (the bronze door of the chief's tomb, in the Barrow-halls; the
+  # Wet Ferret's cellar door, in Ashford): a minute more to heave it open, and shut while its
+  # state in the trip says so.
   door:
     name: Door
-    description: A minute more to heave it open; shut while it's barred.
+    description: A minute more to heave it open; shut while it's barred or locked.
     extra: 1
-    passable: { unless: { connection.state: barred } }
+    passable: { unless: { connection.state: [barred, locked] } }
   hidden-path:
     name: Hidden path
     description: A way few know of, over the hills or behind a wall under them; it can't be followed until found.
@@ -592,6 +596,24 @@ actions:
           party.members.values.health: 1
           party.conditions.shaken: false
           party.members.conditions.saddle-sore: false
+  # At an inn's bar, standing by it (a cell's own value, `place.at.bar`: the Wet Ferret's
+  # counter, two cells of its common room, not the whole inn): half an hour and a round for
+  # everyone, a silver each, and the Company's spirits lift. Once a day.
+  stand-a-round:
+    group: groups.here
+    name: Stand a round
+    description: 'At the bar: half an hour and a round for the Company, a silver each. Morale +1. Once a day.'
+    when: { place.at.bar: 1 }
+    oncePerDay: true
+    hideWhenUnavailable: true
+    needs: { party.stats.silver: { gte: '{{party.stats.mouths}}' } }
+    do:
+      - { time: 30 }
+      - { effects: { party.stats.silver: '-{{party.stats.mouths}}', party.stats.morale: 1 } }
+      - {
+          id: poured,
+          say: 'The tankards come foaming over the counter, and the Company’s spirits lift.',
+        }
   # A job as a promise kept in the Company's values: a traveller's offer (_Wants_, `escort-offer`)
   # taken up while they're here, the copy leaving those present to walk with you; paid by an
   # action of the system's own the moment the Company enters the fort (`on: trip.place-enter`,
@@ -643,9 +665,10 @@ actions:
   # delving it, then what it holds rolled on the Oracle by a step (`roll:` naming a
   # generator, not a check: no binding, its result and the generator's name in the journal).
   # Once a day; hidden elsewhere.
-  # A barred door leaving the place (`place.connections.door.state`, a door laid shut by the
-  # Deep Barrows' pieces), chosen by its id among the doors here (`from:
-  # place.connections.door.ids`, those barred): ten minutes with shoulder and crowbar, and
+  # A barred door at hand (`place.connections.door.state`, a door laid shut by the Deep
+  # Barrows' pieces), chosen by its id among the doors touching the cell the party stands on
+  # (`from: place.connections.door.near`, those barred; with none at hand, it isn't offered,
+  # and walking to the door offers it): ten minutes with shoulder and crowbar, and
   # that door is open for the rest of the trip (an effect on that one connection, never on
   # the map); the dead of this map stir (its own sheet, `map.values`); then the noise of it,
   # rolled on a table that may bring one of the dead, louder for a heavier bar.
@@ -658,8 +681,8 @@ actions:
     params:
       door:
         name: Which door?
-        description: One of the barred doors leaving this place.
-        from: place.connections.door.ids
+        description: One of the barred doors at hand.
+        from: place.connections.door.near
         where: { 'place.connections[candidate].state': barred }
     do:
       - { ask: params.door }
@@ -667,6 +690,26 @@ actions:
       - { effects: { 'place.connections[params.door].state': forced, map.values.unrest: 1 } }
       - { id: forced, say: 'The bar splinters and the door gives way.' }
       - { roll: table.door-noise }
+  # A locked door at hand (the Wet Ferret's cellar door, its Lock on the map: `lock: 2`), only
+  # from the cell beside it, inside the inn as anywhere: ten minutes, and a roll against its
+  # Lock (_Picking the door_) that opens that door alone, for the rest of the trip.
+  pick-door:
+    group: groups.here
+    name: Pick the lock
+    description: 'At a locked door: ten minutes. 2d6 and the Stealth of whoever acts, 7 and its Lock or more: it’s open.'
+    when: { place.connections.door.state: locked }
+    needs: { acting: { exists: true } }
+    hideWhenUnavailable: true
+    params:
+      door:
+        name: Which door?
+        description: One of the locked doors at hand.
+        from: place.connections.door.near
+        where: { 'place.connections[candidate].state': locked }
+    do:
+      - { ask: params.door }
+      - { time: 10 }
+      - { roll: table.pick-door }
   # A test that names its skill: the player chooses which of the acting companion's skills
   # to trust (`ask`), and one table rolls under whichever it is (`acting.values[params.skill]`
   # in _Scouting ahead_): no table per skill.

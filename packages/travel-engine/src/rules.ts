@@ -451,6 +451,12 @@ export const travelRulesSchema = z
         diagonals: z.number().positive().optional(),
         /** A diagonal step may pass a corner whose squares beside it can't be entered (default: no). */
         cutCorners: z.boolean().optional(),
+        /**
+         * The minutes a step takes inside a place that holds several positions (a room played
+         * as one place, cell by cell): `0` for a system that counts time by room. Absent: as
+         * any step (the cell's km at the way of travelling's speed).
+         */
+        insideStep: z.number().min(0).optional(),
         /** When a new trip starts on its first day: a clock or a part (default: midnight). */
         start: dayMoment.optional(),
         /**

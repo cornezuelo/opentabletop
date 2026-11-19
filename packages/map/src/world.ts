@@ -48,7 +48,7 @@ const wayId = (sub: string, index: number) => (index ? `way-${sub}-${index + 1}`
 
 /**
  * This map's ways: into each of its sub-maps (from their parent places), and out of it (from
- * each of its entrances). A place of the other map is its room if the cell is in one.
+ * each of its entrances), cell to cell (a cell of a room is a position of the room).
  */
 function waysOf(map: HexMap, links: MapLinks): Way[] {
   const ways: Way[] = []
@@ -58,7 +58,7 @@ function waysOf(map: HexMap, links: MapLinks): Way[] {
     p.ways.forEach((way, i) =>
       ways.push({
         here: way.place,
-        there: placeOn(child.meta.id, placeOfCell(child, way.entrance)),
+        there: placeOn(child.meta.id, way.entrance),
         other: child,
         ...(way.kind && { kind: way.kind }),
         id: wayId(child.meta.id, i),
@@ -72,7 +72,7 @@ function waysOf(map: HexMap, links: MapLinks): Way[] {
     own.ways.forEach((way, i) =>
       ways.push({
         here: way.entrance,
-        there: placeOn(own.map, placeOfCell(parent, way.place)),
+        there: placeOn(own.map, way.place),
         other: parent,
         ...(way.kind && { kind: way.kind }),
         id: wayId(map.meta.id, i),
@@ -162,52 +162,44 @@ export function cellOfPlace(
 }
 
 /**
- * The cells' world seen with its rooms as one place each: a room's facts are its region's
- * (its name, values) with its cells' (their most common terrain, every tag, place and
- * floor), its neighbours every place next to any of its cells, and a step into it one cell's.
+ * The cells' world with its rooms as one place each: a trip walks the cells (a room's too,
+ * each a position of it, `placeOf`), and only stepping into another place is entering one. A
+ * room's facts are its region's (its name, values) with its cells' (their most common
+ * terrain, every tag, place and floor), its neighbours every cell next to any of its cells.
  */
 function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
   const rooms = roomsOf(map)
+  // Asked even with no rooms yet: a step that lays one reads it (the host's world, as it is).
   if (!rooms.size) return cells
-  // What a route asks again and again, worked out once for this world (the map doesn't
-  // change while it's asked: a changed map is a new world).
-  const nodes = new Map<string, string>()
-  const node = (id: string) => {
-    let found = nodes.get(id)
-    if (found === undefined) {
-      found = parsePlaceOn(id) ? id : placeOfCell(map, id)
-      nodes.set(id, found)
-    }
-    return found
-  }
-  // A cell of a room stands for the room, in everything asked (a step that began on cells).
+  const roomOf = new Map<string, string>()
+  for (const [id, list] of rooms) for (const cell of list) roomOf.set(cell, areaPlace(id))
+  const placeOf = (id: string) => roomOf.get(id) ?? cells.placeOf?.(id) ?? id
   const cellsOf = (id: string): string[] => {
-    const region = parseAreaPlace(node(id))
+    const region = parseAreaPlace(id)
     return region ? (rooms.get(region) ?? []) : [id]
   }
-  /** Each cell of `a` with each cell of `b` it's next to. */
-  const paired = new Map<string, [string, string][]>()
+  const isRoom = (...ids: string[]) => ids.some((id) => parseAreaPlace(id) !== undefined)
+  /** Each cell of `a` with each cell of `b` it's next to (a room by any of its cells). */
   const pairs = (a: string, b: string): [string, string][] => {
-    let found = paired.get(`${a}|${b}`)
-    if (!found) {
-      const bs = new Set(cellsOf(b))
-      found = cellsOf(a).flatMap((x) =>
-        cells
-          .neighbors(x)
-          .filter((y) => bs.has(y))
-          .map((y): [string, string] => [x, y]),
-      )
-      paired.set(`${a}|${b}`, found)
-    }
-    return found
+    const bs = new Set(cellsOf(b))
+    return cellsOf(a).flatMap((x) =>
+      cells
+        .neighbors(x)
+        .filter((y) => bs.has(y))
+        .map((y): [string, string] => [x, y]),
+    )
   }
-  const around = new Map<string, string[]>()
   const unique = <T>(list: T[]) => [...new Set(list)]
   const firstPair = (a: string, b: string): [string, string] => pairs(a, b)[0] ?? [a, b]
+  const around = new Map<string, string[]>()
   return {
-    // A cell of a room (a way in arriving there) is the room.
-    place(cellOrPlace) {
-      const id = node(cellOrPlace)
+    ...cells,
+    placeOf,
+    positionsOf: (place) => {
+      const region = parseAreaPlace(place)
+      return region ? rooms.get(region) : cells.positionsOf?.(place)
+    },
+    place(id) {
       const region = parseAreaPlace(id)
       if (!region) return cells.place(id)
       // The room's own cells first (not those of a region inside it), whose values are its.
@@ -243,25 +235,31 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
         ...(inside.every((p) => p.water) && { water: true }),
       }
     },
-    neighbors(cellOrPlace) {
-      const id = node(cellOrPlace)
+    // A cell's own; a room's, every cell next to it outside it.
+    neighbors(id) {
+      if (!isRoom(id)) return cells.neighbors(id)
       let found = around.get(id)
       if (!found) {
-        found = unique(cellsOf(id).flatMap((c) => cells.neighbors(c).map(node))).filter(
-          (n) => n !== id,
+        found = unique(cellsOf(id).flatMap((c) => cells.neighbors(c))).filter(
+          (n) => placeOf(n) !== id,
         )
         around.set(id, found)
       }
       return [...found]
     },
-    distance: () => 0,
-    connections: (a, b) => unique(pairs(a, b).flatMap(([x, y]) => cells.connections(x, y))),
+    distance: (a, b) => (isRoom(a, b) ? 0 : cells.distance(a, b)),
+    connections: (a, b) =>
+      isRoom(a, b)
+        ? unique(pairs(a, b).flatMap(([x, y]) => cells.connections(x, y)))
+        : cells.connections(a, b),
     // What every way between them crosses (one that avoids the river doesn't wade it).
     crossings(a, b) {
+      if (!isRoom(a, b)) return cells.crossings?.(a, b) ?? []
       const each = pairs(a, b).map(([x, y]) => cells.crossings?.(x, y) ?? [])
       return each.length ? each.reduce((all, kinds) => all.filter((k) => kinds.includes(k))) : []
     },
     connectionOf(a, b) {
+      if (!isRoom(a, b)) return cells.connectionOf?.(a, b)
       for (const [x, y] of pairs(a, b)) {
         const found = cells.connectionOf?.(x, y)
         if (found) return found
@@ -273,9 +271,8 @@ function withRooms(map: HexMap, cells: TravelWorld): TravelWorld {
     ...(cells.ground && {
       ground: { ...cells.ground, gate: (a: string, b: string) => firstPair(a, b)[0] },
     }),
-    // A step into or out of a room is a step between places, never across a corner.
-    diagonal: (a, b) =>
-      parseAreaPlace(a) || parseAreaPlace(b) ? undefined : cells.diagonal?.(a, b),
+    // A step into or out of a room as a whole is a step between places, never across a corner.
+    diagonal: (a, b) => (isRoom(a, b) ? undefined : cells.diagonal?.(a, b)),
   }
 }
 
@@ -388,6 +385,21 @@ function cellWorld(map: HexMap, systemCellKm: number | undefined, links: MapLink
   const laid: Record<string, number> = {}
   for (const { id } of map.pieces ?? []) laid[id] = (laid[id] ?? 0) + 1
   return {
+    // A place of another map is its own world's (a cell of a room there, the room).
+    placeOf(id) {
+      const there = parsePlaceOn(id)
+      if (!there) return id
+      const place = otherWorld(there.map)?.placeOf?.(there.place)
+      return place ? placeOn(there.map, place) : id
+    },
+    positionsOf(id) {
+      const there = parsePlaceOn(id)
+      return there
+        ? otherWorld(there.map)
+            ?.positionsOf?.(there.place)
+            ?.map((p) => placeOn(there.map, p))
+        : undefined
+    },
     ground: {
       layout: grid,
       gate: (a) => a,

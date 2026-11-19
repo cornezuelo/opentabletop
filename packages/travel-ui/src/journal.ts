@@ -205,6 +205,7 @@ export function whyText(
       name: dayValues?.[because.value] ?? idText(t, `values.${because.value}`, because.value),
     })
   if ('once' in because) return t('blocked.once')
+  if ('nothing' in because) return t('blocked.nothing')
   // Its rule, and which of its pairs stopped it.
   if ('failed' in because && because.failed?.length)
     return t('blocked.conditionWhy', { why: failedText(because.failed, context) })

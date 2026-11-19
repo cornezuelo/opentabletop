@@ -117,9 +117,13 @@ describe('rooms inside rooms', () => {
     expect(walls.between('1,1', '2,1')).toBe(false)
     expect(walls.between('2,1', '3,1')).toBe(true)
     const world = mapWorld(map, 1)
-    expect(world.neighbors('area:chapel')).not.toContain('area:crypt')
+    expect(world.neighbors('area:chapel')).not.toContain('3,1')
     map.connections = [{ id: 'd', between: ['2,1', '3,1'], kind: 'door' }]
-    expect(mapWorld(map, 1).neighbors('area:chapel')).toContain('area:crypt')
+    // Through the door, the crypt's cell: a position of the crypt.
+    const doored = mapWorld(map, 1)
+    expect(doored.neighbors('area:chapel')).toContain('3,1')
+    expect(doored.placeOf?.('3,1')).toBe('area:crypt')
+    expect(doored.positionsOf?.('area:crypt')).toEqual(['3,1', '4,1'])
     map.connections = []
   })
 

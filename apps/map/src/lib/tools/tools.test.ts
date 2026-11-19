@@ -60,15 +60,16 @@ describe('painting a dungeon', () => {
     expect(walls.between('1,1', '2,1')).toBe(false) // one room
     expect(walls.between('2,1', '3,1')).toBe(true) // two rooms
     expect(walls.between('1,1', '1,2')).toBe(false) // a corridor joins a room openly
-    expect(mapWorld(map).neighbors('area:hallroom01')).not.toContain('area:cellroom01')
+    expect(mapWorld(map).neighbors('area:hallroom01')).not.toContain('3,1')
     map.connections = [{ id: 'door000001', between: ['2,1', '3,1'], kind: 'door' }]
     expect(mapWalls(map).between('2,1', '3,1')).toBe(false)
     const world = mapWorld(map)
-    expect(world.neighbors('area:hallroom01')).toEqual(
-      expect.arrayContaining(['area:cellroom01', '1,2']),
-    )
+    // Next to the hall, the cell's cell through the door, and the corridor.
+    expect(world.neighbors('area:hallroom01')).toEqual(expect.arrayContaining(['3,1', '1,2']))
+    expect(world.placeOf?.('3,1')).toBe('area:cellroom01')
     expect(world.connections('area:hallroom01', 'area:cellroom01')).toEqual(['door'])
-    expect(world.place('2,1')).toMatchObject({ name: 'Hall', floor: true })
+    expect(world.placeOf?.('2,1')).toBe('area:hallroom01')
+    expect(world.place('area:hallroom01')).toMatchObject({ name: 'Hall', floor: true })
   })
 
   it('a new dungeon is squares of floors and rock, walked with the Generic rules round its walls', () => {

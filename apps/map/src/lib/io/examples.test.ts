@@ -3,6 +3,8 @@ import { seeded, sequence } from '@open-tabletop/random'
 import { validateBundle } from '@open-tabletop/schema'
 import {
   calendarOf,
+  newMember,
+  partyOf,
   startTrip,
   stepTrip,
   travelSystems,
@@ -490,8 +492,10 @@ describe('example maps', () => {
       settled: true,
     })
     // No way into a house but by its door: the cottage's wall stands on the street's side.
-    expect(inside.world.neighbors('16,9')).toContain('area:cottage1')
-    expect(inside.world.neighbors('17,9')).not.toContain('area:cottage1')
+    const intoCottage = (cell: string) =>
+      inside.world.neighbors(cell).some((n) => placeOfCell(town, n) === 'area:cottage1')
+    expect(intoCottage('16,9')).toBe(true)
+    expect(intoCottage('17,9')).toBe(false)
 
     /** Steps until the party stands at `place`, resolving whatever checks come up. */
     const reach = (options: typeof above, session: SessionState, place: string) => {
@@ -528,6 +532,39 @@ describe('example maps', () => {
     const roofed = roofedBuildings(buildings, ['6,5'])
     expect(roofed).toHaveLength(6)
     expect(roofed).not.toContain(inn)
+
+    // Inside, the party keeps its cell: the bar is two cells of the common room, and only
+    // there is a round stood; walking to it is steps of the inn, entering nothing.
+    session.members = [
+      newMember(partyOf(system), { id: 'wren', name: 'Wren', values: { stealth: 6 } }),
+    ]
+    session.acting = 'wren'
+    session.stats.silver = 20
+    const visits = session.travel.visits?.[room]
+    expect(tripAvailability(inside, session)['stand-a-round']).toMatchObject({
+      condition: 'when',
+    })
+    const walked = stepTrip(inside, session, { type: 'step', to: '5,2' })
+    session = walked.state
+    expect(session.travel).toMatchObject({ location: room, at: '5,2' })
+    expect(session.travel.visits?.[room]).toBe(visits)
+    expect(walked.entries.some((e) => e.code === 'PLACE_ENTERED')).toBe(false)
+    expect(tripAvailability(inside, session)['stand-a-round']).toBeUndefined()
+    const morale = session.stats.morale
+    session = stepTrip(inside, session, { type: 'action', id: 'stand-a-round' }).state
+    expect(session.stats.morale).toBe(morale + 1)
+    // The cellar door is locked, and picked only from the cell beside it.
+    expect(tripAvailability(inside, session)['pick-door']).toEqual({ nothing: 'door' })
+    session = stepTrip(inside, session, { type: 'step', to: '5,5' }).state
+    expect(tripAvailability(inside, session)['pick-door']).toBeUndefined()
+    for (let i = 0; i < 12 && session.travel.connections?.cellardoor1?.state !== 'open'; i++) {
+      session = stepTrip(inside, session, { type: 'action', id: 'pick-door' }).state
+      for (const id of session.travel.pendingChecks.map((c) => c.id))
+        session = stepTrip(inside, session, { type: 'resolveCheck', id }).state
+    }
+    expect(session.travel.connections?.cellardoor1?.state).toBe('open')
+    session = reach(inside, session, 'area:cellar1')
+    expect(session.travel).toMatchObject({ location: 'area:cellar1', at: '4,5' })
   })
 
   it('the old clan mine: a route to Hollow Gate goes under the mountains, in and out', () => {
@@ -581,7 +618,9 @@ describe('example maps', () => {
     const route = session.travel.route ?? []
     expect(route[1]).toBe(placeOn('oldmine1', '0,3'))
     expect(route.at(-2)).toBe(placeOn('oldmine1', '13,3'))
-    expect(route).toContain(placeOn('oldmine1', 'area:clanhall1'))
+    expect(route.map((p) => above.world.placeOf?.(p))).toContain(
+      placeOn('oldmine1', 'area:clanhall1'),
+    )
     // Into the mine: the trip goes on there, still heading for Hollow Gate, planned again.
     session = marchUntil(above, session, (s) => s.travel.location.startsWith('@oldmine1/'))
     expect(session.travel.location).toBe(placeOn('oldmine1', '0,3'))
@@ -698,6 +737,8 @@ describe('example maps', () => {
       strike: { condition: 'when' }, // no fight going on
       'buy-off': { condition: 'when' }, // no outlaws here
       'force-door': { condition: 'when' }, // no barred door here
+      'pick-door': { condition: 'when' }, // no locked door here
+      'stand-a-round': { condition: 'when' }, // not at an inn's bar
       stand: { condition: 'when' }, // nobody here to fight
       'fall-back': { condition: 'when' }, // no fight going on
       'nerve-breaks': { condition: 'when' }, // no foe's turn
@@ -719,7 +760,7 @@ describe('example maps', () => {
       drink: { condition: 'needs' }, // a flask's Use: nobody acting
       taste: { condition: 'when' }, // no flask held unknown
     })
-    expect(Object.keys(unavailable)).toHaveLength(42)
+    expect(Object.keys(unavailable)).toHaveLength(44)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {
