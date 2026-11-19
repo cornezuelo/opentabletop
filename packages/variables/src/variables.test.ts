@@ -121,6 +121,19 @@ describe('rolls', () => {
     expect(moment('party.stats.x')).toBeUndefined()
   })
 
+  it('tell each dice once, with every die, as they are first read', () => {
+    const heard: { expression: string; total: number; faces: number }[] = []
+    const moment = momentRoller('trip|12|0304|encounter.turn', (r) =>
+      heard.push({ expression: r.expression, total: r.total, faces: r.terms.length }),
+    )
+    const total = moment('2d6')
+    moment(' 2d6 ')
+    moment('1d4')
+    expect(heard.map((h) => h.expression)).toEqual(['2d6', '1d4'])
+    expect(heard[0]!.total).toBe(total)
+    expect(heard[0]!.faces).toBeGreaterThan(0)
+  })
+
   it('stay within the dice', () => {
     for (let i = 0; i < 50; i++) {
       const n = momentRoller(`k${i}`)('2d6')!

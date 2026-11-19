@@ -1244,6 +1244,46 @@ describe('waiting', () => {
   })
 })
 
+describe('an action whose own rule rolls', () => {
+  const { rules, errors } = parseTravelRules({
+    kind: 'travel-rules',
+    travel: DAY,
+    terrains: { steppe: { multiplier: 1 } },
+    modes: { foot: { kmPerDay: 30 } },
+    resources: { gold: {} },
+    actions: {
+      ...DAY_ACTIONS,
+      // Taken at day's end when 1d6 + 1 comes over the gold (always, with none).
+      luck: {
+        on: 'time.day-end',
+        when: { 'party.values.gold': { lt: '{{1d6 + 1}}' } },
+        do: [{ effects: { 'party.values.gold': 1 } }],
+      },
+    },
+  })
+  const eng = createTravelEngine({ world, rules: rules! })
+
+  it('tells the dice its rule rolled with it, every die', () => {
+    expect(errors).toEqual([])
+    const state = initialTravelState({
+      location: '0,0',
+      mode: 'foot',
+      time: defaultCalendar.at(1, '06:00'),
+      resources: { gold: 0 },
+    })
+    const { events } = eng.apply(state, { type: 'action', id: 'camp' })
+    const taken = events.find((e) => e.type === 'ACTION_TAKEN' && e.action === 'luck')
+    expect(taken).toMatchObject({ rolled: [{ expression: '1d6+1' }] })
+    const [dice] = (taken as { rolled: { total: number; terms: unknown[] }[] }).rolled
+    expect(dice!.total).toBeGreaterThanOrEqual(2)
+    expect(dice!.terms.length).toBeGreaterThan(0)
+    // An action whose rule rolls nothing tells no dice.
+    expect(events.find((e) => e.type === 'ACTION_TAKEN' && e.action === 'camp')).not.toHaveProperty(
+      'rolled',
+    )
+  })
+})
+
 describe('actions the system triggers, and bounded values', () => {
   /** The new way: supplies with bounds, eating as an action at day-end, nothing built in. */
   const { rules: triggered, errors } = parseTravelRules({

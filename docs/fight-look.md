@@ -143,10 +143,10 @@ Played in the built Travel app at v0.68.0 (Spanish UI, 1500×950): a Grey Marche
 6. **_A blow, aimed at one of them._** under every blow (folded, and in the trip's moment): the Marches' **Strike one down** said it before actions had `told:`; gone.
 7. Outside the fight: a way of travelling that can't be taken listed its reason with raw backticks in the select (_“`place.water`” is not in effect_); now plain.
 
-**Seen, left** (smaller, or a decision of their own):
+**Seen, left, then done** (2026-11-19):
 
-- A foe's hit tells only the value changed (_Mira: Health 3 → 1_) where the party's blow tells the harm (_2 harm, steel_): the Marches' foe tables could say their harm as the blow does.
-- Why a foe's nerve broke is never seen: the 2d6 against its Morale is rolled in a condition, which shows no dice.
-- The closing card repeats the last turn's lines beside it (_The pack leader falls_ in both).
-- _rolled by hand_ is said of dice thrown on the table too; _your roll_ would read better.
-- A reason in words still reads awkwardly at times (_the place's tags is nothing, not ferry_).
+- A foe's hit told only the value changed (_Mira: Health 3 → 1_) where the party's blow tells the harm (_2 harm, steel_): the Marches' foe tables now say their harm (_The bandit lands a blow: 2 harm_; the wolves', the restless dead's hand, a parting blow).
+- Why a foe's nerve broke was never seen: the 2d6 against its Morale is rolled in a condition. Now an action taken keeps the dice its own `when` / `unless` rolled (travel-engine's `ACTION_TAKEN.rolled`, heard by variables' `momentRoller`), and a fight's turn draws them under the action's name (_Nerve breaks_). The trip's journal outside a fight doesn't draw them yet.
+- The closing card repeated the last turn's lines beside it (_The pack leader falls_ in both): the last turn beside it leaves out what the card says (travel-ui's `besideEnd`).
+- _rolled by hand_ was said of dice thrown on the table too: now _your roll_.
+- A reason in words read awkwardly for lists (_the place's tags is nothing, not ferry_): a list says what it has or lacks (_the place isn't tagged ferry_, _it isn't dusk or night now_, _the way taken is road_).

@@ -2,6 +2,7 @@ import { PARTY_ID, type JournalEntry, type RolledNode } from '@open-tabletop/ses
 import type { TooltipText } from '@open-tabletop/ui-kit'
 import type { Dice } from './beats'
 import { entryText, eventName, type JournalContext } from './journal'
+import { idText } from './i18n'
 
 /** A row of a table a roll can fall on: its range and what it says, short. */
 export interface RollRow {
@@ -195,6 +196,25 @@ function rollsOf(
     })
 }
 
+/**
+ * The dice a moment's action rolled in its own rule to be taken (a foe's nerve: `'{{2d6}}'`
+ * against its Morale), under the action's name: why it happened, seen.
+ */
+function ruledBy(entries: readonly JournalEntry[], context: JournalContext): TurnRoll[] {
+  return entries.flatMap((e) => {
+    const rolled = e.code === 'ACTION_TAKEN' ? e.data?.rolled : undefined
+    if (!Array.isArray(rolled) || !rolled.length) return []
+    const id = String(e.data?.action)
+    return [
+      {
+        source: id,
+        label: context.actionName?.(id) ?? idText(context.t, `actions.${id}`, id),
+        dice: rolled as Dice,
+      },
+    ]
+  })
+}
+
 /** Whom a foe went for, by name: the party played as a whole is _the party_, never its id. */
 function targetName(
   data: Record<string, unknown>,
@@ -292,9 +312,22 @@ function tellTurn(
     onId,
     outcome,
     more,
-    rolls: own ? rollsOf(entries, own.data?.event, context, o) : [],
+    rolls: [
+      ...ruledBy(entries, context),
+      ...(own ? rollsOf(entries, own.data?.event, context, o) : []),
+    ],
     before,
   }
+}
+
+/**
+ * The last turn beside the closing card, without what the card says (_The pack leader falls_
+ * in both): the card tells the whole fight, the turn only what's its alone.
+ */
+export function besideEnd(turn: FightTurn, end: FightEnd): FightTurn {
+  const said = new Set([...end.gone, ...end.left, ...end.lines])
+  const own = (lines: string[]) => lines.filter((line) => !said.has(line))
+  return { ...turn, outcome: own(turn.outcome), more: own(turn.more) }
 }
 
 /**

@@ -34,8 +34,8 @@
   } = $props()
 
   const TEXT = {
-    en: { byHand: 'rolled by hand', notKept: 'not kept', die: 'd{sides}: {face}' },
-    es: { byHand: 'tirada a mano', notKept: 'no se queda', die: 'd{sides}: {face}' },
+    en: { byHand: 'your roll', notKept: 'not kept', die: 'd{sides}: {face}' },
+    es: { byHand: 'tu tirada', notKept: 'no se queda', die: 'd{sides}: {face}' },
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
   const drawn = $derived(rolls.map((r) => drawRoll(r)))

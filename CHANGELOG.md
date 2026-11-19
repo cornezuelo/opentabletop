@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Fights**: why something happened on a turn is seen: the dice a system's rule rolled in its own condition (a foe's nerve, 2d6 against its Morale) are drawn under the rule's name; the last turn beside the closing card no longer repeats what the card says; a roll you made is marked _your roll_ (it said _rolled by hand_ of dice thrown on the table too); why something can't be done reads plainly for lists (_the place isn't tagged ferry_, not _the place's tags is nothing, not ferry_).
+- **The Grey Marches**: a foe's blow says its harm as a companion's does (_The bandit lands a blow: 2 harm_), the wolves', the restless dead's and a parting blow's too.
 - **Fights**: anyone's **whole sheet** from their card: the small **☰** in a card's corner shows it in the log's column (what they are, every value, condition, item and tag), and **×** brings the log back.
 - **Fights**: those who went keep their faces on the closing card (they showed initials); the step that ended a fight isn't told again in the trip's panel after **Continue**; a reaction taken for each companion says who it changed (_Kael: Renown +1_, not _Whoever acts_); a way of travelling that can't be taken says why without code marks.
 - **Packs**: foes that **follow the party** when it moves on (a chase): a bestiary's or a template's `follows`, always or while a condition holds, read with each one acting (**Follows the party** in the Bestiary tab). Those that follow come along to the next place (_They follow you here_); the rest are left behind as before.

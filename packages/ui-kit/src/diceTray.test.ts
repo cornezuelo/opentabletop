@@ -73,7 +73,7 @@ describe('the dice tray', () => {
     const hand = render(DiceTray, {
       props: { rolls: [{ expression: '1d6', terms: [], total: 5, byHand: true }], locale: 'es' },
     }).body
-    expect(hand).toContain('tirada a mano')
+    expect(hand).toContain('tu tirada')
     expect(hand).toContain('= 5')
     // One die and nothing else: drawn as that die showing the total; anything else, the total.
     expect(hand).toMatch(/aria-label="d6: 5"/)

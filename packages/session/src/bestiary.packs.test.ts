@@ -1,3 +1,4 @@
+import type { DiceResult } from '@open-tabletop/dice'
 import type { SessionState } from './index'
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
@@ -687,9 +688,23 @@ describe('the bundled packs fight in turns', () => {
 
   it("a foe's nerve breaks on its turn: 2d6 over its Morale and it runs", () => {
     let ran = 0
-    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f'])
-      ran += fight(marches, 'stand', seed).lines.filter((l) => l === 'PRESENT_LEFT').length
+    const broke: JournalEntry[] = []
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {
+      const { lines, all } = fight(marches, 'stand', seed)
+      ran += lines.filter((l) => l === 'PRESENT_LEFT').length
+      broke.push(
+        ...all.filter((e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'nerve-breaks'),
+      )
+    }
     expect(ran).toBeGreaterThan(0)
+    // Why it broke is seen: the 2d6 its rule rolled, every die, over the Morale (7 at least).
+    expect(broke.length).toBeGreaterThan(0)
+    for (const e of broke) {
+      const [dice] = e.data!.rolled as DiceResult[]
+      expect(dice).toMatchObject({ expression: '2d6' })
+      expect(dice!.terms.length).toBeGreaterThan(0)
+      expect(dice!.total).toBeGreaterThan(6)
+    }
   })
 
   it('Core: Fight, the party first, a Strike on each turn, over when no foe is left', () => {

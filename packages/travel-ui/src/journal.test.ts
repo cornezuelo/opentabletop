@@ -170,7 +170,7 @@ describe('journal lines', () => {
       condition: 'unless',
       failed: [{ path: 'time.tags', value: ['dark'], op: 'eq', asked: 'dark', negated: true }],
     }
-    expect(whyText(unless as never, context)).toBe('Not possible now: the time of day is dark.')
+    expect(whyText(unless as never, context)).toBe('Not possible now: it’s dark now.')
     // Older entries, without pairs: the rule alone.
     expect(line('TRAVEL_STOPPED', { reason: 'conditions', action: 'march' })).toBe(
       '“Forage for food” stops here: its conditions don’t hold now.',
@@ -647,5 +647,40 @@ describe('an item held unknown, told', () => {
         context,
       ),
     ).toBe("Kael: A stoppered flask turns out to be The hedge-witches' cordial")
+  })
+})
+
+describe('why, of a list', () => {
+  const t = translator(() => 'en')
+  const why = (pair: Record<string, unknown>) =>
+    failedText([pair] as unknown as Parameters<typeof failedText>[0], { t })
+
+  it('says what a list lacks or has, never "is nothing, not ferry"', () => {
+    expect(why({ path: 'place.tags', op: 'eq', value: [], asked: 'ferry' })).toBe(
+      'the place isn’t tagged ferry',
+    )
+    expect(why({ path: 'place.tags', op: 'eq', value: undefined, asked: 'ferry' })).toBe(
+      'the place isn’t tagged ferry',
+    )
+    expect(why({ path: 'time.tags', op: 'in', value: ['day'], asked: ['dusk', 'night'] })).toBe(
+      'it isn’t dusk or night now',
+    )
+    // Under an `unless`: what it has that stops it, alone.
+    expect(
+      why({
+        path: 'place.tags',
+        op: 'in',
+        value: ['ford', 'settled'],
+        asked: ['settled', 'x'],
+        negated: true,
+      }),
+    ).toBe('the place is tagged settled')
+    expect(why({ path: 'trip.connections', op: 'not', value: ['road'], asked: 'road' })).toBe(
+      'the way taken is road',
+    )
+    // Another list: what's among it.
+    expect(why({ path: 'party.tags', op: 'eq', value: ['mounted'], asked: 'boat' })).toBe(
+      'boat isn’t among `party.tags`',
+    )
   })
 })

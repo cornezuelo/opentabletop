@@ -5,7 +5,14 @@
   import { CharacterCard, CharacterGlance, Face } from '@open-tabletop/character-ui'
   import { DiceTray, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
-  import type { CardAction, FightEnd, FightSeat, FightTurn, TurnRoll } from './turns'
+  import {
+    besideEnd,
+    type CardAction,
+    type FightEnd,
+    type FightSeat,
+    type FightTurn,
+    type TurnRoll,
+  } from './turns'
 
   /**
    * A fight in turns as a stage (docs/fight-stage.md, docs/fight-look.md), as any host shows it
@@ -166,6 +173,11 @@
           ? shown.whoId
           : (acting?.id ?? ''),
   )
+  /**
+   * The last turn beside the closing card, without what the card says (_The pack leader
+   * falls_ in both): the card tells the whole fight, the turn only what's its alone.
+   */
+  const lastTurn = $derived(ended && shown ? besideEnd(shown, ended) : shown)
   /** Who the turn going on is aimed at: marked until the next turn. */
   const aimedId = $derived(!ended && !choosing && shown && reading ? shown.onId : '')
 
@@ -258,7 +270,7 @@
 </script>
 
 <!-- A turn with something done: who did what to whom, then its dice and what it left. -->
-{#snippet told(turn: FightTurn)}
+{#snippet told(turn: FightTurn, closing = false)}
   {#key turn.id}
     <div class="last" class:foes={turn.side === 'foes'} aria-live="polite">
       <p class="said">
@@ -272,7 +284,8 @@
           <ul class="outcome">
             {#each turn.outcome as line, i (i)}<li>{line}</li>{/each}
           </ul>
-        {:else}
+        {:else if !closing}
+          <!-- Beside the closing card, what it left is said there. -->
           <p class="hint">{t('fight.noChange')}</p>
         {/if}
         {#if turn.more.length}
@@ -437,7 +450,7 @@
         {#if ended}
           <!-- Over: its last turn first (the blow that ended it is read here, not skipped),
                then how it ended, who went, what its end did. -->
-          {#if shown}{@render told(shown)}{/if}
+          {#if lastTurn}{@render told(lastTurn, true)}{/if}
           <div class="closing" aria-live="polite">
             <h4>{t('fight.overIn', { rounds: ended.rounds })}</h4>
             {#if ended.gone.length}

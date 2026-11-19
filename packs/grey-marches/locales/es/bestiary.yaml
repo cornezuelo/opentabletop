@@ -130,8 +130,8 @@ foe-turn:
     **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); a quién va su turno, elegido antes de tirar (el `aim: party.members.random` del sistema), leído por su tirada (`'1d6 - {{characters[encounter.target].values.armour}}'`) y sus efectos (`characters[encounter.target].values.health`); un estado dado por un tiempo (`characters[encounter.target].conditions.rattled: '{{1d2}}'`: rondas del combate); un modo de tirada leído de aquel a quien va (`modeWhen: { roll-modes.disadvantage: { 'characters[encounter.target].conditions': braced } }`: el en guardia del Muro de escudos); un turno que no hace nada.
   entries:
     miss: '{{acting.name}} lanza un golpe, y falla'
-    hit: '{{acting.name}} acierta un golpe'
-    heavy: '{{acting.name}} acierta un golpe fuerte'
+    hit: '{{acting.name}} acierta un golpe: {{acting.values.harm}} de daño'
+    heavy: '{{acting.name}} acierta un golpe fuerte: {{acting.values.harm}} de daño'
 wolf-turn:
   name: El turno de un lobo
   description: |-
@@ -140,8 +140,8 @@ wolf-turn:
     **Enseña:** el turno propio de una plantilla (`actions: table.wolf-turn` en el bestiario, que su variante toma por `like`) por encima del del sistema; un objetivo elegido por un valor (`set: { target: party.members.lowest.values.health }`); el turno perdido de un compañero (_Derribado_ durante uno de sus turnos, `lasts: turns`, que lee el `encounter.skip` del sistema).
   entries:
     circle: '{{acting.name}} ronda, gruñendo'
-    bite: '{{acting.name}} va a por el más débil de vosotros'
-    drag: '{{acting.name}} derriba al más débil de vosotros'
+    bite: '{{acting.name}} va a por el más débil de vosotros: {{acting.values.harm}} de daño'
+    drag: '{{acting.name}} derriba al más débil de vosotros: {{acting.values.harm}} de daño'
 dead-turn:
   name: El turno de los muertos inquietos
   description: |-
@@ -149,7 +149,7 @@ dead-turn:
 
     **Enseña:** un resultado dirigido a todos (`set: { target: party.members.all }`), que se juega una vez por cada uno de la Compañía, con una línea del diario cada uno: su efecto se lee para cada uno (`characters[target].values.armour`, la armadura que lleva ese) y sus dados se tiran para cada uno (`'-{{max(1d3 - characters[target].values.armour, 0)}}'`).
   entries:
-    claw: '{{acting.name}} alarga la mano hacia uno de vosotros'
+    claw: '{{acting.name}} alarga la mano hacia uno de vosotros: {{acting.values.harm}} de daño'
     chill: El frío de la tumba os envuelve a todos
 parting-blow:
   name: Un golpe al retirarse
@@ -158,7 +158,7 @@ parting-blow:
 
     **Enseña:** lo más y lo menos de un valor en un grupo, `present.highest.values.harm` (el enemigo más fiero aquí) y `party.lowest.values.stealth` (el compañero más torpe), en la condición de un paso y en un efecto; un objetivo elegido por ese mismo valor (`set: { target: party.members.lowest.values.stealth }`).
   entries:
-    caught: Al replegaros, alcanzan al más torpe de vosotros
+    caught: 'Al replegaros, alcanzan al más torpe de vosotros: {{present.highest.values.harm - party.lowest.values.stealth}} de daño'
 blow:
   name: Un golpe
   description: |-

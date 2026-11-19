@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@open-tabletop/conditions": "*",
+    "@open-tabletop/dice": "*",
     "@open-tabletop/hex": "*",
     "@open-tabletop/time": "*",
     "@open-tabletop/variables": "*",

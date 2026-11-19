@@ -122,6 +122,9 @@ const FACT_NAMES = new Set([
   'place.tags',
 ])
 
+/** The facts that are lists, said by what they have ("the place isn't tagged ferry"). */
+const LIST_FACTS = new Set(['trip.connections', 'trip.crossing', 'time.tags', 'place.tags'])
+
 /**
  * Which pairs of a condition stopped something, readably: "the hour is 21:00: it needs
  * under 20:00; By torchlight doesn't hold". Each by its fact's name (a stat, a supply or a
@@ -165,9 +168,28 @@ export function failedText(
   }
   // Who acts is chosen in the trip: nobody yet, whatever else is asked beside it.
   if (failed.some((f) => f.path === 'acting' && f.op === 'exists')) return t('why.nobodyActing')
+  // A list (tags, the ways taken) says what it has or lacks, never "is nothing, not ferry".
+  const listText = (path: string, has: boolean, what: unknown): string => {
+    const words = (Array.isArray(what) ? what : [what]).map((x) => valueText(path, x))
+    const params = { name: nameOf(path), what: words.join(t('why.or')) }
+    const fact = full(path)
+    return LIST_FACTS.has(fact)
+      ? t(`why.${has ? 'has' : 'lacks'}.${fact.replace('.', '_')}` as TravelUiKey, params)
+      : t(has ? 'why.among' : 'why.notAmong', params)
+  }
   return failed
     .map(({ path, value, op, asked, negated }) => {
       const name = nameOf(path)
+      if (
+        (Array.isArray(value) || (value == null && LIST_FACTS.has(full(path)))) &&
+        (op === 'eq' || op === 'in' || op === 'not')
+      ) {
+        // It fails lacking what's asked, or (under a `not`, or `not:` itself) having it.
+        const has = !!negated !== (op === 'not')
+        const list = Array.isArray(value) ? value : []
+        const wanted = Array.isArray(asked) ? asked : [asked]
+        return listText(path, has, has ? wanted.filter((x) => list.includes(x)) : asked)
+      }
       // A yes-or-no value (a value of the day, a condition): whether it holds.
       if (op === 'eq' && typeof asked === 'boolean') {
         const holdsNow = negated ? asked : !asked

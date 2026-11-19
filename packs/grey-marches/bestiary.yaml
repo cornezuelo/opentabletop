@@ -249,12 +249,12 @@ entries:
   - { id: miss, range: 1-3, result: '{{acting.name}} swings, and misses' }
   - id: hit
     range: 4-5
-    result: '{{acting.name}} lands a blow'
+    result: '{{acting.name}} lands a blow: {{acting.values.harm}} harm'
     effects: { 'characters[encounter.target].values.health': '-{{acting.values.harm}}' }
   # A heavy one: rattled for 1d2 rounds (sheet.yaml's `lasts: rounds`), counted down by the fight.
   - id: heavy
     range: 6
-    result: '{{acting.name}} lands a heavy blow'
+    result: '{{acting.name}} lands a heavy blow: {{acting.values.harm}} harm'
     effects:
       'characters[encounter.target].values.health': '-{{acting.values.harm}}'
       'characters[encounter.target].conditions.rattled': '{{1d2}}'
@@ -275,14 +275,14 @@ entries:
   - id: bite
     range: 3-5
     set: { target: party.members.lowest.values.health }
-    result: '{{acting.name}} goes for the weakest of you'
+    result: '{{acting.name}} goes for the weakest of you: {{acting.values.harm}} harm'
     effects: { 'characters[target].values.health': '-{{acting.values.harm}}' }
   # Dragged down (sheet.yaml, `lasts: turns`): that one loses their next turn (the system's
   # `encounter.skip`).
   - id: drag
     range: 6
     set: { target: party.members.lowest.values.health }
-    result: '{{acting.name}} drags the weakest of you down'
+    result: '{{acting.name}} drags the weakest of you down: {{acting.values.harm}} harm'
     effects:
       'characters[target].values.health': '-{{acting.values.harm}}'
       'characters[target].conditions.dragged-down': 1
@@ -302,7 +302,7 @@ entries:
   - id: claw
     range: 1-4
     set: { target: party.members.random }
-    result: '{{acting.name}} reaches for one of you'
+    result: '{{acting.name}} reaches for one of you: {{acting.values.harm}} harm'
     effects: { 'characters[target].values.health': '-{{acting.values.harm}}' }
   # Each of the Company in turn, each with their own 1d3, less their own armour.
   - id: chill
@@ -326,7 +326,7 @@ entries:
   - id: caught
     range: 1
     set: { target: party.members.lowest.values.stealth }
-    result: The clumsiest of you is caught as you fall back
+    result: 'The clumsiest of you is caught as you fall back: {{present.highest.values.harm - party.lowest.values.stealth}} harm'
     effects:
       'characters[target].values.health': '-{{present.highest.values.harm - party.lowest.values.stealth}}'
 ---

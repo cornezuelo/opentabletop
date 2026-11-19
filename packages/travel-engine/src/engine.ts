@@ -1,4 +1,5 @@
 import { explain, matches, type Condition, type FailedPair } from '@open-tabletop/conditions'
+import type { DiceResult } from '@open-tabletop/dice'
 import { findPath, type CellLayout } from '@open-tabletop/hex'
 import {
   evaluate,
@@ -614,6 +615,8 @@ export type TravelEvent =
       on?: string
       /** What it was taken with (`with`: a foe's card clicked, a choice on its button). */
       params?: Record<string, unknown>
+      /** The dice its own `when` / `unless` rolled to let it be taken (`'{{2d6}}'`), each die. */
+      rolled?: DiceResult[]
     }
 
   /** How a fight tells an action taken, once its steps are done (its `told:`, read then). */
@@ -786,8 +789,9 @@ export function momentRolls(
   state: Pick<TravelState, 'seed' | 'day' | 'location'>,
   place: string = state.location,
   moment = '',
+  onRoll?: (result: DiceResult) => void,
 ): Roller {
-  return momentRoller(`${state.seed ?? ''}|${state.day}|${place}|${moment}`)
+  return momentRoller(`${state.seed ?? ''}|${state.day}|${place}|${moment}`, onRoll)
 }
 
 /**
@@ -984,8 +988,9 @@ export function createTravelEngine(options: {
     def: { when?: unknown; unless?: unknown; needs?: unknown },
     seen: Record<string, unknown>,
     moment?: string,
+    onRoll?: (result: DiceResult) => void,
   ): { condition: 'when' | 'unless' | 'needs'; failed: FailedPair[] } | undefined => {
-    const roller = rollsOf(state, seen, moment)
+    const roller = rollsOf(state, seen, moment, onRoll)
     const context = qualify(seen)
     const when = def.when as Condition | undefined
     const unless = def.unless as Condition | undefined
@@ -1004,11 +1009,17 @@ export function createTravelEngine(options: {
     const given = options.stepDice
     return given ? (dice) => given(dice.trim(), id) ?? moment(dice) : moment
   }
-  const rollsOf = (state: TravelState, seen: Record<string, unknown>, moment?: string) =>
+  const rollsOf = (
+    state: TravelState,
+    seen: Record<string, unknown>,
+    moment?: string,
+    onRoll?: (result: DiceResult) => void,
+  ) =>
     momentRolls(
       state,
       placeIdOf(seen) ?? state.location,
       typeof seen.moment === 'string' ? seen.moment : moment,
+      onRoll,
     )
   /**
    * What blocks `what` (`travel.move`, `actions.<id>`, `modes.<id>`) now, if anything: a value of the
@@ -2115,6 +2126,8 @@ export function createTravelEngine(options: {
     id: string,
     facts: HostFacts,
     moment: Record<string, unknown> = {},
+    /** Hears the dice its conditions roll (`'{{2d6}}'` in its `when`). */
+    onRoll?: (result: DiceResult) => void,
   ): Unavailable | undefined => {
     const def = actions.all[id]
     if (!def) return { off: true }
@@ -2127,7 +2140,7 @@ export function createTravelEngine(options: {
     if (value) return value
     if (def.oncePerDay && state.actionsToday?.includes(id)) return { once: true }
     const context = { ...checkContext(state, [], facts), params: paramsOf(def), ...moment }
-    const stop = conditionStop(state, def, context, id)
+    const stop = conditionStop(state, def, context, id, onRoll)
     if (stop) return stop
     // A choice it asks for among what the trip lists, with nothing listed: nothing to take it
     // on. Only those asked before it changes anything (a list read after a level is gained
@@ -2344,7 +2357,11 @@ export function createTravelEngine(options: {
     // Validation rejects loops; this only guards rules that were never validated.
     if (depth > 32) return
     const params = paramsOf(actions.all[id], options.with)
-    const because = unavailable(state, id, hostFacts, { ...options.facts, params })
+    // The dice its own conditions rolled to let it be taken: told with it, so they're seen.
+    const rolled: DiceResult[] = []
+    const because = unavailable(state, id, hostFacts, { ...options.facts, params }, (r) =>
+      rolled.push(r),
+    )
     if (because) {
       if (!options.quiet) events.push({ type: 'ACTION_UNAVAILABLE', action: id, because })
       return
@@ -2370,6 +2387,7 @@ export function createTravelEngine(options: {
       ...(place?.terrain && { terrain: place.terrain }),
       ...(options.on && { on: options.on }),
       ...(options.with && Object.keys(options.with).length && { params: { ...options.with } }),
+      ...(rolled.length && { rolled }),
     }
     events.push(head)
     state.actionsToday = [...(state.actionsToday ?? []), id]

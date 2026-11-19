@@ -305,11 +305,19 @@ export function evaluate(value: unknown, lookup: Lookup): unknown {
  * Rolls fixed for a moment: the same dice in the same moment (named by `key`) give the
  * same total, however many times they're read, so what depends on them doesn't change
  * when it's looked at again. Seeded by the key and the dice, so nothing needs keeping.
+ * `onRoll` hears each dice the first time this roller reads them, with every die.
  */
-export function momentRoller(key: string): Roller {
+export function momentRoller(key: string, onRoll?: (result: DiceResult) => void): Roller {
+  const heard = new Set<string>()
   return (expression) => {
     const dice = normalized(expression)
-    return dice === undefined ? undefined : roll(dice, seeded(`${key}|${dice}`)).total
+    if (dice === undefined) return undefined
+    const result = roll(dice, seeded(`${key}|${dice}`))
+    if (onRoll && !heard.has(dice)) {
+      heard.add(dice)
+      onRoll(result)
+    }
+    return result.total
   }
 }
 
