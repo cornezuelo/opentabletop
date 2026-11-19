@@ -1052,10 +1052,14 @@ function settle(
   options: { world?: Record<string, unknown>; time?: number },
 ): void {
   const who = state.id
+  // The character's facts, read again only once a value or a condition has changed.
+  let known: Record<string, unknown> | undefined
+  const facts = () => (known ??= characterFacts(state, sheet))
   const write = (id: string, to: number) => {
     const from = state.values[id] ?? 0
     if (to === from) return
     state.values[id] = to
+    known = undefined
     events.push({ type: 'VALUE_CHANGED', character: who, value: id, from, to })
   }
   const bounded = () => {
@@ -1069,12 +1073,7 @@ function settle(
     const made =
       typeof from === 'string'
         ? readOwn(from, state.values)
-        : itemsValue(
-            from as ItemsFrom,
-            state.items ?? [],
-            placesOf(sheet.items, state),
-            characterFacts(state, sheet),
-          )
+        : itemsValue(from as ItemsFrom, state.items ?? [], placesOf(sheet.items, state), facts())
     if (made !== undefined) write(id, changeValue(made, 0, boundsOf(sheet, state, id)).to)
   }
   // And what's bounded by a value made of others.
@@ -1084,7 +1083,7 @@ function settle(
     (id) => holdsByItself(sheet, id) && (options.world !== undefined || !readsWorld(sheet, id)),
   )
   for (let pass = 0; pass <= own.length; pass++) {
-    const seen = { ...options.world, self: characterFacts(state, sheet) }
+    const seen = { ...options.world, self: facts() }
     let moved = false
     for (const id of own) {
       const holds = matches(sheet.conditions[id].when, seen)
@@ -1099,6 +1098,7 @@ function settle(
       }
     }
     if (!moved) break
+    known = undefined
   }
 }
 

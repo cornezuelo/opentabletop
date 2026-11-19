@@ -667,7 +667,8 @@ class Editor {
     if (change.kind === 'campaign' || change.kind === 'all') this.setup = setupOf(this.campaign)
     if (change.kind === 'factions' || change.kind === 'all') this.factions = this.factionsOnMap
     if (change.kind === 'play' || change.kind === 'all')
-      this.play = this.map.play ? structuredClone(this.map.play) : undefined
+      // Play state is replaced whole on every change (`setPlay`), never edited in place.
+      this.play = this.map.play
     if (change.kind === 'layers' || change.kind === 'all')
       this.layers = structuredClone(this.map.layers)
     if (change.kind === 'terrains' || change.kind === 'all') this.terrains = [...this.map.terrains]

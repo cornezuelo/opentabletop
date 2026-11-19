@@ -81,14 +81,18 @@ export function playWorld(system: TravelSystem, map: HexMap = editor.map) {
 }
 
 function current(): PlayState {
-  return (
-    structuredClone(editor.map.play) ?? {
-      mode: 'simple',
-      trail: [],
-      showTrail: true,
-    }
-  )
+  return structuredClone(editor.map.play ?? NO_PLAY)
 }
+
+/**
+ * The play state as it stands, not copied: for reading only (a step's engines copy what they
+ * change). Copying it whole, journal and all, at every read made a step slow on a long trip.
+ */
+function viewed(): Readonly<PlayState> {
+  return editor.map.play ?? NO_PLAY
+}
+
+const NO_PLAY: PlayState = { mode: 'simple', trail: [], showTrail: true }
 
 function save(play: PlayState | undefined): void {
   editor.setPlay(play)
@@ -255,7 +259,7 @@ export function clickHex(key: HexKey): void {
  * in its room, the party steps across to it.
  */
 function headFor(cell: HexKey): void {
-  const travel = sessionOf(current())?.travel
+  const travel = sessionOf(viewed())?.travel
   const across =
     !!travel &&
     cell !== (travel.at ?? travel.location) &&
@@ -266,8 +270,8 @@ function headFor(cell: HexKey): void {
 
 /** A map laid piece by piece starts under the party's feet, as soon as a trip stands on it. */
 function layFirstPiece(): void {
-  const session = sessionOf(current())
-  if (!session || current().discover?.on !== true || current().discover?.reveal !== 'pieces') return
+  const session = sessionOf(viewed())
+  if (!session || viewed().discover?.on !== true || viewed().discover?.reveal !== 'pieces') return
   if (session.travel.destination) return
   step({ type: 'setDestination', place: session.travel.location })
   editSession((s) => {
@@ -300,7 +304,7 @@ export function startOnBlankMap(): void {
  * reach: nothing moves, and it says so (`refused`). A cell of its own room is a step across it.
  */
 export function walkTo(to: string, refused = t('play.noWayThere')): void {
-  const session = sessionOf(current())
+  const session = sessionOf(viewed())
   if (!session) return
   const place = parsePlaceOn(to) ? to : placeOfCell(editor.map, to)
   if (to === (session.travel.at ?? session.travel.location)) return
@@ -313,7 +317,7 @@ export function walkTo(to: string, refused = t('play.noWayThere')): void {
   if (why) return void showToast(why, 'info', 6000)
   step({ type: 'setDestination', place: to })
   // No way there: the way it had before isn't taken instead.
-  const travel = sessionOf(current())?.travel
+  const travel = sessionOf(viewed())?.travel
   if (travel?.destination !== to || !travel.route || travel.route.length < 2)
     return void showToast(refused, 'info', 5000)
   if (id) step({ type: 'action', id, ...(onward?.with && { with: onward.with }) })
@@ -325,7 +329,7 @@ export function walkTo(to: string, refused = t('play.noWayThere')): void {
  * the trip's panel shows it. Without a trip, a click on the cell it starts from.
  */
 export function goToConnection(connection: MapConnection): void {
-  const travel = sessionOf(current())?.travel
+  const travel = sessionOf(viewed())?.travel
   const [a, b] = connection.between
   if (!travel || !onTrip()) return clickHex(a)
   const here = (travel.at ?? travel.location) as HexKey
@@ -352,7 +356,7 @@ function stepInside(cell: HexKey): void {
 
 /** Why the party can't walk now (the trip held, or its way of going on), in words; '' if it can. */
 function walkBlocked(action: string | undefined): string {
-  const play = current()
+  const play = viewed()
   const session = sessionOf(play)
   if (!session || !play.rules) return ''
   const system = getSystem(play.rules.system)
@@ -375,7 +379,7 @@ function walkBlocked(action: string | undefined): string {
 
 /** What to do next, in words: where to head (`again`: having arrived), or which exit to open. */
 export function destinationHelp(again = false): string {
-  if (current().discover?.on && current().discover?.reveal === 'pieces') return t('play.exitsHelp')
+  if (viewed().discover?.on && viewed().discover?.reveal === 'pieces') return t('play.exitsHelp')
   return t(again ? 'play.newDestination' : 'play.destinationHelp')
 }
 
@@ -398,7 +402,7 @@ export function showWaitingInPanel(): void {
 
 /** Whether a trip goes on here: what the party does then follows its rules. */
 export const onTrip = (): boolean =>
-  current().mode === 'rules' && !current().away && !!sessionOf(current())
+  viewed().mode === 'rules' && !viewed().away && !!sessionOf(viewed())
 
 /** W A S D, as the arrows in Play. */
 const WASD: Record<string, string> = {
@@ -436,7 +440,7 @@ export function walkByKey(key: string): boolean {
  */
 export function cellToward(direction: { x: number; y: number }): HexKey | undefined {
   const here = partyLocation()
-  if (!sessionOf(current()) || !here) return undefined
+  if (!sessionOf(viewed()) || !here) return undefined
   const { grid } = editor.map
   const start = cellCenter(parseKey(here), grid, 1)
   const fit = (cell: HexKey) => {
@@ -558,7 +562,7 @@ async function catchUpThen(until: number, action: TripAction): Promise<void> {
  * by hand, in another app), and then those its step made happen.
  */
 export function step(action: TripAction, heard = 0): void {
-  const play = current()
+  const play = viewed()
   const session = sessionOf(play)
   if (!session || !play.rules) return
   // The player acts: what's left of a march being told is told at once.
@@ -627,7 +631,7 @@ function intoRooms(state: SessionState): SessionState {
 
 /** Runs a travel action through the session, and what it did in the world. */
 function stepOnly(action: TripAction): void {
-  const play = current()
+  const play = viewed()
   const session = sessionOf(play)
   if (!session || !play.rules) return
   const system = getSystem(play.rules.system)
@@ -760,7 +764,7 @@ export async function goOnIn(map: string): Promise<boolean> {
   })
   editor.setPlaying(mapTrip())
   // A map laid piece by piece starts under the party's feet.
-  if (current().discover?.on && current().discover?.reveal === 'pieces') {
+  if (viewed().discover?.on && viewed().discover?.reveal === 'pieces') {
     const heading = moved.travel.destination
     step({ type: 'setDestination', place: moved.travel.location })
     if (!heading)
@@ -776,7 +780,7 @@ export async function goOnIn(map: string): Promise<boolean> {
   if (destination && destination !== moved.travel.location) {
     await loadLinks()
     step({ type: 'setDestination', place: destination })
-    if (!sessionOf(current())?.travel.route)
+    if (!sessionOf(viewed())?.travel.route)
       editSession((s) => {
         const travel = { ...s.travel }
         delete travel.destination
@@ -823,7 +827,7 @@ export function setDiscover(discover: PlayState['discover']): void {
  * strike): it's chosen, as its card in the fight would be. False when nothing asks for it.
  */
 export function chooseOnMap(id: string): boolean {
-  const session = sessionOf(current())
+  const session = sessionOf(viewed())
   if (!session?.travel.waiting?.choices?.includes(id)) return false
   step({ type: 'resume', choice: id })
   return true

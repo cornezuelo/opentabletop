@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Map**: a step on a trip takes about half as long, and no longer slows down as the journal grows: Play copied the whole trip (its journal too) each time it only looked at it, several times a step.
+- **Characters**: a character whose values are made of their items (armour, load) is worked out faster after each step.
+
 ## [0.71.0] - 2026-11-19
 
 ### Apps
