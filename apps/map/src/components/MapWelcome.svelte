@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { busy, Welcome } from '@open-tabletop/ui-kit'
+  import { busy, tooltip, Welcome } from '@open-tabletop/ui-kit'
   import { getLocale, t } from '../lib/i18n/index.svelte'
+  import { ACTION_KEYS } from '../lib/shortcutList'
   import {
     library,
     listLibrary,
@@ -36,7 +37,10 @@
     <Welcome title={t('welcome.title')} tagline={t('welcome.tagline')} body={t('welcome.body')}>
       <div class="start">
         <button class="primary" onclick={() => newMap()}>{t('actions.new')}</button>
-        <button onclick={openMapFile}>{t('library.import')}</button>
+        <button
+          use:tooltip={{ text: t('shortcuts.open'), keys: ACTION_KEYS.open }}
+          onclick={openMapFile}>{t('library.import')}</button
+        >
         <button onclick={() => (dismissed = true)}>{t('welcome.empty')}</button>
       </div>
       {#if examples.length}

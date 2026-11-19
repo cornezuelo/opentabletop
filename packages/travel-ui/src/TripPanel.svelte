@@ -626,9 +626,10 @@
     const reason = why(blocked[id])
     if (!reason) return tip
     if (!tip) return reason
-    return typeof tip === 'string'
-      ? `${tip} ${reason}`.trim()
-      : { markdown: `${tip.markdown}\n\n${reason}` }
+    if (typeof tip === 'string') return `${tip} ${reason}`.trim()
+    return 'markdown' in tip
+      ? { markdown: `${tip.markdown}\n\n${reason}` }
+      : { ...tip, text: `${tip.text} ${reason}`.trim() }
   }
   const statText = (text: Parameters<typeof localize>[0], key: string) =>
     localize(text, locale, 'en') ?? key

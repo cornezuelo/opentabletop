@@ -16,6 +16,7 @@
     readLastSystem,
     rememberSystem,
     Toasts,
+    UNDO_KEYS,
     Welcome,
   } from '@open-tabletop/ui-kit'
   import DefinitionPage from './components/DefinitionPage.svelte'
@@ -77,6 +78,15 @@
     showHelp: t('nav.showHelp'),
     hideHelp: t('nav.hideHelp'),
   }}
+  shortcuts={[
+    {
+      title: t('shortcuts.packs'),
+      shortcuts: [
+        { keys: UNDO_KEYS.undo, does: t('nav.undo') },
+        { keys: UNDO_KEYS.redo, does: t('nav.redo') },
+      ],
+    },
+  ]}
 >
   {#snippet sidebar()}<Sidebar />{/snippet}
   {#snippet bar()}

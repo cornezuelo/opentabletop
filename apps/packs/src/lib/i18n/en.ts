@@ -75,6 +75,9 @@ export const en = {
       files: 'Files',
     },
   },
+  shortcuts: {
+    packs: 'Your packs',
+  },
   nav: {
     showSidebar: 'Show the systems list',
     hideSidebar: 'Hide the systems list (more room)',
@@ -82,8 +85,8 @@ export const en = {
     hideHelp: 'Hide the help (more room)',
     systems: 'Systems',
     help: 'Help and manual',
-    undo: 'Undo the last change to your packs (Ctrl+Z)',
-    redo: 'Redo (Ctrl+Shift+Z)',
+    undo: 'Undo the last change to your packs',
+    redo: 'Redo',
     problems: '{count} problems',
   },
   styles: {

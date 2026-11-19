@@ -5,11 +5,34 @@
  *
  *   <button use:tooltip={t('…')}>…</button>
  *   <button use:tooltip={{ markdown: description }}>…</button>   (a pack's text)
+ *   <button use:tooltip={{ text: t('…'), keys: ['Ctrl+Z'] }}>…</button>   (and its shortcut)
  */
 import { renderMarkdown } from './markdown'
+import { keyCaps } from './shortcuts'
 
-/** Plain text, or a pack's text in basic Markdown (paragraphs, **bold**, `code`…). */
-export type TooltipText = string | { markdown: string } | undefined
+/**
+ * Plain text, a pack's text in basic Markdown (paragraphs, **bold**, `code`…), or a
+ * button's name with the keys that do the same (`keys`, as in `Shortcut`).
+ */
+export type TooltipText =
+  string | { markdown: string } | { text: string; keys: string[] } | undefined
+
+/** A name and its keys' caps, in the page's language (`<html lang>`, set with the locale). */
+function withKeys(el: HTMLElement, text: string, keys: string[]): void {
+  el.replaceChildren(text)
+  const locale = document.documentElement.lang
+  for (const combo of keys) {
+    const span = document.createElement('span')
+    span.className = 'ot-tooltip-keys'
+    keyCaps(combo, locale).forEach((cap, i) => {
+      if (i > 0) span.append('+')
+      const key = document.createElement(cap.mouse ? 'span' : 'kbd')
+      key.textContent = cap.label
+      span.append(key)
+    })
+    el.append(span)
+  }
+}
 
 let bubble: HTMLDivElement | null = null
 
@@ -22,6 +45,10 @@ const STYLE = `
   opacity: 0; transform: translateY(2px); transition: opacity 0.12s, transform 0.12s;
 }
 .ot-tooltip[data-visible='true'] { opacity: 1; transform: none; }
+.ot-tooltip-keys {
+  display: inline-flex; gap: 2px; align-items: center; margin-left: 8px; color: var(--text-muted);
+}
+.ot-tooltip-keys kbd { color: var(--text); }
 .ot-tooltip p, .ot-tooltip ul, .ot-tooltip ol { margin: 0 0 0.45em; line-height: 1.6; }
 .ot-tooltip > :last-child { margin-bottom: 0; }
 .ot-tooltip ul, .ot-tooltip ol { padding-left: 1.2em; }
@@ -47,7 +74,12 @@ function ensureBubble(): HTMLDivElement {
 
 /** Shows the tooltip next to `target` right away (e.g. when an info badge is tapped). */
 export function showTooltip(target: HTMLElement, content: TooltipText): void {
-  const text = typeof content === 'string' ? content : (content?.markdown ?? '')
+  const text =
+    typeof content === 'string'
+      ? content
+      : content && 'text' in content
+        ? content.text
+        : (content?.markdown ?? '')
   if (!text) return
   const el = ensureBubble()
   // Modal dialogs live in the browser's top layer, above any z-index: follow the target
@@ -55,6 +87,7 @@ export function showTooltip(target: HTMLElement, content: TooltipText): void {
   const host = target.closest('dialog[open]') ?? document.body
   if (el.parentElement !== host) host.appendChild(el)
   if (typeof content === 'string') el.textContent = text
+  else if (content && 'keys' in content) withKeys(el, text, content.keys)
   else el.innerHTML = renderMarkdown(text)
   el.dataset.visible = 'true'
   const rect = target.getBoundingClientRect()

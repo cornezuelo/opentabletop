@@ -8,6 +8,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 - **Map**: a step on a trip takes about half as long, and no longer slows down as the journal grows: Play copied the whole trip (its journal too) each time it only looked at it, several times a step.
 - **Characters**: a character whose values are made of their items (armour, load) is worked out faster after each step.
+- **Every app**: **Keyboard shortcuts** (the keyboard in the top bar, or the <kbd>?</kbd> key) lists the app's keys by what they're for, and the ones every app shares; a button's tooltip shows its key as keys' caps (_Undo_ <kbd>Ctrl</kbd>+<kbd>Z</kbd>).
+- **Map**: a tool with keys of its own lists them at the foot of its panel (**Keys of Terrain**, folded to a line, its state remembered): drawing with the keyboard, the brush's size, finishing a line… <kbd>?</kbd> now shows the shortcuts; Help is the **?** button.
 
 ## [0.71.0] - 2026-11-19
 

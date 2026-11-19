@@ -13,6 +13,7 @@
   } from '../lib/io/actions.svelte'
   import { formatDeepLink } from '../lib/io/deepLink'
   import { editor } from '../lib/store/editor.svelte'
+  import { ACTION_KEYS } from '../lib/shortcutList'
   import {
     busy,
     confirmAction,
@@ -100,7 +101,9 @@
   <button onclick={() => newMap().then(() => (editor.panelView = 'tool'))}
     >{t('actions.new')}</button
   >
-  <button onclick={() => openMapFile().then(() => (editor.panelView = 'tool'))}
+  <button
+    use:tooltip={{ text: t('shortcuts.open'), keys: ACTION_KEYS.open }}
+    onclick={() => openMapFile().then(() => (editor.panelView = 'tool'))}
     >{t('library.import')}</button
   >
 </div>

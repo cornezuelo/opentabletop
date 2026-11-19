@@ -1,7 +1,8 @@
 import { walkByKey } from './play/play'
+import { TOOL_KEYS } from './shortcutList'
 import { drawByKey } from './tools/keyboardDraw'
 import { openMapFile, saveMap } from './io/actions.svelte'
-import { isTyping } from './render/MapRenderer'
+import { isTyping } from '@open-tabletop/ui-kit'
 import { editor, MAX_BRUSH_RADIUS } from './store/editor.svelte'
 import {
   cancelPath,
@@ -14,7 +15,7 @@ import {
 } from './tools/tools'
 import { view } from './store/view'
 
-/** Global keyboard shortcuts. Returns a cleanup function. */
+/** Global keyboard shortcuts (listed in `shortcutList`; **?** is ui-kit's). Returns a cleanup function. */
 export function bindShortcuts(): () => void {
   const handler = (e: KeyboardEvent) => {
     const ctrl = e.ctrlKey || e.metaKey
@@ -109,54 +110,21 @@ export function bindShortcuts(): () => void {
       return
     }
 
-    // The tools that edit the map have no keys in Play: a slip can't turn a click into a stroke.
-    if (editor.mode === 'play' && 'bgeritckwnl'.includes(key)) return
+    // The tools that edit the map have no keys in Play (Select has): a slip can't turn a
+    // click into a stroke.
+    const to = TOOL_KEYS[key]
+    if (to) {
+      if (editor.mode === 'play' && to.tool !== 'select') return
+      editor.tool = to.tool
+      if (to.terrainMode) editor.terrainMode = to.terrainMode
+      editor.panelView = 'tool'
+      e.preventDefault()
+      return
+    }
 
     switch (key) {
-      case 'v':
-        editor.tool = 'select'
-        break
-      case 'b':
-        editor.tool = 'terrain'
-        editor.terrainMode = 'brush'
-        break
-      case 'g':
-        editor.tool = 'terrain'
-        editor.terrainMode = 'fill'
-        break
-      case 'r':
-        editor.tool = 'path'
-        break
-      case 'l':
-        editor.tool = 'faction'
-        break
-      case 'c':
-        editor.tool = 'connection'
-        break
-      case 'w':
-        editor.tool = 'wall'
-        break
-      case 'i':
-        editor.tool = 'icon'
-        break
-      case 't':
-        editor.tool = 'text'
-        break
       case 'p':
         editor.switchMode(editor.mode === 'play' ? 'edit' : 'play')
-        break
-      case 'k':
-        editor.tool = 'token'
-        break
-      case 'n':
-        editor.tool = 'region'
-        break
-      case '?':
-        editor.helpOpen = !editor.helpOpen
-        break
-      case 'e':
-        editor.tool = 'terrain'
-        editor.terrainMode = 'erase'
         break
       case '[':
         editor.brushRadius = Math.max(0, editor.brushRadius - 1)
@@ -173,7 +141,6 @@ export function bindShortcuts(): () => void {
       default:
         return
     }
-    if ('vbgeritkncwl'.includes(key)) editor.panelView = 'tool'
     e.preventDefault()
   }
   window.addEventListener('keydown', handler)

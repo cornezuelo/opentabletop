@@ -46,6 +46,19 @@ export { default as TagFilter } from './TagFilter.svelte'
 export { applyChoice, choicesFor, typingAt, type Suggestions, type Typing } from './suggest'
 export { vocabulary } from './vocabulary'
 export { default as PreferencesButton } from './PreferencesButton.svelte'
+export { default as ShortcutsButton } from './ShortcutsButton.svelte'
+export { default as Kbd } from './Kbd.svelte'
+export { default as KeyList } from './KeyList.svelte'
+export { default as KeysFold } from './KeysFold.svelte'
+export {
+  isTyping,
+  keyCaps,
+  keysText,
+  UNDO_KEYS,
+  type KeyCap,
+  type Shortcut,
+  type ShortcutGroup,
+} from './shortcuts'
 export { default as DiceTray } from './DiceTray.svelte'
 export { default as DiceThrow } from './DiceThrow.svelte'
 export { default as DieFace } from './DieFace.svelte'

@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { helpMarkdown, InfoTip, Markdown } from '@open-tabletop/ui-kit'
+  import { helpMarkdown, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { PATH_KINDS } from '@open-tabletop/map'
   import { editor } from '../lib/store/editor.svelte'
   import { cancelPath, finishPath, popPathPoint } from '../lib/tools/tools'
+  import { ACTION_KEYS } from '../lib/shortcutList'
 
   const swatches = {
     road: '#6e4f2c',
@@ -45,11 +46,20 @@
 {#if editor.pathDraft}
   <p class="status">{t('path.drawing', { count: editor.pathDraft.hexes.length })}</p>
   <div class="actions">
-    <button class="primary" disabled={editor.pathDraft.hexes.length < 2} onclick={finishPath}
-      >{t('path.finish')}</button
+    <button
+      class="primary"
+      disabled={editor.pathDraft.hexes.length < 2}
+      use:tooltip={{ text: t('shortcuts.finish'), keys: ACTION_KEYS.finish }}
+      onclick={finishPath}>{t('path.finish')}</button
     >
-    <button onclick={popPathPoint}>{t('path.undoPoint')}</button>
-    <button onclick={cancelPath}>{t('path.cancel')}</button>
+    <button
+      use:tooltip={{ text: t('shortcuts.undoPoint'), keys: ACTION_KEYS.undoPoint }}
+      onclick={popPathPoint}>{t('path.undoPoint')}</button
+    >
+    <button
+      use:tooltip={{ text: t('shortcuts.cancel'), keys: ACTION_KEYS.cancel }}
+      onclick={cancelPath}>{t('path.cancel')}</button
+    >
   </div>
 {:else}
   <p class="help">{t('path.help')}</p>

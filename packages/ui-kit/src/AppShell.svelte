@@ -7,6 +7,8 @@
   import { contextHelp } from './contextHelp.svelte'
   import FoldTab from './FoldTab.svelte'
   import PreferencesButton from './PreferencesButton.svelte'
+  import ShortcutsButton from './ShortcutsButton.svelte'
+  import type { ShortcutGroup } from './shortcuts'
   import { tooltip } from './tooltip'
 
   /**
@@ -23,6 +25,7 @@
     held,
     onswitch,
     texts,
+    shortcuts = [],
     sidebar,
     bar,
     help,
@@ -47,6 +50,8 @@
       showHelp: string
       hideHelp: string
     }
+    /** The app's own keyboard shortcuts, in its **?** (those every app shares come after). */
+    shortcuts?: ShortcutGroup[]
     /** The left list (a `Sidebar`). */
     sidebar: Snippet
     /** Extra buttons in the top bar, before the language. */
@@ -92,6 +97,7 @@
     <CampaignChip {locale} {held} {onswitch} />
     <div class="spacer"></div>
     {@render bar?.()}
+    <ShortcutsButton {locale} groups={shortcuts} />
     <PreferencesButton {locale} {locales} {onlocale} />
     <button
       class="help-toggle"

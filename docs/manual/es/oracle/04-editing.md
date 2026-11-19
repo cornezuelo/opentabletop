@@ -2,7 +2,7 @@
 
 La pestaña **Editar** es un formulario sobre el fichero YAML: solo cambia lo que tocas y conserva los comentarios y el orden. Los packs incluidos son de solo lectura: haz una copia primero.
 
-**↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus packs: ediciones de formularios, definiciones nuevas y borradas, ficheros y packs. Escribir en el editor YAML cuenta como un cambio por pausa; dentro del editor, <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace el propio texto. El historial dura mientras la página está abierta.
+**↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> o <kbd>Ctrl</kbd>+<kbd>Y</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus packs: ediciones de formularios, definiciones nuevas y borradas, ficheros y packs. Escribir en el editor YAML cuenta como un cambio por pausa; dentro del editor, <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace el propio texto. El historial dura mientras la página está abierta.
 
 ## Cualquier definición
 

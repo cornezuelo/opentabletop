@@ -38,6 +38,6 @@ Bundled systems are read-only. **Duplicate**, beside the system's name (on every
 
 **Long lists are folded cards.** Actions, checks, ways of travelling, terrains, a sheet's values and relations, factions, clocks… come as cards, each saying in one line what it is (its name, its id and its fields that say something: _Peaks_ `peaks`: _Speed ×: 0.25 · Open when: time.season is summer_). Click one to unfold it: its fields in two columns, conditions and changes as rows. **Unfold all** / **Fold all** do every card, and with many, a search box finds those holding every word you type. Short lists (roads and rivers, values of the day, a sheet's conditions) stay a table.
 
-**↶ ↷** in the header (or <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> outside text boxes) undo and redo changes to your systems, while the page is open.
+**↶ ↷** in the header (or <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> or <kbd>Ctrl</kbd>+<kbd>Y</kbd> outside text boxes) undo and redo changes to your systems, while the page is open.
 
 Read on: [Your first system](03-your-first-system.md).

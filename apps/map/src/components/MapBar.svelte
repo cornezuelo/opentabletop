@@ -7,6 +7,7 @@
   import { unseenInPlay } from '../lib/play/connections'
   import { editor } from '../lib/store/editor.svelte'
   import { view } from '../lib/store/view'
+  import { ACTION_KEYS } from '../lib/shortcutList'
   import { tooltip } from '@open-tabletop/ui-kit'
   import LineIcon from './LineIcon.svelte'
 
@@ -66,8 +67,10 @@
     <button use:tooltip={t('zoom.in')} aria-label={t('zoom.in')} onclick={() => view.zoomBy(STEP)}
       ><LineIcon name="new" /></button
     >
-    <button use:tooltip={t('actions.fit')} aria-label={t('actions.fit')} onclick={() => view.fit()}
-      ><LineIcon name="fit" /></button
+    <button
+      use:tooltip={{ text: t('actions.fit'), keys: ACTION_KEYS.fit }}
+      aria-label={t('actions.fit')}
+      onclick={() => view.fit()}><LineIcon name="fit" /></button
     >
   </div>
 </div>

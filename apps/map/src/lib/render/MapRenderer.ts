@@ -14,6 +14,7 @@ import {
   Texture,
   TilingSprite,
 } from 'pixi.js'
+import { isTyping } from '@open-tabletop/ui-kit'
 import type { MapChange } from '../commands/command'
 import {
   type CaptionKind,
@@ -2502,20 +2503,6 @@ function silhouette(color: string): ColorMatrixFilter {
 
 function clampZoom(scale: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale))
-}
-
-const TEXT_INPUT_TYPES = new Set(['text', 'search', 'number', 'email', 'url', 'password', 'tel'])
-
-/**
- * True when keys go to a text field. Sliders, checkboxes, color pickers and buttons
- * don't count, so shortcuts like Ctrl+Z still work right after using them.
- */
-export function isTyping(e: KeyboardEvent): boolean {
-  const target = e.target
-  // Keys sent to the window or the document itself aren't typing.
-  if (!(target instanceof Element)) return false
-  if (target instanceof HTMLInputElement) return TEXT_INPUT_TYPES.has(target.type)
-  return !!target.closest('textarea, select, [contenteditable="true"]')
 }
 
 /** The middle of some points. */

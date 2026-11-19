@@ -3,6 +3,7 @@
   import LineIcon, { type LineIconName } from './LineIcon.svelte'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, type ToolId } from '../lib/store/editor.svelte'
+  import { ACTION_KEYS, toolKeys } from '../lib/shortcutList'
 
   /** The tools, on the left of the map: what clicking on the map does. */
 
@@ -37,7 +38,7 @@
     {#each group as tool (tool.id)}
       <button
         class:active={inTool && editor.tool === tool.id}
-        use:tooltip={t(tool.label)}
+        use:tooltip={{ text: t(tool.label), keys: toolKeys(tool.id) }}
         aria-label={t(tool.label)}
         aria-pressed={inTool && editor.tool === tool.id}
         onclick={() => {
@@ -62,7 +63,7 @@
   <!-- The Oracle is used while mapping and playing: with the tools, under Play and the World. -->
   <button
     class:active={editor.panelView === 'oracle'}
-    use:tooltip={t('actions.oracle')}
+    use:tooltip={{ text: t('actions.oracle'), keys: ACTION_KEYS.oracle }}
     aria-label={t('actions.oracle')}
     aria-pressed={editor.panelView === 'oracle'}
     onclick={() => (editor.panelView = editor.panelView === 'oracle' ? 'tool' : 'oracle')}

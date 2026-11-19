@@ -77,6 +77,9 @@ export const es: Messages<typeof en> = {
       files: 'Ficheros',
     },
   },
+  shortcuts: {
+    packs: 'Tus packs',
+  },
   nav: {
     showSidebar: 'Mostrar la lista de sistemas',
     hideSidebar: 'Ocultar la lista de sistemas (más espacio)',
@@ -84,8 +87,8 @@ export const es: Messages<typeof en> = {
     hideHelp: 'Ocultar la ayuda (más espacio)',
     systems: 'Sistemas',
     help: 'Ayuda y manual',
-    undo: 'Deshacer el último cambio en tus packs (Ctrl+Z)',
-    redo: 'Rehacer (Ctrl+Shift+Z)',
+    undo: 'Deshacer el último cambio en tus packs',
+    redo: 'Rehacer',
     problems: '{count} problemas',
   },
   styles: {

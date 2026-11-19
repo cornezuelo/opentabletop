@@ -26,8 +26,9 @@
   import { SetRegionStyleCommand } from '../lib/commands/settings'
   import type { HexKey, RegionStyle } from '@open-tabletop/map'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
-  import { helpMarkdown, PanelHead, showToast, tooltip } from '@open-tabletop/ui-kit'
-  import { t, type MessageKey } from '../lib/i18n/index.svelte'
+  import { helpMarkdown, KeysFold, PanelHead, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
+  import { toolShortcuts } from '../lib/shortcutList'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
   import { editSession, sessionOf } from '../lib/play/play'
   import { applyWorldEffects } from '../lib/play/world.svelte'
@@ -232,6 +233,17 @@
     {:else}
       <HexInfo />
     {/if}
+    <!-- The tool's own keys, kept at the panel's foot (those that pick a tool: the bar's ⌨). -->
+    {#if toolShortcuts(shown).length}
+      <div class="tool-keys">
+        <KeysFold
+          label={t('shortcuts.of', { tool: t(TOOL_TITLES[shown]) })}
+          groups={toolShortcuts(shown)}
+          locale={getLocale()}
+          storageKey="opentabletop.map.toolKeys"
+        />
+      </div>
+    {/if}
   </div>
 {/snippet}
 
@@ -250,6 +262,15 @@
     flex-direction: column;
     gap: 8px;
     padding-top: 12px;
+  }
+
+  /* Always in sight at the panel's foot, over what scrolls (the panel's padding below it). */
+  .tool-keys {
+    position: sticky;
+    bottom: -12px;
+    margin-top: auto;
+    padding-bottom: 4px;
+    background: var(--panel);
   }
 
   .to-cell {

@@ -1,9 +1,14 @@
+<script lang="ts" module>
+  /** The keys that roll the open table again (or draw), while `hotkeys` is on. */
+  export const ROLL_KEYS = ['Space', 'Enter']
+</script>
+
 <script lang="ts">
   import type { Compiled, CompiledEntry, EntryList } from '@open-tabletop/oracle-engine'
   import type { Snippet } from 'svelte'
   import type { HistoryItem } from './roller.svelte'
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
-  import { DiceThrow, dicePreferences, InfoTip } from '@open-tabletop/ui-kit'
+  import { DiceThrow, dicePreferences, InfoTip, isTyping, tooltip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
   import { ruledOut } from './ruledOut'
@@ -123,8 +128,8 @@
 
   function onkeydown(e: KeyboardEvent) {
     if (!hotkeys) return
-    const target = e.target as HTMLElement
-    if (target.closest('input, textarea, select, button, [contenteditable], .cm-editor')) return
+    // A focused button or field keeps its own Space and Enter.
+    if (isTyping(e) || (e.target as HTMLElement).closest?.('button, input, select')) return
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault()
       roll()
@@ -232,7 +237,13 @@
   {/if}
 
   <div class="actions">
-    <button class="primary" onclick={roll}>{deck ? t('roll.draw') : t('roll.roll')}</button>
+    <button
+      class="primary"
+      use:tooltip={hotkeys
+        ? { text: deck ? t('roll.draw') : t('roll.roll'), keys: ROLL_KEYS }
+        : undefined}
+      onclick={roll}>{deck ? t('roll.draw') : t('roll.roll')}</button
+    >
     {#if deck}
       <span class="muted">{t('roll.remaining', deck)}</span>
       <button onclick={() => roller.shuffle(def.id)}>{t('roll.shuffle')}</button>

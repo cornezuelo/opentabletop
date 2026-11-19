@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { isTyping, tooltip, UNDO_KEYS } from '@open-tabletop/ui-kit'
   import type { PackLibrary } from './library.svelte'
 
   /**
@@ -12,17 +12,8 @@
     redoLabel,
   }: { library: PackLibrary; undoLabel: string; redoLabel: string } = $props()
 
-  const typing = (target: EventTarget | null) =>
-    target instanceof HTMLElement &&
-    (target.isContentEditable ||
-      target.closest('.cm-editor') !== null ||
-      (target instanceof HTMLInputElement &&
-        !['checkbox', 'radio', 'range', 'color', 'button'].includes(target.type)) ||
-      target instanceof HTMLTextAreaElement ||
-      target instanceof HTMLSelectElement)
-
   function onkeydown(e: KeyboardEvent) {
-    if (!(e.ctrlKey || e.metaKey) || e.altKey || typing(e.target)) return
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || isTyping(e)) return
     const key = e.key.toLowerCase()
     if (key === 'z' && !e.shiftKey) library.undo()
     else if ((key === 'z' && e.shiftKey) || key === 'y') library.redo()
@@ -36,14 +27,14 @@
 <button
   class="undo"
   aria-label={undoLabel}
-  use:tooltip={undoLabel}
+  use:tooltip={{ text: undoLabel, keys: UNDO_KEYS.undo }}
   disabled={!library.canUndo}
   onclick={() => library.undo()}>↶</button
 >
 <button
   class="undo"
   aria-label={redoLabel}
-  use:tooltip={redoLabel}
+  use:tooltip={{ text: redoLabel, keys: UNDO_KEYS.redo }}
   disabled={!library.canRedo}
   onclick={() => library.redo()}>↷</button
 >

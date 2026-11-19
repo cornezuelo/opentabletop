@@ -5,6 +5,7 @@
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
   import { editor, MAX_BRUSH_RADIUS, type TerrainMode } from '../lib/store/editor.svelte'
   import { terrainName } from '../lib/terrainName'
+  import { toolKeys } from '../lib/shortcutList'
   import TerrainEditor from './TerrainEditor.svelte'
   import GenerateLand from './GenerateLand.svelte'
   import { SetGlyphOpacityCommand } from '../lib/commands/settings'
@@ -48,13 +49,13 @@
       role="radio"
       aria-checked={editor.terrainMode === mode.id}
       class:active={editor.terrainMode === mode.id}
-      use:tooltip={t(mode.label)}
+      use:tooltip={{ text: t(mode.label), keys: toolKeys('terrain', mode.id) }}
       onclick={() => (editor.terrainMode = mode.id)}
     >
       <span aria-hidden="true"
         >{#if mode.icon}<LineIcon name={mode.icon} />{:else}{mode.glyph}{/if}</span
       >
-      {t(mode.label).replace(/\s*\(.*\)$/, '')}
+      {t(mode.label)}
     </button>
   {/each}
 </div>

@@ -38,6 +38,6 @@ Los sistemas incluidos son de solo lectura. **Duplicar**, junto al nombre del si
 
 **Las listas largas son fichas plegadas.** Acciones, comprobaciones, formas de viajar, terrenos, los valores y relaciones de una hoja, facciones, relojes… salen como fichas, cada una diciendo en una línea qué es (su nombre, su id y los campos que dicen algo: _Cumbres_ `peaks`: _Velocidad ×: 0.25 · Abierto cuando: time.season es summer_). Pulsa una para desplegarla: sus campos en dos columnas, condiciones y cambios en filas. **Desplegar todo** / **Plegar todo** lo hacen con todas, y si hay muchas, una caja de búsqueda encuentra las que tienen todas las palabras que escribas. Las listas cortas (caminos y ríos, valores del día, los estados de una hoja) siguen siendo una tabla.
 
-**↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus sistemas, mientras la página está abierta.
+**↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> o <kbd>Ctrl</kbd>+<kbd>Y</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus sistemas, mientras la página está abierta.
 
 Sigue con: [Tu primer sistema](03-your-first-system.md).

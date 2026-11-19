@@ -10,6 +10,8 @@
     FoldTab,
     PreferencesButton,
     readLastSystem,
+    ShortcutsButton,
+    UNDO_KEYS,
     rememberSystem,
     Toasts,
     tooltip,
@@ -17,7 +19,7 @@
   import OraclePreferences from './components/OraclePreferences.svelte'
   import CampaignChoice from './components/CampaignChoice.svelte'
   import DefinitionView from './components/DefinitionView.svelte'
-  import { History } from '@open-tabletop/oracle-ui'
+  import { History, ROLL_KEYS } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
   import { UndoButtons } from '@open-tabletop/pack-ui'
   import PackView from './components/PackView.svelte'
@@ -88,6 +90,22 @@
     <div class="spacer"></div>
     <UndoButtons library={workspace} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
     <a class="button" href={appUrl('packs')}>{t('nav.openPacks')}</a>
+    <ShortcutsButton
+      locale={getLocale()}
+      groups={[
+        {
+          title: t('shortcuts.rolling'),
+          shortcuts: [{ keys: ROLL_KEYS, does: t('shortcuts.rollAgain') }],
+        },
+        {
+          title: t('shortcuts.packs'),
+          shortcuts: [
+            { keys: UNDO_KEYS.undo, does: t('nav.undo') },
+            { keys: UNDO_KEYS.redo, does: t('nav.redo') },
+          ],
+        },
+      ]}
+    />
     <PreferencesButton
       locale={getLocale()}
       {locales}

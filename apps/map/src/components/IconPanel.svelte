@@ -16,6 +16,7 @@
   import { type HexData, type IconStyle, newId } from '@open-tabletop/map'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { editor } from '../lib/store/editor.svelte'
+  import { ACTION_KEYS } from '../lib/shortcutList'
   import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
 
   type Filter = 'all' | IconCategory | 'custom'
@@ -161,7 +162,11 @@
 {#if editing}
   <div class="editing">
     <span>{t('icons.editing', { name: selectedName, coord: editing.coord })}</span>
-    <button class="link" onclick={() => (editor.selectedIcon = null)}>{t('icons.deselect')}</button>
+    <button
+      class="link"
+      use:tooltip={{ text: t('shortcuts.deselect'), keys: ACTION_KEYS.deselect }}
+      onclick={() => (editor.selectedIcon = null)}>{t('icons.deselect')}</button
+    >
   </div>
 {:else}
   <p class="selected">{t('icons.selected', { name: selectedName })}</p>

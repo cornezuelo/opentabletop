@@ -7,6 +7,7 @@
     MoreMenu,
     playIn,
     PreferencesButton,
+    ShortcutsButton,
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { getCampaign } from '@open-tabletop/storage'
@@ -22,6 +23,7 @@
   } from '../lib/i18n/index.svelte'
   import { library, newMap, openLibraryMap, saveMap } from '../lib/io/actions.svelte'
   import { editor, type PanelView } from '../lib/store/editor.svelte'
+  import { ACTION_KEYS, mapShortcuts } from '../lib/shortcutList'
 
   /**
    * The bar across the top, like in every app: the app and the app switcher on the left;
@@ -68,6 +70,8 @@
     panel?: PanelView
     /** Shown pressed while this holds (a column that isn't a panel view). */
     active?: () => boolean
+    /** Its shortcut, shown in its tooltip. */
+    keys?: string[]
   }
   const pressed = (action: Action) =>
     action.active ? action.active() : !!action.panel && editor.panelView === action.panel
@@ -77,19 +81,21 @@
         label: 'actions.undo',
         glyph: 'undo',
         run: () => editor.undo(),
+        keys: ACTION_KEYS.undo,
         enabled: () => editor.canUndo,
       },
       {
         label: 'actions.redo',
         glyph: 'redo',
         run: () => editor.redo(),
+        keys: ACTION_KEYS.redo,
         enabled: () => editor.canRedo,
       },
     ],
     [
       { label: 'actions.new', glyph: 'new', run: () => newMap() },
       { label: 'actions.open', glyph: 'folder', run: toggle('library'), panel: 'library' },
-      { label: 'actions.save', glyph: 'save', run: saveMap },
+      { label: 'actions.save', glyph: 'save', run: saveMap, keys: ACTION_KEYS.save },
       { label: 'actions.export', glyph: 'export', run: toggle('export'), panel: 'export' },
     ],
     [
@@ -136,8 +142,9 @@
   {#each groups as group, g (g)}
     {#if g > 0}<span class="sep wide" aria-hidden="true"></span>{/if}
     {#each group as action (action.label)}
-      <!-- Preferences next to Help, as in every app. -->
+      <!-- The shortcuts and Preferences next to Help, as in every app. -->
       {#if action.label === 'actions.help'}
+        <ShortcutsButton locale={getLocale()} groups={mapShortcuts()} />
         <PreferencesButton
           locale={getLocale()}
           {locales}
@@ -147,7 +154,7 @@
       <button
         class="wide"
         class:active={pressed(action)}
-        use:tooltip={t(action.label)}
+        use:tooltip={action.keys ? { text: t(action.label), keys: action.keys } : t(action.label)}
         aria-label={t(action.label)}
         aria-pressed={action.panel || action.active ? pressed(action) : undefined}
         disabled={action.enabled ? !action.enabled() : false}

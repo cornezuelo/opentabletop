@@ -156,6 +156,24 @@ h6 {
   font-weight: 700;
 }
 
+/* A key to press, drawn as a key's cap (`Kbd`, the shortcuts, a button's tooltip). */
+kbd {
+  display: inline-block;
+  min-width: 1.7em;
+  padding: 0.05em 0.45em;
+  font-family: inherit;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}
+
 /* The small label over a group of entries, not a section's title. */
 .overline {
   font-family: inherit;
