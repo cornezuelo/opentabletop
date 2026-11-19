@@ -16,6 +16,12 @@ Replaces the order below where they differ (the user: "llevamos muchos días con
 6. **Finish Ker Nethalas** (its gaps under _What the real systems show the tools lack_).
 7. **Play-testing by agents, round 2**: after several new systems are built.
 
+**A review of the whole UI, app by app** (2026-11-19, the user: "no paras de generar UI/UX de mierda… dime si no es mejorable la puta interfaz"; **its place in the order above to agree**, Claude's suggestion: the character sheet first). Each app (Characters, Oracle, Travel, Map, Packs, Campaign) gets a proposal with mockups agreed with the user before any code, then screenshots of the result. Seen already in Characters and the Oracle:
+
+- The character's card: ~400 px of header before the first value (the name twice, the id, a paragraph in _Where it plays_, notes, token); a dotted underline on every label (an InfoTip each), so nothing stands out; boxes far wider than their numbers (Renown, an item's Slots), an item's fields far from its name; group cards leaving half the width empty; two hierarchies (groups boxed with overlines, Conditions / Relations / Items / Tags loose grey labels); conditions as a list of checkboxes where the ones held get lost (proposed: those held as pills on top, a **+ condition**); empty item places each a bordered card saying _Nothing_; rows of `ƒ 0` (yes/no masteries drawn as numbers); add forms always open, greyed buttons that look broken, cut placeholders.
+- The Oracle: pack syntax shown to the player (`{{roll}} foes block the way`, `then table.weather-{{time.season}}`, a context field named `time.season`, `core/strike` and `bestiary.yaml` on top, code in descriptions); the dice table half the screen for one die.
+- Everywhere: text of one weight and one muted grey, nothing leading the eye; native selects.
+
 **Splitting the Company** stays deferred (the user, 2026-11-19: complex, not urgent).
 
 ## Blocking: real systems first (user, 2026-11-07)
