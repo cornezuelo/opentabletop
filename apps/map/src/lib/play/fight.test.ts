@@ -44,6 +44,9 @@ describe('the fight view', () => {
     expect(html).toMatch(/class="band party/)
     expect(html.match(/class="face/g)!.length).toBe(fighters * 2)
     expect(html).toMatch(/class="strip/)
+    // Anyone's whole sheet a click away, by a button beside their card, never inside it.
+    expect(html.match(/<button class="look/g)).toHaveLength(fighters)
+    expect(html).toContain('aria-label="Grey wolf’s sheet"')
     // A companion's turn: the one action on a foe is armed in the turn's bar, and each
     // wolf's card is the button that takes it on them.
     expect(html).toMatch(/class="arm[^"]*" aria-pressed="true"/)

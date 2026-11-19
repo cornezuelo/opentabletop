@@ -83,6 +83,7 @@
     DICE_ROLLS,
     dicePreferences,
     InfoTip,
+    markdownText,
     Tabs,
     tooltip,
     type DiceRolls,
@@ -107,6 +108,7 @@
   import NotableBeat from './NotableBeat.svelte'
   import { journalBeats, lastStepBeats, tellBeat, type BeatTold } from './beats'
   import { beatsSeen } from './beatsSeen.svelte'
+  import { templateChoices } from './present'
   import { pacing } from './pacing.svelte'
   import { buttonGroups } from './actionGroups'
   import { mainChanges } from './glance'
@@ -398,6 +400,8 @@
   const sheets = $derived(systemSheets(system))
   /** The system's templates: how each copy is drawn small (its token's icon, in a fight). */
   const templates = $derived(system.bestiary && lookupTemplates(system.bestiary))
+  /** The templates in words: what one of those here is, over their sheet in a fight. */
+  const kinds = $derived(templateChoices(system, locale))
   /** Whom a choice asked for in a fight is among (whom to strike): chosen by their cards. */
   const targets = $derived(
     fight &&
@@ -458,7 +462,9 @@
    */
   let over = $state<{ upto: number } | undefined>()
   let fought = false
-  $effect(() => {
+  // Before the page is drawn, so the stage is never put away and drawn anew between the fight
+  // and its closing card (it would forget the faces of those gone).
+  $effect.pre(() => {
     if (fight) {
       fought = true
       over = undefined
@@ -1120,11 +1126,21 @@
           roster={told?.roster}
           characterOf={(id) => participant(session, id)}
           iconOf={(id) => faceIcon(templates, participant(session, id))}
+          catalogues={system.items}
+          kindOf={(id) => {
+            const of = participant(session, id)?.template?.id
+            return of ? kinds.find((k) => k.id === of) : undefined
+          }}
           partyName={session.party?.name ||
             (system.partySheet && sheetText(system.partySheet.def.name, locale))}
           opening={told?.opening}
           ended={fight ? undefined : told?.ended}
-          onclose={() => (over = undefined)}
+          onclose={() => {
+            over = undefined
+            // The closing card told the step that ended it: it isn't told again up front.
+            const beat = beatsSeen.showing(session)
+            if (beat) beatsSeen.putAway(session, beat.entries[0]!)
+          }}
           ontarget={(id) => onstep({ type: 'resume', choice: id })}
           onnext={() => onstep({ type: 'encounter', what: 'next' })}
           {cardActions}
@@ -1240,7 +1256,9 @@
           {#each Object.keys(system.rules.modes) as mode (mode)}
             {@const because = mode === travel.mode ? '' : why(blocked[`mode.${mode}`])}
             <option value={mode} disabled={!!because}
-              >{modeName(mode)} ({speedOf(mode)}){because ? ` — ${because}` : ''}</option
+              >{modeName(mode)} ({speedOf(mode)}){because
+                ? ` — ${markdownText(because)}`
+                : ''}</option
             >
           {/each}
         </select>

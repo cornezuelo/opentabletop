@@ -882,7 +882,6 @@ actions:
       - { time: 2 }
       # The blow (bestiary.yaml's _A blow_): worse in the dark, better on a foe left alone.
       - { roll: generator.blow }
-      - { id: struck, say: 'A blow, aimed at one of them.' }
   # Outlaws among those present (a tag of their template): a ration for each of them
   # (`'-{{present.fighters.count}}'`), and a condition that takes them off (`bought-off`).
   buy-off:
@@ -980,7 +979,7 @@ actions:
     unless: { acting.conditions: enraged }
     do:
       - { effects: { acting.conditions.routed: true } }
-      - { id: runs, say: 'One of them loses its nerve and runs.' }
+      - { id: runs, say: '{{acting.name}} loses its nerve.' }
   # Renown (sheet.yaml, docs/advancement.md): a fight won, each companion still standing
   # gains one (`on: encounter.end`, `for: party.members`).
   name-made:

@@ -229,9 +229,6 @@ travel-rules/default:
         foe:
           name: ¿A quién golpeáis?
           description: Uno de los que están aquí.
-      do:
-        struck:
-          say: 'Un golpe, a uno de ellos.'
     stand:
       name: Plantar cara
       description: 'Con enemigos aquí: un combate por turnos, cada uno en el orden de lo que saca (1d6 y Sigilo, o el Daño de un enemigo), un minuto por ronda, hasta que no quede ningún enemigo. Golpear a uno en vuestros turnos, o replegaros.'
@@ -306,7 +303,7 @@ travel-rules/default:
       description: 'En el turno de cada enemigo, en un combate: 2d6 por encima de su Moral y huye, salvo que esté enfurecido.'
       do:
         runs:
-          say: 'Uno de ellos pierde el valor y huye.'
+          say: '{{acting.name}} pierde el valor.'
     delve:
       name: Explorar la ruina
       description: 'En una ruina, de día: tres horas registrándola y, después, lo que guarda y lo que la protege, tirado en _Explorar una ruina_. Una vez en cada ruina: una ruina explorada sigue explorada.'

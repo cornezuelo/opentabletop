@@ -98,6 +98,28 @@ function asActing(value: Record<string, unknown>, who: string | undefined) {
   }
 }
 
+/**
+ * Who an action's `acting.…` effects reached when nothing said who acts (an action taken for
+ * each member, `for:`): the character its first such change was written on, in the lines
+ * after it up to the next action.
+ */
+function changedActing(
+  value: Record<string, unknown>,
+  after: readonly JournalEntry[],
+): string | undefined {
+  const effects = value.effects
+  if (typeof effects !== 'object' || effects === null) return undefined
+  const own = Object.keys(effects).filter((p) => p.startsWith('acting.'))
+  if (!own.length) return undefined
+  for (const e of after) {
+    if (e.code === 'ACTION_TAKEN') return undefined
+    const path = e.code === 'CHANGED' ? String(e.data?.path ?? '') : ''
+    const m = /^characters\.([^.]+)\.(.+)$/.exec(path)
+    if (m && own.includes(`acting.${m[2]}`)) return m[1]
+  }
+  return undefined
+}
+
 /** A line of a moment, its changes left to the moment's (a result's text, a check that did something). */
 function lineText(e: JournalEntry, context: JournalContext): string {
   const d = e.data ?? {}
@@ -162,12 +184,17 @@ export function tellBeat(
   // Whoever acts as each line comes (the one a reaction is played for, whose turn it is in a
   // fight): what an action changes of `acting` is said of them by name.
   let acting: string | undefined
-  const changes = beat.entries.flatMap((e) => {
+  const changes = beat.entries.flatMap((e, i) => {
     if (e.code === 'REACTED' && typeof e.data?.who === 'string') acting = e.data.who
     if (e.code === 'ENCOUNTER_TURN' && typeof e.data?.id === 'string')
       acting = e.data.id === PARTY_ID ? undefined : e.data.id
     const value = effectsOf(e)
-    return value ? changeParts(asActing(value, acting), context) : []
+    return value
+      ? changeParts(
+          asActing(value, acting ?? changedActing(value, beat.entries.slice(i + 1))),
+          context,
+        )
+      : []
   })
   return {
     id: beat.id,

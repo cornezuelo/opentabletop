@@ -107,6 +107,35 @@ describe('moments of play told (beats)', () => {
     expect(told.changes).toEqual(['Kael: Wounded'])
   })
 
+  it('an action taken for each member says each one by name, read from what it changed', () => {
+    const named: JournalContext = {
+      ...context,
+      memberName: (path) =>
+        ({
+          'characters.kael.values.renown': 'Kael: Renown',
+          'characters.mira.values.renown': 'Mira: Renown',
+          'acting.values.renown': 'Whoever acts: Renown',
+        })[path],
+    }
+    const forEach = (n: number, who: string) => [
+      line(n, 'ACTION_TAKEN', {
+        data: { action: 'name-made', on: 'encounter.end', effects: { 'acting.values.renown': 1 } },
+      }),
+      line(n + 1, 'CHANGED', {
+        data: { path: `characters.${who}.values.renown`, from: 1, to: 2 },
+      }),
+    ]
+    const told = tellBeat(
+      {
+        id: 'j1',
+        entries: [line(0, 'ENCOUNTER_ENDED'), ...forEach(1, 'kael'), ...forEach(3, 'mira')],
+      },
+      named,
+      'story',
+    )
+    expect(told.changes).toEqual(['Kael: Renown +1', 'Mira: Renown +1'])
+  })
+
   it('the journal as moments, newest first; a note is one of its own; a search finds a step by any line', () => {
     const note = line(6, 'NOTE', { source: 'user', text: 'Ask about the keeper', beat: undefined })
     const journal = [...march, note]

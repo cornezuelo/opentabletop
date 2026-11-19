@@ -126,3 +126,27 @@ The recommended answer to each, the first given (2026-11-15).
 
 - **A** (the party's band and cards in the theme's accent, the foes' in its danger tone: a card's top edge, its face, the order's tokens, the band's name, the turn's card and the log; bars keep their sheet's tones), **B** (travel-ui's `FightPanel`: the table as three rows, the bands fixed and the turn scrolling inside itself; cards from 200 to 300 px, a name on two lines; `tellFight`'s `roster`, so one who went keeps their card, dimmed and struck, with the condition's name, to the fight's end), **C** (who acts lifted and ringed; who the turn is aimed at, `FightTurn.onId`, with a dashed ring; who was changed shaking once, the change large; a check for who has acted), **D** (the order as a strip of faces under the header, pointing at one marking its card; no numbers on the cards), **E** (the turn's choices in one bar; an action on a foe armed there, the foe's card the button, armed already when it's the only one), **F** (the centre 640 px wide; ui-kit's dice tray draws a roll by hand of one die as that die, marked _rolled by hand_), **G** (the log's rolls as small dice, what they were for in their tooltip; a round's title sticks while its turns scroll), **H** (the closing card in the centre beside the fight's last turn, the cards still on the table; who went in the words said as it happened), **I** (character-ui's `Face` and `initialsOf`).
 - **Not built**: the computer's rolls thrown on the table without a hand (F's last point, left from fight-turn.md §5); a card as tall whatever it holds only up to a point (many conditions still make it grow); the portrait in the face waits for [character-pictures.md](character-pictures.md).
+
+## 6. Another round (2026-11-19)
+
+The ask (author, 2026-11-16): "estaría bien seguir mejorando la UI/UX de combate… echo en falta QoL features, como poder revisar la ficha de los enemigos quizá? pero que no se pegue con lo que ya funciona perfectamente, antes que empeorar prefiero ocultar la interfaz y ver el detalle fino detrás".
+
+Played in the built Travel app at v0.68.0 (Spanish UI, 1500×950): a Grey Marches trip, two companions against two bandits and their chief (**Who rolls the dice** on _my own rolls_), then against a pack leader and two wolves (_the computer rolls_), each to its end.
+
+**Seen, and fixed** (on autopilot, **to review**):
+
+1. **No way to look at a foe's sheet**: a card shows its main value and conditions, nothing of its damage, morale, items. Now a small **☰** in each card's lower corner (beside the card, never inside it: the card may be the button that strikes) shows the whole sheet in the log's column, read-only: the template's name and first paragraph, then the character card; **×** brings the log back. The same for the party's cards.
+2. **Faces lost at the end**: once a fight ended, those who went showed initials, not their icons. The stage was put away and drawn anew for a frame between the fight and its closing card (the host's `over` set after the page was drawn); now before (`$effect.pre`), so it stays and keeps the faces.
+3. **Told twice after the fight**: after **Continue** on the closing card, the trip's panel showed the step that ended it up front, titled by the last blow (_Strike one down · 2 min_), its raw lines (_leaves (Down)_) and unlabelled dice. The closing card told it already: closing it puts that moment away.
+4. **_Whoever acts: Renown +1_** in a moment's changes: an action taken for each member (`for:`) logs no `REACTED`, so whose it was is read from what it changed (travel-ui's `beats.ts`, `changedActing`).
+5. **A turn said twice**: _Bandit — One of them loses its nerve and runs. / Bandit turns tail and flees_. The Marches' _Nerve breaks_ now says _The bandit loses its nerve._, the condition saying the rest.
+6. **_A blow, aimed at one of them._** under every blow (folded, and in the trip's moment): the Marches' **Strike one down** said it before actions had `told:`; gone.
+7. Outside the fight: a way of travelling that can't be taken listed its reason with raw backticks in the select (_“`place.water`” is not in effect_); now plain.
+
+**Seen, left** (smaller, or a decision of their own):
+
+- A foe's hit tells only the value changed (_Mira: Health 3 → 1_) where the party's blow tells the harm (_2 harm, steel_): the Marches' foe tables could say their harm as the blow does.
+- Why a foe's nerve broke is never seen: the 2d6 against its Morale is rolled in a condition, which shows no dice.
+- The closing card repeats the last turn's lines beside it (_The pack leader falls_ in both).
+- _rolled by hand_ is said of dice thrown on the table too; _your roll_ would read better.
+- A reason in words still reads awkwardly at times (_the place's tags is nothing, not ferry_).

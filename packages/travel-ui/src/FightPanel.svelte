@@ -1,9 +1,9 @@
 <script lang="ts">
   import { tick, type Snippet } from 'svelte'
-  import type { CharacterState, Sheet } from '@open-tabletop/character-engine'
+  import type { Catalogue, CharacterState, Sheet } from '@open-tabletop/character-engine'
   import type { Fighter } from '@open-tabletop/session'
-  import { CharacterGlance, Face } from '@open-tabletop/character-ui'
-  import { DiceTray, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { CharacterCard, CharacterGlance, Face } from '@open-tabletop/character-ui'
+  import { DiceTray, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import type { CardAction, FightEnd, FightSeat, FightTurn, TurnRoll } from './turns'
 
@@ -32,6 +32,10 @@
    * folded; while it waits for a roll of the player's, that roll in its place (`roll`), never
    * a word of what it hasn't done yet. Once over (`ended`), its closing card takes the centre
    * until **Continue**, the cards still on the table as the fight left them.
+   *
+   * Anyone's whole sheet is a click away and never in the way: a small button in a card's
+   * corner shows it in the log's column (what they are, `kindOf`, over their values and
+   * conditions, to read, not to change), until it's put away.
    */
   let {
     round,
@@ -46,6 +50,8 @@
     roster = [],
     characterOf = () => undefined,
     iconOf = () => undefined,
+    kindOf = () => undefined,
+    catalogues = [],
     partyName = '',
     opening = [],
     ended,
@@ -84,6 +90,10 @@
     characterOf?: (id: string) => CharacterState | undefined
     /** One's token icon by id (a template's `token.icon`), drawn as their face; none: an initial. */
     iconOf?: (id: string) => string | undefined
+    /** What one is, by id (a copy's template: its name and what it's like), shown over their sheet. */
+    kindOf?: (id: string) => { name: string; description: string } | undefined
+    /** The system's item catalogues: the items on a sheet shown by their names. */
+    catalogues?: readonly { id: string; def: Catalogue }[]
     /** The party's name, over its band (_The Company_); '' for _The party_. */
     partyName?: string
     /** What started it, in words, before its first round. */
@@ -209,6 +219,9 @@
   const faceOf = (id: string) => (icons[id] ??= iconOf(id) ?? '') || undefined
   /** The one pointed at in the order: their card is marked. */
   let pointed = $state('')
+  /** The one whose whole sheet is shown in the log's column, by id; '' for the log. */
+  let looking = $state('')
+  const lookedAt = $derived(seats.find((seat) => seat.id === looking && seat.character))
 
   /**
    * A click that missed: what can be clicked beckons for a moment, the cards that can be
@@ -334,6 +347,17 @@
                   >
                 {/if}
               {/snippet}
+              {#if seat.character}
+                <!-- Beside the card, never inside it: the card may be the button that strikes. -->
+                <button
+                  class="look"
+                  class:on={looking === seat.id}
+                  aria-pressed={looking === seat.id}
+                  aria-label={t('fight.sheet', { name: seat.name })}
+                  use:tooltip={t('fight.sheet', { name: seat.name })}
+                  onclick={() => (looking = looking === seat.id ? '' : seat.id)}>☰</button
+                >
+              {/if}
               {#if target}
                 <button
                   class="pick"
@@ -485,8 +509,36 @@
     </div>
     <!-- The whole fight, every moment from its start, newest at the bottom, scrolling. -->
     <aside class="log-column">
-      <h4 class="overline">{t('fight.log')}</h4>
-      <ol class="log" aria-label={t('fight.log')} bind:this={logEl}>
+      {#if lookedAt?.character}
+        {@const kind = kindOf(lookedAt.id)}
+        {@const sheet = sheetOf(lookedAt.character)}
+        <!-- Someone's whole sheet, in the log's place until it's put away. -->
+        <div class="sheet-head">
+          <h4>{lookedAt.name}</h4>
+          <button
+            class="icon"
+            aria-label={t('fight.sheetBack')}
+            use:tooltip={t('fight.sheetBack')}
+            onclick={() => (looking = '')}>×</button
+          >
+        </div>
+        <div class="sheet">
+          {#if kind && kind.name !== lookedAt.name}<p class="overline">{kind.name}</p>{/if}
+          {#if kind?.description}<div class="hint"><Markdown text={kind.description} /></div>{/if}
+          {#if sheet}
+            <CharacterCard
+              {sheet}
+              character={lookedAt.character}
+              {catalogues}
+              {locale}
+              disabled
+              onchange={() => {}}
+            />
+          {/if}
+        </div>
+      {/if}
+      <h4 class="overline" hidden={!!lookedAt}>{t('fight.log')}</h4>
+      <ol class="log" aria-label={t('fight.log')} bind:this={logEl} hidden={!!lookedAt}>
         {#if opening.length}
           <li class="told">
             {#each opening as line, i (i)}<p class="rest">{line}</p>{/each}
@@ -693,6 +745,7 @@
   }
 
   .fighter {
+    position: relative;
     flex: 0 1 260px;
     min-width: 200px;
     max-width: 300px;
@@ -1093,6 +1146,49 @@
 
   .log-column h4 {
     margin: 0;
+  }
+
+  /* Someone's whole sheet, in the log's place: their name, what they are, then the sheet. */
+  .sheet-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .sheet p,
+  .sheet .hint {
+    margin: 0;
+  }
+
+  /* The button that shows it: small, in the card's lower corner, out of the card's way. */
+  .look {
+    position: absolute;
+    z-index: 1;
+    right: 6px;
+    bottom: 6px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+  }
+
+  .fighter:hover .look,
+  .look:focus-visible,
+  .look.on {
+    color: var(--side);
+    border-color: var(--panel-border);
   }
 
   .log {

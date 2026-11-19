@@ -6,11 +6,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Fights**: anyone's **whole sheet** from their card: the small **☰** in a card's corner shows it in the log's column (what they are, every value, condition, item and tag), and **×** brings the log back.
+- **Fights**: those who went keep their faces on the closing card (they showed initials); the step that ended a fight isn't told again in the trip's panel after **Continue**; a reaction taken for each companion says who it changed (_Kael: Renown +1_, not _Whoever acts_); a way of travelling that can't be taken says why without code marks.
 - **Packs**: foes that **follow the party** when it moves on (a chase): a bestiary's or a template's `follows`, always or while a condition holds, read with each one acting (**Follows the party** in the Bestiary tab). Those that follow come along to the next place (_They follow you here_); the rest are left behind as before.
 
 ### Packs
 
 - **The Grey Marches**: wolves and bandits follow the Company while they mean harm, so falling back and marching on leaves it beset again at the next place; bandits can't keep up with horses, and **Throw them meat** (two rations) leaves the wolves gorging, no longer hostile, and behind.
+- **The Grey Marches**: a foe whose nerve breaks is named (_The bandit loses its nerve_, then _turns tail and flees_), and a blow no longer adds _A blow, aimed at one of them_ to each turn.
 - **Core**: **Get away** now costs a day's food, and the foes stay behind; **Run** is free, but they follow.
 
 ## [0.68.0] - 2026-11-19
