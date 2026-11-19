@@ -69,9 +69,17 @@ export function parsePage(path: string, source: string): ManualPage | null {
   const sections: ManualSection[] = []
   let current: { title: string; lines: string[] } = { title: '', lines: [] }
   const flush = () => {
-    const text = plain(current.lines.join('\n'))
-    if (current.title || text)
-      sections.push({ id: anchorOf(current.title), title: current.title, text })
+    const source = current.lines.join('\n')
+    if (!current.title && !source.trim()) return
+    // Plain text is only needed to search: worked out the first time it's read.
+    let text: string | undefined
+    sections.push({
+      id: anchorOf(current.title),
+      title: current.title,
+      get text() {
+        return (text ??= plain(source))
+      },
+    })
   }
   for (const line of body.split('\n')) {
     if (line.startsWith('## ')) {
@@ -102,14 +110,20 @@ export interface SearchResult {
 
 /** Builds the manual from `{ path: markdown }` (e.g. a Vite glob of docs/manual). */
 export function createManual(files: Record<string, string>, appOrder: string[] = []): Manual {
-  const all = Object.entries(files).flatMap(([path, source]) => parsePage(path, source) ?? [])
-  const apps = [...new Set(all.map((p) => p.app))].sort(
-    (a, b) =>
-      (appOrder.indexOf(a) + 1 || 99) - (appOrder.indexOf(b) + 1 || 99) || a.localeCompare(b),
-  )
+  // Pages are read the first time the manual is (most of the time an app runs, it isn't).
+  let read: ManualPage[] | undefined
+  const allPages = () =>
+    (read ??= Object.entries(files).flatMap(([path, source]) => parsePage(path, source) ?? []))
+  let appList: string[] | undefined
+  const appsOf = () =>
+    (appList ??= [...new Set(allPages().map((p) => p.app))].sort(
+      (a, b) =>
+        (appOrder.indexOf(a) + 1 || 99) - (appOrder.indexOf(b) + 1 || 99) || a.localeCompare(b),
+    ))
 
   /** A locale's pages of an app, with English pages filling the gaps. */
   const pages = (app: string, locale: string): ManualPage[] => {
+    const all = allPages()
     const own = all.filter((p) => p.app === app && p.locale === locale)
     const base = all.filter(
       (p) => p.app === app && p.locale === BASE_LOCALE && !own.some((o) => o.slug === p.slug),
@@ -118,14 +132,16 @@ export function createManual(files: Record<string, string>, appOrder: string[] =
   }
 
   return {
-    apps,
+    get apps() {
+      return appsOf()
+    },
     pages,
     page: (app, slug, locale) => pages(app, locale).find((p) => p.slug === slug),
     search(query, locale, app) {
       const words = searchWords(query)
       if (!words.length) return []
       const results: SearchResult[] = []
-      for (const a of app ? [app] : apps)
+      for (const a of app ? [app] : appsOf())
         for (const page of pages(a, locale))
           for (const section of page.sections) {
             const title = anchorOf(`${page.title} ${section.title}`)

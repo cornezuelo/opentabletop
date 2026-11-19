@@ -219,6 +219,18 @@ export function imageUrl(content: string): string {
     : `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content)}`
 }
 
+/** YAML texts already read, by their exact text: their documents as JSON. */
+const readAhead = new Map<string, string>()
+
+/**
+ * A YAML text's documents read ahead (a bundled pack's, at build time), as the JSON of
+ * their list: loading a file with exactly this text takes them instead of reading the YAML,
+ * which costs far more. Only texts that read without errors are given.
+ */
+export function readAheadYaml(content: string, documents: string): void {
+  readAhead.set(content, documents)
+}
+
 function parseDocuments(file: PackFile, diagnostics: Diagnostic[], pack?: string): unknown[] {
   if (file.path.endsWith('.json')) {
     try {
@@ -233,6 +245,8 @@ function parseDocuments(file: PackFile, diagnostics: Diagnostic[], pack?: string
       return []
     }
   }
+  const known = readAhead.get(file.content)
+  if (known !== undefined) return JSON.parse(known) as unknown[]
   const docs = parseAllDocuments(file.content)
   const list = Array.isArray(docs) ? docs : [docs]
   const out: unknown[] = []
