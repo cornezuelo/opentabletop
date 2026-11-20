@@ -76,7 +76,7 @@ What it costs or changes:
 
 **Proposal**: yes, it makes sense, and portraits are the moment to do it: the `pictures` store of section 2 becomes this `images` library from the start (same work, more general), the picker is the one place to upload, and Map's icons and glyphs move to it next. A screen to manage the library (in the Characters app? a small app of its own? in Preferences?) is the open question; the picker alone is enough to start.
 
-## 9. The shared picker (proposal, 2026-11-20, to agree with the user before any code)
+## 9. The shared picker (proposed 2026-11-20, agreed with the user the same day)
 
 Built so far (on autopilot, no UI): the library's store (storage's `images`, one IndexedDB store, each image a shrunk data URL with its size, tags and what it was added for) and its place in backups. What the user sees is all still to agree; a mockup was drawn for it (three frames), described here.
 
@@ -86,4 +86,4 @@ Built so far (on autopilot, no UI): the library's store (storage's `images`, one
 
 Pieces: ui-kit's `ImagePicker` (the dialog, both steps) and `ImageSlot` (the slot), the shrinking and framing in ui-kit (canvas, the browser's), the library's reads in storage; characters name a picture by id (`picture` on the character, in OTD's `ext.character`), shown by character-ui's card and a fight's faces.
 
-**To decide:** (a) whether **Used by** is worth it now (it means looking through the roster, maps and campaigns for an id) or later, with the library's own screen; (b) the sizes of each slot; (c) whether tokens on a map show a character's portrait from the start (§7 d said one by one: **Show its picture**).
+**Decided with the user (2026-11-20):** (a) **Used by** waits for the library's own screen; the picker's **Delete…** asks first without it. (b) The slots' sizes, Claude's choice: a portrait 96 px square on a character's card (32 px in lists and a fight's faces), a banner 3:1, an item's 40 px square. (c) Tokens keep §7 d: one by one, **Show its picture**.

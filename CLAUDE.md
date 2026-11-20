@@ -77,7 +77,7 @@ docs/
   campaigns.md              # campaigns (the world shared by maps and trips) and the Campaign app
   faction-engine.md         # Factions and world turns design (phases, decisions to review)
   terrain-generation.md     # Terrain with memory (land models, Markov) design, to review
-  character-pictures.md     # Pictures for characters design, to review
+  character-pictures.md     # Pictures for characters and the image library (the shared picker), decided
   inventory.md              # Inventory design (items, values made of others, conditions that hold by themselves), to review
   world-reactions.md        # The world reacts design (the world's reactions without a trip, world turns as moments), decided
   bestiary.md               # The bestiary and results that make things design (templates, those present), decided
@@ -98,7 +98,7 @@ docs/
   traps-locks.md            # Traps, locks, containers and potions (a place's sheet, things that don't fight, items unknown, lasting places), decided
   party-split.md            # Splitting the Company: parts of one trip, each its own place, time and token, to review
   value-breakdown.md        # A value's base, what it reads now and what makes the difference, decided, built
-  notes-and-journal.md      # The campaign's journal (Lonelog export) and our own notes app, to review
+  notes-and-journal.md      # The campaign's journal (Lonelog export) and our own notes app, decided
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):

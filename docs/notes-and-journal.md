@@ -1,6 +1,6 @@
 # The journal and our own notes app — proposal
 
-Written on autopilot (2026-11-20) for the backlog's step 4 (_Our own notes app and the journal_): a proposal to agree with the author before any code. Nothing here is built.
+Written on autopilot (2026-11-20) for the backlog's step 4 (_Our own notes app and the journal_): a proposal, agreed with the author on 2026-11-20 (§6).
 
 ## 1. What there is today
 
@@ -74,10 +74,10 @@ Kept in the browser like everything else (IndexedDB `notes`, in backups). Later,
 4. **Templates and rolls in pages.**
 5. Queries, canvas, graphs: only if asked for.
 
-## 6. To decide with the author
+## 6. Decided with the author (2026-11-20)
 
-1. The journal in Campaign's **Log** first (and later a view in Notes), or an app of its own from the start?
-2. Moments copied into the campaign's journal (they outlive the trip, at the cost of space), or read from trips while they exist?
-3. Lonelog: export only, as proposed, or reading it back too?
-4. Notes: worth building now, or the journal alone first and Notes after the other real systems (step 5)?
-5. A trip with no campaign (Travel's quick trips) keeps only its own journal, as today?
+1. The journal in Campaign's **Log** first; a view in Notes, or an app of its own, later.
+2. Moments **copied** into the campaign's journal as they're played (Claude's recommendation, taken on the user's go-ahead).
+3. Lonelog: **export only**.
+4. **The journal first** (phases 1–2), **Notes after the other real systems** (step 5 of the backlog's order).
+5. A trip with no campaign keeps only its own journal, as today.
