@@ -563,6 +563,10 @@ export const es: Messages = {
     keepInRosterTip:
       'Guarda esta hoja en el plantel (la aplicación Personajes) como un personaje con el nombre del token, enlazado con él: luego podrá llevarse a otros mapas y viajes.',
     openInCharacters: vocabulary.es.roster.open,
+    portraitOf: 'Retrato de {name}',
+    showPicture: 'Mostrar su imagen',
+    showPictureHelp:
+      'Dibuja el token con el retrato de su hoja en lugar de su icono, recortado a su disco, en el mapa y en lo que exportes o imprimas.\n• El retrato se elige aquí, o en Personajes cuando la hoja es de un personaje del plantel; uno del bestiario muestra la imagen de su plantilla hasta que tenga la suya.\n• Sin retrato (o sin hoja) el token conserva su icono.\n• Las imágenes viven en la biblioteca de imágenes de este navegador: un mapa enviado a otra persona muestra el icono.',
     removeSheet: 'Quitarle la hoja',
     confirmNoSheet: '¿Quitar la hoja de este token y todo lo que hay en ella?',
     confirmParty: '¿Convertir «{name}» en el grupo? «{old}» pasa a ser un personaje jugador.',

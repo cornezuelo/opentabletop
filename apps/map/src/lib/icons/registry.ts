@@ -5,8 +5,9 @@ import {
   iconMatches as matchesIcon,
   type BuiltinIcon,
 } from '@open-tabletop/ui-kit/icons'
+import { characterPicture } from '@open-tabletop/character-ui'
 import { getLocale } from '../i18n/index.svelte'
-import type { MapAsset } from '@open-tabletop/map'
+import type { MapAsset, MapToken } from '@open-tabletop/map'
 
 // The bundled icons are shared (ui-kit); what's Map's own is its imported images.
 export {
@@ -39,6 +40,15 @@ export function iconImage(iconId: string, assets: MapAsset[]): IconImage | null 
   const asset = assetId ? assets.find((a) => a.id === assetId) : undefined
   return asset ? { url: asset.dataUrl, tintable: false } : null
 }
+
+/**
+ * The library picture a token draws in place of its icon (**Show its picture**): its sheet's
+ * portrait, else its template's; undefined when it's off, or there's no sheet or picture.
+ */
+export const tokenPicture = (token: MapToken): string | undefined =>
+  token.showPicture && token.character
+    ? characterPicture({ ...token.character, id: token.id, name: token.name })
+    : undefined
 
 /** The icon's name in the UI's language ("stone-bridge" → "stone bridge", "puente de piedra"). */
 export const iconLabel = (icon: BuiltinIcon): string => labelOf(icon, getLocale())

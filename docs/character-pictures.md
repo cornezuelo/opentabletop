@@ -55,7 +55,7 @@ No image editing (crop, filters) beyond the automatic shrink; no galleries or se
 - a. **512 px**, WebP.
 - b. **The party gets a picture too** (a banner for the Company), on its own sheet's card. Built 2026-11-20: a banner slot on top of the party's sheet (a trip's **The party**, a roster party's page), kept as its `picture`, flown over the party's band in a fight.
 - c. **Images from the notes app** wait until the notes integration is taken up; nice to have if SilverBullet and Obsidian can really serve them, not a priority.
-- d. **Tokens opt in**, one by one (**Show its picture**).
+- d. **Tokens opt in**, one by one (**Show its picture**). Built 2026-11-20: a token with a sheet has a portrait slot in its panel (its sheet's, else its template's picture) and **Show its picture**, drawn clipped to its disc on the map, in exports and prints. Copies a trip makes (those present) keep their icons.
 - e. **Not a priority**: the work in course comes first.
 - f. **Asked 2026-10-29, to fold in when this is taken up:** zoom and crop before the picture is shrunk, and basic operations (rotate, flip, perhaps brightness), in the browser; and pictures on more than characters: items (optional), POIs, perhaps factions, bestiary templates and the party. It points to a store of pictures not tied to characters (see §8).
 

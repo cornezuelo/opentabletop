@@ -236,6 +236,11 @@ export interface MapToken {
   /** Show the name under the token. */
   showName?: boolean
   nameStyle?: CaptionOverride
+  /**
+   * Draw its sheet's picture (its portrait, else its template's) in place of its icon, clipped
+   * to its disc; without a sheet or a picture, its icon.
+   */
+  showPicture?: boolean
   /** External note path (same providers as hexes). */
   note?: string
   /**

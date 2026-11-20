@@ -14,7 +14,7 @@ import {
   Texture,
   TilingSprite,
 } from 'pixi.js'
-import { isTyping } from '@open-tabletop/ui-kit'
+import { cachedImage, isTyping, onPictureChange } from '@open-tabletop/ui-kit'
 import type { MapChange } from '../commands/command'
 import {
   type CaptionKind,
@@ -34,13 +34,14 @@ import {
   roofedBuildings,
   mapWalls,
   type MapPath,
+  type MapToken,
   nodeFlags,
   partyToken,
   type PathKind,
   tokenColor,
   TRAVEL_PATH_KINDS,
 } from '@open-tabletop/map'
-import { iconImage } from '../icons/registry'
+import { iconImage, tokenPicture } from '../icons/registry'
 import { catmullRom, catmullRomClosed, dashes, densify, offsetPolyline, wobble } from './curves'
 import { colorOf, generator, mix, paint, seedOf, shade, stampSpots } from './painters'
 import { roofPlan } from './roofs'
@@ -292,6 +293,11 @@ export class MapRenderer {
   private panFrom: Point | null = null
   private spaceHeld = false
   private disposers: (() => void)[] = []
+  /**
+   * Tokens' pictures of the image library by id (**Show its picture**): their data URL once
+   * read, null while reading or when there's none.
+   */
+  private pictureUrls = new Map<string, string | null>()
   /** Texts are drawn again for the zoom once it stops, not on every step of it. */
   private resolutionTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -334,6 +340,14 @@ export class MapRenderer {
     app.stage.addChild(this.world, this.cursorMark)
     this.drawCursorMark()
     this.disposers.push(editor.onChange((change) => this.handleChange(change)))
+    // A picture changed (here or in another app): read again, and the tokens drawn again.
+    this.disposers.push(
+      onPictureChange((id) => {
+        if (!this.pictureUrls.delete(id)) return
+        this.iconTextures.forget(`picture:${id}`)
+        this.drawTokens()
+      }),
+    )
     this.bindInput()
     setLabelHitTest((world) => this.labelAt(world))
     setTokenHitTest((world, copies) => this.tokenAt(world, copies))
@@ -1708,6 +1722,17 @@ export class MapRenderer {
           width: Math.max(1.5, r * 0.1),
           color: SELECT_COLOR,
         })
+      // Its picture fills its disc, inside the ring; until it's read (or without one), its icon.
+      const picture = this.tokenPictureTexture(token)
+      if (picture) {
+        const sprite = new Sprite(picture)
+        sprite.anchor.set(0.5)
+        const size = r * (token.halo !== false ? 1.9 : 2)
+        sprite.setSize(size, size)
+        sprite.position.set(at.x, at.y)
+        this.tokenLayer.addChild(sprite)
+        continue
+      }
       const image = iconImage(token.iconId, assets)
       const texture = image && this.iconTextures.get(token.iconId, image.url)
       if (!texture) continue
@@ -1729,6 +1754,25 @@ export class MapRenderer {
         this.caption('tokenNames', placed.token.name, at.x, at.y, {}, placed.token.nameStyle),
       )
     }
+  }
+
+  /**
+   * A token's picture clipped round, when it shows one and it has been read; else null, and
+   * once it's read the tokens are drawn again.
+   */
+  private tokenPictureTexture(token: MapToken): Texture | null {
+    const id = tokenPicture(token)
+    if (!id) return null
+    if (!this.pictureUrls.has(id)) {
+      this.pictureUrls.set(id, null)
+      void cachedImage(id).then((image) => {
+        if (!this.pictureUrls.has(id)) return
+        this.pictureUrls.set(id, image?.data ?? null)
+        if (image) this.drawTokens()
+      })
+    }
+    const url = this.pictureUrls.get(id)
+    return url ? this.iconTextures.get(`picture:${id}`, url, 'disc') : null
   }
 
   /**
@@ -2140,7 +2184,7 @@ export class MapRenderer {
     for (const child of this.textureLayer.removeChildren()) child.destroy()
     const own = mapStyle().texture
     const url = own && styleImage(own.image)
-    const texture = own && url && this.iconTextures.get(`texture:${own.image}`, url, true)
+    const texture = own && url && this.iconTextures.get(`texture:${own.image}`, url, 'natural')
     if (!own || !texture) return
     const b = this.gridLines.getLocalBounds()
     const pad = editor.map.grid.hexSize * 0.8

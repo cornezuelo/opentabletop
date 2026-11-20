@@ -46,6 +46,7 @@ interface TokenLook {
   halo?: boolean
   showName?: boolean
   nameStyle?: MapToken['nameStyle']
+  showPicture?: boolean
   /** Older files' key-values (a party token's are no longer kept); characters use `stats`. */
   fields?: MapToken['fields']
 }
@@ -57,6 +58,7 @@ const lookOf = (token: MapToken): TokenLook => ({
   ...(token.halo === false && { halo: false }),
   ...(token.showName && { showName: true }),
   ...(token.nameStyle && { nameStyle: token.nameStyle }),
+  ...(token.showPicture && { showPicture: true }),
 })
 
 /** Fields as an OTD `stats` record, and back. */
@@ -107,6 +109,7 @@ function tokenOf(c: OtdCharacter, mapId: string): Record<string, unknown> | null
     halo: look.halo,
     showName: look.showName,
     nameStyle: look.nameStyle,
+    showPicture: look.showPicture,
     note: c.noteRef,
     fields: look.fields ?? fromStats(c.stats as Record<string, unknown> | undefined),
     ...(tokenCharacter(c) && { character: tokenCharacter(c) }),

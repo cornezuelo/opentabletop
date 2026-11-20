@@ -499,6 +499,7 @@ function parseTokens(value: unknown): MapToken[] {
       ...(typeof t.color === 'string' && COLOR.test(t.color) && { color: t.color }),
       ...(t.halo === false && { halo: false }),
       ...(t.showName === true && { showName: true }),
+      ...(t.showPicture === true && { showPicture: true }),
       ...(isRecord(t.nameStyle) && {
         nameStyle: parseCaptionOverride(t.nameStyle, DEFAULT_CAPTIONS.tokenNames),
       }),

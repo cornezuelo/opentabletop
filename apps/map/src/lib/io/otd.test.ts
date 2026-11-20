@@ -156,7 +156,15 @@ describe('play state in OTD', () => {
         iconId: 'game:mounted-knight',
         color: '#8b1e1e',
       },
-      { id: 'goblins0001', name: 'Goblins', kind: 'enemy', hex: '1,1', iconId: 'game:goblin-head' },
+      {
+        id: 'goblins0001',
+        name: 'Goblins',
+        kind: 'enemy',
+        hex: '1,1',
+        iconId: 'game:goblin-head',
+        // Drawn with its sheet's picture: the choice is kept, the picture stays its sheet's.
+        showPicture: true,
+      },
       {
         id: 'ilyana00001',
         name: 'Ilyana',

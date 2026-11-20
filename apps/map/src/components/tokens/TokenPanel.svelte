@@ -3,6 +3,7 @@
   import { createCharacter } from '@open-tabletop/character-engine'
   import {
     CharacterCard,
+    characterPicture,
     characterUrl,
     roster,
     SheetOrigin,
@@ -21,7 +22,7 @@
   } from '@open-tabletop/session'
   import { tokenPlace } from '../../lib/play/roster'
   import { activeSystem } from '../../lib/play/systems'
-  import { InfoTip, confirmAction, tooltip } from '@open-tabletop/ui-kit'
+  import { ImageSlot, InfoTip, confirmAction, tooltip } from '@open-tabletop/ui-kit'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { RemoveTokenCommand } from '../../lib/commands/tokens'
   import { getLocale, t, t as tr, type MessageKey } from '../../lib/i18n/index.svelte'
@@ -320,6 +321,43 @@
           where={t('play.systemWhere')}
         />
         {#if selected.character}
+          {@const picture = characterPicture({
+            ...selected.character,
+            id: selected.id,
+            name: selected.name,
+          })}
+          <!-- Its portrait (its sheet's, or its template's), drawn on the map in place of its icon when asked. -->
+          <div class="picture">
+            <ImageSlot
+              image={picture}
+              shape="portrait"
+              size={64}
+              locale={getLocale()}
+              title={t('tokens.portraitOf', {
+                name: selected.name || t(`tokens.kinds.${selected.kind}` as MessageKey),
+              })}
+              onchange={(id) =>
+                update((tk) => {
+                  if (!tk.character) return tk
+                  const character = { ...tk.character }
+                  if (id) character.picture = id
+                  else delete character.picture
+                  return { ...tk, character }
+                })}
+            />
+            <label class="check">
+              <input
+                type="checkbox"
+                checked={!!selected.showPicture}
+                disabled={!picture && !selected.showPicture}
+                onchange={(e) => {
+                  const show = e.currentTarget.checked
+                  update((tk) => ({ ...tk, showPicture: show || undefined }))
+                }}
+              />
+              {t('tokens.showPicture')}<InfoTip markdown={t('tokens.showPictureHelp')} />
+            </label>
+          </div>
           <CharacterCard
             sheet={(own ?? sheet).def}
             catalogues={activeSystem().items}
@@ -589,6 +627,12 @@
 
   a.link {
     text-decoration: none;
+  }
+
+  .picture {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .from {
