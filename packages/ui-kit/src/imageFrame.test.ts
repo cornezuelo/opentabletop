@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { clampFraming, coverScale, FRAMED, framedDraw, imageName, MAX_ZOOM } from './imageFrame'
+import {
+  clampFace,
+  clampFraming,
+  coverScale,
+  faceBox,
+  faceOf,
+  faceRect,
+  FRAMED,
+  framedDraw,
+  imageName,
+  MAX_ZOOM,
+  ownAspect,
+} from './imageFrame'
 
 const wide = { width: 1000, height: 500 }
 
@@ -28,14 +40,17 @@ describe('framing a picture', () => {
     expect(clampFraming(wide, 1, { ...FRAMED, turns: 5 }).turns).toBe(1)
   })
 
-  it('is kept at most 512 on its longer side, in its frame’s shape', () => {
+  it('is kept at most 2048 on its longer side, in its frame’s shape', () => {
     const big = { width: 4000, height: 3000 }
-    expect(framedDraw(big, 1, FRAMED)).toMatchObject({ width: 512, height: 512 })
-    expect(framedDraw(big, 3, FRAMED)).toMatchObject({ width: 512, height: 171 })
+    expect(framedDraw(big, 1, FRAMED)).toMatchObject({ width: 2048, height: 2048 })
+    expect(framedDraw(big, 3, FRAMED)).toMatchObject({ width: 2048, height: 683 })
     const square = framedDraw(big, 1, FRAMED)
-    // The picture's 3000 px of height drawn into 512.
-    expect(square.scale).toBeCloseTo(512 / 3000)
-    expect(square.centerX).toBe(256)
+    // The picture's 3000 px of height drawn into 2048.
+    expect(square.scale).toBeCloseTo(2048 / 3000)
+    expect(square.centerX).toBe(1024)
+    // Uploaded whole, in its own proportions: nothing cut.
+    expect(framedDraw(big, ownAspect(big), FRAMED)).toMatchObject({ width: 2048, height: 1536 })
+    expect(ownAspect(big, 1)).toBeCloseTo(0.75)
   })
 
   it('isn’t blown up past its own pixels', () => {
@@ -62,5 +77,32 @@ describe('framing a picture', () => {
   it('names a picture after its file', () => {
     expect(imageName('old_tobin-portrait.PNG')).toBe('old tobin portrait')
     expect(imageName('Kael.webp')).toBe('Kael')
+  })
+})
+
+describe('a picture’s face', () => {
+  const tall = { width: 400, height: 1000 }
+
+  it('is the whole shorter side, at the top of a tall picture and the middle of a wide one', () => {
+    expect(faceOf(tall)).toEqual({ x: 0.5, y: 0.2, size: 1 })
+    expect(faceOf(wide)).toEqual({ x: 0.5, y: 0.5, size: 1 })
+    expect(faceOf({ ...tall, face: { x: 0.5, y: 0.5, size: 0.5 } })).toEqual({
+      x: 0.5,
+      y: 0.5,
+      size: 0.5,
+    })
+  })
+
+  it('stays within the picture, no smaller than a tenth', () => {
+    expect(clampFace(tall, { x: 0, y: 2, size: 0.5 })).toEqual({ x: 0.25, y: 0.9, size: 0.5 })
+    expect(clampFace(tall, { x: 0.5, y: 0.5, size: 0 }).size).toBe(1)
+    expect(clampFace(tall, { x: 0.5, y: 0.5, size: 0.01 }).size).toBe(0.1)
+  })
+
+  it('is placed in a square box, and drawn from its own pixels', () => {
+    // Half the width, centred at the top quarter: the picture is twice the box wide.
+    const face = { x: 0.5, y: 0.25, size: 0.5 }
+    expect(faceBox(tall, face)).toEqual({ width: 200, left: -50, top: -75 })
+    expect(faceRect(tall, face)).toEqual({ x: 100, y: 150, side: 200 })
   })
 })

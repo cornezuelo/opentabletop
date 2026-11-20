@@ -215,6 +215,8 @@ export const image = z
     height: z.number().optional(),
     tags: z.array(z.string()).optional(),
     use: z.string().optional(),
+    /** Its face: the square shown where it's small (centre as fractions, side of the shorter). */
+    face: z.object({ x: z.number(), y: z.number(), size: z.number().positive() }).optional(),
   })
   .loose()
 

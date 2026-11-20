@@ -31,7 +31,12 @@
 
   const TEXT = {
     en: {
-      add: { portrait: 'Add a portrait', banner: 'Add a banner', item: 'Add a picture' },
+      add: {
+        portrait: 'Add a portrait',
+        banner: 'Add a banner',
+        item: 'Add a picture',
+        map: 'Add a picture',
+      },
       change: 'Change',
     },
     es: {
@@ -39,14 +44,15 @@
         portrait: 'Añadir un retrato',
         banner: 'Añadir un estandarte',
         item: 'Añadir una imagen',
+        map: 'Añadir una imagen',
       },
       change: 'Cambiar',
     },
   }
   const text = $derived(locale === 'es' ? TEXT.es : TEXT.en)
-  const DEFAULT_SIZE = { portrait: 96, banner: 64, item: 40 }
+  const DEFAULT_SIZE = { portrait: 96, banner: 64, item: 40, map: 96 }
   const height = $derived(size ?? DEFAULT_SIZE[shape])
-  const width = $derived(Math.round(height * IMAGE_SHAPES[shape]))
+  const width = $derived(Math.round(height * (IMAGE_SHAPES[shape] || 1.5)))
   /** Its own words fit only where there's room for them. */
   const roomy = $derived(height >= 64)
 
@@ -63,7 +69,7 @@
   onclick={() => (picking = true)}
 >
   {#if image}
-    <Picture id={image} alt={title}>
+    <Picture id={image} alt={title} face={IMAGE_SHAPES[shape] === 1}>
       <span class="plus" aria-hidden="true">+</span>
     </Picture>
     {#if roomy && !disabled}<span class="change">{text.change}</span>{/if}

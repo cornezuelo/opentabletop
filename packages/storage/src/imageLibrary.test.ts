@@ -30,6 +30,10 @@ describe('images in the library', () => {
     const entry = imageEntry(wolf)
     expect(entry).toMatchObject({ id: 'wolf', name: 'Grey wolf', modified: wolf.modified })
     expect(readImage(entry)).toEqual(wolf)
+    // Its face, when one was framed; one that isn't a face is left out.
+    const faced = { ...wolf, face: { x: 0.5, y: 0.2, size: 0.4 } }
+    expect(readImage(imageEntry(faced))).toEqual(faced)
+    expect(readImage(imageEntry({ ...wolf, face: { x: 0.5, y: 0.2, size: 0 } }))).toEqual(wolf)
   })
 
   it('an entry that isn’t one (broken, of a newer format, not a picture) is none', () => {

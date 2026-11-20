@@ -92,3 +92,15 @@ Pieces: ui-kit's `ImagePicker` (the dialog, both steps) and `ImageSlot` (the slo
 **Decided with the user (2026-11-20):** (a) **Used by** waits for the library's own screen; the picker's **Delete…** asks first without it. (b) The slots' sizes, Claude's choice: a portrait 96 px square on a character's card (32 px in lists and a fight's faces), a banner 3:1, an item's 40 px square. (c) Tokens keep §7 d: one by one, **Show its picture**.
 
 **Items and templates (built 2026-11-20, Claude's choice):** a pack holds no pictures (§6), so the picture of an item of a catalogue or of a template is the user's, kept in this browser by the definition's reference (`items:<catalogue>#<id>`, `templates:<bestiary>#<id>`, `opentabletop.definitionPictures`) and chosen in Packs' forms (and a template's page in Characters), even for a bundled pack's. A held item may have its own (`ItemState.picture`, chosen on its row) and a copy its own portrait; each shows its own, else its definition's, as a token's icon does.
+
+## 10. Whole pictures, and the face as a framing of one (asked and decided with the user 2026-11-20)
+
+The user: "no veo por qué no íbamos a querer subir un landscape o una foto a cuerpo entero a lo alto para POIs, los PJs, etc.… está bien el retrato para representar un personaje en los combates, tokens, etc. pero hay que pensar más a lo grande". What §9 built kept every picture cropped to its slot's shape at 512 px; from now on:
+
+1. **A picture is kept whole**: any proportion (landscape, a full-length figure upright), up to **2048 px** on its longer side (WebP). An upload is turned or flipped and only cropped if the user wants; it isn't forced into the slot's shape.
+2. **Its face is a framing of it, not a copy**: one square framing per picture (where the face is and how close), kept with the picture in the library and chosen in the picker (**Frame the face**); the middle when none is chosen. That's what is drawn small: a fight's cards and order, tokens, lists.
+3. **Shown whole**: on a character's card at its own proportions (with a height limit), a click opens it full size; templates and items too; **POIs and cells get a picture** (their panel, and Play when the party arrives); the party's banner becomes a landscape picture.
+4. **A picture under the map** takes the same: whole and large.
+5. What exists keeps working: a 512 px square portrait is a whole picture that happens to be square, its face the whole of it.
+
+A mockup of the character's card with its whole picture and of **Frame the face** is agreed first, then built.

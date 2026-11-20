@@ -109,12 +109,20 @@ export { busy, whileBusy } from './busy'
 export { default as SideCount } from './SideCount.svelte'
 export { portal } from './portal'
 export { default as ImagePicker } from './ImagePicker.svelte'
+export { default as WholePicture } from './WholePicture.svelte'
 export { default as ImageSlot } from './ImageSlot.svelte'
 export { default as Picture } from './Picture.svelte'
 export {
   clampFraming,
   framedDraw,
   IMAGE_MAX_SIDE,
+  ownAspect,
+  clampFace,
+  faceOf,
+  faceBox,
+  faceRect,
+  MIN_FACE,
+  type ImageFace,
   IMAGE_SHAPES,
   imageName,
   type Framing,

@@ -24,6 +24,20 @@ export interface ImageData {
   tags: string[]
   /** What it was added for (`portrait`, `icon`, `banner`…), to offer it there first. */
   use?: string
+  /**
+   * Its face, the square shown where it's small (docs/character-pictures.md §10): its centre as
+   * fractions of its width and height, its side as a fraction of its shorter side. Absent: the
+   * apps' own (ui-kit's `faceOf`).
+   */
+  face?: { x: number; y: number; size: number }
+}
+
+/** A picture's face as kept, if it is one. */
+function readFace(value: unknown): ImageData['face'] {
+  if (!isRecord(value)) return undefined
+  const { x, y, size } = value
+  const ok = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
+  return ok(x) && ok(y) && ok(size) && size > 0 ? { x, y, size } : undefined
 }
 
 /** An image of the library: its entry's id, name and date, and its data. */
@@ -63,6 +77,7 @@ export function readImage(entry: LibraryEntry): LibraryImage | undefined {
     height: n(raw.height),
     tags: Array.isArray(raw.tags) ? raw.tags.filter((t): t is string => typeof t === 'string') : [],
     ...(typeof raw.use === 'string' && { use: raw.use }),
+    ...(readFace(raw.face) && { face: readFace(raw.face) }),
   }
 }
 
@@ -146,6 +161,7 @@ export function carriedImages(raw: unknown): CarriedImage[] {
           ? image.tags.filter((t): t is string => typeof t === 'string')
           : [],
         ...(typeof image.use === 'string' && { use: image.use }),
+        ...(readFace(image.face) && { face: readFace(image.face) }),
       },
     ]
   })

@@ -39,7 +39,7 @@
     {/if}
   {/snippet}
   {#if picture}
-    <span class="portrait"><Picture id={picture}>{@render drawn()}</Picture></span>
+    <span class="portrait"><Picture id={picture} face>{@render drawn()}</Picture></span>
   {:else}
     {@render drawn()}
   {/if}

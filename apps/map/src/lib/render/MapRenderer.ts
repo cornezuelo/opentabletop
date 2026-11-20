@@ -14,7 +14,7 @@ import {
   Texture,
   TilingSprite,
 } from 'pixi.js'
-import { cachedImage, isTyping, onPictureChange } from '@open-tabletop/ui-kit'
+import { cachedImage, faceOf, faceRect, isTyping, onPictureChange } from '@open-tabletop/ui-kit'
 import type { MapChange } from '../commands/command'
 import {
   type CaptionKind,
@@ -50,7 +50,7 @@ import { hatchStrokes, shadowStrips, stippleDots, type WallSide } from './dungeo
 import { placeBetween, placeOnCell, symbolShapes, type Placement } from './symbols'
 import { pathRuns, routePoints, type FollowedPath, type PathVertex } from './pathGeometry'
 import { connectionsNow, unseenInPlay } from '../play/connections'
-import { IconTextures } from './IconTextures'
+import { IconTextures, type Crop } from './IconTextures'
 import { glyphShade } from './glyphs'
 import { mapStyle, styleImage } from '../styles'
 import { mapFocus } from './focus'
@@ -297,7 +297,7 @@ export class MapRenderer {
    * Tokens' pictures of the image library by id (**Show its picture**): their data URL once
    * read, null while reading or when there's none.
    */
-  private pictureUrls = new Map<string, string | null>()
+  private pictureUrls = new Map<string, { url: string; face: Crop } | null>()
   /** Texts are drawn again for the zoom once it stops, not on every step of it. */
   private resolutionTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -1767,12 +1767,16 @@ export class MapRenderer {
       this.pictureUrls.set(id, null)
       void cachedImage(id).then((image) => {
         if (!this.pictureUrls.has(id)) return
-        this.pictureUrls.set(id, image?.data ?? null)
+        this.pictureUrls.set(
+          id,
+          image ? { url: image.data, face: faceRect(image, faceOf(image)) } : null,
+        )
         if (image) this.drawTokens()
       })
     }
-    const url = this.pictureUrls.get(id)
-    return url ? this.iconTextures.get(`picture:${id}`, url, 'disc') : null
+    // Its face (docs/character-pictures.md §10), clipped round.
+    const read = this.pictureUrls.get(id)
+    return read ? this.iconTextures.get(`picture:${id}`, read.url, 'disc', read.face) : null
   }
 
   /**

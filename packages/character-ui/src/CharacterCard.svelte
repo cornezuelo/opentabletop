@@ -14,7 +14,14 @@
     type Display,
     type Sheet,
   } from '@open-tabletop/character-engine'
-  import { ImageSlot, InfoTip, SuggestInput, TagInput, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    ImageSlot,
+    InfoTip,
+    SuggestInput,
+    TagInput,
+    tooltip,
+    WholePicture,
+  } from '@open-tabletop/ui-kit'
   import { characterValueView, levelValue, valueView } from './display'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
@@ -83,6 +90,9 @@
   const t = translator(() => locale)
   /** The token's icons shown, to choose one. */
   let choosingToken = $state(false)
+  /** A named character's picture shows whole (a party's is its banner). */
+  const pictured = $derived(named && !banner)
+  let pictureAspect = $state<number>()
   const where = $derived(path ?? `characters.${character.id}`)
   /** A sheet's text; without one, the id made readable. */
   const text = (value: Parameters<typeof sheetText>[0], fallback = '') =>
@@ -217,215 +227,235 @@
       onchange={setPicture}
     />
   {/if}
-  {#if named}
-    <!-- Its portrait beside its name and face: a picture of the shared library. -->
-    <div class="head">
-      {#if !banner}
-        <ImageSlot
+  <!-- Its picture whole (docs/character-pictures.md §10): beside the rest when upright and
+  there's room, on top when it's wide. -->
+  <div class="layout" class:pictured class:wide={pictured && (pictureAspect ?? 1) > 1.2}>
+    {#if pictured}
+      <div class="picture">
+        <WholePicture
           image={character.picture}
           shape="portrait"
           {locale}
           {disabled}
+          maxHeight={(pictureAspect ?? 1) > 1.2 ? 200 : 320}
+          onaspect={(aspect) => (pictureAspect = aspect)}
           title={t('portraitOf', { name: character.name ?? character.id })}
           onchange={setPicture}
         />
-      {/if}
-      <div class="head-fields">
-        <label class="field name">
-          <span>{t('name')}</span>
-          <input
-            type="text"
-            value={character.name ?? ''}
-            placeholder={character.id}
-            {disabled}
-            onchange={(e) =>
-              onchange({ ...character, name: e.currentTarget.value.trim() || undefined })}
-          />
-        </label>
-        <!-- Its face where it's shown small: its own token's icon, chosen here when wanted. -->
-        <details class="token" bind:open={choosingToken}>
-          <summary
-            ><Face
-              name={character.name ?? character.id}
-              icon={character.token?.icon}
-              picture={characterPicture(character)}
-            /><span>{t('token')}<InfoTip markdown={t('tokenHelp')} /></span></summary
-          >
-          {#if choosingToken}
-            {#await import('@open-tabletop/ui-kit/icons') then { IconPicker }}
-              <IconPicker
-                value={character.token?.icon}
-                none
-                {locale}
-                label={t('token')}
-                onchange={(icon) => {
-                  const next = { ...character }
-                  if (icon) next.token = { icon }
-                  else delete next.token
-                  onchange(next)
-                }}
-              />
-            {/await}
-          {/if}
-        </details>
       </div>
-    </div>
-  {/if}
-
-  <div class="groups">
-    {#each groups as { group, ids } (group)}
-      <section class="group">
-        {#if group}
-          {@const about = text(sheet.groups?.[group]?.description)}
-          <h4 class="subhead">
-            {text(sheet.groups?.[group]?.name, group)}{#if about}<InfoTip markdown={about} />{/if}
-          </h4>
-        {/if}
-        <div class="values">
-          {#each ids as id (id)}
-            {@const view = viewOf(id)}
-            <div class="field" class:wide={WIDE.includes(view.display)}>
-              <span>{text(sheet.values[id].name, id)}<InfoTip markdown={valueHelp(id)} /></span>
-              <!-- Its base, what it reads now beside it, and why on a click. -->
-              <div class="reads">
-                <ValueControl
-                  {view}
-                  label={text(sheet.values[id].name, id)}
-                  {locale}
-                  disabled={disabled || isMadeOf(sheet, id)}
-                  onset={(v) => setValue(id, v)}
-                />
-                <ValueBreakdown {sheet} {character} {id} {locale} {catalogues} />
-              </div>
-            </div>
-          {/each}
+    {/if}
+    <div class="body">
+      {#if named}
+        <div class="head">
+          <div class="head-fields">
+            <label class="field name">
+              <span>{t('name')}</span>
+              <input
+                type="text"
+                value={character.name ?? ''}
+                placeholder={character.id}
+                {disabled}
+                onchange={(e) =>
+                  onchange({ ...character, name: e.currentTarget.value.trim() || undefined })}
+              />
+            </label>
+            <!-- Its face where it's shown small: its own token's icon, chosen here when wanted. -->
+            <details class="token" bind:open={choosingToken}>
+              <summary
+                ><Face
+                  name={character.name ?? character.id}
+                  icon={character.token?.icon}
+                  picture={characterPicture(character)}
+                /><span>{t('token')}<InfoTip markdown={t('tokenHelp')} /></span></summary
+              >
+              {#if choosingToken}
+                {#await import('@open-tabletop/ui-kit/icons') then { IconPicker }}
+                  <IconPicker
+                    value={character.token?.icon}
+                    none
+                    {locale}
+                    label={t('token')}
+                    onchange={(icon) => {
+                      const next = { ...character }
+                      if (icon) next.token = { icon }
+                      else delete next.token
+                      onchange(next)
+                    }}
+                  />
+                {/await}
+              {/if}
+            </details>
+          </div>
         </div>
-      </section>
-    {/each}
-  </div>
+      {/if}
 
-  {#if Object.keys(sheet.conditions).length}
-    <div class="field">
-      <span>{t('conditions')}</span>
-      <div class="conditions">
-        {#each Object.keys(sheet.conditions) as id (id)}
-          <label
-            class="condition"
-            class:on={id in character.conditions}
-            class:auto={holdsByItself(sheet, id)}
-          >
-            <input
-              type="checkbox"
-              checked={id in character.conditions}
-              disabled={disabled || holdsByItself(sheet, id)}
-              onchange={(e) => setCondition(id, e.currentTarget.checked)}
-            />
-            <span
-              >{text(sheet.conditions[id].name, id)}<InfoTip markdown={conditionHelp(id)} /></span
-            >
-            {#if character.conditions[id]?.left !== undefined}
-              <small class="left">{t('left', { n: character.conditions[id].left })}</small>
+      <div class="groups">
+        {#each groups as { group, ids } (group)}
+          <section class="group">
+            {#if group}
+              {@const about = text(sheet.groups?.[group]?.description)}
+              <h4 class="subhead">
+                {text(sheet.groups?.[group]?.name, group)}{#if about}<InfoTip
+                    markdown={about}
+                  />{/if}
+              </h4>
             {/if}
-          </label>
+            <div class="values">
+              {#each ids as id (id)}
+                {@const view = viewOf(id)}
+                <div class="field" class:wide={WIDE.includes(view.display)}>
+                  <span>{text(sheet.values[id].name, id)}<InfoTip markdown={valueHelp(id)} /></span>
+                  <!-- Its base, what it reads now beside it, and why on a click. -->
+                  <div class="reads">
+                    <ValueControl
+                      {view}
+                      label={text(sheet.values[id].name, id)}
+                      {locale}
+                      disabled={disabled || isMadeOf(sheet, id)}
+                      onset={(v) => setValue(id, v)}
+                    />
+                    <ValueBreakdown {sheet} {character} {id} {locale} {catalogues} />
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </section>
         {/each}
       </div>
-    </div>
-  {/if}
 
-  {#if kinds.length}
-    <div class="field">
-      <span>{t('relations')}<InfoTip markdown={t('relationsHelp', { path: where })} /></span>
-      {#each character.relations as r (`${r.kind}|${r.to}`)}
-        <div class="relation">
-          <span class="kind"
-            >{text(
-              sheet.relations[r.kind]?.name,
-              r.kind,
-            )}{#if text(sheet.relations[r.kind]?.description)}<InfoTip
-                markdown={text(sheet.relations[r.kind]?.description)}
-              />{/if}</span
-          >
-          <span class="to">{targetName(r.to)}</span>
-          {#if sheet.relations[r.kind]?.value}
-            {@const looks = sheet.relations[r.kind].value!}
-            <span class="relation-value">
-              <ValueControl
-                view={valueView(looks, r.value ?? 0, { min: looks.min, max: looks.max }, locale)}
-                label={t('relationValue')}
-                {locale}
-                {disabled}
-                onset={(v) => setRelationValue(r.to, r.kind, v)}
-              />
-            </span>
-          {/if}
+      {#if Object.keys(sheet.conditions).length}
+        <div class="field">
+          <span>{t('conditions')}</span>
+          <div class="conditions">
+            {#each Object.keys(sheet.conditions) as id (id)}
+              <label
+                class="condition"
+                class:on={id in character.conditions}
+                class:auto={holdsByItself(sheet, id)}
+              >
+                <input
+                  type="checkbox"
+                  checked={id in character.conditions}
+                  disabled={disabled || holdsByItself(sheet, id)}
+                  onchange={(e) => setCondition(id, e.currentTarget.checked)}
+                />
+                <span
+                  >{text(sheet.conditions[id].name, id)}<InfoTip
+                    markdown={conditionHelp(id)}
+                  /></span
+                >
+                {#if character.conditions[id]?.left !== undefined}
+                  <small class="left">{t('left', { n: character.conditions[id].left })}</small>
+                {/if}
+              </label>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      {#if kinds.length}
+        <div class="field">
+          <span>{t('relations')}<InfoTip markdown={t('relationsHelp', { path: where })} /></span>
+          {#each character.relations as r (`${r.kind}|${r.to}`)}
+            <div class="relation">
+              <span class="kind"
+                >{text(
+                  sheet.relations[r.kind]?.name,
+                  r.kind,
+                )}{#if text(sheet.relations[r.kind]?.description)}<InfoTip
+                    markdown={text(sheet.relations[r.kind]?.description)}
+                  />{/if}</span
+              >
+              <span class="to">{targetName(r.to)}</span>
+              {#if sheet.relations[r.kind]?.value}
+                {@const looks = sheet.relations[r.kind].value!}
+                <span class="relation-value">
+                  <ValueControl
+                    view={valueView(
+                      looks,
+                      r.value ?? 0,
+                      { min: looks.min, max: looks.max },
+                      locale,
+                    )}
+                    label={t('relationValue')}
+                    {locale}
+                    {disabled}
+                    onset={(v) => setRelationValue(r.to, r.kind, v)}
+                  />
+                </span>
+              {/if}
+              {#if !disabled}
+                <button
+                  class="icon"
+                  aria-label={t('unrelate')}
+                  use:tooltip={t('unrelate')}
+                  onclick={() => change({ type: 'unrelate', to: r.to, kind: r.kind })}>×</button
+                >
+              {/if}
+            </div>
+          {/each}
           {#if !disabled}
-            <button
-              class="icon"
-              aria-label={t('unrelate')}
-              use:tooltip={t('unrelate')}
-              onclick={() => change({ type: 'unrelate', to: r.to, kind: r.kind })}>×</button
+            <form
+              class="relation new"
+              onsubmit={(e) => {
+                e.preventDefault()
+                relate()
+              }}
             >
+              <select
+                aria-label={t('relationKind')}
+                value={newKind || kinds[0]}
+                onchange={(e) => (newKind = e.currentTarget.value)}
+              >
+                {#each kinds as kind (kind)}<option value={kind}
+                    >{text(sheet.relations[kind].name, kind)}</option
+                  >{/each}
+              </select>
+              <SuggestInput
+                label={t('relationTo')}
+                placeholder={t('relationToPlaceholder')}
+                value={newTo}
+                list={targets
+                  .filter((x) => x.ref !== `character:${character.id}`)
+                  .map((x) => x.label)}
+                onchange={(v) => (newTo = v)}
+              />
+              <button type="submit">{t('relate')}</button>
+            </form>
           {/if}
         </div>
-      {/each}
-      {#if !disabled}
-        <form
-          class="relation new"
-          onsubmit={(e) => {
-            e.preventDefault()
-            relate()
-          }}
-        >
-          <select
-            aria-label={t('relationKind')}
-            value={newKind || kinds[0]}
-            onchange={(e) => (newKind = e.currentTarget.value)}
-          >
-            {#each kinds as kind (kind)}<option value={kind}
-                >{text(sheet.relations[kind].name, kind)}</option
-              >{/each}
-          </select>
-          <SuggestInput
-            label={t('relationTo')}
-            placeholder={t('relationToPlaceholder')}
-            value={newTo}
-            list={targets.filter((x) => x.ref !== `character:${character.id}`).map((x) => x.label)}
-            onchange={(v) => (newTo = v)}
-          />
-          <button type="submit">{t('relate')}</button>
-        </form>
       {/if}
-    </div>
-  {/if}
 
-  {#if sheet.items || character.items?.length}
-    <div class="field">
-      <span>{t('items.title')}<InfoTip markdown={t('items.help', { path: where })} /></span>
-      <ItemList
-        {sheet}
-        {character}
-        {catalogues}
-        {locale}
-        {disabled}
-        path={where}
-        {usable}
-        {onuse}
-        onaction={change}
-      />
-    </div>
-  {/if}
+      {#if sheet.items || character.items?.length}
+        <div class="field">
+          <span>{t('items.title')}<InfoTip markdown={t('items.help', { path: where })} /></span>
+          <ItemList
+            {sheet}
+            {character}
+            {catalogues}
+            {locale}
+            {disabled}
+            path={where}
+            {usable}
+            {onuse}
+            onaction={change}
+          />
+        </div>
+      {/if}
 
-  <div class="field">
-    <span>{t('tags')}<InfoTip markdown={t('tagsHelp')} /></span>
-    <TagInput
-      label={t('tags')}
-      value={character.tags}
-      choices={tagChoices}
-      placeholder={t('tagsPlaceholder')}
-      removeLabel={t('removeTag')}
-      {disabled}
-      onchange={setTags}
-    />
+      <div class="field">
+        <span>{t('tags')}<InfoTip markdown={t('tagsHelp')} /></span>
+        <TagInput
+          label={t('tags')}
+          value={character.tags}
+          choices={tagChoices}
+          placeholder={t('tagsPlaceholder')}
+          removeLabel={t('removeTag')}
+          {disabled}
+          onchange={setTags}
+        />
+      </div>
+    </div>
   </div>
 </div>
 
@@ -434,6 +464,29 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    container-type: inline-size;
+  }
+
+  .layout,
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .picture {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Upright, beside the rest when the card is wide enough. */
+  @container (min-width: 560px) {
+    .layout.pictured:not(.wide) {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
   }
 
   .head {

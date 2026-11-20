@@ -6,6 +6,9 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Every app**: pictures are kept **whole**, in their own proportions (a landscape, a full-length figure upright), up to 2048 px, no longer cut to a square of 512; **Frame the face** chooses the square shown where a picture is small (lists, a fight's cards and order, a trip's Party tab, a map's token).
+- **Characters, Travel and Map**: a character's card shows its picture whole, beside its values (or above them when it's wide), a click shows it full size.
+
 - **Every app**: **Your images…** in the app switcher shows the image library on its own: every picture you added, those nothing uses apart (**Not used**), renamed, tagged or deleted there, each with what uses it (**Used by**: a character, an item it holds, a trip, a map, a pack's item or template); deleting a picture anywhere says first what uses it.
 
 ## [0.76.0] - 2026-11-20

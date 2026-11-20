@@ -4,12 +4,83 @@
  * shape into the image library. Plain numbers here (tested); the canvas is `imageFile`'s.
  */
 
-/** The shapes a picture is kept in, by what it's for: its frame's width over its height. */
-export const IMAGE_SHAPES = { portrait: 1, banner: 3, item: 1 } as const
+/**
+ * The shapes of the slots a picture shows in, by what it's for: width over height. A picture is
+ * kept whole, in its own proportions (§10); a slot shows it covered, a square one by its face.
+ */
+export const IMAGE_SHAPES = { portrait: 1, banner: 3, item: 1, map: 1.5 } as const
 export type ImageShape = keyof typeof IMAGE_SHAPES
 
-/** The longer side of a kept picture, at most (decided 2026-10-23). */
-export const IMAGE_MAX_SIDE = 512
+/** The longer side of a kept picture, at most (512 until 2026-11-20; whole pictures since, §10). */
+export const IMAGE_MAX_SIDE = 2048
+
+/** The frame a picture is uploaded in: its own proportions, as it's turned. */
+export function ownAspect(image: { width: number; height: number }, turns = 0): number {
+  const turned = turnedSize(image.width, image.height, turns)
+  return turned.width / Math.max(1, turned.height)
+}
+
+/**
+ * A picture's face (§10): the square drawn where it's shown small (a fight, a token, a list),
+ * by its centre as fractions of the picture's width and height and its side as a fraction of
+ * the picture's shorter side.
+ */
+export interface ImageFace {
+  x: number
+  y: number
+  size: number
+}
+
+/** The smallest face, as a fraction of the shorter side. */
+export const MIN_FACE = 0.1
+
+/**
+ * A face kept within the picture: from `MIN_FACE` to the whole shorter side, its square never
+ * out of the picture.
+ */
+export function clampFace(image: { width: number; height: number }, face: ImageFace): ImageFace {
+  const short = Math.min(image.width, image.height)
+  const size = Math.min(1, Math.max(MIN_FACE, face.size || 1))
+  const halfX = (size * short) / 2 / Math.max(1, image.width)
+  const halfY = (size * short) / 2 / Math.max(1, image.height)
+  const within = (v: number, half: number) => Math.min(1 - half, Math.max(half, v))
+  return { x: within(face.x, halfX), y: within(face.y, halfY), size }
+}
+
+/**
+ * A picture's face: the one chosen, else the whole shorter side, in the middle of a wide picture
+ * and at the top of a tall one (where a full-length figure's head is).
+ */
+export function faceOf(image: { width: number; height: number; face?: ImageFace }): ImageFace {
+  return clampFace(image, image.face ?? { x: 0.5, y: 0, size: 1 })
+}
+
+/**
+ * How a picture is placed in a square box to show its face, as percentages of the box: its
+ * width, and its left and top edges (for an `<img>` absolutely placed).
+ */
+export function faceBox(
+  image: { width: number; height: number },
+  face: ImageFace,
+): { width: number; left: number; top: number } {
+  const short = Math.max(1, Math.min(image.width, image.height))
+  // Box widths per picture pixel.
+  const scale = 1 / (face.size * short)
+  return {
+    width: image.width * scale * 100,
+    left: 50 - face.x * image.width * scale * 100,
+    top: 50 - face.y * image.height * scale * 100,
+  }
+}
+
+/** A picture's face in its own pixels: the square to draw. */
+export function faceRect(
+  image: { width: number; height: number },
+  face: ImageFace,
+): { x: number; y: number; side: number } {
+  const side = face.size * Math.min(image.width, image.height)
+  return { x: face.x * image.width - side / 2, y: face.y * image.height - side / 2, side }
+}
 
 /** How a picture sits in its frame. */
 export interface Framing {

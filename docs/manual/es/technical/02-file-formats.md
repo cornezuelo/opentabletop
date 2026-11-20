@@ -106,7 +106,7 @@ Mapa guarda los mapas como **paquetes OTD**, un formato JSON pensado para compar
 }
 ```
 
-**Imágenes.** Un fichero lleva las imágenes de la biblioteca que nombran sus datos (el retrato de un personaje, el estandarte de un grupo, la `picture` de un objeto) en `images`, para que se vean en cualquier sitio: cada una con su `id` (el que nombran sus datos), `name`, `data` (la imagen, una URL de datos de una imagen, nunca SVG), `width`, `height`, `tags` y para qué se añadió, `use`. El **Guardar** de Mapa y el **Exportar** de Personajes las escriben; al abrir el fichero (**Abrir** de Mapa, **Importar…** de Personajes) se añaden las que la biblioteca de este navegador no tiene, y las que tiene se quedan como están:
+**Imágenes.** Un fichero lleva las imágenes de la biblioteca que nombran sus datos (el retrato de un personaje, el estandarte de un grupo, la `picture` de un objeto) en `images`, para que se vean en cualquier sitio: cada una con su `id` (el que nombran sus datos), `name`, `data` (la imagen, una URL de datos de una imagen, nunca SVG), `width`, `height`, `tags`, para qué se añadió, `use`, y su cara, `face`, si se encuadró (el cuadro que se dibuja donde sale en pequeño: su centro `x` e `y` en fracciones del ancho y el alto, su `size` en fracción del lado más corto). El **Guardar** de Mapa y el **Exportar** de Personajes las escriben; al abrir el fichero (**Abrir** de Mapa, **Importar…** de Personajes) se añaden las que la biblioteca de este navegador no tiene, y las que tiene se quedan como están:
 
 ```json
 {

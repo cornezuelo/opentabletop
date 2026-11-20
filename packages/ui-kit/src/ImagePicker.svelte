@@ -15,7 +15,12 @@
     clampFraming,
     coverScale,
     FRAMED,
+    clampFace,
+    faceBox,
+    faceOf,
     IMAGE_SHAPES,
+    ownAspect,
+    type ImageFace,
     imageName,
     MAX_ZOOM,
     type Framing,
@@ -41,6 +46,7 @@
     shape,
     current,
     onpick,
+    start = 'choose',
   }: {
     open?: boolean
     locale: string
@@ -51,12 +57,14 @@
     /** The picture there now, chosen when it opens. */
     current?: string
     onpick?: (id: string | undefined) => void
+    /** Opened on the face of `current` (**Frame the face**), not on the choosing. */
+    start?: 'choose' | 'face'
   } = $props()
 
   const TEXT = {
     en: {
       search: 'Search by name or tag',
-      forUse: { portrait: 'Portraits', banner: 'Banners', item: 'Items' },
+      forUse: { portrait: 'Portraits', banner: 'Banners', item: 'Items', map: 'Maps' },
       all: 'All',
       unused: 'Not used',
       upload: 'Upload an image…',
@@ -92,11 +100,19 @@
         portrait: 'Remove the portrait',
         banner: 'Remove the banner',
         item: 'Remove the picture',
+        map: 'Remove the picture',
       },
       cancel: 'Cancel',
       use: 'Use this one',
-      frameTitle: 'Frame the picture',
-      frameHint: 'Drag it to place it; the wheel or the slider zooms.',
+      frameTitle: 'The picture',
+      frameHint:
+        'It’s kept whole: turn or flip it if it needs it; zoom in (the wheel or the slider) and drag it only to cut it.',
+      face: 'Frame the face',
+      faceTitle: 'The face of {name}',
+      faceHint:
+        'The square shown where the picture is small (a fight, a token, a list): drag it onto the face, the wheel or the slider makes it bigger or smaller.',
+      faceSize: 'Size',
+      faceSave: 'Keep the face',
       zoom: 'Zoom',
       left: 'Turn left',
       right: 'Turn right',
@@ -111,7 +127,7 @@
     },
     es: {
       search: 'Buscar por nombre o etiqueta',
-      forUse: { portrait: 'Retratos', banner: 'Estandartes', item: 'Objetos' },
+      forUse: { portrait: 'Retratos', banner: 'Estandartes', item: 'Objetos', map: 'Mapas' },
       all: 'Todas',
       unused: 'Sin usar',
       upload: 'Subir una imagen…',
@@ -147,11 +163,19 @@
         portrait: 'Quitar el retrato',
         banner: 'Quitar el estandarte',
         item: 'Quitar la imagen',
+        map: 'Quitar la imagen',
       },
       cancel: 'Cancelar',
       use: 'Usar esta',
-      frameTitle: 'Encuadrar la imagen',
-      frameHint: 'Arrástrala para colocarla; la rueda o la barra acercan.',
+      frameTitle: 'La imagen',
+      frameHint:
+        'Se guarda entera: gírala o voltéala si hace falta; acércala (la rueda o la barra) y arrástrala solo para recortarla.',
+      face: 'Encuadrar la cara',
+      faceTitle: 'La cara de {name}',
+      faceHint:
+        'El cuadro que se ve donde la imagen sale en pequeño (un combate, un token, una lista): arrástralo hasta la cara; la rueda o la barra lo agrandan o lo encogen.',
+      faceSize: 'Tamaño',
+      faceSave: 'Guardar la cara',
       zoom: 'Zoom',
       left: 'Girar a la izquierda',
       right: 'Girar a la derecha',
@@ -170,11 +194,12 @@
     s.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k] ?? ''))
   /** The library's own screen: nothing to choose. */
   const managing = $derived(!onpick)
-  const aspect = $derived(shape ? IMAGE_SHAPES[shape] : 1)
+  /** The tiles' shape: the slot's, a landscape for pictures kept as they are. */
+  const tileAspect = $derived(shape ? IMAGE_SHAPES[shape] || 1.5 : 1)
 
   let dialog = $state<HTMLDialogElement>()
   let fileInput = $state<HTMLInputElement>()
-  let step = $state<'choose' | 'frame'>('choose')
+  let step = $state<'choose' | 'frame' | 'face'>('choose')
   let images = $state<LibraryImage[]>([])
   let query = $state('')
   let scope = $state<'use' | 'all' | 'unused'>('use')
@@ -222,6 +247,8 @@
       void load().then(() => {
         // Pictures for this use first; all of them when there are none.
         scope = !managing && images.some((i) => i.use === shape) ? 'use' : 'all'
+        const now = start === 'face' && images.find((i) => i.id === current)
+        if (now) startFace(now)
       })
       dialog.showModal()
     }
@@ -282,10 +309,12 @@
   const sourceSize = $derived(
     source ? { width: source.naturalWidth, height: source.naturalHeight } : { width: 1, height: 1 },
   )
+  /** The frame's shape: the picture's own as it's turned (it's kept whole, §10). */
+  const aspect = $derived(ownAspect(sourceSize, framing.turns))
   /** The frame's size on screen. */
-  const frameWidth = $derived(aspect > 1 ? 480 : 300)
+  const frameWidth = $derived(Math.round(Math.min(480, 360 * aspect)))
   const frameHeight = $derived(Math.round(frameWidth / aspect))
-  const previewWidth = $derived(aspect > 1 ? 192 : 96)
+  const previewWidth = $derived(Math.round(Math.min(192, 120 * aspect)))
 
   async function upload(file: File | undefined) {
     if (!file) return
@@ -354,10 +383,69 @@
       selected = image.id
       scope = 'use'
       query = ''
-      step = 'choose'
+      // A face shown small (a portrait, an item): framed next.
+      if (shape && IMAGE_SHAPES[shape] === 1) startFace(image)
+      else step = 'choose'
     } catch (e) {
       showToast(fill(text.failed, { error: String(e) }), 'error')
     }
+  }
+
+  // Framing a picture's face (§10): the picture still, the square moved over it.
+  let face = $state<ImageFace>({ x: 0.5, y: 0.5, size: 1 })
+  let faceImage = $state<LibraryImage>()
+  /** The face's box on screen: the picture fitted in it. */
+  const FACE_BOX = { width: 480, height: 360 }
+  const faceFit = $derived.by(() => {
+    if (!faceImage) return { width: 1, height: 1 }
+    const scale = Math.min(FACE_BOX.width / faceImage.width, FACE_BOX.height / faceImage.height)
+    return {
+      width: Math.round(faceImage.width * scale),
+      height: Math.round(faceImage.height * scale),
+    }
+  })
+  /** The face's square on screen, in px of the fitted picture. */
+  const faceSquare = $derived.by(() => {
+    const side = face.size * Math.min(faceFit.width, faceFit.height)
+    return {
+      side,
+      left: face.x * faceFit.width - side / 2,
+      top: face.y * faceFit.height - side / 2,
+    }
+  })
+  const facePreview = $derived(faceImage ? faceBox(faceImage, face) : undefined)
+
+  function startFace(image: LibraryImage) {
+    faceImage = image
+    face = faceOf(image)
+    step = 'face'
+  }
+  const setFace = (next: Partial<ImageFace>) => {
+    if (faceImage) face = clampFace(faceImage, { ...face, ...next })
+  }
+  let faceDrag: { x: number; y: number } | undefined
+  function onfacedown(e: PointerEvent) {
+    faceDrag = { x: e.clientX, y: e.clientY }
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  }
+  function onfacemove(e: PointerEvent) {
+    if (!faceDrag) return
+    setFace({
+      x: face.x + (e.clientX - faceDrag.x) / faceFit.width,
+      y: face.y + (e.clientY - faceDrag.y) / faceFit.height,
+    })
+    faceDrag = { x: e.clientX, y: e.clientY }
+  }
+  function onfacewheel(e: WheelEvent) {
+    e.preventDefault()
+    setFace({ size: face.size * Math.exp(e.deltaY * 0.0015) })
+  }
+  async function keepFace() {
+    if (faceImage) {
+      const kept = images.find((i) => i.id === faceImage!.id) ?? faceImage
+      await save(kept, { face: { ...face } })
+    }
+    step = 'choose'
   }
 
   function onpaste(e: ClipboardEvent) {
@@ -376,7 +464,7 @@
   aria-label={title}
   oncancel={(e) => {
     e.preventDefault()
-    if (step === 'frame') step = 'choose'
+    if (step !== 'choose') step = 'choose'
     else close()
   }}
   onclose={() => {
@@ -439,7 +527,7 @@
               onclick={() => (selected = image.id)}
               ondblclick={() => !managing && pick(image.id)}
             >
-              <span class="thumb" style:aspect-ratio={aspect}
+              <span class="thumb" style:aspect-ratio={tileAspect}
                 ><img src={image.data} alt="" draggable="false" /></span
               >
               <span class="tile-name">{image.name}</span>
@@ -453,7 +541,10 @@
             <div class="large" style:aspect-ratio={chosen.width / chosen.height}>
               <img src={chosen.data} alt="" draggable="false" />
             </div>
-            <p class="hint">{fill(text.size, { width: chosen.width, height: chosen.height })}</p>
+            <p class="hint">
+              {fill(text.size, { width: chosen.width, height: chosen.height })}
+              · <button class="link" onclick={() => startFace(chosen)}>{text.face}</button>
+            </p>
             <label class="field">
               <span>{text.name}</span>
               <input
@@ -507,6 +598,67 @@
             >{text.use}</button
           >
         {/if}
+      </div>
+    {:else if step === 'face' && faceImage}
+      <h2>{fill(text.faceTitle, { name: faceImage.name })}</h2>
+      <p class="hint">{text.faceHint}</p>
+      <div class="framing">
+        <div
+          class="whole"
+          style:width="{faceFit.width}px"
+          style:height="{faceFit.height}px"
+          role="presentation"
+          onwheel={onfacewheel}
+        >
+          <img src={faceImage.data} alt="" draggable="false" />
+          <div
+            class="face-square"
+            style:width="{faceSquare.side}px"
+            style:height="{faceSquare.side}px"
+            style:left="{faceSquare.left}px"
+            style:top="{faceSquare.top}px"
+            role="presentation"
+            onpointerdown={onfacedown}
+            onpointermove={onfacemove}
+            onpointerup={() => (faceDrag = undefined)}
+          ></div>
+        </div>
+        <div class="controls">
+          <label class="field">
+            <span>{text.faceSize}</span>
+            <input
+              type="range"
+              min="0.1"
+              max="1"
+              step="0.01"
+              value={face.size}
+              oninput={(e) => setFace({ size: Number(e.currentTarget.value) })}
+            />
+          </label>
+          <div class="field">
+            <span>{text.preview}</span>
+            <div class="previews">
+              {#each [96, 32] as side (side)}
+                <span class="face-preview" style:width="{side}px" style:height="{side}px">
+                  {#if facePreview}
+                    <img
+                      src={faceImage.data}
+                      alt=""
+                      draggable="false"
+                      style:width="{facePreview.width}%"
+                      style:left="{facePreview.left}%"
+                      style:top="{facePreview.top}%"
+                    />
+                  {/if}
+                </span>
+              {/each}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-buttons">
+        <button onclick={() => (step = 'choose')}>{text.back}</button>
+        <button class="primary" onclick={() => void keepFace()}>{text.faceSave}</button>
       </div>
     {:else}
       <h2>{text.frameTitle}</h2>
@@ -812,10 +964,59 @@
     flex-direction: column;
     gap: 14px;
     min-width: 200px;
+    max-width: 320px;
   }
 
   .controls input[type='range'] {
     accent-color: var(--accent);
+  }
+
+  .whole {
+    position: relative;
+    flex: none;
+    overflow: hidden;
+    background: var(--canvas-bg);
+    border-radius: 4px;
+  }
+
+  .whole > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .face-square {
+    position: absolute;
+    border: 2px solid var(--accent);
+    border-radius: 2px;
+    /* What's outside the face, darkened. */
+    box-shadow: 0 0 0 9999px rgb(0 0 0 / 55%);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .face-square:active {
+    cursor: grabbing;
+  }
+
+  .previews {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .face-preview {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+  }
+
+  .face-preview img {
+    position: absolute;
+    max-width: none;
   }
 
   .turns {

@@ -10,6 +10,13 @@ const RASTER_SIZE = 256
  */
 export type TextureFit = 'contain' | 'natural' | 'disc'
 
+/** The square of an image a disc shows (a picture's face), in the image's pixels. */
+export interface Crop {
+  x: number
+  y: number
+  side: number
+}
+
 /**
  * Loads icon images into Pixi textures once and caches them by key. `get` returns
  * null while loading and calls `onLoad` once the textures asked for are available: once
@@ -23,12 +30,12 @@ export class IconTextures {
 
   constructor(private onLoad: () => void) {}
 
-  get(key: string, url: string, fit: TextureFit = 'contain'): Texture | null {
+  get(key: string, url: string, fit: TextureFit = 'contain', crop?: Crop): Texture | null {
     const texture = this.textures.get(key)
     if (texture) return texture
     if (!this.loading.has(key)) {
       this.loading.add(key)
-      rasterize(url, fit)
+      rasterize(url, fit, crop)
         .then((t) => {
           this.textures.set(key, t)
           this.loaded = true
@@ -56,7 +63,7 @@ export class IconTextures {
   }
 }
 
-async function rasterize(url: string, fit: TextureFit): Promise<Texture> {
+async function rasterize(url: string, fit: TextureFit, crop?: Crop): Promise<Texture> {
   const image = new Image()
   image.src = url
   await image.decode()
@@ -76,6 +83,10 @@ async function rasterize(url: string, fit: TextureFit): Promise<Texture> {
     ctx.beginPath()
     ctx.arc(RASTER_SIZE / 2, RASTER_SIZE / 2, RASTER_SIZE / 2, 0, Math.PI * 2)
     ctx.clip()
+    if (crop) {
+      ctx.drawImage(image, crop.x, crop.y, crop.side, crop.side, 0, 0, RASTER_SIZE, RASTER_SIZE)
+      return Texture.from(canvas)
+    }
   }
   // Contain: keep aspect ratio, centered; a disc is covered, cropping the longer side.
   const ratio = (fit === 'disc' ? Math.max : Math.min)(

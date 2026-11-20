@@ -106,7 +106,7 @@ Map saves maps as **OTD bundles**, a JSON format meant to be shared between tool
 }
 ```
 
-**Pictures.** A file carries the pictures of the image library its data names (a character's portrait, a party's banner, an item's `picture`) in `images`, so it shows them anywhere: each with its `id` (the one its data names), `name`, `data` (the picture, a data URL of an image, never SVG), `width`, `height`, `tags` and what it was added for, `use`. Map's **Save** and the Characters app's **Export** write them; opening the file (Map's **Open**, Characters' **Import…**) adds those this browser's library hasn't got, and leaves the ones it has as they are:
+**Pictures.** A file carries the pictures of the image library its data names (a character's portrait, a party's banner, an item's `picture`) in `images`, so it shows them anywhere: each with its `id` (the one its data names), `name`, `data` (the picture, a data URL of an image, never SVG), `width`, `height`, `tags`, what it was added for, `use`, and its face, `face`, when one was framed (the square drawn where it's small: its centre `x` and `y` as fractions of the width and height, its `size` as a fraction of the shorter side). Map's **Save** and the Characters app's **Export** write them; opening the file (Map's **Open**, Characters' **Import…**) adds those this browser's library hasn't got, and leaves the ones it has as they are:
 
 ```json
 {
