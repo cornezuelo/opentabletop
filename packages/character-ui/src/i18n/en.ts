@@ -2,9 +2,10 @@ import { vocabulary } from '@open-tabletop/ui-kit'
 
 export const en = {
   name: 'Name',
+  portraitOf: '{name}’s portrait',
   token: 'Token',
   tokenHelp:
-    'How the character is drawn small: its face on a fight’s cards and in the round’s order (later, its own token on a map). Choose an icon; with none, a copy of a template has its template’s, anyone else their initial.',
+    'How the character is drawn small: its face on a fight’s cards and in the round’s order (later, its own token on a map). Its portrait when it has one; else choose an icon; with none, a copy of a template has its template’s, anyone else their initial.',
   values: 'Values',
   conditions: 'Conditions',
   tags: 'Tags',

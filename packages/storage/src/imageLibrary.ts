@@ -79,6 +79,9 @@ export const allImages = images.all
 export const updateImages = images.update
 /** Calls `listener` whenever another window or app changes an image. */
 export const onImageChange = images.onChange
+/** Like `onImageChange`, and for this page's own writes too (what shows a picture by id). */
+export const onAnyImageChange: typeof images.onAnyChange = (listener) =>
+  images.onAnyChange(listener)
 
 /** Keeps an image in the library. */
 export const putImage = (image: LibraryImage) => images.put(imageEntry(image))

@@ -76,7 +76,7 @@ What it costs or changes:
 
 **Proposal**: yes, it makes sense, and portraits are the moment to do it: the `pictures` store of section 2 becomes this `images` library from the start (same work, more general), the picker is the one place to upload, and Map's icons and glyphs move to it next. A screen to manage the library (in the Characters app? a small app of its own? in Preferences?) is the open question; the picker alone is enough to start.
 
-## 9. The shared picker (proposed 2026-11-20, agreed with the user the same day)
+## 9. The shared picker (proposed 2026-11-20, agreed with the user the same day; built for portraits the same day)
 
 Built so far (on autopilot, no UI): the library's store (storage's `images`, one IndexedDB store, each image a shrunk data URL with its size, tags and what it was added for) and its place in backups. What the user sees is all still to agree; a mockup was drawn for it (three frames), described here.
 

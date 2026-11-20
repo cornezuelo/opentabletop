@@ -955,6 +955,7 @@ export function characterToOtd(
         ...(member.places && { places: member.places }),
         ...(member.template && { template: member.template }),
         ...(member.token && { token: member.token }),
+        ...(member.picture && { picture: member.picture }),
         ...(member.rolled && { rolled: member.rolled }),
       },
     },
@@ -995,6 +996,7 @@ export function characterFromOtd(raw: {
     ...(typeof (own.token as { icon?: unknown } | undefined)?.icon === 'string' && {
       token: { icon: (own.token as { icon: string }).icon },
     }),
+    ...(typeof own.picture === 'string' && { picture: own.picture }),
     ...(typeof own.rolled === 'object' &&
       own.rolled !== null &&
       !Array.isArray(own.rolled) && {

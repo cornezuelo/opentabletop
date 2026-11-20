@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte'
-  import { roster, sheetText } from '@open-tabletop/character-ui'
+  import { Face, roster, sheetText } from '@open-tabletop/character-ui'
   import { systemName } from '@open-tabletop/session'
   import {
     appUrl,
@@ -111,6 +111,7 @@
         systemTitle: found ? systemName(found.system, locale) : t('nav.otherSheets'),
         sheet: character.sheet,
         sheetTitle: found ? sheetName(found.def.name, character.sheet) : character.sheet,
+        face: { picture: character.picture, icon: character.token?.icon },
       }
     }),
   )
@@ -245,7 +246,13 @@
           {#if group.sheets.length > 1}<h4 class="overline">{sheet.title}</h4>{/if}
           <SideList>
             {#each sheet.entries as e (e.key)}
-              <SideItem name={e.name} selected={selected === e.key} onclick={() => open(e)} />
+              <SideItem name={e.name} selected={selected === e.key} onclick={() => open(e)}>
+                {#snippet lead()}
+                  {#if e.face}<span class="face"
+                      ><Face name={e.name} icon={e.face.icon} picture={e.face.picture} /></span
+                    >{/if}
+                {/snippet}
+              </SideItem>
             {/each}
           </SideList>
         {/each}
@@ -266,6 +273,12 @@
 </Sidebar>
 
 <style>
+  /* A character's face beside its name, small. */
+  .face {
+    display: flex;
+    font-size: 10px;
+  }
+
   .side-field {
     display: flex;
     flex-direction: column;

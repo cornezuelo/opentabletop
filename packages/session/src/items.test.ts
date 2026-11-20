@@ -149,6 +149,8 @@ describe('items in a trip', () => {
     m.token = { icon: 'game:archer' }
     // What it rolled as it was made, for Roll again.
     m.rolled = { health: 4 }
+    // Its portrait, a picture of the library by id.
+    m.picture = 'a1b2c3'
     expect(characterFromOtd(characterToOtd(m))).toEqual(m)
   })
 })

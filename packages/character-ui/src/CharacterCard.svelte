@@ -14,7 +14,7 @@
     type Display,
     type Sheet,
   } from '@open-tabletop/character-engine'
-  import { InfoTip, SuggestInput, TagInput, tooltip } from '@open-tabletop/ui-kit'
+  import { ImageSlot, InfoTip, SuggestInput, TagInput, tooltip } from '@open-tabletop/ui-kit'
   import { characterValueView, levelValue, valueView } from './display'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
@@ -194,41 +194,61 @@
 
 <div class="card">
   {#if named}
-    <label class="field name">
-      <span>{t('name')}</span>
-      <input
-        type="text"
-        value={character.name ?? ''}
-        placeholder={character.id}
+    <!-- Its portrait beside its name and face: a picture of the shared library. -->
+    <div class="head">
+      <ImageSlot
+        image={character.picture}
+        shape="portrait"
+        {locale}
         {disabled}
-        onchange={(e) =>
-          onchange({ ...character, name: e.currentTarget.value.trim() || undefined })}
+        title={t('portraitOf', { name: character.name ?? character.id })}
+        onchange={(picture) => {
+          const next = { ...character }
+          if (picture) next.picture = picture
+          else delete next.picture
+          onchange(next)
+        }}
       />
-    </label>
-    <!-- Its face where it's shown small: its own token's icon, chosen here when wanted. -->
-    <details class="token" bind:open={choosingToken}>
-      <summary
-        ><Face name={character.name ?? character.id} icon={character.token?.icon} /><span
-          >{t('token')}<InfoTip markdown={t('tokenHelp')} /></span
-        ></summary
-      >
-      {#if choosingToken}
-        {#await import('@open-tabletop/ui-kit/icons') then { IconPicker }}
-          <IconPicker
-            value={character.token?.icon}
-            none
-            {locale}
-            label={t('token')}
-            onchange={(icon) => {
-              const next = { ...character }
-              if (icon) next.token = { icon }
-              else delete next.token
-              onchange(next)
-            }}
+      <div class="head-fields">
+        <label class="field name">
+          <span>{t('name')}</span>
+          <input
+            type="text"
+            value={character.name ?? ''}
+            placeholder={character.id}
+            {disabled}
+            onchange={(e) =>
+              onchange({ ...character, name: e.currentTarget.value.trim() || undefined })}
           />
-        {/await}
-      {/if}
-    </details>
+        </label>
+        <!-- Its face where it's shown small: its own token's icon, chosen here when wanted. -->
+        <details class="token" bind:open={choosingToken}>
+          <summary
+            ><Face
+              name={character.name ?? character.id}
+              icon={character.token?.icon}
+              picture={character.picture}
+            /><span>{t('token')}<InfoTip markdown={t('tokenHelp')} /></span></summary
+          >
+          {#if choosingToken}
+            {#await import('@open-tabletop/ui-kit/icons') then { IconPicker }}
+              <IconPicker
+                value={character.token?.icon}
+                none
+                {locale}
+                label={t('token')}
+                onchange={(icon) => {
+                  const next = { ...character }
+                  if (icon) next.token = { icon }
+                  else delete next.token
+                  onchange(next)
+                }}
+              />
+            {/await}
+          {/if}
+        </details>
+      </div>
+    </div>
   {/if}
 
   <div class="groups">
@@ -393,6 +413,20 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .head {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .head-fields {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
   }
 
   .token > summary {

@@ -72,6 +72,15 @@ describe('the roster', () => {
     expect(takeFromRoster(taken.roster, 'nobody', trip, 'T4')).toBeUndefined()
   })
 
+  it('takes a character’s portrait with it to a trip, and back to the roster', () => {
+    const { roster } = keepInRoster(emptyRoster(), { ...character('kael'), picture: 'p1' }, 'T1')
+    const taken = takeFromRoster(roster, 'kael', trip, 'T2')!
+    expect(taken.character.picture).toBe('p1')
+    // A new one chosen during the trip goes back with it.
+    const synced = syncToRoster(taken.roster, [{ ...taken.character, picture: 'p2' }], trip, 'T3')
+    expect(synced.characters[0].character.picture).toBe('p2')
+  })
+
   it('keeps the place’s copies and the roster in step', () => {
     let { roster } = keepInRoster(emptyRoster(), character('kael'), 'T1', trip)
     roster = keepInRoster(roster, character('mara'), 'T1').roster

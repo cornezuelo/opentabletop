@@ -229,6 +229,9 @@
   /** Each one's icon, kept once seen: one who went keeps their face to the fight's end. */
   const icons: Record<string, string> = {}
   const faceOf = (id: string) => (icons[id] ??= iconOf(id) ?? '') || undefined
+  /** Each one's portrait (a library picture's id), kept once seen as their icon is. */
+  const pictures: Record<string, string> = {}
+  const pictureOf = (id: string) => (pictures[id] ??= characterOf(id)?.picture ?? '') || undefined
   /** The one pointed at in the order: their card is marked. */
   let pointed = $state('')
   /** The one whose whole sheet is shown in the log's column, by id; '' for the log. */
@@ -339,7 +342,7 @@
               aria-current={seat.id === actorId ? 'step' : undefined}
             >
               {#snippet card()}
-                <Face name={seat.name} icon={faceOf(seat.id)} />
+                <Face name={seat.name} icon={faceOf(seat.id)} picture={pictureOf(seat.id)} />
                 <span class="who">
                   {#if seat.character}
                     <CharacterGlance
@@ -436,7 +439,7 @@
           onpointerenter={() => (pointed = f.id)}
           onpointerleave={() => (pointed = '')}
         >
-          <Face name={nameOf(f)} icon={faceOf(f.id)} />
+          <Face name={nameOf(f)} icon={faceOf(f.id)} picture={pictureOf(f.id)} />
           <span class="sr">{nameOf(f)}</span>
         </li>
       {/each}

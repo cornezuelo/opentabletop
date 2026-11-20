@@ -670,6 +670,11 @@ export interface CharacterState {
    */
   token?: { icon: string }
   /**
+   * Its portrait, by the id of a picture in the user's image library (docs/character-pictures.md):
+   * shown on its card and, where it's drawn small, instead of its token's icon.
+   */
+  picture?: string
+  /**
    * What it rolled as it was made, by value (a start of dice: `default: '{{3d6}}'`): shown,
    * and rolled again, while its values are still what they rolled (`startRolls`).
    */

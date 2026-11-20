@@ -13,6 +13,8 @@ export interface ListEntry {
   sheetTitle: string
   /** The campaign it plays in (a character's, by the trip or map it's in), if any. */
   campaign?: string
+  /** How a character is drawn small beside its name: its portrait, else its token's icon. */
+  face?: { picture?: string; icon?: string }
 }
 
 /** Which characters the list shows: the campaign being played's, all, or those in none. */

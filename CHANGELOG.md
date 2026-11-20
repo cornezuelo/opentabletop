@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Characters**: a character's **portrait**, the square beside its name: a click opens the **image library**, shared by every app (your pictures, searched by name or tag, named and tagged), where **Upload an image…**, a picture dropped or pasted, is framed first (dragged, zoomed, turned, flipped, with a preview) and kept shrunk. The portrait is the character's face in the roster's list, on a fight's cards and in the round's order, and on its card in a trip's **Party** tab.
+
 ## [0.72.0] - 2026-11-20
 
 ### Apps

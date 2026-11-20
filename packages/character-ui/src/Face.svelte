@@ -1,14 +1,16 @@
 <script lang="ts">
+  import { Picture } from '@open-tabletop/ui-kit'
   import { initialsOf } from './texts'
 
   /**
    * Someone's face where there's little room (a fight's card, a token in an order): their
-   * token's icon in a disc when they have one (`icon`, a bundled icon's id: a template's
+   * portrait in a disc when they have one (`picture`, a library picture's id), else their
+   * token's icon when they have one (`icon`, a bundled icon's id: a template's
    * `token.icon`), else their initial, a copy's number kept (`Bandit 2` → `B2`). Its colour is
    * the host's (`--face`, the accent when unsaid) and its size its font's (`font-size`). Drawn,
    * not said: whatever holds it names who it is.
    */
-  let { name, icon }: { name: string; icon?: string } = $props()
+  let { name, icon, picture }: { name: string; icon?: string; picture?: string } = $props()
 
   /** The icon's SVG, once the bundled icons are loaded (on the first face that has one). */
   let svg = $state('')
@@ -27,14 +29,21 @@
 </script>
 
 <span class="face" class:drawn={!!svg} aria-hidden="true">
-  {#if svg}
-    <!-- Bundled content only: safe to inline. -->
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html svg}
-    {#if number}<span class="number">{number}</span>{/if}
+  {#snippet drawn()}
+    {#if svg}
+      <!-- Bundled content only: safe to inline. -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html svg}
+    {:else}
+      {initialsOf(name)}
+    {/if}
+  {/snippet}
+  {#if picture}
+    <span class="portrait"><Picture id={picture}>{@render drawn()}</Picture></span>
   {:else}
-    {initialsOf(name)}
+    {@render drawn()}
   {/if}
+  {#if number && (svg || picture)}<span class="number">{number}</span>{/if}
 </span>
 
 <style>
@@ -59,6 +68,16 @@
   .face.drawn :global(svg) {
     width: 64%;
     height: 64%;
+  }
+
+  .portrait {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
   }
 
   /* A copy's number on the disc's edge. */

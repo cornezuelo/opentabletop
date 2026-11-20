@@ -5,7 +5,7 @@
   /**
    * One row of a sidebar list: a name (cut short, in full on hover), a line under it if
    * given (`detail`), and what comes after it (tags, counts), or under it with `below`, so
-   * a narrow list never cuts the name for them.
+   * a narrow list never cuts the name for them; what goes before it (`lead`: a face) too.
    */
   let {
     name,
@@ -14,6 +14,7 @@
     untitled = false,
     below = false,
     onclick,
+    lead,
     children,
   }: {
     name: string
@@ -25,12 +26,15 @@
     /** What comes after the name goes under it instead (its tags on a line of their own). */
     below?: boolean
     onclick: () => void
+    /** What comes before the name (a character's face). */
+    lead?: Snippet
     children?: Snippet
   } = $props()
 </script>
 
 <li>
   <button class:selected {onclick}>
+    {@render lead?.()}
     {#if below}
       <span class="two">
         <span class="name" class:untitled use:fullText>{name}</span>
