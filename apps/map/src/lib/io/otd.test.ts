@@ -188,6 +188,16 @@ describe('play state in OTD', () => {
           },
           oracle: { decks: {}, occurrences: { 'x/y#z': 1 }, vars: {} },
           stats: { pre: 2 },
+          // The party's sheet with its banner, a picture of the library by id.
+          party: {
+            id: 'party',
+            sheet: 'core/party',
+            values: { morale: 3 },
+            conditions: {},
+            tags: [],
+            relations: [],
+            picture: 'banner01',
+          },
           dayVars: { weather: 'clear' },
           journal: [
             {

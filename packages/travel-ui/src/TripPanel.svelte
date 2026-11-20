@@ -1145,6 +1145,7 @@
           }}
           partyName={session.party?.name ||
             (system.partySheet && sheetText(system.partySheet.def.name, locale))}
+          partyBanner={session.party?.picture}
           opening={told?.opening}
           ended={fight ? undefined : told?.ended}
           onclose={() => {
@@ -1354,6 +1355,9 @@
               path="party"
               time={session.travel.time}
               named={false}
+              banner={session.party.name
+                ? t('partySheet.namedBanner', { name: session.party.name })
+                : t('partySheet.banner')}
               onchange={editParty}
             />
           {/if}

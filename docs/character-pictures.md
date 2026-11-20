@@ -53,7 +53,7 @@ No image editing (crop, filters) beyond the automatic shrink; no galleries or se
 ## 7. Decided with the user (2026-10-23)
 
 - a. **512 px**, WebP.
-- b. **The party gets a picture too** (a banner for the Company), on its own sheet's card.
+- b. **The party gets a picture too** (a banner for the Company), on its own sheet's card. Built 2026-11-20: a banner slot on top of the party's sheet (a trip's **The party**, a roster party's page), kept as its `picture`, flown over the party's band in a fight.
 - c. **Images from the notes app** wait until the notes integration is taken up; nice to have if SilverBullet and Obsidian can really serve them, not a priority.
 - d. **Tokens opt in**, one by one (**Show its picture**).
 - e. **Not a priority**: the work in course comes first.

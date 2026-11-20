@@ -39,6 +39,7 @@
     names = (id) => id,
     targets = [],
     named = true,
+    banner,
     catalogues = [],
     tagChoices = [],
     usable,
@@ -62,6 +63,11 @@
     targets?: { ref: string; label: string }[]
     /** Whether it shows its own Name box (off where the host names it, like a map token). */
     named?: boolean
+    /**
+     * A banner on top in place of a portrait, for a sheet that stands for a group (a party): the
+     * picker's title (_The Company's banner_). Kept as its `picture`, as a portrait is.
+     */
+    banner?: string
     /** The system's item catalogues, for adding items and effects that give them. */
     catalogues?: readonly { id: string; def: Catalogue }[]
     /** Tags to suggest (those its system's characters already use: session's `tagsInUse`). */
@@ -101,6 +107,13 @@
     onchange(
       applyCharacter(sheet, character, action, { items: lookupItems([...catalogues]) }).state,
     )
+  }
+  /** Its portrait (or banner): a library picture's id, or none. */
+  function setPicture(picture: string | undefined) {
+    const next = { ...character }
+    if (picture) next.picture = picture
+    else delete next.picture
+    onchange(next)
   }
   const setValue = (id: string, value: number) =>
     change({ type: 'change', effects: { [`values.${id}`]: `=${value}` } })
@@ -193,22 +206,29 @@
 </script>
 
 <div class="card">
+  {#if banner}
+    <ImageSlot
+      image={character.picture}
+      shape="banner"
+      {locale}
+      {disabled}
+      title={banner}
+      onchange={setPicture}
+    />
+  {/if}
   {#if named}
     <!-- Its portrait beside its name and face: a picture of the shared library. -->
     <div class="head">
-      <ImageSlot
-        image={character.picture}
-        shape="portrait"
-        {locale}
-        {disabled}
-        title={t('portraitOf', { name: character.name ?? character.id })}
-        onchange={(picture) => {
-          const next = { ...character }
-          if (picture) next.picture = picture
-          else delete next.picture
-          onchange(next)
-        }}
-      />
+      {#if !banner}
+        <ImageSlot
+          image={character.picture}
+          shape="portrait"
+          {locale}
+          {disabled}
+          title={t('portraitOf', { name: character.name ?? character.id })}
+          onchange={setPicture}
+        />
+      {/if}
       <div class="head-fields">
         <label class="field name">
           <span>{t('name')}</span>

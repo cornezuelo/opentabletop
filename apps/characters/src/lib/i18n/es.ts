@@ -133,6 +133,7 @@ export const es: Messages<typeof en> = {
     notFound: 'Este personaje no está en el plantel (borrado, o en otro navegador).',
   },
   party: {
+    bannerOf: 'Estandarte de {name}',
     members: 'Miembros',
     membersHelp:
       'Los personajes del plantel que están en este grupo, en orden. Llevado a un viaje (la pestaña **Grupo** del viaje, **Del plantel** en **El grupo**), van con él, y su hoja es el grupo del viaje. Un personaje está en un solo grupo a la vez.\nMientras el grupo juega en algún sitio, ese viaje lleva la lista: sus personajes enlazados son sus miembros.',

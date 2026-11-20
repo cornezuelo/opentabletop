@@ -187,6 +187,8 @@ export const en = {
   },
   partySheet: {
     title: 'The party',
+    banner: 'The party’s banner',
+    namedBanner: '{name}’s banner',
     help: "The party itself, with its system's party sheet: what belongs to the whole party (morale, fatigue, hirelings…), whoever its characters are. Characters can join and leave; this stays.\nConditions and tables read it:\n• `party.values.morale: { gte: 3 }`\n• `party.conditions: routed`\nEffects change it:\n• `party.values.morale: -1`\n• `party.conditions.routed: true`\nA party stat made of one of its values (`from: { party: morale }`) is that value: it's edited here.",
     statsHelp:
       "The party's stats, the numbers its system's rules and tables read (`party.stats.<id>`); each says where it comes from:\n• a plain number is edited here\n• one made of the characters' values follows them (the highest, the lowest, who rolls, added up, how many): change theirs\n• one made of a value of the party's sheet (`from: { party: morale }`) is that value, in the sheet above",

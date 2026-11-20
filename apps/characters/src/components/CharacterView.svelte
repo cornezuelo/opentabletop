@@ -293,6 +293,7 @@
         tagChoices={tagsInUse(system, roster.roster)}
         locale={getLocale()}
         {targets}
+        banner={isParty ? t('party.bannerOf', { name: character.name ?? character.id }) : undefined}
         onchange={setCharacter}
       />
     {:else}

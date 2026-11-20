@@ -129,6 +129,7 @@ export const en = {
     notFound: 'This character isn’t in the roster (deleted, or in another browser).',
   },
   party: {
+    bannerOf: '{name}’s banner',
     members: 'Members',
     membersHelp:
       'The roster characters in this party, in order. Taken on a trip (the trip’s **Party** tab, **From the roster** under **The party**), they go with it, and its sheet is the trip’s party. A character is in one party at a time.\nWhile the party plays somewhere, that trip keeps the list: its linked characters are its members.',

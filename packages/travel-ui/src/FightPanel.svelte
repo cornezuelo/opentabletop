@@ -3,7 +3,7 @@
   import type { Catalogue, CharacterState, Sheet } from '@open-tabletop/character-engine'
   import type { Fighter } from '@open-tabletop/session'
   import { CharacterCard, CharacterGlance, Face } from '@open-tabletop/character-ui'
-  import { DiceTray, InfoTip, Markdown, tooltip } from '@open-tabletop/ui-kit'
+  import { DiceTray, InfoTip, Markdown, Picture, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import {
     besideEnd,
@@ -60,6 +60,7 @@
     kindOf = () => undefined,
     catalogues = [],
     partyName = '',
+    partyBanner,
     opening = [],
     ended,
     onclose,
@@ -103,6 +104,8 @@
     catalogues?: readonly { id: string; def: Catalogue }[]
     /** The party's name, over its band (_The Company_); '' for _The party_. */
     partyName?: string
+    /** The party's banner (a library picture's id), above its side's name. */
+    partyBanner?: string
     /** What started it, in words, before its first round. */
     opening?: readonly string[]
     /** How it ended, once it has: its closing card shows in place of the turn. */
@@ -323,6 +326,11 @@
 {#snippet band(side: 'party' | 'foes')}
   {#if seats.some((seat) => seat.side === side)}
     <div class={`band ${side}`}>
+      {#if side === 'party' && partyBanner}
+        <span class="banner"
+          ><Picture id={partyBanner} alt={partyName || t('fight.theParty')} /></span
+        >
+      {/if}
       <p class="overline">
         {side === 'foes' ? t('fight.foesBand') : partyName || t('fight.theParty')}
       </p>
@@ -742,6 +750,14 @@
     gap: 6px;
     align-items: center;
     padding: 4px 0;
+  }
+
+  .banner {
+    display: block;
+    width: 96px;
+    height: 32px;
+    overflow: hidden;
+    border-radius: 4px;
   }
 
   .band > .overline {
