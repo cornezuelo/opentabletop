@@ -11,10 +11,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **Every app**: **Keyboard shortcuts** (the keyboard in the top bar, or the <kbd>?</kbd> key) lists the app's keys by what they're for, and the ones every app shares; a button's tooltip shows its key as keys' caps (_Undo_ <kbd>Ctrl</kbd>+<kbd>Z</kbd>).
 - **Dice**: a roll against a number says what it needs: _You need 4 or less_ on the dice table and on a roll waiting for you, then _Success_ or _Failure_ as the dice stop; the Oracle's result card and a trip's journal say how it went (_Against 4: Success_).
 - **Oracle and Packs**: a table's **Against** (under its dice): the number its roll is compared with (at or under, under, at or over, over), so its entries go by how it went and need no range.
+- **Oracle**: a table whose dice read a value only a trip or a map has (a die's size: a map's Finds die, a piece's wear) asks for it, its box marked, and **Roll** waits for it instead of failing; rows that read the table's own roll (`dice.doubles`, `against.success`) are no longer greyed out as impossible.
 - **Map**: a tool with keys of its own lists them at the foot of its panel (**Keys of Terrain**, folded to a line, its state remembered): drawing with the keyboard, the brush's size, finishing a line… <kbd>?</kbd> now shows the shortcuts; Help is the **?** button.
 
 ### Packs
 
+- **Core**, **the Grey Marches**: their dice of a map's or a piece's value no longer pretend to be a d4 with nothing to read (`max(…, 4)` gone); the Grey Marches' worn-out armour throws away the piece its roll was for, not another of its kind (`acting.items[params.piece].count: -1`, `.count` now accepted in effects).
 - **Core** and **the Grey Marches**: _Against the odds_, _Scouting ahead_ and the locks are rolled against their number (`against:`), so you're told what you need; a table's new `against:` key, and `against.success`, `against.margin` and `against.target` for its entries.
 
 ## [0.71.0] - 2026-11-19

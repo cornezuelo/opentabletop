@@ -10,6 +10,7 @@
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
   import { DiceThrow, dicePreferences, InfoTip, isTyping, tooltip } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
+  import { resolvePath } from '@open-tabletop/variables'
   import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
   import { ruledOut } from './ruledOut'
   import { entryOdds, rollOdds } from './odds'
@@ -109,7 +110,19 @@
     roller.throwing = undefined
   }
 
+  /**
+   * What a roll reads that nobody gave (a die's size from a trip's value, with no trip): it
+   * can't be rolled without it, so it's asked for instead of failing.
+   */
+  const missing = $derived(
+    variables.filter(
+      (v) =>
+        v.needed && resolvePath(mergeContext(context, parseContext(values)), v.name) === undefined,
+    ),
+  )
+
   function roll() {
+    if (missing.length) return
     roller.run(
       def.id,
       mergeContext(context, parseContext(values)),
@@ -222,12 +235,12 @@
       {/each}
       {#each variables as variable (variable.name)}
         {@const info = ui.valueInfo(variable.name)}
-        <label class="field">
+        <label class="field" class:missing={missing.includes(variable)}>
           <span>{info.name ?? variable.name}<InfoTip markdown={valueTip(variable.name)} /></span>
           <input
             type="text"
             list={variable.suggestions.length ? `vars-${variable.name}` : undefined}
-            placeholder={known(variable.name)}
+            placeholder={known(variable.name) || (variable.needed ? t('roll.needed') : '')}
             bind:value={values[variable.name]}
           />
           {#if variable.suggestions.length}
@@ -246,8 +259,16 @@
       use:tooltip={hotkeys
         ? { text: deck ? t('roll.draw') : t('roll.roll'), keys: ROLL_KEYS }
         : undefined}
+      disabled={missing.length > 0}
       onclick={roll}>{deck ? t('roll.draw') : t('roll.roll')}</button
     >
+    {#if missing.length}
+      <span class="missing-line"
+        >{t('roll.missing', {
+          names: missing.map((v) => ui.valueInfo(v.name).name ?? v.name).join(', '),
+        })}</span
+      >
+    {/if}
     {#if deck}
       <span class="muted">{t('roll.remaining', deck)}</span>
       <button onclick={() => roller.shuffle(def.id)}>{t('roll.shuffle')}</button>
@@ -418,9 +439,25 @@
     border-color: var(--accent);
   }
 
+  /* Waiting for a value it needs: plainly not pressable. */
+  .actions button:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
   .inline {
     display: flex;
     align-items: center;
+  }
+
+  /* A value the roll needs and nobody gave: its field and what the button waits for. */
+  .field.missing input {
+    border-color: var(--warning);
+  }
+
+  .missing-line {
+    font-size: 13px;
+    color: var(--warning-text);
   }
 
   .hint {

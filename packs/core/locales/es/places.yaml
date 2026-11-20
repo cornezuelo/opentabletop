@@ -13,7 +13,7 @@ place-found:
   description: |-
     Si explorar encuentra un lugar que merece la pena marcar: con un 6, un **Hito**; con un 5, un cofre cerrado. Tira el dado de Hallazgos del mapa, un d6 que baja a d4 cuando se encuentra un hito, así que un mapa tiene uno.
 
-    **Enseña:** un resultado que crea un lugar con una plantilla (`effects: { place.pois.landmark: 1 }`); uno que pone una cosa presente que no lucha (`present.chest: 1`); un dado cuyo tamaño es un valor escalonado (`roll: '1d{{max(map.values.finds, 4)}}'`, `map.values.finds: -1`).
+    **Enseña:** un resultado que crea un lugar con una plantilla (`effects: { place.pois.landmark: 1 }`); uno que pone una cosa presente que no lucha (`present.chest: 1`); un dado cuyo tamaño es un valor escalonado (`roll: '1d{{map.values.finds}}'`, `map.values.finds: -1`), que el Oráculo pide al tirarlo sin mapa.
   entries:
     nothing: Nada que merezca la pena marcar
     chest: Un cofre cerrado

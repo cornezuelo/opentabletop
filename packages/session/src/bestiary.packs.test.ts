@@ -1407,18 +1407,19 @@ describe('the bundled packs fight in turns', () => {
       const play = { ...options, oracle: createOracleEngine({ registry, random: seeded(seed) }) }
       s = stepTrip(play, s, { type: 'action', id: 'stand' }).state
       const back = stepTrip(play, s, { type: 'action', id: 'fall-back' })
-      const lines = back.entries.filter(
-        (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'grey-marches/wear-and-tear',
-      )
-      // One roll for each piece worn, each of its own die.
-      expect(lines.length).toBe(2)
-      rolled += lines.length
-      if (worn(back.state).length < 2) {
-        // The worn one, ruined at d4, thrown away; the other still a die of its steps.
-        expect(worn(back.state).map((i) => i.key)).toEqual(['mail'])
-        expect([4, 6, 8]).toContain(worn(back.state)[0].fields.wear)
-        return
-      }
+      const before = worn(s).map((i) => i.key)
+      // One roll for each piece worn, in order, each of its own die.
+      const rolls = back.entries
+        .filter((e) => e.code === 'ROLLED' && e.data?.check === 'table.wear-and-tear')
+        .map((e) => (e.data!.rolls as { entry: string }[])[0]!.entry)
+      expect(rolls).toHaveLength(before.length)
+      rolled += rolls.length
+      // A piece ruined is the one its roll was for, thrown away by its key; the rest kept,
+      // each still a die of its steps.
+      const kept = before.filter((_, k) => rolls[k] !== 'ruined')
+      expect(worn(back.state).map((i) => i.key)).toEqual(kept)
+      for (const piece of worn(back.state)) expect([4, 6, 8]).toContain(piece.fields.wear)
+      if (kept.length < before.length) return
       s = { ...back.state, travel: { ...back.state.travel } }
     }
     expect(rolled).toBeGreaterThan(0)

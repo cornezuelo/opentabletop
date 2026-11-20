@@ -1138,7 +1138,9 @@ export function identifyItem(
  * known one, or from the catalogue when there's none; fewer from the last known ones first,
  * then the unknown), `items.<id>.unknown` how many are held unknown (given as their entry's
  * `unknown`), `items.<id>.known` how many are known (more: that many unknown identified,
- * never new ones), `items.<id>.<field>` the first one's field. `change` is already read.
+ * never new ones), `items.<id>.<field>` the first one's field, `items.<id>.count` how many of
+ * that first one (of one by its key, `items.mail-2.count`: that piece, not the last of its
+ * kind). `change` is already read.
  */
 export function itemEffect(
   items: SheetItems | undefined,

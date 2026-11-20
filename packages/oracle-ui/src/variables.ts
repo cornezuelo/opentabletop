@@ -7,6 +7,11 @@ export interface Variable {
   name: string
   /** Values seen in conditions, offered as suggestions. */
   suggestions: string[]
+  /**
+   * Read by a roll (a die's size `1d{{…}}`, a modifier, the number it's rolled against):
+   * without it the roll can't be made, so the Oracle asks for it before rolling.
+   */
+  needed?: true
 }
 
 const TEMPLATE = /\{\{\s*([\w.]+)\s*\}\}/g
@@ -20,6 +25,7 @@ const COMPARISONS = new Set(['eq', 'not', 'in', 'gt', 'gte', 'lt', 'lte', 'exist
  */
 export function contextVariables(registry: Registry, id: string): Variable[] {
   const used = new Map<string, Set<string>>()
+  const needed = new Set<string>()
   const produced = new Set<string>()
   const visited = new Set<string>()
   const use = (name: string) => {
@@ -30,6 +36,18 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
     if (typeof text !== 'string') return
     // Inline dice ({{2d6}}) are rolled, not asked for.
     for (const m of text.matchAll(TEMPLATE)) if (!isDiceTerm(m[1])) use(m[1])
+  }
+  /**
+   * A roll, or the number it's rolled against: every name it reads, even worked out
+   * (`1d{{max(map.values.finds, 4)}}`, `{{strength + 2}}`), is needed to roll it.
+   */
+  const scanRoll = (text: unknown) => {
+    if (typeof text !== 'string') return
+    for (const m of text.matchAll(/\{\{([^}]*)\}\}/g))
+      for (const name of namesIn(m[1]!)) {
+        use(name)
+        needed.add(name)
+      }
   }
   const scanCondition = (cond: unknown): void => {
     if (typeof cond !== 'object' || cond === null) return
@@ -56,14 +74,12 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
     else visit(registry.definitions.get(ref.target))
   }
   const entries = (list: EntryList) => {
-    scanText(list.roll)
+    scanRoll(list.roll)
     // A list with a roll gives its entries its total as `roll`, and what its dice show; one
     // rolled against a number, how it went (`against.*`), the number read from the context.
     if (list.roll) produced.add('roll').add('dice')
     if (list.against) {
-      // Its number may be worked out (`{{strength + 2}}`): each name it reads is asked.
-      for (const m of String(list.against.value).matchAll(/\{\{([^}]*)\}\}/g))
-        for (const name of namesIn(m[1]!)) use(name)
+      scanRoll(String(list.against.value))
       produced.add('against')
     }
     for (const e of list.entries) {
@@ -85,7 +101,7 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
         break
       case 'generator':
         for (const field of def.fields) {
-          scanText(field.roll)
+          scanRoll(field.roll)
           scanCondition(field.when)
           follow(field.ref)
           for (const value of Object.values(field.context ?? {})) scanText(value)
@@ -105,15 +121,38 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
       .filter(([name]) => !produced.has(name.split('.')[0]))
       // A whole object (party) is asked for through its values (party.stats.morale).
       .filter(([name]) => ![...used.keys()].some((other) => other.startsWith(`${name}.`)))
-      .map(([name, values]) => ({ name, suggestions: [...values].sort() }))
+      .map(([name, values]) => ({
+        name,
+        suggestions: [...values].sort(),
+        ...(needed.has(name) && { needed: true as const }),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name))
   )
 }
 
-/** Turns typed input into context values: numbers and booleans are parsed, blanks dropped. */
+/** What a part named by another value stands for when only the whole was typed. */
+const STAND_IN = 'typed'
+
+/**
+ * Turns typed input into context values: numbers and booleans are parsed, blanks dropped.
+ * A name with a part named by another (`acting.items[params.piece].wear`, as a roll reads it)
+ * is given whole: the part's name takes a stand-in, unless it was typed too.
+ */
 export function parseContext(raw: Record<string, string>): Record<string, unknown> {
   const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(raw)) {
+  const entries = Object.entries(raw)
+  // Plain names first, so a part typed by itself (`params.piece`) names the whole's.
+  entries.sort(([a], [b]) => Number(a.includes('[')) - Number(b.includes('[')))
+  const put = (key: string, parsed: unknown) => {
+    const path = key.split('.')
+    let node = out
+    for (const part of path.slice(0, -1)) {
+      if (typeof node[part] !== 'object' || node[part] === null) node[part] = {}
+      node = node[part] as Record<string, unknown>
+    }
+    node[path.at(-1)!] = parsed
+  }
+  for (const [key, value] of entries) {
     const v = value.trim()
     if (!v) continue
     const parsed = /^-?\d+(\.\d+)?$/.test(v)
@@ -122,13 +161,13 @@ export function parseContext(raw: Record<string, string>): Record<string, unknow
         ? v === 'true'
         : v
     // Dotted names nest: token.fare → { token: { fare } }, as the host's values come.
-    const path = key.split('.')
-    let node = out
-    for (const part of path.slice(0, -1)) {
-      if (typeof node[part] !== 'object' || node[part] === null) node[part] = {}
-      node = node[part] as Record<string, unknown>
-    }
-    node[path.at(-1)!] = parsed
+    const named = key.replace(/\[([^\]]+)\]/g, (_, inner: string) => {
+      const part = valueAt(out, inner.trim())
+      if (typeof part === 'string' || typeof part === 'number') return `.${part}`
+      put(inner.trim(), STAND_IN)
+      return `.${STAND_IN}`
+    })
+    put(named, parsed)
   }
   return out
 }

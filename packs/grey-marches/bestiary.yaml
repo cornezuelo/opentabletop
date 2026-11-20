@@ -417,15 +417,15 @@ name: Wear and tear
 description: |-
   A piece of armour looked over after a fight: its own wear die is rolled; on 1–2 it drops a step (a d8 to a d6), and a d4 that rolls 1–2 is ruined and thrown away.
 
-  **Shows:** a roll made once for each item worn (an action's `roll:` step with `each: params.piece`, the parameter listed by the trip as `acting.places.body.keys`); a die whose size is an item's field that steps (`1d{{max(acting.items[params.piece].wear, 4)}}`, the sheet's `wear: { steps: [4, 6, 8] }`); one item named by its key in conditions and effects (`acting.items[params.piece].wear: -1`, `acting.items[params.piece]: -1`).
-# At least a d4, so the Oracle rolls it by hand, with no piece.
-roll: '1d{{max(acting.items[params.piece].wear, 4)}}'
+  **Shows:** a roll made once for each item worn (an action's `roll:` step with `each: params.piece`, the parameter listed by the trip as `acting.places.body.keys`); a die whose size is an item's field that steps (`1d{{acting.items[params.piece].wear}}`, the sheet's `wear: { steps: [4, 6, 8] }`, asked for when rolled in the Oracle); one item named by its key in conditions and effects (`acting.items[params.piece].wear: -1`, and `acting.items[params.piece].count: -1` to throw away that piece alone).
+# The piece's own wear die; the Oracle, with no piece, asks for it.
+roll: '1d{{acting.items[params.piece].wear}}'
 entries:
   - id: ruined
     range: 1-2
     when: { 'acting.items[params.piece].wear': 4 }
     result: "{{acting.name}}'s armour is rent past mending, and thrown away"
-    effects: { 'acting.items[params.piece]': -1 }
+    effects: { 'acting.items[params.piece].count': -1 }
   - id: rent
     range: 1-2
     unless: { 'acting.items[params.piece].wear': 4 }

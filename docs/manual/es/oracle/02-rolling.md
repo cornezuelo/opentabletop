@@ -4,6 +4,8 @@ Abre una definición y pulsa **Tirar** (o **Robar** en un mazo). <kbd>Espacio</k
 
 Una tabla tirada contra un número (una habilidad, una probabilidad: [Tirada contra un número](08-dice-and-templates.md#tirada-contra-un-número)) dice en la mesa de dados lo que necesita (_Necesitas 40 o menos_) y cómo fue al pararse (_Éxito_, _Fallo_); su tarjeta de resultado lo dice bajo los dados (_Contra 40: Éxito_).
 
+Un valor que necesita una tirada y que solo tiene un viaje o un mapa (un dado cuyo tamaño es el _Dado de hallazgos_ del mapa, `1d{{map.values.finds}}`, o el desgaste de una pieza) se pide en **Contexto**, con su casilla marcada, y **Tirar** lo espera (_Para tirarla, pon: Dado de hallazgos_) en vez de fallar. Un nombre con una parte entre corchetes (`acting.items[params.piece].wear`) se da entero.
+
 Cuando tiras tus propios dados (**Quién tira los dados**, en **Preferencias**, en algo que no sea _Tira el ordenador_), **Tirar** te pone sus dados en la mano sobre una mesa en el centro de la pantalla: arrástralos y suéltalos (o pulsa la mesa) y salen volando, rebotan y ruedan hasta pararse en lo que ha salido: los dados que se pidieron (el `1d6` de la tabla), nunca los que su fila tira dentro (un `{{1d3}}` de daño), que su tarjeta muestra después; **Ver el resultado** lo muestra (**Cerrar** también). Si tira el ordenador, o con **Los dados ruedan al tirarlos** desmarcado, el resultado sale al instante.
 
 ## El resultado

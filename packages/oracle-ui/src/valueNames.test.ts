@@ -21,6 +21,10 @@ on: {}
 stats: { survival: { name: Survival, description: Added to foraging. } }
 reads:
   icon.guards: { name: Guards, description: How many guards watch the gates. }
+---
+kind: sheet
+id: map
+values: { finds: { name: Finds die, description: The die exploring rolls., steps: [4, 6] } }
 `,
   },
   {
@@ -57,6 +61,11 @@ describe('names of the values tables read', () => {
     // A value of the day the system declares, today and the day after.
     expect(en('lost').name).toBe('Lost')
     expect(en('yesterday.lost').name).toBe('Yesterday: Lost')
+    // A sheet's value, wherever it's read from.
+    expect(en('map.values.finds')).toEqual({
+      name: 'Finds die',
+      description: 'The die exploring rolls.',
+    })
     expect(en('mystery')).toEqual({})
   })
 

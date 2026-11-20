@@ -1349,7 +1349,9 @@ function undeclaredEffects(
       // An item: one of its catalogues', or a field of it the sheet declares (the party's
       // items are its own and its members': either sheet's).
       const [itemId, field] = part === 'items' ? partId.split('.', 2) : []
+      // `count`: how many of that one (a piece by its key, `items[params.piece].count: -1`).
       const fieldKnown = (f: string) =>
+        f === 'count' ||
         f === 'unknown' ||
         f === 'known' ||
         !!own?.items?.fields?.[f] ||

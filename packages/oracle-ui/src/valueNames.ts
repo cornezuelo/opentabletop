@@ -75,6 +75,12 @@ export function valueNames(
             if (isRecord(info))
               out.set(key, { name: info.name as Text, description: info.description as Text })
         }
+        // A sheet's values, read wherever a sheet is (`map.values.finds`, `acting.values.stealth`):
+        // by the value's id, under `values.<id>`.
+        if (extra.kind === 'sheet')
+          for (const [id, v] of Object.entries(isRecord(data.values) ? data.values : {}))
+            if (isRecord(v) && v.name !== undefined && !out.has(`values.${id}`))
+              out.set(`values.${id}`, { name: v.name as Text, description: v.description as Text })
         if (extra.kind === 'travel-rules')
           // The values of the day a system declares (lost…): also read as yesterday.<id>.
           for (const [id, v] of Object.entries(isRecord(data.values) ? data.values : {}))
@@ -87,6 +93,11 @@ export function valueNames(
     const fromPack = declared().get(key)
     if (fromPack?.name !== undefined)
       return { name: local(fromPack.name), description: local(fromPack.description) }
+    // A value of a sheet, wherever it's read from (`map.values.finds`: _Finds die_).
+    const sheetValue = /(?:^|\.)values\.([\w-]+)$/.exec(key)
+    const ofSheet = sheetValue && declared().get(`values.${sheetValue[1]}`)
+    if (ofSheet?.name !== undefined)
+      return { name: local(ofSheet.name), description: local(ofSheet.description) }
     const word = key.replaceAll('.', '_')
     const name = dictionary(`values.${word}`)
     if (name) return { name, description: dictionary(`valueHelp.${word}`) }

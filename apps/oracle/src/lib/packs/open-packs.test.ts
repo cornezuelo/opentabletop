@@ -27,6 +27,7 @@ import { describe, expect, it } from 'vitest'
 import { parseAllDocuments } from 'yaml'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
 import { engineFiles } from '@open-tabletop/pack-ui'
+import { contextVariables, parseContext } from '@open-tabletop/oracle-ui'
 
 describe('bundled open packs', () => {
   const { registry, diagnostics } = loadPacks(engineFiles(bundledPacks.filter((p) => !p.personal)))
@@ -53,10 +54,16 @@ describe('bundled open packs', () => {
   it('roll every definition, also translated', () => {
     const engine = createOracleEngine({ registry, random: seeded('open-packs') })
     for (const def of engine.list()) {
+      // What its rolls need (a die's size from a trip), as the Oracle asks for it: a d6.
+      const needed = Object.fromEntries(
+        contextVariables(registry, def.id)
+          .filter((v) => v.needed)
+          .map((v) => [v.name, '6']),
+      )
       const outcome =
         def.kind === 'deck'
           ? engine.draw(def.id, undefined, {}, { locale: 'es' })
-          : engine.resolve(def.id, {}, undefined, { locale: 'es' })
+          : engine.resolve(def.id, parseContext(needed), undefined, { locale: 'es' })
       expect(outcome.resolution.text, def.id).toBeTruthy()
     }
   })
