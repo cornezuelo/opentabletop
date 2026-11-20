@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.77.0] - 2026-11-20
+
 ### Packs
 
 - **Core**: every deck has its faces: the tarot with the 1909 Rider–Waite–Smith pictures (public domain), upside down when reversed; the poker and Spanish decks, the Lenormand, the runes and the dominoes drawn; the Celtic cross laid as on the table. **The Grey Marches**: the omens, the hedge-witch's cards and the way down drawn with their icons, the hedge-witch's reading laid out, its cards upside down while the Wyrm is close to waking.
