@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Compiled } from '@open-tabletop/oracle-engine'
-  import { InfoTip, TagInput } from '@open-tabletop/ui-kit'
+  import { InfoTip, SuggestInput, TagInput } from '@open-tabletop/ui-kit'
+  import { contextSuggestions } from '@open-tabletop/session'
   import type { Translate } from '../i18n'
   import type { OracleUi } from '../ui'
   import { definitionForm } from './doc.svelte'
@@ -18,6 +19,22 @@
   const doc = definitionForm(ui, () => ({ def, root }))
   const t: Translate = (key, params) => doc.ui.t(key, params)
   const dice = $derived(def.kind === 'table' || def.kind === 'oracle')
+
+  /** `against:`: how the roll is compared, and with what (`{ lte: '{{…}}' }`). */
+  const AGAINST_OPS = ['lte', 'lt', 'gte', 'gt'] as const
+  type AgainstOp = (typeof AGAINST_OPS)[number]
+  const against = $derived.by(() => {
+    const raw = doc.raw.against as Record<string, unknown> | undefined
+    const op = AGAINST_OPS.find((o) => raw?.[o] !== undefined)
+    return { op, value: op ? String(raw![op]) : '' }
+  })
+  function setAgainst(op: AgainstOp | '', value: string) {
+    if (!op) return doc.edit(['against'], undefined)
+    const n = Number(value)
+    doc.edit(['against'], { [op]: value.trim() !== '' && Number.isFinite(n) ? n : value.trim() })
+  }
+  /** What the number can read: `{{…}}` of what tables see. */
+  const valueHints = $derived(contextSuggestions(doc.ui.library.registry))
 
   /** Tags other definitions already have, to suggest. */
   const knownTags = $derived([
@@ -68,6 +85,33 @@
     />
   </div>
   {#if dice}
+    <div class="field against">
+      <span>{t('edit.against')}<InfoTip markdown={t('edit.againstHelp')} /></span>
+      <div class="against-row">
+        <select
+          value={against.op ?? ''}
+          disabled={doc.translating}
+          aria-label={t('edit.against')}
+          onchange={(e) =>
+            setAgainst(e.currentTarget.value as AgainstOp | '', against.value || '0')}
+        >
+          <option value="">{t('edit.againstOps.none')}</option>
+          {#each AGAINST_OPS as op (op)}
+            <option value={op}>{t(`edit.againstOps.${op}`)}</option>
+          {/each}
+        </select>
+        {#if against.op}
+          <SuggestInput
+            value={against.value}
+            suggestions={valueHints}
+            disabled={doc.translating}
+            label={t('edit.againstValue')}
+            placeholder={'{{acting.values.stealth}}'}
+            onchange={(text) => setAgainst(against.op!, text)}
+          />
+        {/if}
+      </div>
+    </div>
     <div class="options">
       <label class="check">
         <input
@@ -122,6 +166,16 @@
   .top {
     display: flex;
     gap: 10px;
+  }
+
+  .against-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .against-row :global(.suggest) {
+    flex: 1;
   }
 
   .options {

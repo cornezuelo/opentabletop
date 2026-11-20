@@ -412,22 +412,18 @@ name: Scouting ahead
 description: |-
   Rolled by _Scout ahead_: a d6 at or under the skill the player chose, of whoever acts.
 
-  **Shows:** a test naming its skill by a parameter (`acting.values[params.skill]`): one table for every skill the action may ask for; a roll-under (`gte: '{{roll}}'`), each result its own branch; a condition of the Company given for two places, this one and the next (`party.conditions.scouted: 2`, its sheet's `lasts: places`), which makes the next place's encounter roll take a roll mode by itself (_Who goes there?_, _Warned_).
+  **Shows:** a test naming its skill by a parameter (`acting.values[params.skill]`): one table for every skill the action may ask for; a roll-under declared as what the table is rolled against (`against: { lte: '{{acting.values[params.skill]}}' }`): the dice table says _You need 3 or less_ as it's thrown, and the entries need no range, only how it went (`against.success`); a condition of the Company given for two places, this one and the next (`party.conditions.scouted: 2`, its sheet's `lasts: places`), which makes the next place's encounter roll take a roll mode by itself (_Who goes there?_, _Warned_).
 roll: 1d6
+# A roll-under: at or under the skill chosen, of whoever acts.
+against: { lte: '{{acting.values[params.skill]}}' }
 entries:
   - id: clear
-    range: 1-6
-    # A key with brackets is written outside braces (or quoted inside them).
-    when:
-      acting.values[params.skill]: { gte: '{{roll}}' }
-    result: 'The way ahead is clear ({{roll}} against {{acting.values[params.skill]}})'
+    when: { against.success: true }
+    result: 'The way ahead is clear ({{roll}} against {{against.target}})'
     # Two places: this one and the next, whose encounter is rolled Warned.
     effects: { party.stats.morale: 1, party.conditions.scouted: 2 }
   - id: nothing
-    range: 1-6
-    unless:
-      acting.values[params.skill]: { gte: '{{roll}}' }
-    result: 'Nothing to be learnt out there ({{roll}} against {{acting.values[params.skill]}})'
+    result: 'Nothing to be learnt out there ({{roll}} against {{against.target}})'
 ---
 # Rolled by _Drive them off_: 2d6 and a Survival against the firmest foe's Morale (the
 # foes' own morale roll, bestiary.yaml: a 2d6 over it, it runs). The companion acting adds
@@ -505,18 +501,16 @@ name: Picking the door
 description: |-
   Rolled by _Pick the lock_ at a locked door at hand (the Wet Ferret's cellar door): 2d6 and the Stealth of whoever acts, against 7 and the door's Lock. Made, that door is open for the rest of the trip; otherwise the lock holds.
 
-  **Shows:** a roll against a value of the one connection chosen (`'place.connections[params.door].lock': { lt: '{{roll - 6}}' }`), a door at hand (`from: place.connections.door.near`), and an effect on that door alone (`'place.connections[params.door].state': open`).
+  **Shows:** a roll to meet or beat a value of the one connection chosen (`against: { gte: '{{7 + place.connections[params.door].lock}}' }`), a door at hand (`from: place.connections.door.near`), and an effect on that door alone (`'place.connections[params.door].state': open`).
 roll: '2d6 + {{acting.values.stealth}}'
+against: { gte: '{{7 + place.connections[params.door].lock}}' }
 entries:
   - id: open
-    range: 2-20
-    when: { 'place.connections[params.door].lock': { lt: '{{roll - 6}}' } }
-    result: 'The lock gives ({{roll}} against {{7 + place.connections[params.door].lock}})'
+    when: { against.success: true }
+    result: 'The lock gives ({{roll}} against {{against.target}})'
     effects: { 'place.connections[params.door].state': open }
   - id: holds
-    range: 2-20
-    unless: { 'place.connections[params.door].lock': { lt: '{{roll - 6}}' } }
-    result: 'The lock holds ({{roll}} against {{7 + place.connections[params.door].lock}})'
+    result: 'The lock holds ({{roll}} against {{against.target}})'
 ---
 # Picking a chest's lock (travel.yaml's Pick it): 7 and its Lock or more.
 kind: table
@@ -526,31 +520,23 @@ name: Picking the lock
 description: |-
   Rolled by _Pick it_ at a locked chest: 2d6 and the Stealth of whoever acts, against 7 and the chest's Lock. Made, it's open; a fumble (4 or less) springs its needle, if it has one; otherwise the lock holds.
 
-  **Shows:** a roll against a value of the thing chosen (`'characters[params.chest].values.lock': { lt: '{{roll - 6}}' }`), the rows told apart by conditions on it, written as each other's opposites so one always comes up.
+  **Shows:** a roll to meet or beat a value of the thing chosen (`against: { gte: '{{7 + characters[params.chest].values.lock}}' }`), and a range beside it: a failure of 4 or less is a fumble (`range: 2-4` with `against.success: false`), read before the plain failure.
 roll: '2d6 + {{acting.values.stealth}}'
+against: { gte: '{{7 + characters[params.chest].values.lock}}' }
 entries:
   - id: open
-    range: 2-20
-    when: { 'characters[params.chest].values.lock': { lt: '{{roll - 6}}' } }
-    result: 'The lock gives ({{roll}} against {{7 + characters[params.chest].values.lock}})'
+    when: { against.success: true }
+    result: 'The lock gives ({{roll}} against {{against.target}})'
     effects: { 'characters[params.chest].values.lock': '=0' }
   - id: sprung
     range: 2-4
-    when: { 'characters[params.chest].conditions': needled }
-    unless: { 'characters[params.chest].values.lock': { lt: '{{roll - 6}}' } }
+    when: { 'characters[params.chest].conditions': needled, against.success: false }
     result: 'A fumble, and the needle springs: {{characters[params.chest].values.needle}} harm to {{acting.name}}'
     effects:
       acting.values.health: '-{{characters[params.chest].values.needle}}'
       'characters[params.chest].values.needle': '=0'
   - id: holds
-    range: 2-20
-    unless:
-      any:
-        - { 'characters[params.chest].values.lock': { lt: '{{roll - 6}}' } }
-        - all:
-            - { 'characters[params.chest].conditions': needled }
-            - { roll: { lte: 4 } }
-    result: 'The lock holds ({{roll}} against {{7 + characters[params.chest].values.lock}})'
+    result: 'The lock holds ({{roll}} against {{against.target}})'
 ---
 # What a chest held (travel.yaml's Take the grave goods), rolled as it leaves those present.
 kind: table

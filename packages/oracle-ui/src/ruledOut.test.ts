@@ -24,6 +24,16 @@ describe('rows that can’t come up here', () => {
     expect(night.has('patrol')).toBe(true)
   })
 
+  it("keeps rows that read what the table's own roll gives, unknown till it's rolled", () => {
+    const rows = [
+      { key: 'made', when: { 'against.success': true } },
+      { key: 'crit', when: { 'dice.doubles': true, 'against.margin': { gte: 2 } } },
+      { key: 'high', when: { roll: { gte: 5 } } },
+      { key: 'night', when: { timeOfDay: 'night' } },
+    ]
+    expect([...ruledOut(rows, { timeOfDay: 'day', chance: 40 })]).toEqual(['night'])
+  })
+
   it('with nothing known, nothing is ruled out', () => {
     expect(ruledOut(encounter.entries, {}).size).toBe(0)
   })

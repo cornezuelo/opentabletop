@@ -185,6 +185,17 @@ export const en = {
     roll: 'Dice',
     rollHelp:
       "Dice rolled on the table; each entry's **Range** says which totals pick it.\n• `1d6`, `2d6`, `1d20` — the usual dice\n• `d66` — two d6 read as tens and units (11–66)\n• `d%` — 1–100\n• `2d6kh1` — roll 2d6, keep the highest\n• `1d6 + {{survival}}` — plus a value the roll is given (a party stat, a field)\nEmpty: an entry is picked by **Weight**.",
+    against: 'Against',
+    againstHelp:
+      "The number the dice are rolled against, compared with their total: the dice table says it as they're thrown (_You need 4 or less_) and whether it made it. The entries then read how it went, and need no **Range**:\n• **at or under** `4` — a roll-under: 1 to 4 make it\n• **at or over** `8` — meet or beat 8\n• **at or under** `{{acting.values.stealth}}` — a value of whoever acts\n• `{{acting.values.stealth + 2}}` — with a modifier\nAn entry's **When** reads `against.success: true` (made it), `against.margin: { gte: 3 }` (by 3 or more; negative when it failed) or `against.target`. Empty: the entries go by their ranges.",
+    againstValue: 'The number',
+    againstOps: {
+      none: 'nothing (by ranges)',
+      lte: 'at or under',
+      lt: 'under',
+      gte: 'at or over',
+      gt: 'over',
+    },
     entries: 'Entries',
     range: 'Range',
     rangeHelp:

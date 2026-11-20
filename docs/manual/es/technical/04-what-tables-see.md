@@ -270,11 +270,12 @@ Cuando la campaña tiene su reloj del mundo (el panel Mundo de Mapa, la aplicaci
 
 ## Lo que añaden los bindings
 
-| Nombre                       | Tipo          | Valores                                                                                                                                                                                                                           |
-| ---------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _el contexto del binding_    | cualquiera    | Lo que añaden los bindings solo para esa comprobación (Packs → **Comprobaciones** → el Contexto extra de cada una): `context: { timeOfDay: night }`; para un oráculo, su entrada (`odds: even`, una de las opciones del oráculo). |
-| `roll`, `result`             | número, texto | Dentro de una tabla con tirada propia: `roll` es su total, para las condiciones, textos, `set` y efectos de sus entradas (`when: { party.stats.survival: { gte: '{{roll}}' } }`, una tirada por debajo).                          |
-| `dice.doubles`, `dice.faces` | sí/no, lista  | Junto a `roll`, lo que enseñan sus dados: `dice.doubles` cuando coinciden dos dados de los que se quedan, o las decenas y unidades de un dado de porcentaje (`33`, `00`); `dice.faces`, los dados que se quedan (`[4, 4]`).       |
+| Nombre                                                | Tipo                  | Valores                                                                                                                                                                                                                           |
+| ----------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _el contexto del binding_                             | cualquiera            | Lo que añaden los bindings solo para esa comprobación (Packs → **Comprobaciones** → el Contexto extra de cada una): `context: { timeOfDay: night }`; para un oráculo, su entrada (`odds: even`, una de las opciones del oráculo). |
+| `roll`, `result`                                      | número, texto         | Dentro de una tabla con tirada propia: `roll` es su total, para las condiciones, textos, `set` y efectos de sus entradas (`when: { party.stats.survival: { gte: '{{roll}}' } }`, una tirada por debajo).                          |
+| `dice.doubles`, `dice.faces`                          | sí/no, lista          | Junto a `roll`, lo que enseñan sus dados: `dice.doubles` cuando coinciden dos dados de los que se quedan, o las decenas y unidades de un dado de porcentaje (`33`, `00`); `dice.faces`, los dados que se quedan (`[4, 4]`).       |
+| `against.success`, `against.margin`, `against.target` | sí/no, número, número | En una tabla tirada contra un número (`against:`): si lo consiguió, por cuánto (negativo si falló) y el número ([Tirada contra un número](../oracle/08-dice-and-templates.md#tirada-contra-un-número)).                           |
 
 ## Descubrir el mapa
 

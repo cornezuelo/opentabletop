@@ -42,6 +42,12 @@ export function contextSuggestions(
         out.get(key)!.add(String(v))
   }
 
+  // What a table's own roll gives its entries: its dice, and how it did against a number.
+  add('dice.doubles', true, false)
+  add('dice.faces')
+  add('against.success', true, false)
+  add('against.margin')
+  add('against.target')
   // What the map and a trip always give.
   add('place.id')
   add('name')

@@ -103,6 +103,35 @@ entries:
 
 Core's _Against the odds_ rolls under a chance in a hundred with doubles for more; the Grey Marches' hoard finds a hidden cache on doubles.
 
+## Rolled against a number
+
+Most checks are a roll against one number: a d6 at or under a skill, 2d6 to meet or beat 8, a d100 under a chance. A table says so with **Against** (`against:`): how its total is compared, and with what.
+
+- `lte` — at or under it (a roll-under); `lt` — under it
+- `gte` — at or over it (meet or beat); `gt` — over it
+
+The number may be written out (`against: { gte: 8 }`) or read when rolled (`against: { lte: '{{party.stats.dex}}' }`, `'{{party.stats.dex + 2}}'` with a modifier). Then:
+
+- **Whoever rolls is told what it needs**: the dice table says _You need 4 or less_ before the dice are thrown, and _Success_ or _Failure_ as they stop; a roll of yours waiting in a trip says it too, and the result card and the journal say how it went (_Against 4: Success_).
+- **The entries read how it went**, and need no **Range**: `against.success` (`true` when it made it), `against.margin` (by how much: how far under the number a roll-under was, or over it a roll to beat; negative when it failed) and `against.target` (the number, read). An entry without a range takes any total; one with a range still needs its total (a fumble on `2-4`).
+
+```yaml
+kind: table
+id: pick-the-lock-against
+roll: 1d6
+against: { lte: '{{party.stats.dex}}' }
+entries:
+  - id: deftly
+    when: { against.margin: { gte: 2 } }
+    result: 'A {{roll}} against {{against.target}}: it clicks open at once'
+  - id: open
+    when: { against.success: true }
+    result: 'A {{roll}} against {{against.target}}: it clicks open'
+  - { id: stuck, result: 'A {{roll}}: it won’t budge' }
+```
+
+The first entry whose condition holds comes up: by 2 or more, _at once_; made, _it clicks open_; otherwise _it won’t budge_. Core's _Against the odds_ rolls under a chance this way, the Grey Marches' _Scouting ahead_ under the skill chosen and their locks to meet or beat 7 and the lock.
+
 ## Where context values come from
 
 When a definition is rolled it receives a **context**: a set of named values. They come from, in order:

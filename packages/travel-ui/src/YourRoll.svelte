@@ -1,7 +1,20 @@
 <script lang="ts">
-  import { parseDice, rollWith, type DiceMode, type DiceResult } from '@open-tabletop/dice'
+  import {
+    parseDice,
+    rollWith,
+    type AgainstTarget,
+    type DiceMode,
+    type DiceResult,
+  } from '@open-tabletop/dice'
   import { mathRandom } from '@open-tabletop/random'
-  import { DiceThrow, DiceTray, InfoTip, MoreMenu, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    againstNeeds,
+    DiceThrow,
+    DiceTray,
+    InfoTip,
+    MoreMenu,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import type { RollRow } from './turns'
 
@@ -24,6 +37,7 @@
     said = '',
     mode = '',
     how,
+    against,
     rows,
     staged = false,
     locale,
@@ -46,6 +60,8 @@
     mode?: string
     /** How that mode rolls, for **Roll**. */
     how?: DiceMode
+    /** The number it's rolled against: what it needs, said before it's rolled. */
+    against?: AgainstTarget
     /** What the roll can give: the rows of its table, when it's short (travel-ui's `ladderOf`). */
     rows?: readonly RollRow[]
     /** On a fight's stage: thrown right here, its total taken as the dice stop. */
@@ -61,7 +77,12 @@
      * **Roll** on screen thrown by the host (which keeps the table open to tell what came of
      * it): the dice rolled, what it's rolled for and why. Absent, thrown here.
      */
-    onthrow?: (rolled: DiceResult, title: string, why: string[]) => void
+    onthrow?: (
+      rolled: DiceResult,
+      title: string,
+      why: string[],
+      against: AgainstTarget | undefined,
+    ) => void
   } = $props()
 
   const t = translator(() => locale)
@@ -119,7 +140,7 @@
     if (!parsed) return
     rolled = rollWith(parsed, mathRandom(), how)
     if (onthrow) {
-      onthrow(rolled, title, said ? [said] : [])
+      onthrow(rolled, title, said ? [said] : [], against)
       rolled = undefined
       return
     }
@@ -156,6 +177,7 @@
       {/if}
     </MoreMenu>
   </div>
+  {#if against}<p class="needs">{againstNeeds(against, locale)}</p>{/if}
   {#if modeHow}<p class="how">{modeHow}</p>{/if}
   {#if rows?.length}
     <!-- What it can give: the row the total fell on lit once it's known. -->
@@ -172,6 +194,7 @@
       <DiceThrow
         rolls={[rolled]}
         inline
+        {against}
         {locale}
         onuse={(n) => {
           total = n
@@ -183,6 +206,7 @@
     <DiceThrow
       rolls={[rolled]}
       {title}
+      {against}
       why={said ? [said] : []}
       {locale}
       onuse={(n) => {
@@ -302,6 +326,13 @@
     margin: 0;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  /* The number to beat, read before rolling. */
+  .needs {
+    margin: 0;
+    font-weight: 700;
+    color: var(--accent);
   }
 
   /* What the roll can give, a row each; the one it fell on lit. */

@@ -1,6 +1,7 @@
 export { EXPLODE_MAX, isDiceRoll, isDiceTerm, parseDice } from './parse'
 export { roll, rollWith, swapDigits, withExtraDice, type DiceMode, type RollOptions } from './roll'
 export { diceFacts, type DiceFacts } from './facts'
+export { againstOutcome, type AgainstOp, type AgainstOutcome, type AgainstTarget } from './against'
 export { bounds, distribution, possibleTotals } from './support'
 export { diceText } from './text'
 export * from './types'

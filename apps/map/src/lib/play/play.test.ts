@@ -1533,7 +1533,10 @@ describe('the Company: a party made of characters', () => {
       const rolled = trip()
         .journal.slice(before)
         .find((e) => e.code === 'ROLLED' && e.data?.check === 'table.scouting')
-      return (rolled?.data?.rolls as { entry: string }[] | undefined)?.[0]?.entry
+      const node = (rolled?.data?.rolls as { entry: string; against?: unknown }[] | undefined)?.[0]
+      // The journal keeps what it was rolled against: the skill chosen.
+      expect(node?.against).toMatchObject({ op: 'lte', target: skill === 'stealth' ? 3 : 0 })
+      return node?.entry
     }
     expect([1, 3, 4, 6].map((face) => scout('stealth', face))).toEqual([
       'clear',

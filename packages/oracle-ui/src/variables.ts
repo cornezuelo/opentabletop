@@ -1,4 +1,5 @@
 import { isDiceTerm } from '@open-tabletop/dice'
+import { namesIn } from '@open-tabletop/variables'
 import type { Compiled, EntryList, Ref, Registry } from '@open-tabletop/oracle-engine'
 
 /** A context variable a definition (or anything it delegates to) reads. */
@@ -56,8 +57,15 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
   }
   const entries = (list: EntryList) => {
     scanText(list.roll)
-    // A list with a roll gives its entries its total as `roll`, and what its dice show.
+    // A list with a roll gives its entries its total as `roll`, and what its dice show; one
+    // rolled against a number, how it went (`against.*`), the number read from the context.
     if (list.roll) produced.add('roll').add('dice')
+    if (list.against) {
+      // Its number may be worked out (`{{strength + 2}}`): each name it reads is asked.
+      for (const m of String(list.against.value).matchAll(/\{\{([^}]*)\}\}/g))
+        for (const name of namesIn(m[1]!)) use(name)
+      produced.add('against')
+    }
     for (const e of list.entries) {
       scanCondition(e.when)
       follow(e.ref)

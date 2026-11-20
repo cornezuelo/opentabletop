@@ -75,6 +75,7 @@ export function journalContext(o: {
   const choiceId = (c: ParamChoice) => (typeof c === 'object' ? c.id : c)
   return {
     t,
+    locale,
     partName: untilText,
     startDay: o.startDay,
     hexLabel: o.hexLabel ?? ((hex) => hex),

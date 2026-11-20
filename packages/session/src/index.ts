@@ -279,6 +279,8 @@ export interface YourRoll {
   mode?: string
   /** How that mode rolls, for rolling it on screen (`rollWith`). */
   how?: WantedRoll['how']
+  /** The number it's rolled against (a table's `against:`), shown as it's rolled. */
+  against?: WantedRoll['against']
   /** The definition the roll asked now belongs to, when it isn't the check's table (full id). */
   of?: string
   /** Who rolls it: whoever's turn it is in a fight (a member's or a foe's id). */
@@ -1464,7 +1466,7 @@ export function createSession(options: {
           const who = s.encounter ? s.encounter.order[s.encounter.turn] : undefined
           /** The check waits for the player's next roll. */
           const waitFor = (wanted: Wanted, said?: string) => {
-            const { dice, mode, how, source, target } = wanted.roll
+            const { dice, mode, how, source, target, against } = wanted.roll
             // What came up so far: the result once known, else the row it's rolled inside.
             const told = said ?? wanted.roll.within
             const yours: YourRoll = {
@@ -1473,6 +1475,7 @@ export function createSession(options: {
               dice,
               ...(mode && { mode }),
               ...(how && { how }),
+              ...(against && { against }),
               ...(source && source !== definitionId(binding.resolve!) && { of: source }),
               ...(who !== undefined && { who }),
               ...(target !== undefined && { target }),

@@ -15,10 +15,12 @@ Las descripciones (de tablas, oráculos, generadores y mazos, y de las comprobac
 
 ## Tablas
 
+**Contra**, bajo los dados, hace de la tabla una tirada contra un número: **igual o menos**, **menos**, **igual o más** o **más**, y el número (`4`, o un valor leído al tirar: `{{acting.values.stealth}}`, con sugerencias). A quien tira se le dice lo que necesita, y las entradas van por cómo fue (`against.success: true` en **Solo si**) y no necesitan rango ([Tirada contra un número](08-dice-and-templates.md#tirada-contra-un-número)). **nada (por rangos)** la deja como siempre.
+
 Cada **entrada** tiene:
 
 - un **id** (necesario para traducciones y entradas de una vez; **Dar id a las entradas** los rellena),
-- un **rango** de totales (`3` o `2-5`), o un **peso** cuando la tabla no tiene dados (lo probable que es frente a las demás: [Sin dados: pesos](08-dice-and-templates.md#sin-dados-pesos)),
+- un **rango** de totales (`3` o `2-5`; ninguno en una tabla tirada **Contra** un número, salvo para algunos totales), o un **peso** cuando la tabla no tiene dados (lo probable que es frente a las demás: [Sin dados: pesos](08-dice-and-templates.md#sin-dados-pesos)),
 - el texto del **resultado**, que puede incluir dados (`{{1d6}} lobos`) y valores del contexto (`{{time.season}}`),
 - **luego tira**: otra tabla o generador que se tira después y cuyo resultado se añade.
 

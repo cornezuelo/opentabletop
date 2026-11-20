@@ -2,6 +2,8 @@
 
 Abre una definición y pulsa **Tirar** (o **Robar** en un mazo). <kbd>Espacio</kbd> o <kbd>Intro</kbd> vuelven a tirar.
 
+Una tabla tirada contra un número (una habilidad, una probabilidad: [Tirada contra un número](08-dice-and-templates.md#tirada-contra-un-número)) dice en la mesa de dados lo que necesita (_Necesitas 40 o menos_) y cómo fue al pararse (_Éxito_, _Fallo_); su tarjeta de resultado lo dice bajo los dados (_Contra 40: Éxito_).
+
 Cuando tiras tus propios dados (**Quién tira los dados**, en **Preferencias**, en algo que no sea _Tira el ordenador_), **Tirar** te pone sus dados en la mano sobre una mesa en el centro de la pantalla: arrástralos y suéltalos (o pulsa la mesa) y salen volando, rebotan y ruedan hasta pararse en lo que ha salido: los dados que se pidieron (el `1d6` de la tabla), nunca los que su fila tira dentro (un `{{1d3}}` de daño), que su tarjeta muestra después; **Ver el resultado** lo muestra (**Cerrar** también). Si tira el ordenador, o con **Los dados ruedan al tirarlos** desmarcado, el resultado sale al instante.
 
 ## El resultado

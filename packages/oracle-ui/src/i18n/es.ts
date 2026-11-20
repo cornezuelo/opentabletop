@@ -188,6 +188,17 @@ export const es: Messages<typeof en> = {
     roll: 'Dados',
     rollHelp:
       'Los dados que se tiran en la tabla; el **Rango** de cada entrada dice qué totales la eligen.\n• `1d6`, `2d6`, `1d20` — los dados de siempre\n• `d66` — dos d6 leídos como decenas y unidades (11–66)\n• `d%` — de 1 a 100\n• `2d6kh1` — tira 2d6 y quédate con el más alto\n• `1d6 + {{survival}}` — más un valor que recibe la tirada (una característica del grupo, un campo)\nVacío: se elige una entrada por **Peso**.',
+    against: 'Contra',
+    againstHelp:
+      'El número contra el que se tiran los dados, comparado con su total: la mesa de dados lo dice al lanzarlos (_Necesitas 4 o menos_) y si se consiguió. Las entradas leen entonces cómo fue, y no necesitan **Rango**:\n• **igual o menos** `4` — tirar por debajo: del 1 al 4 lo consiguen\n• **igual o más** `8` — igualar o superar 8\n• **igual o menos** `{{acting.values.stealth}}` — un valor de quien actúa\n• `{{acting.values.stealth + 2}}` — con un modificador\nEl **Cuando** de una entrada lee `against.success: true` (lo consiguió), `against.margin: { gte: 3 }` (por 3 o más; negativo si falló) o `against.target`. Vacío: las entradas van por sus rangos.',
+    againstValue: 'El número',
+    againstOps: {
+      none: 'nada (por rangos)',
+      lte: 'igual o menos',
+      lt: 'menos',
+      gte: 'igual o más',
+      gt: 'más',
+    },
     entries: 'Entradas',
     range: 'Rango',
     rangeHelp:

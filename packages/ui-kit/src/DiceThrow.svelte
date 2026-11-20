@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { DiceResult } from '@open-tabletop/dice'
+  import { againstOutcome, type AgainstTarget, type DiceResult } from '@open-tabletop/dice'
+  import { againstNeeds, againstVerdict } from './against'
   import { untrack } from 'svelte'
   import DieFace from './DieFace.svelte'
   import { dicePreferences } from './dicePreferences.svelte'
@@ -22,6 +23,9 @@
    * `inline`, it lives where it's put instead of over the page (a fight's stage,
    * docs/fight-turn.md): only the table, the dice waiting on it for a click or a throw, and
    * its total taken by itself a moment after they stop (no **Use**, nothing to put away).
+   *
+   * Rolled `against` a number, the table says it from the start (_You need 4 or less_) and,
+   * once the dice stop, whether the first roll made it (_Success_, _Failure_).
    */
   let {
     rolls,
@@ -32,6 +36,7 @@
     outcome,
     tells = false,
     inline = false,
+    against,
     locale = 'en',
     onuse,
     onclose,
@@ -55,6 +60,8 @@
     tells?: boolean
     /** Lives where it's put (no dialog), its total taken as the dice stop. */
     inline?: boolean
+    /** The number the first roll is rolled against: shown, then whether it made it. */
+    against?: AgainstTarget
     locale?: string
     /** Its total taken. */
     onuse: (total: number) => void
@@ -111,6 +118,11 @@
           : [],
       )
   })
+
+  /** Whether the first roll made the number it's rolled against, once it's seen. */
+  const made = $derived(
+    against && rolls[0] ? againstOutcome(against, rolls[0].total).success : undefined,
+  )
 
   const reduced =
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -236,6 +248,13 @@
   const sizeOf = (d: ThrownDie) => table.size * (1 + d.z / (table.size * 4))
 </script>
 
+<!-- Made it or not, beside the total, when it's rolled against a number. -->
+{#snippet verdict()}
+  {#if made !== undefined}
+    <span class="verdict" class:made class:missed={!made}>{againstVerdict(made, locale)}</span>
+  {/if}
+{/snippet}
+
 {#snippet cloth()}
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
@@ -291,12 +310,21 @@
         </span>
       {/each}
     {/if}
-    {#if stage === 'hand'}<p class="hint">{text.hint}</p>{/if}
+    {#if against}
+      <p
+        class="goal"
+        class:made={stage === 'done' && made}
+        class:missed={stage === 'done' && !made}
+      >
+        {againstNeeds(against, locale)}
+      </p>
+    {/if}
+    {#if stage === 'hand'}<p class="hint" class:below={against}>{text.hint}</p>{/if}
     {#if inline && stage !== 'hand'}
       <p class="settled" aria-live="polite">
         {#if stage === 'rolling'}<span class="muted">{text.rolling}</span
           >{:else}{#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
-            <strong>{roll.total}</strong>{/each}{/if}
+            <strong>{roll.total}</strong>{/each}{@render verdict()}{/if}
       </p>
     {/if}
   </div>
@@ -326,7 +354,7 @@
           <div class="outcome" aria-live="polite">
             <p class="total">
               {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
-                <strong>{roll.total}</strong>{/each}
+                <strong>{roll.total}</strong>{/each}{@render verdict()}
             </p>
             {#if outcome}
               <ul>
@@ -340,7 +368,7 @@
         {:else if stage === 'done'}
           <p class="total">
             {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
-              <strong>{roll.total}</strong>{/each}
+              <strong>{roll.total}</strong>{/each}{@render verdict()}
           </p>
           <button
             class="button primary"
@@ -488,6 +516,39 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+  }
+
+  /* The number to beat, from the start; once the dice stop, in the colour of how it went. */
+  .goal {
+    position: absolute;
+    top: 10px;
+    right: 0;
+    left: 0;
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .goal.made,
+  .verdict.made {
+    color: var(--good);
+  }
+
+  .goal.missed,
+  .verdict.missed {
+    color: var(--danger-text);
+  }
+
+  .verdict {
+    margin-left: 10px;
+    font-weight: 700;
+  }
+
+  .hint.below {
+    top: 38px;
   }
 
   .hint {

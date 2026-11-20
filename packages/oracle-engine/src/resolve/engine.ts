@@ -1,7 +1,10 @@
 import { matches, resolvePath, type Condition } from '@open-tabletop/conditions'
 import {
+  againstOutcome,
   diceFacts,
   parseDice,
+  type AgainstOutcome,
+  type AgainstTarget,
   rollWith,
   type DiceExpression,
   type DiceMode,
@@ -61,6 +64,8 @@ export interface Resolution {
   inside?: number
   /** The roll mode its roll was made with (full id), if any. */
   mode?: string
+  /** What its roll was rolled against (`against:`) and how it came out. */
+  against?: AgainstOutcome
   children: Resolution[]
   context: Record<string, unknown>
 }
@@ -113,6 +118,8 @@ export interface WantedRoll {
   how?: DiceMode
   /** The definition rolling it (full id): a table, or one a result led to. */
   source: string
+  /** The number it's rolled against, to show it before and as it's rolled. */
+  against?: AgainstTarget
   /**
    * The row it's rolled inside, as written, its rolls and values not known yet shown as `…`
    * (_A purse: … silver_): a roll in a result's text, `set` or effects, or of the table it
@@ -486,19 +493,32 @@ class Run {
     // The list's own roll comes first, so its entries read its total as `roll` and what its
     // dice show as `dice.*` (`dice.doubles`): in their conditions (a roll-under:
     // `when: { party.stats.survival: { gte: '{{roll}}' } }`), texts, `set` and effects.
+    // A number to beat (`against:`) is read before the roll, which may show it.
+    const target = list.roll && list.against ? this.againstTarget(list, context, node) : undefined
     let rolled = list.roll
-      ? this.roll(list.parsedRoll ?? list.roll, context, node, mode, list.roll)
+      ? this.roll(list.parsedRoll ?? list.roll, context, node, mode, list.roll, target)
       : undefined
     let total = rolled?.total
-    const withRoll = () =>
-      rolled ? { ...context, roll: rolled.total, dice: diceFacts(rolled) } : context
+    const withRoll = () => {
+      if (!rolled) return context
+      const outcome = target && againstOutcome(target, rolled.total)
+      if (outcome) node.against = outcome
+      return {
+        ...context,
+        roll: rolled.total,
+        dice: diceFacts(rolled),
+        ...(outcome && {
+          against: { target: outcome.target, success: outcome.success, margin: outcome.margin },
+        }),
+      }
+    }
     const scope = withRoll()
     const candidates = list.entries.filter((e) => !e.when || this.holds(e.when, scope, node))
     if (candidates.length === 0) return node
 
     const pick = (from: CompiledEntry[], again: boolean) => {
       if (again && list.roll) {
-        rolled = this.roll(list.parsedRoll ?? list.roll, context, node, mode, list.roll)
+        rolled = this.roll(list.parsedRoll ?? list.roll, context, node, mode, list.roll, target)
         total = rolled.total
       }
       return this.pick(from, total, def.clamp ?? true)
@@ -534,6 +554,17 @@ class Run {
       node,
     )
     return node
+  }
+
+  /** The number a list is rolled against, its value read now; none if it isn't a number. */
+  private againstTarget(
+    list: EntryList,
+    context: Record<string, unknown>,
+    node: Resolution,
+  ): AgainstTarget | undefined {
+    const { op, value } = list.against!
+    const target = typeof value === 'number' ? value : Number(this.render(value, context, node))
+    return Number.isFinite(target) ? { op, target } : undefined
   }
 
   /** An entry by the roll's total (ranges), or by weight when the list has no roll. */
@@ -691,6 +722,8 @@ class Run {
     mode?: RollMode,
     /** As written, when `expression` is parsed already (a list's or a field's roll). */
     written?: string,
+    /** The number it's rolled against, for the player rolling it. */
+    against?: AgainstTarget,
   ): DiceResult {
     const filled = typeof expression === 'string' ? expression : written
     if (this.yours && filled !== undefined) {
@@ -702,6 +735,7 @@ class Run {
         ...(mode && { mode: mode.id, how: howOf(mode) }),
         source: node?.source ?? '',
         ...(within && { within }),
+        ...(against && { against }),
       })
       if (total !== undefined) {
         // The total the player rolled, kept as the roll (no dice of the engine's).

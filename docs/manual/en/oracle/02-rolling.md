@@ -2,6 +2,8 @@
 
 Open a definition and press **Roll** (or **Draw** for a deck). <kbd>Space</kbd> or <kbd>Enter</kbd> rolls again.
 
+A table rolled against a number (a skill, a chance: [Rolled against a number](08-dice-and-templates.md#rolled-against-a-number)) says what it needs on the dice table (_You need 40 or less_) and how it went as they stop (_Success_, _Failure_); its result card says it under the dice (_Against 40: Success_).
+
 When you roll your own dice (**Who rolls the dice**, in **Preferences**, on anything but _The computer rolls_), **Roll** puts its dice in your hand on a table in the middle of the screen: drag them and let go (or click the table) and they fly, bounce and roll to a stop on what came up: the dice you asked for (the table's `1d6`), never those its row rolls inside it (a `{{1d3}}` of harm), which its card shows after; **See the result** shows it (**Close** too). With the computer rolling, or with **Dice tumble as they're rolled** off, the result shows at once.
 
 ## The result

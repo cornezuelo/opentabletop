@@ -124,6 +124,23 @@ entries:
   - { id: hold, range: 3-12, result: It holds }
 ---
 kind: table
+id: scout
+roll: 1d6
+against: { lte: '{{skill + 1}}' }
+entries:
+  - { id: well, when: { against.margin: { gte: 2 } }, result: 'Well: {{roll}} against {{against.target}}' }
+  - { id: made, when: { against.success: true }, result: 'Made it by {{against.margin}}' }
+  - { id: missed, result: 'Missed by {{against.margin}}' }
+---
+kind: table
+id: beat
+roll: 2d6
+against: { gt: 7 }
+entries:
+  - { id: yes, when: { against.success: true }, result: 'Over' }
+  - { id: no, result: 'Not over' }
+---
+kind: table
 id: doubles
 roll: 2d6
 entries:
@@ -530,6 +547,61 @@ describe('tables', () => {
     expect(made.value.effects).toEqual({ gold: 2 })
     expect(made.rolls).toHaveLength(1)
     expect(roll(4, 3)).toMatchObject({ entry: 'missed', text: '4, over 3' })
+  })
+
+  it('a list rolled `against:` a number reads how it came out, its entries with no range', () => {
+    const scout = (face: number, skill: number) =>
+      createOracleEngine({ registry, random: faces(6, face) }).resolve('test/scout', { skill })
+        .resolution
+    // A roll-under of 1d6 against skill + 1: at or under it, by how much.
+    expect(scout(1, 2)).toMatchObject({ entry: 'well', text: 'Well: 1 against 3' })
+    expect(scout(3, 2)).toMatchObject({ entry: 'made', text: 'Made it by 0' })
+    expect(scout(5, 2)).toMatchObject({ entry: 'missed', text: 'Missed by -2' })
+    expect(scout(3, 2).against).toEqual({
+      op: 'lte',
+      target: 3,
+      total: 3,
+      success: true,
+      margin: 0,
+    })
+    // `gt`: over it, not at it.
+    const beat = (...values: number[]) =>
+      createOracleEngine({ registry, random: faces(6, ...values) }).resolve('test/beat').resolution
+    expect(beat(3, 4)).toMatchObject({ entry: 'no', against: { target: 7, success: false } })
+    expect(beat(4, 4)).toMatchObject({ entry: 'yes', against: { margin: 1, success: true } })
+  })
+
+  it('tells the player rolling it the number to beat', () => {
+    const asked: WantedRoll[] = []
+    createOracleEngine({ registry, random: seeded('x') }).resolve(
+      'test/scout',
+      { skill: 3 },
+      undefined,
+      { yours: (roll) => (asked.push(roll), 2) },
+    )
+    expect(asked).toEqual([
+      expect.objectContaining({ dice: '1d6', against: { op: 'lte', target: 4 } }),
+    ])
+  })
+
+  it('refuses an `against:` with no roll, or two comparisons, or not a number', () => {
+    const problems = (body: string) =>
+      loadPacks([
+        { path: 't/pack.yaml', content: 'id: t\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },
+        { path: 't/x.yaml', content: `kind: table\nid: x\n${body}` },
+      ])
+        .diagnostics.filter((d) => d.severity === 'error')
+        .map((d) => d.message)
+    expect(problems('against: { lte: 3 }\nentries:\n  - { result: a }')).toEqual([
+      expect.stringMatching(/needs a roll/),
+    ])
+    expect(problems('roll: 1d6\nagainst: { lte: 3, gte: 1 }\nentries:\n  - { result: a }')).toEqual(
+      [expect.stringMatching(/one number/)],
+    )
+    expect(problems('roll: 1d6\nagainst: { lte: lots }\nentries:\n  - { result: a }')).toEqual([
+      expect.stringMatching(/not a number/),
+    ])
+    expect(problems('roll: 1d6\nagainst: { lte: 3 }\nentries:\n  - { result: a }')).toEqual([])
   })
 
   it('reads what its dice show as `dice.*`: doubles and faces', () => {

@@ -27,12 +27,24 @@ fields:
   fare: { value: '{{token.fare}}', when: { token: { exists: true } } }
   extra: { value: '{{1d4}}' }
 template: '{{count}} {{who.text}}'
+---
+kind: table
+id: climb
+roll: 1d20
+against: { lte: '{{strength + 2}}' }
+entries:
+  - { when: { against.success: true }, result: Up }
+  - { result: Down }
 `,
   },
 ]
 
 describe('context variables', () => {
   const { registry } = loadPacks(files)
+  it('asks for what a roll is rolled against reads, never for how it went', () => {
+    expect(contextVariables(registry, 'p/climb')).toEqual([{ name: 'strength', suggestions: [] }])
+  })
+
   it('finds template and condition variables, following references', () => {
     expect(contextVariables(registry, 'p/weather')).toEqual([{ name: 'season', suggestions: [] }])
     expect(contextVariables(registry, 'p/encounter')).toEqual([

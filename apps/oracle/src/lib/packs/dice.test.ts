@@ -33,6 +33,8 @@ describe('the dice of the bundled packs', () => {
     expect(at('core/against-the-odds', faces(100, 30), { chance: 40 })).toMatchObject({
       entry: 'yes',
       text: '30 against 40: it happens',
+      // Rolled against the chance: what the dice table shows, and how it went.
+      against: { op: 'lte', target: 40, success: true, margin: 10 },
     })
     expect(at('core/against-the-odds', faces(100, 33), { chance: 40 }).entry).toBe('and')
     expect(at('core/against-the-odds', faces(100, 77), { chance: 40 }).entry).toBe('worse')

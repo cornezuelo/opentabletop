@@ -80,16 +80,17 @@
   /**
    * The dice a result was asked to roll, with dice of the engine's: its own (a table's 1d6),
    * or, when it rolled none, the first table it led to with some. What a row rolled inside it
-   * (its 1d3 of harm) isn't thrown: its card shows it after, said so.
+   * (its 1d3 of harm) isn't thrown: its card shows it after, said so. With them, what that
+   * roll was rolled against (`against:`), for the table to say it.
    */
-  const diceOf = (r: Resolution): Resolution['rolls'] => {
+  const thrownOf = (r: Resolution): Pick<Resolution, 'rolls' | 'against'> => {
     const asked = splitRolls(r).asked.filter((roll) => roll.terms.length > 0)
-    if (asked.length) return asked
+    if (asked.length) return { rolls: asked, against: r.against }
     for (const child of r.children) {
-      const found = diceOf(child)
-      if (found.length) return found
+      const found = thrownOf(child)
+      if (found.rolls.length) return found
     }
-    return []
+    return { rolls: [] }
   }
 
   /**
@@ -116,7 +117,7 @@
       modes.some((m) => m.id === roller.mode) ? roller.mode : undefined,
     )
     const made = roller.shown[def.id]
-    roller.throwing = throws && made && diceOf(made.resolution).length ? made.id : undefined
+    roller.throwing = throws && made && thrownOf(made.resolution).rolls.length ? made.id : undefined
   }
 
   /** A host value as a placeholder ("forest", "road, ford"). */
@@ -136,12 +137,15 @@
     }
   }
 
+  // An entry of a list rolled against a number may take any total (no range): nothing to say.
   const range = (e: CompiledEntry, l: EntryList) =>
     !l.roll
       ? t('roll.weight', { weight: e.weight })
-      : e.min === e.max
-        ? String(e.min)
-        : `${e.min}–${e.max}`
+      : !Number.isFinite(e.min) || !Number.isFinite(e.max)
+        ? ''
+        : e.min === e.max
+          ? String(e.min)
+          : `${e.min}–${e.max}`
 
   const condition = (when: unknown) =>
     Object.entries(when as Record<string, unknown>)
@@ -260,8 +264,10 @@
   </div>
 
   {#if throwing}
+    {@const thrown = thrownOf(throwing.resolution)}
     <DiceThrow
-      rolls={diceOf(throwing.resolution)}
+      rolls={thrown.rolls}
+      against={thrown.against}
       title={ui.nameOf(def.id)}
       use={t('roll.see')}
       close={t('roll.closeThrow')}

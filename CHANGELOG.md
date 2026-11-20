@@ -9,7 +9,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **Map**: a step on a trip takes about half as long, and no longer slows down as the journal grows: Play copied the whole trip (its journal too) each time it only looked at it, several times a step.
 - **Characters**: a character whose values are made of their items (armour, load) is worked out faster after each step.
 - **Every app**: **Keyboard shortcuts** (the keyboard in the top bar, or the <kbd>?</kbd> key) lists the app's keys by what they're for, and the ones every app shares; a button's tooltip shows its key as keys' caps (_Undo_ <kbd>Ctrl</kbd>+<kbd>Z</kbd>).
+- **Dice**: a roll against a number says what it needs: _You need 4 or less_ on the dice table and on a roll waiting for you, then _Success_ or _Failure_ as the dice stop; the Oracle's result card and a trip's journal say how it went (_Against 4: Success_).
+- **Oracle and Packs**: a table's **Against** (under its dice): the number its roll is compared with (at or under, under, at or over, over), so its entries go by how it went and need no range.
 - **Map**: a tool with keys of its own lists them at the foot of its panel (**Keys of Terrain**, folded to a line, its state remembered): drawing with the keyboard, the brush's size, finishing a line… <kbd>?</kbd> now shows the shortcuts; Help is the **?** button.
+
+### Packs
+
+- **Core** and **the Grey Marches**: _Against the odds_, _Scouting ahead_ and the locks are rolled against their number (`against:`), so you're told what you need; a table's new `against:` key, and `against.success`, `against.margin` and `against.target` for its entries.
 
 ## [0.71.0] - 2026-11-19
 

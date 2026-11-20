@@ -449,8 +449,9 @@ export function tellFight(
  */
 export function ladderOf(rows: readonly TableRow[] | undefined, most = 6): RollRow[] | undefined {
   if (!rows?.length || rows.length > most) return undefined
-  if (rows.some((r) => r.min === undefined || r.max === undefined || r.when !== undefined))
-    return undefined
+  // A row of any total (rolled against a number) is no rung either.
+  const rung = (n: number | undefined) => n !== undefined && Number.isFinite(n)
+  if (rows.some((r) => !rung(r.min) || !rung(r.max) || r.when !== undefined)) return undefined
   return rows.map((r) => ({
     key: r.key,
     range: r.min === r.max ? String(r.min) : `${r.min}–${r.max}`,

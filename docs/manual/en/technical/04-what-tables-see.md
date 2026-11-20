@@ -270,11 +270,12 @@ When the campaign has its world clock (Map's World panel, the Campaign app), on 
 
 ## What the bindings add
 
-| Name                         | Kind         | Values                                                                                                                                                                                            |
-| ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _the binding's context_      | any          | What the bindings add for that check only (Packs → **Checks** → each check's Context): `context: { timeOfDay: night }`; for an oracle, its input (`odds: even`, one of the oracle's own options). |
-| `roll`, `result`             | number, text | Inside a table with a roll of its own: `roll` is its total, for its entries' conditions, texts, `set` and effects (`when: { party.stats.survival: { gte: '{{roll}}' } }`, a roll-under).          |
-| `dice.doubles`, `dice.faces` | yes/no, list | Beside `roll`, what its dice show: `dice.doubles` when two dice kept match, or a percentile die's tens and units (`33`, `00`); `dice.faces`, the dice kept (`[4, 4]`).                            |
+| Name                                                  | Kind                   | Values                                                                                                                                                                                                             |
+| ----------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| _the binding's context_                               | any                    | What the bindings add for that check only (Packs → **Checks** → each check's Context): `context: { timeOfDay: night }`; for an oracle, its input (`odds: even`, one of the oracle's own options).                  |
+| `roll`, `result`                                      | number, text           | Inside a table with a roll of its own: `roll` is its total, for its entries' conditions, texts, `set` and effects (`when: { party.stats.survival: { gte: '{{roll}}' } }`, a roll-under).                           |
+| `dice.doubles`, `dice.faces`                          | yes/no, list           | Beside `roll`, what its dice show: `dice.doubles` when two dice kept match, or a percentile die's tens and units (`33`, `00`); `dice.faces`, the dice kept (`[4, 4]`).                                             |
+| `against.success`, `against.margin`, `against.target` | yes/no, number, number | In a table rolled against a number (`against:`): whether it made it, by how much (negative when it failed) and the number ([Rolled against a number](../oracle/08-dice-and-templates.md#rolled-against-a-number)). |
 
 ## Discovering the map
 

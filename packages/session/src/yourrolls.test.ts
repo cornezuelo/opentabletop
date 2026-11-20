@@ -43,6 +43,8 @@ entries:
 kind: table
 id: omen
 roll: 1d6
+# A raven needs a 6: whoever rolls it is told so.
+against: { gte: 6 }
 entries:
   - { range: 1-5, result: Nothing }
   - { range: 6, result: A raven, notable: true }
@@ -116,9 +118,17 @@ describe("the player's rolls", () => {
     expect(results(road1.entries)).toEqual(['Mud'])
     const second = road1.state.yours![0]!
     expect(second.table).toBe('road/omen')
+    // Rolled against a number: the player is told what it needs.
+    expect(second.against).toEqual({ op: 'gte', target: 6 })
     // Rolled for them: the computer's roll, then the wind.
     const omen = stepTrip(options, road1.state, { type: 'resolveCheck', id: second.id })
     expect(results(omen.entries)).toHaveLength(2)
+    // The journal keeps how it went.
+    const rolled = omen.entries.find((e) => e.code === 'ROLLED' && e.data?.check === 'OMEN')
+    expect((rolled?.data?.rolls as { against?: unknown }[])[0]?.against).toMatchObject({
+      op: 'gte',
+      target: 6,
+    })
     expect(omen.state.yours).toBeUndefined()
   })
 })

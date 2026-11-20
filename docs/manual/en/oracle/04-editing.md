@@ -15,10 +15,12 @@ Descriptions (of tables, oracles, generators and decks, and of a travel system's
 
 ## Tables
 
+**Against**, under the dice, makes the table a roll against one number: **at or under**, **under**, **at or over** or **over**, and the number (`4`, or a value read when rolled: `{{acting.values.stealth}}`, with suggestions). Whoever rolls is told what it needs, and the entries go by how it went (`against.success: true` in **Only if**) and need no range ([Rolled against a number](08-dice-and-templates.md#rolled-against-a-number)). **nothing (by ranges)** leaves it as usual.
+
 Each **entry** has:
 
 - an **id** (needed for translations and once-only entries; **Give entries ids** fills them in),
-- a **range** of totals (`3` or `2-5`), or a **weight** when the table has no dice (how likely it is compared to the others: [Without dice: weights](08-dice-and-templates.md#without-dice-weights)),
+- a **range** of totals (`3` or `2-5`; none in a table rolled **Against** a number, unless it's for some totals only), or a **weight** when the table has no dice (how likely it is compared to the others: [Without dice: weights](08-dice-and-templates.md#without-dice-weights)),
 - the **result** text, which may hold dice (`{{1d6}} wolves`) and context values (`{{time.season}}`),
 - **then roll**: another table or generator rolled after it, whose result is added.
 

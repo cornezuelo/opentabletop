@@ -25,11 +25,14 @@ import {
   type Unavailable,
 } from '@open-tabletop/travel-engine'
 import { defaultCalendar, formatClock, type Calendar } from '@open-tabletop/time'
+import { againstLine } from '@open-tabletop/ui-kit'
 import { idText, translator, type Translate, type TravelUiKey } from './i18n'
 
 /** What turns journal entries into text: the host names hexes and Oracle definitions. */
 export interface JournalContext {
   t: Translate
+  /** The UI's language, for what ui-kit says (a roll against a number); English if absent. */
+  locale?: string
   /** Calendar day the trip started (shown as day 1). */
   startDay: number
   hexLabel: (hex: string) => string
@@ -751,7 +754,8 @@ export function entryText(e: JournalEntry, context: JournalContext) {
           .map((r) => {
             const dice = r.dice.length ? `: ${r.dice.join(', ')}` : ''
             const hand = r.byHand ? ` ${t('journal.byHand')}` : ''
-            return `${nameOf(r.source)}${dice}${hand}`
+            const against = r.against ? ` (${againstLine(r.against, context.locale ?? 'en')})` : ''
+            return `${nameOf(r.source)}${dice}${hand}${against}`
           })
           .join('; '),
       })

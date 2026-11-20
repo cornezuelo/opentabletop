@@ -103,6 +103,35 @@ entries:
 
 _Contra pronóstico_, de Core, tira por debajo de una probabilidad sobre cien con dobles para algo más; el tesoro de las Marcas Grises encuentra un escondrijo con dobles.
 
+## Tirada contra un número
+
+Casi todas las pruebas son una tirada contra un número: un d6 igual o menor que una habilidad, 2d6 para igualar o superar 8, un d100 por debajo de una probabilidad. Una tabla lo dice con **Contra** (`against:`): cómo se compara su total, y con qué.
+
+- `lte` — igual o menos (tirar por debajo); `lt` — menos
+- `gte` — igual o más (igualar o superar); `gt` — más
+
+El número puede escribirse tal cual (`against: { gte: 8 }`) o leerse al tirar (`against: { lte: '{{party.stats.dex}}' }`, `'{{party.stats.dex + 2}}'` con un modificador). Entonces:
+
+- **A quien tira se le dice lo que necesita**: la mesa de dados dice _Necesitas 4 o menos_ antes de lanzar los dados, y _Éxito_ o _Fallo_ al pararse; una tirada tuya que espera en un viaje lo dice también, y la tarjeta del resultado y el diario dicen cómo fue (_Contra 4: Éxito_).
+- **Las entradas leen cómo fue**, y no necesitan **Rango**: `against.success` (`true` si lo consiguió), `against.margin` (por cuánto: cuánto por debajo del número quedó una tirada por debajo, o por encima una para superarlo; negativo si falló) y `against.target` (el número, leído). Una entrada sin rango toma cualquier total; una con rango sigue necesitando su total (una pifia en `2-4`).
+
+```yaml
+kind: table
+id: pick-the-lock-against
+roll: 1d6
+against: { lte: '{{party.stats.dex}}' }
+entries:
+  - id: deftly
+    when: { against.margin: { gte: 2 } }
+    result: 'Un {{roll}} contra {{against.target}}: se abre a la primera'
+  - id: open
+    when: { against.success: true }
+    result: 'Un {{roll}} contra {{against.target}}: se abre'
+  - { id: stuck, result: 'Un {{roll}}: no cede' }
+```
+
+Sale la primera entrada cuya condición se cumple: por 2 o más, _a la primera_; conseguido, _se abre_; si no, _no cede_. _Contra pronóstico_ de Core tira así por debajo de una probabilidad, _Explorando el camino_ de las Marcas Grises por debajo de la habilidad elegida, y sus cerraduras para igualar o superar 7 más la cerradura.
+
 ## De dónde salen los valores del contexto
 
 Cuando se tira una definición recibe un **contexto**: un conjunto de valores con nombre. Salen de, en este orden:

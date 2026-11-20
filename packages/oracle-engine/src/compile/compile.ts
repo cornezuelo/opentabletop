@@ -1,5 +1,5 @@
 import { validateCondition, type Condition } from '@open-tabletop/conditions'
-import { parseDice, possibleTotals, type DiceExpression } from '@open-tabletop/dice'
+import { parseDice, possibleTotals, type AgainstOp, type DiceExpression } from '@open-tabletop/dice'
 import {
   rollModesSchema,
   type CardDef,
@@ -50,10 +50,18 @@ export interface CompiledEntry {
   limit?: number
 }
 
+/** What a list is rolled against (`against:`): a number, or a template read when rolled. */
+export interface Against {
+  op: AgainstOp
+  value: number | string
+}
+
 export interface EntryList {
   roll?: string
   /** Pre-parsed roll when it has no templates. */
   parsedRoll?: DiceExpression
+  /** The number its roll is compared with; its entries need no range then. */
+  against?: Against
   entries: CompiledEntry[]
 }
 
@@ -271,7 +279,7 @@ class CompileContext {
           ...this.rollModes(d),
           clamp: d.clamp ?? true,
           onExhausted: d.onExhausted ?? 'reroll',
-          ...this.entryList(d.roll, d.entries, 'entries'),
+          ...this.entryList(d.roll, d.entries, 'entries', d.against),
         }
       case 'oracle': {
         const variants: Record<string, EntryList> = {}
@@ -283,6 +291,7 @@ class CompileContext {
             variant.roll ?? d.roll,
             variant.entries,
             `variants.${name}.entries`,
+            d.against,
           )
         }
         for (const option of declared)
@@ -385,22 +394,34 @@ class CompileContext {
     }
   }
 
-  private entryList(roll: string | undefined, entries: Entry[], at: string): EntryList {
+  private entryList(
+    roll: string | undefined,
+    entries: Entry[],
+    at: string,
+    written?: Partial<Record<AgainstOp, number | string>>,
+  ): EntryList {
     const rolled: { roll?: string; parsedRoll?: DiceExpression } =
       roll !== undefined
         ? this.roll(roll, at === 'entries' ? 'roll' : at.replace(/\.entries$/, '.roll'))
         : {}
+    const against = written && this.against(written, roll)
     const compiled = entries.map((e, i): CompiledEntry => {
       const where = `${at}[${i}]`
       if (roll !== undefined && e.weight !== undefined)
         this.error(where, 'Rolled tables use ranges, not weights')
-      if (roll !== undefined && e.range === undefined)
+      // Rolled against a number, its entries go by `against.*`: a range is theirs to add.
+      if (roll !== undefined && e.range === undefined && !against)
         this.error(where, 'Missing range (the table has a roll)')
       if (roll === undefined && e.range !== undefined)
         this.error(where, 'Ranges need a roll on the table')
       if (e.when) this.conditions(e.when, `${where}.when`)
       if (e.unless) this.conditions(e.unless, `${where}.unless`)
-      const [min, max] = e.range !== undefined ? parseRange(e.range) : [undefined, undefined]
+      const [min, max] =
+        e.range !== undefined
+          ? parseRange(e.range)
+          : against
+            ? [-Infinity, Infinity]
+            : [undefined, undefined]
       if (min !== undefined && max !== undefined && min > max)
         this.error(`${where}.range`, `Range ${min}-${max} is reversed`)
       return {
@@ -427,7 +448,22 @@ class CompileContext {
     for (const dup of ids.filter((id, i) => ids.indexOf(id) !== i))
       this.error(at, `Duplicate entry id "${dup}"`)
     if (rolled.parsedRoll) this.checkCoverage(rolled.parsedRoll, compiled, at)
-    return { ...rolled, entries: compiled }
+    return { ...rolled, ...(against && { against }), entries: compiled }
+  }
+
+  /** `against:`: one comparison, with a number or a template read when rolled. */
+  private against(
+    written: Partial<Record<AgainstOp, number | string>>,
+    roll: string | undefined,
+  ): Against | undefined {
+    if (roll === undefined) {
+      this.error('against', 'A table rolled against a number needs a roll')
+      return undefined
+    }
+    const [op, value] = Object.entries(written)[0] as [AgainstOp, number | string]
+    if (typeof value === 'string' && !TEMPLATE.test(value) && !Number.isFinite(Number(value)))
+      this.error(`against.${op}`, `"${value}" is not a number nor a value in {{…}}`)
+    return { op, value }
   }
 
   /** Overlapping unconditional ranges are errors; unreachable entries and gaps are warnings. */

@@ -175,10 +175,10 @@ scouting:
   description: |-
     La tira _Explorar el camino_: un d6 igual o menor que la habilidad que eligió el jugador, de quien actúa.
 
-    **Enseña:** una prueba que nombra su habilidad con un parámetro (`acting.values[params.skill]`): una tabla para cada habilidad que la acción pueda preguntar; una tirada por debajo (`gte: '{{roll}}'`), cada resultado su propia rama; un estado de la Compañía que se da por dos lugares, este y el siguiente (`party.conditions.scouted: 2`, el `lasts: places` de su hoja), que hace que la tirada de encuentro del siguiente lugar tome por sí sola un modo de tirada (_¿Quién va?_, _Sobre aviso_).
+    **Enseña:** una prueba que nombra su habilidad con un parámetro (`acting.values[params.skill]`): una tabla para cada habilidad que la acción pueda preguntar; una tirada por debajo declarada como aquello contra lo que se tira la tabla (`against: { lte: '{{acting.values[params.skill]}}' }`): la mesa de dados dice _Necesitas 3 o menos_ al lanzarlos, y las entradas no necesitan rango, solo cómo fue (`against.success`); un estado de la Compañía que se da por dos lugares, este y el siguiente (`party.conditions.scouted: 2`, el `lasts: places` de su hoja), que hace que la tirada de encuentro del siguiente lugar tome por sí sola un modo de tirada (_¿Quién va?_, _Sobre aviso_).
   entries:
-    clear: 'El camino está despejado ({{roll}} contra {{acting.values[params.skill]}})'
-    nothing: 'No hay nada que sacar de ahí fuera ({{roll}} contra {{acting.values[params.skill]}})'
+    clear: 'El camino está despejado ({{roll}} contra {{against.target}})'
+    nothing: 'No hay nada que sacar de ahí fuera ({{roll}} contra {{against.target}})'
 drive-off:
   name: Ahuyentándolos
   description: |-
@@ -204,20 +204,20 @@ pick-door:
   description: |-
     La tira _Abrir la cerradura_ ante una puerta cerrada con llave al alcance (la de la bodega del Hurón Mojado): 2d6 y el Sigilo de quien actúa, contra 7 más la Cerradura de la puerta. Si lo logra, esa puerta queda abierta el resto del viaje; si no, la cerradura aguanta.
 
-    **Enseña:** una tirada contra un valor de la conexión elegida (`'place.connections[params.door].lock': { lt: '{{roll - 6}}' }`), una puerta al alcance (`from: place.connections.door.near`) y un efecto solo sobre esa puerta (`'place.connections[params.door].state': open`).
+    **Enseña:** una tirada para igualar o superar un valor de la conexión elegida (`against: { gte: '{{7 + place.connections[params.door].lock}}' }`), una puerta al alcance (`from: place.connections.door.near`) y un efecto solo sobre esa puerta (`'place.connections[params.door].state': open`).
   entries:
-    open: 'La cerradura cede ({{roll}} contra {{7 + place.connections[params.door].lock}})'
-    holds: 'La cerradura aguanta ({{roll}} contra {{7 + place.connections[params.door].lock}})'
+    open: 'La cerradura cede ({{roll}} contra {{against.target}})'
+    holds: 'La cerradura aguanta ({{roll}} contra {{against.target}})'
 pick-chest:
   name: Forzando la cerradura
   description: |-
     La tira _Forzar la cerradura_ ante un cofre cerrado: 2d6 y el Sigilo de quien actúa, contra 7 más la Cerradura del cofre. Si lo logra, se abre; una pifia (4 o menos) hace saltar su aguja, si la tiene; si no, la cerradura aguanta.
 
-    **Enseña:** una tirada contra un valor de la cosa elegida (`'characters[params.chest].values.lock': { lt: '{{roll - 6}}' }`), con las filas distinguidas por condiciones sobre ella, escritas como opuestas unas de otras para que siempre salga una.
+    **Enseña:** una tirada para igualar o superar un valor de la cosa elegida (`against: { gte: '{{7 + characters[params.chest].values.lock}}' }`), y un rango a su lado: un fallo de 4 o menos es una pifia (`range: 2-4` con `against.success: false`), leída antes que el fallo sin más.
   entries:
-    open: 'La cerradura cede ({{roll}} contra {{7 + characters[params.chest].values.lock}})'
+    open: 'La cerradura cede ({{roll}} contra {{against.target}})'
     sprung: 'Una pifia, y salta la aguja: {{characters[params.chest].values.needle}} de daño a {{acting.name}}'
-    holds: 'La cerradura aguanta ({{roll}} contra {{7 + characters[params.chest].values.lock}})'
+    holds: 'La cerradura aguanta ({{roll}} contra {{against.target}})'
 chest-goods:
   name: En el cofre
   description: |-

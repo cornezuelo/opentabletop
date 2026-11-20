@@ -15,6 +15,7 @@ export {
   type RefScope,
 } from './compile/refs'
 export type {
+  Against,
   Compiled,
   CompiledDeck,
   CompiledEntry,

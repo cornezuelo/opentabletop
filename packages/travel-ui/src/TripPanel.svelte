@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick, untrack, type Snippet } from 'svelte'
-  import type { DiceResult } from '@open-tabletop/dice'
+  import type { AgainstTarget, DiceResult } from '@open-tabletop/dice'
   import {
     encounterView,
     fightStarters,
@@ -427,7 +427,15 @@
    * the lines the step wrote from `from` on (the journal's number it was used at).
    */
   let thrown = $state<
-    { id: string; rolled: DiceResult; title: string; why: string[]; from?: number } | undefined
+    | {
+        id: string
+        rolled: DiceResult
+        title: string
+        why: string[]
+        against?: AgainstTarget
+        from?: number
+      }
+    | undefined
   >()
   /** Lines that say nothing of the outcome: the roll itself, a roll asked next. */
   const QUIET_OUTCOME = new Set(['ROLLED', 'CHECK_YOURS', 'ACTION_YOURS'])
@@ -874,14 +882,16 @@
     said={yours.said ?? ''}
     mode={yours.mode ? nameOf(yours.mode) : ''}
     how={yours.how}
-    rows={// The table's own roll (not one inside its result): what each total gives.
-    !yours.of && !yours.action && !yours.said && !yours.given?.length
+    against={yours.against}
+    rows={// The table's own roll (not one inside its result): what each total gives; one
+    // rolled against a number says what it needs instead.
+    !yours.of && !yours.action && !yours.said && !yours.given?.length && !yours.against
       ? ladderOf(rowsOf?.(yours.table))
       : undefined}
     staged={!!fight}
     {locale}
     ongive={(total) => onstep({ type: 'rolled', id: id, total })}
-    onthrow={(rolled, title, why) => (thrown = { id, rolled, title, why })}
+    onthrow={(rolled, title, why, against) => (thrown = { id, rolled, title, why, against })}
     onforme={() => onstep({ type: 'resolveCheck', id: id })}
     oncomputer={() => {
       onedit((s) => setRollWay(s, 'computer'))
@@ -1062,6 +1072,7 @@
     rolls={[now.rolled]}
     title={now.title}
     why={now.why}
+    against={now.against}
     {locale}
     tells
     {outcome}

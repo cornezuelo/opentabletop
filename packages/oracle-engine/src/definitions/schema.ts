@@ -77,8 +77,27 @@ const rollModes = {
   advantage: z.boolean().optional(),
 }
 
+/**
+ * What a rolled list is rolled against: one comparison of its total with a number (or a
+ * value it reads): `{ lte: '{{acting.values.stealth}}' }` is a roll-under, `{ gte: 8 }` a
+ * roll to meet or beat. Its entries read `against.success`, `against.margin` and
+ * `against.target`, and whoever shows the roll shows the number to beat.
+ */
+const against = z
+  .object({
+    lte: z.union([z.number(), z.string()]).optional(),
+    lt: z.union([z.number(), z.string()]).optional(),
+    gte: z.union([z.number(), z.string()]).optional(),
+    gt: z.union([z.number(), z.string()]).optional(),
+  })
+  .strict()
+  .refine((a) => Object.keys(a).length === 1, {
+    message: 'against compares with one number: lte, lt, gte or gt',
+  })
+
 const tableBody = {
   roll: z.string().optional(),
+  against: against.optional(),
   ...rollModes,
   clamp: z.boolean().optional(),
   onExhausted: z.enum(['reroll', 'next', 'none']).optional(),
@@ -105,6 +124,7 @@ export const oracleSchema = z
         .strict(),
     ),
     roll: z.string().optional(),
+    against: against.optional(),
     ...rollModes,
     clamp: z.boolean().optional(),
     onExhausted: z.enum(['reroll', 'next', 'none']).optional(),

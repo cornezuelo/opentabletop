@@ -1,6 +1,6 @@
 <script lang="ts">
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
-  import { DiceTray } from '@open-tabletop/ui-kit'
+  import { againstLine, DiceTray } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import Self from './ResultCard.svelte'
 
@@ -52,6 +52,12 @@
     <div class="dice">
       <DiceTray rolls={dice} locale={ui.locale()} large={top} animate={top && !thrown} />
     </div>
+  {/if}
+  {#if resolution.against}
+    <!-- Rolled against a number: what it was and whether it made it. -->
+    <p class="against" class:made={resolution.against.success}>
+      {againstLine(resolution.against, ui.locale())}
+    </p>
   {/if}
   {#if resolution.children.length}
     <details open={!top}>
@@ -128,5 +134,15 @@
   .source {
     font-size: 12px;
     color: var(--accent);
+  }
+
+  .against {
+    margin: 4px 0 0;
+    font-weight: 700;
+    color: var(--danger-text);
+  }
+
+  .against.made {
+    color: var(--good);
   }
 </style>
