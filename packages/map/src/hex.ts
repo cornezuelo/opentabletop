@@ -121,6 +121,7 @@ export function normalizeHex(hex: HexData | undefined): HexData {
         ...(description ? { description } : {}),
         ...(note ? { note } : {}),
         ...(p.icon ? { icon: p.icon } : {}),
+        ...(p.picture ? { picture: p.picture } : {}),
         ...(cleanFields(p.fields) && { fields: cleanFields(p.fields) }),
         ...(p.template ? { template: p.template } : {}),
       }
@@ -138,6 +139,7 @@ export function normalizeHex(hex: HexData | undefined): HexData {
 
   const note = hex.note?.trim()
   if (note) out.note = note
+  if (hex.picture) out.picture = hex.picture
 
   const icon = normalizeIcon(hex.icon)
   if (icon) out.icon = icon

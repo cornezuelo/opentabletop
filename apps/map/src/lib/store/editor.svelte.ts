@@ -606,7 +606,7 @@ class Editor {
     this.map = map
     this.campaign = campaign
     // Its imported images offered on every map (docs/character-pictures.md §8).
-    if (map.assets.length) void keepMapIcons(map.assets)
+    if (map.assets.length) void keepMapIcons(map.assets, undefined, map.underlay?.asset)
     this.history.clear()
     this.selected = null
     this.picked = null

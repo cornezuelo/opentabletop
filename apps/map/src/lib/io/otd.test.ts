@@ -426,4 +426,39 @@ describe('pictures in a map’s file', () => {
     expect(carriedImages(file)).toEqual([expect.objectContaining({ id: 'brenna-face' })])
     expect(bundleToMap(file).map.tokens[0].character?.picture).toBe('brenna-face')
   })
+
+  it('keeps the pictures of its cells and places, and the picture under it, carrying them', async () => {
+    for (const id of ['gate', 'tower', 'scan'])
+      await putImage({
+        id,
+        name: id,
+        modified: '2026-11-20T00:00:00.000Z',
+        format: IMAGE_FORMAT,
+        data: 'data:image/webp;base64,UklGR',
+        width: 800,
+        height: 600,
+        tags: [],
+      })
+    const map = sampleMap()
+    map.hexes['2,2'] = {
+      name: 'Hollow Gate',
+      picture: 'gate',
+      pois: [{ id: 'tower01', name: 'The tower', picture: 'tower' }],
+    }
+    map.assets = [{ id: 'scan', name: 'Scan', dataUrl: 'data:image/webp;base64,UklGR' }]
+    map.underlay = { asset: 'scan', x: -10, y: 5, width: 900, cells: 0.4 }
+    const file = JSON.parse(JSON.stringify(await withCarriedImages(mapToBundle(map))))
+    expect(validateBundle(file).errors).toEqual([])
+    expect(
+      carriedImages(file)
+        .map((i) => i.id)
+        .sort(),
+    ).toEqual(['gate', 'tower'])
+    const read = bundleToMap(file).map
+    expect(read.hexes['2,2']).toMatchObject({
+      picture: 'gate',
+      pois: [{ name: 'The tower', picture: 'tower' }],
+    })
+    expect(read.underlay).toEqual(map.underlay)
+  })
 })

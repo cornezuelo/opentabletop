@@ -31,6 +31,7 @@ import {
   type HexKey,
   type HexMap,
   MapFormatError,
+  parseUnderlay,
   parseWalls,
   type MapToken,
   partyToken,
@@ -155,6 +156,8 @@ interface MapExt {
   /** Files written before v25: the packs the map added (now its campaign's). */
   packs?: string[]
   assets: HexMap['assets']
+  /** A picture under the map. */
+  underlay?: HexMap['underlay']
   icons: Record<string, HexIcon>
   /** How hex names are shown, per hex (only hexes that differ from the map's style). */
   names?: Record<string, Partial<Pick<HexData, 'showName' | 'nameStyle' | 'nameOffset'>>>
@@ -212,6 +215,7 @@ export function mapToBundle(
     if (hex.note) out.noteRef = hex.note
     if (hex.tags?.length) out.tags = hex.tags
     if (hex.fields?.length) out.stats = hex.fields
+    if (hex.picture) out.ext = { map: { picture: hex.picture } }
     if (Object.keys(out).length) hexes[key] = out
     for (const poi of hex.pois ?? [])
       pois.push({
@@ -221,7 +225,14 @@ export function mapToBundle(
         location: { map: map.meta.id, hex: key },
         ...(poi.description && { description: poi.description }),
         ...(poi.note && { noteRef: poi.note }),
-        ...(poi.icon && { ext: { map: { icon: poi.icon } } }),
+        ...((poi.icon || poi.picture) && {
+          ext: {
+            map: {
+              ...(poi.icon && { icon: poi.icon }),
+              ...(poi.picture && { picture: poi.picture }),
+            },
+          },
+        }),
         ...(toStats(poi.fields) && { stats: toStats(poi.fields) }),
         // The place template it was made from: a reference (`place:<catalogue>/<id>`).
         ...(poi.template && { refs: [`place:${poi.template}`] }),
@@ -243,6 +254,7 @@ export function mapToBundle(
     ...(map.pieces?.length && { pieces: map.pieces }),
     ...(map.meta.style && { style: map.meta.style }),
     assets: map.assets,
+    ...(map.underlay && { underlay: map.underlay }),
     icons,
     ...(Object.keys(names).length && { names }),
     ...(campaign.oracle?.history.length && { oracleHistory: campaign.oracle.history }),
@@ -586,6 +598,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
       note: hex.noteRef,
       tags: hex.tags,
       fields: hex.stats,
+      picture: (hex.ext as { map?: { picture?: unknown } } | undefined)?.map?.picture,
     }
   for (const [key, icon] of Object.entries(ext.icons ?? {})) hexes[key] = { ...hexes[key], icon }
   for (const [key, name] of Object.entries(ext.names ?? {})) hexes[key] = { ...hexes[key], ...name }
@@ -596,6 +609,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
       description: poi.description,
       note: poi.noteRef,
       icon: (poi.ext as { map?: { icon?: string } } | undefined)?.map?.icon,
+      picture: (poi.ext as { map?: { picture?: string } } | undefined)?.map?.picture,
       fields: fromStats((poi as { stats?: Record<string, unknown> }).stats),
       template: poi.refs?.find((r) => r.startsWith('place:'))?.slice('place:'.length),
     }
@@ -717,6 +731,7 @@ export function bundleToMap(raw: unknown): OpenedMap {
     })),
     walls: parseWalls(otdMap.walls),
     assets: ext.assets ?? [],
+    ...(parseUnderlay(ext.underlay) && { underlay: parseUnderlay(ext.underlay) }),
     labels: ext.labels ?? [],
     regions: ext.regions ?? [],
     ...(ext.captions && { captions: ext.captions }),

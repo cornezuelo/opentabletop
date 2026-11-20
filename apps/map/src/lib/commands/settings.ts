@@ -149,3 +149,32 @@ export class SetStyleCommand implements Command {
     return { kind: 'all' }
   }
 }
+
+/** The picture under the map and the map's images (where it is kept), before or after. */
+export interface UnderlayState {
+  underlay?: HexMap['underlay']
+  assets: HexMap['assets']
+}
+
+/** Chooses, fits or removes the picture under the map, with the image it shows. */
+export class SetUnderlayCommand implements Command {
+  constructor(
+    private before: UnderlayState,
+    private after: UnderlayState,
+  ) {}
+
+  private put(map: HexMap, state: UnderlayState): MapChange {
+    if (state.underlay) map.underlay = structuredClone(state.underlay)
+    else delete map.underlay
+    map.assets = [...state.assets]
+    return { kind: 'underlay' }
+  }
+
+  apply(map: HexMap): MapChange {
+    return this.put(map, this.after)
+  }
+
+  revert(map: HexMap): MapChange {
+    return this.put(map, this.before)
+  }
+}

@@ -754,6 +754,7 @@ export const en = {
     makeOpen: 'Open',
   },
   hex: {
+    pictureOf: 'Picture of {name}',
     nothingHere: 'Nothing is noted on this cell.',
     readOnly: 'To change it, go back to Edit (P).',
     part: {
@@ -814,6 +815,26 @@ export const en = {
       'Values of this token (an NPC, a monster…). Tables rolled from the Oracle panel while it is selected read them as `{{token.<key>}}`, and the rules of a trip as `{{place.tokens.<key>}}` while it stands on the cell of the party:\n• `strength` = `3` → `{{token.strength}}`\n• `fare` = `5` → `{{place.tokens.fare}}`',
     poiHelp:
       'Values of this point of interest, kept with it in the map and its file. Rules and tables read them on its cell as `{{place.poi.<key>}}`; with several points of interest in a cell, the first listed wins on the same name:\n• `price` = `2` → `{{place.poi.price}}`\n• `cleared` = `true` → `place.poi.cleared: true`',
+  },
+  underlay: {
+    title: 'Picture under the map',
+    help: 'A picture under the cells (a real map, a scanned one with hexes or squares of its own), to trace over or play on: fit it until its grid meets the cells. It’s kept inside the map, so its file shows it anywhere; exports and prints draw it too.',
+    choose: 'Choose a picture…',
+    change: 'Change…',
+    remove: 'Remove',
+    pickerTitle: 'The picture under the map',
+    show: 'Show it',
+    size: 'Size',
+    sizeHelp:
+      "Its width, as a share of the map's: `100 %` as wide as the cells, more to make its own grid larger. Its height follows its proportions.",
+    right: 'Move right',
+    down: 'Move down',
+    moveHelp:
+      "In cells, by hundredths: nudge it until its grid lies on the cells'. Negative moves it left or up.",
+    cells: 'Cells',
+    cellsHelp:
+      'How opaque the cells (painted or empty) are over the picture: `0 %` leaves only the picture, `100 %` hides it. Icons, roads and texts are drawn as always.',
+    fit: 'Fit to the map',
   },
   regionStyle: {
     title: vocabulary.en.terms.regions,

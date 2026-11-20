@@ -8,7 +8,7 @@
  * The shapes of the slots a picture shows in, by what it's for: width over height. A picture is
  * kept whole, in its own proportions (§10); a slot shows it covered, a square one by its face.
  */
-export const IMAGE_SHAPES = { portrait: 1, banner: 3, item: 1, map: 1.5 } as const
+export const IMAGE_SHAPES = { portrait: 1, banner: 3, item: 1, place: 1.5, map: 1.5 } as const
 export type ImageShape = keyof typeof IMAGE_SHAPES
 
 /** The longer side of a kept picture, at most (512 until 2026-11-20; whole pictures since, §10). */

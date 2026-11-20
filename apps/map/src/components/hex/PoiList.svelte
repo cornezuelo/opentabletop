@@ -1,6 +1,6 @@
 <script lang="ts">
   import FieldEditor from '../FieldEditor.svelte'
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, tooltip, WholePicture } from '@open-tabletop/ui-kit'
   import { localize } from '@open-tabletop/session'
   import { activeSystem } from '../../lib/play/systems'
   import { getLocale, t } from '../../lib/i18n/index.svelte'
@@ -93,6 +93,15 @@
           <strong>{templateName(poi.template)}</strong></span
         >
       {/if}
+      <WholePicture
+        image={poi.picture}
+        locale={getLocale()}
+        shape="place"
+        empty="line"
+        maxHeight={160}
+        title={t('hex.pictureOf', { name: poi.name })}
+        onchange={(picture) => update(poi.id, { picture })}
+      />
       {#if picking === poi.id}
         <TokenIconPicker
           value={poi.icon}

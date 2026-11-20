@@ -761,6 +761,7 @@ export const es: Messages = {
     makeOpen: 'Abrir',
   },
   hex: {
+    pictureOf: 'Imagen de {name}',
     nothingHere: 'No hay nada apuntado en esta casilla.',
     readOnly: 'Para cambiarla, vuelve a Editar (P).',
     part: {
@@ -821,6 +822,26 @@ export const es: Messages = {
       'Valores de este token (un PNJ, un monstruo…). Las tablas tiradas desde el panel del Oráculo mientras está seleccionado los leen como `{{token.<clave>}}`, y las reglas de un viaje como `{{place.tokens.<clave>}}` mientras esté en la casilla del grupo:\n• `strength` = `3` → `{{token.strength}}`\n• `fare` = `5` → `{{place.tokens.fare}}`',
     poiHelp:
       'Valores de este punto de interés, guardados con él en el mapa y su fichero. Las reglas y las tablas los leen en su casilla como `{{place.poi.<clave>}}`; con varios puntos de interés en una casilla, con el mismo nombre gana el primero de la lista:\n• `price` = `2` → `{{place.poi.price}}`\n• `cleared` = `true` → `place.poi.cleared: true`',
+  },
+  underlay: {
+    title: 'Imagen bajo el mapa',
+    help: 'Una imagen bajo las casillas (un mapa real, uno escaneado con hexágonos o cuadrículas propios), para calcarlo o jugar sobre él: ajústala hasta que su cuadrícula coincida con las casillas. Se guarda dentro del mapa, así que su archivo la muestra en cualquier sitio; las exportaciones e impresiones la dibujan también.',
+    choose: 'Elegir una imagen…',
+    change: 'Cambiar…',
+    remove: 'Quitar',
+    pickerTitle: 'La imagen bajo el mapa',
+    show: 'Mostrarla',
+    size: 'Tamaño',
+    sizeHelp:
+      'Su ancho, en proporción al del mapa: `100 %` tan ancha como las casillas, más para agrandar su propia cuadrícula. Su alto sigue sus proporciones.',
+    right: 'Mover a la derecha',
+    down: 'Mover hacia abajo',
+    moveHelp:
+      'En casillas, por centésimas: muévela poco a poco hasta que su cuadrícula caiga sobre las casillas. En negativo, a la izquierda o hacia arriba.',
+    cells: 'Casillas',
+    cellsHelp:
+      'Cuánto tapan las casillas (pintadas o vacías) la imagen: `0 %` deja solo la imagen, `100 %` la oculta. Los iconos, caminos y textos se dibujan como siempre.',
+    fit: 'Ajustarla al mapa',
   },
   regionStyle: {
     title: vocabulary.es.terms.regions,

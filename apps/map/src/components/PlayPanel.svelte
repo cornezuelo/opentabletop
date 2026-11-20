@@ -32,7 +32,8 @@
   } from '../lib/play/systems'
   import { editor } from '../lib/store/editor.svelte'
   import { terrainLabel } from '../lib/terrainName'
-  import { InfoTip, confirmAction } from '@open-tabletop/ui-kit'
+  import type { HexKey } from '@open-tabletop/map'
+  import { InfoTip, confirmAction, WholePicture } from '@open-tabletop/ui-kit'
 
   /** The party is a token: its look is edited in Tokens, its position by playing. */
   const party = $derived(editor.tokens.find((t) => t.kind === 'party'))
@@ -84,6 +85,15 @@
   }
   /** The map as a place of the roster (its name follows the map's). */
   const rosterPlace = $derived((void editor.meta.name, mapPlace()))
+
+  /** The picture of a cell: its own, else the first of its places that has one. */
+  function pictureAt(key: HexKey): { id: string; name: string } | undefined {
+    void editor.revision
+    const cell = editor.map.hexes[key]
+    if (cell?.picture) return { id: cell.picture, name: cell.name ?? '' }
+    const poi = cell?.pois?.find((p) => p.picture)
+    return poi?.picture ? { id: poi.picture, name: poi.name } : undefined
+  }
 </script>
 
 {#snippet mapOptions()}
@@ -205,8 +215,23 @@
 {/snippet}
 
 {#snippet ways()}
-  <!-- Where the party stands leads into another map: Go in / Go out from here. -->
-  {#if party?.hex}<HexSubMaps key={party.hex} editing={false} />{/if}
+  {#if party?.hex}
+    <!-- The picture of where the party stands, above the journal, as it arrives. -->
+    {@const shown = pictureAt(party.hex)}
+    {#if shown}
+      <WholePicture
+        image={shown.id}
+        title={shown.name}
+        locale={getLocale()}
+        shape="place"
+        maxHeight={160}
+        disabled
+        onchange={() => {}}
+      />
+    {/if}
+    <!-- Where the party stands leads into another map: Go in / Go out from here. -->
+    <HexSubMaps key={party.hex} editing={false} />
+  {/if}
 {/snippet}
 
 {#if play?.away}

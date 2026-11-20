@@ -35,6 +35,7 @@
         portrait: 'Add a portrait',
         banner: 'Add a banner',
         item: 'Add a picture',
+        place: 'Add a picture',
         map: 'Add a picture',
       },
       change: 'Change',
@@ -44,13 +45,14 @@
         portrait: 'Añadir un retrato',
         banner: 'Añadir un estandarte',
         item: 'Añadir una imagen',
+        place: 'Añadir una imagen',
         map: 'Añadir una imagen',
       },
       change: 'Cambiar',
     },
   }
   const text = $derived(locale === 'es' ? TEXT.es : TEXT.en)
-  const DEFAULT_SIZE = { portrait: 96, banner: 64, item: 40, map: 96 }
+  const DEFAULT_SIZE = { portrait: 96, banner: 64, item: 40, place: 96, map: 96 }
   const height = $derived(size ?? DEFAULT_SIZE[shape])
   const width = $derived(Math.round(height * (IMAGE_SHAPES[shape] || 1.5)))
   /** Its own words fit only where there's room for them. */

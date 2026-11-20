@@ -14,7 +14,7 @@ import { assetToAdd, ICON_USE, iconChoices, keepMapIcons, type IconChoice } from
 /** The map's images, then the library's icons it hasn't got (read reactively). */
 export function iconImages(): IconChoice[] {
   void editor.revision
-  return iconChoices(editor.map.assets, libraryImages(ICON_USE))
+  return iconChoices(editor.map.assets, libraryImages(ICON_USE), editor.map.underlay?.asset)
 }
 
 /** Before an icon is used: one of the library's the map hasn't got is added to its images. */

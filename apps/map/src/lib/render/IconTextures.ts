@@ -6,9 +6,10 @@ const RASTER_SIZE = 256
 /**
  * How an image is laid in its texture: `contain`, fitted whole in a square (icons and art);
  * `natural`, at its own size (up to 1024 px a side) and repeatable (an image laid over the map
- * as a texture); `disc`, filling a square and clipped round (a token's picture).
+ * as a texture); `disc`, filling a square and clipped round (a token's picture); `picture`, at its
+ * own size up to 4096 px a side, not repeated (the picture under the map).
  */
-export type TextureFit = 'contain' | 'natural' | 'disc'
+export type TextureFit = 'contain' | 'natural' | 'disc' | 'picture'
 
 /** The square of an image a disc shows (a picture's face), in the image's pixels. */
 export interface Crop {
@@ -67,6 +68,14 @@ async function rasterize(url: string, fit: TextureFit, crop?: Crop): Promise<Tex
   const image = new Image()
   image.src = url
   await image.decode()
+  if (fit === 'picture') {
+    const scale = Math.min(1, 4096 / Math.max(image.naturalWidth || 1, image.naturalHeight || 1))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round((image.naturalWidth || 1) * scale))
+    canvas.height = Math.max(1, Math.round((image.naturalHeight || 1) * scale))
+    canvas.getContext('2d')!.drawImage(image, 0, 0, canvas.width, canvas.height)
+    return Texture.from(canvas)
+  }
   const canvas = document.createElement('canvas')
   if (fit === 'natural') {
     const fit = Math.min(1, 1024 / Math.max(image.naturalWidth || 1, image.naturalHeight || 1))

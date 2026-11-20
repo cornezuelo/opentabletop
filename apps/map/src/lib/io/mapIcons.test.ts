@@ -29,6 +29,10 @@ describe('the pickers offer the map’s images and the library’s icons', () =>
       { id: 'tower', name: 'Tower', url: tower.dataUrl },
       { id: 'well', name: 'Well', url: well.data },
     ])
+    // The picture under the map is one of its images, not an icon.
+    expect(iconChoices([tower], library, 'tower')).toEqual([
+      { id: 'well', name: 'Well', url: well.data },
+    ])
   })
 
   it('a library icon chosen becomes one of the map’s images; nothing else does', () => {

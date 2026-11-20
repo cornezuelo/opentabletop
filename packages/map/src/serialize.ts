@@ -31,6 +31,7 @@ import type {
   MapParent,
   MapWay,
   MapAsset,
+  MapUnderlay,
   MapLabel,
   CaptionOverride,
   CaptionStyle,
@@ -150,6 +151,7 @@ function validate(data: Record<string, unknown>): HexMap {
     walls: parseWalls(data.walls),
     ...(Array.isArray(data.pieces) && { pieces: parseMapPieces(data.pieces) }),
     assets: parseAssets(data.assets),
+    ...(parseUnderlay(data.underlay) && { underlay: parseUnderlay(data.underlay) }),
     labels: parseLabels(data.labels),
     tokens: parseTokens(data.tokens),
     regions: parseRegions(data.regions),
@@ -173,6 +175,7 @@ function parseHex(value: Record<string, unknown>): HexData {
       description: str(p.description),
       note: str(p.note),
       icon: str(p.icon),
+      picture: str(p.picture),
       fields: parseFields(p.fields),
       template: str(p.template),
     }))
@@ -189,6 +192,7 @@ function parseHex(value: Record<string, unknown>): HexData {
     tags,
     fields,
     note: str(value.note),
+    picture: str(value.picture),
     icon: parseIcon(value.icon),
     ...(value.showName === false && { showName: false }),
     nameStyle: parseCaptionOverride(value.nameStyle, DEFAULT_CAPTIONS.hexNames),
@@ -463,6 +467,21 @@ function parseRegions(value: unknown): MapRegion[] {
 }
 
 /** The valid parts of a region style (clamped); missing or broken ones are left out. */
+/** A picture under the map, if it names an image and has a size. */
+export function parseUnderlay(value: unknown): MapUnderlay | undefined {
+  if (!isRecord(value) || typeof value.asset !== 'string' || !value.asset) return undefined
+  const num = (v: unknown, fallback: number) =>
+    typeof v === 'number' && Number.isFinite(v) ? v : fallback
+  return {
+    asset: value.asset,
+    x: num(value.x, 0),
+    y: num(value.y, 0),
+    width: positiveNumber(value.width, 1),
+    cells: Math.min(1, Math.max(0, num(value.cells, 0.5))),
+    ...(value.hidden === true && { hidden: true }),
+  }
+}
+
 function parseRegionStyle(value: unknown): Partial<RegionStyle> {
   if (!isRecord(value)) return {}
   const num = (v: unknown, [min, max]: readonly [number, number]) =>

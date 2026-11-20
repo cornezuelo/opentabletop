@@ -12,7 +12,7 @@
   import PoiList from './PoiList.svelte'
   import TagEditor from './TagEditor.svelte'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
-  import { t, type MessageKey } from '../../lib/i18n/index.svelte'
+  import { getLocale, t, type MessageKey } from '../../lib/i18n/index.svelte'
   import { deepLinkUrl } from '../../lib/io/deepLinkSync.svelte'
   import {
     collectSuggestions,
@@ -29,6 +29,7 @@
     MoreMenu,
     tooltip,
     showToast,
+    WholePicture,
   } from '@open-tabletop/ui-kit'
   import { editor } from '../../lib/store/editor.svelte'
   import { terrainName } from '../../lib/terrainName'
@@ -162,6 +163,16 @@
       <HexReadOnly {hex} regions={regionChain(editor.regions, hex.region)} {inherited} />
     {:else}
       <HexSubMaps {key} name={hex.name ?? ''} editing={askedFor(key, 'ways')} />
+      <!-- Its picture, whole (docs/character-pictures.md §10). -->
+      <WholePicture
+        image={hex.picture}
+        locale={getLocale()}
+        shape="place"
+        empty="line"
+        maxHeight={200}
+        title={t('hex.pictureOf', { name: hex.name || selected.coord })}
+        onchange={(picture) => editor.editHex(key, (h) => ({ ...h, picture }))}
+      />
       <label class="field">
         <span>{t('hex.name')}</span>
         <input

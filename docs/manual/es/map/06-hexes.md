@@ -6,10 +6,11 @@ Un clic en un token muestra la casilla en la que está. El panel da la coordenad
 
 ## Qué puede tener una casilla
 
+- **Su imagen** (_+ Añadir una imagen_, sobre su nombre): una imagen de tu biblioteca, entera (un paisaje del lugar, el dibujo de una torre); un clic la muestra a tamaño completo. Sale en el panel de la casilla, y en Jugar sobre el viaje mientras el grupo está allí ([Jugar un viaje](08-play.md)). Se elige como el retrato de un personaje ([Personajes](../characters/01-getting-started.md)).
 - **Nombre**: se muestra bajo la casilla en el mapa; puedes ocultarlo o darle un estilo propio.
 - **Región**: cuando el mapa tiene regiones.
 - **Notas**: notas breves del máster en Markdown. El trasfondo del lugar va en tu aplicación de notas (ver abajo).
-- **PDI**: puntos de interés, cada uno con nombre, descripción, su propia nota enlazada y, si quieres, un icono para distinguirlos en el panel (no se dibuja en el mapa).
+- **PDI**: puntos de interés, cada uno con nombre, descripción, su propia nota enlazada, una imagen (_+ Añadir una imagen_, como la de la casilla) y, si quieres, un icono para distinguirlos en el panel (no se dibuja en el mapa).
 - **Etiquetas**: palabras libres (`ruinas`, `encantado`, `referencia`…) con sugerencias del resto del mapa.
 - **Campos**: pares clave–valor (`danger: 3`, `elevation: 1200`). Las comprobaciones de viaje y las tablas los leen por su clave. Mientras escribes se sugieren las claves y valores ya usados en el mapa, y también los nombres que leen las tablas de los packs cargados (por ejemplo, el `danger` de las Marcas Grises).
 - Los **Campos** de un punto de interés: cada punto de interés tiene los suyos (`rooms: 3`), guardados con él; las reglas y las tablas los leen en su casilla como `place.poi.rooms` ([Qué ven las tablas](../technical/04-what-tables-see.md)). Con dos en una casilla, con el mismo nombre gana el primero de la lista.

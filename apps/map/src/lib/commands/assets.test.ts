@@ -8,6 +8,7 @@ import {
 } from '@open-tabletop/map'
 import { AddAssetCommand, RemoveAssetCommand } from './assets'
 import { History } from './history'
+import { SetUnderlayCommand } from './settings'
 
 const asset = { id: 'asset0000001', name: 'Torre', dataUrl: 'data:image/png;base64,iVBORw0KGgo=' }
 
@@ -90,5 +91,37 @@ describe('assets', () => {
       outline: true,
       outlineColor: '#000000',
     })
+  })
+})
+
+describe('the picture under the map', () => {
+  it('is chosen with its image, fitted, and undone in steps; it survives saving', () => {
+    const map = createMap()
+    const history = new History()
+    const scan = { ...asset, id: 'scan00000001', name: 'Scan' }
+    history.execute(
+      new SetUnderlayCommand(
+        { assets: [] },
+        {
+          underlay: { asset: scan.id, x: 0, y: 0, width: 500, cells: 0.5 },
+          assets: [scan],
+        },
+      ),
+      map,
+    )
+    const fitted = { asset: scan.id, x: -3, y: 4, width: 540, cells: 0.2 }
+    history.execute(
+      new SetUnderlayCommand(
+        { underlay: structuredClone(map.underlay), assets: [scan] },
+        { underlay: fitted, assets: [scan] },
+      ),
+      map,
+    )
+    expect(deserializeMap(serializeMap(map)).underlay).toEqual(fitted)
+    history.undo(map)
+    expect(map.underlay?.width).toBe(500)
+    history.undo(map)
+    expect(map.underlay).toBeUndefined()
+    expect(map.assets).toEqual([])
   })
 })

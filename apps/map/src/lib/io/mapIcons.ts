@@ -38,6 +38,8 @@ async function asPicture(
 export async function keepMapIcons(
   assets: readonly MapAsset[],
   modified = new Date().toISOString(),
+  /** The picture under the map, by id: kept for `map`, not as an icon. */
+  underlay?: string,
 ): Promise<number> {
   let added = 0
   for (const asset of assets) {
@@ -50,7 +52,7 @@ export async function keepMapIcons(
         modified,
         format: IMAGE_FORMAT,
         tags: [],
-        use: ICON_USE,
+        use: asset.id === underlay ? 'map' : ICON_USE,
         ...picture,
       })
       added++
@@ -72,10 +74,14 @@ export interface IconChoice {
 export function iconChoices(
   assets: readonly MapAsset[],
   library: readonly LibraryImage[],
+  /** The picture under the map, by id: not an icon. */
+  underlay?: string,
 ): IconChoice[] {
   const own = new Set(assets.map((a) => a.id))
   return [
-    ...assets.map((a) => ({ id: a.id, name: a.name, url: a.dataUrl })),
+    ...assets
+      .filter((a) => a.id !== underlay)
+      .map((a) => ({ id: a.id, name: a.name, url: a.dataUrl })),
     ...library.filter((i) => !own.has(i.id)).map((i) => ({ id: i.id, name: i.name, url: i.data })),
   ]
 }

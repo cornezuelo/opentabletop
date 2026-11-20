@@ -33,6 +33,8 @@ export interface Poi {
   note?: string
   /** Icon to tell it apart in the hex panel (not drawn on the map). */
   icon?: string
+  /** Its picture, of the image library, by id (shown whole in its cell's panel and in Play). */
+  picture?: string
   /**
    * The place template it was made from in play (`grey-marches/default/ruins`: a catalogue of
    * places, `kind: places`, and its id), shown as **Made from**; edited like any other after.
@@ -59,6 +61,8 @@ export interface HexData {
   fields?: CustomField[]
   /** External note path, e.g. "Kal-Arath/Hexes/0101". */
   note?: string
+  /** Its picture, of the image library, by id (shown whole in its panel and in Play). */
+  picture?: string
   icon?: HexIcon
   /** False hides the name on the map (it's still the hex's name). */
   showName?: boolean
@@ -112,6 +116,24 @@ export interface GridSettings {
   showCoords: boolean
   /** Opacity of terrain glyphs, 0 (hidden) to 1. */
   glyphs: number
+}
+
+/**
+ * A picture under the map (a real map, a scan with hexes or squares of its own), fitted by hand
+ * so its grid meets the cells', the cells made see-through over it as a whole.
+ */
+export interface MapUnderlay {
+  /** The map's image (`assets`) it shows, by id. */
+  asset: string
+  /** Its top-left corner, in world units. */
+  x: number
+  y: number
+  /** Its width in world units; its height follows the picture's proportions. */
+  width: number
+  /** How opaque the cells (their terrain, empty ones too) are over it: 0 shows only the picture, 1 hides it. */
+  cells: number
+  /** Not shown for now, its fitting kept. */
+  hidden?: boolean
 }
 
 /** An image imported by the user (e.g. a custom icon), embedded in the map file. */
@@ -466,6 +488,8 @@ export interface HexMap {
   /** The pieces laid on it in play, in order: what `pieces.<id>` counts. */
   pieces?: MapPiece[]
   assets: MapAsset[]
+  /** A picture under the map; absent: none. */
+  underlay?: MapUnderlay
   labels: MapLabel[]
   tokens: MapToken[]
   regions: MapRegion[]

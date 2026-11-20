@@ -184,6 +184,8 @@ function installCoordFont(): void {
 /** Renders the editor's map with PixiJS and turns pointer input into tool actions. */
 export class MapRenderer {
   private world = new Container()
+  /** The picture under the map (`underlay`), under everything, the cells see-through over it. */
+  private underlayLayer = new Container()
   private terrainLayer = new Container()
   /** Where water meets land: the style's lines along the shore, not blurred with the ground. */
   private shoreLines = new Graphics()
@@ -214,6 +216,7 @@ export class MapRenderer {
   /** The ways into sub-maps and out to the parent map, above the places' icons. */
   private wayLayer = new Graphics()
   private iconTextures = new IconTextures(() => {
+    this.drawUnderlay()
     this.drawArt()
     this.drawTexture()
     this.drawGlyphs()
@@ -307,6 +310,7 @@ export class MapRenderer {
   ) {
     installCoordFont()
     this.world.addChild(
+      this.underlayLayer,
       this.sheet,
       this.terrainLayer,
       this.shoreLines,
@@ -628,7 +632,11 @@ export class MapRenderer {
       this.drawConnections()
       // A connection across a wall opens it (a door).
       this.drawWalls()
+    } else if (change.kind === 'underlay') {
+      this.drawUnderlay()
+      this.applyLayers()
     } else if (change.kind === 'assets') {
+      this.drawUnderlay()
       this.drawGlyphs()
       this.drawIcons()
       this.drawTokens()
@@ -698,6 +706,7 @@ export class MapRenderer {
   private rebuild(): void {
     this.campaignLook = this.lookOfCampaign()
     this.styleDrawn = JSON.stringify(mapStyle())
+    this.drawUnderlay()
     const { grid, terrains } = editor.map
     this.corners = cellCorners(grid, grid.hexSize)
     this.shapeSignature = `${grid.kind ?? 'hex'}:${grid.orientation}:${grid.width}x${grid.height}:${grid.hexSize}`
@@ -2318,6 +2327,22 @@ export class MapRenderer {
   }
 
   /** Layer visibility; coordinates also hide when hexes are too small to read them. */
+  /** The picture under the map, where it was fitted; nothing while it's read, or hidden. */
+  private drawUnderlay(): void {
+    for (const child of this.underlayLayer.removeChildren()) child.destroy()
+    const under = editor.map.underlay
+    if (!under || under.hidden) return
+    const asset = editor.map.assets.find((a) => a.id === under.asset)
+    if (!asset) return
+    const texture = this.iconTextures.get(`underlay:${asset.id}`, asset.dataUrl, 'picture')
+    if (!texture) return
+    const sprite = new Sprite(texture)
+    sprite.position.set(under.x, under.y)
+    sprite.width = under.width
+    sprite.height = (under.width * texture.height) / Math.max(1, texture.width)
+    this.underlayLayer.addChild(sprite)
+  }
+
   private applyLayers(): void {
     const { layers, grid } = editor.map
     this.terrainLayer.visible = layers.terrain.visible
@@ -2325,6 +2350,17 @@ export class MapRenderer {
     this.textureLayer.visible = layers.terrain.visible
     this.shoreLines.visible = layers.terrain.visible
     this.sheet.visible = layers.terrain.visible
+    // Over a picture under the map, the cells as see-through as it asks.
+    const under = editor.map.underlay
+    const cells = under && !under.hidden ? under.cells : 1
+    for (const layer of [
+      this.sheet,
+      this.terrainLayer,
+      this.shoreLines,
+      this.grainLayer,
+      this.textureLayer,
+    ])
+      layer.alpha = cells
     this.artLayer.visible = layers.terrain.visible
     this.glyphLayer.visible = layers.terrain.visible
     this.regionLayer.visible = layers.regions.visible

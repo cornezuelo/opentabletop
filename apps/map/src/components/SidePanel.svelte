@@ -9,6 +9,7 @@
   import MapCampaign from './MapCampaign.svelte'
   import MapSettings from './MapSettings.svelte'
   import MapStyleSettings from './MapStyleSettings.svelte'
+  import MapPicture from './MapPicture.svelte'
   import MapTreePanel from './MapTreePanel.svelte'
   import MapSystem from './MapSystem.svelte'
   import WorldPanel from './WorldPanel.svelte'
@@ -91,6 +92,7 @@
     <Section title={t('panel.campaign')}><MapCampaign /><MapSystem /></Section>
     <Section title={t('map.size')}><MapSize /></Section>
     <Section title={t('mapStyle.title')}><MapStyleSettings /></Section>
+    <Section title={t('underlay.title')}><MapPicture /></Section>
     <Section title={t('captions.title')}><CaptionSettings /></Section>
     <Section title={t('regionStyle.title')}>
       <p class="help">{t('regionStyle.help')}</p>

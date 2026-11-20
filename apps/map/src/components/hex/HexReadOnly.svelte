@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { noteUrl } from '@open-tabletop/ui-kit'
+  import { noteUrl, WholePicture } from '@open-tabletop/ui-kit'
+  import { getLocale } from '../../lib/i18n/index.svelte'
   import type { HexData, MapRegion } from '@open-tabletop/map'
   import { t } from '../../lib/i18n/index.svelte'
   import { renderMarkdown } from '../../lib/markdown'
@@ -30,6 +31,7 @@
       !region &&
       !hex.notes &&
       !hex.note &&
+      !hex.picture &&
       !hex.pois?.length &&
       !hex.tags?.length &&
       !hex.fields?.length &&
@@ -48,6 +50,21 @@
   {/if}
 {/snippet}
 
+{#snippet picture(id: string | undefined, title: string)}
+  {#if id}
+    <WholePicture
+      image={id}
+      {title}
+      locale={getLocale()}
+      shape="place"
+      maxHeight={200}
+      disabled
+      onchange={() => {}}
+    />
+  {/if}
+{/snippet}
+
+{@render picture(hex.picture, hex.name ?? '')}
 {#if hex.name}<h2>{hex.name}</h2>{/if}
 {#if region}<p class="muted">{region}</p>{/if}
 {#if hex.notes}
@@ -61,6 +78,7 @@
   <ul>
     {#each hex.pois as poi (poi.id)}
       <li>
+        {@render picture(poi.picture, poi.name)}
         <strong>{poi.name}</strong>
         {#if poi.description}<p>{poi.description}</p>{/if}
         {#each poi.fields ?? [] as field (field.key)}

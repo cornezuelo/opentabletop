@@ -13,6 +13,8 @@ export type MapChange =
   /** The walls drawn by hand on cells' sides. */
   | { kind: 'walls' }
   | { kind: 'assets' }
+  /** The picture under the map: which, where and how see-through the cells are over it. */
+  | { kind: 'underlay' }
   | { kind: 'layers' }
   | { kind: 'labels' }
   | { kind: 'play' }

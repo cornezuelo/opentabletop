@@ -6,10 +6,11 @@ A click on a token shows the cell it stands on. The panel gives the cell's coord
 
 ## What a cell can hold
 
+- **Its picture** (_+ Add a picture_, above its name): a picture of your image library, whole (a landscape of the place, a drawing of a tower), a click shows it full size. It shows in the cell's panel, and in Play over the trip while the party stands there ([Playing a trip](08-play.md)). Chosen like a character's portrait ([Characters](../characters/01-getting-started.md)).
 - **Name**: shown under the cell on the map; you can hide it or give it its own style.
 - **Region**: when the map has regions.
 - **Notes**: short GM notes in Markdown. The lore of the place belongs in your notes app (see below).
-- **POIs**: points of interest, each with a name, a description, its own linked note and, optionally, an icon to tell them apart in the panel (it isn't drawn on the map).
+- **POIs**: points of interest, each with a name, a description, its own linked note, a picture (_+ Add a picture_, as the cell's) and, optionally, an icon to tell them apart in the panel (it isn't drawn on the map).
 - **Tags**: free words (`ruins`, `haunted`, `landmark`…) with suggestions from the rest of the map.
 - **Fields**: key–value pairs (`danger: 3`, `elevation: 1200`). Travel checks and tables read them by key. Keys and values already used on the map are suggested as you type, and so are the names the loaded packs' tables read (the Grey Marches' `danger`, for example).
 - **Fields** of a point of interest: each point of interest has its own (`rooms: 3`), kept with it; rules and tables read them on its cell as `place.poi.rooms` ([What tables see](../technical/04-what-tables-see.md)). With two in a cell, the first listed wins on the same name.

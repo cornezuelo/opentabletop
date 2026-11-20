@@ -3,12 +3,12 @@
   import ImagePicker from './ImagePicker.svelte'
   import ImageSlot from './ImageSlot.svelte'
   import Picture from './Picture.svelte'
-  import type { ImageShape } from './imageFrame'
+  import { IMAGE_SHAPES, type ImageShape } from './imageFrame'
 
   /**
    * A picture of the image library shown whole, in its own proportions, no taller than
-   * `maxHeight` (docs/character-pictures.md §10): a click shows it full size; **Change** and
-   * **Frame the face** under it. Without one, the slot to add one.
+   * `maxHeight` (docs/character-pictures.md §10): a click shows it full size; **Change** and,
+   * for a portrait or an item (shown small by their face), **Frame the face** under it. Without one, the slot to add one.
    */
   let {
     image,
@@ -17,6 +17,7 @@
     shape = 'portrait',
     maxHeight = 320,
     disabled = false,
+    empty = 'slot',
     onaspect,
     onchange,
   }: {
@@ -27,6 +28,8 @@
     shape?: ImageShape
     maxHeight?: number
     disabled?: boolean
+    /** Without a picture: the slot to add one, or only a quiet line (_+ Add a picture_). */
+    empty?: 'slot' | 'line'
     /** Told the picture's width over its height once read (undefined without one), for a layout to follow. */
     onaspect?: (aspect: number | undefined) => void
     onchange: (id: string | undefined) => void
@@ -46,8 +49,8 @@
   })
 
   const TEXT = {
-    en: { change: 'Change', face: 'Frame the face', close: 'Close' },
-    es: { change: 'Cambiar', face: 'Encuadrar la cara', close: 'Cerrar' },
+    en: { change: 'Change', face: 'Frame the face', add: '+ Add a picture' },
+    es: { change: 'Cambiar', face: 'Encuadrar la cara', add: '+ Añadir una imagen' },
   }
   const text = $derived(locale === 'es' ? TEXT.es : TEXT.en)
 
@@ -70,14 +73,16 @@
             picking = true
           }}>{text.change}</button
         >
-        ·
-        <button
-          class="link"
-          onclick={() => {
-            start = 'face'
-            picking = true
-          }}>{text.face}</button
-        >
+        {#if IMAGE_SHAPES[shape] === 1}
+          ·
+          <button
+            class="link"
+            onclick={() => {
+              start = 'face'
+              picking = true
+            }}>{text.face}</button
+          >
+        {/if}
       </p>
     {/if}
   </div>
@@ -93,6 +98,17 @@
     {start}
     onpick={onchange}
   />
+{:else if empty === 'line'}
+  {#if !disabled}
+    <button
+      class="link add"
+      onclick={() => {
+        start = 'choose'
+        picking = true
+      }}>{text.add}</button
+    >
+    <ImagePicker bind:open={picking} {locale} {title} {shape} {start} onpick={onchange} />
+  {/if}
 {:else}
   <ImageSlot {image} {shape} {locale} {disabled} {title} {onchange} />
 {/if}
@@ -120,6 +136,11 @@
 
   .shown :global(img) {
     max-height: inherit;
+  }
+
+  .add {
+    align-self: flex-start;
+    font-size: 12px;
   }
 
   .actions {

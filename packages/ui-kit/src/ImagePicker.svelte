@@ -64,7 +64,13 @@
   const TEXT = {
     en: {
       search: 'Search by name or tag',
-      forUse: { portrait: 'Portraits', banner: 'Banners', item: 'Items', map: 'Maps' },
+      forUse: {
+        portrait: 'Portraits',
+        banner: 'Banners',
+        item: 'Items',
+        place: 'Places',
+        map: 'Maps',
+      },
       all: 'All',
       unused: 'Not used',
       upload: 'Upload an image…',
@@ -100,6 +106,7 @@
         portrait: 'Remove the portrait',
         banner: 'Remove the banner',
         item: 'Remove the picture',
+        place: 'Remove the picture',
         map: 'Remove the picture',
       },
       cancel: 'Cancel',
@@ -127,7 +134,13 @@
     },
     es: {
       search: 'Buscar por nombre o etiqueta',
-      forUse: { portrait: 'Retratos', banner: 'Estandartes', item: 'Objetos', map: 'Mapas' },
+      forUse: {
+        portrait: 'Retratos',
+        banner: 'Estandartes',
+        item: 'Objetos',
+        place: 'Lugares',
+        map: 'Mapas',
+      },
       all: 'Todas',
       unused: 'Sin usar',
       upload: 'Subir una imagen…',
@@ -163,6 +176,7 @@
         portrait: 'Quitar el retrato',
         banner: 'Quitar el estandarte',
         item: 'Quitar la imagen',
+        place: 'Quitar la imagen',
         map: 'Quitar la imagen',
       },
       cancel: 'Cancelar',
