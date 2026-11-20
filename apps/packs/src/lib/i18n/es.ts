@@ -242,6 +242,10 @@ export const es: Messages<typeof en> = {
     },
   },
   itemsForm: {
+    picture: 'Su imagen',
+    pictureOf: 'Imagen de {name}',
+    pictureHelp:
+      'Una imagen de tu biblioteca para este objeto: se ve en su fila allí donde un personaje lo lleve, salvo que ese tenga una imagen propia. Es tuya, guardada en este navegador (y en sus copias de seguridad), no en el pack, así que puedes ponérsela a un objeto de un pack que no puedes editar.',
     name: 'Nombre',
     nameHelp: 'Cómo se llama este catálogo.\n• **Equipo**\n• **Armas**',
     items: 'Objetos',

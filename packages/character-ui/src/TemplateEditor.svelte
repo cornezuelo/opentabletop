@@ -5,7 +5,15 @@
     type Sheet,
     type TemplateDef,
   } from '@open-tabletop/character-engine'
-  import { InfoTip, SuggestInput, TagInput } from '@open-tabletop/ui-kit'
+  import {
+    definitionPicture,
+    ImageSlot,
+    InfoTip,
+    setDefinitionPicture,
+    SuggestInput,
+    TagInput,
+  } from '@open-tabletop/ui-kit'
+  import { templatePictureRef } from './pictures'
   import { translator } from './i18n'
   import { idName, sheetText } from './texts'
 
@@ -18,6 +26,7 @@
    */
   let {
     id,
+    from,
     sheet,
     template,
     locale,
@@ -30,6 +39,11 @@
   }: {
     /** Its id in its bestiary: what tables and effects name its copies with (`present.<id>`). */
     id?: string
+    /**
+     * Its bestiary's full id (`pack/id`): with `id`, its picture is offered (yours, kept in
+     * this browser, not in the pack; its copies have it too), even where the template is read-only.
+     */
+    from?: string
     sheet: Sheet
     template: TemplateDef
     locale: string
@@ -111,6 +125,20 @@
       {t('template.present')}<InfoTip markdown={t('template.presentHelp')} />
       <code>present.{id}</code>
     </p>
+  {/if}
+  {#if id && from}
+    {@const ref = templatePictureRef({ id, from })}
+    <div class="picture">
+      <ImageSlot
+        image={definitionPicture(ref)}
+        shape="portrait"
+        size={64}
+        {locale}
+        title={t('template.pictureOf', { name: shown(template.name) || idName(id) })}
+        onchange={(picture) => setDefinitionPicture(ref, picture)}
+      />
+      <span>{t('template.picture')}<InfoTip markdown={t('template.pictureHelp')} /></span>
+    </div>
   {/if}
   <div class="head">
     <label>
@@ -328,6 +356,12 @@
 </div>
 
 <style>
+  .picture {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
   .editor {
     display: flex;
     flex-direction: column;

@@ -10,7 +10,7 @@ It holds everything the apps keep in this browser:
 
 - **Maps**: every map of Map's library, with its play state (party, trail, trip, journal) and the land each faction holds on it.
 - **Campaigns**: the world each map is played in: its world clock and weather, its factions and its Oracle (history, decks, once-only results).
-- **Images**: the pictures you've added (portraits and the like), each once, whatever uses it.
+- **Images**: the pictures you've added (portraits and the like), each once, whatever uses it, and the pictures you chose for items and templates of packs (kept apart from the packs).
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
 - **The Characters app's roster**: every character and party it keeps, with its notes, where it plays and a party's members.
 - **The Travel app's trips**, the **Oracle app's** history, decks and seed, and **favorites**.

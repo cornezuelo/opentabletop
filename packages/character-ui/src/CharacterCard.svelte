@@ -22,6 +22,7 @@
   import ValueBreakdown from './ValueBreakdown.svelte'
   import ItemList from './ItemList.svelte'
   import Face from './Face.svelte'
+  import { characterPicture } from './pictures'
 
   /**
    * One character made from a sheet, edited by hand: its name, its values (each drawn as
@@ -247,7 +248,7 @@
             ><Face
               name={character.name ?? character.id}
               icon={character.token?.icon}
-              picture={character.picture}
+              picture={characterPicture(character)}
             /><span>{t('token')}<InfoTip markdown={t('tokenHelp')} /></span></summary
           >
           {#if choosingToken}

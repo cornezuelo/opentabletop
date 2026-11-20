@@ -11,7 +11,18 @@ export function bestiaryOf(
   system: TravelSystem,
   part: { root: string; id: string },
 ): SystemBestiary | undefined {
-  return system.bestiary?.find((b) => {
+  return partOf(system.bestiary, part)
+}
+
+/**
+ * Which of a system's parts read by full id (bestiaries, item catalogues) one definition is,
+ * by its pack's folder and its id.
+ */
+export function partOf<T extends { id: string }>(
+  parts: readonly T[] | undefined,
+  part: { root: string; id: string },
+): T | undefined {
+  return parts?.find((b) => {
     const [pack, id] = b.id.split('/', 2)
     return id === part.id && library.rootOf(pack) === part.root
   })

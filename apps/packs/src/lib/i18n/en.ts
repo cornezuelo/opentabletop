@@ -239,6 +239,10 @@ export const en = {
     },
   },
   itemsForm: {
+    picture: 'Its picture',
+    pictureOf: 'Picture of {name}',
+    pictureHelp:
+      "A picture of your image library for this item: shown on its row wherever a character holds it, unless that one has a picture of its own. It's yours, kept in this browser (and its backups), not in the pack, so you can give one to an item of a pack you can't edit.",
     name: 'Name',
     nameHelp: 'What this catalogue is called.\n• **Gear**\n• **Weapons**',
     items: 'Items',

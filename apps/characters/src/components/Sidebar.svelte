@@ -1,6 +1,12 @@
 <script lang="ts">
   import { untrack } from 'svelte'
-  import { Face, roster, sheetText } from '@open-tabletop/character-ui'
+  import {
+    characterPicture,
+    Face,
+    roster,
+    sheetText,
+    templatePictureRef,
+  } from '@open-tabletop/character-ui'
   import { systemName } from '@open-tabletop/session'
   import {
     appUrl,
@@ -14,6 +20,7 @@
     tooltip,
     InfoTip,
     playing,
+    definitionPicture,
   } from '@open-tabletop/ui-kit'
   import { listCampaigns, onLibraryChange } from '@open-tabletop/storage'
   import { allPlaces } from '@open-tabletop/travel-ui'
@@ -111,21 +118,26 @@
         systemTitle: found ? systemName(found.system, locale) : t('nav.otherSheets'),
         sheet: character.sheet,
         sheetTitle: found ? sheetName(found.def.name, character.sheet) : character.sheet,
-        face: { picture: character.picture, icon: character.token?.icon },
+        face: { picture: characterPicture(character), icon: character.token?.icon },
       }
     }),
   )
   const templates = $derived<ListEntry[]>(
     systems.list.flatMap((system) =>
-      templatesOf(system, locale).map((e) => ({
-        key: `${e.bestiary}:${e.id}`,
-        name: e.name,
-        tags: e.tags,
-        system: system.id,
-        systemTitle: systemName(system, locale),
-        sheet: e.sheetId ?? '',
-        sheetTitle: e.sheet ? sheetName(e.sheet.name, e.sheetId ?? '') : (e.sheetId ?? ''),
-      })),
+      templatesOf(system, locale).map((e) => {
+        // The picture you chose for it, if any: its copies have it too.
+        const picture = definitionPicture(templatePictureRef({ id: e.id, from: e.bestiary }))
+        return {
+          key: `${e.bestiary}:${e.id}`,
+          name: e.name,
+          tags: e.tags,
+          system: system.id,
+          systemTitle: systemName(system, locale),
+          sheet: e.sheetId ?? '',
+          sheetTitle: e.sheet ? sheetName(e.sheet.name, e.sheetId ?? '') : (e.sheetId ?? ''),
+          ...(picture && { face: { picture } }),
+        }
+      }),
     ),
   )
   const shownCharacters = $derived(filterByCampaign(characters, filter, playing.id))

@@ -91,6 +91,7 @@
     {#if entry.sheet}
       <TemplateEditor
         id={entry.id}
+        from={entry.bestiary}
         sheet={entry.sheet}
         template={entry.def}
         locale={getLocale()}

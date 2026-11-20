@@ -60,6 +60,7 @@ export const es: Messages<typeof en> = {
     title: 'Objetos',
     help: 'Lo que tiene este personaje, cada cosa con cuántas y los números que su sistema da a los objetos (huecos, peso, usos…), en los lugares que declara su hoja (manos, cinturón, mochila…) o dentro de un contenedor que lleve. Añade uno de los catálogos del sistema, o escribe cualquier nombre para hacerlo a mano. Para moverlo, arrastra su asa (⠿) a un lugar o elige el lugar: solo se ofrecen los lugares donde cabe y, si la hoja dice que un lugar no admite más de su sitio, solo los que tienen sitio libre para él. Mantén Mayús al soltar para mover solo uno de un montón. Las tablas y condiciones los leen:\n• `{path}.items.torch.count: { gte: 1 }` — tiene una antorcha\n• `{path}.items.torch.uses` — los usos de la primera antorcha\n• `{path}.items.tags: light` — lleva algo con la etiqueta light\n• `{path}.places.pack.used` — cuánto de la mochila está ocupado\n• `{path}.carried.used` — cuánto lleva en total\nLos efectos los cambian: `{path}.items.torch: -1` quita una, `+2` da dos (del catálogo si no tiene ninguna). Uno puede llevarse sin identificar, con el aspecto que tiene hasta que se sabe qué es: `{path}.items.flask.unknown: 1` da uno así, `{path}.items.flask.known: 1` identifica uno.',
     count: 'Cuántos',
+    pictureOf: 'Imagen de {name}',
     room: '{used} / {room}',
     inside: 'En {name}',
     nowhere: 'En ningún lugar',
@@ -129,6 +130,10 @@ export const es: Messages<typeof en> = {
       'Lo que lleva, de los catálogos del sistema, con cuántos (un número o una tirada). Vacío: lo que la hoja da al empezar.\n• `knife` · `1`\n• `ration` · `{{1d2}}`',
     token: 'Ficha',
     tokenHelp: 'Cómo se dibuja una copia en un mapa. Todo opcional.',
+    picture: 'Su imagen',
+    pictureOf: 'Imagen de {name}',
+    pictureHelp:
+      'Una imagen de tu biblioteca para esta plantilla: la cara de sus copias en las tarjetas de un combate, en el orden de la ronda y en las listas, salvo que una copia tenga su propio retrato. Es tuya, guardada en este navegador (y en sus copias de seguridad), no en el pack, así que puedes ponérsela a una plantilla de un pack que no puedes editar.',
     tokenIcon: 'Icono',
     tokenKind: 'Tipo',
     tokenKinds: vocabulary.es.tokenKinds,

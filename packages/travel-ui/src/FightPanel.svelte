@@ -2,7 +2,12 @@
   import { tick, type Snippet } from 'svelte'
   import type { Catalogue, CharacterState, Sheet } from '@open-tabletop/character-engine'
   import type { Fighter } from '@open-tabletop/session'
-  import { CharacterCard, CharacterGlance, Face } from '@open-tabletop/character-ui'
+  import {
+    CharacterCard,
+    CharacterGlance,
+    characterPicture,
+    Face,
+  } from '@open-tabletop/character-ui'
   import { DiceTray, InfoTip, Markdown, Picture, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import {
@@ -232,9 +237,10 @@
   /** Each one's icon, kept once seen: one who went keeps their face to the fight's end. */
   const icons: Record<string, string> = {}
   const faceOf = (id: string) => (icons[id] ??= iconOf(id) ?? '') || undefined
-  /** Each one's portrait (a library picture's id), kept once seen as their icon is. */
+  /** Each one's portrait (theirs, else their template's), kept once seen as their icon is. */
   const pictures: Record<string, string> = {}
-  const pictureOf = (id: string) => (pictures[id] ??= characterOf(id)?.picture ?? '') || undefined
+  const pictureOf = (id: string) =>
+    (pictures[id] ??= characterPicture(characterOf(id)) ?? '') || undefined
   /** The one pointed at in the order: their card is marked. */
   let pointed = $state('')
   /** The one whose whole sheet is shown in the log's column, by id; '' for the log. */

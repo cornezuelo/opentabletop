@@ -10,7 +10,7 @@ Contiene todo lo que las aplicaciones guardan en este navegador:
 
 - **Mapas**: todos los de la biblioteca de Mapa, con su estado de juego (grupo, rastro, viaje, diario) y la tierra que tiene en él cada facción.
 - **Campañas**: el mundo en el que se juega cada mapa: su reloj del mundo y su clima, sus facciones y su Oráculo (historial, mazos, resultados que solo salen una vez).
-- **Imágenes**: las que has añadido (retratos y similares), cada una una vez, la use lo que la use.
+- **Imágenes**: las que has añadido (retratos y similares), cada una una vez, la use lo que la use, y las que elegiste para objetos y plantillas de los packs (aparte de los packs).
 - **Tus packs**: los que has creado o editado, y las copias editadas de packs incluidos.
 - **El plantel de la aplicación Personajes**: cada personaje y grupo que guarda, con sus notas, dónde juega y los miembros de un grupo.
 - **Los viajes de la aplicación Viajes**, el historial, los mazos y la semilla de la **aplicación Oráculo**, y los **favoritos**.

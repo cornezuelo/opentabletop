@@ -1,10 +1,17 @@
 <script lang="ts">
   import type { TravelSystem } from '@open-tabletop/session'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import {
+    definitionPicture,
+    ImageSlot,
+    InfoTip,
+    setDefinitionPicture,
+  } from '@open-tabletop/ui-kit'
   import { t } from '../../lib/i18n'
   import type { PartDoc } from '../../lib/partDoc.svelte'
   import RecordRows, { type Column } from '../forms/RecordRows.svelte'
-  import { sheetText } from '@open-tabletop/character-ui'
+  import { itemPictureRef, sheetText } from '@open-tabletop/character-ui'
+  import { partOf } from '../../lib/bestiary'
+  import type { CustomField } from '../forms/RecordRows.svelte'
   import { getLocale } from '../../lib/i18n'
 
   /**
@@ -12,7 +19,7 @@
    * tags, where it fits, what it's held as unknown, its **Use**, what it holds and a number
    * for each field the system's sheet gives items.
    */
-  let { doc, system }: { doc: PartDoc; system: TravelSystem } = $props()
+  let { doc, system, id }: { doc: PartDoc; system: TravelSystem; id: string } = $props()
 
   const data = $derived(doc.data())
   const disabled = $derived(!doc.editable)
@@ -22,8 +29,24 @@
   const placeTags = $derived([
     ...new Set(Object.values(system.sheet?.def.items?.places ?? {}).flatMap((p) => p.tags ?? [])),
   ])
+  /** The catalogue as the system read it: its full id, for its items' pictures. */
+  const catalogue = $derived(partOf(system.items, { root: doc.root, id }))
+  const pictureRef = (item: string) =>
+    catalogue ? itemPictureRef({ id: item, from: catalogue.id }) : undefined
   const columns = $derived<Column[]>([
     { field: 'name', label: t('itemsForm.itemName'), type: 'text' },
+    ...(catalogue
+      ? [
+          {
+            // Not the pack's: yours, kept in this browser (never written to the file).
+            field: '@picture',
+            label: t('itemsForm.picture'),
+            help: t('itemsForm.pictureHelp'),
+            type: 'custom',
+            render: picture,
+          } satisfies Column,
+        ]
+      : []),
     {
       field: 'description',
       label: t('forms.description'),
@@ -97,6 +120,19 @@
     },
   ])
 </script>
+
+{#snippet picture(field: CustomField)}
+  {@const ref = pictureRef(field.id)}
+  {#if ref}
+    <ImageSlot
+      image={definitionPicture(ref)}
+      shape="item"
+      locale={getLocale()}
+      title={t('itemsForm.pictureOf', { name: field.id })}
+      onchange={(picture) => setDefinitionPicture(ref, picture)}
+    />
+  {/if}
+{/snippet}
 
 <div class="form-stack">
   <section class="head">

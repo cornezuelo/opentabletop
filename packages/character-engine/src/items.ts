@@ -134,6 +134,11 @@ export interface ItemState {
   /** Held unknown: shown by its entry's `unknown` name until it's identified. */
   unknown?: boolean
   /**
+   * Its own picture, by the id of a picture in the user's image library: shown on its row
+   * instead of the one chosen for its catalogue's entry (docs/character-pictures.md).
+   */
+  picture?: string
+  /**
    * It came with no room left for it and the sheet asks (`full: ask`): it waits, in no
    * place, for the player to find it room or drop something. Cleared once it has a place.
    */

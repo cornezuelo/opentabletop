@@ -145,6 +145,7 @@
           {#if sheet}
             <TemplateEditor
               id={template}
+              from={read?.id}
               {sheet}
               template={shown}
               locale={getLocale()}

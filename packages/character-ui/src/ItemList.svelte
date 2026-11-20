@@ -16,7 +16,8 @@
     type Place,
     type Sheet,
   } from '@open-tabletop/character-engine'
-  import { InfoTip, Markdown, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { ImageSlot, InfoTip, Markdown, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
+  import { itemPicture } from './pictures'
   import { valueView } from './display'
   import { translator } from './i18n'
   import { idName, itemId, itemName, sheetText } from './texts'
@@ -212,6 +213,21 @@
   }
 </script>
 
+<!-- Its picture (its own, else its catalogue entry's): an empty one shows on hover. -->
+{#snippet picture(item: ItemState)}
+  {@const shown = itemPicture(item)}
+  <span class="item-picture" class:empty={!shown}>
+    <ImageSlot
+      image={shown}
+      shape="item"
+      {locale}
+      {disabled}
+      title={t('items.pictureOf', { name: nameOf(item) })}
+      onchange={(id) => onaction({ type: 'editItem', key: item.key, picture: id ?? null })}
+    />
+  </span>
+{/snippet}
+
 <div class="items">
   {#if carried.room !== undefined}
     <p class="carried">
@@ -257,7 +273,9 @@
           <!-- A place shown as cards (abilities): each one with what it says and its fields. -->
           <article class="card">
             <h6>
-              {nameOf(item)}{#if item.count > 1}<span class="ranks">×{item.count}</span>{/if}
+              {@render picture(item)}{nameOf(item)}{#if item.count > 1}<span class="ranks"
+                  >×{item.count}</span
+                >{/if}
               <InfoTip markdown={itemHelp(item)} />
               {#if !disabled}
                 <button
@@ -304,6 +322,7 @@
                 use:tooltip={t('items.drag')}>⠿</span
               >
             {/if}
+            {@render picture(item)}
             <span class="item-name" class:unknown={item.unknown}
               >{nameOf(item)}<InfoTip markdown={itemHelp(item)} /></span
             >
@@ -534,6 +553,25 @@
   .item-name {
     flex: 1 1 8em;
     align-self: center;
+  }
+
+  .item-picture {
+    display: inline-flex;
+    align-self: center;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  /* No picture yet: its slot shows only while the item is pointed at or focused. */
+  .item-picture.empty {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .item:hover .item-picture.empty,
+  .card:hover .item-picture.empty,
+  .item-picture.empty:focus-within {
+    opacity: 1;
   }
 
   /* Held unknown: by what it looks like. */

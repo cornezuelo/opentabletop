@@ -121,3 +121,10 @@ export {
   type ImageShape,
 } from './imageFrame'
 export { cachedImage, onPictureChange } from './imageCache'
+export {
+  DEFINITION_PICTURES_KEY,
+  definitionPicture,
+  definitionRef,
+  readDefinitionPictures,
+  setDefinitionPicture,
+} from './definitionPictures.svelte'

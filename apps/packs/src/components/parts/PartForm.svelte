@@ -58,7 +58,7 @@
 {:else if kind === 'world'}
   <WorldForm {doc} {system} />
 {:else if kind === 'items'}
-  <ItemsForm {doc} {system} />
+  <ItemsForm {doc} {system} {id} />
 {:else if kind === 'bestiary'}
   <BestiaryForm {doc} {system} {id} {item} />
 {:else if kind === 'places'}

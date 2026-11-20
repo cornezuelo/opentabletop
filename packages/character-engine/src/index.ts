@@ -856,6 +856,8 @@ export type CharacterAction =
       fields?: Record<string, number | string>
       name?: string | null
       tags?: string[]
+      /** Its own picture (a library picture's id); `null` takes it away. */
+      picture?: string | null
       /** Identified by hand: held unknown no more. */
       known?: true
     }
@@ -1063,6 +1065,10 @@ export function applyCharacter(
       if (action.tags !== undefined) {
         if (action.tags.length) item.tags = [...action.tags]
         else delete item.tags
+      }
+      if (action.picture !== undefined) {
+        if (action.picture) item.picture = action.picture
+        else delete item.picture
       }
       for (const [field, change] of Object.entries(action.fields ?? {}))
         changeItem(sheet.items, state, action.key, field, change, events)

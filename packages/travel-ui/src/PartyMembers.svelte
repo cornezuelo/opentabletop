@@ -19,6 +19,7 @@
   import {
     CharacterCard,
     CharacterGlance,
+    characterPicture,
     characterUrl,
     Face,
     roster,
@@ -266,7 +267,11 @@
       <!-- Folded to a line: their face, name, main value and conditions; open, the whole sheet. -->
       <details class="member" use:revealed={member.id}>
         <summary>
-          <Face name={memberLabel(member)} icon={member.token?.icon} picture={member.picture} />
+          <Face
+            name={memberLabel(member)}
+            icon={member.token?.icon}
+            picture={characterPicture(member)}
+          />
           <span class="glance"
             ><CharacterGlance
               sheet={system.sheet.def}

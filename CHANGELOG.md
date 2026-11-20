@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - **Characters, Travel and Map**: a party has a **banner** on top of its sheet, where a character has its portrait, chosen from the image library the same way (framed wide); it goes with the party to its trips and flies over the party's band in a fight.
+- **Packs, Characters, Travel and Map**: pictures for items and templates: **Its picture** on an item of a catalogue (Packs' **Items**) and on a template (Packs' **Bestiary**, or its page in Characters), yours and kept in this browser, not in the pack, so bundled ones can have one too; an item's row shows it (or one of its own, chosen on the row), and a template's copies have it as their face in fights and lists unless they have a portrait of their own.
 
 ## [0.73.0] - 2026-11-20
 

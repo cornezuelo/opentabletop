@@ -227,6 +227,11 @@ describe('items', () => {
       fields: { uses: -1 },
     }).state
     expect(s.items![0]).toMatchObject({ count: 4, name: 'Pitch torch', fields: { uses: 2 } })
+    // Its own picture, from the image library, and taken away.
+    s = act(s, { type: 'editItem', key: 'torch', picture: 'img7' }).state
+    expect(s.items![0].picture).toBe('img7')
+    s = act(s, { type: 'editItem', key: 'torch', picture: null }).state
+    expect(s.items![0].picture).toBeUndefined()
     s = act(s, {
       type: 'setPlace',
       id: 'tail',
