@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.74.0] - 2026-11-20
+
 ### Apps
 
 - **Characters, Travel and Map**: a party has a **banner** on top of its sheet, where a character has its portrait, chosen from the image library the same way (framed wide); it goes with the party to its trips and flies over the party's band in a fight.
