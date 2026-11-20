@@ -4,7 +4,7 @@ Tokens are pieces you move around the map: the party, player characters, NPCs an
 
 ## Placing and moving
 
-- Choose the kind of the new tokens (PC, NPC or Enemy), their icon (the **Suggested** ones are characters and creatures; the chips filter by category as in Icons, and searching looks through them all; or **Import an image…**) and color, then click an empty cell.
+- Choose the kind of the new tokens (PC, NPC or Enemy), their icon (the **Suggested** ones are characters and creatures; the chips filter by category as in Icons, and searching looks through them all; or one of your own images, imported here or on any map, or **Import an image…**) and color, then click an empty cell.
 - Click a token (or anywhere on its cell) to edit it. Drag it to another cell: it lands centered.
 - Several tokens can share a cell: they're arranged around the center. <kbd>Shift</kbd>+click always adds a new token, even on a cell that already has tokens (or right on one).
 - **Place from the bestiary** (in the new-token options, when the map's system or its campaign's packs have a bestiary): new tokens are copies of a template, with its look, its name and a sheet with its values rolled for each one. They are the map's, like any token: a guard at a bridge, a lair. The copies a trip makes are something else: see [Playing a trip](08-play.md).

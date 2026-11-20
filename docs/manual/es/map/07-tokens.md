@@ -4,7 +4,7 @@ Los tokens son piezas que mueves por el mapa: el grupo, los personajes jugadores
 
 ## Colocar y mover
 
-- Elige el tipo de los tokens nuevos (PJ, PNJ o Enemigo), su icono (los **Sugeridos** son personajes y criaturas; las etiquetas filtran por categoría como en Iconos, y la búsqueda mira entre todos; o **Importar una imagen…**) y su color, y haz clic en una casilla vacía.
+- Elige el tipo de los tokens nuevos (PJ, PNJ o Enemigo), su icono (los **Sugeridos** son personajes y criaturas; las etiquetas filtran por categoría como en Iconos, y la búsqueda mira entre todos; o una de tus imágenes, importada aquí o en cualquier mapa, o **Importar una imagen…**) y su color, y haz clic en una casilla vacía.
 - Haz clic en un token (o en cualquier punto de su casilla) para editarlo. Arrástralo a otra casilla: queda centrado.
 - Varios tokens pueden compartir casilla: se colocan alrededor del centro. <kbd>Mayús</kbd>+clic siempre añade un token nuevo, aunque la casilla ya tenga tokens (o hagas clic justo sobre uno).
 - **Colocar desde el bestiario** (en las opciones de token nuevo, cuando el sistema del mapa o los packs de su campaña tienen un bestiario): los tokens nuevos son copias de una plantilla, con su aspecto, su nombre y una ficha con sus valores tirados para cada uno. Son del mapa, como cualquier token: un guardia en un puente, una guarida. Las copias que hace un viaje son otra cosa: mira [Jugar un viaje](08-play.md).

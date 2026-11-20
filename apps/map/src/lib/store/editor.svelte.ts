@@ -1,6 +1,7 @@
 import type { Offset } from '@open-tabletop/hex'
 import type { Command, MapChange } from '../commands/command'
 import { HexEditBatch } from '../commands/hexes'
+import { keepMapIcons } from '../io/mapIcons'
 import { SetRegionsCommand } from '../commands/regions'
 import { ReplaceLabelCommand } from '../commands/paths'
 import {
@@ -604,6 +605,8 @@ class Editor {
     if (map.meta.id !== this.map.meta.id) this.linked = { children: [], ancestors: [] }
     this.map = map
     this.campaign = campaign
+    // Its imported images offered on every map (docs/character-pictures.md §8).
+    if (map.assets.length) void keepMapIcons(map.assets)
     this.history.clear()
     this.selected = null
     this.picked = null

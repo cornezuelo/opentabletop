@@ -266,7 +266,7 @@ export const en = {
       'The icon’s id, as tables, checks and conditions read it (whatever the language of its name):\n• `icon.id: game:castle` — only on a cell with a castle\n• `place.icon.id: { in: [game:castle, game:castle-ruins] }` — a castle, standing or in ruins\n• `icon.id: { exists: true }` — any icon\nIcons you import are `asset:<id>`. Click the id to select it, or copy it.',
     deselect: 'Done',
     import: 'Import SVG/PNG…',
-    removeCustom: 'Delete custom icon',
+    removeCustom: 'Remove it from this map',
     help: 'Click an empty cell to place the icon; click an icon to select it and edit it live from here. Drag an icon to move it. Right-click or Delete removes, Ctrl+click copies.',
     credit: 'Icons by game-icons.net contributors (CC BY 3.0).',
     error: {

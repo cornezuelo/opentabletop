@@ -49,7 +49,7 @@ Los ids de terreno (`forest`, `hills`…) son lo que leen las reglas de viaje y 
 
 ## Símbolos del terreno
 
-Cada terreno puede dibujar un símbolo discreto en sus casillas (un árbol, una montaña, olas…) en un tono más claro u oscuro de su color. Elígelo en **Editar paleta** con el botón junto al color: el conjunto Terreno, cualquier imagen del mapa o **Importar una imagen…** para usar una tuya. El control **Símbolos del terreno** los atenúa; a 0 se ocultan. Las casillas con icono muestran el icono en su lugar.
+Cada terreno puede dibujar un símbolo discreto en sus casillas (un árbol, una montaña, olas…) en un tono más claro u oscuro de su color. Elígelo en **Editar paleta** con el botón junto al color: el conjunto Terreno, cualquier imagen del mapa o de los iconos de tu biblioteca de imágenes (los importados en cualquier mapa, mira [Iconos](05-icons-and-text.md#iconos)), o **Importar una imagen…** para usar una tuya. El control **Símbolos del terreno** los atenúa; a 0 se ocultan. Las casillas con icono muestran el icono en su lugar.
 
 ## Generar tierra
 

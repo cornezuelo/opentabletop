@@ -266,7 +266,7 @@ export const es: Messages = {
       'El id del icono, como lo leen las tablas, las comprobaciones y las condiciones (sea cual sea el idioma de su nombre):\n• `icon.id: game:castle` — solo en una casilla con un castillo\n• `place.icon.id: { in: [game:castle, game:castle-ruins] }` — un castillo, en pie o en ruinas\n• `icon.id: { exists: true }` — cualquier icono\nLos iconos que importas son `asset:<id>`. Pulsa el id para seleccionarlo, o cópialo.',
     deselect: 'Hecho',
     import: 'Importar SVG/PNG…',
-    removeCustom: 'Borrar icono propio',
+    removeCustom: 'Quitarla de este mapa',
     help: 'Clic en una casilla vacía pone el icono; clic en un icono lo selecciona para editarlo aquí en vivo. Arrastra un icono para moverlo. Clic derecho o Supr lo borra, Ctrl + clic lo copia.',
     credit: 'Iconos de los autores de game-icons.net (CC BY 3.0).',
     error: {

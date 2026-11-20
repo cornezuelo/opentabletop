@@ -32,12 +32,12 @@ export async function importImageFile(
   }
 }
 
-/** Opens a file picker for images. Resolves with the files chosen (possibly none). */
-export function pickImageFiles(): Promise<File[]> {
+/** Opens a file picker for images (several with `many`). Resolves with those chosen, if any. */
+export function pickImageFiles(many = true): Promise<File[]> {
   return new Promise((resolve) => {
     const input = document.createElement('input')
     input.type = 'file'
-    input.multiple = true
+    input.multiple = many
     input.accept = 'image/svg+xml,image/png,image/jpeg,image/webp'
     input.onchange = () => resolve([...(input.files ?? [])])
     input.oncancel = () => resolve([])

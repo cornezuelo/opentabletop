@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { showToast, tooltip } from '@open-tabletop/ui-kit'
-  import { AddAssetCommand } from '../lib/commands/assets'
-  import { t, type MessageKey } from '../lib/i18n/index.svelte'
+  import { tooltip } from '@open-tabletop/ui-kit'
+  import { t } from '../lib/i18n/index.svelte'
   import { BUILTIN_ICONS, builtinSvg, iconLabel } from '../lib/icons/registry'
-  import { importImageFile, pickImageFiles } from '../lib/io/importImage'
-  import { newId } from '@open-tabletop/map'
-  import { editor } from '../lib/store/editor.svelte'
+  import { iconImages, importIcons, takeIcon } from '../lib/io/icons.svelte'
 
-  /** Symbol of a terrain: the terrain set, the map's images, an imported image or none. */
+  /**
+   * Symbol of a terrain: the terrain set, the map's images and the library's icons, an
+   * imported image or none.
+   */
   let {
     value,
     color,
@@ -16,22 +16,16 @@
     $props()
 
   const icons = BUILTIN_ICONS.filter((i) => i.category === 'terrain')
-  const assets = $derived.by(() => {
-    void editor.revision
-    return editor.map.assets
-  })
+  const assets = $derived(iconImages())
+
+  function choose(glyph: string | undefined) {
+    takeIcon(glyph)
+    onchange(glyph)
+  }
 
   async function upload() {
-    const [file] = await pickImageFiles()
-    if (!file) return
-    const result = await importImageFile(file)
-    if ('error' in result) {
-      showToast(`${file.name}: ${t(`icons.error.${result.error}` as MessageKey)}`, 'error')
-      return
-    }
-    const asset = { id: newId(), ...result }
-    editor.execute(new AddAssetCommand(asset))
-    onchange(`asset:${asset.id}`)
+    const [id] = await importIcons()
+    if (id) onchange(id)
   }
 </script>
 
@@ -52,7 +46,7 @@
         class:active={value === icon.id}
         use:tooltip={iconLabel(icon)}
         aria-label={iconLabel(icon)}
-        onclick={() => onchange(icon.id)}
+        onclick={() => choose(icon.id)}
       >
         <!-- Bundled, trusted SVG markup. -->
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -66,9 +60,9 @@
         class:active={value === `asset:${asset.id}`}
         use:tooltip={asset.name}
         aria-label={asset.name}
-        onclick={() => onchange(`asset:${asset.id}`)}
+        onclick={() => choose(`asset:${asset.id}`)}
       >
-        <img src={asset.dataUrl} alt="" />
+        <img src={asset.url} alt="" />
       </button>
     {/each}
   </div>

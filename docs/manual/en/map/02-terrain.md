@@ -49,7 +49,7 @@ Terrain ids (`forest`, `hills`…) are what travel rules and tables read, so a t
 
 ## Terrain symbols
 
-Each terrain can draw a subtle symbol on its cells (a tree, a mountain, waves…) in a lighter or darker shade of its color. Pick it in **Edit palette** with the button next to the color: the Terrain set, any image of the map, or **Import an image…** for your own. The **Terrain symbols** slider fades them; at 0 they're hidden. Cells with an icon show the icon instead.
+Each terrain can draw a subtle symbol on its cells (a tree, a mountain, waves…) in a lighter or darker shade of its color. Pick it in **Edit palette** with the button next to the color: the Terrain set, any image of the map or of your image library's icons (those imported on any map, see [Icons](05-icons-and-text.md#icons)), or **Import an image…** for your own. The **Terrain symbols** slider fades them; at 0 they're hidden. Cells with an icon show the icon instead.
 
 ## Generating land
 

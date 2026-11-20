@@ -1,6 +1,6 @@
 <script lang="ts">
   import FieldEditor from './FieldEditor.svelte'
-  import { AddAssetCommand, RemoveAssetCommand } from '../lib/commands/assets'
+  import { RemoveAssetCommand } from '../lib/commands/assets'
   import {
     BUILTIN_ICONS,
     builtinSvg,
@@ -11,9 +11,9 @@
     type IconCategory,
   } from '../lib/icons/registry'
   import { t, type MessageKey } from '../lib/i18n/index.svelte'
-  import { importImageFile, pickImageFiles } from '../lib/io/importImage'
+  import { iconImages, importIcons, takeIcon } from '../lib/io/icons.svelte'
   import IconStyleControls from './IconStyleControls.svelte'
-  import { type HexData, type IconStyle, newId } from '@open-tabletop/map'
+  import type { HexData, IconStyle } from '@open-tabletop/map'
   import { formatCoord, parseKey } from '@open-tabletop/hex'
   import { editor } from '../lib/store/editor.svelte'
   import { ACTION_KEYS } from '../lib/shortcutList'
@@ -41,7 +41,7 @@
   const customs = $derived.by(() => {
     if (filter !== 'all' && filter !== 'custom') return []
     const q = query.trim().toLowerCase()
-    return assets.filter((a) => !q || a.name.toLowerCase().includes(q))
+    return iconImages().filter((a) => !q || a.name.toLowerCase().includes(q))
   })
 
   /** The placed icon being edited (selected with the icon tool), if any. */
@@ -72,6 +72,7 @@
   }
 
   function choose(id: string) {
+    takeIcon(id)
     editor.iconId = id
     if (editing) editor.editHex(editing.key, (hex) => ({ ...hex, icon: { ...hex.icon!, id } }))
   }
@@ -89,17 +90,9 @@
     if (!live) editor.commitHex(key)
   }
 
-  async function importIcons() {
-    for (const file of await pickImageFiles()) {
-      const result = await importImageFile(file)
-      if ('error' in result) {
-        showToast(`${file.name}: ${t(`icons.error.${result.error}` as MessageKey)}`, 'error')
-        continue
-      }
-      const asset = { id: newId(), ...result }
-      editor.execute(new AddAssetCommand(asset))
-      editor.iconId = `asset:${asset.id}`
-    }
+  async function importMany() {
+    const ids = await importIcons(true)
+    if (ids.length) editor.iconId = ids[ids.length - 1]
   }
 
   function removeSelectedAsset() {
@@ -151,7 +144,7 @@
       aria-label={asset.name}
       onclick={() => choose(`asset:${asset.id}`)}
     >
-      <img src={asset.dataUrl} alt="" />
+      <img src={asset.url} alt="" />
     </button>
   {/each}
 </div>
@@ -200,7 +193,7 @@
 {/if}
 
 <div class="actions">
-  <button onclick={importIcons}>{t('icons.import')}</button>
+  <button onclick={importMany}>{t('icons.import')}</button>
   {#if selectedAsset}
     <button class="danger" onclick={removeSelectedAsset}>{t('icons.removeCustom')}</button>
   {/if}
