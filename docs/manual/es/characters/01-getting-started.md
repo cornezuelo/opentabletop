@@ -19,6 +19,8 @@ Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y l
 
 **Nuevo personaje** pide el **sistema** (solo salen los sistemas con hoja de personajes; el último que elegiste en cualquier aplicación va primero) y un **nombre**, y crea el personaje con los valores iniciales de la hoja. Cuando el sistema tiene hoja de grupo, **Hoja** elige entre un personaje y **un grupo** ([Grupos](#grupos)). Su **id** sale del nombre (`Viejo Tobin` → `viejo-tobin`; `viejo-tobin-2` si el plantel ya tiene uno) y no cambia: es como lo alcanzan las reglas y las tablas cuando viaja (`characters.viejo-tobin.values.health`) y como lo señalan las relaciones (`character:viejo-tobin`).
 
+**Lo que sacó.** Cuando la hoja tira un valor al crear un personaje (un inicio de dados: la **Salud máxima** de las Marcas Grises, `1d3+2`), la página del personaje nuevo dice lo que salió encima de su tarjeta, en _Tirado al crearlo_ (_Salud máxima (1d3+2): 5_), con **Volver a tirar**: esos valores se tiran de nuevo, y lo que empieza a partir de ellos (una salud que empieza en ese máximo) vuelve a empezar; lo demás se queda. Se ofrece mientras el personaje no juega en ningún sitio y esos valores siguen como salieron: en cuanto un viaje o una edición cambia uno, desaparece.
+
 ## El personaje
 
 - **Duplicar** hace una copia con sus valores, solo en el plantel; **Exportar** lo descarga como fichero `.otd.json`; **Borrar** lo quita del plantel (tras preguntar).

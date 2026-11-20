@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { CharacterCard, placeApp, placeUrl, roster, sheetText } from '@open-tabletop/character-ui'
+  import {
+    CharacterCard,
+    placeApp,
+    placeUrl,
+    roster,
+    sheetText,
+    StartRolls,
+  } from '@open-tabletop/character-ui'
   import type { CharacterState } from '@open-tabletop/character-engine'
   import {
     campaignPlace,
@@ -275,6 +282,10 @@
     {/if}
 
     {#if found && system}
+      <!-- What it rolled as it was made, to roll again, while it plays nowhere yet. -->
+      {#if !entry?.playing}
+        <StartRolls sheet={found.def} {character} locale={getLocale()} onchange={setCharacter} />
+      {/if}
       <CharacterCard
         sheet={found.def}
         {character}

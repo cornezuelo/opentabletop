@@ -133,6 +133,13 @@ export const es: Messages<typeof en> = {
     tokenKinds: vocabulary.es.tokenKinds,
     tokenColor: 'Color',
   },
+  startRolls: {
+    title: 'Tirado al crearlo',
+    help: "Valores cuyo inicio tira la hoja (`default: '{{3d6}}'`), tal como le salieron a este personaje. **Volver a tirar** los tira de nuevo, y lo que empieza a partir de ellos (una salud que empieza en un máximo tirado) vuelve a empezar; lo demás se queda. Se ofrece hasta que algo los cambia: un viaje, una edición.",
+    roll: '{name} ({dice}):',
+    again: 'Volver a tirar',
+    confirm: '¿Volver a tirar sus valores iniciales? Lo que ha sacado ahora se pierde.',
+  },
   origin: {
     line: 'Hoja: {sheet} · {system}',
     help: 'Lo que tiene esta hoja (sus valores, estados y tipos de relación) lo decide su sistema: solo se muestra lo que declara. Para añadir o cambiar uno, edita la hoja en la aplicación Packs (un sistema incluido se duplica antes).',

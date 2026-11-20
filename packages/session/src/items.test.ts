@@ -147,6 +147,8 @@ describe('items in a trip', () => {
     m.places = { tail: { name: 'Tail', tags: ['hand'] } }
     // Its own token too.
     m.token = { icon: 'game:archer' }
+    // What it rolled as it was made, for Roll again.
+    m.rolled = { health: 4 }
     expect(characterFromOtd(characterToOtd(m))).toEqual(m)
   })
 })

@@ -955,6 +955,7 @@ export function characterToOtd(
         ...(member.places && { places: member.places }),
         ...(member.template && { template: member.template }),
         ...(member.token && { token: member.token }),
+        ...(member.rolled && { rolled: member.rolled }),
       },
     },
   }
@@ -994,6 +995,13 @@ export function characterFromOtd(raw: {
     ...(typeof (own.token as { icon?: unknown } | undefined)?.icon === 'string' && {
       token: { icon: (own.token as { icon: string }).icon },
     }),
+    ...(typeof own.rolled === 'object' &&
+      own.rolled !== null &&
+      !Array.isArray(own.rolled) && {
+        rolled: Object.fromEntries(
+          Object.entries(own.rolled).filter((e): e is [string, number] => typeof e[1] === 'number'),
+        ),
+      }),
   }
 }
 

@@ -19,6 +19,8 @@ Labels underlined with dots have an explanation: click one and the help column o
 
 **New character** asks for the **system** (only systems with a characters' sheet are listed; the one you last chose in any app comes first) and a **name**, and makes the character with the sheet's starting values. When the system has a party sheet, **Sheet** chooses between a character and **a party** ([Parties](#parties)). Its **id** comes from the name (`Old Tobin` → `old-tobin`; `old-tobin-2` if the roster already has one) and doesn't change: it's how rules and tables reach it once it travels (`characters.old-tobin.values.health`) and how relations point at it (`character:old-tobin`).
 
+**What it rolled.** When the sheet rolls a value as a character is made (a start of dice: the Grey Marches' **Max health**, `1d3+2`), the new character's page says what came up above its card, under _Rolled as it was made_ (_Max health (1d3+2): 5_), with **Roll again**: those values roll anew, and what starts from them (a health starting at that maximum) starts again; the rest stays. It's offered while the character plays nowhere and those values are still what they rolled: once a trip or an edit changes one, it's gone.
+
 ## The character
 
 - **Duplicate** makes a copy with its values, in the roster only; **Export** downloads it as an `.otd.json` file; **Delete** removes it from the roster (after asking).

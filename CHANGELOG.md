@@ -12,6 +12,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **Dice**: a roll against a number says what it needs: _You need 4 or less_ on the dice table and on a roll waiting for you, then _Success_ or _Failure_ as the dice stop; the Oracle's result card and a trip's journal say how it went (_Against 4: Success_).
 - **Oracle and Packs**: a table's **Against** (under its dice): the number its roll is compared with (at or under, under, at or over, over), so its entries go by how it went and need no range.
 - **Oracle**: a table whose dice read a value only a trip or a map has (a die's size: a map's Finds die, a piece's wear) asks for it, its box marked, and **Roll** waits for it instead of failing; rows that read the table's own roll (`dice.doubles`, `against.success`) are no longer greyed out as impossible.
+- **Characters**: a new character shows what its sheet rolled for it (_Rolled as it was made: Max health (1d3+2): 5_) with **Roll again**, while it plays nowhere and nothing has changed those values.
 - **Map**: a tool with keys of its own lists them at the foot of its panel (**Keys of Terrain**, folded to a line, its state remembered): drawing with the keyboard, the brush's size, finishing a line… <kbd>?</kbd> now shows the shortcuts; Help is the **?** button.
 
 ### Packs

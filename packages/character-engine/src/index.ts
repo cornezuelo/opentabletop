@@ -669,7 +669,16 @@ export interface CharacterState {
    * (`game:wolf-head`); absent, its template's, else its initial.
    */
   token?: { icon: string }
+  /**
+   * What it rolled as it was made, by value (a start of dice: `default: '{{3d6}}'`): shown,
+   * and rolled again, while its values are still what they rolled (`startRolls`).
+   */
+  rolled?: Record<string, number>
 }
+
+/** Whether a value's start rolls dice (`'{{3d6}}'`), not only reads others. */
+const rollsAtStart = (start: number | string | undefined): start is string =>
+  typeof start === 'string' && rollsIn(start.replace(/^\{\{|\}\}$/g, ''))
 
 /** A value's start: its number, its dice rolled (seeded by `key`), or 0. */
 function startOf(
@@ -694,14 +703,18 @@ export function createCharacter(
   // In the sheet's order, each default reading the values given and those before it
   // (`default: '{{self.values.toughness}}'`: health starting at a maximum rolled).
   const values: Record<string, number> = { ...init.values }
-  for (const [id, v] of Object.entries(sheet.values))
+  const rolled: Record<string, number> = {}
+  for (const [id, v] of Object.entries(sheet.values)) {
     // Dice are rolled once for each character, the same for the same one (its id).
     values[id] = init.values?.[id] ?? startOf(v.default, `${sheetId}|${init.id}|${id}`, values)
+    if (init.values?.[id] === undefined && rollsAtStart(v.default)) rolled[id] = values[id]
+  }
   const made: CharacterState = {
     sheet: sheetId,
     conditions: {},
     tags: [],
     relations: [],
+    ...(Object.keys(rolled).length && { rolled }),
     ...init,
     values: { ...values, ...init.values },
   }
@@ -712,6 +725,52 @@ export function createCharacter(
     for (const [id, count] of Object.entries(sheet.items?.start ?? {}))
       itemEffect(sheet.items, made, id, count, items, [])
   settle(sheet, made, [], {})
+  // What it rolled, as it reads once settled (within its bounds).
+  if (made.rolled)
+    made.rolled = Object.fromEntries(Object.keys(made.rolled).map((id) => [id, made.values[id]!]))
+  return made
+}
+
+/** One value a character rolled as it was made: its dice as the sheet writes them, and what came up. */
+export interface StartRoll {
+  id: string
+  dice: string
+  value: number
+}
+
+/**
+ * What a character rolled as it was made, while its values are still that (nothing has
+ * changed them since: no trip, no edit): empty once one has changed, or with nothing rolled.
+ */
+export function startRolls(sheet: Sheet, state: CharacterState): StartRoll[] {
+  const rolled = Object.entries(state.rolled ?? {})
+  if (!rolled.length || rolled.some(([id, n]) => state.values[id] !== n)) return []
+  return rolled.flatMap(([id, value]) => {
+    const start = sheet.values[id]?.default
+    return typeof start === 'string' ? [{ id, dice: start.replace(/^\{\{|\}\}$/g, ''), value }] : []
+  })
+}
+
+/**
+ * Its starting rolls rolled again (**Roll again**, seeded by `seed`): each value that rolled
+ * as it was made rolls anew, and those whose start reads them (`'{{self.values.toughness}}'`)
+ * start again from the new ones; the rest stays as it is.
+ */
+export function rollAgain(sheet: Sheet, state: CharacterState, seed: string): CharacterState {
+  const values = { ...state.values }
+  const rolled: Record<string, number> = {}
+  for (const [id, v] of Object.entries(sheet.values)) {
+    if (typeof v.default !== 'string') continue
+    if (rollsAtStart(v.default)) {
+      if (!(id in (state.rolled ?? {}))) continue
+      values[id] = startOf(v.default, `${seed}|${id}`, values)
+      rolled[id] = values[id]
+    } else values[id] = startOf(v.default, `${seed}|${id}`, values)
+  }
+  const made: CharacterState = { ...state, values }
+  settle(sheet, made, [], {})
+  // As they read once settled (within their bounds).
+  made.rolled = Object.fromEntries(Object.keys(rolled).map((id) => [id, made.values[id]!]))
   return made
 }
 

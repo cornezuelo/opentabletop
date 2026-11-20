@@ -24,6 +24,8 @@ import {
   valueParts,
   valuesNow,
   type CharacterState,
+  rollAgain,
+  startRolls,
 } from './index'
 
 // A sheet with made-up values: an Ironsworn-like momentum under a max that falls, a stress
@@ -676,6 +678,40 @@ describe('values that start rolled', () => {
       toughness: 7,
       health: 7,
     })
+  })
+
+  it('are kept as rolled, shown while still that, and rolled again', () => {
+    const { sheet } = parseSheet({
+      kind: 'sheet',
+      id: 'foe',
+      values: {
+        toughness: { default: '{{2d6}}' },
+        health: { default: '{{self.values.toughness}}', min: 0, max: '{{self.values.toughness}}' },
+        luck: { default: 2 },
+      },
+    })
+    const made = createCharacter(sheet!, 'test/foe', { id: 'kael' })
+    // Only what rolled dice: health reads it, luck is a number.
+    expect(made.rolled).toEqual({ toughness: made.values.toughness })
+    expect(startRolls(sheet!, made)).toEqual([
+      { id: 'toughness', dice: '2d6', value: made.values.toughness },
+    ])
+    // Rolled again: new dice, and health starting again from them; the rest as it was.
+    const seeds = ['a', 'b', 'c', 'd', 'e'].map((seed) =>
+      rollAgain(sheet!, { ...made, values: { ...made.values, luck: 5 } }, seed),
+    )
+    for (const again of seeds) {
+      expect(again.values.health).toBe(again.values.toughness)
+      expect(again.values.luck).toBe(5)
+      expect(again.rolled).toEqual({ toughness: again.values.toughness })
+    }
+    expect(new Set(seeds.map((c) => c.values.toughness)).size).toBeGreaterThan(1)
+    // Once something changed what it rolled (a trip, an edit), it's no longer offered.
+    expect(startRolls(sheet!, { ...made, values: { ...made.values, toughness: 99 } })).toEqual([])
+    // Given (a template's), nothing was rolled.
+    expect(createCharacter(sheet!, 'test/foe', { id: 'x', values: { toughness: 7 } }).rolled).toBe(
+      undefined,
+    )
   })
 
   it('are dice in {{…}} or numbers, never other words', () => {

@@ -131,6 +131,13 @@ export const en = {
     tokenKinds: vocabulary.en.tokenKinds,
     tokenColor: 'Colour',
   },
+  startRolls: {
+    title: 'Rolled as it was made',
+    help: "Values whose start the sheet rolls (`default: '{{3d6}}'`), as they came up for this character. **Roll again** rolls them anew, and what starts from them (a health starting at a rolled maximum) starts again; the rest stays. It's offered until something changes them: a trip, an edit.",
+    roll: '{name} ({dice}):',
+    again: 'Roll again',
+    confirm: 'Roll its starting values again? What it rolled now is lost.',
+  },
   origin: {
     line: 'Sheet: {sheet} · {system}',
     help: "What this sheet has (its values, conditions and kinds of relation) is its system's to say: only what it declares is shown. To add or change one, edit the sheet in the Packs app (a bundled system is duplicated first).",
