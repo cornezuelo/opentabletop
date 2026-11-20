@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.75.0] - 2026-11-20
+
 ### Apps
 
 - **Map**: a token with a sheet has a **portrait** (chosen from the image library; one placed from the bestiary shows its template's picture) and **Show its picture**, which draws it with the portrait in place of its icon, clipped to its disc, on the map and in exports and prints.
