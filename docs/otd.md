@@ -109,13 +109,15 @@ aliases: { reaction: kal-arath/reaction }
   "maps": [ … ], "pois": [ … ], "parties": [ … ],
   "characters": [ … ], "factions": [ … ], "clocks": [ … ],
   "log": [ … ],
-  "state": { "oracle": { … }, "weather": { … } }
+  "state": { "oracle": { … }, "weather": { … } },
+  "images": [ … ]
 }
 ```
 
 - **Extension: `.otd.json`.** It says "this is the common format", which is honest once a file carries more than a map (POIs, party, travel state, journal) and other tools read it; a dedicated extension can also be associated with the app later (OS, Tauri). Map saves and opens only `.otd.json` (the pre-alpha `.hexmap.json` format was dropped).
 - **A bundle may contain just part of a campaign.** Map saves `<mapId>.otd.json` with the map, its POIs, its campaign (the `campaign` entity, with the world clock, factions and Oracle in `clocks`, `factions` and `state`) and, during play, the party and state. A full campaign is the same format with more inside.
 - Packs are **not** embedded in the bundle, only referenced (`campaign.packs`). User packs are distributed separately.
+- **Pictures are carried** (`images`, optional): the image library's pictures its data names by id (a `picture` anywhere: a character's portrait, a party's banner, an item's), each as a data URL of an image (never SVG) with its name, size, tags and use. Opening the bundle adds those the browser's library hasn't got.
 
 ## Resolved decisions
 

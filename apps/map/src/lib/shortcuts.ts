@@ -23,7 +23,7 @@ export function bindShortcuts(): () => void {
     // Save/open work even while typing: commit the field first (its change fires on blur).
     if (ctrl && !e.shiftKey && (key === 's' || key === 'o')) {
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
-      if (key === 's') saveMap()
+      if (key === 's') void saveMap()
       else openMapFile()
       e.preventDefault()
       return
@@ -34,7 +34,7 @@ export function bindShortcuts(): () => void {
       if (key === 'z' && e.shiftKey) editor.redo()
       else if (key === 'z') editor.undo()
       else if (key === 'y') editor.redo()
-      else if (key === 's') saveMap()
+      else if (key === 's') void saveMap()
       else if (key === 'o') openMapFile()
       else return
       e.preventDefault()

@@ -97,14 +97,16 @@ A JSON file:
 A .zip:
 
 ```
-opentabletop-export.json        what it holds: { "format": "opentabletop-export", "version": 1, "created", "packs", "maps", "campaigns" }
+opentabletop-export.json        what it holds: { "format": "opentabletop-export", "version": 1, "created", "packs", "maps", "campaigns", "images" }
 packs/<id>/pack.yaml, …         each pack as a pack folder
 maps/<id>.json                  each map as Map's library keeps it
 campaigns/<id>.json             each campaign in its own format
 trips/<id>.json                 each Travel trip as Travel keeps it
 characters/<id>.json            each roster character with its notes and where it plays (a party with its members)
+images/<id>.json                each picture of the image library that what goes names, as the library keeps it
 ```
 
 - `opentabletop-export.json` lists the packs (with what a copy of a bundled pack was based on) and the maps' and campaigns' names and times; trips and characters carry their own. An export of a newer `version` than the app understands is refused.
 - Every map, campaign, trip and character keeps its own format's version and is migrated when its app reads it, as in a backup.
+- Pictures aren't chosen in the tree: they go with what names them (a character's portrait, a party's banner, an item's picture). Importing adds them to the image library, where one already here stays unless the file's is newer. Exports made before pictures have none.
 - Ids with characters a file name can't hold are written escaped (`%2F` for `/`).

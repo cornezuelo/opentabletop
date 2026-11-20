@@ -181,7 +181,7 @@
         {/if}
         <button
           use:tooltip={t('character.exportTip')}
-          onclick={() => exportCharacters([entry], label)}>{t('character.export')}</button
+          onclick={() => void exportCharacters([entry], label)}>{t('character.export')}</button
         >
         <button class="danger" onclick={remove}>{t('character.delete')}</button>
       </div>

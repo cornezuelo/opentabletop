@@ -1,7 +1,16 @@
+import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { roster } from '@open-tabletop/character-ui'
 import { emptyRoster, rosterToOtd } from '@open-tabletop/session'
 import { validateBundle } from '@open-tabletop/schema'
+import {
+  deleteImage,
+  getImage,
+  IMAGE_FORMAT,
+  putImage,
+  withCarriedImages,
+  type LibraryImage,
+} from '@open-tabletop/storage'
 import { applyCharacter } from '@open-tabletop/character-engine'
 import {
   createCharacter,
@@ -55,14 +64,41 @@ describe('the roster in the Characters app', () => {
     expect(localStorage.getItem('opentabletop.characters')).toContain('young-tobin')
   })
 
-  it('exports valid OTD, and imports it back with new ids where taken', () => {
+  it('exports valid OTD, and imports it back with new ids where taken', async () => {
     const id = createCharacter(marches(), 'Kael')
     const file = rosterToOtd([{ ...entryOf(id)!, noteRef: 'People/Kael' }])
     expect(validateBundle(JSON.parse(JSON.stringify(file))).errors).toEqual([])
-    expect(importCharacters(JSON.stringify(file))).toEqual({ names: ['Kael'] })
+    expect(await importCharacters(JSON.stringify(file))).toEqual({ names: ['Kael'] })
     expect(entryOf('kael-2')).toMatchObject({ noteRef: 'People/Kael', character: { name: 'Kael' } })
-    expect(importCharacters('{')).toEqual({ error: 'broken' })
-    expect(importCharacters('{"otd":"0.2.0","characters":[]}')).toEqual({ names: [] })
+    expect(await importCharacters('{')).toEqual({ error: 'broken' })
+    expect(await importCharacters('{"otd":"0.2.0","characters":[]}')).toEqual({ names: [] })
+  })
+
+  it('carries a character’s portrait in its file, back into another browser’s library', async () => {
+    const id = createCharacter(marches(), 'Mara')
+    const face: LibraryImage = {
+      id: 'mara-face',
+      name: 'Mara',
+      modified: '2026-11-20T00:00:00.000Z',
+      format: IMAGE_FORMAT,
+      data: 'data:image/webp;base64,UklGR',
+      width: 512,
+      height: 512,
+      tags: [],
+      use: 'portrait',
+    }
+    await putImage(face)
+    const entry = entryOf(id)!
+    const file = await withCarriedImages(
+      rosterToOtd([{ ...entry, character: { ...entry.character, picture: 'mara-face' } }]),
+    )
+    expect(file.images).toEqual([expect.objectContaining({ id: 'mara-face', data: face.data })])
+    expect(validateBundle(JSON.parse(JSON.stringify(file))).errors).toEqual([])
+    // Another browser: the library hasn't got it until the file comes.
+    await deleteImage('mara-face')
+    await importCharacters(JSON.stringify(file))
+    expect(entryOf('mara-2')!.character.picture).toBe('mara-face')
+    expect(await getImage('mara-face')).toMatchObject({ name: 'Mara', data: face.data })
   })
 
   it('imports the company of the Grey Marches’ example map', async () => {
@@ -73,7 +109,7 @@ describe('the roster in the Characters app', () => {
     }) as Record<string, string>
     const map = Object.entries(files).find(([path]) => path.endsWith('/grey-marches.otd.json'))?.[1]
     expect(map).toBeDefined()
-    const done = importCharacters(map!)
+    const done = await importCharacters(map!)
     expect(done).toEqual({ names: expect.arrayContaining(['Kael', 'Mara']) })
   })
 })

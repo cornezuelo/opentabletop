@@ -18,6 +18,7 @@ import {
 } from '@open-tabletop/session'
 import { roster } from '@open-tabletop/character-ui'
 import { validateBundle } from '@open-tabletop/schema'
+import { carriedImages, keepCarriedImages, withCarriedImages } from '@open-tabletop/storage'
 
 const now = () => new Date().toISOString()
 
@@ -68,8 +69,13 @@ export function deleteCharacter(id: string): void {
   roster.set(deleteFromRoster(roster.roster, id))
 }
 
-/** The characters of an OTD file, added to the roster (new ids where taken); their names. */
-export function importCharacters(text: string): { names: string[] } | { error: 'broken' } {
+/**
+ * The characters of an OTD file, added to the roster (new ids where taken), and the pictures
+ * it carries to the image library; their names.
+ */
+export async function importCharacters(
+  text: string,
+): Promise<{ names: string[] } | { error: 'broken' }> {
   let raw: unknown
   try {
     raw = JSON.parse(text)
@@ -91,12 +97,13 @@ export function importCharacters(text: string): { names: string[] } | { error: '
     names.push(character.name || kept.id)
   }
   roster.set(next)
+  await keepCarriedImages(carriedImages(raw))
   return { names }
 }
 
-/** Downloads characters as an .otd.json file. */
-export function exportCharacters(entries: RosterEntry[], name: string): void {
-  const json = JSON.stringify(rosterToOtd(entries), null, 2)
+/** Downloads characters as an .otd.json file, with the pictures they name. */
+export async function exportCharacters(entries: RosterEntry[], name: string): Promise<void> {
+  const json = JSON.stringify(await withCarriedImages(rosterToOtd(entries)), null, 2)
   const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }))
   const link = document.createElement('a')
   link.href = url

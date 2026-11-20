@@ -106,6 +106,28 @@ Map saves maps as **OTD bundles**, a JSON format meant to be shared between tool
 }
 ```
 
+**Pictures.** A file carries the pictures of the image library its data names (a character's portrait, a party's banner, an item's `picture`) in `images`, so it shows them anywhere: each with its `id` (the one its data names), `name`, `data` (the picture, a data URL of an image, never SVG), `width`, `height`, `tags` and what it was added for, `use`. Map's **Save** and the Characters app's **Export** write them; opening the file (Map's **Open**, Characters' **Import…**) adds those this browser's library hasn't got, and leaves the ones it has as they are:
+
+```json
+{
+  "otd": "0.2.0",
+  "characters": [
+    { "id": "mara", "type": "character", "ext": { "character": { "picture": "k3v9…" } } }
+  ],
+  "images": [
+    {
+      "id": "k3v9…",
+      "name": "Mara",
+      "data": "data:image/webp;base64,…",
+      "width": 512,
+      "height": 512,
+      "tags": [],
+      "use": "portrait"
+    }
+  ]
+}
+```
+
 The full description is in `docs/otd.md`, and the schema in `packages/schema` (it can also produce a JSON Schema).
 
 ## In the browser

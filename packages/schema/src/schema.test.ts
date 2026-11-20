@@ -58,6 +58,13 @@ describe('OTD bundle', () => {
     expect(validateBundle({ ...sample, otd: '9.0.0' }).errors[0]).toContain('newer')
   })
 
+  it('carries pictures as data URLs of images, never SVG', () => {
+    const png = { id: 'kael-face', name: 'Kael', data: 'data:image/png;base64,iVBOR' }
+    expect(validateBundle({ ...sample, images: [png] }).errors).toEqual([])
+    const svg = { ...png, data: 'data:image/svg+xml,<svg onload=alert(1)>' }
+    expect(validateBundle({ ...sample, images: [svg] }).errors[0]).toContain('images.0.data')
+  })
+
   it('detects bundles and exports a JSON Schema', () => {
     expect(isBundle(sample)).toBe(true)
     expect(isBundle({ version: 1 })).toBe(false)

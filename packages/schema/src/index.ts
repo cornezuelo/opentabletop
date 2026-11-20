@@ -202,6 +202,22 @@ export const campaign = z
   })
   .loose()
 
+/**
+ * A picture the bundle's data names by id (a character's `picture`), carried so the file shows
+ * it anywhere: a data URL of an image (never SVG), shrunk as the image library keeps it.
+ */
+export const image = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().optional(),
+    data: z.string().regex(/^data:image\/(?!svg)/),
+    width: z.number().optional(),
+    height: z.number().optional(),
+    tags: z.array(z.string()).optional(),
+    use: z.string().optional(),
+  })
+  .loose()
+
 export const bundle = z
   .object({
     otd: z.string().regex(/^\d+\.\d+\.\d+$/),
@@ -215,6 +231,8 @@ export const bundle = z
     log: z.array(logEntry).default([]),
     /** Engine runtime state, keyed by engine (oracle, weather…). */
     state: z.record(z.string(), z.unknown()).default({}),
+    /** The pictures its data names, carried with it (the image library's, by id). */
+    images: z.array(image).optional(),
   })
   .loose()
 
@@ -229,6 +247,7 @@ export type OtdCharacter = z.infer<typeof character>
 export type OtdLogEntry = z.infer<typeof logEntry>
 export type OtdCampaign = z.infer<typeof campaign>
 export type OtdClock = z.infer<typeof clock>
+export type OtdImage = z.infer<typeof image>
 
 export interface ValidationResult {
   bundle?: OtdBundle

@@ -4,12 +4,20 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Map**: a token with a sheet has a **portrait** (chosen from the image library; one placed from the bestiary shows its template's picture) and **Show its picture**, which draws it with the portrait in place of its icon, clipped to its disc, on the map and in exports and prints.
+- **Map, Characters and every app's Export…**: files carry their pictures: a map saved, characters exported and an export .zip bring the portraits, banners and items' pictures they use, and opening or importing them adds those to your image library.
+
+### Formats
+
+- **OTD**: a bundle's `images`, the image library's pictures its data names, each a data URL with its name, size, tags and use; the export .zip's `images/`.
+
 ## [0.74.0] - 2026-11-20
 
 ### Apps
 
 - **Characters, Travel and Map**: a party has a **banner** on top of its sheet, where a character has its portrait, chosen from the image library the same way (framed wide); it goes with the party to its trips and flies over the party's band in a fight.
-- **Map**: a token with a sheet has a **portrait** (chosen from the image library; one placed from the bestiary shows its template's picture) and **Show its picture**, which draws it with the portrait in place of its icon, clipped to its disc, on the map and in exports and prints.
 - **Packs, Characters, Travel and Map**: pictures for items and templates: **Its picture** on an item of a catalogue (Packs' **Items**) and on a template (Packs' **Bestiary**, or its page in Characters), yours and kept in this browser, not in the pack, so bundled ones can have one too; an item's row shows it (or one of its own, chosen on the row), and a template's copies have it as their face in fights and lists unless they have a portrait of their own.
 
 ## [0.73.0] - 2026-11-20

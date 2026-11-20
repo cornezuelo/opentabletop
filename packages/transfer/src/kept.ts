@@ -1,4 +1,9 @@
-import { ROSTER_KEY, USER_PACKS_KEY, type LibraryEntry } from '@open-tabletop/storage'
+import {
+  picturesNamed,
+  ROSTER_KEY,
+  USER_PACKS_KEY,
+  type LibraryEntry,
+} from '@open-tabletop/storage'
 
 /**
  * What the apps keep that can be exported and imported, as they keep it: the user's packs,
@@ -13,6 +18,11 @@ export interface Kept {
   trips: Record<string, unknown>[]
   /** The roster's entries (`{ character, modified, playing? }`), as stored. */
   characters: Record<string, unknown>[]
+  /**
+   * The image library's entries: not chosen by themselves, they go with what names them (a
+   * character's portrait, a party's banner).
+   */
+  images: LibraryEntry[]
 }
 
 /** A pack of the user's, as the pack library keeps it (`root` is its folder and id). */
@@ -32,6 +42,7 @@ export const emptyKept = (): Kept => ({
   campaigns: [],
   trips: [],
   characters: [],
+  images: [],
 })
 
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -65,6 +76,7 @@ export function readKept(
   storage: Record<string, string>,
   maps: LibraryEntry[],
   campaigns: LibraryEntry[],
+  images: LibraryEntry[] = [],
 ): Kept {
   const packs = parse(storage[USER_PACKS_KEY])
   const trips = parse(storage[TRIPS_KEY])
@@ -82,5 +94,17 @@ export function readKept(
       isRecord(roster) && Array.isArray(roster.characters)
         ? roster.characters.filter((e): e is Record<string, unknown> => !!characterIdOf(e))
         : [],
+    images,
   }
+}
+
+/** The images of `kept` that the chosen things name (by item key), to go with them. */
+export function chosenImages(kept: Kept, chosen: ReadonlySet<string>): LibraryEntry[] {
+  const named = new Set<string>()
+  const look = (value: unknown) => picturesNamed(value, named)
+  for (const m of kept.maps) if (chosen.has(`map:${m.id}`)) look(parse(m.json))
+  for (const c of kept.campaigns) if (chosen.has(`campaign:${c.id}`)) look(parse(c.json))
+  for (const t of kept.trips) if (chosen.has(`trip:${t.id as string}`)) look(t)
+  for (const e of kept.characters) if (chosen.has(`character:${characterIdOf(e)!}`)) look(e)
+  return kept.images.filter((image) => named.has(image.id))
 }

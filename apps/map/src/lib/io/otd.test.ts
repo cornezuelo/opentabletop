@@ -1,7 +1,9 @@
+import 'fake-indexeddb/auto'
 import { describe, expect, it } from 'vitest'
 import { validateBundle } from '@open-tabletop/schema'
 import { createMap, serializeMap } from '@open-tabletop/map'
 import { createCampaign, type Campaign } from '@open-tabletop/campaign'
+import { carriedImages, IMAGE_FORMAT, putImage, withCarriedImages } from '@open-tabletop/storage'
 import { bundleToMap, mapToBundle, parseMapFile } from './otd'
 
 function sampleMap() {
@@ -385,5 +387,43 @@ describe('play state in OTD', () => {
     expect(back.tokens.find((t) => t.id === 'partytok01')?.fields).toBeUndefined()
     for (const token of map.tokens.filter((t) => t.kind !== 'party'))
       expect(back.tokens.find((t) => t.id === token.id)?.fields).toEqual(token.fields)
+  })
+})
+
+describe('pictures in a map’s file', () => {
+  it('carries those its tokens’ sheets name, and nothing when none do', async () => {
+    await putImage({
+      id: 'brenna-face',
+      name: 'Brenna',
+      modified: '2026-11-20T00:00:00.000Z',
+      format: IMAGE_FORMAT,
+      data: 'data:image/webp;base64,UklGR',
+      width: 512,
+      height: 512,
+      tags: [],
+    })
+    const map = sampleMap()
+    expect((await withCarriedImages(mapToBundle(map))).images).toBeUndefined()
+    map.tokens = [
+      {
+        id: 'brenna00001',
+        name: 'Brenna',
+        kind: 'npc',
+        iconId: 'game:cowled',
+        showPicture: true,
+        character: {
+          sheet: 'grey-marches/companion',
+          values: {},
+          conditions: {},
+          tags: [],
+          relations: [],
+          picture: 'brenna-face',
+        },
+      },
+    ]
+    const file = JSON.parse(JSON.stringify(await withCarriedImages(mapToBundle(map))))
+    expect(validateBundle(file).errors).toEqual([])
+    expect(carriedImages(file)).toEqual([expect.objectContaining({ id: 'brenna-face' })])
+    expect(bundleToMap(file).map.tokens[0].character?.picture).toBe('brenna-face')
   })
 })

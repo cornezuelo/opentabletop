@@ -106,6 +106,28 @@ Mapa guarda los mapas como **paquetes OTD**, un formato JSON pensado para compar
 }
 ```
 
+**Imágenes.** Un fichero lleva las imágenes de la biblioteca que nombran sus datos (el retrato de un personaje, el estandarte de un grupo, la `picture` de un objeto) en `images`, para que se vean en cualquier sitio: cada una con su `id` (el que nombran sus datos), `name`, `data` (la imagen, una URL de datos de una imagen, nunca SVG), `width`, `height`, `tags` y para qué se añadió, `use`. El **Guardar** de Mapa y el **Exportar** de Personajes las escriben; al abrir el fichero (**Abrir** de Mapa, **Importar…** de Personajes) se añaden las que la biblioteca de este navegador no tiene, y las que tiene se quedan como están:
+
+```json
+{
+  "otd": "0.2.0",
+  "characters": [
+    { "id": "mara", "type": "character", "ext": { "character": { "picture": "k3v9…" } } }
+  ],
+  "images": [
+    {
+      "id": "k3v9…",
+      "name": "Mara",
+      "data": "data:image/webp;base64,…",
+      "width": 512,
+      "height": 512,
+      "tags": [],
+      "use": "portrait"
+    }
+  ]
+}
+```
+
 La descripción completa está en `docs/otd.md`, y el esquema en `packages/schema` (también puede generar un JSON Schema).
 
 ## En el navegador

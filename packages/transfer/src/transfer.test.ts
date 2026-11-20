@@ -206,6 +206,35 @@ describe('an export', () => {
     )
   })
 
+  it('carries the pictures the chosen things name, and only those', () => {
+    const { kept } = storage()
+    const image = (id: string) => ({
+      id,
+      name: id,
+      modified: '2026-11-20',
+      json: JSON.stringify({ format: 1, data: 'data:image/webp;base64,UklGR', tags: [] }),
+    })
+    const pictured: Kept = {
+      ...kept,
+      characters: kept.characters.map((e) => {
+        const character = e.character as Record<string, unknown>
+        return { ...e, character: { ...character, picture: `${String(character.id)}-face` } }
+      }),
+      images: [image('brenna-face'), image('tobin-face'), image('unused')],
+    }
+    const chosen = withMissing(listItems(pictured), new Set(['trip:trip-1']))
+    expect(chosen.has('character:tobin')).toBe(false)
+    const zip = writeExport(pictured, chosen, '2026-11-20T10:00:00.000Z')
+    expect(Object.keys(unzipSync(zip)).filter((f) => f.startsWith('images/'))).toEqual([
+      'images/brenna-face.json',
+    ])
+    const read = readExport(zip).kept!
+    expect(read.images).toEqual([image('brenna-face')])
+    expect(planImport({}, read, chosen).putImages).toEqual([image('brenna-face')])
+    // An export made before images has none.
+    expect(readExport(writeExport(kept, chosen)).kept!.images).toEqual([])
+  })
+
   it('refuses what isn’t one, and one of a newer version', () => {
     expect(readExport(strToU8('not a zip')).error).toBe('invalid')
     expect(readExport(zipSync({ 'pack.yaml': strToU8('id: x') })).error).toBe('invalid')

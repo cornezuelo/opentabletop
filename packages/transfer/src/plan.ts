@@ -1,5 +1,5 @@
 import { ROSTER_KEY, USER_PACKS_KEY, type LibraryEntry } from '@open-tabletop/storage'
-import { characterIdOf, isRecord, TRIPS_KEY, type Kept } from './kept'
+import { characterIdOf, chosenImages, isRecord, TRIPS_KEY, type Kept } from './kept'
 import { keyOf } from './items'
 
 /** What importing one thing does here: adds it, finds it there already, or replaces yours. */
@@ -39,6 +39,8 @@ export interface ImportPlan {
   storage: Record<string, string>
   putMaps: LibraryEntry[]
   putCampaigns: LibraryEntry[]
+  /** The pictures the chosen things name, as they were made (here, the newer one stays). */
+  putImages: LibraryEntry[]
 }
 
 const parse = (text: string | undefined): unknown => {
@@ -65,7 +67,12 @@ export function planImport(
   incoming: Kept,
   chosen: ReadonlySet<string>,
 ): ImportPlan {
-  const out: ImportPlan = { storage: {}, putMaps: [], putCampaigns: [] }
+  const out: ImportPlan = {
+    storage: {},
+    putMaps: [],
+    putCampaigns: [],
+    putImages: chosenImages(incoming, chosen),
+  }
   const now = new Date().toISOString()
 
   const packs = incoming.packs.filter((p) => chosen.has(keyOf('pack', p.root)))

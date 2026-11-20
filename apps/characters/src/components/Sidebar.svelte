@@ -192,7 +192,7 @@
     const picked = e.currentTarget.files?.[0]
     e.currentTarget.value = ''
     if (!picked) return
-    const done = importCharacters(await picked.text())
+    const done = await importCharacters(await picked.text())
     if ('error' in done) showToast(t('imported.broken'), 'error')
     else if (!done.names.length) showToast(t('imported.none'), 'error')
     else showToast(t('imported.some', { names: done.names.join(', ') }))

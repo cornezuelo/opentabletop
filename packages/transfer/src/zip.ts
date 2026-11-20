@@ -1,5 +1,5 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
-import { emptyKept, isPack, isRecord, isTrip, characterIdOf, type Kept } from './kept'
+import { characterIdOf, chosenImages, emptyKept, isPack, isRecord, isTrip, type Kept } from './kept'
 import { keyOf } from './items'
 
 /**
@@ -7,7 +7,8 @@ import { keyOf } from './items'
  * times of library entries), each pack in `packs/<root>/` as pack folders are (so the
  * Oracle's **Import .zip** reads them too), and one JSON file per map (`maps/`, as the map
  * library keeps it), campaign (`campaigns/`), trip (`trips/`) and character
- * (`characters/`, its roster entry). Each keeps its own format's version, migrated by its
+ * (`characters/`, its roster entry), and the images they name (`images/`, as the image
+ * library keeps them). Each keeps its own format's version, migrated by its
  * app when read.
  */
 export const EXPORT_FORMAT = 'opentabletop-export'
@@ -21,6 +22,8 @@ interface Manifest {
   packs: { root: string; basedOn?: Record<string, string> }[]
   maps: { id: string; name: string; modified: string }[]
   campaigns: { id: string; name: string; modified: string }[]
+  /** Absent in exports made before images. */
+  images?: { id: string; name: string; modified: string }[]
 }
 
 const file = (id: string) => `${encodeURIComponent(id)}.json`
@@ -39,6 +42,8 @@ export function writeExport(
     for (const f of pack.files) files[`packs/${pack.root}/${f.path}`] = strToU8(f.content)
   for (const map of maps) files[`maps/${file(map.id)}`] = strToU8(map.json)
   for (const campaign of campaigns) files[`campaigns/${file(campaign.id)}`] = strToU8(campaign.json)
+  const images = chosenImages(kept, chosen)
+  for (const image of images) files[`images/${file(image.id)}`] = strToU8(image.json)
   for (const trip of kept.trips)
     if (chosen.has(keyOf('trip', trip.id as string)))
       files[`trips/${file(trip.id as string)}`] = strToU8(JSON.stringify(trip))
@@ -54,6 +59,7 @@ export function writeExport(
     packs: packs.map((p) => ({ root: p.root, ...(p.basedOn && { basedOn: p.basedOn }) })),
     maps: maps.map(({ id, name, modified }) => ({ id, name, modified })),
     campaigns: campaigns.map(({ id, name, modified }) => ({ id, name, modified })),
+    images: images.map(({ id, name, modified }) => ({ id, name, modified })),
   }
   files[EXPORT_MANIFEST] = strToU8(JSON.stringify(manifest, null, 2))
   return zipSync(files)
@@ -119,6 +125,7 @@ export function readExport(data: Uint8Array): {
     })
   kept.maps = library('maps', manifest.maps)
   kept.campaigns = library('campaigns', manifest.campaigns)
+  kept.images = library('images', manifest.images)
   for (const path of Object.keys(entries).sort()) {
     if (path.startsWith('trips/') && path.endsWith('.json')) {
       const trip = json(path)

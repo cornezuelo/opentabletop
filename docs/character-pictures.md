@@ -36,6 +36,7 @@ interface CharacterState {
 - **Backups**: the `pictures` store is added to `@open-tabletop/storage`'s backup explicitly (as maps and campaigns are), and restored with it; a picture no character, map or campaign names any more is dropped on the next backup (no orphan bytes).
 - **Exporting a character** (`.otd.json`): the picture travels **embedded** as a `MapAsset`-like entry (`assets: [{ id, name, dataUrl }]`), and the character names it by id; importing puts it into the store (same bytes, same id: kept once).
 - **Maps**: a map's file embeds the pictures of its characters (members and tokens) in its `assets`, so a map sent to a friend shows them; opening it fills the store. OTD's `Character` keeps the reference in `ext.character.picture`.
+- **Built 2026-11-20:** as above, in an OTD bundle's top-level `images` (not in a map's `assets`, which stay its icons): Map's **Save**, Characters' **Export** and the export .zip carry the pictures their data names; opening or importing adds those the library hasn't got.
 - **Format versions**: the roster's and the map's formats gain an optional field (no meaning changes, no migration needed beyond reading files without it); the backup format gains a store (its version bumps, older backups still restore).
 
 ## 5. Pieces

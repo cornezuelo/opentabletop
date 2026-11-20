@@ -39,6 +39,7 @@ import {
 } from './examples'
 import {
   allCampaigns,
+  carriedImages,
   deleteCampaign,
   deleteLibraryMap,
   getCampaign,
@@ -50,8 +51,10 @@ import {
   onLibraryChange,
   onBeforeRestore,
   putCampaign,
+  keepCarriedImages,
   putLibraryMap,
   type LibraryEntry,
+  withCarriedImages,
 } from '@open-tabletop/storage'
 import { loadedStyles } from '../styles'
 import { parseDeepLink } from './deepLink'
@@ -224,7 +227,7 @@ export async function newMap(under = false): Promise<void> {
         { value: 'save', label: t('newMap.saveAndCreate'), kind: 'primary' },
       ])
   if (choice !== 'create' && choice !== 'save') return
-  if (choice === 'save') saveMap()
+  if (choice === 'save') await saveMap()
   await switchTo({ map: startMap(answer.name, answer.start) })
 }
 
@@ -248,10 +251,12 @@ export async function openInCampaign(campaign: string, map?: string): Promise<bo
 
 /**
  * Saves an OTD bundle (`<id>.otd.json`) that other OpenTabletop tools can read: the map with
- * its campaign.
+ * its campaign, and the pictures of the image library its characters and party name.
  */
-export function saveMap(): void {
-  downloadMap(JSON.stringify(mapToBundle(editor.map, editor.campaign)), editor.map.meta.id)
+export async function saveMap(): Promise<void> {
+  const id = editor.map.meta.id
+  const bundle = await withCarriedImages(mapToBundle(editor.map, editor.campaign))
+  downloadMap(JSON.stringify(bundle), id)
 }
 
 /**
@@ -267,6 +272,8 @@ export async function openMapFile(): Promise<string | null> {
     if (!choice) return null
     const opening = choice === 'copy' ? asCopy(opened) : await withKeptCampaign(opened)
     if (!opening) return null
+    // Its pictures join the image library (those it has already stay as they are).
+    await keepCarriedImages(carriedImages(JSON.parse(json)))
     await switchTo(opening)
     await sayCampaign()
     return opening.map.meta.id

@@ -559,7 +559,7 @@ export const en = {
     portraitOf: '{name}’s portrait',
     showPicture: 'Show its picture',
     showPictureHelp:
-      'Draws the token with its sheet’s portrait in place of its icon, clipped to its disc, on the map and in what you export or print.\n• Its portrait is chosen here, or in Characters when the sheet is a roster character’s; one from the bestiary shows its template’s picture until it has its own.\n• Without a portrait (or a sheet) the token keeps its icon.\n• Pictures live in this browser’s image library: a map sent to someone else shows the icon.',
+      'Draws the token with its sheet’s portrait in place of its icon, clipped to its disc, on the map and in what you export or print.\n• Its portrait is chosen here, or in Characters when the sheet is a roster character’s; one from the bestiary shows its template’s picture until it has its own.\n• Without a portrait (or a sheet) the token keeps its icon.\n• Pictures live in this browser’s image library; the map’s file carries the ones it uses.',
     removeSheet: 'Remove its sheet',
     confirmNoSheet: 'Remove this token’s sheet and everything on it?',
     confirmParty: 'Make "{name}" the party? "{old}" becomes a player character.',

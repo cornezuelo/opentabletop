@@ -91,3 +91,87 @@ export async function getImage(id: string): Promise<LibraryImage | null> {
   const entry = await images.get(id)
   return (entry && readImage(entry)) ?? null
 }
+
+/**
+ * An image carried inside a file (an OTD bundle's `images`), so a map or a character sent to
+ * someone else shows its pictures: the library's image without its date.
+ */
+export type CarriedImage = Omit<LibraryImage, 'format' | 'modified'>
+
+/**
+ * The library images a file's data names: every string under a key `picture` (a character's
+ * portrait, a party's banner, an item's picture), wherever it is, once each.
+ */
+export function picturesNamed(value: unknown, found = new Set<string>()): string[] {
+  if (Array.isArray(value)) for (const v of value) picturesNamed(v, found)
+  else if (isRecord(value))
+    for (const [key, v] of Object.entries(value))
+      if (key === 'picture' && typeof v === 'string' && v) found.add(v)
+      else picturesNamed(v, found)
+  return [...found]
+}
+
+/** The library's images by id, to carry in a file; those it doesn't have are left out. */
+export async function imagesToCarry(ids: readonly string[]): Promise<CarriedImage[]> {
+  const read = await Promise.all(ids.map((id) => getImage(id).catch(() => null)))
+  return read.flatMap((image) => {
+    if (!image) return []
+    const carried: Partial<LibraryImage> = { ...image }
+    delete carried.format
+    delete carried.modified
+    return [carried as CarriedImage]
+  })
+}
+
+/**
+ * A file's images (`images` of an OTD bundle), those that are pictures: a data URL of an image
+ * other than SVG (it may hold scripts), with an id. Anything else is left out.
+ */
+export function carriedImages(raw: unknown): CarriedImage[] {
+  const list = isRecord(raw) && Array.isArray(raw.images) ? raw.images : []
+  const n = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0)
+  return list.flatMap((image) => {
+    if (!isRecord(image) || typeof image.id !== 'string' || !image.id) return []
+    const data = image.data
+    if (typeof data !== 'string' || !data.startsWith('data:image/')) return []
+    if (data.startsWith('data:image/svg')) return []
+    return [
+      {
+        id: image.id,
+        name: typeof image.name === 'string' ? image.name : image.id,
+        data,
+        width: n(image.width),
+        height: n(image.height),
+        tags: Array.isArray(image.tags)
+          ? image.tags.filter((t): t is string => typeof t === 'string')
+          : [],
+        ...(typeof image.use === 'string' && { use: image.use }),
+      },
+    ]
+  })
+}
+
+/**
+ * Keeps a file's images in the library: those it hasn't got by that id (one it has stays as
+ * it is, renamed or tagged by its owner). Returns how many were added.
+ */
+export async function keepCarriedImages(
+  images: readonly CarriedImage[],
+  modified = new Date().toISOString(),
+): Promise<number> {
+  let added = 0
+  for (const image of images) {
+    if (await getImageEntry(image.id)) continue
+    await putImage({ ...image, format: IMAGE_FORMAT, modified })
+    added++
+  }
+  return added
+}
+
+/** A file's data with the library images it names carried in its `images` (none: as it was). */
+export async function withCarriedImages<T extends object>(
+  data: T,
+): Promise<T & { images?: CarriedImage[] }> {
+  const images = await imagesToCarry(picturesNamed(data))
+  return images.length ? { ...data, images } : data
+}

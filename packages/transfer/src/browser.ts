@@ -9,7 +9,10 @@ import { exportFileName, writeExport } from './zip'
  */
 export async function keptHere(): Promise<{ kept: Kept; storage: Record<string, string> }> {
   const backup = await makeBackup()
-  return { kept: readKept(backup.storage, backup.maps, backup.campaigns), storage: backup.storage }
+  return {
+    kept: readKept(backup.storage, backup.maps, backup.campaigns, backup.images),
+    storage: backup.storage,
+  }
 }
 
 /** Saves the chosen things as an export's .zip. */
@@ -54,6 +57,10 @@ export async function importChosen(incoming: Kept, chosen: ReadonlySet<string>):
   const { storage } = await keptHere()
   const plan = planImport(storage, incoming, chosen)
   // A backup of only what changes, added to what's here: each entry already holds the
-  // joined list, and the library entries are newer than what they replace.
-  await restoreBackup(createBackup(plan.storage, plan.putMaps, plan.putCampaigns), 'merge')
+  // joined list, and the library entries are newer than what they replace (an image only
+  // when the export's is newer than the one here).
+  await restoreBackup(
+    createBackup(plan.storage, plan.putMaps, plan.putCampaigns, plan.putImages),
+    'merge',
+  )
 }

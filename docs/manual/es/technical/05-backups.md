@@ -97,14 +97,16 @@ Un fichero JSON:
 Un .zip:
 
 ```
-opentabletop-export.json        lo que trae: { "format": "opentabletop-export", "version": 1, "created", "packs", "maps", "campaigns" }
+opentabletop-export.json        lo que trae: { "format": "opentabletop-export", "version": 1, "created", "packs", "maps", "campaigns", "images" }
 packs/<id>/pack.yaml, …         cada pack como carpeta de pack
 maps/<id>.json                  cada mapa tal y como lo guarda la biblioteca de Mapa
 campaigns/<id>.json             cada campaña en su propio formato
 trips/<id>.json                 cada viaje de Travel tal y como lo guarda Travel
 characters/<id>.json            cada personaje del plantel con sus notas y dónde juega (un grupo, con sus miembros)
+images/<id>.json                cada imagen de la biblioteca de imágenes que nombra lo que va, tal y como la guarda la biblioteca
 ```
 
 - `opentabletop-export.json` lista los packs (con aquello en lo que se basaba una copia de un pack incluido) y los nombres y fechas de mapas y campañas; viajes y personajes llevan los suyos. Una exportación de una `version` más reciente de lo que entiende la aplicación se rechaza.
 - Cada mapa, campaña, viaje y personaje conserva la versión de su propio formato y se migra cuando lo lee su aplicación, como en una copia de seguridad.
+- Las imágenes no se eligen en el árbol: van con lo que las nombra (el retrato de un personaje, el estandarte de un grupo, la imagen de un objeto). Al importar se añaden a la biblioteca de imágenes, donde una que ya está se queda salvo que la del fichero sea más reciente. Las exportaciones hechas antes de las imágenes no traen ninguna.
 - Los ids con caracteres que un nombre de fichero no admite se escriben escapados (`%2F` por `/`).
