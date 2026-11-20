@@ -5,6 +5,7 @@
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
   import type { OracleUiKey, Translate } from '../i18n'
   import { nextId, type DefinitionForm } from './doc.svelte'
+  import FaceEditor from './FaceEditor.svelte'
   import RefPicker from './RefPicker.svelte'
 
   /** A deck: cards (with copies) drawn without replacement until reshuffled. */
@@ -22,7 +23,12 @@
     pause?: boolean
     notable?: boolean
     count?: number
+    face?: Record<string, unknown>
   }
+  const deckFace = $derived(doc.raw.face as Record<string, unknown> | undefined)
+  /** Every card's face, unfolded (at first when the deck has one). */
+  // svelte-ignore state_referenced_locally
+  let faceOpen = $state(!!doc.raw.face)
 
   /** Cards showing what they set, change and whether they pause. */
   let open = $state<Record<number, boolean>>({})
@@ -101,6 +107,13 @@
     </select>
   </label>
 
+  {#if !doc.translating}
+    <details class="deck-face" bind:open={faceOpen}>
+      <summary>{t('edit.deckFace')}<InfoTip text={t('edit.deckFaceHelp')} /></summary>
+      {#if faceOpen}<FaceEditor {doc} path={['face']} face={deckFace} />{/if}
+    </details>
+  {/if}
+
   <h3 class="section-title">{t('edit.cards', { count: total })}</h3>
   <table style:--id-w={widths.id} style:--num-w={widths.num} style:--then-w={widths.then}>
     <thead>
@@ -152,7 +165,7 @@
                 onchange={(e) => edit(i, 'result', e.currentTarget.value)}
               />
             {/if}
-            {#if (card.set !== undefined || card.effects !== undefined || card.pause || card.notable !== undefined) && !open[i]}
+            {#if (card.set !== undefined || card.effects !== undefined || card.face !== undefined || card.pause || card.notable !== undefined) && !open[i]}
               <small class="note">{t('edit.advanced')}</small>
             {/if}
           </td>
@@ -235,6 +248,10 @@
                     onchange={(map) => edit(i, 'effects', map)}
                   />
                 </div>
+                <div class="field wide">
+                  <span>{t('edit.cardFace')}<InfoTip text={t('edit.cardFaceHelp')} /></span>
+                  <FaceEditor {doc} path={['cards', i, 'face']} face={card.face} base={deckFace} />
+                </div>
                 <label class="inline">
                   <input
                     type="checkbox"
@@ -282,6 +299,15 @@
     background: rgb(255 255 255 / 0.03);
     border: 1px solid var(--panel-border);
     border-radius: 6px;
+  }
+
+  .more-grid .wide {
+    grid-column: 1 / -1;
+  }
+
+  .deck-face summary {
+    font-weight: 600;
+    cursor: pointer;
   }
 
   .more-grid .field {

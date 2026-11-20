@@ -36,7 +36,7 @@ Change the context or the mode and the odds follow: in the Grey Marches' _Who go
 
 ## Decks and once-only entries
 
-A deck shows how many cards are left and has **Shuffle**. A generator can draw from a deck too, and Core's hands and readings (_Poker hand_, _Three-card reading_…) shuffle it first: each one starts from the whole deck. Entries marked `once` can only come up once. **New session** (in the history) forgets both: every card goes back and once-only entries are available again. **Clear** empties the history.
+A deck shows how many cards are left and has **Shuffle**. A card drawn is **shown as a card** when its deck gives it a face: Core's tarot with its 1909 pictures (upside down when it comes out reversed), the poker and Spanish decks with their index and suit, the runes, the Lenormand and the dominoes drawn; a hand lies in a row, and a spread as on the table (the Celtic cross as a cross and a staff, hover a card to read it). A trip's journal draws them small beside their line. A deck without faces is told by its text, as before ([Kinds of definition](../technical/07-kinds.md#decks)). A generator can draw from a deck too, and Core's hands and readings (_Poker hand_, _Three-card reading_…) shuffle it first: each one starts from the whole deck. Entries marked `once` can only come up once. **New session** (in the history) forgets both: every card goes back and once-only entries are available again. **Clear** empties the history.
 
 ## Rolling in a campaign
 

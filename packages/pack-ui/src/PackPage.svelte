@@ -142,8 +142,8 @@
     if (!pack?.overrides) ongone()
   }
 
-  function exportZip() {
-    if (pack) download(packsToZip([pack]), `${root}.zip`, 'application/zip')
+  async function exportZip() {
+    if (pack) download(await packsToZip([pack]), `${root}.zip`, 'application/zip')
   }
 
   function openProblem(file: string | undefined, at: string | undefined, line?: number) {

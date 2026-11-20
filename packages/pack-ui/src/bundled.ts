@@ -4,8 +4,9 @@ import { groupBundled, type PackSource } from './packs'
 /**
  * Packs bundled at build time, for every app: open ones from packs/ and, locally,
  * personal-use ones from packs-private/ (git-ignored; the glob is simply empty when it's
- * missing, see vite.packs.ts). Definitions and SVG images come as text, the other images as
- * `data:` URLs (`images.ts`). Their YAML is read at build time too (`?documents`, see
+ * missing, see vite.packs.ts). Definitions and SVG images come as text; the other images as
+ * the URL of their file, served beside the app and loaded only when something draws them (a
+ * tarot's 78 pictures would weigh on every app's start as `data:` URLs, `images.ts`). Their YAML is read at build time too (`?documents`, see
  * vite.packs.ts), so starting an app doesn't read it again.
  */
 const open = {
@@ -15,7 +16,7 @@ const open = {
     eager: true,
   }),
   ...import.meta.glob('../../../packs/**/*.{png,webp,jpg,jpeg}', {
-    query: '?inline',
+    query: '?url',
     import: 'default',
     eager: true,
   }),
@@ -27,7 +28,7 @@ const personal = {
     eager: true,
   }),
   ...import.meta.glob('@personal-packs/**/*.{png,webp,jpg,jpeg}', {
-    query: '?inline',
+    query: '?url',
     import: 'default',
     eager: true,
   }),

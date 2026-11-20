@@ -36,7 +36,7 @@ Cambia el contexto o el modo y las probabilidades lo siguen: en _¿Quién va?_ d
 
 ## Mazos y entradas de una vez
 
-Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Un generador también puede robar de un mazo, y las manos y tiradas de Core (_Mano de póker_, _Tirada de tres cartas_…) lo barajan antes: cada una empieza del mazo entero. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.
+Un mazo muestra cuántas cartas quedan y tiene **Barajar**. Una carta robada **se muestra como carta** cuando su mazo le da cara: el tarot de Core con sus ilustraciones de 1909 (boca abajo cuando sale del revés), las barajas de póker y española con su índice y su palo, las runas, el Lenormand y el dominó dibujados; una mano queda en fila, y una tirada como en la mesa (la cruz celta en cruz y una columna; pasa el puntero por una carta para leerla). El diario de un viaje las dibuja en pequeño junto a su línea. Un mazo sin caras se cuenta con su texto, como antes ([Tipos de definición](../technical/07-kinds.md#mazos)). Un generador también puede robar de un mazo, y las manos y tiradas de Core (_Mano de póker_, _Tirada de tres cartas_…) lo barajan antes: cada una empieza del mazo entero. Las entradas marcadas `once` solo pueden salir una vez. **Nueva sesión** (en el historial) olvida ambas cosas: todas las cartas vuelven al mazo y las entradas de una vez vuelven a estar disponibles. **Borrar** vacía el historial.
 
 ## Tirar en una campaña
 

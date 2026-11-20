@@ -860,6 +860,63 @@ entries:
 describe('decks', () => {
   const { registry } = load()
 
+  it('draws its cards with their faces: the deck’s, each card’s own, upside down when it holds', () => {
+    const files: PackFile[] = [
+      { path: 'look/pack.yaml', content: 'id: look\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },
+      {
+        path: 'look/cards.yaml',
+        content: `
+kind: table
+id: way
+roll: 1d2
+entries:
+  - { range: 1, result: upright }
+  - { range: 2, result: reversed, set: { reversed: true } }
+---
+kind: deck
+id: arcana
+face: { ink: black, turned: { reversed: true } }
+cards:
+  - { id: fool, result: 'The Fool, {{result}}', table: table.way, face: { image: look/fool.webp } }
+---
+kind: generator
+id: spread
+fields:
+  heart: { deck: deck.arcana, shuffle: true, at: [1, 1] }
+  across: { deck: deck.arcana, shuffle: true, at: [1, 1], across: true }
+  later: { deck: deck.arcana, shuffle: true }
+`,
+      },
+    ]
+    const { registry: look, diagnostics } = loadPacks(files)
+    expect(diagnostics).toEqual([])
+    const draw = (way: number) =>
+      createOracleEngine({ registry: look, random: faces(2, way) }).resolve('look/arcana', {})
+        .resolution
+    expect(draw(1).face).toEqual({ ink: 'black', image: 'look/fool.webp' })
+    expect(draw(2).face).toEqual({ ink: 'black', image: 'look/fool.webp', turned: true })
+    expect(draw(2).text).toBe('The Fool, reversed')
+    // A spread says where each card lies; one without a place lies in a row.
+    const spread = createOracleEngine({ registry: look, random: seeded(1) }).resolve(
+      'look/spread',
+      {},
+    ).resolution
+    expect(spread.children.map((c) => c.place)).toEqual([
+      { at: [1, 1] },
+      { at: [1, 1], across: true },
+      undefined,
+    ])
+    // A face that isn't one is refused.
+    const bad = loadPacks([
+      files[0],
+      {
+        path: 'look/cards.yaml',
+        content: 'kind: deck\nid: d\ncards:\n  - { id: a, face: { ink: pink } }\n',
+      },
+    ])
+    expect(bad.diagnostics.map((d) => d.message).join()).toMatch(/red, black or a colour/)
+  })
+
   describe('drawn by a generator', () => {
     const files: PackFile[] = [
       { path: 'cards/pack.yaml', content: 'id: cards\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },

@@ -14,21 +14,45 @@ description: |-
   - Cards that roll a generator, their references saying what they name (`generator.npc`), and one that sets values (food)
   - Another pack's table through an alias: `table.twist` → `core/table.twists`
   - `notable: true`: the Wyrm's sign, an important moment shown up front though nothing stops
+  - **Faces**: every card drawn as a card, in the Marches' green ink (`face:` on the deck), each with its own icon or sign; the Wyrm's sign in red
 reshuffle: when-empty
+face: { ink: '#3b4a2f' }
 cards:
-  - { id: crows, result: Crows follow you all day, count: 3 }
-  - { id: rainbow, result: A rainbow over the Saltmere, count: 2 }
-  - { id: stranger, result: 'A stranger on the road: {{result}}', table: generator.npc, count: 2 }
-  - { id: rumour, result: 'A rumour reaches you: {{result}}', table: generator.rumour }
-  - { id: cache, result: 'A hunter’s cache: two days of food', effects: { party.items.ration: 2 } }
+  - { id: crows, face: { icon: 'game:seagull' }, result: Crows follow you all day, count: 3 }
+  - { id: rainbow, face: { symbol: '☂' }, result: A rainbow over the Saltmere, count: 2 }
+  - {
+      id: stranger,
+      face: { icon: 'game:hooded-figure' },
+      result: 'A stranger on the road: {{result}}',
+      table: generator.npc,
+      count: 2,
+    }
+  - {
+      id: rumour,
+      face: { icon: 'game:wooden-sign' },
+      result: 'A rumour reaches you: {{result}}',
+      table: generator.rumour,
+    }
+  - {
+      id: cache,
+      face: { icon: 'game:chest' },
+      result: 'A hunter’s cache: two days of food',
+      effects: { party.items.ration: 2 },
+    }
   # An omen that's more than a sign: the Wyrm's clock ticks.
   - id: wyrm-sign
+    face: { icon: 'game:dragon-head', ink: red }
     result: Scorched trees and a smell of sulphur
     effects: { world.clocks.the-greywood-wyrm-wakes: 1 }
     # Nothing stops for it, but it's shown up front: an important moment.
     notable: true
   # Another pack's table, through the alias in pack.yaml (table.twist → core/table.twists).
-  - { id: twist, result: 'The road turns strange: {{result}}', table: table.twist }
+  - {
+      id: twist,
+      face: { icon: 'game:vortex' },
+      result: 'The road turns strange: {{result}}',
+      table: table.twist,
+    }
 ---
 # Cards a generator deals: the deck is gathered first, so a reading never repeats a card.
 kind: deck
@@ -41,17 +65,35 @@ description: |-
   **Shows:**
 
   - Cards with **effects** on the party and on a progress clock, for a generator to deal
+  - **Faces** that turn: every card is drawn **upside down** while the Wyrm is close to waking (`turned` reads the clock), so a reading looks as bad as it is
 reshuffle: when-empty
+# Upside down while the Wyrm's clock is at 4 or more.
+face: { ink: '#3b4a2f', turned: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }
 cards:
-  - { id: lantern, result: 'The Lantern, a safe way home', effects: { party.stats.morale: 1 } }
-  - { id: crow, result: 'The Crow, a warning heeded too late', effects: { party.stats.morale: -1 } }
-  - { id: ford, result: 'The Ford, a crossing with a price' }
-  - { id: hearth, result: 'The Hearth, a welcome where none was looked for' }
+  - {
+      id: lantern,
+      face: { icon: 'game:street-light' },
+      result: 'The Lantern, a safe way home',
+      effects: { party.stats.morale: 1 },
+    }
+  - {
+      id: crow,
+      face: { icon: 'game:seagull' },
+      result: 'The Crow, a warning heeded too late',
+      effects: { party.stats.morale: -1 },
+    }
+  - { id: ford, face: { icon: 'game:stone-bridge' }, result: 'The Ford, a crossing with a price' }
+  - {
+      id: hearth,
+      face: { icon: 'game:campfire' },
+      result: 'The Hearth, a welcome where none was looked for',
+    }
   - id: wyrm
+    face: { icon: 'game:dragon-head', ink: red }
     result: The Wyrm, an old thing stirring
     effects: { world.clocks.the-greywood-wyrm-wakes: 1 }
-  - { id: salt, result: 'The Salt, a promise that binds' }
-  - { id: thorn, result: 'The Thorn, a friend who wounds' }
+  - { id: salt, face: { icon: 'game:crystal-cluster' }, result: 'The Salt, a promise that binds' }
+  - { id: thorn, face: { icon: 'game:barbed-wire' }, result: 'The Thorn, a friend who wounds' }
 ---
 kind: generator
 id: hedge-reading
@@ -64,10 +106,11 @@ description: |-
 
   - A generator's field that **draws from a deck** (`deck: deck.hedge-cards`), `shuffle: true` on the first one so every reading starts from the whole deck and never repeats a card
   - The cards' `effects` added up by the generator, like a table's
+  - A **spread** laid on the table: each field's card in its place (`at: [column, row]`), the one to fear across what waits (`across: true`)
 fields:
-  behind: { deck: deck.hedge-cards, shuffle: true }
-  ahead: { deck: deck.hedge-cards }
-  fear: { deck: deck.hedge-cards }
+  behind: { deck: deck.hedge-cards, shuffle: true, at: [0, 0] }
+  ahead: { deck: deck.hedge-cards, at: [1, 0] }
+  fear: { deck: deck.hedge-cards, at: [1, 0], across: true }
 template: |-
   Behind you: {{behind}}
   Ahead of you: {{ahead}}

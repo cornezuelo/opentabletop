@@ -10,6 +10,7 @@ omens:
     - Cartas que tiran un generador, con referencias que dicen qué nombran (`generator.npc`), y otra que pone valores (comida)
     - Una tabla de otro pack mediante un alias: `table.twist` → `core/table.twists`
     - `notable: true`: la señal de la Sierpe, un momento importante que se muestra delante aunque nada se detenga
+    - **Caras**: cada carta robada se dibuja como carta, con la tinta verde de las Marcas (`face:` en el mazo), cada una con su icono o signo; la señal de la Sierpe en rojo
   cards:
     crows: Los cuervos os siguen todo el día
     rainbow: Un arcoíris sobre el Lago Salado
@@ -26,6 +27,7 @@ hedge-cards:
     **Enseña:**
 
     - Cartas con **efectos** sobre el grupo y sobre un reloj de progreso, para que las reparta un generador
+    - **Caras** que se dan la vuelta: cada carta sale **boca abajo** mientras la Sierpe está a punto de despertar (`turned` lee el reloj), así que una lectura se ve tan mala como es
   cards:
     lantern: El Farol, un camino seguro a casa
     crow: El Cuervo, un aviso que llega tarde
@@ -43,6 +45,7 @@ hedge-reading:
 
     - Un campo de generador que **roba de un mazo** (`deck: deck.hedge-cards`), con `shuffle: true` en el primero para que cada lectura empiece del mazo entero y nunca repita carta
     - Los `effects` de las cartas sumados por el generador, como los de una tabla
+    - Una **tirada** puesta en la mesa: la carta de cada campo en su sitio (`at: [columna, fila]`), la que debes temer cruzada sobre lo que te espera (`across: true`)
   template: |-
     Detrás de ti: {{behind}}
     Delante de ti: {{ahead}}

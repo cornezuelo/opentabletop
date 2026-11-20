@@ -16,6 +16,7 @@ export {
 } from './compile/refs'
 export type {
   Against,
+  CardFace,
   Compiled,
   CompiledDeck,
   CompiledEntry,
@@ -30,7 +31,14 @@ export type {
   WithRollModes,
 } from './compile/compile'
 export * from './definitions/schema'
-export { BUNDLE_FILE, IMAGE_FILE, imageUrl, loadPackFiles, readAheadYaml } from './loader/load'
+export {
+  BUNDLE_FILE,
+  IMAGE_FILE,
+  imageUrl,
+  isServedImage,
+  loadPackFiles,
+  readAheadYaml,
+} from './loader/load'
 export * from './images'
 export type { Diagnostic, LoadedPack, LoadResult, PackFile } from './loader/load'
 export {

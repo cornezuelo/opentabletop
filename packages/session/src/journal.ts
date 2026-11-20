@@ -144,6 +144,8 @@ export interface RolledNode {
   byHand?: true
   /** What its roll was rolled against (a table's `against:`) and how it came out. */
   against?: Resolution['against']
+  /** A card drawn: how it looks (drawn in the journal beside its line). */
+  face?: Resolution['face']
   /** How deep in the roll (0: the one the check named). */
   depth: number
 }
@@ -162,6 +164,7 @@ export function rolledNodes(r: Resolution, depth = 0): RolledNode[] {
             ...(r.inside && { inside: r.inside }),
             ...(r.rolls.some((d) => d.byHand) && { byHand: true as const }),
             ...(r.against && { against: r.against }),
+            ...(r.face && { face: r.face }),
             depth,
           },
         ]

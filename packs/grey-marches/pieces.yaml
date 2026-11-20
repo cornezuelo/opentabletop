@@ -126,15 +126,49 @@ name: The way down
 description: |-
   What the next way on opens into. Cards drawn stay drawn until the deck runs out, so the Deep Barrows don't repeat themselves as a table would.
 
-  **Shows:** a **deck** naming pieces (`set: { piece: crypt }`): each card drawn is one piece fewer of its kind; one card is a stair further down, into a new map.
+  **Shows:** a **deck** naming pieces (`set: { piece: crypt }`): each card drawn is one piece fewer of its kind; one card is a stair further down, into a new map. Each card has its **face** (an icon of what the way opens into), drawn in the journal as it's laid.
 reshuffle: when-empty
 cards:
-  - { id: passage, result: A passage, set: { piece: passage }, count: 4 }
-  - { id: flooded, result: A flooded passage, set: { piece: flooded }, count: 2 }
-  - { id: crypt, result: A crypt, set: { piece: crypt }, count: 3 }
-  - { id: barred, result: A barred door, set: { piece: barred-passage }, count: 2 }
-  - { id: stair, result: A stair further down, set: { piece: stair-down } }
-  - { id: fall, result: A fall of stone, set: { piece: dead-end } }
+  - {
+      id: passage,
+      face: { icon: 'game:footsteps' },
+      result: A passage,
+      set: { piece: passage },
+      count: 4,
+    }
+  - {
+      id: flooded,
+      face: { icon: 'game:waves' },
+      result: A flooded passage,
+      set: { piece: flooded },
+      count: 2,
+    }
+  - {
+      id: crypt,
+      face: { icon: 'game:tombstone' },
+      result: A crypt,
+      set: { piece: crypt },
+      count: 3,
+    }
+  - {
+      id: barred,
+      face: { icon: 'game:barricade' },
+      result: A barred door,
+      set: { piece: barred-passage },
+      count: 2,
+    }
+  - {
+      id: stair,
+      face: { icon: 'game:cave-entrance' },
+      result: A stair further down,
+      set: { piece: stair-down },
+    }
+  - {
+      id: fall,
+      face: { icon: 'game:falling-rocks' },
+      result: A fall of stone,
+      set: { piece: dead-end },
+    }
 ---
 kind: table
 id: next-barrow

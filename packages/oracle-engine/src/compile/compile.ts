@@ -138,6 +138,9 @@ export interface CompiledField {
   value?: unknown
   when?: Condition
   context?: Record<string, unknown>
+  /** Its card's place in a spread, `[column, row]`, and whether it lies across. */
+  at?: [number, number]
+  across?: boolean
 }
 
 export interface CompiledGenerator extends Base {
@@ -146,7 +149,21 @@ export interface CompiledGenerator extends Base {
   template?: string
 }
 
+type FaceDef = NonNullable<CardDef['face']>
+
+/** How a card looks (a deck's face with the card's own on it); see the schema's `cardFace`. */
+export interface CardFace {
+  image?: string
+  corner?: string
+  symbol?: string
+  icon?: string
+  pips?: [number, number]
+  ink?: string
+  turned?: Condition
+}
+
 export interface CompiledCard {
+  face?: CardFace
   key: string
   count: number
   result?: string
@@ -344,6 +361,8 @@ class CompileContext {
                 kind: 'deck',
                 ref: this.ref('deck', f.deck, at),
                 ...(f.shuffle && { shuffle: true }),
+                ...(f.at && { at: f.at }),
+                ...(f.across && { across: true }),
                 when: applies(f),
                 context: f.context,
               }
@@ -377,6 +396,7 @@ class CompileContext {
           kind: 'deck',
           reshuffle: d.reshuffle ?? 'when-empty',
           cards: d.cards.map((c: CardDef, i): CompiledCard => ({
+            ...((d.face || c.face) && { face: this.face(d.face, c.face, `cards[${i}].face`) }),
             key: c.id,
             count: c.count ?? 1,
             result: c.result,
@@ -392,6 +412,13 @@ class CompileContext {
           })),
         }
     }
+  }
+
+  /** A card's face: the deck's with the card's own on it, its `turned` checked as a condition. */
+  private face(deck: FaceDef | undefined, own: FaceDef | undefined, at: string): CardFace {
+    const { turned, ...face } = { ...deck, ...own }
+    if (turned) this.conditions(turned, `${at}.turned`)
+    return { ...face, ...(turned && { turned: turned as Condition }) }
   }
 
   private entryList(

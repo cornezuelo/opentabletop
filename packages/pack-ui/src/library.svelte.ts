@@ -2,12 +2,13 @@ import {
   createOracleEngine,
   loadPacks,
   PACK_FORMAT,
+  packImage,
   type Diagnostic,
   type OracleEngine,
   type Registry,
 } from '@open-tabletop/oracle-engine'
 import { mathRandom, type RandomSource } from '@open-tabletop/random'
-import { markPersonalPacks } from '@open-tabletop/ui-kit'
+import { markPersonalPacks, setPackImages } from '@open-tabletop/ui-kit'
 import {
   bundledChanges,
   effectivePacks,
@@ -104,6 +105,8 @@ export class PackLibrary {
     markPersonalPacks(bundled.filter((p) => p.personal).map((p) => p.root))
     this.onStorageFull = options.onStorageFull
     this.extraDiagnostics = options.extraDiagnostics
+    // Whatever draws a pack's image in this app (a card in a trip's journal) finds it here.
+    setPackImages((ref) => packImage(this.registry, ref))
     this.user = readUserPacks()
     if (typeof window !== 'undefined')
       window.addEventListener('storage', (e) => {

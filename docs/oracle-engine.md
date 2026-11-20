@@ -140,6 +140,10 @@ cards:
 reshuffle: when-empty # when-empty | manual | after-draw
 ```
 
+#### Cards with faces (decided 2026-11-20)
+
+A card may say how it looks when drawn (`face`): a pack's picture (`image: <pack>/<path>`), or a face drawn from its parts (`corner`, `symbol`, `icon`, `pips`, `ink`), and `turned`, a condition on what the card set and what the draw sees, to draw it upside down (a reversed tarot card). A deck's `face` is every card's, a card's own added to it. The engine only resolves it: the drawn `Resolution` carries `face` (its parts and `turned: true`), kept in the journal's rolled nodes (session's `RolledNode.face`); a generator's deck field may say where its card lies in a spread (`at: [column, row]`, `across`), carried as the child's `place`. Drawing is the UI's (ui-kit's `PlayingCard` and `CardSpread`), which finds a pack's image through the app's pack library (`setPackImages`). Bundled packs' raster images are served as files, not carried in the page, so a tarot's 78 pictures load only when drawn. Core's tarot has the 1909 Rider–Waite–Smith pictures (public domain); its other decks are drawn from their parts.
+
 ### Dice (`@open-tabletop/dice`)
 
 - **MVP:** `NdM`, `dM`, `d100`, `d66` (tens and units), `NdF`, `+`/`-` constants, `kh`/`kl` (keep highest/lowest: `2d6kh1`), and **repeat-and-keep** (`roll(expr, random, { repeat, keep })`), which rolls the whole expression several times and keeps the highest, lowest or middle total: what roll modes use.

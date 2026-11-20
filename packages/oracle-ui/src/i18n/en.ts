@@ -325,6 +325,41 @@ export const en = {
       "Values given to the table or generator this field rolls, one row each (a name and its value):\n• `danger: 3` — as if the place were more dangerous\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — passed on from what the generator sees",
     fieldExists: 'There is already a field "{field}".',
     addField: 'Add field',
+    fieldAt: 'On the table',
+    fieldAtHelp:
+      'Where its card lies when the spread is shown: a **column** and a **row** from the top left, from 0. Cards without a place lie in a row after those with one. If a three-card spread lays its cards side by side:\n• `past: { deck: deck.omens, at: [0, 0] }`\n• `present: { deck: deck.omens, at: [1, 0] }`\n• `future: { deck: deck.omens, at: [2, 0] }`\nWhere they lie changes nothing of what they say.',
+    fieldAtColumn: 'Column',
+    fieldAtRow: 'Row',
+    fieldAcross: 'Across',
+    fieldAcrossHelp:
+      'Its card lies **across** the one at the same place, turned a quarter over it (the card that crosses another in some tarot spreads):\n• `crossing: { deck: deck.omens, at: [1, 1], across: true }`',
+    deckFace: 'How its cards look',
+    deckFaceHelp:
+      "What every card of the deck looks like when it's drawn; each card's own face (**⋯** on its row) adds to it. Drawn as a card in the Oracle, in hands and spreads, and in a trip's journal:\n• `turned: { reversed: true }` — every card upside down when what it set says so\n• `ink: red` — every card in red\nEmpty: cards are told by their text alone.",
+    cardFace: 'Its face',
+    cardFaceHelp:
+      "How this card looks when it's drawn: a **picture** of a pack, or a face drawn from its parts (an index in its corners, a sign or an icon in its middle, a domino's pips, its ink). What the deck sets for every card is shown under it.\n• `image: my-pack/cards/fool.webp`\n• `corner: K` and `symbol: ♠` — a king of spades\n• `pips: [6, 3]` — a domino",
+    faceImage: 'Picture',
+    faceImageHelp:
+      "An image of a pack drawn as the card, by its full name (`<pack>/<path>`): one of the PNG, JPEG or WebP files of the loaded packs.\n• `my-pack/cards/fool.webp`\nWith one, the card is the picture; the parts below are drawn when there's none.",
+    faceCorner: 'Index',
+    faceCornerHelp:
+      'Written in two corners, as on a playing card (up to four characters):\n• `K`, `7`, `A`',
+    faceSymbol: 'Sign',
+    faceSymbolHelp:
+      'Drawn large in the middle, and under the index (up to four characters):\n• `♠`, `☘`, `ᚠ`',
+    faceIcon: 'Icon',
+    faceIconHelp:
+      'One of the bundled icons, drawn in the middle in place of the sign:\n• `game:anchor`\n• `game:caravel`',
+    facePips: 'Pips',
+    facePipsHelp: "A domino's two halves, each its number of pips (0 to 9):\n• `pips: [6, 3]`",
+    faceInk: 'Ink',
+    faceInkHelp: 'The colour its index, sign and pips are drawn in: black, red, or any colour.',
+    faceInks: { none: '—', black: 'Black', red: 'Red', colour: 'A colour…' },
+    faceTurned: 'Upside down when',
+    faceTurnedHelp:
+      'Drawn upside down when this holds on what the card set (its own values and those of the table it rolled), as a reversed tarot card:\n• `reversed: true` — if a table it rolls sets `reversed: true` on one of its rows\nEmpty: always the right way up.',
+    facePreview: 'As it looks',
     reshuffle: 'Reshuffle',
     reshuffleHelp:
       'When drawn cards go back into the deck:\n• **When the deck runs out** — like a real deck\n• **Only by hand** — a deck that empties for good\n• **After every draw** — every card always possible',

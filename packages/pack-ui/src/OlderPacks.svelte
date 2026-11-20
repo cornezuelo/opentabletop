@@ -36,7 +36,8 @@
           {#if library.bundledPack(pack.root)}<span class="copy">{t('older.copy')}</span>{/if}
           <button
             class="link"
-            onclick={() => download(packsToZip([pack]), `${pack.root}.zip`, 'application/zip')}
+            onclick={async () =>
+              download(await packsToZip([pack]), `${pack.root}.zip`, 'application/zip')}
             >{t('older.download')}</button
           >
           <button class="link delete" onclick={() => remove(pack)}>{t('older.delete')}</button>

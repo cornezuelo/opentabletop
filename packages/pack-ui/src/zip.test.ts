@@ -20,17 +20,17 @@ describe('packs in a .zip', () => {
     expect(packs[1].files.map((f) => f.path)).toEqual(['pack.yaml', 'sky.yaml'])
   })
 
-  it('a pack exported alone reads back as itself; a zip without pack.yaml has none', () => {
+  it('a pack exported alone reads back as itself; a zip without pack.yaml has none', async () => {
     const pack = {
       root: 'solo',
       origin: 'user' as const,
       files: [{ path: 'pack.yaml', content: manifest('solo') }],
     }
-    expect(zipToPacks(packsToZip([pack]))).toEqual([pack])
+    expect(zipToPacks(await packsToZip([pack]))).toEqual([pack])
     expect(zipToPacks(zipSync({ 'a.yaml': strToU8('x: 1') }))).toEqual([])
   })
 
-  it('writes images as their bytes and reads them back as a pack keeps them', () => {
+  it('writes images as their bytes and reads them back as a pack keeps them', async () => {
     const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 255, 128])
     const svg = '<svg xmlns="http://www.w3.org/2000/svg"/>'
     const pack = {
@@ -45,7 +45,7 @@ describe('packs in a .zip', () => {
         { path: 'relief/hill.svg', content: svg },
       ],
     }
-    const zip = packsToZip([pack])
+    const zip = await packsToZip([pack])
     expect(unzipSync(zip)['art/paper.png']).toEqual(png)
     expect(zipToPacks(zip)).toEqual([pack])
   })

@@ -1,4 +1,4 @@
-import { createOracleEngine, emptyState, loadPacks } from '@open-tabletop/oracle-engine'
+import { createOracleEngine, emptyState, loadPacks, packImage } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
 import { describe, expect, it } from 'vitest'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
@@ -20,6 +20,54 @@ describe('the cards of the bundled packs', () => {
     expect(size('core/lenormand')).toBe(36)
     expect(size('core/runes')).toBe(24)
     expect(size('core/dominoes')).toBe(28)
+  })
+
+  it('every card has a face, and every picture one is drawn with exists', () => {
+    for (const id of [
+      'core/playing-cards',
+      'core/spanish-deck',
+      'core/tarot',
+      'core/lenormand',
+      'core/runes',
+      'core/dominoes',
+    ]) {
+      const deck = registry.definitions.get(id)
+      if (deck?.kind !== 'deck') throw new Error(id)
+      for (const card of deck.cards) {
+        expect(card.face, `${id}#${card.key}`).toBeDefined()
+        if (card.face?.image) expect(packImage(registry, card.face.image), card.key).toBeDefined()
+      }
+    }
+  })
+
+  it('draws a tarot card upside down when it comes out reversed, as it says', () => {
+    let seen = 0
+    for (let i = 0; i < 12; i++) {
+      const { resolution } = createOracleEngine({ registry, random: seeded(`t${i}`) }).draw(
+        'core/tarot',
+        emptyState(),
+      )
+      expect(resolution.face?.image).toMatch(/^core\/cards\/tarot\/.+\.webp$/)
+      expect(!!resolution.face?.turned).toBe(/reversed/.test(resolution.text ?? ''))
+      if (resolution.face?.turned) seen++
+    }
+    expect(seen).toBeGreaterThan(0)
+  })
+
+  it('lays the Celtic cross as a cross and a staff, the second card across the first', () => {
+    const { resolution } = engine().resolve('core/celtic-cross', {})
+    expect(resolution.children.map((c) => c.place)).toEqual([
+      { at: [1, 1] },
+      { at: [1, 1], across: true },
+      { at: [1, 2] },
+      { at: [0, 1] },
+      { at: [1, 0] },
+      { at: [2, 1] },
+      { at: [3, 3] },
+      { at: [3, 2] },
+      { at: [3, 1] },
+      { at: [3, 0] },
+    ])
   })
 
   it('draw a whole deck with every card told, in English and in Spanish', () => {

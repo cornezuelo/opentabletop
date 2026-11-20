@@ -13,6 +13,11 @@
   /* Danger and warning as text on the dark panels, where the plain ones read too dark. */
   --danger-text: #e3a19f;
   --warning-text: #d8c58a;
+  /* A card drawn from a deck (PlayingCard): its paper, edge and inks. */
+  --card-paper: #f3ecd9;
+  --card-edge: #b9ad8c;
+  --card-ink: #1f1c17;
+  --card-red: #a8262c;
 
   color-scheme: dark;
   font-family: system-ui, sans-serif;

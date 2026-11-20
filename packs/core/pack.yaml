@@ -1,9 +1,12 @@
 id: core
 name: Core
-version: 0.13.0
+version: 0.14.0
 # The pack format it is written for (what its syntax means; see the manual: Packs).
 format: 15
 locale: en
 license: MIT
+# The tarot's pictures (cards/tarot/) are the 1909 Rider–Waite–Smith deck, public domain:
+# scans from Wikimedia Commons (RWS Tarot, the minor arcana's Wands01…Pents14), shrunk to WebP.
+attribution: The tarot's pictures are the Rider–Waite–Smith deck (1909) by Pamela Colman Smith, in the public domain, from Wikimedia Commons.
 # Its Relief style draws with this pack's images.
 dependencies: { azgaar-relief: '>=0.1.0' }

@@ -77,21 +77,26 @@ fields:
 template: '{{name}} (might {{might}})'
 ```
 
-A `deck` field draws a card, which stays out as any drawn card does. With `shuffle: true`, every card goes back and the deck is shuffled before that draw: on the first field of a hand or a spread, it starts from the whole deck and never repeats a card.
+A `deck` field draws a card, which stays out as any drawn card does. With `shuffle: true`, every card goes back and the deck is shuffled before that draw: on the first field of a hand or a spread, it starts from the whole deck and never repeats a card. When its cards have [faces](#decks), a spread is laid on the table: `at: [column, row]` (from the top left, from 0) puts a field's card in its place, and `across: true` lays it across the card at the same place, turned a quarter (the cross of some tarot spreads); cards without `at` lie in a row after the others. Where they lie changes nothing of what they say.
 
 ```yaml
 kind: generator
 id: reading
 fields:
-  past: { deck: deck.omens, shuffle: true }
-  future: { deck: deck.omens }
-template: '{{past}}, then {{future}}'
+  past: { deck: deck.omens, shuffle: true, at: [0, 0] }
+  now: { deck: deck.omens, at: [1, 0] }
+  crossing: { deck: deck.omens, at: [1, 0], across: true } # lies across `now`
+  future: { deck: deck.omens, at: [2, 0] }
+template: '{{past}}, {{now}} crossed by {{crossing}}, then {{future}}'
 ---
 kind: deck
 id: omens
+face: { ink: black }
 cards:
-  - { id: crows, result: Crows }
-  - { id: storm, result: A storm }
+  - { id: crows, result: Crows, face: { symbol: '♣' } }
+  - { id: storm, result: A storm, face: { symbol: '☈' } }
+  - { id: sun, result: The sun, face: { symbol: '☀' } }
+  - { id: moon, result: The moon, face: { symbol: '☾' } }
 ```
 
 A `roll` field can take [roll modes](#roll-modes) of its own, `modeWhen` and `modeUnless` as a table does, used for **that roll alone** when their conditions hold (never offered by hand): two rolls compared, advantage on one of them.
@@ -124,6 +129,32 @@ cards:
 ```
 
 Each card needs an `id` (translations and the drawn-cards record use it). **What tables see:** a card's `set` values, like an entry's; a table rolled by a card gives its text as `{{result}}`.
+
+**Faces.** A card drawn is shown as a card (in the Oracle, in hands and spreads, in a trip's journal) when it has a `face`: a pack's picture (`image`, by its full name `<pack>/<path>`, a PNG, JPEG or WebP of a loaded pack), or a face drawn from its parts: `corner` (the index written in two corners, up to four characters), `symbol` (a sign drawn large in the middle), `icon` (a bundled icon in the middle, `game:anchor`), `pips` (a domino's two halves, 0 to 9 each) and `ink` (`red`, `black` or a colour, `#2a5d8f`). `turned` is a [condition](08-conditions.md): the card is drawn upside down when it holds on what the card set (with the table it rolled) and on what the draw sees (a clock, a trip's values). A `face` on the deck is every card's; a card's own adds to it. A card without either is told by its text alone.
+
+```yaml
+kind: deck
+id: fates
+face: { ink: '#2a5d8f', turned: { reversed: true } } # every card's
+cards:
+  - { id: king, result: The king, face: { corner: K, symbol: '♚' } }
+  - {
+      id: tower,
+      result: 'The tower, {{result}}',
+      table: table.which-way,
+      face: { icon: 'game:stone-tower' },
+    }
+  - { id: tile, result: 'Six and three', face: { pips: [6, 3], ink: black } }
+---
+kind: table
+id: which-way
+roll: 1d2
+entries:
+  - { range: 1, result: upright }
+  - { range: 2, result: reversed, set: { reversed: true } } # what turns the card
+```
+
+A pack's own pictures go in its folder (`cards/fool.webp`) and are named with its id (`my-pack/cards/fool.webp`); see [Packs](../packs/21-packs.md).
 
 ## Oracle inputs
 

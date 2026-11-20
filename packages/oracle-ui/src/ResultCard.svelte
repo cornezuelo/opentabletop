@@ -1,6 +1,6 @@
 <script lang="ts">
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
-  import { againstLine, DiceTray } from '@open-tabletop/ui-kit'
+  import { againstLine, CardSpread, DiceTray, PlayingCard } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import Self from './ResultCard.svelte'
 
@@ -29,13 +29,28 @@
     return [...asked, ...inside.map((r) => ({ ...r, inside: true }))]
   })
   const empty = $derived(!resolution.text && !resolution.entry && !resolution.children.length)
+  /** The cards its fields drew (a hand, a spread), laid as it says. */
+  const spread = $derived(
+    resolution.children
+      .filter((c) => c.face)
+      .map((c) => ({ face: c.face!, place: c.place, caption: c.text })),
+  )
 </script>
 
 <div class="result" class:top>
-  {#if resolution.text}
+  {#if resolution.face}
+    <!-- A card drawn: its face beside what it says. -->
+    <div class="drawn">
+      <PlayingCard face={resolution.face} width={top ? 120 : 56} label={resolution.text} />
+      {#if resolution.text}<p class="text">{resolution.text}</p>{/if}
+    </div>
+  {:else if resolution.text}
     <p class="text">{resolution.text}</p>
   {:else if empty && top}
     <p class="text muted">{t('roll.nothing')}</p>
+  {/if}
+  {#if spread.length > 1 || (spread.length && top)}
+    <CardSpread cards={spread} width={top ? 72 : 48} />
   {/if}
   {#if scalars.length}
     <dl>
@@ -73,6 +88,12 @@
 </div>
 
 <style>
+  .drawn {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
   .result {
     display: flex;
     flex-direction: column;

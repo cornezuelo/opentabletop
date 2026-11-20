@@ -14,6 +14,7 @@ import { shuffled, weightedIndex, type RandomSource } from '@open-tabletop/rando
 import { evaluate, isRoll, lookupIn, namesIn, render, type Roller } from '@open-tabletop/variables'
 import {
   resolveRef,
+  type CardFace,
   type RollMode,
   type Compiled,
   type CompiledCard,
@@ -66,9 +67,16 @@ export interface Resolution {
   mode?: string
   /** What its roll was rolled against (`against:`) and how it came out. */
   against?: AgainstOutcome
+  /** A card drawn: how it looks, `turned` when it's drawn upside down. */
+  face?: DrawnFace
+  /** A card drawn for a spread (a generator's field): where it lies. */
+  place?: { at?: [number, number]; across?: boolean }
   children: Resolution[]
   context: Record<string, unknown>
 }
+
+/** A card's face as drawn: its parts, and whether it came out upside down. */
+export type DrawnFace = Omit<CardFace, 'turned'> & { turned?: true }
 
 export interface HistoryRecord {
   at: string
@@ -400,6 +408,11 @@ class Run {
           let value: unknown
           if (field.kind === 'table' || field.kind === 'generator' || field.kind === 'deck') {
             const child = this.follow(def, field.ref!, fieldContext, depth, field.shuffle)
+            if (field.at || field.across)
+              child.place = {
+                ...(field.at && { at: field.at }),
+                ...(field.across && { across: true }),
+              }
             node.children.push(child)
             value = child.text !== undefined ? { ...child.value, text: child.text } : child.value
             const { effects: changes, pause, ...set } = child.value
@@ -687,6 +700,12 @@ class Run {
       node,
     )
     node.value = { ...node.value, card: card.key, remaining: draw.length }
+    if (card.face) {
+      const { turned, ...face } = card.face
+      // Upside down when it holds on what the card set, and on what the draw sees (a clock).
+      const sees = { ...context, ...node.value }
+      node.face = { ...face, ...(turned && this.holds(turned, sees, node) && { turned: true }) }
+    }
     this.onEvent?.({ type: 'DECK_DRAWN', source: deck.id })
     return node
   }

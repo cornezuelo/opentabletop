@@ -328,6 +328,43 @@ export const es: Messages<typeof en> = {
       "Valores que recibe la tabla o generador que tira este campo, una fila cada uno (un nombre y su valor):\n• `danger: 3` — como si el lugar fuera más peligrosa\n• `timeOfDay: night`\n• `terrain: '{{terrain}}'` — pasado de lo que ve el generador",
     fieldExists: 'Ya hay un campo «{field}».',
     addField: 'Añadir campo',
+    fieldAt: 'En la mesa',
+    fieldAtHelp:
+      'Dónde queda su carta cuando se muestra la tirada: una **columna** y una **fila** desde arriba a la izquierda, desde 0. Las cartas sin sitio quedan en fila tras las que lo tienen. Si una tirada de tres cartas las pone una junto a otra:\n• `past: { deck: deck.omens, at: [0, 0] }`\n• `present: { deck: deck.omens, at: [1, 0] }`\n• `future: { deck: deck.omens, at: [2, 0] }`\nDónde quedan no cambia nada de lo que dicen.',
+    fieldAtColumn: 'Columna',
+    fieldAtRow: 'Fila',
+    fieldAcross: 'Cruzada',
+    fieldAcrossHelp:
+      'Su carta queda **cruzada** sobre la que está en el mismo sitio, girada un cuarto (la carta que cruza a otra en algunas tiradas de tarot):\n• `crossing: { deck: deck.omens, at: [1, 1], across: true }`',
+    deckFace: 'Cómo se ven sus cartas',
+    deckFaceHelp:
+      'Cómo se ve cada carta del mazo al robarla; la cara propia de cada carta (**⋯** en su fila) se suma a esta. Se dibuja como carta en el Oráculo, en manos y tiradas, y en el diario de un viaje:\n• `turned: { reversed: true }` — todas boca abajo cuando lo que ponen lo dice\n• `ink: red` — todas en rojo\nVacío: las cartas se cuentan solo con su texto.',
+    cardFace: 'Su cara',
+    cardFaceHelp:
+      'Cómo se ve esta carta al robarla: una **imagen** de un pack, o una cara dibujada con sus partes (un índice en las esquinas, un signo o un icono en el centro, los puntos de un dominó, su tinta). Lo que el mazo pone a todas las cartas se ve debajo.\n• `image: my-pack/cards/fool.webp`\n• `corner: K` y `symbol: ♠` — un rey de picas\n• `pips: [6, 3]` — un dominó',
+    faceImage: 'Imagen',
+    faceImageHelp:
+      'Una imagen de un pack dibujada como la carta, por su nombre completo (`<pack>/<ruta>`): uno de los ficheros PNG, JPEG o WebP de los packs cargados.\n• `my-pack/cards/fool.webp`\nCon ella, la carta es la imagen; las partes de abajo se dibujan cuando no hay.',
+    faceCorner: 'Índice',
+    faceCornerHelp:
+      'Se escribe en dos esquinas, como en una carta de póker (hasta cuatro caracteres):\n• `K`, `7`, `A`',
+    faceSymbol: 'Signo',
+    faceSymbolHelp:
+      'Se dibuja grande en el centro, y bajo el índice (hasta cuatro caracteres):\n• `♠`, `☘`, `ᚠ`',
+    faceIcon: 'Icono',
+    faceIconHelp:
+      'Uno de los iconos incluidos, dibujado en el centro en lugar del signo:\n• `game:anchor`\n• `game:caravel`',
+    facePips: 'Puntos',
+    facePipsHelp:
+      'Las dos mitades de un dominó, cada una con su número de puntos (0 a 9):\n• `pips: [6, 3]`',
+    faceInk: 'Tinta',
+    faceInkHelp:
+      'El color con que se dibujan su índice, su signo y sus puntos: negro, rojo o cualquier color.',
+    faceInks: { none: '—', black: 'Negro', red: 'Rojo', colour: 'Un color…' },
+    faceTurned: 'Boca abajo cuando',
+    faceTurnedHelp:
+      'Se dibuja boca abajo cuando esto se cumple sobre lo que pone la carta (sus propios valores y los de la tabla que tira), como una carta de tarot invertida:\n• `reversed: true` — si una tabla que tira pone `reversed: true` en una de sus filas\nVacío: siempre al derecho.',
+    facePreview: 'Así se ve',
     reshuffle: 'Barajar',
     reshuffleHelp:
       'Cuándo vuelven al mazo las cartas robadas:\n• **Cuando se acaba el mazo** — como un mazo de verdad\n• **Solo a mano** — un mazo que se vacía para siempre\n• **Tras cada robo** — todas las cartas siempre posibles',

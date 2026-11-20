@@ -37,6 +37,8 @@ export interface BeatTold {
     level: JournalLevel
     /** The dice a result was rolled with (each table it went through), to draw them. */
     dice?: Dice
+    /** The cards it drew, to draw them. */
+    cards?: Cards
   }[]
   /** What it changed, a short text each: _Ration −1_, _Kael: Wounded_. */
   changes: string[]
@@ -79,6 +81,25 @@ export function diceOf(entries: readonly JournalEntry[]): Map<string, Dice> {
     } else if (e.code === 'ORACLE_RESULT' && rolled && rolled.check === e.data?.event) {
       if (rolled.dice.length) out.set(e.id, rolled.dice)
       rolled = undefined
+    }
+  }
+  return out
+}
+
+/** The faces of the cards a result drew, in order. */
+export type Cards = NonNullable<RolledNode['face']>[]
+
+/** The cards each result of a moment drew, found as its dice are (`diceOf`). */
+export function cardsOf(entries: readonly JournalEntry[]): Map<string, Cards> {
+  const out = new Map<string, Cards>()
+  let drawn: { check: unknown; cards: Cards } | undefined
+  for (const e of entries) {
+    if (e.code === 'ROLLED') {
+      const nodes = Array.isArray(e.data?.rolls) ? (e.data.rolls as RolledNode[]) : []
+      drawn = { check: e.data?.check, cards: nodes.flatMap((n) => (n.face ? [n.face] : [])) }
+    } else if (e.code === 'ORACLE_RESULT' && drawn && drawn.check === e.data?.event) {
+      if (drawn.cards.length) out.set(e.id, drawn.cards)
+      drawn = undefined
     }
   }
   return out
@@ -179,6 +200,7 @@ export function tellBeat(
   )
   const at = JOURNAL_LEVELS.indexOf(level)
   const dice = diceOf(beat.entries)
+  const cards = cardsOf(beat.entries)
   const lines: BeatTold['lines'] = []
   const why: string[] = []
   for (const e of rest) {
@@ -192,6 +214,7 @@ export function tellBeat(
         notable: notable.has(e.id),
         level: own,
         ...(dice.has(e.id) && { dice: dice.get(e.id) }),
+        ...(cards.has(e.id) && { cards: cards.get(e.id) }),
       })
     else if (level === 'story' && own === 'mechanics') why.push(lineText(e, context))
   }

@@ -76,21 +76,26 @@ fields:
 template: '{{name}} (fuerza {{might}})'
 ```
 
-Un campo `deck` roba una carta, que queda fuera como cualquier carta robada. Con `shuffle: true`, todas las cartas vuelven y el mazo se baraja antes de ese robo: en el primer campo de una mano o una tirada, empieza del mazo entero y nunca repite carta.
+Un campo `deck` roba una carta, que queda fuera como cualquier carta robada. Con `shuffle: true`, todas las cartas vuelven y el mazo se baraja antes de ese robo: en el primer campo de una mano o una tirada, empieza del mazo entero y nunca repite carta. Cuando sus cartas tienen [caras](#mazos), la tirada se pone en la mesa: `at: [columna, fila]` (desde arriba a la izquierda, desde 0) coloca la carta de un campo en su sitio, y `across: true` la pone cruzada sobre la carta del mismo sitio, girada un cuarto (la cruz de algunas tiradas de tarot); las cartas sin `at` quedan en fila tras las demás. Dónde quedan no cambia nada de lo que dicen.
 
 ```yaml
 kind: generator
 id: reading
 fields:
-  past: { deck: deck.omens, shuffle: true }
-  future: { deck: deck.omens }
-template: '{{past}}, luego {{future}}'
+  past: { deck: deck.omens, shuffle: true, at: [0, 0] }
+  now: { deck: deck.omens, at: [1, 0] }
+  crossing: { deck: deck.omens, at: [1, 0], across: true } # cruzada sobre `now`
+  future: { deck: deck.omens, at: [2, 0] }
+template: '{{past}}, {{now}} cruzada por {{crossing}}, luego {{future}}'
 ---
 kind: deck
 id: omens
+face: { ink: black }
 cards:
-  - { id: crows, result: Crows }
-  - { id: storm, result: A storm }
+  - { id: crows, result: Cuervos, face: { symbol: '♣' } }
+  - { id: storm, result: Una tormenta, face: { symbol: '☈' } }
+  - { id: sun, result: El sol, face: { symbol: '☀' } }
+  - { id: moon, result: La luna, face: { symbol: '☾' } }
 ```
 
 Un campo `roll` puede llevar [modos de tirada](#modos-de-tirada) propios, `modeWhen` y `modeUnless` como una tabla, usados **solo en esa tirada** cuando se cumplen sus condiciones (nunca se ofrecen a mano): dos tiradas que se comparan, ventaja en una de ellas.
@@ -123,6 +128,32 @@ cards:
 ```
 
 Cada carta necesita un `id` (lo usan las traducciones y el registro de cartas robadas). **Lo que ven las tablas:** los valores `set` de una carta, como los de una entrada; una tabla que tira una carta da su texto como `{{result}}`.
+
+**Caras.** Una carta robada se muestra como carta (en el Oráculo, en manos y tiradas, en el diario de un viaje) cuando tiene `face`: una imagen de un pack (`image`, por su nombre completo `<pack>/<ruta>`, un PNG, JPEG o WebP de un pack cargado), o una cara dibujada con sus partes: `corner` (el índice escrito en dos esquinas, hasta cuatro caracteres), `symbol` (un signo grande en el centro), `icon` (un icono incluido en el centro, `game:anchor`), `pips` (las dos mitades de un dominó, de 0 a 9 cada una) e `ink` (`red`, `black` o un color, `#2a5d8f`). `turned` es una [condición](08-conditions.md): la carta se dibuja boca abajo cuando se cumple sobre lo que pone la carta (con la tabla que tira) y sobre lo que ve el robo (un reloj, los valores de un viaje). Una `face` en el mazo es la de todas las cartas; la de cada carta se suma a ella. Una carta sin ninguna se cuenta solo con su texto.
+
+```yaml
+kind: deck
+id: fates
+face: { ink: '#2a5d8f', turned: { reversed: true } } # la de todas
+cards:
+  - { id: king, result: El rey, face: { corner: K, symbol: '♚' } }
+  - {
+      id: tower,
+      result: 'La torre, {{result}}',
+      table: table.which-way,
+      face: { icon: 'game:stone-tower' },
+    }
+  - { id: tile, result: 'Seis y tres', face: { pips: [6, 3], ink: black } }
+---
+kind: table
+id: which-way
+roll: 1d2
+entries:
+  - { range: 1, result: al derecho }
+  - { range: 2, result: del revés, set: { reversed: true } } # lo que da la vuelta a la carta
+```
+
+Las imágenes propias de un pack van en su carpeta (`cards/fool.webp`) y se nombran con su id (`my-pack/cards/fool.webp`); ver [Packs](../packs/21-packs.md).
 
 ## Entradas de los oráculos
 

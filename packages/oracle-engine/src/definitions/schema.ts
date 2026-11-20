@@ -150,6 +150,10 @@ const field = z
     when: condition.optional(),
     unless: condition.optional(),
     context: setValues.optional(),
+    /** Where its card lies in a spread, `[column, row]` from the top left (none: in a row). */
+    at: z.tuple([z.number(), z.number()]).optional(),
+    /** Its card lies across the one at its place (the Celtic cross's second card). */
+    across: z.boolean().optional(),
   })
   .strict()
   .refine(
@@ -175,8 +179,36 @@ export const generatorSchema = z
   })
   .strict()
 
+/**
+ * How a card looks when it's drawn (docs/oracle-engine.md, _Cards with faces_): a picture of a
+ * pack, or a face drawn from its parts; `turned` (a condition on what the card set) draws it
+ * upside down. A deck's `face` is every card's, each card's own adding to it.
+ */
+const cardFace = z
+  .object({
+    /** A pack's image, `<pack>/<path>` (`core/cards/tarot/fool.webp`). */
+    image: z.string().min(1).optional(),
+    /** The index in its corners (`K`, `7`, `A`). */
+    corner: z.string().max(4).optional(),
+    /** A sign drawn large in its middle (`♠`, `ᚠ`). */
+    symbol: z.string().max(4).optional(),
+    /** A bundled icon in its middle (`game:sailboat`). */
+    icon: z.string().optional(),
+    /** A domino's two halves, each its number of pips (0–9). */
+    pips: z.tuple([z.number().int().min(0).max(9), z.number().int().min(0).max(9)]).optional(),
+    /** Its ink: `red`, `black`, or a colour (`#2a5d8f`). */
+    ink: z
+      .string()
+      .regex(/^(red|black|#[0-9a-fA-F]{6})$/, 'red, black or a colour like #2a5d8f')
+      .optional(),
+    /** Drawn upside down when this holds on what it set and what the draw sees (`reversed: true`). */
+    turned: condition.optional(),
+  })
+  .strict()
+
 const card = z
   .object({
+    face: cardFace.optional(),
     id,
     result: z.string().optional(),
     table: ref.optional(),
@@ -193,6 +225,8 @@ export const deckSchema = z
   .object({
     kind: z.literal('deck'),
     ...common,
+    /** Every card's look; a card's own `face` adds to it. */
+    face: cardFace.optional(),
     cards: z.array(card).min(1, 'a deck needs at least one card'),
     reshuffle: z.enum(['when-empty', 'manual', 'after-draw']).optional(),
   })

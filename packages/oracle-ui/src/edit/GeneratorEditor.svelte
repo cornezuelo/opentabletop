@@ -24,6 +24,8 @@
     unless?: unknown
     context?: unknown
     shuffle?: boolean
+    at?: unknown
+    across?: boolean
     modeWhen?: unknown
     modeUnless?: unknown
   }
@@ -169,6 +171,38 @@
                 />
                 <span>{t('edit.fieldShuffle')}<InfoTip text={t('edit.fieldShuffleHelp')} /></span>
               </label>
+              <!-- Where its card lies in a spread: a column and a row, and across the one there. -->
+              <span class="lies">
+                <span>{t('edit.fieldAt')}<InfoTip text={t('edit.fieldAtHelp')} /></span>
+                {#each [0, 1] as axis (axis)}
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    aria-label={t(axis ? 'edit.fieldAtRow' : 'edit.fieldAtColumn')}
+                    placeholder={t(axis ? 'edit.fieldAtRow' : 'edit.fieldAtColumn')}
+                    value={(field.at as number[] | undefined)?.[axis] ?? ''}
+                    disabled={doc.translating}
+                    onchange={(e) => {
+                      const at = [...((field.at as number[] | undefined) ?? [0, 0])]
+                      if (e.currentTarget.value === '')
+                        return doc.edit(['fields', name, 'at'], undefined)
+                      at[axis] = Math.max(0, Math.round(Number(e.currentTarget.value)))
+                      doc.edit(['fields', name, 'at'], at)
+                    }}
+                  />
+                {/each}
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={field.across === true}
+                    disabled={doc.translating}
+                    onchange={(e) =>
+                      doc.edit(['fields', name, 'across'], e.currentTarget.checked || undefined)}
+                  />
+                  {t('edit.fieldAcross')}<InfoTip text={t('edit.fieldAcrossHelp')} />
+                </label>
+              </span>
             {/if}
             {#if !doc.translating}
               <button class="more" onclick={() => (open[name] = !(open[name] ?? hasExtras(field)))}
@@ -375,5 +409,19 @@
     gap: 2px;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  .lies {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .lies input[type='number'] {
+    width: 64px;
   }
 </style>

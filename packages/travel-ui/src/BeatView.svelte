@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DiceTray, tooltip } from '@open-tabletop/ui-kit'
+  import { DiceTray, PlayingCard, tooltip } from '@open-tabletop/ui-kit'
   import type { BeatTold } from './beats'
   import { translator } from './i18n'
 
@@ -67,6 +67,12 @@
         {#each told.lines as line (line.id)}
           <li class:important={line.notable} class:rules={line.level !== 'story'}>
             <span>{line.text}</span>
+            {#if line.cards}
+              <!-- The cards it drew, small, as its dice are. -->
+              <span class="cards">
+                {#each line.cards as face, i (i)}<PlayingCard {face} width={big ? 44 : 30} />{/each}
+              </span>
+            {/if}
             {#if line.dice}<DiceTray rolls={line.dice} {locale} large={big} {animate} />{/if}
           </li>
         {/each}
@@ -221,5 +227,11 @@
 
   .big .changes li {
     font-size: 12px;
+  }
+
+  .cards {
+    display: inline-flex;
+    gap: 4px;
+    vertical-align: middle;
   }
 </style>

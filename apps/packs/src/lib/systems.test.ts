@@ -1,8 +1,8 @@
-import { PACK_FORMAT } from '@open-tabletop/oracle-engine'
+import { dataUrlToBytes, isServedImage, PACK_FORMAT } from '@open-tabletop/oracle-engine'
 import { loadPacks } from '@open-tabletop/oracle-engine'
 import { engineFiles, packsToZip, planImport, zipToPacks } from '@open-tabletop/pack-ui'
 import { travelSystems } from '@open-tabletop/session'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   createPart,
   createSystem,
@@ -453,16 +453,36 @@ describe('systems in the Packs app', () => {
     // Every read after a change reloads the packs: a few seconds in all.
   }, 30_000)
 
-  it('a system goes elsewhere whole: its .zip holds every pack it needs', () => {
+  it('a system goes elsewhere whole: its .zip holds every pack it needs', async () => {
     const marches = systems.get('grey-marches')!
     const packs = systemZipPacks(marches)
+    // A bundled pack's raster image is served as a file: fetched for the .zip (its bytes here).
+    const inline = import.meta.glob<string>('../../../../packs/**/*.{png,webp,jpg,jpeg}', {
+      query: '?inline',
+      import: 'default',
+      eager: true,
+    })
+    vi.stubGlobal('fetch', async (url: string) => {
+      const path = url.replace(/\?.*$/, '')
+      const found = Object.entries(inline).find(([key]) => key.endsWith(path))
+      if (!found) throw new Error(`No image at ${url}`)
+      return new Response(dataUrlToBytes(found[1]) as BodyInit)
+    })
     // Its own pack first, then Core (it brings Core's tables and depends on it), then the
     // images both styles draw with (a dependency of both), its images written as bytes.
     expect(packs.map((p) => p.root)).toEqual(['grey-marches', 'core', 'azgaar-relief'])
-    const read = zipToPacks(packsToZip(packs))
+    const read = zipToPacks(await packsToZip(packs))
     expect(read.map((p) => p.root)).toEqual(['grey-marches', 'core', 'azgaar-relief'])
-    // Every file comes back as it went, the vellum's WebP and Azgaar's SVGs too.
-    for (const [i, pack] of packs.entries()) expect(read[i].files).toEqual(pack.files)
+    // Every file comes back as it went, Azgaar's SVGs too; the vellum's WebP as its bytes.
+    for (const [i, pack] of packs.entries())
+      expect(read[i].files).toEqual(
+        pack.files.map((f) =>
+          isServedImage(f.content)
+            ? { ...f, content: expect.stringMatching(/^data:image\/webp;base64,UklGR/) }
+            : f,
+        ),
+      )
+    vi.unstubAllGlobals()
     // A browser without them gets all three, and plays the same system, maps included.
     expect(planImport([], read).added.map((p) => p.root)).toEqual([
       'grey-marches',

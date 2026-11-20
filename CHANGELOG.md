@@ -4,7 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **Core**: every deck has its faces: the tarot with the 1909 Rider–Waite–Smith pictures (public domain), upside down when reversed; the poker and Spanish decks, the Lenormand, the runes and the dominoes drawn; the Celtic cross laid as on the table. **The Grey Marches**: the omens, the hedge-witch's cards and the way down drawn with their icons, the hedge-witch's reading laid out, its cards upside down while the Wyrm is close to waking.
+
+### Formats
+
+- **Packs**: a card's or a deck's `face` (`image`, `corner`, `symbol`, `icon`, `pips`, `ink`, `turned`); a generator's deck field's `at` and `across`. Nothing older changes meaning.
+
 ### Apps
+
+- **Oracle, Travel and Map**: cards are drawn as cards: a card drawn shows its face beside what it says, a hand lies in a row and a spread as on the table (the Celtic cross as a cross and a staff), and a trip's journal draws them small beside their line. A reversed tarot card is upside down.
+- **Oracle and Packs**: a deck's form has **How its cards look** and each card **Its face** (a pack's picture, or an index, a sign, an icon, a domino's pips, an ink, and **Upside down when**), with the card as it looks; a generator's deck field has **On the table** (column, row, across).
 
 - **Every app**: pictures are kept **whole**, in their own proportions (a landscape, a full-length figure upright), up to 2048 px, no longer cut to a square of 512; **Frame the face** chooses the square shown where a picture is small (lists, a fight's cards and order, a trip's Party tab, a map's token).
 - **Map**: a cell and a point of interest have a **picture** (in the cell's panel, and in Play over the trip while the party stands there); **Map settings → Picture under the map** puts a picture under the cells (a real map, a scan with its own grid), fitted by hand (size, moved by hundredths of a cell) with the cells made see-through over it, in exports and prints too.

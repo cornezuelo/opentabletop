@@ -23,10 +23,10 @@ export function staleCopies(system: TravelSystem): string[] {
 }
 
 /** Saves a system as one .zip, to import it whole elsewhere. */
-export function exportSystem(system: TravelSystem): void {
+export async function exportSystem(system: TravelSystem): Promise<void> {
   const packs = systemZipPacks(system)
   if (packs.length)
-    download(packsToZip(packs), `${system.id.replace(/\//g, '-')}.zip`, 'application/zip')
+    download(await packsToZip(packs), `${system.id.replace(/\//g, '-')}.zip`, 'application/zip')
 }
 
 /**

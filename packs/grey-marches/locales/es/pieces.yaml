@@ -29,7 +29,7 @@ deep-barrows:
   description: |-
     A qué da el siguiente camino. Las cartas robadas siguen robadas hasta que se acaba el mazo, así que los Túmulos Hondos no se repiten como lo haría una tabla.
 
-    **Enseña:** un **mazo** que nombra piezas (`set: { piece: crypt }`): cada carta robada es una pieza menos de su tipo; una carta es una escalera más abajo, a un mapa nuevo.
+    **Enseña:** un **mazo** que nombra piezas (`set: { piece: crypt }`): cada carta robada es una pieza menos de su tipo; una carta es una escalera más abajo, a un mapa nuevo. Cada carta tiene su **cara** (un icono de aquello a lo que da el camino), dibujada en el diario al colocarse.
   cards:
     passage: Un pasillo
     flooded: Un pasillo inundado

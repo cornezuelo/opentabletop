@@ -199,7 +199,7 @@ function readImage(
   const svg = /\.svg$/i.test(relative)
   const ok = svg
     ? /<svg[\s>]/.test(file.content)
-    : /^data:image\/[a-z+]+;base64,/.test(file.content)
+    : /^data:image\/[a-z+]+;base64,/.test(file.content) || isServedImage(file.content)
   if (!ok) {
     diagnostics.push({
       severity: 'error',
@@ -212,9 +212,17 @@ function readImage(
   pack.images[relative] = file.content
 }
 
-/** An image's content (an SVG's text or a `data:` URL) as a URL an `<img>` can show. */
+/**
+ * A bundled pack's raster image as the app serves it: the URL of its file (`./assets/fool.webp`),
+ * loaded when drawn, not carried in the page (bundled packs only; a user's pack keeps the bytes).
+ */
+export function isServedImage(content: string): boolean {
+  return /^(\.{0,2}\/|https?:\/\/|blob:)[^\s<>"]+\.(png|webp|jpe?g)(\?[^\s<>"]*)?$/i.test(content)
+}
+
+/** An image's content (an SVG's text, a `data:` URL or a served file's) as a URL an `<img>` can show. */
 export function imageUrl(content: string): string {
-  return content.startsWith('data:')
+  return content.startsWith('data:') || isServedImage(content)
     ? content
     : `data:image/svg+xml;charset=utf-8,${encodeURIComponent(content)}`
 }

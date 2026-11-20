@@ -4,24 +4,27 @@ import {
   dataUrlToBytes,
   isImageFile,
   isRasterFile,
+  isServedImage,
 } from '@open-tabletop/oracle-engine'
 import { manifestOf, MANIFEST_FILE, type PackSource, type WorkspacePack } from './packs'
 
-/** Packs as one .zip, each in its own folder at the top, ready to drop into packs/. */
-export function packsToZip(packs: PackSource[]): Uint8Array {
-  return zipSync(
-    Object.fromEntries(
-      packs.flatMap((pack) =>
-        pack.files.map(
-          (f) =>
-            [
-              `${pack.root}/${f.path}`,
-              isRasterFile(f.path) ? dataUrlToBytes(f.content) : strToU8(f.content),
-            ] as const,
-        ),
-      ),
+/**
+ * Packs as one .zip, each in its own folder at the top, ready to drop into packs/. A bundled
+ * pack's raster image, served as a file, is fetched for its bytes.
+ */
+export async function packsToZip(packs: PackSource[]): Promise<Uint8Array> {
+  const bytes = async (f: PackSource['files'][number]): Promise<Uint8Array> =>
+    !isRasterFile(f.path)
+      ? strToU8(f.content)
+      : isServedImage(f.content)
+        ? new Uint8Array(await (await fetch(f.content)).arrayBuffer())
+        : dataUrlToBytes(f.content)
+  const entries = await Promise.all(
+    packs.flatMap((pack) =>
+      pack.files.map(async (f) => [`${pack.root}/${f.path}`, await bytes(f)] as const),
     ),
   )
+  return zipSync(Object.fromEntries(entries))
 }
 
 /**
@@ -64,9 +67,22 @@ export interface ImportPlan {
   same: PackSource[]
 }
 
+/**
+ * Whether two files hold the same: the same text, or the same raster image where one is a
+ * bundled pack's served file and the other its bytes (an export of it brought back: its bytes
+ * can't be compared without fetching it, and a bundled image isn't edited in place).
+ */
+const sameFile = (a: string, b: string) =>
+  a === b ||
+  (isServedImage(a) && b.startsWith('data:image/')) ||
+  (isServedImage(b) && a.startsWith('data:image/'))
+
 const sameFiles = (a: PackSource, b: PackSource) =>
   a.files.length === b.files.length &&
-  a.files.every((f) => b.files.find((g) => g.path === f.path)?.content === f.content)
+  a.files.every((f) => {
+    const there = b.files.find((g) => g.path === f.path)
+    return there !== undefined && sameFile(there.content, f.content)
+  })
 
 export function planImport(current: WorkspacePack[], incoming: PackSource[]): ImportPlan {
   const plan: ImportPlan = { added: [], replaced: [], same: [] }
