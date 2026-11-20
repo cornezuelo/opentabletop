@@ -75,3 +75,15 @@ What it costs or changes:
 - A small **migration** on the way in: a map's `assets` are copied into the library when the map opens (the map keeps them too, for its file).
 
 **Proposal**: yes, it makes sense, and portraits are the moment to do it: the `pictures` store of section 2 becomes this `images` library from the start (same work, more general), the picker is the one place to upload, and Map's icons and glyphs move to it next. A screen to manage the library (in the Characters app? a small app of its own? in Preferences?) is the open question; the picker alone is enough to start.
+
+## 9. The shared picker (proposal, 2026-11-20, to agree with the user before any code)
+
+Built so far (on autopilot, no UI): the library's store (storage's `images`, one IndexedDB store, each image a shrunk data URL with its size, tags and what it was added for) and its place in backups. What the user sees is all still to agree; a mockup was drawn for it (three frames), described here.
+
+1. **The slot.** On a character's card (and a party's, an item's, a template's), a slot the size of its use: a square for a portrait, a wide one for a party's banner, a small square for an item. Empty, it says what's missing (_+ Add a portrait_); with a picture, _Change_ on hover. A click opens the picker.
+2. **Choosing.** A dialog titled by what it's for (_Kael's portrait_): a search by name or tag, **Portraits** / **All** (pictures added for this use first), **Upload an image…**; a grid of the library's pictures as square tiles with their names; beside it the one chosen, large, its **Name** and **Tags** editable and who uses it (_Used by: Mara_). At the foot **Delete…** (asks first, saying who uses it), **Remove the portrait**, **Cancel**, **Use this one**. A file dropped on the dialog, or pasted (Ctrl+V), is uploaded too.
+3. **Framing.** An upload opens it framed: the picture behind a frame of the slot's shape (square, wide), dragged to place it, the wheel or a slider to zoom, **rotate** both ways and **flip**; a preview of what it will look like and its **Name** (from the file's). **Add** shrinks it (512 px on its longer side, WebP) into the library, chosen.
+
+Pieces: ui-kit's `ImagePicker` (the dialog, both steps) and `ImageSlot` (the slot), the shrinking and framing in ui-kit (canvas, the browser's), the library's reads in storage; characters name a picture by id (`picture` on the character, in OTD's `ext.character`), shown by character-ui's card and a fight's faces.
+
+**To decide:** (a) whether **Used by** is worth it now (it means looking through the roster, maps and campaigns for an id) or later, with the library's own screen; (b) the sizes of each slot; (c) whether tokens on a map show a character's portrait from the start (§7 d said one by one: **Show its picture**).
