@@ -2,6 +2,7 @@
   import { WorldClock, WorldTimeline, WorldWaiting } from '@open-tabletop/campaign-ui'
   import { placeApp, placeUrl } from '@open-tabletop/character-ui'
   import { calendarOf, systemName, systemUses } from '@open-tabletop/session'
+  import { CampaignLog } from '@open-tabletop/journal-ui'
   import { SceneRoom } from '@open-tabletop/travel-ui'
   import { packTexts } from '@open-tabletop/oracle-ui'
   import {
@@ -170,6 +171,8 @@
         {:else}
           <div class="hint"><Markdown text={t('timeline.none')} /></div>
         {/if}
+      {:else if tab === 'log'}
+        <CampaignLog {campaign} {calendar} locale={getLocale()} nameOf={texts.nameOf} />
       {:else if tab === 'maps'}
         <PlaceList {campaign} app="map" />
       {:else if tab === 'trips'}

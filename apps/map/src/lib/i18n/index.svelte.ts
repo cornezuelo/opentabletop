@@ -31,6 +31,15 @@ export function setLocale(locale: Locale): void {
   }
 }
 
+/** A text in a language other than the UI's (what's kept told in each: the campaign's journal). */
+export function tIn(
+  locale: string,
+  key: MessageKey,
+  params?: Record<string, string | number>,
+): string {
+  return translate(dictionaries[locale as Locale] ?? en, key, params)
+}
+
 /** Reactive inside components: re-renders when the locale changes. */
 export function t(key: MessageKey, params?: Record<string, string | number>): string {
   return translate(dictionaries[state.locale], key, params)

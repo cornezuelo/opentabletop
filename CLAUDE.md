@@ -40,6 +40,7 @@ packages/                   # libraries, scope @open-tabletop/*
   character-engine/         # character sheets as data (`kind: sheet`): values with bounds, tracks, conditions, tags, relations; items and their catalogues (`kind: items`)
   map/                      # the map model: types, format, migrations and serializing, the map as a graph for trips (`mapWorld`), shared by the apps that read maps
   campaign/                 # campaigns: the world shared by maps (clock, weather, factions' sheets, Oracle); format, factions' land per map, the world clock played (turns, full clocks, a trip's effects)
+  journal/                  # the campaign's journal: trips' moments copied in (told in each language), sessions, notes; the log by game time with the world's lines and hand rolls
   session/                  # integration layer: travel checks → Oracle via bindings, effects, journal, systems from packs, trips, map discovery
   storage/                  # browser storage adapter: the map library and the campaigns (IndexedDB), backups of everything
   transfer/                 # export and import some of it: what's kept as a tree with what each needs, the export .zip
@@ -49,10 +50,11 @@ packages/                   # libraries, scope @open-tabletop/*
   character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags); the roster in the browser
   travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)
   campaign-ui/              # embeddable campaign UI: the world clock (date, moving time on, events, progress clocks, timeline), the world's words
+  journal-ui/               # embeddable campaign journal: the log (by session and day), sessions, notes, Markdown export
   manual-ui/                # user manual: pages from docs/manual, search, in-app help panel, full view
 apps/                       # each with its own CLAUDE.md
   map/                      # Map: the map editor, and play on the map
-  campaign/                 # the campaigns: their world clock, timeline, maps and trips
+  campaign/                 # the campaigns: their world clock, timeline, log, maps and trips
   oracle/                   # roll packs
   travel/                   # play trips without a map
   characters/               # the roster: characters of any system, kept and taken on trips
@@ -98,13 +100,13 @@ docs/
   traps-locks.md            # Traps, locks, containers and potions (a place's sheet, things that don't fight, items unknown, lasting places), decided
   party-split.md            # Splitting the Company: parts of one trip, each its own place, time and token, to review
   value-breakdown.md        # A value's base, what it reads now and what makes the difference, decided, built
-  notes-and-journal.md      # The campaign's journal (Lonelog export) and our own notes app, decided
+  notes-and-journal.md      # The campaign's journal (Lonelog export) and our own notes app, decided, the journal built
 ```
 
 **Allowed dependencies** (top to bottom, never upwards):
 
 ```
-apps  →  *-ui, ui-kit  →  campaign  →  map  →  session  →  *-engine  →  dice, conditions, variables, time, hex  →  random
+apps  →  *-ui, ui-kit  →  campaign, journal  →  map  →  session  →  *-engine  →  dice, conditions, variables, time, hex  →  random
                                                  ↘ schema (types/validation of persisted data only)
 ```
 

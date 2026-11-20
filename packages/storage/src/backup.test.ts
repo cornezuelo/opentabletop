@@ -26,6 +26,7 @@ describe('backups', () => {
       [map('a', '2026-10-01')],
       [],
       [],
+      [],
       new Date(2026, 9, 7, 1).toISOString(),
     )
     expect(backup.storage).toEqual({ 'opentabletop.locale': 'es' })
@@ -193,5 +194,38 @@ describe('images in backups', () => {
     const replaced = planRestore(here, theirs, 'replace')
     expect(replaced.putImages.map((i) => i.id)).toEqual(['wolf', 'crow'])
     expect(replaced.removeImages).toEqual(['mine'])
+  })
+})
+
+describe('the campaigns’ journals', () => {
+  const journal = (id: string, modified: string) => ({ id, name: id, modified, json: '{}' })
+
+  it('are kept and read back; older backups have none', () => {
+    const backup = createBackup({}, [], [], [], [journal('c1', '2026-11-20')])
+    expect(parseBackup(JSON.stringify(backup)).backup!.journals.map((j) => j.id)).toEqual(['c1'])
+    const v3 = { ...backup, version: 3 } as Record<string, unknown>
+    delete v3.journals
+    expect(parseBackup(JSON.stringify(v3)).backup!.journals).toEqual([])
+  })
+
+  it('merge by campaign, the newer kept; replace leaves only the backup’s', () => {
+    const here = {
+      storage: {},
+      maps: [],
+      campaigns: [],
+      journals: [journal('c1', '2026-11-20'), journal('mine', '2026-11-01')],
+    }
+    const theirs = createBackup(
+      {},
+      [],
+      [],
+      [],
+      [journal('c1', '2026-11-19'), journal('c2', '2026-11-01')],
+    )
+    const merged = planRestore(here, theirs, 'merge')
+    expect(merged.putJournals.map((j) => j.id)).toEqual(['c2'])
+    const replaced = planRestore(here, theirs, 'replace')
+    expect(replaced.putJournals.map((j) => j.id)).toEqual(['c1', 'c2'])
+    expect(replaced.removeJournals).toEqual(['mine'])
   })
 })

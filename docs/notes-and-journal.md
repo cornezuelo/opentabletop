@@ -81,3 +81,22 @@ Kept in the browser like everything else (IndexedDB `notes`, in backups). Later,
 3. Lonelog: **export only**.
 4. **The journal first** (phases 1–2), **Notes after the other real systems** (step 5 of the backlog's order).
 5. A trip with no campaign keeps only its own journal, as today.
+
+## 7. Phase 1 as built (2026-11-20)
+
+Agreed with the author before building ("dale", on Claude's proposal and mockup):
+
+1. **Each moment is copied told already, in every UI language** (English and Spanish), at the whole detail (each line with its level, dice and cards, what it changed), beside its raw lines: the trip that could tell it again (its sheets, the foes present, its way) is gone one day. The log tells it at the level chosen (`toldAt`), in the UI's language (`toldIn`, English if missing).
+2. **The timeline no longer gets a trip's highlights** (arrivals, places found, pauses): it's the world's only; the trips' moments are in the Log. Old timelines keep the lines they have.
+3. The Log as mocked up: sessions newest first (the newest unfolded), days, a moment as the trip's journal draws it (`BeatView`) with where it was played, the world (◆), hand rolls (?), notes (✎); **Show**, **Played in**, a search, **Export**; **+ Write a note** and **+ A note here** beside each line.
+
+How it works:
+
+- `@open-tabletop/journal` (headless): the journal (`CampaignJournal`: moments, sessions, notes, how far each trip was copied), `linesToCopy` / `addMoments`, sessions and notes, and `campaignLog`, which lays the world's timeline and the Oracle's history among them by game time. A trip is known by its first line's real time, so one that goes on in another map (a sub-map) isn't copied twice, and a new trip on the same map starts from its first line.
+- Hand rolls keep only their real time: each is laid at the game time of what the journal holds last before it in real time. Lines a trip's journal has of its own that the campaign keeps elsewhere aren't copied: hand rolls (the Oracle's history), what came due in the world (the timeline).
+- Sessions are marks at a game time (and a real date): everything from one's start to the next one's is under it.
+- `storage`'s `journals` store (IndexedDB v5, one entry per campaign, in backups v4, merged by campaign, the newer kept; deleted with the campaign), changed one change at a time per campaign (`changeJournalEntry`).
+- travel-ui's `keepInJournal` / `tellMoments`, called whenever a trip is saved (Travel's and Campaign's scenes' `TripStore`, Map's play): it copies what's new, telling it with the trip's system, sheets and the host's words in each language.
+- journal-ui's `CampaignLog` (Campaign's **Log** tab), `shownLog` and `logMarkdown`. A moment where only what happened behind was told (checks that didn't come up) shows only in **Everything**.
+
+Left for later: a campaign's journal in an export (.zip) (backups keep it); a moment's title when a step's first lines are checks that didn't come up was fixed for every journal (travel-ui's `headLine`).

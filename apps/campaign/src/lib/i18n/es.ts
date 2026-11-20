@@ -109,6 +109,7 @@ export const es: Messages<typeof en> = {
     characters: 'Personajes',
     factions: campaignTexts.es.factions.title,
     timeline: 'Cronología',
+    log: 'Diario',
   },
   timeline: {
     none: 'El reloj del mundo aún no está en marcha: ponlo en marcha en **Mundo**.',

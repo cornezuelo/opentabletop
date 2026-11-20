@@ -77,6 +77,31 @@ describe('moments of play told (beats)', () => {
     expect(told.lines.map((l) => l.text)).toEqual(['A parting blow: Caught as you fall back'])
   })
 
+  it('a check played after others that didn’t come up is named by it, not by them', () => {
+    const told = tellBeat(
+      {
+        id: 'j1',
+        entries: [
+          line(1, 'CHECK_SKIPPED', { data: { check: 'AMBUSH', condition: 'when', failed: [] } }),
+          line(2, 'ROLLED', {
+            source: 'oracle',
+            data: { check: 'TOLL', rolls: [{ source: 'gm/toll', dice: [], depth: 0 }] },
+          }),
+          line(3, 'ORACLE_RESULT', {
+            source: 'oracle',
+            text: 'The bridge keeper asks a toll',
+            data: { event: 'TOLL', value: {} },
+          }),
+        ],
+      },
+      context,
+      'detail',
+    )
+    expect(told.title).toBe('Toll')
+    expect(told.lines.map((l) => l.text)).toContain('Toll: The bridge keeper asks a toll')
+    expect(told.lines.some((l) => /Ambush|AMBUSH/.test(l.text))).toBe(true)
+  })
+
   it('what an action changes of whoever acts is said of them: the one a reaction is played for', () => {
     const named: JournalContext = {
       ...context,

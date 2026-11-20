@@ -45,7 +45,6 @@ import {
   playTrip,
   MAX_HEARD,
   takeMoments,
-  tripHighlights,
   tripStepped,
   waitingSaid,
   worldAnswer,
@@ -64,7 +63,7 @@ import { CampaignKeeper } from '@open-tabletop/ui-kit'
 import { translator } from './i18n'
 import { askTimePassed, timeBehind } from './timePassed'
 import { wayWorld, type WayHex } from './way'
-import { highlightText } from './journal'
+import { keepInJournal } from './campaignJournal'
 import { followRollWay } from './rollWay'
 import { terrainName } from './terrains'
 import { pacing } from './pacing.svelte'
@@ -144,6 +143,11 @@ export interface TripStoreOptions {
    * goes back to the campaign when it's deleted, and the campaign stays.
    */
   scenes?: boolean
+  /**
+   * Name of a definition of the Oracle by id, in a language: how its campaign's journal says
+   * the tables a step rolled (absent: by id).
+   */
+  nameOf?: (id: string, locale: string) => string
 }
 
 /** The loaded packs, as session reads them. */
@@ -666,6 +670,8 @@ export class TripStore {
     } catch {
       // Not kept for the next visit; the trip still goes on.
     }
+    // What it played, in its campaign's journal.
+    this.keepInJournal()
     // Its roster characters, as the trip has them now.
     const place = this.place
     if (place)
@@ -867,17 +873,38 @@ export class TripStore {
     this.save()
   }
 
-  /** A step's highlights for the campaign's timeline (arrivals, places found, pauses). */
-  private highlights(entries: SessionState['journal']): { time: number; text: string }[] {
-    const t = translator(this.options.locale)
-    const hexLabel = (hex: string) => {
+  /** A hex of the way by its index, in a language: its number and terrain. */
+  private hexLabel(locale: string): (hex: string) => string {
+    const t = translator(() => locale)
+    return (hex) => {
       const h = this.saved.way[Number(hex)]
-      return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain, { system: this.system, locale: this.options.locale() })})` : ''}`
+      return `${t('play.hex', { n: Number(hex) + 1 })}${h ? ` (${terrainName(t, h.terrain, { system: this.system, locale })})` : ''}`
     }
-    const context = { rules: this.system.rules, locale: this.options.locale(), hexLabel }
-    return entries.flatMap((e) => {
-      const text = highlightText(e, context)
-      return text ? [{ time: e.time, text }] : []
+  }
+
+  /** What the trip played that its campaign's journal hasn't got yet, copied in. */
+  private keepInJournal(): void {
+    const session = this.saved.session
+    const campaign = this.campaign
+    const me = this.me
+    if (!session || !campaign || !me) return
+    const host = this.worldHost(session)
+    const nameOf = this.options.nameOf
+    void keepInJournal({ id: campaign.id, name: campaign.name }, me, {
+      system: this.system,
+      session,
+      startDay: this.saved.startDay,
+      ...(host && { facts: worldFactsOf({ campaign }, host) }),
+      words: (locale) => ({
+        hexLabel: this.hexLabel(locale),
+        terrainName: (id) =>
+          terrainName(
+            translator(() => locale),
+            id,
+            { system: this.system, locale },
+          ),
+        ...(nameOf && { nameOf: (id: string) => nameOf(id, locale) }),
+      }),
     })
   }
 
@@ -908,7 +935,6 @@ export class TripStore {
             oracle: state.oracle,
             entries,
             time: state.travel.time,
-            highlights: this.highlights(entries),
           },
           host,
         )
@@ -948,10 +974,6 @@ export class TripStore {
       update(structuredClone(session)),
     ).state
     this.saved = { ...this.saved, session: next }
-    // What the edit told worth keeping (a character leaving) goes to the timeline too.
-    const highlights = this.highlights(next.journal.slice(session.journal.length))
-    const host = campaign && highlights.length ? this.worldHost(next) : undefined
-    if (campaign && host) this.keeper!.set(tripHighlights({ campaign }, highlights, host).campaign)
     this.save()
   }
 

@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto'
 import { characterFacts } from '@open-tabletop/character-engine'
 import type { HexKey } from '@open-tabletop/hex'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
@@ -22,6 +23,8 @@ import {
   type SessionState,
 } from '@open-tabletop/session'
 import { mapWorld } from '@open-tabletop/map'
+import { readJournal, type JournalMoment } from '@open-tabletop/journal'
+import { deleteJournal, getJournalEntry } from '@open-tabletop/storage'
 import { journalByDay } from '@open-tabletop/travel-ui'
 import { applyCharacter, lookupItems, shownAgainst, toneOf } from '@open-tabletop/character-engine'
 import { entryText, memberNamer, translator } from '@open-tabletop/travel-ui'
@@ -635,25 +638,46 @@ describe('playing on the map', () => {
       expect((deck?.draw.length ?? 0) + (deck?.discard.length ?? 0)).toBe(11)
     })
 
-    it('the trip’s highlights reach the campaign’s timeline, a line each', async () => {
+    it('the trip’s moments reach the campaign’s journal, told in every language', async () => {
       grey()
+      // What trips played before in this campaign (the tests above) is left out.
+      await deleteJournal(editor.campaign.id)
       startWorld()
       clickHex('7,7')
       for (let day = 0; day < 10 && partyLocation() !== '7,7'; day++) {
         await advance({ until: 'next-day' })
         for (const c of trip().travel.pendingChecks) step({ type: 'resolveCheck', id: c.id })
       }
-      const timeline = editor.campaign.world!.timeline
-      const lines = timeline.filter((e) => e.code === 'LOG' && e.data?.trip)
-      // The arrival, at the time it happened, the hex by its coordinates.
-      const arrival = lines.find((e) => /reaches/.test(e.text ?? ''))!
-      expect(arrival.text).toMatch(/^The party reaches \d{4}$/)
-      const reached = sessionOf(editor.map.play!)!.journal.find(
-        (e) => e.code === 'DESTINATION_REACHED',
-      )!
-      expect(arrival.time).toBe(reached.time)
-      // Every line is a highlight: nothing of the day by day (weather, hexes entered…).
-      expect(lines.every((e) => /reaches|Found in| in /.test(e.text ?? ''))).toBe(true)
+      const journal = trip().journal
+      const reached = journal.find((e) => e.code === 'DESTINATION_REACHED')!
+      expect(reached).toBeDefined()
+      const kept = await vi.waitFor(async () => {
+        const entry = await getJournalEntry(editor.campaign.id)
+        const read = entry && readJournal(entry.json)
+        // This trip's moments (a test above may still be writing its own).
+        const moments = (read?.items ?? []).filter(
+          (i): i is JournalMoment => i.kind === 'moment' && i.entries[0]!.at >= journal[0]!.at,
+        )
+        if (!moments.some((m) => m.entries.some((e) => e.id === reached.id)))
+          throw new Error('not copied yet')
+        return moments
+      })
+      // Each moment once, from this map, told in English and Spanish.
+      const ids = kept.flatMap((m) => m.entries.map((e) => e.id))
+      expect(new Set(ids).size).toBe(ids.length)
+      for (const moment of kept) {
+        expect(moment.from).toMatchObject({ app: 'map', id: editor.map.meta.id })
+        expect(moment.told.en?.title).toBeTruthy()
+        expect(moment.told.es?.title).toBeTruthy()
+      }
+      const told = kept.find((m) => m.entries.some((e) => e.id === reached.id))!
+      expect(told.told.en!.lines.some((l) => /reach/i.test(l.text))).toBe(true)
+      // What came due in the world and hand rolls stay where they're kept, not copied.
+      expect(
+        kept.every((m) => m.entries[0]!.beat !== undefined || m.entries[0]!.source === 'user'),
+      ).toBe(true)
+      // The timeline keeps the world only: nothing of the trip.
+      expect(editor.campaign.world!.timeline.some((e) => e.data?.trip)).toBe(false)
     })
 
     it('the journal keeps everything behind: dice, rows, weather, skipped checks, changes', async () => {
@@ -1068,7 +1092,7 @@ describe('the Company: a party made of characters', () => {
     expect(trip().stats.hirelings).toBe(0)
   })
 
-  it('a character who leaves the party is told in the journal and in the campaign’s timeline', () => {
+  it('a character who leaves the party is told in the journal, not in the campaign’s timeline', () => {
     grey()
     startWorld()
     clickHex('7,7')
@@ -1084,7 +1108,7 @@ describe('the Company: a party made of characters', () => {
     expect(left.code).toBe('MEMBER_LEFT')
     expect(
       editor.campaign.world!.timeline.find((e) => e.text === 'Old Tobin leaves the party'),
-    ).toMatchObject({ code: 'LOG', time: left.time, data: { trip: true } })
+    ).toBeUndefined()
   })
 
   it('the Company has a sheet of its own, whoever travels: shaken, it can’t force a march until it rests', () => {

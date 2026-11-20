@@ -1,14 +1,14 @@
 /**
- * Libraries in IndexedDB: stores of entries keyed by id (the maps, the campaigns, the images), each
+ * Libraries in IndexedDB: stores of entries keyed by id (the maps, the campaigns, the images, the campaigns' journals), each
  * entry's contents a versioned JSON its own package reads (`@open-tabletop/map`,
  * `@open-tabletop/campaign`); backups copy the entries as they are. Every write is announced
  * to the other windows and apps of this browser on the library's channel, so one holding
  * an entry open can read it again.
  */
 const DB_NAME = 'opentabletop'
-/** v2: the map library; v3: the campaigns; v4: the images. */
-const DB_VERSION = 4
-const STORES = ['library', 'campaigns', 'images'] as const
+/** v2: the map library; v3: the campaigns; v4: the images; v5: the campaigns' journals. */
+const DB_VERSION = 5
+const STORES = ['library', 'campaigns', 'images', 'journals'] as const
 /** Where they were kept before the Hexmapper was called Map (up to v0.25.0). */
 const OLD_DB_NAME = 'hexmapper'
 

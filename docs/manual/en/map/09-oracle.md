@@ -55,6 +55,6 @@ Then select a forest cell, press <kbd>O</kbd>, search "What do we find" and roll
 
 Each map's campaign has its own Oracle: its roll history, the cards drawn from each deck and the once-only results that already came up. They are saved with the campaign (and in the map's `.otd.json`), so opening a map of another campaign starts fresh and coming back finds them again. Hand rolls and the checks of a trip share them: a card drawn by hand is gone for the trip too, and for a trip of the Travel app playing in the same campaign, or the Oracle app rolling in it ([Rolling in a campaign](../oracle/02-rolling.md#rolling-in-a-campaign)).
 
-During a trip with rules, hand rolls are written in the journal too.
+During a trip with rules, hand rolls are written in the journal too. Every hand roll made in the campaign is in its [Log](../campaign/01-getting-started.md) as well, among the trips' moments.
 
 The panel uses the bundled packs and the ones you make in the Oracle app. Your packs live in the browser, so both apps see them when they're served from the same site (e.g. `make serve`: `…/map/` and `…/oracle/`).

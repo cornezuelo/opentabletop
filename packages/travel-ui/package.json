@@ -23,7 +23,8 @@
     "@open-tabletop/storage": "*",
     "@open-tabletop/time": "*",
     "@open-tabletop/travel-engine": "*",
-    "@open-tabletop/ui-kit": "*"
+    "@open-tabletop/ui-kit": "*",
+    "@open-tabletop/journal": "*"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

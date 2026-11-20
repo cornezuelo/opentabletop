@@ -169,7 +169,7 @@ describe('the world of a campaign', () => {
     expect(tripping.campaign.worldWeather).toBeUndefined()
   })
 
-  it('a trip’s highlights go to the timeline at their time, and the world follows the trip', () => {
+  it('the world follows a trip’s time', () => {
     const place = started()
     const now = place.campaign.world!.time
     const done = tripStepped(
@@ -178,17 +178,14 @@ describe('the world of a campaign', () => {
         oracle: { decks: {}, occurrences: {}, vars: {} } as never,
         entries: [],
         time: now + 120,
-        highlights: [{ time: now + 60, text: 'The party reaches 0303' }],
       },
       host({ trip: {} }),
     )
-    const line = done.campaign.world!.timeline.find((e) => e.text === 'The party reaches 0303')
-    expect(line).toMatchObject({ code: 'LOG', time: now + 60, data: { trip: true } })
     expect(done.campaign.world!.time).toBe(now + 120)
-    // A campaign whose clock hasn't started keeps no timeline.
+    // A campaign whose clock hasn't started keeps no time.
     const none = tripStepped(
       { campaign: createCampaign('c3') },
-      { oracle: {} as never, entries: [], time: 60, highlights: [{ time: 0, text: 'x' }] },
+      { oracle: {} as never, entries: [], time: 60 },
       host({ trip: {} }),
     )
     expect(none.campaign.world).toBeUndefined()

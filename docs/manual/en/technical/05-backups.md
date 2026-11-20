@@ -9,7 +9,7 @@ Open the app switcher (the nine dots in any app) and press **Save a backup**. Th
 It holds everything the apps keep in this browser:
 
 - **Maps**: every map of Map's library, with its play state (party, trail, trip, journal) and the land each faction holds on it.
-- **Campaigns**: the world each map is played in: its world clock and weather, its factions and its Oracle (history, decks, once-only results).
+- **Campaigns**: the world each map is played in: its world clock and weather, its factions and its Oracle (history, decks, once-only results), and its journal (the [Log](../campaign/01-getting-started.md): its trips' moments, sessions and notes).
 - **Images**: the pictures you've added (portraits and the like), each once, whatever uses it, and the pictures you chose for items and templates of packs (kept apart from the packs).
 - **Your packs**: the packs you made or edited, and edited copies of bundled packs.
 - **The Characters app's roster**: every character and party it keeps, with its notes, where it plays and a party's members.
@@ -22,7 +22,7 @@ Bundled packs are not in it: they come with the apps.
 
 In the app switcher, press **Restore a backup…** and choose the file. OpenTabletop says when the backup was made and what it has, and asks how to restore it:
 
-- **Add to mine**: the backup joins what this browser already has. A map (or campaign, or image) both have keeps the newer copy; packs with the same folder and favorites are joined (the backup's copy of a pack wins); the roster's characters are joined too, and a character both have keeps the copy changed last; other things (the trip, histories, preferences) are taken from the backup.
+- **Add to mine**: the backup joins what this browser already has. A map (or campaign, its journal, or an image) both have keeps the newer copy; packs with the same folder and favorites are joined (the backup's copy of a pack wins); the roster's characters are joined too, and a character both have keeps the copy changed last; other things (the trip, histories, preferences) are taken from the backup.
 - **Replace everything**: this browser ends up exactly like the backup. Maps, campaigns and data that aren't in the backup are deleted.
 
 The page then reloads. Close other OpenTabletop tabs before restoring: an open tab still has the old data and could save it again.
@@ -44,7 +44,7 @@ A backup takes everything. To choose what goes (one campaign to a friend, your h
 It lists what you've made, as a tree with ticks, all ticked at first:
 
 - **Your packs**: the packs you made or edited, and your copies of bundled packs. A copy of a pack whose licence allows only personal use is marked **Personal use**, and ticking it warns that the file isn't to be shared.
-- **Campaigns**, each with its **maps** (Map's) and **trips** (Travel's) under it. Ticking a campaign ticks its maps and trips too; untick any of them to leave it out.
+- **Campaigns**, each with its **maps** (Map's) and **trips** (Travel's) under it. Ticking a campaign ticks its maps and trips too; untick any of them to leave it out. A campaign's journal (its Log) isn't exported: only a backup keeps it.
 - **Maps and trips** whose campaign isn't kept here, if any.
 - **Characters**: the roster's.
 

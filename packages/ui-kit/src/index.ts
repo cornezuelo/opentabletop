@@ -140,3 +140,4 @@ export {
   readDefinitionPictures,
   setDefinitionPicture,
 } from './definitionPictures.svelte'
+export { downloadText, fileNameOf } from './download'

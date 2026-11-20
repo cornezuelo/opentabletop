@@ -65,9 +65,9 @@ At the top, its **name** (click it to change it; every app names the campaign wi
 - **Notes**: its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it.
 - With a trip going on in the campaign, a line says which one, with **Open**. One trip goes on in a campaign at a time, since its time is the campaign's ([One trip at a time](../travel/02-playing.md#the-campaign)).
 
-**Delete** asks first, and forgets the campaign's clock, timeline, factions and Oracle state. With maps, trips or scenes in the campaign, the question names each (_Maps: The coast · Trips: To the fair_) and **Delete it all** deletes them with it, so you needn't go map by map and trip by trip; a map or trip open in another window closes there. Its characters stay in the roster, playing nowhere (Characters keeps them). To keep a map or trip, move it to another campaign first (in Map's or Travel's settings).
+**Delete** asks first, and forgets the campaign's clock, timeline, journal, factions and Oracle state. With maps, trips or scenes in the campaign, the question names each (_Maps: The coast · Trips: To the fair_) and **Delete it all** deletes them with it, so you needn't go map by map and trip by trip; a map or trip open in another window closes there. Its characters stay in the roster, playing nowhere (Characters keeps them). To keep a map or trip, move it to another campaign first (in Map's or Travel's settings).
 
-The campaign's tabs (a choice of them in a window too narrow for them side by side; the address of each, such as `#/campaign/<id>/timeline` or `#/campaign/<id>/factions`, can be linked; `#/campaign/<id>` is its Overview):
+The campaign's tabs (a choice of them in a window too narrow for them side by side; the address of each, such as `#/campaign/<id>/log` or `#/campaign/<id>/factions`, can be linked; `#/campaign/<id>` is its Overview):
 
 ### Overview
 
@@ -92,7 +92,22 @@ The powers of the campaign's world, their sheets and their land on each of its m
 
 ### Timeline
 
-What happened in the world, newest first: events that came due, holidays and moons, full clocks, the factions' turns, what the world did by itself ([World](../packs/11-world.md)), the clock going back, and your own notes (**Add**). The same timeline as the World panel's, in a page of its own. It's the world's story, not the party's: an event comes due on its day wherever the party is (_Market day in Ashford_ is there whether you're in Ashford or not), and what the party does on a trip (cells, checks, encounters, places found) goes to the trip's **journal** instead. Only a trip's highlights come here too, a short line each: arrivals (_The party reaches 0707_), places found, checks that stopped the trip (an encounter) and characters who left the party.
+What happened in the world, newest first: events that came due, holidays and moons, full clocks, the factions' turns, what the world did by itself ([World](../packs/11-world.md)), the clock going back, and your own notes (**Add**). The same timeline as the World panel's, in a page of its own. It's the world's story, not the party's: an event comes due on its day wherever the party is (_Market day in Ashford_ is there whether you're in Ashford or not), and what the party does on a trip (cells, checks, encounters, places found) goes to the trip's **journal** instead, and to the campaign's [Log](#log), where the world's lines are read among the trips' moments.
+
+### Log
+
+The campaign's journal: everything played in it, in the order it happened in the game, newest first:
+
+- the **moments** of its trips and scenes, on its maps, in Travel or here: each told as the trip's journal tells it (what was done as its title, its lines, its dice and cards, what it changed), with where it was played (**The Grey Company**, a link that opens it). They're kept as they're played, so they stay when the trip or the scene is deleted, and they read in English or Spanish, whichever the apps are in;
+- the **world**'s lines (◆): the timeline's, events, holidays, moons, clocks and world turns;
+- what you **rolled by hand** in the Oracle (?), in the campaign (the Oracle app, Map's Oracle panel);
+- your own **notes** (✎), in Markdown: **+ Write a note** at the top writes one at the world's date now, and **+ A note here**, beside a line when the pointer is over it, writes one right after it. A note can be changed (✎) or deleted (×, asked first).
+
+**Start a session** when you sit down to play and **End the session** when you stop: a session is marked with the real date (_Session 3 · 20 Nov 2026_), and everything played from the moment of the game it started at, up to the next session, is under it. The session going on, and the newest, are unfolded; the older ones fold to their heading. Without sessions, the log is one list.
+
+Above it, as in a trip's journal: **Show** (**The story**, **And the rules**, **Everything**: how much of each moment is told; a moment where only what happened behind was told, such as a check that didn't come up, shows only in **Everything**), **Played in** (only the moments of one map, trip or scene), a search, and **Export**, which downloads what's shown as Markdown, sessions and days as headings, for your notes app.
+
+A trip with no campaign of its own keeps only its own journal. The Grey Marches' example maps play in one campaign: play a few days on either and the Log has them.
 
 ### Maps and trips
 

@@ -163,6 +163,13 @@ function lineText(e: JournalEntry, context: JournalContext): string {
   return entryText(e, context).replace(/\s*\n\s*/g, ' ')
 }
 
+/**
+ * The line a moment without an action or a turn is named by: its first that isn't only what
+ * happened behind (checks that didn't come up before the one that did), a roll included.
+ */
+const headLine = (entries: readonly JournalEntry[]): JournalEntry =>
+  entries.find((e) => e.code === 'ROLLED' || entryLevel(e) !== 'detail') ?? entries[0]!
+
 /** A moment's title: the action taken (and how long it took), its round and turn, else its first line. */
 function titleOf(entries: readonly JournalEntry[], context: JournalContext): string {
   const taken = entries.find((e) => e.code === 'ACTION_TAKEN')
@@ -176,7 +183,7 @@ function titleOf(entries: readonly JournalEntry[], context: JournalContext): str
   if (turn.length) return turn.map((e) => entryText(e, context)).join(' · ')
   // A moment that begins with a roll (one the player gave): named by what was rolled, its
   // dice and result in its lines.
-  const first = entries[0]!
+  const first = headLine(entries)
   if (first.code === 'ROLLED')
     return eventName(context.t, first.data?.check, context.checkName, first.data?.named)
   return lineText(first, context)
@@ -193,11 +200,10 @@ export function tellBeat(
 ): BeatTold {
   const notable = new Set(notableLines(beat.entries).map((e) => e.id))
   const title = titleOf(beat.entries, context)
-  // The title's own lines are in it; its first line too when it says nothing more.
+  // The title's own lines are in it; the line it's named by too when it says nothing more.
   const titled = beat.entries.find((e) => TITLE_CODES.has(e.code))
-  const rest = beat.entries.filter(
-    (e) => !TITLE_CODES.has(e.code) && (titled || e !== beat.entries[0]),
-  )
+  const head = headLine(beat.entries)
+  const rest = beat.entries.filter((e) => !TITLE_CODES.has(e.code) && (titled || e !== head))
   const at = JOURNAL_LEVELS.indexOf(level)
   const dice = diceOf(beat.entries)
   const cards = cardsOf(beat.entries)

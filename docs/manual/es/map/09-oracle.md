@@ -50,6 +50,6 @@ Después selecciona una casilla de bosque, pulsa <kbd>O</kbd>, busca «Qué enco
 
 La campaña de cada mapa tiene su propio Oráculo: su historial de tiradas, las cartas robadas de cada mazo y los resultados de una sola vez que ya salieron. Se guardan con la campaña (y en el `.otd.json` del mapa), así que abrir un mapa de otra campaña empieza de cero y al volver los encuentras. Las tiradas a mano y las comprobaciones de un viaje los comparten: una carta robada a mano tampoco sale en el viaje, ni en un viaje de la aplicación Viajes que se juegue en la misma campaña, ni en la aplicación Oráculo si tira en ella ([Tirar en una campaña](../oracle/02-rolling.md#tirar-en-una-campaña)).
 
-Durante un viaje con reglas, las tiradas a mano también se apuntan en el diario.
+Durante un viaje con reglas, las tiradas a mano también se apuntan en el diario. Toda tirada a mano hecha en la campaña está además en su [Diario](../campaign/01-getting-started.md), entre los momentos de los viajes.
 
 El panel usa los packs incluidos y los que creas en la aplicación Oráculo. Tus packs viven en el navegador, así que las dos aplicaciones los ven cuando se sirven desde el mismo sitio (p. ej. `make serve`: `…/map/` y `…/oracle/`).

@@ -6,6 +6,7 @@
  * it) reads it again.
  */
 import { createLibrary } from './library'
+import { deleteJournal } from './journalLibrary'
 
 /** The channel the campaigns' changes go out on. */
 export const CAMPAIGNS_CHANNEL = 'opentabletop.campaigns'
@@ -14,7 +15,11 @@ const campaigns = createLibrary('campaigns', CAMPAIGNS_CHANNEL)
 
 export const putCampaign = campaigns.put
 export const getCampaign = campaigns.get
-export const deleteCampaign = campaigns.delete
+/** Deletes a campaign, and its journal with it. */
+export async function deleteCampaign(id: string): Promise<void> {
+  await campaigns.delete(id)
+  await deleteJournal(id)
+}
 /** All campaigns, newest first, without their JSON (for listing). */
 export const listCampaigns = campaigns.list
 /** Every campaign with its JSON (for backups). */

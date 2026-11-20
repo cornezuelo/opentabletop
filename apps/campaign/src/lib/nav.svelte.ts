@@ -16,6 +16,7 @@ export const TABS = [
   'characters',
   'factions',
   'timeline',
+  'log',
 ] as const
 export type Tab = (typeof TABS)[number]
 

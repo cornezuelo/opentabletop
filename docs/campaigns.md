@@ -71,7 +71,7 @@ The **place** (a map) is split from **what happens in the world** (a campaign).
 
 ## 8. The journal, apart
 
-The author wants a journal to keep by itself too, and a notes app of our own for lore, characters, POIs and the world (backlog: _Journal system_, _Our own notes app_). That app is designed on its own, later, with its pieces as a `*-ui` package the other apps embed (as the Oracle's roll panel is). A **Log** tab in the campaign is welcome (author, 2026-10-19: "no digo que una pestaña log para la campaña esté mal, pero tendría que venir de manera natural cuando hagamos esa app, y permitamos reutilizar sus elementos en los distintos módulos de las apps"): it comes with that app, built from its pieces, not before. Until then the campaign's **Timeline** and each trip's journal are what we have.
+The author wants a journal to keep by itself too, and a notes app of our own for lore, characters, POIs and the world (backlog: _Journal system_, _Our own notes app_). That app is designed on its own, later, with its pieces as a `*-ui` package the other apps embed (as the Oracle's roll panel is). A **Log** tab in the campaign is welcome (author, 2026-10-19: "no digo que una pestaña log para la campaña esté mal, pero tendría que venir de manera natural cuando hagamos esa app, y permitamos reutilizar sus elementos en los distintos módulos de las apps"): it comes with that app, built from its pieces, not before. Built 2026-11-20 as the campaign's journal ([notes-and-journal.md](notes-and-journal.md) §7): Campaign's **Log** tab, journal-ui's `CampaignLog`, which Notes will embed too.
 
 ## 9. Decided with the author (2026-10-19)
 

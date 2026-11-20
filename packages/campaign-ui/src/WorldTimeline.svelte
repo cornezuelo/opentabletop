@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { localize } from '@open-tabletop/session'
   import type { Calendar, GameTime } from '@open-tabletop/time'
   import { newestFirst, type WorldState } from '@open-tabletop/world-engine'
   import { InfoTip } from '@open-tabletop/ui-kit'
-  import { translator, type CampaignUiKey } from './i18n'
+  import { translator } from './i18n'
+  import { timelineText } from './timeline'
   import type { WorldControls } from './controls'
   import { shortTime } from './when'
 
@@ -30,10 +30,6 @@
   } = $props()
 
   const t = translator(() => locale)
-  const name = (text: Parameters<typeof localize>[0], id: string) =>
-    localize(text, locale, 'en') ?? id
-  /** A line that starts with a moon's name ("the Pale Moon is full") starts in capitals. */
-  const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
   const short = (time: GameTime) => shortTime(calendar, time, locale)
 
   let note = $state('')
@@ -56,34 +52,7 @@
     {#each newestFirst(world.timeline).slice(0, limit) as entry (entry.id)}
       <li>
         <span class="when">{short(entry.time)}</span>
-        <span class="what"
-          >{entry.code === 'HOLIDAY'
-            ? name(
-                (
-                  calendar as { def?: { holidays?: { id: string; name?: never }[] } }
-                ).def?.holidays?.find((h) => h.id === entry.data?.holiday)?.name,
-                String(entry.data?.holiday),
-              )
-            : entry.code === 'MOON'
-              ? capitalize(
-                  t('world.moonLine', {
-                    moon: name(
-                      (
-                        calendar as { def?: { moons?: { id: string; name?: never }[] } }
-                      ).def?.moons?.find((m) => m.id === entry.data?.moon)?.name,
-                      String(entry.data?.moon),
-                    ),
-                    phase: t(`world.moon.${entry.data?.phase}` as CampaignUiKey),
-                  }),
-                )
-              : entry.code === 'CLOCK'
-                ? `${entry.text} ${entry.data?.filled}/${entry.data?.segments}`
-                : entry.code === 'CLOCK_FILLED'
-                  ? t('world.clockFilled', { name: entry.text ?? '' })
-                  : entry.code === 'REWOUND'
-                    ? t('world.rewound', { from: short(Number(entry.data?.from)) })
-                    : entry.text}</span
-        >
+        <span class="what">{timelineText(entry, calendar, locale)}</span>
       </li>
     {:else}
       <li class="muted">{t('world.noTimeline')}</li>

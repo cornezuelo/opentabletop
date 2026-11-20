@@ -9,6 +9,7 @@ import {
 import { allLibraryMaps, listLibrary, updateLibrary } from './mapLibrary'
 import { allCampaigns, listCampaigns, updateCampaigns } from './campaignLibrary'
 import { allImages, listImages, updateImages } from './imageLibrary'
+import { allJournals, listJournals, updateJournals } from './journalLibrary'
 
 type Hook = () => void | Promise<void>
 /** May return what to do if the restore fails (e.g. start saving again). */
@@ -51,6 +52,7 @@ export async function makeBackup(): Promise<Backup> {
     await allLibraryMaps(),
     await allCampaigns(),
     await allImages(),
+    await allJournals(),
   )
 }
 
@@ -92,11 +94,13 @@ export async function restoreBackup(backup: Backup, mode: RestoreMode): Promise<
       maps: await listLibrary(),
       campaigns: await listCampaigns(),
       images: await listImages(),
+      journals: await listJournals(),
     }
     const plan = planRestore(current, backup, mode)
     await updateLibrary(plan.putMaps, plan.removeMaps)
     await updateCampaigns(plan.putCampaigns, plan.removeCampaigns)
     await updateImages(plan.putImages, plan.removeImages)
+    await updateJournals(plan.putJournals, plan.removeJournals)
     for (const [key, value] of Object.entries(plan.storage))
       if (value === null) localStorage.removeItem(key)
       else localStorage.setItem(key, value)

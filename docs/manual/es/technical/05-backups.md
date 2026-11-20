@@ -9,7 +9,7 @@ Abre el selector de aplicaciones (los nueve puntos, en cualquier aplicación) y 
 Contiene todo lo que las aplicaciones guardan en este navegador:
 
 - **Mapas**: todos los de la biblioteca de Mapa, con su estado de juego (grupo, rastro, viaje, diario) y la tierra que tiene en él cada facción.
-- **Campañas**: el mundo en el que se juega cada mapa: su reloj del mundo y su clima, sus facciones y su Oráculo (historial, mazos, resultados que solo salen una vez).
+- **Campañas**: el mundo en el que se juega cada mapa: su reloj del mundo y su clima, sus facciones y su Oráculo (historial, mazos, resultados que solo salen una vez), y su diario (el [Diario](../campaign/01-getting-started.md): los momentos de sus viajes, sus sesiones y notas).
 - **Imágenes**: las que has añadido (retratos y similares), cada una una vez, la use lo que la use, y las que elegiste para objetos y plantillas de los packs (aparte de los packs).
 - **Tus packs**: los que has creado o editado, y las copias editadas de packs incluidos.
 - **El plantel de la aplicación Personajes**: cada personaje y grupo que guarda, con sus notas, dónde juega y los miembros de un grupo.
@@ -22,7 +22,7 @@ Los packs incluidos no van en ella: vienen con las aplicaciones.
 
 En el selector de aplicaciones, pulsa **Restaurar una copia…** y elige el fichero. OpenTabletop dice cuándo se hizo la copia y qué tiene, y pregunta cómo restaurarla:
 
-- **Añadir a lo mío**: la copia se suma a lo que ya tiene este navegador. Si ambos tienen un mapa (o una campaña, o una imagen), se queda la versión más reciente; los packs con la misma carpeta y los favoritos se juntan (gana la copia del pack que viene en la copia de seguridad); también se juntan los personajes del plantel, y de un personaje que tengan los dos se queda la copia cambiada más tarde; lo demás (el viaje, los historiales, las preferencias) se toma de la copia.
+- **Añadir a lo mío**: la copia se suma a lo que ya tiene este navegador. Si ambos tienen un mapa (o una campaña, su diario o una imagen), se queda la versión más reciente; los packs con la misma carpeta y los favoritos se juntan (gana la copia del pack que viene en la copia de seguridad); también se juntan los personajes del plantel, y de un personaje que tengan los dos se queda la copia cambiada más tarde; lo demás (el viaje, los historiales, las preferencias) se toma de la copia.
 - **Sustituirlo todo**: este navegador queda exactamente como la copia. Se borran los mapas, campañas y datos que no estén en ella.
 
 Después la página se recarga. Cierra antes otras pestañas de OpenTabletop: una pestaña abierta aún tiene los datos antiguos y podría volver a guardarlos.
@@ -44,7 +44,7 @@ Una copia de seguridad se lo lleva todo. Para elegir qué va (una campaña para 
 Muestra lo que has hecho como un árbol con casillas, todas marcadas al principio:
 
 - **Tus packs**: los packs que has hecho o editado, y tus copias de packs incluidos. Una copia de un pack cuya licencia solo permite el uso personal va marcada **Uso personal**, y marcarla avisa de que el fichero no se puede compartir.
-- **Campañas**, cada una con sus **mapas** (los de Mapa) y **viajes** (los de Viajes) debajo. Marcar una campaña marca también sus mapas y viajes; desmarca cualquiera para dejarlo fuera.
+- **Campañas**, cada una con sus **mapas** (los de Mapa) y **viajes** (los de Viajes) debajo. Marcar una campaña marca también sus mapas y viajes; desmarca cualquiera para dejarlo fuera. El diario de una campaña no se exporta: solo lo guarda una copia de seguridad.
 - **Mapas y viajes** cuya campaña no se guarda aquí, si los hay.
 - **Personajes**: los del plantel.
 

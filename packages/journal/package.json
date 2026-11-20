@@ -1,0 +1,19 @@
+{
+  "name": "@open-tabletop/journal",
+  "version": "0.0.0",
+  "description": "The campaign's journal: the moments of its trips and scenes copied in as they're played, sessions and the player's notes, read in order of game time with the world's lines and the Oracle's hand rolls.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@open-tabletop/oracle-engine": "*",
+    "@open-tabletop/session": "*",
+    "@open-tabletop/world-engine": "*"
+  }
+}

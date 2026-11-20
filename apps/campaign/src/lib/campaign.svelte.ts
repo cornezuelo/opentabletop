@@ -23,6 +23,7 @@ import {
   worldWords,
   type WorldControls,
 } from '@open-tabletop/campaign-ui'
+import { packTexts } from '@open-tabletop/oracle-ui'
 import { deserializeMap, newId, serializeMap, type HexMap } from '@open-tabletop/map'
 import { mathRandom } from '@open-tabletop/random'
 import { calendarOf, localize, type TravelSystem } from '@open-tabletop/session'
@@ -423,6 +424,11 @@ export const scenes = new TripStore({
   campaignApp: 'scene',
   keeper: open.keeper,
   scenes: true,
+  nameOf: (id, locale) =>
+    packTexts(
+      () => library.registry,
+      () => locale,
+    ).nameOf(id),
 })
 
 /** What a new campaign starts with besides its name and system. */

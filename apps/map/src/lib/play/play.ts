@@ -9,8 +9,8 @@ import {
 import { loadLinks, makeLaidWays, placeLabel } from '../io/submaps'
 import {
   askTimePassed,
-  highlightText,
   journalContext,
+  keepInJournal,
   pacing,
   timeBehind,
   translator,
@@ -65,7 +65,9 @@ import { ARROWS } from '../tools/keyboardDraw'
 import { terrainLabel } from '../terrainName'
 import { getSystem, mapSystemId, oracle } from './systems'
 import { mapWorld, parsePlaceOn, withPieces } from '@open-tabletop/map'
-import { tripHighlights, tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
+import { tripStepped, worldBlocked, worldFactsNow } from './world.svelte'
+import { packTexts } from '@open-tabletop/oracle-ui'
+import { library } from './packs'
 
 export { SEASON_START_DAYS, type Season }
 
@@ -96,6 +98,33 @@ const NO_PLAY: PlayState = { mode: 'simple', trail: [], showTrail: true }
 
 function save(play: PlayState | undefined): void {
   editor.setPlay(play)
+  keepTrip(play)
+}
+
+/** What the trip played that its campaign's journal hasn't got yet, copied in. */
+function keepTrip(play: PlayState | undefined): void {
+  const session = play && sessionOf(play)
+  if (!session || !play.rules) return
+  const system = getSystem(play.rules.system)
+  const { campaign, map } = editor
+  void keepInJournal(
+    { id: campaign.id, name: campaign.name },
+    { app: 'map', id: map.meta.id, name: map.meta.name },
+    {
+      system,
+      session,
+      startDay: play.rules.startDay,
+      facts: worldFactsNow(),
+      words: (locale) => ({
+        hexLabel: placeLabel,
+        terrainName: (id) => terrainLabel(id, locale),
+        nameOf: packTexts(
+          () => library.registry,
+          () => locale,
+        ).nameOf,
+      }),
+    },
+  )
 }
 
 export function updatePlay(update: (play: PlayState) => PlayState): void {
@@ -698,13 +727,10 @@ function stepOnly(action: TripAction): void {
   // The checks rolled on the campaign's Oracle, what the step did to the world (its clocks,
   // its factions) and the world clock following the trip; what came due goes to the journal.
   let journaled = state
-  // Its highlights (arrivals, places found, pauses) go to the campaign's timeline too.
-  const highlights = highlightsOf(entries, system)
   for (const line of tripStepped({
     oracle: state.oracle,
     entries,
     time: state.travel.time,
-    highlights,
   }))
     journaled = addEntry(journaled, { source: 'travel', code: line.code, text: line.text })
   // A march is told a place at a time: the party's token follows the telling.
@@ -853,9 +879,6 @@ export function editSession(update: (session: SessionState) => SessionState): vo
   // The map's own sheet and its places', changed by hand, are the campaign's for this map.
   if (next.map?.id === editor.map.meta.id || next.placeSheets?.map === editor.map.meta.id)
     editor.takeWorld({ campaign: keepMapSheet(editor.campaign, next) })
-  // What the edit told worth keeping (a character leaving) goes to the timeline too.
-  const added = next.journal.slice(session.journal.length)
-  tripHighlights(highlightsOf(added, system))
 }
 
 /**
@@ -878,18 +901,6 @@ export function shareSession(moved?: Record<string, number>): void {
     moved,
   ).state
   save({ ...play, rules: { ...play.rules, session: next } })
-}
-
-/** A trip's journal lines worth a line in the campaign's timeline, in the UI's words. */
-function highlightsOf(
-  entries: SessionState['journal'],
-  system: ReturnType<typeof getSystem>,
-): { time: number; text: string }[] {
-  const hexLabel = placeLabel
-  return entries.flatMap((e) => {
-    const text = highlightText(e, { rules: system.rules, locale: getLocale(), hexLabel })
-    return text ? [{ time: e.time, text }] : []
-  })
 }
 
 export function resolvePending(id: string): void {

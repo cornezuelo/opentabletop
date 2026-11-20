@@ -4,16 +4,10 @@ export { default as TripRoom } from './TripRoom.svelte'
 export { default as SceneRoom } from './SceneRoom.svelte'
 export { default as TripSetup } from './TripSetup.svelte'
 export { default as WayEditor } from './WayEditor.svelte'
-export { idText, translator, type Translate, type TravelUiKey } from './i18n'
+export { idText, translator, TRAVEL_LOCALES, type Translate, type TravelUiKey } from './i18n'
 export { journalContext } from './journalContext'
-export {
-  entryText,
-  highlightText,
-  journalByDay,
-  journalMarkdown,
-  whyText,
-  type JournalContext,
-} from './journal'
+export { keepInJournal, tellMoments, type JournalWords, type TripTelling } from './campaignJournal'
+export { entryText, journalByDay, journalMarkdown, whyText, type JournalContext } from './journal'
 export {
   connectionChoices,
   connectionName,

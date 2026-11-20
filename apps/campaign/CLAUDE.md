@@ -2,7 +2,7 @@
 
 The campaigns of this browser. It is one app of the OpenTabletop ecosystem: read the root `CLAUDE.md` first.
 
-**Responsibility:** what is going on in each campaign (the world its maps and trips share): make one (a name, a system, the day it starts, its clock and factions), name it, link its notes, play its world clock (date, moving time on, events, progress clocks, the world's weather), its factions (their sheets, their land on a map of the campaign as a minimap, world turns on that map), its timeline, the maps and trips in it with links to open them, delete it (with what is in it, after naming it: travel-ui's `deleteAllIn`). Maps join a campaign in Map, trips in Travel; the system is edited in Packs. Design: [`docs/campaigns.md`](../../docs/campaigns.md).
+**Responsibility:** what is going on in each campaign (the world its maps and trips share): make one (a name, a system, the day it starts, its clock and factions), name it, link its notes, play its world clock (date, moving time on, events, progress clocks, the world's weather), its factions (their sheets, their land on a map of the campaign as a minimap, world turns on that map), its timeline, its log (journal-ui's `CampaignLog`: the trips' moments, the world, hand rolls and notes, by session), the maps and trips in it with links to open them, delete it (with what is in it, after naming it: travel-ui's `deleteAllIn`). Maps join a campaign in Map, trips in Travel; the system is edited in Packs. Design: [`docs/campaigns.md`](../../docs/campaigns.md).
 
 ## Architecture
 
@@ -11,7 +11,7 @@ src/
   lib/
     campaign.svelte.ts  # the campaigns kept (list), the open one (CampaignKeeper), its maps, the map its land plays on, its world's controls and factions; its scenes (travel-ui's TripStore with `scenes: true`, sharing the keeper)
     packs.svelte.ts     # PackLibrary (shared with the other apps) and the systems
-    nav.svelte.ts       # #/campaign/<id>[/<tab>] (overview|world|maps|trips|scenes|characters|factions|timeline; `places` read as maps), #/campaign/<id>/factions/<faction>, #/campaign/<id>/scenes/<scene>, #/scene/<scene>, #/new
+    nav.svelte.ts       # #/campaign/<id>[/<tab>] (overview|world|maps|trips|scenes|characters|factions|timeline|log; `places` read as maps), #/campaign/<id>/factions/<faction>, #/campaign/<id>/scenes/<scene>, #/scene/<scene>, #/new
     i18n/               # typed en/es dictionaries
   components/           # Sidebar (the campaigns, each with its system and date), NewCampaign (also the first-run Start your campaign), CampaignView (header with ⋯, tabs),
                         # Overview, PlaceList (Maps or Trips: cards, new/bring links), Cast (Characters), Factions, LandMap (the minimap)

@@ -79,6 +79,8 @@
   import {
     confirmAction,
     DiceThrow,
+    downloadText,
+    fileNameOf,
     portal,
     DICE_ROLLS,
     dicePreferences,
@@ -807,12 +809,7 @@
 
   function exportJournal() {
     const markdown = journalMarkdown(filtered, context, title || t('journalTitle'))
-    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }))
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${(title || 'journal').replace(/[^\p{L}\p{N}]+/gu, '-').toLowerCase()}.md`
-    link.click()
-    URL.revokeObjectURL(url)
+    downloadText(fileNameOf(title || 'journal', 'md'), markdown)
   }
 </script>
 

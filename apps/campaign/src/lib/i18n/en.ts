@@ -108,6 +108,7 @@ export const en = {
     characters: 'Characters',
     factions: campaignTexts.en.factions.title,
     timeline: 'Timeline',
+    log: 'Log',
   },
   timeline: {
     none: 'The world clock isn’t running yet: start it in **World**.',

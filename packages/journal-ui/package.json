@@ -1,0 +1,31 @@
+{
+  "name": "@open-tabletop/journal-ui",
+  "version": "0.0.0",
+  "description": "Embeddable Svelte UI for the campaign's journal: its log (the trips' moments, the world's lines, the Oracle's hand rolls and the player's notes, by session and day), sessions, notes and its Markdown export.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@open-tabletop/campaign": "*",
+    "@open-tabletop/campaign-ui": "*",
+    "@open-tabletop/character-ui": "*",
+    "@open-tabletop/dice": "*",
+    "@open-tabletop/journal": "*",
+    "@open-tabletop/oracle-engine": "*",
+    "@open-tabletop/session": "*",
+    "@open-tabletop/storage": "*",
+    "@open-tabletop/time": "*",
+    "@open-tabletop/travel-ui": "*",
+    "@open-tabletop/ui-kit": "*",
+    "@open-tabletop/world-engine": "*"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}

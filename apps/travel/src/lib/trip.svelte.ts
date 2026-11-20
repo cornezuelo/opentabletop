@@ -1,3 +1,4 @@
+import { packTexts } from '@open-tabletop/oracle-ui'
 import { TRAVEL_TRIPS_KEY, TripStore } from '@open-tabletop/travel-ui'
 import { getLocale } from './i18n'
 import { library, systems } from './packs.svelte'
@@ -15,4 +16,9 @@ export const trip = new TripStore({
   rosterApp: 'travel',
   // …and play in campaigns: their world clock, factions and Oracle, one trip at a time.
   campaignApp: 'travel',
+  nameOf: (id, locale) =>
+    packTexts(
+      () => library.registry,
+      () => locale,
+    ).nameOf(id),
 })

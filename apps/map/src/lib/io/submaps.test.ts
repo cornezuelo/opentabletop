@@ -605,7 +605,7 @@ describe('sub-maps', () => {
     expect(editor.map.meta.id).toBe('oldmine1')
     // The map's palette names none of them: the system does, or the app for the usual ones.
     expect(editor.map.terrains.every((x) => !x.name)).toBe(true)
-    const names = () => editor.map.terrains.map(terrainName)
+    const names = () => editor.map.terrains.map((terrain) => terrainName(terrain))
     expect(names()).toEqual(['Mine gallery', 'Rubble', 'Black water'])
     // The language is set on the page too: a bare one is enough here.
     vi.stubGlobal('document', { documentElement: {} })

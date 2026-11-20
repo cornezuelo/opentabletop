@@ -65,9 +65,9 @@ Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran l
 - **Notas**: su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre.
 - Con un viaje en marcha en la campaña, una línea dice cuál, con **Abrir**. En una campaña hay un viaje en marcha a la vez, ya que su tiempo es el de la campaña ([Un viaje a la vez](../travel/02-playing.md#la-campaña)).
 
-**Borrar** pregunta antes, y olvida el reloj, la cronología, las facciones y el estado del Oráculo de la campaña. Con mapas, viajes o escenas en la campaña, la pregunta los nombra (_Mapas: La costa · Viajes: A la feria_) y **Borrarlo todo** los borra con ella, para no tener que ir mapa por mapa y viaje por viaje; un mapa o viaje abierto en otra ventana se cierra allí. Sus personajes siguen en el plantel, sin jugar en ningún sitio (Personajes los conserva). Para conservar un mapa o un viaje, llévalo antes a otra campaña (en los ajustes de Mapa o de Viajes).
+**Borrar** pregunta antes, y olvida el reloj, la cronología, el diario, las facciones y el estado del Oráculo de la campaña. Con mapas, viajes o escenas en la campaña, la pregunta los nombra (_Mapas: La costa · Viajes: A la feria_) y **Borrarlo todo** los borra con ella, para no tener que ir mapa por mapa y viaje por viaje; un mapa o viaje abierto en otra ventana se cierra allí. Sus personajes siguen en el plantel, sin jugar en ningún sitio (Personajes los conserva). Para conservar un mapa o un viaje, llévalo antes a otra campaña (en los ajustes de Mapa o de Viajes).
 
-Las pestañas de la campaña (un desplegable con ellas en una ventana demasiado estrecha para tenerlas en fila; la dirección de cada una, como `#/campaign/<id>/timeline` o `#/campaign/<id>/factions`, se puede enlazar; `#/campaign/<id>` es su Resumen):
+Las pestañas de la campaña (un desplegable con ellas en una ventana demasiado estrecha para tenerlas en fila; la dirección de cada una, como `#/campaign/<id>/log` o `#/campaign/<id>/factions`, se puede enlazar; `#/campaign/<id>` es su Resumen):
 
 ### Resumen
 
@@ -92,7 +92,22 @@ Los poderes del mundo de la campaña, sus hojas y su tierra en cada uno de sus m
 
 ### Cronología
 
-Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas y lunas, relojes llenos, los turnos de las facciones, lo que el mundo hizo por sí solo ([Mundo](../packs/11-world.md)), el reloj volviendo atrás, y tus propias notas (**Añadir**). La misma cronología que la del panel Mundo, en una página propia. Es la historia del mundo, no la del grupo: un evento llega en su día esté donde esté el grupo (_Día de mercado en Ashford_ sale estéis en Ashford o no), y lo que hace el grupo en un viaje (casillas, comprobaciones, encuentros, lugares encontrados) va al **diario** del viaje. Solo lo más destacado de un viaje llega también aquí, una línea corta cada cosa: las llegadas (_El grupo llega a 0707_), los lugares encontrados, las comprobaciones que detuvieron el viaje (un encuentro) y los personajes que dejaron el grupo.
+Lo que ha pasado en el mundo, lo más reciente primero: eventos que llegaron, fiestas y lunas, relojes llenos, los turnos de las facciones, lo que el mundo hizo por sí solo ([Mundo](../packs/11-world.md)), el reloj volviendo atrás, y tus propias notas (**Añadir**). La misma cronología que la del panel Mundo, en una página propia. Es la historia del mundo, no la del grupo: un evento llega en su día esté donde esté el grupo (_Día de mercado en Ashford_ sale estéis en Ashford o no), y lo que hace el grupo en un viaje (casillas, comprobaciones, encuentros, lugares encontrados) va al **diario** del viaje, y al [Diario](#diario) de la campaña, donde las líneas del mundo se leen entre los momentos de los viajes.
+
+### Diario
+
+El diario de la campaña: todo lo jugado en ella, en el orden en que pasó en el juego, lo más reciente primero:
+
+- los **momentos** de sus viajes y escenas, en sus mapas, en Viajes o aquí: cada uno contado como lo cuenta el diario del viaje (lo que se hizo como título, sus líneas, sus dados y cartas, lo que cambió), con dónde se jugó (**La Compañía Gris**, un enlace que lo abre). Se guardan según se juegan, así que se quedan aunque se borre el viaje o la escena, y se leen en inglés o en español, en el idioma que tengan las aplicaciones;
+- las líneas del **mundo** (◆): las de la cronología, eventos, fiestas, lunas, relojes y turnos del mundo;
+- lo que **tiraste a mano** en el Oráculo (?), en la campaña (la aplicación Oráculo, el panel Oráculo de Mapa);
+- tus propias **notas** (✎), en Markdown: **+ Escribir una nota** arriba escribe una en la fecha del mundo de ahora, y **+ Una nota aquí**, junto a una línea al pasar el puntero por ella, escribe una justo después. Una nota se puede cambiar (✎) o borrar (×, pregunta antes).
+
+**Empieza una sesión** cuando te sientes a jugar y **termínala** cuando pares: una sesión se marca con la fecha real (_Sesión 3 · 20 nov 2026_), y todo lo jugado desde el momento del juego en que empezó hasta la sesión siguiente queda bajo ella. La sesión en curso, y la más reciente, salen desplegadas; las anteriores se pliegan a su título. Sin sesiones, el diario es una sola lista.
+
+Encima, como en el diario de un viaje: **Mostrar** (**La historia**, **Y las reglas**, **Todo**: cuánto se cuenta de cada momento; un momento en el que solo se contó lo que pasó por detrás, como una comprobación que no salió, solo sale en **Todo**), **Jugado en** (solo los momentos de un mapa, viaje o escena), una búsqueda, y **Exportar**, que descarga lo que se ve en Markdown, con las sesiones y los días como títulos, para tu aplicación de notas.
+
+Un viaje sin campaña propia solo guarda su propio diario. Los mapas de ejemplo de las Marcas Grises se juegan en una misma campaña: juega unos días en cualquiera de ellos y el Diario los tiene.
 
 ### Mapas y viajes
 

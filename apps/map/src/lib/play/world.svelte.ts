@@ -1,7 +1,6 @@
 import { placeLabel } from '../io/submaps'
 import {
   bringClocks as bringClocksOn,
-  tripHighlights as tripHighlightsOn,
   tripStepped as tripSteppedOn,
   missingClocks as missingClocksOf,
   waitingSaid,
@@ -342,9 +341,4 @@ export const upcoming = (state: WorldState, limit = 12) => world().upcoming(stat
  */
 export function tripStepped(step: Parameters<typeof tripSteppedOn>[1]): WorldLine[] {
   return take(tripSteppedOn(place(), step, host())).lines
-}
-
-/** A trip's highlights outside a step (a character leaving) written in the timeline. */
-export function tripHighlights(highlights: { time: number; text: string }[]): void {
-  if (highlights.length) take(tripHighlightsOn(place(), highlights, host()))
 }

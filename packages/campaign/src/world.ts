@@ -958,30 +958,10 @@ export function entryEffects(entry: {
 }
 
 /**
- * A trip's highlights written in the campaign's timeline, a line each at its time, in the
- * host's words (what happened outside a step: a character leaving the party). Nothing
- * while the world clock hasn't started.
- */
-export function tripHighlights(
-  place: WorldPlace,
-  highlights: { time: number; text: string }[],
-  host: WorldHost,
-): WorldDone {
-  let done: WorldDone = { ...place, events: [], filled: [], turns: [] }
-  if (!place.campaign.world) return done
-  for (const { time, text } of highlights) {
-    const next = worldAct(done, { type: 'log', text, data: { trip: true }, time }, host)
-    done = { ...next, filled: done.filled }
-  }
-  return done
-}
-
-/**
  * A trip of the campaign stepped: its checks rolled on the campaign's Oracle (`oracle`, the
  * state the step left), what its results, checks and actions did changes the world (its
  * clocks, its factions), the world turns its steps brought are played (`WORLD_DO`, `do:
- * world.turn`), its highlights (arrivals, places found, encounters that paused, in the host's
- * words) go to the timeline, a line each, and the world follows its time; the lines for its
+ * world.turn`), and the world follows its time; the lines for its
  * journal are the turns played and what came due on the way.
  */
 export function tripStepped(
@@ -990,7 +970,6 @@ export function tripStepped(
     oracle: OracleState
     entries: { code?: string; time?: number; data?: Record<string, unknown> }[]
     time: number
-    highlights?: { time: number; text: string }[]
   },
   host: WorldHost,
 ): WorldDone & { lines: WorldLine[] } {
@@ -1021,10 +1000,6 @@ export function tripStepped(
     // A clock its effects fill may bring a turn too (a reaction's `do: world.turn`).
     turned.push(...next.turns.map(turnLine))
     done = { ...next, filled: [...done.filled, ...next.filled], turns: [] }
-  }
-  if (step.highlights?.length) {
-    const logged = tripHighlights(done, step.highlights, host)
-    done = { ...logged, filled: done.filled }
   }
   const followed = followTrip(done, step.time, host)
   return {

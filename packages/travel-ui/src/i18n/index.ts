@@ -7,6 +7,9 @@ export type Translate = (key: TravelUiKey, params?: Record<string, string | numb
 
 const dictionaries: Record<string, object> = { en, es }
 
+/** The languages the package speaks: what's told to be kept is told in each. */
+export const TRAVEL_LOCALES = Object.keys(dictionaries)
+
 /** The package's texts in the host's UI language (English when it has no dictionary). */
 export const translator =
   (locale: () => string): Translate =>
