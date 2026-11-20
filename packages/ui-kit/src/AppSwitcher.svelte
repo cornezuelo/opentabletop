@@ -43,7 +43,7 @@
       newer: 'That backup was made by a newer version of OpenTabletop.',
       restoreTitle: 'Restore the backup',
       restoreMessage:
-        'Backup of {date} (maps: {maps}; packs of your own: {packs}). Add it to what this browser has (where both have a map, the newer one stays), or replace everything here with it? Close other OpenTabletop tabs first.',
+        'Backup of {date} (maps: {maps}; packs of your own: {packs}; images: {images}). Add it to what this browser has (where both have a map or an image, the newer one stays), or replace everything here with it? Close other OpenTabletop tabs first.',
       cancel: 'Cancel',
       merge: 'Add to mine',
       replace: 'Replace everything',
@@ -76,7 +76,7 @@
       newer: 'Esa copia la hizo una versión más reciente de OpenTabletop.',
       restoreTitle: 'Restaurar la copia',
       restoreMessage:
-        'Copia del {date} (mapas: {maps}; packs tuyos: {packs}). ¿Añadirla a lo que tiene este navegador (si ambos tienen un mapa, se queda el más reciente) o sustituirlo todo por ella? Cierra antes otras pestañas de OpenTabletop.',
+        'Copia del {date} (mapas: {maps}; packs tuyos: {packs}; imágenes: {images}). ¿Añadirla a lo que tiene este navegador (si ambos tienen un mapa o una imagen, se queda el más reciente) o sustituirlo todo por ella? Cierra antes otras pestañas de OpenTabletop.',
       cancel: 'Cancelar',
       merge: 'Añadir a lo mío',
       replace: 'Sustituirlo todo',
@@ -121,13 +121,17 @@
     if (json === null) return
     const { backup, error } = parseBackup(json)
     if (!backup) return showToast(error === 'newer' ? text.newer : text.invalid, 'error')
-    const { maps, packs, created } = summarize(backup)
+    const { maps, packs, images, created } = summarize(backup)
     const date = created ? new Date(created).toLocaleString(locale) : '?'
-    const mode = await ask(text.restoreTitle, fill(text.restoreMessage, { date, maps, packs }), [
-      { value: 'cancel', label: text.cancel },
-      { value: 'replace', label: text.replace, kind: 'danger' },
-      { value: 'merge', label: text.merge, kind: 'primary' },
-    ])
+    const mode = await ask(
+      text.restoreTitle,
+      fill(text.restoreMessage, { date, maps, packs, images }),
+      [
+        { value: 'cancel', label: text.cancel },
+        { value: 'replace', label: text.replace, kind: 'danger' },
+        { value: 'merge', label: text.merge, kind: 'primary' },
+      ],
+    )
     if (mode !== 'merge' && mode !== 'replace') return
     // The dialog is closed: a toast says it's under way until it's done.
     const restoring = showToast(text.restoring, 'info', 60000)

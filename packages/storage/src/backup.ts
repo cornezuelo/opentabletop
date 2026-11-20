@@ -3,7 +3,7 @@ import type { LibraryEntry } from './library'
 /**
  * A backup of everything the OpenTabletop apps keep in one browser: their localStorage
  * entries (user packs, trips, Oracle histories and decks, favorites, preferences…), the
- * map library and the campaigns. Restoring it on another machine resumes whole campaigns.
+ * map library, the campaigns and the images. Restoring it on another machine resumes whole campaigns.
  *
  * Entries are copied as they are: each app keeps its own data versioned (maps migrate
  * when opened), so the backup only versions its own envelope.
@@ -19,11 +19,16 @@ export interface Backup {
   maps: LibraryEntry[]
   /** The campaigns (their maps are in `maps`). */
   campaigns: LibraryEntry[]
+  /** The image library (portraits, banners…). */
+  images: LibraryEntry[]
 }
 
 export const BACKUP_FORMAT = 'opentabletop-backup'
-/** v2: campaigns (v1 backups have none: their maps make theirs when opened). */
-export const BACKUP_VERSION = 2
+/**
+ * v2: campaigns (v1 backups have none: their maps make theirs when opened); v3: images
+ * (older backups have none).
+ */
+export const BACKUP_VERSION = 3
 
 /**
  * Every app keeps its browser data under these prefixes (see the root CLAUDE.md); `hexmapper.`
@@ -54,6 +59,7 @@ export function createBackup(
   storage: Record<string, string>,
   maps: LibraryEntry[],
   campaigns: LibraryEntry[],
+  images: LibraryEntry[] = [],
   created: string = new Date().toISOString(),
 ): Backup {
   return {
@@ -63,6 +69,7 @@ export function createBackup(
     storage: Object.fromEntries(Object.entries(storage).filter(([key]) => isAppKey(key))),
     maps,
     campaigns,
+    images,
   }
 }
 
@@ -111,13 +118,14 @@ export function parseBackup(json: string): { backup?: Backup; error?: BackupErro
       storage,
       maps: raw.maps.filter(isEntry),
       campaigns: Array.isArray(raw.campaigns) ? raw.campaigns.filter(isEntry) : [],
+      images: Array.isArray(raw.images) ? raw.images.filter(isEntry) : [],
     },
   }
 }
 
 /**
  * - `replace`: this browser ends up exactly like the backup (its own data is removed).
- * - `merge`: the backup is added: maps and campaigns by id (the newer one stays), user packs by folder
+ * - `merge`: the backup is added: maps, campaigns and images by id (the newer one stays), user packs by folder
  *   and favorites joined (the backup's copy wins), the roster's characters by id (the newer
  *   one stays), anything else taken from the backup.
  */
@@ -130,6 +138,8 @@ export interface RestorePlan {
   removeMaps: string[]
   putCampaigns: LibraryEntry[]
   removeCampaigns: string[]
+  putImages: LibraryEntry[]
+  removeImages: string[]
 }
 
 /** What restoring `backup` changes, given what this browser has now. Pure, for testing. */
@@ -138,6 +148,7 @@ export function planRestore(
     storage: Record<string, string>
     maps: Omit<LibraryEntry, 'json'>[]
     campaigns: Omit<LibraryEntry, 'json'>[]
+    images?: Omit<LibraryEntry, 'json'>[]
   },
   backup: Backup,
   mode: RestoreMode,
@@ -150,12 +161,15 @@ export function planRestore(
     Object.assign(storage, backup.storage)
     const kept = new Set(backup.maps.map((m) => m.id))
     const keptCampaigns = new Set(backup.campaigns.map((c) => c.id))
+    const keptImages = new Set(backup.images.map((i) => i.id))
     return {
       storage,
       putMaps: backup.maps,
       removeMaps: current.maps.filter((m) => !kept.has(m.id)).map((m) => m.id),
       putCampaigns: backup.campaigns,
       removeCampaigns: current.campaigns.filter((c) => !keptCampaigns.has(c.id)).map((c) => c.id),
+      putImages: backup.images,
+      removeImages: (current.images ?? []).filter((i) => !keptImages.has(i.id)).map((i) => i.id),
     }
   }
   for (const [key, value] of Object.entries(backup.storage)) {
@@ -185,6 +199,8 @@ export function planRestore(
     removeMaps: [],
     putCampaigns: newer(backup.campaigns, current.campaigns),
     removeCampaigns: [],
+    putImages: newer(backup.images, current.images ?? []),
+    removeImages: [],
   }
 }
 
@@ -230,7 +246,12 @@ function mergeRoster(mine: string, theirs: string): string {
 }
 
 /** Numbers for the confirmation dialog. */
-export function summarize(backup: Backup): { maps: number; packs: number; created: string } {
+export function summarize(backup: Backup): {
+  maps: number
+  packs: number
+  images: number
+  created: string
+} {
   let packs = 0
   try {
     const value: unknown = JSON.parse(backup.storage[USER_PACKS_KEY] ?? '[]')
@@ -238,5 +259,5 @@ export function summarize(backup: Backup): { maps: number; packs: number; create
   } catch {
     // Not a list: nothing to count.
   }
-  return { maps: backup.maps.length, packs, created: backup.created }
+  return { maps: backup.maps.length, packs, images: backup.images.length, created: backup.created }
 }

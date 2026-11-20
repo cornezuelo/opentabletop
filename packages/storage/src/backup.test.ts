@@ -25,6 +25,7 @@ describe('backups', () => {
       { 'opentabletop.locale': 'es', 'hexmapper.pending': '{}', other: 'x' },
       [map('a', '2026-10-01')],
       [],
+      [],
       new Date(2026, 9, 7, 1).toISOString(),
     )
     expect(backup.storage).toEqual({ 'opentabletop.locale': 'es' })
@@ -147,5 +148,50 @@ describe('restoring', () => {
       ['mara', 1],
       ['tobin', 2],
     ])
+  })
+})
+
+describe('images in backups', () => {
+  const image = (id: string, modified: string) => ({
+    id,
+    name: id,
+    modified,
+    json: JSON.stringify({
+      format: 1,
+      data: 'data:image/webp;base64,AA',
+      width: 1,
+      height: 1,
+      tags: [],
+    }),
+  })
+
+  it('are kept and read back; older backups have none', () => {
+    const backup = createBackup({}, [], [], [image('wolf', '2026-11-01')])
+    expect(parseBackup(JSON.stringify(backup)).backup!.images.map((i) => i.id)).toEqual(['wolf'])
+    expect(summarize(backup).images).toBe(1)
+    const v2 = { ...backup, version: 2 } as Record<string, unknown>
+    delete v2.images
+    expect(parseBackup(JSON.stringify(v2)).backup!.images).toEqual([])
+  })
+
+  it('merge by id, the newer kept; replace leaves only the backup’s', () => {
+    const here = {
+      storage: {},
+      maps: [],
+      campaigns: [],
+      images: [image('wolf', '2026-11-05'), image('mine', '2026-11-01')],
+    }
+    const theirs = createBackup(
+      {},
+      [],
+      [],
+      [image('wolf', '2026-11-02'), image('crow', '2026-11-01')],
+    )
+    const merged = planRestore(here, theirs, 'merge')
+    expect(merged.putImages.map((i) => i.id)).toEqual(['crow'])
+    expect(merged.removeImages).toEqual([])
+    const replaced = planRestore(here, theirs, 'replace')
+    expect(replaced.putImages.map((i) => i.id)).toEqual(['wolf', 'crow'])
+    expect(replaced.removeImages).toEqual(['mine'])
   })
 })
