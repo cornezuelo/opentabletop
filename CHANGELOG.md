@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.76.0] - 2026-11-20
+
 ### Apps
 
 - **Map**: images you import (icons, terrain symbols, tokens' icons) are kept in your image library too, so every map offers them under **Custom**; choosing one copies it into the map, whose file still carries it. Maps you open add their images to the library the same way. **Delete custom icon** is now **Remove it from this map**: the library keeps it.
