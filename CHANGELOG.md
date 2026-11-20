@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Every app**: **Your images…** in the app switcher shows the image library on its own: every picture you added, those nothing uses apart (**Not used**), renamed, tagged or deleted there, each with what uses it (**Used by**: a character, an item it holds, a trip, a map, a pack's item or template); deleting a picture anywhere says first what uses it.
+
 ## [0.76.0] - 2026-11-20
 
 ### Apps

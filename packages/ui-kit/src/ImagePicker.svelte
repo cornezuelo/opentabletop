@@ -7,6 +7,8 @@
     readImage,
     type LibraryImage,
   } from '@open-tabletop/storage'
+  import { imageUses, keptHere, type ImageUse } from '@open-tabletop/transfer'
+  import { readDefinitionPictures } from './definitionPictures.svelte'
   import { confirmAction } from './dialog.svelte'
   import { drawFramed, ImageFileError, pictureIn, readImageFile, releaseImage } from './imageFile'
   import {
@@ -28,7 +30,9 @@
    * §9): the library's pictures (those added for this use first), searched by name or tag, the
    * one chosen large with its name and tags; a new one uploaded, dropped or pasted, framed in
    * the slot's shape (moved, zoomed, turned, flipped) and kept shrunk. `onpick` gets the id
-   * chosen, or undefined for none.
+   * chosen, or undefined for none. Without `onpick` it's the library's own screen (every app's
+   * **Your images…**): nothing is chosen or added, only seen, renamed, tagged and deleted, with
+   * what uses each (**Used by**) and those nothing uses found apart.
    */
   let {
     open = $bindable(false),
@@ -42,10 +46,11 @@
     locale: string
     /** What it's for (_Kael's portrait_). */
     title: string
-    shape: ImageShape
+    /** The slot's shape; none on the library's own screen. */
+    shape?: ImageShape
     /** The picture there now, chosen when it opens. */
     current?: string
-    onpick: (id: string | undefined) => void
+    onpick?: (id: string | undefined) => void
   } = $props()
 
   const TEXT = {
@@ -53,6 +58,7 @@
       search: 'Search by name or tag',
       forUse: { portrait: 'Portraits', banner: 'Banners', item: 'Items' },
       all: 'All',
+      unused: 'Not used',
       upload: 'Upload an image…',
       drop: 'Drop or paste a picture here, or upload one.',
       empty: 'No pictures yet.',
@@ -65,7 +71,23 @@
       delete: 'Delete…',
       deleteMessage:
         'Delete “{name}” from the library? Whatever shows it (a character, a map…) will show nothing in its place. This can’t be undone.',
+      deleteUsed:
+        'Delete “{name}” from the library? It’s used by {uses}: they will show nothing in its place{maps}. This can’t be undone.',
+      deleteUnused: 'Delete “{name}” from the library? Nothing uses it. This can’t be undone.',
       deleteConfirm: 'Delete',
+      mapsKeep: ' (a map keeps its own copy)',
+      usedBy: 'Used by',
+      usedByNone: 'Nothing uses it.',
+      kinds: {
+        map: 'map',
+        campaign: 'campaign',
+        trip: 'trip',
+        character: 'character',
+        pack: 'pack',
+      },
+      definitions: { items: 'item of {part}', templates: 'template of {part}' },
+      definition: '{kind} of {part}',
+      close: 'Close',
       clear: {
         portrait: 'Remove the portrait',
         banner: 'Remove the banner',
@@ -91,6 +113,7 @@
       search: 'Buscar por nombre o etiqueta',
       forUse: { portrait: 'Retratos', banner: 'Estandartes', item: 'Objetos' },
       all: 'Todas',
+      unused: 'Sin usar',
       upload: 'Subir una imagen…',
       drop: 'Suelta o pega aquí una imagen, o súbela.',
       empty: 'Aún no hay imágenes.',
@@ -103,7 +126,23 @@
       delete: 'Borrar…',
       deleteMessage:
         '¿Borrar «{name}» de la biblioteca? Lo que la muestre (un personaje, un mapa…) se quedará sin imagen. No se puede deshacer.',
+      deleteUsed:
+        '¿Borrar «{name}» de la biblioteca? La usan {uses}: se quedarán sin imagen{maps}. No se puede deshacer.',
+      deleteUnused: '¿Borrar «{name}» de la biblioteca? Nada la usa. No se puede deshacer.',
       deleteConfirm: 'Borrar',
+      mapsKeep: ' (un mapa conserva su propia copia)',
+      usedBy: 'Usada por',
+      usedByNone: 'Nada la usa.',
+      kinds: {
+        map: 'mapa',
+        campaign: 'campaña',
+        trip: 'viaje',
+        character: 'personaje',
+        pack: 'pack',
+      },
+      definitions: { items: 'objeto de {part}', templates: 'plantilla de {part}' },
+      definition: '{kind} de {part}',
+      close: 'Cerrar',
       clear: {
         portrait: 'Quitar el retrato',
         banner: 'Quitar el estandarte',
@@ -129,19 +168,48 @@
   const text = $derived(locale === 'es' ? TEXT.es : TEXT.en)
   const fill = (s: string, values: Record<string, string | number>) =>
     s.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k] ?? ''))
-  const aspect = $derived(IMAGE_SHAPES[shape])
+  /** The library's own screen: nothing to choose. */
+  const managing = $derived(!onpick)
+  const aspect = $derived(shape ? IMAGE_SHAPES[shape] : 1)
 
   let dialog = $state<HTMLDialogElement>()
   let fileInput = $state<HTMLInputElement>()
   let step = $state<'choose' | 'frame'>('choose')
   let images = $state<LibraryImage[]>([])
   let query = $state('')
-  let scope = $state<'use' | 'all'>('use')
+  let scope = $state<'use' | 'all' | 'unused'>('use')
+  /** What uses each image, by id; undefined until read. */
+  let uses = $state<Record<string, ImageUse[]>>()
   let selected = $state<string>()
   let dragOver = $state(false)
 
   async function load() {
     images = (await allImages()).flatMap((e) => readImage(e) ?? [])
+  }
+
+  /** What uses each image, read from everything kept here (as an export reads it). */
+  async function loadUses() {
+    uses = undefined
+    try {
+      const { kept } = await keptHere()
+      uses = imageUses(kept, readDefinitionPictures())
+    } catch {
+      // Without it, Used by and Not used say nothing.
+    }
+  }
+
+  /** A use as a line: what uses it, then what that is (_Rope — character Brenna_). */
+  function useLine(use: ImageUse): [string, string] {
+    if (use.kind === 'definition') {
+      const part = use.part ?? ''
+      const known = text.definitions[use.definition as keyof typeof text.definitions]
+      return [
+        use.name,
+        known ? fill(known, { part }) : fill(text.definition, { kind: use.definition ?? '', part }),
+      ]
+    }
+    const kind = text.kinds[use.kind]
+    return use.part ? [use.part, `${kind} ${use.name}`.trim()] : [use.name || kind, kind]
   }
 
   $effect(() => {
@@ -150,9 +218,10 @@
       step = 'choose'
       query = ''
       selected = current
+      void loadUses()
       void load().then(() => {
         // Pictures for this use first; all of them when there are none.
-        scope = images.some((i) => i.use === shape) ? 'use' : 'all'
+        scope = !managing && images.some((i) => i.use === shape) ? 'use' : 'all'
       })
       dialog.showModal()
     }
@@ -162,18 +231,21 @@
   const shown = $derived.by(() => {
     const q = query.trim().toLowerCase()
     return images
-      .filter((i) => scope === 'all' || i.use === shape)
+      .filter((i) =>
+        scope === 'use' ? i.use === shape : scope === 'unused' ? !!uses && !uses[i.id] : true,
+      )
       .filter((i) => !q || i.name.toLowerCase().includes(q) || i.tags.some((t) => t.includes(q)))
       .sort((a, b) => Number(b.use === shape) - Number(a.use === shape))
   })
   const chosen = $derived(images.find((i) => i.id === selected))
+  const chosenUses = $derived(chosen && uses ? (uses[chosen.id] ?? []) : undefined)
   const allTags = $derived([...new Set(images.flatMap((i) => i.tags))].sort())
 
   function close() {
     open = false
   }
   function pick(id: string | undefined) {
-    onpick(id)
+    onpick?.(id)
     close()
   }
 
@@ -188,7 +260,11 @@
   }
 
   async function remove(image: LibraryImage) {
-    const sure = await confirmAction(fill(text.deleteMessage, { name: image.name }), {
+    const used = uses?.[image.id]
+    const message = !uses ? text.deleteMessage : used?.length ? text.deleteUsed : text.deleteUnused
+    const usedBy = (used ?? []).map((u) => useLine(u).join(', ')).join('; ')
+    const maps = used?.some((u) => u.kind === 'map') ? text.mapsKeep : ''
+    const sure = await confirmAction(fill(message, { name: image.name, uses: usedBy, maps }), {
       confirm: text.deleteConfirm,
     })
     if (!sure) return
@@ -196,7 +272,7 @@
     images = images.filter((i) => i.id !== image.id)
     if (selected === image.id) selected = undefined
     // What showed it shows nothing now.
-    if (current === image.id) onpick(undefined)
+    if (current === image.id) onpick?.(undefined)
   }
 
   // Framing an upload.
@@ -266,12 +342,12 @@
       const drawn = drawFramed(source, aspect, framing)
       const image: LibraryImage = {
         id: crypto.randomUUID(),
-        name: newName.trim() || text.forUse[shape],
+        name: newName.trim() || (shape ? text.forUse[shape] : ''),
         modified: new Date().toISOString(),
         format: IMAGE_FORMAT,
         ...drawn,
         tags: [],
-        use: shape,
+        ...(shape && { use: shape }),
       }
       await putImage(image)
       images = [image, ...images]
@@ -286,7 +362,7 @@
 
   function onpaste(e: ClipboardEvent) {
     const file = pictureIn(e.clipboardData)
-    if (!open || step !== 'choose' || !file) return
+    if (!open || managing || step !== 'choose' || !file) return
     e.preventDefault()
     void upload(file)
   }
@@ -309,14 +385,14 @@
     source = undefined
   }}
   ondragover={(e) => {
-    if (step !== 'choose') return
+    if (step !== 'choose' || managing) return
     e.preventDefault()
     dragOver = true
   }}
   ondragleave={() => (dragOver = false)}
   ondrop={(e) => {
     dragOver = false
-    if (step !== 'choose') return
+    if (step !== 'choose' || managing) return
     e.preventDefault()
     void upload(pictureIn(e.dataTransfer))
   }}
@@ -328,11 +404,19 @@
       <div class="bar">
         <input type="search" placeholder={text.search} bind:value={query} />
         <span class="scope" role="group">
-          <button class:on={scope === 'use'} onclick={() => (scope = 'use')}
-            >{text.forUse[shape]}</button
-          ><button class:on={scope === 'all'} onclick={() => (scope = 'all')}>{text.all}</button>
+          {#if shape}<button class:on={scope === 'use'} onclick={() => (scope = 'use')}
+              >{text.forUse[shape]}</button
+            >{/if}<button class:on={scope === 'all'} onclick={() => (scope = 'all')}
+            >{text.all}</button
+          >{#if managing}<button
+              class:on={scope === 'unused'}
+              disabled={!uses}
+              onclick={() => (scope = 'unused')}>{text.unused}</button
+            >{/if}
         </span>
-        <button class="button" onclick={() => fileInput?.click()}>{text.upload}</button>
+        {#if !managing}
+          <button class="button" onclick={() => fileInput?.click()}>{text.upload}</button>
+        {/if}
         <input
           bind:this={fileInput}
           type="file"
@@ -353,9 +437,9 @@
               role="option"
               aria-selected={image.id === selected}
               onclick={() => (selected = image.id)}
-              ondblclick={() => pick(image.id)}
+              ondblclick={() => !managing && pick(image.id)}
             >
-              <span class="thumb" style:aspect-ratio={IMAGE_SHAPES[shape]}
+              <span class="thumb" style:aspect-ratio={aspect}
                 ><img src={image.data} alt="" draggable="false" /></span
               >
               <span class="tile-name">{image.name}</span>
@@ -392,7 +476,18 @@
                 onchange={(tags) => void save(chosen, { tags: tags.map((t) => t.toLowerCase()) })}
               />
             </div>
-          {:else}
+            {#if chosenUses}
+              <div class="uses">
+                <span class="overline">{text.usedBy}</span>
+                {#each chosenUses as use, i (i)}
+                  {@const [what, where] = useLine(use)}
+                  <span class="use">{what} <span class="hint">· {where}</span></span>
+                {:else}
+                  <span class="hint">{text.usedByNone}</span>
+                {/each}
+              </div>
+            {/if}
+          {:else if !managing}
             <p class="hint">{text.drop}</p>
           {/if}
         </aside>
@@ -401,12 +496,17 @@
         {#if chosen}
           <button class="danger left" onclick={() => void remove(chosen)}>{text.delete}</button>
         {/if}
-        {#if current}
-          <button onclick={() => pick(undefined)}>{text.clear[shape]}</button>
+        {#if managing || !shape}
+          <button class="primary" onclick={close}>{text.close}</button>
+        {:else}
+          {#if current}
+            <button onclick={() => pick(undefined)}>{text.clear[shape]}</button>
+          {/if}
+          <button onclick={close}>{text.cancel}</button>
+          <button class="primary" disabled={!chosen} onclick={() => pick(selected)}
+            >{text.use}</button
+          >
         {/if}
-        <button onclick={close}>{text.cancel}</button>
-        <button class="primary" disabled={!chosen} onclick={() => pick(selected)}>{text.use}</button
-        >
       </div>
     {:else}
       <h2>{text.frameTitle}</h2>
@@ -545,9 +645,21 @@
     border-radius: 6px 0 0 6px;
   }
 
-  .scope button:last-child {
+  .scope button:only-child {
+    border-radius: 6px;
+  }
+
+  .scope button + button {
     border-left: none;
+  }
+
+  .scope button:last-child:not(:only-child) {
     border-radius: 0 6px 6px 0;
+  }
+
+  .scope button:disabled {
+    cursor: default;
+    opacity: 0.5;
   }
 
   .scope button.on {
@@ -641,6 +753,17 @@
 
   .field {
     font-size: 12px;
+  }
+
+  .uses {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+  }
+
+  .use {
+    overflow-wrap: anywhere;
   }
 
   .dialog-buttons .left {

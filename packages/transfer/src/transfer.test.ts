@@ -5,6 +5,7 @@ import { ROSTER_KEY, USER_PACKS_KEY } from '@open-tabletop/storage'
 import {
   EXPORT_MANIFEST,
   exportFileName,
+  imageUses,
   importStatus,
   keysOf,
   listItems,
@@ -242,6 +243,62 @@ describe('an export', () => {
       [EXPORT_MANIFEST]: strToU8(JSON.stringify({ format: 'opentabletop-export', version: 99 })),
     })
     expect(readExport(newer).error).toBe('newer')
+  })
+})
+
+describe('where an image is used', () => {
+  it('names what uses each image: characters, what they hold, trips, maps, definitions', () => {
+    const { kept } = storage()
+    const map = JSON.parse(exampleMap) as Record<string, unknown>
+    const used: Kept = {
+      ...kept,
+      maps: [
+        {
+          ...kept.maps[0],
+          json: JSON.stringify({ ...map, assets: [{ id: 'tower', name: 'Tower', dataUrl: 'x' }] }),
+        },
+      ],
+      trips: [
+        {
+          ...kept.trips[0],
+          party: {
+            name: 'The Company',
+            picture: 'banner',
+            members: [{ name: 'Brenna', picture: 'face' }],
+          },
+        },
+      ],
+      characters: [
+        {
+          character: {
+            id: 'brenna',
+            name: 'Brenna',
+            picture: 'face',
+            items: [{ id: 'rope', name: 'Rope', picture: 'rope' }],
+          },
+          modified: '2026-10-01',
+        },
+      ],
+    }
+    const uses = imageUses(used, {
+      'items:core/gear#rope': 'rope',
+      'templates:grey-marches/bestiary#wolf': 'wolf',
+    })
+    expect(uses.face).toEqual([
+      { kind: 'trip', name: 'To the salt lake', part: 'Brenna' },
+      { kind: 'character', name: 'Brenna' },
+    ])
+    expect(uses.banner).toEqual([{ kind: 'trip', name: 'To the salt lake', part: 'The Company' }])
+    expect(uses.rope).toEqual([
+      { kind: 'character', name: 'Brenna', part: 'Rope' },
+      { kind: 'definition', definition: 'items', name: 'rope', part: 'core/gear' },
+    ])
+    expect(uses.wolf).toEqual([
+      { kind: 'definition', definition: 'templates', name: 'wolf', part: 'grey-marches/bestiary' },
+    ])
+    expect(uses.tower).toEqual([{ kind: 'map', name: 'The Grey Marches' }])
+    // Nothing in the example map or its campaign names an image of the library.
+    expect(Object.keys(uses).sort()).toEqual(['banner', 'face', 'rope', 'tower', 'wolf'])
   })
 })
 

@@ -70,6 +70,10 @@ Para traer una exportación, pulsa **Importar…** en el selector de aplicacione
 
 **Nuevo ▾ → Importar un .zip…** de la aplicación Packs también lee una exportación, y toma solo sus packs.
 
+## Tus imágenes
+
+Las imágenes que has añadido (retratos, estandartes, imágenes de objetos, los iconos y símbolos importados en Mapa) son una sola biblioteca, compartida por todas las aplicaciones. Para verlas todas, abre el selector de aplicaciones y pulsa **Tus imágenes…**: todas, buscadas por nombre o etiqueta; **Sin usar** muestra solo las que nada usa, para limpiarlas. Elige una para verla en grande, renombrarla, etiquetarla y ver qué la usa en **Usada por**: un personaje o grupo del plantel (_Mara_), algo dentro de uno (_Cuerda de seda · personaje Mara_, un objeto que lleva), un viaje o un mapa cuyos personajes o tokens la muestran (_Brenna · viaje Al lago de sal_), un mapa que la lleva entre sus propias imágenes, un objeto o plantilla de un pack a la que se la diste (_rope · objeto de core/gear_). **Borrar…** la saca de la biblioteca, diciendo antes qué la usa: eso se queda sin imagen, salvo un mapa, que conserva su propia copia.
+
 ## El fichero
 
 Un fichero JSON:

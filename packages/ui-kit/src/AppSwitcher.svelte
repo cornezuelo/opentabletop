@@ -13,6 +13,7 @@
   import { tooltip } from './tooltip'
   import { busy as busyButton } from './busy'
   import TransferDialog from './TransferDialog.svelte'
+  import ImagePicker from './ImagePicker.svelte'
 
   /**
    * A button that opens the list of OpenTabletop apps, each with a short description,
@@ -54,6 +55,10 @@
         'Or choose what goes: your packs, campaigns with their maps and trips, characters, to share them or take some of them elsewhere.',
       export: 'Export…',
       import: 'Import…',
+      imagesHelp:
+        'The pictures you added (portraits, banners, icons…): see what uses each, rename, tag and delete them.',
+      images: 'Your images…',
+      imagesTitle: 'Your images',
       source: 'Source code on GitHub',
       issues: 'Report a problem',
       changes: 'What’s new',
@@ -87,6 +92,10 @@
         'O elige qué va: tus packs, campañas con sus mapas y viajes, personajes, para compartirlos o llevarte parte a otro sitio.',
       export: 'Exportar…',
       import: 'Importar…',
+      imagesHelp:
+        'Las imágenes que has añadido (retratos, estandartes, iconos…): mira qué usa cada una, renómbralas, etiquétalas y bórralas.',
+      images: 'Tus imágenes…',
+      imagesTitle: 'Tus imágenes',
       source: 'Código fuente en GitHub',
       issues: 'Avisar de un problema',
       changes: 'Novedades',
@@ -95,6 +104,7 @@
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
   let dialog: HTMLDialogElement
   let transfer: TransferDialog
+  let imagesOpen = $state(false)
   /** What's under way: a backup being made (its button turns), or none. */
   let doing = $state<'backup' | null>(null)
   const busy = $derived(doing !== null)
@@ -227,6 +237,16 @@
         }}>{text.import}</button
       >
     </div>
+    <p>{text.imagesHelp}</p>
+    <div class="buttons">
+      <button
+        disabled={busy}
+        onclick={() => {
+          dialog.close()
+          imagesOpen = true
+        }}>{text.images}</button
+      >
+    </div>
   </section>
   <footer>
     <a href={REPO}>{text.source}</a>
@@ -237,6 +257,7 @@
 </dialog>
 
 <TransferDialog bind:this={transfer} {locale} />
+<ImagePicker bind:open={imagesOpen} {locale} title={text.imagesTitle} />
 
 <style>
   .open {

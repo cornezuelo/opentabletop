@@ -70,6 +70,10 @@ To bring an export in, press **Import…** in the app switcher and choose the fi
 
 The Packs app's **New ▾ → Import a .zip…** reads an export too, taking only its packs.
 
+## Your images
+
+The pictures you've added (portraits, banners, items' pictures, Map's imported icons and symbols) are one library, shared by every app. To see them all, open the app switcher and press **Your images…**: every picture, searched by name or tag; **Not used** shows only those nothing uses, to clear them out. Choose one to see it large, rename it, tag it and see what uses it under **Used by**: a roster character or party (_Mara_), something inside one (_Silk rope · character Mara_, an item it holds), a trip or a map whose characters or tokens show it (_Brenna · trip To the salt lake_), a map that carries it among its own images, an item or template of a pack you gave it to (_rope · item of core/gear_). **Delete…** takes it out of the library, saying first what uses it: those show nothing in its place, except a map, which keeps its own copy.
+
 ## The file
 
 A JSON file:
