@@ -24,6 +24,10 @@
    * docs/fight-turn.md): only the table, the dice waiting on it for a click or a throw, and
    * its total taken by itself a moment after they stop (no **Use**, nothing to put away).
    *
+   * `watch`: the computer's roll, thrown by itself to be watched (the Oracle's **Roll**, an
+   * important moment of a trip): no hand, the dice fly at once, and a moment after they stop
+   * its total is taken (`onuse`); a click on it, or **Skip**, takes it at once.
+   *
    * Rolled `against` a number, the table says it from the start (_You need 4 or less_) and,
    * once the dice stop, whether the first roll made it (_Success_, _Failure_).
    */
@@ -36,6 +40,7 @@
     outcome,
     tells = false,
     inline = false,
+    watch = false,
     against,
     locale = 'en',
     onuse,
@@ -60,6 +65,8 @@
     tells?: boolean
     /** Lives where it's put (no dialog), its total taken as the dice stop. */
     inline?: boolean
+    /** The computer's roll, thrown by itself and taken a moment after the dice stop. */
+    watch?: boolean
     /** The number the first roll is rolled against: shown, then whether it made it. */
     against?: AgainstTarget
     locale?: string
@@ -79,6 +86,7 @@
       rolling: 'Rolling…',
       playing: 'Playing it…',
       continue: 'Continue',
+      skip: 'Skip',
     },
     es: {
       hint: 'Arrastra los dados y suéltalos para lanzarlos, o pulsa la mesa.',
@@ -89,6 +97,7 @@
       rolling: 'Rodando…',
       playing: 'Jugándola…',
       continue: 'Continuar',
+      skip: 'Saltar',
     },
   }
   const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
@@ -140,6 +149,18 @@
     }, 700)
     return () => clearTimeout(wait)
   })
+  /** Watched: its total taken a moment after the dice stop (or at once, skipped), once. */
+  let watched = false
+  function takeWatched() {
+    if (watched) return
+    watched = true
+    onuse(rolls[0]?.total ?? 0)
+  }
+  $effect(() => {
+    if (!watch || stage !== 'done') return
+    const wait = setTimeout(takeWatched, 1100)
+    return () => clearTimeout(wait)
+  })
   /** Its total used: what came of it shows (`outcome`), with **Continue**. */
   let used = $state(false)
   let table = $state<Table>({ width: 560, height: 320, size: 72 })
@@ -171,6 +192,13 @@
       table = { width: rect.width, height: rect.height, size: Math.min(72, rect.width / 7) }
     if (stage === 'hand') dice = inHand()
   })
+  // Watched: thrown by itself as soon as the table is there.
+  let thrownAlone = false
+  $effect(() => {
+    if (!watch || !tableEl || stage !== 'hand' || thrownAlone) return
+    thrownAlone = true
+    untrack(() => throwIt())
+  })
 
   /** Where the hand was lately, to throw the way it moved. */
   let trail: { x: number; y: number; t: number }[] = []
@@ -179,6 +207,8 @@
     return { x: e.clientX - rect.left, y: e.clientY - rect.top, t: performance.now() }
   }
   function down(e: PointerEvent) {
+    // Watched: a click on the table takes it at once.
+    if (watch) return takeWatched()
     if (stage !== 'hand') return
     tableEl?.setPointerCapture(e.pointerId)
     trail = [at(e)]
@@ -319,7 +349,7 @@
         {againstNeeds(against, locale)}
       </p>
     {/if}
-    {#if stage === 'hand'}<p class="hint" class:below={against}>{text.hint}</p>{/if}
+    {#if stage === 'hand' && !watch}<p class="hint" class:below={against}>{text.hint}</p>{/if}
     {#if inline && stage !== 'hand'}
       <p class="settled" aria-live="polite">
         {#if stage === 'rolling'}<span class="muted">{text.rolling}</span
@@ -365,6 +395,17 @@
             {/if}
           </div>
           <button class="button primary" onclick={() => onclose?.()}>{text.continue}</button>
+        {:else if watch}
+          <!-- Watched: it goes on by itself; a click takes it at once. -->
+          {#if stage === 'done'}
+            <p class="total">
+              {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
+                <strong>{roll.total}</strong>{/each}{@render verdict()}
+            </p>
+          {:else}
+            <p class="total muted">{text.rolling}</p>
+          {/if}
+          <button class="button" onclick={takeWatched}>{text.skip}</button>
         {:else if stage === 'done'}
           <p class="total">
             {#each rolls as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =

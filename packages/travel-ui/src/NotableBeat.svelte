@@ -1,9 +1,16 @@
+<script lang="ts" module>
+  import { SvelteSet } from 'svelte/reactivity'
+
+  /** Moments whose roll was watched already (by the moment's id), this page's life long. */
+  const watched = new SvelteSet<string>()
+</script>
+
 <script lang="ts">
   import type { SessionState } from '@open-tabletop/session'
   import type { TripAction } from '@open-tabletop/session'
-  import { tooltip } from '@open-tabletop/ui-kit'
+  import { DiceThrow, dicePreferences, tooltip } from '@open-tabletop/ui-kit'
   import BeatView from './BeatView.svelte'
-  import { tellBeat } from './beats'
+  import { rollToWatch, tellBeat } from './beats'
   import { beatsSeen } from './beatsSeen.svelte'
   import { pacing } from './pacing.svelte'
   import { translator } from './i18n'
@@ -37,9 +44,29 @@
   const told = $derived(shown && tellBeat(shown, context, 'story'))
   const waits = $derived(shown && onstep ? tripWaits(session, context, t) : null)
   const putAway = () => shown && beatsSeen.putAway(session, shown.entries[0]!)
+
+  /**
+   * The computer's roll behind an important moment, thrown on the table to be watched before
+   * the moment is told (`rollToWatch`), when dice move at all, once.
+   */
+  const still =
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  const thrown = $derived(
+    told && dicePreferences.animate && !still && !watched.has(told.id)
+      ? rollToWatch(told, Date.now())
+      : undefined,
+  )
 </script>
 
-{#if shown && told}
+{#if shown && told && thrown}
+  <DiceThrow
+    rolls={thrown}
+    title={told.title}
+    {locale}
+    watch
+    onuse={() => void watched.add(told.id)}
+  />
+{:else if shown && told}
   <section class="notable" aria-label={t('beats.notable')} role="status">
     <BeatView {told} {locale} big animate />
     <div class="buttons">

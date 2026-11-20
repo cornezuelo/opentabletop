@@ -1,6 +1,6 @@
 import type { JournalEntry, SessionState } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
-import { journalBeats, lastNotableBeat, tellBeat } from './beats'
+import { journalBeats, lastNotableBeat, rollToWatch, tellBeat, type BeatTold } from './beats'
 import { translator } from './i18n'
 import type { JournalContext } from './journal'
 
@@ -204,5 +204,37 @@ describe('the dice of a moment', () => {
     expect(
       tellBeat({ id: 'j1', entries: [old, omen] }, context, 'story').lines[0]?.dice,
     ).toBeUndefined()
+  })
+})
+
+describe("an important moment's roll, to watch", () => {
+  const die = (byHand = false) => ({
+    expression: '1d6',
+    total: 6,
+    terms: byHand
+      ? []
+      : [{ kind: 'dice' as const, sign: 1 as const, sides: 6, rolls: [6], kept: [0], subtotal: 6 }],
+    ...(byHand && { byHand: true as const }),
+  })
+  const at = '2026-11-20T10:00:00.000Z'
+  const moment = (dice: ReturnType<typeof die>[], notable = true): BeatTold => ({
+    id: 'j1',
+    title: 'Omens',
+    lines: [{ id: 'j2', text: 'The Wyrm stirs', notable, level: 'story', dice }],
+    changes: [],
+    why: [],
+    notable,
+    first: { id: 'j1', at, time: 0, source: 'oracle', code: 'ORACLE_RESULT' },
+  })
+  const now = Date.parse(at) + 2000
+
+  it("is the computer's dice of an important line, just now", () => {
+    expect(rollToWatch(moment([die()]), now)?.[0]?.total).toBe(6)
+  })
+
+  it('never a moment reopened, one that isn’t important, nor the player’s own roll', () => {
+    expect(rollToWatch(moment([die()]), Date.parse(at) + 60_000)).toBeUndefined()
+    expect(rollToWatch(moment([die()], false), now)).toBeUndefined()
+    expect(rollToWatch(moment([die(true)]), now)).toBeUndefined()
   })
 })

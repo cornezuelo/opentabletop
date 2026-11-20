@@ -95,14 +95,18 @@
   }
 
   /**
-   * The result whose dice are being thrown across the table, shown once they stop: when the
-   * player rolls their own dice (**Who rolls the dice** in Preferences isn't the computer)
-   * and dice move at all.
+   * The result whose dice are being thrown across the table, shown once they stop, whenever
+   * dice move at all: in the player's hand when they roll their own dice (**Who rolls the
+   * dice** in Preferences isn't the computer), else thrown by themselves, to watch.
    */
   const throwing = $derived(
     roller.throwing !== undefined && shown?.id === roller.throwing ? shown : undefined,
   )
-  const throws = $derived(dicePreferences.rolls !== 'computer' && dicePreferences.animate)
+  /** Dice that don't move (the player's preference, or the system's reduce motion) aren't thrown. */
+  const still =
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  const throws = $derived(dicePreferences.animate && !still)
+  const watching = $derived(dicePreferences.rolls === 'computer' || !dicePreferences.rolls)
 
   /** The dice stopped (or put away): the result shows, still. */
   function settle() {
@@ -146,6 +150,8 @@
     if (isTyping(e) || (e.target as HTMLElement).closest?.('button, input, select')) return
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault()
+      // A throw being watched: the key takes it at once, the next one rolls again.
+      if (throwing && watching) return settle()
       roll()
     }
   }
@@ -289,6 +295,7 @@
     <DiceThrow
       rolls={thrown.rolls}
       against={thrown.against}
+      watch={watching}
       title={ui.nameOf(def.id)}
       use={t('roll.see')}
       close={t('roll.closeThrow')}

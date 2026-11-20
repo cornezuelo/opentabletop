@@ -255,3 +255,19 @@ export function lastNotableBeat(session: SessionState): Beat<JournalEntry> | und
     (b) => b.entries[0]!.beat !== undefined && notableLines(b.entries).length > 0,
   )
 }
+
+/** How long ago a moment may have happened for its roll to be thrown: just now, not reopened. */
+const FRESH_MS = 10_000
+
+/**
+ * The computer's roll behind an important moment, to throw on the table and watch before it's
+ * told (docs/dice.md): the dice of its first important line, when they're all the computer's
+ * (the player threw their own) and it happened just now (`now`, not a trip reopened); what a
+ * row rolled inside another's result stays in the card.
+ */
+export function rollToWatch(told: BeatTold, now: number): Dice | undefined {
+  if (!told.notable || !(now - Date.parse(told.first.at) < FRESH_MS)) return undefined
+  const dice = told.lines.find((l) => l.notable && l.dice?.length)?.dice?.filter((d) => !d.inside)
+  if (!dice?.length || dice.some((d) => d.byHand || !d.terms.length)) return undefined
+  return dice
+}

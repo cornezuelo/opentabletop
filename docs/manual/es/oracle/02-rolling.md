@@ -2,6 +2,8 @@
 
 Abre una definición y pulsa **Tirar** (o **Robar** en un mazo). <kbd>Espacio</kbd> o <kbd>Intro</kbd> vuelven a tirar.
 
+**Tirar** lanza los dados sobre una mesa en el centro de la pantalla: solos mientras tira el ordenador (**Quién tira los dados** en **Preferencias**), para verlos caer, y el resultado aparece un momento después de que se paren (un clic, **Saltar**, <kbd>Espacio</kbd> o <kbd>Intro</kbd> lo muestran al instante); en tu mano para lanzarlos cuando tiras tú (abajo). Con **Los dados ruedan al tirarlos** apagado, o si tu sistema pide menos movimiento, el resultado sale al momento.
+
 Una tabla tirada contra un número (una habilidad, una probabilidad: [Tirada contra un número](08-dice-and-templates.md#tirada-contra-un-número)) dice en la mesa de dados lo que necesita (_Necesitas 40 o menos_) y cómo fue al pararse (_Éxito_, _Fallo_); su tarjeta de resultado lo dice bajo los dados (_Contra 40: Éxito_).
 
 Un valor que necesita una tirada y que solo tiene un viaje o un mapa (un dado cuyo tamaño es el _Dado de hallazgos_ del mapa, `1d{{map.values.finds}}`, o el desgaste de una pieza) se pide en **Contexto**, con su casilla marcada, y **Tirar** lo espera (_Para tirarla, pon: Dado de hallazgos_) en vez de fallar. Un nombre con una parte entre corchetes (`acting.items[params.piece].wear`) se da entero.
