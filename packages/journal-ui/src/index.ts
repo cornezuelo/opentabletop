@@ -12,4 +12,5 @@ export {
   type LogWords,
   type ShownSession,
 } from './log'
+export { logLonelog } from './lonelog'
 export { translator as journalTranslator, type JournalUiKey } from './i18n'

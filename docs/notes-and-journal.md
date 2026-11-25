@@ -25,7 +25,7 @@ What's missing: one record of the **whole campaign** (trips, scenes, the world, 
 
 **Read as a story or in full.** The same levels as a trip's journal (story, rules), filters by trip, place or character, and a search.
 
-**Exported** as Markdown: one file, sessions as headings, days under them, links to cells as the deep links Map already opens (`<map>/#/<id>/<hex>`), characters and notes by name; ready to paste into SilverBullet or Obsidian.
+**Exported** as Markdown (or in Lonelog, below): one file, sessions as headings, days under them, links to cells as the deep links Map already opens (`<map>/#/<id>/<hex>`), characters and notes by name; ready to paste into SilverBullet or Obsidian.
 
 ### Lonelog
 
@@ -100,3 +100,16 @@ How it works:
 - journal-ui's `CampaignLog` (Campaign's **Log** tab), `shownLog` and `logMarkdown`. A moment where only what happened behind was told (checks that didn't come up) shows only in **Everything**.
 
 Left for later: a campaign's journal in an export (.zip) (backups keep it); a moment's title when a step's first lines are checks that didn't come up was fixed for every journal (travel-ui's `headLine`).
+
+## 8. Phase 2 as built (2026-11-25)
+
+**Export ▾** in Campaign's **Log** offers **Markdown** (as before) and **Lonelog** (journal-ui's `logLonelog`), the log as shown (its level, its filters), oldest first, following Lonelog 1.7:
+
+- YAML front matter with the campaign's name as `title`, then its `#` heading; each session a `##` heading (_Session 1_, or _Before the first session_) with `*Date: YYYY-MM-DD*`, the real date it started; each day a scene, numbered through the file: `### S1 *15 Thaw*`.
+- A day's lines in fenced code blocks; the player's notes as prose between them (Lonelog's way of mixing notation and prose in Markdown).
+- A moment: `@ <title>` when it was an action taken or a fight's round or turn; else `=> <title>`, left out when its first line is a roll's result (that line says it). Each of its lines at the level shown: a table's result as `tbl: <what was rolled> <dice> -> <result>` (`1d6+2=7`; dice rolled inside the result, a row's harm, in parentheses after it); one rolled against a number (`against:`) as `d: <what> <dice> ≤ <n> -> Success` and its result as `=>`; a line of what happened behind (a check that didn't come up) as `(note: …)`; anything else, and each change, as `=>`. At the story level, the rules folded apart (`why`) are one `(note: …)`.
+- The world's lines: a progress clock moved as a track, `[Clock:Name 3/6]`; anything else as `=>`. The Oracle's hand rolls as a table's result or a roll against a number.
+
+What a moment's result was rolled against is read from its raw lines (the roll's line before it, `ROLLED`), and what was rolled from its told text (the result's text after the name): nothing new is kept in a moment, so moments copied before this export read as well.
+
+Left out: tags for those a moment changed (`[PC:Kael|Wounded]`, `[N:…]`, `[L:…]`): a moment keeps its changes told as text, not structured by whom and what; worth it when it does. Threads and events (`[Thread:…]`, `[E:…]`) have nothing of ours to come from.

@@ -45,6 +45,7 @@
     "jspdf": "^4.2.1",
     "marked": "^18.1.0",
     "pixi.js": "^8.22.0",
-    "@open-tabletop/journal": "*"
+    "@open-tabletop/journal": "*",
+    "@open-tabletop/journal-ui": "*"
   }
 }

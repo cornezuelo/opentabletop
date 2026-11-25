@@ -23,6 +23,7 @@
     fileNameOf,
     InfoTip,
     Markdown,
+    MoreMenu,
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
@@ -37,6 +38,7 @@
     shownLog,
     type LogWords,
   } from './log'
+  import { logLonelog } from './lonelog'
 
   /**
    * The campaign's journal read as its log (docs/notes-and-journal.md §2): everything played
@@ -149,9 +151,12 @@
       change((j) => removeItem(j, id))
   }
 
-  function exportLog() {
+  /** The log as shown, as a Markdown file: written plainly, or in Lonelog's notation. */
+  function exportLog(as: 'markdown' | 'lonelog') {
     const title = campaign.name || t('log.untitled')
-    downloadText(fileNameOf(title, 'md'), logMarkdown(shown, title, words, level))
+    const write = as === 'lonelog' ? logLonelog : logMarkdown
+    const name = as === 'lonelog' ? `${title} lonelog` : title
+    downloadText(fileNameOf(name, 'md'), write(shown, title, words, level))
   }
 </script>
 
@@ -303,9 +308,13 @@
       placeholder={tt('filter.search')}
       aria-label={tt('filter.search')}
     />
-    <button class="button" disabled={!anything} use:tooltip={t('log.exportTip')} onclick={exportLog}
-      >{t('log.export')}</button
-    >
+    {#if anything}
+      <MoreMenu label={t('log.exportTip')}>
+        {#snippet button()}{t('log.export')} ▾{/snippet}
+        <button onclick={() => exportLog('markdown')}>{t('log.asMarkdown')}</button>
+        <button onclick={() => exportLog('lonelog')}>{t('log.asLonelog')}</button>
+      </MoreMenu>
+    {/if}
   </div>
 
   {#if writing?.where === 'top'}

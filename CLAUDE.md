@@ -50,7 +50,7 @@ packages/                   # libraries, scope @open-tabletop/*
   character-ui/             # embeddable character UI: a character made from a sheet (values, tracks, conditions, tags); the roster in the browser
   travel-ui/                # embeddable trip UI: setup, status, supplies, actions, characters, journal; the trip without a map (way, store, room)
   campaign-ui/              # embeddable campaign UI: the world clock (date, moving time on, events, progress clocks, timeline), the world's words
-  journal-ui/               # embeddable campaign journal: the log (by session and day), sessions, notes, Markdown export
+  journal-ui/               # embeddable campaign journal: the log (by session and day), sessions, notes, Markdown and Lonelog export
   manual-ui/                # user manual: pages from docs/manual, search, in-app help panel, full view
 apps/                       # each with its own CLAUDE.md
   map/                      # Map: the map editor, and play on the map

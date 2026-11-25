@@ -7,6 +7,7 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - **Campaign**: a **Log** tab, the campaign's journal: every moment of its trips and scenes (on its maps, in Travel, its own scenes), kept as it's played, so it stays when the trip is deleted; the world's lines, what you rolled by hand in the Oracle, and your own notes, written anywhere in it; by **session** (**Start a session** / **End the session**) and by day; **Show** (the story, the rules, everything), **Played in**, a search and **Export** as Markdown.
+- **Campaign**: the Log's **Export ▾** also writes it in [Lonelog](https://lonelog.org/), the notation of solo logs: sessions and days as scenes, actions (`@`), rolls against a number (`d:`), tables' results (`tbl:`), what came of them (`=>`), the world's clocks (`[Clock:…]`), your notes as prose between them.
 - **Map, Travel and Campaign**: a campaign's **Timeline** is the world's only: a trip's arrivals, places found and encounters no longer go there (they're in the Log).
 - **Every app that shows a trip**: a moment that begins with checks that didn't come up is named by the one that did (_Shrine_, not _Toll doesn't come up…_).
 

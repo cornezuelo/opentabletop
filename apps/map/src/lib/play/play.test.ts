@@ -23,7 +23,8 @@ import {
   type SessionState,
 } from '@open-tabletop/session'
 import { mapWorld } from '@open-tabletop/map'
-import { readJournal, type JournalMoment } from '@open-tabletop/journal'
+import { campaignLog, readJournal, type JournalMoment } from '@open-tabletop/journal'
+import { logLonelog, shownLog } from '@open-tabletop/journal-ui'
 import { deleteJournal, getJournalEntry } from '@open-tabletop/storage'
 import { journalByDay } from '@open-tabletop/travel-ui'
 import { applyCharacter, lookupItems, shownAgainst, toneOf } from '@open-tabletop/character-engine'
@@ -678,6 +679,20 @@ describe('playing on the map', () => {
       ).toBe(true)
       // The timeline keeps the world only: nothing of the trip.
       expect(editor.campaign.world!.timeline.some((e) => e.data?.trip)).toBe(false)
+      // Exported in Lonelog: the march as actions, its tables' results with their dice.
+      const words = { locale: 'en', calendar: worldCalendar(), nameOf: (id: string) => id }
+      const journalNow = readJournal((await getJournalEntry(editor.campaign.id))!.json)!
+      const log = campaignLog({ ...journalNow, items: kept }, editor.campaign.world!.timeline)
+      const lonelog = logLonelog(
+        shownLog(log, { level: 'mechanics' }, words),
+        'Marches',
+        words,
+        'mechanics',
+      )
+      expect(lonelog).toMatch(/^@ .+/m)
+      expect(lonelog).toMatch(/^(tbl|d): .+ \d*d\d+[^=\s]*=\d+.* -> .+/m)
+      expect(lonelog).toMatch(/^=> .*reach/im)
+      expect(lonelog).not.toMatch(/undefined|\[object|NaN/)
     })
 
     it('the journal keeps everything behind: dice, rows, weather, skipped checks, changes', async () => {

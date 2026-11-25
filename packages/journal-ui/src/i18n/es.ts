@@ -14,7 +14,11 @@ export const es: Messages = {
       'Solo lo jugado en uno de los mapas, viajes o escenas de la campaña (se dejan fuera las líneas del mundo, las tiradas a mano y las notas).',
     everywhere: 'En todas partes',
     export: 'Exportar',
-    exportTip: 'El diario tal como se ve (su nivel, sus filtros), como fichero Markdown',
+    exportTip:
+      'El diario tal como se ve (su nivel, sus filtros), como fichero Markdown: escrito tal cual, o en la notación de Lonelog para juego en solitario',
+    asMarkdown: 'Markdown',
+    asLonelog: 'Lonelog',
+    lonelogDate: 'Fecha',
     world: 'El mundo',
     oracle: 'Tirada a mano',
     note: 'Nota',
