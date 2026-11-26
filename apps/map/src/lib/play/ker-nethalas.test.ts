@@ -10,8 +10,7 @@ import { activeSystem } from './systems'
 const here = bundledPacks.some((p) => p.personal && p.root === 'ker-nethalas')
 
 describe.skipIf(!here)('Ker Nethalas', () => {
-  // The Oracle rolls with Math.random: a fixed sequence makes every run the same. (A Domain
-  // may close on itself, its last rooms with no exit: this sequence's keeps growing.)
+  // The Oracle rolls with Math.random: a fixed sequence makes every run the same.
   beforeEach(() => {
     let seed = 3
     vi.spyOn(Math, 'random').mockImplementation(() => {
@@ -104,6 +103,11 @@ describe.skipIf(!here)('Ker Nethalas', () => {
       const count = (c: string) => log.filter((x) => x === c).length
       expect(count('ROLLED')).toBeGreaterThan(20)
       expect(editor.map.pieces!.length).toBeGreaterThan(8)
+      // It never closes on itself: a room that would leave nothing to explore is rolled again.
+      const waiting = editor.map.connections.filter((c) =>
+        c.between.some((cell) => !editor.map.hexes[cell as HexKey]?.terrain),
+      )
+      expect(waiting.length).toBeGreaterThan(0)
     },
   )
 
