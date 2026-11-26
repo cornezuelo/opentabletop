@@ -89,6 +89,7 @@ bestiary/marches:
     - Lo que hace una copia en su turno en un combate (`actions: table.wolf-turn`), que su variante toma por `like` (el jefe de la manada), y el de los muertos inquietos (`actions: table.dead-turn`); las demás hacen lo que dice el sistema (`encounter.foes`)
     - Enemigos que siguen a la Compañía cuando se marcha (`follows`, una condición leída con la copia actuando): los lobos mientras quieren hacer daño y no les han echado carne (_Atiborrándose_, Echarles carne), los bandidos mientras quieren hacer daño y la Compañía no va a caballo (`trip.mode`); si se repliega de un combate y sigue la marcha, llegan con ella al siguiente sitio, y la Compañía vuelve a estar _Acosada_
     - Qué pasa con las que se dejan atrás: desaparecen (`behind: leave`, la del bestiario), salvo la Sierpe, que se queda en su bosque, los muertos inquietos, en su túmulo, y un cofre de ajuar, en su cripta (`behind: stay`)
+    - Un aliado en el bando de la Compañía (`side: party`): un batidor del Valle que cabalga con ella (_Pedir un batidor_) mientras está en tierras del Valle (`follows`, una condición leída al llegar a cada lugar: `place.region`, `place.faction`) y se vuelve al salir de ellas; lucha junto a la Compañía, en sus propios turnos (`actions: table.outrider-turn`), contra el enemigo que ocupa su mismo puesto (el `alliesAim: present.fighters.spread` del sistema), y los enemigos también van a por él (`aim: party.fighters.spread`)
     - Quién no lucha (`fights: false`): los viajeros y los jinetes del Valle, con quienes uno se cruza y no se pelea, y el cofre de ajuar, una cosa de una cripta con una hoja propia (_Cofre_), a la que se dirigen acciones (_Examinarlo_, _Forzar la cerradura_, _Reventarlo_, _Abrirlo_); ninguno es un bando de un combate, ni lo cuenta `present.fighters`
     - Quién es un enemigo, como etiqueta (`foe`), y quién quiere hacer daño ahora, como un estado con el que empieza todo enemigo (`conditions: [hostile]`) y que quita una reacción que no sea hostil: mientras haya aquí uno que lo tenga (`present.conditions: hostile`), la Compañía está _Acosada_ (su hoja), y no puede seguir la marcha ni ocuparse de otra cosa hasta que se las vea con ellos o se repliegue
   templates:
@@ -119,6 +120,9 @@ bestiary/marches:
     vale-rider:
       name: Jinete del Valle
       description: Uno de la patrulla del Valle, que recorre sus caminos y sus lindes.
+    vale-outrider:
+      name: Batidor del Valle
+      description: Un jinete de la patrulla del Valle que cabalga con la Compañía, hasta donde llegan las tierras del Valle.
     grave-chest:
       name: Cofre de ajuar
       description: Un cofre reforzado con hierro, con el ajuar de los antiguos; alguno aún guarda una aguja en la cerradura.
@@ -127,11 +131,22 @@ foe-turn:
   description: |-
     Lo que hace un enemigo en su turno en un combate, cuando su especie no tiene un turno propio: lanza un golpe a uno de la Compañía, elegido al empezar su turno, y acierta la mitad de las veces, por su Daño; la armadura que lleva le baja la tirada.
 
-    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); a quién va su turno, elegido antes de tirar (el `aim: party.members.random` del sistema), leído por su tirada (`'1d6 - {{characters[encounter.target].values.armour}}'`) y sus efectos (`characters[encounter.target].values.health`); un estado dado por un tiempo (`characters[encounter.target].conditions.rattled: '{{1d2}}'`: rondas del combate); un modo de tirada leído de aquel a quien va (`modeWhen: { roll-modes.disadvantage: { 'characters[encounter.target].conditions': braced } }`: el en guardia del Muro de escudos); un turno que no hace nada.
+    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo (`acting.values.harm`); a quién va su turno, elegido antes de tirar (el `aim: party.fighters.spread` del sistema: uno cada uno entre los compañeros y un batidor que cabalgue con ellos, los enemigos que sobran a los compañeros), leído por su tirada (`'1d6 - {{characters[encounter.target].values.armour}}'`) y sus efectos (`characters[encounter.target].values.health`); un estado dado por un tiempo (`characters[encounter.target].conditions.rattled: '{{1d2}}'`: rondas del combate); un modo de tirada leído de aquel a quien va (`modeWhen: { roll-modes.disadvantage: { 'characters[encounter.target].conditions': braced } }`: el en guardia del Muro de escudos); un turno que no hace nada.
   entries:
     miss: '{{acting.name}} lanza un golpe, y falla'
     hit: '{{acting.name}} acierta un golpe: {{acting.values.harm}} de daño'
     heavy: '{{acting.name}} acierta un golpe fuerte: {{acting.values.harm}} de daño'
+outrider-turn:
+  name: El turno del batidor
+  description: |-
+    Lo que hace un batidor del Valle que cabalga con la Compañía en su turno en un combate: baja la lanza contra el enemigo que le ha tocado, por 1d4 de daño, y de vez en cuando lo arrolla y le quiebra el ánimo.
+
+    **Enseña:** el turno de un aliado (una plantilla con `side: party`), jugado solo como el de un enemigo; a quién va, elegido al empezar su turno (el `alliesAim: present.fighters.spread` del sistema: el enemigo que ocupa su mismo puesto entre ellos, o el siguiente en pie si ese cayó), leído como `encounter.target` en sus efectos (`characters[encounter.target].values.morale`); el daño de una lanza, a la mitad contra huesos viejos, leído de las etiquetas del enemigo (`'characters[encounter.target].tags': bone`).
+  entries:
+    wheel: '{{acting.name}} hace girar el caballo, y no encuentra un hueco'
+    lance: '{{acting.name}} clava la lanza: {{1d4}} de daño'
+    bones: 'La lanza de {{acting.name}} resbala sobre huesos viejos: {{floor(1d4 / 2)}} de daño'
+    ride-down: '{{acting.name}} lo arrolla: {{1d4}} de daño, y el ánimo quebrado'
 wolf-turn:
   name: El turno de un lobo
   description: |-

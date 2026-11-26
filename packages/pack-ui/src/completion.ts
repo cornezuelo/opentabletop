@@ -139,6 +139,7 @@ const ENUMS: Record<string, readonly string[]> = {
   behind: ['stay', 'leave'],
   follows: ['true', 'false'],
   fights: ['false', 'true'],
+  side: ['party', 'foes'],
   leaves: ['true', 'false'],
   shuffle: ['true', 'false'],
 }

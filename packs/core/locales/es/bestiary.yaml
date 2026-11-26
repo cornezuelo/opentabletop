@@ -3,11 +3,14 @@ bestiary/foes:
   description: |-
     Quien se interpone en el camino: una plantilla de la que sacar enemigos.
 
-    **Enseña:** el bestiario más pequeño: una plantilla sobre la hoja de los personajes (`sheet: sheet.character`), con su salud tirada para cada copia, y una cosa que no lucha con una hoja propia (_Cofre cerrado_, `fights: false`); una copia cuya salud llega a 0 cae, y se va (el _Caído_ de la hoja tiene `leaves`); enemigos que siguen al grupo cuando se marcha (`follows`), salvo que se haya escabullido (_Huir_ hace que lo sigan, _Escabullirse_ cuesta un día de comida); su ficha (`token:`), dibujada en un mapa y como su cara en un combate.
+    **Enseña:** el bestiario más pequeño: una plantilla sobre la hoja de los personajes (`sheet: sheet.character`), con su salud tirada para cada copia, y una cosa que no lucha con una hoja propia (_Cofre cerrado_, `fights: false`); una copia cuya salud llega a 0 cae, y se va (el _Caído_ de la hoja tiene `leaves`); enemigos que siguen al grupo cuando se marcha (`follows`), salvo que se haya escabullido (_Huir_ hace que lo sigan, _Escabullirse_ cuesta un día de comida); su ficha (`token:`), dibujada en un mapa y como su cara en un combate; un aliado en el bando del grupo (_Sabueso_, `side: party`), que va con él y juega sus propios turnos (`actions:`).
   templates:
     foe:
       name: Enemigo
       description: Alguien o algo hostil; vuestras tablas dicen quién.
+    hound:
+      name: Sabueso
+      description: Un perro que corre con vosotros; muerde a quien combatáis.
     chest:
       name: Cofre cerrado
       description: Un cofre hallado al explorar; abridlo, o forzadlo antes.
@@ -37,7 +40,7 @@ foe-turn:
   description: |-
     Lo que hace un enemigo en su turno en un combate: un golpe a uno de vosotros, o de vez en cuando un barrido contra todos.
 
-    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo; a quién va su turno, elegido antes de tirar (el `aim: party.members.random` del sistema), y el efecto del golpe sobre él (`characters[encounter.target].values.health`, menos su guardia, a la que suma un escudo que lleve, y el dado de desgaste de su escudo un escalón abajo, `characters[encounter.target].items.shield.wear: -1`, nada para quien no lleva); un resultado dirigido a todos (`set: { target: party.members.all }`), con su efecto jugado para cada uno y su dado tirado para cada uno. Un enemigo que se tambalea nunca la tira: pierde su turno (el `encounter.skip` del sistema).
+    **Enseña:** lo que hacen los enemigos en sus turnos (`encounter.foes` en el sistema), tirado actuando como cada enemigo; a quién va su turno, elegido antes de tirar (el `aim: party.fighters.random` del sistema: uno de vosotros o el sabueso que corre con vosotros), y el efecto del golpe sobre él (`characters[encounter.target].values.health`, menos su guardia, a la que suma un escudo que lleve, y el dado de desgaste de su escudo un escalón abajo, `characters[encounter.target].items.shield.wear: -1`, nada para quien no lleva); un resultado dirigido a todos (`set: { target: party.members.all }`), con su efecto jugado para cada uno y su dado tirado para cada uno. Un enemigo que se tambalea nunca la tira: pierde su turno (el `encounter.skip` del sistema).
   entries:
     blow: El enemigo golpea
     sweep: El enemigo os lanza un barrido a todos
@@ -69,3 +72,12 @@ force-chest:
   entries:
     holds: La cerradura aguanta
     gives: La cerradura cede
+hound-turn:
+  name: El turno del sabueso
+  description: |-
+    Lo que hace el sabueso en su turno en un combate: muerde al enemigo al que va, y alguna vez falla.
+
+    **Enseña:** el turno de un aliado (una plantilla con `side: party`), jugado solo como el de un enemigo, contra quien elige el `encounter.alliesAim` del sistema al empezar su turno (`present.fighters.random`: uno de los enemigos), leído como `encounter.target`.
+  entries:
+    miss: '{{acting.name}} lanza una dentellada, y falla'
+    bite: '{{acting.name}} muerde: 1 de daño'

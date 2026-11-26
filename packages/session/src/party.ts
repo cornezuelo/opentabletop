@@ -41,6 +41,8 @@ import {
   copySheet,
   presentFacts,
   presentHere,
+  metHere,
+  alliesHere,
   PRESENT_PATH,
   type Present,
   type PresentEvent,
@@ -497,10 +499,11 @@ export function memberFacts(
 
 /**
  * Who an effect's or a fact's path is about, and the rest: `party.members` (every member),
- * `characters.<id>`, `acting`, `roles.<id>` (whoever holds the role).
+ * `party.allies` (every ally of the party here), `characters.<id>`, `acting`, `roles.<id>`
+ * (whoever holds the role).
  */
 export const MEMBER_PATH =
-  /^(party\.members|party|map|place|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions|items)\.(.+)$/
+  /^(party\.members|party\.allies|party|map|place|characters\.[^.]+|acting|roles\.[^.]+)\.(values|conditions|items)\.(.+)$/
 
 /** Whether an effect's path is about members (`party.members.…`, `characters.<id>.…`, `acting.…`). */
 export const isMemberPath = (path: string): boolean =>
@@ -567,8 +570,9 @@ export function applyMemberEffects(
   const copyPath = (path: string) => {
     const who = MEMBER_PATH.exec(path)?.[1]
     return (
-      !!who?.startsWith('characters.') &&
-      !!s.present?.some((p) => `characters.${p.character.id}` === who)
+      who === 'party.allies' ||
+      (!!who?.startsWith('characters.') &&
+        !!s.present?.some((p) => `characters.${p.character.id}` === who))
     )
   }
   if (
@@ -796,7 +800,8 @@ export function applyMemberEffects(
         present.push(...changePresent(s, rules, template, change, context))
         continue
       }
-      const copies = presentHere(s).filter(
+      // Every one met (`present.all`, not the party's allies), or a template's copies.
+      const copies = (template === 'all' ? metHere(s) : presentHere(s)).filter(
         (p) => template === 'all' || p.character.template?.id === template,
       )
       for (const p of copies) {
@@ -846,13 +851,15 @@ export function applyMemberEffects(
             : []
           : who === 'party.members'
             ? members
-            : who === 'acting'
-              ? s.acting !== undefined
-                ? characterById(s.acting)
-                : []
-              : who.startsWith('roles.')
-                ? members.filter((m) => m.id === holder)
-                : characterById(who.slice('characters.'.length))
+            : who === 'party.allies'
+              ? alliesHere(s).map((p) => p.character)
+              : who === 'acting'
+                ? s.acting !== undefined
+                  ? characterById(s.acting)
+                  : []
+                : who.startsWith('roles.')
+                  ? members.filter((m) => m.id === holder)
+                  : characterById(who.slice('characters.'.length))
     if (!targets.length) {
       // Nobody acting, or nobody holding the role: nothing happens, and the journal says so.
       ;(who === 'acting' || who.startsWith('roles.') ? nobody : unknown).push(path)

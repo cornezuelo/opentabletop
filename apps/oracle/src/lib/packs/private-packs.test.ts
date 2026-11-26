@@ -8,6 +8,7 @@ import {
   stepTrip,
   travelSystems,
   tripAvailability,
+  type SessionState,
   type TravelSystem,
 } from '@open-tabletop/session'
 import { applyCharacter, valuesNow } from '@open-tabletop/character-engine'
@@ -131,11 +132,22 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   /** Plays a fight against `foes` to its end: each of the PC's turns an Attack at the first one here. */
   // Loaded once: every fight plays the same packs.
   let loaded: { registry: ReturnType<typeof loadPacks>['registry']; system: TravelSystem }
+  /** The packs loaded once, and Ker Nethalas' system. */
+  const kn = () =>
+    (loaded ??= (() => {
+      const { registry } = loadPacks(engineFiles(bundledPacks))
+      return {
+        registry,
+        system: travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!,
+      }
+    })())
   function fight(
     foes: Record<string, number>,
     seed: string,
     level = 1,
     held: string[] = ['longsword'],
+    /** More to begin with (Masteries held, Minions with them). */
+    more: Record<string, number | string> = {},
   ) {
     loaded ??= (() => {
       const { registry } = loadPacks(engineFiles(bundledPacks))
@@ -174,7 +186,7 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     // The foes' turns played one after another (no Next between them).
     let s = applyResult(
       { ...session, foesAtOnce: true },
-      { effects: { ...present, ...gear } },
+      { effects: { ...present, ...gear, ...more } },
       {},
       rules,
     )
@@ -184,7 +196,9 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       s = done.state
       if (s.travel.waiting) done = stepTrip(options, s, { type: 'resume' })
       else {
-        const foe = s.present!.find((p) => p.at === s.travel.location)!.character.id
+        // One of the creatures here, not a Minion of yours.
+        const foe = s.present!.find((p) => p.at === s.travel.location && p.side !== 'party')!
+          .character.id
         done = stepTrip(options, s, {
           type: 'action',
           id: 'attack',
@@ -600,7 +614,10 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   it('every creature of the Combat Encounters fights to its end, its Actions rolled without a problem', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
-    const templates = system.bestiary!.flatMap((b) => Object.keys(b.def.templates))
+    // The creatures met, not the Minions your Abilities summon (`side: party`).
+    const templates = system
+      .bestiary!.filter((b) => b.def.side !== 'party')
+      .flatMap((b) => Object.keys(b.def.templates))
     expect(templates.length).toBeGreaterThanOrEqual(43)
     const acted = new Set<string>()
     for (const id of templates) {
@@ -615,6 +632,157 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(acted.size).toBeGreaterThan(templates.length / 2)
     // Forty-odd fights: longer than a test usually takes.
   }, 60_000)
+
+  it('Mastery Minions: summoned for Aether, they fight at your side, each set against one, and heal once the room is clear', () => {
+    const { registry, system } = kn()
+    const rules = partyOf(system)
+    const arcanist = {
+      'characters.erthos.items.arcanist-1': 1,
+      'characters.erthos.items.arcanist-2': 1,
+      'characters.erthos.items.arcanist-3': 1,
+      'characters.erthos.items.arcanist-4': 1,
+      'characters.erthos.values.aether': '=10',
+    }
+    // Summoned before the fight: 4 Aether, and the Companion goes with you.
+    const pc = newMember(rules, { id: 'erthos', name: 'Erthos', values: { aether: 10 } })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    const options = {
+      system,
+      world: room,
+      oracle: createOracleEngine({ registry, random: seeded(1) }),
+    }
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'm' })
+    let s: SessionState = {
+      ...applyResult(session, { effects: arcanist }, {}, rules),
+      acting: 'erthos',
+    }
+    expect(tripAvailability(options, s)['summon-wight']).toBeDefined()
+    expect(tripAvailability(options, s)['summon-arcane-companion']).toBeUndefined()
+    // Raise Skeleton is for a Gravecaller, and wants a corpse here.
+    const grave = applyResult(
+      { ...session, acting: 'erthos' },
+      {
+        effects: {
+          'characters.erthos.items.gravecaller-1': 1,
+          'characters.erthos.values.aether': '=10',
+        },
+      },
+      {},
+      rules,
+    )
+    expect(tripAvailability(options, grave)['summon-skeleton']).toMatchObject({
+      condition: 'needs',
+    })
+    s = stepTrip(options, s, { type: 'action', id: 'summon-arcane-companion' }).state
+    expect(s.members![0].values.aether).toBe(6)
+    expect(s.present!.map((p) => [p.character.id, p.side])).toEqual([['arcane-companion', 'party']])
+    // The Surprise check: your Stealth, 10 less for each follower.
+    const engine = createOracleEngine({ registry, random: seeded(2) })
+    const aim = (allies: number) =>
+      engine.resolve('ker-nethalas/surprise', {
+        party: { lowest: { values: { stealth: 50 } }, allies: { count: allies } },
+        present: { highest: { values: { mind: 30 } } },
+      }).resolution.value.aim
+    expect([aim(0), aim(2)]).toEqual([50, 30])
+    // Fights: the Companion's Actions on its turns, at a creature; the creatures go for you
+    // and for it, one each; none of it a problem. Whole again after a fight won.
+    let acted = 0
+    let aimedAt = 0
+    let won = 0
+    for (let n = 0; n < 12; n++) {
+      const { entries, state } = fight({ rotwalker: 2 }, `minion-${n}`, 1, ['longsword'], {
+        ...arcanist,
+        'present.arcane-companion': 1,
+      })
+      expect(entries.filter((e) => e.code === 'CHECK_FAILED').map((e) => e.text)).toEqual([])
+      const turns = entries.filter((e) => e.code === 'ENCOUNTER_TURN')
+      for (const t of turns.filter((e) => e.data?.id === 'arcane-companion')) {
+        acted++
+        expect(String(t.data?.target)).toMatch(/^rotwalker/)
+      }
+      aimedAt += turns.filter((e) => e.data?.target === 'arcane-companion').length
+      const companion = state.present?.find((p) => p.character.id === 'arcane-companion')
+      if (!state.encounter && companion && state.members![0].values.health! > 0) {
+        won++
+        expect(companion.character.values.health).toBe(12)
+      }
+      // Nothing of it is looted when it's destroyed.
+      expect(
+        entries.some(
+          (e) =>
+            e.code === 'ACTION_TAKEN' &&
+            e.data?.id === 'loot' &&
+            /companion/.test(String(e.data?.who)),
+        ),
+      ).toBe(false)
+    }
+    expect(acted).toBeGreaterThan(0)
+    expect(aimedAt).toBeGreaterThan(0)
+    expect(won).toBeGreaterThan(0)
+  })
+
+  it('a Minion summoned in a fight takes your next turn too (Channelling: 2 Standard Actions)', () => {
+    const { registry, system } = kn()
+    const rules = partyOf(system)
+    const pc = newMember(rules, {
+      id: 'erthos',
+      name: 'Erthos',
+      values: { aether: 10, perception: 90 },
+    })
+    const room: TravelWorld = {
+      km: () => 0.01,
+      place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+      neighbors: () => [],
+      distance: () => 0,
+      connections: () => [],
+    }
+    for (let n = 0; n < 6; n++) {
+      const options = {
+        system,
+        world: room,
+        oracle: createOracleEngine({ registry, random: seeded(n) }),
+      }
+      const { session } = startTrip({ system, location: 'a', members: [pc], seed: `c${n}` })
+      let s = applyResult(
+        { ...session, foesAtOnce: true },
+        {
+          effects: {
+            'characters.erthos.items.flamecaster-1': 1,
+            'characters.erthos.items.flamecaster-2': 1,
+            'characters.erthos.items.flamecaster-3': 1,
+            'characters.erthos.items.flamecaster-4': 1,
+            'present.amalgam': 1,
+          },
+        },
+        {},
+        rules,
+      )
+      let done = stepTrip(options, s, { type: 'action', id: 'fight' })
+      if (done.state.encounter?.stage !== 'acting') continue
+      const round = done.state.encounter.round
+      done = stepTrip(options, done.state, { type: 'action', id: 'summon-fire-elemental' })
+      s = done.state
+      expect(
+        s.present!.some((p) => p.character.id === 'fire-elemental' && p.side === 'party'),
+      ).toBe(true)
+      // Its next turn is lost to the Ability: the fight goes on to the round after.
+      const skipped = done.entries.filter(
+        (e) => e.code === 'ENCOUNTER_SKIPPED' && e.data?.id === 'erthos',
+      )
+      if (s.encounter) {
+        expect(skipped).toHaveLength(1)
+        expect(s.encounter.round).toBeGreaterThan(round + 1)
+      }
+      return
+    }
+    throw new Error('no fight began on the PC’s turn')
+  })
 
   it("a hit's rider: the check the creature's row names, or the condition it brings", () => {
     const riders: string[] = []
@@ -657,14 +825,14 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
         outcome: { crit },
         armor: 'armor-chest',
         weak: 'weak-chest',
-        params: { foe: 'x' },
+        foe: 'x',
         characters: {
           x: { values: { 'armor-chest': 2, 'weak-chest': 0, [String(how.taken)]: taken } },
         },
       }
       const effects = engine.resolve('ker-nethalas/foe-harmed', context).resolution.value
         .effects as Record<string, number | string>
-      return 0 - Number(effects['characters[params.foe].values.health'])
+      return 0 - Number(effects['characters[foe].values.health'])
     }
     expect(hurt('bludgeoning', 5)).toBe(4) // Armor 2, 1 of it ignored
     expect(hurt('slashing', 5)).toBe(3 + 1) // 3 after Armor, +1 at 3 or less

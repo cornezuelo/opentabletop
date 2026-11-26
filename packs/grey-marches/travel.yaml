@@ -651,6 +651,31 @@ actions:
     on: { when: { party.values.escort-offer: { gte: 1 }, present.traveller.count: 0 } }
     do:
       - { effects: { party.values.escort-offer: '=0' } }
+  # An ally (bestiary.yaml's Outrider of the Vale, `side: party`): asked of a patrol here while
+  # the Vale thinks well of the Company; one of the riders rides with it from then on, as far as
+  # the Vale's lands go (its `follows`).
+  ask-outrider:
+    group: groups.here
+    name: Ask for an outrider
+    description: 'With a patrol of the Vale here, while the Vale thinks well of you: one of its riders rides with you as far as the Vale’s lands go, and fights at your side.'
+    when:
+      {
+        present.vale-rider.count: { gte: 1 },
+        factions.the-vale.values.reputation: { gte: 1 },
+        party.allies.count: 0,
+      }
+    hideWhenUnavailable: true
+    do:
+      - { effects: { present.vale-rider: -1, present.vale-outrider: 1 } }
+      - { id: rides, say: 'One of the riders turns their horse and falls in beside the Company.' }
+  # An ally down (`party.allies.lowest`): the outrider rides back to the Vale, wounded.
+  outrider-down:
+    name: The outrider rides back
+    description: 'As the outrider riding with you falls to 0 health: wounded, they ride back to the Vale.'
+    on: { when: { party.allies.lowest.values.health: { lte: 0 } } }
+    do:
+      - { effects: { present.vale-outrider: '=0' } }
+      - { id: back, say: 'The outrider, wounded, turns back for the Vale.' }
   # Off the boat (`travel.mode` again): on foot from now on, to march onto the shore nearby.
   ashore:
     group: groups.here

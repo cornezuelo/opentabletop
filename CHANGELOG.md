@@ -6,10 +6,13 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Packs
 
+- **Core**: **Call the hound** brings a hound that runs with the party, fights on its side and bites on its own turns; foes may go for it too. **The Grey Marches**: with a patrol of the Vale here and the Vale thinking well of the Company, **Ask for an outrider**: one rider comes along while the Company is in the Vale's lands, fighting at its side, each foe set against one of them.
 - **Core**: a foe that fell may leave a dented shield, a step down its wear. **The Grey Marches**: the restless dead may leave a rusted mail shirt, a step down its wear die.
 - **Core**: a shield carried adds 1 to its carrier's new **Guard**, and each foe's blow loses that much. **The Grey Marches**: a hoard's rare prize may be a fen-walker's cloak, +1 Stealth while worn.
 
 ### Formats
+
+- **Packs**: a bestiary's template may be on the party's side (`side: party`): its copies are the party's **allies**, going along with it, fighting on its side and playing their own turns (`encounter.allies`, `encounter.alliesAim`). They're `party.allies.*`, not among `present.*`. New ways to aim: `party.fighters` (members and allies) and `present.fighters` (the foes), each `.random`, `.lowest…`, `.highest…` and `.spread` (one each). **Side**, **An ally's turn** and **An ally aims at** in the Packs app; **Ally** in a trip's Here. Nothing older changes meaning.
 
 - **Packs**: an effect may change the newest item given (`party.items.mail: 1, party.items.mail.newest.wear: -1`): a piece found worn down, while the one already worn stays as it is. Nothing older changes meaning.
 - **Packs**: a sheet's value may take what the items add while they count (`plus: { sum: items.stealth, where: { place.tags: worn } }`), on top of what it keeps: a cloak worn adds its Stealth, and it's gone once the cloak is in the bags; the card's value says why it reads so. **Items add** in the Packs app's sheet form. Tables read every item a character holds by its key (`acting.carried.keys`), so an action may ask which one, wherever it is. Nothing older changes meaning.

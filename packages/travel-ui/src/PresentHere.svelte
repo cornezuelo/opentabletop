@@ -152,6 +152,8 @@
       <strong>{c.name ?? c.id}</strong>
       <!-- What it is, when its name doesn't say (Brenna: a Traveller). -->
       {#if kind && !(c.name ?? '').startsWith(kind.name)}<span class="kind">{kind.name}</span>{/if}
+      <!-- On the party's side (its template's `side: party`). -->
+      {#if p.side === 'party'}<span class="ally">{t('present.ally')}</span>{/if}
       <span class="line">{where ? placeName(p.at) : copyLine(c, sheet, locale)}</span>
       <span class="tools">
         <button
@@ -296,6 +298,11 @@
 
   .copy[open] > summary {
     margin-bottom: 6px;
+  }
+
+  .ally {
+    font-size: 12px;
+    color: var(--accent);
   }
 
   .line,

@@ -758,10 +758,11 @@ describe('example maps', () => {
       'open-chest': { condition: 'when' },
       'grave-goods': { condition: 'when' }, // no chest opened
       'throw-meat': { condition: 'when' }, // no wolves here
+      'ask-outrider': { condition: 'when' }, // no patrol of the Vale here
       drink: { condition: 'needs' }, // a flask's Use: nobody acting
       taste: { condition: 'when' }, // no flask held unknown
     })
-    expect(Object.keys(unavailable)).toHaveLength(45)
+    expect(Object.keys(unavailable)).toHaveLength(46)
   })
 
   it('the Grey Marches: delving a ruin rolls a generator from a step, no check around it', () => {

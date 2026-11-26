@@ -32,6 +32,14 @@ const follows = z.union([
 export type Follows = z.infer<typeof follows>
 
 /**
+ * Whose side copies are on in a fight: the `foes` met (the default), or the `party`'s, as
+ * its allies (a hound, a summoned creature, a hired sword): they go along with it, fight
+ * beside it and act by themselves on their turns.
+ */
+export const SIDES = ['foes', 'party'] as const
+export type TemplateSide = (typeof SIDES)[number]
+
+/**
  * The token kinds a template may be drawn as on a map: the map's own kinds of token (how
  * it's drawn: its default colours and icon), not a game's, so not a system's to declare.
  */
@@ -74,6 +82,8 @@ const template = z
      * `present.fighters`.
      */
     fights: z.boolean().optional(),
+    /** Whose side its copies are on (absent: the bestiary's, else `foes`). */
+    side: z.enum(SIDES).optional(),
   })
   .strict()
 
@@ -89,6 +99,8 @@ export const bestiarySchema = z
     behind: z.enum(BEHIND).optional(),
     /** Whether copies follow the party, unless a template says otherwise; absent: they don't. */
     follows: follows.optional(),
+    /** Whose side copies are on, unless a template says otherwise; absent: `foes`. */
+    side: z.enum(SIDES).optional(),
     templates: z.record(z.string().min(1), template).default({}),
   })
   .strict()
@@ -168,12 +180,15 @@ export interface Template {
   follows?: Condition | true
   /** Whether its copies fight. */
   fights: boolean
+  /** Whose side its copies are on: the party's allies, or the foes met. */
+  side: TemplateSide
 }
 
 /**
  * A template of the bestiary as a copy is made of it: a variant takes what it doesn't say
  * from the one it's `like` (its values and items merged, its tags and conditions
- * added); the bestiary gives the sheet, `behind` and `follows` none of them says.
+ * added); the bestiary gives the sheet, `behind`, `follows` and `side` none of them says.
+ * Allies (`side: party`) follow the party unless one of them says otherwise.
  */
 export function resolveTemplate(def: Bestiary, id: string): Template | undefined {
   const { chain, loop } = likeChain(def, id)
@@ -185,6 +200,7 @@ export function resolveTemplate(def: Bestiary, id: string): Template | undefined
     values: {},
     behind: 'stay',
     fights: true,
+    side: 'foes',
   }
   // The furthest first, so each variant writes over what it's like.
   for (const t of [...chain].reverse()) {
@@ -197,11 +213,20 @@ export function resolveTemplate(def: Bestiary, id: string): Template | undefined
     if (t.behind) out.behind = t.behind
     if (t.follows !== undefined) setFollows(out, t.follows)
     if (t.fights !== undefined) out.fights = t.fights
+    if (t.side) out.side = t.side
   }
   out.sheet ??= def.sheet
   if (!chain.some((t) => t.behind) && def.behind) out.behind = def.behind
   if (!chain.some((t) => t.follows !== undefined) && def.follows !== undefined)
     setFollows(out, def.follows)
+  if (!chain.some((t) => t.side) && def.side) out.side = def.side
+  // Allies go along with the party unless they say they don't.
+  if (
+    out.side === 'party' &&
+    !chain.some((t) => t.follows !== undefined) &&
+    def.follows === undefined
+  )
+    out.follows = true
   return out
 }
 

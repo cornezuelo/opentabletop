@@ -6,7 +6,7 @@ name: Foes
 description: |-
   Whoever stands in the way: a template to make foes from.
 
-  **Shows:** the smallest bestiary: one template on the characters' sheet (`sheet: sheet.character`), its health rolled for each copy, and a thing that doesn't fight on a sheet of its own (_Locked chest_, `fights: false`); a copy whose health reaches 0 is down, and gone (the sheet's _Down_ `leaves`); foes that follow the party when it moves on (`follows`), unless it got away (_Run_ brings them along, _Get away_ costs a day's food); its token (`token:`), drawn on a map and as its face in a fight.
+  **Shows:** the smallest bestiary: one template on the characters' sheet (`sheet: sheet.character`), its health rolled for each copy, and a thing that doesn't fight on a sheet of its own (_Locked chest_, `fights: false`); a copy whose health reaches 0 is down, and gone (the sheet's _Down_ `leaves`); foes that follow the party when it moves on (`follows`), unless it got away (_Run_ brings them along, _Get away_ costs a day's food); its token (`token:`), drawn on a map and as its face in a fight; an ally on the party's side (_Hound_, `side: party`), who goes along with it and plays its own turns (`actions:`).
 sheet: sheet.character
 templates:
   foe:
@@ -17,6 +17,15 @@ templates:
     token: { icon: 'game:crossed-swords', kind: enemy }
     # A chase: it follows the party to the next place, unless the party got away (Get away).
     follows: { not: { party.conditions: got-away } }
+  # On the party's side (`side: party`): it goes along with the party, fights beside it and
+  # bites on its own turns (its `actions:`), at whom the system says (`encounter.alliesAim`).
+  hound:
+    name: Hound
+    description: A dog that runs with you; it bites whoever you fight.
+    side: party
+    values: { health: '{{1d3 + 1}}' }
+    actions: table.hound-turn
+    token: { icon: 'game:wolf-head', kind: npc }
   # A thing, not a foe (`fights: false`): here with its card, never a side of a fight.
   chest:
     sheet: sheet.chest
@@ -70,7 +79,7 @@ name: A foe's turn
 description: |-
   What a foe does on its turn in a fight: a blow at one of you, or now and then a sweep at all of you.
 
-  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; whom its turn goes for, chosen before it rolls (the system's `aim: party.members.random`), and the blow's effect on them (`characters[encounter.target].values.health`, less their guard, which a shield carried adds to, and their shield's wear die a step down, `characters[encounter.target].items.shield.wear: -1`, nothing for whoever carries none); a result aimed at everyone (`set: { target: party.members.all }`), its effect played for each, its die rolled for each. A staggered foe never rolls it: its turn is lost (the system's `encounter.skip`).
+  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe; whom its turn goes for, chosen before it rolls (the system's `aim: party.fighters.random`: one of you or the hound that runs with you), and the blow's effect on them (`characters[encounter.target].values.health`, less their guard, which a shield carried adds to, and their shield's wear die a step down, `characters[encounter.target].items.shield.wear: -1`, nothing for whoever carries none); a result aimed at everyone (`set: { target: party.members.all }`), its effect played for each, its die rolled for each. A staggered foe never rolls it: its turn is lost (the system's `encounter.skip`).
 roll: 1d6
 entries:
   - id: blow
@@ -87,6 +96,23 @@ entries:
     set: { target: party.members.all }
     result: The foe sweeps at all of you
     effects: { 'characters[target].values.health': '-{{1d2}}' }
+---
+# The hound's turn in a fight (its template's `actions:`): a bite at the foe its turn goes for.
+kind: table
+id: hound-turn
+tags: [encounters]
+name: The hound's turn
+description: |-
+  What the hound does on its turn in a fight: it bites the foe it goes for, now and then missing.
+
+  **Shows:** an ally's turn (a template with `side: party`), played by itself as a foe's is, at whom the system's `encounter.alliesAim` chooses as its turn begins (`present.fighters.random`: one of the foes), read as `encounter.target`.
+roll: 1d3
+entries:
+  - { id: miss, range: 1, result: '{{acting.name}} snaps, and misses' }
+  - id: bite
+    range: 2-3
+    result: '{{acting.name}} bites: 1 harm'
+    effects: { 'characters[encounter.target].values.health': -1 }
 ---
 # A member's blow (travel.yaml's Strike): 1d3 harm; a glancing 1 staggers the foe for a round.
 kind: table

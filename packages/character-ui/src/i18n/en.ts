@@ -120,6 +120,11 @@ export const en = {
       "Whether its copies fight. **No**: a thing in the place that doesn't (a chest, a trap, an altar): it's among those present, with its card and the actions aimed at it, but a fight leaves it out (no turn, not a foe), and `present.fighters` doesn't count it. `present.count` counts everyone.\n• `present.fighters.count: { gte: 1 }` — a foe is here, not just a chest\n• `when: { target.conditions: locked }` — an action aimed at a locked one",
     fightsYes: 'Yes',
     fightsNo: 'No: a thing',
+    side: 'Side',
+    sideHelp:
+      "Whose side its copies are on in a fight. **The foes**: those the party meets (the default). **The party's**: its allies (a hound, a summoned creature, a hired sword): they go along with the party wherever it goes (unless its `follows:` says otherwise), fight on its side and play their own turns by **On its turn**, aiming at whom the system says (**An ally aims at**). They aren't among those met (`present.*`), but `party.allies`:\n• `party.allies.count: { gte: 1 }` — whether anyone goes with the party\n• `party.allies.values.health: '=8'` — every ally here\n• `acting.side: party` — the one acting is an ally",
+    sideFoes: 'The foes',
+    sideParty: "The party's: an ally",
     valuesHelp:
       "The sheet's values it starts with: a number, or a roll in braces that is rolled for every copy. Empty: the sheet's default (shown faint).\n• `{{2d4}}` — two four-sided dice\n• `{{1d6+2}}`\n• `3`",
     tagsHelp: 'Words conditions read it by, each one a pill:\n• `beast`, `leader`',

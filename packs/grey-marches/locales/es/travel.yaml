@@ -136,6 +136,18 @@ travel-rules/default:
     escort-forgotten:
       name: Escolta olvidada
       description: 'Alejarse de quien pidió escolta: la oferta se va con esa persona.'
+    ask-outrider:
+      name: Pedir un batidor
+      description: 'Con una patrulla del Valle aquí, mientras el Valle os tenga en buena estima: uno de sus jinetes cabalga con vosotros hasta donde llegan las tierras del Valle, y lucha a vuestro lado.'
+      do:
+        rides:
+          say: Uno de los jinetes hace girar su caballo y se pone al paso de la Compañía.
+    outrider-down:
+      name: El batidor se vuelve
+      description: 'Cuando el batidor que cabalga con vosotros llega a 0 de salud: herido, se vuelve al Valle.'
+      do:
+        back:
+          say: El batidor, herido, emprende el regreso al Valle.
     inn:
       name: Tomar habitaciones en la posada
       description: 'Una noche bajo techo, pagando cada uno el precio de la posada, dos por habitación: despertáis al alba con 2 de fatiga menos, 1 de moral más, cada compañero con 1 de salud más y sin el miedo en el cuerpo.'

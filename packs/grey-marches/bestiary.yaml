@@ -127,6 +127,7 @@ description: |-
   - What a copy does on its turn in a fight (`actions: table.wolf-turn`), taken by its variant through `like` (the pack's leader), and the restless dead's (`actions: table.dead-turn`); the rest do what the system says (`encounter.foes`)
   - Foes that follow the Company when it moves on (`follows`, a condition read with the copy acting): wolves while they mean harm and haven't been thrown meat (_Gorging_, Throw them meat), bandits while they mean harm and the Company isn't on horseback (`trip.mode`); falling back from a fight and marching away, they come along to the next place, and the Company is _Beset_ again
   - What becomes of those left behind: gone (`behind: leave`, the bestiary's), except the Wyrm, which stays in its wood, the restless dead, in their barrow, and a grave-goods chest, in its crypt (`behind: stay`)
+  - An ally on the Company's side (`side: party`): an outrider of the Vale who rides with it (_Ask for an outrider_) while it's in the Vale's lands (`follows`, a condition read on reaching each place: `place.region`, `place.faction`), turning back as it leaves them; it fights beside the Company, on its own turns (`actions: table.outrider-turn`), at the foe in its own place (the system's `alliesAim: present.fighters.spread`), and the foes go for it too (`aim: party.fighters.spread`)
   - Who doesn't fight (`fights: false`): travellers and the Vale's riders, met and not fought, and the grave-goods chest, a thing of a crypt on a sheet of its own (_Chest_), aimed at by actions (_Look it over_, _Pick it_, _Break it open_, _Open it_); none of them is a side of a fight, nor counted by `present.fighters`
   - Who is a foe, as a tag (`foe`), and who means harm now, as a condition every foe starts with (`conditions: [hostile]`) and a reaction other than hostile takes off: while one that has it is here (`present.conditions: hostile`) the Company is _Beset_ (its sheet), and can't march on or busy itself with anything else until it deals with them or falls back
 sheet: sheet.foe
@@ -218,6 +219,17 @@ templates:
     values: { survival: 2, charisma: 1, health: 3 }
     token: { icon: 'game:mounted-knight', kind: npc }
     fights: false
+  # On the Company's side (`side: party`): a rider of the Vale who rides along with it while
+  # it's in the Vale's lands, and turns back as it leaves them (left behind, gone).
+  vale-outrider:
+    like: vale-rider
+    name: Outrider of the Vale
+    description: A rider of the Vale's patrol riding with the Company, as far as the Vale's lands go.
+    side: party
+    fights: true
+    values: { survival: 2, charisma: 1, health: 4, armour: 1 }
+    actions: table.outrider-turn
+    follows: { any: [{ place.region: { eq: Ashford Vale } }, { place.faction: the-vale }] }
   # A thing found in a crypt of the Deep Barrows (pieces.yaml's _In the crypt_), not a foe: no
   # side of a fight (`fights: false`), on a sheet of its own; it stays in its crypt.
   grave-chest:
@@ -240,7 +252,7 @@ name: A foe's turn
 description: |-
   What a foe does on its turn in a fight, when its kind has no turn of its own: it swings at one of the Company, chosen as its turn begins, and lands half the time, for its Harm; the armour they wear takes its roll down.
 
-  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe (`acting.values.harm`); whom its turn goes for, chosen before it rolls (the system's `aim: party.members.random`), read by its roll (`'1d6 - {{characters[encounter.target].values.armour}}'`) and its effects (`characters[encounter.target].values.health`); a condition given for a while (`characters[encounter.target].conditions.rattled: '{{1d2}}'`: rounds of the fight); a roll mode read off the one it goes for (`modeWhen: { roll-modes.disadvantage: { 'characters[encounter.target].conditions': braced } }`: Shieldwall's braced); a turn that does nothing.
+  **Shows:** what foes do on their turns (`encounter.foes` in the system), rolled acting as each foe (`acting.values.harm`); whom its turn goes for, chosen before it rolls (the system's `aim: party.fighters.spread`: one each among the companions and an outrider riding with them, the foes left over at the companions), read by its roll (`'1d6 - {{characters[encounter.target].values.armour}}'`) and its effects (`characters[encounter.target].values.health`); a condition given for a while (`characters[encounter.target].conditions.rattled: '{{1d2}}'`: rounds of the fight); a roll mode read off the one it goes for (`modeWhen: { roll-modes.disadvantage: { 'characters[encounter.target].conditions': braced } }`: Shieldwall's braced); a turn that does nothing.
 roll: '1d6 - {{characters[encounter.target].values.armour}}'
 # Against one braced behind a shield (travel.yaml's Shieldwall), the worse of two rolls.
 modeWhen:
@@ -258,6 +270,35 @@ entries:
     effects:
       'characters[encounter.target].values.health': '-{{acting.values.harm}}'
       'characters[encounter.target].conditions.rattled': '{{1d2}}'
+---
+# The outrider's turn in a fight (its template's `actions:`): a lance at the foe set against it.
+kind: table
+id: outrider-turn
+tags: [encounters]
+name: The outrider's turn
+description: |-
+  What an outrider of the Vale riding with the Company does on its turn in a fight: it lowers its lance at the foe set against it, for 1d4 harm, and rides it down now and then, its nerve shaken.
+
+  **Shows:** an ally's turn (a template with `side: party`), played by itself as a foe's is; whom it goes for, chosen as its turn begins (the system's `alliesAim: present.fighters.spread`: the foe in its own place among them, the next one standing if that one fell), read as `encounter.target` in its effects (`characters[encounter.target].values.morale`); a lance's harm halved on old bones, read off the foe's tags (`'characters[encounter.target].tags': bone`).
+roll: 1d6
+entries:
+  - { id: wheel, range: 1-2, result: '{{acting.name}} wheels round, and finds no opening' }
+  - id: lance
+    range: 3-5
+    unless: { 'characters[encounter.target].tags': bone }
+    result: '{{acting.name}} drives the lance home: {{1d4}} harm'
+    effects: { 'characters[encounter.target].values.health': '-{{1d4}}' }
+  - id: bones
+    range: 3-5
+    when: { 'characters[encounter.target].tags': bone }
+    result: '{{acting.name}}’s lance glances off old bones: {{floor(1d4 / 2)}} harm'
+    effects: { 'characters[encounter.target].values.health': '-{{floor(1d4 / 2)}}' }
+  - id: ride-down
+    range: 6
+    result: '{{acting.name}} rides it down: {{1d4}} harm, and its nerve shaken'
+    effects:
+      'characters[encounter.target].values.health': '-{{1d4}}'
+      'characters[encounter.target].values.morale': -1
 ---
 # A wolf's turn in a fight (bestiary.yaml's grey-wolf `actions:`, its leader's too, by `like`):
 # it goes for whoever is hurt worst.

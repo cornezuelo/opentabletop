@@ -83,6 +83,25 @@ describe('bestiary', () => {
     expect(resolveTemplate(ok, 'mimic')!.fights).toBe(true)
   })
 
+  it("side: the party's allies, which follow it unless they say they don't", () => {
+    const { bestiary, errors } = parseBestiary({
+      ...raw,
+      side: 'party',
+      templates: {
+        hound: { name: 'Hound' },
+        pup: { like: 'hound', follows: false },
+        stray: { name: 'Stray', side: 'foes' },
+      },
+    })
+    expect(errors).toEqual([])
+    expect(resolveTemplate(bestiary!, 'hound')).toMatchObject({ side: 'party', follows: true })
+    expect(resolveTemplate(bestiary!, 'pup')!.side).toBe('party')
+    expect(resolveTemplate(bestiary!, 'pup')!.follows).toBeUndefined()
+    expect(resolveTemplate(bestiary!, 'stray')).toMatchObject({ side: 'foes' })
+    expect(resolveTemplate(bestiary!, 'stray')!.follows).toBeUndefined()
+    expect(parseBestiary({ ...raw, side: 'friends' }).errors).toHaveLength(1)
+  })
+
   it("follows: the bestiary's, a template's, a variant's and a condition checked", () => {
     const chase = { not: { 'acting.conditions': 'fed' } }
     const { bestiary, errors } = parseBestiary({

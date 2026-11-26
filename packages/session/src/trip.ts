@@ -1901,14 +1901,16 @@ function waitForStepRoll(
 
 /**
  * What a foe rolls on its turn, as a full id: its template's `actions` (from its bestiary's
- * pack), else the system's `encounter.foes`; none, and it only hears the moment.
+ * pack), else the system's `encounter.foes` (an ally's, `encounter.allies`); none, and it
+ * only hears the moment.
  */
 function foeTable(system: TravelSystem, s: SessionState, id: string): string | undefined {
-  const made = s.present?.find((p) => p.character.id === id)?.character.template
+  const copy = s.present?.find((p) => p.character.id === id)
+  const made = copy?.character.template
   const found = made && partyOf(system).bestiary?.(made.id)
   const own = found?.template.actions
   if (found && own) return definitionId(own, found.bestiary.split('/')[0])
-  const foes = system.encounter?.foes
+  const foes = copy?.side === 'party' ? system.encounter?.allies : system.encounter?.foes
   return foes && definitionId(foes, system.sources?.rules?.pack ?? system.pack)
 }
 

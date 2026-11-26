@@ -234,6 +234,24 @@ export function contextSuggestions(
         add(`present.${id}.count`)
         add(`present.${id}.ids`)
       }
+      // The party's allies (templates on its side), and a copy's side.
+      if (
+        bestiary.some(
+          (b) => b.def.side === 'party' || templates.some(([, t]) => t.side === 'party'),
+        )
+      ) {
+        add('party.allies.count')
+        add('party.allies.ids')
+        add('party.allies.tags')
+        add('party.allies.conditions')
+        for (const sheet of Object.values(templateSheets ?? {}))
+          for (const value of Object.keys(sheet.values)) {
+            add(`party.allies.highest.values.${value}`)
+            add(`party.allies.lowest.values.${value}`)
+          }
+      }
+      add('acting.side', 'foes', 'party')
+      add('characters.<id>.side', 'foes', 'party')
       // Each copy by its id, with its sheet's values and conditions; the most and the least
       // of each value among them.
       for (const sheet of Object.values(templateSheets ?? {})) {
@@ -506,6 +524,7 @@ export function effectSuggestions(registry: Registry): Record<string, string[]> 
     if (bestiary?.length) {
       const whos = [
         'present.all',
+        'party.allies',
         ...bestiary.flatMap((b) => Object.keys(b.def.templates).map((id) => `present.${id}`)),
       ]
       for (const sheet of Object.values(templateSheets ?? {}))

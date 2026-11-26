@@ -8,7 +8,7 @@ import { corePack, greyMarchesPack } from './core.testing'
 import { encounterView, fightStarters } from './encounter'
 import { applyResult, rolledNodes, type JournalEntry } from './index'
 import { newMember } from './party'
-import { faceIcon, templateLook } from './present'
+import { faceIcon, fightersHere, templateLook } from './present'
 import { templateCopy } from './index'
 import { lookupTemplates, valuesNow } from '@open-tabletop/character-engine'
 import {
@@ -41,6 +41,15 @@ const heath: TravelWorld = {
   neighbors: () => [],
   distance: () => 0,
   connections: () => [],
+}
+
+/** Two companions: Kael, stealthy, and Mara. */
+const people = (system: typeof marches) => {
+  const rules = partyOf(system)
+  return [
+    newMember(rules, { id: 'kael', name: 'Kael', values: { stealth: 3 } }),
+    newMember(rules, { id: 'mara', name: 'Mara', values: { stealth: 0 } }),
+  ]
 }
 
 /** A result of a table rolled as a trip's check would, with a seed that brings `entry`. */
@@ -468,6 +477,90 @@ describe('beset by foes', () => {
     connections: () => ['road'],
   }
 
+  it('the Grey Marches: an outrider of the Vale rides with the Company in its lands, fights at its side, turns back beyond them', () => {
+    // a and b in the Vale, c beyond it; the Vale thinks well of the Company.
+    const vale: TravelWorld = {
+      km: () => 1,
+      place: (id) => ({ terrain: 'plains', region: id === 'c' ? 'The Heath' : 'Ashford Vale' }),
+      neighbors: (id) => (id === 'a' ? ['b'] : id === 'b' ? ['a', 'c'] : ['b']),
+      distance: () => 1,
+      connections: () => ['road'],
+    }
+    const facts = { factions: { 'the-vale': { values: { reputation: 2 } } } }
+    const options = {
+      system: marches,
+      world: vale,
+      facts,
+      oracle: createOracleEngine({ registry, random: seeded(5) }),
+    }
+    const { session } = startTrip({
+      system: marches,
+      location: 'a',
+      members: people(marches),
+      seed: 'o',
+      time: 9 * 60,
+    })
+    let s = applyResult(session, { effects: { 'present.vale-rider': 2 } }, {}, partyOf(marches))
+    expect(tripAvailability(options, s)['ask-outrider']).toBeUndefined()
+    // Not while the Vale thinks ill of them.
+    const cold = { ...options, facts: { factions: { 'the-vale': { values: { reputation: 0 } } } } }
+    expect(tripAvailability(cold, s)['ask-outrider']).toMatchObject({ condition: 'when' })
+    s = stepTrip(options, s, { type: 'action', id: 'ask-outrider' }).state
+    const allies = (st: SessionState) =>
+      (st.present ?? []).filter((p) => p.side === 'party').map((p) => [p.character.id, p.at])
+    expect(allies(s)).toEqual([['vale-outrider', 'a']])
+    expect(s.present!.filter((p) => p.character.template?.id === 'vale-rider')).toHaveLength(1)
+    expect(tripAvailability(options, s)['ask-outrider']).toMatchObject({ condition: 'when' })
+    // A fight: two bandits, one each for Kael and Mara, the outrider set against nobody but
+    // still going for one of them (the next standing); foes aim at the companions or at it.
+    let fought = stepTrip(
+      options,
+      // The patrol rode on (with one here, Stand and fight waits); the outrider, though it's
+      // of the Vale too, isn't one of those met (`present.tags` leaves it out).
+      applyResult(
+        s,
+        { effects: { 'present.bandit': 3, 'present.vale-rider': '=0' } },
+        {},
+        partyOf(marches),
+      ),
+      { type: 'action', id: 'stand' },
+    )
+    const all: JournalEntry[] = [...fought.entries]
+    const first = fought.state.encounter?.order
+    for (let turn = 0; turn < 80 && fought.state.encounter; turn++) {
+      const foe = fightersHere(fought.state)[0]?.character.id
+      fought = stepTrip(options, fought.state, { type: 'action', id: 'strike', with: { foe } })
+      if (fought.state.travel.waiting)
+        fought = stepTrip(options, fought.state, { type: 'resume', choice: foe })
+      all.push(...fought.entries)
+    }
+    const turns = all.filter((e) => e.code === 'ENCOUNTER_TURN')
+    const its = turns.filter((e) => e.data?.id === 'vale-outrider')
+    expect(its.length).toBeGreaterThan(0)
+    for (const t of its) expect(String(t.data?.target)).toMatch(/^bandit/)
+    expect(
+      all.some((e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'grey-marches/outrider-turn'),
+    ).toBe(true)
+    // One each, in the fight's order: the first bandit to act goes for Kael, the second for
+    // Mara, the third for the outrider (the next one standing, if that one fell).
+    const bandits = (first ?? []).filter((id) => id.startsWith('bandit'))
+    const aimedAt = (id: string) => turns.find((e) => e.data?.id === id)?.data?.target
+    const side = ['kael', 'mara', 'vale-outrider']
+    bandits.forEach((id, k) => {
+      if (aimedAt(id) !== undefined) expect(side.slice(k)).toContain(aimedAt(id))
+    })
+    expect(aimedAt(bandits[0])).toBe('kael')
+    // In the Vale's lands it rides along; beyond them it turns back, gone.
+    s = stepTrip(options, s, { type: 'setDestination', place: 'b' }).state
+    s = stepTrip(options, s, { type: 'action', id: 'march' }).state
+    expect(s.travel.location).toBe('b')
+    expect(allies(s)).toEqual([['vale-outrider', 'b']])
+    s = stepTrip(options, s, { type: 'setDestination', place: 'c' }).state
+    s = stepTrip(options, s, { type: 'action', id: 'march' }).state
+    expect(s.travel.location).toBe('c')
+    expect(allies(s)).toEqual([])
+  })
+
   it('Core: no moving on, exploring or resting beside a foe, until the party gets away', () => {
     const options = { system: core, world: road }
     const { session } = startTrip({ system: core, location: 'a', seed: 'b', time: 9 * 60 })
@@ -637,13 +730,6 @@ describe('beset by foes', () => {
 })
 
 describe('the bundled packs fight in turns', () => {
-  const people = (system: typeof marches) => {
-    const rules = partyOf(system)
-    return [
-      newMember(rules, { id: 'kael', name: 'Kael', values: { stealth: 3 } }),
-      newMember(rules, { id: 'mara', name: 'Mara', values: { stealth: 0 } }),
-    ]
-  }
   /** Plays a fight to its end: each companion's turn a Strike one down at the first foe here. */
   function fight(
     system: typeof marches,
@@ -744,7 +830,8 @@ describe('the bundled packs fight in turns', () => {
     expect(core.encounter).toEqual({
       order: { by: 'side', first: 'party' },
       actions: ['strike'],
-      aim: 'party.members.random',
+      aim: 'party.fighters.random',
+      alliesAim: 'present.fighters.random',
       foes: 'table.foe-turn',
       ends: { 'present.fighters.count': 0 },
       skip: { 'acting.conditions': 'staggered' },
@@ -759,6 +846,46 @@ describe('the bundled packs fight in turns', () => {
     ])
     expect(lines).toContain('ENCOUNTER_ENDED')
     expect(state.encounter).toBeUndefined()
+  })
+
+  it('Core: the hound called runs with the party, fights on its side and bites on its own turns', () => {
+    const { session } = startTrip({
+      system: core,
+      location: 'a',
+      members: people(core),
+      seed: 'h',
+      time: 9 * 60,
+    })
+    const options = {
+      system: core,
+      world: heath,
+      oracle: createOracleEngine({ registry, random: seeded(4) }),
+    }
+    let done = stepTrip(options, session, { type: 'action', id: 'call-hound' })
+    expect(done.state.present?.map((p) => [p.character.id, p.side])).toEqual([['hound', 'party']])
+    // Once a day, and not while one runs with them.
+    expect(tripAvailability(options, done.state)['call-hound']).toBeDefined()
+    let s = applyResult(done.state, { effects: { 'present.foe': 3 } }, {}, partyOf(core))
+    done = stepTrip(options, s, { type: 'action', id: 'fight' })
+    expect(done.state.encounter?.order).toEqual(['kael', 'mara', 'hound', 'foe', 'foe-2', 'foe-3'])
+    const all: JournalEntry[] = [...done.entries]
+    for (let turn = 0; turn < 60 && done.state.encounter; turn++) {
+      s = done.state
+      const foe = fightersHere(s)[0]?.character.id
+      done = stepTrip(options, s, { type: 'action', id: 'strike', with: { foe } })
+      all.push(...done.entries)
+    }
+    expect(done.state.encounter).toBeUndefined()
+    const bites = all.filter(
+      (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'core/hound-turn',
+    )
+    expect(bites.length).toBeGreaterThan(0)
+    // The hound's turns are its own, aimed at a foe; the foes' at one of the party or the hound.
+    const turns = all.filter((e) => e.code === 'ENCOUNTER_TURN')
+    for (const t of turns.filter((e) => e.data?.id === 'hound'))
+      expect(String(t.data?.target)).toMatch(/^foe/)
+    for (const t of turns.filter((e) => /^foe/.test(String(e.data?.id)) && e.data?.target))
+      expect(['kael', 'mara', 'hound']).toContain(t.data?.target)
   })
 
   it("Core: a foe's blow keeps the 1d6 its table asked for apart from the 1d3 of harm its row rolled", () => {

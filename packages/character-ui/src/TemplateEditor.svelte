@@ -216,6 +216,17 @@
         <option value="false">{t('template.fightsNo')}</option>
       </select>
     </label>
+    <label>
+      <span>{t('template.side')}<InfoTip markdown={t('template.sideHelp')} /></span>
+      <select
+        value={template.side === 'party' ? 'party' : ''}
+        {disabled}
+        onchange={(e) => set('side', e.currentTarget.value === 'party' ? 'party' : undefined)}
+      >
+        <option value="">{t('template.sideFoes')}</option>
+        <option value="party">{t('template.sideParty')}</option>
+      </select>
+    </label>
   </div>
 
   <h4>{t('values')}<InfoTip markdown={t('template.valuesHelp')} /></h4>

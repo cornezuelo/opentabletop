@@ -38,6 +38,12 @@ export interface Present {
    * no side of a fight, not among `present.fighters`. Absent: it fights.
    */
   fights?: false
+  /**
+   * On the party's side: one of its allies (its template's `side: party`), who fights beside
+   * it, acts by itself on its turns and goes along with it. Not among those the party meets
+   * (`present.*`), but `party.allies.*`. Absent: one of those met.
+   */
+  side?: 'party'
 }
 
 /** What the session needs of a system to make and keep copies. */
@@ -111,13 +117,21 @@ export function presentBrought(
   return out
 }
 
-/** The copies at the party's place now. */
+/** The copies at the party's place now: those met and the party's allies. */
 export const presentHere = (s: Pick<PresentTarget, 'present' | 'travel'>): Present[] =>
   (s.present ?? []).filter((p) => p.at === s.travel.location)
 
-/** Those at the party's place now that fight (a fight's foes): not the things that don't. */
+/** Those the party meets at its place now (`present.*`): every copy here but its allies. */
+export const metHere = (s: Pick<PresentTarget, 'present' | 'travel'>): Present[] =>
+  presentHere(s).filter((p) => p.side !== 'party')
+
+/** The party's allies at its place now (`party.allies.*`): those on its side. */
+export const alliesHere = (s: Pick<PresentTarget, 'present' | 'travel'>): Present[] =>
+  presentHere(s).filter((p) => p.side === 'party' && p.fights !== false)
+
+/** Those at the party's place now that fight it (a fight's foes): not things, nor allies. */
 export const fightersHere = (s: Pick<PresentTarget, 'present' | 'travel'>): Present[] =>
-  presentHere(s).filter((p) => p.fights !== false)
+  metHere(s).filter((p) => p.fights !== false)
 
 /** The sheet a copy is made with, when the system has it. */
 export const copySheet =
@@ -201,6 +215,7 @@ export function changePresent(
       ...(template.behind === 'leave' && { behind: 'leave' as const }),
       ...(template.follows !== undefined && { follows: template.follows }),
       ...(!template.fights && { fights: false as const }),
+      ...(template.side === 'party' && { side: 'party' as const }),
     })
   }
   s.present = [...(s.present ?? []), ...made]
@@ -282,6 +297,9 @@ export function addPresent(
       character,
       at: s.travel.location ?? '',
       ...(template && !template.fights && { fights: false as const }),
+      ...(template?.side === 'party' && { side: 'party' as const }),
+      ...(template?.side === 'party' &&
+        template.follows !== undefined && { follows: template.follows }),
     },
   ]
   return [
@@ -414,11 +432,15 @@ export function extremes(facts: readonly Record<string, unknown>[]): {
   return { highest: { values: highest }, lowest: { values: lowest } }
 }
 
-/** A copy's facts, with the template it's a copy of (`characters[params.foe].template`). */
+/**
+ * A copy's facts, with the template it's a copy of (`characters[params.foe].template`) and
+ * its side (`acting.side: party` for one of the party's allies, else `foes`).
+ */
 export function copyFacts(p: Present, rules: PresentRules): Record<string, unknown> {
   return {
     ...characterFacts(p.character, copySheet(rules)(p.character)),
     ...(p.character.template && { template: p.character.template.id }),
+    side: p.side ?? 'foes',
   }
 }
 
@@ -428,19 +450,20 @@ export function copyFacts(p: Present, rules: PresentRules): Record<string, unkno
  * holds), `present.fighters.count` and `.ids` (those that fight: not the things whose
  * template says `fights: false`), `present.highest.values.<id>` and `.lowest`
  * (the most and least of a value among them) and each template's `present.<id>.count` and
- * `.ids` (every template of the system, at 0 when none is here); and each copy here as a
- * character (`characters.<id>.*`), beside the members.
+ * `.ids` (every template of the system, at 0 when none is here): those the party meets, not
+ * its allies (`alliesFacts`). And each copy here as a character (`characters.<id>.*`), its
+ * allies too, beside the members.
  */
 export function presentFacts(
   s: Pick<PresentTarget, 'present' | 'travel'>,
   rules: PresentRules,
 ): { present: Record<string, unknown>; characters: Record<string, Record<string, unknown>> } {
-  const here = presentHere(s)
+  const met = metHere(s)
   const byTemplate: Record<string, { count: number; ids: string[] }> = Object.fromEntries(
     (rules.templateIds ?? []).map((id) => [id, { count: 0, ids: [] }]),
   )
   const tags = new Set<string>()
-  for (const p of here) {
+  for (const p of met) {
     p.character.tags.forEach((t) => tags.add(t))
     const id = p.character.template?.id
     if (id === undefined) continue
@@ -448,22 +471,43 @@ export function presentFacts(
     t.count++
     t.ids.push(p.character.id)
   }
-  const characters = Object.fromEntries(here.map((p) => [p.character.id, copyFacts(p, rules)]))
-  const fighters = here.filter((p) => p.fights !== false).map((p) => p.character.id)
-  const conditions = new Set(
-    Object.values(characters).flatMap((c) => (c.conditions as string[] | undefined) ?? []),
+  const characters = Object.fromEntries(
+    presentHere(s).map((p) => [p.character.id, copyFacts(p, rules)]),
   )
+  const metFacts = met.map((p) => characters[p.character.id])
+  const fighters = met.filter((p) => p.fights !== false).map((p) => p.character.id)
+  const conditions = new Set(metFacts.flatMap((c) => (c.conditions as string[] | undefined) ?? []))
   return {
     present: {
       ...byTemplate,
-      ids: here.map((p) => p.character.id),
-      count: here.length,
+      ids: met.map((p) => p.character.id),
+      count: met.length,
       fighters: { count: fighters.length, ids: fighters },
       tags: [...tags],
       conditions: [...conditions],
-      ...extremes(Object.values(characters)),
+      ...extremes(metFacts),
     },
     characters,
+  }
+}
+
+/**
+ * What conditions and tables read of the party's allies here (`party.allies.*`): `count`,
+ * `ids`, `tags`, `conditions` and the most and least of a value among them (`highest`,
+ * `lowest`); each one is also a character (`characters.<id>.*`).
+ */
+export function alliesFacts(
+  s: Pick<PresentTarget, 'present' | 'travel'>,
+  rules: PresentRules,
+): Record<string, unknown> {
+  const allies = alliesHere(s)
+  const facts = allies.map((p) => copyFacts(p, rules))
+  return {
+    count: allies.length,
+    ids: allies.map((p) => p.character.id),
+    tags: [...new Set(allies.flatMap((p) => p.character.tags))],
+    conditions: [...new Set(facts.flatMap((c) => (c.conditions as string[] | undefined) ?? []))],
+    ...extremes(facts),
   }
 }
 

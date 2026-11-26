@@ -12,7 +12,7 @@ import { resolveChange } from '@open-tabletop/variables'
 import type { CharacterState } from '@open-tabletop/character-engine'
 import { PARTY_ID } from './party'
 import { chooseTarget, ONE_TARGET } from './target'
-import { fightersHere } from './present'
+import { alliesHere, fightersHere } from './present'
 import type { JournalEntry, SessionState } from './index'
 
 /** The two sides of an encounter: the party's (its members, or the party itself) and the foes'. */
@@ -46,6 +46,17 @@ export interface EncounterRules {
    * as `encounter.target` (`characters[encounter.target].values.dodge`). Absent: none.
    */
   aim?: string
+  /**
+   * What one of the party's allies does on its turn when its template says nothing
+   * (`table.ally-turn`): rolled acting as that ally, as a foe's is.
+   */
+  allies?: string
+  /**
+   * Whom an ally's turn aims at, chosen as it begins, in the same short forms as `aim`
+   * (`present.fighters.random`, `present.fighters.spread`), read as `encounter.target`.
+   * Absent: none.
+   */
+  alliesAim?: string
   /**
    * How many turns each one takes in a round, one after another, read acting as each as
    * the round begins (`'{{1 + acting.values.ruthless}}'`); absent: one.
@@ -110,6 +121,8 @@ const KEYS = new Set([
   'actions',
   'foes',
   'aim',
+  'allies',
+  'alliesAim',
   'turns',
   'minutes',
   'ends',
@@ -181,7 +194,16 @@ export function parseEncounter(
     errors.push('encounter.foes: expected what a foe does on its turn (table.foe-turn)')
   if (raw.aim !== undefined && (typeof raw.aim !== 'string' || !ONE_TARGET.test(raw.aim)))
     errors.push(
-      'encounter.aim: expected whom a foe aims at (party.members.random, party.members.lowest.values.health)',
+      'encounter.aim: expected whom a foe aims at (party.members.random, party.members.lowest.values.health, party.fighters.spread)',
+    )
+  if (raw.allies !== undefined && (typeof raw.allies !== 'string' || !raw.allies))
+    errors.push('encounter.allies: expected what an ally does on its turn (table.ally-turn)')
+  if (
+    raw.alliesAim !== undefined &&
+    (typeof raw.alliesAim !== 'string' || !ONE_TARGET.test(raw.alliesAim))
+  )
+    errors.push(
+      'encounter.alliesAim: expected whom an ally aims at (present.fighters.random, present.fighters.spread)',
     )
   if (raw.turns !== undefined && typeof raw.turns !== 'string' && typeof raw.turns !== 'number')
     errors.push(
@@ -200,6 +222,8 @@ export function parseEncounter(
       actions,
       ...(typeof raw.foes === 'string' && raw.foes && { foes: raw.foes }),
       ...(typeof raw.aim === 'string' && { aim: raw.aim }),
+      ...(typeof raw.allies === 'string' && raw.allies && { allies: raw.allies }),
+      ...(typeof raw.alliesAim === 'string' && { alliesAim: raw.alliesAim }),
       ...((typeof raw.turns === 'string' || typeof raw.turns === 'number') && {
         turns: String(raw.turns),
       }),
@@ -222,9 +246,22 @@ export const fightStarters = (rules: TravelRules): string[] =>
     (s) => (s.effects as Record<string, unknown> | undefined)?.encounter === 'start',
   ).filter((id) => !rules.actions?.[id]?.on)
 
-/** The party's side: its members, or the party itself when it's played as a whole. */
-const partySide = (s: SessionState): string[] =>
-  s.members?.length ? s.members.map((m) => m.id) : [PARTY_ID]
+/**
+ * The party's side: its members (or the party itself when it's played as a whole), then its
+ * allies here.
+ */
+const partySide = (s: SessionState): string[] => [
+  ...(s.members?.length ? s.members.map((m) => m.id) : [PARTY_ID]),
+  ...alliesHere(s).map((p) => p.character.id),
+]
+
+/** Whether one taking part is one of the party's allies: on its side, played by the system. */
+export const isAlly = (s: SessionState, id: string): boolean =>
+  alliesHere(s).some((p) => p.character.id === id)
+
+/** Whether one's turns play by themselves (a foe's, an ally's), not by the player. */
+const playsItself = (s: SessionState, id: string): boolean =>
+  sideOf(s, id) === 'foes' || isAlly(s, id)
 /** Those of the foes' side here now: those present that fight. */
 const foesSide = (s: SessionState): string[] => fightersHere(s).map((p) => p.character.id)
 
@@ -282,6 +319,8 @@ export interface Fighter {
   done: boolean
   /** Whether it's gone (fled, fallen, left the place): it leaves the order next round. */
   gone: boolean
+  /** One of the party's allies: on its side, its turns played by the system. */
+  ally?: true
   /** Its character (its values and conditions, and the sheet they're of), if it's one. */
   character?: CharacterState
 }
@@ -318,6 +357,7 @@ export function encounterView(s: SessionState):
       acting: i === e.turn && now,
       done: i < e.turn || (i === e.turn && (e.stage === 'acted' || shown) && !busy),
       gone: !stillHere(s, id),
+      ...(isAlly(s, id) && { ally: true as const }),
       ...(participant(s, id) && { character: participant(s, id) }),
     })),
   }
@@ -424,8 +464,8 @@ export function driveEncounter(
   /** What conditions read now (the trip's context), for the order and `ends`. */
   context: (s: SessionState) => Record<string, unknown>,
   /**
-   * What a foe rolls on its turn (full id): its template's `actions`, else the rules'
-   * `foes`; none, and its turn is only the moment.
+   * What a foe (or an ally) rolls on its turn (full id): its template's `actions`, else the
+   * rules' `foes` (`allies`); none, and its turn is only the moment.
    */
   foeTable: (s: SessionState, id: string) => string | undefined = () => undefined,
   /** Counts down the conditions given for a while (a new round, one's turn, the end). */
@@ -514,20 +554,19 @@ export function driveEncounter(
           break
         }
         const side = sideOf(state, id)
+        const ally = isAlly(state, id)
         if (id !== PARTY_ID) edit((_, s) => (s.acting = id))
-        // Whom a foe aims at, chosen before its turn: what it rolls reads it.
-        const target =
-          side === 'foes' && rules.aim
-            ? chooseTarget(
-                rules.aim,
-                state,
-                momentRolls(
-                  state.travel,
-                  state.travel.location,
-                  `encounter.aim|${state.nextEntry}`,
-                ),
-              )
-            : undefined
+        // Whom a foe aims at (or an ally), chosen before its turn: what it rolls reads it.
+        const aim = side === 'foes' ? rules.aim : ally ? rules.alliesAim : undefined
+        const target = aim
+          ? chooseTarget(
+              aim,
+              state,
+              momentRolls(state.travel, state.travel.location, `encounter.aim|${state.nextEntry}`),
+              id,
+              e.order,
+            )
+          : undefined
         edit((e) => {
           if (target !== undefined) e.target = target
           else delete e.target
@@ -542,12 +581,13 @@ export function driveEncounter(
               `encounter.skip|${state.nextEntry}`,
             ),
           })
-        // The party's turns wait for the player; the foes' go by themselves (for now).
-        edit((e) => (e.stage = side === 'party' && !skipped ? 'acting' : 'acted'))
+        // The party's turns wait for the player; the foes' and its allies' go by themselves.
+        edit((e) => (e.stage = side === 'party' && !ally && !skipped ? 'acting' : 'acted'))
         line('ENCOUNTER_TURN', {
           id,
           name: participantName(state, id),
           side,
+          ...(ally && { ally: true }),
           round: e.round,
           ...(target !== undefined && { target, targetName: participantName(state, target) }),
         })
@@ -557,10 +597,12 @@ export function driveEncounter(
         state = lapsed.state
         entries.push(...lapsed.entries)
         say({ type: 'moment', at: 'encounter.turn' })
-        // A foe still standing does what its table says, acting as itself (its roll may be
-        // the player's, waiting as a check does: the trip's Rolls).
+        // A foe (or an ally) still standing does what its table says, acting as itself (its
+        // roll may be the player's, waiting as a check does: the trip's Rolls).
         const table =
-          side === 'foes' && !skipped && stillHere(state, id) ? foeTable(state, id) : undefined
+          (side === 'foes' || ally) && !skipped && stillHere(state, id)
+            ? foeTable(state, id)
+            : undefined
         if (table && !waits(state)) say({ type: 'roll', resolve: table })
         break
       }
@@ -573,13 +615,13 @@ export function driveEncounter(
           edit((e) => (e.stage = 'end'))
           break
         }
-        // A turn is read before a foe's: the fight waits for Next (unless the player plays
-        // them at once, or skips pauses), so what a companion's blow did, or a foe's, is seen
-        // before the next foe acts. A turn of the party's waits anyway.
+        // A turn is read before a foe's (or an ally's): the fight waits for Next (unless the
+        // player plays them at once, or skips pauses), so what a companion's blow did, or a
+        // foe's, is seen before the next one plays by itself. A member's turn waits anyway.
         if (e.stage === 'acted' && !state.foesAtOnce && !state.skipPauses) {
           const id = e.order[e.turn]
           const next = [...e.order.slice(e.turn + 1), ...e.order].find((o) => stillHere(state, o))
-          if (id !== undefined && next && sideOf(state, next) === 'foes') {
+          if (id !== undefined && next && playsItself(state, next)) {
             edit((e) => (e.stage = 'shown'))
             return { state, entries }
           }

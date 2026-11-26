@@ -212,6 +212,18 @@ actions:
       # For one place (the sheet's `lasts: places`): gone as the next is entered.
       - { effects: { party.conditions.got-away: 1, party.values.food: -1 } }
       - { id: slipped, say: 'The party slips away while it can, and leaves a day’s food behind.' }
+  # An ally (bestiary.yaml's Hound, `side: party`): it comes and goes along with the party;
+  # once a day, when none runs with it (`party.allies.count`).
+  call-hound:
+    name: Call the hound
+    description: 'Whistle for a hound to run with you: it goes where you go and bites whoever you fight. Once a day, while none runs with you.'
+    when: { party.allies.count: 0 }
+    unless: { encounter.round: { gte: 1 } }
+    oncePerDay: true
+    hideWhenUnavailable: true
+    do:
+      - { effects: { present.hound: 1 } }
+      - { id: comes, say: 'A hound comes bounding up, and runs at your heels from now on.' }
   # The same at no cost: the party may move on, but the foes follow it (a chase).
   run:
     name: Run

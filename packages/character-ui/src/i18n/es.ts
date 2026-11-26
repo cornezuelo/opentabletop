@@ -121,6 +121,11 @@ export const es: Messages<typeof en> = {
       'Si sus copias luchan. **No**: una cosa del lugar que no lucha (un cofre, una trampa, un altar): está entre los presentes, con su tarjeta y las acciones que se dirigen a ella, pero un combate la deja fuera (sin turno, no es un enemigo) y `present.fighters` no la cuenta. `present.count` cuenta a todos.\n• `present.fighters.count: { gte: 1 }` — hay un enemigo aquí, no solo un cofre\n• `when: { target.conditions: locked }` — una acción dirigida a uno cerrado',
     fightsYes: 'Sí',
     fightsNo: 'No: es una cosa',
+    side: 'Bando',
+    sideHelp:
+      "En qué bando están sus copias en un combate. **Los enemigos**: los que encuentra el grupo (por defecto). **El del grupo**: sus aliados (un sabueso, una criatura invocada, un mercenario): van con el grupo a donde vaya (salvo que su `follows:` diga otra cosa), luchan en su bando y juegan sus propios turnos con **En su turno**, apuntando a quien diga el sistema (**Un aliado apunta a**). No están entre los que se encuentra (`present.*`), sino en `party.allies`:\n• `party.allies.count: { gte: 1 }` — si alguien va con el grupo\n• `party.allies.values.health: '=8'` — cada aliado de aquí\n• `acting.side: party` — quien actúa es un aliado",
+    sideFoes: 'Los enemigos',
+    sideParty: 'El del grupo: un aliado',
     valuesHelp:
       'Los valores de la hoja con que empieza: un número, o una tirada entre llaves que se resuelve para cada copia. Vacío: el valor por defecto de la hoja (en gris).\n• `{{2d4}}` — dos dados de cuatro caras\n• `{{1d6+2}}`\n• `3`',
     tagsHelp:

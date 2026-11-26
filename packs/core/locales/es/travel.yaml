@@ -78,6 +78,12 @@ travel-rules/default:
       do:
         ran:
           say: 'El grupo huye, y los enemigos van tras él.'
+    call-hound:
+      name: Llamar al sabueso
+      description: 'Silbar para que un sabueso corra con vosotros: va a donde vayáis y muerde a quien combatáis. Una vez al día, mientras no corra ninguno con vosotros.'
+      do:
+        comes:
+          say: Un sabueso llega a la carrera, y desde ahora corre pegado a vuestros talones.
     strike:
       name: Golpear
       told: '{{acting.name}} golpea a {{characters[params.foe].name}}'

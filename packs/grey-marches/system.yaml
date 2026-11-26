@@ -40,8 +40,12 @@ encounter:
   # What a foe does on its turn, unless its template says (the wolves: bestiary.yaml).
   foes: table.foe-turn
   # Whom a foe's turn goes for, chosen as it begins, so its table can read their armour
-  # before it rolls (`encounter.target`, bestiary.yaml's _A foe's turn_).
-  aim: party.members.random
+  # before it rolls (`encounter.target`, bestiary.yaml's _A foe's turn_): one each, the
+  # companions and an outrider riding with them (bestiary.yaml), those left over at the
+  # companions.
+  aim: party.fighters.spread
+  # And an outrider's turn: the foe in its own place among them.
+  alliesAim: present.fighters.spread
   minutes: 1
   # Over when no foe is left here, or no companion is left standing (travel.yaml's
   # `standing`, and what follows it: _The Company is overcome_).

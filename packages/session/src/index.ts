@@ -28,6 +28,7 @@ import {
 } from './effects'
 import { rolledNodes } from './journal'
 import {
+  alliesFacts,
   extremes,
   followParty,
   settlePresent,
@@ -530,7 +531,7 @@ export function tripContext(
     ...s.dayVars,
     ...facts,
     ...memberFacts(s, party),
-    party: { ...host, ...partyValues(s, party) },
+    party: { ...host, ...partyValues(s, party), allies: alliesFacts(s, party) },
     ...(s.map && { map: mapFacts(s.map, party.mapSheet?.def) }),
     ...(party.placeSheet && placeContext(s, facts, party)),
     ...(encounterFacts(s) && { encounter: encounterFacts(s) }),

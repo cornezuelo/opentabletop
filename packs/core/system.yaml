@@ -36,8 +36,11 @@ encounter:
   order: { by: side, first: party }
   actions: [actions.strike]
   foes: table.foe-turn
-  # Whom a foe's turn goes for, chosen as it begins: its table reads `encounter.target`.
-  aim: party.members.random
+  # Whom a foe's turn goes for, chosen as it begins: its table reads `encounter.target`. One
+  # of the party or its allies (the hound, bestiary.yaml).
+  aim: party.fighters.random
+  # Whom an ally's turn goes for (the hound's bite): one of the foes.
+  alliesAim: present.fighters.random
   ends: { present.fighters.count: 0 }
   # A staggered foe (sheet.yaml, `lasts: rounds`) loses its turns while it lasts.
   skip: { acting.conditions: staggered }

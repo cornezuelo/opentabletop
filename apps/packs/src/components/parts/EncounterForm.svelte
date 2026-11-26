@@ -53,9 +53,21 @@
   /** Whom a foe may aim at: one of the party rolled, or the one with least or most of a value. */
   const aims = $derived([
     'party.members.random',
+    'party.fighters.spread',
+    'party.fighters.random',
     ...Object.keys(hints)
       .filter((h) => h.startsWith('party.lowest.values.') || h.startsWith('party.highest.values.'))
       .map((h) => h.replace(/^party\./, 'party.members.')),
+  ])
+  /** Whom an ally may aim at: one of the foes, one each, rolled, or the one with least or most. */
+  const allyAims = $derived([
+    'present.fighters.spread',
+    'present.fighters.random',
+    ...Object.keys(hints)
+      .filter(
+        (h) => h.startsWith('present.lowest.values.') || h.startsWith('present.highest.values.'),
+      )
+      .map((h) => h.replace(/^present\./, 'present.fighters.')),
   ])
   const isChosen = (id: string) => chosen.some((a) => a === id || a === `actions.${id}`)
 
@@ -192,6 +204,31 @@
         />
         <datalist id="encounter-aims">
           {#each aims as aim (aim)}<option value={aim}></option>{/each}
+        </datalist>
+      </label>
+      <label>
+        <span>{t('encounter.allies')}<InfoTip markdown={t('encounter.alliesHelp')} /></span>
+        <input
+          type="text"
+          list="encounter-rolls"
+          value={typeof raw.allies === 'string' ? raw.allies : ''}
+          placeholder="table.ally-turn"
+          {disabled}
+          onchange={(e) => set('allies', e.currentTarget.value.trim() || undefined)}
+        />
+      </label>
+      <label>
+        <span>{t('encounter.alliesAim')}<InfoTip markdown={t('encounter.alliesAimHelp')} /></span>
+        <input
+          type="text"
+          list="encounter-ally-aims"
+          value={typeof raw.alliesAim === 'string' ? raw.alliesAim : ''}
+          placeholder="present.fighters.spread"
+          {disabled}
+          onchange={(e) => set('alliesAim', e.currentTarget.value.trim() || undefined)}
+        />
+        <datalist id="encounter-ally-aims">
+          {#each allyAims as aim (aim)}<option value={aim}></option>{/each}
         </datalist>
       </label>
       <label>

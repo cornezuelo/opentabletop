@@ -65,6 +65,14 @@ templates:
   ogre: { name: Ogre, actions: table.ogre-turn }
   troll: { name: Troll, actions: table.troll-turn }
   chest: { name: Chest, fights: false }
+  # On the party's side: it follows the party and bites the goblin it's set against.
+  hound: { name: Hound, side: party, actions: table.hound-turn }
+---
+kind: table
+id: hound-turn
+roll: 1d1
+entries:
+  - { range: 1, result: The hound bites, effects: { 'characters[encounter.target].values.health': -2 } }
 ---
 kind: table
 id: troll-turn
@@ -115,6 +123,7 @@ modes: { walk: { kmPerDay: 24 } }
 actions:
   march: { do: [{ travel.move: destination }] }
   rest: { do: [{ time: 60 }] }
+  whistle: { do: [{ effects: { present.hound: 1 } }] }
   ambush: { do: [{ effects: { present.goblin: 2, encounter: start } }] }
   # A chest by a goblin: a thing present that doesn't fight.
   guarded: { do: [{ effects: { present.chest: 1, present.goblin: 1, encounter: start } }] }
@@ -420,9 +429,68 @@ describe('an encounter: a fight in turns', () => {
     const bad = systemOf('{ order: { by: side }, actions: [], aim: party.members.all }')
     expect(bad.problems.map((p) => p.message)).toEqual(
       expect.arrayContaining([
-        'expected whom a foe aims at (party.members.random, party.members.lowest.values.health)',
+        'expected whom a foe aims at (party.members.random, party.members.lowest.values.health, party.fighters.spread)',
       ]),
     )
+  })
+
+  it("the party's allies: on its side, played by the system, aimed one to one (spread)", () => {
+    const { options, session } = begin(
+      '{ order: { by: side }, actions: [actions.strike], foes: table.aimed-turn, aim: party.fighters.spread, alliesAim: present.fighters.spread, ends: { present.fighters.count: 0 } }',
+    )
+    let done = stepTrip(options, session, { type: 'action', id: 'whistle' })
+    // An ally is not one of those met: `present.*` leaves it out, `party.allies.*` reads it.
+    const facts = tripFacts(options, done.state)
+    expect(facts.present).toMatchObject({ count: 0, ids: [], fighters: { count: 0 } })
+    expect(facts.party).toMatchObject({ allies: { count: 1, ids: ['hound'] } })
+    expect(facts.characters).toMatchObject({ hound: { side: 'party' } })
+    // Three goblins: one each for Kael, Mira and the hound, the third back on Kael.
+    done = stepTrip(
+      options,
+      applyResult(done.state, { effects: { 'present.goblin': 3 } }, {}, partyOf(options.system)),
+      {
+        type: 'action',
+        id: 'ambush',
+      },
+    )
+    expect(done.state.encounter?.order).toEqual([
+      'kael',
+      'mira',
+      'hound',
+      'goblin',
+      'goblin-2',
+      'goblin-3',
+      'goblin-4',
+      'goblin-5',
+    ])
+    const view = encounterView(done.state)!
+    expect(view.fighters.find((f) => f.id === 'hound')).toMatchObject({ side: 'party', ally: true })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    done = stepTrip(options, done.state, { type: 'action', id: 'strike', with: { foe: 'goblin' } })
+    // The hound's turn played by itself, at the goblin in its own place (the third).
+    const turns = done.entries.filter((e) => e.code === 'ENCOUNTER_TURN')
+    expect(turns.find((e) => e.data?.id === 'hound')?.data).toMatchObject({
+      ally: true,
+      target: 'goblin-3',
+    })
+    expect(turns.find((e) => e.data?.id === 'goblin-2')?.data).toMatchObject({ target: 'mira' })
+    expect(turns.find((e) => e.data?.id === 'goblin-3')?.data).toMatchObject({ target: 'hound' })
+    expect(turns.find((e) => e.data?.id === 'goblin-4')?.data).toMatchObject({ target: 'kael' })
+    expect(turns.find((e) => e.data?.id === 'goblin-5')?.data).toMatchObject({ target: 'mira' })
+    const goblin3 = done.state.present!.find((p) => p.character.id === 'goblin-3')!
+    expect(goblin3.character.values.health).toBe(8 - 2)
+    // Effects reach every ally (`party.allies`), and `present.all` only those met.
+    const hit = applyResult(
+      done.state,
+      {
+        effects: { 'party.allies.values.health': -1, 'present.all.values.rage': 1 },
+      },
+      {},
+      partyOf(options.system),
+    )
+    const hound = hit.present!.find((p) => p.character.id === 'hound')!
+    // Bitten by its goblin (its speed + 1), then the effect's 1.
+    expect(hound.character.values).toMatchObject({ health: 8 - 4 - 1, rage: 0 })
   })
 
   it('an action asking whom: not asked when one of those listed came with it', () => {
