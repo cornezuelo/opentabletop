@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.78.0] - 2026-11-26
+
 ### Apps
 
 - **Campaign**: a **Log** tab, the campaign's journal: every moment of its trips and scenes (on its maps, in Travel, its own scenes), kept as it's played, so it stays when the trip is deleted; the world's lines, what you rolled by hand in the Oracle, and your own notes, written anywhere in it; by **session** (**Start a session** / **End the session**) and by day; **Show** (the story, the rules, everything), **Played in**, a search and **Export** as Markdown.
