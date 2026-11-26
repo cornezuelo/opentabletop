@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.80.0] - 2026-11-26
+
 ### Apps
 
 - **Campaign**: the Log's notes are written and read as pages of Notes: typing `[[` suggests the campaign's pages and the things of your games, a link opens its page in Notes (or makes it in the campaign, when it isn't written yet) and a thing of the games shows its name and opens in its app. `Ctrl+Enter` saves a note, `Esc` leaves it.
