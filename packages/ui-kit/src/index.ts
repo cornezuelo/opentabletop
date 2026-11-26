@@ -70,6 +70,8 @@ export {
   noteProviderName,
   notePreferences,
   noteUrl,
+  usesOwnNotes,
+  type NoteContext,
   readNotePreferences,
   setNoteProvider,
   setNoteSetting,
@@ -140,4 +142,4 @@ export {
   readDefinitionPictures,
   setDefinitionPicture,
 } from './definitionPictures.svelte'
-export { downloadText, fileNameOf } from './download'
+export { downloadBytes, downloadText, fileNameOf } from './download'

@@ -1,0 +1,67 @@
+// Source of truth for UI strings (English is the default locale). `es.ts` mirrors this shape.
+import { vocabulary } from '@open-tabletop/ui-kit'
+export const en = {
+  app: {
+    title: vocabulary.en.apps.notes,
+    tagline: 'Your notes and lore, by campaign, linked to your games.',
+  },
+  nav: {
+    showSidebar: 'Show the pages',
+    hideSidebar: 'Hide the pages (more room)',
+    showHelp: 'Show the help',
+    hideHelp: 'Hide the help (more room)',
+    help: 'Help and manual',
+    search: 'Search the pages…',
+    searchLabel: 'Search',
+    newPage: 'New page',
+    noMatch: 'No page has those words.',
+    inTitle: 'in its title',
+    more: 'Import and export',
+    export: 'Export as .md files',
+    exportTip:
+      'Every page as a .zip of Markdown files, a folder per campaign and General: Obsidian and SilverBullet open it as it is.',
+    import: 'Import .md files…',
+    importTip:
+      'A .zip (or several .md files) of Markdown pages: those in a folder named after a campaign (or General) go there, the rest into the campaign being played.',
+    examples: 'Add the example pages of…',
+  },
+  welcome: {
+    title: vocabulary.en.apps.notes,
+    body: 'Your own notes app: pages in Markdown, kept in this browser, by campaign (and **General**, for what belongs to none). Link pages with `[[Their title]]`, and the game with `[[character:kael]]`, `[[map:<id>#0608]]` or `[[faction:<campaign>/<id>]]`: type `[[` and choose. The other apps open these pages from a character’s, a cell’s or a faction’s note (**✎** writes a new one).',
+    start: 'Write a page',
+  },
+  page: {
+    title: 'Path and title',
+    titleHelp:
+      'The page’s title, after the folders it’s in, `/` between them: `npcs/Old Tobin` is **Old Tobin** in the folder **npcs**. Changing it moves the page, and the links that reached it are changed to reach it there.',
+    untitled: 'Untitled',
+    taken: 'Another page of the same campaign is already at “{path}”.',
+    renamed: 'Moved; {n} links changed to reach it.',
+    campaign: 'Campaign',
+    campaignHelp:
+      'Where the page is: a campaign, or **General** for what belongs to none. A page of a campaign reaches that campaign’s pages first, then General’s; a page of General reaches General’s only.',
+    edit: 'Edit',
+    read: 'Read',
+    editTip: 'Write the page (Ctrl+E)',
+    readTip: 'Read the page with its links (Ctrl+E)',
+    placeholder: 'Write in Markdown. [[ links to a page or to the game.',
+    editorLabel: 'The page’s text',
+    empty: 'Nothing written yet. **Edit** (Ctrl+E) to write it.',
+    more: 'More',
+    delete: 'Delete the page',
+    deleteAsk: 'Delete the page “{title}”? The links to it stay, and would make it again.',
+    deleted: 'Page deleted.',
+    missing: 'This page isn’t in this browser any more.',
+    linked: 'Linked {n} mentions.',
+    keys: 'Notes',
+    keyToggle: 'Read or edit the page',
+    keyNew: 'New page',
+    keySearch: 'Search the pages',
+  },
+  imported: 'Imported {n} pages ({replaced} replaced).',
+  importNone: 'No .md file in what you chose.',
+  importAsk: 'Import {n} pages? {replaced} of them take the place of a page at the same path.',
+  cancel: 'Cancel',
+  importButton: 'Import',
+  examplesAdded: 'Added {n} example pages.',
+}

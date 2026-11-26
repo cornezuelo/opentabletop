@@ -63,9 +63,9 @@ export const en = {
     more: 'More',
     delete: 'Delete',
     confirmDelete:
-      'Delete the campaign “{name}”? Its world clock, timeline, factions and Oracle state are forgotten. Nothing is in it.',
+      'Delete the campaign “{name}”? Its world clock, timeline, factions and Oracle state are forgotten. Nothing is in it. Its pages of Notes stay, in General.',
     confirmDeleteAll:
-      'Delete the campaign “{name}” with everything in it? {list}. Its maps, trips and scenes are deleted too, and its world clock, timeline, factions and Oracle state forgotten; its characters stay in the roster, playing nowhere.',
+      'Delete the campaign “{name}” with everything in it? {list}. Its maps, trips and scenes are deleted too, and its world clock, timeline, factions and Oracle state forgotten; its characters stay in the roster, playing nowhere; its pages of Notes stay, in General.',
     deleteAll: 'Delete it all',
     deleted: 'Campaign “{name}” deleted.',
     missing: 'This campaign isn’t kept in this browser.',

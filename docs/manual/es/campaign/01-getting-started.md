@@ -62,7 +62,7 @@ Cuando se ha llevado el último mapa o viaje, la campaña que dejó se borra.
 Arriba, su **nombre** (púlsalo para cambiarlo; todas las aplicaciones nombran la campaña con él) y **⋯** con **Borrar**. Debajo:
 
 - **Sistema**: el sistema de juego con el que se juegan sus mapas y viajes, con **Editar el sistema en la aplicación Packs →**. Se elige en los **Ajustes del mapa → Campaña** de un mapa (o al empezar un viaje en ella), ya que también es de ellos ([Campañas](../map/01-getting-started.md#campañas)).
-- **Notas**: su página en tu aplicación de notas (una ruta como `Campañas/El largo invierno`); **↗** la abre.
+- **Notas**: su página en tu aplicación de notas (una ruta como `El largo invierno`); **↗** la abre, y con las [Notas](../notes/01-getting-started.md) de OpenTabletop **✎** escribe una nueva mientras está vacía. En Notas, las páginas de la campaña son una sección propia.
 - Con un viaje en marcha en la campaña, una línea dice cuál, con **Abrir**. En una campaña hay un viaje en marcha a la vez, ya que su tiempo es el de la campaña ([Un viaje a la vez](../travel/02-playing.md#la-campaña)).
 
 **Borrar** pregunta antes, y olvida el reloj, la cronología, el diario, las facciones y el estado del Oráculo de la campaña. Con mapas, viajes o escenas en la campaña, la pregunta los nombra (_Mapas: La costa · Viajes: A la feria_) y **Borrarlo todo** los borra con ella, para no tener que ir mapa por mapa y viaje por viaje; un mapa o viaje abierto en otra ventana se cierra allí. Sus personajes siguen en el plantel, sin jugar en ningún sitio (Personajes los conserva). Para conservar un mapa o un viaje, llévalo antes a otra campaña (en los ajustes de Mapa o de Viajes).

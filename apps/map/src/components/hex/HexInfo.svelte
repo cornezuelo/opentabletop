@@ -160,7 +160,12 @@
     <HexHere {key} />
     {#if playing}
       <HexSubMaps {key} editing={false} />
-      <HexReadOnly {hex} regions={regionChain(editor.regions, hex.region)} {inherited} />
+      <HexReadOnly
+        {hex}
+        key={editor.selected ?? undefined}
+        regions={regionChain(editor.regions, hex.region)}
+        {inherited}
+      />
     {:else}
       <HexSubMaps {key} name={hex.name ?? ''} editing={askedFor(key, 'ways')} />
       <!-- Its picture, whole (docs/character-pictures.md §10). -->

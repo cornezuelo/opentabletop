@@ -273,6 +273,8 @@
         placeholder={t('character.notesPlaceholder', { name: label })}
         label={t('character.notes')}
         locale={getLocale()}
+        suggest={label}
+        context={{ from: `character:${id}` }}
         onchange={setNote}
       />
     </label>

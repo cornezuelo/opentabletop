@@ -1,0 +1,14 @@
+{
+  "name": "@open-tabletop/notes",
+  "version": "0.0.0",
+  "description": "Notes: pages in Markdown kept by campaign, their [[links]] to each other and into the games, backlinks, mentions, search, renames, and pages as a folder of .md files.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  }
+}

@@ -81,6 +81,7 @@
   <span class="label">{t('tabs.factions')}<InfoTip markdown={t('factions.help')} /></span>
   <FactionCards
     {own}
+    campaign={campaign.id}
     {system}
     locale={getLocale()}
     territories={map ? land : undefined}

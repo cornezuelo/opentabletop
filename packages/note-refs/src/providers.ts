@@ -27,6 +27,28 @@ export function cleanPath(path: string): string {
     .replace(/\.md$/i, '')
 }
 
+/**
+ * OpenTabletop's own Notes app. It has no settings of its own: the app that asks gives
+ * `appUrl` (where Notes is), and may give `campaign` (where the thing linking is, so the
+ * page is looked for, or made, among that campaign's) and `from` (the thing, as a link into
+ * the games: `character:kael`, so a page made for it links back).
+ */
+const opentabletop: NoteProvider = {
+  id: 'opentabletop',
+  name: 'OpenTabletop Notes',
+  settings: [],
+  url(path, settings) {
+    const base = settings.appUrl ?? ''
+    const page = cleanPath(path)
+    if (!base || !page) return null
+    const query = new URLSearchParams()
+    if (settings.campaign) query.set('in', settings.campaign)
+    if (settings.from) query.set('from', settings.from)
+    const tail = query.size ? `?${query}` : ''
+    return `${base}#/ref/${page.split('/').map(encodeURIComponent).join('/')}${tail}`
+  },
+}
+
 const silverbullet: NoteProvider = {
   id: 'silverbullet',
   name: 'SilverBullet',
@@ -57,7 +79,8 @@ const obsidian: NoteProvider = {
   },
 }
 
-export const providers: readonly NoteProvider[] = [silverbullet, obsidian]
+/** The first is the default. */
+export const providers: readonly NoteProvider[] = [opentabletop, silverbullet, obsidian]
 
 export function getProvider(id: string): NoteProvider {
   return providers.find((p) => p.id === id) ?? providers[0]

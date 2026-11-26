@@ -21,6 +21,7 @@
    */
   let {
     own,
+    campaign,
     system,
     locale,
     territories,
@@ -32,6 +33,8 @@
     onturn,
   }: {
     own: T
+    /** The campaign's id: a faction's page is looked for (or made) among its pages. */
+    campaign?: string
     /** The system they came from (their names, colours and sheet). */
     system: SystemFactions
     locale: string
@@ -91,6 +94,7 @@
       <FactionNotes
         notes={own.notes?.[faction.id]}
         name={name(faction.id)}
+        context={campaign ? { campaign, from: `faction:${campaign}/${faction.id}` } : {}}
         {locale}
         onchange={(change) => onchange(withNotes(own, faction.id, change))}
       />

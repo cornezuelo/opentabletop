@@ -27,6 +27,7 @@ describe('backups', () => {
       [],
       [],
       [],
+      [],
       new Date(2026, 9, 7, 1).toISOString(),
     )
     expect(backup.storage).toEqual({ 'opentabletop.locale': 'es' })
@@ -227,5 +228,38 @@ describe('the campaigns’ journals', () => {
     const replaced = planRestore(here, theirs, 'replace')
     expect(replaced.putJournals.map((j) => j.id)).toEqual(['c1', 'c2'])
     expect(replaced.removeJournals).toEqual(['mine'])
+  })
+})
+
+describe('the notes’ pages', () => {
+  const note = (id: string, modified: string) => ({ id, name: id, modified, json: '{}' })
+
+  it('are kept and read back; older backups have none', () => {
+    const backup = createBackup({}, [], [], [], [], [note('p1', '2026-11-26')])
+    expect(parseBackup(JSON.stringify(backup)).backup!.notes.map((n) => n.id)).toEqual(['p1'])
+    const v4 = { ...backup, version: 4 } as Record<string, unknown>
+    delete v4.notes
+    expect(parseBackup(JSON.stringify(v4)).backup!.notes).toEqual([])
+  })
+
+  it('merge by page, the newer kept; replace leaves only the backup’s', () => {
+    const here = {
+      storage: {},
+      maps: [],
+      campaigns: [],
+      notes: [note('p1', '2026-11-26'), note('mine', '2026-11-01')],
+    }
+    const theirs = createBackup(
+      {},
+      [],
+      [],
+      [],
+      [],
+      [note('p1', '2026-11-25'), note('p2', '2026-11-01')],
+    )
+    expect(planRestore(here, theirs, 'merge').putNotes.map((n) => n.id)).toEqual(['p2'])
+    const replaced = planRestore(here, theirs, 'replace')
+    expect(replaced.putNotes.map((n) => n.id)).toEqual(['p1', 'p2'])
+    expect(replaced.removeNotes).toEqual(['mine'])
   })
 })

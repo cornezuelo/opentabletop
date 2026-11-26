@@ -24,6 +24,7 @@ export const manual = createManual(files, [
   'oracle',
   'travel',
   'characters',
+  'notes',
   'packs',
   'bundled',
   'technical',

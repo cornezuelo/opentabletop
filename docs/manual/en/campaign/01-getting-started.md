@@ -62,7 +62,7 @@ When the last map or trip has moved, the campaign it left is deleted.
 At the top, its **name** (click it to change it; every app names the campaign with it) and **⋯** with **Delete**. Under them:
 
 - **System**: the game system its maps and trips are played with, with **Edit the system in Packs →**. It's chosen in a map's **Map settings → Campaign** (or when a trip in it starts), since it is theirs too ([Campaigns](../map/01-getting-started.md#campaigns)).
-- **Notes**: its page in your notes app (a path such as `Campaigns/The long winter`); **↗** opens it.
+- **Notes**: its page in your notes app (a path such as `The long winter`); **↗** opens it, and with OpenTabletop's [Notes](../notes/01-getting-started.md) **✎** writes a new one while it's empty. In Notes, the campaign's pages are a section of their own.
 - With a trip going on in the campaign, a line says which one, with **Open**. One trip goes on in a campaign at a time, since its time is the campaign's ([One trip at a time](../travel/02-playing.md#the-campaign)).
 
 **Delete** asks first, and forgets the campaign's clock, timeline, journal, factions and Oracle state. With maps, trips or scenes in the campaign, the question names each (_Maps: The coast · Trips: To the fair_) and **Delete it all** deletes them with it, so you needn't go map by map and trip by trip; a map or trip open in another window closes there. Its characters stay in the roster, playing nowhere (Characters keeps them). To keep a map or trip, move it to another campaign first (in Map's or Travel's settings).

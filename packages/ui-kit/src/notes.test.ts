@@ -6,8 +6,8 @@ const storage = (items: Record<string, string>) => ({
 })
 
 describe('the notes app preference', () => {
-  it('defaults to SilverBullet with no settings', () => {
-    expect(readNotePreferences(storage({}))).toEqual({ provider: 'silverbullet', settings: {} })
+  it('defaults to OpenTabletop Notes with no settings', () => {
+    expect(readNotePreferences(storage({}))).toEqual({ provider: 'opentabletop', settings: {} })
   })
 
   it('reads what Map kept before every app shared it', () => {
@@ -28,6 +28,6 @@ describe('the notes app preference', () => {
         }),
       ).provider,
     ).toBe('obsidian')
-    expect(readNotePreferences(storage({ [NOTES_KEY]: '{oops' })).provider).toBe('silverbullet')
+    expect(readNotePreferences(storage({ [NOTES_KEY]: '{oops' })).provider).toBe('opentabletop')
   })
 })

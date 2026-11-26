@@ -38,6 +38,7 @@
   import { view } from '../../lib/store/view'
   import ColorPicker from '../ColorPicker.svelte'
   import { NoteRefInput } from '@open-tabletop/ui-kit'
+  import { noteContext } from '../../lib/noteContext'
   import NameDisplay from '../NameDisplay.svelte'
   import TokenIconPicker from './TokenIconPicker.svelte'
 
@@ -307,6 +308,8 @@
         locale={getLocale()}
         value={selected.note ?? ''}
         placeholder={t('tokens.notePlaceholder')}
+        suggest={selected.name}
+        context={noteContext(selected.hex)}
         label={t('tokens.note')}
         onchange={(note) => update((t) => ({ ...t, note: note.trim() || undefined }))}
       />

@@ -102,6 +102,8 @@
         <NoteRefInput
           value={campaign.noteRef ?? ''}
           placeholder={label}
+          suggest={campaign.name}
+          context={{ campaign: campaign.id, from: `campaign:${campaign.id}` }}
           label={t('campaign.notes')}
           locale={getLocale()}
           onchange={setNote}

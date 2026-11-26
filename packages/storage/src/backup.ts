@@ -3,7 +3,7 @@ import type { LibraryEntry } from './library'
 /**
  * A backup of everything the OpenTabletop apps keep in one browser: their localStorage
  * entries (user packs, trips, Oracle histories and decks, favorites, preferences…), the
- * map library, the campaigns, their journals and the images. Restoring it on another machine resumes whole campaigns.
+ * map library, the campaigns, their journals, the images and the notes' pages. Restoring it on another machine resumes whole campaigns.
  *
  * Entries are copied as they are: each app keeps its own data versioned (maps migrate
  * when opened), so the backup only versions its own envelope.
@@ -23,14 +23,17 @@ export interface Backup {
   images: LibraryEntry[]
   /** The campaigns' journals, by campaign id. */
   journals: LibraryEntry[]
+  /** Notes' pages, by page id. */
+  notes: LibraryEntry[]
 }
 
 export const BACKUP_FORMAT = 'opentabletop-backup'
 /**
  * v2: campaigns (v1 backups have none: their maps make theirs when opened); v3: images
- * (older backups have none); v4: the campaigns' journals (older backups have none).
+ * (older backups have none); v4: the campaigns' journals (older backups have none); v5: the notes' pages (older backups
+ * have none).
  */
-export const BACKUP_VERSION = 4
+export const BACKUP_VERSION = 5
 
 /**
  * Every app keeps its browser data under these prefixes (see the root CLAUDE.md); `hexmapper.`
@@ -63,6 +66,7 @@ export function createBackup(
   campaigns: LibraryEntry[],
   images: LibraryEntry[] = [],
   journals: LibraryEntry[] = [],
+  notes: LibraryEntry[] = [],
   created: string = new Date().toISOString(),
 ): Backup {
   return {
@@ -74,6 +78,7 @@ export function createBackup(
     campaigns,
     images,
     journals,
+    notes,
   }
 }
 
@@ -124,13 +129,14 @@ export function parseBackup(json: string): { backup?: Backup; error?: BackupErro
       campaigns: Array.isArray(raw.campaigns) ? raw.campaigns.filter(isEntry) : [],
       images: Array.isArray(raw.images) ? raw.images.filter(isEntry) : [],
       journals: Array.isArray(raw.journals) ? raw.journals.filter(isEntry) : [],
+      notes: Array.isArray(raw.notes) ? raw.notes.filter(isEntry) : [],
     },
   }
 }
 
 /**
  * - `replace`: this browser ends up exactly like the backup (its own data is removed).
- * - `merge`: the backup is added: maps, campaigns, journals and images by id (the newer one stays), user packs by folder
+ * - `merge`: the backup is added: maps, campaigns, journals, images and notes' pages by id (the newer one stays), user packs by folder
  *   and favorites joined (the backup's copy wins), the roster's characters by id (the newer
  *   one stays), anything else taken from the backup.
  */
@@ -147,6 +153,8 @@ export interface RestorePlan {
   removeImages: string[]
   putJournals: LibraryEntry[]
   removeJournals: string[]
+  putNotes: LibraryEntry[]
+  removeNotes: string[]
 }
 
 /** What restoring `backup` changes, given what this browser has now. Pure, for testing. */
@@ -157,6 +165,7 @@ export function planRestore(
     campaigns: Omit<LibraryEntry, 'json'>[]
     images?: Omit<LibraryEntry, 'json'>[]
     journals?: Omit<LibraryEntry, 'json'>[]
+    notes?: Omit<LibraryEntry, 'json'>[]
   },
   backup: Backup,
   mode: RestoreMode,
@@ -171,6 +180,7 @@ export function planRestore(
     const keptCampaigns = new Set(backup.campaigns.map((c) => c.id))
     const keptImages = new Set(backup.images.map((i) => i.id))
     const keptJournals = new Set(backup.journals.map((j) => j.id))
+    const keptNotes = new Set(backup.notes.map((n) => n.id))
     return {
       storage,
       putMaps: backup.maps,
@@ -183,6 +193,8 @@ export function planRestore(
       removeJournals: (current.journals ?? [])
         .filter((j) => !keptJournals.has(j.id))
         .map((j) => j.id),
+      putNotes: backup.notes,
+      removeNotes: (current.notes ?? []).filter((n) => !keptNotes.has(n.id)).map((n) => n.id),
     }
   }
   for (const [key, value] of Object.entries(backup.storage)) {
@@ -216,6 +228,8 @@ export function planRestore(
     removeImages: [],
     putJournals: newer(backup.journals, current.journals ?? []),
     removeJournals: [],
+    putNotes: newer(backup.notes, current.notes ?? []),
+    removeNotes: [],
   }
 }
 

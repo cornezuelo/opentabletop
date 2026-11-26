@@ -15,7 +15,8 @@ import {
 
 export { REPO }
 
-export type AppId = 'campaign' | 'map' | 'oracle' | 'travel' | 'characters' | 'packs' | 'manual'
+export type AppId =
+  'campaign' | 'map' | 'oracle' | 'travel' | 'characters' | 'notes' | 'packs' | 'manual'
 
 export interface AppInfo {
   id: AppId
@@ -67,7 +68,15 @@ export function appUrl(id: AppId): string {
 
 /** A tab of a campaign in the Campaign app. */
 export type CampaignTab =
-  'overview' | 'world' | 'maps' | 'trips' | 'scenes' | 'characters' | 'factions' | 'timeline'
+  | 'overview'
+  | 'world'
+  | 'maps'
+  | 'trips'
+  | 'scenes'
+  | 'characters'
+  | 'factions'
+  | 'timeline'
+  | 'log'
 
 /** A campaign in the Campaign app (the other apps' **Open in Campaign ↗**), at one of its tabs. */
 export const campaignUrl = (id: string, tab?: CampaignTab): string =>

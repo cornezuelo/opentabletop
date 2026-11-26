@@ -23,6 +23,6 @@ Un punto dorado marca las casillas con detalles que no se ven en el mapa.
 
 ## Notas enlazadas
 
-Mapa no guarda el trasfondo: lo enlaza. En **Preferencias** (el engranaje de arriba, en cualquier aplicación) elige tu aplicación de notas: SilverBullet (con su dirección) u Obsidian (con el nombre de la bóveda); la nota de una casilla o de un PDI es entonces una ruta como `Mi campaña/Hexes/0203` que se abre allí.
+Mapa no guarda el trasfondo: lo enlaza. En **Preferencias** (el engranaje de arriba, en cualquier aplicación) elige tu aplicación de notas: las [Notas](../notes/01-getting-started.md) de OpenTabletop (lo predeterminado), SilverBullet (con su dirección) u Obsidian (con el nombre de la bóveda); la nota de una casilla o de un PDI es entonces una ruta como `lugares/Hollow Gate` que se abre allí (**↗**). Con Notas, la página se busca entre las de la campaña del mapa, y se crea si aún no está, empezando por un enlace de vuelta a la casilla; **✎**, mientras la nota está vacía, escribe una página nueva con el nombre de la casilla.
 
-En el otro sentido, el enlace de la casilla (el icono de cadena) pegado en una nota abre el mapa en esa casilla.
+En el otro sentido, el enlace de la casilla (el icono de cadena) pegado en una nota abre el mapa en esa casilla; en Notas, `[[map:<id del mapa>#0608]]` la enlaza por su etiqueta.

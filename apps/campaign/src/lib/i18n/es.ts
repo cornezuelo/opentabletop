@@ -64,9 +64,9 @@ export const es: Messages<typeof en> = {
     more: 'Más',
     delete: 'Borrar',
     confirmDelete:
-      '¿Borrar la campaña «{name}»? Se olvidan su reloj del mundo, su cronología, sus facciones y el estado de su Oráculo. No hay nada en ella.',
+      '¿Borrar la campaña «{name}»? Se olvidan su reloj del mundo, su cronología, sus facciones y el estado de su Oráculo. No hay nada en ella. Sus páginas de Notas se quedan, en General.',
     confirmDeleteAll:
-      '¿Borrar la campaña «{name}» con todo lo que hay en ella? {list}. Se borran también sus mapas, viajes y escenas, y se olvidan su reloj del mundo, su cronología, sus facciones y el estado de su Oráculo; sus personajes siguen en el plantel, sin jugar en ningún sitio.',
+      '¿Borrar la campaña «{name}» con todo lo que hay en ella? {list}. Se borran también sus mapas, viajes y escenas, y se olvidan su reloj del mundo, su cronología, sus facciones y el estado de su Oráculo; sus personajes siguen en el plantel, sin jugar en ningún sitio; sus páginas de Notas se quedan, en General.',
     deleteAll: 'Borrarlo todo',
     deleted: 'Campaña «{name}» borrada.',
     missing: 'Esta campaña no se guarda en este navegador.',

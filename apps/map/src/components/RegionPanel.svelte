@@ -14,6 +14,7 @@
   import { editor, MAX_BRUSH_RADIUS } from '../lib/store/editor.svelte'
   import ColorPicker from './ColorPicker.svelte'
   import { NoteRefInput } from '@open-tabletop/ui-kit'
+  import { noteContext } from '../lib/noteContext'
   import NameDisplay from './NameDisplay.svelte'
   import GenerateLand from './GenerateLand.svelte'
 
@@ -184,6 +185,8 @@
         locale={getLocale()}
         value={active.note ?? ''}
         placeholder={t('regions.notePlaceholder')}
+        suggest={active.name}
+        context={noteContext()}
         label={t('regions.note')}
         onchange={(note) => update((r) => ({ ...r, note: note.trim() || undefined }))}
       />

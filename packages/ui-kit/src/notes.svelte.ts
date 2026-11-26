@@ -1,4 +1,5 @@
 import { getProvider, providerSettings } from '@open-tabletop/note-refs'
+import { appName, appUrl } from './apps'
 
 /**
  * The user's notes app (SilverBullet, Obsidian…) and its settings: a preference of this
@@ -11,11 +12,13 @@ export interface NotePreferences {
 }
 
 export const NOTES_KEY = 'opentabletop.notes'
+/** OpenTabletop's own Notes, unless the player chose another notes app. */
+export const DEFAULT_PROVIDER = 'opentabletop'
 /** Where Map kept them before every app shared them. */
 const LEGACY_KEY = 'hexmapper.preferences'
 
 export function readNotePreferences(storage: Pick<Storage, 'getItem'>): NotePreferences {
-  const prefs: NotePreferences = { provider: 'silverbullet', settings: {} }
+  const prefs: NotePreferences = { provider: DEFAULT_PROVIDER, settings: {} }
   try {
     const raw = storage.getItem(NOTES_KEY)
     if (raw) {
@@ -36,7 +39,7 @@ export function readNotePreferences(storage: Pick<Storage, 'getItem'>): NotePref
 
 function load(): NotePreferences {
   return typeof localStorage === 'undefined'
-    ? { provider: 'silverbullet', settings: {} }
+    ? { provider: DEFAULT_PROVIDER, settings: {} }
     : readNotePreferences(localStorage)
 }
 
@@ -66,13 +69,37 @@ export function setNoteSetting(providerId: string, key: string, value: string): 
   save()
 }
 
-/** The name of the user's notes app, e.g. for "Open in SilverBullet". */
-export function noteProviderName(): string {
-  return getProvider(notePreferences.provider).name
+/** Whether the player's notes app is OpenTabletop's own Notes. */
+export const usesOwnNotes = (): boolean =>
+  getProvider(notePreferences.provider).id === 'opentabletop'
+
+/** The name of the user's notes app, e.g. for "Open in SilverBullet" (Notes in `locale`). */
+export function noteProviderName(locale = 'en'): string {
+  return usesOwnNotes() ? appName('notes', locale) : getProvider(notePreferences.provider).name
 }
 
-/** URL of a linked note (`noteRef`) in the user's notes app, or null if it isn't set up. */
-export function noteUrl(path: string): string | null {
+/** Where a `noteRef` is: the campaign of the thing, and the thing as a link into the games. */
+export interface NoteContext {
+  campaign?: string
+  /** `character:kael`, `map:<id>#0608`, `faction:<campaign>/<id>`, `campaign:<id>`. */
+  from?: string
+}
+
+/**
+ * URL of a linked note (`noteRef`) in the user's notes app, or null if it isn't set up. In
+ * OpenTabletop's Notes, `context` finds (or makes) the page among the thing's campaign's.
+ */
+export function noteUrl(path: string, context: NoteContext = {}): string | null {
   const provider = getProvider(notePreferences.provider)
-  return provider.url(path, providerSettings(provider, notePreferences.settings[provider.id]))
+  const settings = providerSettings(provider, notePreferences.settings[provider.id])
+  return provider.url(
+    path,
+    provider.id === 'opentabletop'
+      ? {
+          appUrl: appUrl('notes'),
+          ...(context.campaign ? { campaign: context.campaign } : {}),
+          ...(context.from ? { from: context.from } : {}),
+        }
+      : settings,
+  )
 }

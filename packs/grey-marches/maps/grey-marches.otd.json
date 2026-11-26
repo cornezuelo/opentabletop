@@ -91,7 +91,8 @@
             "18,15"
           ]
         }
-      }
+      },
+      "noteRef": "factions/The Iron Clans"
     },
     {
       "id": "the-vale",
@@ -1014,7 +1015,8 @@
           "region": "ashfordvale",
           "name": "Ashford",
           "tags": ["market"],
-          "notes": "Where the road begins. Ask at the inn for news (oracle: Will they let us in?). A market town: on Marketday (and the world clock's market day), Market day trades for supplies."
+          "notes": "Where the road begins. Ask at the inn for news (oracle: Will they let us in?). A market town: on Marketday (and the world clock's market day), Market day trades for supplies.",
+          "noteRef": "places/Ashford"
         },
         "5,8": {
           "terrain": "farmland",
@@ -1584,7 +1586,8 @@
           "terrain": "heath",
           "name": "The ferry",
           "notes": "Take the boat (travel mode) across the Saltmere.",
-          "tags": ["ferry"]
+          "tags": ["ferry"],
+          "noteRef": "places/The ferry"
         },
         "9,11": {
           "terrain": "marsh"
@@ -1830,7 +1833,8 @@
         "17,14": {
           "terrain": "mountains",
           "region": "hollowhills",
-          "name": "Hollow Gate"
+          "name": "Hollow Gate",
+          "noteRef": "places/Hollow Gate"
         },
         "17,15": {
           "terrain": "mountains",
@@ -2208,7 +2212,8 @@
       "location": {
         "map": "greymarches1",
         "hex": "9,10"
-      }
+      },
+      "noteRef": "npcs/Brenna the ferrywoman"
     },
     {
       "id": "poi15x9x0",
@@ -2272,6 +2277,7 @@
   "campaign": {
     "id": "grey-marches",
     "type": "campaign",
-    "name": "The Grey Marches"
+    "name": "The Grey Marches",
+    "noteRef": "The Grey Marches"
   }
 }

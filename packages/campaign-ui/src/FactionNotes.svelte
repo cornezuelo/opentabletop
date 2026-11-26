@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { FactionNotes } from '@open-tabletop/campaign'
-  import { InfoTip, NoteRefInput } from '@open-tabletop/ui-kit'
+  import { InfoTip, NoteRefInput, type NoteContext } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
 
   /**
@@ -11,12 +11,15 @@
     notes,
     name,
     locale,
+    context = {},
     onchange,
   }: {
     notes?: FactionNotes
     /** The faction's name, for the suggested page. */
     name: string
     locale: string
+    /** Where it is, for the notes app (its campaign, the faction as a link). */
+    context?: NoteContext
     onchange: (change: Partial<FactionNotes>) => void
   } = $props()
 
@@ -31,6 +34,8 @@
       placeholder={t('factions.noteRefPlaceholder', { name })}
       label={t('factions.noteRef')}
       {locale}
+      suggest={name}
+      {context}
       onchange={(noteRef) => onchange({ noteRef })}
     />
   </label>

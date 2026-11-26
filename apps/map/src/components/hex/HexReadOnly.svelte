@@ -1,7 +1,8 @@
 <script lang="ts">
   import { noteUrl, WholePicture } from '@open-tabletop/ui-kit'
   import { getLocale } from '../../lib/i18n/index.svelte'
-  import type { HexData, MapRegion } from '@open-tabletop/map'
+  import type { HexData, HexKey, MapRegion } from '@open-tabletop/map'
+  import { noteContext } from '../../lib/noteContext'
   import { t } from '../../lib/i18n/index.svelte'
   import { renderMarkdown } from '../../lib/markdown'
 
@@ -10,8 +11,11 @@
     hex,
     regions,
     inherited,
+    key,
   }: {
     hex: HexData
+    /** Where it is: its notes open among its map's campaign's pages. */
+    key?: HexKey
     /** The regions it's in, from the innermost out. */
     regions: MapRegion[]
     /** What it gets from them, in words. */
@@ -41,7 +45,7 @@
 
 {#snippet noteLink(note: string | undefined)}
   {#if note}
-    {@const url = noteUrl(note)}
+    {@const url = noteUrl(note, noteContext(key))}
     {#if url}
       <a href={url} target="_blank" rel="noreferrer">{note} ↗</a>
     {:else}

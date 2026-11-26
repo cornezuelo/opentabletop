@@ -63,6 +63,7 @@
     <span class="help what">{t('factions.land')}<InfoTip markdown={t('factions.landHelp')} /></span>
     <FactionCards
       {own}
+      campaign={editor.map.meta.campaign || undefined}
       {system}
       locale={getLocale()}
       territories={own.territories}

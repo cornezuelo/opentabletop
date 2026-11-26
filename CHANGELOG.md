@@ -4,6 +4,20 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Notes**, a new app: your own notes in Markdown, kept in this browser, by campaign (and **General**), with folders; links between pages (`[[Old Tobin]]`, to a heading, with another text) and into the games (`[[character:kael]]`, `[[map:<id>#0608]]`, `[[faction:<campaign>/<id>]]`, `[[campaign:<id>]]`), suggested as you type `[[`; beside each page what links to it (pages and the campaign's Log), what of the game it names or points at it, and where its title is written unlinked (**Link**); a search; renaming moves the links; **Export** as a .zip of .md files (for Obsidian or SilverBullet) and **Import** them back.
+- **Every app**: **Preferences → Notes app** has **OpenTabletop Notes**, the default: a character's, cell's, place's, faction's or campaign's note opens its page there (made if it doesn't exist yet, linking back to the thing), and **✎** writes one while the note is empty.
+- **Campaign**: deleting a campaign keeps its pages of Notes, in General.
+
+### Packs
+
+- **The Grey Marches**: example pages for Notes (the campaign's front page, Ashford, the ferry, Hollow Gate, Brenna the ferrywoman, the Iron Clans; in English and Spanish), and the example map's notes point at them.
+
+### Formats
+
+- **Backups**: they keep the pages of Notes (older backups have none).
+
 ## [0.78.0] - 2026-11-26
 
 ### Apps

@@ -23,6 +23,6 @@ A gold dot marks cells with details you can't see on the map.
 
 ## Linked notes
 
-Map doesn't store lore: it links to it. In **Preferences** (the gear at the top of any app) choose your notes app: SilverBullet (with its address) or Obsidian (with the vault name); a cell's or a POI's note is then a path like `My campaign/Hexes/0203` that opens there.
+Map doesn't store lore: it links to it. In **Preferences** (the gear at the top of any app) choose your notes app: OpenTabletop's own [Notes](../notes/01-getting-started.md) (the default), SilverBullet (with its address) or Obsidian (with the vault name); a cell's or a POI's note is then a path like `places/Hollow Gate` that opens there (**↗**). With Notes, the page is looked for among the map's campaign's, and made if it isn't there yet, beginning with a link back to the cell; **✎**, while the note is empty, writes a new page named after the cell.
 
-Going the other way, the cell link (the chain icon) pasted in a note opens the map on that cell.
+Going the other way, the cell link (the chain icon) pasted in a note opens the map on that cell; in Notes, `[[map:<map id>#0608]]` links to it by its label.

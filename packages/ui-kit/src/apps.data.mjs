@@ -10,6 +10,7 @@ export const APP_LIST = [
   { id: 'oracle', devPort: 5174, available: true },
   { id: 'travel', devPort: 5175, available: true },
   { id: 'characters', devPort: 5178, available: true },
+  { id: 'notes', devPort: 5180, available: true },
   { id: 'packs', devPort: 5177, available: true },
   { id: 'manual', devPort: 5176, available: true },
 ]
@@ -28,6 +29,7 @@ export const APP_ICON_SVGS = {
   packs: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M5 7h22v5H5zM7 12v13h18V12" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linejoin="round"/><path d="M13 17h6" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/></svg>`,
   characters: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<circle cx="16" cy="11.5" r="4.5" fill="none" stroke="${GOLD}" stroke-width="2"/><path d="M7 26c0-5 4-8.5 9-8.5s9 3.5 9 8.5" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/></svg>`,
   campaign: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M9.5 27V5" stroke="${GOLD}" stroke-width="2" stroke-linecap="round"/><path d="M9.5 6.5h14l-3.5 5 3.5 5h-14" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linejoin="round"/></svg>`,
+  notes: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<path d="M9 5h11l5 5v17H9z" fill="none" stroke="${GOLD}" stroke-width="2" stroke-linejoin="round"/><path d="M20 5v5h5M12.5 15h9M12.5 19h9M12.5 23h6" fill="none" stroke="${GOLD}" stroke-width="1.6" stroke-linecap="round"/></svg>`,
   travel: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${FRAME}<circle cx="16" cy="16" r="10" fill="none" stroke="${GOLD}" stroke-width="2"/><path d="M16 8l3 8-3 8-3-8z" fill="${GOLD}"/></svg>`,
 }
 
@@ -52,6 +54,7 @@ export const APP_NAMES = {
     oracle: 'Oracle',
     travel: 'Travel',
     characters: 'Characters',
+    notes: 'Notes',
     packs: 'Packs',
     manual: 'Manual',
   },
@@ -61,6 +64,7 @@ export const APP_NAMES = {
     oracle: 'Oráculo',
     travel: 'Viajes',
     characters: 'Personajes',
+    notes: 'Notas',
     packs: 'Packs',
     manual: 'Manual',
   },
@@ -74,6 +78,8 @@ export const APP_BLURBS = {
     oracle: 'Roll the tables, oracles, generators and decks of your packs.',
     travel: 'Run trips without a map, with any system.',
     characters: 'Your characters, of any system: make them, keep them and take them on trips.',
+    notes:
+      'Your notes and lore in Markdown, by campaign, linked to each other and to your characters, maps and factions.',
     packs:
       'Make and edit packs and the game systems they hold: rules, checks, sheets, maps’ styles.',
     manual: 'How to use every app, with search.',
@@ -84,6 +90,8 @@ export const APP_BLURBS = {
     oracle: 'Tira las tablas, oráculos, generadores y mazos de tus packs.',
     travel: 'Juega viajes sin mapa, con cualquier sistema.',
     characters: 'Tus personajes, de cualquier sistema: créalos, guárdalos y llévalos de viaje.',
+    notes:
+      'Tus notas y tu trasfondo en Markdown, por campaña, enlazados entre sí y con tus personajes, mapas y facciones.',
     packs:
       'Crea y edita packs y los sistemas de juego que traen: reglas, comprobaciones, hojas, estilos de mapa.',
     manual: 'Cómo usar cada aplicación, con buscador.',

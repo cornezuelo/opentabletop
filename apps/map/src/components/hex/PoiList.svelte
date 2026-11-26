@@ -7,6 +7,7 @@
   import { type HexKey, newId, type Poi } from '@open-tabletop/map'
   import { editor } from '../../lib/store/editor.svelte'
   import { NoteRefInput } from '@open-tabletop/ui-kit'
+  import { noteContext } from '../../lib/noteContext'
   import TokenIconPicker from '../tokens/TokenIconPicker.svelte'
   import { builtinSvg, getBuiltinIcon } from '../../lib/icons/registry'
 
@@ -124,6 +125,8 @@
         value={poi.note ?? ''}
         label={t('hex.note')}
         placeholder={t('hex.poiNotePlaceholder', { name: poi.name })}
+        suggest={poi.name}
+        context={noteContext(key)}
         onchange={(note) => update(poi.id, { note })}
       />
       <FieldEditor

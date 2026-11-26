@@ -7,6 +7,7 @@
  */
 import { createLibrary } from './library'
 import { deleteJournal } from './journalLibrary'
+import { moveCampaignNotes } from './notesLibrary'
 
 /** The channel the campaigns' changes go out on. */
 export const CAMPAIGNS_CHANNEL = 'opentabletop.campaigns'
@@ -15,10 +16,15 @@ const campaigns = createLibrary('campaigns', CAMPAIGNS_CHANNEL)
 
 export const putCampaign = campaigns.put
 export const getCampaign = campaigns.get
-/** Deletes a campaign, and its journal with it. */
+/**
+ * Deletes a campaign, and its journal with it; its notes' pages go to General, in a folder
+ * by its name.
+ */
 export async function deleteCampaign(id: string): Promise<void> {
+  const name = (await campaigns.get(id))?.name ?? id
   await campaigns.delete(id)
   await deleteJournal(id)
+  await moveCampaignNotes(id, name)
 }
 /** All campaigns, newest first, without their JSON (for listing). */
 export const listCampaigns = campaigns.list

@@ -36,8 +36,9 @@
       sharedHelp: 'Kept in this browser and shared by every OpenTabletop app on this site.',
       language: 'Language',
       notes: 'Notes app',
+      ownNotes: 'OpenTabletop Notes',
       notesHelp:
-        'Cells, places and other things can link to a note in your notes app; the link only stores the note’s path, and this turns it into an address.',
+        'Cells, places and other things can link to a note in your notes app; the link only stores the note’s path, and this turns it into an address. OpenTabletop Notes keeps your pages in this browser, by campaign; a link to a page that doesn’t exist yet makes it.',
       settings: {
         silverbullet: { baseUrl: 'SilverBullet URL' },
         obsidian: { vault: 'Vault name' },
@@ -66,8 +67,9 @@
         'Se guardan en este navegador y las comparten todas las aplicaciones de OpenTabletop de este sitio.',
       language: 'Idioma',
       notes: 'Aplicación de notas',
+      ownNotes: 'Notas de OpenTabletop',
       notesHelp:
-        'Las casillas, los lugares y otras cosas pueden enlazar con una nota de tu aplicación de notas; el enlace solo guarda la ruta de la nota, y esto la convierte en una dirección.',
+        'Las casillas, los lugares y otras cosas pueden enlazar con una nota de tu aplicación de notas; el enlace solo guarda la ruta de la nota, y esto la convierte en una dirección. Notas de OpenTabletop guarda tus páginas en este navegador, por campaña; un enlace a una página que aún no existe la crea.',
       settings: {
         silverbullet: { baseUrl: 'URL de SilverBullet' },
         obsidian: { vault: 'Nombre de la bóveda' },
@@ -128,7 +130,7 @@
       <span>{text.notes}</span>
       <select value={provider.id} onchange={(e) => setNoteProvider(e.currentTarget.value)}>
         {#each providers as p (p.id)}
-          <option value={p.id}>{p.name}</option>
+          <option value={p.id}>{p.id === 'opentabletop' ? text.ownNotes : p.name}</option>
         {/each}
       </select>
     </label>
