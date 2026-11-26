@@ -133,7 +133,7 @@ describe.skipIf(!here)('Ker Nethalas', () => {
         continue
       }
       const foe = presentHere(s)[0]?.character.id
-      play.step({ type: 'action', id: 'attack', with: { foe, skill: 'bladed' } })
+      play.step({ type: 'action', id: 'attack', with: { foe } })
     }
     expect(session().encounter).toBeUndefined()
     const log = session().journal.map((e) => e.code)

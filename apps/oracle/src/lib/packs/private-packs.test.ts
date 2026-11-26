@@ -129,7 +129,12 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   /** Plays a fight against `foes` to its end: each of the PC's turns an Attack at the first one here. */
   // Loaded once: every fight plays the same packs.
   let loaded: { registry: ReturnType<typeof loadPacks>['registry']; system: TravelSystem }
-  function fight(foes: Record<string, number>, seed: string, level = 1) {
+  function fight(
+    foes: Record<string, number>,
+    seed: string,
+    level = 1,
+    held: string[] = ['longsword'],
+  ) {
     loaded ??= (() => {
       const { registry } = loadPacks(engineFiles(bundledPacks))
       return {
@@ -160,7 +165,7 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     const present = Object.fromEntries(Object.entries(foes).map(([t, n]) => [`present.${t}`, n]))
     // A longsword in hand, mail and light vambraces worn.
     const gear = {
-      'characters.erthos.items.longsword': 1,
+      ...Object.fromEntries(held.map((i) => [`characters.erthos.items.${i}`, 1])),
       'characters.erthos.items.mail': 1,
       'characters.erthos.items.light-vambraces': 1,
     }
@@ -181,7 +186,7 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
         done = stepTrip(options, s, {
           type: 'action',
           id: 'attack',
-          with: { foe, skill: 'bladed' },
+          with: { foe },
         })
         if (done.state.travel.waiting)
           done = stepTrip(options, done.state, { type: 'resume', choice: foe })
@@ -434,7 +439,7 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       expect(m.values).toMatchObject({ health: 6, exhaustion: 2 })
   })
 
-  it('fights with gear: the weapon in hand and the Armor worn count, and each piece worn rolls its Integrity after', () => {
+  it('fights with gear: the weapon in hand and the Armor worn count, and each piece struck rolls its Integrity after', () => {
     // It ends on the Necropede's turn: the Integrity rolls are the PC's all the same
     // (`for: party.members`).
     const { state, entries } = fight({ necropede: 1 }, 'g')
@@ -453,11 +458,110 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       ['mail', 'body'],
       ['light-vambraces', 'body'],
     ])
-    // After the fight, one Integrity roll for each piece worn (the sword has none).
+    // After the fight, one Integrity roll for each piece worn where a blow landed (the sword
+    // has none): the mail for the chest or abdomen, the vambraces for the arms.
+    const struck = new Set(
+      entries
+        .filter((e) => e.code === 'CHANGED' && /conditions\.struck-/.test(String(e.data?.path)))
+        .map((e) => String(e.data?.path).split('struck-')[1]),
+    )
     const rolls = entries.filter(
       (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/integrity',
     )
-    expect(rolls.length).toBe(2)
+    expect(rolls.length).toBe(+(struck.has('chest') || struck.has('abdomen')) + +struck.has('arms'))
+    // The marks are gone once rolled.
+    expect(Object.keys(pc.conditions ?? {}).filter((c) => c.startsWith('struck-'))).toEqual([])
+  })
+
+  it('a piece struck rolls its Integrity, one never struck does not, over several fights', () => {
+    let rolled = 0
+    for (const seed of ['i1', 'i2', 'i3', 'i4', 'i5']) {
+      const { entries } = fight({ rotwalker: 1 }, seed)
+      const hit = entries.some(
+        (e) =>
+          e.code === 'CHANGED' &&
+          /conditions\.struck-(chest|abdomen|arms)/.test(String(e.data?.path)),
+      )
+      const rolls = entries.filter(
+        (e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/integrity',
+      ).length
+      if (hit) rolled += rolls
+      else expect(rolls).toBe(0)
+    }
+    expect(rolled).toBeGreaterThan(0)
+  })
+
+  it('a shield that parried rolls its Integrity after the fight; a Defensive weapon beside it adds 10 to Parry', () => {
+    let rolled = 0
+    for (const seed of ['s1', 's2', 's3', 's4']) {
+      const { entries } = fight({ rotwalker: 1 }, seed, 1, ['shortsword', 'shield'])
+      const attacks = entries
+        .filter((e) => e.code === 'ORACLE_RESULT' && e.data?.table === 'ker-nethalas/rotwalker')
+        .map((e) => e.data?.value as { parrying?: number; dodging?: number })
+        .filter((v) => v.parrying !== undefined)
+      // Parry 73, the shield's 10 and the Defensive shortsword's 10.
+      for (const v of attacks) expect(v.parrying).toBe(93)
+      const used = entries.some(
+        (e) => e.code === 'CHANGED' && String(e.data?.path).endsWith('conditions.shield-struck'),
+      )
+      const rolls = entries.filter(
+        (e) => e.code === 'ACTION_TAKEN' && e.data?.action === 'shield-integrity',
+      ).length
+      expect(rolls).toBe(+used)
+      rolled += rolls
+    }
+    expect(rolled).toBeGreaterThan(0)
+  })
+
+  it("the weapon wielded: its Skill and die, Two-Handed filling both hands, Versatile, dual wielding and a Defensive weapon's +10 beside a shield", () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'e', name: 'E' })
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'w' })
+    const holding = (...items: string[]) =>
+      applyResult(
+        session,
+        { effects: Object.fromEntries(items.map((i) => [`characters.e.items.${i}`, 1])) },
+        {},
+        rules,
+      ).members![0]
+    // A Two-Handed weapon fills both hands: a shield given after it can't go in them.
+    const big = holding('great-sword', 'shield')
+    expect(big.items!.find((i) => i.id === 'great-sword')!.place).toBe('hands')
+    expect(big.items!.find((i) => i.id === 'shield')!.place).not.toBe('hands')
+    expect(big.values).toMatchObject({ held: 2, weapons: 1, dual: 0 })
+    // Two One-Handed weapons: dual wielding.
+    expect(holding('dagger', 'saber').values).toMatchObject({ held: 2, weapons: 2, dual: 1 })
+    const engine = createOracleEngine({ registry, random: seeded('w') })
+    const wielded = (
+      weapon: string | undefined,
+      items: Record<string, Record<string, unknown>>,
+      values: Record<string, number> = {},
+    ) =>
+      engine.resolve('ker-nethalas/weapon-wielded', {
+        params: { weapon },
+        acting: { items, values: { held: 1, dual: 0, ...values } },
+      }).resolution.value
+    const longsword = {
+      longsword: { tags: ['weapon', 'bladed', 'versatile'], versatile: 1, speed: 0 },
+    }
+    // Versatile with the other hand free: +1; with a shield in it, none.
+    expect(wielded('longsword', longsword)).toMatchObject({ skill: 'bladed', sides: 6, might: 1 })
+    expect(wielded('longsword', longsword, { held: 2 })).toMatchObject({ might: 0 })
+    // A Shafted weapon by its own Skill, its Two-Handed +2, its Speed.
+    const halberd = { halberd: { tags: ['weapon', 'shafted'], damage: 2, speed: 5, hands: 2 } }
+    expect(wielded('halberd', halberd, { held: 2 })).toMatchObject({
+      skill: 'shafted',
+      might: 2,
+      speed: 5,
+    })
+    // A fist weapon by Unarmed Combat; nothing in hand, fists: a D4.
+    const cestus = { cestus: { tags: ['weapon', 'fist'], drill: 10 } }
+    expect(wielded('cestus', cestus)).toMatchObject({ skill: 'unarmed', sides: 6, drill: 10 })
+    expect(wielded(undefined, {})).toMatchObject({ skill: 'unarmed', sides: 4, might: 0 })
+    // Dual wielding: +1 damage.
+    expect(wielded('cestus', cestus, { dual: 1, held: 2 })).toMatchObject({ might: 1 })
   })
 
   it('where a blow lands names its Armor and Weak Spot, and one table deals the damage there', () => {
@@ -525,21 +629,19 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   it('damage types: the weapon in hand names its type, its Armor rule and what the creature takes of it', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const engine = createOracleEngine({ registry, random: seeded('types') })
+    // The weapon wielded names it by its tag.
+    const typeOf = (tag: string | undefined) =>
+      engine.resolve('ker-nethalas/blow-type', {
+        params: { weapon: tag && 'w' },
+        acting: { items: tag ? { w: { tags: ['weapon', tag] } } : {} },
+      }).resolution.value
     const type = (values: Record<string, number>) =>
-      engine.resolve('ker-nethalas/blow-type', { acting: { values } }).resolution.value
-    expect(type({ slashing: 1, piercing: 1, bludgeoning: 0 })).toMatchObject({
-      taken: 'taken-slashing',
-      cut: 1,
-    })
-    expect(type({ slashing: 0, piercing: 1, bludgeoning: 0 })).toMatchObject({
-      taken: 'taken-piercing',
-      pierce: 1,
-    })
+      typeOf(values.slashing ? 'slashing' : values.piercing ? 'piercing' : undefined)
+    expect(typeOf('slashing')).toMatchObject({ taken: 'taken-slashing', cut: 1 })
+    expect(typeOf('piercing')).toMatchObject({ taken: 'taken-piercing', pierce: 1 })
     // Fists, or a blunt weapon: Bludgeoning, which ignores 1 point of Armor.
-    expect(type({ slashing: 0, piercing: 0, bludgeoning: 0 })).toMatchObject({
-      taken: 'taken-bludgeoning',
-      ignores: 1,
-    })
+    expect(typeOf('bludgeoning')).toMatchObject({ taken: 'taken-bludgeoning', ignores: 1 })
+    expect(typeOf(undefined)).toMatchObject({ taken: 'taken-bludgeoning', ignores: 1 })
     /** What a blow of `dmg` deals on the chest (Armor 2), as `blow`, on a foe that takes `taken`. */
     const hurt = (blow: string, dmg: number, taken = 1, crit = 0) => {
       const how = type({
@@ -638,11 +740,11 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       let done = stepTrip(options, s, { type: 'action', id: 'fight' })
       for (let i = 0; i < 6 && done.state.encounter?.order[done.state.encounter.turn] !== 'e'; i++)
         done = stepTrip(options, done.state, { type: 'resume' })
-      // The foe given with it (its card clicked): not asked again.
+      // The foe given with it (its card clicked): not asked again. No weapon in hand: fists.
       done = stepTrip(options, done.state, {
         type: 'action',
-        id: 'attack',
-        with: { foe: 'necropede', skill: 'bladed' },
+        id: 'attack-unarmed',
+        with: { foe: 'necropede' },
       })
       expect(done.state.travel.waiting).toBeUndefined()
       const rolled = done.entries.find(
@@ -937,8 +1039,8 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       { ...s, acting: 'erthos' },
       {
         type: 'action',
-        id: 'attack',
-        with: { foe: s.present![0].character.id, skill: 'bladed' },
+        id: 'attack-unarmed',
+        with: { foe: s.present![0].character.id },
       },
     )
     expect(attacked.state.party!.conditions.invisible).toBeUndefined()
