@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.81.0] - 2026-11-26
+
 ### Packs
 
 - **Core**: **Call the hound** brings a hound that runs with the party, fights on its side and bites on its own turns; foes may go for it too. **The Grey Marches**: with a patrol of the Vale here and the Vale thinking well of the Company, **Ask for an outrider**: one rider comes along while the Company is in the Vale's lands, fighting at its side, each foe set against one of them.
