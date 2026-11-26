@@ -24,20 +24,14 @@ import {
   gameUrl,
   linkedThing,
   linkFromUrl,
-  loadGameIndex,
   loadPages,
   newPageId,
   savePage,
   savePages,
+  watchNotes,
   type GameIndex,
   type NoteSection,
 } from '@open-tabletop/notes-ui'
-import {
-  onAnyCampaignChange,
-  onAnyNoteChange,
-  onLibraryChange,
-  ROSTER_KEY,
-} from '@open-tabletop/storage'
 import { playing } from '@open-tabletop/ui-kit'
 import { t, ui } from './i18n'
 import { nameFaction } from './packs.svelte'
@@ -57,27 +51,17 @@ async function readPages(): Promise<void> {
   notes.pages = await loadPages()
 }
 
-async function readIndex(): Promise<void> {
-  notes.index = await loadGameIndex(nameFaction)
-}
-
 /** Reads everything, and keeps reading it as it changes; returns a stop. */
 export async function startNotes(): Promise<() => void> {
-  await Promise.all([readPages(), readIndex()])
+  const stop = await watchNotes(
+    {
+      pages: (pages) => (notes.pages = pages),
+      index: (index) => (notes.index = index),
+    },
+    nameFaction,
+  )
   notes.loaded = true
-  const stops = [
-    onAnyNoteChange(() => void readPages()),
-    onAnyCampaignChange(() => void readIndex()),
-    onLibraryChange(() => void readIndex()),
-  ]
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === ROSTER_KEY || e.key === null) void readIndex()
-  }
-  window.addEventListener('storage', onStorage)
-  return () => {
-    stops.forEach((stop) => stop())
-    window.removeEventListener('storage', onStorage)
-  }
+  return stop
 }
 
 /** The tree's sections: the campaign being played first, General, then the others by name. */

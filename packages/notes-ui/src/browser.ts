@@ -7,7 +7,11 @@ import {
   allLibraryMaps,
   allNotes,
   deleteNoteEntry,
+  onAnyCampaignChange,
+  onAnyNoteChange,
+  onLibraryChange,
   putNoteEntry,
+  ROSTER_KEY,
   updateNotes,
   type LibraryEntry,
 } from '@open-tabletop/storage'
@@ -70,4 +74,39 @@ export async function createPage(
   const page = newPage(newPageId(), path, campaign, new Date().toISOString(), body)
   await savePage(page)
   return page
+}
+
+/**
+ * The pages and the games' things, read now and again whenever they change here or in
+ * another app (pages, campaigns, maps, the roster), each handed to its listener; returns a
+ * stop. Resolves once both have been read the first time.
+ */
+export async function watchNotes(
+  on: { pages: (pages: NotePage[]) => void; index: (index: GameIndex) => void },
+  factionName?: FactionNamer,
+): Promise<() => void> {
+  let stopped = false
+  const readPages = async () => {
+    const pages = await loadPages().catch(() => [])
+    if (!stopped) on.pages(pages)
+  }
+  const readIndex = async () => {
+    const index = await loadGameIndex(factionName)
+    if (!stopped) on.index(index)
+  }
+  const stops = [
+    onAnyNoteChange(() => void readPages()),
+    onAnyCampaignChange(() => void readIndex()),
+    onLibraryChange(() => void readIndex()),
+  ]
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === ROSTER_KEY || e.key === null) void readIndex()
+  }
+  window.addEventListener('storage', onStorage)
+  await Promise.all([readPages(), readIndex()])
+  return () => {
+    stopped = true
+    stops.forEach((stop) => stop())
+    window.removeEventListener('storage', onStorage)
+  }
 }

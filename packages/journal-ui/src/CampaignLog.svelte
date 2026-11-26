@@ -13,6 +13,19 @@
     type CampaignJournal,
     type LogLine,
   } from '@open-tabletop/journal'
+  import {
+    emptyGameIndex,
+    NoteEditor,
+    notePageUrl,
+    noteRefUrl,
+    NoteView,
+    suggestTexts,
+    translator as notesTranslator,
+    watchNotes,
+    type FactionNamer,
+    type GameIndex,
+  } from '@open-tabletop/notes-ui'
+  import type { NotePage } from '@open-tabletop/notes'
   import { JOURNAL_LEVELS, type JournalLevel } from '@open-tabletop/session'
   import { onAnyJournalChange } from '@open-tabletop/storage'
   import type { Calendar } from '@open-tabletop/time'
@@ -22,7 +35,6 @@
     downloadText,
     fileNameOf,
     InfoTip,
-    Markdown,
     MoreMenu,
     tooltip,
   } from '@open-tabletop/ui-kit'
@@ -51,16 +63,39 @@
     calendar,
     locale,
     nameOf,
+    factionName,
   }: {
     campaign: Campaign
     calendar: Calendar
     locale: string
     /** Display name of an Oracle definition by id (a hand roll's table). */
     nameOf: (id: string) => string
+    /** A campaign's faction's name as its system says it (its notes' links to factions). */
+    factionName?: FactionNamer
   } = $props()
 
   const t = translator(() => locale)
   const tt = travelTranslator(() => locale)
+  const nt = notesTranslator(() => locale)
+
+  /** Notes' pages and the games' things, so the notes' `[[links]]` read as in Notes. */
+  let pages = $state<NotePage[]>([])
+  let index = $state<GameIndex>(emptyGameIndex())
+  $effect(() => {
+    let stop: (() => void) | undefined
+    let gone = false
+    void watchNotes({ pages: (p) => (pages = p), index: (i) => (index = i) }, factionName).then(
+      (s) => (gone ? s() : (stop = s)),
+      console.error,
+    )
+    return () => {
+      gone = true
+      stop?.()
+    }
+  })
+  /** A link to a page opens it in Notes; to one not written yet, makes it in this campaign. */
+  const openPage = (id: string) => window.open(notePageUrl(id), '_blank', 'noopener')
+  const newPage = (path: string) => window.open(noteRefUrl(path, campaign.id), '_blank', 'noopener')
 
   let journal = $state<CampaignJournal | undefined>()
   $effect(() => {
@@ -168,27 +203,27 @@
       onsave()
     }}
   >
-    <!-- svelte-ignore a11y_autofocus -->
-    <textarea
-      rows="3"
-      bind:value={draft}
-      placeholder={t('log.notePlaceholder')}
-      aria-label={t('log.note')}
-      autofocus
-      onkeydown={(e) => {
-        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) onsave()
-        if (e.key === 'Escape') {
-          writing = undefined
-          editing = undefined
-        }
-      }}></textarea>
+    <div class="editor">
+      <NoteEditor
+        value={draft}
+        {pages}
+        {index}
+        campaign={campaign.id}
+        texts={suggestTexts(nt)}
+        placeholder={t('log.notePlaceholder')}
+        label={t('log.note')}
+        onchange={(text) => (draft = text)}
+        onsubmit={onsave}
+        oncancel={() => ((writing = undefined), (editing = undefined))}
+      />
+    </div>
     <div class="buttons">
       <button
         type="button"
         class="button"
         onclick={() => ((writing = undefined), (editing = undefined))}>{t('log.cancel')}</button
       >
-      <button type="submit" class="button primary" disabled={!draft.trim()}>{t('log.save')}</button>
+      <button type="submit" class="button primary">{t('log.save')}</button>
     </div>
   </form>
 {/snippet}
@@ -232,7 +267,16 @@
       <div class="line note">
         <time>{lineClock(line, calendar)}</time>
         <span class="mark" aria-label={t('log.note')}>✎</span>
-        <div class="text"><Markdown text={line.note.text} /></div>
+        <div class="text">
+          <NoteView
+            body={line.note.text}
+            {pages}
+            {index}
+            from={{ campaign: campaign.id }}
+            onpage={openPage}
+            onnew={newPage}
+          />
+        </div>
         <span class="actions">
           <button
             class="icon"
@@ -609,10 +653,15 @@
     max-width: 700px;
   }
 
-  .note-form textarea {
-    width: 100%;
-    font: inherit;
-    font-size: 13px;
+  .note-form .editor {
+    height: 8.5em;
+    overflow: hidden;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+  }
+
+  .note-form .editor:focus-within {
+    border-color: var(--accent);
   }
 
   .buttons {

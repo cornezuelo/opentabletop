@@ -37,7 +37,7 @@ Escribe `[[` y elige con qué enlazar: páginas, los títulos de una página (tr
 
 Los tipos (`character`, `map`, `faction`, `campaign`) se escriben siempre en inglés, sea cual sea el idioma de la interfaz. Un enlace a una página que aún no existe se dibuja discontinuo: un clic la crea, en la misma campaña. Uno a algo que este navegador no tiene (un personaje borrado) también sale discontinuo.
 
-Dónde busca un enlace: una página de una campaña llega primero a las páginas de esa campaña y luego a las de General; una página de General solo llega a las de General.
+Dónde busca un enlace: una página de una campaña llega primero a las páginas de esa campaña y luego a las de General; una página de General solo llega a las de General. Las notas del [Diario](../campaign/01-getting-started.md) de una campaña se escriben con los mismos enlaces, y se leen como una página de esa campaña.
 
 ## Lo que enlaza aquí
 

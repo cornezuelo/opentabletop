@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getProvider } from '@open-tabletop/note-refs'
+import { notePageUrl, noteRefUrl } from '@open-tabletop/notes-ui'
 import { formatView, parseView } from './nav.svelte'
 
 describe("Notes' addresses", () => {
@@ -20,6 +21,19 @@ describe("Notes' addresses", () => {
       path: 'npcs/Old Tobin',
       campaign: 'vale',
       from: 'map:a1b2#0608',
+    })
+  })
+})
+
+describe('the addresses other apps open Notes at', () => {
+  it('are the views Notes reads', () => {
+    const page = notePageUrl('p 1')
+    expect(parseView(page.slice(page.indexOf('#')))).toEqual({ name: 'page', id: 'p 1' })
+    const ref = noteRefUrl('npcs/Old Tobin', 'vale')
+    expect(parseView(ref.slice(ref.indexOf('#')))).toEqual({
+      name: 'ref',
+      path: 'npcs/Old Tobin',
+      campaign: 'vale',
     })
   })
 })

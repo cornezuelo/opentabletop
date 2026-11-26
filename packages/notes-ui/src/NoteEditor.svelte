@@ -7,7 +7,7 @@
   import { indentWithTab } from '@codemirror/commands'
   import { markdown } from '@codemirror/lang-markdown'
   import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
-  import { EditorState } from '@codemirror/state'
+  import { EditorState, Prec } from '@codemirror/state'
   import { EditorView, keymap, placeholder as placeholderText } from '@codemirror/view'
   import { tags } from '@lezer/highlight'
   import { basicSetup } from 'codemirror'
@@ -31,6 +31,8 @@
     placeholder = '',
     label,
     onchange,
+    onsubmit,
+    oncancel,
   }: {
     value: string
     pages: readonly NotePage[]
@@ -41,6 +43,10 @@
     placeholder?: string
     label: string
     onchange: (value: string) => void
+    /** Ctrl+Enter (⌘+Enter): the text handed on first, then this (a form's Save). */
+    onsubmit?: () => void
+    /** Escape, with no suggestions open (a form's Cancel). */
+    oncancel?: () => void
   } = $props()
 
   function complete(context: CompletionContext): CompletionResult | null {
@@ -109,6 +115,36 @@
     { dark: true },
   )
 
+  /** Ctrl+Enter hands the text on and submits, ahead of the editor's own new line. */
+  const submitKey = Prec.highest(
+    keymap.of([
+      {
+        key: 'Mod-Enter',
+        run: () => {
+          if (!onsubmit || !view) return false
+          clearTimeout(timer)
+          timer = undefined
+          emitted = view.state.doc.toString()
+          onchange(emitted)
+          onsubmit()
+          return true
+        },
+      },
+    ]),
+  )
+
+  /** Escape cancels, after the suggestions have had it (closing them while open). */
+  const cancelKey = keymap.of([
+    {
+      key: 'Escape',
+      run: () => {
+        if (!oncancel) return false
+        oncancel()
+        return true
+      },
+    },
+  ])
+
   function flush() {
     if (timer === undefined || !view) return
     clearTimeout(timer)
@@ -125,7 +161,9 @@
       state: EditorState.create({
         doc: value,
         extensions: [
+          submitKey,
           basicSetup,
+          cancelKey,
           keymap.of([indentWithTab]),
           markdown(),
           autocompletion({ override: [complete], activateOnTyping: true }),

@@ -1,5 +1,6 @@
 import { findPage, pageFolder, pageHeadings, pageTitle, type NotePage } from '@open-tabletop/notes'
 import type { GameIndex } from './game'
+import type { Translate } from './i18n'
 
 /** One suggestion for a link being written: what it shows and what goes inside `[[ ]]`. */
 export interface LinkOption {
@@ -15,6 +16,18 @@ export interface SuggestTexts {
   kinds: Record<'character' | 'map' | 'campaign' | 'faction' | 'heading', string>
   general: string
 }
+
+/** The suggestions' texts in the language of notes-ui's `t`. */
+export const suggestTexts = (t: Translate): SuggestTexts => ({
+  kinds: {
+    character: t('kinds.character'),
+    map: t('kinds.map'),
+    campaign: t('kinds.campaign'),
+    faction: t('kinds.faction'),
+    heading: t('kinds.heading'),
+  },
+  general: t('general'),
+})
 
 /**
  * What a link begun at the cursor (`[[Old T`, `[[Old Tobin#Se`) may become, seen from a page

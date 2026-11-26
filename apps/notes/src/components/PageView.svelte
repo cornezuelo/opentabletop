@@ -1,6 +1,6 @@
 <script lang="ts">
   import { pageTitle, type NotePage } from '@open-tabletop/notes'
-  import { NoteEditor, NoteLinks, NoteView } from '@open-tabletop/notes-ui'
+  import { NoteEditor, NoteLinks, NoteView, suggestTexts } from '@open-tabletop/notes-ui'
   import {
     campaignUrl,
     confirmAction,
@@ -139,16 +139,7 @@
               pages={notes.pages}
               index={notes.index}
               campaign={page.campaign}
-              texts={{
-                kinds: {
-                  character: ui('kinds.character'),
-                  map: ui('kinds.map'),
-                  campaign: ui('kinds.campaign'),
-                  faction: ui('kinds.faction'),
-                  heading: ui('kinds.heading'),
-                },
-                general: ui('general'),
-              }}
+              texts={suggestTexts(ui)}
               placeholder={t('page.placeholder')}
               label={t('page.editorLabel')}
               onchange={(body) => changePage(page, { body })}

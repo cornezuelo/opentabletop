@@ -1,8 +1,15 @@
 import { PackLibrary } from '@open-tabletop/pack-ui'
 import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
-import { missingSystem, systemIdOf, travelSystems, type TravelSystem } from '@open-tabletop/session'
+import type { Campaign } from '@open-tabletop/campaign'
+import {
+  factionName,
+  missingSystem,
+  systemIdOf,
+  travelSystems,
+  type TravelSystem,
+} from '@open-tabletop/session'
 import { showToast } from '@open-tabletop/ui-kit'
-import { t } from './i18n'
+import { getLocale, t } from './i18n'
 
 /** Bundled packs plus the user's (shared with the other apps on the same site). */
 export const library = new PackLibrary(bundledPacks, {
@@ -22,3 +29,10 @@ class Packs {
 }
 
 export const systems = new Packs()
+
+/** A campaign's faction's name, as the system its factions came from says it (if loaded). */
+export function nameFaction(campaign: Campaign, id: string): string | undefined {
+  const from = campaign.factions?.system
+  const factions = from ? systems.get(from).factions : undefined
+  return factions ? factionName(factions, id, getLocale()) : undefined
+}

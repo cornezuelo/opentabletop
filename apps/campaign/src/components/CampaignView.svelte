@@ -17,7 +17,7 @@
     Tabs,
   } from '@open-tabletop/ui-kit'
   import { open, removeCampaign, scenes } from '../lib/campaign.svelte'
-  import { library, systems } from '../lib/packs.svelte'
+  import { library, nameFaction, systems } from '../lib/packs.svelte'
   import { getLocale, t } from '../lib/i18n'
   import { go, TABS, type Tab } from '../lib/nav.svelte'
   import Cast from './Cast.svelte'
@@ -174,7 +174,13 @@
           <div class="hint"><Markdown text={t('timeline.none')} /></div>
         {/if}
       {:else if tab === 'log'}
-        <CampaignLog {campaign} {calendar} locale={getLocale()} nameOf={texts.nameOf} />
+        <CampaignLog
+          {campaign}
+          {calendar}
+          locale={getLocale()}
+          nameOf={texts.nameOf}
+          factionName={nameFaction}
+        />
       {:else if tab === 'maps'}
         <PlaceList {campaign} app="map" />
       {:else if tab === 'trips'}

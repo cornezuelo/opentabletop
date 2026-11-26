@@ -5,7 +5,9 @@ import { emptyGameIndex, gameUrl, linkFromUrl, linkedThing, type GameIndex } fro
 import { pageThings } from './pageLinks'
 import { headingAnchor, renderPage } from './render'
 import { linkResolver } from './resolve'
-import { linkOptions } from './suggest'
+import { notePageUrl, noteRefUrl } from './address'
+import { translator } from './i18n'
+import { linkOptions, suggestTexts } from './suggest'
 import { en } from './i18n/en'
 
 const page = (id: string, path: string, body = '', campaign?: string): NotePage =>
@@ -159,5 +161,30 @@ describe('suggestions while writing a link', () => {
   it("offers a page's headings after #", () => {
     const found = linkOptions('[[Iron Clans#S', pages, index, 'vale', texts)!
     expect(found.options.map((o) => o.insert)).toEqual(['Iron Clans#Secrets'])
+  })
+})
+
+describe("a campaign's Log's notes, read as Notes does", () => {
+  const pages = [page('p1', 'npcs/Old Tobin', '', 'vale'), page('p2', 'Old Tobin', '')]
+
+  it('reach the pages of their campaign first, and name the games’ things', () => {
+    const html = renderPage(
+      'Met [[Old Tobin]] at [[map:a1b2#0608]]; [[Ferry tales]] to write.',
+      linkResolver(pages, index, { campaign: 'vale' }),
+    )
+    expect(html).toContain('data-page="p1"')
+    expect(html).not.toContain('data-page="p2"')
+    expect(html).toContain('data-new="Ferry tales"')
+    expect(html).toContain('class="game-link"')
+  })
+
+  it('open Notes at the page, or at the one to make in the campaign', () => {
+    expect(notePageUrl('p 1')).toBe('../notes/#/page/p%201')
+    expect(noteRefUrl('Ferry tales', 'vale')).toBe('../notes/#/ref/Ferry%20tales?in=vale')
+  })
+
+  it('suggest links in the UI’s language', () => {
+    expect(suggestTexts(translator(() => 'es')).kinds.character).toBe('Personaje')
+    expect(suggestTexts(translator(() => 'en')).general).toBe(en.general)
   })
 })

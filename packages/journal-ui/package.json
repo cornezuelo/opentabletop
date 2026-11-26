@@ -17,6 +17,8 @@
     "@open-tabletop/character-ui": "*",
     "@open-tabletop/dice": "*",
     "@open-tabletop/journal": "*",
+    "@open-tabletop/notes": "*",
+    "@open-tabletop/notes-ui": "*",
     "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/session": "*",
     "@open-tabletop/storage": "*",

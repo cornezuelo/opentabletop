@@ -37,7 +37,7 @@ Type `[[` and choose what to link to: pages, the headings of a page (after `#`),
 
 The kinds (`character`, `map`, `faction`, `campaign`) are always written in English, whatever the interface's language. A link to a page that doesn't exist yet is drawn dashed: a click makes it, in the same campaign. One to a thing this browser doesn't have (a character deleted) is dashed too.
 
-Where a link looks: a page of a campaign reaches that campaign's pages first, then General's; a page of General reaches General's only.
+Where a link looks: a page of a campaign reaches that campaign's pages first, then General's; a page of General reaches General's only. The notes of a campaign's [Log](../campaign/01-getting-started.md) are written with the same links, and read as a page of that campaign.
 
 ## What links here
 

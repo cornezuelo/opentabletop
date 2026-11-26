@@ -1,3 +1,5 @@
+import { pageHash } from '@open-tabletop/notes-ui'
+
 /**
  * What the main area shows, mirrored in the URL hash so pages can be linked: #/page/<id>;
  * #/ref/<path>[?in=<campaign>&from=<thing>], a `noteRef` of another app (note-refs'
@@ -36,7 +38,7 @@ export function parseView(hash: string): View {
 
 export const formatView = (view: View): string =>
   view.name === 'page'
-    ? `#/page/${encodeURIComponent(view.id)}`
+    ? pageHash(view.id)
     : view.name === 'ref'
       ? `#/ref/${view.path.split('/').map(encodeURIComponent).join('/')}`
       : '#/'
