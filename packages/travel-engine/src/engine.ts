@@ -293,6 +293,24 @@ export interface TripTotals {
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 
+/**
+ * The place a check was queued at, with its own sheet as the host keeps it now (`placeSheets`,
+ * by id): what the checks before it at the same moment set there. Nothing when it has no id
+ * or no sheet kept.
+ */
+function placeNow(place: unknown, sheets: unknown): Record<string, unknown> {
+  if (!isRecord(place) || typeof place.id !== 'string' || !isRecord(sheets)) return {}
+  const sheet = sheets[place.id]
+  if (!isRecord(sheet)) return {}
+  return {
+    place: {
+      ...place,
+      ...(sheet.values !== undefined && { values: sheet.values }),
+      ...(sheet.conditions !== undefined && { conditions: sheet.conditions }),
+    },
+  }
+}
+
 /** The value at a dotted path of nested records (`party.items.ration.count`). */
 function lookupPath(facts: Record<string, unknown>, path: string): unknown {
   let at: unknown = facts
@@ -1600,6 +1618,9 @@ export function createTravelEngine(options: {
           ...(context.yesterday as object),
         },
         party: { ...host, ...(context.party as object) },
+        // The place's own sheet as it is now (what the checks before it set there), over the
+        // place as it was at the moment.
+        ...placeNow(context.place, hostFacts.placeSheets),
       }
       const then = { ...state, day: next.day }
       const stop = conditionStop(then, next, seen)

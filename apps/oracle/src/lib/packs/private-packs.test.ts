@@ -614,10 +614,13 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
   it('every creature of the Combat Encounters fights to its end, its Actions rolled without a problem', () => {
     const { registry } = loadPacks(engineFiles(bundledPacks))
     const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
-    // The creatures met, not the Minions your Abilities summon (`side: party`).
+    // The creatures met, not the Minions your Abilities summon (`side: party`), nor the
+    // Overseers (each Domain's ruler, too much for a PC of level 1: below).
     const templates = system
       .bestiary!.filter((b) => b.def.side !== 'party')
-      .flatMap((b) => Object.keys(b.def.templates))
+      .flatMap((b) => Object.entries(b.def.templates))
+      .filter(([, t]) => !t.tags?.includes('overseer'))
+      .map(([id]) => id)
     expect(templates.length).toBeGreaterThanOrEqual(43)
     const acted = new Set<string>()
     for (const id of templates) {
@@ -632,6 +635,144 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(acted.size).toBeGreaterThan(templates.length / 2)
     // Forty-odd fights: longer than a test usually takes.
   }, 60_000)
+
+  it('the Overseers: each fights with its own D6 of Actions, more than one turn a round (Ruthlessness)', () => {
+    const { system } = kn()
+    const overseers = system
+      .bestiary!.flatMap((b) => Object.entries(b.def.templates))
+      .filter(([, t]) => t.tags?.includes('overseer'))
+      .map(([id]) => id)
+    expect(overseers).toHaveLength(10)
+    let summoned = false
+    for (const id of overseers) {
+      const { entries } = fight({ [id]: 1 }, id, 10)
+      expect(entries.filter((e) => e.code === 'CHECK_FAILED').map((e) => e.text)).toEqual([])
+      expect(
+        entries.some((e) => e.code === 'ORACLE_RESULT' && e.data?.table === `ker-nethalas/${id}`),
+      ).toBe(true)
+      // Two turns in its first round at least (the Pyroclasmic Possessor three).
+      const turns = entries.filter(
+        (e) => e.code === 'ENCOUNTER_TURN' && e.data?.id === id && e.data?.round === 1,
+      ).length
+      expect(turns).toBeGreaterThanOrEqual(2)
+      summoned ||= entries.some(
+        (e) => e.code === 'ENCOUNTER_TURN' && String(e.data?.id).startsWith('lesser-demon'),
+      )
+    }
+    // The Infernal Archon's Lesser Demons, played at last once in ten fights of it.
+    for (let n = 0; n < 10 && !summoned; n++)
+      summoned = fight({ 'infernal-archon': 1 }, `archon-${n}`, 10).entries.some(
+        (e) => e.code === 'ENCOUNTER_TURN' && String(e.data?.id).startsWith('lesser-demon'),
+      )
+    expect(summoned).toBe(true)
+  }, 60_000)
+
+  it("the Overseer's influence: every creature of the Domain holds it, not the Overseer nor your Minions, until it falls", () => {
+    const { system } = kn()
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'erthos', name: 'Erthos', values: { level: 5 } })
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'influence' })
+    const influenced = {
+      'map.values.overseer': 4,
+      'map.values.skilled': 1,
+      'map.values.tough': 1,
+      'map.values.alert': 1,
+      'map.values.piercing': 2,
+      'map.values.resistant': 14,
+    }
+    const { registry } = kn()
+    const options = {
+      system,
+      world: {
+        km: () => 0.01,
+        place: () => ({ terrain: 'stone-floor', tags: ['room'] }),
+        neighbors: () => [],
+        distance: () => 0,
+        connections: () => [],
+      } as TravelWorld,
+      oracle: createOracleEngine({ registry, random: seeded('influence') }),
+    }
+    // As a fight starts, what holds by itself on each one here is settled with the Domain's sheet.
+    let s = stepTrip(
+      options,
+      applyResult(
+        { ...session, foesAtOnce: true },
+        {
+          effects: {
+            ...influenced,
+            'present.rotwalker': 1,
+            'present.gorehoof': 1,
+            'present.arcane-companion': 1,
+          },
+        },
+        {},
+        rules,
+      ),
+      { type: 'action', id: 'fight' },
+    ).state
+    // One copy alone: its id is its template's.
+    const copy = (template: string) =>
+      s.present!.find((p) => p.character.id === template)!.character
+    const rot = copy('rotwalker')
+    expect(Object.keys(rot.conditions)).toEqual(
+      expect.arrayContaining([
+        'skilled',
+        'tough',
+        'alert-mind',
+        'piercing',
+        'piercing-twice',
+        'resistant',
+      ]),
+    )
+    const now = valuesNow(rules.sheets?.[rot.sheet!], rot)
+    expect(now.combat).toBe(rot.values.combat + 10)
+    expect(now.mind).toBe(rot.values.mind + 20)
+    expect(now.penetrating).toBe(rot.values.penetrating + 2)
+    expect(now).toMatchObject({ 'crit-immune': 1, resisting: 1 })
+    // Gorehoof isn't touched by its own influence; an Arcane Companion of yours is no creature of it.
+    const influences = ['skilled', 'tough', 'alert-mind', 'piercing', 'resistant']
+    for (const id of ['gorehoof', 'arcane-companion'])
+      expect(Object.keys(copy(id).conditions).filter((c) => influences.includes(c))).toEqual([])
+    // Defeated, its creatures lose their empowerments.
+    s = stepTrip(
+      options,
+      applyResult(s, { effects: { 'map.values.overseer-down': 1 } }, {}, rules),
+      { type: 'encounter', what: 'end' },
+    ).state
+    expect(Object.keys(copy('rotwalker').conditions)).not.toContain('skilled')
+    expect(Object.keys(copy('rotwalker').conditions)).not.toContain('tough')
+  })
+
+  it("the Overseer's influence in a blow: Tough takes no Critical, Resistant halves the Domain's type", () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const engine = createOracleEngine({ registry, random: seeded('influence-blow') })
+    const hurt = (code: number, values: Record<string, number>, crit = 0, resistant = 14) =>
+      0 -
+      Number(
+        (
+          engine.resolve('ker-nethalas/foe-harmed', {
+            dmg: 6,
+            blow: { taken: 'taken-slashing', code, ignores: 0, cut: 0, pierce: 0 },
+            outcome: { crit },
+            armor: 'armor-chest',
+            weak: 'weak-chest',
+            foe: 'x',
+            map: { values: { resistant } },
+            characters: {
+              x: { values: { 'armor-chest': 0, 'weak-chest': 0, 'taken-slashing': 1, ...values } },
+            },
+          }).resolution.value.effects as Record<string, number>
+        )['characters[foe].values.health'],
+      )
+    expect(hurt(14, {}, 1)).toBe(12) // a Critical doubles it
+    expect(hurt(14, { 'crit-immune': 1 }, 1)).toBe(6) // Tough: no Critical
+    expect(hurt(14, { resisting: 1 })).toBe(3) // Resistant to Slashing, the Domain's type
+    expect(hurt(11, { resisting: 1 })).toBe(6) // another type (Piercing): whole
+    expect(hurt(11, { resisting: 1 }, 0, 11)).toBe(3) // the Domain's type, Piercing
+    expect(hurt(14, { resisting: 1, 'taken-slashing': 2 })).toBe(6) // Vulnerable and Resistant: 1
+    expect(hurt(14, { resisting: 1, 'taken-slashing': 0.5 })).toBe(3) // Resistant already: once
+    expect(hurt(14, { resisting: 1, 'taken-slashing': 0 })).toBe(0) // Immune stays so
+  })
 
   it('Mastery Minions: summoned for Aether, they fight at your side, each set against one, and heal once the room is clear', () => {
     const { registry, system } = kn()

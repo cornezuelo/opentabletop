@@ -17,6 +17,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 - **Packs**: an effect may change the newest item given (`party.items.mail: 1, party.items.mail.newest.wear: -1`): a piece found worn down, while the one already worn stays as it is. Nothing older changes meaning.
 - **Packs**: a sheet's value may take what the items add while they count (`plus: { sum: items.stealth, where: { place.tags: worn } }`), on top of what it keeps: a cloak worn adds its Stealth, and it's gone once the cloak is in the bags; the card's value says why it reads so. **Items add** in the Packs app's sheet form. Tables read every item a character holds by its key (`acting.carried.keys`), so an action may ask which one, wherever it is. Nothing older changes meaning.
 
+### Fixes
+
+- **Trips**: a check sees what the checks before it, at the same moment, set on the place's own sheet: a room marked as a lair as it's entered skips the encounter check after it there (before, it read the room as it was when the moment came).
+
 ## [0.80.0] - 2026-11-26
 
 ### Apps

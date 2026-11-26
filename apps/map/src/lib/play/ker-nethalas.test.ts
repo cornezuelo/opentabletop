@@ -13,7 +13,7 @@ describe.skipIf(!here)('Ker Nethalas', () => {
   // The Oracle rolls with Math.random: a fixed sequence makes every run the same. (A Domain
   // may close on itself, its last rooms with no exit: this sequence's keeps growing.)
   beforeEach(() => {
-    let seed = 17
+    let seed = 3
     vi.spyOn(Math, 'random').mockImplementation(() => {
       seed = (seed * 1103515245 + 12345) % 2147483648
       return seed / 2147483648
@@ -140,4 +140,46 @@ describe.skipIf(!here)('Ker Nethalas', () => {
     expect(log.filter((c) => c === 'ENCOUNTER_TURN').length).toBeGreaterThan(1)
     expect(log).toContain('ENCOUNTER_ENDED')
   })
+
+  it(
+    "a Domain's Overseer: rolled as it starts with its influence, met in its lair, where no encounter is rolled",
+    { timeout: 90_000 },
+    () => {
+      domain()
+      const values = () => session().map!.values
+      // Nobody rules yet: the start is no room entered.
+      expect(values().overseer).toBe(0)
+      walkOn(0)
+      // The first room entered: who rules here, and one influence at least on the Domain's sheet.
+      expect(values().overseer).toBeGreaterThanOrEqual(1)
+      expect(values().overseer).toBeLessThanOrEqual(10)
+      const influences = ['tough', 'vital', 'frenzied', 'skilled', 'magebane', 'resistant']
+        .concat(['corrupting', 'unstable', 'alert', 'piercing'])
+        .filter((k) => values()[k] >= 1)
+      expect(influences.length).toBeGreaterThanOrEqual(1)
+      // Fifteen rooms walked without finding it: the next one is its lair (the book's optional
+      // rule), however its Lair check rolls.
+      play.editSession((x) => ({
+        ...x,
+        map: { ...x.map!, values: { ...x.map!.values, 'domain-rooms': 15 } },
+      }))
+      for (let i = 1; i < 12 && !values()['lair-found']; i++) {
+        if (session().encounter) play.step({ type: 'encounter', what: 'end' })
+        if (!walkOn(i)) break
+      }
+      expect(values()['lair-found']).toBe(1)
+      expect(values()['domain-rooms']).toBe(16)
+      // The Overseer is here, the one the Domain rolled (overseers.yaml, in the book's order).
+      const order = ['carnage-devourer', 'dreadlord', 'glacial-burrower', 'gorehoof']
+        .concat(['infernal-archon', 'infernal-tormentor', 'pyroclasmic-possessor'])
+        .concat(['veilshifter', 'venomcloud-siren', 'zephyrous-shadow'])
+      const here = presentHere(session()).map((p) => p.character.id)
+      expect(here).toEqual([order[values().overseer - 1]])
+      // In its lair, no Combat Encounter was rolled as the room was entered.
+      const last = session().journal.map((e) => e.data?.event)
+      const lairAt = last.lastIndexOf('LAIR_CHECK_REQUIRED')
+      expect(last.slice(lairAt)).not.toContain('ROOM_ENCOUNTER_CHECK')
+      expect(last.slice(lairAt)).not.toContain('CORRIDOR_ENCOUNTER_CHECK')
+    },
+  )
 })

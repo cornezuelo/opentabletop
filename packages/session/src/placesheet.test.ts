@@ -121,6 +121,53 @@ describe("a place's own sheet: what each place remembers", () => {
     })
   })
 
+  it('a check reads what the checks before it in the same moment set on the place', () => {
+    // The barrow with two checks more: MARK marks a place as it's entered; SEEN, after it at
+    // the same moment, is there only once it's marked.
+    const marking = PACK.map((f) =>
+      f.path.endsWith('sheets.yaml')
+        ? {
+            ...f,
+            content: f.content.replace(
+              'conditions:',
+              '  marked: { default: 0, min: 0, max: 1 }\n  seen: { default: 0, min: 0, max: 1 }\nconditions:',
+            ),
+          }
+        : f.path.endsWith('travel.yaml')
+          ? {
+              ...f,
+              content: f.content
+                .replace(
+                  'checks:\n',
+                  'checks:\n  - { event: MARK, at: trip.place-enter, when: { place.values.marked: 0 } }\n  - { event: SEEN, at: trip.place-enter, when: { place.values.marked: 1 }, effects: { place.values.seen: 1 } }\n',
+                )
+                .replace(
+                  'on: { DEAD: { resolve: table.dead } }',
+                  'on: { DEAD: { resolve: table.dead }, MARK: { resolve: table.mark } }',
+                )
+                .concat(
+                  "---\nkind: table\nid: mark\nentries:\n  - { result: 'A mark on the wall', effects: { place.values.marked: '=1' } }\n",
+                ),
+            }
+          : f,
+    )
+    const loaded = loadPacks(marking)
+    expect(loaded.diagnostics.filter((d) => d.severity === 'error')).toEqual([])
+    const system = travelSystems(loaded.registry).systems.find((x) => x.id === 'barrow')!
+    let { session: s } = startTrip({ system, location: 'a', time: 8 * 60 })
+    s = stepTrip({ system, world }, s, { type: 'setDestination', place: 'b' }).state
+    s = stepTrip(
+      {
+        system,
+        world,
+        oracle: createOracleEngine({ registry: loaded.registry, random: seeded('mark') }),
+      },
+      s,
+      { type: 'travel', until: 'place' },
+    ).state
+    expect(s.placeSheets?.sheets.b).toMatchObject({ values: { marked: 1, seen: 1 } })
+  })
+
   it("an action changes the place it's taken in, once; another place has its own", () => {
     const { session } = startTrip({ system: barrow, location: 'a', time: 8 * 60 })
     const delved = stepTrip({ system: barrow, world }, session, { type: 'action', id: 'delve' })
