@@ -1348,7 +1348,9 @@ function undeclaredEffects(
       if (factionKnown) continue
       // An item: one of its catalogues', or a field of it the sheet declares (the party's
       // items are its own and its members': either sheet's).
-      const [itemId, field] = part === 'items' ? partId.split('.', 2) : []
+      // `newest.<field>`: a field of the newest one (a piece found worn down).
+      const [itemId, second] = part === 'items' ? partId.split('.', 2) : []
+      const field = second === 'newest' ? partId.split('.')[2] : second
       // `count`: how many of that one (a piece by its key, `items[params.piece].count: -1`).
       const fieldKnown = (f: string) =>
         f === 'count' ||

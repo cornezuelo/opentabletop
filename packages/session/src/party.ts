@@ -645,6 +645,8 @@ export function applyMemberEffects(
         })
     }
   }
+  /** Who was last given each item in these effects, for its `newest` one. */
+  const receivedBy = new Map<string, string>()
   /** The party's items, its own and its members' together (`party.items.ration`). */
   const partyItem = (path: string, id: string, change: number | string): void => {
     const [item, field] = id.split('.', 2)
@@ -656,6 +658,14 @@ export function applyMemberEffects(
       const carrier =
         (s.members ?? []).find((m) => sheetOf(rules)(m)?.items !== undefined) ?? s.party
       const target = holding ?? (field === 'unknown' ? carrier : undefined)
+      if (target) applyTo(target, `items.${id}`, change)
+      return
+    }
+    // The newest one's field: whoever was just given one, else the last who holds one.
+    if (field === 'newest') {
+      const target =
+        holders.find((c) => c.id === receivedBy.get(item)) ??
+        holders.filter((c) => countOf(c, item) > 0).at(-1)
       if (target) applyTo(target, `items.${id}`, change)
       return
     }
@@ -679,6 +689,7 @@ export function applyMemberEffects(
     if (!delta) return
     if (!carriers.length) {
       if (s.party) applyTo(s.party, `items.${item}`, delta)
+      if (s.party && delta > 0) receivedBy.set(item, s.party.id)
       return
     }
     const shared = shareItems(
@@ -691,6 +702,12 @@ export function applyMemberEffects(
     )
     s.members = shared.members
     events.push(...shared.events)
+    if (delta > 0) {
+      const to = Object.entries(shared.moved)
+        .filter(([, n]) => n > 0)
+        .at(-1)?.[0]
+      if (to) receivedBy.set(item, to)
+    }
     // A gain nobody had room for is left behind.
     if (delta > 0 && shared.left > 0)
       events.push({ type: 'ITEM_LEFT', character: PARTY_ID, item, count: shared.left })

@@ -26,8 +26,10 @@ fallen:
     - Una tabla tirada cuando se va uno de los presentes (`on: present.leave`), solo por uno que cayó (`when: { acting.conditions: down }`), leída actuando como era al irse
     - Entradas elegidas por quién era: su plantilla (`acting.template: bandit-chief`) y sus etiquetas (`acting.tags: outlaw`), cada una sobre toda la tirada, la primera que se cumple
     - Lo que llevaba, para el grupo (`party.items.ration: '{{max(acting.items.ration.count, 0)}}'`: ninguna si no llevaba)
+    - Un objeto dado gastado: la cota de malla de los muertos inquietos, un paso abajo en su dado de desgaste (`party.items.mail.newest.wear: -1`, la que se acaba de dar, no una que ya se lleve puesta)
     - Encadena con _¿Qué hay en el tesoro?_ y _Un premio raro_
   entries:
+    barrow-mail: 'Una cota de malla entre los huesos, oxidada'
     hoard: 'El tesoro del cabecilla, y {{rations}} raciones'
     purse: 'Una bolsa con {{coins}} de plata, y {{rations}} raciones'
     grave-goods: 'Ajuar funerario entre los huesos'

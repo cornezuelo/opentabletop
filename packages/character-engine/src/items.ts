@@ -1145,7 +1145,9 @@ export function identifyItem(
  * `unknown`), `items.<id>.known` how many are known (more: that many unknown identified,
  * never new ones), `items.<id>.<field>` the first one's field, `items.<id>.count` how many of
  * that first one (of one by its key, `items.mail-2.count`: that piece, not the last of its
- * kind). `change` is already read.
+ * kind), `items.<id>.newest.<field>` the newest one's (the last given: a piece found worn
+ * down, given before it), split off its pile first when it lies with others alike.
+ * `change` is already read.
  */
 export function itemEffect(
   items: SheetItems | undefined,
@@ -1171,6 +1173,14 @@ export function itemEffect(
       identifyItem(state, item.key, events, n)
       more -= n
     }
+    return
+  }
+  if (field === 'newest') {
+    const rest = path.split('.').slice(2).join('.')
+    const newest = mine.filter((i) => !i.unknown).at(-1)
+    if (!newest || !rest) return
+    const one = newest.count > 1 ? splitOne(state, newest, events) : newest
+    changeItem(items, state, one.key, rest, change, events)
     return
   }
   const unknown = field === 'unknown'
@@ -1216,6 +1226,37 @@ export function itemEffect(
     changeItem(items, state, item.key, 'count', -taken, events)
     delta += taken
   }
+}
+
+/**
+ * One of a pile taken apart from it, as an item of its own (the newest one given, to change
+ * it alone): the pile one fewer, the one apart last.
+ */
+function splitOne(
+  state: Mutable,
+  pile: ItemState,
+  events: { push(e: ItemEvent): unknown },
+): ItemState {
+  const all = (state.items ??= [])
+  const from = pile.count
+  pile.count -= 1
+  events.push({
+    type: 'ITEM_CHANGED',
+    character: state.id,
+    item: pile.id,
+    key: pile.key,
+    field: 'count',
+    from,
+    to: pile.count,
+  })
+  const one: ItemState = {
+    ...structuredClone(pile),
+    key: newKey(pile.id, all),
+    count: 1,
+  }
+  all.push(one)
+  events.push({ type: 'ITEM_ADDED', character: state.id, item: one.id, key: one.key, count: 1 })
+  return one
 }
 
 /** Problems of what a sheet says of items (empty: fine). */

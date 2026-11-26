@@ -90,6 +90,7 @@ description: |-
   - A table rolled as one of those present leaves (`on: present.leave`), only for one that fell (`when: { acting.conditions: down }`), read acting as it was when it left
   - Entries chosen by who it was: its template (`acting.template: bandit-chief`) and its tags (`acting.tags: outlaw`), each over the whole roll, the first that holds
   - What it carried taken by the party (`party.items.ration: '{{max(acting.items.ration.count, 0)}}'`: none when it had none)
+  - An item given worn: the restless dead's mail a step down its wear die (`party.items.mail.newest.wear: -1`, the one just given, not one already worn)
   - Cascades into _What is in the hoard?_ and _A rare prize_
 roll: 1d6
 entries:
@@ -106,6 +107,13 @@ entries:
     result: 'A purse of {{coins}} silver, and {{rations}} rations'
     set: { coins: '{{1d6}}', rations: '{{max(acting.items.ration.count, 0)}}' }
     effects: { party.stats.silver: '{{coins}}', party.items.ration: '{{rations}}' }
+  # A barrow-wight's mail, rusted under the earth: given worn down a step (`newest`), the
+  # mail just given, not the one a companion may wear already.
+  - id: barrow-mail
+    range: 5
+    when: { acting.tags: undead }
+    result: 'A mail shirt among the bones, rusted'
+    effects: { party.items.mail: 1, party.items.mail.newest.wear: -1 }
   - id: grave-goods
     range: 6
     when: { acting.tags: undead }

@@ -554,6 +554,21 @@ describe('a field that steps, and one item named by its key', () => {
     ])
   })
 
+  it('change the newest one given, taken apart from a pile alike (a piece found worn down)', () => {
+    let s = createCharacter(worn!, 'test/knight', { id: 'ser' })
+    s = change(s, { 'items.mail': 1 }).state
+    // Another given, then its field: that one alone, split off the pile it joined.
+    s = change(s, { 'items.mail': 1, 'items.mail.newest.integrity': -1 }).state
+    expect(s.items!.map((i) => [i.key, i.count, i.fields.integrity])).toEqual([
+      ['mail', 1, 8],
+      ['mail-2', 1, 6],
+    ])
+    // Alone, the newest is itself; with none, nothing changes.
+    s = change(s, { 'items.mail.newest.integrity': -1 }).state
+    expect(s.items![1].fields.integrity).toBe(4)
+    expect(change(s, { 'items.rope.newest.integrity': -1 }).state.items).toEqual(s.items)
+  })
+
   it('step down a die, and reach one item by its key in effects and reads', () => {
     let s = createCharacter(worn!, 'test/knight', { id: 'ser' })
     s = change(s, { 'items.mail': 1 }).state

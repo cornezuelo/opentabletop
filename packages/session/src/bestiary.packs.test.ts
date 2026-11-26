@@ -387,6 +387,35 @@ describe('the bundled packs make foes from their bestiaries', () => {
     expect(done.state.party!.values.food).toBe(food + days)
   })
 
+  it('the fallen leave gear worn down: the newest one given, not the one already held', () => {
+    // Core's dented shield, to a character already holding one whole.
+    const coreRules = partyOf(core)
+    const hero = newMember(coreRules, { id: 'ana', name: 'Ana' })
+    let c = startTrip({ system: core, location: 'a', members: [hero], seed: 'x' }).session
+    c = applyResult(c, { effects: { 'party.items.shield': 1 } }, {}, coreRules)
+    const dented = rollUntil('core/table.fallen', 'shield', {})
+    c = applyResult(c, dented.value, {}, coreRules)
+    expect(c.members![0].items!.map((i) => [i.id, i.count, i.fields.wear])).toEqual([
+      ['shield', 1, 6],
+      ['shield', 1, 4],
+    ])
+    // The Grey Marches' restless dead: a mail shirt rusted a step, the one worn untouched.
+    const rules = partyOf(marches)
+    const kael = newMember(rules, { id: 'kael', name: 'Kael' })
+    let s = startTrip({ system: marches, location: 'a', members: [kael], seed: 'x' }).session
+    s = applyResult(s, { effects: { 'party.items.mail': 1 } }, {}, rules)
+    const rusted = rollUntil('grey-marches/table.fallen', 'barrow-mail', {
+      acting: { tags: ['undead'] },
+    })
+    s = applyResult(s, rusted.value, {}, rules)
+    const mails = s.members![0].items!.filter((i) => i.id === 'mail')
+    // No room for it on the body (a mail fills it), the only place it fits: in no place.
+    expect(mails.map((i) => [i.place, i.fields.wear])).toEqual([
+      ['body', 8],
+      [undefined, 6],
+    ])
+  })
+
   it('the Grey Marches: the fallen are stripped as they leave, by who they were', () => {
     const rules = partyOf(marches)
     const members = [newMember(rules, { id: 'kael', name: 'Kael' })]

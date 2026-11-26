@@ -119,12 +119,18 @@ id: fallen
 tags: [encounters]
 name: What the fallen carry
 description: |-
-  What a foe that fell had on it: nothing much, or a day's food.
+  What a foe that fell had on it: nothing much, a dented shield, or a day's food.
 
-  **Shows:** a table rolled as one of those present leaves (`on: present.leave`), only for one that fell (`when: { acting.conditions: down }`), read acting as it.
+  **Shows:** a table rolled as one of those present leaves (`on: present.leave`), only for one that fell (`when: { acting.conditions: down }`), read acting as it; an item given worn (the shield a step down its wear, `party.items.shield.newest.wear: -1`: the one just given, not one already held).
 roll: 1d6
 entries:
-  - { id: nothing, range: 1-4, result: Nothing worth taking }
+  - { id: nothing, range: 1-3, result: Nothing worth taking }
+  - {
+      id: shield,
+      range: 4,
+      result: A dented shield,
+      effects: { party.items.shield: 1, party.items.shield.newest.wear: -1 },
+    }
   - { id: food, range: 5-6, result: A day's food, effects: { party.values.food: 1 } }
 ---
 # Forcing a chest (travel.yaml's Force it), aimed at the one chosen (`characters[params.chest]`).

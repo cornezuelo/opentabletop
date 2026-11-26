@@ -53,11 +53,12 @@ strike:
 fallen:
   name: Lo que llevan los caídos
   description: |-
-    Lo que llevaba encima un enemigo que cayó: poca cosa, o un día de comida.
+    Lo que llevaba encima un enemigo que cayó: poca cosa, un escudo abollado, o un día de comida.
 
-    **Enseña:** una tabla tirada cuando se va uno de los presentes (`on: present.leave`), solo por uno que cayó (`when: { acting.conditions: down }`), leída actuando como él.
+    **Enseña:** una tabla tirada cuando se va uno de los presentes (`on: present.leave`), solo por uno que cayó (`when: { acting.conditions: down }`), leída actuando como él; un objeto dado gastado (el escudo un paso abajo en su desgaste, `party.items.shield.newest.wear: -1`: el que se acaba de dar, no uno que ya se tenga).
   entries:
     nothing: Nada que merezca la pena
+    shield: Un escudo abollado
     food: Un día de comida
 force-chest:
   name: Forzando el cofre

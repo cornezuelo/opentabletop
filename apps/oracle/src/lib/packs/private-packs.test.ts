@@ -455,8 +455,8 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     // In one fight a piece drops a stage at most: none is discarded yet.
     expect(pc.items!.map((i) => [i.id, i.place])).toEqual([
       ['longsword', 'hands'],
-      ['mail', 'body'],
-      ['light-vambraces', 'body'],
+      ['mail', 'torso'],
+      ['light-vambraces', 'arms'],
     ])
     // After the fight, one Integrity roll for each piece worn where a blow landed (the sword
     // has none): the mail for the chest or abdomen, the vambraces for the arms.
@@ -693,6 +693,37 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
       }
     }
     expect(checked).toBeGreaterThan(0)
+  })
+
+  it('gear found goes where there is room, else to the bags; Armor and shields a stage down their Integrity', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const system = travelSystems(registry).systems.find((s) => s.id === 'ker-nethalas')!
+    const rules = partyOf(system)
+    const pc = newMember(rules, { id: 'e', name: 'E' })
+    const { session } = startTrip({ system, location: 'a', members: [pc], seed: 'loot' })
+    const give = (s: typeof session, effects: Record<string, number | string>) =>
+      applyResult(s, { effects }, {}, rules)
+    // Worn already: a mail, and a great sword in both hands.
+    let s = give(session, { 'party.items.mail': 1, 'party.items.great-sword': 1 })
+    // The Random Armor's and Random Weapon's rows: another mail, a shield, a dagger.
+    const row = (table: string, id: string) =>
+      (
+        registry.definitions.get(`ker-nethalas/${table}`) as {
+          entries: { key: string; effects: Record<string, number | string> }[]
+        }
+      ).entries.find((e) => e.key === id)!.effects
+    s = give(s, row('torso-armor', 'mail'))
+    s = give(s, row('random-shield', 'normal'))
+    s = give(s, row('random-weapon', 'dagger'))
+    const items = s.members![0].items!.map((i) => [i.id, i.place, i.fields.integrity])
+    expect(items).toEqual([
+      ['mail', 'torso', 8],
+      ['great-sword', 'hands', undefined],
+      // The torso is worn, the hands full (a Two-Handed weapon): the bags, a stage down.
+      ['mail', 'bags', 6],
+      ['shield', 'bags', 6],
+      ['dagger', 'bags', undefined],
+    ])
   })
 
   it('a creature Destroyed is looted as it leaves: Resources for vermin, Spoils for the rest', () => {

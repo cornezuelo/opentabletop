@@ -4,6 +4,14 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Packs
+
+- **Core**: a foe that fell may leave a dented shield, a step down its wear. **The Grey Marches**: the restless dead may leave a rusted mail shirt, a step down its wear die.
+
+### Formats
+
+- **Packs**: an effect may change the newest item given (`party.items.mail: 1, party.items.mail.newest.wear: -1`): a piece found worn down, while the one already worn stays as it is. Nothing older changes meaning.
+
 ## [0.80.0] - 2026-11-26
 
 ### Apps
