@@ -47,7 +47,7 @@ export const es: Messages<typeof en> = {
     readTip: 'Leer la página con sus enlaces (Ctrl+E)',
     placeholder: 'Escribe en Markdown. [[ enlaza con una página o con el juego.',
     editorLabel: 'El texto de la página',
-    empty: 'Aún no hay nada escrito. **Editar** (Ctrl+E) para escribirla.',
+    empty: 'Aún no hay nada escrito. **Editar** (el lápiz, Ctrl+E) para escribirla.',
     more: 'Más',
     delete: 'Borrar la página',
     deleteAsk: '¿Borrar la página «{title}»? Los enlaces a ella se quedan, y la volverían a crear.',

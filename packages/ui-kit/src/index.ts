@@ -1,4 +1,5 @@
 export { default as InfoTip } from './InfoTip.svelte'
+export { default as Icon, ICONS, type IconName } from './Icon.svelte'
 export { default as NoteRefInput } from './NoteRefInput.svelte'
 export { default as ClockDial } from './ClockDial.svelte'
 export { default as FoldTab } from './FoldTab.svelte'

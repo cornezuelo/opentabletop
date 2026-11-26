@@ -34,6 +34,7 @@
     confirmAction,
     downloadText,
     fileNameOf,
+    Icon,
     InfoTip,
     MoreMenu,
     tooltip,
@@ -229,8 +230,11 @@
 {/snippet}
 
 {#snippet here(line: LogLine)}
-  <button class="link here" onclick={() => writeAt(lineKey(line), line.time)}
-    >+ {t('log.noteHere')}</button
+  <button
+    class="link here"
+    onclick={() => writeAt(lineKey(line), line.time)}
+    aria-label={t('log.noteHere')}
+    use:tooltip={t('log.noteHere')}><Icon name="write" /></button
   >
 {/snippet}
 
@@ -314,7 +318,7 @@
     <div class="session">
       {#if going}
         <button class="button" onclick={() => change((j) => endSession(j, now(), at()))}
-          >{t('log.endSession')}</button
+          ><Icon name="stop" /> {t('log.endSession')}</button
         >
       {:else}
         <button class="button primary" onclick={() => change((j) => startSession(j, now(), at()))}
@@ -354,7 +358,7 @@
     />
     {#if anything}
       <MoreMenu label={t('log.exportTip')}>
-        {#snippet button()}{t('log.export')} ▾{/snippet}
+        {#snippet button()}<Icon name="download" /> ▾{/snippet}
         <button onclick={() => exportLog('markdown')}>{t('log.asMarkdown')}</button>
         <button onclick={() => exportLog('lonelog')}>{t('log.asLonelog')}</button>
       </MoreMenu>
@@ -635,7 +639,7 @@
   }
 
   .here {
-    font-size: 11px;
+    font-size: 14px;
     white-space: nowrap;
     visibility: hidden;
   }

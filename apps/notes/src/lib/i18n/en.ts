@@ -46,7 +46,7 @@ export const en = {
     readTip: 'Read the page with its links (Ctrl+E)',
     placeholder: 'Write in Markdown. [[ links to a page or to the game.',
     editorLabel: 'The page’s text',
-    empty: 'Nothing written yet. **Edit** (Ctrl+E) to write it.',
+    empty: 'Nothing written yet. **Edit** (the pencil, Ctrl+E) to write it.',
     more: 'More',
     delete: 'Delete the page',
     deleteAsk: 'Delete the page “{title}”? The links to it stay, and would make it again.',

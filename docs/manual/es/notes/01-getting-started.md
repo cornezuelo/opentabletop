@@ -6,7 +6,7 @@ Notas es la aplicación de notas de OpenTabletop: páginas en Markdown, guardada
 
 - **Cabecera**: el selector de aplicaciones (nueve puntos), la campaña que juegas, el teclado (**Atajos de teclado**, también la tecla <kbd>?</kbd>), el engranaje (**Preferencias**: idioma, aplicación de notas y lo demás que comparten todas las aplicaciones) y **?** para este manual.
 - **Las páginas** (izquierda): **Nueva página**, **⋯** (exportar, importar y las páginas de ejemplo de los packs), un buscador, y todas las páginas como un árbol: primero una sección para la campaña que juegas, luego **General** (lo que no es de ninguna campaña) y después las demás campañas; dentro de cada una, carpetas. **+** junto a una sección o una carpeta crea una página allí.
-- **La página** (centro): su ruta y título, su **Campaña**, **Leer** y **Editar**, y **⋯** (borrarla).
+- **La página** (centro): su ruta y título, su **Campaña**, **Leer** (el ojo) y **Editar** (el lápiz), y **⋯** (borrarla).
 - **A su lado** (derecha): lo que la enlaza, lo del juego que tiene que ver con ella y dónde se escribe su título sin enlace ([abajo](#lo-que-enlaza-aqui)).
 
 Las etiquetas subrayadas con puntos tienen una explicación: haz clic en una y la columna de ayuda se abre en ella.
@@ -21,7 +21,7 @@ Cada página está en una **campaña**, o en **General**. Las páginas de una ca
 
 ## Escribir
 
-**Editar** (o <kbd>Ctrl</kbd>+<kbd>E</kbd>) escribe la página, en Markdown: `# Un título`, `**negrita**`, `_cursiva_`, listas (`- `), tareas (`- [ ] `), citas (`> `), tablas y código. **Leer** la muestra con sus enlaces. Lo que escribes se guarda según escribes.
+**Editar** (el lápiz, o <kbd>Ctrl</kbd>+<kbd>E</kbd>) escribe la página, en Markdown: `# Un título`, `**negrita**`, `_cursiva_`, listas (`- `), tareas (`- [ ] `), citas (`> `), tablas y código. **Leer** (el ojo) la muestra con sus enlaces. Lo que escribes se guarda según escribes.
 
 ## Enlaces
 
@@ -45,7 +45,7 @@ Junto a la página:
 
 - **Enlazan aquí**: las páginas que la enlazan, cada una con las líneas que lo hacen, y las notas del [Diario](../campaign/01-getting-started.md) de la campaña que la enlazan.
 - **En el juego**: lo del juego que nombra (`[[character:kael]]`…), y lo que apunta a ella desde el juego: un personaje, una casilla, un lugar, una región, un token, una facción o una campaña cuya nota es esta página (**⇄**). Cada uno se abre en su aplicación.
-- **Sin enlazar**: páginas que escriben su título sin enlazarla. **Enlazar** convierte esas menciones en enlaces.
+- **Sin enlazar**: páginas que escriben su título sin enlazarla. **Enlazar** (la cadena junto a cada una) convierte esas menciones en enlaces.
 
 ## Desde las demás aplicaciones
 

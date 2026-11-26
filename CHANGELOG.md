@@ -7,6 +7,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - **Campaign**: the Log's notes are written and read as pages of Notes: typing `[[` suggests the campaign's pages and the things of your games, a link opens its page in Notes (or makes it in the campaign, when it isn't written yet) and a thing of the games shows its name and opens in its app. `Ctrl+Enter` saves a note, `Esc` leaves it.
+- **Notes and Campaign**: icons where they say what they do: **Read** and **Edit** a page are an eye and a pencil, the pages in **Linked here** and **Not linked** have a page's sign and the Log a campaign's, **Link** is a chain; in the Log, **A note here** is a pencil with a plus, **End the session** has a square and **Export** is a download arrow.
+- **Every app**: every search box shows a magnifier.
 
 ## [0.79.0] - 2026-11-26
 

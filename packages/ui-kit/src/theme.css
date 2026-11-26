@@ -18,6 +18,8 @@
   --card-edge: #b9ad8c;
   --card-ink: #1f1c17;
   --card-red: #a8262c;
+  /* A search box's magnifier, drawn in --text-muted. */
+  --search-icon: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239c9480' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='m20 20-4.8-4.8'/%3E%3C/svg%3E");
 
   color-scheme: dark;
   font-family: system-ui, sans-serif;
@@ -107,6 +109,12 @@ select {
   background: var(--bg);
   border: 1px solid var(--panel-border);
   border-radius: 4px;
+}
+
+/* Every search box shows it's one: a magnifier before what's typed. */
+input[type='search'] {
+  padding-left: 27px;
+  background: var(--bg) var(--search-icon) no-repeat 8px center / 14px;
 }
 
 input:focus-visible,

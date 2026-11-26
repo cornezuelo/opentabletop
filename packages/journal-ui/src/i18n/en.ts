@@ -12,7 +12,6 @@ export const en = {
     fromHelp:
       'Only what was played in one of the campaign’s maps, trips or scenes (the world’s lines, hand rolls and notes are left out).',
     everywhere: 'Everywhere',
-    export: 'Export',
     exportTip:
       'The log as shown (its level, what it’s filtered by), as a Markdown file: written plainly, or in Lonelog’s notation for solo play',
     asMarkdown: 'Markdown',

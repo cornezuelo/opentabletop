@@ -6,7 +6,7 @@ Notes is OpenTabletop's own notes app: pages in Markdown, kept in this browser, 
 
 - **Header**: the app switcher (nine dots), the campaign you're playing, the keyboard (**Keyboard shortcuts**, also the <kbd>?</kbd> key), the gear (**Preferences**: language, notes app and the rest every app shares) and **?** for this manual.
 - **The pages** (left): **New page**, **⋯** (export, import and the packs' example pages), a search, and every page as a tree: a section for the campaign you're playing first, **General** (what belongs to no campaign), then the other campaigns; folders inside each. **+** beside a section or a folder makes a page there.
-- **The page** (center): its path and title, its **Campaign**, **Read** and **Edit**, and **⋯** (delete it).
+- **The page** (center): its path and title, its **Campaign**, **Read** (the eye) and **Edit** (the pencil), and **⋯** (delete it).
 - **Beside it** (right): what links to it, what of the game it has to do with, and where its title is written without a link ([below](#what-links-here)).
 
 Labels underlined with dots have an explanation: click one and the help column opens on it.
@@ -21,7 +21,7 @@ Every page is in a **campaign**, or in **General**. A campaign's pages are its l
 
 ## Writing
 
-**Edit** (or <kbd>Ctrl</kbd>+<kbd>E</kbd>) writes the page, in Markdown: `# A heading`, `**bold**`, `_italics_`, lists (`- `), tasks (`- [ ] `), quotes (`> `), tables and code. **Read** shows it with its links. What you write is kept as you type.
+**Edit** (the pencil, or <kbd>Ctrl</kbd>+<kbd>E</kbd>) writes the page, in Markdown: `# A heading`, `**bold**`, `_italics_`, lists (`- `), tasks (`- [ ] `), quotes (`> `), tables and code. **Read** (the eye) shows it with its links. What you write is kept as you type.
 
 ## Links
 
@@ -45,7 +45,7 @@ Beside the page:
 
 - **Linked here**: the pages that link to it, each with the lines that do, and the notes of the campaign's [Log](../campaign/01-getting-started.md) that link to it.
 - **In the game**: what of the game it names (`[[character:kael]]`…), and what points at it from the game: a character, a cell, a place, a region, a token, a faction or a campaign whose note is this page (**⇄**). Each opens in its app.
-- **Not linked**: pages that write its title without linking to it. **Link** makes those mentions links.
+- **Not linked**: pages that write its title without linking to it. **Link** (the chain beside each) makes those mentions links.
 
 ## From the other apps
 

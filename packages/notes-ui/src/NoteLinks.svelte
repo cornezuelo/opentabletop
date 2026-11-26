@@ -1,6 +1,6 @@
 <script lang="ts">
   import { backlinks, pageTitle, unlinkedMentions, type NotePage } from '@open-tabletop/notes'
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { Icon, InfoTip, tooltip } from '@open-tabletop/ui-kit'
   import type { GameIndex } from './game'
   import type { Translate } from './i18n'
   import { pageThings } from './pageLinks'
@@ -49,13 +49,15 @@
     </h3>
     {#each linked as m (m.page.id)}
       <button class="entry" onclick={() => onpage(m.page.id)}>
-        <span class="name">{pageTitle(m.page)}</span>
+        <span class="name"><Icon name="page" />{pageTitle(m.page)}</span>
         {#each m.lines.slice(0, 2) as line, i (i)}<span class="line">{line}</span>{/each}
       </button>
     {/each}
     {#if journal.length}
       <a class="entry" href={journalUrl} target="_blank" rel="noopener">
-        <span class="name">{t('links.journal')} ↗</span>
+        <span class="name"
+          ><span class="sign sign-campaign" aria-hidden="true"></span>{t('links.journal')} ↗</span
+        >
         {#each journal.slice(0, 2) as line, i (i)}<span class="line">{line}</span>{/each}
       </a>
     {/if}
@@ -102,11 +104,14 @@
       {#each unlinked as m (m.page.id)}
         <div class="mention">
           <button class="entry" onclick={() => onpage(m.page.id)}>
-            <span class="name">{pageTitle(m.page)}</span>
+            <span class="name"><Icon name="page" />{pageTitle(m.page)}</span>
             <span class="line">{m.lines[0]}</span>
           </button>
-          <button class="small" onclick={() => onlink(m.page)} use:tooltip={t('links.linkTip')}
-            >{t('links.link')}</button
+          <button
+            class="small"
+            onclick={() => onlink(m.page)}
+            aria-label={t('links.link')}
+            use:tooltip={t('links.linkTip')}><Icon name="link" /></button
           >
         </div>
       {/each}

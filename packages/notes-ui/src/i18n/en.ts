@@ -19,7 +19,7 @@ export const en = {
     namesIt: 'Links here',
     unlinked: 'Not linked',
     unlinkedHelp:
-      'Pages that write this page’s title without linking to it. **Link** makes each of those mentions a link.',
+      'Pages that write this page’s title without linking to it. **Link** (the chain) makes each of those mentions a link.',
     link: 'Link',
     linkTip: 'Make its mentions in that page links to this one',
     none: 'Nothing yet.',

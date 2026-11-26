@@ -20,7 +20,7 @@ export const es: Messages = {
     namesIt: 'Enlaza aquí',
     unlinked: 'Sin enlazar',
     unlinkedHelp:
-      'Páginas que escriben el título de esta sin enlazarla. **Enlazar** convierte cada una de esas menciones en un enlace.',
+      'Páginas que escriben el título de esta sin enlazarla. **Enlazar** (la cadena) convierte cada una de esas menciones en un enlace.',
     link: 'Enlazar',
     linkTip: 'Convertir sus menciones en esa página en enlaces a esta',
     none: 'Nada aún.',

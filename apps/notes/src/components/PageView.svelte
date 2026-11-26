@@ -4,6 +4,7 @@
   import {
     campaignUrl,
     confirmAction,
+    Icon,
     InfoTip,
     Markdown,
     MoreMenu,
@@ -117,13 +118,15 @@
           class:on={!editing.on}
           aria-pressed={!editing.on}
           onclick={() => (editing.on = false)}
-          use:tooltip={t('page.readTip')}>{t('page.read')}</button
+          aria-label={t('page.read')}
+          use:tooltip={t('page.readTip')}><Icon name="read" /></button
         >
         <button
           class:on={editing.on}
           aria-pressed={editing.on}
           onclick={() => (editing.on = true)}
-          use:tooltip={t('page.editTip')}>{t('page.edit')}</button
+          aria-label={t('page.edit')}
+          use:tooltip={t('page.editTip')}><Icon name="edit" /></button
         >
       </div>
       <MoreMenu label={t('page.more')}>
