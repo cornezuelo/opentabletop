@@ -68,6 +68,27 @@ describe("a value's breakdown, on the Grey Marches' companion", () => {
     ])
   })
 
+  it("what's worn adds to a value kept (plus): Base 2, the fen-walker's cloak +1, Now 3", () => {
+    const mara = newMember(rules, { id: 'mara', name: 'Mara', values: { stealth: 2 } })
+    const cloaked = applyCharacter(
+      sheet,
+      mara,
+      { type: 'change', effects: { 'items.fen-cloak': 1 } },
+      { items: rules.items },
+    ).state
+    const cloak = cloaked.items!.find((i) => i.id === 'fen-cloak')!
+    expect(cloak.place).toBe('body')
+    expect(valueParts(sheet, cloaked, 'stealth')).toMatchObject({ base: 2, now: 3 })
+    expect(said('stealth', cloaked)).toEqual(['Base 2', 'fen-cloak +1', 'Now 3'])
+    // On the belt it adds nothing.
+    const belted = applyCharacter(sheet, cloaked, {
+      type: 'moveItem',
+      key: cloak.key,
+      place: 'belt',
+    }).state
+    expect(said('stealth', belted)).toEqual([])
+  })
+
   it('a bound that held it says what it would have been', () => {
     const { sheet: small } = parseSheet({
       kind: 'sheet',

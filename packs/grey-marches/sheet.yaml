@@ -18,7 +18,7 @@ description: |-
   `default: '{{1d3+2}}'`, shown in Characters as it came up, with Roll again), each value shown its own way (skills as pips, health as
   a bar whose tone falls with it, dread as boxes that turn red,
   nerve as a die that steps from d4 to d12 (`steps: [4, 6, 8, 10, 12]`, `display: die`), a bond's number as pips), a
-  value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action (one, _Burdened_, also taking a point off Stealth while it holds, `adds: { stealth: -1 }`), a
+  value made of others (wounds, `from: '{{self.values.maxHealth - self.values.health}}'`), named groups, conditions that block an action (one, _Burdened_, also taking a point off Stealth while it holds, `adds: { stealth: -1 }`), a value that what's worn adds to (Stealth, a fen-walker's cloak worn, `plus: { sum: items.stealth, where: { place.tags: worn } }`), a
   way of travelling or travel itself, a condition given for some rounds of a fight (_Rattled_,
   `lasts: rounds`), conditions that hold by themselves (`when:`: _Terrified_
   while dread is full, _Seasick_ while the party travels by boat, reading the world, _Burdened_
@@ -69,12 +69,14 @@ values:
     group: skills
   stealth:
     name: Stealth
-    description: The party is only as stealthy as its clumsiest companion.
+    description: The party is only as stealthy as its clumsiest companion. A fen-walker's cloak worn adds to it.
     default: 1
     min: 0
     max: 3
     display: pips
     group: skills
+    # What's worn adds to it (`plus`): a fen-walker's cloak (items.yaml), +1 while worn.
+    plus: { sum: items.stealth, where: { place.tags: worn } }
   # Health under a maximum that is another value (a variable as the bound). The maximum is
   # rolled for each new companion (dice as a default): 3 to 5.
   maxHealth:
@@ -287,6 +289,9 @@ items:
       display: pips
       spent: true
     armour: { name: Armour, description: How well it protects when worn., min: 0 }
+    # What it adds to its wearer's Stealth while worn (the sheet's `stealth`, `plus`).
+    stealth:
+      { name: Stealth, description: What it adds to its wearer's Stealth while worn., min: 0 }
     # A die that steps down as a piece of armour wears (d8, d6, d4), rolled after a fight.
     wear:
       name: Wear

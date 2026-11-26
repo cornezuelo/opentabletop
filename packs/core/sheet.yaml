@@ -6,7 +6,7 @@ name: Character
 description: |-
   A character of the Generic rules: their health, the harm they've taken, whether they're wounded and whether they're down.
 
-  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar (its main value, by default the first drawn against a max: beside each one's name on a fight's cards), one made of it (`from:`), a condition set by effects, one given for a while in a fight (_Staggered_, `lasts: rounds`), one that holds by itself (`when:`), a room in all for what they carry (`items.room`, ten things, no more), an item field that is a die stepping down (`wear: { steps: [4, 6] }`), a place of abilities (`takes: { item.tags: ability }`, not carried, shown as cards) whose _Tough_ raises the most health they can have (a value made of it, `tough`, read by the bound), and the smallest advancement: experience and a level (`xp`, `level`), raised by the rules.
+  **Shows:** the smallest character sheet: a value with bounds, drawn as a bar (its main value, by default the first drawn against a max: beside each one's name on a fight's cards), one made of it (`from:`), one kept that what they carry adds to (`guard`, `plus: { sum: items.guard }`: a shield's), a condition set by effects, one given for a while in a fight (_Staggered_, `lasts: rounds`), one that holds by itself (`when:`), a room in all for what they carry (`items.room`, ten things, no more), an item field that is a die stepping down (`wear: { steps: [4, 6] }`), a place of abilities (`takes: { item.tags: ability }`, not carried, shown as cards) whose _Tough_ raises the most health they can have (a value made of it, `tough`, read by the bound), and the smallest advancement: experience and a level (`xp`, `level`), raised by the rules.
 values:
   health:
     name: Health
@@ -31,6 +31,14 @@ values:
     description: How seasoned the character is; at level 2 they become Tough.
     default: 1
     min: 1
+  # Kept like any value (your tables may raise it), and what they carry adds to it while
+  # they carry it (`plus`): a shield's guard (items.yaml). Foes' blows lose that much.
+  guard:
+    name: Guard
+    description: How much of a foe's blow they turn aside; a shield carried adds its own. Your tables may raise it too.
+    default: 0
+    min: 0
+    plus: { sum: items.guard }
   # 1 while they have the Tough ability: a value made of what they hold.
   tough:
     name: Tough
@@ -75,6 +83,10 @@ items:
       description: How much a piece of gear can still take, a die that steps down as blows land on it.
       steps: [4, 6]
       display: die
+    guard:
+      name: Guard
+      description: What it adds to its carrier's guard.
+      min: 0
 ---
 kind: sheet
 id: party

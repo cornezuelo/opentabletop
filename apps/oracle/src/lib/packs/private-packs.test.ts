@@ -7,8 +7,10 @@ import {
   startTrip,
   stepTrip,
   travelSystems,
+  tripAvailability,
   type TravelSystem,
 } from '@open-tabletop/session'
+import { applyCharacter, valuesNow } from '@open-tabletop/character-engine'
 import {
   createTravelEngine,
   initialTravelState,
@@ -712,9 +714,9 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
           entries: { key: string; effects: Record<string, number | string> }[]
         }
       ).entries.find((e) => e.key === id)!.effects
-    s = give(s, row('torso-armor', 'mail'))
+    s = give(s, row('torso-piece', 'mail'))
     s = give(s, row('random-shield', 'normal'))
-    s = give(s, row('random-weapon', 'dagger'))
+    s = give(s, row('weapon', 'dagger'))
     const items = s.members![0].items!.map((i) => [i.id, i.place, i.fields.integrity])
     expect(items).toEqual([
       ['mail', 'torso', 8],
@@ -1164,6 +1166,179 @@ describe.skipIf(!ker)('Ker Nethalas (personal use)', () => {
     expect(
       done.state.members![0].items!.filter((i) => i.id === 'heal').map((i) => !!i.unknown),
     ).toEqual([true])
+  })
+
+  it('a magic item is found as what it is, marked magic; a magic weapon is a weapon of the gear, its own piece', () => {
+    const { registry } = loadPacks(engineFiles(bundledPacks))
+    const kinds = new Set<string>()
+    for (let n = 0; n < 60; n++) {
+      const { session, rules } = inRoom(`m${n}`)
+      const value = createOracleEngine({ registry, random: seeded(`magic${n}`) }).resolve(
+        'ker-nethalas/generator.magic-item',
+        {},
+      ).resolution.value
+      const s = applyResult(session, value, {}, rules)
+      const items = s.members![0].items ?? []
+      const magic = items.filter((i) => i.fields.magic === 1)
+      const amulets = items.filter((i) => i.id.startsWith('amulet-'))
+      // One magic thing each time: a piece marked magic, or an Amulet.
+      expect(magic.length + amulets.length).toBe(1)
+      for (const i of magic) {
+        kinds.add(
+          i.tags?.includes('weapon') ? 'weapon' : i.tags?.includes('armor') ? 'armor' : i.id,
+        )
+        // Not attuned yet: nothing rolled into it.
+        expect(i.fields.rarity ?? 0).toBe(0)
+      }
+      if (amulets.length) kinds.add('amulet')
+    }
+    expect([...kinds].sort()).toEqual(
+      [
+        'amulet',
+        'armor',
+        'magic-belt',
+        'magic-boots',
+        'magic-gloves',
+        'magic-ring',
+        'weapon',
+      ].sort(),
+    )
+    // Random Weapon's 98-100: a weapon of the gear, marked magic, apart from a plain one held.
+    const { session, rules, apply } = inRoom('w')
+    let s = apply(session, { 'party.items.dagger': 1 })
+    const engine = createOracleEngine({ registry, random: seeded('weapon') })
+    let tries = 0
+    while (tries++ < 300) {
+      const value = engine.resolve('ker-nethalas/random-weapon', {}).resolution.value
+      if (!JSON.stringify(value).includes('newest.magic')) continue
+      s = applyResult(
+        s,
+        {
+          ...value,
+          found: 'dagger',
+          effects: { 'party.items.dagger': 1, 'party.items[found].newest.magic': '=1' },
+        },
+        {},
+        rules,
+      )
+      break
+    }
+    const daggers = s.members![0].items!.filter((i) => i.id === 'dagger')
+    expect(daggers.map((i) => i.fields.magic ?? 0).sort()).toEqual([0, 1])
+  })
+
+  it('Attune at Camp: a Crystal and 1 Exhaustion; its rarity and Magic Properties rolled into it; what it adds counts while worn', () => {
+    let attuned = 0
+    let added = 0
+    // A Skill of your choosing: asked, and written into the Skill chosen (Perception here).
+    let chosen = 0
+    const rarities = new Set<number>()
+    for (let n = 0; n < 40; n++) {
+      const { session, apply, options, rules } = inRoom(`attune${n}`)
+      let s = apply(session, {
+        'party.values.crystals': 1,
+        'party.items.magic-ring': 1,
+        'party.items.magic-ring.newest.magic': '=1',
+      })
+      const ring = s.members![0].items!.find((i) => i.id === 'magic-ring')!
+      // The first one with a Skill of your choosing to choose (+10): asked, Perception given.
+      if (n === 0) s = apply(s, { [`party.members.items.${ring.key}.choose`]: 10 })
+      expect(ring.place).toBe('rings')
+      let done = stepTrip(
+        options,
+        { ...s, acting: 'erthos' },
+        {
+          type: 'action',
+          id: 'attune',
+          with: { item: ring.key },
+        },
+      )
+      for (let i = 0; i < 6 && done.state.travel.waiting; i++)
+        done = stepTrip(options, done.state, { type: 'resume', choice: 'perception' } as never)
+      s = done.state
+      const pc = s.members![0]
+      const now = pc.items!.find((i) => i.key === ring.key)!
+      expect(s.stats.crystals ?? pc.values.crystals ?? 0).toBe(0)
+      expect(pc.values.exhaustion).toBe(1)
+      rarities.add(now.fields.rarity)
+      expect(now.fields.rarity).toBeGreaterThanOrEqual(1)
+      expect(now.fields.choose ?? 0).toBe(0)
+      attuned++
+      if (now.fields.perception) chosen++
+      // What it adds to a Resistance or a Skill reads on the Gravebound while it's worn.
+      const sheet = rules.sheet!.def
+      for (const v of ['endurance', 'resolve', 'spellward', 'perception']) {
+        const plus = now.fields[v] ?? 0
+        if (!plus) continue
+        added++
+        expect(valuesNow(sheet, pc)[v]).toBe(
+          Math.min(pc.values[v] + plus, v === 'perception' ? 80 : Infinity),
+        )
+        const off = applyCharacter(sheet, pc, {
+          type: 'moveItem',
+          key: now.key,
+          place: 'bags',
+        }).state
+        expect(valuesNow(sheet, off)[v]).toBe(pc.values[v])
+      }
+      // Not offered again: it's attuned.
+      expect(
+        tripAvailability(options, { ...apply(s, { 'party.values.crystals': 1 }), acting: 'erthos' })
+          .attune,
+      ).toBeDefined()
+    }
+    expect(attuned).toBe(40)
+    expect(chosen).toBeGreaterThan(0)
+    expect(added).toBeGreaterThan(0)
+    expect(rarities.size).toBeGreaterThan(1)
+  })
+
+  it('Relics: found as items of their own; a Consumable used is gone, its boon kept; a Borestian Stone knows potions at once', () => {
+    const { session, apply, act } = inRoom('r', { medicine: 0 })
+    let s = apply(session, { 'party.items.vial-endurance': 1, 'party.items.gloomheart-seed': 1 })
+    const before = s.members![0].values
+    s = stepTrip(inRoom('r').options, { ...s, acting: 'erthos' }, {
+      type: 'use',
+      who: 'erthos',
+      item: 'vial-endurance',
+    } as never).state
+    expect(s.members![0].values.endurance).toBe(before.endurance + 5)
+    expect(s.members![0].items!.some((i) => i.id === 'vial-endurance')).toBe(false)
+    // A potion held unknown is known at once with the Stone, Medicine 0 or not.
+    s = apply(s, { 'party.items.borestian-stone': 1, 'party.items.heal.unknown': 1 })
+    s = act(s, 'identify', 'heal').state
+    expect(s.members![0].items!.find((i) => i.id === 'heal')!.unknown).toBeFalsy()
+  })
+
+  it('an Amulet worn opens a third Mastery to learn; in the bags it does not', () => {
+    const { session, apply, options } = inRoom('amulet')
+    let s = apply(session, {
+      'party.members.values.points': 3,
+      'party.items.abyssal-reaver-1': 1,
+      'party.items.arcanist-1': 1,
+      'party.items.amulet-tracker': 1,
+    })
+    const pc = s.members![0]
+    expect(pc.values.masteries).toBe(2)
+    expect(pc.items!.find((i) => i.id === 'amulet-tracker')!.place).toBe('neck')
+    const offered = (st: typeof s) =>
+      stepTrip(options, { ...st, acting: 'erthos' }, { type: 'action', id: 'learn' }).state.travel
+        .waiting as { choices?: string[] } | undefined
+    const ids = (st: typeof s) => offered(st)?.choices ?? []
+    expect(ids(s)).toContain('tracker-1')
+    expect(ids(s)).not.toContain('brawler-1')
+    const amulet = pc.items!.find((i) => i.id === 'amulet-tracker')!
+    s = {
+      ...s,
+      members: [
+        applyCharacter(options.system.sheet!.def, pc, {
+          type: 'moveItem',
+          key: amulet.key,
+          place: 'bags',
+        }).state,
+      ],
+    }
+    expect(ids(s)).not.toContain('tracker-1')
   })
 
   it('a potion drunk unknown is known as it’s drunk; Stoneskin lasts the rooms its aging gives it', () => {

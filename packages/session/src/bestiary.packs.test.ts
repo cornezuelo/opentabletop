@@ -10,7 +10,7 @@ import { applyResult, rolledNodes, type JournalEntry } from './index'
 import { newMember } from './party'
 import { faceIcon, templateLook } from './present'
 import { templateCopy } from './index'
-import { lookupTemplates } from '@open-tabletop/character-engine'
+import { lookupTemplates, valuesNow } from '@open-tabletop/character-engine'
 import {
   partyOf,
   settleTrip,
@@ -1494,6 +1494,42 @@ describe('the bundled packs fight in turns', () => {
     // A d6 to a d4, and never further: the last of its steps.
     expect(dented).toContain('6→4')
     expect(dented.every((d) => d === '6→4')).toBe(true)
+  })
+
+  it("Core: a shield carried adds its guard (the sheet's plus), and a foe's blow loses that much", () => {
+    const { session } = startTrip({ system: core, location: 'a', members: people(core), seed: 'g' })
+    const armed = applyResult(
+      session,
+      { effects: { 'characters.kael.items.shield': 1 } },
+      {},
+      partyOf(core),
+    )
+    const sheet = partyOf(core).sheet!.def
+    const [kael, mara] = armed.members!
+    // Kept at 0; the shield adds 1 while Kael carries it, nothing to Mara.
+    expect(kael.values.guard).toBe(0)
+    expect(valuesNow(sheet, kael).guard).toBe(1)
+    expect(valuesNow(sheet, mara).guard).toBe(0)
+    // A blow of 1 to 3 at Kael is 0 to 2; at Mara, 1 to 3.
+    const blows = (guard: number) =>
+      [1, 2, 3, 4, 5, 6, 7, 8]
+        .map((n) => {
+          const r = createOracleEngine({ registry, random: seeded(n) }).resolve(
+            'core/table.foe-turn',
+            {
+              encounter: { target: 'kael' },
+              characters: { kael: { values: { guard } } },
+            },
+          ).resolution
+          const effects = (r.value.effects ?? {}) as Record<string, unknown>
+          return Number(effects['characters[encounter.target].values.health'] ?? NaN)
+        })
+        .filter((n) => !Number.isNaN(n))
+    expect(blows(1).length).toBeGreaterThan(3)
+    expect(new Set(blows(1).map((n) => -n))).toContain(0)
+    expect(Math.max(...blows(1).map((n) => -n))).toBeLessThanOrEqual(2)
+    expect(Math.min(...blows(1).map((n) => -n))).toBeGreaterThanOrEqual(0)
+    expect(Math.min(...blows(0).map((n) => -n))).toBeGreaterThanOrEqual(1)
   })
 
   it("a roll mode on one roll of a generator: Core's contest, the Grey Marches' blow on a lone foe", () => {

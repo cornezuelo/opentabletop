@@ -5,7 +5,7 @@ id: gear
 name: The Company's gear
 description: |-
   Gear for the road: rations, rope for the fords, torches for marching by night, a backpack,
-  a mail shirt, the hedge-witches' cordial, and the Sword of Keld if the hoard ever gives it up.
+  a mail shirt, the hedge-witches' cordial, a fen-walker's cloak, and the Sword of Keld if the hoard ever gives it up.
 
   **Shows:** an item catalogue (`kind: items`): items with tags (`climbing`, `light`) that
   rules read (the ford's roll counts the companions with a rope, `party.stats.roped`; the
@@ -15,7 +15,8 @@ description: |-
   sheet's places don't), an item given by a table's result, the party's
   food as items (rations, eaten by the party as a whole: `party.items.ration`), and an item
   held unknown until it's identified (the cordial found as _A stoppered flask_, `unknown:`),
-  with a **Use** that takes one of the system's actions (`use: actions.drink`).
+  with a **Use** that takes one of the system's actions (`use: actions.drink`); and a cloak
+  that adds to its wearer's Stealth while worn (its `stealth: 1`, the sheet's `plus`).
 items:
   ration:
     name: Ration
@@ -56,6 +57,14 @@ items:
       description: Green glass, waxed shut. It smells of herbs, or of something gone off. Taste it carefully, or drink it and see.
     use: actions.drink
     tags: [potion]
+  # Worn, it adds its Stealth to its wearer's (the sheet's `stealth`, `plus`); in the bags
+  # or on the belt, nothing.
+  fen-cloak:
+    name: A fen-walker's cloak
+    description: Grey-green wool that takes the colour of reeds and mist. Worn, +1 Stealth.
+    stealth: 1
+    fits: { place.tags: [worn, belt] }
+    tags: [clothing]
   sword-of-keld:
     name: The Sword of Keld
     description: Lost these hundred years; the hoard gives it to whoever finds it.

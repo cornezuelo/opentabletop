@@ -4,8 +4,8 @@ items/gear:
     Unas pocas cosas que lleva cualquier grupo, para elegirlas en la tarjeta de un personaje.
 
     **Enseña:** el catálogo de objetos más pequeño: objetos con nombre, descripción y
-    etiquetas (`light`, `food`), en ningún lugar de la hoja (una lista con cantidades) y con un
-    campo, un dado que baja por escalones (el `wear: 6` del escudo); una capacidad también es
+    etiquetas (`light`, `food`), en ningún lugar de la hoja (una lista con cantidades) y con dos
+    campos, un dado que baja por escalones (el `wear: 6` del escudo) y otro que suma a un valor mientras se lleva (su `guard: 1`); una capacidad también es
     un objeto (_Duro_, con la etiqueta `ability`, que solo cabe en el lugar de capacidades de
     la hoja); un objeto sin identificar hasta que se usa (_Una poción extraña_, `unknown:`), con
     un **Usar** que hace una de las acciones de las reglas (`use:`).
@@ -13,7 +13,11 @@ items/gear:
     rope: { name: Cuerda, description: Un buen trozo de cuerda. }
     torch: { name: Antorcha, description: Luz para unas horas. }
     ration: { name: Ración, description: La comida de un día para uno. }
-    shield: { name: Escudo, description: Se lleva las abolladuras de los golpes que te alcanzan. }
+    shield:
+      {
+        name: Escudo,
+        description: 'Se lleva las abolladuras de los golpes que te alcanzan; si lo llevas, desvía 1 de cada golpe.',
+      }
     draught:
       name: Poción curativa
       description: Al beberla, 2 de salud.

@@ -210,6 +210,7 @@ export function contextSuggestions(
         }
         if (sheet.def.items !== undefined) {
           add(`${who}.carried.used`)
+          add(`${who}.carried.keys`)
           if (sheet.def.items.room !== undefined) add(`${who}.carried.room`)
         }
       }

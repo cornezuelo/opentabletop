@@ -15,7 +15,7 @@ sheet/companion:
     pavor como casillas que se ponen rojas, el temple como un dado que sube de paso de d4 a d12
     (`steps: [4, 6, 8, 10, 12]`, `display: die`), el número de un vínculo como puntos), un valor que sale de otros (las
     heridas, `from: '{{self.values.maxHealth - self.values.health}}'`), grupos con nombre, estados que bloquean una
-    acción, una forma de viajar o el propio viaje (uno, _Cargado_, que además quita un punto de Sigilo mientras dura, `adds: { stealth: -1 }`), un estado que se da por unas rondas de un
+    acción, una forma de viajar o el propio viaje (uno, _Cargado_, que además quita un punto de Sigilo mientras dura, `adds: { stealth: -1 }`), un valor al que suma lo que se lleva puesto (Sigilo, una capa de caminante del pantano puesta, `plus: { sum: items.stealth, where: { place.tags: worn } }`), un estado que se da por unas rondas de un
     combate (_Aturdido_, `lasts: rounds`), estados que se cumplen por sí solos (`when:`:
     _Aterrado_ mientras el pavor está lleno, _Mareado_ mientras el grupo viaja en barco, leyendo el
     mundo, _Cargado_ mientras la carga pasa de la capacidad), tipos de relación (un vínculo con un
@@ -50,7 +50,7 @@ sheet/companion:
       description: La Orientación del grupo es el mejor Rastreo de los compañeros.
     stealth:
       name: Sigilo
-      description: El grupo es tan sigiloso como su compañero más torpe.
+      description: El grupo es tan sigiloso como su compañero más torpe. Una capa de caminante del pantano puesta le suma.
     maxHealth:
       name: Salud máxima
       description: La salud más alta que puede tener este compañero, tirada cuando se une (1d3+2); una noche bien comidos en el campamento cura hasta ella.
@@ -159,6 +159,7 @@ sheet/companion:
         name: Usos
         description: Lo que le queda (las horas de una antorcha); a 0 se gasta uno, y el siguiente empieza lleno.
       armour: { name: Armadura, description: Cuánto protege si se lleva puesto. }
+      stealth: { name: Sigilo, description: Lo que suma al Sigilo de quien lo lleva puesto. }
       wear:
         name: Desgaste
         description: El desgaste que le queda a una pieza de armadura, un dado; tras un combate se tira, y un 1–2 lo baja un escalón (un d4 que saca 1–2 queda destrozado).

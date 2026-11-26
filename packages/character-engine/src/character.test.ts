@@ -780,12 +780,13 @@ describe('a condition that adds to values while it holds (adds)', () => {
 
   it('says why a value reads so: its base, each condition adding, and the bound that held it', () => {
     let s = createCharacter(sheet!, 'test/adds', { id: 'ana' })
-    expect(valueParts(sheet!, s, 'dodge')).toEqual({ now: 40, base: 40, adds: [] })
+    expect(valueParts(sheet!, s, 'dodge')).toEqual({ now: 40, base: 40, adds: [], plus: [] })
     s = applyCharacter(sheet!, s, { type: 'change', effects: { 'conditions.stoneskin': 3 } }).state
     expect(valueParts(sheet!, s, 'dodge')).toEqual({
       now: 30,
       base: 40,
       adds: [{ condition: 'stoneskin', amount: -10 }],
+      plus: [],
     })
     // 40 − 10 + 50 is 80, its max: said, and so is the max that holds it when it passes.
     s = applyCharacter(sheet!, s, { type: 'change', effects: { 'conditions.quick': true } }).state
@@ -798,6 +799,7 @@ describe('a condition that adds to values while it holds (adds)', () => {
         { condition: 'stoneskin', amount: -10 },
         { condition: 'quick', amount: 50 },
       ],
+      plus: [],
       held: { which: 'max', at: 80 },
     })
   })
@@ -810,5 +812,88 @@ describe('a condition that adds to values while it holds (adds)', () => {
       conditions: { odd: { adds: { parry: 1 } } },
     })
     expect(errors).toContain('conditions.odd.adds.parry: no value "parry" in this sheet')
+  })
+})
+
+describe('what the items add to a value while they count (plus)', () => {
+  const withPlus = parseSheet({
+    kind: 'sheet',
+    id: 'plus',
+    values: {
+      endurance: {
+        default: 20,
+        min: 0,
+        plus: { sum: 'items.endurance', where: { 'place.tags': 'worn' } },
+      },
+      dodge: {
+        default: 70,
+        min: 0,
+        max: 80,
+        plus: { sum: 'items.dodge', where: { 'place.tags': 'worn' } },
+      },
+    },
+    items: {
+      fields: { endurance: {}, dodge: {} },
+      places: { body: { tags: ['worn'] }, bags: { tags: ['bag'] } },
+    },
+    conditions: { quick: { adds: { dodge: 5 } } },
+  }).sheet!
+  const belt = (place: string, fields: Record<string, number>) => ({
+    type: 'addItem' as const,
+    item: { id: 'belt', count: 1, place, fields },
+  })
+
+  it('is refused when it is not a way of counting items', () => {
+    const bad = parseSheet({
+      kind: 'sheet',
+      id: 'bad',
+      values: {
+        a: { plus: { sum: 'items.nothing' } },
+        b: { from: '{{self.values.a}}', plus: { sum: 'items.endurance' } },
+      },
+      items: { fields: { endurance: {} } },
+    })
+    expect(bad.errors).toContain(
+      'values.a.plus.sum: no item field "nothing" on this sheet (items.fields)',
+    )
+    expect(bad.errors).toContain("values.b.plus: not with from (what it's made of says it all)")
+  })
+
+  it('reads the value with what the items worn add, and keeps it as it was', () => {
+    let s = createCharacter(withPlus, 'test/plus', { id: 'ana' })
+    s = applyCharacter(withPlus, s, belt('body', { endurance: 10 })).state
+    s = applyCharacter(withPlus, s, belt('bags', { endurance: 5 })).state
+    expect(valuesNow(withPlus, s).endurance).toBe(30)
+    // Every one held, by its key, wherever it is (a parameter's `from: acting.carried.keys`).
+    expect((characterFacts(s, withPlus) as { carried: { keys: string[] } }).carried.keys).toEqual(
+      s.items!.map((i) => i.key),
+    )
+    expect(
+      (characterFacts(s, withPlus) as { values: Record<string, number> }).values.endurance,
+    ).toBe(30)
+    expect(s.values.endurance).toBe(20)
+    expect(addedTo(withPlus, s, 'endurance')).toBe(10)
+    // Effects change what's kept; what the belt adds stays on top.
+    s = applyCharacter(withPlus, s, { type: 'change', effects: { 'values.endurance': 5 } }).state
+    expect(s.values.endurance).toBe(25)
+    expect(valuesNow(withPlus, s).endurance).toBe(35)
+    // Taken off (into the bags), nothing is added.
+    const worn = s.items!.find((i) => i.place === 'body')!
+    s = applyCharacter(withPlus, s, { type: 'moveItem', key: worn.key, place: 'bags' }).state
+    expect(valuesNow(withPlus, s).endurance).toBe(25)
+  })
+
+  it('says each item adding, with what conditions add, and the bound that held it', () => {
+    let s = createCharacter(withPlus, 'test/plus', { id: 'ana' })
+    s = applyCharacter(withPlus, s, belt('body', { dodge: 20 })).state
+    s = applyCharacter(withPlus, s, { type: 'change', effects: { 'conditions.quick': true } }).state
+    const parts = valueParts(withPlus, s, 'dodge')
+    expect(parts).toMatchObject({
+      now: 80,
+      base: 70,
+      adds: [{ condition: 'quick', amount: 5 }],
+      plus: [{ id: 'belt', count: 1, amount: 20 }],
+      held: { which: 'max', at: 80 },
+    })
   })
 })

@@ -64,6 +64,16 @@ actions:
     do: [{ effects: { party.members.items.torch.uses: -1 } }]
   scavenge: { do: [{ effects: { characters.kael.items.rope: 2, characters.kael.items.wand: 1 } }] }
   haul: { do: [{ effects: { characters.kael.items.anvil: 1 } }] }
+  # A field named by what a step sets (\`[part]\`): whichever it is, no warning.
+  wear:
+    params: { item: { from: acting.carried.keys } }
+    do: [{ effects: { 'acting.items[params.item][part]': 1 } }]
+  # A value reading the one chosen (\`[params.item]\` in its \`{{…}}\`): its uses doubled.
+  mend:
+    params: { item: { name: Which?, from: acting.carried.keys } }
+    do:
+      - { ask: params.item }
+      - { effects: { 'acting.items[params.item].uses': '{{acting.items[params.item].uses}}' } }
 `,
   },
 ]
@@ -121,6 +131,21 @@ describe('items in a trip', () => {
         (e) => e.code === 'CHANGED' && e.data?.path === 'characters.kael.items.rope',
       )?.data,
     ).toMatchObject({ from: 0, to: 2 })
+  })
+
+  it('an action asks which of what one holds (acting.carried.keys); its effect reads the one chosen', () => {
+    const { session } = startTrip({ system: delve, location: 'a', time: 8 * 60, members: [kael()] })
+    let done = stepTrip(
+      { system: delve, world },
+      { ...session, acting: 'kael' },
+      { type: 'action', id: 'mend', with: { item: 'torch' } },
+    )
+    for (let i = 0; i < 3 && done.state.travel.waiting; i++)
+      done = stepTrip({ system: delve, world }, done.state, {
+        type: 'resume',
+        choice: 'torch',
+      } as never)
+    expect(done.state.members![0].items![0].fields.uses).toBe(4)
   })
 
   it('conditions read them, with their places; what holds by itself follows them', () => {

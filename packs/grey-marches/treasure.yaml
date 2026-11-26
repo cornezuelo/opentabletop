@@ -61,7 +61,7 @@ name: A rare prize
 description: |-
   A **rare prize**.
 
-  **Shows:** `maxOccurrences`: the Sword of Keld turns up twice at most; then only gold remains. An item given by a result: whoever finds it (`acting.items.sword-of-keld: 1`) gets the sword from the gear (items.yaml).
+  **Shows:** `maxOccurrences`: the Sword of Keld and the fen-walker's cloak turn up twice at most; then only gold remains. An item given by a result: whoever finds it (`acting.items.sword-of-keld: 1`) gets the sword from the gear (items.yaml); the cloak, worn, adds to its wearer's Stealth (the sheet's `plus`).
 entries:
   - {
       id: sword,
@@ -70,6 +70,12 @@ entries:
       result: 'The Sword of Keld, lost these hundred years',
       effects: { acting.items.sword-of-keld: 1 },
     }
+  # Worn, it adds to Stealth (items.yaml, the sheet's `plus`).
+  - id: cloak
+    weight: 1
+    maxOccurrences: 2
+    result: 'A fen-walker’s cloak, grey as the reeds'
+    effects: { acting.items.fen-cloak: 1 }
   - id: gold
     weight: 1
     result: '{{crowns}} gold crowns of the old kings'

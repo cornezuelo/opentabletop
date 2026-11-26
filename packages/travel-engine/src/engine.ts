@@ -2273,7 +2273,8 @@ export function createTravelEngine(options: {
     const effects = Object.fromEntries(
       Object.entries(written).flatMap(([written, change]) => {
         const path = written.includes('[') ? namedPath(qualify(seen ?? now), written) : written
-        return path ? [[path, resolveChange(change, now, roller)]] : []
+        // Its value reads the step's context too (`'{{acting.items[params.item].bonus}}'`).
+        return path ? [[path, resolveChange(change, seen ? { ...now, ...seen } : now, roller)]] : []
       }),
     )
     for (const [path, change] of Object.entries(effects)) {

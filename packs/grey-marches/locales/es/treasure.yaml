@@ -39,9 +39,10 @@ prize:
   description: |-
     Un **premio raro**.
 
-    **Enseña:** `maxOccurrences`: la Espada de Keld aparece dos veces como mucho; después solo queda oro. Un objeto que da un resultado: quien la encuentra (`acting.items.sword-of-keld: 1`) recibe la espada del equipo (items.yaml).
+    **Enseña:** `maxOccurrences`: la Espada de Keld y la capa de caminante del pantano aparecen dos veces como mucho; después solo queda oro. Un objeto que da un resultado: quien la encuentra (`acting.items.sword-of-keld: 1`) recibe la espada del equipo (items.yaml); la capa, puesta, suma al Sigilo de quien la lleva (el `plus` de la hoja).
   entries:
     sword: La Espada de Keld, perdida hace cien años
+    cloak: 'Una capa de caminante del pantano, gris como los juncos'
     gold: '{{crowns}} coronas de oro de los antiguos reyes'
 ruin-delve:
   name: Explorar una ruina

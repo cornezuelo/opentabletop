@@ -494,7 +494,7 @@ describe('a total room', () => {
       item: 'rock',
       count: 2,
     })
-    expect(characterFacts(more.state, porter).carried).toEqual({ room: 4, used: 4 })
+    expect(characterFacts(more.state, porter).carried).toMatchObject({ room: 4, used: 4 })
     // A room that grows takes more; moving what's carried never counts twice.
     s = run(more.state, { type: 'change', effects: { 'values.strength': 1 } }).state
     s = run(s, { type: 'moveItem', key: 'rock', place: 'back' }).state

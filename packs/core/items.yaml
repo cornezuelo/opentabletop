@@ -8,20 +8,22 @@ description: |-
   A few things any party carries, to pick on a character's card.
 
   **Shows:** the smallest item catalogue: items with a name, a description and tags
-  (`light`, `food`), in no place of the sheet (a list with counts) and one field, a die
-  that steps down (the shield's `wear: 6`); an ability is an item too (_Tough_, tagged
+  (`light`, `food`), in no place of the sheet (a list with counts) and two fields, a die
+  that steps down (the shield's `wear: 6`) and one that adds to a value while carried (its `guard: 1`); an ability is an item too (_Tough_, tagged
   `ability`, fitting only the sheet's place of abilities); an item held unknown until it's
   used (_A strange potion_, `unknown:`), its **Use** one of the rules' actions (`use:`).
 items:
   rope: { name: Rope, description: A good length of rope., tags: [climbing] }
   torch: { name: Torch, description: Light for a few hours., tags: [light] }
   ration: { name: Ration, description: A day's food for one., tags: [food] }
-  # Its wear (the sheet's field, a die): a d6 that drops to a d4 as foes' blows land.
+  # Its wear (the sheet's field, a die): a d6 that drops to a d4 as foes' blows land; its
+  # guard adds to its carrier's (the sheet's `guard`, `plus`).
   shield:
     {
       name: Shield,
-      description: Takes the dents of the blows that land on you.,
+      description: 'Takes the dents of the blows that land on you; carried, it turns 1 of each blow aside.',
       wear: 6,
+      guard: 1,
       tags: [armour],
     }
   # Held unknown (`unknown:`): found as `acting.items.draught.unknown: 1`, a strange potion

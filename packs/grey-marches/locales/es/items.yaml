@@ -2,7 +2,7 @@ items/gear:
   name: El equipo de la Compañía
   description: |-
     Equipo para el camino: raciones, cuerda para los vados, antorchas para marchar de noche,
-    una mochila, una cota de malla, el cordial de las brujas, y la Espada de Keld si el tesoro llega a darla.
+    una mochila, una cota de malla, el cordial de las brujas, una capa de caminante del pantano, y la Espada de Keld si el tesoro llega a darla.
 
     **Enseña:** un catálogo de objetos (`kind: items`): objetos con etiquetas (`climbing`,
     `light`) que leen las reglas (la tirada del vado cuenta los compañeros con cuerda,
@@ -13,7 +13,8 @@ items/gear:
     objeto que da el resultado de una tabla, la comida del grupo como objetos (raciones, que
     come el grupo en conjunto: `party.items.ration`), y un objeto que se lleva sin identificar
     hasta que se sabe qué es (el cordial, hallado como _Un frasco tapado_, `unknown:`), con un
-    **Usar** que hace una de las acciones del sistema (`use: actions.drink`).
+    **Usar** que hace una de las acciones del sistema (`use: actions.drink`); y una capa que
+    suma al Sigilo de quien la lleva puesta (su `stealth: 1`, el `plus` de la hoja).
   items:
     ration:
       name: Ración
@@ -36,6 +37,9 @@ items/gear:
       unknown:
         name: Un frasco tapado
         description: Vidrio verde, sellado con cera. Huele a hierbas, o a algo pasado. Pruébalo con cuidado, o bébetelo y verás.
+    fen-cloak:
+      name: Una capa de caminante del pantano
+      description: Lana gris verdosa que toma el color de los juncos y la niebla. Puesta, +1 al Sigilo.
     sword-of-keld:
       name: La Espada de Keld
       description: Perdida hace cien años; el tesoro se la da a quien la encuentre.

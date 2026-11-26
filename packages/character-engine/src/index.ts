@@ -42,6 +42,7 @@ import {
   settleLoose,
   sheetItemsErrors,
   type ItemEvent,
+  type ItemPart,
   type ItemLookup,
   type ItemState,
   type ItemsFrom,
@@ -154,6 +155,12 @@ const value = z
      * the items (`{ sum: items.slots }`): kept up to date after every change, within its bounds.
      */
     from: z.union([z.string().min(1), itemsFrom]).optional(),
+    /**
+     * What the items add to it while they count (`{ sum: items.endurance, where: { place.tags:
+     * worn } }`): read so by tables, conditions and the card, within its bounds, like what a
+     * condition adds; the value itself (what effects change) stays as it was.
+     */
+    plus: itemsFrom.optional(),
     min: bound.optional(),
     max: bound.optional(),
     /**
@@ -372,7 +379,11 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
       )
       if (v.default !== undefined)
         errors.push(`values.${id}.default: not with from (it is made of other values)`)
+      if (v.plus !== undefined)
+        errors.push(`values.${id}.plus: not with from (what it's made of says it all)`)
     }
+    if (v.plus !== undefined)
+      errors.push(...itemsFromErrors(v.plus, sheet.items, `values.${id}.plus`))
     if (v.steps) {
       for (const key of ['min', 'max', 'from'] as const)
         if (v[key] !== undefined)
@@ -1212,15 +1223,38 @@ export function lapseConditions(
  * them (`adds:`), within its bounds. Without a sheet, or no condition adding, its own.
  */
 export function valuesNow(sheet: Sheet | undefined, state: CharacterState): Record<string, number> {
-  const adding = Object.keys(state.conditions).flatMap((id) =>
+  const adding: [string, number][] = Object.keys(state.conditions).flatMap((id) =>
     Object.entries(sheet?.conditions[id]?.adds ?? {}),
   )
+  for (const [id, def] of Object.entries(sheet?.values ?? {})) {
+    if (!def.plus) continue
+    const n = plusParts(sheet!, state, def.plus).reduce((sum, p) => sum + p.amount, 0)
+    if (n) adding.push([id, n])
+  }
   if (!sheet || !adding.length) return state.values
   const out = { ...state.values }
   for (const [id, n] of adding) out[id] = (out[id] ?? 0) + n
   for (const id of new Set(adding.map(([id]) => id)))
     out[id] = changeValue(out[id], 0, boundsOf(sheet, state, id)).to
   return out
+}
+
+/**
+ * Each item that adds to a value now (its `plus`), with what it adds. Its `where` reads the
+ * item, its place and the character as kept (`self.values`, its conditions and tags), never
+ * what the items add, so no value is made of itself.
+ */
+function plusParts(sheet: Sheet, state: CharacterState, plus: ItemsFrom): ItemPart[] {
+  const self = {
+    ...state.values,
+    id: state.id,
+    values: state.values,
+    conditions: Object.keys(state.conditions),
+    tags: [...state.tags],
+  }
+  return itemsParts(plus, state.items ?? [], placesOf(sheet.items, state), self).filter(
+    (p) => p.amount !== 0,
+  )
 }
 
 /** Each condition the character has that adds to a value now, with what it adds. */
@@ -1235,9 +1269,13 @@ function conditionAdds(
   })
 }
 
-/** What a value's conditions add to it now (0: nothing), to say on a card why it reads so. */
+/** What a value's conditions and items add to it now (0: nothing), to say on a card why it reads so. */
 export function addedTo(sheet: Sheet | undefined, state: CharacterState, id: string): number {
-  return conditionAdds(sheet, state, id).reduce((sum, a) => sum + a.amount, 0)
+  const plus = sheet?.values[id]?.plus
+  return (
+    conditionAdds(sheet, state, id).reduce((sum, a) => sum + a.amount, 0) +
+    (plus ? plusParts(sheet!, state, plus).reduce((sum, p) => sum + p.amount, 0) : 0)
+  )
 }
 
 /**
@@ -1261,6 +1299,8 @@ export interface ValueParts {
     )[]
   }
   adds: { condition: string; amount: number }[]
+  /** Each item adding to it now (its `plus`), with what it adds. */
+  plus: ItemPart[]
   /** The bound that held it, when what it adds up to passes one. */
   held?: { which: 'min' | 'max'; at: number }
 }
@@ -1270,7 +1310,8 @@ export function valueParts(sheet: Sheet, state: CharacterState, id: string): Val
   const base = state.values[id] ?? 0
   const now = valuesNow(sheet, state)[id] ?? base
   const adds = conditionAdds(sheet, state, id)
-  const out: ValueParts = { now, base, adds }
+  const plus = def?.plus ? plusParts(sheet, state, def.plus) : []
+  const out: ValueParts = { now, base, adds, plus }
   const from = def?.from
   if (typeof from === 'string')
     out.made = {
@@ -1296,8 +1337,8 @@ export function valueParts(sheet: Sheet, state: CharacterState, id: string): Val
       ).map((p) => ({ kind: 'item', ...p })),
     }
   }
-  const sum = base + adds.reduce((n, a) => n + a.amount, 0)
-  if (adds.length && sum !== now) {
+  const sum = base + adds.reduce((n, a) => n + a.amount, 0) + plus.reduce((n, p) => n + p.amount, 0)
+  if ((adds.length || plus.length) && sum !== now) {
     const { min, max } = boundsOf(sheet, state, id)
     if (min !== undefined && now === min && sum < min) out.held = { which: 'min', at: min }
     else if (max !== undefined && now === max && sum > max) out.held = { which: 'max', at: max }

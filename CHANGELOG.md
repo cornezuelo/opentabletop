@@ -7,10 +7,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Packs
 
 - **Core**: a foe that fell may leave a dented shield, a step down its wear. **The Grey Marches**: the restless dead may leave a rusted mail shirt, a step down its wear die.
+- **Core**: a shield carried adds 1 to its carrier's new **Guard**, and each foe's blow loses that much. **The Grey Marches**: a hoard's rare prize may be a fen-walker's cloak, +1 Stealth while worn.
 
 ### Formats
 
 - **Packs**: an effect may change the newest item given (`party.items.mail: 1, party.items.mail.newest.wear: -1`): a piece found worn down, while the one already worn stays as it is. Nothing older changes meaning.
+- **Packs**: a sheet's value may take what the items add while they count (`plus: { sum: items.stealth, where: { place.tags: worn } }`), on top of what it keeps: a cloak worn adds its Stealth, and it's gone once the cloak is in the bags; the card's value says why it reads so. **Items add** in the Packs app's sheet form. Tables read every item a character holds by its key (`acting.carried.keys`), so an action may ask which one, wherever it is. Nothing older changes meaning.
 
 ## [0.80.0] - 2026-11-26
 

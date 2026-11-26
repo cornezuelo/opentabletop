@@ -185,6 +185,13 @@
         },
         { field: 'from', label: t('sheet.from'), help: t('sheet.fromHelp'), type: 'value' },
         {
+          field: 'plus',
+          label: t('sheet.plus'),
+          help: t('sheet.plusHelp'),
+          type: 'value',
+          off: (row) => row.from !== undefined,
+        },
+        {
           field: 'display',
           label: t('sheet.display'),
           help: t('sheet.displayHelp'),

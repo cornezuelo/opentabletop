@@ -694,8 +694,8 @@ export function entryFacts(id: string, entry: CatalogueItem): Record<string, unk
  * What conditions and tables read of a character's items: `items.<id>` (`count` of all of
  * them, and the first one's tags, place and fields: `items.torch.uses`), `items.tags`
  * (every tag of every item), `places.<id>` (its `room`, how much is `used`, its `tags`
- * and the `items` right in it, by id, and their `keys`), and `carried` (the total `room` and how
- * much is `used`). An item whose key isn't its id is also there by its key (`items.mail-2`).
+ * and the `items` right in it, by id, and their `keys`), and `carried` (the total `room`, how
+ * much is `used`, and the `keys` of every item held, wherever it is). An item whose key isn't its id is also there by its key (`items.mail-2`).
  */
 export function itemsFacts(
   items: SheetItems | undefined,
@@ -703,7 +703,7 @@ export function itemsFacts(
 ): {
   items: Record<string, unknown>
   places: Record<string, unknown>
-  carried: { room?: number; used: number }
+  carried: { room?: number; used: number; keys: string[] }
 } {
   const all = state.items ?? []
   const byId: Record<string, unknown> = {}
@@ -757,7 +757,12 @@ export function itemsFacts(
     ]),
   )
   const total = carriedOf(items, state)
-  const carried = { ...(total.room !== undefined && { room: total.room }), used: total.used }
+  // And every one it holds by its key, wherever it is (`from: acting.carried.keys`).
+  const carried = {
+    ...(total.room !== undefined && { room: total.room }),
+    used: total.used,
+    keys: all.map((i) => i.key),
+  }
   return { items: { ...byId, tags: [...tags] }, places, carried }
 }
 

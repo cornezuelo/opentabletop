@@ -22,7 +22,8 @@ export interface BreakdownRow {
 /**
  * Why a value reads what it does, as the rows of a small sum (docs/value-breakdown.md):
  * what makes a value made of others (each value its formula reads and the formula in words,
- * each item that counts), then its base and what its conditions add, the bound that held it,
+ * each item that counts), then its base, what the items counted add (`plus`) and what its
+ * conditions add, the bound that held it,
  * and what it reads now. Empty when nothing makes a difference.
  */
 export function breakdownRows(
@@ -57,14 +58,22 @@ export function breakdownRows(
           kind: 'part',
         })
   }
+  const plus = parts.plus ?? []
+  const adding = parts.adds.length > 0 || plus.length > 0
   if (made)
     rows.push({
-      label: t(parts.adds.length ? 'breakdown.made' : 'breakdown.total'),
+      label: t(adding ? 'breakdown.made' : 'breakdown.total'),
       amount: parts.base,
       kind: 'total',
     })
-  if (parts.adds.length) {
+  if (adding) {
     if (!made) rows.push({ label: t('breakdown.base'), amount: parts.base, kind: 'part' })
+    for (const p of plus)
+      rows.push({
+        label: `${names.item(p)}${p.count > 1 ? ` ×${p.count}` : ''}`,
+        amount: p.amount,
+        kind: 'signed',
+      })
     for (const a of parts.adds)
       rows.push({ label: names.condition(a.condition), amount: a.amount, kind: 'signed' })
     if (parts.held)
@@ -72,7 +81,10 @@ export function breakdownRows(
         label: t('breakdown.held', {
           which: t(`breakdown.${parts.held.which}`),
           at: parts.held.at,
-          sum: parts.adds.reduce((n, a) => n + a.amount, parts.base),
+          sum: plus.reduce(
+            (n, p) => n + p.amount,
+            parts.adds.reduce((n, a) => n + a.amount, parts.base),
+          ),
         }),
         kind: 'note',
       })
