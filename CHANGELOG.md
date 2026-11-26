@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.79.0] - 2026-11-26
+
 ### Apps
 
 - **Notes**, a new app: your own notes in Markdown, kept in this browser, by campaign (and **General**), with folders; links between pages (`[[Old Tobin]]`, to a heading, with another text) and into the games (`[[character:kael]]`, `[[map:<id>#0608]]`, `[[faction:<campaign>/<id>]]`, `[[campaign:<id>]]`), suggested as you type `[[`; beside each page what links to it (pages and the campaign's Log), what of the game it names or points at it, and where its title is written unlinked (**Link**); a search; renaming moves the links; **Export** as a .zip of .md files (for Obsidian or SilverBullet) and **Import** them back.
