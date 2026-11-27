@@ -691,20 +691,27 @@ class Run {
     else discard = [...discard, key]
     this.state.decks[deck.id] = { draw, discard }
     const card = deck.cards.find((c) => c.key === key) as CompiledCard // reconciled above
-    this.applyEntry(
-      deck,
-      card,
-      this.text(deck.id, 'cards', card.key) ?? card.result,
-      context,
-      depth,
-      node,
-    )
-    node.value = { ...node.value, card: card.key, remaining: draw.length }
+    // Either way up, decided as it's drawn; what it leads to sees which (`reversed`).
+    const reversed =
+      deck.reversible === undefined ? undefined : this.random.next() < deck.reversible
+    const way = reversed === undefined ? {} : { reversed }
+    const text = reversed
+      ? (this.text(deck.id, 'reversed', card.key) ??
+        card.reversed ??
+        this.text(deck.id, 'cards', card.key) ??
+        card.result)
+      : (this.text(deck.id, 'cards', card.key) ?? card.result)
+    this.applyEntry(deck, card, text, { ...context, ...way }, depth, node)
+    node.value = { ...node.value, ...way, card: card.key, remaining: draw.length }
     if (card.face) {
       const { turned, ...face } = card.face
-      // Upside down when it holds on what the card set, and on what the draw sees (a clock).
+      // Upside down when it came out reversed, or when its `turned` holds on what the card set
+      // and on what the draw sees (a clock).
       const sees = { ...context, ...node.value }
-      node.face = { ...face, ...(turned && this.holds(turned, sees, node) && { turned: true }) }
+      node.face = {
+        ...face,
+        ...((reversed || (turned && this.holds(turned, sees, node))) && { turned: true }),
+      }
     }
     this.onEvent?.({ type: 'DECK_DRAWN', source: deck.id })
     return node
@@ -817,16 +824,20 @@ class Run {
 
   /** Localized text with per-string fallback to the base locale (the definition itself). */
   private text(id: string, field: 'template' | 'name'): string | undefined
-  private text(id: string, field: 'entries' | 'cards' | 'fields', key: string): string | undefined
   private text(
     id: string,
-    field: 'template' | 'name' | 'entries' | 'cards' | 'fields',
+    field: 'entries' | 'cards' | 'reversed' | 'fields',
+    key: string,
+  ): string | undefined
+  private text(
+    id: string,
+    field: 'template' | 'name' | 'entries' | 'cards' | 'reversed' | 'fields',
     key?: string,
   ): string | undefined {
     if (!this.locale) return undefined
     const overlay = this.registry.overlays.get(this.locale)?.get(id)
     if (!overlay) return undefined
-    if (field === 'entries' || field === 'cards' || field === 'fields')
+    if (field === 'entries' || field === 'cards' || field === 'reversed' || field === 'fields')
       return overlay[field]?.[key!]
     return overlay[field]
   }

@@ -66,35 +66,79 @@ description: |-
   **Shows:**
 
   - Cards with **effects** on the party and on a progress clock, for a generator to deal
-  - **Faces** that turn: every card is drawn **upside down** while the Wyrm is close to waking (`turned` reads the clock), so a reading looks as bad as it is
+  - Cards drawn **either way up**, one in four reversed (`reversible: { chance: 0.25 }`): a reversed card lies upside down and says its **reversed** text (`reversed:`), and the Lantern's table reads which way it came (`when: { reversed: true }`): reversed, it leads the Company astray and costs morale instead
+  - A **back** of its own (`back:`, an SVG of the pack), the cards lying face down on the card table before they're turned
+  - **Faces** that turn for another reason too: every card is drawn **upside down** while the Wyrm is close to waking (`turned` reads the clock), so a reading looks as bad as it is
 reshuffle: when-empty
-# Upside down while the Wyrm's clock is at 4 or more.
+# Its own back on the card table: worn green board and a lantern.
+back: grey-marches/art/cards/hedge-back.svg
+# One card in four comes out reversed: upside down, its reversed text.
+reversible: { chance: 0.25 }
+# Upside down, too, while the Wyrm's clock is at 4 or more.
 face: { ink: '#3b4a2f', turned: { world.clocks.the-greywood-wyrm-wakes: { gte: 4 } } }
 cards:
+  # Its table reads which way up it came: a safe way home, or a light that leads astray.
   - {
       id: lantern,
       face: { icon: 'game:street-light' },
-      result: 'The Lantern, a safe way home',
-      effects: { party.stats.morale: 1 },
+      result: 'The Lantern, {{result}}',
+      table: table.hedge-lantern,
     }
   - {
       id: crow,
       face: { icon: 'game:seagull' },
       result: 'The Crow, a warning heeded too late',
+      reversed: 'The Crow reversed, a warning heeded in time',
       effects: { party.stats.morale: -1 },
     }
-  - { id: ford, face: { icon: 'game:stone-bridge' }, result: 'The Ford, a crossing with a price' }
+  - {
+      id: ford,
+      face: { icon: 'game:stone-bridge' },
+      result: 'The Ford, a crossing with a price',
+      reversed: 'The Ford reversed, a crossing that should not be made',
+    }
   - {
       id: hearth,
       face: { icon: 'game:campfire' },
       result: 'The Hearth, a welcome where none was looked for',
+      reversed: 'The Hearth reversed, a welcome that hides a knife',
     }
   - id: wyrm
     face: { icon: 'game:dragon-head', ink: red }
     result: The Wyrm, an old thing stirring
+    reversed: The Wyrm reversed, an old thing stirring in its sleep
     effects: { world.clocks.the-greywood-wyrm-wakes: 1 }
-  - { id: salt, face: { icon: 'game:crystal-cluster' }, result: 'The Salt, a promise that binds' }
-  - { id: thorn, face: { icon: 'game:barbed-wire' }, result: 'The Thorn, a friend who wounds' }
+  - {
+      id: salt,
+      face: { icon: 'game:crystal-cluster' },
+      result: 'The Salt, a promise that binds',
+      reversed: 'The Salt reversed, a promise broken',
+    }
+  - {
+      id: thorn,
+      face: { icon: 'game:barbed-wire' },
+      result: 'The Thorn, a friend who wounds',
+      reversed: 'The Thorn reversed, a wound that heals a friendship',
+    }
+---
+# What the Lantern means, by which way up it came out of the hedge-witch's deck.
+kind: table
+id: hedge-lantern
+tags: [omens]
+name: The Lantern
+description: |-
+  What the hedge-witch's Lantern means: upright, a safe way home (+1 morale); reversed, a light that leads astray (−1 morale).
+
+  **Shows:** a table that reads which way up the card that rolled it came out (`when: { reversed: true }`, `unless:`), with no dice: the first row that holds.
+entries:
+  - id: astray
+    result: a light that leads astray
+    when: { reversed: true }
+    effects: { party.stats.morale: -1 }
+  - id: home
+    result: a safe way home
+    unless: { reversed: true }
+    effects: { party.stats.morale: 1 }
 ---
 kind: generator
 id: hedge-reading

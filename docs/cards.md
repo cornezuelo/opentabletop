@@ -1,6 +1,6 @@
 # Cards on the table
 
-Proposed on autopilot (2026-11-27) after the author's "algo chulo al estilo de los dados pero para cartas" and "¿por qué el tarot es una tirada de dados 1d2?"; **to agree with the author** from an interactive mockup before any code (backlog, _Next_ step 4 (e)).
+Proposed on autopilot (2026-11-27) after the author's "algo chulo al estilo de los dados pero para cartas" and "¿por qué el tarot es una tirada de dados 1d2?", from an interactive mockup; **decided with the author the same day** ("está bastante guapo, lo único que haría es que el barajar se vea más visual… mínimo que se vean las cartas volver"): as proposed, with the shuffle made visible (backlog, _Next_ step 4 (e)).
 
 ## What there is
 
@@ -13,8 +13,8 @@ A deck's card already shows its face where it's drawn (ui-kit's `PlayingCard`: a
 3. **Where it plays:** the Oracle's **Draw**, always (as its **Roll**); a draw waiting for the player in a trip, on the same table as their dice; the computer's draw at an important moment, watched (dealt by itself, before the moment is told). Elsewhere (the journal, a result card) the card shows still, as today.
 4. **A spread** (a generator that deals a hand or the Celtic cross): its cards dealt face down to their places one after another, then turned by the player one by one, in any order, or **Turn all**; each card's text shows as it's turned. `across` cards lie across.
 5. **Without motion** (the player's preference or the system's reduce motion), the cards are shown turned over at once.
-6. **Shuffling** gathers the deck with a short riffle of its stack.
-7. **A back**: a default back drawn in the theme's colours; a deck may give its own (`face.back`, an image of its pack).
+6. **Shuffling** is seen (the author: "no tiene por qué ser totalmente realista, pero mínimo que se vean las cartas volver"): the cards drawn, on the table and in the pile, go back face down onto the deck, then the deck is split in two halves that riffle back together.
+7. **A back**: a default back drawn in the theme's colours; a deck may give its own (`back:`, an image of its pack).
 
 ## Cards drawn either way up (the engine)
 
@@ -29,8 +29,14 @@ A generic mechanism in place of a table rolled inside each card:
 
 An interactive mockup of the three tables (the player's tarot draw, the trip's draw watched, the Celtic cross dealt and turned) was shown to the author.
 
-## To decide with the author
+## Decided
 
-1. The look and feel of the table, from the mockup.
-2. Whether the Celtic cross' cards are turned by the player one by one (proposed) or all at once as they're dealt.
-3. Each tarot card's own reversed meaning (proposed), or one shared word (_reversed_) added to its upright text.
+1. The table and the back as in the mockup.
+2. A spread's cards are turned by the player one by one, in any order, or all with **Turn all**.
+3. Each tarot card gets its own reversed meaning.
+
+## Built
+
+2026-11-27: oracle-engine's `reversible` decks (`true` or `{ chance }`, decided with the `RandomSource` after the card), a card's `reversed` text (overlays' `reversed:`), `reversed` seen by what the card leads to and in its value, a deck's `back`; the deck form's **Its back**, **Either way up** and **Reversed text**; Core's tarot moved to it (_Which way up_ gone, 78 reversed meanings in en and es), the Grey Marches' hedge-witch's cards one in four reversed, the Lantern read by its way up (_The Lantern_), their own back. ui-kit's `CardDeal` (the card table: the deck, a click or a drag dealing one card, a spread dealt face down and turned card by card or all, watched draws, the gathering and the riffle, a swish under **Sounds on the table**) and `layCards` / `landAt`; the Oracle's **Draw** and **Shuffle** play on it, and an important moment's cards (travel-ui's `cardsToWatch`) are dealt before it's told.
+
+Not built: a trip never waits for the player's own draw (only for their rolls: travel-ui's `YourRoll`), so a draw waiting for the player in a trip (point 3) waits for that to exist; the computer's draws of a trip are dealt only at an important moment.

@@ -1,6 +1,13 @@
 import type { JournalEntry, SessionState } from '@open-tabletop/session'
 import { describe, expect, it } from 'vitest'
-import { journalBeats, lastNotableBeat, rollToWatch, tellBeat, type BeatTold } from './beats'
+import {
+  cardsToWatch,
+  journalBeats,
+  lastNotableBeat,
+  rollToWatch,
+  tellBeat,
+  type BeatTold,
+} from './beats'
 import { translator } from './i18n'
 import type { JournalContext } from './journal'
 
@@ -261,5 +268,41 @@ describe("an important moment's roll, to watch", () => {
     expect(rollToWatch(moment([die()]), Date.parse(at) + 60_000)).toBeUndefined()
     expect(rollToWatch(moment([die()], false), now)).toBeUndefined()
     expect(rollToWatch(moment([die(true)]), now)).toBeUndefined()
+  })
+})
+
+describe("an important moment's cards, to watch", () => {
+  const at = '2026-11-20T10:00:00.000Z'
+  const moment = (notable = true): BeatTold => ({
+    id: 'j1',
+    title: 'Omens',
+    lines: [
+      {
+        id: 'j2',
+        text: 'Scorched trees and a smell of sulphur',
+        notable,
+        level: 'story',
+        cards: [{ icon: 'game:dragon-head', ink: 'red' }],
+      },
+    ],
+    changes: [],
+    why: [],
+    notable,
+    first: { id: 'j1', at, time: 0, source: 'oracle', code: 'ORACLE_RESULT' },
+  })
+  const now = Date.parse(at) + 2000
+
+  it('are the cards of its important line, with its text, just now', () => {
+    expect(cardsToWatch(moment(), now)).toEqual([
+      {
+        face: { icon: 'game:dragon-head', ink: 'red' },
+        caption: 'Scorched trees and a smell of sulphur',
+      },
+    ])
+  })
+
+  it('never a moment reopened, nor one that isn’t important', () => {
+    expect(cardsToWatch(moment(), Date.parse(at) + 60_000)).toBeUndefined()
+    expect(cardsToWatch(moment(false), now)).toBeUndefined()
   })
 })

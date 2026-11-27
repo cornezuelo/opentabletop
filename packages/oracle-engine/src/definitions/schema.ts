@@ -211,6 +211,8 @@ const card = z
     face: cardFace.optional(),
     id,
     result: z.string().optional(),
+    /** Its text when it comes out reversed (a deck that's `reversible`); without one, `result`. */
+    reversed: z.string().optional(),
     table: ref.optional(),
     generator: ref.optional(),
     set: setValues.optional(),
@@ -227,10 +229,23 @@ export const deckSchema = z
     ...common,
     /** Every card's look; a card's own `face` adds to it. */
     face: cardFace.optional(),
+    /** Its cards' back on the card table, a pack's image (`<pack>/<path>`); none: the table's own. */
+    back: z.string().min(1).optional(),
     cards: z.array(card).min(1, 'a deck needs at least one card'),
     reshuffle: z.enum(['when-empty', 'manual', 'after-draw']).optional(),
+    /**
+     * Its cards come out either way up, decided as each is drawn: `true` half each, or the
+     * chance of coming out reversed (`{ chance: 0.25 }`). A reversed card is drawn upside down,
+     * reads its `reversed` text and sets `reversed: true` (else `false`) for what it leads to.
+     */
+    reversible: z
+      .union([z.boolean(), z.object({ chance: z.number().min(0).max(1) }).strict()])
+      .optional(),
   })
   .strict()
+  .refine((d) => d.reversible || d.cards.every((c) => c.reversed === undefined), {
+    message: 'only a reversible deck has cards with a reversed text',
+  })
 
 export const definitionSchema = z.discriminatedUnion('kind', [
   tableSchema,
@@ -312,6 +327,8 @@ export const overlaySchema = z.record(
       template: z.string().optional(),
       entries: z.record(z.string(), z.string()).optional(),
       cards: z.record(z.string(), z.string()).optional(),
+      /** Deck cards' reversed texts, by card id. */
+      reversed: z.record(z.string(), z.string()).optional(),
       /** Generator fields' fixed texts: { trap: ' Una trampa guarda la entrada.' }. */
       fields: z.record(z.string(), z.string()).optional(),
       /** Oracle input labels: { odds: { label: Probabilidad, labels: { even: Igualada } } }. */

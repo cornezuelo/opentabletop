@@ -3,6 +3,7 @@ import { render } from 'svelte/server'
 import { createMap } from '@open-tabletop/map'
 import { shownAt } from '@open-tabletop/session'
 import { beatsSeen, lastNotableBeat, pacing } from '@open-tabletop/travel-ui'
+import { dicePreferences } from '@open-tabletop/ui-kit'
 import PlayStrip from '../../components/PlayStrip.svelte'
 import PlayPanel from '../../components/PlayPanel.svelte'
 import { editor } from '../store/editor.svelte'
@@ -110,7 +111,13 @@ describe('important moments up front', () => {
       beat = lastNotableBeat(session())
     }
     expect(beat?.entries.some((e) => e.text?.includes('sulphur'))).toBe(true)
+    // Drawn just now by the trip, its card is dealt on the card table first, to be watched.
     let html = render(PlayStrip).body.replace(/<!--[^>]*-->/g, '')
+    expect(html).toContain('class="deal')
+    expect(html).not.toContain('class="notable')
+    // Then (here: cards that don't move) it's told.
+    dicePreferences.setAnimate(false)
+    html = render(PlayStrip).body.replace(/<!--[^>]*-->/g, '')
     // Told in full in the news' place, with × to put it away (nothing waits for it).
     expect(html).toContain('class="notable')
     expect(html).toContain('Scorched trees and a smell of sulphur')
@@ -131,6 +138,7 @@ describe('important moments up front', () => {
     expect(panel).toContain('class="moment')
     expect(panel).toContain('class="beat')
     expect(panel).toMatch(/aria-expanded="true"/)
+    dicePreferences.setAnimate(true)
     editor.switchMode('edit')
     vi.restoreAllMocks()
   })

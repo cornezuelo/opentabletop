@@ -300,3 +300,21 @@ export function rollToWatch(told: BeatTold, now: number): Dice | undefined {
   if (!dice?.length || dice.some((d) => d.byHand || !d.terms.length)) return undefined
   return dice
 }
+
+/**
+ * The cards the computer drew for an important moment, to deal on the card table and watch
+ * before it's told (docs/cards.md): those of its first important line that drew some, just now;
+ * the card's text is that line's (a hand's, its whole line, on its last card).
+ */
+export function cardsToWatch(
+  told: BeatTold,
+  now: number,
+): { face: Cards[number]; caption?: string }[] | undefined {
+  if (!told.notable || !(now - Date.parse(told.first.at) < FRESH_MS)) return undefined
+  const line = told.lines.find((l) => l.notable && l.cards?.length)
+  if (!line?.cards) return undefined
+  return line.cards.map((face, i, all) => ({
+    face,
+    ...(i === all.length - 1 && { caption: line.text }),
+  }))
+}

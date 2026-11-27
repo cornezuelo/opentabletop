@@ -366,7 +366,7 @@ export const es: Messages<typeof en> = {
     faceInks: { none: '—', black: 'Negro', red: 'Rojo', colour: 'Un color…' },
     faceTurned: 'Boca abajo cuando',
     faceTurnedHelp:
-      'Se dibuja boca abajo cuando esto se cumple sobre lo que pone la carta (sus propios valores y los de la tabla que tira), como una carta de tarot invertida:\n• `reversed: true` — si una tabla que tira pone `reversed: true` en una de sus filas\nVacío: siempre al derecho.',
+      'Se dibuja boca abajo cuando esto se cumple sobre lo que pone la carta (sus propios valores y los de la tabla que tira) y sobre lo que ve el robo. Las cartas invertidas de un mazo reversible ya salen boca abajo; esto es para otros motivos:\n• `world.clocks.doom: { gte: 4 }` — todas boca abajo mientras un reloj del mundo esté en 4 o más\n• `omen: bad` — cuando su tabla puso `omen: bad`\nVacío: solo cuando sale invertida.',
     facePreview: 'Así se ve',
     reshuffle: 'Barajar',
     reshuffleHelp:
@@ -376,6 +376,19 @@ export const es: Messages<typeof en> = {
       manual: 'Solo a mano',
       'after-draw': 'Tras cada robo',
     },
+    deckBack: 'Su dorso',
+    deckBackHelp:
+      'La imagen del dorso de sus cartas, boca abajo en la mesa antes de darles la vuelta: una imagen de un pack, por su nombre completo. Vacío, el dorso de la mesa:\n• `my-pack/cards/back.webp`',
+    reversible: 'De cualquier lado',
+    reversibleHelp:
+      'Si sus cartas salen al derecho o **invertidas**, decidido al robar cada una (como una carta de tarot). Una carta invertida se dibuja boca abajo, lee su **Texto invertido** (sin él, el de siempre) y lo que tira ve `reversed: true` (en las condiciones de una tabla, por ejemplo):\n• **Nunca** — siempre al derecho\n• **Mitad y mitad** — `reversible: true`\n• **25 %** — `reversible: { chance: 0.25 }`, una de cada cuatro invertida',
+    reversibleNever: 'Nunca',
+    reversibleHalf: 'Mitad y mitad',
+    reversibleChance: 'Otra probabilidad',
+    reversedChance: 'Probabilidad de invertida',
+    reversedText: 'Texto invertido',
+    reversedTextHelp:
+      'Lo que dice la carta cuando sale invertida; vacío, su texto de siempre:\n• `La Torre, invertida: el desastre se aplaza, de momento`',
     cards: 'Cartas ({count} en el mazo)',
     cardIdHelp:
       'Nombre estable de la carta, que usan las **traducciones** (`cards: { ace: … }`) y el registro de cartas robadas:\n• `ace-of-cups`',

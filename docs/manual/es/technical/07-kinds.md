@@ -129,29 +129,36 @@ cards:
 
 Cada carta necesita un `id` (lo usan las traducciones y el registro de cartas robadas). **Lo que ven las tablas:** los valores `set` de una carta, como los de una entrada; una tabla que tira una carta da su texto como `{{result}}`.
 
-**Caras.** Una carta robada se muestra como carta (en el Oráculo, en manos y tiradas, en el diario de un viaje) cuando tiene `face`: una imagen de un pack (`image`, por su nombre completo `<pack>/<ruta>`, un PNG, JPEG o WebP de un pack cargado), o una cara dibujada con sus partes: `corner` (el índice escrito en dos esquinas, hasta cuatro caracteres), `symbol` (un signo grande en el centro), `icon` (un icono incluido en el centro, `game:anchor`), `pips` (las dos mitades de un dominó, de 0 a 9 cada una) e `ink` (`red`, `black` o un color, `#2a5d8f`). `turned` es una [condición](08-conditions.md): la carta se dibuja boca abajo cuando se cumple sobre lo que pone la carta (con la tabla que tira) y sobre lo que ve el robo (un reloj, los valores de un viaje). Una `face` en el mazo es la de todas las cartas; la de cada carta se suma a ella. Una carta sin ninguna se cuenta solo con su texto.
+**Caras.** Una carta robada se muestra como carta (en el Oráculo, en manos y tiradas, en el diario de un viaje) cuando tiene `face`: una imagen de un pack (`image`, por su nombre completo `<pack>/<ruta>`, un PNG, JPEG o WebP de un pack cargado), o una cara dibujada con sus partes: `corner` (el índice escrito en dos esquinas, hasta cuatro caracteres), `symbol` (un signo grande en el centro), `icon` (un icono incluido en el centro, `game:anchor`), `pips` (las dos mitades de un dominó, de 0 a 9 cada una) e `ink` (`red`, `black` o un color, `#2a5d8f`). `turned` es una [condición](08-conditions.md): la carta se dibuja boca abajo cuando se cumple sobre lo que pone la carta (con la tabla que tira) y sobre lo que ve el robo (un reloj, los valores de un viaje); una carta del revés (abajo) sale boca abajo sin ella. Una `face` en el mazo es la de todas las cartas; la de cada carta se suma a ella. Una carta sin ninguna se cuenta solo con su texto.
 
 ```yaml
 kind: deck
 id: fates
-face: { ink: '#2a5d8f', turned: { reversed: true } } # la de todas
+face: { ink: '#2a5d8f', turned: { world.clocks.doom: { gte: 4 } } } # la de todas
 cards:
   - { id: king, result: El rey, face: { corner: K, symbol: '♚' } }
-  - {
-      id: tower,
-      result: 'La torre, {{result}}',
-      table: table.which-way,
-      face: { icon: 'game:stone-tower' },
-    }
+  - { id: tower, result: La torre, face: { icon: 'game:stone-tower' } }
   - { id: tile, result: 'Seis y tres', face: { pips: [6, 3], ink: black } }
+```
+
+**De cualquier lado.** Con `reversible`, las cartas de un mazo salen al derecho o **del revés**, decidido al robar cada una, como una carta de tarot: `reversible: true` es mitad y mitad, `reversible: { chance: 0.25 }` una de cada cuatro del revés (de `0`, nunca, a `1`, siempre). Una carta del revés se dibuja boca abajo y lee su texto `reversed` (su `result` si no lo tiene); lo que tira ve `reversed: true` (`false` si salió al derecho), así que una tabla que tira puede elegir por ello (`when: { reversed: true }`), y el resultado del robo lo lleva junto a `card`. Solo las cartas de un mazo reversible pueden tener texto `reversed`; las traducciones lo dan en el `reversed:` de la capa, por id de carta.
+
+```yaml
+kind: deck
+id: fortunes
+reversible: true # mitad al derecho, mitad del revés
+cards:
+  - { id: sun, result: 'El Sol: alegría', reversed: 'El Sol, del revés: alegría que tarda' }
+  - { id: lamp, result: 'La Lámpara, {{result}}', table: table.lamp }
 ---
 kind: table
-id: which-way
-roll: 1d2
-entries:
-  - { range: 1, result: al derecho }
-  - { range: 2, result: del revés, set: { reversed: true } } # lo que da la vuelta a la carta
+id: lamp
+entries: # sin dados: la primera fila que se cumple
+  - { result: una luz que extravía, when: { reversed: true } }
+  - { result: un camino seguro a casa, unless: { reversed: true } }
 ```
+
+**Su dorso.** `back:` da a las cartas de un mazo su propio dorso en la mesa de cartas, donde están boca abajo antes de darles la vuelta (una imagen de un pack, `back: my-pack/cards/back.webp`); sin él, el dorso de la mesa.
 
 Las imágenes propias de un pack van en su carpeta (`cards/fool.webp`) y se nombran con su id (`my-pack/cards/fool.webp`); ver [Packs](../packs/21-packs.md).
 

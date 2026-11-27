@@ -94,13 +94,51 @@ describe('the cards of the bundled packs', () => {
       }
   })
 
-  it('come out upright or reversed in the tarot, in the language played', () => {
-    const texts = Array.from({ length: 40 }, (_, i) => {
+  it('come out upright or reversed in the tarot, each its own meaning, in the language played', () => {
+    const drawn = Array.from({ length: 40 }, (_, i) => {
       const oracle = createOracleEngine({ registry, random: seeded(i), locale: 'es' })
-      return oracle.draw('core/tarot').resolution.text!
+      return oracle.draw('core/tarot').resolution
     })
-    expect(texts.some((t) => t.includes(', al derecho: '))).toBe(true)
-    expect(texts.some((t) => t.includes(', del revés: '))).toBe(true)
+    for (const d of drawn) expect(d.text!.includes(', del revés: ')).toBe(d.value.reversed)
+    expect(new Set(drawn.map((d) => d.value.reversed))).toEqual(new Set([true, false]))
+    // Every card has its reversed meaning, in both languages.
+    for (const locale of ['en', 'es']) {
+      const oracle = createOracleEngine({ registry, random: seeded(1), locale })
+      const reversed = new Set<string>()
+      let state = emptyState()
+      for (let i = 0; i < 78 * 12; i++) {
+        const { resolution, state: next } = oracle.draw('core/tarot', state)
+        state = next
+        if (resolution.value.reversed) reversed.add(resolution.value.card as string)
+        if (resolution.value.reversed)
+          expect(resolution.text).toMatch(locale === 'en' ? /, reversed: / : /, del revés: /)
+      }
+      expect(reversed.size).toBe(78)
+    }
+  })
+
+  it('the hedge-witch’s cards have a back of their own, a picture of the pack', () => {
+    const deck = registry.definitions.get('grey-marches/hedge-cards')
+    if (deck?.kind !== 'deck') throw new Error('hedge-cards')
+    expect(deck.back).toBe('grey-marches/art/cards/hedge-back.svg')
+    expect(packImage(registry, deck.back!)).toMatch(/^data:image\/svg\+xml/)
+  })
+
+  it('the hedge-witch’s Lantern means its way up: home, or astray', () => {
+    const lantern = new Map<boolean, string>()
+    for (let i = 0; i < 200 && lantern.size < 2; i++) {
+      const { resolution } = createOracleEngine({ registry, random: seeded(`l${i}`) }).draw(
+        'grey-marches/hedge-cards',
+        emptyState(),
+      )
+      if (resolution.value.card !== 'lantern') continue
+      lantern.set(resolution.value.reversed as boolean, resolution.text!)
+      const morale = (resolution.value.effects as Record<string, number>)['party.stats.morale']
+      expect(morale).toBe(resolution.value.reversed ? -1 : 1)
+      expect(!!resolution.face?.turned).toBe(resolution.value.reversed)
+    }
+    expect(lantern.get(true)).toBe('The Lantern, a light that leads astray')
+    expect(lantern.get(false)).toBe('The Lantern, a safe way home')
   })
 
   it('never repeat in a hand or a spread, dealt again and again', () => {

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { packImages } from '@open-tabletop/oracle-engine'
+  import { InfoTip, SuggestInput, tooltip } from '@open-tabletop/ui-kit'
   import { PairEditor } from '@open-tabletop/pack-ui'
   import { effectSuggestions, setSuggestions } from '@open-tabletop/session'
   import { insertIn, moveIn, removeIn, setIn } from '@open-tabletop/pack-ui/yaml'
@@ -16,6 +17,7 @@
   interface RawCard {
     id: string
     result?: string
+    reversed?: string
     table?: string
     generator?: string
     set?: unknown
@@ -36,6 +38,20 @@
   const effectHints = $derived(effectSuggestions(doc.ui.library.registry))
 
   const RESHUFFLES = ['when-empty', 'manual', 'after-draw'] as const
+  const images = $derived(packImages(doc.ui.library.registry).filter((r) => !/\.svg$/i.test(r)))
+
+  /** Either way up: never, half each, or another chance (as a percentage in the form). */
+  const reversible = $derived(doc.raw.reversible as boolean | { chance?: number } | undefined)
+  const way = $derived(!reversible ? 'never' : reversible === true ? 'half' : 'chance')
+  const chance = $derived(
+    typeof reversible === 'object' ? Math.round((reversible.chance ?? 0.5) * 100) : 50,
+  )
+  function setWay(value: string) {
+    doc.edit(
+      ['reversible'],
+      value === 'never' ? undefined : value === 'half' ? true : { chance: chance / 100 },
+    )
+  }
 
   const id = $derived(doc.def.localId)
   const cards = $derived((doc.raw.cards as RawCard[] | undefined) ?? [])
@@ -107,6 +123,51 @@
     </select>
   </label>
 
+  <div class="ways">
+    <div class="field back">
+      <span>{t('edit.deckBack')}<InfoTip text={t('edit.deckBackHelp')} /></span>
+      <SuggestInput
+        value={typeof doc.raw.back === 'string' ? doc.raw.back : ''}
+        list={images}
+        label={t('edit.deckBack')}
+        placeholder="my-pack/cards/back.webp"
+        disabled={doc.translating}
+        onchange={(v) => doc.edit(['back'], v.trim() || undefined)}
+      />
+    </div>
+    <label class="field">
+      <span>{t('edit.reversible')}<InfoTip text={t('edit.reversibleHelp')} /></span>
+      <select
+        value={way}
+        disabled={doc.translating}
+        onchange={(e) => setWay(e.currentTarget.value)}
+      >
+        <option value="never">{t('edit.reversibleNever')}</option>
+        <option value="half">{t('edit.reversibleHalf')}</option>
+        <option value="chance">{t('edit.reversibleChance')}</option>
+      </select>
+    </label>
+    {#if way === 'chance'}
+      <label class="field chance">
+        <span>{t('edit.reversedChance')}</span>
+        <span class="percent">
+          <input
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={chance}
+            disabled={doc.translating}
+            onchange={(e) => {
+              const n = Math.min(100, Math.max(0, Math.round(Number(e.currentTarget.value) || 0)))
+              doc.edit(['reversible'], { chance: n / 100 })
+            }}
+          />%
+        </span>
+      </label>
+    {/if}
+  </div>
+
   {#if !doc.translating}
     <details class="deck-face" bind:open={faceOpen}>
       <summary>{t('edit.deckFace')}<InfoTip text={t('edit.deckFaceHelp')} /></summary>
@@ -120,7 +181,10 @@
       <tr>
         <th>{t('edit.id')}<InfoTip text={t('edit.cardIdHelp')} /></th>
         <th>{t('edit.copies')}<InfoTip text={t('edit.copiesHelp')} /></th>
-        <th class="wide">{t('edit.cardText')}<InfoTip text={t('edit.resultHelp')} /></th>
+        <th class="wide"
+          >{t('edit.cardText')}<InfoTip text={t('edit.resultHelp')} />{#if reversible}
+            · {t('edit.reversedText')}<InfoTip text={t('edit.reversedTextHelp')} />{/if}</th
+        >
         <th>{t('edit.then')}<InfoTip text={t('edit.thenHelp')} /></th>
         <th></th>
       </tr>
@@ -164,6 +228,33 @@
                 value={card.result ?? ''}
                 onchange={(e) => edit(i, 'result', e.currentTarget.value)}
               />
+            {/if}
+            {#if reversible}
+              <!-- Its text when it comes out reversed. -->
+              <span class="reversed">
+                <span
+                  class="turn"
+                  aria-label={t('edit.reversedText')}
+                  use:tooltip={t('edit.reversedText')}>↻</span
+                >
+                {#if doc.translating}
+                  <input
+                    type="text"
+                    aria-label={t('edit.reversedText')}
+                    placeholder={card.reversed ?? ''}
+                    value={doc.overlayText(['reversed', card.id])}
+                    onchange={(e) => doc.translate(['reversed', card.id], e.currentTarget.value)}
+                  />
+                {:else}
+                  <input
+                    type="text"
+                    aria-label={t('edit.reversedText')}
+                    placeholder={t('edit.reversedText')}
+                    value={card.reversed ?? ''}
+                    onchange={(e) => edit(i, 'reversed', e.currentTarget.value || undefined)}
+                  />
+                {/if}
+              </span>
             {/if}
             {#if (card.set !== undefined || card.effects !== undefined || card.face !== undefined || card.pause || card.notable !== undefined) && !open[i]}
               <small class="note">{t('edit.advanced')}</small>
@@ -346,6 +437,46 @@
 
   .reshuffle {
     width: 220px;
+  }
+
+  .ways {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: end;
+  }
+
+  .ways .field {
+    width: 220px;
+  }
+
+  .ways .back {
+    width: 260px;
+  }
+
+  .ways .chance {
+    width: auto;
+  }
+
+  .percent {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .percent input {
+    width: 70px;
+  }
+
+  .reversed {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-top: 3px;
+  }
+
+  .reversed .turn {
+    color: var(--text-muted);
   }
 
   table {

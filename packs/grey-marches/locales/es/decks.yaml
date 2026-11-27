@@ -28,15 +28,33 @@ hedge-cards:
     **Enseña:**
 
     - Cartas con **efectos** sobre el grupo y sobre un reloj de progreso, para que las reparta un generador
-    - **Caras** que se dan la vuelta: cada carta sale **boca abajo** mientras la Sierpe está a punto de despertar (`turned` lee el reloj), así que una lectura se ve tan mala como es
+    - Cartas que salen **de cualquier lado**, una de cada cuatro del revés (`reversible: { chance: 0.25 }`): una carta del revés queda boca abajo y dice su texto **del revés** (`reversed:`), y la tabla del Farol lee de qué lado salió (`when: { reversed: true }`): del revés, extravía a la Compañía y le cuesta moral en vez de dársela
+    - Un **dorso** propio (`back:`, un SVG del pack), con las cartas boca abajo en la mesa de cartas antes de darles la vuelta
+    - **Caras** que se dan la vuelta también por otro motivo: cada carta sale **boca abajo** mientras la Sierpe está a punto de despertar (`turned` lee el reloj), así que una lectura se ve tan mala como es
   cards:
-    lantern: El Farol, un camino seguro a casa
+    lantern: 'El Farol, {{result}}'
     crow: El Cuervo, un aviso que llega tarde
     ford: El Vado, una travesía con un precio
     hearth: El Hogar, una acogida inesperada
     wyrm: La Sierpe, algo antiguo que despierta
     salt: La Sal, una promesa que ata
     thorn: La Espina, un amigo que hiere
+  reversed:
+    crow: El Cuervo del revés, un aviso atendido a tiempo
+    ford: El Vado del revés, una travesía que no debe hacerse
+    hearth: El Hogar del revés, una acogida que esconde un cuchillo
+    wyrm: La Sierpe del revés, algo antiguo que se agita en sueños
+    salt: La Sal del revés, una promesa rota
+    thorn: La Espina del revés, una herida que cura una amistad
+hedge-lantern:
+  name: El Farol
+  description: |-
+    Lo que significa el Farol de la bruja de los setos: al derecho, un camino seguro a casa (+1 de moral); del revés, una luz que extravía (−1 de moral).
+
+    **Enseña:** una tabla que lee de qué lado salió la carta que la tiró (`when: { reversed: true }`, `unless:`), sin dados: la primera fila que se cumple.
+  entries:
+    astray: una luz que extravía
+    home: un camino seguro a casa
 hedge-reading:
   name: La lectura de la bruja de los setos
   description: |-

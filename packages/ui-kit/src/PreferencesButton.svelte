@@ -43,11 +43,12 @@
         silverbullet: { baseUrl: 'SilverBullet URL' },
         obsidian: { vault: 'Vault name' },
       },
-      dice: 'Dice tumble as they’re rolled',
+      dice: 'Dice and cards move',
       diceHelp:
-        'A roll just made shows its dice tumbling for a moment before they settle, and a roll of yours is thrown across a table. Off, they show at once; they never move when your system asks to reduce motion.',
-      diceSound: 'Dice knock on the table',
-      diceSoundHelp: 'A thrown die is heard as it bounces. Off, the throw is silent.',
+        'A roll just made shows its dice tumbling for a moment before they settle, and a roll of yours is thrown across a table; a card drawn is dealt from its deck and turned over, and a shuffle is seen. Off, they show at once; they never move when your system asks to reduce motion.',
+      diceSound: 'Sounds on the table',
+      diceSoundHelp:
+        'A thrown die is heard as it bounces, a card as it’s dealt, turned or shuffled. Off, the table is silent.',
       rolls: 'Who rolls the dice',
       rollsHelp:
         'In every trip and scene: the computer rolls everything; you roll your own rolls (the party’s turns in a fight, a check that stops the trip, a table that can give an important result); the foes’ turns too; or everything, an action’s own dice too. A roll of yours waits for the total of your own dice, or is thrown on screen.',
@@ -74,11 +75,12 @@
         silverbullet: { baseUrl: 'URL de SilverBullet' },
         obsidian: { vault: 'Nombre de la bóveda' },
       },
-      dice: 'Los dados ruedan al tirarlos',
+      dice: 'Los dados y las cartas se mueven',
       diceHelp:
-        'Una tirada recién hecha muestra sus dados rodando un momento antes de quedarse quietos, y una tirada tuya se lanza sobre una mesa. Desmarcado, salen al instante; nunca se mueven si tu sistema pide reducir el movimiento.',
-      diceSound: 'Los dados suenan en la mesa',
-      diceSoundHelp: 'Un dado lanzado se oye al rebotar. Desmarcado, el lanzamiento es silencioso.',
+        'Una tirada recién hecha muestra sus dados rodando un momento antes de quedarse quietos, y una tirada tuya se lanza sobre una mesa; una carta robada se reparte desde su mazo y se le da la vuelta, y se ve barajar. Desmarcado, salen al instante; nunca se mueven si tu sistema pide reducir el movimiento.',
+      diceSound: 'Sonidos de la mesa',
+      diceSoundHelp:
+        'Un dado lanzado se oye al rebotar, y una carta al repartirla, darle la vuelta o barajar. Desmarcado, la mesa está en silencio.',
       rolls: 'Quién tira los dados',
       rollsHelp:
         'En todos los viajes y escenas: el ordenador lo tira todo; tú tiras tus tiradas (los turnos del grupo en un combate, una comprobación que detiene el viaje, una tabla que puede dar un resultado importante); también los turnos de los enemigos; o lo tiras todo, también los dados de las acciones. Una tirada tuya espera el total de tus propios dados, o se lanza en pantalla.',

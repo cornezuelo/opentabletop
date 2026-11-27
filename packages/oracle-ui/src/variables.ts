@@ -110,7 +110,12 @@ export function contextVariables(registry: Registry, id: string): Variable[] {
         }
         break
       case 'deck':
-        for (const card of def.cards) follow(card.ref)
+        for (const card of def.cards) {
+          follow(card.ref)
+          for (const key of Object.keys(card.set ?? {})) produced.add(key)
+        }
+        // A reversible deck's card says which way up it came, for what it leads to.
+        if (def.reversible !== undefined) produced.add('reversed')
         break
     }
   }

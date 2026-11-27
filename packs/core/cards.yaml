@@ -586,573 +586,563 @@ cards:
       set: { suit: clubs, rank: 12 },
     }
 ---
-kind: table
-id: tarot-way
-tags: [cards]
-name: Which way up
-description: |-
-  How a _Tarot_ card comes out. **Upright**, it means what it says; **reversed**, the same thing blocked, late, turned inward or gone too far.
-roll: 1d2
-entries:
-  - { id: upright, range: 1, result: upright }
-  - { id: reversed, range: 2, result: reversed, set: { reversed: true } }
----
 kind: deck
 id: tarot
 tags: [cards]
 name: Tarot
 description: |-
-  The **tarot** of 78 cards: the 22 of the major arcana and the four suits of the minor ones, each comes out upright or reversed (_Which way up_). Read what it says freely, for a scene, a person or a place.
+  The **tarot** of 78 cards: the 22 of the major arcana and the four suits of the minor ones, each comes out upright or reversed as it's drawn, with a meaning for each. Read what it says freely, for a scene, a person or a place.
 
   Each card sets its `arcana` (`major` or `minor`) and its `rank` (the major arcana 0 to 21; the minor ones ace 1, page 11, knight 12, queen 13, king 14), and a minor card its `suit` (`wands`, `cups`, `swords` or `pentacles`).
 reshuffle: when-empty
-# Drawn reversed (_Which way up_ sets `reversed`), its picture is upside down.
-face: { turned: { reversed: true } }
+# Each card comes out upright or reversed, half each: reversed, its picture is upside down
+# and it reads its `reversed` text.
+reversible: true
 cards:
   - {
       id: fool,
       face: { image: core/cards/tarot/fool.webp },
-      result: 'The Fool, {{result}}: a leap into the unknown',
-      table: table.tarot-way,
+      result: 'The Fool: a leap into the unknown',
+      reversed: 'The Fool, reversed: recklessness, a fall nobody saw coming',
       set: { arcana: major, rank: 0 },
     }
   - {
       id: magician,
       face: { image: core/cards/tarot/magician.webp },
-      result: 'The Magician, {{result}}: skill and will at work',
-      table: table.tarot-way,
+      result: 'The Magician: skill and will at work',
+      reversed: 'The Magician, reversed: tricks, talent wasted',
       set: { arcana: major, rank: 1 },
     }
   - {
       id: high-priestess,
       face: { image: core/cards/tarot/high-priestess.webp },
-      result: 'The High Priestess, {{result}}: a secret kept, a truth felt',
-      table: table.tarot-way,
+      result: 'The High Priestess: a secret kept, a truth felt',
+      reversed: 'The High Priestess, reversed: a secret out, a voice ignored',
       set: { arcana: major, rank: 2 },
     }
   - {
       id: empress,
       face: { image: core/cards/tarot/empress.webp },
-      result: 'The Empress, {{result}}: abundance and care',
-      table: table.tarot-way,
+      result: 'The Empress: abundance and care',
+      reversed: 'The Empress, reversed: smothering care, need',
       set: { arcana: major, rank: 3 },
     }
   - {
       id: emperor,
       face: { image: core/cards/tarot/emperor.webp },
-      result: 'The Emperor, {{result}}: order, rule and authority',
-      table: table.tarot-way,
+      result: 'The Emperor: order, rule and authority',
+      reversed: 'The Emperor, reversed: tyranny, or no rule at all',
       set: { arcana: major, rank: 4 },
     }
   - {
       id: hierophant,
       face: { image: core/cards/tarot/hierophant.webp },
-      result: 'The Hierophant, {{result}}: tradition and its teachers',
-      table: table.tarot-way,
+      result: 'The Hierophant: tradition and its teachers',
+      reversed: 'The Hierophant, reversed: dogma, rules followed blindly',
       set: { arcana: major, rank: 5 },
     }
   - {
       id: lovers,
       face: { image: core/cards/tarot/lovers.webp },
-      result: 'The Lovers, {{result}}: a bond and a choice',
-      table: table.tarot-way,
+      result: 'The Lovers: a bond and a choice',
+      reversed: 'The Lovers, reversed: a bond broken, a choice put off',
       set: { arcana: major, rank: 6 },
     }
   - {
       id: chariot,
       face: { image: core/cards/tarot/chariot.webp },
-      result: 'The Chariot, {{result}}: victory by drive and control',
-      table: table.tarot-way,
+      result: 'The Chariot: victory by drive and control',
+      reversed: 'The Chariot, reversed: a runaway charge, control lost',
       set: { arcana: major, rank: 7 },
     }
   - {
       id: strength,
       face: { image: core/cards/tarot/strength.webp },
-      result: 'Strength, {{result}}: courage and patience, not force',
-      table: table.tarot-way,
+      result: 'Strength: courage and patience, not force',
+      reversed: 'Strength, reversed: doubt, courage failing',
       set: { arcana: major, rank: 8 },
     }
   - {
       id: hermit,
       face: { image: core/cards/tarot/hermit.webp },
-      result: 'The Hermit, {{result}}: searching alone, a light in the dark',
-      table: table.tarot-way,
+      result: 'The Hermit: searching alone, a light in the dark',
+      reversed: 'The Hermit, reversed: lost in solitude, shutting others out',
       set: { arcana: major, rank: 9 },
     }
   - {
       id: wheel,
       face: { image: core/cards/tarot/wheel.webp },
-      result: 'The Wheel of Fortune, {{result}}: luck turns',
-      table: table.tarot-way,
+      result: 'The Wheel of Fortune: luck turns',
+      reversed: 'The Wheel of Fortune, reversed: bad luck, a turn resisted',
       set: { arcana: major, rank: 10 },
     }
   - {
       id: justice,
       face: { image: core/cards/tarot/justice.webp },
-      result: 'Justice, {{result}}: a fair judgment, a debt paid',
-      table: table.tarot-way,
+      result: 'Justice: a fair judgment, a debt paid',
+      reversed: 'Justice, reversed: an unfair judgment, a debt dodged',
       set: { arcana: major, rank: 11 },
     }
   - {
       id: hanged-man,
       face: { image: core/cards/tarot/hanged-man.webp },
-      result: 'The Hanged Man, {{result}}: a sacrifice, seeing things differently',
-      table: table.tarot-way,
+      result: 'The Hanged Man: a sacrifice, seeing things differently',
+      reversed: 'The Hanged Man, reversed: a sacrifice for nothing, stalling',
       set: { arcana: major, rank: 12 },
     }
   - {
       id: death,
       face: { image: core/cards/tarot/death.webp },
-      result: 'Death, {{result}}: an ending that makes room',
-      table: table.tarot-way,
+      result: 'Death: an ending that makes room',
+      reversed: 'Death, reversed: an ending refused, clinging on',
       set: { arcana: major, rank: 13 },
     }
   - {
       id: temperance,
       face: { image: core/cards/tarot/temperance.webp },
-      result: 'Temperance, {{result}}: balance and mixing opposites',
-      table: table.tarot-way,
+      result: 'Temperance: balance and mixing opposites',
+      reversed: 'Temperance, reversed: excess, things out of balance',
       set: { arcana: major, rank: 14 },
     }
   - {
       id: devil,
       face: { image: core/cards/tarot/devil.webp },
-      result: 'The Devil, {{result}}: chains, temptation, a bad bargain',
-      table: table.tarot-way,
+      result: 'The Devil: chains, temptation, a bad bargain',
+      reversed: 'The Devil, reversed: chains broken, a temptation resisted',
       set: { arcana: major, rank: 15 },
     }
   - {
       id: tower,
       face: { image: core/cards/tarot/tower.webp },
-      result: 'The Tower, {{result}}: sudden collapse, a harsh truth',
-      table: table.tarot-way,
+      result: 'The Tower: sudden collapse, a harsh truth',
+      reversed: 'The Tower, reversed: disaster put off, for now',
       set: { arcana: major, rank: 16 },
     }
   - {
       id: star,
       face: { image: core/cards/tarot/star.webp },
-      result: 'The Star, {{result}}: hope and healing',
-      table: table.tarot-way,
+      result: 'The Star: hope and healing',
+      reversed: 'The Star, reversed: hope lost, faith tested',
       set: { arcana: major, rank: 17 },
     }
   - {
       id: moon,
       face: { image: core/cards/tarot/moon.webp },
-      result: 'The Moon, {{result}}: fear, illusion, the hidden path',
-      table: table.tarot-way,
+      result: 'The Moon: fear, illusion, the hidden path',
+      reversed: 'The Moon, reversed: the fog lifting, a fear faced',
       set: { arcana: major, rank: 18 },
     }
   - {
       id: sun,
       face: { image: core/cards/tarot/sun.webp },
-      result: 'The Sun, {{result}}: joy, clarity, success',
-      table: table.tarot-way,
+      result: 'The Sun: joy, clarity, success',
+      reversed: 'The Sun, reversed: joy delayed, a cloud over it',
       set: { arcana: major, rank: 19 },
     }
   - {
       id: judgement,
       face: { image: core/cards/tarot/judgement.webp },
-      result: 'Judgement, {{result}}: a call, a reckoning, a second chance',
-      table: table.tarot-way,
+      result: 'Judgement: a call, a reckoning, a second chance',
+      reversed: 'Judgement, reversed: a call ignored, self-doubt',
       set: { arcana: major, rank: 20 },
     }
   - {
       id: world,
       face: { image: core/cards/tarot/world.webp },
-      result: 'The World, {{result}}: completion, a journey ended',
-      table: table.tarot-way,
+      result: 'The World: completion, a journey ended',
+      reversed: 'The World, reversed: something unfinished, a last step missing',
       set: { arcana: major, rank: 21 },
     }
   - {
       id: wands-ace,
       face: { image: core/cards/tarot/wands-ace.webp },
-      result: 'Ace of Wands, {{result}}: a spark, a bold beginning',
-      table: table.tarot-way,
+      result: 'Ace of Wands: a spark, a bold beginning',
+      reversed: 'Ace of Wands, reversed: a false start, a spark that dies',
       set: { arcana: minor, suit: wands, rank: 1 },
     }
   - {
       id: wands-2,
       face: { image: core/cards/tarot/wands-2.webp },
-      result: 'Two of Wands, {{result}}: a plan, looking beyond the walls',
-      table: table.tarot-way,
+      result: 'Two of Wands: a plan, looking beyond the walls',
+      reversed: 'Two of Wands, reversed: fear of the unknown, a plan that stays home',
       set: { arcana: minor, suit: wands, rank: 2 },
     }
   - {
       id: wands-3,
       face: { image: core/cards/tarot/wands-3.webp },
-      result: 'Three of Wands, {{result}}: help on the way, ships coming in',
-      table: table.tarot-way,
+      result: 'Three of Wands: help on the way, ships coming in',
+      reversed: "Three of Wands, reversed: delays, help that doesn't come",
       set: { arcana: minor, suit: wands, rank: 3 },
     }
   - {
       id: wands-4,
       face: { image: core/cards/tarot/wands-4.webp },
-      result: 'Four of Wands, {{result}}: a homecoming, a feast',
-      table: table.tarot-way,
+      result: 'Four of Wands: a homecoming, a feast',
+      reversed: 'Four of Wands, reversed: an unwelcome home, a feast cut short',
       set: { arcana: minor, suit: wands, rank: 4 },
     }
   - {
       id: wands-5,
       face: { image: core/cards/tarot/wands-5.webp },
-      result: 'Five of Wands, {{result}}: a brawl, rivals at odds',
-      table: table.tarot-way,
+      result: 'Five of Wands: a brawl, rivals at odds',
+      reversed: 'Five of Wands, reversed: a quarrel avoided, or one that turns ugly',
       set: { arcana: minor, suit: wands, rank: 5 },
     }
   - {
       id: wands-6,
       face: { image: core/cards/tarot/wands-6.webp },
-      result: 'Six of Wands, {{result}}: a victory parade',
-      table: table.tarot-way,
+      result: 'Six of Wands: a victory parade',
+      reversed: 'Six of Wands, reversed: a fall from grace, pride wounded',
       set: { arcana: minor, suit: wands, rank: 6 },
     }
   - {
       id: wands-7,
       face: { image: core/cards/tarot/wands-7.webp },
-      result: 'Seven of Wands, {{result}}: holding the high ground',
-      table: table.tarot-way,
+      result: 'Seven of Wands: holding the high ground',
+      reversed: 'Seven of Wands, reversed: giving ground, overwhelmed',
       set: { arcana: minor, suit: wands, rank: 7 },
     }
   - {
       id: wands-8,
       face: { image: core/cards/tarot/wands-8.webp },
-      result: 'Eight of Wands, {{result}}: swift news, things speed up',
-      table: table.tarot-way,
+      result: 'Eight of Wands: swift news, things speed up',
+      reversed: 'Eight of Wands, reversed: delays, news that goes astray',
       set: { arcana: minor, suit: wands, rank: 8 },
     }
   - {
       id: wands-9,
       face: { image: core/cards/tarot/wands-9.webp },
-      result: 'Nine of Wands, {{result}}: wounded but standing guard',
-      table: table.tarot-way,
+      result: 'Nine of Wands: wounded but standing guard',
+      reversed: 'Nine of Wands, reversed: exhausted, guard dropped',
       set: { arcana: minor, suit: wands, rank: 9 },
     }
   - {
       id: wands-10,
       face: { image: core/cards/tarot/wands-10.webp },
-      result: 'Ten of Wands, {{result}}: a burden too heavy',
-      table: table.tarot-way,
+      result: 'Ten of Wands: a burden too heavy',
+      reversed: 'Ten of Wands, reversed: setting the burden down, or crushed by it',
       set: { arcana: minor, suit: wands, rank: 10 },
     }
   - {
       id: wands-page,
       face: { image: core/cards/tarot/wands-page.webp },
-      result: 'Page of Wands, {{result}}: an eager messenger',
-      table: table.tarot-way,
+      result: 'Page of Wands: an eager messenger',
+      reversed: 'Page of Wands, reversed: bad news, a message lost',
       set: { arcana: minor, suit: wands, rank: 11 },
     }
   - {
       id: wands-knight,
       face: { image: core/cards/tarot/wands-knight.webp },
-      result: 'Knight of Wands, {{result}}: a daring rider, reckless haste',
-      table: table.tarot-way,
+      result: 'Knight of Wands: a daring rider, reckless haste',
+      reversed: 'Knight of Wands, reversed: haste that ends in a fall',
       set: { arcana: minor, suit: wands, rank: 12 },
     }
   - {
       id: wands-queen,
       face: { image: core/cards/tarot/wands-queen.webp },
-      result: 'Queen of Wands, {{result}}: a confident host, warm and fierce',
-      table: table.tarot-way,
+      result: 'Queen of Wands: a confident host, warm and fierce',
+      reversed: 'Queen of Wands, reversed: jealousy, a temper flaring',
       set: { arcana: minor, suit: wands, rank: 13 },
     }
   - {
       id: wands-king,
       face: { image: core/cards/tarot/wands-king.webp },
-      result: 'King of Wands, {{result}}: a bold leader',
-      table: table.tarot-way,
+      result: 'King of Wands: a bold leader',
+      reversed: 'King of Wands, reversed: an overbearing leader, rash orders',
       set: { arcana: minor, suit: wands, rank: 14 },
     }
   - {
       id: cups-ace,
       face: { image: core/cards/tarot/cups-ace.webp },
-      result: 'Ace of Cups, {{result}}: love, a heart filling up',
-      table: table.tarot-way,
+      result: 'Ace of Cups: love, a heart filling up',
+      reversed: 'Ace of Cups, reversed: love held back, an empty heart',
       set: { arcana: minor, suit: cups, rank: 1 },
     }
   - {
       id: cups-2,
       face: { image: core/cards/tarot/cups-2.webp },
-      result: 'Two of Cups, {{result}}: a pact between two',
-      table: table.tarot-way,
+      result: 'Two of Cups: a pact between two',
+      reversed: 'Two of Cups, reversed: a pact broken, two drifting apart',
       set: { arcana: minor, suit: cups, rank: 2 },
     }
   - {
       id: cups-3,
       face: { image: core/cards/tarot/cups-3.webp },
-      result: 'Three of Cups, {{result}}: friends raising a toast',
-      table: table.tarot-way,
+      result: 'Three of Cups: friends raising a toast',
+      reversed: 'Three of Cups, reversed: gossip, a party gone too far',
       set: { arcana: minor, suit: cups, rank: 3 },
     }
   - {
       id: cups-4,
       face: { image: core/cards/tarot/cups-4.webp },
-      result: 'Four of Cups, {{result}}: boredom, an offer ignored',
-      table: table.tarot-way,
+      result: 'Four of Cups: boredom, an offer ignored',
+      reversed: 'Four of Cups, reversed: a new interest, waking up',
       set: { arcana: minor, suit: cups, rank: 4 },
     }
   - {
       id: cups-5,
       face: { image: core/cards/tarot/cups-5.webp },
-      result: 'Five of Cups, {{result}}: grief over what was spilled',
-      table: table.tarot-way,
+      result: 'Five of Cups: grief over what was spilled',
+      reversed: "Five of Cups, reversed: moving on, finding what's left",
       set: { arcana: minor, suit: cups, rank: 5 },
     }
   - {
       id: cups-6,
       face: { image: core/cards/tarot/cups-6.webp },
-      result: 'Six of Cups, {{result}}: an old memory, a childhood friend',
-      table: table.tarot-way,
+      result: 'Six of Cups: an old memory, a childhood friend',
+      reversed: 'Six of Cups, reversed: stuck in the past',
       set: { arcana: minor, suit: cups, rank: 6 },
     }
   - {
       id: cups-7,
       face: { image: core/cards/tarot/cups-7.webp },
-      result: 'Seven of Cups, {{result}}: daydreams, too many choices',
-      table: table.tarot-way,
+      result: 'Seven of Cups: daydreams, too many choices',
+      reversed: 'Seven of Cups, reversed: clarity, one choice made',
       set: { arcana: minor, suit: cups, rank: 7 },
     }
   - {
       id: cups-8,
       face: { image: core/cards/tarot/cups-8.webp },
-      result: 'Eight of Cups, {{result}}: walking away from it all',
-      table: table.tarot-way,
+      result: 'Eight of Cups: walking away from it all',
+      reversed: 'Eight of Cups, reversed: afraid to leave, drifting back',
       set: { arcana: minor, suit: cups, rank: 8 },
     }
   - {
       id: cups-9,
       face: { image: core/cards/tarot/cups-9.webp },
-      result: 'Nine of Cups, {{result}}: a wish granted',
-      table: table.tarot-way,
+      result: 'Nine of Cups: a wish granted',
+      reversed: 'Nine of Cups, reversed: a wish that sours, smugness',
       set: { arcana: minor, suit: cups, rank: 9 },
     }
   - {
       id: cups-10,
       face: { image: core/cards/tarot/cups-10.webp },
-      result: 'Ten of Cups, {{result}}: a happy home',
-      table: table.tarot-way,
+      result: 'Ten of Cups: a happy home',
+      reversed: 'Ten of Cups, reversed: a home divided, a quarrel in the family',
       set: { arcana: minor, suit: cups, rank: 10 },
     }
   - {
       id: cups-page,
       face: { image: core/cards/tarot/cups-page.webp },
-      result: 'Page of Cups, {{result}}: a dreamer with a strange message',
-      table: table.tarot-way,
+      result: 'Page of Cups: a dreamer with a strange message',
+      reversed: 'Page of Cups, reversed: a childish dreamer, a message misread',
       set: { arcana: minor, suit: cups, rank: 11 },
     }
   - {
       id: cups-knight,
       face: { image: core/cards/tarot/cups-knight.webp },
-      result: 'Knight of Cups, {{result}}: a charming envoy',
-      table: table.tarot-way,
+      result: 'Knight of Cups: a charming envoy',
+      reversed: 'Knight of Cups, reversed: a flatterer, promises not kept',
       set: { arcana: minor, suit: cups, rank: 12 },
     }
   - {
       id: cups-queen,
       face: { image: core/cards/tarot/cups-queen.webp },
-      result: 'Queen of Cups, {{result}}: a kind and knowing healer',
-      table: table.tarot-way,
+      result: 'Queen of Cups: a kind and knowing healer',
+      reversed: 'Queen of Cups, reversed: cold, giving too much and getting nothing',
       set: { arcana: minor, suit: cups, rank: 13 },
     }
   - {
       id: cups-king,
       face: { image: core/cards/tarot/cups-king.webp },
-      result: 'King of Cups, {{result}}: a calm hand in rough water',
-      table: table.tarot-way,
+      result: 'King of Cups: a calm hand in rough water',
+      reversed: "King of Cups, reversed: moods, a hand that can't steady anything",
       set: { arcana: minor, suit: cups, rank: 14 },
     }
   - {
       id: swords-ace,
       face: { image: core/cards/tarot/swords-ace.webp },
-      result: 'Ace of Swords, {{result}}: a truth that cuts',
-      table: table.tarot-way,
+      result: 'Ace of Swords: a truth that cuts',
+      reversed: 'Ace of Swords, reversed: confusion, a truth twisted',
       set: { arcana: minor, suit: swords, rank: 1 },
     }
   - {
       id: swords-2,
       face: { image: core/cards/tarot/swords-2.webp },
-      result: 'Two of Swords, {{result}}: a stalemate, eyes shut',
-      table: table.tarot-way,
+      result: 'Two of Swords: a stalemate, eyes shut',
+      reversed: 'Two of Swords, reversed: the truth seen at last, a choice forced',
       set: { arcana: minor, suit: swords, rank: 2 },
     }
   - {
       id: swords-3,
       face: { image: core/cards/tarot/swords-3.webp },
-      result: 'Three of Swords, {{result}}: heartbreak, a betrayal',
-      table: table.tarot-way,
+      result: 'Three of Swords: heartbreak, a betrayal',
+      reversed: 'Three of Swords, reversed: healing slowly, forgiving',
       set: { arcana: minor, suit: swords, rank: 3 },
     }
   - {
       id: swords-4,
       face: { image: core/cards/tarot/swords-4.webp },
-      result: 'Four of Swords, {{result}}: rest after the fight',
-      table: table.tarot-way,
+      result: 'Four of Swords: rest after the fight',
+      reversed: 'Four of Swords, reversed: restless, back to the fight too soon',
       set: { arcana: minor, suit: swords, rank: 4 },
     }
   - {
       id: swords-5,
       face: { image: core/cards/tarot/swords-5.webp },
-      result: 'Five of Swords, {{result}}: a hollow victory',
-      table: table.tarot-way,
+      result: 'Five of Swords: a hollow victory',
+      reversed: 'Five of Swords, reversed: making amends, a fight let go',
       set: { arcana: minor, suit: swords, rank: 5 },
     }
   - {
       id: swords-6,
       face: { image: core/cards/tarot/swords-6.webp },
-      result: 'Six of Swords, {{result}}: leaving troubles behind, a crossing',
-      table: table.tarot-way,
+      result: 'Six of Swords: leaving troubles behind, a crossing',
+      reversed: 'Six of Swords, reversed: a crossing that turns back, troubles that follow',
       set: { arcana: minor, suit: swords, rank: 6 },
     }
   - {
       id: swords-7,
       face: { image: core/cards/tarot/swords-7.webp },
-      result: 'Seven of Swords, {{result}}: theft, a plan in the shadows',
-      table: table.tarot-way,
+      result: 'Seven of Swords: theft, a plan in the shadows',
+      reversed: 'Seven of Swords, reversed: caught out, a confession',
       set: { arcana: minor, suit: swords, rank: 7 },
     }
   - {
       id: swords-8,
       face: { image: core/cards/tarot/swords-8.webp },
-      result: 'Eight of Swords, {{result}}: bound by fear',
-      table: table.tarot-way,
+      result: 'Eight of Swords: bound by fear',
+      reversed: 'Eight of Swords, reversed: free at last, the bonds were loose',
       set: { arcana: minor, suit: swords, rank: 8 },
     }
   - {
       id: swords-9,
       face: { image: core/cards/tarot/swords-9.webp },
-      result: 'Nine of Swords, {{result}}: sleepless dread',
-      table: table.tarot-way,
+      result: 'Nine of Swords: sleepless dread',
+      reversed: 'Nine of Swords, reversed: the dawn after the dread',
       set: { arcana: minor, suit: swords, rank: 9 },
     }
   - {
       id: swords-10,
       face: { image: core/cards/tarot/swords-10.webp },
-      result: 'Ten of Swords, {{result}}: ruin, the worst has passed',
-      table: table.tarot-way,
+      result: 'Ten of Swords: ruin, the worst has passed',
+      reversed: 'Ten of Swords, reversed: the ruin still to come, no getting up',
       set: { arcana: minor, suit: swords, rank: 10 },
     }
   - {
       id: swords-page,
       face: { image: core/cards/tarot/swords-page.webp },
-      result: 'Page of Swords, {{result}}: a spy, sharp and curious',
-      table: table.tarot-way,
+      result: 'Page of Swords: a spy, sharp and curious',
+      reversed: 'Page of Swords, reversed: idle gossip, prying',
       set: { arcana: minor, suit: swords, rank: 11 },
     }
   - {
       id: swords-knight,
       face: { image: core/cards/tarot/swords-knight.webp },
-      result: 'Knight of Swords, {{result}}: a charge without thinking',
-      table: table.tarot-way,
+      result: 'Knight of Swords: a charge without thinking',
+      reversed: 'Knight of Swords, reversed: a charge that stalls, words before thought',
       set: { arcana: minor, suit: swords, rank: 12 },
     }
   - {
       id: swords-queen,
       face: { image: core/cards/tarot/swords-queen.webp },
-      result: 'Queen of Swords, {{result}}: a stern judge of character',
-      table: table.tarot-way,
+      result: 'Queen of Swords: a stern judge of character',
+      reversed: 'Queen of Swords, reversed: cruel, bitter words',
       set: { arcana: minor, suit: swords, rank: 13 },
     }
   - {
       id: swords-king,
       face: { image: core/cards/tarot/swords-king.webp },
-      result: 'King of Swords, {{result}}: cold reason, a hard ruling',
-      table: table.tarot-way,
+      result: 'King of Swords: cold reason, a hard ruling',
+      reversed: "King of Swords, reversed: a tyrant's ruling, reason without mercy",
       set: { arcana: minor, suit: swords, rank: 14 },
     }
   - {
       id: pentacles-ace,
       face: { image: core/cards/tarot/pentacles-ace.webp },
-      result: 'Ace of Pentacles, {{result}}: a windfall, a new venture',
-      table: table.tarot-way,
+      result: 'Ace of Pentacles: a windfall, a new venture',
+      reversed: 'Ace of Pentacles, reversed: a chance missed, money that slips away',
       set: { arcana: minor, suit: pentacles, rank: 1 },
     }
   - {
       id: pentacles-2,
       face: { image: core/cards/tarot/pentacles-2.webp },
-      result: 'Two of Pentacles, {{result}}: juggling two debts',
-      table: table.tarot-way,
+      result: 'Two of Pentacles: juggling two debts',
+      reversed: 'Two of Pentacles, reversed: one ball dropped, debts piling up',
       set: { arcana: minor, suit: pentacles, rank: 2 },
     }
   - {
       id: pentacles-3,
       face: { image: core/cards/tarot/pentacles-3.webp },
-      result: 'Three of Pentacles, {{result}}: skilled work, a guild',
-      table: table.tarot-way,
+      result: 'Three of Pentacles: skilled work, a guild',
+      reversed: 'Three of Pentacles, reversed: shoddy work, a team at odds',
       set: { arcana: minor, suit: pentacles, rank: 3 },
     }
   - {
       id: pentacles-4,
       face: { image: core/cards/tarot/pentacles-4.webp },
-      result: 'Four of Pentacles, {{result}}: hoarding, a tight fist',
-      table: table.tarot-way,
+      result: 'Four of Pentacles: hoarding, a tight fist',
+      reversed: 'Four of Pentacles, reversed: letting go, or losing everything',
       set: { arcana: minor, suit: pentacles, rank: 4 },
     }
   - {
       id: pentacles-5,
       face: { image: core/cards/tarot/pentacles-5.webp },
-      result: 'Five of Pentacles, {{result}}: poverty, out in the cold',
-      table: table.tarot-way,
+      result: 'Five of Pentacles: poverty, out in the cold',
+      reversed: 'Five of Pentacles, reversed: help found, the door opened',
       set: { arcana: minor, suit: pentacles, rank: 5 },
     }
   - {
       id: pentacles-6,
       face: { image: core/cards/tarot/pentacles-6.webp },
-      result: 'Six of Pentacles, {{result}}: charity, a fair share',
-      table: table.tarot-way,
+      result: 'Six of Pentacles: charity, a fair share',
+      reversed: 'Six of Pentacles, reversed: strings attached, a gift that binds',
       set: { arcana: minor, suit: pentacles, rank: 6 },
     }
   - {
       id: pentacles-7,
       face: { image: core/cards/tarot/pentacles-7.webp },
-      result: 'Seven of Pentacles, {{result}}: waiting for the harvest',
-      table: table.tarot-way,
+      result: 'Seven of Pentacles: waiting for the harvest',
+      reversed: 'Seven of Pentacles, reversed: a poor harvest, patience run out',
       set: { arcana: minor, suit: pentacles, rank: 7 },
     }
   - {
       id: pentacles-8,
       face: { image: core/cards/tarot/pentacles-8.webp },
-      result: 'Eight of Pentacles, {{result}}: patient craft',
-      table: table.tarot-way,
+      result: 'Eight of Pentacles: patient craft',
+      reversed: 'Eight of Pentacles, reversed: cut corners, work without heart',
       set: { arcana: minor, suit: pentacles, rank: 8 },
     }
   - {
       id: pentacles-9,
       face: { image: core/cards/tarot/pentacles-9.webp },
-      result: 'Nine of Pentacles, {{result}}: comfort earned alone',
-      table: table.tarot-way,
+      result: 'Nine of Pentacles: comfort earned alone',
+      reversed: "Nine of Pentacles, reversed: comfort lost, living beyond one's means",
       set: { arcana: minor, suit: pentacles, rank: 9 },
     }
   - {
       id: pentacles-10,
       face: { image: core/cards/tarot/pentacles-10.webp },
-      result: 'Ten of Pentacles, {{result}}: an inheritance, a family fortune',
-      table: table.tarot-way,
+      result: 'Ten of Pentacles: an inheritance, a family fortune',
+      reversed: 'Ten of Pentacles, reversed: a family quarrel over money',
       set: { arcana: minor, suit: pentacles, rank: 10 },
     }
   - {
       id: pentacles-page,
       face: { image: core/cards/tarot/pentacles-page.webp },
-      result: 'Page of Pentacles, {{result}}: a keen student',
-      table: table.tarot-way,
+      result: 'Page of Pentacles: a keen student',
+      reversed: 'Page of Pentacles, reversed: a lazy student, plans not followed',
       set: { arcana: minor, suit: pentacles, rank: 11 },
     }
   - {
       id: pentacles-knight,
       face: { image: core/cards/tarot/pentacles-knight.webp },
-      result: 'Knight of Pentacles, {{result}}: a steady, tireless worker',
-      table: table.tarot-way,
+      result: 'Knight of Pentacles: a steady, tireless worker',
+      reversed: 'Knight of Pentacles, reversed: stubborn, stuck in a rut',
       set: { arcana: minor, suit: pentacles, rank: 12 },
     }
   - {
       id: pentacles-queen,
       face: { image: core/cards/tarot/pentacles-queen.webp },
-      result: 'Queen of Pentacles, {{result}}: a generous provider',
-      table: table.tarot-way,
+      result: 'Queen of Pentacles: a generous provider',
+      reversed: 'Queen of Pentacles, reversed: neglect, a home that smothers',
       set: { arcana: minor, suit: pentacles, rank: 13 },
     }
   - {
       id: pentacles-king,
       face: { image: core/cards/tarot/pentacles-king.webp },
-      result: 'King of Pentacles, {{result}}: a wealthy patron',
-      table: table.tarot-way,
+      result: 'King of Pentacles: a wealthy patron',
+      reversed: 'King of Pentacles, reversed: greed, a patron who wants too much',
       set: { arcana: minor, suit: pentacles, rank: 14 },
     }
 ---

@@ -18,6 +18,10 @@
   --card-edge: #b9ad8c;
   --card-ink: #1f1c17;
   --card-red: #a8262c;
+  /* A deck's back on the card table (CardDeal), when it gives none of its own. */
+  --card-back: #3b1f24;
+  --card-back-deep: #2a161a;
+  --card-back-edge: #5a4630;
   /* The inks a pack's styled text names (`[text]{red}`), readable on the panels. */
   --ink-red: #e0706a;
   --ink-orange: #e0954a;

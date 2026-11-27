@@ -917,6 +917,82 @@ fields:
     expect(bad.diagnostics.map((d) => d.message).join()).toMatch(/red, black or a colour/)
   })
 
+  it('draws the cards of a reversible deck either way up: upside down, its reversed text, `reversed` seen', () => {
+    const files = (reversible: string): PackFile[] => [
+      { path: 'way/pack.yaml', content: 'id: way\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },
+      {
+        path: 'way/cards.yaml',
+        content: `
+kind: table
+id: omen
+entries:
+  - { result: dark, when: { reversed: true } }
+  - { result: bright, unless: { reversed: true } }
+---
+kind: deck
+id: tarot
+reversible: ${reversible}
+face: { ink: black }
+cards:
+  - { id: sun, result: 'The Sun: joy', reversed: 'The Sun, reversed: joy delayed', set: { gift: 1 } }
+  - { id: moon, result: 'The Moon ({{result}})', table: table.omen }
+`,
+      },
+      {
+        path: 'way/locales/es/cards.yaml',
+        content: `tarot:\n  cards: { sun: 'El Sol: alegría' }\n  reversed: { sun: 'El Sol, invertido: alegría que tarda' }\n`,
+      },
+    ]
+    const { registry: way, diagnostics } = loadPacks(files('true'))
+    expect(diagnostics).toEqual([])
+    const engine = createOracleEngine({ registry: way, random: seeded('either way') })
+    const drawn = Array.from({ length: 40 }, () => engine.resolve('way/tarot', {}).resolution)
+    const sun = drawn.filter((d) => d.value.card === 'sun')
+    const moon = drawn.filter((d) => d.value.card === 'moon')
+    for (const d of sun) {
+      expect(d.text).toBe(d.value.reversed ? 'The Sun, reversed: joy delayed' : 'The Sun: joy')
+      expect(d.face).toEqual(d.value.reversed ? { ink: 'black', turned: true } : { ink: 'black' })
+      expect(d.value.gift).toBe(1)
+    }
+    // What the card leads to sees which way up it came (a table's condition); without a
+    // reversed text of its own, a card reads its usual one.
+    for (const d of moon)
+      expect(d.text).toBe(d.value.reversed ? 'The Moon (dark)' : 'The Moon (bright)')
+    expect(new Set(drawn.map((d) => d.value.reversed))).toEqual(new Set([true, false]))
+    // Translated, the reversed text has its own overlay.
+    const es = createOracleEngine({ registry: way, random: seeded('either way') })
+    const spanish = Array.from(
+      { length: 40 },
+      () => es.resolve('way/tarot', {}, undefined, { locale: 'es' }).resolution,
+    ).filter((d) => d.value.card === 'sun')
+    expect(new Set(spanish.map((d) => d.text))).toEqual(
+      new Set(['El Sol: alegría', 'El Sol, invertido: alegría que tarda']),
+    )
+    // The chance is the deck's: never, always.
+    const never = createOracleEngine({
+      registry: loadPacks(files('{ chance: 0 }')).registry,
+      random: seeded(1),
+    })
+    expect(never.resolve('way/tarot', {}).resolution.value.reversed).toBe(false)
+    const always = createOracleEngine({
+      registry: loadPacks(files('{ chance: 1 }')).registry,
+      random: seeded(1),
+    })
+    expect(always.resolve('way/tarot', {}).resolution.value.reversed).toBe(true)
+    // A deck that isn't reversible says nothing of it, and its cards may not have a reversed text.
+    const plain = loadPacks([
+      files('true')[0],
+      { path: 'way/cards.yaml', content: 'kind: deck\nid: d\ncards:\n  - { id: a }\n' },
+    ]).registry
+    const once = createOracleEngine({ registry: plain, random: seeded(1) }).resolve('way/d', {})
+    expect(once.resolution.value).not.toHaveProperty('reversed')
+    expect(
+      loadPacks(files('false'))
+        .diagnostics.map((d) => d.message)
+        .join(),
+    ).toMatch(/only a reversible deck/)
+  })
+
   describe('drawn by a generator', () => {
     const files: PackFile[] = [
       { path: 'cards/pack.yaml', content: 'id: cards\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },

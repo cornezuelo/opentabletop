@@ -8,9 +8,9 @@
 <script lang="ts">
   import type { SessionState } from '@open-tabletop/session'
   import type { TripAction } from '@open-tabletop/session'
-  import { DiceThrow, dicePreferences, tooltip } from '@open-tabletop/ui-kit'
+  import { CardDeal, DiceThrow, dicePreferences, tooltip } from '@open-tabletop/ui-kit'
   import BeatView from './BeatView.svelte'
-  import { rollToWatch, tellBeat } from './beats'
+  import { cardsToWatch, rollToWatch, tellBeat } from './beats'
   import { beatsSeen } from './beatsSeen.svelte'
   import { pacing } from './pacing.svelte'
   import { translator } from './i18n'
@@ -56,11 +56,25 @@
       ? rollToWatch(told, Date.now())
       : undefined,
   )
+  /** Or the cards the computer drew for it, dealt on the card table to be watched, once. */
+  const dealt = $derived(
+    told && !thrown && dicePreferences.animate && !still && !watched.has(told.id)
+      ? cardsToWatch(told, Date.now())
+      : undefined,
+  )
 </script>
 
 {#if shown && told && thrown}
   <DiceThrow
     rolls={thrown}
+    title={told.title}
+    {locale}
+    watch
+    onuse={() => void watched.add(told.id)}
+  />
+{:else if shown && told && dealt}
+  <CardDeal
+    cards={dealt}
     title={told.title}
     {locale}
     watch

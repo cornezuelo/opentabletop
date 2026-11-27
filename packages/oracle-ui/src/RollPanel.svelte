@@ -9,6 +9,7 @@
   import type { HistoryItem } from './roller.svelte'
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
   import {
+    CardDeal,
     DiceThrow,
     dicePreferences,
     InfoTip,
@@ -119,6 +120,77 @@
   function settle() {
     roller.thrown = roller.throwing
     roller.throwing = undefined
+    dealing = undefined
+  }
+
+  type Face = NonNullable<Resolution['face']>
+  /**
+   * The cards a result drew, to deal on the card table (docs/cards.md): the card drawn, or the
+   * cards a generator dealt (a hand, a spread), each with its text and its place.
+   */
+  const cardsOf = (r: Resolution) =>
+    r.face
+      ? [{ face: r.face, caption: r.text }]
+      : r.children
+          .filter((c) => c.face)
+          .map((c) => ({ face: c.face!, caption: c.text, place: c.place }))
+  /** A deck's card as it lies face up on the pile (its parts, never turned). */
+  const faceOfCard = (deckId: string, key: string | undefined): Face | undefined => {
+    const deck = ui.library.registry.definitions.get(deckId)
+    if (deck?.kind !== 'deck' || !key) return undefined
+    const face = deck.cards.find((c) => c.key === key)?.face
+    if (!face) return undefined
+    // As it lies on the pile: face up, the right way round.
+    return { ...face, turned: undefined }
+  }
+  /** The decks a definition draws from: itself, or a generator's deck fields. */
+  const decksOf = (d: Compiled): string[] =>
+    d.kind === 'deck'
+      ? [d.id]
+      : d.kind === 'generator'
+        ? d.fields.flatMap((f) =>
+            f.kind === 'deck' && f.ref && !f.ref.dynamic ? [f.ref.target] : [],
+          )
+        : []
+  /**
+   * The draw being dealt on the card table: its cards, whether its deck was gathered for it
+   * (and the card that lay on the pile), the cards left after it. A shuffle by hand deals none.
+   */
+  let dealing = $state<{
+    id?: number
+    cards: ReturnType<typeof cardsOf>
+    shuffled: boolean
+    pile?: Face
+    left?: number
+    deck?: string
+  }>()
+
+  /** Before a draw: whether a deck of it will be gathered, and the face on its pile. */
+  function beforeDraw(): { shuffled: boolean; pile?: Face; deck?: string } {
+    const generator = def.kind === 'generator'
+    for (const id of decksOf(def)) {
+      const piles = roller.state.decks[id]
+      const field = generator && def.fields.find((f) => f.kind === 'deck' && f.shuffle)
+      // A deck that ran out is gathered by the draw; a spread that shuffles first gathers it too.
+      const gathers = piles && (piles.draw.length === 0 || (!!field && piles.discard.length > 0))
+      if (gathers) return { shuffled: true, pile: faceOfCard(id, piles.discard.at(-1)), deck: id }
+    }
+    return { shuffled: false, deck: decksOf(def)[0] }
+  }
+
+  /** A deck's own back, when it gives one. */
+  const deckBack = (id: string): string | undefined => {
+    const deck = ui.library.registry.definitions.get(id)
+    return deck?.kind === 'deck' ? deck.back : undefined
+  }
+
+  function shuffleDeck() {
+    const piles = roller.state.decks[def.id]
+    const pile = faceOfCard(def.id, piles?.discard.at(-1))
+    roller.shuffle(def.id)
+    // Seen when cards were out: they go back onto the deck and it's riffled.
+    if (throws && piles?.discard.length)
+      dealing = { cards: [], shuffled: true, pile, left: deck?.total, deck: def.id }
   }
 
   /**
@@ -134,6 +206,7 @@
 
   function roll() {
     if (missing.length) return
+    const before = beforeDraw()
     roller.run(
       def.id,
       mergeContext(context, parseContext(values)),
@@ -141,7 +214,20 @@
       modes.some((m) => m.id === roller.mode) ? roller.mode : undefined,
     )
     const made = roller.shown[def.id]
-    roller.throwing = throws && made && thrownOf(made.resolution).rolls.length ? made.id : undefined
+    const cards = made ? cardsOf(made.resolution) : []
+    dealing =
+      throws && made && cards.length
+        ? {
+            ...before,
+            id: made.id,
+            cards,
+            left: before.deck ? roller.state.decks[before.deck]?.draw.length : undefined,
+          }
+        : undefined
+    roller.throwing =
+      throws && made && (cards.length || thrownOf(made.resolution).rolls.length)
+        ? made.id
+        : undefined
   }
 
   /** A host value as a placeholder ("forest", "road, ford"). */
@@ -284,7 +370,7 @@
     {/if}
     {#if deck}
       <span class="muted">{t('roll.remaining', deck)}</span>
-      <button onclick={() => roller.shuffle(def.id)}>{t('roll.shuffle')}</button>
+      <button onclick={shuffleDeck}>{t('roll.shuffle')}</button>
     {:else if modes.length}
       <label class="inline">
         <span>{t('roll.mode')}<InfoTip text={modeHelp} /></span>
@@ -297,7 +383,22 @@
     {#if hotkeys}<span class="hint">{t('roll.keyHint')}</span>{/if}
   </div>
 
-  {#if throwing}
+  {#if dealing && (!dealing.id || dealing.id === throwing?.id)}
+    <CardDeal
+      cards={dealing.cards}
+      shuffled={dealing.shuffled}
+      pile={dealing.pile}
+      left={dealing.left}
+      back={dealing.deck ? deckBack(dealing.deck) : undefined}
+      watch={watching}
+      title={ui.nameOf(def.id)}
+      use={t('roll.see')}
+      close={t('roll.closeThrow')}
+      locale={ui.locale()}
+      onuse={settle}
+      onclose={settle}
+    />
+  {:else if throwing}
     {@const thrown = thrownOf(throwing.resolution)}
     <DiceThrow
       rolls={thrown.rolls}

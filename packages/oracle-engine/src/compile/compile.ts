@@ -167,6 +167,8 @@ export interface CompiledCard {
   key: string
   count: number
   result?: string
+  /** Its text when it comes out reversed. */
+  reversed?: string
   ref?: Ref
   set?: Record<string, unknown>
   effects?: Record<string, number | string>
@@ -178,6 +180,10 @@ export interface CompiledDeck extends Base {
   kind: 'deck'
   cards: CompiledCard[]
   reshuffle: 'when-empty' | 'manual' | 'after-draw'
+  /** The chance a card comes out reversed (a `reversible` deck), else absent. */
+  reversible?: number
+  /** Its cards' back, a pack's image (`<pack>/<path>`). */
+  back?: string
 }
 
 export type Compiled = CompiledTable | CompiledOracle | CompiledGenerator | CompiledDeck
@@ -395,11 +401,16 @@ class CompileContext {
           ...base,
           kind: 'deck',
           reshuffle: d.reshuffle ?? 'when-empty',
+          ...(d.back && { back: d.back }),
+          ...(d.reversible && {
+            reversible: d.reversible === true ? 0.5 : d.reversible.chance,
+          }),
           cards: d.cards.map((c: CardDef, i): CompiledCard => ({
             ...((d.face || c.face) && { face: this.face(d.face, c.face, `cards[${i}].face`) }),
             key: c.id,
             count: c.count ?? 1,
             result: c.result,
+            ...(c.reversed !== undefined && { reversed: c.reversed }),
             ref: c.table
               ? this.ref('table', c.table, `cards[${i}]`)
               : c.generator
@@ -784,6 +795,7 @@ function compileOverlays(
           for (const key of [
             ...Object.keys(texts.entries ?? {}),
             ...Object.keys(texts.cards ?? {}),
+            ...Object.keys(texts.reversed ?? {}),
           ])
             if (!known.has(key))
               diagnostics.push({

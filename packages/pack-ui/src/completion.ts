@@ -113,6 +113,7 @@ const ENUMS: Record<string, readonly string[]> = {
   keep: ['highest', 'lowest', 'middle'],
   onExhausted: ['reroll', 'next', 'none'],
   reshuffle: ['when-empty', 'manual', 'after-draw'],
+  reversible: ['true', 'false', '{ chance: 0.25 }'],
   time: ['60', '120', '180', '06:00'],
   limit: ['60', '180', '18:00'],
   reveal: ['neighbors', 'entered', 'pieces'],
@@ -206,6 +207,8 @@ const KEYS = [
   'cards',
   'count',
   'reshuffle',
+  'reversible',
+  'reversed',
   // Travel rules and bindings.
   'travel',
   'start',

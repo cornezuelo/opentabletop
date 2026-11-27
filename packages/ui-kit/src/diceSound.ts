@@ -43,3 +43,27 @@ export function knock(strength: number): void {
   source.connect(filter).connect(gain).connect(ac.destination)
   source.start()
 }
+
+/**
+ * The swish of a card of `strength` (0 to 1) sliding on the cloth, made the same way: a
+ * longer breath of noise, high and soft (a card dealt, turned over, gathered, riffled).
+ */
+export function swish(strength: number, seconds = 0.14): void {
+  const ac = context()
+  if (!ac || strength <= 0) return
+  if (ac.state === 'suspended') void ac.resume()
+  const length = Math.floor(ac.sampleRate * seconds)
+  const buffer = ac.createBuffer(1, length, ac.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2)
+  const source = ac.createBufferSource()
+  source.buffer = buffer
+  const filter = ac.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.frequency.value = 3200
+  filter.Q.value = 0.8
+  const gain = ac.createGain()
+  gain.gain.value = 0.05 + strength * 0.2
+  source.connect(filter).connect(gain).connect(ac.destination)
+  source.start()
+}

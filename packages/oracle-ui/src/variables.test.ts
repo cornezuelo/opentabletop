@@ -49,6 +49,28 @@ entries:
 
 describe('context variables', () => {
   const { registry } = loadPacks(files)
+  it('never asks for which way up a reversible deck’s card came, nor what its cards set', () => {
+    const { registry: cards } = loadPacks([
+      files[0]!,
+      {
+        path: 'p/c.yaml',
+        content: `kind: table
+id: lamp
+entries:
+  - { result: astray, when: { reversed: true, lit: yes } }
+  - { result: home }
+---
+kind: deck
+id: fates
+reversible: true
+cards:
+  - { id: lamp, result: '{{result}}', table: table.lamp, set: { lit: yes } }
+`,
+      },
+    ])
+    expect(contextVariables(cards, 'p/fates')).toEqual([])
+  })
+
   it('asks for what a roll is rolled against reads, never for how it went', () => {
     expect(contextVariables(registry, 'p/climb')).toEqual([
       { name: 'strength', suggestions: [], needed: true },

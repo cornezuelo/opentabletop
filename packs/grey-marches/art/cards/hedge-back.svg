@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 160">
+  <!-- The back of the hedge-witch's cards: worn green board, a thorn lattice and a lantern. -->
+  <defs>
+    <pattern id="thorns" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 7h14M7 0v14" stroke="#b8c48a" stroke-opacity=".28" stroke-width="1"/>
+      <circle cx="7" cy="7" r="1.4" fill="#b8c48a" fill-opacity=".35"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="50%" r="60%">
+      <stop offset="0" stop-color="#4d6139"/>
+      <stop offset="1" stop-color="#222b19"/>
+    </radialGradient>
+  </defs>
+  <rect width="100" height="160" fill="url(#glow)"/>
+  <rect width="100" height="160" fill="url(#thorns)"/>
+  <rect x="7" y="7" width="86" height="146" rx="4" fill="none" stroke="#c8b36a" stroke-opacity=".7"/>
+  <rect x="11" y="11" width="78" height="138" rx="3" fill="none" stroke="#c8b36a" stroke-opacity=".35"/>
+  <g transform="translate(50 80)" fill="none" stroke="#e2cf86" stroke-width="2" stroke-linejoin="round">
+    <path d="M-6 -24h12M0 -30v6"/>
+    <path d="M-12 -18h24l-4 34h-16z" fill="#2a3420"/>
+    <path d="M-8 20h16"/>
+    <path d="M0 -8c-4 6-4 10 0 14c4-4 4-8 0-14z" fill="#e2cf86" stroke="none" opacity=".85"/>
+  </g>
+</svg>

@@ -361,7 +361,7 @@ export const en = {
     faceInks: { none: '—', black: 'Black', red: 'Red', colour: 'A colour…' },
     faceTurned: 'Upside down when',
     faceTurnedHelp:
-      'Drawn upside down when this holds on what the card set (its own values and those of the table it rolled), as a reversed tarot card:\n• `reversed: true` — if a table it rolls sets `reversed: true` on one of its rows\nEmpty: always the right way up.',
+      "Drawn upside down when this holds on what the card set (its own values and those of the table it rolled) and on what the draw sees. A reversible deck's reversed cards are upside down already; this is for other reasons:\n• `world.clocks.doom: { gte: 4 }` — every card upside down while a clock of the world is at 4 or more\n• `omen: bad` — when its table set `omen: bad`\nEmpty: only when it came out reversed.",
     facePreview: 'As it looks',
     reshuffle: 'Reshuffle',
     reshuffleHelp:
@@ -371,6 +371,19 @@ export const en = {
       manual: 'Only by hand',
       'after-draw': 'After every draw',
     },
+    deckBack: 'Its back',
+    deckBackHelp:
+      "The picture on the back of its cards, as they lie face down on the table before they're turned: an image of a pack, by its full name. Empty, the table's own back:\n• `my-pack/cards/back.webp`",
+    reversible: 'Either way up',
+    reversibleHelp:
+      "Whether its cards come out upright or **reversed**, decided as each is drawn (as a tarot card). A reversed card is drawn upside down, reads its **Reversed text** (its usual text without one), and what it leads to sees `reversed: true` (in a table's conditions, say):\n• **Never** — always upright\n• **Half each** — `reversible: true`\n• **25%** — `reversible: { chance: 0.25 }`, one in four reversed",
+    reversibleNever: 'Never',
+    reversibleHalf: 'Half each',
+    reversibleChance: 'Another chance',
+    reversedChance: 'Chance reversed',
+    reversedText: 'Reversed text',
+    reversedTextHelp:
+      'What the card says when it comes out reversed; empty, its usual text:\n• `The Tower, reversed: disaster put off, for now`',
     cards: 'Cards ({count} in the deck)',
     cardIdHelp:
       'Stable name of the card, used by **translations** (`cards: { ace: … }`) and to track drawn cards:\n• `ace-of-cups`',

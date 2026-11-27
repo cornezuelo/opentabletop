@@ -130,29 +130,36 @@ cards:
 
 Each card needs an `id` (translations and the drawn-cards record use it). **What tables see:** a card's `set` values, like an entry's; a table rolled by a card gives its text as `{{result}}`.
 
-**Faces.** A card drawn is shown as a card (in the Oracle, in hands and spreads, in a trip's journal) when it has a `face`: a pack's picture (`image`, by its full name `<pack>/<path>`, a PNG, JPEG or WebP of a loaded pack), or a face drawn from its parts: `corner` (the index written in two corners, up to four characters), `symbol` (a sign drawn large in the middle), `icon` (a bundled icon in the middle, `game:anchor`), `pips` (a domino's two halves, 0 to 9 each) and `ink` (`red`, `black` or a colour, `#2a5d8f`). `turned` is a [condition](08-conditions.md): the card is drawn upside down when it holds on what the card set (with the table it rolled) and on what the draw sees (a clock, a trip's values). A `face` on the deck is every card's; a card's own adds to it. A card without either is told by its text alone.
+**Faces.** A card drawn is shown as a card (in the Oracle, in hands and spreads, in a trip's journal) when it has a `face`: a pack's picture (`image`, by its full name `<pack>/<path>`, a PNG, JPEG or WebP of a loaded pack), or a face drawn from its parts: `corner` (the index written in two corners, up to four characters), `symbol` (a sign drawn large in the middle), `icon` (a bundled icon in the middle, `game:anchor`), `pips` (a domino's two halves, 0 to 9 each) and `ink` (`red`, `black` or a colour, `#2a5d8f`). `turned` is a [condition](08-conditions.md): the card is drawn upside down when it holds on what the card set (with the table it rolled) and on what the draw sees (a clock, a trip's values); a reversed card (below) is upside down without it. A `face` on the deck is every card's; a card's own adds to it. A card without either is told by its text alone.
 
 ```yaml
 kind: deck
 id: fates
-face: { ink: '#2a5d8f', turned: { reversed: true } } # every card's
+face: { ink: '#2a5d8f', turned: { world.clocks.doom: { gte: 4 } } } # every card's
 cards:
   - { id: king, result: The king, face: { corner: K, symbol: '♚' } }
-  - {
-      id: tower,
-      result: 'The tower, {{result}}',
-      table: table.which-way,
-      face: { icon: 'game:stone-tower' },
-    }
+  - { id: tower, result: The tower, face: { icon: 'game:stone-tower' } }
   - { id: tile, result: 'Six and three', face: { pips: [6, 3], ink: black } }
+```
+
+**Either way up.** With `reversible`, a deck's cards come out upright or **reversed**, decided as each is drawn, as a tarot card: `reversible: true` is half each, `reversible: { chance: 0.25 }` one in four reversed (from `0`, never, to `1`, always). A reversed card is drawn upside down and reads its `reversed` text (its `result` when it has none); what it leads to sees `reversed: true` (`false` when it came out upright), so a table it rolls may choose by it (`when: { reversed: true }`), and the draw's result has it beside `card`. Only a reversible deck's cards may have a `reversed` text; translations give it in the overlay's `reversed:`, by card id.
+
+```yaml
+kind: deck
+id: fortunes
+reversible: true # half upright, half reversed
+cards:
+  - { id: sun, result: 'The Sun: joy', reversed: 'The Sun, reversed: joy delayed' }
+  - { id: lamp, result: 'The Lamp, {{result}}', table: table.lamp }
 ---
 kind: table
-id: which-way
-roll: 1d2
-entries:
-  - { range: 1, result: upright }
-  - { range: 2, result: reversed, set: { reversed: true } } # what turns the card
+id: lamp
+entries: # no dice: the first row that holds
+  - { result: a light that leads astray, when: { reversed: true } }
+  - { result: a safe way home, unless: { reversed: true } }
 ```
+
+**Its back.** `back:` gives a deck's cards a back of its own on the card table, where they lie face down before they're turned (an image of a pack, `back: my-pack/cards/back.webp`); without one, the table's own back.
 
 A pack's own pictures go in its folder (`cards/fool.webp`) and are named with its id (`my-pack/cards/fool.webp`); see [Packs](../packs/21-packs.md).
 
