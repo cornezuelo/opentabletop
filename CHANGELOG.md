@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.84.1] - 2026-11-27
+
 ### Fixes
 
 - **Cards on the table**: a card no longer shows through the one over it when the pointer is on it (the Celtic cross's crossing card).
