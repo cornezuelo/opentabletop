@@ -100,6 +100,7 @@ docs/
   fight-look.md             # The stage's look: sides, cards that keep their place, the order, the fallen kept, decided, built
   play-rest.md              # The rest of play: Travel's opening, the Party tab, Map's Play before a trip, decided
   dice.md                   # Dice that feel physical: the player's rolls thrown across a table, to review
+  cards.md                  # Cards on the table: draws dealt and turned over as the dice are thrown, cards drawn either way up, to agree
   tracks-scouting.md        # Tracks and scouting that matter in the Grey Marches, decided
   traps-locks.md            # Traps, locks, containers and potions (a place's sheet, things that don't fight, items unknown, lasting places), decided
   party-split.md            # Splitting the Company: parts of one trip, each its own place, time and token, to review
