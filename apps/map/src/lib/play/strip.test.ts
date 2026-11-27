@@ -143,3 +143,40 @@ describe('important moments up front', () => {
     vi.restoreAllMocks()
   })
 })
+
+describe("the player's own draws", () => {
+  it('the omens of the road wait for the card the player draws, on the example map', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.3)
+    editor.open(parseMapFile(exampleMaps().find((m) => m.id === 'greymarches1')!.json))
+    editor.switchMode('play')
+    clickHex('7,7')
+    setMode('rules')
+    await restartRules(editor.campaign.system!, 'spring')
+    const session = () => sessionOf(editor.map.play!)!
+    // The player rolls their own rolls (a preference of theirs, every trip's).
+    dicePreferences.setRolls('mine')
+    // Camping day after day until a dawn's omen waits for the player's draw.
+    let waiting = session().yours?.find((y) => y.draw)
+    for (let day = 0; day < 10 && !waiting; day++) {
+      const yours = session().yours?.[0]
+      const check = session().travel.pendingChecks[0]
+      if (yours) step({ type: 'resolveCheck', id: yours.id })
+      else if (check) step({ type: 'resolveCheck', id: check.id })
+      else if (session().travel.waiting) step({ type: 'resume' })
+      else step({ type: 'action', id: 'camp' })
+      waiting = session().yours?.find((y) => y.draw)
+    }
+    expect(waiting?.draw?.deck).toBe('grey-marches/omens')
+    expect(waiting?.draw?.cards.map((c) => c.key)).toContain('wyrm-sign')
+    // The panel offers the draw.
+    expect(render(PlayPanel).body).toContain('Your draw: a card for')
+    // The Wyrm's sign, drawn from the player's own deck: it's what happens.
+    step({ type: 'drawn', id: waiting!.id, card: 'wyrm-sign' })
+    expect(session().yours?.some((y) => y.id === waiting!.id)).toBeFalsy()
+    expect(session().journal.some((e) => e.text?.includes('sulphur'))).toBe(true)
+    expect(session().oracle.decks['grey-marches/omens']?.discard).toContain('wyrm-sign')
+    dicePreferences.rolls = undefined
+    editor.switchMode('edit')
+    vi.restoreAllMocks()
+  })
+})

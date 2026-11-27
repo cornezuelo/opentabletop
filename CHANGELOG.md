@@ -7,10 +7,12 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 ### Apps
 
 - **Cards on the table**: the Oracle's **Draw** plays the draw on a card table, as **Roll** throws dice: the deck face down with the cards it has left; click it, or drag its top card where you want it, and the card is dealt and turned over (upside down when reversed). A hand or a spread is dealt face down to its places and turned card by card, or all at once. While the computer draws, it deals and turns by itself; a card the computer drew for an important moment of a trip is dealt the same way before the moment is told. A deck gathered for a draw, or by **Shuffle**, is seen: the cards drawn go back face down and it's riffled. A swish of paper is heard (**Sounds on the table**, once _Dice knock on the table_; **Dice and cards move**, once _Dice tumble as they're rolled_).
+- **Your own draws**: when you roll your own (**Who rolls the dice**), a trip's draw from a deck waits for you as a roll does (the Grey Marches' omens at dawn): **Draw** deals it on the card table; behind **⋯**, **Choose the card I drew…** (a deck of your own, and whether it came out reversed), **Draw it for me** and **Let the computer roll from now on**.
 - **Packs and the Oracle**: a deck's form has **Its back**, **Either way up** (never, half each, or another chance) and, when on, a **Reversed text** for each card.
 
 ### Packs
 
+- **Core**: _A contest_ says who wins (_63 against 41: you win_).
 - **Core**: the tarot's cards come out upright or reversed as they're drawn, each with its own reversed meaning (no more a roll of _Which way up_, which is gone).
 - **The Grey Marches**: one hedge-witch's card in four comes out reversed, saying its reversed text; the Lantern reversed leads the Company astray (−1 morale instead of +1); the hedge-witch's cards have a back of their own.
 

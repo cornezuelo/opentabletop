@@ -51,7 +51,7 @@
         'A thrown die is heard as it bounces, a card as it’s dealt, turned or shuffled. Off, the table is silent.',
       rolls: 'Who rolls the dice',
       rollsHelp:
-        'In every trip and scene: the computer rolls everything; you roll your own rolls (the party’s turns in a fight, a check that stops the trip, a table that can give an important result); the foes’ turns too; or everything, an action’s own dice too. A roll of yours waits for the total of your own dice, or is thrown on screen.',
+        'In every trip and scene: the computer rolls everything; you roll your own rolls (the party’s turns in a fight, a check that stops the trip, a table that can give an important result); the foes’ turns too; or everything, an action’s own dice too. A roll of yours waits for the total of your own dice, or is thrown on screen; a draw of yours from a deck waits for the card you draw.',
       rollsWays: {
         computer: 'The computer rolls',
         mine: 'I roll my own rolls',
@@ -83,7 +83,7 @@
         'Un dado lanzado se oye al rebotar, y una carta al repartirla, darle la vuelta o barajar. Desmarcado, la mesa está en silencio.',
       rolls: 'Quién tira los dados',
       rollsHelp:
-        'En todos los viajes y escenas: el ordenador lo tira todo; tú tiras tus tiradas (los turnos del grupo en un combate, una comprobación que detiene el viaje, una tabla que puede dar un resultado importante); también los turnos de los enemigos; o lo tiras todo, también los dados de las acciones. Una tirada tuya espera el total de tus propios dados, o se lanza en pantalla.',
+        'En todos los viajes y escenas: el ordenador lo tira todo; tú tiras tus tiradas (los turnos del grupo en un combate, una comprobación que detiene el viaje, una tabla que puede dar un resultado importante); también los turnos de los enemigos; o lo tiras todo, también los dados de las acciones. Una tirada tuya espera el total de tus propios dados, o se lanza en pantalla; un robo tuyo de un mazo espera la carta que robes.',
       rollsWays: {
         computer: 'Tira el ordenador',
         mine: 'Tiro mis tiradas',

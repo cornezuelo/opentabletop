@@ -1,14 +1,27 @@
 import { bounds } from '@open-tabletop/dice'
-import type { WantedRoll } from '@open-tabletop/oracle-engine'
+import type { DrawnCard, WantedDraw, WantedRoll } from '@open-tabletop/oracle-engine'
 import type { Roller } from '@open-tabletop/variables'
 
 /** A roll of the player's: its dice, what rolls them and, for an effect aimed at someone, whom. */
 export type HandRoll = WantedRoll & { target?: string }
 
-/** A roll the player hasn't given yet: the step stops there until they roll it. */
+/** What the player gave for each of their rolls and draws, in order: a total, a card, or `null` (the computer's). */
+export type Given = number | DrawnCard | null
+
+/**
+ * A roll the player hasn't given yet: the step stops there until they roll it. A draw from a
+ * deck waits the same way (`draw`), its `roll` naming the deck alone.
+ */
 export class Wanted extends Error {
-  constructor(readonly roll: HandRoll) {
-    super(`Waiting for the player's roll of ${roll.dice}`)
+  constructor(
+    readonly roll: HandRoll,
+    readonly draw?: WantedDraw,
+  ) {
+    super(
+      draw
+        ? `Waiting for the player's draw from ${draw.deck}`
+        : `Waiting for the player's roll of ${roll.dice}`,
+    )
   }
 }
 
@@ -33,17 +46,32 @@ export function hasChance(dice: string): boolean {
  */
 export interface Hand {
   next(roll: HandRoll): number | undefined
+  /** A draw from a deck: the card the player drew, or a stop at it (`Wanted`), or the computer's. */
+  card(draw: WantedDraw): DrawnCard | undefined
   /** A copy going on from where this one is, to look ahead without using it. */
   fork(): Hand
 }
 
-export function handOf(given: readonly (number | null)[], asks: boolean, from = 0): Hand {
+export function handOf(given: readonly Given[], asks: boolean, from = 0): Hand {
   let at = from
   return {
     next(roll) {
       if (!hasChance(roll.dice)) return undefined
-      if (at < given.length) return given[at++] ?? undefined
+      if (at < given.length) {
+        const total = given[at++]
+        return typeof total === 'number' ? total : undefined
+      }
       if (asks) throw new Wanted(roll)
+      return undefined
+    },
+    card(draw) {
+      // A deck with one card left has nothing to choose.
+      if (draw.cards.length < 2 && draw.reversible === undefined) return undefined
+      if (at < given.length) {
+        const card = given[at++]
+        return card !== null && typeof card === 'object' ? card : undefined
+      }
+      if (asks) throw new Wanted({ dice: '', source: draw.deck }, draw)
       return undefined
     },
     fork: () => handOf(given, asks, at),

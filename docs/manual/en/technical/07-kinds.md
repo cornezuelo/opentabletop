@@ -154,7 +154,7 @@ cards:
 ---
 kind: table
 id: lamp
-entries: # no dice: the first row that holds
+entries: # no dice: chosen among the rows that hold (here, one)
   - { result: a light that leads astray, when: { reversed: true } }
   - { result: a safe way home, unless: { reversed: true } }
 ```

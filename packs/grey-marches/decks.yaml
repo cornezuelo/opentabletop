@@ -129,7 +129,7 @@ name: The Lantern
 description: |-
   What the hedge-witch's Lantern means: upright, a safe way home (+1 morale); reversed, a light that leads astray (−1 morale).
 
-  **Shows:** a table that reads which way up the card that rolled it came out (`when: { reversed: true }`, `unless:`), with no dice: the first row that holds.
+  **Shows:** a table that reads which way up the card that rolled it came out (`when: { reversed: true }`, `unless:`), with no dice: one row holds at a time.
 entries:
   - id: astray
     result: a light that leads astray

@@ -9,6 +9,8 @@ import {
   type OracleState,
   type ResolveOutcome,
   type WantedRoll,
+  type WantedDraw,
+  type DrawnCard,
 } from '@open-tabletop/oracle-engine'
 import {
   characterFacts,
@@ -39,7 +41,7 @@ import {
 import { encounterFacts, participantName, type Encounter } from './encounter'
 import { definitionId } from './refs'
 import { aimed, isTargetForm, targetsOf } from './target'
-import { handOf, handRoller, Wanted, type Hand } from './hand'
+import { handOf, handRoller, Wanted, type Given, type Hand } from './hand'
 import {
   pullFromRoster,
   rosterEntry,
@@ -290,8 +292,16 @@ export interface YourRoll {
   target?: string
   /** What the result says, once it's known (the rolls left are inside it). */
   said?: string
-  /** The totals given so far, in order; `null`, one the computer rolled (**Roll it for me**). */
-  given?: (number | null)[]
+  /**
+   * The totals (and cards) given so far, in order; `null`, one the computer rolled (**Roll it
+   * for me**).
+   */
+  given?: Given[]
+  /**
+   * A draw from a deck waiting for the player (`dice` is then ''): the deck, the cards it may
+   * give (each once, how many, its text and face) and whether they come either way up.
+   */
+  draw?: WantedDraw
   /** The randomness of the check's rolling, so rolling it again gives what was seen. */
   seed?: string
   /** The journal's number when it was first asked: whom a result aims at is chosen by it. */
@@ -404,6 +414,8 @@ export interface SessionState {
    * the step that rolls its check again; never kept between steps.
    */
   handTotal?: number
+  /** The card the player just drew for their draw waiting (`{ type: 'drawn' }`), as `handTotal`. */
+  handCard?: DrawnCard
   /** On a weather model's hex flower, the cell today's weather is on (`q,r`). */
   weatherAt?: string
   /**
@@ -1207,9 +1219,10 @@ export function createSession(options: {
         action.type === 'resolveCheck' ? s.yours?.find((y) => y.id === action.id) : undefined
       const answered = waited && {
         ...waited,
-        given: [...(waited.given ?? []), s.handTotal ?? null],
+        given: [...(waited.given ?? []), s.handCard ?? s.handTotal ?? null],
       }
       delete s.handTotal
+      delete s.handCard
       if (
         action.type === 'resolveCheck' &&
         (s.asking?.includes(action.id) || s.yours?.some((y) => y.id === action.id))
@@ -1482,6 +1495,7 @@ export function createSession(options: {
               ...(target !== undefined && { target }),
               ...(told && { said: told }),
               ...(prior?.given.length && { given: prior.given }),
+              ...(wanted.draw && { draw: wanted.draw }),
               seed,
               key,
             }
@@ -1495,6 +1509,7 @@ export function createSession(options: {
                 ...about,
                 id: event.check.id,
                 dice,
+                ...(wanted.draw && { deck: wanted.draw.deck }),
                 ...(who !== undefined && { who, name: participantName(s, who) }),
                 ...whereOf(event.check),
               },
@@ -1536,7 +1551,11 @@ export function createSession(options: {
               const out = options.oracle.resolve(binding.resolve!, context, s.oracle, {
                 locale: options.locale,
                 hostReads: ['target'],
-                ...(hand && { yours: (roll) => hand.next(roll), random: seeded(seed) }),
+                ...(hand && {
+                  yours: (roll) => hand.next(roll),
+                  yoursCard: (draw) => hand.card(draw),
+                  random: seeded(seed),
+                }),
               })
               rolled = out
               value = out.resolution.value

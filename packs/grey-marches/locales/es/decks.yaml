@@ -51,7 +51,7 @@ hedge-lantern:
   description: |-
     Lo que significa el Farol de la bruja de los setos: al derecho, un camino seguro a casa (+1 de moral); del revés, una luz que extravía (−1 de moral).
 
-    **Enseña:** una tabla que lee de qué lado salió la carta que la tiró (`when: { reversed: true }`, `unless:`), sin dados: la primera fila que se cumple.
+    **Enseña:** una tabla que lee de qué lado salió la carta que la tiró (`when: { reversed: true }`, `unless:`), sin dados: cada vez se cumple una sola fila.
   entries:
     astray: una luz que extravía
     home: un camino seguro a casa

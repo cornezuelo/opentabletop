@@ -106,6 +106,7 @@
   import { lookupTemplates, mainValue } from '@open-tabletop/character-engine'
   import { ladderOf, tellFight, type CardAction, type TableRow } from './turns'
   import YourRoll from './YourRoll.svelte'
+  import YourDraw from './YourDraw.svelte'
   import { setRollWay } from './rollWay'
   import BeatView from './BeatView.svelte'
   import NotableBeat from './NotableBeat.svelte'
@@ -863,39 +864,57 @@
   </span>
 {/snippet}
 {#snippet yourRoll(id: string, event: string, yours: YourRollState)}
-  <YourRoll
-    dice={yours.dice}
-    what={yours.action
-      ? actionName(yours.table.replace(/^actions\./, ''))
-      : yours.of
-        ? nameOf(yours.of)
-        : // A check the system declares by its name; a foe's turn by its table's.
-          event && checkName(event) === undefined
-          ? nameOf(yours.table)
-          : pendingName(event)}
-    who={yours.who !== undefined && yours.who !== PARTY_ID
-      ? participantName(session, yours.who)
-      : ''}
-    on={yours.target !== undefined ? participantName(session, yours.target) : ''}
-    said={yours.said ?? ''}
-    mode={yours.mode ? nameOf(yours.mode) : ''}
-    how={yours.how}
-    against={yours.against}
-    rows={// The table's own roll (not one inside its result): what each total gives; one
-    // rolled against a number says what it needs instead.
-    !yours.of && !yours.action && !yours.said && !yours.given?.length && !yours.against
-      ? ladderOf(rowsOf?.(yours.table))
-      : undefined}
-    staged={!!fight}
-    {locale}
-    ongive={(total) => onstep({ type: 'rolled', id: id, total })}
-    onthrow={(rolled, title, why, against) => (thrown = { id, rolled, title, why, against })}
-    onforme={() => onstep({ type: 'resolveCheck', id: id })}
-    oncomputer={() => {
-      onedit((s) => setRollWay(s, 'computer'))
-      onstep({ type: 'resolveCheck', id: id })
-    }}
-  />
+  {#if yours.draw}
+    <!-- A draw from a deck, waiting for the player's hand. -->
+    <YourDraw
+      draw={yours.draw}
+      what={event && checkName(event) !== undefined ? pendingName(event) : nameOf(yours.table)}
+      who={yours.who !== undefined && yours.who !== PARTY_ID
+        ? participantName(session, yours.who)
+        : ''}
+      {locale}
+      ondraw={(card) => onstep({ type: 'drawn', id, ...card })}
+      onforme={() => onstep({ type: 'resolveCheck', id: id })}
+      oncomputer={() => {
+        onedit((s) => setRollWay(s, 'computer'))
+        onstep({ type: 'resolveCheck', id: id })
+      }}
+    />
+  {:else}
+    <YourRoll
+      dice={yours.dice}
+      what={yours.action
+        ? actionName(yours.table.replace(/^actions\./, ''))
+        : yours.of
+          ? nameOf(yours.of)
+          : // A check the system declares by its name; a foe's turn by its table's.
+            event && checkName(event) === undefined
+            ? nameOf(yours.table)
+            : pendingName(event)}
+      who={yours.who !== undefined && yours.who !== PARTY_ID
+        ? participantName(session, yours.who)
+        : ''}
+      on={yours.target !== undefined ? participantName(session, yours.target) : ''}
+      said={yours.said ?? ''}
+      mode={yours.mode ? nameOf(yours.mode) : ''}
+      how={yours.how}
+      against={yours.against}
+      rows={// The table's own roll (not one inside its result): what each total gives; one
+      // rolled against a number says what it needs instead.
+      !yours.of && !yours.action && !yours.said && !yours.given?.length && !yours.against
+        ? ladderOf(rowsOf?.(yours.table))
+        : undefined}
+      staged={!!fight}
+      {locale}
+      ongive={(total) => onstep({ type: 'rolled', id: id, total })}
+      onthrow={(rolled, title, why, against) => (thrown = { id, rolled, title, why, against })}
+      onforme={() => onstep({ type: 'resolveCheck', id: id })}
+      oncomputer={() => {
+        onedit((s) => setRollWay(s, 'computer'))
+        onstep({ type: 'resolveCheck', id: id })
+      }}
+    />
+  {/if}
 {/snippet}
 {#snippet rollWayChoice()}
   <!-- Never chosen yet: it asks, marked, until the player says (their preference from then on). -->

@@ -81,7 +81,7 @@ import {
   type EncounterUnavailable,
 } from './encounter'
 import { definitionId } from './refs'
-import { handOf, Wanted } from './hand'
+import { handOf, Wanted, type Given } from './hand'
 import { markBeats } from './journal'
 import {
   MEMBER_PATH,
@@ -1659,6 +1659,17 @@ export function stepTrip(
     s.handTotal = action.total
     return stepTrip(options, s, { type: 'resolveCheck', id: action.id })
   }
+  // A draw of the player's, its card given: its deck drawn with it (once).
+  if (action.type === 'drawn') {
+    if (!session.yours?.some((y) => y.id === action.id && y.draw))
+      return { state: session, entries: [], discovered: {}, laid: [] }
+    const s = structuredClone(session)
+    s.handCard = {
+      card: action.card,
+      ...(action.reversed !== undefined && { reversed: action.reversed }),
+    }
+    return stepTrip(options, s, { type: 'resolveCheck', id: action.id })
+  }
   if (action.type === 'use') return useItem(options, session, action.who, action.item)
   return playStep(options, session, action as TravelAction)
 }
@@ -1757,7 +1768,7 @@ function playStep(
   options: Parameters<typeof stepTrip>[0],
   session: SessionState,
   action: TravelAction,
-  given: readonly (number | null)[] = [],
+  given: readonly Given[] = [],
 ): ReturnType<typeof stepTrip> {
   const { system } = options
   const hand = handOf(given, session.rollWay === 'all')
@@ -1850,7 +1861,8 @@ function playStep(
  * What a trip's step plays: a travel action, an encounter started or ended by hand
  * (`{ type: 'encounter', what: 'start' }`) or on from a foe's turn read (`what: 'next'`), or
  * a roll of the player's (`rollWay`) with the total they rolled (`{ type: 'rolled', id,
- * total }`; a `resolveCheck` of it rolls it for them).
+ * total }`; a `resolveCheck` of it rolls it for them), or a draw of theirs with the card they
+ * drew (`{ type: 'drawn', id, card, reversed }`).
  */
 export type TripAction =
   | TravelAction
@@ -1858,12 +1870,14 @@ export type TripAction =
   /** A member uses one of their items (its catalogue entry's `use:`), by its key. */
   | { type: 'use'; who: string; item: string }
   | { type: 'rolled'; id: string; total: number }
+  /** A draw of the player's waiting, the card they drew (and which way up). */
+  | { type: 'drawn'; id: string; card: string; reversed?: boolean }
 
 /** The trip waiting for the player's roll of a die in an action's own steps, with its line. */
 function waitForStepRoll(
   session: SessionState,
   action: TravelAction,
-  given: readonly (number | null)[],
+  given: readonly Given[],
   dice: string,
   source: string,
 ): ReturnType<typeof stepTrip> {

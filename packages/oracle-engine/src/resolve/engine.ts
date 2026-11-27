@@ -106,6 +106,12 @@ export interface ResolveOptions {
    * same `random`, giving the totals so far). A list by weight, a deck's draw: the engine's.
    */
   yours?: (roll: WantedRoll) => number | undefined
+  /**
+   * The player's draws: each draw from a deck asks which card came out (`WantedDraw`), drawn
+   * by their own hand (on screen, or a real deck: a card still in the draw pile) and, for a
+   * reversible deck, which way up; undefined, the engine draws it. It may throw, as `yours`.
+   */
+  yoursCard?: (draw: WantedDraw) => DrawnCard | undefined
   /** The randomness of this resolution alone (the engine's by default): the same gives the same. */
   random?: RandomSource
   /**
@@ -134,6 +140,28 @@ export interface WantedRoll {
    * leads to. Absent: the table's own roll.
    */
   within?: string
+}
+
+/** A draw of the player's (`ResolveOptions.yoursCard`): the deck and what it may give. */
+export interface WantedDraw {
+  /** The deck (full id). */
+  deck: string
+  /** The cards it may give now (the draw pile, gathered first if empty): each once, with how many. */
+  cards: { key: string; count: number; text?: string; face?: DrawnFace }[]
+  /** The chance a card comes out reversed (a reversible deck), else absent. */
+  reversible?: number
+  /** Its cards' back, a pack's image (`<pack>/<path>`), when it gives one. */
+  back?: string
+  /** The deck ran out and was gathered and shuffled for this draw. */
+  shuffled?: boolean
+  /** The row it's drawn inside, as `WantedRoll.within`. */
+  within?: string
+}
+
+/** The card the player drew: one of `WantedDraw.cards`, and which way up. */
+export interface DrawnCard {
+  card: string
+  reversed?: boolean
 }
 
 export type OracleEvent =
@@ -212,6 +240,7 @@ export function createOracleEngine(options: EngineOptions): OracleEngine {
       options.onEvent,
     )
     session.yours = opts.yours
+    session.yoursCard = opts.yoursCard
     session.hostReads = new Set(opts.hostReads)
     const resolution = session.resolve(def, context, 0, opts.mode)
     return {
@@ -329,6 +358,8 @@ class Run {
 
   /** The player's rolls (`ResolveOptions.yours`). */
   yours: ResolveOptions['yours']
+  /** The player's draws (`ResolveOptions.yoursCard`). */
+  yoursCard: ResolveOptions['yoursCard']
 
   /** Names the host reads after the roll (`ResolveOptions.hostReads`). */
   hostReads = new Set<string>()
@@ -668,6 +699,30 @@ class Run {
       : child?.text
   }
 
+  /** What a draw of the player's may give: the draw pile's cards, each once, as they read. */
+  private wantedDraw(deck: CompiledDeck, pile: readonly string[], shuffled: boolean): WantedDraw {
+    const counts = new Map<string, number>()
+    for (const key of pile) counts.set(key, (counts.get(key) ?? 0) + 1)
+    const within = this.within.findLast(Boolean)
+    return {
+      deck: deck.id,
+      cards: deck.cards.flatMap((card) => {
+        const count = counts.get(card.key)
+        if (!count) return []
+        const text = (this.text(deck.id, 'cards', card.key) ?? card.result)
+          ?.replace(/\{\{[^}]*\}\}/g, '…')
+          .trim()
+        // Its look as it lies face up (whether it's turned is for the draw to say).
+        const face = card.face && { ...card.face, turned: undefined }
+        return [{ key: card.key, count, ...(text && { text }), ...(face && { face }) }]
+      }),
+      ...(deck.reversible !== undefined && { reversible: deck.reversible }),
+      ...(deck.back && { back: deck.back }),
+      ...(shuffled && { shuffled: true }),
+      ...(within && { within }),
+    }
+  }
+
   private draw(deck: CompiledDeck, context: Record<string, unknown>, depth: number): Resolution {
     const node = this.node(deck, context)
     const saved = this.state.decks[deck.id]
@@ -675,6 +730,7 @@ class Run {
       ? reconcile(deck, saved, this.random)
       : { draw: shuffled(this.random, allCards(deck)), discard: [] }
     let { draw, discard } = current
+    let gathered = false
     if (draw.length === 0) {
       if (deck.reshuffle === 'manual') {
         this.state.decks[deck.id] = current
@@ -684,6 +740,14 @@ class Run {
       draw = shuffled(this.random, discard.length ? discard : allCards(deck))
       discard = []
       this.onEvent?.({ type: 'DECK_RESHUFFLED', source: deck.id })
+      gathered = true
+    }
+    // The player's own draw: the card they drew comes off the pile (a real deck's, or one
+    // drawn on screen), and which way up it came.
+    const theirs = this.yoursCard?.(this.wantedDraw(deck, draw, gathered))
+    if (theirs && draw.includes(theirs.card)) {
+      const at = draw.indexOf(theirs.card)
+      draw = [theirs.card, ...draw.slice(0, at), ...draw.slice(at + 1)]
     }
     const [key, ...rest] = draw
     draw = rest
@@ -691,9 +755,14 @@ class Run {
     else discard = [...discard, key]
     this.state.decks[deck.id] = { draw, discard }
     const card = deck.cards.find((c) => c.key === key) as CompiledCard // reconciled above
-    // Either way up, decided as it's drawn; what it leads to sees which (`reversed`).
+    // Either way up, decided as it's drawn (or as the player's came); what it leads to sees
+    // which (`reversed`).
     const reversed =
-      deck.reversible === undefined ? undefined : this.random.next() < deck.reversible
+      deck.reversible === undefined
+        ? undefined
+        : theirs?.card === key && theirs.reversed !== undefined
+          ? theirs.reversed
+          : this.random.next() < deck.reversible
     const way = reversed === undefined ? {} : { reversed }
     const text = reversed
       ? (this.text(deck.id, 'reversed', card.key) ??

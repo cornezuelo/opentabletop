@@ -993,6 +993,73 @@ cards:
     ).toMatch(/only a reversible deck/)
   })
 
+  it("draws the player's own card when they draw it, which way up they say", () => {
+    const { registry: own } = loadPacks([
+      { path: 'own/pack.yaml', content: 'id: own\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },
+      {
+        path: 'own/cards.yaml',
+        content: `
+kind: deck
+id: fates
+reversible: true
+cards:
+  - { id: sun, result: 'The Sun', reversed: 'The Sun, reversed', count: 2 }
+  - { id: moon, result: 'The Moon ({{result}})', table: table.way }
+---
+kind: table
+id: way
+entries:
+  - { result: dark, when: { reversed: true } }
+  - { result: bright, unless: { reversed: true } }
+`,
+      },
+    ])
+    const asked: unknown[] = []
+    const engine = createOracleEngine({ registry: own, random: seeded('mine') })
+    const first = engine.draw(
+      'own/fates',
+      emptyState(),
+      {},
+      {
+        yoursCard: (draw) => {
+          asked.push(draw)
+          return { card: 'moon', reversed: true }
+        },
+      },
+    )
+    // What it asked: every card the pile may give, each once with how many, as they read.
+    expect(asked).toEqual([
+      {
+        deck: 'own/fates',
+        cards: [
+          { key: 'sun', count: 2, text: 'The Sun' },
+          { key: 'moon', count: 1, text: 'The Moon (…)' },
+        ],
+        reversible: 0.5,
+      },
+    ])
+    expect(first.resolution.value).toMatchObject({ card: 'moon', reversed: true })
+    expect(first.resolution.text).toBe('The Moon (dark)')
+    // The card is gone from the pile: the next draw can't give it.
+    const next = engine.draw(
+      'own/fates',
+      first.state,
+      {},
+      {
+        yoursCard: (draw) => {
+          expect(draw.cards.map((c) => c.key)).toEqual(['sun'])
+          return { card: 'sun', reversed: false }
+        },
+      },
+    )
+    expect(next.resolution.text).toBe('The Sun')
+    // Nothing said: the engine draws it.
+    expect(
+      engine.draw('own/fates', next.state, {}, { yoursCard: () => undefined }).resolution.value
+        .card,
+    ).toBe('sun')
+  })
+
   describe('drawn by a generator', () => {
     const files: PackFile[] = [
       { path: 'cards/pack.yaml', content: 'id: cards\nversion: 0.1.0\nlocale: en\nlicense: MIT\n' },

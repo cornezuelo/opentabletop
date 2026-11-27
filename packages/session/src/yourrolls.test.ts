@@ -274,3 +274,88 @@ describe('older trips', () => {
     expect(migrateRolls({ foesByHand: false })).toEqual({})
   })
 })
+
+describe("the player's draws", () => {
+  /** At dawn, a card from a deck that can give an important one: the player's to draw. */
+  const CARDS = [
+    { path: 'fate/pack.yaml', content: 'id: fate\nversion: 0.1.0\nlocale: en\nformat: 15\n' },
+    {
+      path: 'fate/system.yaml',
+      content:
+        'kind: system\nname: Fate\ntravel: travel-rules.default\nbindings: bindings.default\nsheet: sheet.walker\n',
+    },
+    {
+      path: 'fate/travel.yaml',
+      content: `
+kind: sheet
+id: walker
+values: { morale: { default: 0 } }
+---
+kind: travel-rules
+travel: { hoursPerDay: 8, start: '07:00' }
+terrains: { plains: { multiplier: 1 } }
+modes: { walk: { kmPerDay: 24 } }
+checks: [{ event: OMEN, at: '07:00' }]
+---
+kind: bindings
+on: { OMEN: { resolve: deck.omens } }
+---
+kind: deck
+id: omens
+reversible: true
+cards:
+  - { id: crow, result: A crow, reversed: A crow flying away, count: 2 }
+  - { id: wyrm, result: The Wyrm stirs, notable: true }
+`,
+    },
+  ]
+  const { registry: fate } = loadPacks(CARDS)
+  const system = travelSystems(fate).systems.find((s) => s.id === 'fate')!
+  const at = (rollWay?: 'mine') => {
+    const oracle = createOracleEngine({ registry: fate, random: seeded(1) })
+    const members = [newMember(partyOf(system), { id: 'kael' })]
+    const { session } = startTrip({ system, location: 'a', members, time: 6 * 60 })
+    const options = { system, world, oracle }
+    const s = rollWay ? { ...session, rollWay } : session
+    return { options, done: stepTrip(options, s, { type: 'wait', until: 8 * 60 }) }
+  }
+
+  it('waits for the card the player draws, which may be any still in the deck, either way up', () => {
+    const { options, done } = at('mine')
+    const waiting = done.state.yours?.[0]
+    expect(waiting?.dice).toBe('')
+    expect(waiting?.draw).toMatchObject({
+      deck: 'fate/omens',
+      cards: [
+        { key: 'crow', count: 2, text: 'A crow' },
+        { key: 'wyrm', count: 1, text: 'The Wyrm stirs' },
+      ],
+      reversible: 0.5,
+    })
+    expect(results(done.entries)).toEqual([])
+    // The Wyrm, drawn from a real deck: it's what came out, reversed as it was.
+    const drawn = stepTrip(options, done.state, {
+      type: 'drawn',
+      id: waiting!.id,
+      card: 'crow',
+      reversed: true,
+    })
+    expect(results(drawn.entries)).toEqual(['A crow flying away'])
+    expect(drawn.state.yours).toBeUndefined()
+    // The card is out of the deck kept by the trip.
+    expect(drawn.state.oracle.decks['fate/omens']?.discard).toEqual(['crow'])
+  })
+
+  it('draws for the player when asked (Draw it for me), and never waits when the computer rolls', () => {
+    const { options, done } = at('mine')
+    const forMe = stepTrip(options, done.state, {
+      type: 'resolveCheck',
+      id: done.state.yours![0]!.id,
+    })
+    expect(results(forMe.entries)).toHaveLength(1)
+    expect(forMe.state.yours).toBeUndefined()
+    const computer = at()
+    expect(computer.done.state.yours).toBeUndefined()
+    expect(results(computer.done.entries)).toHaveLength(1)
+  })
+})

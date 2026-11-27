@@ -153,7 +153,7 @@ cards:
 ---
 kind: table
 id: lamp
-entries: # sin dados: la primera fila que se cumple
+entries: # sin dados: se elige entre las filas que se cumplen (aquí, una)
   - { result: una luz que extravía, when: { reversed: true } }
   - { result: un camino seguro a casa, unless: { reversed: true } }
 ```

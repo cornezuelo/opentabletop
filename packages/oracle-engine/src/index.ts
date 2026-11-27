@@ -57,6 +57,8 @@ export {
   type ResolveOptions,
   type ResolveOutcome,
   type WantedRoll,
+  type WantedDraw,
+  type DrawnCard,
 } from './resolve/engine'
 
 export interface PackLoadResult {
