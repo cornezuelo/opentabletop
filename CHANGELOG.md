@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.85.0] - 2026-11-28
+
 ### Apps
 
 - **Notes**: pages show pictures of the image library: **Picture** over the text chooses one (with a caption), and a picture dropped or pasted on the text is kept in the library and shown where it fell; read, each is the page's width at most with its caption under it, and under the text being written each shows small. The campaign's **Log** notes take them too. Exporting as .md files puts them in a `pictures` folder the pages name, and importing keeps them in the library again (once). **Your images…** says which pages and Logs show each picture.
