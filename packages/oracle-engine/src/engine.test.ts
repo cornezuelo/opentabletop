@@ -1571,3 +1571,31 @@ cards:
     expect(oracle.resolve('n/omens').resolution.value.notable).toBe(true)
   })
 })
+
+describe('styled texts ([text]{red})', () => {
+  it('reach the result as written, and a style there isn’t is warned about', () => {
+    const { registry, diagnostics } = loadPacks([
+      { path: 's/pack.yaml', content: 'id: s\nversion: 0.1.0\nlocale: en\n' },
+      {
+        path: 's/t.yaml',
+        content: `kind: table
+id: t
+roll: 1d2
+entries:
+  - { range: 1, result: '[{{2}} wolves]{red underline}' }
+  - { range: 2, result: '[Calm]{crimson}' }
+`,
+      },
+      {
+        path: 's/locales/es/t.yaml',
+        content: `t:\n  name: '[Lobos]{bold}'\n`,
+      },
+    ])
+    expect(diagnostics.map((d) => [d.severity, d.file, d.message])).toEqual([
+      ['warning', 's/t.yaml', expect.stringContaining('Unknown style "crimson"')],
+      ['warning', 's/locales/es/t.yaml', expect.stringContaining('Unknown style "bold"')],
+    ])
+    const engine = createOracleEngine({ registry, random: faces(2, 1) })
+    expect(engine.resolve('s/t').resolution.text).toBe('[2 wolves]{red underline}')
+  })
+})

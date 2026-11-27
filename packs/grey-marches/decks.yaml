@@ -15,6 +15,7 @@ description: |-
   - Another pack's table through an alias: `table.twist` → `core/table.twists`
   - `notable: true`: the Wyrm's sign, an important moment shown up front though nothing stops
   - **Faces**: every card drawn as a card, in the Marches' green ink (`face:` on the deck), each with its own icon or sign; the Wyrm's sign in red
+  - **Styled texts**: the Wyrm's sign said in bold red (`[**…**]{red}`), a rumour in italics (`_{{result}}_`)
 reshuffle: when-empty
 face: { ink: '#3b4a2f' }
 cards:
@@ -30,7 +31,7 @@ cards:
   - {
       id: rumour,
       face: { icon: 'game:wooden-sign' },
-      result: 'A rumour reaches you: {{result}}',
+      result: 'A rumour reaches you: _{{result}}_',
       table: generator.rumour,
     }
   - {
@@ -42,7 +43,7 @@ cards:
   # An omen that's more than a sign: the Wyrm's clock ticks.
   - id: wyrm-sign
     face: { icon: 'game:dragon-head', ink: red }
-    result: Scorched trees and a smell of sulphur
+    result: '[**Scorched trees and a smell of sulphur**]{red}'
     effects: { world.clocks.the-greywood-wyrm-wakes: 1 }
     # Nothing stops for it, but it's shown up front: an important moment.
     notable: true

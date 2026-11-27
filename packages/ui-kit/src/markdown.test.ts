@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { helpMarkdown, markdownText, renderMarkdown } from './markdown'
+import { helpMarkdown, markdownText, renderInline, renderMarkdown } from './markdown'
 
 describe('pack texts in Markdown', () => {
   it('format paragraphs, bold, code and lists', () => {
@@ -44,5 +44,28 @@ describe('help texts', () => {
 
   it('a plain text stays a paragraph', () => {
     expect(helpMarkdown('Only this.')).toBe('Only this.')
+  })
+})
+
+describe('styled text', () => {
+  it('draws a styled span in its ink, Markdown inside it, unknown names dropped', () => {
+    expect(renderInline('Two of hearts [♥]{red}')).toBe(
+      'Two of hearts <span class="ink-red">♥</span>',
+    )
+    expect(renderInline('[**Yes**]{green underline}')).toBe(
+      '<span class="ink-green ink-underline"><strong>Yes</strong></span>',
+    )
+    expect(renderInline('[plain]{crimson}')).toBe('plain')
+    expect(renderMarkdown('A [warning]{orange}.')).toBe(
+      '<p>A <span class="ink-orange">warning</span>.</p>\n',
+    )
+  })
+
+  it('stays inline and safe: no lists or paragraphs, no HTML, line breaks kept', () => {
+    expect(renderInline('1. first\nsecond')).toBe('1. first<br>second')
+    expect(renderInline('<b>x</b> [<i>y</i>]{red}')).toBe(
+      '&lt;b&gt;x&lt;/b&gt; <span class="ink-red">&lt;i&gt;y&lt;/i&gt;</span>',
+    )
+    expect(renderInline('[a link](https://example.org)')).toContain('href="https://example.org"')
   })
 })

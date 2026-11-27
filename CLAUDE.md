@@ -25,6 +25,7 @@ npm workspaces. Packages are consumed as TS source (`exports` → `src/index.ts`
 packages/                   # libraries, scope @open-tabletop/*
   hex/                      # hex grid math (axial/offset, pixels, neighbors, lines, flood fill)
   note-refs/                # provider-based links to external notes apps (SilverBullet, Obsidian…)
+  styled-text/              # styled spans in pack texts ([text]{red underline}): the named styles, plain text without them
   random/                   # RandomSource, seeded PRNG
   dice/                     # dice expressions with breakdown (NdM±K, d66, dF, repeat and keep…)
   variables/                # {{…}} variables and rolls in written values; rolls fixed for a moment
@@ -116,6 +117,7 @@ apps  →  *-ui, ui-kit  →  campaign, journal  →  map  →  session  →  *-
 - Among the lower packages: `conditions` → `variables` → `dice` (variables and rolls in written values are read in one place).
 - An engine **never imports another engine**. Whatever they share (dice, time, conditions) goes into a lower-level package.
 - `note-refs` depends on nothing, and no engine depends on it: external references are opaque strings to engines.
+- `styled-text` depends on nothing; engines may use it (oracle-engine warns about unknown styles), and ui-kit draws its spans.
 - `storage` is a browser adapter (IndexedDB, localStorage) with no dependencies; only apps and UI packages use it, never engines. `transfer` (exports) reads what `storage` keeps, as raw entries, and is used the same way (by ui-kit's app switcher).
 
 ## Common schema: OpenTabletop Data (OTD)

@@ -206,6 +206,9 @@ export const en = {
     weightHelp:
       'Relative chance when the table has no dice (default `1`):\n• `3` on one entry and `1` on another — three times as likely\n• `0` — never, unless chosen by a condition',
     result: 'Result',
+    resultHelp:
+      'What the entry says when it comes up; `{{result}}` puts there what **Then roll** gave.\n• `A ford, waist-deep`\n• `[**Ambush!**]{red}` — in bold red\n• `They are [friendly]{green}`\n• `A rumour: _{{result}}_` — in italics' +
+      '\nIt can be styled: `**bold**`, `_italics_`, and `[text]{red}` for a colour or underlining (`red`, `orange`, `yellow`, `green`, `blue`, `purple`, `grey`, `underline`; several at once: `[text]{red underline}`).',
     then: 'Then roll',
     thenHelp:
       "Another table or generator rolled **when this entry comes up**; its result is added to this one's.\n• `table.ruins` — what the ruins are\n• `generator.npc` — a generator: who you meet\n• `core/table.npc` — a table from another pack (`pack/kind.id`)\nThe table it rolls sees what this entry **Sets**.",
@@ -296,7 +299,7 @@ export const en = {
     createVariant: 'Create them',
     template: 'Template',
     templateHelp:
-      "Text of the result: write `{{field}}` where each field's value goes.\n• `The ruins of {{site}}, guarded by {{guardian}}.`\n• `{{count}} wolves ({{mood}})`\nThe chips below add a field at the end. Empty: the fields are listed one per line.",
+      "Text of the result: write `{{field}}` where each field's value goes.\n• `The ruins of {{site}}, guarded by {{guardian}}.`\n• `{{count}} wolves ({{mood}})`\nThe chips below add a field at the end. Empty: the fields are listed one per line.\nIt can be styled: `**bold**`, `_italics_`, and `[text]{red}` for a colour or underlining (`red`, `orange`, `yellow`, `green`, `blue`, `purple`, `grey`, `underline`; several at once: `[text]{red underline}`).",
     insertField: 'Add to the template',
     fields: 'Fields',
     fieldsHelp:

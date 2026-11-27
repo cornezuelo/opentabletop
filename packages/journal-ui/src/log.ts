@@ -11,6 +11,7 @@ import { entryLevel, JOURNAL_LEVELS, type JournalLevel } from '@open-tabletop/se
 import { formatClock, type Calendar } from '@open-tabletop/time'
 import { translator as travelTranslator } from '@open-tabletop/travel-ui'
 import { translator } from './i18n'
+import { withoutSpans } from '@open-tabletop/styled-text'
 
 /** What the log shows: up to a level, what was played in one place (`app:id`), some words. */
 export interface LogFilter {
@@ -149,7 +150,8 @@ export function logMarkdown(
   const t = translator(() => words.locale)
   const tt = travelTranslator(() => words.locale)
   const out = [`# ${title}`]
-  const flat = (text: string) => text.replace(/\s*\n\s*/g, ' ')
+  // On one line, its Markdown kept and its styled spans' colours dropped (a notes app has none).
+  const flat = (text: string) => withoutSpans(text).replace(/\s*\n\s*/g, ' ')
   for (const session of [...shown].reverse()) {
     out.push('', `## ${sessionTitle(session, words.locale)}`)
     for (const day of [...session.days].reverse()) {

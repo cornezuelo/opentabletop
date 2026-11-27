@@ -18,6 +18,14 @@
   --card-edge: #b9ad8c;
   --card-ink: #1f1c17;
   --card-red: #a8262c;
+  /* The inks a pack's styled text names (`[text]{red}`), readable on the panels. */
+  --ink-red: #e0706a;
+  --ink-orange: #e0954a;
+  --ink-yellow: #e3cd6a;
+  --ink-green: #8fbf6a;
+  --ink-blue: #79a7e0;
+  --ink-purple: #b48ade;
+  --ink-grey: #a39d8f;
   /* A search box's magnifier, drawn in --text-muted. */
   --search-icon: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239c9480' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='m20 20-4.8-4.8'/%3E%3C/svg%3E");
 
@@ -395,4 +403,38 @@ button.busy::after {
   button.busy::after {
     animation-duration: 2.4s;
   }
+}
+
+/* A pack's styled text (`[text]{red underline}`, `@open-tabletop/styled-text`), anywhere it's drawn. */
+.ink-red {
+  color: var(--ink-red);
+}
+
+.ink-orange {
+  color: var(--ink-orange);
+}
+
+.ink-yellow {
+  color: var(--ink-yellow);
+}
+
+.ink-green {
+  color: var(--ink-green);
+}
+
+.ink-blue {
+  color: var(--ink-blue);
+}
+
+.ink-purple {
+  color: var(--ink-purple);
+}
+
+.ink-grey {
+  color: var(--ink-grey);
+}
+
+.ink-underline {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }

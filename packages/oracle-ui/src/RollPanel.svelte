@@ -8,7 +8,14 @@
   import type { Snippet } from 'svelte'
   import type { HistoryItem } from './roller.svelte'
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
-  import { DiceThrow, dicePreferences, InfoTip, isTyping, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    DiceThrow,
+    dicePreferences,
+    InfoTip,
+    isTyping,
+    StyledText,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import { resolvePath } from '@open-tabletop/variables'
   import { contextVariables, mergeContext, parseContext, valueAt } from './variables'
@@ -370,7 +377,7 @@
     <td class="range">{range(entry, list!)}</td>
     {#if odds}<td class="odds">{percent(odds.entries.get(entry.key) ?? 0)}</td>{/if}
     <td>
-      {ui.entryText(def, entry) ?? ''}
+      <StyledText text={ui.entryText(def, entry) ?? ''} />
       {#if entry.ref}
         <span class="muted">
           {t('roll.then', {

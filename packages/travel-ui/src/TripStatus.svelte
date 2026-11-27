@@ -9,7 +9,7 @@
   } from '@open-tabletop/session'
   import type { TripAction } from '@open-tabletop/session'
   import { formatClock } from '@open-tabletop/time'
-  import { InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { InfoTip, markdownText, StyledText, tooltip } from '@open-tabletop/ui-kit'
   import { dayPartsLine } from './dayParts'
   import { idText, translator, type TravelUiKey } from './i18n'
   import { durationText, entryText } from './journal'
@@ -246,11 +246,13 @@
   {:else if news.length || waits || !scene}
     <div class="news">
       {#each news as line, i (i)}
-        <span class="last" class:newest={i === news.length - 1} use:tooltip={line}>{line}</span>
+        <span class="last" class:newest={i === news.length - 1} use:tooltip={markdownText(line)}
+          ><StyledText text={line} /></span
+        >
       {/each}
       {#if waits}
         <span class="waits" role="status"
-          >⏸ {waits.text}
+          >⏸ <StyledText text={waits.text} />
           {#if waits.go && onstep}
             <button class="go" onclick={() => onstep(waits.go!)}
               >{waits.label === 'next' ? t('fight.next') : t('continue')}</button

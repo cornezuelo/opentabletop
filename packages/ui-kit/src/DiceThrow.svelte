@@ -6,6 +6,7 @@
   import { dicePreferences } from './dicePreferences.svelte'
   import { knock } from './diceSound'
   import { portal } from './portal'
+  import StyledText from './StyledText.svelte'
   import { settled, startThrow, stepThrow, type Table, type ThrownDie } from './diceThrow'
   import { drawRoll, rollingFace } from './diceTray'
 
@@ -371,7 +372,7 @@
     aria-label={title || rolls[0]?.expression}
   >
     <div class="box">
-      {#if title}<p class="title">{title}</p>{/if}
+      {#if title}<p class="title"><StyledText text={title} /></p>{/if}
       {#if why.length}
         <ul class="why">
           {#each why as line, i (i)}<li>{line}</li>{/each}
@@ -388,7 +389,7 @@
             </p>
             {#if outcome}
               <ul>
-                {#each outcome as line, i (i)}<li>{line}</li>{/each}
+                {#each outcome as line, i (i)}<li><StyledText text={line} /></li>{/each}
               </ul>
             {:else}
               <p class="total muted">{text.playing}</p>

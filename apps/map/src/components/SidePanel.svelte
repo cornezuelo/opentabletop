@@ -27,7 +27,14 @@
   import { SetRegionStyleCommand } from '../lib/commands/settings'
   import type { HexKey, RegionStyle } from '@open-tabletop/map'
   import { OraclePanel } from '@open-tabletop/oracle-ui'
-  import { helpMarkdown, KeysFold, PanelHead, showToast, tooltip } from '@open-tabletop/ui-kit'
+  import {
+    helpMarkdown,
+    KeysFold,
+    markdownText,
+    PanelHead,
+    showToast,
+    tooltip,
+  } from '@open-tabletop/ui-kit'
   import { getLocale, t, type MessageKey } from '../lib/i18n/index.svelte'
   import { toolShortcuts } from '../lib/shortcutList'
   import { addResultAsPoi, oracleUi, rollContext, rollHex } from '../lib/play/oracle'
@@ -133,7 +140,7 @@
                 const text = item.resolution.text
                 if (!hex || !text) return
                 const def = oracleUi.library.registry.definitions.get(item.source)
-                addResultAsPoi(hex, text, oracleUi.displayName(def, item.source))
+                addResultAsPoi(hex, markdownText(text), oracleUi.displayName(def, item.source))
                 showToast(t('oracle.poiAdded', { hex: coord }))
               }}>{t('oracle.addPoi', { hex: coord })}</button
             >

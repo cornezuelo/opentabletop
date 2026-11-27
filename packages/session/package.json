@@ -25,5 +25,8 @@
     "@open-tabletop/land-engine": "*",
     "@open-tabletop/weather-engine": "*",
     "@open-tabletop/world-engine": "*"
+  },
+  "devDependencies": {
+    "@open-tabletop/styled-text": "*"
   }
 }

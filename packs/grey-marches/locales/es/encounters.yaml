@@ -42,12 +42,13 @@ reaction:
     - Ventaja
     - Rangos negativos
     - Lo que hace a quienes se encuentran: cualquier cosa que no sea hostil les quita _Hostil_ a todos (`present.all.conditions.hostile: false`), así que no dejan a la Compañía _Acosada_
+    - **Textos con estilo**: cada reacción en su color, de hostiles en rojo y negrita a deseosos de ayudar en verde subrayado (`[amistosos]{green}`)
   entries:
-    hostile: hostiles
-    wary: recelosos
+    hostile: '[**hostiles**]{red}'
+    wary: '[recelosos]{orange}'
     neutral: dispuestos a hablar
-    friendly: amistosos
-    helpful: deseosos de ayudar
+    friendly: '[amistosos]{green}'
+    helpful: '[deseosos de ayudar]{green underline}'
 npc:
   name: Alguien en el camino
   description: |-

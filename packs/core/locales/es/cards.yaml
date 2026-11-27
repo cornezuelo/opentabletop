@@ -3,7 +3,7 @@ playing-cards:
   description: |-
     La **baraja de póker**: cuatro palos de trece y dos comodines. Una carta robada queda fuera hasta que se acaba el mazo, o hasta que pulsas **Barajar**.
 
-    Cada carta pone su `suit` (`spades`, `hearts`, `diamonds`, `clubs` o `joker`) y su `rank` (as 1, jota 11, reina 12, rey 13, comodín 0).
+    Cada carta pone su `suit` (`spades`, `hearts`, `diamonds`, `clubs` o `joker`) y su `rank` (as 1, jota 11, reina 12, rey 13, comodín 0). Las cartas rojas dicen su palo en rojo (`[♥]{red}`, un texto con estilo).
   cards:
     spades-a: As de picas ♠
     spades-2: Dos de picas ♠
@@ -18,32 +18,32 @@ playing-cards:
     spades-j: Jota de picas ♠
     spades-q: Reina de picas ♠
     spades-k: Rey de picas ♠
-    hearts-a: As de corazones ♥
-    hearts-2: Dos de corazones ♥
-    hearts-3: Tres de corazones ♥
-    hearts-4: Cuatro de corazones ♥
-    hearts-5: Cinco de corazones ♥
-    hearts-6: Seis de corazones ♥
-    hearts-7: Siete de corazones ♥
-    hearts-8: Ocho de corazones ♥
-    hearts-9: Nueve de corazones ♥
-    hearts-10: Diez de corazones ♥
-    hearts-j: Jota de corazones ♥
-    hearts-q: Reina de corazones ♥
-    hearts-k: Rey de corazones ♥
-    diamonds-a: As de diamantes ♦
-    diamonds-2: Dos de diamantes ♦
-    diamonds-3: Tres de diamantes ♦
-    diamonds-4: Cuatro de diamantes ♦
-    diamonds-5: Cinco de diamantes ♦
-    diamonds-6: Seis de diamantes ♦
-    diamonds-7: Siete de diamantes ♦
-    diamonds-8: Ocho de diamantes ♦
-    diamonds-9: Nueve de diamantes ♦
-    diamonds-10: Diez de diamantes ♦
-    diamonds-j: Jota de diamantes ♦
-    diamonds-q: Reina de diamantes ♦
-    diamonds-k: Rey de diamantes ♦
+    hearts-a: 'As de corazones [♥]{red}'
+    hearts-2: 'Dos de corazones [♥]{red}'
+    hearts-3: 'Tres de corazones [♥]{red}'
+    hearts-4: 'Cuatro de corazones [♥]{red}'
+    hearts-5: 'Cinco de corazones [♥]{red}'
+    hearts-6: 'Seis de corazones [♥]{red}'
+    hearts-7: 'Siete de corazones [♥]{red}'
+    hearts-8: 'Ocho de corazones [♥]{red}'
+    hearts-9: 'Nueve de corazones [♥]{red}'
+    hearts-10: 'Diez de corazones [♥]{red}'
+    hearts-j: 'Jota de corazones [♥]{red}'
+    hearts-q: 'Reina de corazones [♥]{red}'
+    hearts-k: 'Rey de corazones [♥]{red}'
+    diamonds-a: 'As de diamantes [♦]{red}'
+    diamonds-2: 'Dos de diamantes [♦]{red}'
+    diamonds-3: 'Tres de diamantes [♦]{red}'
+    diamonds-4: 'Cuatro de diamantes [♦]{red}'
+    diamonds-5: 'Cinco de diamantes [♦]{red}'
+    diamonds-6: 'Seis de diamantes [♦]{red}'
+    diamonds-7: 'Siete de diamantes [♦]{red}'
+    diamonds-8: 'Ocho de diamantes [♦]{red}'
+    diamonds-9: 'Nueve de diamantes [♦]{red}'
+    diamonds-10: 'Diez de diamantes [♦]{red}'
+    diamonds-j: 'Jota de diamantes [♦]{red}'
+    diamonds-q: 'Reina de diamantes [♦]{red}'
+    diamonds-k: 'Rey de diamantes [♦]{red}'
     clubs-a: As de tréboles ♣
     clubs-2: Dos de tréboles ♣
     clubs-3: Tres de tréboles ♣
@@ -57,7 +57,7 @@ playing-cards:
     clubs-j: Jota de tréboles ♣
     clubs-q: Reina de tréboles ♣
     clubs-k: Rey de tréboles ♣
-    joker-red: Comodín rojo
+    joker-red: '[Comodín rojo]{red}'
     joker-black: Comodín negro
 spanish-deck:
   name: Baraja española

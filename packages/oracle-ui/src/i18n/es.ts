@@ -209,6 +209,9 @@ export const es: Messages<typeof en> = {
     weightHelp:
       'Probabilidad relativa cuando la tabla no tiene dados (por defecto `1`):\n• `3` en una entrada y `1` en otra — el triple de probable\n• `0` — nunca, salvo que la elija una condición',
     result: 'Resultado',
+    resultHelp:
+      'Lo que dice la entrada cuando sale; `{{result}}` pone ahí lo que dio **Luego tira**.\n• `Un vado, con el agua por la cintura`\n• `[**¡Emboscada!**]{red}` — en rojo y negrita\n• `Son [amistosos]{green}`\n• `Un rumor: _{{result}}_` — en cursiva' +
+      '\nPuede llevar estilo: `**negrita**`, `_cursiva_`, y `[texto]{red}` para un color o un subrayado (`red`, `orange`, `yellow`, `green`, `blue`, `purple`, `grey`, `underline`; varios a la vez: `[texto]{red underline}`).',
     then: 'Luego tira',
     thenHelp:
       'Otra tabla o generador que se tira **cuando sale esta entrada**; su resultado se añade a este.\n• `table.ruins` — qué son las ruinas\n• `generator.npc` — un generador: a quién encontráis\n• `core/table.npc` — una tabla de otro pack (`pack/kind.id`)\nLa tabla que tira ve lo que esta entrada **Fija**.',
@@ -299,7 +302,7 @@ export const es: Messages<typeof en> = {
     createVariant: 'Crearlas',
     template: 'Plantilla',
     templateHelp:
-      'Texto del resultado: escribe `{{campo}}` donde va el valor de cada campo.\n• `Las ruinas de {{site}}, guardadas por {{guardian}}.`\n• `{{count}} lobos ({{mood}})`\nLas fichas de abajo añaden un campo al final. Vacío: se listan los campos, uno por línea.',
+      'Texto del resultado: escribe `{{campo}}` donde va el valor de cada campo.\n• `Las ruinas de {{site}}, guardadas por {{guardian}}.`\n• `{{count}} lobos ({{mood}})`\nLas fichas de abajo añaden un campo al final. Vacío: se listan los campos, uno por línea.\nPuede llevar estilo: `**negrita**`, `_cursiva_`, y `[texto]{red}` para un color o un subrayado (`red`, `orange`, `yellow`, `green`, `blue`, `purple`, `grey`, `underline`; varios a la vez: `[texto]{red underline}`).',
     insertField: 'Añadir a la plantilla',
     fields: 'Campos',
     fieldsHelp:

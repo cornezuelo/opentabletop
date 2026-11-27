@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { confirmAction, InfoTip, tooltip } from '@open-tabletop/ui-kit'
+  import { confirmAction, InfoTip, StyledText, tooltip } from '@open-tabletop/ui-kit'
   import type { Snippet } from 'svelte'
   import type { HistoryItem } from './roller.svelte'
   import type { OracleUi } from './ui'
@@ -60,7 +60,7 @@
       <li>
         <button onclick={() => open(item)}>
           <span class="meta">{ui.nameOf(item.source)} · {time(item.at)}</span>
-          <span class="text">{item.resolution.text ?? '—'}</span>
+          <span class="text"><StyledText text={item.resolution.text ?? '—'} /></span>
         </button>
       </li>
     {:else}

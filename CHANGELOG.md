@@ -4,6 +4,19 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Styled texts**: results, cards, a trip's journal and important moments, the rows of a roll's table and Campaign's **Log** show what a pack writes in **bold**, _italics_, a colour or underlined; the Oracle's forms say how in a result's help. Exports keep bold and italics (Markdown) or none (Lonelog, the command line).
+
+### Packs
+
+- **Core**: the poker deck's red cards say their suit in red.
+- **The Grey Marches**: each reaction in its colour (hostile in bold red… eager to help in underlined green), the Wyrm's omen in bold red, rumours in italics.
+
+### Formats
+
+- **Packs**: styled spans in any text, `[text]{red}`, `[text]{green underline}` (colours `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `grey`, and `underline`); a name that isn't one is warned about when the pack loads. Nothing older changes meaning.
+
 ## [0.82.0] - 2026-11-27
 
 ### Apps

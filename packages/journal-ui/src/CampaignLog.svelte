@@ -37,6 +37,7 @@
     Icon,
     InfoTip,
     MoreMenu,
+    StyledText,
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
@@ -307,7 +308,7 @@
       <span class="mark" aria-label={line.kind === 'world' ? t('log.world') : t('log.oracle')}
         >{line.kind === 'world' ? '◆' : '?'}</span
       >
-      <span class="text">{lineText(line, words, level)}</span>
+      <span class="text"><StyledText text={lineText(line, words, level)} /></span>
       {@render here(line)}
     </div>
   {/if}

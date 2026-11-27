@@ -13,6 +13,7 @@
     DiceTray,
     InfoTip,
     MoreMenu,
+    StyledText,
     tooltip,
   } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
@@ -184,7 +185,10 @@
     {@const hit = rowOf(given ? total : undefined)}
     <ol class="ladder" aria-label={t('yourRoll.ladder')}>
       {#each rows as r (r.key)}
-        <li class:hit={r.key === hit}><span class="range">{r.range}</span> {r.text}</li>
+        <li class:hit={r.key === hit}>
+          <span class="range">{r.range}</span>
+          <StyledText text={r.text} />
+        </li>
       {/each}
     </ol>
   {/if}

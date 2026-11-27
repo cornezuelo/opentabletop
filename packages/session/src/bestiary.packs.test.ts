@@ -2,6 +2,7 @@ import type { DiceResult } from '@open-tabletop/dice'
 import type { SessionState } from './index'
 import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
 import { seeded } from '@open-tabletop/random'
+import { plainText } from '@open-tabletop/styled-text'
 import type { TravelWorld } from '@open-tabletop/travel-engine'
 import { describe, expect, it } from 'vitest'
 import { corePack, greyMarchesPack } from './core.testing'
@@ -699,14 +700,14 @@ describe('beset by foes', () => {
     const { session } = startTrip({ system: marches, location: 'a', members, seed: 'b' })
     const hills = { ...road, place: () => ({ terrain: 'hills', fields: { danger: '4' } }) }
     const facts = tripFacts({ system: marches, world: hills }, session)
-    /** The bandits, their reaction `how` (its text). */
+    /** The bandits, their reaction `how` (its text, read without its styles: `[**hostile**]{red}`). */
     const met = (how: RegExp) => {
       for (let seed = 1; seed < 400; seed++) {
         const out = createOracleEngine({ registry, random: seeded(seed) }).resolve(
           'grey-marches/table.encounter',
           facts,
         ).resolution
-        if (out.entry === 'bandits' && how.test(out.text!))
+        if (out.entry === 'bandits' && how.test(plainText(out.text!)))
           return settleTrip(options, applyResult(session, out.value, {}, rules)).state
       }
       throw new Error(`no bandits ${how}`)

@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { markdownText } from './markdown'
   import PlayingCard from './PlayingCard.svelte'
+  import StyledText from './StyledText.svelte'
   import { tooltip } from './tooltip'
 
   type Face = import('svelte').ComponentProps<typeof PlayingCard>['face']
@@ -36,9 +38,9 @@
         class:across={card.place?.across}
         style:grid-column={card.place!.at![0] + 1}
         style:grid-row={card.place!.at![1] + 1}
-        use:tooltip={card.caption ?? ''}
+        use:tooltip={markdownText(card.caption ?? '')}
       >
-        <PlayingCard face={card.face} {width} label={card.caption} />
+        <PlayingCard face={card.face} {width} label={markdownText(card.caption ?? '')} />
       </figure>
     {/each}
   </div>
@@ -47,9 +49,9 @@
   <div class="row">
     {#each loose as card, i (i)}
       <figure>
-        <PlayingCard face={card.face} {width} label={card.caption} />
+        <PlayingCard face={card.face} {width} label={markdownText(card.caption ?? '')} />
         {#if card.caption}<figcaption style:max-width="{width + 24}px">
-            {card.caption}
+            <StyledText text={card.caption} />
           </figcaption>{/if}
       </figure>
     {/each}

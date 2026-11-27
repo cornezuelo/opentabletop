@@ -11,7 +11,7 @@ Name, description, **Tags** (words that sort it, any the pack chooses: `encounte
 - **Clamp totals** (on by default): a total below the lowest range takes the first entry, above the highest the last one, so modifiers never leave you without a result. Off, such a total gives nothing.
 - **When exhausted**: what happens when the entry rolled has reached its limit (see below): **Roll again**, **Take the next one** still available, or **Nothing**.
 
-Descriptions (of tables, oracles, generators and decks, and of a travel system's checks, actions and stats) can use **basic Markdown**: a blank line starts a new paragraph, `**bold**`, `_italics_`, `` `code` ``, lists (`- item`), quotes (`> …`) and links to the web (`[text](https://…)`). Nothing else: HTML and images written in a pack show as text, since packs can come from anyone. In YAML, write a long description as a block: `description: |-` and the text indented below it. The Grey Marches' descriptions use it: a paragraph saying what each one is for, then **Shows:** with what it teaches.
+Descriptions (of tables, oracles, generators and decks, and of a travel system's checks, actions and stats) can use **basic Markdown**: a blank line starts a new paragraph, `**bold**`, `_italics_`, `` `code` ``, lists (`- item`), quotes (`> …`) links to the web (`[text](https://…)`) and a colour or underlining (`[text]{red}`, [Styled texts](../technical/09-syntax.md#styled-texts)). Nothing else: HTML and images written in a pack show as text, since packs can come from anyone. In YAML, write a long description as a block: `description: |-` and the text indented below it. The Grey Marches' descriptions use it: a paragraph saying what each one is for, then **Shows:** with what it teaches.
 
 ## Tables
 
@@ -21,7 +21,7 @@ Each **entry** has:
 
 - an **id** (needed for translations and once-only entries; **Give entries ids** fills them in),
 - a **range** of totals (`3` or `2-5`; none in a table rolled **Against** a number, unless it's for some totals only), or a **weight** when the table has no dice (how likely it is compared to the others: [Without dice: weights](08-dice-and-templates.md#without-dice-weights)),
-- the **result** text, which may hold dice (`{{1d6}} wolves`) and context values (`{{time.season}}`),
+- the **result** text, which may hold dice (`{{1d6}} wolves`) and context values (`{{time.season}}`), and be styled: `**bold**`, `_italics_`, a colour or underlining (`[**hostile**]{red}`, `[friendly]{green}`; see [Styled texts](../technical/09-syntax.md#styled-texts)),
 - **then roll**: another table or generator rolled after it, whose result is added.
 
 Add, duplicate, move and remove entries. **Number 1–N** gives them consecutive ranges and sets the dice to match.

@@ -1,16 +1,51 @@
-import { Marked, type Tokens } from 'marked'
+import { isStyle, SPAN_AT_START, spanOf } from '@open-tabletop/styled-text'
+import { Marked, type TokenizerAndRendererExtension, type Tokens } from 'marked'
 
 const escapeHtml = (text: string) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 /**
+ * A styled span, `[text]{red underline}` (`@open-tabletop/styled-text`): its text drawn in
+ * the theme's colour of that name (`.ink-red`) or underlined (`.ink-underline`). Names it
+ * doesn't know are dropped, the text kept.
+ */
+const styledSpan: TokenizerAndRendererExtension = {
+  name: 'styled',
+  level: 'inline',
+  start: (src: string) => {
+    const at = src.indexOf('[')
+    return at < 0 ? undefined : at
+  },
+  tokenizer(src: string) {
+    const match = SPAN_AT_START.exec(src)
+    if (!match) return undefined
+    const span = spanOf(match)
+    return {
+      type: 'styled',
+      raw: match[0],
+      styles: span.styles.filter(isStyle),
+      tokens: this.lexer.inlineTokens(span.text),
+    }
+  },
+  renderer(token) {
+    const inner = this.parser.parseInline(token.tokens ?? [])
+    const styles = token.styles as string[]
+    return styles.length
+      ? `<span class="${styles.map((name) => `ink-${name}`).join(' ')}">${inner}</span>`
+      : inner
+  },
+}
+
+/**
  * Basic Markdown for pack texts (packs can come from third parties): paragraphs, bold,
- * italics, code, lists, quotes and links to the web. HTML written in the text stays
- * text, images show their description, headings read as bold paragraphs.
+ * italics, code, lists, quotes, links to the web and styled spans (`[text]{red}`). HTML
+ * written in the text stays text, images show their description, headings read as bold
+ * paragraphs.
  */
 const markdown = new Marked({
   async: false,
   gfm: true,
+  extensions: [styledSpan],
   renderer: {
     html: ({ text }: Tokens.HTML | Tokens.Tag) => escapeHtml(text),
     heading(token: Tokens.Heading) {
@@ -29,6 +64,15 @@ const markdown = new Marked({
 /** A pack text (a description…) in basic Markdown as safe HTML. */
 export function renderMarkdown(text: string): string {
   return markdown.parse(text) as string
+}
+
+/**
+ * A short pack text shown inline (a result, a card, a line of the journal) as safe HTML:
+ * bold, italics, code, links to the web and styled spans, no paragraphs or lists; its
+ * line breaks kept.
+ */
+export function renderInline(text: string): string {
+  return (markdown.parseInline(text, { breaks: true }) as string).replace(/\n/g, '<br>')
 }
 
 /** The same text without formatting (for screen-reader labels). */

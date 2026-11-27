@@ -8,7 +8,7 @@
     characterPicture,
     Face,
   } from '@open-tabletop/character-ui'
-  import { DiceTray, InfoTip, Markdown, Picture, tooltip } from '@open-tabletop/ui-kit'
+  import { DiceTray, InfoTip, Markdown, Picture, StyledText, tooltip } from '@open-tabletop/ui-kit'
   import { translator } from './i18n'
   import {
     besideEnd,
@@ -294,7 +294,7 @@
         {#each turn.rolls as r, i (i)}{@render rolled(r)}{/each}
         {#if turn.outcome.length}
           <ul class="outcome">
-            {#each turn.outcome as line, i (i)}<li>{line}</li>{/each}
+            {#each turn.outcome as line, i (i)}<li><StyledText text={line} /></li>{/each}
           </ul>
         {:else if !closing}
           <!-- Beside the closing card, what it left is said there. -->
@@ -321,7 +321,10 @@
     {#if r.rows}
       <ol class="ladder" aria-label={t('yourRoll.ladder')}>
         {#each r.rows as row (row.key)}
-          <li class:hit={row.key === r.hit}><span class="range">{row.range}</span> {row.text}</li>
+          <li class:hit={row.key === r.hit}>
+            <span class="range">{row.range}</span>
+            <StyledText text={row.text} />
+          </li>
         {/each}
       </ol>
     {/if}
@@ -472,7 +475,7 @@
             <h4>{t('fight.overIn', { rounds: ended.rounds })}</h4>
             {#if ended.gone.length}
               <ul class="outcome">
-                {#each ended.gone as line, i (i)}<li>{line}</li>{/each}
+                {#each ended.gone as line, i (i)}<li><StyledText text={line} /></li>{/each}
               </ul>
             {/if}
             {#if ended.left.length}
@@ -503,7 +506,7 @@
               >
             </div>
           {:else if asking}
-            <p class="turn asking">{asking}</p>
+            <p class="turn asking"><StyledText text={asking} /></p>
           {:else if choosing}
             <!-- The turn's choices, each once: what's done to a foe is armed here and aimed
                  at a card; the rest are taken here. -->
@@ -589,7 +592,9 @@
                 <!-- Its dice small, what they were for in their tooltip. -->
                 <p class="dice" use:tooltip={r.label}><DiceTray rolls={r.dice} {locale} /></p>
               {/each}
-              {#each turn.outcome as line, j (j)}<p class="left">{line}</p>{/each}
+              {#each turn.outcome as line, j (j)}<p class="left">
+                  <StyledText text={line} />
+                </p>{/each}
               {#if turn.more.length}
                 <details class="more">
                   <summary>{t('fight.more', { n: turn.more.length })}</summary>

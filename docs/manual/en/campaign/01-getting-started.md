@@ -107,7 +107,7 @@ The campaign's journal: everything played in it, in the order it happened in the
 
 Above it, as in a trip's journal: **Show** (**The story**, **And the rules**, **Everything**: how much of each moment is told; a moment where only what happened behind was told, such as a check that didn't come up, shows only in **Everything**), **Played in** (only the moments of one map, trip or scene), a search (the magnifier), and **⤓ ▾** (export), which downloads what's shown as a Markdown file for your notes app, in one of two ways:
 
-- **Markdown**: written plainly, sessions and days as headings, each line with its time.
+- **Markdown**: written plainly, sessions and days as headings, each line with its time; bold and italics kept, the colours of [styled texts](../technical/09-syntax.md#styled-texts) left out.
 - **Lonelog**: in the notation of [Lonelog](https://lonelog.org/), the way many solo players write their logs. Each session is a heading with the date it was played, each day a scene (`### S1 *15 Thaw*`), and its lines go in a code block: `@` an action taken (a march, a fight's turn), `d:` a roll against a number with its verdict (`d: Scouting 1d6=2 ≤ 3 -> Success`), `tbl:` a table's result (`tbl: Encounter 1d6=6 -> Wolves`, with the dice rolled inside the result in parentheses), `=>` what happened because of it and what it changed, `(note: …)` the rules behind (at **Everything**) and `[Clock:Name 3/6]` a progress clock of the world. Your notes stay as prose between the blocks. It's only written: a Lonelog typed elsewhere isn't read back.
 
 A trip with no campaign of its own keeps only its own journal. The Grey Marches' example maps play in one campaign: play a few days on either and the Log has them.

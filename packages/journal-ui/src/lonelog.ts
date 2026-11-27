@@ -1,4 +1,5 @@
 import { timelineText } from '@open-tabletop/campaign-ui'
+import { plainText } from '@open-tabletop/styled-text'
 import type { AgainstOutcome, DiceResult } from '@open-tabletop/dice'
 import type { LogLine, ToldDie } from '@open-tabletop/journal'
 import type { HistoryItem } from '@open-tabletop/oracle-engine'
@@ -24,7 +25,11 @@ const rollText = (r: Pick<DiceResult, 'expression' | 'total'>): string =>
 const OPS: Record<AgainstOutcome['op'], string> = { lte: '≤', lt: '<', gte: '≥', gt: '>' }
 
 /** A text on one line, without what would close a tag or a block. */
-const flat = (text: string) => text.replace(/\s*\n\s*/g, ' ').trim()
+/** A text on one line, as plain text (no Markdown marks, no styled spans). */
+const flat = (text: string) =>
+  plainText(text)
+    .replace(/\s*\n\s*/g, ' ')
+    .trim()
 const tagName = (text: string) => flat(text).replace(/[|[\]]/g, ' ')
 
 /**

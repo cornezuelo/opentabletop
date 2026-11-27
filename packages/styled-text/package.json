@@ -1,0 +1,14 @@
+{
+  "name": "@open-tabletop/styled-text",
+  "version": "0.0.0",
+  "description": "Styled spans in pack texts ([text]{red underline}): the named styles, finding them and plain text without them.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  }
+}

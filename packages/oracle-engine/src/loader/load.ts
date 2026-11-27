@@ -1,4 +1,5 @@
 import { parseAllDocuments } from 'yaml'
+import { STYLES, unknownStyles } from '@open-tabletop/styled-text'
 import type { z } from 'zod'
 import {
   definitionSchema,
@@ -149,6 +150,7 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
     }
     const locale = /^locales\/([^/]+)\//.exec(relative)?.[1]
     const docs = parseDocuments(file, diagnostics, pack.manifest.id)
+    checkStyles(docs, file.path, pack.manifest.id, diagnostics)
     if (locale) {
       for (const whole of docs) {
         // `<kind>/<id>` keys translate definitions that aren't tables; the rest are tables'.
@@ -183,6 +185,27 @@ export function loadPackFiles(files: PackFile[]): LoadResult {
       })
   }
   return { packs, diagnostics }
+}
+
+/**
+ * Styled spans (`[text]{red}`) that name a style there isn't, anywhere in a file's texts:
+ * a warning each, as they're drawn as plain text.
+ */
+function checkStyles(docs: unknown[], file: string, pack: string, diagnostics: Diagnostic[]): void {
+  const unknown = new Set<string>()
+  const walk = (value: unknown): void => {
+    if (typeof value === 'string') for (const name of unknownStyles(value)) unknown.add(name)
+    else if (Array.isArray(value)) value.forEach(walk)
+    else if (isRecord(value)) Object.values(value).forEach(walk)
+  }
+  docs.forEach(walk)
+  for (const name of unknown)
+    diagnostics.push({
+      severity: 'warning',
+      message: `Unknown style "${name}" in [text]{…} (known: ${STYLES.join(', ')}); its text is shown without it`,
+      pack,
+      file,
+    })
 }
 
 /** An image file kept in its pack, checked to be what its name says. */

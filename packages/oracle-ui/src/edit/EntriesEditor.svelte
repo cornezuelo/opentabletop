@@ -139,7 +139,7 @@
       {:else}
         <th>{t('edit.weight')}<InfoTip text={t('edit.weightHelp')} /></th>
       {/if}
-      <th class="wide">{t('edit.result')}</th>
+      <th class="wide">{t('edit.result')}<InfoTip text={t('edit.resultHelp')} /></th>
       <th>{t('edit.then')}<InfoTip text={t('edit.thenHelp')} /></th>
       <th></th>
     </tr>

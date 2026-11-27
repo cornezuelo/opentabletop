@@ -9,6 +9,7 @@ import {
   type Resolution,
 } from '@open-tabletop/oracle-engine'
 import { mathRandom, seeded } from '@open-tabletop/random'
+import { plainText } from '@open-tabletop/styled-text'
 import { mapStyles } from '@open-tabletop/map'
 import { travelSystems } from '@open-tabletop/session'
 
@@ -191,7 +192,7 @@ export function run(args: readonly string[], io: Io): number {
   return 2
 }
 
-/** A result as one line: its text, or its values when it has none, with the dice. */
+/** A result as one line: its text (plain, without bold or styled spans), or its values when it has none, with the dice. */
 function describe(resolution: Resolution): string {
   const dice = flatten(resolution)
     .flatMap((r) =>
@@ -204,7 +205,7 @@ function describe(resolution: Resolution): string {
     )
     .join(', ')
   const text =
-    resolution.text ??
+    (resolution.text === undefined ? undefined : plainText(resolution.text)) ??
     (Object.keys(resolution.value).length ? JSON.stringify(resolution.value) : '—')
   return dice ? `${text}  [${dice}]` : text
 }

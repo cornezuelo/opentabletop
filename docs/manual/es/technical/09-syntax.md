@@ -253,9 +253,32 @@ Las reglas de viaje multiplican velocidades: el `multiplier` de un terreno o cam
 
 ## Descripciones
 
-Las descripciones aceptan Markdown básico: una línea en blanco entre párrafos, `**negrita**`, `_cursiva_`, `` `código` ``, listas (`- elemento`), citas (`> …`) y enlaces a la web (`[texto](https://…)`); nada más, HTML incluido, se muestra como texto. En YAML, una larga va como bloque: `description: |-` y el texto sangrado debajo.
+Las descripciones aceptan Markdown básico: una línea en blanco entre párrafos, `**negrita**`, `_cursiva_`, `` `código` ``, listas (`- elemento`), citas (`> …`) y enlaces a la web (`[texto](https://…)`); y los [textos con estilo](#textos-con-estilo) de abajo (`[texto]{red}`); nada más, HTML incluido, se muestra como texto. En YAML, una larga va como bloque: `description: |-` y el texto sangrado debajo.
 
 Las **etiquetas** clasifican lo que se tira: `tags: [people, names]` en una tabla, oráculo, generador o mazo, las palabras que elija el pack, que el **Filtrar** del Oráculo y de Mapa muestra u oculta (`rules`, en nuestros packs, para lo que tira el propio sistema).
+
+## Textos con estilo
+
+Lo que un pack escribe para mostrarse en juego (el **resultado** de una entrada o de una carta, la plantilla de un generador, el `say` de un paso, una descripción) puede llevar estilo, para que un resultado se lea de un vistazo:
+
+- `**negrita**` y `_cursiva_`, como en las descripciones;
+- `[texto]{color}`: el texto entre corchetes en un color, `red` (rojo), `orange` (naranja), `yellow` (amarillo), `green` (verde), `blue` (azul), `purple` (morado) o `grey` (gris), los del tema, legibles en los paneles de las apps;
+- `[texto]{underline}`: subrayado;
+- varios a la vez, separados por espacios, y con Markdown dentro: `[**¡Emboscada!**]{red underline}`.
+
+```yaml
+kind: table
+id: reaction
+roll: 2d6
+entries:
+  - { id: hostile, range: 2-5, result: '[**hostiles**]{red}' }
+  - { id: wary, range: 6-8, result: '[recelosos]{orange}' }
+  - { id: friendly, range: 9-12, result: '[amistosos]{green}' }
+```
+
+Las variables se rellenan antes, así que un tramo puede llevar una (`[{{1d6}} lobos]{red}`), y un resultado que toma el de otro (`Están {{result}}`) conserva sus colores. En YAML, un texto que empieza por `[` va entre comillas. Los colores son nombres, nunca códigos, para que se lean bien con cualquier tema; un nombre que no sea uno de estos (`[texto]{crimson}`) muestra el texto sin estilo, y los problemas del pack lo avisan al cargarlo.
+
+Dónde se ve: los resultados y el historial del Oráculo, el diario de un viaje y sus momentos importantes, las cartas robadas, las filas de la tabla de una tirada, el **Diario** de Campaña. Dónde se quita: el nombre de una carta leído en voz alta, un resultado añadido a una celda como punto de interés, la línea de comandos y las exportaciones: el **Markdown** del diario conserva negrita y cursiva y quita los colores (una app de notas no los tiene), **Lonelog** es texto plano.
 
 ## Traducciones
 

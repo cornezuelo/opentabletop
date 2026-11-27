@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DiceTray, PlayingCard, tooltip } from '@open-tabletop/ui-kit'
+  import { DiceTray, PlayingCard, StyledText, tooltip } from '@open-tabletop/ui-kit'
   import type { BeatTold } from './beats'
   import { translator } from './i18n'
 
@@ -55,10 +55,12 @@
         aria-expanded={!folded}
         use:tooltip={folded ? t('beats.unfold') : t('beats.fold')}
         onclick={() => (folded = !folded)}
-        ><span class="arrow" aria-hidden="true">{folded ? '▸' : '▾'}</span>{told.title}</button
+        ><span class="arrow" aria-hidden="true">{folded ? '▸' : '▾'}</span><StyledText
+          text={told.title}
+        /></button
       >
     {:else}
-      <span class="title">{told.title}</span>
+      <span class="title"><StyledText text={told.title} /></span>
     {/if}
   </header>
   {#if !folded && more}
@@ -66,7 +68,7 @@
       <ul class="lines">
         {#each told.lines as line (line.id)}
           <li class:important={line.notable} class:rules={line.level !== 'story'}>
-            <span>{line.text}</span>
+            <span><StyledText text={line.text} /></span>
             {#if line.cards}
               <!-- The cards it drew, small, as its dice are. -->
               <span class="cards">

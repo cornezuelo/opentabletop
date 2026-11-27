@@ -120,7 +120,7 @@
       <tr>
         <th>{t('edit.id')}<InfoTip text={t('edit.cardIdHelp')} /></th>
         <th>{t('edit.copies')}<InfoTip text={t('edit.copiesHelp')} /></th>
-        <th class="wide">{t('edit.cardText')}</th>
+        <th class="wide">{t('edit.cardText')}<InfoTip text={t('edit.resultHelp')} /></th>
         <th>{t('edit.then')}<InfoTip text={t('edit.thenHelp')} /></th>
         <th></th>
       </tr>

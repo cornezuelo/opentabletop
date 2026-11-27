@@ -11,13 +11,14 @@ omens:
     - Una tabla de otro pack mediante un alias: `table.twist` → `core/table.twists`
     - `notable: true`: la señal de la Sierpe, un momento importante que se muestra delante aunque nada se detenga
     - **Caras**: cada carta robada se dibuja como carta, con la tinta verde de las Marcas (`face:` en el mazo), cada una con su icono o signo; la señal de la Sierpe en rojo
+    - **Textos con estilo**: la señal de la Sierpe dicha en rojo y negrita (`[**…**]{red}`), un rumor en cursiva (`_{{result}}_`)
   cards:
     crows: Los cuervos os siguen todo el día
     rainbow: Un arcoíris sobre el Lago Salado
     stranger: 'Un desconocido en el camino: {{result}}'
-    rumour: 'Os llega un rumor: {{result}}'
+    rumour: 'Os llega un rumor: _{{result}}_'
     cache: 'El escondrijo de un cazador: comida para dos días'
-    wyrm-sign: Árboles chamuscados y olor a azufre
+    wyrm-sign: '[**Árboles chamuscados y olor a azufre**]{red}'
     twist: 'El camino se vuelve extraño: {{result}}'
 hedge-cards:
   name: Las cartas de la bruja de los setos

@@ -86,6 +86,7 @@
     dicePreferences,
     InfoTip,
     markdownText,
+    StyledText,
     Tabs,
     tooltip,
     type DiceRolls,
@@ -1025,17 +1026,19 @@
   {#if waiting && !targets.length}
     <div class="pending" class:asks={!!asked}>
       <span
-        >{entryText(
-          {
-            id: '',
-            at: '',
-            time: waiting.time,
-            source: 'travel',
-            code: 'HELD',
-            data: { waiting },
-          },
-          context,
-        )}{#if asked && localize(asked.description, locale, 'en')}<InfoTip
+        ><StyledText
+          text={entryText(
+            {
+              id: '',
+              at: '',
+              time: waiting.time,
+              source: 'travel',
+              code: 'HELD',
+              data: { waiting },
+            },
+            context,
+          )}
+        />{#if asked && localize(asked.description, locale, 'en')}<InfoTip
             markdown={localize(asked.description, locale, 'en')}
           />{/if}</span
       >

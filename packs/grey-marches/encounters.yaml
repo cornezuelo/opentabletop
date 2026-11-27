@@ -146,13 +146,19 @@ description: |-
   - Advantage
   - Negative ranges
   - What it does to those met: anything but hostile takes _Hostile_ off every one of them (`present.all.conditions.hostile: false`), so they don't keep the Company _Beset_
+  - **Styled texts**: each reaction in its colour, from hostile in bold red to eager to help in underlined green (`[friendly]{green}`)
 roll: '2d6 + {{charisma}} + {{reactionModifier}}'
 modes: [roll-modes.advantage, roll-modes.disadvantage]
 entries:
-  - { id: hostile, range: -10-3, result: hostile }
+  - { id: hostile, range: -10-3, result: '[**hostile**]{red}' }
   # Anything else: those here mean no harm (bestiary.yaml's _Hostile_ taken off), so the
   # Company may talk, pass by or leave; standing to fight makes them hostile again.
-  - { id: wary, range: 4-6, result: wary, effects: { present.all.conditions.hostile: false } }
+  - {
+      id: wary,
+      range: 4-6,
+      result: '[wary]{orange}',
+      effects: { present.all.conditions.hostile: false },
+    }
   - id: neutral
     range: 7-9
     result: willing to talk
@@ -160,13 +166,13 @@ entries:
   - {
       id: friendly,
       range: 10-11,
-      result: friendly,
+      result: '[friendly]{green}',
       effects: { present.all.conditions.hostile: false },
     }
   - {
       id: helpful,
       range: 12-30,
-      result: eager to help,
+      result: '[eager to help]{green underline}',
       effects: { present.all.conditions.hostile: false },
     }
 ---

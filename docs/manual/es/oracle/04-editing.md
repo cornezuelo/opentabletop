@@ -11,7 +11,7 @@ Nombre, descripción, **Etiquetas** (palabras que la clasifican, las que elija e
 - **Ajustar totales** (activado por defecto): un total por debajo del rango más bajo toma la primera entrada y por encima del más alto la última, así los modificadores nunca te dejan sin resultado. Desactivado, ese total no da nada.
 - **Al agotarse**: qué pasa cuando la entrada que sale ya llegó a su límite (ver abajo): **Tirar otra vez**, **Tomar la siguiente** disponible o **Nada**.
 
-Las descripciones (de tablas, oráculos, generadores y mazos, y de las comprobaciones, acciones y características de un sistema de viaje) admiten **Markdown básico**: una línea en blanco empieza un párrafo nuevo, `**negrita**`, `_cursiva_`, `` `código` ``, listas (`- elemento`), citas (`> …`) y enlaces a la web (`[texto](https://…)`). Nada más: el HTML y las imágenes que traiga un pack se ven como texto, porque los packs pueden venir de cualquiera. En YAML, escribe una descripción larga como bloque: `description: |-` y el texto sangrado debajo. Las descripciones de las Marcas Grises lo usan: un párrafo con para qué sirve cada una y luego **Enseña:** con lo que enseña.
+Las descripciones (de tablas, oráculos, generadores y mazos, y de las comprobaciones, acciones y características de un sistema de viaje) admiten **Markdown básico**: una línea en blanco empieza un párrafo nuevo, `**negrita**`, `_cursiva_`, `` `código` ``, listas (`- elemento`), citas (`> …`) enlaces a la web (`[texto](https://…)`) y un color o un subrayado (`[texto]{red}`, [Textos con estilo](../technical/09-syntax.md#textos-con-estilo)). Nada más: el HTML y las imágenes que traiga un pack se ven como texto, porque los packs pueden venir de cualquiera. En YAML, escribe una descripción larga como bloque: `description: |-` y el texto sangrado debajo. Las descripciones de las Marcas Grises lo usan: un párrafo con para qué sirve cada una y luego **Enseña:** con lo que enseña.
 
 ## Tablas
 
@@ -21,7 +21,7 @@ Cada **entrada** tiene:
 
 - un **id** (necesario para traducciones y entradas de una vez; **Dar id a las entradas** los rellena),
 - un **rango** de totales (`3` o `2-5`; ninguno en una tabla tirada **Contra** un número, salvo para algunos totales), o un **peso** cuando la tabla no tiene dados (lo probable que es frente a las demás: [Sin dados: pesos](08-dice-and-templates.md#sin-dados-pesos)),
-- el texto del **resultado**, que puede incluir dados (`{{1d6}} lobos`) y valores del contexto (`{{time.season}}`),
+- el texto del **resultado**, que puede incluir dados (`{{1d6}} lobos`) y valores del contexto (`{{time.season}}`), y llevar estilo: `**negrita**`, `_cursiva_`, un color o un subrayado (`[**hostiles**]{red}`, `[amistosos]{green}`; mira [Textos con estilo](../technical/09-syntax.md#textos-con-estilo)),
 - **luego tira**: otra tabla o generador que se tira después y cuyo resultado se añade.
 
 Añade, duplica, mueve y quita entradas. **Numerar 1–N** les da rangos consecutivos y ajusta los dados.

@@ -253,9 +253,32 @@ Travel rules multiply speeds: a terrain's or road's `multiplier` (`0.5` half, `1
 
 ## Descriptions
 
-Descriptions take basic Markdown: a blank line between paragraphs, `**bold**`, `_italics_`, `` `code` ``, lists (`- item`), quotes (`> …`) and web links (`[text](https://…)`); nothing else, HTML included, is shown as text. In YAML, a long one goes as a block: `description: |-` and the text indented below.
+Descriptions take basic Markdown: a blank line between paragraphs, `**bold**`, `_italics_`, `` `code` ``, lists (`- item`), quotes (`> …`) and web links (`[text](https://…)`); and the [styled texts](#styled-texts) below (`[text]{red}`); nothing else, HTML included, is shown as text. In YAML, a long one goes as a block: `description: |-` and the text indented below.
 
 **Tags** sort what is rolled: `tags: [people, names]` on a table, oracle, generator or deck, any words the pack chooses, which the Oracle's and Map's **Filter** show or hide (`rules`, in our packs, for what a system rolls itself).
+
+## Styled texts
+
+What a pack writes to be shown in play (an entry's or a card's **result**, a generator's template, a step's `say`, a description) can be styled, so a result reads at a glance:
+
+- `**bold**` and `_italics_`, as in descriptions;
+- `[text]{colour}`: the text in brackets in a colour, `red`, `orange`, `yellow`, `green`, `blue`, `purple` or `grey` (the theme's, readable on the apps' panels);
+- `[text]{underline}`: underlined;
+- several at once, separated by spaces, and with Markdown inside: `[**Ambush!**]{red underline}`.
+
+```yaml
+kind: table
+id: reaction
+roll: 2d6
+entries:
+  - { id: hostile, range: 2-5, result: '[**hostile**]{red}' }
+  - { id: wary, range: 6-8, result: '[wary]{orange}' }
+  - { id: friendly, range: 9-12, result: '[friendly]{green}' }
+```
+
+Variables are filled first, so a span may hold one (`[{{1d6}} wolves]{red}`), and a result that takes another's (`They are {{result}}`) keeps its colours. In YAML, a text that starts with `[` goes in quotes. Colours are names, never codes, so they read well whatever the theme; a name that isn't one of these (`[text]{crimson}`) shows the text without a style, and the pack's problems warn about it when it's loaded.
+
+Where it shows: the Oracle's results and history, a trip's journal and its important moments, the cards drawn, the rows of a roll's table, Campaign's **Log**. Where it's dropped: a card's name read aloud, a result added to a cell as a point of interest, the command line, and exports: the log's **Markdown** keeps bold and italics and drops the colours (a notes app has none), **Lonelog** is plain text.
 
 ## Translations
 

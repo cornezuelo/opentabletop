@@ -27,6 +27,7 @@
     "@open-tabletop/dice": "*",
     "@open-tabletop/note-refs": "*",
     "@open-tabletop/storage": "*",
+    "@open-tabletop/styled-text": "*",
     "@open-tabletop/transfer": "*",
     "marked": "^18.1.0"
   }

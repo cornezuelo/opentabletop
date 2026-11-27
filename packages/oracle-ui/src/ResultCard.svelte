@@ -1,6 +1,13 @@
 <script lang="ts">
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
-  import { againstLine, CardSpread, DiceTray, PlayingCard } from '@open-tabletop/ui-kit'
+  import {
+    againstLine,
+    CardSpread,
+    DiceTray,
+    markdownText,
+    PlayingCard,
+    StyledText,
+  } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
   import Self from './ResultCard.svelte'
 
@@ -41,11 +48,15 @@
   {#if resolution.face}
     <!-- A card drawn: its face beside what it says. -->
     <div class="drawn">
-      <PlayingCard face={resolution.face} width={top ? 120 : 56} label={resolution.text} />
-      {#if resolution.text}<p class="text">{resolution.text}</p>{/if}
+      <PlayingCard
+        face={resolution.face}
+        width={top ? 120 : 56}
+        label={markdownText(resolution.text ?? '')}
+      />
+      {#if resolution.text}<p class="text"><StyledText text={resolution.text} /></p>{/if}
     </div>
   {:else if resolution.text}
-    <p class="text">{resolution.text}</p>
+    <p class="text"><StyledText text={resolution.text} /></p>
   {:else if empty && top}
     <p class="text muted">{t('roll.nothing')}</p>
   {/if}
