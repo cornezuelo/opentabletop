@@ -1,6 +1,7 @@
 <script lang="ts">
   import { systemName } from '@open-tabletop/session'
-  import { sheetText } from '@open-tabletop/character-ui'
+  import { buildProblems } from '@open-tabletop/character-engine'
+  import { BuildPoints, sheetText } from '@open-tabletop/character-ui'
   import {
     appUrl,
     InfoTip,
@@ -21,13 +22,27 @@
   /** Its characters' sheet, or its party sheet (a party, its members chosen afterwards). */
   let party = $state(false)
   const chosen = $derived(systems.list.find((s) => s.id === system))
+  /** The points spread among the sheet's values, when it has a build (`build`). */
+  let built = $state<Record<string, number>>({})
+  const building = $derived(!party && chosen?.sheet?.def.build ? chosen.sheet.def : undefined)
+  // Another system starts its points afresh.
+  $effect(() => {
+    void system
+    built = {}
+  })
+  const unbuilt = $derived(!!building && buildProblems(building, built).length > 0)
 
   function create() {
     if (!chosen || !name.trim()) return
     rememberSystem(chosen.id)
     go({
       name: 'character',
-      id: createCharacter(chosen, name.trim(), party && !!chosen.partySheet),
+      id: createCharacter(
+        chosen,
+        name.trim(),
+        party && !!chosen.partySheet,
+        building ? built : undefined,
+      ),
     })
   }
 </script>
@@ -36,7 +51,7 @@
   <NewForm
     title={t('new.title')}
     create={t('new.create')}
-    disabled={!name.trim()}
+    disabled={!name.trim() || unbuilt}
     onsubmit={create}
   >
     <label class="field">
@@ -76,6 +91,9 @@
         autofocus
       />
     </label>
+    {#if building}
+      <BuildPoints sheet={building} locale={getLocale()} bind:values={built} />
+    {/if}
   </NewForm>
 {:else}
   <h1>{t('new.title')}</h1>

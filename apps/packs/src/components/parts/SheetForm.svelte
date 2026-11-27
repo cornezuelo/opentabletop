@@ -3,7 +3,7 @@
   import { availableActions, BLOCKABLE, ref } from '@open-tabletop/travel-engine'
   import { createCharacter, DISPLAYS, parseSheet, TONES } from '@open-tabletop/character-engine'
   import { CharacterCard } from '@open-tabletop/character-ui'
-  import { InfoTip } from '@open-tabletop/ui-kit'
+  import { InfoTip, TagInput } from '@open-tabletop/ui-kit'
   import { PairEditor } from '@open-tabletop/pack-ui'
   import { getLocale, t } from '../../lib/i18n'
   import { library } from '../../lib/packs.svelte'
@@ -71,6 +71,23 @@
   const catalogueIds = $derived([
     ...new Set((system?.items ?? []).flatMap((c) => Object.keys(c.def.items))),
   ])
+  /** The points a new character spreads (`build`), and a number of it written or cleared. */
+  const build = $derived((data?.build as Record<string, unknown> | undefined) ?? {})
+  const numberOf = (v: unknown) => (typeof v === 'number' ? String(v) : '')
+  /** Values the points may go to: those starting from a number, not made of others. */
+  const spreadable = $derived(
+    Object.entries((data?.values as Record<string, Record<string, unknown>>) ?? {})
+      .filter(([, v]) => v.from === undefined && typeof (v.default ?? 0) === 'number')
+      .map(([id]) => id),
+  )
+  function setBuild(field: string, written: string) {
+    const n = written.trim() === '' ? undefined : Number(written)
+    if (n !== undefined && Number.isNaN(n)) return
+    // No points: no build at all.
+    if (field === 'points' && n === undefined) return doc.edit('', ['build'], undefined)
+    doc.edit('', ['build', field], n)
+  }
+
   /** Tones suggested after a threshold (`0: danger`). */
   const toneHints = Object.fromEntries(['0', '1', '2', '3'].map((at) => [at, TONES]))
 
@@ -244,6 +261,54 @@
         {#each Object.keys((data.values as object) ?? {}) as id (id)}<option value={id}>{id}</option
           >{/each}
       </select>
+    </label>
+  </section>
+
+  <section>
+    <h3>{t('sheet.build')}<InfoTip markdown={t('sheet.buildHelp')} /></h3>
+    <div class="build">
+      <label class="name">
+        <span>{t('sheet.buildPoints')}</span>
+        <input
+          type="number"
+          min="1"
+          value={numberOf(build.points)}
+          {disabled}
+          onchange={(e) => setBuild('points', e.currentTarget.value)}
+        />
+      </label>
+      {#each [['max', 'buildMax'], ['min', 'buildMin'], ['lower', 'buildLower']] as const as [field, label] (field)}
+        <label class="name">
+          <span>{t(`sheet.${label}`)}</span>
+          <input
+            type="number"
+            value={numberOf(build[field])}
+            disabled={disabled || build.points === undefined}
+            onchange={(e) => setBuild(field, e.currentTarget.value)}
+          />
+        </label>
+      {/each}
+    </div>
+    <div class="name wide">
+      <span>{t('sheet.buildValues')}</span>
+      <TagInput
+        label={t('sheet.buildValues')}
+        value={Array.isArray(build.values) ? (build.values as string[]) : []}
+        choices={spreadable}
+        removeLabel={t('forms.removeItem')}
+        disabled={disabled || build.points === undefined}
+        onchange={(items) => doc.edit('', ['build', 'values'], items.length ? items : undefined)}
+      />
+    </div>
+    <label class="name description">
+      <span>{t('sheet.buildDescription')}</span>
+      <input
+        type="text"
+        value={typeof build.description === 'string' ? build.description : ''}
+        disabled={disabled || build.points === undefined}
+        onchange={(e) =>
+          doc.edit('', ['build', 'description'], e.currentTarget.value.trim() || undefined)}
+      />
     </label>
   </section>
 
@@ -605,6 +670,20 @@
     margin: 0;
     color: var(--danger);
     font-size: 12px;
+  }
+
+  .build {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+
+  .build .name {
+    width: 110px;
+  }
+
+  .name.wide {
+    max-width: 640px;
   }
 
   .name.description {

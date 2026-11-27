@@ -318,6 +318,28 @@ const relation = z
   })
   .strict()
 
+/**
+ * Points a new character spreads among some values as it's made (a point-buy): each point
+ * raises one of them a step above its start, and one taken below its start gives a point back.
+ */
+const build = z
+  .object({
+    /** How many points a new character spreads. */
+    points: z.number().int().positive(),
+    /** The values they go to (each with a number to start from). */
+    values: z.array(z.string().min(1)).min(1),
+    /** The most any of them may be as it's made; absent, each value's own max. */
+    max: z.number().optional(),
+    /** The least any of them may be as it's made; absent, each value's own min. */
+    min: z.number().optional(),
+    /** How many of them may end below their start (absent: any). */
+    lower: z.number().int().min(0).optional(),
+    description: text.optional(),
+  })
+  .strict()
+
+export type SheetBuild = z.infer<typeof build>
+
 export const sheetSchema = z
   .object({
     kind: z.literal('sheet'),
@@ -328,6 +350,8 @@ export const sheetSchema = z
     conditions: z.record(z.string().min(1), condition).default({}),
     relations: z.record(z.string().min(1), relation).default({}),
     items: sheetItems.optional(),
+    /** Points a new character spreads among some values as it's made (`build`). */
+    build: build.optional(),
     /**
      * The value that says at a glance how a character is (health, stress): drawn beside its
      * name where there's no room for the whole sheet (a fight's cards). Absent: the first
@@ -397,6 +421,7 @@ export function parseSheet(raw: unknown): { sheet?: Sheet; errors: string[] } {
       if (key.startsWith('{{'))
         errors.push(...ownErrors(sheet, key, `values.${id}.tones`, "'{{self.values.<id>}}'"))
   }
+  if (sheet.build) errors.push(...buildErrors(sheet, sheet.build))
   const loop = fromCycle(sheet)
   if (loop) errors.push(`values.${loop[0]}.from: made of itself (${loop.join(' → ')})`)
   for (const [id, r] of Object.entries(sheet.relations))
@@ -611,6 +636,77 @@ export const levelId = (level: string | { id: string }): string =>
   typeof level === 'string' ? level : level.id
 
 /** What's wrong with how a value says it's shown. */
+/** What's wrong with a sheet's `build`: values it hasn't, or that can't be spread. */
+function buildErrors(sheet: Sheet, b: SheetBuild): string[] {
+  const errors: string[] = []
+  b.values.forEach((id, i) => {
+    const v = sheet.values[id]
+    const at = `build.values.${i}`
+    if (!v) return errors.push(`${at}: the sheet has no value "${id}"`)
+    if (b.values.indexOf(id) !== i) errors.push(`${at}: "${id}" twice`)
+    if (v.from !== undefined) errors.push(`${at}: "${id}" is made of others (from), never set`)
+    if (v.default !== undefined && typeof v.default !== 'number')
+      errors.push(`${at}: "${id}" starts from a number to spread points on, not dice`)
+    if (v.steps) errors.push(`${at}: "${id}" has steps; spread points on plain numbers`)
+  })
+  if (b.min !== undefined && b.max !== undefined && b.min > b.max)
+    errors.push('build.min: more than its max')
+  return errors
+}
+
+/** Why the points a new character spreads (`build`) aren't right yet: one entry each. */
+export type BuildProblem =
+  | { code: 'POINTS_LEFT'; left: number }
+  | { code: 'POINTS_OVER'; over: number }
+  | { code: 'ABOVE_MAX'; value: string; max: number }
+  | { code: 'BELOW_MIN'; value: string; min: number }
+  | { code: 'TOO_MANY_LOWER'; lower: number }
+
+/** Where a value of the build starts, and the least and most it may be as it's made. */
+export function buildRange(
+  sheet: Sheet,
+  id: string,
+): { start: number; min?: number; max?: number } {
+  const v = sheet.values[id]
+  const start = typeof v?.default === 'number' ? v.default : 0
+  const own = (b: unknown) => (typeof b === 'number' ? b : undefined)
+  const min = sheet.build?.min ?? own(v?.min)
+  const max = sheet.build?.max ?? own(v?.max)
+  return { start, ...(min !== undefined && { min }), ...(max !== undefined && { max }) }
+}
+
+/** How many points of a sheet's `build` the values given spend (a value under its start gives one back). */
+export function buildSpent(sheet: Sheet, values: Record<string, number>): number {
+  return (sheet.build?.values ?? []).reduce(
+    (n, id) => n + (values[id] ?? buildRange(sheet, id).start) - buildRange(sheet, id).start,
+    0,
+  )
+}
+
+/**
+ * Why the values given aren't a new character's build yet (points left or too many spent, a
+ * value past what it may be as made, too many below their start); empty when they're right.
+ */
+export function buildProblems(sheet: Sheet, values: Record<string, number>): BuildProblem[] {
+  const b = sheet.build
+  if (!b) return []
+  const problems: BuildProblem[] = []
+  let lower = 0
+  for (const id of b.values) {
+    const { start, min, max } = buildRange(sheet, id)
+    const n = values[id] ?? start
+    if (max !== undefined && n > max) problems.push({ code: 'ABOVE_MAX', value: id, max })
+    if (min !== undefined && n < min) problems.push({ code: 'BELOW_MIN', value: id, min })
+    if (n < start) lower++
+  }
+  if (b.lower !== undefined && lower > b.lower)
+    problems.push({ code: 'TOO_MANY_LOWER', lower: b.lower })
+  const spent = buildSpent(sheet, values)
+  if (spent < b.points) problems.push({ code: 'POINTS_LEFT', left: b.points - spent })
+  if (spent > b.points) problems.push({ code: 'POINTS_OVER', over: spent - b.points })
+  return problems
+}
+
 function looksErrors(
   v: {
     display?: Display

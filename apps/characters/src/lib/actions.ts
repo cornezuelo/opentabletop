@@ -26,7 +26,13 @@ const now = () => new Date().toISOString()
  * A new character of a system's characters' sheet, in the roster (or, with `party`, a new
  * party of its party sheet, without members); its id.
  */
-export function createCharacter(system: TravelSystem, name: string, party = false): string {
+export function createCharacter(
+  system: TravelSystem,
+  name: string,
+  party = false,
+  /** The points spread among its values as it's made (the sheet's `build`). */
+  values?: Record<string, number>,
+): string {
   const id = characterId(
     name,
     roster.roster.characters.map((e) => e.character.id),
@@ -37,7 +43,11 @@ export function createCharacter(system: TravelSystem, name: string, party = fals
     roster.set(kept.roster)
     return kept.id
   }
-  const character = newMember(partyOf(system), { id, ...(name && { name }) })
+  const character = newMember(partyOf(system), {
+    id,
+    ...(name && { name }),
+    ...(values && { values }),
+  })
   roster.set(keepInRoster(roster.roster, character, now()).roster)
   return id
 }

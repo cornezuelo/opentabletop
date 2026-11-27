@@ -4,6 +4,18 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Characters**: when a system gives new characters points to spread among their values, **New character** asks for them (each value with − and +, the points left, what may not be) and makes the character once they're all spent; what the sheet rolls from them (a health from a stat) is rolled after. **Points to spread** in the Packs app's sheet form.
+
+### Packs
+
+- **The Grey Marches**: a new companion spreads 2 points among their skills, none above 2.
+
+### Formats
+
+- **Packs**: a sheet's `build` (`points`, `values`, `max`, `min`, `lower`): points a new character spreads among some values as it's made. Nothing older changes meaning.
+
 ## [0.81.0] - 2026-11-26
 
 ### Packs

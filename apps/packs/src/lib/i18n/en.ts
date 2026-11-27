@@ -592,6 +592,15 @@ export const en = {
     shareHelp:
       "How what the party spends or gains of an item (`party.items.ration: -3`, `party.items.ration: 2`) is shared out among the characters of this sheet: the party's own items go first, then theirs.\n• **even** (the default): taken from whoever has most, given to whoever has least, one at a time\n• **in order**: the first character gives (or takes) all it can, then the next\nWithout characters, the party's own sheet keeps them.",
     shareEven: 'even (default)',
+    build: 'Points to spread',
+    buildHelp:
+      "Points a new character spreads among some values as it's made (a point-buy): each point raises one a step above where it starts, and one taken below its start gives a point back. Characters' **New character** asks for them, and won't make it until every point is spent; what the sheet rolls from them (a health from a stat) is rolled after.\n• **Points** `4` — how many to spread\n• **Among** `might`, `wits`, `grace` — the values they go to, each starting from a number\n• **At most** `2` — none higher as it's made (empty: each value's own max)\n• **At least** `-1` — none lower as it's made (empty: each value's own min)\n• **Below start** `1` — how many may end below where they start (empty: any; `0`: none)\nEmpty **Points**: no points to spread.",
+    buildPoints: 'Points',
+    buildValues: 'Among',
+    buildMax: 'At most',
+    buildMin: 'At least',
+    buildLower: 'Below start',
+    buildDescription: 'What they stand for',
     main: 'Main value',
     mainHelp:
       'The value that says at a glance how a character of this sheet is, drawn beside its name where there’s no room for the whole sheet (a fight’s cards), as the value says it’s shown.\n• **The first with a max** — the first value drawn against a max (a bar, boxes, ticks, `of`, a dial), or none\n• `main: health` — health, even shown as a plain number',

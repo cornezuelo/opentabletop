@@ -40,7 +40,17 @@ description: |-
   item's field `active`, named by `levels`, read in a value made of it,
   `where: { item.id: night-eyes, item.active: 1 }`); what's in their hands naming the kind of
   their blows (`torch-in-hand`, `relic-in-hand`); every part with a description,
-  shown as its help where the sheet is met.
+  shown as its help where the sheet is met; two points a new companion spreads among their
+  skills as they're made (`build: { points: 2, values: [survival, charisma, pathfinding,
+  stealth], max: 2 }`), asked by Characters' New character.
+# A new companion spreads two points among their skills as they're made (Characters' New
+# character asks for them): none above 2, none below where it starts (`lower: 0`).
+build:
+  points: 2
+  values: [survival, charisma, pathfinding, stealth]
+  max: 2
+  lower: 0
+  description: What a companion learned before joining the Company.
 main: health
 values:
   # Skills: the party takes the best (or the worst) of them (bindings' `from`).

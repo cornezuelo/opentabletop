@@ -25,6 +25,7 @@ With more than one sheet, a tab above the form chooses which (_the party_, _its 
 - Its **Name** and **Description** (what the sheet is for).
 - Its **Main value**, under the values: the one drawn beside a character's name where its whole sheet doesn't fit (a fight's cards, the party at a glance), as the value says it's shown; **The first with a max** (the default) takes the first value drawn against a max (a bar, boxes, ticks, `of`, a dial). Choose one to show another, even a plain number (the Grey Marches' foes' health, `main: health`; the Company's morale, `main: morale`, not its fodder).
 - Its **Values**, each with an id, a name, the value it **Starts at** (a new character's: a number, dice rolled for each one, `{{3d6}}`, shown in Characters as it came up with **Roll again** ([A new character](../characters/01-getting-started.md#a-new-character)), or a value listed before it, `{{self.values.toughness}}`: health starting at a maximum rolled), **Min** and **Max** (a number, or another value in braces, `'{{self.values.toughness}}'`: as high as the character's Toughness; empty: no bound), how it's **Shown as** (with its **Levels** and **Tones**: [below](#how-values-are-shown)) and **Group**. A value **Made of** others has its formula there instead of **Starts at**: the sheet's values in braces, with `+ - * /`, brackets and `floor`, `ceil`, `round`, `min`, `max`, `abs` (`'{{self.values.might * 2 + 4}}'`; a minus between names takes spaces, `self.values.maxHealth - self.values.health`). Bounds take the same arithmetic (`'{{self.values.might * 2}}'`).
+- Its **Points to spread** ([below](#points-to-spread)).
 - The **Groups** values are shown in, in order, with their names: each group is a card of its own, as many side by side as fit.
 - Its **Conditions**, each with what it **Blocks** for the whole party while someone has it: `travel.move` (moving on), one of the system's actions (`actions.forced-march`), a way of travelling (`modes.horse`) (the box suggests them). With **Holds while**, a [condition](../technical/08-conditions.md) as rows, it holds by itself while that does: it reads the character as `self.*` (`self.values.dread: { gte: 6 }`) and, on a trip, the world as tables see it (`trip.mode: boat`, `time.season: winter`). One that reads the world follows it on a trip; in the Characters app, away from any trip, it stays as it was last seen. With **Lasts** (**rounds** or **turns**) it's one given **for a while** in a fight: an effect gives it for a number of rounds (or of the character's own turns), `acting.conditions.dazed: 2` or `'{{1d4}}'`, counted down as each begins and gone when none is left or the fight ends; with **places**, for a number of places, fight or not: counted down as the party enters each (`party.conditions.hidden: 3` is gone as the third place from here is entered), for the party's sheet as for its characters'; the character's card shows what's left (_2 left_), and conditions read it as `acting.left.dazed`. Core's _Staggered_ and the Grey Marches' _Rattled_ are such; see [Kinds](../technical/07-kinds.md#sheets). **Told when gained** and **Told when lost** say how a fight and the journal tell it, in your words, `{{name}}` whoever it is (`{{name}} falls`: _The grey wolf falls_); empty, the generic _Grey wolf: Down_. The Grey Marches' foes fall, run and take the food in their own words; Core's _Staggered_ staggers. **Adds** says what it adds to the character's values while they have it (`dodge: -10`, `armor: 1`): tables, conditions and the card read each value with it, within its bounds, and the value itself (what effects change) stays as it was, so it reads as before once the condition goes; the card shows what it reads now beside its base, marked up or down (_40 ↓30_), and a click on it shows why (_Base 40, Stoneskin −10, Now 30_; see [Its base and what it reads now](../characters/01-getting-started.md)). With **Lasts** for **places** it's a potion's effect for some rooms; with **Holds while**, a penalty while it holds: the Grey Marches' _Burdened_ takes a point off Stealth while the load is too much (`adds: { stealth: -1 }`).
 - Its **Items**: the fields every item has, its places and what fills them ([below](#items)).
@@ -165,6 +166,28 @@ stats:
 ```
 
 The Grey Marches play with all of this and more (a Company sheet with morale, fatigue and hirelings; companions with skills, health under their max as a bar, dread as boxes, wounds, a sprained ankle and being saddle-sore; Survival, Stealth and Mouths made of them; rations as items they carry, eaten from the Company's stores first and then shared out; fodder as a value of the Company's; a guide and a lookout; homes that lift morale): their [page](../bundled/02-grey-marches.md) says where.
+
+## Points to spread
+
+A sheet may give a new character points to spread among some of its values as it's made (a point-buy, as many games make characters). **Points** is how many; **Among**, the values they go to (each starting from a number: not dice, not made of others); **At most** and **At least**, what any of them may be as it's made (empty: each value's own **Max** and **Min**, which still hold afterwards); **Below start**, how many may end below where they start (empty: any; `0`: none). Each point raises one value a step above its **Starts at**, and one taken below it gives a point back. Characters' **New character** asks for them and won't make the character until every point is spent ([A new character](../characters/01-getting-started.md#a-new-character)); values that start from them (`'{{1d6 + self.values.res}}'`: a health of a die plus a stat) are rolled afterwards, with them. Empty **Points**: nothing to spread.
+
+```yaml
+kind: sheet
+id: hero
+values:
+  might: { name: Might, default: 0, max: 5 }
+  wits: { name: Wits, default: 0, max: 5 }
+  grace: { name: Grace, default: 0, max: 5 }
+  health: { name: Health, default: '{{1d6 + self.values.might}}', min: 0 } # rolled after the points
+build:
+  points: 4 # four to spread among the three
+  values: [might, wits, grace]
+  max: 2 # none above 2 as it's made (5 later)
+  min: -1 # none below -1
+  lower: 1 # one may go below its start, giving a point back
+```
+
+The Grey Marches' companions spread 2 among their skills, none above 2 nor below where they start.
 
 ## Common mistakes
 

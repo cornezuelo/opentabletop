@@ -37,7 +37,12 @@ sheet/companion:
     activa y se desactiva (el campo `active` de un objeto, con nombre por `levels`, leído en un
     valor hecho de él, `where: { item.id: night-eyes, item.active: 1 }`); lo que tiene en las
     manos, que dice de qué son sus golpes (`torch-in-hand`, `relic-in-hand`);
-    cada parte con su descripción, que se ve como su ayuda donde aparece la hoja.
+    cada parte con su descripción, que se ve como su ayuda donde aparece la hoja; dos puntos
+    que un compañero nuevo reparte entre sus habilidades al crearlo (`build: { points: 2,
+    values: [survival, charisma, pathfinding, stealth], max: 2 }`), que pide Nuevo personaje
+    en Personajes.
+  build:
+    description: Lo que un compañero aprendió antes de unirse a la Compañía.
   values:
     survival:
       name: Supervivencia

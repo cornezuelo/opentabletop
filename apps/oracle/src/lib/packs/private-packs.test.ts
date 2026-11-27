@@ -11,7 +11,7 @@ import {
   type SessionState,
   type TravelSystem,
 } from '@open-tabletop/session'
-import { applyCharacter, valuesNow } from '@open-tabletop/character-engine'
+import { applyCharacter, buildProblems, valuesNow } from '@open-tabletop/character-engine'
 import {
   createTravelEngine,
   initialTravelState,
@@ -98,6 +98,29 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
         () => engine.resolve('kal-arath/poi-check', { explorer }).resolution.value.found === true,
       ).filter(Boolean).length
     expect(found(1)).toBeGreaterThan(found(0))
+  })
+
+  it('makes a character as the book: 4 points, none over +2, one at -1 for a point more, PV 1d6 + RES', () => {
+    const sheet = system().sheet!.def
+    expect(buildProblems(sheet, { fue: 2, res: 2 })).toEqual([])
+    expect(buildProblems(sheet, { fue: 2, res: 2, agi: 1, pre: -1 })).toEqual([])
+    expect(buildProblems(sheet, { fue: 3, res: 1 })).toContainEqual({
+      code: 'ABOVE_MAX',
+      value: 'fue',
+      max: 2,
+    })
+    expect(buildProblems(sheet, { fue: 2, res: 2, agi: 2, pre: -1, int: -1 })).toContainEqual({
+      code: 'TOO_MANY_LOWER',
+      lower: 1,
+    })
+    for (let i = 0; i < 20; i++) {
+      const tough = newMember(partyOf(system()), { id: `h${i}`, values: { res: 2, fue: 2 } })
+      const max = tough.values['pv-max']!
+      expect(max).toBeGreaterThanOrEqual(3)
+      expect(max).toBeLessThanOrEqual(8)
+      expect(tough.values.pv).toBe(max)
+      expect([10, 20, 30, 40, 50, 60]).toContain(tough.values.plata)
+    }
   })
 
   it('stops travel in a spring storm but only halves it in an autumn one', () => {

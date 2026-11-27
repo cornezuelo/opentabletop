@@ -605,6 +605,15 @@ export const es: Messages<typeof en> = {
     shareHelp:
       'Cómo se reparte entre los personajes de esta hoja lo que el grupo gasta o gana de un objeto (`party.items.ration: -3`, `party.items.ration: 2`): primero los objetos del propio grupo, luego los suyos.\n• **even** (por defecto): se quita a quien más tiene y se da a quien menos, de uno en uno\n• **order**: el primer personaje da (o recibe) todo lo que pueda, luego el siguiente\nSin personajes, los guarda la propia hoja del grupo.',
     shareEven: 'even (por defecto)',
+    build: 'Puntos que repartir',
+    buildHelp:
+      'Puntos que un personaje nuevo reparte entre algunos valores al crearlo (una compra por puntos): cada punto sube uno un paso por encima de donde empieza, y bajar uno por debajo de su inicio devuelve un punto. **Nuevo personaje**, en Personajes, los pide y no lo crea hasta que se gastan todos; lo que la hoja tira a partir de ellos (una salud a partir de un atributo) se tira después.\n• **Puntos** `4` — cuántos se reparten\n• **Entre** `might`, `wits`, `grace` — los valores a los que van, cada uno empezando en un número\n• **Como mucho** `2` — ninguno más alto al crearlo (vacío: el máximo de cada valor)\n• **Como poco** `-1` — ninguno más bajo al crearlo (vacío: el mínimo de cada valor)\n• **Bajo su inicio** `1` — cuántos pueden quedar por debajo de donde empiezan (vacío: cualquiera; `0`: ninguno)\nCon **Puntos** vacío, no hay puntos que repartir.',
+    buildPoints: 'Puntos',
+    buildValues: 'Entre',
+    buildMax: 'Como mucho',
+    buildMin: 'Como poco',
+    buildLower: 'Bajo su inicio',
+    buildDescription: 'Qué representan',
     main: 'Valor principal',
     mainHelp:
       'El valor que dice de un vistazo cómo está un personaje de esta hoja, dibujado junto a su nombre donde no cabe la hoja entera (las tarjetas de un combate), como dice el valor que se muestra.\n• **El primero con máximo** — el primer valor dibujado contra un máximo (una barra, casillas, marcas, `of`, un dial), o ninguno\n• `main: health` — la salud, aunque se muestre como un simple número',

@@ -26,6 +26,8 @@ import {
   type CharacterState,
   rollAgain,
   startRolls,
+  buildProblems,
+  buildSpent,
 } from './index'
 
 // A sheet with made-up values: an Ironsworn-like momentum under a max that falls, a stress
@@ -895,5 +897,73 @@ describe('what the items add to a value while they count (plus)', () => {
       plus: [{ id: 'belt', count: 1, amount: 20 }],
       held: { which: 'max', at: 80 },
     })
+  })
+})
+
+describe('points spread as a character is made (build)', () => {
+  const raw = {
+    kind: 'sheet',
+    id: 'hero',
+    values: {
+      might: { default: 0, min: -1, max: 5 },
+      wits: { default: 0, min: -1, max: 5 },
+      grace: { default: 0, min: -1, max: 5 },
+      // Rolled after the points, reading them.
+      health: { default: '{{1d6 + self.values.might}}', min: 0 },
+    },
+    build: { points: 3, values: ['might', 'wits', 'grace'], max: 2, lower: 1 },
+  }
+  const sheet = parseSheet(raw).sheet!
+
+  it('counts the points spent, one under its start giving one back', () => {
+    expect(buildSpent(sheet, { might: 2, wits: 1 })).toBe(3)
+    expect(buildSpent(sheet, { might: 2, wits: 2, grace: -1 })).toBe(3)
+  })
+
+  it('says what is still wrong, and nothing once it is right', () => {
+    expect(buildProblems(sheet, {})).toEqual([{ code: 'POINTS_LEFT', left: 3 }])
+    expect(buildProblems(sheet, { might: 3 })).toEqual([
+      { code: 'ABOVE_MAX', value: 'might', max: 2 },
+    ])
+    expect(buildProblems(sheet, { might: 2, wits: 2, grace: 1 })).toEqual([
+      { code: 'POINTS_OVER', over: 2 },
+    ])
+    expect(buildProblems(sheet, { might: 2, wits: 2, grace: 1, health: 9 })).toHaveLength(1)
+    expect(buildProblems(sheet, { might: 2, wits: 2, grace: -1 })).toEqual([])
+    // Each value's own min where the build gives none.
+    expect(buildProblems(sheet, { might: 2, wits: 2, grace: -2 })).toContainEqual({
+      code: 'BELOW_MIN',
+      value: 'grace',
+      min: -1,
+    })
+  })
+
+  it('allows only so many below their start', () => {
+    // One below its start gives a point back: two would give two, but only one may.
+    const one = parseSheet({ ...raw, build: { ...raw.build, points: 1, max: 3 } }).sheet!
+    expect(buildProblems(one, { might: 2, wits: -1 })).toEqual([])
+    expect(buildProblems(one, { might: 3, wits: -1, grace: -1 })).toEqual([
+      { code: 'TOO_MANY_LOWER', lower: 1 },
+    ])
+  })
+
+  it('makes the character with them, what reads them rolled after', () => {
+    const made = createCharacter(sheet, 'p/hero', { id: 'kael', values: { might: 2, wits: 1 } })
+    expect(made.values.might).toBe(2)
+    const plain = createCharacter(sheet, 'p/hero', { id: 'kael' })
+    // The same die (seeded by the id), with Might added.
+    expect(made.values.health).toBe(plain.values.health! + 2)
+  })
+
+  it('refuses a build on values it cannot spread', () => {
+    const { errors } = parseSheet({
+      ...raw,
+      build: { points: 1, values: ['might', 'health', 'luck', 'might'] },
+    })
+    expect(errors).toEqual([
+      'build.values.1: "health" starts from a number to spread points on, not dice',
+      'build.values.2: the sheet has no value "luck"',
+      'build.values.3: "might" twice',
+    ])
   })
 })

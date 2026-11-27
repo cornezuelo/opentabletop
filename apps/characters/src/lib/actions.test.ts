@@ -11,7 +11,7 @@ import {
   withCarriedImages,
   type LibraryImage,
 } from '@open-tabletop/storage'
-import { applyCharacter } from '@open-tabletop/character-engine'
+import { applyCharacter, buildProblems } from '@open-tabletop/character-engine'
 import {
   createCharacter,
   deleteCharacter,
@@ -44,6 +44,29 @@ describe('the roster in the Characters app', () => {
     expect(down.conditions).toHaveProperty('down')
     const up = applyCharacter(sheet, down, { type: 'change', effects: { 'values.health': 1 } })
     expect(up.state.conditions).not.toHaveProperty('down')
+  })
+
+  it('a Grey Marches companion spreads two points among their skills as made', () => {
+    const sheet = marches().sheet.def
+    expect(sheet.build?.points).toBe(2)
+    // Their skills as they start: Survival 1, Stealth 1, the others 0.
+    expect(buildProblems(sheet, {})).toEqual([{ code: 'POINTS_LEFT', left: 2 }])
+    expect(buildProblems(sheet, { survival: 3 })).toContainEqual({
+      code: 'ABOVE_MAX',
+      value: 'survival',
+      max: 2,
+    })
+    // None below where it starts.
+    expect(buildProblems(sheet, { survival: 2, pathfinding: 2, stealth: 0 })).toContainEqual({
+      code: 'TOO_MANY_LOWER',
+      lower: 0,
+    })
+    const built = { survival: 2, pathfinding: 1 }
+    expect(buildProblems(sheet, built)).toEqual([])
+    const made = entryOf(createCharacter(marches(), 'Brenna', false, built))!.character
+    expect(made.values).toMatchObject({ survival: 2, pathfinding: 1, charisma: 0, stealth: 1 })
+    // Its description in Spanish from the pack's overlay.
+    expect(sheet.build?.description).toMatchObject({ es: expect.stringContaining('Compañía') })
   })
 
   it('makes a character with its system’s sheet, duplicates and deletes it', () => {
