@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.84.0] - 2026-11-27
+
 ### Apps
 
 - **Cards on the table**: the Oracle's **Draw** plays the draw on a card table, as **Roll** throws dice: the deck face down with the cards it has left; click it, or drag its top card where you want it, and the card is dealt and turned over (upside down when reversed). A hand or a spread is dealt face down to its places and turned card by card, or all at once. While the computer draws, it deals and turns by itself; a card the computer drew for an important moment of a trip is dealt the same way before the moment is told. A deck gathered for a draw, or by **Shuffle**, is seen: the cards drawn go back face down and it's riffled. A swish of paper is heard (**Sounds on the table**, once _Dice knock on the table_; **Dice and cards move**, once _Dice tumble as they're rolled_).
