@@ -50,10 +50,20 @@ npc-motive:
 contest:
   name: Un pulso
   description: |-
-    **Tu tirada contra la suya**, dados de porcentaje cada una, gana la más alta. Con ventaja (un valor que se da al tirar), la tuya se tira con ventaja, dos veces y se queda la más alta; la suya se tira tal cual.
+    **Tu tirada contra la suya**, dados de porcentaje cada una, gana la más alta, para cualquier cosa que se disputen dos (una carrera, una discusión, un forcejeo). Con ventaja (un valor que se da al tirar), la tuya se tira con ventaja, dos veces y se queda la más alta; la suya se tira tal cual.
 
-    **Enseña:** un modo de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`), aquí _Ventaja_ mientras `edge` es verdadero.
-  template: '{{yours}} contra {{theirs}}'
+    **Enseña:** un modo de tirada en una sola tirada de un generador (`modeWhen` en un campo `roll`), aquí _Ventaja_ mientras `edge` es verdadero; un campo que lee los anteriores (_Quién gana_ los compara).
+  template: '{{yours}} contra {{theirs}}: {{outcome}}'
+contest-outcome:
+  name: Quién gana
+  description: |-
+    Quién gana _Un pulso_: tu tirada contra la suya, gana la más alta.
+
+    **Enseña:** una tabla sin dados que elige por condiciones que comparan un valor con otro (`yours: { gt: '{{theirs}}' }`).
+  entries:
+    won: ganas tú
+    lost: gana el otro
+    tie: empate
 against-the-odds:
   name: Contra pronóstico
   description: |-

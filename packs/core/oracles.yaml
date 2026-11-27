@@ -109,13 +109,28 @@ id: contest
 tags: [questions]
 name: A contest
 description: |-
-  **Your roll against theirs**, percentile dice each, the higher wins. With an edge (a value given when rolling), yours is rolled with advantage, twice and the higher kept; theirs is rolled as it is.
+  **Your roll against theirs**, percentile dice each, the higher wins, for anything two sides contest (a race, an argument, a tug of war). With an edge (a value given when rolling), yours is rolled with advantage, twice and the higher kept; theirs is rolled as it is.
 
-  **Shows:** a roll mode on one roll of a generator alone (`modeWhen` on a `roll` field), here _Advantage_ while `edge` is true.
+  **Shows:** a roll mode on one roll of a generator alone (`modeWhen` on a `roll` field), here _Advantage_ while `edge` is true; a later field reading the earlier ones (_Who wins_ compares them).
 fields:
   yours: { roll: d%, modeWhen: { roll-modes.advantage: { edge: true } } }
   theirs: { roll: d% }
-template: '{{yours}} against {{theirs}}'
+  outcome: { table: table.contest-outcome }
+template: '{{yours}} against {{theirs}}: {{outcome}}'
+---
+# Two rolls compared: a table without dice, the row that holds (each says when), one value against another.
+kind: table
+id: contest-outcome
+tags: [questions]
+name: Who wins
+description: |-
+  Who wins _A contest_: your roll against theirs, the higher wins.
+
+  **Shows:** a table without dice choosing by conditions that compare one value with another (`yours: { gt: '{{theirs}}' }`).
+entries:
+  - { id: won, result: you win, when: { yours: { gt: '{{theirs}}' } } }
+  - { id: lost, result: they win, when: { yours: { lt: '{{theirs}}' } } }
+  - { id: tie, result: a tie, when: { yours: '{{theirs}}' } }
 ---
 # Rolling under a chance on percentile dice: the chance is a value given when rolling (the
 # Oracle asks for it), doubles read by the entries (`dice.doubles`), and the roll mode that

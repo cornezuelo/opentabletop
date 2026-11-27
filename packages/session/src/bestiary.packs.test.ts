@@ -1669,6 +1669,16 @@ describe('the bundled packs fight in turns', () => {
     const rolls = (r: ReturnType<typeof contest>) => r.rolls.map((x) => x.discarded?.length ?? 0)
     expect(rolls(contest(true))).toEqual([1, 0])
     expect(rolls(contest(false))).toEqual([0, 0])
+    // It says who wins: the higher roll.
+    for (let seed = 0; seed < 20; seed++) {
+      const r = createOracleEngine({ registry, random: seeded(seed) }).resolve(
+        'core/generator.contest',
+        {},
+      ).resolution
+      const [yours, theirs] = r.rolls.map((x) => x.total)
+      const said = yours! > theirs! ? 'you win' : yours! < theirs! ? 'they win' : 'a tie'
+      expect(r.text).toBe(`${yours} against ${theirs}: ${said}`)
+    }
 
     const { session } = startTrip({
       system: marches,
