@@ -610,14 +610,21 @@
     cursor: pointer;
   }
 
-  .card.turnable:hover {
-    filter: drop-shadow(0 0 8px rgb(200 162 74 / 60%));
+  /* Glows and lifts are shadows on the faces, never a filter on the card: a filter flattens
+     the turn in 3D, and the face turned away shows through the one on top. */
+  .card.turnable:hover .inner > :global(*) {
+    box-shadow:
+      0 0 9px 2px rgb(200 162 74 / 55%),
+      0 3px 10px rgb(0 0 0 / 45%);
   }
 
   .card.held {
     z-index: 3;
-    filter: drop-shadow(0 18px 14px rgb(0 0 0 / 50%));
     pointer-events: none;
+  }
+
+  .card.held .inner > :global(*) {
+    box-shadow: 0 18px 14px rgb(0 0 0 / 50%);
   }
 
   .inner {
