@@ -2,6 +2,8 @@
 
 Notes is OpenTabletop's own notes app: pages in Markdown, kept in this browser, for the lore your games link to (people, places, factions, what the party knows). The other apps keep only what the rules play with; a character, a cell, a place, a faction or a campaign has a **note**, the path of its page, and Notes is where that page is written. If you already use SilverBullet or Obsidian, choose it in **Preferences** instead: the links work the same way.
 
+**The first time** Notes opens with no pages, it writes one in General, **Welcome to Notes**: what it's for, the Markdown it reads (the same as [below](#markdown-at-a-glance)) and how links work, as a cheat sheet. It's yours: change it or delete it; it isn't written again.
+
 ## The screen
 
 - **Header**: the app switcher (nine dots), the campaign you're playing, the keyboard (**Keyboard shortcuts**, also the <kbd>?</kbd> key), the gear (**Preferences**: language, notes app and the rest every app shares) and **?** for this manual.
@@ -21,7 +23,31 @@ Every page is in a **campaign**, or in **General**. A campaign's pages are its l
 
 ## Writing
 
-**Edit** (the pencil, or <kbd>Ctrl</kbd>+<kbd>E</kbd>) writes the page, in Markdown: `# A heading`, `**bold**`, `_italics_`, lists (`- `), tasks (`- [ ] `), quotes (`> `), tables and code. **Read** (the eye) shows it with its links. What you write is kept as you type.
+**Edit** (the pencil, or <kbd>Ctrl</kbd>+<kbd>E</kbd>) writes the page, in Markdown: `# A heading`, `**bold**`, `_italics_`, lists (`- `), tasks (`- [ ] `), quotes (`> `), tables and code ([at a glance](#markdown-at-a-glance)). **Read** (the eye) shows it with its links. What you write is kept as you type.
+
+### Markdown at a glance
+
+<!-- markdown-summary -->
+
+| Write                       | To get                                                 |
+| --------------------------- | ------------------------------------------------------ |
+| `# Old Tobin`               | the page's big heading                                 |
+| `## Secrets`, `### Debts`   | smaller headings (`[[Page#Secrets]]` reaches one)      |
+| `**bold**`                  | **bold**                                               |
+| `_italics_`                 | _italics_                                              |
+| `~~struck out~~`            | ~~struck out~~                                         |
+| `` `code` ``                | `code`, letters as they are                            |
+| `- a thing`                 | a list (`1. ` numbers it)                              |
+| `- [ ] to do`, `- [x] done` | a task, unticked or ticked                             |
+| `> what he said`            | a quote                                                |
+| `---`                       | a line across the page                                 |
+| `[[Old Tobin]]`             | a link to a page ([Links](#links))                     |
+| `[the wiki](https://…)`     | a link to a web page                                   |
+| `\| Name \| Owes \|` lines  | a table: a row a line, a line of `---` under the first |
+
+An empty line starts a new paragraph. HTML written in a page stays text, and an image shows its description: pages are text only.
+
+<!-- /markdown-summary -->
 
 ## Links
 
@@ -64,4 +90,4 @@ Pages are in your [backups](../technical/05-backups.md) too. Deleting a campaign
 
 ## The example pages
 
-**⋯ → Add the example pages of The Grey Marches** adds the pages the Grey Marches bring to the campaign you're playing: the campaign's front page, Ashford, the ferry, Hollow Gate, Brenna the ferrywoman and the Iron Clans ([The Grey Marches](../bundled/02-grey-marches.md#notes)). Open the example map first (Map → Example maps), so they're added to its campaign: the map's Ashford, ferry and Hollow Gate cells, the ferrywoman and the Iron Clans already link to them.
+**⋯ → Add the example pages of The Grey Marches** adds the pages the Grey Marches bring to the campaign you're playing: the campaign's front page, Ashford, the ferry, Hollow Gate, Brenna the ferrywoman and the Iron Clans ([The Grey Marches](../bundled/02-grey-marches.md#notes)). Opening the example map (Map → **Maps → Example maps**) adds them to its campaign by itself, those it doesn't have yet (a page already there, changed or not, stays as it is), and a toast says so: the map's Ashford, ferry and Hollow Gate cells, the ferrywoman and the Iron Clans already link to them.

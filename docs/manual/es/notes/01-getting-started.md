@@ -2,6 +2,8 @@
 
 Notas es la aplicación de notas de OpenTabletop: páginas en Markdown, guardadas en este navegador, para el trasfondo con el que enlazan tus partidas (personas, lugares, facciones, lo que sabe el grupo). Las demás aplicaciones guardan solo aquello con lo que juegan las reglas; un personaje, una casilla, un lugar, una facción o una campaña tiene una **nota**, la ruta de su página, y Notas es donde se escribe esa página. Si ya usas SilverBullet u Obsidian, elígelo en **Preferencias**: los enlaces funcionan igual.
 
+**La primera vez** que Notas se abre sin páginas, escribe una en General, **Bienvenida a Notas**: para qué sirve, el Markdown que lee (el mismo que [más abajo](#markdown-de-un-vistazo)) y cómo funcionan los enlaces, como chuleta. Es tuya: cámbiala o bórrala; no se vuelve a escribir.
+
 ## La pantalla
 
 - **Cabecera**: el selector de aplicaciones (nueve puntos), la campaña que juegas, el teclado (**Atajos de teclado**, también la tecla <kbd>?</kbd>), el engranaje (**Preferencias**: idioma, aplicación de notas y lo demás que comparten todas las aplicaciones) y **?** para este manual.
@@ -21,7 +23,31 @@ Cada página está en una **campaña**, o en **General**. Las páginas de una ca
 
 ## Escribir
 
-**Editar** (el lápiz, o <kbd>Ctrl</kbd>+<kbd>E</kbd>) escribe la página, en Markdown: `# Un título`, `**negrita**`, `_cursiva_`, listas (`- `), tareas (`- [ ] `), citas (`> `), tablas y código. **Leer** (el ojo) la muestra con sus enlaces. Lo que escribes se guarda según escribes.
+**Editar** (el lápiz, o <kbd>Ctrl</kbd>+<kbd>E</kbd>) escribe la página, en Markdown: `# Un título`, `**negrita**`, `_cursiva_`, listas (`- `), tareas (`- [ ] `), citas (`> `), tablas y código ([de un vistazo](#markdown-de-un-vistazo)). **Leer** (el ojo) la muestra con sus enlaces. Lo que escribes se guarda según escribes.
+
+### Markdown de un vistazo
+
+<!-- markdown-summary -->
+
+| Escribe                          | Para tener                                                        |
+| -------------------------------- | ----------------------------------------------------------------- |
+| `# Old Tobin`                    | el título grande de la página                                     |
+| `## Secretos`, `### Deudas`      | títulos más pequeños (`[[Página#Secretos]]` llega a uno)          |
+| `**negrita**`                    | **negrita**                                                       |
+| `_cursiva_`                      | _cursiva_                                                         |
+| `~~tachado~~`                    | ~~tachado~~                                                       |
+| `` `código` ``                   | `código`, las letras tal cual                                     |
+| `- una cosa`                     | una lista (`1. ` la numera)                                       |
+| `- [ ] por hacer`, `- [x] hecho` | una tarea, sin marcar o marcada                                   |
+| `> lo que dijo`                  | una cita                                                          |
+| `---`                            | una línea de lado a lado                                          |
+| `[[Old Tobin]]`                  | un enlace a una página ([Enlaces](#enlaces))                      |
+| `[la wiki](https://…)`           | un enlace a una página web                                        |
+| líneas `\| Nombre \| Debe \|`    | una tabla: una fila por línea, una línea de `---` bajo la primera |
+
+Una línea en blanco empieza otro párrafo. El HTML escrito en una página se queda en texto, y una imagen muestra su descripción: las páginas son solo texto.
+
+<!-- /markdown-summary -->
 
 ## Enlaces
 
@@ -64,4 +90,4 @@ Las páginas también van en tus [copias de seguridad](../technical/05-backups.m
 
 ## Las páginas de ejemplo
 
-**⋯ → Añadir las páginas de ejemplo de The Grey Marches** añade a la campaña que juegas las páginas que traen las Marcas Grises: la portada de la campaña, Ashford, la barca, Hollow Gate, Brenna la barquera y los Clanes de Hierro ([Las Marcas Grises](../bundled/02-grey-marches.md#notas)). Abre antes el mapa de ejemplo (Mapa → Mapas de ejemplo), para que se añadan a su campaña: las casillas de Ashford, la barca y Hollow Gate del mapa, la barquera y los Clanes de Hierro ya enlazan con ellas.
+**⋯ → Añadir las páginas de ejemplo de The Grey Marches** añade a la campaña que juegas las páginas que traen las Marcas Grises: la portada de la campaña, Ashford, la barca, Hollow Gate, Brenna la barquera y los Clanes de Hierro ([Las Marcas Grises](../bundled/02-grey-marches.md#notas)). Abrir el mapa de ejemplo (Mapa → **Mapas → Mapas de ejemplo**) las añade por sí solo a su campaña, las que aún no tiene (una página que ya está, cambiada o no, se queda como está), y un aviso lo dice: las casillas de Ashford, la barca y Hollow Gate del mapa, la barquera y los Clanes de Hierro ya enlazan con ellas.

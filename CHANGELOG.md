@@ -6,6 +6,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ### Apps
 
+- **Notes**: the first time it opens with no pages, a **Welcome to Notes** page in General, a cheat sheet of what it's for, the Markdown it reads and its links; the manual has a summary of Markdown too.
+- **Map**: opening the Grey Marches' example map adds their example pages to its campaign in Notes, those it hasn't yet (before, only Notes' **⋯** added them).
 - **Characters**: when a system gives new characters points to spread among their values, **New character** asks for them (each value with − and +, the points left, what may not be) and makes the character once they're all spent; what the sheet rolls from them (a health from a stat) is rolled after. **Points to spread** in the Packs app's sheet form.
 
 ### Packs

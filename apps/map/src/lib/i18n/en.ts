@@ -378,6 +378,7 @@ export const en = {
     exampleExists:
       'This browser already has this example, with your changes and your trip. Go on with it, or start the example fresh (your copy is replaced, and so is its campaign’s world unless another of your maps or trips is in it)?',
     exampleOpen: 'Go on with mine',
+    exampleNotes: 'Added {n} example pages of its lore to Notes, in its campaign.',
     exampleFresh: 'Start fresh',
     exampleBeside: 'Open it beside mine',
     exampleNewerTitle: 'A newer example',

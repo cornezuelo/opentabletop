@@ -1,6 +1,6 @@
 <script lang="ts">
   import { pageFolder, pageTitle, searchPages } from '@open-tabletop/notes'
-  import { NoteTree } from '@open-tabletop/notes-ui'
+  import { examplePages, NoteTree } from '@open-tabletop/notes-ui'
   import {
     ask,
     downloadBytes,
@@ -13,7 +13,6 @@
     Sidebar,
     tooltip,
   } from '@open-tabletop/ui-kit'
-  import { examplePages } from '../lib/examples'
   import { getLocale, t, ui } from '../lib/i18n'
   import { go, nav } from '../lib/nav.svelte'
   import {

@@ -25,6 +25,7 @@ import {
 } from '@open-tabletop/campaign'
 import { DEFAULT_SYSTEM, systemIdOf, systemName, type TravelSystem } from '@open-tabletop/session'
 import { campaignPlaces, type CampaignPlace } from '@open-tabletop/travel-ui'
+import { addMissingExamples } from '@open-tabletop/notes-ui'
 import { editor, isCampaignChange } from '../store/editor.svelte'
 import { askNewMap } from './newMapDialog.svelte'
 import { makeSubMap } from './submaps'
@@ -330,6 +331,8 @@ export async function openExampleMap(example: ExampleMap): Promise<void> {
       // Kept after the map opened: its ways are read again.
       library.links++
     }
+    // Its pages of Notes first, so the campaign it opened in is said last, on top.
+    if (id === example.id) await addExampleNotes(example)
     if (opening.trip) sayJoinedTrip(opening.trip)
     else await sayCampaign()
   } catch (error) {
@@ -660,6 +663,19 @@ const placesText = (places: CampaignPlace[]) =>
  * Says, in a toast, which campaign the map just opened is in and which maps and trips are
  * in it too, so two campaigns of the same name or game aren't confused.
  */
+/**
+ * The example pages of Notes its pack brings, added to the campaign the example opened in
+ * (only those it hasn't yet), and said in a toast.
+ */
+async function addExampleNotes(example: ExampleMap): Promise<void> {
+  try {
+    const n = await addMissingExamples(example.pack, editor.campaign.id, getLocale())
+    if (n) showToast(t('library.exampleNotes', { n }), 'info', 6000)
+  } catch {
+    // Notes' pages are a help, never a reason for the map not to open.
+  }
+}
+
 async function sayCampaign(): Promise<void> {
   const others = await othersInCampaign()
   const campaign = editor.campaign.name || t('map.untitled')

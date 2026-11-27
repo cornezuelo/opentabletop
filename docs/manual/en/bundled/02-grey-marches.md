@@ -155,7 +155,7 @@ Every check is in `travel.yaml`; the journal says each one as it comes up.
 
 ## Notes
 
-The Grey Marches bring example pages for [Notes](../notes/01-getting-started.md), in `notes/` (and in Spanish in `locales/es/notes/`): **⋯ → Add the example pages of The Grey Marches** in Notes adds them to the campaign you're playing (open the example map first, so it's its campaign).
+The Grey Marches bring example pages for [Notes](../notes/01-getting-started.md), in `notes/` (and in Spanish in `locales/es/notes/`): **⋯ → Add the example pages of The Grey Marches** in Notes adds them to the campaign you're playing. Opening an example map (Map → **Maps → Example maps**) adds them to its campaign by itself, those it hasn't yet, and a toast says so; a page already there, changed or not, is left as it is.
 
 - **The Grey Marches**: the campaign's front page (the campaign's note): links by title, with another text, to a heading, to a cell of the map (`[[map:greymarches1#0608]]`) and to the factions (`[[faction:grey-marches/iron-clans]]`).
 - **places/Ashford**, **places/The ferry**, **places/Hollow Gate**: the pages of the map's Ashford, ferry and Hollow Gate cells (their notes), each linking back to its cell; Ashford links to a page not written yet (_The Wet Ferret_: a click makes it), Hollow Gate has the headings others link to (`[[Hollow Gate#Secrets]]`).

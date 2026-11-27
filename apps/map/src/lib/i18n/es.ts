@@ -380,6 +380,7 @@ export const es: Messages = {
     exampleExists:
       'Este navegador ya tiene este ejemplo, con tus cambios y tu viaje. ¿Sigues con él, o empiezas el ejemplo de cero (tu copia se sustituye, y también el mundo de su campaña si no hay en ella otro mapa o viaje tuyo)?',
     exampleOpen: 'Seguir con el mío',
+    exampleNotes: 'Se han añadido a Notas {n} páginas de ejemplo de su trasfondo, en su campaña.',
     exampleFresh: 'Empezar de cero',
     exampleBeside: 'Abrirlo junto al mío',
     exampleNewerTitle: 'Un ejemplo más nuevo',

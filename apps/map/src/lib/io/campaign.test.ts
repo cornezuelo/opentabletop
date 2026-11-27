@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { LibraryEntry } from '@open-tabletop/storage'
 
@@ -91,6 +92,11 @@ describe('a map’s campaign', () => {
     // and its factions' land.
     await actions.openExampleMap(example)
     expect(editor.setup).toMatchObject({ id: 'grey-marches', system: 'grey-marches' })
+    // Its pages of Notes, added to its campaign by themselves, and said.
+    const { loadPages } = await import('@open-tabletop/notes-ui')
+    const lore = (await loadPages()).filter((p) => p.campaign === editor.campaign.id)
+    expect(lore.map((p) => p.path)).toEqual(expect.arrayContaining(['places/Ashford']))
+    expect(toasts.some((x) => /example pages of its lore/.test(x.message))).toBe(true)
     expect(await actions.keptCampaigns()).toEqual(
       expect.arrayContaining([{ id: 'south', name: 'The South' }]),
     )

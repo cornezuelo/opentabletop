@@ -157,7 +157,7 @@ Todas las comprobaciones están en `travel.yaml`; el diario dice cada una cuando
 
 ## Notas
 
-Las Marcas Grises traen páginas de ejemplo para [Notas](../notes/01-getting-started.md), en `notes/` (y en castellano en `locales/es/notes/`): **⋯ → Añadir las páginas de ejemplo de The Grey Marches** en Notas las añade a la campaña que juegas (abre antes el mapa de ejemplo, para que sea su campaña).
+Las Marcas Grises traen páginas de ejemplo para [Notas](../notes/01-getting-started.md), en `notes/` (y en castellano en `locales/es/notes/`): **⋯ → Añadir las páginas de ejemplo de The Grey Marches** en Notas las añade a la campaña que juegas. Abrir un mapa de ejemplo (Mapa → **Mapas → Mapas de ejemplo**) las añade por sí solo a su campaña, las que aún no tiene, y un aviso lo dice; una página que ya está, cambiada o no, se queda como está.
 
 - **The Grey Marches**: la portada de la campaña (la nota de la campaña): enlaces por título, con otro texto, a un título de otra página, a una casilla del mapa (`[[map:greymarches1#0608]]`) y a las facciones (`[[faction:grey-marches/iron-clans]]`).
 - **places/Ashford**, **places/The ferry**, **places/Hollow Gate**: las páginas de las casillas de Ashford, la barca y Hollow Gate del mapa (sus notas), cada una con un enlace de vuelta a su casilla; Ashford enlaza con una página aún sin escribir (_The Wet Ferret_: un clic la crea), Hollow Gate tiene los títulos a los que enlazan otras (`[[Hollow Gate#Secretos]]`).

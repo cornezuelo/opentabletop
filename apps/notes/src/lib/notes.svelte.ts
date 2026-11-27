@@ -33,9 +33,10 @@ import {
   type NoteSection,
 } from '@open-tabletop/notes-ui'
 import { playing } from '@open-tabletop/ui-kit'
-import { t, ui } from './i18n'
+import { getLocale, t, ui } from './i18n'
+import { welcomePage } from './welcome'
 import { nameFaction } from './packs.svelte'
-import { go, type View } from './nav.svelte'
+import { go, nav, type View } from './nav.svelte'
 
 /**
  * The pages and the games' things as this browser keeps them, read again whenever they
@@ -61,7 +62,31 @@ export async function startNotes(): Promise<() => void> {
     nameFaction,
   )
   notes.loaded = true
+  await welcomeOnce()
   return stop
+}
+
+/** Remembers that Notes wrote its welcome page once (so a page deleted stays deleted). */
+const WELCOMED = 'opentabletop.notes.welcomed'
+
+/**
+ * The first time Notes opens with no pages, its welcome page in General (what it's for, a
+ * cheat sheet of Markdown and links), opened when nothing else is asked for.
+ */
+async function welcomeOnce(): Promise<void> {
+  let welcomed: boolean
+  try {
+    welcomed = localStorage.getItem(WELCOMED) !== null
+    localStorage.setItem(WELCOMED, new Date().toISOString())
+  } catch {
+    return
+  }
+  if (welcomed || notes.pages.length) return
+  const { title, body } = welcomePage(getLocale())
+  const page = await createPage(title, undefined, body)
+  await readPages()
+  // Only when nothing else was asked for (a note opened from another app).
+  if (nav.view.name === 'welcome') go({ name: 'page', id: page.id })
 }
 
 /** The tree's sections: the campaign being played first, General, then the others by name. */
