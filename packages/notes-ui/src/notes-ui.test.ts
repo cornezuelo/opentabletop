@@ -188,3 +188,26 @@ describe("a campaign's Log's notes, read as Notes does", () => {
     expect(suggestTexts(translator(() => 'en')).general).toBe(en.general)
   })
 })
+
+describe('pictures in a page', () => {
+  it('draws the library’s pictures with their captions, and says when one is gone', () => {
+    const body = '![The <old> mill](picture:mill)\n\n![](picture:gone) ![web](https://e.org/x.png)'
+    const html = renderPage(body, linkResolver([], index, {}), {
+      get: (id) => (id === 'mill' ? { data: 'data:image/webp;base64,AAAA', width: 320 } : null),
+      missing: 'Not in the library',
+    })
+    expect(html).toContain(
+      '<img src="data:image/webp;base64,AAAA" alt="The &lt;old&gt; mill" width="320"',
+    )
+    expect(html).toContain('<span class="caption">The &lt;old&gt; mill</span>')
+    expect(html).toContain('<span class="gone">Not in the library</span>')
+    // An image off the web isn't fetched: its description stays.
+    expect(html).not.toContain('e.org')
+    // While it's read, nothing yet.
+    const reading = renderPage('![](picture:mill)', linkResolver([], index, {}), {
+      get: () => undefined,
+      missing: '',
+    })
+    expect(reading).toContain('note-picture loading')
+  })
+})

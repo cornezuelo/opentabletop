@@ -1,6 +1,9 @@
 <script lang="ts">
-  import type { NotePage } from '@open-tabletop/notes'
+  import { picturesIn, type NotePage } from '@open-tabletop/notes'
+  import { cachedImage, onPictureChange } from '@open-tabletop/ui-kit'
+  import { onDestroy } from 'svelte'
   import type { GameIndex } from './game'
+  import type { Translate } from './i18n'
   import { renderPage } from './render'
   import { linkResolver } from './resolve'
   import { signStyle } from './signs'
@@ -17,6 +20,7 @@
     from,
     onpage,
     onnew,
+    t,
   }: {
     body: string
     pages: readonly NotePage[]
@@ -25,9 +29,30 @@
     from: { campaign?: string; id?: string }
     onpage: (id: string, heading?: string) => void
     onnew: (path: string) => void
+    t: Translate
   } = $props()
 
-  const html = $derived(renderPage(body, linkResolver(pages, index, from)))
+  /** The library's pictures the text shows, as read (null: not in the library). */
+  let pictures = $state<Record<string, { data: string; width: number } | null>>({})
+  function readPicture(id: string) {
+    void cachedImage(id).then((image) => {
+      pictures[id] = image && { data: image.data, width: image.width }
+    })
+  }
+  $effect(() => {
+    for (const id of picturesIn(body)) if (!(id in pictures)) readPicture(id)
+  })
+  const stop = onPictureChange((id) => {
+    if (id in pictures) readPicture(id)
+  })
+  onDestroy(stop)
+
+  const html = $derived(
+    renderPage(body, linkResolver(pages, index, from), {
+      get: (id) => pictures[id],
+      missing: t('pictures.missing'),
+    }),
+  )
 
   function click(event: MouseEvent) {
     const link = (event.target as HTMLElement).closest('a')
@@ -63,6 +88,12 @@
 
   .note-body :global(a) {
     color: var(--accent);
+  }
+
+  /* A link to a website opens in another tab. */
+  .note-body :global(a[target='_blank']:not(.game-link))::after {
+    content: ' ↗';
+    font-size: 0.85em;
   }
 
   .note-body :global(.note-link) {
@@ -125,6 +156,39 @@
 
   .note-body :global(.sign-faction) {
     --sign: var(--sign-faction);
+  }
+
+  /* A picture of the library: the column's width at most, a small one at its size. */
+  .note-body :global(.note-picture) {
+    display: block;
+    margin: 12px 0;
+  }
+
+  .note-body :global(.note-picture img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+
+  .note-body :global(.note-picture .caption) {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 0.9em;
+    font-style: italic;
+  }
+
+  .note-body :global(.note-picture.loading) {
+    min-height: 48px;
+  }
+
+  .note-body :global(.note-picture.missing .gone) {
+    display: block;
+    padding: 12px;
+    color: var(--text-muted);
+    border: 1px dashed var(--panel-border);
+    border-radius: 4px;
   }
 
   .note-body :global(blockquote) {

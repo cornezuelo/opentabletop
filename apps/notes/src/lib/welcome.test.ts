@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { markdownSummary, welcomePage } from './welcome'
+import { summaryOf } from '@open-tabletop/notes-ui'
+import { welcomePage } from './welcome'
 
 describe('the welcome page', () => {
   it('is in the language asked for, with the manual’s summary of Markdown', () => {
@@ -17,6 +18,6 @@ describe('the welcome page', () => {
   it('drops the manual’s own links from the summary', () => {
     const manual =
       'a\n<!-- markdown-summary -->\nsee [Links](#links) or [x](../a.md), [web](https://x)\n<!-- /markdown-summary -->'
-    expect(markdownSummary(manual)).toBe('see Links or x, [web](https://x)')
+    expect(summaryOf(manual)).toBe('see Links or x, [web](https://x)')
   })
 })

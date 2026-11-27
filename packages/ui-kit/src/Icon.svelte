@@ -18,6 +18,18 @@
     link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     /** Saving a file: an arrow down onto a line. */
     download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+    /** A list: dots before lines. */
+    list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/>',
+    /** A numbered list: 1, 2, 3 before lines. */
+    numbered:
+      '<path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 4.5 5.5 4v4"/><path d="M3.8 10.5a1.3 1.3 0 0 1 2.4.6L3.8 14h2.6"/><path d="M3.8 16.5h2.4l-1.3 1.6a1.2 1.2 0 1 1-1.1 1.7"/>',
+    /** A quote: a bar beside lines. */
+    quote: '<path d="M5 5v14"/><path d="M10 7h10M10 12h10M10 17h6"/>',
+    /** A picture: a frame, a hill and the sun. */
+    picture:
+      '<rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/>',
+    /** A table: a grid. */
+    table: '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 10h18M12 5v14"/>',
     /** Stopping what goes on: a square. */
     stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5" fill="currentColor"/>',
   } as const

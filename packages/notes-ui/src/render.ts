@@ -1,10 +1,11 @@
 import { Marked, type Tokens, type TokenizerAndRendererExtension } from 'marked'
-import { readLink, type NoteLink } from '@open-tabletop/notes'
+import { pictureId, readLink, type NoteLink } from '@open-tabletop/notes'
 
 /**
  * A page's Markdown as safe HTML (pages may come from an imported folder): headings,
  * lists, tasks, tables, quotes, code and links; HTML written in the text stays text, images
- * show their description. `[[links]]` become links the page's view follows: to a page
+ * show their description, those of the image library (`![caption](picture:<id>)`) the picture
+ * with its caption under it. `[[links]]` become links the page's view follows: to a page
  * (`data-page`, or `data-new` for one that doesn't exist yet) or into the games (the app's
  * address, with the kind's sign).
  */
@@ -42,8 +43,25 @@ function linkHtml(view: LinkView): string {
     : `<span class="game-link missing">${sign}${text}</span>`
 }
 
-/** Renders `body`, its links resolved by `resolve`. */
-export function renderPage(body: string, resolve: LinkResolver): string {
+/** The pictures of the image library a page shows, as the host has read them. */
+export interface PictureSource {
+  /** A picture by id: its data and size; null if the library hasn't got it, undefined while read. */
+  get: (id: string) => { data: string; width: number } | null | undefined
+  /** What's shown in place of one the library hasn't got. */
+  missing: string
+}
+
+function pictureHtml(id: string, caption: string, pictures: PictureSource | undefined): string {
+  const found = pictures?.get(id)
+  const under = caption ? `<span class="caption">${escapeHtml(caption)}</span>` : ''
+  if (found && found.data.startsWith('data:image/') && !found.data.startsWith('data:image/svg'))
+    return `<span class="note-picture"><img src="${escapeHtml(found.data)}" alt="${escapeHtml(caption)}" width="${Math.round(found.width) || ''}" draggable="false">${under}</span>`
+  if (found === undefined) return `<span class="note-picture loading">${under}</span>`
+  return `<span class="note-picture missing"><span class="gone">${escapeHtml(pictures?.missing ?? '')}</span>${under}</span>`
+}
+
+/** Renders `body`, its links resolved by `resolve`, its library pictures from `pictures`. */
+export function renderPage(body: string, resolve: LinkResolver, pictures?: PictureSource): string {
   const wikilink: TokenizerAndRendererExtension = {
     name: 'wikilink',
     level: 'inline',
@@ -61,7 +79,10 @@ export function renderPage(body: string, resolve: LinkResolver): string {
     extensions: [wikilink],
     renderer: {
       html: ({ text }: Tokens.HTML | Tokens.Tag) => escapeHtml(text),
-      image: ({ text }: Tokens.Image) => escapeHtml(text),
+      image: ({ href, text }: Tokens.Image) => {
+        const id = pictureId(href)
+        return id ? pictureHtml(id, text, pictures) : escapeHtml(text)
+      },
       heading(token: Tokens.Heading) {
         const level = Math.min(6, Math.max(1, token.depth))
         return `<h${level} id="${headingAnchor(token.text)}">${this.parser.parseInline(token.tokens)}</h${level}>\n`

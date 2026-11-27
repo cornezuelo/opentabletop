@@ -138,6 +138,7 @@ export {
   type ImageShape,
 } from './imageFrame'
 export { cachedImage, onPictureChange } from './imageCache'
+export { ImageFileError, keepPictureFile, pictureIn } from './imageFile'
 export { libraryImages } from './libraryImages.svelte'
 export {
   DEFINITION_PICTURES_KEY,

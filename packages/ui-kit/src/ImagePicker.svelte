@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
   import {
     allImages,
     deleteImage,
@@ -47,6 +48,7 @@
     current,
     onpick,
     start = 'choose',
+    fields,
   }: {
     open?: boolean
     locale: string
@@ -59,6 +61,8 @@
     onpick?: (id: string | undefined) => void
     /** Opened on the face of `current` (**Frame the face**), not on the choosing. */
     start?: 'choose' | 'face'
+    /** What the slot asks besides the picture (a page's caption), under the one chosen. */
+    fields?: Snippet
   } = $props()
 
   const TEXT = {
@@ -70,6 +74,7 @@
         item: 'Items',
         place: 'Places',
         map: 'Maps',
+        note: 'Pages',
       },
       all: 'All',
       unused: 'Not used',
@@ -98,6 +103,8 @@
         trip: 'trip',
         character: 'character',
         pack: 'pack',
+        page: 'page',
+        journal: 'campaign Log',
       },
       definitions: { items: 'item of {part}', templates: 'template of {part}' },
       definition: '{kind} of {part}',
@@ -108,6 +115,7 @@
         item: 'Remove the picture',
         place: 'Remove the picture',
         map: 'Remove the picture',
+        note: 'Remove the picture',
       },
       cancel: 'Cancel',
       use: 'Use this one',
@@ -140,6 +148,7 @@
         item: 'Objetos',
         place: 'Lugares',
         map: 'Mapas',
+        note: 'Páginas',
       },
       all: 'Todas',
       unused: 'Sin usar',
@@ -168,6 +177,8 @@
         trip: 'viaje',
         character: 'personaje',
         pack: 'pack',
+        page: 'página',
+        journal: 'diario de la campaña',
       },
       definitions: { items: 'objeto de {part}', templates: 'plantilla de {part}' },
       definition: '{kind} de {part}',
@@ -178,6 +189,7 @@
         item: 'Quitar la imagen',
         place: 'Quitar la imagen',
         map: 'Quitar la imagen',
+        note: 'Quitar la imagen',
       },
       cancel: 'Cancelar',
       use: 'Usar esta',
@@ -581,6 +593,7 @@
                 onchange={(tags) => void save(chosen, { tags: tags.map((t) => t.toLowerCase()) })}
               />
             </div>
+            {#if fields}<div class="field">{@render fields()}</div>{/if}
             {#if chosenUses}
               <div class="uses">
                 <span class="overline">{text.usedBy}</span>

@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte'
   import { HelpPanel } from '@open-tabletop/manual-ui'
+  import { writingShortcuts } from '@open-tabletop/notes-ui'
   import { AppShell, Dialogs, playing, Toasts, Welcome } from '@open-tabletop/ui-kit'
   import PageView from './components/PageView.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { editing } from './lib/editing.svelte'
-  import { getLocale, locales, setLocale, t } from './lib/i18n'
+  import { getLocale, locales, setLocale, t, ui } from './lib/i18n'
   import { go, nav } from './lib/nav.svelte'
   import { newPageIn, notes, openRef, startNotes } from './lib/notes.svelte'
 
@@ -24,7 +25,8 @@
   })
 
   function keydown(e: KeyboardEvent) {
-    if (!(e.ctrlKey || e.metaKey) || e.altKey) return
+    // The editor's own keys (Ctrl+K links there) were taken already.
+    if (e.defaultPrevented || !(e.ctrlKey || e.metaKey) || e.altKey) return
     const key = e.key.toLowerCase()
     if (key === 'e' && nav.view.name === 'page') {
       e.preventDefault()
@@ -47,6 +49,7 @@
         { keys: ['Ctrl+Shift+N'], does: t('page.keyNew') },
       ],
     },
+    writingShortcuts(ui),
   ])
 </script>
 

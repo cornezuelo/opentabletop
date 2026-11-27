@@ -23,6 +23,10 @@ export interface Kept {
    * character's portrait, a party's banner).
    */
   images: LibraryEntry[]
+  /** Notes' pages, as stored (read only to say what shows a picture: exports don't carry them). */
+  notes?: LibraryEntry[]
+  /** The campaigns' journals, as stored (the same). */
+  journals?: LibraryEntry[]
 }
 
 /** A pack of the user's, as the pack library keeps it (`root` is its folder and id). */
@@ -77,6 +81,7 @@ export function readKept(
   maps: LibraryEntry[],
   campaigns: LibraryEntry[],
   images: LibraryEntry[] = [],
+  texts: { notes?: LibraryEntry[]; journals?: LibraryEntry[] } = {},
 ): Kept {
   const packs = parse(storage[USER_PACKS_KEY])
   const trips = parse(storage[TRIPS_KEY])
@@ -95,6 +100,8 @@ export function readKept(
         ? roster.characters.filter((e): e is Record<string, unknown> => !!characterIdOf(e))
         : [],
     images,
+    ...(texts.notes && { notes: texts.notes }),
+    ...(texts.journals && { journals: texts.journals }),
   }
 }
 

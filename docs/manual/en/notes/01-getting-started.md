@@ -25,29 +25,50 @@ Every page is in a **campaign**, or in **General**. A campaign's pages are its l
 
 **Edit** (the pencil, or <kbd>Ctrl</kbd>+<kbd>E</kbd>) writes the page, in Markdown: `# A heading`, `**bold**`, `_italics_`, lists (`- `), tasks (`- [ ] `), quotes (`> `), tables and code ([at a glance](#markdown-at-a-glance)). **Read** (the eye) shows it with its links. What you write is kept as you type.
 
+You needn't know Markdown: the bar over the text writes it for you. Each button puts its marks around what's selected (or leaves the cursor between them, to type), and pressed again takes them off:
+
+- **B**, **I** and **S**: bold, italics and struck out (<kbd>Ctrl</kbd>+<kbd>B</kbd>, <kbd>Ctrl</kbd>+<kbd>I</kbd>).
+- **H ▾**: the line as a **Title**, a **Section**, a **Subsection** or **Normal text**, each drawn at its size, the line's own marked (<kbd>Ctrl</kbd>+<kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>, <kbd>0</kbd>).
+- The lines as a list, a numbered list or a quote.
+- **Link ▾**: **To a page or the game's** (<kbd>Ctrl</kbd>+<kbd>K</kbd>) opens the suggestions of [links](#links) to choose one, what was selected staying as its text (`[[Old Tobin|the ferryman]]`); **To a website** (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd>) writes `[text](https://)` with the address selected to type it. A link to a website, read, shows **↗** and opens in another tab.
+- **Picture** ([below](#pictures)) and **Table**, a table of two columns to fill in.
+- **? Markdown** (or <kbd>F1</kbd> in the text): the summary below, in the help column.
+
+The keyboard's **Keyboard shortcuts** lists these keys too.
+
 ### Markdown at a glance
 
 <!-- markdown-summary -->
 
-| Write                       | To get                                                 |
-| --------------------------- | ------------------------------------------------------ |
-| `# Old Tobin`               | the page's big heading                                 |
-| `## Secrets`, `### Debts`   | smaller headings (`[[Page#Secrets]]` reaches one)      |
-| `**bold**`                  | **bold**                                               |
-| `_italics_`                 | _italics_                                              |
-| `~~struck out~~`            | ~~struck out~~                                         |
-| `` `code` ``                | `code`, letters as they are                            |
-| `- a thing`                 | a list (`1. ` numbers it)                              |
-| `- [ ] to do`, `- [x] done` | a task, unticked or ticked                             |
-| `> what he said`            | a quote                                                |
-| `---`                       | a line across the page                                 |
-| `[[Old Tobin]]`             | a link to a page ([Links](#links))                     |
-| `[the wiki](https://…)`     | a link to a web page                                   |
-| `\| Name \| Owes \|` lines  | a table: a row a line, a line of `---` under the first |
+| Write                       | To get                                                  |
+| --------------------------- | ------------------------------------------------------- |
+| `# Old Tobin`               | the page's big heading                                  |
+| `## Secrets`, `### Debts`   | smaller headings (`[[Page#Secrets]]` reaches one)       |
+| `**bold**`                  | **bold**                                                |
+| `_italics_`                 | _italics_                                               |
+| `~~struck out~~`            | ~~struck out~~                                          |
+| `` `code` ``                | `code`, letters as they are                             |
+| `- a thing`                 | a list (`1. ` numbers it)                               |
+| `- [ ] to do`, `- [x] done` | a task, unticked or ticked                              |
+| `> what he said`            | a quote                                                 |
+| `---`                       | a line across the page                                  |
+| `[[Old Tobin]]`             | a link to a page ([Links](#links))                      |
+| `[the wiki](https://…)`     | a link to a web page                                    |
+| `\| Name \| Owes \|` lines  | a table: a row a line, a line of `---` under the first  |
+| `![The mill](picture:…)`    | a picture of your image library ([Pictures](#pictures)) |
 
-An empty line starts a new paragraph. HTML written in a page stays text, and an image shows its description: pages are text only.
+An empty line starts a new paragraph. HTML written in a page stays text, and an image off the web shows only its description: a page shows pictures of your image library, nothing else.
 
 <!-- /markdown-summary -->
+
+### Pictures
+
+A page shows pictures of the **image library**, the pictures you've added, shared by every app (portraits, banners, Map's icons): the page names one, it doesn't hold it, so it stays light and the same picture serves every page that shows it.
+
+- **Picture** (the frame), on the bar over the text, opens the library: choose one (**Pages** shows those added for pages, **All** every one), give it a **Caption** if you like (said under it), and **Use this one**. Its line is written where the cursor is: `![The mill from the ford](picture:…)`, the caption between the brackets.
+- **Drop or paste** a picture on the text (a file, or one copied from a web page or an image editor): it's kept in the library at once, for pages, and its line is written where it fell. Give it a caption by writing it between the brackets.
+- Read, each picture is as wide as the page at most (a small one at its own size), with its caption under it. Under the text being written, each picture of the page shows small: click one to find its line.
+- A picture deleted from the library shows a dashed box saying so. **Your images…** (the app switcher) lists the pages that show each picture under **Used by** ([Your images](../technical/05-backups.md#your-images)).
 
 ## Links
 
@@ -82,9 +103,9 @@ In Characters, Map, Campaign and the rest, a thing's **Notes** (or **Linked note
 
 ## Export and import
 
-**⋯ → Export as .md files** downloads every page as a `.zip`: a folder per campaign (by its name) and **General**, each page a `.md` file at its path. Links between pages stay `[[…]]`, as Obsidian and SilverBullet read them; links into the games become ordinary Markdown links to the apps.
+**⋯ → Export as .md files** downloads every page as a `.zip`: a folder per campaign (by its name) and **General**, each page a `.md` file at its path. Links between pages stay `[[…]]`, as Obsidian and SilverBullet read them; links into the games become ordinary Markdown links to the apps. The pictures the pages show go in a **pictures** folder, and each page names its own as files (`![The mill](../pictures/The mill.webp)`), as any Markdown reader shows them.
 
-**⋯ → Import .md files…** reads a `.zip` (or several `.md` files): what's in a folder named after one of your campaigns (or General) goes there, the rest into the campaign you're playing. A page at the same path of the same campaign is replaced (after asking), keeping what links to it; links to the apps written by an export become links into the games again.
+**⋯ → Import .md files…** reads a `.zip` (or several `.md` files): what's in a folder named after one of your campaigns (or General) goes there, the rest into the campaign you're playing. A page at the same path of the same campaign is replaced (after asking), keeping what links to it; links to the apps written by an export become links into the games again. The pictures beside the pages (a `pictures` folder, or any picture the pages name by its file, PNG, JPEG or WebP) are kept in the image library and the pages show them from there; one the library has already is not added twice.
 
 Pages are in your [backups](../technical/05-backups.md) too. Deleting a campaign keeps its pages: they move to General, in a folder named after it.
 

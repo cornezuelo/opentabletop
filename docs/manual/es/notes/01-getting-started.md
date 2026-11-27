@@ -25,6 +25,17 @@ Cada página está en una **campaña**, o en **General**. Las páginas de una ca
 
 **Editar** (el lápiz, o <kbd>Ctrl</kbd>+<kbd>E</kbd>) escribe la página, en Markdown: `# Un título`, `**negrita**`, `_cursiva_`, listas (`- `), tareas (`- [ ] `), citas (`> `), tablas y código ([de un vistazo](#markdown-de-un-vistazo)). **Leer** (el ojo) la muestra con sus enlaces. Lo que escribes se guarda según escribes.
 
+No hace falta saber Markdown: la barra sobre el texto lo escribe por ti. Cada botón pone sus marcas alrededor de lo seleccionado (o deja el cursor entre ellas, para escribir), y pulsado otra vez las quita:
+
+- **B**, **I** y **S**: negrita, cursiva y tachado (<kbd>Ctrl</kbd>+<kbd>B</kbd>, <kbd>Ctrl</kbd>+<kbd>I</kbd>).
+- **H ▾**: la línea como **Título**, **Sección**, **Subsección** o **Texto normal**, cada uno dibujado a su tamaño, con el de la línea marcado (<kbd>Ctrl</kbd>+<kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>, <kbd>0</kbd>).
+- Las líneas como lista, lista numerada o cita.
+- **Enlace ▾**: **A una página o a lo del juego** (<kbd>Ctrl</kbd>+<kbd>K</kbd>) abre las sugerencias de [enlaces](#enlaces) para elegir uno, y lo seleccionado se queda como su texto (`[[Old Tobin|el barquero]]`); **A una web** (<kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>K</kbd>) escribe `[texto](https://)` con la dirección seleccionada para escribirla. Un enlace a una web, al leer, muestra **↗** y se abre en otra pestaña.
+- **Imagen** ([más abajo](#imágenes)) y **Tabla**, una tabla de dos columnas para rellenar.
+- **? Markdown** (o <kbd>F1</kbd> en el texto): el resumen de abajo, en la columna de ayuda.
+
+El **Atajos de teclado** del teclado también lista estas teclas.
+
 ### Markdown de un vistazo
 
 <!-- markdown-summary -->
@@ -44,10 +55,20 @@ Cada página está en una **campaña**, o en **General**. Las páginas de una ca
 | `[[Old Tobin]]`                  | un enlace a una página ([Enlaces](#enlaces))                      |
 | `[la wiki](https://…)`           | un enlace a una página web                                        |
 | líneas `\| Nombre \| Debe \|`    | una tabla: una fila por línea, una línea de `---` bajo la primera |
+| `![El molino](picture:…)`        | una imagen de tu biblioteca de imágenes ([Imágenes](#imágenes))   |
 
-Una línea en blanco empieza otro párrafo. El HTML escrito en una página se queda en texto, y una imagen muestra su descripción: las páginas son solo texto.
+Una línea en blanco empieza otro párrafo. El HTML escrito en una página se queda en texto, y una imagen de la web muestra solo su descripción: una página muestra imágenes de tu biblioteca de imágenes, nada más.
 
 <!-- /markdown-summary -->
+
+### Imágenes
+
+Una página muestra imágenes de la **biblioteca de imágenes**, las que has añadido, compartidas por todas las aplicaciones (retratos, estandartes, los iconos de Mapa): la página nombra una, no la lleva dentro, así que sigue siendo ligera y la misma imagen sirve a todas las páginas que la muestran.
+
+- **Imagen** (el marco), en la barra sobre el texto, abre la biblioteca: elige una (**Páginas** muestra las añadidas para páginas, **Todas** todas), dale un **Pie** si quieres (lo que se dice debajo) y **Usar esta**. Su línea se escribe donde está el cursor: `![El molino desde el vado](picture:…)`, con el pie entre los corchetes.
+- **Suelta o pega** una imagen sobre el texto (un fichero, o una copiada de una página web o de un editor de imágenes): se guarda en la biblioteca en el acto, para páginas, y su línea se escribe donde cayó. Para darle pie, escríbelo entre los corchetes.
+- Al leer, cada imagen ocupa como mucho el ancho de la página (una pequeña, su propio tamaño), con su pie debajo. Bajo el texto que se escribe, cada imagen de la página sale en pequeño: pulsa una para encontrar su línea.
+- Una imagen borrada de la biblioteca muestra un recuadro discontinuo que lo dice. **Tus imágenes…** (el selector de aplicaciones) lista en **Usada por** las páginas que muestran cada imagen ([Tus imágenes](../technical/05-backups.md#tus-imágenes)).
 
 ## Enlaces
 
@@ -82,9 +103,9 @@ En Personajes, Mapa, Campaña y las demás, las **Notas** (o la **Nota enlazada*
 
 ## Exportar e importar
 
-**⋯ → Exportar como ficheros .md** descarga todas las páginas como un `.zip`: una carpeta por campaña (con su nombre) y **General**, cada página un fichero `.md` en su ruta. Los enlaces entre páginas se quedan como `[[…]]`, como los leen Obsidian y SilverBullet; los enlaces al juego pasan a ser enlaces Markdown normales a las aplicaciones.
+**⋯ → Exportar como ficheros .md** descarga todas las páginas como un `.zip`: una carpeta por campaña (con su nombre) y **General**, cada página un fichero `.md` en su ruta. Los enlaces entre páginas se quedan como `[[…]]`, como los leen Obsidian y SilverBullet; los enlaces al juego pasan a ser enlaces Markdown normales a las aplicaciones. Las imágenes que muestran las páginas van en una carpeta **pictures**, y cada página nombra las suyas como ficheros (`![El molino](../pictures/El molino.webp)`), como las muestra cualquier lector de Markdown.
 
-**⋯ → Importar ficheros .md…** lee un `.zip` (o varios ficheros `.md`): lo que está en una carpeta con el nombre de una de tus campañas (o General) va allí, el resto a la campaña que juegas. Una página en la misma ruta de la misma campaña se reemplaza (tras preguntar), conservando lo que la enlaza; los enlaces a las aplicaciones escritos por una exportación vuelven a ser enlaces al juego.
+**⋯ → Importar ficheros .md…** lee un `.zip` (o varios ficheros `.md`): lo que está en una carpeta con el nombre de una de tus campañas (o General) va allí, el resto a la campaña que juegas. Una página en la misma ruta de la misma campaña se reemplaza (tras preguntar), conservando lo que la enlaza; los enlaces a las aplicaciones escritos por una exportación vuelven a ser enlaces al juego. Las imágenes junto a las páginas (una carpeta `pictures`, o cualquier imagen que las páginas nombren por su fichero, PNG, JPEG o WebP) se guardan en la biblioteca de imágenes y las páginas las muestran desde allí; una que la biblioteca ya tiene no se añade dos veces.
 
 Las páginas también van en tus [copias de seguridad](../technical/05-backups.md). Borrar una campaña conserva sus páginas: pasan a General, en una carpeta con su nombre.
 

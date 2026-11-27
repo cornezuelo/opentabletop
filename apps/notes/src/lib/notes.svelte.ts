@@ -15,8 +15,21 @@ import {
   renamePage,
   textLinksTo,
   GENERAL_FOLDER,
+  PICTURES_FOLDER,
+  picturesIn,
+  picturesOfFiles,
+  safeName,
   type NotePage,
 } from '@open-tabletop/notes'
+import { bytesToDataUrl, dataUrlToBytes } from '@open-tabletop/oracle-engine'
+import {
+  allImages,
+  getImage,
+  IMAGE_FORMAT,
+  putImage,
+  readImage,
+  type LibraryImage,
+} from '@open-tabletop/storage'
 import {
   createPage,
   deletePage,
@@ -213,9 +226,39 @@ export async function journalLines(page: NotePage): Promise<string[]> {
   return lines
 }
 
-/** Every page as a .zip of .md files. */
-export function exportZip(): Uint8Array {
+const EXTENSIONS: Record<string, string> = {
+  'image/webp': 'webp',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+}
+
+/** The library's pictures the pages show, each a file of the export's `pictures/` folder. */
+async function picturesToExport(): Promise<Map<string, { path: string; bytes: Uint8Array }>> {
+  const out = new Map<string, { path: string; bytes: Uint8Array }>()
+  const taken = new Set<string>()
+  for (const id of new Set(notes.pages.flatMap((p) => picturesIn(p.body)))) {
+    const image = await getImage(id).catch(() => null)
+    if (!image) continue
+    const mime = /^data:([^;,]+)/.exec(image.data)?.[1] ?? ''
+    const extension = EXTENSIONS[mime]
+    if (!extension) continue
+    const base = safeName(image.name || id)
+    let name = base
+    for (let n = 2; taken.has(name.toLocaleLowerCase()); n++) name = `${base} ${n}`
+    taken.add(name.toLocaleLowerCase())
+    out.set(id, {
+      path: `${PICTURES_FOLDER}/${name}.${extension}`,
+      bytes: dataUrlToBytes(image.data),
+    })
+  }
+  return out
+}
+
+/** Every page as a .zip of .md files, with the pictures they show in `pictures/`. */
+export async function exportZip(): Promise<Uint8Array> {
+  const pictures = await picturesToExport()
   const files = pagesToFiles(notes.pages, {
+    pictureFile: (id) => pictures.get(id)?.path ?? null,
     campaignFolder: (id) => notes.index.campaigns[id] ?? id,
     gameLink: (link) => {
       const url = gameUrl(link)
@@ -227,27 +270,107 @@ export function exportZip(): Uint8Array {
       }
     },
   })
-  return zipSync(
-    Object.fromEntries(Object.entries(files).map(([path, text]) => [path, strToU8(text)])),
-  )
+  return zipSync({
+    ...Object.fromEntries(Object.entries(files).map(([path, text]) => [path, strToU8(text)])),
+    ...Object.fromEntries([...pictures.values()].map((p) => [p.path, p.bytes])),
+  })
 }
 
-/** Files chosen to import (a .zip, or .md files) as files by path. */
-export async function readChosen(files: File[]): Promise<Record<string, string>> {
-  const out: Record<string, string> = {}
+/** Files chosen to import: the pages' texts, and the pictures beside them, by path. */
+export interface ChosenFiles {
+  texts: Record<string, string>
+  pictures: Record<string, Uint8Array>
+}
+
+const PICTURE_FILE = /\.(webp|png|jpe?g)$/i
+
+/** Files chosen to import (a .zip, or .md files and their pictures) by path. */
+export async function readChosen(files: File[]): Promise<ChosenFiles> {
+  const out: ChosenFiles = { texts: {}, pictures: {} }
   for (const file of files) {
     if (/\.zip$/i.test(file.name)) {
       const unzipped = unzipSync(new Uint8Array(await file.arrayBuffer()))
       for (const [path, data] of Object.entries(unzipped))
-        if (/\.md$/i.test(path)) out[path] = strFromU8(data)
+        if (/\.md$/i.test(path)) out.texts[path] = strFromU8(data)
+        else if (PICTURE_FILE.test(path)) out.pictures[path] = data
     } else if (/\.md$/i.test(file.name))
-      out[file.webkitRelativePath || file.name] = await file.text()
+      out.texts[file.webkitRelativePath || file.name] = await file.text()
+    else if (PICTURE_FILE.test(file.name))
+      out.pictures[file.webkitRelativePath || file.name] = new Uint8Array(await file.arrayBuffer())
   }
   return out
 }
 
-/** Pages read from files, put among those here: what's written and how many replaced. */
-export function planImport(files: Record<string, string>, into: string | undefined) {
+/** A picture's size, read from its bytes (0 × 0 if the browser can't read it). */
+async function pictureSize(data: string): Promise<{ width: number; height: number }> {
+  try {
+    const bitmap = await createImageBitmap(await (await fetch(data)).blob())
+    const size = { width: bitmap.width, height: bitmap.height }
+    bitmap.close()
+    return size
+  } catch {
+    return { width: 0, height: 0 }
+  }
+}
+
+/**
+ * The pictures the pages name among the files, as images of the library: one it has already
+ * (the same picture) is that one, the others new (kept when the import is written).
+ */
+async function picturesToImport(chosen: ChosenFiles): Promise<{
+  ids: Map<string, string>
+  keep: LibraryImage[]
+}> {
+  const ids = new Map<string, string>()
+  const keep: LibraryImage[] = []
+  const wanted = picturesOfFiles(chosen.texts).filter((path) => chosen.pictures[path])
+  if (!wanted.length) return { ids, keep }
+  const here = new Map(
+    (await allImages().catch(() => [])).flatMap((e) => {
+      const image = readImage(e)
+      return image ? [[image.data, image.id] as const] : []
+    }),
+  )
+  for (const path of wanted) {
+    const data = bytesToDataUrl(chosen.pictures[path], path)
+    if (!data.startsWith('data:image/')) continue
+    const same = here.get(data)
+    if (same) {
+      ids.set(path, same)
+      continue
+    }
+    const image: LibraryImage = {
+      id: crypto.randomUUID(),
+      name: (path.split('/').pop() ?? path).replace(PICTURE_FILE, ''),
+      modified: new Date().toISOString(),
+      format: IMAGE_FORMAT,
+      data,
+      ...(await pictureSize(data)),
+      tags: [],
+      use: 'note',
+    }
+    here.set(data, image.id)
+    ids.set(path, image.id)
+    keep.push(image)
+  }
+  return { ids, keep }
+}
+
+/**
+ * Pages read from files, put among those here: what's written, how many replaced, and the
+ * pictures to keep in the library with them.
+ */
+export async function planImport(chosen: ChosenFiles, into: string | undefined) {
+  const pictures = await picturesToImport(chosen)
+  return { ...planPages(chosen.texts, into, pictures.ids), pictures: pictures.keep }
+}
+
+/** Pages read from files (no pictures among them), put among those here. */
+export function planPages(
+  files: Record<string, string>,
+  into: string | undefined,
+  pictures: ReadonlyMap<string, string> = new Map(),
+) {
   const byName = new Map(
     Object.entries(notes.index.campaigns).map(([id, name]) => [name.toLocaleLowerCase(), id]),
   )
@@ -258,13 +381,18 @@ export function planImport(files: Record<string, string>, into: string | undefin
         : (byName.get(folder.toLocaleLowerCase()) ?? null),
     ...(into ? { into } : {}),
     gameLinkOf: linkFromUrl,
+    pictureOf: (path) => pictures.get(path) ?? null,
     newId: newPageId,
     now: new Date().toISOString(),
   })
   return mergePages(notes.pages, imported)
 }
 
-export async function writeImport(put: NotePage[]): Promise<void> {
+export async function writeImport(
+  put: NotePage[],
+  pictures: readonly LibraryImage[] = [],
+): Promise<void> {
+  for (const image of pictures) await putImage(image)
   await savePages(put)
   await readPages()
 }

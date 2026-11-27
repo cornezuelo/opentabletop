@@ -21,6 +21,7 @@
     newPageIn,
     notes,
     planImport,
+    planPages,
     readChosen,
     sections,
     writeImport,
@@ -47,12 +48,12 @@
 
   function exportAll() {
     const day = new Date().toISOString().slice(0, 10)
-    downloadBytes(`opentabletop-notes-${day}.zip`, exportZip())
+    void exportZip().then((zip) => downloadBytes(`opentabletop-notes-${day}.zip`, zip))
   }
 
   async function importFiles(chosen: File[]) {
     const files = await readChosen(chosen)
-    const { put, replaced } = planImport(files, playing.id)
+    const { put, replaced, pictures } = await planImport(files, playing.id)
     if (!put.length) return showToast(t('importNone'), 'error')
     if (replaced) {
       const choice = await ask(t('nav.import'), t('importAsk', { n: put.length, replaced }), [
@@ -61,12 +62,12 @@
       ])
       if (choice !== 'import') return
     }
-    await writeImport(put)
+    await writeImport(put, pictures)
     showToast(t('imported', { n: put.length, replaced }))
   }
 
   async function addExamples(files: Record<string, string>) {
-    const { put } = planImport(files, playing.id)
+    const { put } = planPages(files, playing.id)
     await writeImport(put)
     showToast(t('examplesAdded', { n: put.length }))
   }
@@ -92,7 +93,7 @@
   <input
     bind:this={file}
     type="file"
-    accept=".zip,.md,application/zip,text/markdown"
+    accept=".zip,.md,.webp,.png,.jpg,.jpeg,application/zip,text/markdown,image/png,image/jpeg,image/webp"
     multiple
     hidden
     onchange={(e) => {

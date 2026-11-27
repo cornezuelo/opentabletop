@@ -47,7 +47,10 @@ describe('the bundled manual', () => {
     for (const locale of ['en', 'es'])
       for (const app of manual.apps)
         for (const page of manual.pages(app, locale))
-          for (const [, src] of page.body.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)) {
+          // Pictures written as code (a syntax shown, `![…](…)`) aren't shown.
+          for (const [, src] of page.body
+            .replace(/``.*?``|`[^`\n]*`/g, '')
+            .matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)) {
             const path = picturePath(page, src, (p) => p in pictures)
             expect(path, `${locale}/${app}/${page.slug} → ${src}`).toBeTruthy()
             shown++

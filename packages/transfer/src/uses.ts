@@ -1,4 +1,5 @@
 import { characterIdOf, isRecord, type Kept } from './kept'
+import { picturesIn } from '@open-tabletop/notes'
 import type { ItemKind } from './items'
 
 /**
@@ -9,10 +10,12 @@ import type { ItemKind } from './items'
  *   images (its icons and terrain symbols);
  * - `definition`: a pack's definition you gave it to (an item of a catalogue, a bestiary's
  *   template), `definition` being its kind as referred to (`items`, `templates`), `name` its id
- *   and `part` where it is (`core/gear`).
+ *   and `part` where it is (`core/gear`);
+ * - `page` / `journal`: a page of Notes, or a note of a campaign's Log, showing it.
  */
 export interface ImageUse {
-  kind: ItemKind | 'definition'
+  /** `page`: a page of Notes (`name` its title); `journal`: a note of a campaign's Log. */
+  kind: ItemKind | 'definition' | 'page' | 'journal'
   name: string
   part?: string
   definition?: string
@@ -66,6 +69,21 @@ export function imageUses(
     const character = e.character as Record<string, unknown>
     walk(e, 'character', typeof character.name === 'string' ? character.name : characterIdOf(e)!)
   }
+  /** Every picture of the library a text under `value` shows (`![…](picture:<id>)`). */
+  const texts = (value: unknown, found: string[] = []): string[] => {
+    if (typeof value === 'string') found.push(...picturesIn(value))
+    else if (Array.isArray(value)) for (const v of value) texts(v, found)
+    else if (isRecord(value)) for (const v of Object.values(value)) texts(v, found)
+    return found
+  }
+  for (const n of kept.notes ?? []) {
+    const name = n.name.split('/').pop() ?? n.name
+    for (const id of texts(parse(n.json))) add(id, { kind: 'page', name })
+  }
+  const campaignName = new Map(kept.campaigns.map((c) => [c.id, c.name]))
+  for (const j of kept.journals ?? [])
+    for (const id of texts(parse(j.json)))
+      add(id, { kind: 'journal', name: campaignName.get(j.id) ?? j.name })
   for (const [ref, id] of Object.entries(definitionPictures)) {
     // `items:core/gear#rope`
     const match = /^([^:]+):(.*)#(.+)$/.exec(ref)

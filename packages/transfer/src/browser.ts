@@ -10,7 +10,10 @@ import { exportFileName, writeExport } from './zip'
 export async function keptHere(): Promise<{ kept: Kept; storage: Record<string, string> }> {
   const backup = await makeBackup()
   return {
-    kept: readKept(backup.storage, backup.maps, backup.campaigns, backup.images),
+    kept: readKept(backup.storage, backup.maps, backup.campaigns, backup.images, {
+      notes: backup.notes,
+      journals: backup.journals,
+    }),
     storage: backup.storage,
   }
 }

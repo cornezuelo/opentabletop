@@ -212,6 +212,8 @@
         {index}
         campaign={campaign.id}
         texts={suggestTexts(nt)}
+        t={nt}
+        {locale}
         placeholder={t('log.notePlaceholder')}
         label={t('log.note')}
         onchange={(text) => (draft = text)}
@@ -280,6 +282,7 @@
             from={{ campaign: campaign.id }}
             onpage={openPage}
             onnew={newPage}
+            t={nt}
           />
         </div>
         <span class="actions">
@@ -659,7 +662,7 @@
   }
 
   .note-form .editor {
-    height: 8.5em;
+    height: 11em;
     overflow: hidden;
     border: 1px solid var(--panel-border);
     border-radius: 4px;

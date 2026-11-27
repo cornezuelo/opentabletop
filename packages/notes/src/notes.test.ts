@@ -12,6 +12,9 @@ import {
   pageHeadings,
   pageJson,
   pagesToFiles,
+  pictureMarkdown,
+  picturesIn,
+  picturesOfFiles,
   pageTitle,
   pageTree,
   parseLinks,
@@ -222,5 +225,46 @@ describe('as .md files', () => {
     const { put, replaced } = mergePages(pages, read)
     expect(replaced).toBe(2)
     expect(put.map((p) => p.id)).toEqual(['tobin', 'rules', 'p3'])
+  })
+})
+
+describe('pictures', () => {
+  it('finds the library pictures a page shows', () => {
+    const body = `${pictureMarkdown('wolf', 'The grey wolf')}\n\n![](picture:tower) and ![x](https://e.org/a.png)`
+    expect(body.startsWith('![The grey wolf](picture:wolf)')).toBe(true)
+    expect(picturesIn(body)).toEqual(['wolf', 'tower'])
+    expect(pictureMarkdown('a', 'one [two]\nthree')).toBe('![one  two  three](picture:a)')
+  })
+
+  it('exports them as files beside the pages and reads them back', () => {
+    const pages = [
+      page('a', 'npcs/Old Tobin', 'He keeps ![his dog](picture:dog).', 'vale'),
+      page('b', 'Rumours', '![](picture:gone) ![web](https://e.org/a.png)'),
+    ]
+    const files = pagesToFiles(pages, {
+      campaignFolder: () => 'The Vale',
+      gameLink: () => null,
+      pictureFile: (id) => (id === 'dog' ? 'pictures/Tobin dog.webp' : null),
+    })
+    expect(files['The Vale/npcs/Old Tobin.md']).toBe(
+      'He keeps ![his dog](../../pictures/Tobin%20dog.webp).',
+    )
+    // A picture the library hasn't got keeps its reference.
+    expect(files['General/Rumours.md']).toBe('![](picture:gone) ![web](https://e.org/a.png)')
+    expect(picturesOfFiles(files)).toEqual(['pictures/Tobin dog.webp'])
+    const read = filesToPages(files, {
+      campaignOfFolder: (folder) =>
+        folder === 'The Vale' ? 'vale' : folder === 'General' ? '' : null,
+      gameLinkOf: () => null,
+      newId: (() => {
+        let n = 0
+        return () => `p${++n}`
+      })(),
+      now: LATER,
+      pictureOf: (path) => (path === 'pictures/Tobin dog.webp' ? 'dog2' : null),
+    })
+    expect(read.find((p) => p.path === 'npcs/Old Tobin')?.body).toBe(
+      'He keeps ![his dog](picture:dog2).',
+    )
   })
 })

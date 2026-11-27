@@ -1,11 +1,13 @@
 import { formatLink, readLink, rewriteLinks, type NoteLink } from './links'
 import { cleanNotePath, newPage, pathKey, type NotePage } from './page'
+import { PICTURE_SCHEME, pictureId, relativePath, resolvePath, rewritePictures } from './pictures'
 
 /**
  * Pages as a folder of `.md` files and back (docs/notes-and-journal.md §9): what Obsidian or
  * SilverBullet open as they are. Each campaign is a folder by its name, General another;
  * links between pages stay `[[…]]`, links into the games become ordinary Markdown links to
- * the apps (which come back as links into the games when imported).
+ * the apps (which come back as links into the games when imported). Pictures of the image
+ * library become files of the export (`![caption](../pictures/Wolf.webp)`), and come back.
  */
 
 /** The name of General's folder in an export. */
@@ -23,6 +25,11 @@ export interface ExportOptions {
   campaignFolder: (campaign: string) => string
   /** A link into the games as a Markdown link's text and URL; null keeps it as it is. */
   gameLink: (link: NoteLink) => { text: string; url: string } | null
+  /**
+   * Where a picture of the library goes in the export (`pictures/Wolf.webp`, from its root), or
+   * null to keep its reference as it is (absent: all are kept).
+   */
+  pictureFile?: (id: string) => string | null
 }
 
 /** Pages as files, by path in the folder (`Vale/npcs/Old Tobin.md`). */
@@ -53,7 +60,12 @@ export function pagesToFiles(
     let name = `${folderOf(page.campaign)}/${path}`
     for (let n = 2; files[`${name}.md`] !== undefined; n++)
       name = `${folderOf(page.campaign)}/${path} ${n}`
-    files[`${name}.md`] = body
+    const file = `${name}.md`
+    files[file] = rewritePictures(body, (href) => {
+      const id = pictureId(href)
+      const to = id && options.pictureFile?.(id)
+      return to ? encodeURI(relativePath(file, to)) : null
+    })
   }
   return files
 }
@@ -70,6 +82,23 @@ export interface ImportOptions {
   gameLinkOf: (url: string) => string | null
   newId: () => string
   now: string
+  /**
+   * The library's id of a picture of the files (by its path from their root, `pictures/Wolf.webp`),
+   * once kept there; null leaves the address as it is.
+   */
+  pictureOf?: (path: string) => string | null
+}
+
+/** Pictures named by relative addresses, as the files hold them (by path from their root). */
+export function picturesOfFiles(files: Record<string, string>): string[] {
+  const found = new Set<string>()
+  for (const [file, text] of Object.entries(files))
+    rewritePictures(text, (href) => {
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/'))
+        found.add(resolvePath(file.replace(/\\/g, '/'), href))
+      return null
+    })
+  return [...found]
 }
 
 /** Markdown links to the apps (as exported) made links into the games again. */
@@ -107,7 +136,11 @@ export function filesToPages(files: Record<string, string>, options: ImportOptio
         path,
         campaign,
         options.now,
-        linksBack(text.replace(/\r\n/g, '\n'), options.gameLinkOf),
+        rewritePictures(linksBack(text.replace(/\r\n/g, '\n'), options.gameLinkOf), (href) => {
+          if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('/')) return null
+          const id = options.pictureOf?.(resolvePath(file.replace(/\\/g, '/'), href))
+          return id ? `${PICTURE_SCHEME}${id}` : null
+        }),
       ),
     )
   }

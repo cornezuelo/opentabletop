@@ -3,7 +3,8 @@
  * a file read as a picture (SVG refused: it may hold scripts), and drawn framed at its
  * slot's shape, shrunk, as WebP (JPEG where the browser can't write WebP).
  */
-import { framedDraw, type Framing } from './imageFrame'
+import { IMAGE_FORMAT, putImage, type LibraryImage } from '@open-tabletop/storage'
+import { FRAMED, framedDraw, imageName, ownAspect, type Framing } from './imageFrame'
 
 /** Why a file isn't taken: not a picture, or one we refuse. */
 export class ImageFileError extends Error {
@@ -63,3 +64,32 @@ export function drawFramed(
   if (!data.startsWith('data:image/webp')) data = canvas.toDataURL('image/jpeg', 0.85)
   return { data, width: draw.width, height: draw.height }
 }
+
+/**
+ * A picture dropped or pasted where it's shown whole (a page of Notes): kept in the image
+ * library at once, as it is (shrunk, no framing asked), for `use`. Throws `ImageFileError`.
+ */
+export async function keepPictureFile(file: File, use: string): Promise<LibraryImage> {
+  const source = await readImageFile(file)
+  try {
+    const drawn = drawFramed(source, ownAspect(drawnSize(source)), FRAMED)
+    const image: LibraryImage = {
+      id: crypto.randomUUID(),
+      name: imageName(file.name),
+      modified: new Date().toISOString(),
+      format: IMAGE_FORMAT,
+      ...drawn,
+      tags: [],
+      use,
+    }
+    await putImage(image)
+    return image
+  } finally {
+    releaseImage(source)
+  }
+}
+
+const drawnSize = (image: HTMLImageElement) => ({
+  width: image.naturalWidth,
+  height: image.naturalHeight,
+})

@@ -11,7 +11,7 @@
     showToast,
     tooltip,
   } from '@open-tabletop/ui-kit'
-  import { t, ui } from '../lib/i18n'
+  import { getLocale, t, ui } from '../lib/i18n'
   import { go } from '../lib/nav.svelte'
   import {
     campaignName,
@@ -143,6 +143,8 @@
               index={notes.index}
               campaign={page.campaign}
               texts={suggestTexts(ui)}
+              t={ui}
+              locale={getLocale()}
               placeholder={t('page.placeholder')}
               label={t('page.editorLabel')}
               onchange={(body) => changePage(page, { body })}
@@ -156,6 +158,7 @@
             from={page}
             onpage={openPage}
             onnew={(target) => newPageIn(page.campaign, '', target)}
+            t={ui}
           />
         {:else}
           <p class="hint"><Markdown text={t('page.empty')} /></p>

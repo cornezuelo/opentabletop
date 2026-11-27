@@ -24,6 +24,7 @@
     "@open-tabletop/note-refs": "*",
     "@open-tabletop/notes": "*",
     "@open-tabletop/notes-ui": "*",
+    "@open-tabletop/oracle-engine": "*",
     "@open-tabletop/pack-ui": "*",
     "@open-tabletop/session": "*",
     "@open-tabletop/storage": "*",

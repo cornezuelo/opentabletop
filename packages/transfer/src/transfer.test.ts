@@ -300,6 +300,33 @@ describe('where an image is used', () => {
     // Nothing in the example map or its campaign names an image of the library.
     expect(Object.keys(uses).sort()).toEqual(['banner', 'face', 'rope', 'tower', 'wolf'])
   })
+
+  it('names the pages of Notes and the notes of a campaign’s Log that show one', () => {
+    const { kept } = storage()
+    const uses = imageUses({
+      ...kept,
+      notes: [
+        {
+          id: 'p1',
+          name: 'npcs/Old Tobin',
+          modified: '',
+          json: JSON.stringify({ format: 1, path: 'npcs/Old Tobin', body: '![](picture:dog)' }),
+        },
+      ],
+      journals: [
+        {
+          id: campaignId,
+          name: campaignId,
+          modified: '',
+          json: JSON.stringify({ items: [{ kind: 'note', text: 'Saw ![it](picture:dog)' }] }),
+        },
+      ],
+    })
+    expect(uses.dog).toEqual([
+      { kind: 'page', name: 'Old Tobin' },
+      { kind: 'journal', name: kept.campaigns[0].name },
+    ])
+  })
 })
 
 describe('importing', () => {
