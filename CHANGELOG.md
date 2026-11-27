@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.83.0] - 2026-11-27
+
 ### Apps
 
 - **Styled texts**: results, cards, a trip's journal and important moments, the rows of a roll's table and Campaign's **Log** show what a pack writes in **bold**, _italics_, a colour or underlined; the Oracle's forms say how in a result's help. Exports keep bold and italics (Markdown) or none (Lonelog, the command line).
