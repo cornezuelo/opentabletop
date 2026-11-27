@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.82.0] - 2026-11-27
+
 ### Apps
 
 - **Notes**: the first time it opens with no pages, a **Welcome to Notes** page in General, a cheat sheet of what it's for, the Markdown it reads and its links; the manual has a summary of Markdown too.
