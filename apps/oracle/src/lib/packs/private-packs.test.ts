@@ -123,6 +123,101 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
     }
   })
 
+  /** A trip with one character, Urth, standing in the plains. */
+  const withUrth = (values: Record<string, number> = {}) => {
+    const urth = newMember(partyOf(system()), {
+      id: 'urth',
+      name: 'Urth',
+      values: { fue: 2, res: 1, agi: 1, pv: 6, 'pv-max': 6, ...values },
+    })
+    return startTrip({ system: system(), location: '0', season: 'spring', members: [urth] }).session
+  }
+  /** The entry a table came out on, among a step's journal lines. */
+  const rolled = (entries: { data?: Record<string, unknown> }[], table: string) =>
+    entries
+      .flatMap((e) => (e.data?.rolls as { source: string; entry?: string }[] | undefined) ?? [])
+      .find((r) => r.source === table)?.entry
+  const urth = (s: SessionState) => s.members!.find((m) => m.id === 'urth')!
+
+  it('tests the stat chosen: 2d6 + it against 8, doubles 6 and doubles 1 critical', () => {
+    const engine = createOracleEngine({ registry, random: seeded('test') })
+    const seen = new Set<string>()
+    for (let i = 0; i < 400; i++) {
+      const r = engine.resolve('kal-arath/test', {
+        params: { stat: 'fue' },
+        acting: { values: { fue: 2 } },
+      }).resolution
+      const id = r.entry!
+      const total = r.rolls[0]!.total
+      seen.add(id)
+      if (id === 'critical') expect(total).toBe(14)
+      if (id === 'fumble') expect(total).toBe(4)
+      if (id === 'success') expect(total).toBeGreaterThanOrEqual(8)
+      if (id === 'failure') expect(total).toBeLessThan(8)
+    }
+    expect([...seen].sort()).toEqual(['critical', 'failure', 'fumble', 'success'])
+    // In a trip, the action asks which stat, then rolls whoever acts.
+    let done = stepTrip(
+      options('test-trip'),
+      { ...withUrth(), acting: 'urth' },
+      {
+        type: 'action',
+        id: 'test',
+      },
+    )
+    expect(done.state.travel.waiting).toBeTruthy()
+    done = stepTrip(options('test-trip'), done.state, { type: 'resume', choice: 'fue' })
+    expect(done.entries.some((e) => e.data?.table === 'kal-arath/test')).toBe(true)
+  })
+
+  it('rolls the Death table at 0 PV, its result kept on the sheet', () => {
+    const results = new Set<string>()
+    for (let i = 0; i < 60; i++) {
+      const s = withUrth()
+      const done = stepTrip(
+        options(`death-${i}`),
+        applyResult(s, { effects: { 'characters.urth.values.pv': '=0' } }, {}, partyOf(system())),
+        { type: 'advanceTime', minutes: 1 },
+      )
+      const u = urth(done.state)
+      const id = rolled(done.entries, 'kal-arath/death')
+      expect(id).toBeDefined()
+      results.add(id)
+      if (id === 'unconscious')
+        expect(Object.keys(u.conditions)).toEqual(
+          expect.arrayContaining(['inconsciente', 'fuera-de-accion']),
+        )
+      if (id === 'pierced') expect(u.values['pv-max']).toBe(5)
+      if (id === 'dead') expect(u.conditions.muerto).toBeDefined()
+    }
+    expect(results.size).toBeGreaterThan(3)
+  })
+
+  it('heals 1d6 + RES at camp, only with a ration and a quiet night', () => {
+    const hurt = { pv: 2 }
+    // At camp: healed unless the rations ran out or something came in the night.
+    let healed = 0
+    let unhealed = 0
+    for (let i = 0; i < 30; i++) {
+      for (const rations of [5, 0]) {
+        const camp = withUrth(hurt)
+        camp.party = { ...camp.party!, values: { ...camp.party!.values, rations } }
+        const night = stepTrip(options(`camp-${i}`), camp, { type: 'action', id: 'camp' })
+        const quiet = rolled(night.entries, 'kal-arath/camp') === 'quiet'
+        const pv = urth(night.state).values.pv!
+        if (rations > 0 && quiet) {
+          expect(pv).toBeGreaterThanOrEqual(3)
+          healed++
+        } else {
+          expect(pv).toBe(2)
+          unhealed++
+        }
+      }
+    }
+    expect(healed).toBeGreaterThan(0)
+    expect(unhealed).toBeGreaterThan(30)
+  })
+
   it('stops travel in a spring storm but only halves it in an autumn one', () => {
     const travel = createTravelEngine({ world: plains, rules: system().rules })
     const minutes = (weather: string) =>
