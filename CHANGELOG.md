@@ -4,6 +4,10 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **Packs and the Oracle**: a new table, oracle, generator, deck or part of a system, and a row added in a form (a month, a place, a piece…), is written with its sample texts in the pack's base language (_Primer resultado_ in a Spanish pack), not always in English.
+
 ## [0.87.0] - 2026-11-28
 
 ### Apps

@@ -212,7 +212,11 @@
       at={['pieces']}
       idLabel={t('forms.id')}
       suggestions={['passage', 'junction', 'room', 'crypt', 'dead-end']}
-      template={{ name: 'New piece', cells: 'A\n.\n', exits: { A: { kind: kinds[0] ?? 'door' } } }}
+      template={{
+        name: doc.samples('newPiece'),
+        cells: 'A\n.\n',
+        exits: { A: { kind: kinds[0] ?? 'door' } },
+      }}
       {columns}
     />
   </section>

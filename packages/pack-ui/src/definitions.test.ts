@@ -53,6 +53,15 @@ describe('a pack of your own', () => {
     expect(ownPack(lib, 'My tables', 'es')).toBe(root)
     expect(lib.packs.filter((p) => p.origin === 'user')).toHaveLength(1)
   })
+
+  it('gets new definitions written in its own language', () => {
+    const lib = new PackLibrary([], {})
+    const root = ownPack(lib, 'Mis tablas', 'es')
+    createDefinition(lib, root, 'deck', 'Augurios')
+    expect(lib.readFile(root, 'tables.yaml')).toContain('result: Primera carta')
+    const made = createSystemDefinition(lib, root, 'items')
+    expect(lib.readFile(root, made!.path)).toContain('name: Cuerda')
+  })
 })
 
 describe('parts of a pack', () => {

@@ -62,7 +62,7 @@ export function createDefinition(
   const target = file || dataFiles(pack)[0] || 'tables.yaml'
   const definition = body
     ? { kind, id, name: name.trim() || id, ...body }
-    : { ...TEMPLATES[kind](id), name: name.trim() || id }
+    : { ...TEMPLATES[kind](id, manifestOf(pack).locale), name: name.trim() || id }
   library.writeFile(
     root,
     target,
@@ -89,17 +89,18 @@ export function createSystemDefinition(
     .filter((e) => e.kind === kind)
     .map((e) => e.id ?? 'default')
   const id = freeId('default', taken)
+  const locale = manifestOf(pack).locale
   library.batch(() => {
     if (kind === 'factions' && !hasDefinition(library, packId, 'sheet', 'faction'))
       library.writeFile(
         root,
         path,
-        appendDefinition(library.readFile(root, path) ?? '', FACTION_SHEET()),
+        appendDefinition(library.readFile(root, path) ?? '', FACTION_SHEET(locale)),
       )
     library.writeFile(
       root,
       path,
-      appendDefinition(library.readFile(root, path) ?? '', SYSTEM_TEMPLATES[kind](id)),
+      appendDefinition(library.readFile(root, path) ?? '', SYSTEM_TEMPLATES[kind](id, locale)),
     )
   })
   return { path, id }

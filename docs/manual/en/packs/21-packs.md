@@ -53,7 +53,7 @@ What goes inside is explained step by step in [Connecting tables to maps and tri
 
 ## Making a pack
 
-**New ▾ → Pack…** asks for a name, a folder/id (lowercase letters, digits and dashes) and the base language the tables are written in. Then add definitions with **New ▾ → Definition…**: pick the kind, its id and name, and the file it goes **In** (an existing one or a new one). Definitions can live in any file of the pack; group them as you like.
+**New ▾ → Pack…** asks for a name, a folder/id (lowercase letters, digits and dashes) and the base language the tables are written in. Then add definitions with **New ▾ → Definition…**: pick the kind, its id and name, and the file it goes **In** (an existing one or a new one). Definitions can live in any file of the pack; group them as you like. A new definition, a new part of a system and a row added in a form (a month, a place, a piece…) are written with sample texts to rename, in the pack's base language (English if the apps have no dictionary for it), whatever the language of the UI.
 
 A table can start **From pasted text**: tick it and paste a table copied from a PDF, a CSV or a spreadsheet, and its entries are made for you. A numbered list (`1. Wolves`, `2–3 Bandits`, `4) A pedlar`) gives entries with those ranges, and a line the PDF wrapped joins the one before; a CSV or spreadsheet copy (`1,Wolves`, or the number and the text in two columns) the same; a list without numbers, one entry per line, equally likely. The dice come from the numbers (1–6 is `1d6`, 2–12 `2d6`, 11–66 `d66`, 01–00 `d100`), and below the box it says what it found ("4 entries, rolled on 1d6"). Check the table afterwards in its form, and turn **Odds** on to see it as it rolls.
 

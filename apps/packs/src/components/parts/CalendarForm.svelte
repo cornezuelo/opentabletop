@@ -117,7 +117,7 @@
       onrename={(i, to) => renameMonth(doc, i, to)}
       idLabel={t('forms.id')}
       idBase="month"
-      template={{ name: 'New month', days: 30 }}
+      template={{ name: doc.samples('newMonth'), days: 30 }}
       columns={[
         { field: 'name', label: t('calendar.itemName'), type: 'text' },
         { field: 'days', label: t('calendar.days'), type: 'number', min: 1 },
@@ -140,7 +140,7 @@
       at={['weekdays']}
       idLabel={t('forms.id')}
       idBase="day"
-      template={{ name: 'New day' }}
+      template={{ name: doc.samples('newDay') }}
       columns={[{ field: 'name', label: t('calendar.itemName'), type: 'text' }]}
     />
   </section>
@@ -152,7 +152,7 @@
       at={['moons']}
       idLabel={t('forms.id')}
       idBase="moon"
-      template={{ name: 'The moon', cycle: 28 }}
+      template={{ name: doc.samples('moon'), cycle: 28 }}
       columns={[
         { field: 'name', label: t('calendar.itemName'), type: 'text' },
         {
@@ -180,7 +180,7 @@
       at={['holidays']}
       idLabel={t('forms.id')}
       idBase="holiday"
-      template={{ name: 'New holiday', month: months[0] ?? '', day: 1 }}
+      template={{ name: doc.samples('newHoliday'), month: months[0] ?? '', day: 1 }}
       columns={[
         { field: 'name', label: t('calendar.itemName'), type: 'text' },
         { field: 'month', label: t('calendar.month'), type: 'select', choices: months },

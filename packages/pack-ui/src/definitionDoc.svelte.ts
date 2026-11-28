@@ -1,5 +1,6 @@
 import type { PackLibrary } from './library.svelte'
 import { manifestOf } from './packs'
+import { samplesIn } from './samples'
 import { overlayTexts } from './texts'
 import {
   insertIn,
@@ -64,6 +65,10 @@ export function definitionDoc(
     },
     get translating() {
       return texts.translating
+    },
+    /** Sample texts of what's added (a new row's name), in the pack's base language. */
+    get samples() {
+      return samplesIn((pack && manifestOf(pack).locale) ?? 'en')
     },
     /** The definition's data (every kind is the same one here). */
     data(): Record<string, unknown> {

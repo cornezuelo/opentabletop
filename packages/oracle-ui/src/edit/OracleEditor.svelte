@@ -2,7 +2,7 @@
   import { InfoTip, showToast, tooltip } from '@open-tabletop/ui-kit'
   import { renameKey, setIn } from '@open-tabletop/pack-ui/yaml'
   import type { Translate } from '../i18n'
-  import { slugify } from '@open-tabletop/pack-ui'
+  import { samplesIn, slugify } from '@open-tabletop/pack-ui'
   import type { DefinitionForm } from './doc.svelte'
   import EntriesEditor from './EntriesEditor.svelte'
   import TextField from './TextField.svelte'
@@ -83,8 +83,8 @@
       ? structuredClone(first)
       : {
           entries: [
-            { id: 'yes', range: '1-3', result: 'Yes' },
-            { id: 'no', range: '4-6', result: 'No' },
+            { id: 'yes', range: '1-3', result: samplesIn(doc.baseLocale)('yes') },
+            { id: 'no', range: '4-6', result: samplesIn(doc.baseLocale)('no') },
           ],
         }
   }

@@ -567,6 +567,7 @@ export function createSystemPart(
   const id = freeId(base, taken)
   const file = `${kind}.yaml`
   const declared = systemFile(system)?.system
+  const locale = manifestOf(library.pack(root)!).locale
   library.batch(() => {
     library.writeFile(
       root,
@@ -574,16 +575,16 @@ export function createSystemPart(
       appendDefinition(
         library.readFile(root, file) ?? '',
         whose === 'party'
-          ? PARTY_SHEET(id)
+          ? PARTY_SHEET(id, locale)
           : whose === 'map'
-            ? MAP_SHEET(id)
+            ? MAP_SHEET(id, locale)
             : whose === 'place'
-              ? PLACE_SHEET(id)
+              ? PLACE_SHEET(id, locale)
               : kind === 'bestiary'
-                ? bestiaryTemplate(id, system)
+                ? bestiaryTemplate(id, system, locale)
                 : kind === 'land'
-                  ? LAND_STARTS[land](id)
-                  : SYSTEM_TEMPLATES[kind](id),
+                  ? LAND_STARTS[land](id, locale)
+                  : SYSTEM_TEMPLATES[kind](id, locale),
       ),
     )
     // New factions name a sheet `faction`: written beside them when the pack has none.
@@ -596,7 +597,7 @@ export function createSystemPart(
       library.writeFile(
         root,
         file,
-        appendDefinition(library.readFile(root, file) ?? '', FACTION_SHEET()),
+        appendDefinition(library.readFile(root, file) ?? '', FACTION_SHEET(locale)),
       )
     if (!declared || kind === 'roll-modes') return
     const text = library.readFile(root, declared.path) ?? ''
@@ -620,8 +621,12 @@ export function createSystemPart(
 }
 
 /** A new bestiary on the system's characters' sheet, whichever pack it is from. */
-function bestiaryTemplate(id: string, system: TravelSystem): Record<string, unknown> {
-  const template = SYSTEM_TEMPLATES.bestiary(id)
+function bestiaryTemplate(
+  id: string,
+  system: TravelSystem,
+  locale?: string,
+): Record<string, unknown> {
+  const template = SYSTEM_TEMPLATES.bestiary(id, locale)
   const [owner, sheet] = system.sheet?.id.split('/', 2) ?? []
   return sheet
     ? { ...template, sheet: writeRef('sheet', sheet, owner === system.pack ? undefined : owner) }

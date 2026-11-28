@@ -58,7 +58,7 @@
       at={['places']}
       idLabel={t('forms.id')}
       suggestions={['ruins', 'shrine', 'camp', 'cave', 'tower', 'landmark']}
-      template={{ name: 'New place' }}
+      template={{ name: doc.samples('newPlace') }}
       {columns}
     />
   </section>

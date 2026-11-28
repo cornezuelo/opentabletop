@@ -4,7 +4,7 @@ The **Edit** tab is a form over the YAML file: it changes only what you touch an
 
 ## A table of your own
 
-**New ▾** in the header makes a **Table**, an **Oracle**, a **Generator** or a **Deck**: give it a name (a table can also be made from pasted text, a numbered list copied from a PDF, say) and it opens on its **Edit** tab, ready to fill in and roll from **Roll**. It goes into the pack open, if it's one of yours, or into another of yours you choose. With no pack of your own yet, one is made for it, _My tables_, and what you make next goes there too; rename it, export it or make more in the [Packs app](../packs/21-packs.md), where whole packs and systems are made.
+**New ▾** in the header makes a **Table**, an **Oracle**, a **Generator** or a **Deck**: give it a name (a table can also be made from pasted text, a numbered list copied from a PDF, say) and it opens on its **Edit** tab, ready to fill in and roll from **Roll**, its sample results (_First result_…) written in the pack's base language. It goes into the pack open, if it's one of yours, or into another of yours you choose. With no pack of your own yet, one is made for it, _My tables_, and what you make next goes there too; rename it, export it or make more in the [Packs app](../packs/21-packs.md), where whole packs and systems are made.
 
 **↶ ↷** in the header (or <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> or <kbd>Ctrl</kbd>+<kbd>Y</kbd> outside text boxes) undo and redo changes to your packs: form edits, new and deleted definitions, files and packs. Typing in the YAML editor counts as one change per pause; inside the editor, <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes the text itself. The history lasts while the page is open.
 
