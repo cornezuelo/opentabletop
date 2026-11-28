@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.86.0] - 2026-11-28
+
 ### Apps
 
 - **Oracle**: **New ▾** makes a table, oracle, generator or deck of your own and opens it to fill in and roll, without going to Packs; with no pack of yours yet, one is made for it (_My tables_).
