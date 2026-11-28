@@ -8,6 +8,7 @@
   import type { Snippet } from 'svelte'
   import type { HistoryItem } from './roller.svelte'
   import { splitRolls, type Resolution } from '@open-tabletop/oracle-engine'
+  import { drawnCards } from './drawnCards'
   import {
     CardTable,
     DiceThrow,
@@ -121,11 +122,9 @@
    * cards a generator dealt (a hand, a spread), each with its text and its place.
    */
   const cardsOf = (r: Resolution) =>
-    r.face
-      ? [{ face: r.face, caption: r.text }]
-      : r.children
-          .filter((c) => c.face)
-          .map((c) => ({ face: c.face!, caption: c.text, place: c.place }))
+    r.kind === 'deck'
+      ? [{ face: r.face ?? {}, caption: r.text }]
+      : drawnCards(r).map((c) => ({ face: c.face, caption: c.text, place: c.place }))
   /** The decks a definition draws from: itself, or a generator's deck fields. */
   const decksOf = (d: Compiled): string[] =>
     d.kind === 'deck'
@@ -357,32 +356,35 @@
   </div>
 
   <!-- The table, in the page: the dice or the cards lie on it until the next roll. -->
-  {#if cardsTable}
-    <CardTable
-      bind:this={cardTable}
-      cards={shown ? cardsOf(shown.resolution) : []}
-      spread={def.kind === 'generator'}
-      round={throwing?.id}
-      shuffled={shuffledFirst}
-      shuffleRound={shuffles || undefined}
-      left={deck?.left}
-      back={backOf}
-      locale={ui.locale()}
-      onagain={roll}
-      onuse={settle}
-    />
-  {:else if diceRolls}
-    {@const thrown = shown ? thrownOf(shown.resolution) : { rolls: [] }}
-    <DiceThrow
-      bind:this={diceTable}
-      rolls={thrown.rolls}
-      against={thrown.against}
-      round={throwing?.id}
-      locale={ui.locale()}
-      onagain={roll}
-      onuse={settle}
-    />
-  {/if}
+  <!-- Each definition its own table: another deck (or table) never deals onto this one's. -->
+  {#key def.id}
+    {#if cardsTable}
+      <CardTable
+        bind:this={cardTable}
+        cards={shown ? cardsOf(shown.resolution) : []}
+        spread={def.kind === 'generator'}
+        round={throwing?.id}
+        shuffled={shuffledFirst}
+        shuffleRound={shuffles || undefined}
+        left={deck?.left}
+        back={backOf}
+        locale={ui.locale()}
+        onagain={roll}
+        onuse={settle}
+      />
+    {:else if diceRolls}
+      {@const thrown = shown ? thrownOf(shown.resolution) : { rolls: [] }}
+      <DiceThrow
+        bind:this={diceTable}
+        rolls={thrown.rolls}
+        against={thrown.against}
+        round={throwing?.id}
+        locale={ui.locale()}
+        onagain={roll}
+        onuse={settle}
+      />
+    {/if}
+  {/key}
   {#if shown && shown.id !== throwing?.id}
     {#key shown.id}
       <div class="card">

@@ -78,7 +78,8 @@
   <span class="inner" class:up class:turned={face.turned}>
     <CardBack {width} {back} />
     <span class="front">
-      <PlayingCard face={{ ...face, turned: false }} {width} {label} />
+      <!-- Its words only once it's up: face down, nothing of it can be read or found. -->
+      <PlayingCard face={{ ...face, turned: false }} {width} label={up ? label : ''} />
     </span>
   </span>
 </span>

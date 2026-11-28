@@ -21,7 +21,7 @@
    * deck face down at the left with the cards it has left; a click on it, or its top card
    * dragged onto the cloth, asks the host to draw (`onagain`), and each draw the host makes
    * (`round`, with its `cards`) is dealt and turned over there. A deck's draws stay on the
-   * table, the last three in sight and the older ones on a discard pile at the right, until
+   * table, the last one in play and the one before it on a discard pile at the right, until
    * it's gathered: by the draw that shuffles it (`shuffled`) or by a shuffle by hand
    * (`shuffleRound`), the cards out going back face down and the deck riffled. A spread
    * (`spread`: a generator's hand or cross) is dealt face down to its places, each card turned
@@ -87,7 +87,8 @@
   const deckWidth = $derived(table.deck - 32)
   const deckAt = $derived({ x: 16, y: table.height / 2 })
   const deckCentre = $derived({ x: 16 + deckWidth / 2, y: table.height / 2 })
-  const places = $derived(deckSpots(table))
+  // One card in play: each draw sends the one before it to the discards.
+  const places = $derived(deckSpots(table, 1))
 
   /** What lies on the table: the deck's last draws (or the spread), and the pile's top card. */
   let kept: Card[] = []

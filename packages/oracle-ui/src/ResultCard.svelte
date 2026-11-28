@@ -9,6 +9,7 @@
     StyledText,
   } from '@open-tabletop/ui-kit'
   import type { OracleUi } from './ui'
+  import { drawnCards } from './drawnCards'
   import Self from './ResultCard.svelte'
 
   let {
@@ -48,18 +49,16 @@
   const empty = $derived(!resolution.text && !resolution.entry && !resolution.children.length)
   /** The cards its fields drew (a hand, a spread), laid as it says. */
   const spread = $derived(
-    resolution.children
-      .filter((c) => c.face)
-      .map((c) => ({ face: c.face!, place: c.place, caption: c.text })),
+    drawnCards(resolution).map((c) => ({ face: c.face, place: c.place, caption: c.text })),
   )
 </script>
 
 <div class="result" class:top>
-  {#if resolution.face && !onTable}
-    <!-- A card drawn: its face beside what it says. -->
+  {#if resolution.kind === 'deck' && !onTable}
+    <!-- A card drawn: its face (or its words, when it has none) beside what it says. -->
     <div class="drawn">
       <PlayingCard
-        face={resolution.face}
+        face={resolution.face ?? {}}
         width={top ? 120 : 56}
         label={markdownText(resolution.text ?? '')}
       />

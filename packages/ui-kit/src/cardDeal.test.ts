@@ -28,6 +28,14 @@ describe("a deck's draws on a table in a page", () => {
     expect(spots.length).toBeGreaterThanOrEqual(1)
     expect(spots[0]!.width).toBeGreaterThanOrEqual(60)
   })
+
+  it('keeps one card in play, between the deck and the discards, when asked for one', () => {
+    const { spots, pile } = deckSpots(table, 1)
+    expect(spots).toHaveLength(1)
+    const w = spots[0]!.width
+    expect(spots[0]!.x - w / 2).toBeGreaterThan(table.deck)
+    expect(spots[0]!.x + w / 2).toBeLessThan(pile.x - pile.width / 2)
+  })
 })
 
 describe('cards laid on the card table', () => {

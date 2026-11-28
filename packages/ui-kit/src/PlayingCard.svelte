@@ -4,7 +4,8 @@
   /**
    * A card drawn from a deck (docs/oracle-engine.md, _Cards with faces_): its pack's picture, or
    * a face drawn from its parts (the index in two corners, a sign or an icon in the middle, a
-   * domino's pips), red, black or its own ink; upside down when it came out `turned`. `width`
+   * domino's pips), red, black or its own ink; upside down when it came out `turned`. A face
+   * with none of them (a card of words alone) is drawn with its words (`label`) on it. `width`
    * in px, its height a card's.
    */
   let {
@@ -126,6 +127,9 @@
 >
   {#if url && !broken}
     <img src={url} alt="" draggable="false" onerror={() => (broken = true)} />
+  {:else if !face.pips && !face.corner && !face.symbol && !face.icon}
+    <!-- Words alone: what the card says, on the card. -->
+    <span class="words">{label}</span>
   {:else if face.pips}
     {#each face.pips as half, h (h)}
       <span class="half">
@@ -217,6 +221,26 @@
     font-family: Georgia, 'Times New Roman', serif;
     font-size: calc(var(--size) * 0.45);
     line-height: 1;
+  }
+
+  .words {
+    display: -webkit-box;
+    margin: auto 0;
+    padding: 0 9%;
+    overflow: hidden;
+    -webkit-line-clamp: 8;
+    line-clamp: 8;
+    -webkit-box-orient: vertical;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: max(9px, calc(var(--size) * 0.11));
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .small .words {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
 
   .icon {

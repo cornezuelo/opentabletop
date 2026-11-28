@@ -182,7 +182,7 @@ describe.skipIf(!kal)('Kal-Arath (personal use)', () => {
       const u = urth(done.state)
       const id = rolled(done.entries, 'kal-arath/death')
       expect(id).toBeDefined()
-      results.add(id)
+      results.add(id!)
       if (id === 'unconscious')
         expect(Object.keys(u.conditions)).toEqual(
           expect.arrayContaining(['inconsciente', 'fuera-de-accion']),
