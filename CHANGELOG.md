@@ -4,6 +4,8 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+## [0.88.1] - 2026-11-28
+
 ### Fixes
 
 - **The Oracle's card table**: a deck's draw keeps one card in play, the one before it going to **Discards** (no longer three in a row, like a hand); opening another deck gives it a table of its own, never dealing onto the cards of the one before; and a card without a face (a deck of your own with words only) is dealt and turned over with its words written on it, where it used to deal nothing.
