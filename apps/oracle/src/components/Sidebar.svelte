@@ -202,18 +202,9 @@
     cursor: pointer;
   }
 
-  .add:hover {
-    color: var(--accent);
-    border-color: var(--panel-border);
-  }
-
   .push {
     display: flex;
     margin-left: auto;
-  }
-
-  .add + .push {
-    margin-left: 0;
   }
 
   ul {

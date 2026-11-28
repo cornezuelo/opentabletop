@@ -2,7 +2,7 @@ import type { Compiled } from '@open-tabletop/oracle-engine'
 import { appendDefinition, definitionIds, freeId, readDefinition, removeDefinition } from './yaml'
 import { Document, parseDocument } from 'yaml'
 import type { PackLibrary } from './library.svelte'
-import { overlayLocales, overlayPath } from './packFiles'
+import { newPack, overlayLocales, overlayPath } from './packFiles'
 import { manifestOf, type PackSource } from './packs'
 import { FACTION_SHEET, SYSTEM_TEMPLATES, type PartKind, type SystemKind } from './systemTemplates'
 import { TEMPLATES } from './templates'
@@ -28,6 +28,21 @@ export const dataFiles = (pack: PackSource): string[] =>
 /** Local ids already used in a pack. */
 function idsOf(pack: PackSource): string[] {
   return pack.files.flatMap((f) => definitionIds(f.content))
+}
+
+/**
+ * The user's pack new definitions go to when they have none: one made for them, named
+ * `name` in `locale` (`my-tables`, or the first free id after it). Returns its folder.
+ */
+export function ownPack(library: PackLibrary, name: string, locale: string): string {
+  const mine = library.packs.find((p) => p.origin === 'user')
+  if (mine) return mine.root
+  const id = freeId(
+    'my-tables',
+    library.packs.flatMap((p) => [p.root, manifestOf(p).id ?? '']),
+  )
+  library.addPack(newPack(id, name, locale))
+  return id
 }
 
 /** Creates a definition from its template; returns its full id (`pack/id`). */

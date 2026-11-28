@@ -2,6 +2,10 @@
 
 La pestaña **Editar** es un formulario sobre el fichero YAML: solo cambia lo que tocas y conserva los comentarios y el orden. Los packs incluidos son de solo lectura: haz una copia primero.
 
+## Una tabla tuya
+
+**Nuevo ▾** en la cabecera hace una **Tabla**, un **Oráculo**, un **Generador** o un **Mazo**: ponle un nombre (una tabla también se puede hacer a partir de un texto pegado, una lista numerada copiada de un PDF, por ejemplo) y se abre en su pestaña **Editar**, lista para rellenarla y tirarla desde **Tirar**. Va al pack abierto, si es tuyo, o a otro tuyo que elijas. Si aún no tienes ningún pack, se crea uno para ella, _Mis tablas_, y lo siguiente que hagas irá ahí también; cámbiale el nombre, expórtalo o haz más en la [aplicación Packs](../packs/21-packs.md), donde se hacen los packs enteros y los sistemas.
+
 **↶ ↷** en la cabecera (o <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Z</kbd> o <kbd>Ctrl</kbd>+<kbd>Y</kbd> fuera de las cajas de texto) deshacen y rehacen cambios en tus packs: ediciones de formularios, definiciones nuevas y borradas, ficheros y packs. Escribir en el editor YAML cuenta como un cambio por pausa; dentro del editor, <kbd>Ctrl</kbd>+<kbd>Z</kbd> deshace el propio texto. El historial dura mientras la página está abierta.
 
 ## Cualquier definición

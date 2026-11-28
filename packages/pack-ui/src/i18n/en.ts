@@ -379,6 +379,10 @@ export const en = {
     alreadyHas: 'This pack already has one.',
     title: 'New definition',
     pack: 'In pack',
+    ownPack: 'It goes into a new pack of yours: {name}.',
+    ownPackName: 'My tables',
+    ownPackHelp:
+      'What you make is kept in packs of your own, in this browser. As you have none yet, one is made for it; later ones go there too.\n• Rename it, export it or make more packs in the **Packs** app.\n• **Edit** on a table of yours changes it here.',
     noPacks:
       'Definitions go into your own packs: create a pack first (or edit a copy of a bundled one).',
     name: 'Name',

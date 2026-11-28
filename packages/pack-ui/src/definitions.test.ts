@@ -3,6 +3,8 @@ import {
   createSystemDefinition,
   deletePart,
   duplicatePart,
+  ownPack,
+  createDefinition,
   qualifyRefs,
   slugify,
 } from './definitions'
@@ -35,6 +37,21 @@ describe('definition helpers', () => {
       fields: { npc: { table: 'kal-arath/table.npc-role' } },
       cards: [{ id: 'a', generator: 'kal-arath/generator.camp' }],
     })
+  })
+})
+
+describe('a pack of your own', () => {
+  it('is made when you have none, and reused after', () => {
+    const lib = new PackLibrary([], {})
+    const root = ownPack(lib, 'My tables', 'es')
+    expect(root).toBe('my-tables')
+    expect(lib.pack(root)?.origin).toBe('user')
+    expect(lib.readFile(root, 'pack.yaml')).toContain('locale: es')
+    const id = createDefinition(lib, root, 'table', 'Encuentros')
+    expect(id).toBe('my-tables/encuentros')
+    expect(lib.registry.definitions.get(id!)?.kind).toBe('table')
+    expect(ownPack(lib, 'My tables', 'es')).toBe(root)
+    expect(lib.packs.filter((p) => p.origin === 'user')).toHaveLength(1)
   })
 })
 

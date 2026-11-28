@@ -1,17 +1,42 @@
 import { describe, expect, it } from 'vitest'
-import { loadPacks } from '@open-tabletop/oracle-engine'
+import { createOracleEngine, loadPacks } from '@open-tabletop/oracle-engine'
+import { seeded } from '@open-tabletop/random'
 import { travelSystems } from '@open-tabletop/session'
 import {
   cleanFilePath,
   duplicatePack,
   engineFiles,
   manifestOf,
+  createDefinition,
   newPack,
   overlayLocales,
+  ownPack,
+  PackLibrary,
 } from '@open-tabletop/pack-ui'
+import { bundledPacks } from '@open-tabletop/pack-ui/bundled'
+import { KIND_ORDER } from '@open-tabletop/oracle-ui'
 import { workspace } from './workspace.svelte'
 
 describe('workspace', () => {
+  it("makes a table, oracle, generator and deck from the Oracle's New, with no pack of yours yet, each rolled at once", () => {
+    const library = new PackLibrary(bundledPacks, {})
+    expect(library.packs.some((p) => p.origin === 'user')).toBe(false)
+    const ids = KIND_ORDER.map((kind) =>
+      createDefinition(library, ownPack(library, 'My tables', 'en'), kind, `My ${kind}`),
+    )
+    expect(ids).toEqual(KIND_ORDER.map((kind) => `my-tables/my-${kind}`))
+    expect(library.packs.filter((p) => p.origin === 'user').map((p) => p.root)).toEqual([
+      'my-tables',
+    ])
+    expect(library.diagnostics('my-tables').filter((d) => d.severity === 'error')).toEqual([])
+    const oracle = createOracleEngine({ registry: library.registry, random: seeded('new') })
+    for (const id of ids) {
+      const def = library.registry.definitions.get(id!)!
+      const { resolution } = def.kind === 'deck' ? oracle.draw(id!) : oracle.resolve(id!, {})
+      expect(resolution.text, id!).toBeTruthy()
+    }
+  })
+
   it('duplicates Core as a new pack of yours, leaving the bundled one to the packs that need it', () => {
     const core = workspace.pack('core')!
     const mine = duplicatePack(core, 'core-mine', 'Core (mine)')

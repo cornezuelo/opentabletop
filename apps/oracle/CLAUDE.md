@@ -1,6 +1,6 @@
 # Oracle
 
-Standalone app of the Oracle Engine: **browse and roll** every table, oracle, generator and deck of the loaded packs. Packs are made, imported and their files edited in the Packs app; a definition's **Edit** stays here, the same forms. Read the root `CLAUDE.md` and `docs/oracle-engine.md` first.
+Standalone app of the Oracle Engine: **browse and roll** every table, oracle, generator and deck of the loaded packs. Packs are made, imported and their files edited in the Packs app; a definition's **Edit** stays here, the same forms, and **New ▾** makes a table, oracle, generator or deck (pack-ui's `NewDefinitionDialog`, into _My tables_ when the user has no pack). Read the root `CLAUDE.md` and `docs/oracle-engine.md` first.
 
 **Responsibility:** rolling packs. Resolution, validation and translations are the engine's job (`@open-tabletop/oracle-engine`); this app only reads and writes files and shows results.
 

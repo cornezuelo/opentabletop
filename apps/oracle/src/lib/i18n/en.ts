@@ -12,6 +12,9 @@ export const en = {
   },
   nav: {
     openPacks: 'Packs ↗',
+    new: 'New',
+    newHelp:
+      'Make a table, oracle, generator or deck of your own, roll it here. Whole packs and systems are made in Packs.',
     favorites: 'Favorites',
     favorite: 'Favorite: pinned on top of the list (also in Map)',
     help: 'Help and manual',
@@ -64,7 +67,7 @@ export const en = {
   },
   welcome: {
     title: vocabulary.en.apps.oracle,
-    body: 'Pick a table, generator, oracle or deck on the left to roll it. Packs are made and changed in the Packs app (**Packs ↗**, above); **Edit** on a table of yours changes it here too.',
+    body: 'Pick a table, generator, oracle or deck on the left to roll it. **New ▾**, above, makes one of your own; **Edit** on a table of yours changes it here. Whole packs and systems are made in the Packs app (**Packs ↗**).',
     packs: '{packs} packs, {definitions} definitions',
   },
   tabs: { roll: 'Roll', edit: 'Edit' },

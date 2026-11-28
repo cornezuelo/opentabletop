@@ -388,6 +388,10 @@ export const es: Messages<typeof en> = {
     alreadyHas: 'Este pack ya tiene uno.',
     title: 'Nueva definición',
     pack: 'En el pack',
+    ownPack: 'Irá a un pack tuyo nuevo: {name}.',
+    ownPackName: 'Mis tablas',
+    ownPackHelp:
+      'Lo que haces se guarda en packs tuyos, en este navegador. Como aún no tienes ninguno, se crea uno para ello; lo siguiente que hagas irá ahí también.\n• Cámbiale el nombre, expórtalo o haz más packs en la app **Packs**.\n• **Editar** en una tabla tuya la cambia aquí mismo.',
     noPacks:
       'Las definiciones van en tus propios packs: crea un pack primero (o edita una copia de uno incluido).',
     name: 'Nombre',

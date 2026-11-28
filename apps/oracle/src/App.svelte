@@ -8,6 +8,8 @@
     contextHelp,
     Dialogs,
     FoldTab,
+    Markdown,
+    MoreMenu,
     PreferencesButton,
     readLastSystem,
     ShortcutsButton,
@@ -21,7 +23,9 @@
   import DefinitionView from './components/DefinitionView.svelte'
   import { History, ROLL_KEYS } from '@open-tabletop/oracle-ui'
   import { HelpPanel } from '@open-tabletop/manual-ui'
-  import { UndoButtons } from '@open-tabletop/pack-ui'
+  import { NewDefinitionDialog, UndoButtons } from '@open-tabletop/pack-ui'
+  import { KIND_ORDER } from './lib/names'
+  import type { Compiled } from '@open-tabletop/oracle-engine'
   import PackView from './components/PackView.svelte'
   import Sidebar from './components/Sidebar.svelte'
   import { getLocale, locales, setLocale, t } from './lib/i18n'
@@ -47,6 +51,19 @@
   })
 
   const count = $derived(workspace.registry.definitions.size)
+
+  /** A table, oracle, generator or deck being made (**New ▾**), in the pack open if it's yours. */
+  let making = $state<Compiled['kind'] | null>(null)
+  const openRoot = $derived.by(() => {
+    const view = nav.view
+    const root =
+      view.name === 'pack'
+        ? view.root
+        : view.name === 'def'
+          ? workspace.rootOf(view.id.split('/')[0])
+          : undefined
+    return root && workspace.isEditable(root) ? root : undefined
+  })
 
   /** Which side panels are open: a per-viewer preference, kept in this browser. */
   const LAYOUT = 'opentabletop.oracle.layout'
@@ -89,6 +106,12 @@
     <CampaignChip locale={getLocale()} />
     <div class="spacer"></div>
     <UndoButtons library={workspace} undoLabel={t('nav.undo')} redoLabel={t('nav.redo')} />
+    <MoreMenu label={t('nav.newHelp')}>
+      {#snippet button()}{t('nav.new')} ▾{/snippet}
+      {#each KIND_ORDER as kind (kind)}
+        <button onclick={() => (making = kind)}>{t(`kinds.${kind}`)}</button>
+      {/each}
+    </MoreMenu>
     <a class="button" href={appUrl('packs')}>{t('nav.openPacks')}</a>
     <ShortcutsButton
       locale={getLocale()}
@@ -146,7 +169,7 @@
         <div class="welcome">
           <h1>{t('welcome.title')}</h1>
           <p class="tagline">{t('app.tagline')}</p>
-          <p>{t('welcome.body')}</p>
+          <Markdown text={t('welcome.body')} />
           <p class="muted">
             {t('welcome.packs', { packs: workspace.packs.length, definitions: count })}
           </p>
@@ -170,6 +193,20 @@
     </History>
   {/if}
 </div>
+
+{#if making}
+  <NewDefinitionDialog
+    library={workspace}
+    locale={getLocale()}
+    kinds={KIND_ORDER}
+    kind={making}
+    parts={false}
+    root={openRoot}
+    onclose={() => (making = null)}
+    onpart={() => {}}
+    ondefinition={(id) => go({ name: 'def', id, tab: 'edit' })}
+  />
+{/if}
 
 <Toasts />
 <Dialogs />

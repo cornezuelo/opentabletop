@@ -13,6 +13,9 @@ export const es: Messages<typeof en> = {
   },
   nav: {
     openPacks: 'Packs ↗',
+    new: 'Nuevo',
+    newHelp:
+      'Haz una tabla, un oráculo, un generador o un mazo tuyo y tíralo aquí. Los packs enteros y los sistemas se hacen en Packs.',
     favorites: 'Favoritos',
     favorite: 'Favorito: fijado arriba de la lista (también en Mapa)',
     help: 'Ayuda y manual',
@@ -64,7 +67,7 @@ export const es: Messages<typeof en> = {
   },
   welcome: {
     title: vocabulary.es.apps.oracle,
-    body: 'Elige a la izquierda una tabla, un generador, un oráculo o un mazo para tirarlo. Los packs se crean y se cambian en la aplicación Packs (**Packs ↗**, arriba); **Editar** en una tabla tuya también la cambia aquí.',
+    body: 'Elige a la izquierda una tabla, un generador, un oráculo o un mazo para tirarlo. **Nuevo ▾**, arriba, hace una tuya; **Editar** en una tabla tuya la cambia aquí. Los packs enteros y los sistemas se hacen en la aplicación Packs (**Packs ↗**).',
     packs: '{packs} packs, {definitions} definiciones',
   },
   tabs: { roll: 'Tirar', edit: 'Editar' },

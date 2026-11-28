@@ -8,6 +8,7 @@
     createSystemDefinition,
     dataFiles,
     hasKind,
+    ownPack,
     slugify,
   } from './definitions'
   import { tableFromText } from './fromText'
@@ -21,6 +22,8 @@
     locale,
     kinds,
     root: initialRoot,
+    kind: initialKind = 'table',
+    parts = true,
     onclose,
     onpart,
     ondefinition,
@@ -30,6 +33,10 @@
     /** What can be made, in the order offered. */
     kinds: readonly Compiled['kind'][]
     root?: string
+    /** What is chosen when it opens. */
+    kind?: Compiled['kind']
+    /** Parts of a system are offered too (the Packs app); off where only tables are made. */
+    parts?: boolean
     onclose: () => void
     /** A part of a system was written in `root`. */
     onpart: (root: string, kind: string, id: string) => void
@@ -41,7 +48,10 @@
   const packs = $derived(library.packs.filter((p) => p.origin === 'user'))
   // svelte-ignore state_referenced_locally
   let root = $state(initialRoot ?? packs[0]?.root ?? '')
-  let kind = $state<Compiled['kind'] | SystemKind | PartKind>('table')
+  // svelte-ignore state_referenced_locally
+  let kind = $state<Compiled['kind'] | SystemKind | PartKind>(initialKind)
+  /** With no pack of their own, the definition goes to one made for them. */
+  const own = $derived(!packs.length)
   const system = $derived(([...SYSTEM_KINDS, ...PART_KINDS] as string[]).includes(kind))
   const taken = (k: SystemKind) => !!library.pack(root) && hasKind(library.pack(root)!, k)
   let name = $state('')
@@ -67,7 +77,9 @@
       if (made) onpart(root, kind, made.id)
       return
     }
-    if (!root || !name.trim()) return
+    if (!name.trim()) return
+    if (own) root = ownPack(library, t('newDef.ownPackName'), locale)
+    if (!root) return
     const body =
       imported && imported.entries.length
         ? { ...(imported.roll && { roll: imported.roll }), entries: imported.entries }
@@ -94,17 +106,25 @@
     }}
   >
     <h2>{t('newDef.title')}</h2>
-    {#if !packs.length}
+    {#if own && parts}
       <p class="help">{t('newDef.noPacks')}</p>
     {:else}
-      <label class="field">
-        <span>{t('newDef.pack')}</span>
-        <select bind:value={root}>
-          {#each packs as p (p.root)}
-            <option value={p.root}>{manifestOf(p).name ?? p.root}</option>
-          {/each}
-        </select>
-      </label>
+      {#if own}
+        <p class="hint">
+          {t('newDef.ownPack', { name: t('newDef.ownPackName') })}<InfoTip
+            markdown={t('newDef.ownPackHelp')}
+          />
+        </p>
+      {:else}
+        <label class="field">
+          <span>{t('newDef.pack')}</span>
+          <select bind:value={root}>
+            {#each packs as p (p.root)}
+              <option value={p.root}>{manifestOf(p).name ?? p.root}</option>
+            {/each}
+          </select>
+        </label>
+      {/if}
       <div class="kinds" role="radiogroup" aria-label={t('newDef.kind')}>
         {#each kinds as k (k)}
           <label class:active={kind === k}>
@@ -114,25 +134,27 @@
           </label>
         {/each}
       </div>
-      <span class="group-title"
-        >{t('newDef.forTravel')}<InfoTip text={t('newDef.forTravelHelp')} /></span
-      >
-      <div class="kinds" role="radiogroup" aria-label={t('newDef.forTravel')}>
-        {#each SYSTEM_KINDS as k (k)}
-          <label class:active={kind === k} class:disabled={taken(k)}>
-            <input type="radio" bind:group={kind} value={k} disabled={taken(k)} />
-            <strong>{t(`newDef.system.${k}`)}</strong>
-            <span>{taken(k) ? t('newDef.alreadyHas') : t(`newDef.systemTips.${k}`)}</span>
-          </label>
-        {/each}
-        {#each PART_KINDS as k (k)}
-          <label class:active={kind === k}>
-            <input type="radio" bind:group={kind} value={k} />
-            <strong>{t(`newDef.system.${k}`)}</strong>
-            <span>{t(`newDef.systemTips.${k}`)}</span>
-          </label>
-        {/each}
-      </div>
+      {#if parts}
+        <span class="group-title"
+          >{t('newDef.forTravel')}<InfoTip text={t('newDef.forTravelHelp')} /></span
+        >
+        <div class="kinds" role="radiogroup" aria-label={t('newDef.forTravel')}>
+          {#each SYSTEM_KINDS as k (k)}
+            <label class:active={kind === k} class:disabled={taken(k)}>
+              <input type="radio" bind:group={kind} value={k} disabled={taken(k)} />
+              <strong>{t(`newDef.system.${k}`)}</strong>
+              <span>{taken(k) ? t('newDef.alreadyHas') : t(`newDef.systemTips.${k}`)}</span>
+            </label>
+          {/each}
+          {#each PART_KINDS as k (k)}
+            <label class:active={kind === k}>
+              <input type="radio" bind:group={kind} value={k} />
+              <strong>{t(`newDef.system.${k}`)}</strong>
+              <span>{t(`newDef.systemTips.${k}`)}</span>
+            </label>
+          {/each}
+        </div>
+      {/if}
       {#if !system}
         <label class="field">
           <span>{t('newDef.name')}</span>
@@ -166,7 +188,7 @@
           {/if}
         {/if}
       {/if}
-      {#if !system}
+      {#if !system && !own}
         <label class="field">
           <span>{t('newDef.file')}<InfoTip text={t('newDef.fileHelp')} /></span>
           <select bind:value={file}>
@@ -184,7 +206,7 @@
       <button
         type="submit"
         class="primary"
-        disabled={!packs.length ||
+        disabled={(own && parts) ||
           (!system && !name.trim()) ||
           (!!imported && !imported.entries.length)}>{t('newPack.create')}</button
       >
