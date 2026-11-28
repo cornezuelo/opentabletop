@@ -4,12 +4,12 @@
 
 ## 1. What the games ask for
 
-| Game                  | What it does                                                                                                 | What it costs                                    |
-| --------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| Kal-Arath             | A Fate Point: once a session, roll **any one of your own rolls** again, the new one stands                   | the point (1, the Mystic 2; _Visión de la Providencia_ 1d6 more for the session) |
-| Year Zero (Twilight 2000, Forbidden Lands, Alien…) | **Pushing**: roll again only the dice that didn't succeed                                  | each 1 then rolled hurts (stress, damage, a round of ammunition) |
-| Fate, Savage Worlds (bennies), Blades (devil's bargain is different) | a point spent to reroll, or to add after the roll                         | the point                                        |
-| Ironsworn             | Burning momentum: not a reroll (the momentum replaces a die): another mechanism, noted apart                 | momentum reset                                   |
+| Game                                                                 | What it does                                                                                 | What it costs                                                                    |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Kal-Arath                                                            | A Fate Point: once a session, roll **any one of your own rolls** again, the new one stands   | the point (1, the Mystic 2; _Visión de la Providencia_ 1d6 more for the session) |
+| Year Zero (Twilight 2000, Forbidden Lands, Alien…)                   | **Pushing**: roll again only the dice that didn't succeed                                    | each 1 then rolled hurts (stress, damage, a round of ammunition)                 |
+| Fate, Savage Worlds (bennies), Blades (devil's bargain is different) | a point spent to reroll, or to add after the roll                                            | the point                                                                        |
+| Ironsworn                                                            | Burning momentum: not a reroll (the momentum replaces a die): another mechanism, noted apart | momentum reset                                                                   |
 
 So: a **declared way of rolling again**, with a **cost**, a **condition**, and _what_ is rolled again (the whole roll; later, only the dice that failed).
 
