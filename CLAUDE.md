@@ -104,6 +104,7 @@ docs/
   tracks-scouting.md        # Tracks and scouting that matter in the Grey Marches, decided
   traps-locks.md            # Traps, locks, containers and potions (a place's sheet, things that don't fight, items unknown, lasting places), decided
   party-split.md            # Splitting the Company: parts of one trip, each its own place, time and token, to review
+  rerolls.md                # Rolling again: a value spent to roll one of your rolls again (Fate Points, pushing), to review
   value-breakdown.md        # A value's base, what it reads now and what makes the difference, decided, built
   notes-and-journal.md      # The campaign's journal (Lonelog export) and our own notes app, decided, both built
 ```
