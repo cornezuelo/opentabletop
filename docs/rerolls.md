@@ -1,6 +1,6 @@
 # Rolling again: a value spent to roll one of your rolls again
 
-**Status: proposal, to review with the user** (written 2026-11-28, on autopilot, for Kal-Arath's Fate Point; backlog: _Systems to finish_ → Kal-Arath (1)).
+**Status: decided with the user 2026-11-28, not built yet; §6 replaces §2–§5 where they differ** (written 2026-11-28, on autopilot, for Kal-Arath's Fate Point; backlog: _Systems to finish_ → Kal-Arath (1)).
 
 ## 1. What the games ask for
 
@@ -59,3 +59,26 @@ rerolls:
 1. Only the last step (recommended), or any roll still in the journal of the day (needs replaying everything after it: no)?
 2. The new moment `session.start` for "once per session", or the point given back by hand (recommended: the moment, since the journal already has sessions)?
 3. Its form in Packs: **Rolling again** in the system's rules, as cards like actions (name, when, effects).
+
+## 6. Decided (2026-11-28)
+
+1. **The last step only**, on top of a general **Undo step**: a short stack of the trip's last steps (~20), each keeping what it changed of the world too (the campaign's clock, factions, the Oracle's decks, the journal's lines). **Undo step** (Ctrl+Z in a trip) asks first when the step changed the campaign's world. It's the player's, never a game's rule.
+2. **No refill by itself**: having the point is what allows spending it (its `when`); it's given back by hand on the sheet or by a pack's effect. No `session.start`: a session of the app is no campaign's, nor a one-shot's, measure.
+3. **No new kind nor form: an action.** Rolling again is an action like any other (name, description, `when`, `effects`, its form in Packs) with one new step:
+
+```yaml
+destino:
+  name: Punto de Destino
+  description: Repite una de tus tiradas; vale la nueva.
+  when: { acting.values.destino: { gte: 1 } }
+  do:
+    - { reroll: last }
+    - { effects: { acting.values.destino: -1 } }
+```
+
+- The action isn't itself the last step: `reroll: last` rewinds the step before it, plays it again with the roll chosen rolled anew (the others given as they came), then the action goes on (its cost).
+- A step with several rolls: it asks which, as a parameter does.
+- Later, `reroll: { dice: failed }` for Year Zero's pushing.
+- Shown with the trip's actions, and as **↻ <action>** under the newest roll while one with a `reroll:` step is available.
+
+Built in this order: the stack and **Undo step**, then `reroll:`.
