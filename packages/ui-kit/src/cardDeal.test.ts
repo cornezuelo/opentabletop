@@ -1,9 +1,34 @@
 import { render } from 'svelte/server'
 import { describe, expect, it } from 'vitest'
 import CardDeal from './CardDeal.svelte'
-import { CARD_RATIO, landAt, layCards, type CardTable } from './cardDeal'
+import { CARD_RATIO, deckSpots, landAt, layCards, type CardTable } from './cardDeal'
 
 const table: CardTable = { width: 700, height: 380, deck: 124 }
+
+describe("a deck's draws on a table in a page", () => {
+  it('keeps the last three in a row between the deck and the discards, whole', () => {
+    for (const t of [table, { width: 520, height: 200, deck: 100 }]) {
+      const { spots, pile } = deckSpots(t)
+      expect(spots).toHaveLength(3)
+      expect(spots[0]!.x).toBeLessThan(spots[1]!.x)
+      expect(spots[1]!.x).toBeLessThan(spots[2]!.x)
+      const w = spots[0]!.width
+      expect(spots[0]!.x - w / 2).toBeGreaterThan(t.deck)
+      expect(spots[2]!.x + w / 2).toBeLessThan(pile.x - pile.width / 2)
+      expect(pile.x + pile.width / 2).toBeLessThanOrEqual(t.width)
+      expect(w * CARD_RATIO).toBeLessThan(t.height)
+      // The cards don't overlap.
+      expect(spots[1]!.x - spots[0]!.x).toBeGreaterThan(w)
+    }
+  })
+
+  it('keeps fewer in sight where there is no room to read three (a side panel)', () => {
+    const { spots } = deckSpots({ width: 272, height: 170, deck: 70 })
+    expect(spots.length).toBeLessThan(3)
+    expect(spots.length).toBeGreaterThanOrEqual(1)
+    expect(spots[0]!.width).toBeGreaterThanOrEqual(60)
+  })
+})
 
 describe('cards laid on the card table', () => {
   it('lays one card in the middle of the table beside the deck, whole', () => {

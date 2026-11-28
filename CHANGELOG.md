@@ -4,6 +4,11 @@ What changes in each release of OpenTabletop, newest first. The format follows [
 
 ## [Unreleased]
 
+### Apps
+
+- **The table in the page**: the Oracle's **Roll** and **Draw** play on a table in the page itself, never a dialog opened and closed for each roll (Map's Oracle panel too, as narrow as the panel). The dice lie where they fell until the next roll; click the table, or throw the dice across it, to roll again. A deck's cards stay on the table, the last three in sight and the one before on **Discards**, until it's shuffled, and **Shuffle** gathers them and riffles there; a spread is dealt face down and turned there. The Oracle never waits for your hand (**Who rolls the dice** is for trips and scenes); the result card shows what came up without drawing the dice or the cards again.
+- **Dice with body**: a d6 and a Fudge die roll as cubes in 3D, a d2 as a coin, landing on the face rolled; the other dice keep their light from above as they turn; a die's face changes as it turns over, no longer flickering.
+
 ## [0.86.0] - 2026-11-28
 
 ### Apps

@@ -113,7 +113,8 @@ describe('important moments up front', () => {
     expect(beat?.entries.some((e) => e.text?.includes('sulphur'))).toBe(true)
     // Drawn just now by the trip, its card is dealt on the card table first, to be watched.
     let html = render(PlayStrip).body.replace(/<!--[^>]*-->/g, '')
-    expect(html).toContain('class="deal')
+    expect(html).toContain('class="table-dialog')
+    expect(html).toContain('class="deck')
     expect(html).not.toContain('class="notable')
     // Then (here: cards that don't move) it's told.
     dicePreferences.setAnimate(false)

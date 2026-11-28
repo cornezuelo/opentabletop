@@ -16,12 +16,18 @@
     resolution,
     top = true,
     thrown = false,
+    onTable = false,
   }: {
     ui: OracleUi
     resolution: Resolution
     top?: boolean
     /** Its dice were thrown on the table already: shown still, not tumbling again. */
     thrown?: boolean
+    /**
+     * Its dice and cards lie on the table above it (the Oracle's page): not drawn again here,
+     * only what they say (and the dice a row rolled inside it, which weren't thrown).
+     */
+    onTable?: boolean
   } = $props()
   const t = $derived(ui.t)
 
@@ -33,8 +39,12 @@
   /** Its dice: those asked for, then those its row rolled inside it, said so. */
   const dice = $derived.by(() => {
     const { asked, inside } = splitRolls(resolution)
-    return [...asked, ...inside.map((r) => ({ ...r, inside: true }))]
+    return [...(onTable ? [] : asked), ...inside.map((r) => ({ ...r, inside: true }))]
   })
+  /** On the table, the dice thrown there: only their sums. */
+  const thrownSums = $derived(
+    onTable ? splitRolls(resolution).asked.filter((r) => r.terms.length) : [],
+  )
   const empty = $derived(!resolution.text && !resolution.entry && !resolution.children.length)
   /** The cards its fields drew (a hand, a spread), laid as it says. */
   const spread = $derived(
@@ -45,7 +55,7 @@
 </script>
 
 <div class="result" class:top>
-  {#if resolution.face}
+  {#if resolution.face && !onTable}
     <!-- A card drawn: its face beside what it says. -->
     <div class="drawn">
       <PlayingCard
@@ -60,7 +70,7 @@
   {:else if empty && top}
     <p class="text muted">{t('roll.nothing')}</p>
   {/if}
-  {#if spread.length > 1 || (spread.length && top)}
+  {#if !onTable && (spread.length > 1 || (spread.length && top))}
     <CardSpread cards={spread} width={top ? 72 : 48} />
   {/if}
   {#if scalars.length}
@@ -73,7 +83,14 @@
       {/each}
     </dl>
   {/if}
-  {#if resolution.rolls.length}
+  {#if onTable && thrownSums.length}
+    <!-- The dice lie on the table above: what they added up to. -->
+    <p class="sums">
+      {#each thrownSums as roll, i (i)}{#if i}<span> · </span>{/if}{roll.expression} =
+        <strong>{roll.total}</strong>{/each}
+    </p>
+  {/if}
+  {#if dice.length}
     <!-- The dice it was rolled with, tumbling as a roll just made appears. -->
     <div class="dice">
       <DiceTray rolls={dice} locale={ui.locale()} large={top} animate={top && !thrown} />
@@ -124,6 +141,16 @@
 
   .muted {
     color: var(--text-muted);
+  }
+
+  .sums {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .sums strong {
+    color: var(--text);
   }
 
   dl {

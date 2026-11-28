@@ -1,13 +1,14 @@
 <script lang="ts">
   import { untrack } from 'svelte'
-  import { landAt, layCards, type CardTable, type LaidCard } from './cardDeal'
+  import { cardTexts, landAt, layCards, type CardTable, type LaidCard } from './cardDeal'
   import { dicePreferences } from './dicePreferences.svelte'
   import { swish } from './diceSound'
-  import { markdownText } from './markdown'
-  import { packImageUrl } from './packImages'
+  import CardBack from './CardBack.svelte'
+  import DeckStack from './DeckStack.svelte'
   import PlayingCard from './PlayingCard.svelte'
-  import { portal } from './portal'
   import StyledText from './StyledText.svelte'
+  import TableCard from './TableCard.svelte'
+  import TableDialog from './TableDialog.svelte'
 
   type Face = import('svelte').ComponentProps<typeof PlayingCard>['face']
 
@@ -70,37 +71,7 @@
     onclose?: () => void
   } = $props()
 
-  const TEXT = {
-    en: {
-      hint: 'Click the deck, or drag its top card onto the table.',
-      spread: 'Click the deck to deal.',
-      turn: 'Click a card to turn it over.',
-      deck: 'The deck: click it to draw',
-      left: '{left} left',
-      drawn: 'Drawn',
-      see: 'See it',
-      close: 'Put away',
-      turnAll: 'Turn all',
-      skip: 'Skip',
-      shuffling: 'Shuffling…',
-      dealing: 'Dealing…',
-    },
-    es: {
-      hint: 'Pulsa el mazo, o arrastra su carta de arriba a la mesa.',
-      spread: 'Pulsa el mazo para repartir.',
-      turn: 'Pulsa una carta para darle la vuelta.',
-      deck: 'El mazo: púlsalo para robar',
-      left: 'Quedan {left}',
-      drawn: 'Robadas',
-      see: 'Verla',
-      close: 'Guardar',
-      turnAll: 'Volver todas',
-      skip: 'Saltar',
-      shuffling: 'Barajando…',
-      dealing: 'Repartiendo…',
-    },
-  }
-  const text = $derived(TEXT[locale as keyof typeof TEXT] ?? TEXT.en)
+  const text = $derived(cardTexts(locale))
 
   const reduced =
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -260,7 +231,6 @@
     return `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${scale})`
   }
 
-  const backUrl = $derived(packImageUrl(back))
   const shownText = $derived(latest >= 0 ? cards[latest]?.caption : undefined)
   const hint = $derived(
     stage === 'hand' && !watch
@@ -273,309 +243,118 @@
   )
 </script>
 
-{#snippet backFace(width: number)}
-  <span class="back" class:picture={backUrl} style:--w="{width}px">
-    {#if backUrl}<img src={backUrl} alt="" draggable="false" />{/if}
-  </span>
-{/snippet}
-
-<div class="deal" use:portal role="dialog" aria-modal="true" aria-label={title || text.deck}>
-  <div class="box">
-    {#if title}<p class="title"><StyledText text={title} /></p>{/if}
-    <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-    <div
-      class="table"
-      bind:this={tableEl}
-      onpointermove={move}
-      onpointerup={release}
-      onclick={() => watch && stage !== 'shuffle' && take()}
-    >
-      <!-- The deck, face down, with the cards it has left. -->
-      <button
-        class="deck"
-        class:ready={stage === 'hand' && !watch}
-        class:riffling
-        style:left="20px"
+<TableDialog {title} label={text.deck} width={720}>
+  <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+  <div
+    class="play-cloth table"
+    bind:this={tableEl}
+    onpointermove={move}
+    onpointerup={release}
+    onclick={() => watch && stage !== 'shuffle' && take()}
+  >
+    <!-- The deck, face down, with the cards it has left. -->
+    <DeckStack
+      width={DECK}
+      {back}
+      x={20}
+      y={table.height / 2}
+      label={text.deck}
+      ready={stage === 'hand' && !watch}
+      waiting
+      {riffling}
+      onpointerdown={down}
+      ondraw={deal}
+    />
+    {#if left !== undefined}
+      <span class="left">{text.left.replace('{left}', String(left))}</span>
+    {/if}
+    {#if shuffled && pile && (stage === 'shuffle' || !moves)}
+      <!-- The last card drawn before, gathered back face down onto the deck. -->
+      <span
+        class="gathered"
+        class:home={gathering || riffling}
+        style:right="24px"
         style:top="{table.height / 2}px"
-        style:--w="{DECK}px"
-        aria-label={text.deck}
-        disabled={stage !== 'hand' || watch}
-        onpointerdown={down}
-        onkeydown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            deal()
-          }
-        }}
+        style:--dx="{-(table.width - 24 - 28 - from.x)}px"
       >
-        {#each [0, 1, 2, 3] as k (k)}
-          <span class="stacked" style:--k={k}>{@render backFace(DECK)}</span>
-        {/each}
-        {#if riffling}
-          {#each Array.from({ length: 10 }, (_, k) => k) as k (k)}
-            <span class="riffle" style:--k={k} class:right={k % 2 === 1}
-              >{@render backFace(DECK)}</span
-            >
-          {/each}
-        {/if}
-      </button>
-      {#if left !== undefined}
-        <span class="left">{text.left.replace('{left}', String(left))}</span>
-      {/if}
-      {#if shuffled && pile && (stage === 'shuffle' || !moves)}
-        <!-- The last card drawn before, gathered back face down onto the deck. -->
-        <span
-          class="card gathered"
-          class:home={gathering || riffling}
-          style:--w="56px"
-          style:right="24px"
-          style:top="{table.height / 2}px"
-          style:--dx="{-(table.width - 24 - 28 - from.x)}px"
-        >
-          <span class="inner" class:up={!gathering && !riffling}>
-            {@render backFace(56)}
-            <span class="front"><PlayingCard face={{ ...pile, turned: false }} width={56} /></span>
-          </span>
-        </span>
-      {/if}
+        <TableCard
+          face={pile}
+          {back}
+          width={56}
+          x={0}
+          y={0}
+          transform="none"
+          up={!gathering && !riffling}
+        />
+      </span>
+    {/if}
 
-      {#if stage !== 'shuffle'}
-        {#each cards as card, i (i)}
-          {@const spot = spots[i]}
-          {#if spot}
-            <!-- A card waiting to be turned is a button; until then it's only drawn. -->
-            <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-            <span
-              class="card"
-              class:flying={moves}
-              class:hidden={!dealt[i] && stage === 'hand'}
-              class:turnable={stage === 'turning' && !up[i] && !watch}
-              class:over={spot.across}
-              style:--w="{spot.width}px"
-              style:left="{spot.x}px"
-              style:top="{spot.y}px"
-              style:transform={placeOf(i)}
-              role={stage === 'turning' && !up[i] && !watch ? 'button' : undefined}
-              tabindex={stage === 'turning' && !up[i] && !watch ? 0 : undefined}
-              onkeydown={(e) => {
-                if (watch || (e.key !== 'Enter' && e.key !== ' ')) return
-                e.preventDefault()
-                turn(i)
-              }}
-              aria-label={up[i] ? markdownText(card.caption ?? '') : undefined}
-              onclick={(e) => {
-                if (watch) return
-                e.stopPropagation()
-                turn(i)
-              }}
-            >
-              <span class="inner" class:up={up[i]} class:turned={card.face.turned}>
-                {@render backFace(spot.width)}
-                <span class="front">
-                  <PlayingCard
-                    face={{ ...card.face, turned: false }}
-                    width={spot.width}
-                    label={markdownText(card.caption ?? '')}
-                  />
-                </span>
-              </span>
-            </span>
-          {/if}
-        {/each}
-      {/if}
-      {#if held}
-        <!-- The top card, in the hand. -->
-        <span
-          class="card held"
-          style:--w="{laid[0]?.width ?? 100}px"
-          style:left="{held.x}px"
-          style:top="{held.y}px"
-          style:transform="translate(-50%, -50%) rotate({Math.max(
-            -12,
-            Math.min(12, (held.x - from.x) / 30),
-          )}deg)"
-        >
-          <span class="inner">{@render backFace(laid[0]?.width ?? 100)}</span>
-        </span>
-      {/if}
-      {#if hint}<p class="hint">{hint}</p>{/if}
-    </div>
-    <div class="foot">
-      <p class="said" aria-live="polite">
-        {#if stage === 'shuffle'}
-          <span class="muted">{text.shuffling}</span>
-        {:else if stage === 'dealing' && latest < 0}
-          <span class="muted">{text.dealing}</span>
-        {:else if shownText}
-          <StyledText text={shownText} />
+    {#if stage !== 'shuffle'}
+      {#each cards as card, i (i)}
+        {@const spot = spots[i]}
+        {#if spot}
+          <TableCard
+            face={card.face}
+            caption={card.caption}
+            {back}
+            width={spot.width}
+            x={spot.x}
+            y={spot.y}
+            transform={placeOf(i)}
+            up={up[i]!}
+            flying={moves}
+            hidden={!dealt[i] && stage === 'hand'}
+            turnable={stage === 'turning' && !up[i] && !watch}
+            over={spot.across}
+            onturn={() => turn(i)}
+          />
         {/if}
-      </p>
-      {#if watch}
-        <button class="button" onclick={take}>{text.skip}</button>
-      {:else}
-        {#if stage === 'turning'}
-          <button class="button" onclick={turnAll}>{text.turnAll}</button>
-        {/if}
-        {#if stage === 'done'}
-          <button class="button primary" onclick={take}>{use || text.see}</button>
-        {/if}
-        <button class="button" onclick={() => onclose?.()}>{close || text.close}</button>
-      {/if}
-    </div>
+      {/each}
+    {/if}
+    {#if held}
+      <!-- The top card, in the hand. -->
+      <span
+        class="in-hand"
+        style:left="{held.x}px"
+        style:top="{held.y}px"
+        style:transform="translate(-50%, -50%) rotate({Math.max(
+          -12,
+          Math.min(12, (held.x - from.x) / 30),
+        )}deg)"
+      >
+        <CardBack width={laid[0]?.width ?? 100} {back} />
+      </span>
+    {/if}
+    {#if hint}<p class="cloth-hint">{hint}</p>{/if}
   </div>
-</div>
+  {#snippet foot()}
+    <p class="said" aria-live="polite">
+      {#if stage === 'shuffle'}
+        <span class="muted">{text.shuffling}</span>
+      {:else if stage === 'dealing' && latest < 0}
+        <span class="muted">{text.dealing}</span>
+      {:else if shownText}
+        <StyledText text={shownText} />
+      {/if}
+    </p>
+    {#if watch}
+      <button class="button" onclick={take}>{text.skip}</button>
+    {:else}
+      {#if stage === 'turning'}
+        <button class="button" onclick={turnAll}>{text.turnAll}</button>
+      {/if}
+      {#if stage === 'done'}
+        <button class="button primary" onclick={take}>{use || text.see}</button>
+      {/if}
+      <button class="button" onclick={() => onclose?.()}>{close || text.close}</button>
+    {/if}
+  {/snippet}
+</TableDialog>
 
 <style>
-  .deal {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    background: rgb(0 0 0 / 0.55);
-  }
-
-  .box {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: min(720px, 100%);
-    padding: 14px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: 10px;
-    box-shadow: 0 12px 40px rgb(0 0 0 / 0.5);
-  }
-
-  .title {
-    margin: 0;
-    font-weight: 600;
-  }
-
-  /* The cloth the cards are dealt on, as the dice's. */
+  /* The cloth the cards are dealt on (the theme's `.play-cloth`). */
   .table {
-    position: relative;
     height: min(380px, 56vh);
-    overflow: hidden;
-    background: radial-gradient(circle at 50% 40%, var(--panel), var(--canvas-bg));
-    border: 2px solid var(--panel-border);
-    border-radius: 12px;
-    touch-action: none;
-    user-select: none;
-    perspective: 1100px;
-  }
-
-  .deck {
-    position: absolute;
-    width: var(--w);
-    height: calc(var(--w) * 1.6);
-    padding: 0;
-    background: none;
-    border: none;
-    border-radius: calc(var(--w) * 0.07);
-    transform: translateY(-50%);
-    cursor: default;
-  }
-
-  .deck.ready {
-    cursor: grab;
-  }
-
-  .deck.ready:active {
-    cursor: grabbing;
-  }
-
-  .deck:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 4px;
-  }
-
-  .stacked {
-    position: absolute;
-    top: calc(var(--k) * -1.5px);
-    left: calc(var(--k) * -1.5px);
-  }
-
-  /* The top card glows while it waits for the hand. */
-  .deck.ready .stacked:last-child .back {
-    animation: glow 1.6s ease-in-out infinite alternate;
-  }
-
-  .deck.ready:hover .stacked:last-child {
-    translate: 0 -5px;
-    transition: translate 0.15s;
-  }
-
-  @keyframes glow {
-    from {
-      box-shadow:
-        0 0 0 1px rgb(200 162 74 / 50%),
-        0 0 6px rgb(200 162 74 / 20%);
-    }
-
-    to {
-      box-shadow:
-        0 0 0 2px var(--accent),
-        0 0 20px rgb(200 162 74 / 50%);
-    }
-  }
-
-  .deck.riffling .stacked {
-    visibility: hidden;
-  }
-
-  /* The riffle: two halves pulled apart, then falling back in turn. */
-  .riffle {
-    position: absolute;
-    top: calc(var(--k) * -1.2px);
-    left: 0;
-    z-index: 2;
-    animation: riffle-left 1.5s ease-in-out both;
-    animation-delay: calc(var(--k) * 15ms);
-  }
-
-  .riffle.right {
-    animation-name: riffle-right;
-  }
-
-  @keyframes riffle-left {
-    0% {
-      transform: translate(0, 0) rotate(0deg);
-    }
-
-    35%,
-    50% {
-      transform: translate(-8px, -12px) rotate(-9deg);
-    }
-
-    75% {
-      transform: translate(54px, 0) rotate(0deg);
-    }
-
-    100% {
-      transform: translate(0, 0) rotate(0deg);
-    }
-  }
-
-  @keyframes riffle-right {
-    0% {
-      transform: translate(0, 0) rotate(0deg);
-    }
-
-    35%,
-    54% {
-      transform: translate(116px, -12px) rotate(9deg);
-    }
-
-    78% {
-      transform: translate(54px, 0) rotate(0deg);
-    }
-
-    100% {
-      transform: translate(0, 0) rotate(0deg);
-    }
   }
 
   .left {
@@ -586,107 +365,27 @@
     color: var(--text-muted);
   }
 
-  /* A card: its back and its face, turned over in 3D. */
-  .card {
+  /* The top card, in the hand. */
+  .in-hand {
     position: absolute;
-    width: var(--w);
-    height: calc(var(--w) * 1.6);
-    transform-style: preserve-3d;
-  }
-
-  .card.flying {
-    transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1);
-  }
-
-  .card.hidden {
-    visibility: hidden;
-  }
-
-  .card.over {
-    z-index: 2;
-  }
-
-  .card.turnable {
-    cursor: pointer;
-  }
-
-  /* Glows and lifts are shadows on the faces, never a filter on the card: a filter flattens
-     the turn in 3D, and the face turned away shows through the one on top. */
-  .card.turnable:hover .inner > :global(*) {
-    box-shadow:
-      0 0 9px 2px rgb(200 162 74 / 55%),
-      0 3px 10px rgb(0 0 0 / 45%);
-  }
-
-  .card.held {
     z-index: 3;
     pointer-events: none;
   }
 
-  .card.held .inner > :global(*) {
+  .in-hand :global(.back) {
     box-shadow: 0 18px 14px rgb(0 0 0 / 50%);
-  }
-
-  .inner {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.3, 0.7, 0.3, 1);
-  }
-
-  .inner.up {
-    transform: rotateY(180deg);
-  }
-
-  /* Reversed, it lands upside down. */
-  .inner.up.turned {
-    transform: rotateY(180deg) rotateZ(180deg);
-  }
-
-  .inner > :global(*) {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-  }
-
-  .front {
-    display: block;
-    transform: rotateY(180deg);
-  }
-
-  .back {
-    display: block;
-    width: var(--w);
-    height: calc(var(--w) * 1.6);
-    overflow: hidden;
-    background:
-      repeating-linear-gradient(45deg, transparent 0 6px, rgb(200 162 74 / 22%) 6px 7px),
-      repeating-linear-gradient(-45deg, transparent 0 6px, rgb(200 162 74 / 22%) 6px 7px),
-      linear-gradient(var(--card-back), var(--card-back-deep));
-    border: 1px solid var(--card-back-edge);
-    border-radius: calc(var(--w) * 0.07);
-    box-shadow: 0 3px 10px rgb(0 0 0 / 45%);
-  }
-
-  .back:not(.picture)::after {
-    position: absolute;
-    inset: 7%;
-    content: '';
-    border: 1px solid rgb(200 162 74 / 55%);
-    border-radius: calc(var(--w) * 0.04);
-  }
-
-  .back img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 
   /* The pile's card going back onto the deck. */
   .gathered {
+    position: absolute;
+    width: 56px;
     transform: translateY(-50%);
     transition: transform 0.5s cubic-bezier(0.4, 0.1, 0.3, 1);
+  }
+
+  .gathered :global(.card) {
+    position: relative;
   }
 
   .gathered.home {
@@ -695,24 +394,6 @@
     transition:
       transform 0.5s cubic-bezier(0.4, 0.1, 0.3, 1),
       opacity 0.1s 0.45s;
-  }
-
-  .hint {
-    position: absolute;
-    top: 10px;
-    right: 0;
-    left: 0;
-    margin: 0;
-    font-size: 13px;
-    color: var(--text-muted);
-    text-align: center;
-    pointer-events: none;
-  }
-
-  .foot {
-    display: flex;
-    gap: 8px;
-    align-items: center;
   }
 
   .said {
@@ -725,12 +406,5 @@
 
   .muted {
     color: var(--text-muted);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .card.flying,
-    .inner {
-      transition: none;
-    }
   }
 </style>

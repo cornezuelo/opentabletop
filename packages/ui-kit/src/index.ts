@@ -65,7 +65,22 @@ export { default as DiceTray } from './DiceTray.svelte'
 export { default as DiceThrow } from './DiceThrow.svelte'
 export { againstLine, againstNeeds, againstVerdict } from './against'
 export { default as DieFace } from './DieFace.svelte'
-export { playThrow, settled, startThrow, stepThrow, type Table, type ThrownDie } from './diceThrow'
+export { default as DieCube } from './DieCube.svelte'
+export { default as TableDialog } from './TableDialog.svelte'
+export {
+  frontFace,
+  playThrow,
+  restOf,
+  settled,
+  solidFaces,
+  solidOf,
+  startThrow,
+  stepThrow,
+  type CubeFace,
+  type Solid,
+  type Table,
+  type ThrownDie,
+} from './diceThrow'
 export { drawRoll, type DieShape, type DrawnDie, type DrawnRoll, type TrayRoll } from './diceTray'
 export { DICE_KEY, DICE_ROLLS, dicePreferences, type DiceRolls } from './dicePreferences.svelte'
 export {
@@ -117,7 +132,18 @@ export { default as WholePicture } from './WholePicture.svelte'
 export { default as PlayingCard } from './PlayingCard.svelte'
 export { default as CardSpread } from './CardSpread.svelte'
 export { default as CardDeal } from './CardDeal.svelte'
-export { layCards, landAt, type CardTable, type LaidCard } from './cardDeal'
+export { default as CardTable } from './CardTable.svelte'
+export { default as CardBack } from './CardBack.svelte'
+export { default as TableCard } from './TableCard.svelte'
+export { default as DeckStack } from './DeckStack.svelte'
+export {
+  cardTexts,
+  deckSpots,
+  layCards,
+  landAt,
+  type CardTable as CardTableSize,
+  type LaidCard,
+} from './cardDeal'
 export { packImageUrl, setPackImages } from './packImages'
 export { default as ImageSlot } from './ImageSlot.svelte'
 export { default as Picture } from './Picture.svelte'

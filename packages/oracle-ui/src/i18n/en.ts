@@ -9,11 +9,8 @@ export const en = {
   },
   roll: {
     roll: 'Roll',
-    see: 'See the result',
-    closeThrow: 'Close',
     draw: 'Draw',
     shuffle: 'Shuffle',
-    remaining: '{left} of {total} cards left',
     context: 'Context',
     contextHelp:
       'Values this definition reads, such as the terrain or the season. Values the app already knows (the cell, the trip) appear in grey; type to override them. Blank means unknown.\n• `forest` for terrain — as if rolled in a forest\n• `3` for danger\n• `night` for timeOfDay',

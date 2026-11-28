@@ -23,6 +23,8 @@ export const CARD_RATIO = 1.6
 
 /** The largest a card is drawn on the table. */
 const MAX_WIDTH = 130
+/** The narrowest a card in sight is drawn, to be read. */
+const MIN_READABLE = 60
 const GAP = 12
 
 export function layCards(
@@ -84,3 +86,72 @@ export function landAt(
     y: Math.round(Math.min(table.height - halfH - GAP, Math.max(halfH + GAP, y))),
   }
 }
+
+/**
+ * Where a deck's draws lie on a table in a page (the Oracle's, docs/cards.md): the last
+ * cards drawn (`most`, or fewer when narrow) in a row between the deck (at the left, `table.deck` wide) and the discard
+ * pile (at the right), the newest at the right; the pile's centre and its cards' width.
+ */
+export function deckSpots(
+  table: CardTable,
+  most = 3,
+): { spots: LaidCard[]; pile: { x: number; y: number; width: number } } {
+  const pileWidth = Math.round(Math.min(64, table.deck * 0.6))
+  const pileX = table.width - GAP - pileWidth / 2 - 8
+  const left = table.deck + GAP
+  const right = pileX - pileWidth / 2 - GAP * 2
+  const room = Math.max(right - left, 60)
+  const widthFor = (n: number) =>
+    Math.floor(Math.min(MAX_WIDTH, room / (n * 1.15), (table.height - GAP * 3) / CARD_RATIO))
+  // As many in sight as there's room for, each wide enough to read (one at the least).
+  let kept = most
+  while (kept > 1 && widthFor(kept) < MIN_READABLE) kept--
+  const width = widthFor(kept)
+  const step = room / kept
+  const y = Math.round(table.height / 2)
+  return {
+    spots: Array.from({ length: kept }, (_, i) => ({
+      x: Math.round(left + step * (i + 0.5)),
+      y,
+      width,
+      across: false,
+    })),
+    pile: { x: Math.round(pileX), y, width: pileWidth },
+  }
+}
+
+/** What the card table says (the dialog's and the page's), in the UI's language. */
+const CARD_TEXT = {
+  en: {
+    hint: 'Click the deck, or drag its top card onto the table.',
+    spread: 'Click the deck to deal.',
+    turn: 'Click a card to turn it over.',
+    deck: 'The deck: click it to draw',
+    left: '{left} left',
+    drawn: 'Drawn',
+    discard: 'Discards',
+    see: 'See it',
+    close: 'Put away',
+    turnAll: 'Turn all',
+    skip: 'Skip',
+    shuffling: 'Shuffling…',
+    dealing: 'Dealing…',
+  },
+  es: {
+    hint: 'Pulsa el mazo, o arrastra su carta de arriba a la mesa.',
+    spread: 'Pulsa el mazo para repartir.',
+    turn: 'Pulsa una carta para darle la vuelta.',
+    deck: 'El mazo: púlsalo para robar',
+    left: 'Quedan {left}',
+    drawn: 'Robadas',
+    discard: 'Descartes',
+    see: 'Verla',
+    close: 'Guardar',
+    turnAll: 'Voltear todas',
+    skip: 'Saltar',
+    shuffling: 'Barajando…',
+    dealing: 'Repartiendo…',
+  },
+}
+export const cardTexts = (locale: string) =>
+  CARD_TEXT[locale as keyof typeof CARD_TEXT] ?? CARD_TEXT.en

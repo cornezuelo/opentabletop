@@ -1,6 +1,6 @@
 # Oráculo en el mapa
 
-El botón de Oráculo (el hexágono dorado bajo Jugar y el Mundo, o <kbd>O</kbd>) abre un panel para tirar cualquier tabla, oráculo, generador o mazo de tus packs sin salir del mapa. Su lista tiene el buscador y el **Filtrar** de la aplicación Oráculo (tipos y etiquetas; `−rules` deja lo que tirarías a mano), y los dos recuerdan el mismo filtro: mira los [Primeros pasos](../oracle/01-getting-started.md) del Oráculo.
+El botón de Oráculo (el hexágono dorado bajo Jugar y el Mundo, o <kbd>O</kbd>) abre un panel para tirar cualquier tabla, oráculo, generador o mazo de tus packs sin salir del mapa. Su lista tiene el buscador y el **Filtrar** de la aplicación Oráculo (tipos y etiquetas; `−rules` deja lo que tirarías a mano), y los dos recuerdan el mismo filtro: mira los [Primeros pasos](../oracle/01-getting-started.md) del Oráculo. Los dados y las cartas quedan sobre una mesa en el panel, como en la aplicación Oráculo, tan estrecha como el panel (un mazo deja menos cartas a la vista): mira [Tirar](../oracle/02-rolling.md).
 
 ## Los packs de un mapa
 

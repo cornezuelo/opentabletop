@@ -3,7 +3,19 @@ import { seeded } from '@open-tabletop/random'
 import { render } from 'svelte/server'
 import { describe, expect, it } from 'vitest'
 import DiceThrow from './DiceThrow.svelte'
-import { playThrow, settled, startThrow, stepThrow, type Table } from './diceThrow'
+import {
+  frontFace,
+  oppositeFace,
+  playThrow,
+  restingAngle,
+  restOf,
+  solidFaces,
+  solidOf,
+  settled,
+  startThrow,
+  stepThrow,
+  type Table,
+} from './diceThrow'
 
 const table: Table = { width: 600, height: 360, size: 64 }
 const random = () => {
@@ -50,6 +62,55 @@ describe('a throw of dice', () => {
     let now = dice
     for (let i = 0; i < 10; i++) now = stepThrow(now, table, 1 / 60).dice
     expect(now[0]!.x).toBeGreaterThan(dice[0]!.x)
+  })
+})
+
+describe('dice with body', () => {
+  it('turn their face over now and then, not every frame', () => {
+    const frames = playThrow(startThrow(2, table, random()), table)
+    const last = frames.at(-1)!.dice
+    // Many frames, far fewer faces: a few a second at most.
+    for (const d of last) expect(d.turns).toBeLessThan((frames.length / 60) * 12)
+  })
+
+  it('roll over in 3D the way they move, faster in the air', () => {
+    const dice = startThrow(1, table, random(), { x: 1400, y: 0 }, { x: 100, y: 200 })
+    const later = stepThrow(dice, table, 1 / 60).dice[0]!
+    expect(later.ry).toBeGreaterThan(dice[0]!.ry)
+  })
+
+  it('come to rest on a face: the one turned towards the eye', () => {
+    expect(restingAngle(44)).toBe(0)
+    expect(restingAngle(-134)).toBe(-90)
+    expect(frontFace(0, 0)).toBe('front')
+    expect(frontFace(0, 90)).toBe('left')
+    expect(frontFace(0, -90)).toBe('right')
+    expect(frontFace(0, 180)).toBe('back')
+    expect(frontFace(90, 0)).toBe('bottom')
+    expect(frontFace(-90, 0)).toBe('top')
+    expect(frontFace(360 * 3 + 90, 720)).toBe('bottom')
+    expect(oppositeFace('top')).toBe('bottom')
+  })
+
+  it('a cube or a coin lands showing what was rolled, a d6 as a real one', () => {
+    expect(solidOf(6)).toBe('cube')
+    expect(solidOf('fudge')).toBe('cube')
+    expect(solidOf('coin')).toBe('coin')
+    expect(solidOf(20)).toBeUndefined()
+    const frames = playThrow(startThrow(1, table, random()), table)
+    const rest = restOf('cube', frames.at(-1)!.dice[0]!)
+    const faces = solidFaces('cube', { sides: '6', face: '5' }, rest, random())
+    const up = frontFace(rest.rx, rest.ry)
+    expect(faces[up]).toBe('5')
+    expect(faces[oppositeFace(up)]).toBe('2')
+    expect(Object.values(faces).sort()).toEqual(['1', '2', '3', '4', '5', '6'])
+    // A coin rests flat, its face up the one rolled.
+    const coin = restOf('coin', { rx: 530, ry: 40 })
+    expect(coin).toEqual({ rx: 540, ry: 0 })
+    expect(solidFaces('coin', { sides: '2', face: '2' }, coin, random())).toEqual({
+      back: '2',
+      front: '1',
+    })
   })
 })
 

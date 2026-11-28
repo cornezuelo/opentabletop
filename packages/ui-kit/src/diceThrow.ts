@@ -4,6 +4,7 @@
  * until it stops. Pure and step by step, so a component draws it frame by frame and a test
  * plays it to the end. Randomness comes from `random` (a number in [0, 1)), never inside.
  */
+import { rollingFace, type DieShape } from './diceTray'
 
 /** One die on the table. */
 export interface ThrownDie {
@@ -17,7 +18,16 @@ export interface ThrownDie {
   /** How high it is off the table (it falls, and hops on a bounce), drawn as its size. */
   z: number
   vz: number
-  /** Faces it has shown so far: one more each time it turns over (a bounce, a quarter spin). */
+  /**
+   * How far it has rolled over, in degrees about the table's x and y axes (a cube's or a
+   * coin's turn in 3D): rolling along the cloth, faster tumbling in the air.
+   */
+  rx: number
+  ry: number
+  /**
+   * Faces it has shown so far: one more each time it turns over (a hard landing, a knock, half
+   * a turn of its spin), never every frame, so a flat die's face changes as a real one would.
+   */
   turns: number
   /** Whether it has stopped. */
   still: boolean
@@ -75,6 +85,8 @@ export function startThrow(
     spin: (random() < 0.5 ? -1 : 1) * (500 + random() * 700),
     z: table.size * 1.4,
     vz: 300 + random() * 300,
+    rx: random() * 360,
+    ry: random() * 360,
     turns: 0,
     still: false,
   }))
@@ -83,7 +95,8 @@ export function startThrow(
 /** The throw `dt` seconds later (small steps: a frame's). */
 export function stepThrow(dice: readonly ThrownDie[], table: Table, dt: number): ThrowStep {
   let knock = 0
-  const half = table.size / 2
+  // A die turned on the cloth reaches further than half its side: kept whole, turned or not.
+  const half = table.size * 0.62
   const next = dice.map((d) => {
     if (d.still) return d
     const n = { ...d }
@@ -104,9 +117,13 @@ export function stepThrow(dice: readonly ThrownDie[], table: Table, dt: number):
     n.vx *= keep
     n.vy *= keep
     n.spin *= Math.pow(onTable ? 0.25 : 0.95, dt)
-    const before = Math.floor(n.angle / 90)
+    const before = Math.floor(n.angle / 180)
     n.angle += n.spin * dt
-    if (Math.floor(n.angle / 90) !== before) n.turns++
+    if (Math.floor(n.angle / 180) !== before) n.turns++
+    // A quarter turn over for each side's length it rolls; tumbling faster in the air.
+    const roll = (onTable ? 1 : 1.6) * (90 / table.size) * dt
+    n.rx -= n.vy * roll
+    n.ry += n.vx * roll
     n.x += n.vx * dt
     n.y += n.vy * dt
     // The table's edges.
@@ -174,6 +191,57 @@ export function stepThrow(dice: readonly ThrownDie[], table: Table, dt: number):
   return { dice: kept, knock }
 }
 
+/** An angle turned to the nearest quarter turn: where a cube or a coin comes to rest. */
+export const restingAngle = (degrees: number): number => Math.round(degrees / 90) * 90
+
+/** A cube's faces, as `DieCube` lays them: front, back, right, left, top, bottom. */
+export const CUBE_FACES = ['front', 'back', 'right', 'left', 'top', 'bottom'] as const
+export type CubeFace = (typeof CUBE_FACES)[number]
+/** Each face's outward direction in the cube's own space (CSS axes: y down, z to the eye). */
+const NORMALS: Record<CubeFace, [number, number, number]> = {
+  front: [0, 0, 1],
+  back: [0, 0, -1],
+  right: [1, 0, 0],
+  left: [-1, 0, 0],
+  top: [0, -1, 0],
+  bottom: [0, 1, 0],
+}
+
+/**
+ * The face of a cube turned `rotateX(rx) rotateY(ry)` that looks at the eye (the one most
+ * turned towards it): the face it shows lying on the table, seen from above.
+ */
+export function frontFace(rx: number, ry: number): CubeFace {
+  const z = facing(rx, ry)
+  return CUBE_FACES.reduce((best, face) => (z[face] > z[best] + 1e-9 ? face : best), 'front')
+}
+
+/**
+ * How much each face of a cube turned `rotateX(rx) rotateY(ry)` looks at the eye, from 1
+ * (straight at it) to -1 (away): its light, as the cube turns.
+ */
+export function facing(rx: number, ry: number): Record<CubeFace, number> {
+  const [sx, cx] = [Math.sin((rx * Math.PI) / 180), Math.cos((rx * Math.PI) / 180)]
+  const [sy, cy] = [Math.sin((ry * Math.PI) / 180), Math.cos((ry * Math.PI) / 180)]
+  return Object.fromEntries(
+    CUBE_FACES.map((face) => {
+      const [nx, ny, nz] = NORMALS[face]
+      return [face, sx * ny + cx * (-sy * nx + cy * nz)]
+    }),
+  ) as Record<CubeFace, number>
+}
+
+/** The face opposite another on a cube. */
+export const oppositeFace = (face: CubeFace): CubeFace =>
+  ({
+    front: 'back',
+    back: 'front',
+    right: 'left',
+    left: 'right',
+    top: 'bottom',
+    bottom: 'top',
+  })[face] as CubeFace
+
 /** Whether every die has stopped. */
 export const settled = (dice: readonly ThrownDie[]) => dice.every((d) => d.still)
 
@@ -203,4 +271,61 @@ export function playThrow(
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n))
+}
+
+/** A die drawn as a solid in 3D (`DieCube`): a cube, a coin, or none (drawn flat, `DieFace`). */
+export type Solid = 'cube' | 'coin'
+export const solidOf = (shape: DieShape): Solid | undefined =>
+  shape === 6 || shape === 'fudge' ? 'cube' : shape === 'coin' ? 'coin' : undefined
+
+/** Where a solid comes to rest from how it lay when it stopped: on a face, flat. */
+export function restOf(solid: Solid, d: Pick<ThrownDie, 'rx' | 'ry'>): { rx: number; ry: number } {
+  return solid === 'coin'
+    ? { rx: Math.round(d.rx / 180) * 180, ry: 0 }
+    : { rx: restingAngle(d.rx), ry: restingAngle(d.ry) }
+}
+
+/**
+ * What each side of a solid shows, so that resting at `rest` it shows `face` (what was
+ * rolled): a d6 as a real one (opposite sides adding up to 7), Fudge's pairs opposite each
+ * other, a coin its other side; any other die (a d3 rolled as a d6) its other faces at random.
+ */
+export function solidFaces(
+  solid: Solid,
+  die: { sides: string; face: string },
+  rest: { rx: number; ry: number },
+  random: () => number,
+): Partial<Record<CubeFace, string>> {
+  const other = () => {
+    for (let i = 0; i < 12; i++) {
+      const f = rollingFace(die, random())
+      if (f !== die.face) return f
+    }
+    return ''
+  }
+  if (solid === 'coin') {
+    const up: CubeFace = Math.abs(Math.round(rest.rx / 180)) % 2 === 0 ? 'front' : 'back'
+    return { [up]: die.face, [oppositeFace(up)]: other() }
+  }
+  const front = frontFace(rest.rx, rest.ry)
+  const back = oppositeFace(front)
+  const around = CUBE_FACES.filter((f) => f !== front && f !== back)
+  let opposite: string
+  let rest4: string[]
+  if (die.sides === '6' && /^[1-6]$/.test(die.face)) {
+    const n = Number(die.face)
+    opposite = String(7 - n)
+    rest4 = ['1', '2', '3', '4', '5', '6'].filter((f) => f !== die.face && f !== opposite)
+  } else if (die.sides === 'F') {
+    opposite = die.face === '+' ? '−' : die.face === '−' ? '+' : ''
+    rest4 = die.face === '' ? ['+', '−', '+', '−'] : ['', '', die.face, opposite]
+  } else {
+    opposite = other()
+    rest4 = around.map(() => other())
+  }
+  return {
+    [front]: die.face,
+    [back]: opposite,
+    ...Object.fromEntries(around.map((f, i) => [f, rest4[i]!])),
+  }
 }

@@ -6,7 +6,9 @@
    * solid of its own as the one it's rolled with, a d3 as a d6) with a face, lit from above;
    * with no face yet (in the hand, before it's thrown), what it is in the face's place
    * (_d6_). Sized by `--die` (the dice tray's, the throw's). `dropped` fades it, outline dashed (a keep
-   * left it out); `tumble` rolls it in as it appears, `delay` and `duration` in ms.
+   * left it out); `tumble` rolls it in as it appears, `delay` and `duration` in ms. `turned`
+   * (degrees) is how far it's turned where it's drawn: its light stays above, so a die
+   * spinning on the table is lit as a solid would be.
    */
   let {
     shape,
@@ -17,6 +19,7 @@
     tumble = false,
     delay,
     duration,
+    turned = 0,
   }: {
     shape: DieShape
     /** What it is (`6`, `3`, `%`, `F`), written on it while it has no face. */
@@ -28,6 +31,8 @@
     tumble?: boolean
     delay?: number
     duration?: number
+    /** How far it's turned on the table (degrees): its light stays above while it turns. */
+    turned?: number
   } = $props()
 
   /** Each shape's outline, in a 40 × 40 box. */
@@ -58,7 +63,14 @@
   aria-label={label}
 >
   <defs>
-    <linearGradient id={lit} x1="0" y1="0" x2="0.6" y2="1">
+    <linearGradient
+      id={lit}
+      x1="0"
+      y1="0"
+      x2="0.6"
+      y2="1"
+      gradientTransform={turned ? `rotate(${-turned} 0.5 0.5)` : undefined}
+    >
       <stop offset="0" class="light" />
       <stop offset="1" class="shade" />
     </linearGradient>

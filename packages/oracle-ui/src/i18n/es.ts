@@ -12,11 +12,8 @@ export const es: Messages<typeof en> = {
   },
   roll: {
     roll: 'Tirar',
-    see: 'Ver el resultado',
-    closeThrow: 'Cerrar',
     draw: 'Robar',
     shuffle: 'Barajar',
-    remaining: 'Quedan {left} de {total} cartas',
     context: 'Contexto',
     contextHelp:
       'Valores que lee esta definición, como el terreno o la estación. Los que la aplicación ya conoce (la casilla, el viaje) aparecen en gris; escribe para cambiarlos. En blanco significa desconocido.\n• `forest` en terrain — como si se tirara en un bosque\n• `3` en danger\n• `night` en timeOfDay',
